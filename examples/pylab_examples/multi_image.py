@@ -1,8 +1,12 @@
-'''
+"""
+===========
+Multi Image
+===========
+
 Make a set of images with a single colormap, norm, and colorbar.
 
 It also illustrates colorbar tick labelling with a multiplier.
-'''
+"""
 
 from matplotlib.pyplot import figure, show, axes, sci
 from matplotlib import cm, colors

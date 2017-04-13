@@ -1,4 +1,8 @@
 """
+==========
+Fonts Demo
+==========
+
 Show how to set custom font properties.
 
 For interactive users, you can also use kwargs to the text command,

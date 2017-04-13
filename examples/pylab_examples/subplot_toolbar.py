@@ -1,3 +1,9 @@
+"""
+===============
+Subplot Toolbar
+===============
+
+"""
 import matplotlib.pyplot as plt
 import numpy.random as rnd
 

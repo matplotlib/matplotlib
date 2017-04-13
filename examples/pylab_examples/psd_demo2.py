@@ -1,4 +1,10 @@
-# This example shows the effects of some of the different PSD parameters
+"""
+=========
+Psd Demo2
+=========
+
+This example shows the effects of some of the different PSD parameters
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

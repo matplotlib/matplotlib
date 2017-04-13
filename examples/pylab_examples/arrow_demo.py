@@ -1,4 +1,9 @@
-"""Arrow drawing example for the new fancy_arrow facilities.
+"""
+==========
+Arrow Demo
+==========
+
+Arrow drawing example for the new fancy_arrow facilities.
 
 Code contributed by: Rob Knight <rob@spot.colorado.edu>
 

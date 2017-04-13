@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ============
 Rainbow text
@@ -21,6 +20,8 @@ following question:
     Thanks.
 
 Paul Ivanov responded with this answer:
+
+-*- coding: utf-8 -*-
 """
 import matplotlib.pyplot as plt
 from matplotlib import transforms

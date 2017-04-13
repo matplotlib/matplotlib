@@ -1,3 +1,9 @@
+"""
+===============
+Pyplot Mathtext
+===============
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 t = np.arange(0.0, 2.0, 0.01)

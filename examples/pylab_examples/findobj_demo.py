@@ -1,4 +1,8 @@
 """
+============
+Findobj Demo
+============
+
 Recursively find all objects that match some criteria
 """
 import numpy as np

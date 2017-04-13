@@ -1,4 +1,8 @@
 """
+==========================
+Tricontour Smooth Delaunay
+==========================
+
 Demonstrates high-resolution tricontouring of a random set of points ;
 a matplotlib.tri.TriAnalyzer is used to improve the plot quality.
 

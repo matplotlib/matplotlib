@@ -1,4 +1,11 @@
-"""Displays an MRI image."""
+"""
+========
+Mri Demo
+========
+
+Displays an MRI image.
+"""
+
 
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook

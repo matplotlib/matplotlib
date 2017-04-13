@@ -1,4 +1,10 @@
-# use masked arrays to plot a line with different colors by y-value
+"""
+===============
+Color By Yvalue
+===============
+
+use masked arrays to plot a line with different colors by y-value
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

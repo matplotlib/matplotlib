@@ -1,4 +1,8 @@
 """
+============
+Customize Rc
+============
+
 I'm not trying to make a good looking figure here, but just to show
 some examples of customizing rc params on the fly
 

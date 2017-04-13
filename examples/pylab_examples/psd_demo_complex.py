@@ -1,4 +1,9 @@
-"""This is a ported version of a MATLAB example from the signal
+"""
+================
+Psd Demo Complex
+================
+
+This is a ported version of a MATLAB example from the signal
 processing toolbox that showed some difference at one time between
 Matplotlib's and MATLAB's scaling of the PSD.
 

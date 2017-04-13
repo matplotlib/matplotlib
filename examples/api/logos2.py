@@ -1,7 +1,9 @@
 """
-==========
-matplotlib
-==========
+================
+Matplotlib Logos
+================
+
+Displays some matplotlib logos.
 
 Thanks to Tony Yu <tsyu80@gmail.com> for the logo design
 """

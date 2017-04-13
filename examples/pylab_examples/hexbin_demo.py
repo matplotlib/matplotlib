@@ -1,4 +1,8 @@
 """
+===========
+Hexbin Demo
+===========
+
 hexbin is an axes method or pyplot function that is essentially
 a pcolor of a 2-D histogram with hexagonal cells.  It can be
 much more informative than a scatter plot; in the first subplot

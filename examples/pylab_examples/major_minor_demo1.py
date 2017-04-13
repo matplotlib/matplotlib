@@ -1,4 +1,8 @@
 """
+=================
+Major Minor Demo1
+=================
+
 Demonstrate how to use major and minor tickers.
 
 The two relevant userland classes are Locators and Formatters.

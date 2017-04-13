@@ -1,4 +1,8 @@
 '''
+===========
+Transoffset
+===========
+
 This illustrates the use of transforms.offset_copy to
 make a transform that positions a drawing element such as
 a text string at a specified offset in screen coordinates

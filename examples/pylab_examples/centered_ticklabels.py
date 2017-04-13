@@ -1,16 +1,22 @@
-# sometimes it is nice to have ticklabels centered.  mpl currently
-# associates a label with a tick, and the label can be aligned
-# 'center', 'left', or 'right' using the horizontal alignment property:
-#
-#
-#   for label in ax.xaxis.get_xticklabels():
-#       label.set_horizontalalignment('right')
-#
-#
-# but this doesn't help center the label between ticks.  One solution
-# is to "face it".  Use the minor ticks to place a tick centered
-# between the major ticks.  Here is an example that labels the months,
-# centered between the ticks
+"""
+===================
+Centered Ticklabels
+===================
+
+sometimes it is nice to have ticklabels centered.  mpl currently
+associates a label with a tick, and the label can be aligned
+'center', 'left', or 'right' using the horizontal alignment property:
+
+
+for label in ax.xaxis.get_xticklabels():
+label.set_horizontalalignment('right')
+
+
+but this doesn't help center the label between ticks.  One solution
+is to "face it".  Use the minor ticks to place a tick centered
+between the major ticks.  Here is an example that labels the months,
+centered between the ticks
+"""
 
 import numpy as np
 import matplotlib.cbook as cbook

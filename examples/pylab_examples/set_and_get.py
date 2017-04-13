@@ -1,4 +1,7 @@
 """
+===========
+Set And Get
+===========
 
 The pyplot interface allows you to use setp and getp to set and get
 object properties, as well as to do introspection on the object

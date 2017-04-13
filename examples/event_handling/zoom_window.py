@@ -1,4 +1,8 @@
 """
+===========
+Zoom Window
+===========
+
 This example shows how to connect events in one window, for example, a mouse
 press, to another figure window.
 

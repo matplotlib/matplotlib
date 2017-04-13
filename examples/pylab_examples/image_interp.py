@@ -1,4 +1,8 @@
 """
+============
+Image Interp
+============
+
 The same (small) array, interpolated with three different
 interpolation methods.
 

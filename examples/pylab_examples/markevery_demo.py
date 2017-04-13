@@ -1,4 +1,8 @@
 """
+==============
+Markevery Demo
+==============
+
 This example demonstrates the various options for showing a marker at a
 subset of data points using the `markevery` property of a Line2D object.
 

@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+=============
+Text Commands
+=============
+
+-*- coding: utf-8 -*-
+"""
 import matplotlib.pyplot as plt
 
 fig = plt.figure()

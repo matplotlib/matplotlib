@@ -1,3 +1,9 @@
+"""
+=============
+Demo Axes Rgb
+=============
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

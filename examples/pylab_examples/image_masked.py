@@ -1,4 +1,8 @@
 """
+============
+Image Masked
+============
+
 imshow with masked array input and out-of-range colors.
 
 The second subplot illustrates the use of BoundaryNorm to

@@ -1,4 +1,8 @@
 """
+=========
+Spy Demos
+=========
+
 Plot the sparsity pattern of arrays
 """
 

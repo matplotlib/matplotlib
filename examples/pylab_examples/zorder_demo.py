@@ -1,4 +1,8 @@
 """
+===========
+Zorder Demo
+===========
+
 The default drawing order for axes is patches, lines, text.  This
 order is determined by the zorder attribute.  The following defaults
 are set

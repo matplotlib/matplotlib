@@ -1,4 +1,9 @@
-"""Examples illustrating the use of plt.subplots().
+"""
+=============
+Subplots Demo
+=============
+
+Examples illustrating the use of plt.subplots().
 
 This function creates a figure and a grid of subplots with a single call, while
 providing reasonable control over how the individual plots are created.  For

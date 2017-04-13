@@ -1,3 +1,9 @@
+"""
+==============
+Demo Bboximage
+==============
+
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.image import BboxImage

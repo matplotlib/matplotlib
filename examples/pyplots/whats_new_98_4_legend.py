@@ -1,3 +1,9 @@
+"""
+=====================
+Whats New 98 4 Legend
+=====================
+
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 

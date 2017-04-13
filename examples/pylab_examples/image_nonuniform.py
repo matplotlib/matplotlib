@@ -1,8 +1,12 @@
-'''
+"""
+================
+Image Nonuniform
+================
+
 This illustrates the NonUniformImage class.  It is not
 available via an Axes method but it is easily added to an
 Axes instance as shown here.
-'''
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

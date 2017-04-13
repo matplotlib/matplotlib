@@ -1,4 +1,8 @@
 """
+==================
+Ellipse With Units
+==================
+
 Compare the ellipse generated with arcs versus a polygonal approximation
 """
 from basic_units import cm

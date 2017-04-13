@@ -1,4 +1,10 @@
-# override the default reporting of coords
+"""
+=============
+Coords Report
+=============
+
+override the default reporting of coords
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np

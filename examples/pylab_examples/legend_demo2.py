@@ -1,4 +1,10 @@
-# Make a legend for specific lines.
+"""
+============
+Legend Demo2
+============
+
+Make a legend for specific lines.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 

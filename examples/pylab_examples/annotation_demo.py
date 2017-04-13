@@ -1,4 +1,8 @@
 """
+===============
+Annotation Demo
+===============
+
 Some examples of how to annotate points in figures.  You specify an
 annotation point xy=(x,y) and a text point xytext=(x,y) for the
 annotated points and text location, respectively.  Optionally, you can

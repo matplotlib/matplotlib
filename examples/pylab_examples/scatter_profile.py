@@ -1,4 +1,10 @@
 """
+===============
+Scatter Profile
+===============
+
+Generate a scatterplot.
+
 N       Classic     Base renderer    Ext renderer
 20       0.22           0.14            0.14
 100      0.16           0.14            0.13

@@ -1,4 +1,8 @@
 """
+==============
+Barchart Demo2
+==============
+
 Thanks Josh Hemann for the example
 
 This examples comes from an application in which grade school gym

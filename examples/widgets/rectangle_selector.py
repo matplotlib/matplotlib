@@ -1,3 +1,9 @@
+"""
+==================
+Rectangle Selector
+==================
+
+"""
 from __future__ import print_function
 """
 Do a mouseclick somewhere, move the mouse to some destination, release
