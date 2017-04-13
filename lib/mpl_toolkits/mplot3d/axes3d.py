@@ -593,11 +593,11 @@ class Axes3D(Axes):
 
         """
         if limit is not None:
-            converted_limits = convert(limit)
-            if (isinstance(limit, float) and
-                    (not np.isreal(limit) or not np.isfinite(limit))):
+            converted_limit = convert(limit)
+            if (isinstance(converted_limit, float) and
+                    (not np.isreal(converted_limit) or not np.isfinite(converted_limit))):
                 raise ValueError("Axis limits cannot be NaN or Inf")
-            return converted_limits
+            return converted_limit
 
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
         """
