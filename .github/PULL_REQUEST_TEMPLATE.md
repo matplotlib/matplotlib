@@ -2,8 +2,9 @@ Thank you so much for your PR! To help us review, please make use of our
 [development guide](http://matplotlib.org/devdocs/devel/coding_guide.html#documentation) and fill out the form to the best of your ability. 
 
 **PR Summary**
+- Please use a title that describes the bug being fixed or the feature being implemented-for example "Raises ValueError on Non-Numeric Input to set_xlim"
+- Please provide at least 1-2 sentences describing the pull request in detail. 
 
-- Please provide at least 1-2 sentences describing the pull request. 
 - What type of PR is this?
     - [ ] library bug fix 
     - [ ] documentation bug fix
@@ -23,5 +24,4 @@ Thank you so much for your PR! To help us review, please make use of our
 - [ ] change the API in a backward-incompatible way: documented it in [doc/api/api_changes.rst](../doc/api/api_changes)
 
 We understand that PRs can sometimes feel like a guantlet, especially as the reviews start coming in. Please let us know 
-if the reviews are unclear or the recommended next step is too ardous, and if you'd like help in addressing a reveiwers 
-comments. And ping us if you've been waiting too long to hear back on your PR!
+if the reviews are unclear or the recommended next step is overwhelming, or if you would like help in addressing a reviewer's comments. And please ping us if you've been waiting too long to hear back on your PR!
