@@ -1,7 +1,7 @@
 """
-==================
-Mpl With Glade 316
-==================
+=========================
+Matplotlib With Glade 316
+=========================
 
 """
 from gi.repository import Gtk

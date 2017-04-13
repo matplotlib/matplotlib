@@ -1,7 +1,7 @@
 """
-=====================
-Whats New 98 4 Legend
-=====================
+=======================
+Whats New 0.98.4 Legend
+=======================
 
 """
 import matplotlib.pyplot as plt

@@ -1,7 +1,9 @@
-'''
-===========
-Toolmanager
-===========
+"""
+.. _user_interfaces-toolmanager:
+
+============
+Tool Manager
+============
 
 This example demonstrates how to:
 
@@ -9,8 +11,9 @@ This example demonstrates how to:
 * Create tools
 * Add tools
 * Remove tools
+
 Using `matplotlib.backend_managers.ToolManager`
-'''
+"""
 
 
 from __future__ import print_function

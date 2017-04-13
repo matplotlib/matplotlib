@@ -1,6 +1,6 @@
 """
 ===========
-Mathtext Wx
+MathText WX
 ===========
 
 Demonstrates how to convert mathtext to a wx.Bitmap for display in various

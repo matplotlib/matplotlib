@@ -1,6 +1,6 @@
 """
 ========
-Mri Demo
+MRI Demo
 ========
 
 Displays an MRI image.

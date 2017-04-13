@@ -1,6 +1,6 @@
 """
 ==============
-Demo Bboximage
+Demo BboxImage
 ==============
 
 """

@@ -1,14 +1,16 @@
 """
+.. _user_interfaces-embedding_in_qt4:
+
 ================
-Embedding In Qt4
+Embedding In QT4
 ================
 
-Simple Qt4 application embedding matplotlib canvases
+Simple Qt4 application embedding Matplotlib canvases
 
 Copyright (C) 2005 Florent Rougon
               2006 Darren Dale
 
-This file is an example program for matplotlib. It may be used and
+This file is an example program for Matplotlib. It may be used and
 modified with no restriction; raw copies as well as modified versions
 may be distributed without limitation.
 """

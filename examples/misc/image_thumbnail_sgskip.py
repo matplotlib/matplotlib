@@ -1,5 +1,7 @@
 # -*- noplot -*-
 """
+.. _misc-image_thumbnail:
+
 ===============
 Image Thumbnail
 ===============

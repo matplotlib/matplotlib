@@ -21,15 +21,15 @@ because you may want to make the tick labels smaller on the upper
 axes, e.g., in the example below.
 
 If you want to turn off the ticklabels for a given axes (e.g., on
-subplot(211) or subplot(212), you cannot do the standard trick
+subplot(211) or subplot(212), you cannot do the standard trick::
 
    setp(ax2, xticklabels=[])
 
 because this changes the tick Formatter, which is shared among all
 axes.  But you can alter the visibility of the labels, which is a
-property
+property::
 
-  setp( ax2.get_xticklabels(), visible=False)
+  setp(ax2.get_xticklabels(), visible=False)
 
 """
 import matplotlib.pyplot as plt

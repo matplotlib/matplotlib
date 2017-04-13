@@ -4,19 +4,19 @@ Markevery Demo
 ==============
 
 This example demonstrates the various options for showing a marker at a
-subset of data points using the `markevery` property of a Line2D object.
+subset of data points using the ``markevery`` property of a Line2D object.
 
-Integer arguments are fairly intuitive.  e.g. `markevery`=5 will plot every
+Integer arguments are fairly intuitive.  e.g. ``markevery=5`` will plot every
 5th marker starting from the first data point.
 
 Float arguments allow markers to be spaced at approximately equal distances
 along the line.  The theoretical distance along the line between markers is
 determined by multiplying the display-coordinate distance of the axes
-bounding-box diagonal by the value of `markevery`.  The data points closest
+bounding-box diagonal by the value of ``markevery``.  The data points closest
 to the theoretical distances will be shown.
 
-A slice or list/array can also be used with `markevery` to specify the markers
-to show.
+A slice or list/array can also be used with ``markevery`` to specify the
+markers to show.
 
 """
 

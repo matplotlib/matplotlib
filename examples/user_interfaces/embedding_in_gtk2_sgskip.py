@@ -1,6 +1,8 @@
 """
+.. _user_interfaces-embedding_in_gtk2:
+
 =================
-Embedding In Gtk2
+Embedding In GTK2
 =================
 
 show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget and

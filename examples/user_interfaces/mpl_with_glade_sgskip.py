@@ -1,7 +1,9 @@
 """
-==============
-Mpl With Glade
-==============
+.. _user_interfaces-mpl_with_glade:
+
+=====================
+Matplotlib With Glade
+=====================
 
 """
 from __future__ import print_function

@@ -3,7 +3,7 @@
 Axis Equal Demo
 ===============
 
-This example is only interesting when ran in interactive mode
+This example is only interesting when run in interactive mode.
 
 """
 

@@ -1,7 +1,7 @@
 """
-========
-Anscombe
-========
+==================
+Anscombe's Quartet
+==================
 
 """
 from __future__ import print_function

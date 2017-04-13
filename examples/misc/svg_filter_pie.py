@@ -1,6 +1,6 @@
 """
 ==============
-Svg Filter Pie
+SVG Filter Pie
 ==============
 
 Demonstrate SVG filtering effects which might be used with mpl.

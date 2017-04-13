@@ -1,6 +1,6 @@
 """
 ==============
-Contour Manual
+Manual Contour
 ==============
 
 Example of displaying your own contour lines and polygons using ContourSet.

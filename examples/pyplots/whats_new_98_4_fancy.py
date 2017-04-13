@@ -1,7 +1,7 @@
 """
-====================
-Whats New 98 4 Fancy
-====================
+======================
+Whats New 0.98.4 Fancy
+======================
 
 """
 import matplotlib.patches as mpatch

@@ -3,17 +3,14 @@
 Rectangle Selector
 ==================
 
-"""
-from __future__ import print_function
-"""
 Do a mouseclick somewhere, move the mouse to some destination, release
 the button.  This class gives click- and release-events and also draws
 a line or a box from the click-point to the actual mouseposition
 (within the same axes) until the button is released.  Within the
 method 'self.ignore()' it is checked whether the button from eventpress
 and eventrelease are the same.
-
 """
+from __future__ import print_function
 from matplotlib.widgets import RectangleSelector
 import numpy as np
 import matplotlib.pyplot as plt

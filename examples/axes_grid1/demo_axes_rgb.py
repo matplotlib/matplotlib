@@ -1,6 +1,6 @@
 """
 =============
-Demo Axes Rgb
+Demo Axes RGB
 =============
 
 """

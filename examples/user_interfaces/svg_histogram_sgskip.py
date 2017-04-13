@@ -1,6 +1,6 @@
 """
 =============
-Svg Histogram
+SVG Histogram
 =============
 
 Demonstrate how to create an interactive histogram, in which bars
@@ -18,8 +18,9 @@ mechanism used here to relate matplotlib objects created in python and
 the corresponding SVG constructs that are parsed in the second step.
 While flexible, ids are cumbersome to use for large collection of
 objects. Two mechanisms could be used to simplify things:
- * systematic grouping of objects into SVG <g> tags,
- * assigning classes to each SVG object according to its origin.
+
+* systematic grouping of objects into SVG <g> tags,
+* assigning classes to each SVG object according to its origin.
 
 For example, instead of modifying the properties of each individual bar,
 the bars from the `hist` function could either be grouped in

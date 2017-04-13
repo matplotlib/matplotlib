@@ -1,4 +1,6 @@
 """
+.. _user_interfaces-embedding_in_tk:
+
 ===============
 Embedding In Tk
 ===============

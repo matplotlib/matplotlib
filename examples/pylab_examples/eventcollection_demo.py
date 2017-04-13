@@ -1,6 +1,6 @@
 """
 ====================
-Eventcollection Demo
+EventCollection Demo
 ====================
 
 Plot two curves, then use EventCollections to mark the locations of the x

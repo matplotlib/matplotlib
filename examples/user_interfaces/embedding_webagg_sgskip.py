@@ -1,6 +1,6 @@
 """
 ================
-Embedding Webagg
+Embedding WebAgg
 ================
 
 This example demonstrates how to embed matplotlib WebAgg interactive

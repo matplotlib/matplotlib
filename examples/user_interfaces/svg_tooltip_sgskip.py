@@ -1,6 +1,6 @@
 """
 ===========
-Svg Tooltip
+SVG Tooltip
 ===========
 
 This example shows how to create a tooltip that will show up when

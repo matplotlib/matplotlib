@@ -4,9 +4,6 @@
 Cursor Demo
 ===========
 
-"""
-
-"""
 This example shows how to use matplotlib to provide a data cursor.  It
 uses matplotlib to draw the cursor and may be a slow since this
 requires redrawing the figure with every mouse move.
@@ -16,6 +13,7 @@ wxcursor_demo.py.
 
 The mpldatacursor and mplcursors third-party packages can be used to achieve a
 similar effect.  See
+
     https://github.com/joferkington/mpldatacursor
     https://github.com/anntzer/mplcursors
 """

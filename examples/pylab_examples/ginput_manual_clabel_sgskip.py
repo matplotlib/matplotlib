@@ -1,8 +1,8 @@
 # -*- noplot -*-
 """
-====================
-Ginput Manual Clabel
-====================
+=====================
+Interactive functions
+=====================
 
 This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.
@@ -32,7 +32,7 @@ def tellme(s):
 
 ##################################################
 # Define a triangle by clicking three points
-##################################################
+
 plt.clf()
 plt.axis([-1., 1., -1., 1.])
 plt.setp(plt.gca(), autoscale_on=False)
@@ -65,8 +65,6 @@ while not happy:
 ##################################################
 # Now contour according to distance from triangle
 # corners - just an example
-##################################################
-
 
 # Define a nice function of distance from individual pts
 def f(x, y, pts):
@@ -85,7 +83,7 @@ CL = plt.clabel(CS, manual=True)
 
 ##################################################
 # Now do a zoom
-##################################################
+
 tellme('Now do a nested zoom, click to begin')
 plt.waitforbuttonpress()
 

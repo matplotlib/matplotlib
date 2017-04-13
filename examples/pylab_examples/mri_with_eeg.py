@@ -1,6 +1,6 @@
 """
 ============
-Mri With Eeg
+MRI With EEG
 ============
 
 Displays a set of subplots with an MRI image, its intensity

@@ -162,7 +162,7 @@ Examples
    :maxdepth: 1
 
    ../examples/animation/basic_example
-   ../examples/animation/basic_example_writer
+   ../examples/animation/basic_example_writer_sgskip
    ../examples/animation/dynamic_image2
 
 

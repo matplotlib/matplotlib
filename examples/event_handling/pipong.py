@@ -3,7 +3,7 @@
 Pipong
 ======
 
-A matplotlib based game of Pong illustrating one way to write interactive
+A Matplotlib based game of Pong illustrating one way to write interactive
 animation which are easily ported to multiple backends
 pipong.py was written by Paul Ivanov <http://pirsquared.org>
 """

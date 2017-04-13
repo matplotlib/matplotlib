@@ -1,6 +1,6 @@
 """
 ===============
-Svg Filter Line
+SVG Filter Line
 ===============
 
 Demonstrate SVG filtering effects which might be used with mpl.

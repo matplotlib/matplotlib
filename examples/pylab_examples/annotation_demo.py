@@ -26,12 +26,11 @@ properties
 
 Valid keys are
 
-          width : the width of the arrow in points
-          frac  : the fraction of the arrow length occupied by the head
-          headwidth : the width of the base of the arrow head in points
-          shrink : move the tip and base some percent away from the
-                   annotated point and text
-          any key for matplotlib.patches.polygon  (e.g., facecolor)
+  width : the width of the arrow in points
+  frac  : the fraction of the arrow length occupied by the head
+  headwidth : the width of the base of the arrow head in points
+  shrink : move the tip/base some % away from the annotated point and text
+  any key for matplotlib.patches.polygon  (e.g., facecolor)
 
 For physical coordinate systems (points or pixels) the origin is the
 (bottom, left) of the figure or axes.

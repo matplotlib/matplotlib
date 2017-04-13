@@ -1,10 +1,10 @@
 # -*- noplot -*-
 """
 ==============
-Font Table Ttf
+Font Table TTF
 ==============
 
-matplotlib has support for FreeType fonts.  Here's a little example
+Matplotlib has support for FreeType fonts.  Here's a little example
 using the 'table' command to build a font table that shows the glyphs
 by character code.
 

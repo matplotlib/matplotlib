@@ -1,6 +1,6 @@
 """
 ====================
-Lineprops Dialog Gtk
+Lineprops Dialog GTK
 ====================
 
 """

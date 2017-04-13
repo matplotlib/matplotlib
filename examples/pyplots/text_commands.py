@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 """
 =============
 Text Commands
 =============
 
--*- coding: utf-8 -*-
+Plotting text of many different kinds.
 """
 import matplotlib.pyplot as plt
 

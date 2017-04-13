@@ -19,7 +19,6 @@ It is also worth noting that, because matplotlib can save figures to file-like
 object, matplotlib can also be used inside a cgi-script *without* needing to
 write a figure to disk.
 
-
 """
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg

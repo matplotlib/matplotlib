@@ -1,6 +1,6 @@
 """
 =============
-Multipage Pdf
+Multipage PDF
 =============
 
 This is a demo of creating a pdf file with several pages,

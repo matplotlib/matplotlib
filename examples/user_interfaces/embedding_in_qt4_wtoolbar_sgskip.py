@@ -1,6 +1,6 @@
 """
 =========================
-Embedding In Qt4 Wtoolbar
+Embedding In QT4 Wtoolbar
 =========================
 
 """

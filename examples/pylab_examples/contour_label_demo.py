@@ -20,7 +20,6 @@ matplotlib.rcParams['ytick.direction'] = 'out'
 
 ##################################################
 # Define our surface
-##################################################
 delta = 0.025
 x = np.arange(-3.0, 3.0, delta)
 y = np.arange(-2.0, 2.0, delta)
@@ -33,7 +32,6 @@ Z = 10.0 * (Z2 - Z1)
 ##################################################
 # Make contour labels using creative float classes
 # Follows suggestion of Manuel Metz
-##################################################
 plt.figure()
 
 # Basic contour plot
@@ -63,7 +61,6 @@ plt.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 ##################################################
 # Label contours with arbitrary strings using a
 # dictionary
-##################################################
 plt.figure()
 
 # Basic contour plot

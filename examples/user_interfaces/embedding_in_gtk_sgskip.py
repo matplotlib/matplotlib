@@ -1,9 +1,9 @@
 """
 ================
-Embedding In Gtk
+Embedding In GTK
 ================
 
-show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget to a
+Show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget to a
 gtk.Window
 """
 

@@ -1,15 +1,15 @@
 """
 ================
-Embedding In Qt5
+Embedding In QT5
 ================
 
-Simple Qt5 application embedding matplotlib canvases
+Simple Qt5 application embedding Matplotlib canvases
 
 Copyright (C) 2005 Florent Rougon
               2006 Darren Dale
               2015 Jens H Nielsen
 
-This file is an example program for matplotlib. It may be used and
+This file is an example program for Matplotlib. It may be used and
 modified with no restriction; raw copies as well as modified versions
 may be distributed without limitation.
 """
@@ -23,7 +23,8 @@ import random
 import matplotlib
 # Make sure that we are using QT5
 matplotlib.use('Qt5Agg')
-from PyQt5 import QtCore, QtWidgets
+# Uncomment this line before running, it breaks sphinx-gallery builds
+# from PyQt5 import QtCore, QtWidgets
 
 from numpy import arange, sin, pi
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas

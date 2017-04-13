@@ -19,8 +19,7 @@ matplotlib._image module which takes advantage of this fix, no longer
 makes this necessary.  To prevent edge effects, when doing
 interpolation, the matplotlib._image module now pads the input array
 with identical pixels around the edge.  e.g., if you have a 5x5 array
-with colors a-y as below
-
+with colors a-y as below::
 
   a b c d e
   f g h i j
@@ -28,7 +27,7 @@ with colors a-y as below
   p q r s t
   u v w x y
 
-the _image module creates the padded array,
+the _image module creates the padded array,::
 
   a a b c d e e
   a a b c d e e

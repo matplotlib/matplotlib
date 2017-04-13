@@ -1,11 +1,9 @@
 """
 ========
-Pong Gtk
+Pong GTK
 ========
 
-For detailed comments on animation and the techniques used here, see
-the wiki entry
-http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
+A small game demo using GTK.
 
 """
 from __future__ import print_function

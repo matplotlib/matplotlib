@@ -1,6 +1,6 @@
 """
 ===============
-Stix Fonts Demo
+STIX Fonts Demo
 ===============
 
 """

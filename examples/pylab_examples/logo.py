@@ -3,7 +3,7 @@
 Logo
 ====
 
-This file generates an old version of the matplotlib logo
+This file generates an old version of the Matplotlib logo.
 """
 
 from __future__ import print_function

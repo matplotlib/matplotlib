@@ -6,7 +6,6 @@ Colours
 
 Some simple functions to generate colours.
 
-
 """
 import numpy as np
 from matplotlib import colors as mcolors

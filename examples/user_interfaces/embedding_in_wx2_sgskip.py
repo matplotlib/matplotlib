@@ -1,4 +1,6 @@
 """
+.. _user_interfaces-embedding_in_wx2:
+
 ================
 Embedding In Wx2
 ================
@@ -7,7 +9,7 @@ An example of how to use wx or wxagg in an application with the new
 toolbar - comment out the setA_toolbar line for no toolbar
 """
 
-# matplotlib requires wxPython 2.8+
+# Matplotlib requires wxPython 2.8+
 # set the wxPython version in lib\site-packages\wx.pth file
 # or if you have wxversion installed un-comment the lines below
 #import wxversion

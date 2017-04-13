@@ -1,11 +1,12 @@
 # -*- noplot -*-
 """
+.. _api-agg_oo:
+
 =============================
 The object-oriented interface
 =============================
 
 A pure OO (look Ma, no pylab!) example using the agg backend
-
 
 """
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas

@@ -1,6 +1,6 @@
 """
 ===============
-Gtk Spreadsheet
+GTK Spreadsheet
 ===============
 
 Example of embedding matplotlib in an application and interacting with

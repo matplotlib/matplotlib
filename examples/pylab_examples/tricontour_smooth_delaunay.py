@@ -7,19 +7,21 @@ Demonstrates high-resolution tricontouring of a random set of points ;
 a matplotlib.tri.TriAnalyzer is used to improve the plot quality.
 
 The initial data points and triangular grid for this demo are:
-    - a set of random points is instantiated, inside [-1, 1] x [-1, 1] square
-    - A Delaunay triangulation of these points is then computed, of which a
-    random subset of triangles is masked out by the user (based on
-    *init_mask_frac* parameter). This simulates invalidated data.
+
+- a set of random points is instantiated, inside [-1, 1] x [-1, 1] square
+- A Delaunay triangulation of these points is then computed, of which a
+  random subset of triangles is masked out by the user (based on
+  *init_mask_frac* parameter). This simulates invalidated data.
 
 The proposed generic procedure to obtain a high resolution contouring of such
 a data set is the following:
-    1) Compute an extended mask with a matplotlib.tri.TriAnalyzer, which will
-    exclude badly shaped (flat) triangles from the border of the
-    triangulation. Apply the mask to the triangulation (using set_mask).
-    2) Refine and interpolate the data using a
-    matplotlib.tri.UniformTriRefiner.
-    3) Plot the refined data with tricontour.
+
+1. Compute an extended mask with a matplotlib.tri.TriAnalyzer, which will
+   exclude badly shaped (flat) triangles from the border of the
+   triangulation. Apply the mask to the triangulation (using set_mask).
+2. Refine and interpolate the data using a
+   matplotlib.tri.UniformTriRefiner.
+3. Plot the refined data with tricontour.
 
 """
 from matplotlib.tri import Triangulation, TriAnalyzer, UniformTriRefiner

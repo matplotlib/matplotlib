@@ -1,6 +1,6 @@
 """
 ========================
-Histogram Demo Canvasagg
+Histogram Demo CanvasAgg
 ========================
 
 This is an example that shows you how to work directly with the agg

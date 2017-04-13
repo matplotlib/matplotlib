@@ -1,6 +1,6 @@
 """
 ==============
-Pylab With Gtk
+Pylab With GTK
 ==============
 
 An example of how to use pylab to manage your figure windows, but

@@ -1,6 +1,6 @@
 """
 ===============
-Fourier Demo Wx
+Fourier Demo WX
 ===============
 
 """
