@@ -1,15 +1,12 @@
-from __future__ import print_function
-
-from six.moves import input
 
 import numpy as np
 
-from matplotlib.widgets import LassoSelector
+from matplotlib.widgets import PolygonSelector
 from matplotlib.path import Path
 
 
 class SelectFromCollection(object):
-    """Select indices from a matplotlib collection using `LassoSelector`.
+    """Select indices from a matplotlib collection using `PolygonSelector`.
 
     Selected indices are saved in the `ind` attribute. This tool fades out the
     points that are not part of the selection (i.e., reduces their alpha
@@ -47,7 +44,7 @@ class SelectFromCollection(object):
         elif len(self.fc) == 1:
             self.fc = np.tile(self.fc, (self.Npts, 1))
 
-        self.lasso = LassoSelector(ax, onselect=self.onselect)
+        self.poly = PolygonSelector(ax, self.onselect)
         self.ind = []
 
     def onselect(self, verts):
@@ -59,7 +56,7 @@ class SelectFromCollection(object):
         self.canvas.draw_idle()
 
     def disconnect(self):
-        self.lasso.disconnect_events()
+        self.poly.disconnect_events()
         self.fc[:, -1] = 1
         self.collection.set_facecolors(self.fc)
         self.canvas.draw_idle()
@@ -68,23 +65,23 @@ class SelectFromCollection(object):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    plt.ion()
-    # Fixing random state for reproducibility
-    np.random.seed(19680801)
+    fig, ax = plt.subplots()
+    grid_size = 5
+    grid_x = np.tile(np.arange(grid_size), grid_size)
+    grid_y = np.repeat(np.arange(grid_size), grid_size)
+    pts = ax.scatter(grid_x, grid_y)
 
-    data = np.random.rand(100, 2)
-
-    subplot_kw = dict(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
-    fig, ax = plt.subplots(subplot_kw=subplot_kw)
-
-    pts = ax.scatter(data[:, 0], data[:, 1], s=80)
     selector = SelectFromCollection(ax, pts)
 
-    plt.draw()
-    input('Press Enter to accept selected points')
-    print("Selected points:")
-    print(selector.xys[selector.ind])
+    print("Select points in the figure by enclosing them within a polygon.")
+    print("Press the 'esc' key to start a new polygon.")
+    print("Try holding the 'shift' key to move all of the vertices.")
+    print("Try holding the 'ctrl' key to move a single vertex.")
+
+    plt.show()
+
     selector.disconnect()
 
-    # Block end of script so you can check that the lasso is disconnected.
-    input('Press Enter to quit')
+    # After figure is closed print the coordinates of the selected points
+    print('\nSelected points:')
+    print(selector.xys[selector.ind])
