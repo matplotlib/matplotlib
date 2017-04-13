@@ -19,7 +19,6 @@ Thank you so much for your PR! To help us review, please make use of our
 - [ ] Related issues and pull requests [are listed](https://help.github.com/articles/autolinked-references-and-urls/)
 
 ** Major Changes **
-- [ ] non-trivial: made an entry in the [CHANGELOG](https://github.com/matplotlib/matplotlib/blob/master/doc/users/prev_whats_new/changelog.rst).
 - [ ] major new feature: added an entry to [doc/users/whats_new.rst](https://github.com/matplotlib/matplotlib/tree/master/doc/users/whats_new).
 - [ ] change the API in a backward-incompatible way: documented it in [doc/api/api_changes.rst](https://github.com/matplotlib/matplotlib/tree/master/doc/api/api_changes)
 
