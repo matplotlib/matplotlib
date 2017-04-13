@@ -35,9 +35,6 @@ Documentation
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
 
-* If your changes are non-trivial, please make an entry in the
-  :file:`CHANGELOG`.
-
 * If your change is a major new feature, add an entry to
   :file:`doc/users/whats_new.rst`.
 
