@@ -66,7 +66,7 @@ class PsBackendHelper(object):
         if gs_exe is None:
             gs_exe = 'gs'
 
-        self._cached["gs_exe"] = gs_exe
+        self._cached["gs_exe"] = str(gs_exe)
         return str(gs_exe)
 
     @property
@@ -1647,9 +1647,12 @@ def get_bbox(tmpfile, bbox):
     """
 
     gs_exe = ps_backend_helper.gs_exe
-    command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % (gs_exe, tmpfile)
+    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox" "%s" % tmpfile]
     verbose.report(command, 'debug')
-    stdin, stdout, stderr = os.popen3(command)
+    p = subprocess.Popen(command, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         close_fds=True)
+    (stdout, stderr) = (p.stdout, p.stderr)
     verbose.report(stdout.read(), 'debug-annoying')
     bbox_info = stderr.read()
     verbose.report(bbox_info, 'helpful')
@@ -1658,7 +1661,7 @@ def get_bbox(tmpfile, bbox):
         bbox_info = bbox_found.group()
     else:
         raise RuntimeError('Ghostscript was not able to extract a bounding box.\
-Here is the Ghostscript output:\n\n%s'% bbox_info)
+Here is the Ghostscript output:\n\n%s' % bbox_info)
     l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
 
     # this is a hack to deal with the fact that ghostscript does not return the
