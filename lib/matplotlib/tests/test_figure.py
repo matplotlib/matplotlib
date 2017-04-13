@@ -5,9 +5,12 @@ from numpy.testing import assert_equal
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.axes import Axes
+from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import warnings
+import pytest
 
 
 def test_figure_label():
@@ -234,3 +237,39 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
+
+
+@pytest.mark.parametrize('which', [None, 'both', 'major', 'minor'])
+def test_autofmt_xdate(which):
+    date = ['3 Jan 2013', '4 Jan 2013', '5 Jan 2013', '6 Jan 2013',
+            '7 Jan 2013', '8 Jan 2013', '9 Jan 2013', '10 Jan 2013',
+            '11 Jan 2013', '12 Jan 2013', '13 Jan 2013', '14 Jan 2013']
+
+    time = ['16:44:00', '16:45:00', '16:46:00', '16:47:00', '16:48:00',
+            '16:49:00', '16:51:00', '16:52:00', '16:53:00', '16:55:00',
+            '16:56:00', '16:57:00']
+
+    angle = 60
+    minors = [1, 2, 3, 4, 5, 6, 7]
+
+    x = mdates.datestr2num(date)
+    y = mdates.datestr2num(time)
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x, y)
+    ax.yaxis_date()
+    ax.xaxis_date()
+
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.xaxis.set_minor_formatter(FixedFormatter(minors))
+
+    fig.autofmt_xdate(0.2, angle, 'right', which)
+
+    if which in ('both', 'major', None):
+        for label in fig.axes[0].get_xticklabels(False, 'major'):
+            assert int(label.get_rotation()) == angle
+
+    if which in ('both', 'minor'):
+        for label in fig.axes[0].get_xticklabels(True, 'minor'):
+            assert int(label.get_rotation()) == angle
