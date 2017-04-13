@@ -3,26 +3,23 @@ Tick locating and formatting
 ============================
 
 This module contains classes to support completely configurable tick
-locating and formatting.  Although the locators know nothing about major
+locating and formatting. Although the locators know nothing about major
 or minor ticks, they are used by the Axis class to support major and
-minor tick locating and formatting.  Generic tick locators and
+minor tick locating and formatting. Generic tick locators and
 formatters are provided, as well as domain specific custom ones.
-
 
 Default Formatter
 -----------------
 
-The default formatter identifies when the x-data being
-plotted is a small range on top of a large off set.  To
-reduce the chances that the ticklabels overlap the ticks
-are labeled as deltas from a fixed offset.  For example::
+The default formatter identifies when the x-data being plotted is a
+small range on top of a large off set. To reduce the chances that the
+ticklabels overlap the ticks are labeled as deltas from a fixed offset.
+For example::
 
    ax.plot(np.arange(2000, 2010), range(10))
 
-will have tick of 0-9 with an offset of +2e3.  If this
-is not desired turn off the use of the offset on the default
-formatter::
-
+will have tick of 0-9 with an offset of +2e3. If this is not desired
+turn off the use of the offset on the default formatter::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
@@ -32,11 +29,11 @@ globally, or set a different formatter.
 Tick locating
 -------------
 
-The Locator class is the base class for all tick locators.  The locators
+The Locator class is the base class for all tick locators. The locators
 handle autoscaling of the view limits based on the data limits, and the
-choosing of tick locations.  A useful semi-automatic tick locator is
-MultipleLocator.  You initialize this with a base, e.g., 10, and it
-picks axis limits and ticks that are multiples of your base.
+choosing of tick locations. A useful semi-automatic tick locator is
+`MultipleLocator`. It is initialized with a base, e.g., 10, and it picks
+axis limits and ticks that are multiples of that base.
 
 The Locator subclasses defined here are
 
@@ -61,8 +58,8 @@ The Locator subclasses defined here are
     inside the limits
 
 :class:`MultipleLocator`
-    ticks and range are a multiple of base;
-                  either integer or float
+    ticks and range are a multiple of base; either integer or float
+
 :class:`OldAutoLocator`
     choose a MultipleLocator and dyamically reassign it for
     intelligent ticking during navigation
@@ -76,7 +73,7 @@ The Locator subclasses defined here are
 
 :class:`AutoMinorLocator`
     locator for minor ticks when the axis is linear and the
-    major ticks are uniformly spaced.  It subdivides the major
+    major ticks are uniformly spaced. It subdivides the major
     tick interval into a specified number of minor intervals,
     defaulting to 4 or 5 depending on the major interval.
 
@@ -87,13 +84,13 @@ The Locator subclasses defined here are
 There are a number of locators specialized for date locations - see
 the dates module
 
-You can define your own locator by deriving from Locator.  You must
-override the __call__ method, which returns a sequence of locations,
+You can define your own locator by deriving from Locator. You must
+override the ``__call__`` method, which returns a sequence of locations,
 and you will probably want to override the autoscale method to set the
 view limits from the data limits.
 
 If you want to override the default locator, use one of the above or a
-custom locator and pass it to the x or y axis instance.  The relevant
+custom locator and pass it to the x or y axis instance. The relevant
 methods are::
 
   ax.xaxis.set_major_locator( xmajorLocator )
@@ -107,7 +104,7 @@ default.
 Tick formatting
 ---------------
 
-Tick formatting is controlled by classes derived from Formatter.  The
+Tick formatting is controlled by classes derived from Formatter. The
 formatter operates on a single tick value and returns a string to the
 axis.
 
@@ -155,7 +152,7 @@ axis.
     Format labels as a percentage
 
 You can derive your own formatter from the Formatter base class by
-simply overriding the ``__call__`` method.  The formatter class has
+simply overriding the ``__call__`` method. The formatter class has
 access to the axis view and data limits.
 
 To control the major and minor tick label formats, use one of the
@@ -167,7 +164,7 @@ following methods::
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
 See :ref:`pylab_examples-major_minor_demo1` for an example of setting
-major and minor ticks.  See the :mod:`matplotlib.dates` module for
+major and minor ticks. See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
@@ -215,16 +212,7 @@ def _divmod(x, y):
 
 
 def _mathdefault(s):
-    """
-    For backward compatibility, in classic mode we display
-    sub/superscripted text in a mathdefault block.  As of 2.0, the
-    math font already matches the default font, so we don't need to do
-    that anymore.
-    """
-    if rcParams['_internal.classic_mode']:
-        return '\\mathdefault{%s}' % s
-    else:
-        return '{%s}' % s
+    return '\\mathdefault{%s}' % s
 
 
 class _DummyAxis(object):
@@ -1087,7 +1075,7 @@ class LogFormatterMathtext(LogFormatter):
             return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
         else:
             return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
-                (sign_string, base, fx)))
+                                          (sign_string, base, fx)))
 
     def __call__(self, x, pos=None):
         """
@@ -1096,6 +1084,8 @@ class LogFormatterMathtext(LogFormatter):
         The position `pos` is ignored.
         """
         usetex = rcParams['text.usetex']
+        min_exp = rcParams['axes.formatter.min_exponent']
+
         if x == 0:  # Symlog
             if usetex:
                 return '$0$'
@@ -1111,6 +1101,8 @@ class LogFormatterMathtext(LogFormatter):
         is_x_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
+        if is_x_decade:
+            fx = nearest_long(fx)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1123,7 +1115,13 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if not is_x_decade:
+        if np.abs(fx) < min_exp:
+            if usetex:
+                return r'${0}{1:g}$'.format(sign_string, x)
+            else:
+                return '${0}$'.format(_mathdefault(
+                    '{0}{1:g}'.format(sign_string, x)))
+        elif not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             if usetex:
@@ -1288,16 +1286,19 @@ class PercentFormatter(Formatter):
     situation is where `xmax` is 1.0.
 
     `symbol` is a string which will be appended to the label. It may be
-    `None` or empty to indicate that no symbol should be used.
+    `None` or empty to indicate that no symbol should be used. LaTeX
+    special characters are escaped in `symbol` whenever latex mode is
+    enabled, unless `is_latex` is `True`.
 
     `decimals` is the number of decimal places to place after the point.
     If it is set to `None` (the default), the number will be computed
     automatically.
     """
-    def __init__(self, xmax=100, decimals=None, symbol='%'):
+    def __init__(self, xmax=100, decimals=None, symbol='%', is_latex=False):
         self.xmax = xmax + 0.0
         self.decimals = decimals
-        self.symbol = symbol
+        self._symbol = symbol
+        self._is_latex = is_latex
 
     def __call__(self, x, pos=None):
         """
@@ -1353,12 +1354,34 @@ class PercentFormatter(Formatter):
             decimals = self.decimals
         s = '{x:0.{decimals}f}'.format(x=x, decimals=int(decimals))
 
-        if self.symbol:
-            return s + self.symbol
-        return s
+        return s + self.symbol
 
     def convert_to_pct(self, x):
         return 100.0 * (x / self.xmax)
+
+    @property
+    def symbol(self):
+        """
+        The configured percent symbol as a string.
+
+        If LaTeX is enabled via ``rcParams['text.usetex']``, the special
+        characters `{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`
+        are automatically escaped in the string.
+        """
+        symbol = self._symbol
+        if not symbol:
+            symbol = ''
+        elif rcParams['text.usetex'] and not self._is_latex:
+            # Source: http://www.personal.ceu.hu/tex/specchar.htm
+            # Backslash must be first for this to work correctly since
+            # it keeps getting added in
+            for spec in r'\#$%&~_^{}':
+                symbol = symbol.replace(spec, '\\' + spec)
+        return symbol
+
+    @symbol.setter
+    def symbol(self):
+        self._symbol = symbol
 
 
 class Locator(TickHelper):
@@ -2089,8 +2112,6 @@ class LogLocator(Locator):
                     return np.array([])  # no minor or major ticks
                 else:
                     subs = np.array([1.0])  # major ticks
-            elif numdec > 5 and b >= 6:
-                subs = np.arange(_first, b, 2.0)
             else:
                 subs = np.arange(_first, b)
         else:
@@ -2106,17 +2127,25 @@ class LogLocator(Locator):
             while numdec // stride + 1 > numticks:
                 stride += 1
 
+        # Does subs include anything other than 1?
+        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+
         decades = np.arange(math.floor(vmin) - stride,
                             math.ceil(vmax) + 2 * stride, stride)
+
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
-            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
-                ticklocs = np.ravel(np.outer(subs, ticklocs))
+            if have_subs:
+                if stride == 1:
+                    ticklocs = np.ravel(np.outer(subs, ticklocs))
+                else:
+                    ticklocs = []
         else:
-            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
+            if have_subs:
                 ticklocs = []
-                for decadeStart in b ** decades:
-                    ticklocs.extend(subs * decadeStart)
+                if stride == 1:
+                    for decadeStart in b ** decades:
+                        ticklocs.extend(subs * decadeStart)
             else:
                 ticklocs = b ** decades
 

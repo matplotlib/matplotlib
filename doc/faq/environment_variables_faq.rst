@@ -33,9 +33,8 @@ Environment Variables
 
 .. envvar:: MPLBACKEND
 
-  This optional variable can be set to choose the matplotlib backend. Using the
-  `-d` command line parameter or the :func:`~matplotlib.use` function will
-  override this value. See :ref:`what-is-a-backend`.
+  This optional variable can be set to choose the matplotlib backend.  See
+  :ref:`what-is-a-backend`.
 
 .. _setting-linux-osx-environment-variables:
 

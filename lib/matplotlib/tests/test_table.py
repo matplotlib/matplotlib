@@ -5,13 +5,12 @@ import six
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 from matplotlib.table import CustomCell
 from matplotlib.path import Path
 
 
-@cleanup
 def test_non_square():
     # Check that creating a non-square table works
     cellcolors = ['b', 'r']

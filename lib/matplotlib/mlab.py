@@ -2191,7 +2191,7 @@ def identity(n, rank=2, dtype='l', typecode=None):
 
                             /  1  if i0=i1=...=iR,
         id[i0,i1,...,iR] = -|
-                            \  0  otherwise.
+                            \\  0  otherwise.
 
     Optionally a *dtype* (or typecode) may be given (it defaults to 'l').
 
@@ -2709,8 +2709,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
       for further information.
 
-      If no rows are found, *None* is returned -- see
-      :file:`examples/loadrec.py`
+      If no rows are found, *None* is returned
     """
 
     if converterd is None:
@@ -2869,7 +2868,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             break
 
         # remove these chars
-        delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
+        delete = set(r"""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
         delete.add('"')
 
         names = []
@@ -3348,7 +3347,7 @@ def griddata(x, y, z, xi, yi, interp='nn'):
 
     # Remove masked points.
     mask = np.ma.getmask(z)
-    if not (mask is np.ma.nomask):
+    if mask is not np.ma.nomask:
         x = x.compress(~mask)
         y = y.compress(~mask)
         z = z.compressed()

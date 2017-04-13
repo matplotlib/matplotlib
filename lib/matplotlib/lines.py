@@ -64,12 +64,12 @@ def _get_dash_pattern(style):
 def _scale_dashes(offset, dashes, lw):
     if not rcParams['lines.scale_dashes']:
         return offset, dashes
-    scale = max(2.0, lw)
+
     scaled_offset = scaled_dashes = None
     if offset is not None:
-        scaled_offset = offset * scale
+        scaled_offset = offset * lw
     if dashes is not None:
-        scaled_dashes = [x * scale if x is not None else None
+        scaled_dashes = [x * lw if x is not None else None
                          for x in dashes]
 
     return scaled_offset, scaled_dashes

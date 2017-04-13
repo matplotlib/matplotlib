@@ -6,7 +6,7 @@ import warnings
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
@@ -148,6 +148,7 @@ def test_tight_layout7():
     ax.set_title('Right Title', loc='right', fontsize=fontsize)
     plt.tight_layout()
 
+
 @image_comparison(baseline_images=['tight_layout8'])
 def test_tight_layout8():
     'Test automatic use of tight_layout'
@@ -155,6 +156,15 @@ def test_tight_layout8():
     fig.set_tight_layout({'pad': .1})
     ax = fig.add_subplot(111)
     example_plot(ax, fontsize=24)
+
+
+@image_comparison(baseline_images=['tight_layout9'])
+def test_tight_layout9():
+    # Test tight_layout for non-visible suplots
+    # GH 8244
+    f, axarr = plt.subplots(2, 2)
+    axarr[1][1].set_visible(False)
+    plt.tight_layout()
 
 
 # The following test is misleading when the text is removed.

@@ -17,8 +17,6 @@ except ImportError:
     import mock
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.tests import assert_str_equal
-from matplotlib.testing.decorators import cleanup, knownfailureif
 import matplotlib.colors as mcolors
 from itertools import chain
 import numpy as np
@@ -30,7 +28,8 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_nseq_float,
                                 validate_cycler,
                                 validate_hatch,
-                                validate_hist_bins)
+                                validate_hist_bins,
+                                _validate_linestyle)
 
 
 mpl.rc('text', usetex=False)
@@ -94,7 +93,7 @@ RcParams({u'font.cursive': [u'Apple Chancery',
           u'font.size': 12.0,
           u'font.weight': u'normal'})""".lstrip()
 
-    assert_str_equal(expected_repr, repr(rc))
+    assert expected_repr == repr(rc)
 
     if six.PY3:
         expected_str = """
@@ -109,7 +108,7 @@ font.family: [u'sans-serif']
 font.size: 12.0
 font.weight: normal""".lstrip()
 
-    assert_str_equal(expected_str, str(rc))
+    assert expected_str == str(rc)
 
     # test the find_all functionality
     assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]'))
@@ -138,7 +137,6 @@ def test_rcparams_init():
             mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
-@cleanup
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
     # This was not possible because validate_bool_maybe_none did not
@@ -197,7 +195,6 @@ legend_color_test_ids = [
 ]
 
 
-@cleanup
 @pytest.mark.parametrize('color_type, param_dict, target', legend_color_tests,
                          ids=legend_color_test_ids)
 def test_legend_colors(color_type, param_dict, target):
@@ -338,6 +335,42 @@ def generate_validator_testcases(valid):
                   )
          }
     )
+
+    # The behavior of _validate_linestyle depends on the version of Python.
+    # ASCII-compliant bytes arguments should pass on Python 2 because of the
+    # automatic conversion between bytes and strings. Python 3 does not
+    # perform such a conversion, so the same cases should raise an exception.
+    #
+    # Common cases:
+    ls_test = {'validator': _validate_linestyle,
+               'success': (('-', '-'), ('solid', 'solid'),
+                           ('--', '--'), ('dashed', 'dashed'),
+                           ('-.', '-.'), ('dashdot', 'dashdot'),
+                           (':', ':'), ('dotted', 'dotted'),
+                           ('', ''), (' ', ' '),
+                           ('None', 'none'), ('none', 'none'),
+                           ('DoTtEd', 'dotted'),  # case-insensitive
+                           (['1.23', '4.56'], (None, [1.23, 4.56])),
+                           ([1.23, 456], (None, [1.23, 456.0])),
+                           ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                          ),
+               'fail': (('aardvark', ValueError),  # not a valid string
+                        ('dotted'.encode('utf-16'), ValueError),  # even on PY2
+                        ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
+                        ((0, [1, 2]), ValueError),  # idem
+                        ((-1, [1, 2]), ValueError),  # idem
+                        ([1, 2, 3], ValueError),  # sequence with odd length
+                        (1.23, ValueError),  # not a sequence
+                       )
+                }
+    # Add some cases of bytes arguments that Python 2 can convert silently:
+    ls_bytes_args = (b'dotted', 'dotted'.encode('ascii'))
+    if six.PY3:
+        ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
+    else:
+        ls_test['success'] += tuple((arg, 'dotted') for arg in ls_bytes_args)
+    # Update the validation test sequence.
+    validation_tests += (ls_test,)
 
     for validator_dict in validation_tests:
         validator = validator_dict['validator']

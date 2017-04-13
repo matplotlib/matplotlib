@@ -13,8 +13,6 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib.testing import xfail, skip
-from matplotlib.testing.decorators import cleanup
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -76,6 +74,26 @@ def test_null_movie_writer():
     assert writer._count == num_frames
 
 
+def test_movie_writer_dpi_default():
+    # Test setting up movie writer with figure.dpi default.
+
+    fig = plt.figure()
+
+    filename = "unused.null"
+    fps = 5
+    codec = "unused"
+    bitrate = 1
+    extra_args = ["unused"]
+
+    def run():
+        pass
+
+    writer = animation.MovieWriter(fps, codec, bitrate, extra_args)
+    writer._run = run
+    writer.setup(fig, filename)
+    assert writer.dpi == fig.dpi
+
+
 @animation.writers.register('null')
 class RegisteredNullMovieWriter(NullMovieWriter):
 
@@ -110,7 +128,6 @@ WRITER_OUTPUT = [
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@cleanup
 @pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
 def test_save_animation_smoketest(tmpdir, writer, extension):
     try:
@@ -121,12 +138,20 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     except AttributeError:
         pass
     if not animation.writers.is_available(writer):
-        skip("writer '%s' not available on this system" % writer)
+        pytest.skip("writer '%s' not available on this system" % writer)
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
     ax.set_xlim(0, 10)
     ax.set_ylim(-1, 1)
+
+    dpi = None
+    codec = None
+    if writer == 'ffmpeg':
+        # Issue #8253
+        fig.set_size_inches((10.85, 9.21))
+        dpi = 100.
+        codec = 'h264'
 
     def init():
         line.set_data([], [])
@@ -143,13 +168,13 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     with tmpdir.as_cwd():
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
         try:
-            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500)
+            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500,
+                      dpi=dpi, codec=codec)
         except UnicodeDecodeError:
-            xfail("There can be errors in the numpy import stack, "
-                  "see issues #1891 and #2679")
+            pytest.xfail("There can be errors in the numpy import stack, "
+                         "see issues #1891 and #2679")
 
 
-@cleanup
 def test_no_length_frames():
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
@@ -166,6 +191,8 @@ def test_no_length_frames():
 
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                    frames=iter(range(5)))
+    writer = NullMovieWriter()
+    anim.save('unused.null', writer=writer)
 
 
 def test_movie_writer_registry():

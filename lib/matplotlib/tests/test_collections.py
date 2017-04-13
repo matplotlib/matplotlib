@@ -7,15 +7,15 @@ from __future__ import (absolute_import, division, print_function,
 import io
 
 import numpy as np
-from numpy.testing import assert_array_equal, assert_array_almost_equal
-from numpy.testing import assert_equal
+from numpy.testing import (
+    assert_array_equal, assert_array_almost_equal, assert_equal)
 import pytest
 
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import Collection, EventCollection
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 
 
 def generate_EventCollection_plot():
@@ -74,7 +74,6 @@ def test__EventCollection__get_segments():
                    props['orientation'])
 
 
-@cleanup
 def test__EventCollection__get_positions():
     '''
     check to make sure the default positions match the input positions
@@ -83,7 +82,6 @@ def test__EventCollection__get_positions():
     np.testing.assert_array_equal(props['positions'], coll.get_positions())
 
 
-@cleanup
 def test__EventCollection__get_orientation():
     '''
     check to make sure the default orientation matches the input
@@ -93,7 +91,6 @@ def test__EventCollection__get_orientation():
     assert_equal(props['orientation'], coll.get_orientation())
 
 
-@cleanup
 def test__EventCollection__is_horizontal():
     '''
     check to make sure the default orientation matches the input
@@ -103,7 +100,6 @@ def test__EventCollection__is_horizontal():
     assert_equal(True, coll.is_horizontal())
 
 
-@cleanup
 def test__EventCollection__get_linelength():
     '''
     check to make sure the default linelength matches the input linelength
@@ -112,7 +108,6 @@ def test__EventCollection__get_linelength():
     assert_equal(props['linelength'], coll.get_linelength())
 
 
-@cleanup
 def test__EventCollection__get_lineoffset():
     '''
     check to make sure the default lineoffset matches the input lineoffset
@@ -121,7 +116,6 @@ def test__EventCollection__get_lineoffset():
     assert_equal(props['lineoffset'], coll.get_lineoffset())
 
 
-@cleanup
 def test__EventCollection__get_linestyle():
     '''
     check to make sure the default linestyle matches the input linestyle
@@ -130,7 +124,6 @@ def test__EventCollection__get_linestyle():
     assert_equal(coll.get_linestyle(), [(None, None)])
 
 
-@cleanup
 def test__EventCollection__get_color():
     '''
     check to make sure the default color matches the input color
@@ -390,16 +383,6 @@ def check_segments(coll, positions, linelength, lineoffset, orientation):
         assert_equal(segment[1, pos2], positions[i])
 
 
-def check_allprop(values, target):
-    '''
-    check to make sure all values match the given target
-
-    note: this is not a test, it is used by tests
-    '''
-    for value in values:
-        assert_equal(value, target)
-
-
 def check_allprop_array(values, target):
     '''
     check to make sure all values match the given target if arrays
@@ -417,7 +400,6 @@ def test_null_collection_datalim():
                        mtransforms.Bbox.null().get_points())
 
 
-@cleanup
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
     # Github issue #1490, pull #1497.
@@ -430,7 +412,6 @@ def test_add_collection():
     assert_equal(ax.dataLim.bounds, bounds)
 
 
-@cleanup
 def test_quiver_limits():
     ax = plt.axes()
     x, y = np.arange(8), np.arange(10)
@@ -448,7 +429,6 @@ def test_quiver_limits():
     assert_equal(ax.dataLim.bounds, (20.0, 30.0, 15.0, 6.0))
 
 
-@cleanup
 def test_barb_limits():
     ax = plt.axes()
     x = np.linspace(-5, 10, 20)
@@ -536,7 +516,7 @@ def test_regularpolycollection_rotate():
     for xy, alpha in zip(xy_points, rotations):
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
-            offsets=xy, transOffset=ax.transData)
+            offsets=[xy], transOffset=ax.transData)
         ax.add_collection(col, autolim=True)
     ax.autoscale_view()
 
@@ -573,7 +553,6 @@ def test_regularpolycollection_scale():
     ax.axis([-1, 1, -1, 1])
 
 
-@cleanup
 def test_picking():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000], picker=True)
@@ -590,7 +569,6 @@ def test_picking():
     assert_array_equal(indices['ind'], [0])
 
 
-@cleanup
 def test_linestyle_single_dashes():
     plt.scatter([0, 1, 2], [0, 1, 2], linestyle=(0., [2., 2.]))
     plt.draw()
@@ -616,7 +594,6 @@ def test_size_in_xy():
     ax.set_ylim(0, 30)
 
 
-@cleanup
 def test_pandas_indexing():
     pd = pytest.importorskip('pandas')
 
@@ -635,15 +612,15 @@ def test_pandas_indexing():
     Collection(antialiaseds=aa)
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_lslw_bcast():
     col = mcollections.PathCollection([])
     col.set_linestyles(['-', '-'])
     col.set_linewidths([1, 2, 3])
 
-    assert col.get_linestyles() == [(None, None)] * 6
-    assert col.get_linewidths() == [1, 2, 3] * 2
+    assert_equal(col.get_linestyles(), [(None, None)] * 6)
+    assert_equal(col.get_linewidths(), [1, 2, 3] * 2)
 
     col.set_linestyles(['-', '-', '-'])
-    assert col.get_linestyles() == [(None, None)] * 3
-    assert col.get_linewidths() == [1, 2, 3]
+    assert_equal(col.get_linestyles(), [(None, None)] * 3)
+    assert_equal(col.get_linewidths(), [1, 2, 3])

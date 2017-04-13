@@ -718,10 +718,12 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["xtick.alignment"]
+
         return (self.get_xaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(0, -1 * pad_points / 72.0,
                                               self.figure.dpi_scale_trans),
-                "top", "center")
+                "top", labels_align)
 
     def get_xaxis_text2_transform(self, pad_points):
         """
@@ -744,10 +746,11 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(0, pad_points / 72.0,
                                               self.figure.dpi_scale_trans),
-                "bottom", "center")
+                "bottom", labels_align)
 
     def get_yaxis_transform(self, which='grid'):
         """
@@ -795,10 +798,11 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center_baseline", "right")
+                labels_align, "right")
 
     def get_yaxis_text2_transform(self, pad_points):
         """
@@ -821,10 +825,12 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["ytick.alignment"]
+
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center_baseline", "left")
+                labels_align, "left")
 
     def _update_transScale(self):
         self.transScale.set(
@@ -1080,11 +1086,10 @@ class _AxesBase(martist.Artist):
             _title.set_clip_box(None)
             self._set_artist_props(_title)
 
-        # the patch draws the background of the axes.  we want this to
-        # be below the other artists; the axesPatch name is
-        # deprecated.  We use the frame to draw the edges so we are
-        # setting the edgecolor to None
-        self.patch = self.axesPatch = self._gen_axes_patch()
+        # The patch draws the background of the axes.  We want this to be below
+        # the other artists.  We use the frame to draw the edges so we are
+        # setting the edgecolor to None.
+        self.patch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
         self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('None')
@@ -1106,6 +1111,10 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
         self.stale = True
+
+    @cbook.deprecated("2.1", alternative="Axes.patch")
+    def axesPatch(self):
+        return self.patch
 
     def clear(self):
         """clear the axes"""
@@ -1925,11 +1934,9 @@ class _AxesBase(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
-
-        if iterable(xys) and not len(xys):
+        xys = np.asarray(xys)
+        if not len(xys):
             return
-        if not isinstance(xys, np.ma.MaskedArray):
-            xys = np.asarray(xys)
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
                                          updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
@@ -2540,13 +2547,10 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers")
         if style[:3] == 'sci':
             sb = True
-        elif style in ['plain', 'comma']:
+        elif style == 'plain':
             sb = False
-            if style == 'plain':
-                cb = False
-            else:
-                cb = True
-                raise NotImplementedError("comma style remains to be added")
+        elif style == 'comma':
+            raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
@@ -2877,6 +2881,11 @@ class _AxesBase(martist.Artist):
         if right is not None:
             right = self.convert_xunits(right)
 
+        if ((left is not None and not np.isfinite(left)) or
+                (right is not None and not np.isfinite(right))):
+            raise ValueError("Specified x limits must be finite; "
+                             "instead, found: (%s, %s)" % (left, right))
+
         old_left, old_right = self.get_xlim()
         if left is None:
             left = old_left
@@ -3171,6 +3180,11 @@ class _AxesBase(martist.Artist):
         if top is not None:
             top = self.convert_yunits(top)
 
+        if ((top is not None and not np.isfinite(top)) or
+                (bottom is not None and not np.isfinite(bottom))):
+            raise ValueError("Specified y limits must be finite; "
+                             "instead, found: (%s, %s)" % (bottom, top))
+
         old_bottom, old_top = self.get_ylim()
 
         if bottom is None:
@@ -3399,7 +3413,7 @@ class _AxesBase(martist.Artist):
             elif scale == 'symlog':
                 s = ax._scale
                 ax.set_minor_locator(
-                    mticker.SymmetricalLogLocator(s.base, s.subs))
+                    mticker.SymmetricalLogLocator(s._transform, s.subs))
             else:
                 ax.set_minor_locator(mticker.AutoMinorLocator())
 
@@ -3904,16 +3918,16 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the xaxis
 
-        Create a twin of Axes for generating a plot with a shared
-        x-axis but independent y-axis.  The y-axis of self will have
-        ticks on left and the returned axes will have ticks on the
-        right. To ensure tick marks of both axis align, see
+        Create a new Axes instance with an invisible x-axis and an independent
+        y-axis positioned opposite to the original one (i.e. at right). The
+        x-axis autoscale setting will be inherited from the original Axes.
+        To ensure that the tick marks of both y-axes align, see
         `~matplotlib.ticker.LinearLocator`
 
         Returns
         -------
-        Axis
-            The newly created axis
+        ax_twin : Axes
+            The newly created Axes instance
 
         Notes
         -----
@@ -3924,6 +3938,7 @@ class _AxesBase(martist.Artist):
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
+        ax2.set_autoscalex_on(self.get_autoscalex_on())
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         ax2.patch.set_visible(False)
@@ -3933,25 +3948,26 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the yaxis
 
-        Create a twin of Axes for generating a plot with a shared
-        y-axis but independent x-axis.  The x-axis of self will have
-        ticks on bottom and the returned axes will have ticks on the
-        top.
+        Create a new Axes instance with an invisible y-axis and an independent
+        x-axis positioned opposite to the original one (i.e. at top). The
+        y-axis autoscale setting will be inherited from the original Axes.
+        To ensure that the tick marks of both x-axes align, see
+        `~matplotlib.ticker.LinearLocator`
 
         Returns
         -------
-        Axis
-            The newly created axis
+        ax_twin : Axes
+            The newly created Axes instance
 
         Notes
-        ------
+        -----
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most axes.
         """
-
         ax2 = self._make_twin_axes(sharey=self)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
+        ax2.set_autoscaley_on(self.get_autoscaley_on())
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.patch.set_visible(False)

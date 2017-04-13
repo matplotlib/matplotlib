@@ -64,7 +64,7 @@ from matplotlib.fontconfig_pattern import (
 try:
     from functools import lru_cache
 except ImportError:
-    from functools32 import lru_cache
+    from backports.functools_lru_cache import lru_cache
 
 
 USE_FONTCONFIG = False
@@ -184,7 +184,7 @@ def win32FontDirectory():
     Return the user-specified font directory for Win32.  This is
     looked up from the registry key::
 
-      \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
+      \\\\HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\Fonts
 
     If the key is not found, $WINDIR/Fonts will be returned.
     """
@@ -926,6 +926,7 @@ class FontProperties(object):
         return FontProperties(_init=self)
 
 
+@cbook.deprecated("2.1")
 def ttfdict_to_fnames(d):
     """
     flatten a ttfdict to all the filenames it contains
@@ -1040,7 +1041,7 @@ class FontManager(object):
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 200
+    __version__ = 201
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1283,13 +1284,16 @@ class FontManager(object):
             cached = _lookup_cache[fontext].get(prop)
             if cached is not None:
                 return cached
+        else:
+            directory = os.path.normcase(directory)
 
         best_score = 1e64
         best_font = None
 
         for font in fontlist:
             if (directory is not None and
-                os.path.commonprefix([font.fname, directory]) != directory):
+                    os.path.commonprefix([os.path.normcase(font.fname),
+                                          directory]) != directory):
                 continue
             # Matching family should have highest priority, so it is multiplied
             # by 10.0

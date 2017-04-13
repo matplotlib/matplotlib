@@ -1,34 +1,28 @@
 =============================================
- MEP 28: Remove Complexity from Axes.boxplot
+ MEP28: Remove Complexity from Axes.boxplot
 =============================================
 
 .. contents::
    :local:
 
+
 Status
 ======
-
-..
-.. MEPs go through a number of phases in their lifetime:
-
 **Discussion**
-..
-.. - **Progress**: Consensus was reached on the mailing list and
-..  implementation work has begun.
-..
-.. - **Completed**: The implementation has been merged into master.
-..
-.. - **Superseded**: This MEP has been abandoned in favor of another
-..   approach.
 
 Branches and Pull requests
 ==========================
 
-Adding pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
-Exposing ``cbook.boxplot_stats`` through ``Axes.boxplot`` kwargs: None
-Remove redundant statistical kwargs in ``Axes.boxplot``: None
-Remove redundant style options in ``Axes.boxplot``: None
-Remaining items that arise through discussion: None
+The following lists any open PRs or branches related to this MEP:
+
+#. Deprecate redundant statistical kwargs in ``Axes.boxplot``: https://github.com/phobson/matplotlib/tree/MEP28-initial-deprecations
+#. Deprecate redundant style options in ``Axes.boxplot``: https://github.com/phobson/matplotlib/tree/MEP28-initial-deprecations
+#. Deprecate passings 2D numpy arrays as input: None
+#. Add pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
+#. Exposing ``cbook.boxplot_stats`` through ``Axes.boxplot`` kwargs: None
+#. Remove redundant statistical kwargs in ``Axes.boxplot``: None
+#. Remove redundant style options in ``Axes.boxplot``: None
+#. Remaining items that arise through discussion: None
 
 Abstract
 ========
@@ -121,7 +115,7 @@ data differently depending one these types of transforms.
    ax.set_yscale('log')
    data = np.random.lognormal(-1.75, 2.75, size=37)
 
-   stats = cbook.boxplot_stats(data, labels=['arimetic'])
+   stats = cbook.boxplot_stats(data, labels=['arithmetic'])
    logstats = cbook.boxplot_stats(np.log(data), labels=['log-transformed'])
 
    for lsdict in logstats:
@@ -203,11 +197,21 @@ Schedule
 An accelerated timeline could look like the following:
 
 #. v2.0.1 add transforms to ``cbook.boxplots_stats``, expose in ``Axes.boxplot``
-#. v2.1.0 deprecate ``usermedians``, ``conf_intervals``, ``sym`` parameters
-#. v2.2.0 make deprecations noisier
-#. v2.3.0 remove ``usermedians``, ``conf_intervals``, ``sym`` parameters
-#. v2.3.0 deprecate ``notch`` in favor of ``shownotches`` to be consistent with other parameters and ``Axes.bxp``
-#. v2.4.0 remove ``notch`` parameter, move all style and artist toggling logic to ``Axes.bxp``. ``Axes.boxplot`` is little more than a broker between ``Axes.bxp`` and ``cbook.boxplots_stats``
+#. v2.1.0 Initial Deprecations , and using 2D numpy arrays as input
+
+    a. Using 2D numpy arrays as input. The semantics around 2D arrays are generally confusing.
+    b. ``usermedians``, ``conf_intervals``, ``sym`` parameters
+
+#. v2.2.0
+
+    a. remove ``usermedians``, ``conf_intervals``, ``sym`` parameters
+    b. deprecate ``notch`` in favor of ``shownotches`` to be consistent with
+       other parameters and ``Axes.bxp``
+
+#. v2.3.0
+    a. remove ``notch`` parameter
+    b. move all style and artist toggling logic to ``Axes.bxp`` such ``Axes.boxplot``
+       is little more than a broker between ``Axes.bxp`` and ``cbook.boxplots_stats``
 
 
 Anticipated Impacts to Users

@@ -1,0 +1,4 @@
+Use backports.functools_lru_cache instead of functools32
+````````````````````````````````````````````````````````
+
+It's better maintained and more widely used (by pylint, jaraco, etc).

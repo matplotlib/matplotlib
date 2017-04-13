@@ -91,7 +91,7 @@ before creating your plot. For really fine control, it is also possible
 to modify each artist's sketch parameters individually with
 :meth:`matplotlib.artist.Artist.set_sketch_params`.
 
-.. plot:: mpl_examples/showcase/xkcd.py
+.. plot:: gallery/showcase/xkcd.py
 
 Updated Axes3D.contour methods
 ------------------------------
@@ -100,7 +100,7 @@ Damon McDougall updated the
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontourf` methods to allow 3D
 contour plots on abitrary unstructured user-specified triangulations.
 
-.. plot:: mpl_examples/mplot3d/tricontour3d_demo.py
+.. plot:: gallery/mplot3d/tricontour3d.py
 
 New eventplot plot type
 ```````````````````````

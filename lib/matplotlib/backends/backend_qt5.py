@@ -130,7 +130,15 @@ def _create_qApp():
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
-            if hasattr(QtGui, "QX11Info"):
+            if is_pyqt5():
+                try:
+                    from PyQt5 import QtX11Extras
+                    is_x11_build = True
+                except ImportError:
+                    is_x11_build = False
+            else:
+                is_x11_build = hasattr(QtGui, "QX11Info")
+            if is_x11_build:
                 display = os.environ.get('DISPLAY')
                 if display is None or not re.search(r':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
@@ -270,9 +278,16 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
     def mouseEventCoords(self, pos):
-        x = pos.x() * self._dpi_ratio
+        """
+        Calculate mouse coordinates in logical pixels.
+
+        Qt5 and Matplotlib use logical pixels, but the figure is scaled to
+        physical pixels for rendering. Also, the origin is different and needs
+        to be corrected.
+        """
+        x = pos.x()
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - pos.y() * self._dpi_ratio
+        y = self.figure.bbox.height / self._dpi_ratio - pos.y()
         return x, y
 
     def mousePressEvent(self, event):

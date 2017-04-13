@@ -1,8 +1,8 @@
 import pytest
 
-from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d
+from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
@@ -21,8 +21,12 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
 
 
-@cleanup
-def test_bar3d_dflt_smoke():
+@image_comparison(
+    baseline_images=['bar3d_shaded'],
+    remove_text=True,
+    extensions=['png']
+)
+def test_bar3d_shaded():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     x = np.arange(4)
@@ -30,7 +34,24 @@ def test_bar3d_dflt_smoke():
     x2d, y2d = np.meshgrid(x, y)
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d
-    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z)
+    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    fig.canvas.draw()
+
+
+@image_comparison(
+    baseline_images=['bar3d_notshaded'],
+    remove_text=True,
+    extensions=['png']
+)
+def test_bar3d_notshaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = x2d + y2d
+    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
     fig.canvas.draw()
 
 
@@ -218,7 +239,6 @@ def test_wireframe3dzerorstride():
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
 
-@cleanup
 def test_wireframe3dzerostrideraises():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -227,7 +247,6 @@ def test_wireframe3dzerostrideraises():
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
 
 
-@cleanup
 def test_mixedsamplesraises():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -315,6 +334,22 @@ def test_quiver3d_pivot_tail():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
 
 
+@image_comparison(baseline_images=['poly3dcollection_closed'],
+                  remove_text=True)
+def test_poly3dcollection_closed():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], np.float)
+    poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], np.float)
+    c1 = art3d.Poly3DCollection([poly1], linewidths=3, edgecolor='k',
+                                facecolor=(0.5, 0.5, 1, 0.5), closed=True)
+    c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
+                                facecolor=(1, 0.5, 0.5, 0.5), closed=False)
+    ax.add_collection3d(c1)
+    ax.add_collection3d(c2)
+
+
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
 def test_axes3d_labelpad():
     from matplotlib import rcParams
@@ -345,7 +380,6 @@ def test_axes3d_cla():
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
-@cleanup
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
     y = np.linspace(0.5, 10, num=100)
@@ -424,6 +458,33 @@ def test_proj_axes_cube():
     ax.set_ylim(-0.2, 0.2)
 
 
+@image_comparison(baseline_images=['proj3d_axes_cube_ortho'],
+                  extensions=['png'], remove_text=True, style='default')
+def test_proj_axes_cube_ortho():
+    E = np.array([200, 100, 100])
+    R = np.array([0, 0, 0])
+    V = np.array([0, 0, 1])
+    viewM = proj3d.view_transformation(E, R, V)
+    orthoM = proj3d.ortho_transformation(-1, 1)
+    M = np.dot(orthoM, viewM)
+
+    ts = '0 1 2 3 0 4 5 6 7 4'.split()
+    xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 100
+    ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 100
+    zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 100
+
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+
+    fig, ax = _test_proj_draw_axes(M, s=150)
+
+    ax.scatter(txs, tys, s=300-tzs)
+    ax.plot(txs, tys, c='r')
+    for x, y, t in zip(txs, tys, ts):
+        ax.text(x, y, t)
+
+    ax.set_xlim(-200, 200)
+    ax.set_ylim(-200, 200)
+
 def test_rot():
     V = [1, 0, 0, 1]
     rotated_V = proj3d.rot_x(V, np.pi / 6)
@@ -468,3 +529,38 @@ def test_lines_dists():
 
     ax.set_xlim(-50, 150)
     ax.set_ylim(0, 300)
+
+
+def test_autoscale():
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    ax.margins(x=0, y=.1, z=.2)
+    ax.plot([0, 1], [0, 1], [0, 1])
+    assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.2, 1.2)
+    ax.autoscale(False)
+    ax.set_autoscalez_on(True)
+    ax.plot([0, 2], [0, 2], [0, 2])
+    assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
+
+
+@image_comparison(baseline_images=['axes3d_ortho'], style='default')
+def test_axes3d_ortho():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_proj_type('ortho')
+
+
+@pytest.mark.parametrize('value', [np.inf, np.nan])
+@pytest.mark.parametrize(('setter', 'side'), [
+    ('set_xlim3d', 'left'),
+    ('set_xlim3d', 'right'),
+    ('set_ylim3d', 'bottom'),
+    ('set_ylim3d', 'top'),
+    ('set_zlim3d', 'bottom'),
+    ('set_zlim3d', 'top'),
+])
+def test_invalid_axes_limits(setter, side, value):
+    limit = {side: value}
+    fig = plt.figure()
+    obj = fig.add_subplot(111, projection='3d')
+    with pytest.raises(ValueError):
+        getattr(obj, setter)(**limit)

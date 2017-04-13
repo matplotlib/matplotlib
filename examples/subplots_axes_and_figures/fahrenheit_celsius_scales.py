@@ -1,4 +1,8 @@
 """
+=================================
+Different scales on the same axes
+=================================
+
 Demo of how to display two scales on the left and right y axis.
 
 This example uses the Fahrenheit and Celsius scales.

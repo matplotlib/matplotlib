@@ -11,9 +11,10 @@ from matplotlib.path import Path
 class SelectFromCollection(object):
     """Select indices from a matplotlib collection using `LassoSelector`.
 
-    Selected indices are saved in the `ind` attribute. This tool highlights
-    selected points by fading them out (i.e., reducing their alpha values).
-    If your collection has alpha < 1, this tool will permanently alter them.
+    Selected indices are saved in the `ind` attribute. This tool fades out the
+    points that are not part of the selection (i.e., reduces their alpha
+    values). If your collection has alpha < 1, this tool will permanently
+    alter the alpha values.
 
     Note that this tool selects collection objects based on their *origins*
     (i.e., `offsets`).
@@ -44,14 +45,14 @@ class SelectFromCollection(object):
         if len(self.fc) == 0:
             raise ValueError('Collection must have a facecolor')
         elif len(self.fc) == 1:
-            self.fc = np.tile(self.fc, self.Npts).reshape(self.Npts, -1)
+            self.fc = np.tile(self.fc, (self.Npts, 1))
 
         self.lasso = LassoSelector(ax, onselect=self.onselect)
         self.ind = []
 
     def onselect(self, verts):
         path = Path(verts)
-        self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys])[0]
+        self.ind = np.nonzero(path.contains_points(self.xys))[0]
         self.fc[:, -1] = self.alpha_other
         self.fc[self.ind, -1] = 1
         self.collection.set_facecolors(self.fc)

@@ -61,7 +61,7 @@ On windows, both the config directory and the cache directory are
 the same and are in your :file:`Documents and Settings` or :file:`Users`
 directory by default::
 
-    >>> import matplotlib
+    >>> import matplotlib as mpl
     >>> mpl.get_configdir()
     'C:\\Documents and Settings\\jdhunter\\.matplotlib'
     >>> mpl.get_cachedir()

@@ -1,8 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -10,12 +8,13 @@ import pytest
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
 import numpy.ma.testutils as matest
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.cm as cm
 from matplotlib.path import Path
 
 import sys
 on_win = (sys.platform == 'win32')
+
 
 def test_delaunay():
     # No duplicate points, regular grid.
@@ -236,10 +235,15 @@ def test_trifinder():
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [0, 17])
 
+    #
     # Test triangles with horizontal colinear points.  These are not valid
     # triangulations, but we try to deal with the simplest violations.
-    delta = 0.0  # If +ve, triangulation is OK, if -ve triangulation invalid,
-                 # if zero have colinear points but should pass tests anyway.
+    #
+
+    # If +ve, triangulation is OK, if -ve triangulation invalid,
+    # if zero have colinear points but should pass tests anyway.
+    delta = 0.0
+
     x = [1.5, 0,  1,  2, 3, 1.5,   1.5]
     y = [-1,  0,  0,  0, 0, delta, 1]
     triangles = [[0, 2, 1], [0, 3, 2], [0, 4, 3], [1, 2, 5], [2, 3, 5],
@@ -254,10 +258,15 @@ def test_trifinder():
     assert_array_equal(tris, [[-1, 0, 0, 1, 1, 2, -1],
                               [-1, 6, 6, 6, 7, 7, -1]])
 
+    #
     # Test triangles with vertical colinear points.  These are not valid
     # triangulations, but we try to deal with the simplest violations.
-    delta = 0.0  # If +ve, triangulation is OK, if -ve triangulation invalid,
-                # if zero have colinear points but should pass tests anyway.
+    #
+
+    # If +ve, triangulation is OK, if -ve triangulation invalid,
+    # if zero have colinear points but should pass tests anyway.
+    delta = 0.0
+
     x = [-1, -delta, 0,  0,  0, 0, 1]
     y = [1.5, 1.5,   0,  1,  2, 3, 1.5]
     triangles = [[0, 1, 2], [0, 1, 5], [1, 2, 3], [1, 3, 4], [1, 4, 5],
@@ -281,7 +290,7 @@ def test_trifinder():
     trifinder = triang.get_trifinder()
 
     xs = [-0.2, 0.2, 0.8, 1.2]
-    ys = [ 0.5, 0.5, 0.5, 0.5]
+    ys = [0.5, 0.5, 0.5, 0.5]
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [-1, 0, 1, -1])
 
@@ -591,8 +600,10 @@ def test_triinterp_colinear():
     # We also test interpolation inside a  flat triangle, by forcing
     # *tri_index* in a call to :meth:`_interpolate_multikeys`.
 
-    delta = 0.  # If +ve, triangulation is OK, if -ve triangulation invalid,
-                # if zero have colinear points but should pass tests anyway.
+    # If +ve, triangulation is OK, if -ve triangulation invalid,
+    # if zero have colinear points but should pass tests anyway.
+    delta = 0.
+
     x0 = np.array([1.5, 0,  1,  2, 3, 1.5,   1.5])
     y0 = np.array([-1,  0,  0,  0, 0, delta, 1])
 
@@ -966,8 +977,8 @@ def test_triplot_return():
     triang = mtri.Triangulation(
         [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0],
         triangles=[[0, 1, 3], [3, 2, 0]])
-    if ax.triplot(triang, "b-") is None:
-        raise AssertionError("triplot should return the artist it adds")
+    assert ax.triplot(triang, "b-") is not None, \
+        'triplot should return the artist it adds'
 
 
 def test_trirefiner_fortran_contiguous_triangles():
@@ -1029,7 +1040,6 @@ def test_trianalyzer_mismatched_indices():
     triang2 = analyser._get_compressed_triangulation()
 
 
-@cleanup
 def test_tricontourf_decreasing_levels():
     # github issue 5477.
     x = [0.0, 1.0, 1.0]
@@ -1038,3 +1048,78 @@ def test_tricontourf_decreasing_levels():
     plt.figure()
     with pytest.raises(ValueError):
         plt.tricontourf(x, y, z, [1.0, 0.0])
+
+
+def test_internal_cpp_api():
+    # Following github issue 8197.
+    import matplotlib._tri as _tri
+
+    # C++ Triangulation.
+    with pytest.raises(TypeError) as excinfo:
+        triang = _tri.Triangulation()
+    excinfo.match(r'function takes exactly 7 arguments \(0 given\)')
+
+    with pytest.raises(ValueError) as excinfo:
+        triang = _tri.Triangulation([], [1], [[]], None, None, None, False)
+    excinfo.match(r'x and y must be 1D arrays of the same length')
+
+    x = [0, 1, 1]
+    y = [0, 0, 1]
+    with pytest.raises(ValueError) as excinfo:
+        triang = _tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
+    excinfo.match(r'triangles must be a 2D array of shape \(\?,3\)')
+
+    tris = [[0, 1, 2]]
+    with pytest.raises(ValueError) as excinfo:
+        triang = _tri.Triangulation(x, y, tris, [0, 1], None, None, False)
+    excinfo.match(r'mask must be a 1D array with the same length as the ' +
+                  r'triangles array')
+
+    with pytest.raises(ValueError) as excinfo:
+        triang = _tri.Triangulation(x, y, tris, None, [[1]], None, False)
+    excinfo.match(r'edges must be a 2D array with shape \(\?,2\)')
+
+    with pytest.raises(ValueError) as excinfo:
+        triang = _tri.Triangulation(x, y, tris, None, None, [[-1]], False)
+    excinfo.match(r'neighbors must be a 2D array with the same shape as the ' +
+                  r'triangles array')
+
+    triang = _tri.Triangulation(x, y, tris, None, None, None, False)
+
+    with pytest.raises(ValueError) as excinfo:
+        triang.calculate_plane_coefficients([])
+    excinfo.match(r'z array must have same length as triangulation x and y ' +
+                  r'arrays')
+
+    with pytest.raises(ValueError) as excinfo:
+        triang.set_mask([0, 1])
+    excinfo.match(r'mask must be a 1D array with the same length as the ' +
+                  r'triangles array')
+
+    # C++ TriContourGenerator.
+    with pytest.raises(TypeError) as excinfo:
+        tcg = _tri.TriContourGenerator()
+    excinfo.match(r'function takes exactly 2 arguments \(0 given\)')
+
+    with pytest.raises(ValueError) as excinfo:
+        tcg = _tri.TriContourGenerator(triang, [1])
+    excinfo.match(r'z must be a 1D array with the same length as the x and ' +
+                  r'y arrays')
+
+    z = [0, 1, 2]
+    tcg = _tri.TriContourGenerator(triang, z)
+
+    with pytest.raises(ValueError) as excinfo:
+        tcg.create_filled_contour(1, 0)
+    excinfo.match(r'filled contour levels must be increasing')
+
+    # C++ TrapezoidMapTriFinder.
+    with pytest.raises(TypeError) as excinfo:
+        trifinder = _tri.TrapezoidMapTriFinder()
+    excinfo.match(r'function takes exactly 1 argument \(0 given\)')
+
+    trifinder = _tri.TrapezoidMapTriFinder(triang)
+
+    with pytest.raises(ValueError) as excinfo:
+        trifinder.find_many([0], [0, 1])
+    excinfo.match(r'x and y must be array_like with same shape')

@@ -20,6 +20,7 @@ import glob
 import gzip
 import io
 import locale
+import numbers
 import os
 import re
 import sys
@@ -291,13 +292,18 @@ class CallbackRegistry(object):
         self._cid = 0
         self._func_cid_map = {}
 
+    # In general, callbacks may not be pickled; thus, we simply recreate an
+    # empty dictionary at unpickling.  In order to ensure that `__setstate__`
+    # (which just defers to `__init__`) is called, `__getstate__` must
+    # return a truthy value (for pickle protocol>=3, i.e. Py3, the
+    # *actual* behavior is that `__setstate__` will be called as long as
+    # `__getstate__` does not return `None`, but this is undocumented -- see
+    # http://bugs.python.org/issue12290).
+
     def __getstate__(self):
-        # We cannot currently pickle the callables in the registry, so
-        # return an empty dictionary.
-        return {}
+        return True
 
     def __setstate__(self, state):
-        # re-initialise an empty callback registry
         self.__init__()
 
     def connect(self, s, func):
@@ -350,8 +356,8 @@ class CallbackRegistry(object):
 
     def process(self, s, *args, **kwargs):
         """
-        process signal *s*.  All of the functions registered to receive
-        callbacks on *s* will be called with *\*args* and *\*\*kwargs*
+        process signal `s`.  All of the functions registered to receive
+        callbacks on `s` will be called with ``**args`` and ``**kwargs``
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
@@ -490,19 +496,8 @@ def iterable(obj):
 
 def is_string_like(obj):
     """Return True if *obj* looks like a string"""
-    if isinstance(obj, six.string_types):
-        return True
-    # numpy strings are subclass of str, ma strings are not
-    if isinstance(obj, np.ma.MaskedArray):
-        if obj.ndim == 0 and obj.dtype.kind in 'SU':
-            return True
-        else:
-            return False
-    try:
-        obj + ''
-    except:
-        return False
-    return True
+    # (np.str_ == np.unicode_ on Py3).
+    return isinstance(obj, (six.string_types, np.str_, np.unicode_))
 
 
 def is_sequence_of_strings(obj):
@@ -548,6 +543,7 @@ def file_requires_unicode(x):
         return False
 
 
+@deprecated('2.1')
 def is_scalar(obj):
     """return true if *obj* is not string like and is not iterable"""
     return not is_string_like(obj) and not iterable(obj)
@@ -555,12 +551,7 @@ def is_scalar(obj):
 
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
-    try:
-        obj + 1
-    except:
-        return False
-    else:
-        return True
+    return isinstance(obj, (numbers.Number, np.number))
 
 
 def to_filehandle(fname, flag='rU', return_opened=False):
@@ -939,7 +930,7 @@ def wrap(prefix, text, cols):
 # A regular expression used to determine the amount of space to
 # remove.  It looks for the first sequence of spaces immediately
 # following the first newline, or at the beginning of the string.
-_find_dedent_regex = re.compile("(?:(?:\n\r?)|^)( *)\S")
+_find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 # A cache to hold the regexs that actually remove the indent.
 _dedent_regex = {}
 
@@ -1505,15 +1496,12 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-
-        class Token:
-            pass
-        token = Token()
+        token = object()
 
         # Mark each group as we come across if by appending a token,
         # and don't yield it twice
         for group in six.itervalues(self._mapping):
-            if not group[-1] is token:
+            if group[-1] is not token:
                 yield [x() for x in group]
                 group.append(token)
 
@@ -1717,7 +1705,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     .. math::
 
-        \mathrm{med} \pm 1.57 \\times \\frac{\mathrm{iqr}}{\sqrt{N}}
+        \\mathrm{med} \\pm 1.57 \\times \\frac{\\mathrm{iqr}}{\\sqrt{N}}
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
@@ -1756,7 +1744,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     bxpstats = []
 
     # convert X to a list of lists
-    X = _reshape_2D(X)
+    X = _reshape_2D(X, "X")
 
     ncols = len(X)
     if labels is None:
@@ -1986,41 +1974,27 @@ def _check_1d(x):
             return np.atleast_1d(x)
 
 
-def _reshape_2D(X):
+def _reshape_2D(X, name):
     """
-    Converts a non-empty list or an ndarray of two or fewer dimensions
-    into a list of iterable objects so that in
+    Use Fortran ordering to convert ndarrays and lists of iterables to lists of
+    1D arrays.
 
-        for v in _reshape_2D(X):
+    Lists of iterables are converted by applying `np.asarray` to each of their
+    elements.  1D ndarrays are returned in a singleton list containing them.
+    2D ndarrays are converted to the list of their *columns*.
 
-    v is iterable and can be used to instantiate a 1D array.
+    *name* is used to generate the error message for invalid inputs.
     """
-    if hasattr(X, 'shape'):
-        # one item
-        if len(X.shape) == 1:
-            if hasattr(X[0], 'shape'):
-                X = list(X)
-            else:
-                X = [X, ]
-
-        # several items
-        elif len(X.shape) == 2:
-            nrows, ncols = X.shape
-            if nrows == 1:
-                X = [X]
-            elif ncols == 1:
-                X = [X.ravel()]
-            else:
-                X = [X[:, i] for i in xrange(ncols)]
-        else:
-            raise ValueError("input `X` must have 2 or fewer dimensions")
-
-    if not hasattr(X[0], '__len__'):
-        X = [X]
+    # Iterate over columns for ndarrays, over rows otherwise.
+    X = X.T if isinstance(X, np.ndarray) else np.asarray(X)
+    if X.ndim == 1 and X.dtype.type != np.object_:
+        # 1D array of scalars: directly return it.
+        return [X]
+    elif X.ndim in [1, 2]:
+        # 2D array, or 1D array of iterables: flatten them first.
+        return [np.reshape(x, -1) for x in X]
     else:
-        X = [np.ravel(x) for x in X]
-
-    return X
+        raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
 def violin_stats(X, method, points=100):
@@ -2067,7 +2041,7 @@ def violin_stats(X, method, points=100):
     vpstats = []
 
     # Want X to be a list of data sequences
-    X = _reshape_2D(X)
+    X = _reshape_2D(X, "X")
 
     for x in X:
         # Dictionary of results for this distribution
@@ -2293,9 +2267,7 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    if six.PY3 and isinstance(data, collections.abc.MappingView):
-        return list(data)
-    return data
+    return list(data) if isinstance(data, collections.MappingView) else data
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -2704,7 +2676,7 @@ class _StringFuncParser(object):
     def _get_key_params(self):
         str_func = self._str_func
         # Checking if it comes with parameters
-        regex = '\{(.*?)\}'
+        regex = r'\{(.*?)\}'
         params = re.findall(regex, str_func)
 
         for i, param in enumerate(params):

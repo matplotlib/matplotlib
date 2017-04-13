@@ -11,15 +11,13 @@ import pytest
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-from matplotlib.testing import skip
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 from matplotlib import collections
 from matplotlib import path
 from matplotlib import transforms as mtransforms
 
 
-@cleanup
 def test_repeated_save_with_alpha():
     # We want an image which has a background color of bluish green, with an
     # alpha of 0.25.
@@ -52,7 +50,6 @@ def test_repeated_save_with_alpha():
                               decimal=3)
 
 
-@cleanup
 def test_large_single_path_collection():
     buff = io.BytesIO()
 
@@ -67,7 +64,6 @@ def test_large_single_path_collection():
     plt.savefig(buff)
 
 
-@cleanup
 def test_marker_with_nan():
     # This creates a marker with nans in it, which was segfaulting the
     # Agg backend (see #3722)
@@ -80,7 +76,6 @@ def test_marker_with_nan():
     fig.savefig(buf, format='png')
 
 
-@cleanup
 def test_long_path():
     buff = io.BytesIO()
 
@@ -180,9 +175,6 @@ def test_agg_filter():
             t2 = self.offset_filter.process_image(t1, dpi)
             return t2
 
-    if LooseVersion(np.__version__) < LooseVersion('1.7.0'):
-        skip('Disabled on Numpy < 1.7.0')
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
@@ -222,7 +214,6 @@ def test_agg_filter():
     ax.yaxis.set_visible(False)
 
 
-@cleanup
 def test_too_large_image():
     fig = plt.figure(figsize=(300, 1000))
     buff = io.BytesIO()

@@ -5,7 +5,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import io
 import re
+
 import numpy as np
+import pytest
 import six
 
 import matplotlib
@@ -13,17 +15,16 @@ import matplotlib.pyplot as plt
 from matplotlib import patheffects
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
-from matplotlib.testing.decorators import cleanup, knownfailureif
 
 
-needs_ghostscript = knownfailureif(
+needs_ghostscript = pytest.mark.xfail(
     matplotlib.checkdep_ghostscript()[0] is None,
-    "This test needs a ghostscript installation")
+    reason="This test needs a ghostscript installation")
 
 
-needs_tex = knownfailureif(
+needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
 def _test_savefig_to_stringio(format='ps', use_log=False):
@@ -59,19 +60,16 @@ def _test_savefig_to_stringio(format='ps', use_log=False):
         buffer.close()
 
 
-@cleanup
 def test_savefig_to_stringio():
     _test_savefig_to_stringio()
 
 
-@cleanup
 @needs_ghostscript
 def test_savefig_to_stringio_with_distiller():
     matplotlib.rcParams['ps.usedistiller'] = 'ghostscript'
     _test_savefig_to_stringio()
 
 
-@cleanup
 @needs_tex
 @needs_ghostscript
 def test_savefig_to_stringio_with_usetex():
@@ -80,18 +78,15 @@ def test_savefig_to_stringio_with_usetex():
     _test_savefig_to_stringio()
 
 
-@cleanup
 def test_savefig_to_stringio_eps():
     _test_savefig_to_stringio(format='eps')
 
 
-@cleanup
 def test_savefig_to_stringio_eps_afm():
     matplotlib.rcParams['ps.useafm'] = True
     _test_savefig_to_stringio(format='eps', use_log=True)
 
 
-@cleanup
 @needs_tex
 @needs_ghostscript
 def test_savefig_to_stringio_with_usetex_eps():
@@ -100,7 +95,6 @@ def test_savefig_to_stringio_with_usetex_eps():
     _test_savefig_to_stringio(format='eps')
 
 
-@cleanup
 def test_composite_image():
     # Test that figures can be saved with and without combining multiple images
     # (on a single set of axes) into a single composite image.
@@ -125,7 +119,6 @@ def test_composite_image():
         assert buff.count(six.b(' colorimage')) == 2
 
 
-@cleanup
 def test_patheffects():
     with matplotlib.rc_context():
         matplotlib.rcParams['path.effects'] = [
@@ -136,7 +129,6 @@ def test_patheffects():
             fig.savefig(ps, format='ps')
 
 
-@cleanup
 @needs_tex
 @needs_ghostscript
 def test_tilde_in_tempfilename():
@@ -176,7 +168,6 @@ def test_tilde_in_tempfilename():
                 print(e)
 
 
-@cleanup
 def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PS output"""
     # SOURCE_DATE_EPOCH support is not tested with text.usetex,
@@ -187,13 +178,11 @@ def test_source_date_epoch():
         "ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000")
 
 
-@cleanup
 def test_determinism_all():
     """Test for reproducible PS output"""
     _determinism_check(format="ps")
 
 
-@cleanup
 @needs_tex
 @needs_ghostscript
 def test_determinism_all_tex():

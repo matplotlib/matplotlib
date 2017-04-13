@@ -140,8 +140,8 @@ locations, in the following order:
 
 3. It next looks in a user-specific place, depending on your platform:
 
-   - On Linux, it looks in :file:`.config/matplotlib/matplotlibrc` (or
-     `$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
+   - On Linux and FreeBSD, it looks in :file:`.config/matplotlib/matplotlibrc`
+     (or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
      your environment.
 
    - On other platforms, it looks in :file:`.matplotlib/matplotlibrc`.

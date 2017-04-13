@@ -3,14 +3,16 @@ from __future__ import (absolute_import, division, print_function,
 
 from numpy.testing import assert_equal
 from matplotlib import rcParams
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.axes import Axes
+from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import warnings
+import pytest
 
 
-@cleanup
 def test_figure_label():
     # pyplot figure creation, selection and closing with figure label and
     # number
@@ -32,7 +34,6 @@ def test_figure_label():
     assert_equal(plt.get_figlabels(), ['', 'today'])
 
 
-@cleanup
 def test_fignum_exists():
     # pyplot figure creation, selection and closing with fignum_exists
     plt.figure('one')
@@ -47,6 +48,23 @@ def test_fignum_exists():
     plt.close(4)
     assert_equal(plt.fignum_exists('one'), False)
     assert_equal(plt.fignum_exists(4), False)
+
+
+def test_clf_keyword():
+    # test if existing figure is cleared with figure() and subplots()
+    fig0 = plt.figure(num=1)
+    fig0.suptitle("A fancy plot")
+    assert_equal([t.get_text() for t in fig0.texts], ["A fancy plot"])
+
+    fig1 = plt.figure(num=1, clear=False)
+    fig1.text(0.5, 0.5, "Really fancy!")
+    assert fig0 is fig1
+    assert_equal([t.get_text() for t in fig1.texts],
+                 ["A fancy plot", 'Really fancy!'])
+
+    fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
+    assert fig0 is fig2
+    assert_equal([t.get_text() for t in fig2.texts], [])
 
 
 @image_comparison(baseline_images=['figure_today'])
@@ -76,7 +94,6 @@ def test_figure_legend():
     fig.legend()
 
 
-@cleanup
 def test_gca():
     fig = plt.figure()
 
@@ -113,7 +130,6 @@ def test_suptitle():
     fig.suptitle('title', color='g', rotation='30')
 
 
-@cleanup
 def test_suptitle_fontproperties():
     from matplotlib.font_manager import FontProperties
     fig, ax = plt.subplots()
@@ -143,7 +159,6 @@ def test_alpha():
                                               facecolor='red'))
 
 
-@cleanup
 def test_too_many_figures():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -152,7 +167,6 @@ def test_too_many_figures():
         assert len(w) == 1
 
 
-@cleanup
 def test_iterability_axes_argument():
 
     # This is a regression test for matplotlib/matplotlib#3196. If one of the
@@ -183,7 +197,6 @@ def test_iterability_axes_argument():
     plt.close(fig)
 
 
-@cleanup
 def test_set_fig_size():
     fig = plt.figure()
 
@@ -206,7 +219,6 @@ def test_set_fig_size():
     assert_equal(fig.get_figheight(), 3)
 
 
-@cleanup
 def test_axes_remove():
     fig, axes = plt.subplots(2, 2)
     axes[-1, -1].remove()
@@ -225,3 +237,39 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
+
+
+@pytest.mark.parametrize('which', [None, 'both', 'major', 'minor'])
+def test_autofmt_xdate(which):
+    date = ['3 Jan 2013', '4 Jan 2013', '5 Jan 2013', '6 Jan 2013',
+            '7 Jan 2013', '8 Jan 2013', '9 Jan 2013', '10 Jan 2013',
+            '11 Jan 2013', '12 Jan 2013', '13 Jan 2013', '14 Jan 2013']
+
+    time = ['16:44:00', '16:45:00', '16:46:00', '16:47:00', '16:48:00',
+            '16:49:00', '16:51:00', '16:52:00', '16:53:00', '16:55:00',
+            '16:56:00', '16:57:00']
+
+    angle = 60
+    minors = [1, 2, 3, 4, 5, 6, 7]
+
+    x = mdates.datestr2num(date)
+    y = mdates.datestr2num(time)
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x, y)
+    ax.yaxis_date()
+    ax.xaxis_date()
+
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.xaxis.set_minor_formatter(FixedFormatter(minors))
+
+    fig.autofmt_xdate(0.2, angle, 'right', which)
+
+    if which in ('both', 'major', None):
+        for label in fig.axes[0].get_xticklabels(False, 'major'):
+            assert int(label.get_rotation()) == angle
+
+    if which in ('both', 'minor'):
+        for label in fig.axes[0].get_xticklabels(True, 'minor'):
+            assert int(label.get_rotation()) == angle

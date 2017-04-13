@@ -58,9 +58,11 @@ are supported.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import re
 import six
 from six.moves import zip
+
+from collections import Sized
+import re
 import warnings
 
 import numpy as np
@@ -261,7 +263,7 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 cnames = CSS4_COLORS
-hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
+hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")
 
 
 def rgb2hex(c):
@@ -693,12 +695,12 @@ class LinearSegmentedColormap(Colormap):
         if not cbook.iterable(colors):
             raise ValueError('colors must be iterable')
 
-        if cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
-                not cbook.is_string_like(colors[0]):
+        if (isinstance(colors[0], Sized) and len(colors[0]) == 2
+                and not cbook.is_string_like(colors[0])):
             # List of value, color pairs
-            vals, colors = list(zip(*colors))
+            vals, colors = zip(*colors)
         else:
-            vals = np.linspace(0., 1., len(colors))
+            vals = np.linspace(0, 1, len(colors))
 
         cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):
@@ -1245,25 +1247,29 @@ class BoundaryNorm(Normalize):
     """
     def __init__(self, boundaries, ncolors, clip=False):
         """
-        *boundaries*
-            a monotonically increasing sequence
-        *ncolors*
-            number of colors in the colormap to be used
+        Parameters
+        ----------
+        boundaries : array-like
+            Monotonically increasing sequence of boundaries
+        ncolors : int
+            Number of colors in the colormap to be used
+        clip : bool, optional
+            If clip is ``True``, out of range values are mapped to 0 if they
+            are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
+            above ``boundaries[-1]``.
 
-        If::
+            If clip is ``False``, out of range values are mapped to -1 if
+            they are below ``boundaries[0]`` or mapped to ncolors if they are
+            above ``boundaries[-1]``. These are then converted to valid indices
+            by :meth:`Colormap.__call__`.
 
-            b[i] <= v < b[i+1]
+        Notes
+        -----
+        *boundaries* defines the edges of bins, and data falling within a bin
+        is mapped to the color with the same index.
 
-        then v is mapped to color j;
-        as i varies from 0 to len(boundaries)-2,
-        j goes from 0 to ncolors-1.
-
-        Out-of-range values are mapped
-        to -1 if low and ncolors if high; these are converted
-        to valid indices by
-        :meth:`Colormap.__call__` .
-        If clip == True, out-of-range values
-        are mapped to 0 if low and ncolors-1 if high.
+        If the number of bins doesn't equal *ncolors*, the color is chosen
+        by linear interpolation of the bin number onto color numbers.
         """
         self.clip = clip
         self.vmin = boundaries[0]
@@ -1302,6 +1308,13 @@ class BoundaryNorm(Normalize):
         return ret
 
     def inverse(self, value):
+        """
+        Raises
+        ------
+        ValueError
+            BoundaryNorm is not invertible, so calling this method will always
+            raise an error
+        """
         return ValueError("BoundaryNorm is not invertible")
 
 

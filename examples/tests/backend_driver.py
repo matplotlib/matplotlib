@@ -51,8 +51,9 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
-    'barh_demo.py',
-    'fill_demo.py',
+    'barh.py',
+    'cohere.py',
+    'fill.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
     'line_styles_reference.py',
@@ -75,22 +76,24 @@ files['images'] = [
     ]
 
 files['statistics'] = [
-    'errorbar_demo.py',
-    'errorbar_demo_features.py',
-    'histogram_demo_cumulative.py',
-    'histogram_demo_features.py',
-    'histogram_demo_histtypes.py',
-    'histogram_demo_multihist.py',
+    'errorbar.py',
+    'errorbar_features.py',
+    'histogram_cumulative.py',
+    'histogram_features.py',
+    'histogram_histtypes.py',
+    'histogram_multihist.py',
     ]
 
 files['pie'] = [
     'pie_demo.py',
-    'polar_bar_demo.py',
-    'polar_scatter_demo.py',
+    'polar_bar.py',
+    'polar_scatter.py',
     ]
 
 files['text_labels_and_annotations'] = [
+    'accented_text.py',
     'text_demo_fontdict.py',
+    'text_rotation.py',
     'unicode_demo.py',
     ]
 
@@ -108,7 +111,6 @@ files['showcase'] = [
     ]
 
 files['pylab'] = [
-    'accented_text.py',
     'alignment_test.py',
     'annotation_demo.py',
     'annotation_demo.py',
@@ -127,7 +129,6 @@ files['pylab'] = [
     'barcode_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
-    'cohere_demo.py',
     'color_by_yvalue.py',
     'color_demo.py',
     'colorbar_tick_labelling_demo.py',
@@ -172,7 +173,6 @@ files['pylab'] = [
     'hatch_demo.py',
     'hexbin_demo.py',
     'hexbin_demo2.py',
-    'hist_colormapped.py',
     'vline_hline_demo.py',
 
     'image_clip_path.py',
@@ -195,7 +195,6 @@ files['pylab'] = [
     'log_test.py',
     'major_minor_demo1.py',
     'major_minor_demo2.py',
-    'manual_axis.py',
     'masked_demo.py',
     'mathtext_demo.py',
     'mathtext_examples.py',
@@ -206,7 +205,7 @@ files['pylab'] = [
     'multiline.py',
     'multiple_figs_demo.py',
     'nan_test.py',
-    'newscalarformatter_demo.py',
+    'scalarformatter.py',
     'pcolor_demo.py',
     'pcolor_log.py',
     'pcolor_small.py',
@@ -237,8 +236,6 @@ files['pylab'] = [
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
-    'text_handles.py',
-    'text_rotation.py',
     'text_rotation_relative_to_line.py',
     'transoffset.py',
     'xcorr_demo.py',
@@ -307,7 +304,6 @@ files['mplot3d'] = [
 # examples that generate multiple figures
 
 excluded = {
-    'pylab': ['__init__.py', 'toggle_images.py', ],
     'units': ['__init__.py', 'date_support.py', ],
 }
 

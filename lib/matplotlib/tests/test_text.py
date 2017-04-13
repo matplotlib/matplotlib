@@ -11,7 +11,7 @@ import pytest
 from matplotlib.transforms import Bbox
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation, Text
 from matplotlib.backends.backend_agg import RendererAgg
@@ -30,7 +30,7 @@ def test_font_styles():
     from matplotlib.font_manager import FontProperties, findfont
     warnings.filterwarnings(
         'ignore',
-        ('findfont: Font family \[u?\'Foo\'\] not found. Falling back to .'),
+        r"findfont: Font family \[u?'Foo'\] not found. Falling back to .",
         UserWarning,
         module='matplotlib.font_manager')
 
@@ -135,7 +135,7 @@ def test_antialiasing():
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
              verticalalignment='center')
-    fig.text(0.5, 0.25, "$\sqrt{x}$", horizontalalignment='center',
+    fig.text(0.5, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
              verticalalignment='center')
     # NOTE: We don't need to restore the rcParams here, because the
     # test cleanup will do it for us.  In fact, if we do it here, it
@@ -232,7 +232,6 @@ def test_axes_titles():
     ax.set_title('right', loc='right', fontsize=12, fontweight=400)
 
 
-@cleanup
 def test_set_position():
     fig, ax = plt.subplots()
 
@@ -366,7 +365,6 @@ def test_annotation_negative_fig_coords():
                 va='top')
 
 
-@cleanup
 def test_text_stale():
     fig, (ax1, ax2) = plt.subplots(1, 2)
     plt.draw_all()
@@ -401,7 +399,6 @@ def test_agg_text_clip():
     plt.show()
 
 
-@cleanup
 def test_text_size_binding():
     from matplotlib.font_manager import FontProperties
 
@@ -411,3 +408,16 @@ def test_text_size_binding():
     matplotlib.rcParams['font.size'] = 100
 
     assert sz1 == fp.get_size_in_points()
+
+
+@image_comparison(baseline_images=['font_scaling'],
+                  extensions=['pdf'])
+def test_font_scaling():
+    matplotlib.rcParams['pdf.fonttype'] = 42
+    fig, ax = plt.subplots(figsize=(6.4, 12.4))
+    ax.xaxis.set_major_locator(plt.NullLocator())
+    ax.yaxis.set_major_locator(plt.NullLocator())
+    ax.set_ylim(-10, 600)
+
+    for i, fs in enumerate(range(4, 43, 2)):
+        ax.text(0.1, i*30, "{fs} pt font size".format(fs=fs), fontsize=fs)

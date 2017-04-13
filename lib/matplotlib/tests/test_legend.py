@@ -9,10 +9,10 @@ except ImportError:
 from numpy.testing import assert_equal
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 
@@ -171,7 +171,6 @@ def test_legend_expand():
         ax.legend(loc=3, mode=mode, ncol=2)
 
 
-@cleanup
 def test_legend_remove():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -186,28 +185,24 @@ def test_legend_remove():
 
 class TestLegendFunction(object):
     # Tests the legend function on the Axes and pyplot.
-    @cleanup
     def test_legend_handle_label(self):
         lines = plt.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend(lines, ['hello world'])
         Legend.assert_called_with(plt.gca(), lines, ['hello world'])
 
-    @cleanup
     def test_legend_no_args(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend()
         Legend.assert_called_with(plt.gca(), lines, ['hello world'])
 
-    @cleanup
     def test_legend_label_args(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend(['foobar'])
         Legend.assert_called_with(plt.gca(), lines, ['foobar'])
 
-    @cleanup
     def test_legend_handler_map(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.axes.Axes.'
@@ -216,7 +211,6 @@ class TestLegendFunction(object):
             plt.legend(handler_map={'1': 2})
         handles_labels.assert_called_with({'1': 2})
 
-    @cleanup
     def test_kwargs(self):
         fig, ax = plt.subplots(1, 1)
         th = np.linspace(0, 2*np.pi, 1024)
@@ -226,7 +220,6 @@ class TestLegendFunction(object):
             ax.legend(handles=(lnc, lns), labels=('a', 'b'))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 
-    @cleanup
     def test_warn_args_kwargs(self):
         fig, ax = plt.subplots(1, 1)
         th = np.linspace(0, 2*np.pi, 1024)
@@ -256,7 +249,6 @@ def test_legend_stackplot():
     ax.legend(loc=0)
 
 
-@cleanup
 def test_cross_figure_patch_legend():
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()
@@ -265,7 +257,6 @@ def test_cross_figure_patch_legend():
     fig2.legend(brs, 'foo')
 
 
-@cleanup
 def test_nanscatter():
     fig, ax = plt.subplots()
 
@@ -302,7 +293,7 @@ def test_not_covering_scatter():
                   extensions=['png'])
 def test_not_covering_scatter_transform():
     # Offsets point to top left, the default auto position
-    offset = mtrans.Affine2D().translate(-20, 20)
+    offset = mtransforms.Affine2D().translate(-20, 20)
     x = np.linspace(0, 30, 1000)
     plt.plot(x, x)
 
@@ -311,7 +302,6 @@ def test_not_covering_scatter_transform():
     plt.legend(['foo', 'bar'], loc='best')
 
 
-@cleanup
 def test_linecollection_scaled_dashes():
     lines1 = [[(0, .5), (.5, 1)], [(.3, .6), (.2, .2)]]
     lines2 = [[[0.7, .2], [.8, .4]], [[.5, .7], [.6, .1]]]

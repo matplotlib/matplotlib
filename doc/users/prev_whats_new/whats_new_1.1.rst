@@ -17,10 +17,11 @@ Sankey Diagrams
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:mod:`~matplotlib.sankey`) and provided new examples
-(:ref:`api-sankey_demo_basics`, :ref:`api-sankey_demo_links`,
-:ref:`api-sankey_demo_rankine`).
+(:ref:`api-sankey_basics`, :ref:`api-sankey_links`,
+:ref:`api-sankey_rankine`).
 
-.. plot:: mpl_examples/api/sankey_demo_rankine.py
+.. plot:: gallery/api/sankey_rankine.py
+
 
 Animation
 ---------
@@ -134,12 +135,12 @@ as 2D plotting, Ben Root has made several improvements to the
 
 * Ticker offset display added:
 
-.. plot:: mpl_examples/mplot3d/offset_demo.py
+.. plot:: gallery/mplot3d/offset.py
 
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+.. plot:: gallery/mplot3d/contourf3d_2.py
 
 Numerix support removed
 -----------------------

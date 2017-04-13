@@ -431,6 +431,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            edgecolor=None,  # defaults to rc figure.edgecolor
            frameon=True,
            FigureClass=Figure,
+           clear=False,
            **kwargs
            ):
     """
@@ -457,10 +458,19 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         resolution of the figure. If not provided, defaults to rc figure.dpi.
 
     facecolor :
-        the background color. If not provided, defaults to rc figure.facecolor
+        the background color. If not provided, defaults to rc figure.facecolor.
 
     edgecolor :
-        the border color. If not provided, defaults to rc figure.edgecolor
+        the border color. If not provided, defaults to rc figure.edgecolor.
+
+    frameon : bool, optional, default: True
+        If False, suppress drawing the figure frame.
+
+    FigureClass : class derived from matplotlib.figure.Figure
+        Optionally use a custom Figure instance.
+
+    clear : bool, optional, default: False
+        If True and the figure already exists, then it is cleared.
 
     Returns
     -------
@@ -557,6 +567,9 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
         if _INSTALL_FIG_OBSERVER:
             fig.stale_callback = _auto_draw_if_interactive
+
+    if clear:
+        figManager.canvas.figure.clear()
 
     return figManager.canvas.figure
 
@@ -862,7 +875,8 @@ def axes(*args, **kwargs):
       color for the axis, default white.
 
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
-      axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
+      axis and the parent of *h* the current figure.
+      An :class:`~matplotlib.axes.Axes` instance is returned.
 
     =========   ==============   ==============================================
     kwarg       Accepts          Description
@@ -896,7 +910,8 @@ def axes(*args, **kwargs):
     arg = args[0]
 
     if isinstance(arg, Axes):
-        a = gcf().sca(arg)
+        sca(arg)
+        a = arg
     else:
         rect = arg
         a = gcf().add_axes(rect, **kwargs)
@@ -1022,12 +1037,12 @@ def subplot(*args, **kwargs):
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pie_and_polar_charts/polar_scatter_demo.py`
+        :file:`gallery/pie_and_polar_charts/polar_scatter.py`
             For an example
 
     **Example:**
 
-    .. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+    .. plot:: gallery/subplots_axes_and_figures/subplot.py
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
@@ -3193,7 +3208,7 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
         radius=None, counterclock=True, wedgeprops=None, textprops=None,
-        center=(0, 0), frame=False, hold=None, data=None):
+        center=(0, 0), frame=False, rotatelabels=False, hold=None, data=None):
     ax = gca()
     # Deprecated: allow callers to override the hold state
     # by passing hold=True|False
@@ -3210,7 +3225,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      labeldistance=labeldistance, startangle=startangle,
                      radius=radius, counterclock=counterclock,
                      wedgeprops=wedgeprops, textprops=textprops, center=center,
-                     frame=frame, data=data)
+                     frame=frame, rotatelabels=rotatelabels, data=data)
     finally:
         ax._hold = washold
 

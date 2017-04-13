@@ -17,7 +17,7 @@ talking to user interface toolkits like `wxPython
 <https://www.wxpython.org>`_ or drawing languages like PostScript®, and
 the ``Artist`` handles all the high level constructs like representing
 and laying out the figure, text, and lines.  The typical user will
-spend 95% of his time working with the ``Artists``.
+spend 95% of their time working with the ``Artists``.
 
 There are two types of ``Artists``: primitives and containers.  The primitives
 represent the standard graphical objects we want to paint onto our canvas:
@@ -238,7 +238,7 @@ Object containers
 
 
 Now that we know how to inspect and set the properties of a given
-object we want to configure, we need to now how to get at that object.
+object we want to configure, we need to know how to get at that object.
 As mentioned in the introduction, there are two kinds of objects:
 primitives and containers.  The primitives are usually the things you
 want to configure (the font of a :class:`~matplotlib.text.Text`
@@ -497,7 +497,7 @@ containers will be detailed below, but note that the ``Axes`` contains
 many helper methods which forward calls on to the
 :class:`~matplotlib.axis.Axis` instances so you often do not need to
 work with them directly unless you want to.  For example, you can set
-the font size of the ``XAxis`` ticklabels using the ``Axes`` helper
+the font color of the ``XAxis`` ticklabels using the ``Axes`` helper
 method::
 
     for label in ax.get_xticklabels():
@@ -544,8 +544,8 @@ ticklabels.  Because the ticks are dynamically created as needed (e.g., when
 panning and zooming), you should access the lists of major and minor ticks
 through their accessor methods :meth:`~matplotlib.axis.Axis.get_major_ticks`
 and :meth:`~matplotlib.axis.Axis.get_minor_ticks`.  Although the ticks contain
-all the primitives and will be covered below, the ``Axis`` methods contain
-accessor methods to return the tick lines, tick labels, tick locations etc.:
+all the primitives and will be covered below, ``Axis`` instances have accessor
+methods that return the tick lines, tick labels, tick locations etc.:
 
 .. sourcecode:: ipython
 
@@ -625,11 +625,11 @@ tick2line        Line2D instance
 gridline         Line2D instance
 label1           Text instance
 label2           Text instance
-gridOn           boolean which determines whether to draw the tickline
+gridOn           boolean which determines whether to draw the gridline 
 tick1On          boolean which determines whether to draw the 1st tickline
 tick2On          boolean which determines whether to draw the 2nd tickline
-label1On         boolean which determines whether to draw tick label
-label2On         boolean which determines whether to draw tick label
+label1On         boolean which determines whether to draw the 1st tick label
+label2On         boolean which determines whether to draw the 2nd tick label
 ==============   ==========================================================
 
 Here is an example which sets the formatter for the right side ticks with

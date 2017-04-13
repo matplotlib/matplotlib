@@ -11,9 +11,9 @@ import shutil
 import warnings
 import unittest
 
-# Note - don't import nose up here - import it only as needed in functions. This
-# allows other functions here to be used by pytest-based testing suites without
-# requiring nose to be installed.
+# Note - don't import nose up here - import it only as needed in functions.
+# This allows other functions here to be used by pytest-based testing suites
+# without requiring nose to be installed.
 
 
 import matplotlib as mpl
@@ -26,25 +26,11 @@ from matplotlib import pyplot as plt
 from matplotlib import ft2font
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
-from . import copy_metadata, is_called_from_pytest, xfail
+from . import _copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
 
-def skipif(condition, *args, **kwargs):
-    """Skip the given test function if eval(condition) results in a True
-    value.
-
-    Optionally specify a reason for better reporting.
-    """
-    if is_called_from_pytest():
-        import pytest
-        return pytest.mark.skipif(condition, *args, **kwargs)
-    else:
-        from .nose.decorators import skipif
-        return skipif(condition, *args, **kwargs)
-
-
-def knownfailureif(fail_condition, msg=None, known_exception_class=None):
+def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
     """
 
     Assume a will fail if *fail_condition* is True. *fail_condition*
@@ -65,8 +51,14 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
         return pytest.mark.xfail(condition=fail_condition, reason=msg,
                                  raises=known_exception_class, strict=strict)
     else:
-        from .nose.decorators import knownfailureif
+        from ._nose.decorators import knownfailureif
         return knownfailureif(fail_condition, msg, known_exception_class)
+
+
+@cbook.deprecated('2.1',
+                  alternative='pytest.xfail or import the plugin')
+def knownfailureif(fail_condition, msg=None, known_exception_class=None):
+    _knownfailureif(fail_condition, msg, known_exception_class)
 
 
 def _do_cleanup(original_units_registry, original_settings):
@@ -158,7 +150,7 @@ def cleanup(style=None):
         return make_cleanup
     else:
         result = make_cleanup(style)
-        style = 'classic'
+        style = '_classic_test'
         return result
 
 
@@ -175,15 +167,15 @@ def check_freetype_version(ver):
     return found >= ver[0] and found <= ver[1]
 
 
-def checked_on_freetype_version(required_freetype_version):
+def _checked_on_freetype_version(required_freetype_version):
     if check_freetype_version(required_freetype_version):
         return lambda f: f
 
     reason = ("Mismatched version of freetype. "
               "Test requires '%s', you have '%s'" %
               (required_freetype_version, ft2font.__freetype_version__))
-    return knownfailureif('indeterminate', msg=reason,
-                          known_exception_class=ImageComparisonFailure)
+    return _knownfailureif('indeterminate', msg=reason,
+                           known_exception_class=ImageComparisonFailure)
 
 
 def remove_ticks_and_titles(figure):
@@ -202,7 +194,7 @@ def remove_ticks_and_titles(figure):
             pass
 
 
-def raise_on_image_difference(expected, actual, tol):
+def _raise_on_image_difference(expected, actual, tol):
     __tracebackhide__ = True
 
     err = compare_images(expected, actual, tol, in_decorator=True)
@@ -211,23 +203,25 @@ def raise_on_image_difference(expected, actual, tol):
         raise ImageComparisonFailure('image does not exist: %s' % expected)
 
     if err:
+        for key in ["actual", "expected"]:
+            err[key] = os.path.relpath(err[key])
         raise ImageComparisonFailure(
-            'images not close: %(actual)s vs. %(expected)s '
-            '(RMS %(rms).3f)' % err)
+            'images not close (RMS %(rms).3f):\n\t%(actual)s\n\t%(expected)s '
+             % err)
 
 
-def xfail_if_format_is_uncomparable(extension):
+def _xfail_if_format_is_uncomparable(extension):
     will_fail = extension not in comparable_formats()
     if will_fail:
         fail_msg = 'Cannot compare %s files on this system' % extension
     else:
         fail_msg = 'No failure expected'
 
-    return knownfailureif(will_fail, fail_msg,
-                          known_exception_class=ImageComparisonFailure)
+    return _knownfailureif(will_fail, fail_msg,
+                           known_exception_class=ImageComparisonFailure)
 
 
-def mark_xfail_if_format_is_uncomparable(extension):
+def _mark_xfail_if_format_is_uncomparable(extension):
     will_fail = extension not in comparable_formats()
     if will_fail:
         fail_msg = 'Cannot compare %s files on this system' % extension
@@ -251,21 +245,21 @@ class ImageComparisonDecorator(CleanupTest):
         self.style = style
 
     def delayed_init(self, func):
-        assert callable(func), "func must be callable"
         assert self.func is None, "it looks like same decorator used twice"
         self.func = func
         self.baseline_dir, self.result_dir = _image_directories(func)
 
     def setup(self):
         func = self.func
+        plt.close('all')
         self.setup_class()
         try:
             matplotlib.style.use(self.style)
             matplotlib.testing.set_font_settings_for_testing()
             func()
             assert len(plt.get_fignums()) == len(self.baseline_images), (
-                'Figures and baseline_images count are not the same'
-                ' (`%s`)' % getattr(func, '__qualname__', func.__name__))
+                "Test generated {} images but there are {} baseline images"
+                .format(len(plt.get_fignums()), len(self.baseline_images)))
         except:
             # Restore original settings before raising errors during the update.
             self.teardown_class()
@@ -284,9 +278,10 @@ class ImageComparisonDecorator(CleanupTest):
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
-            xfail("Do not have baseline image {0} because this "
-                  "file does not exist: {1}".format(expected_fname,
-                                                    orig_expected_fname))
+            reason = ("Do not have baseline image {0} because this "
+                      "file does not exist: {1}".format(expected_fname,
+                                                        orig_expected_fname))
+            raise ImageComparisonFailure(reason)
         return expected_fname
 
     def compare(self, idx, baseline, extension):
@@ -306,12 +301,12 @@ class ImageComparisonDecorator(CleanupTest):
         fig.savefig(actual_fname, **kwargs)
 
         expected_fname = self.copy_baseline(baseline, extension)
-        raise_on_image_difference(expected_fname, actual_fname, self.tol)
+        _raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
     def nose_runner(self):
         func = self.compare
-        func = checked_on_freetype_version(self.freetype_version)(func)
-        funcs = {extension: xfail_if_format_is_uncomparable(extension)(func)
+        func = _checked_on_freetype_version(self.freetype_version)(func)
+        funcs = {extension: _xfail_if_format_is_uncomparable(extension)(func)
                  for extension in self.extensions}
         for idx, baseline in enumerate(self.baseline_images):
             for extension in self.extensions:
@@ -320,19 +315,20 @@ class ImageComparisonDecorator(CleanupTest):
     def pytest_runner(self):
         from pytest import mark
 
-        extensions = map(mark_xfail_if_format_is_uncomparable, self.extensions)
+        extensions = map(_mark_xfail_if_format_is_uncomparable,
+                         self.extensions)
 
         if len(set(self.baseline_images)) == len(self.baseline_images):
             @mark.parametrize("extension", extensions)
             @mark.parametrize("idx,baseline", enumerate(self.baseline_images))
-            @checked_on_freetype_version(self.freetype_version)
+            @_checked_on_freetype_version(self.freetype_version)
             def wrapper(idx, baseline, extension):
                 __tracebackhide__ = True
                 self.compare(idx, baseline, extension)
         else:
             # Some baseline images are repeated, so run this in serial.
             @mark.parametrize("extension", extensions)
-            @checked_on_freetype_version(self.freetype_version)
+            @_checked_on_freetype_version(self.freetype_version)
             def wrapper(extension):
                 __tracebackhide__ = True
                 for idx, baseline in enumerate(self.baseline_images):
@@ -340,7 +336,7 @@ class ImageComparisonDecorator(CleanupTest):
 
 
         # sadly we cannot use fixture here because of visibility problems
-        # and for for obvious reason avoid `nose.tools.with_setup`
+        # and for for obvious reason avoid `_nose.tools.with_setup`
         wrapper.setup, wrapper.teardown = self.setup, self.teardown
 
         return wrapper
@@ -348,7 +344,7 @@ class ImageComparisonDecorator(CleanupTest):
     def __call__(self, func):
         self.delayed_init(func)
         if is_called_from_pytest():
-            return copy_metadata(func, self.pytest_runner())
+            return _copy_metadata(func, self.pytest_runner())
         else:
             import nose.tools
 
@@ -361,48 +357,47 @@ class ImageComparisonDecorator(CleanupTest):
                     # nose bug...
                     self.teardown()
 
-            return copy_metadata(func, runner_wrapper)
+            return _copy_metadata(func, runner_wrapper)
 
 
 def image_comparison(baseline_images=None, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
-                     savefig_kwarg=None, style='classic'):
+                     savefig_kwarg=None, style='_classic_test'):
     """
     Compare images generated by the test with those specified in
     *baseline_images*, which must correspond else an
     ImageComparisonFailure exception will be raised.
 
-    Keyword arguments:
+    Arguments
+    ---------
+    baseline_images : list
+        A list of strings specifying the names of the images generated by
+        calls to :meth:`matplotlib.figure.savefig`.
 
-      *baseline_images*: list
-        A list of strings specifying the names of the images generated
-        by calls to :meth:`matplotlib.figure.savefig`.
+    extensions : [ None | list ]
 
-      *extensions*: [ None | list ]
-
-        If *None*, default to all supported extensions.
-
+        If None, defaults to all supported extensions.
         Otherwise, a list of extensions to test. For example ['png','pdf'].
 
-      *tol*: (default 0)
+    tol : float, optional, default: 0
         The RMS threshold above which the test is considered failed.
 
-      *freetype_version*: str or tuple
-        The expected freetype version or range of versions for this
-        test to pass.
+    freetype_version : str or tuple
+        The expected freetype version or range of versions for this test to
+        pass.
 
-      *remove_text*: bool
-        Remove the title and tick text from the figure before
-        comparison.  This does not remove other, more deliberate,
-        text, such as legends and annotations.
+    remove_text : bool
+        Remove the title and tick text from the figure before comparison.
+        This does not remove other, more deliberate, text, such as legends and
+        annotations.
 
-      *savefig_kwarg*: dict
+    savefig_kwarg : dict
         Optional arguments that are passed to the savefig method.
 
-      *style*: string
-        Optional name for the base style to apply to the image
-        test. The test itself can also apply additional styles
-        if desired. Defaults to the 'classic' style.
+    style : string
+        Optional name for the base style to apply to the image test. The test
+        itself can also apply additional styles if desired. Defaults to the
+        '_classic_test' style.
 
     """
     if baseline_images is None:
@@ -497,7 +492,7 @@ def switch_backend(backend):
                 plt.switch_backend(prev_backend)
             return result
 
-        return copy_metadata(func, backend_switcher)
+        return _copy_metadata(func, backend_switcher)
     return switch_backend_decorator
 
 
@@ -516,6 +511,7 @@ def skip_if_command_unavailable(cmd):
     try:
         check_output(cmd)
     except:
-        return skipif(True, reason='missing command: %s' % cmd[0])
+        import pytest
+        return pytest.mark.skip(reason='missing command: %s' % cmd[0])
 
     return lambda f: f

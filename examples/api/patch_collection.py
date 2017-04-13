@@ -2,6 +2,8 @@
 ============================
 Circles, Wedges and Polygons
 ============================
+
+This example demonstrates how to use patch collections.
 """
 
 import numpy as np

@@ -280,9 +280,8 @@ int FT2Font::get_path_count()
             }
         }
 
-        count++;
-
     Count_Close:
+        count++;
         first = last + 1;
     }
 
@@ -478,11 +477,10 @@ void FT2Font::get_path(double *outpoints, unsigned char *outcodes)
             }
         }
 
+    Close:
         (*outpoints++) = 0.0;
         (*outpoints++) = 0.0;
         (*outcodes++) = ENDPOLY;
-
-    Close:
         first = last + 1;
     }
 }

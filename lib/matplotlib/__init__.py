@@ -575,26 +575,15 @@ def _create_tmp_config_dir():
 
     Returns None if a writable temporary directory could not be created.
     """
-    import getpass
-    import tempfile
-    from matplotlib.cbook import mkdirs
-
     try:
         tempdir = tempfile.gettempdir()
     except NotImplementedError:
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-    try:
-        username = getpass.getuser()
-    except KeyError:
-        username = str(os.getuid())
-
-    tempdir = tempfile.mkdtemp(prefix='matplotlib-%s-' % username, dir=tempdir)
-
-    os.environ['MPLCONFIGDIR'] = tempdir
-
-    return tempdir
+    configdir = os.environ['MPLCONFIGDIR'] = (
+        tempfile.mkdtemp(prefix='matplotlib-', dir=tempdir))
+    return configdir
 
 
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
@@ -645,7 +634,7 @@ def _get_config_or_cache_dir(xdg_base):
     h = get_home()
     if h is not None:
         p = os.path.join(h, '.matplotlib')
-    if sys.platform.startswith('linux'):
+    if sys.platform.startswith(('linux', 'freebsd')):
         p = None
         if xdg_base is not None:
             p = os.path.join(xdg_base, 'matplotlib')
@@ -805,34 +794,24 @@ def matplotlib_fname():
     - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
       system-defined copy.
     """
-    if six.PY2:
-        cwd = os.getcwdu()
-    else:
-        cwd = os.getcwd()
-    fname = os.path.join(cwd, 'matplotlibrc')
-    if os.path.exists(fname):
-        return fname
 
-    if 'MATPLOTLIBRC' in os.environ:
-        path = os.environ['MATPLOTLIBRC']
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                return path
-            fname = os.path.join(path, 'matplotlibrc')
-            if os.path.exists(fname):
-                return fname
+    def gen_candidates():
+        yield os.path.join(six.moves.getcwd(), 'matplotlibrc')
+        try:
+            matplotlibrc = os.environ['MATPLOTLIBRC']
+        except KeyError:
+            pass
+        else:
+            yield matplotlibrc
+            yield os.path.join(matplotlibrc, 'matplotlibrc')
+        yield os.path.join(_get_configdir(), 'matplotlibrc')
+        yield os.path.join(get_data_path(), 'matplotlibrc')
 
-    configdir = _get_configdir()
-    if os.path.exists(configdir):
-        fname = os.path.join(configdir, 'matplotlibrc')
-        if os.path.exists(fname):
-            return fname
-
-    path = get_data_path()  # guaranteed to exist or raise
-    fname = os.path.join(path, 'matplotlibrc')
-    if not os.path.exists(fname):
-        warnings.warn('Could not find matplotlibrc; using defaults')
-
+    for fname in gen_candidates():
+        if os.path.isfile(fname):
+            break
+    # Return first candidate that is a file, or last candidate if none is
+    # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
 
 
@@ -1338,6 +1317,7 @@ def rc_file_defaults():
     """
     rcParams.update(rcParamsOrig)
 
+
 _use_error_msg = """
 This call to matplotlib.use() has no effect because the backend has already
 been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
@@ -1408,6 +1388,12 @@ def use(arg, warn=True, force=False):
         reload(sys.modules['matplotlib.backends'])
 
 
+try:
+    use(os.environ['MPLBACKEND'])
+except KeyError:
+    pass
+
+
 def get_backend():
     """Return the name of the current backend."""
     return rcParams['backend']
@@ -1435,33 +1421,6 @@ def tk_window_focus():
         return False
     return rcParams['tk.window_focus']
 
-# Now allow command line to override
-
-# Allow command line access to the backend with -d (MATLAB compatible
-# flag)
-
-for s in sys.argv[1:]:
-    # cast to str because we are using unicode_literals,
-    # and argv is always str
-    if s.startswith(str('-d')) and len(s) > 2:  # look for a -d flag
-        try:
-            use(s[2:])
-            warnings.warn("Using the -d command line argument to select a "
-                          "matplotlib backend is deprecated. Please use the "
-                          "MPLBACKEND environment variable instead.",
-                          mplDeprecation)
-            break
-        except (KeyError, ValueError):
-            pass
-        # we don't want to assume all -d flags are backends, e.g., -debug
-else:
-    # no backend selected from the command line, so we check the environment
-    # variable MPLBACKEND
-    try:
-        use(os.environ['MPLBACKEND'])
-    except KeyError:
-        pass
-
 
 # Jupyter extension paths
 def _jupyter_nbextension_paths():
@@ -1474,10 +1433,10 @@ def _jupyter_nbextension_paths():
 
 
 default_test_modules = [
-    'matplotlib.tests.test_png',
-    'matplotlib.tests.test_units',
-    'matplotlib.tests.test_widgets',
-    ]
+    'matplotlib.tests',
+    'matplotlib.sphinxext.tests',
+    'mpl_toolkits.tests',
+]
 
 
 def _init_tests():
@@ -1487,9 +1446,6 @@ def _init_tests():
         pass
     else:
         faulthandler.enable()
-
-    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        raise ImportError("matplotlib test data is not installed")
 
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
@@ -1505,25 +1461,72 @@ def _init_tests():
             "Expected freetype version {0}. "
             "Found freetype version {1}. "
             "Freetype build type is {2}local".format(
-                ft2font.__freetype_version__,
                 LOCAL_FREETYPE_VERSION,
+                ft2font.__freetype_version__,
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "
             )
         )
 
-    from .testing.nose import check_deps
-    check_deps()
+    try:
+        import pytest
+        try:
+            from unittest import mock
+        except ImportError:
+            import mock
+    except ImportError:
+        print("matplotlib.test requires pytest and mock to run.")
+        raise
 
 
-def test(verbosity=1, coverage=False, **kwargs):
+def test(verbosity=None, coverage=False, switch_backend_warn=True,
+         recursionlimit=0, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
+    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
 
-    from .testing.nose import test as nose_test
-    return nose_test(verbosity, coverage, **kwargs)
+    old_backend = get_backend()
+    old_recursionlimit = sys.getrecursionlimit()
+    try:
+        use('agg')
+        if recursionlimit:
+            sys.setrecursionlimit(recursionlimit)
+        import pytest
+
+        args = kwargs.pop('argv', [])
+        provide_default_modules = True
+        use_pyargs = True
+        for arg in args:
+            if any(arg.startswith(module_path)
+                   for module_path in default_test_modules):
+                provide_default_modules = False
+                break
+            if os.path.exists(arg):
+                provide_default_modules = False
+                use_pyargs = False
+                break
+        if use_pyargs:
+            args += ['--pyargs']
+        if provide_default_modules:
+            args += default_test_modules
+
+        if coverage:
+            args += ['--cov']
+
+        if verbosity:
+            args += ['-' + 'v' * verbosity]
+
+        retcode = pytest.main(args, **kwargs)
+    finally:
+        if old_backend.lower() != 'agg':
+            use(old_backend, warn=switch_backend_warn)
+        if recursionlimit:
+            sys.setrecursionlimit(old_recursionlimit)
+
+    return retcode
 
 
-test.__test__ = False  # nose: this function is not a test
+test.__test__ = False  # pytest: this function is not a test
 
 
 def _replacer(data, key):

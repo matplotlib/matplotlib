@@ -1,5 +1,7 @@
 """
+================================
 Reference for matplotlib artists
+================================
 
 This example displays several of matplotlib's graphics primitives (artists)
 drawn using matplotlib API. A full list of artists and the documentation is

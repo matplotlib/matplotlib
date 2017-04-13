@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import itertools
+import pickle
 from weakref import ref
 import warnings
 
@@ -32,9 +33,6 @@ def test_is_string_like():
 
     y = np.array(y)
     assert not cbook.is_string_like(y)
-
-    y = np.array(y, dtype=object)
-    assert cbook.is_string_like(y)
 
 
 def test_is_sequence_of_strings():
@@ -70,7 +68,7 @@ def test_restrict_dict():
 
 
 class Test_delete_masked_points(object):
-    def setUp(self):
+    def setup_method(self):
         self.mask1 = [False, False, True, True, False, False]
         self.arr0 = np.arange(1.0, 7.0)
         self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
@@ -282,6 +280,10 @@ class Test_callback_registry(object):
 
     def dummy(self):
         pass
+
+    def test_pickling(self):
+        assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
+                       "callbacks")
 
 
 def test_sanitize_sequence():

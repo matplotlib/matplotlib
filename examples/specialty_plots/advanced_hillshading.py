@@ -1,4 +1,8 @@
 """
+===========
+Hillshading
+===========
+
 Demonstrates a few common tricks with shaded plots.
 """
 import numpy as np

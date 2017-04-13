@@ -10,7 +10,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os
-import warnings as _warnings  # To remove once spectral is removed
 import numpy as np
 from numpy import ma
 import matplotlib as mpl
@@ -69,7 +68,8 @@ def _generate_cmap(name, lutsize):
     """Generates the requested cmap from its *name*.  The lut size is
     *lutsize*."""
 
-    spec = datad[name]
+    # Use superclass method to avoid deprecation warnings during initial load.
+    spec = dict.__getitem__(datad, name)
 
     # Generate the colormap object.
     if 'red' in spec:
@@ -81,19 +81,15 @@ def _generate_cmap(name, lutsize):
 
 LUTSIZE = mpl.rcParams['image.lut']
 
-# We silence warnings here to avoid raising the deprecation warning for
-# spectral/spectral_r when this module is imported.
-with _warnings.catch_warnings():
-    _warnings.simplefilter("ignore")
-    # Generate the reversed specifications (all at once, to avoid
-    # modify-when-iterating).
-    datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
-                  for cmapname, spec in six.iteritems(datad)})
+# Generate the reversed specifications (all at once, to avoid
+# modify-when-iterating).
+datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
+              for cmapname, spec in six.iteritems(datad)})
 
-    # Precache the cmaps with ``lutsize = LUTSIZE``.
-    # Also add the reversed ones added in the section above:
-    for cmapname in datad:
-        cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
+# Precache the cmaps with ``lutsize = LUTSIZE``.
+# Also add the reversed ones added in the section above:
+for cmapname in datad:
+    cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
 cmap_d.update(cmaps_listed)
 
@@ -305,10 +301,11 @@ class ScalarMappable(object):
 
         ACCEPTS: a length 2 sequence of floats
         """
-        if (vmin is not None and vmax is None and
-                cbook.iterable(vmin) and len(vmin) == 2):
-            vmin, vmax = vmin
-
+        if vmax is None:
+            try:
+                vmin, vmax = vmin
+            except (TypeError, ValueError):
+                pass
         if vmin is not None:
             self.norm.vmin = vmin
         if vmax is not None:

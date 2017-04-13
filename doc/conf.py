@@ -14,6 +14,7 @@
 import os
 import sys
 import sphinx
+import six
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -28,9 +29,10 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'sphinx.ext.doctest', 'sphinx.ext.autosummary',
-              'matplotlib.sphinxext.plot_directive',
               'sphinx.ext.inheritance_diagram',
-              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
+              'sphinx_gallery.gen_gallery',
+              'sphinxext.gen_rst',
+              'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
               'numpydoc']
 
@@ -53,6 +55,12 @@ except ImportError:
                       "numpydoc to build the documentation.")
 
 try:
+    import sphinx_gallery
+except ImportError:
+    raise ImportError("No module named sphinx_gallery - you need to install "
+                      "sphinx_gallery to build the documentation.")
+
+try:
     import colorspacious
 except ImportError:
     raise ImportError("No module named colorspacious - you need to install "
@@ -73,6 +81,16 @@ except ImportError:
     raise ImportError("No module named Image - you need to install "
                       "pillow to build the documentation")
 
+if six.PY2:
+    from distutils.spawn import find_executable
+    has_dot = find_executable('dot') is not None
+else:
+    from shutil import which  # Python >= 3.3
+    has_dot = which('dot') is not None
+if not has_dot:
+    raise OSError(
+        "No binary named dot - you need to install the Graph Visualization "
+        "software (usually packaged as 'graphviz') to build the documentation")
 
 try:
     import matplotlib
@@ -84,6 +102,15 @@ except ImportError:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
+
+
+# Sphinx gallery configuration
+sphinx_gallery_conf = {
+    'examples_dirs': '../examples',
+    'filename_pattern': '\.py$',
+    'gallery_dirs': 'gallery'}
+
+plot_gallery = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -223,7 +250,6 @@ html_sidebars = {
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 html_additional_pages = {'index': 'index.html',
-                         'gallery':'gallery.html',
                          'citing': 'citing.html'}
 
 # If false, no module index is generated.

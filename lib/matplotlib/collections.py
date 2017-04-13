@@ -131,6 +131,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths = [0]
         self._is_filled = True  # May be modified by set_facecolor().
 
+        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -145,7 +146,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         self._offsets = np.array([[0, 0]], float)
         if offsets is not None:
-            offsets = np.asanyarray(offsets).reshape((-1, 2))
+            offsets = np.asanyarray(offsets, float)
             if transOffset is not None:
                 self._offsets = offsets
                 self._transOffset = transOffset
@@ -155,31 +156,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._path_effects = None
         self.update(kwargs)
         self._paths = None
-
-    @staticmethod
-    def _get_value(val):
-        try:
-            return (float(val), )
-        except TypeError:
-            if cbook.iterable(val) and len(val):
-                try:
-                    float(cbook.safe_first_element(val))
-                except (TypeError, ValueError):
-                    pass  # raise below
-                else:
-                    return val
-
-        raise TypeError('val must be a float or nonzero sequence of floats')
-
-    @staticmethod
-    def _get_bool(val):
-        if not cbook.iterable(val):
-            val = (val,)
-        try:
-            bool(cbook.safe_first_element(val))
-        except (TypeError, IndexError):
-            raise TypeError('val must be a bool or nonzero sequence of them')
-        return val
 
     def get_paths(self):
         return self._paths
@@ -210,7 +186,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
@@ -244,14 +219,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs, ys = vertices[:, 0], vertices[:, 1]
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
-                paths.append(mpath.Path(list(zip(xs, ys)), path.codes))
+                paths.append(mpath.Path(np.column_stack([xs, ys]), path.codes))
 
             if offsets.size > 0:
                 xs = self.convert_xunits(offsets[:, 0])
                 ys = self.convert_yunits(offsets[:, 1])
-                offsets = list(zip(xs, ys))
-
-        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
+                offsets = np.column_stack([xs, ys])
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path)
@@ -285,6 +258,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
+            try:
+                gc.set_hatch_color(self._hatch_color)
+            except AttributeError:
+                # if we end up with a GC that does not have this method
+                warnings.warn("Your backend does not support setting the "
+                              "hatch color.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -388,7 +367,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._urls
 
     def set_hatch(self, hatch):
-        """
+        r"""
         Set the hatching pattern
 
         *hatch* can be one of::
@@ -415,7 +394,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         can only be specified for the collection as a whole, not separately
         for each member.
 
-        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
         self._hatch = hatch
         self.stale = True
@@ -431,7 +410,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
-        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
+        offsets = np.asanyarray(offsets, float)
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
             self._offsets = offsets
@@ -486,7 +465,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if lw is None:
                 lw = mpl.rcParams['lines.linewidth']
         # get the un-scaled/broadcast lw
-        self._us_lw = self._get_value(lw)
+        self._us_lw = np.atleast_1d(np.asarray(lw))
 
         # scale all of the dash patterns.
         self._linewidths, self._linestyles = self._bcast_lwls(
@@ -608,7 +587,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
-        self._antialiaseds = self._get_bool(aa)
+        self._antialiaseds = np.atleast_1d(np.asarray(aa, bool))
         self.stale = True
 
     def set_antialiaseds(self, aa):
@@ -673,12 +652,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
     get_edgecolors = get_edgecolor
 
     def _set_edgecolor(self, c):
+        set_hatch_color = True
         if c is None:
             if (mpl.rcParams['patch.force_edgecolor'] or
                     not self._is_filled or self._edge_default):
                 c = mpl.rcParams['patch.edgecolor']
             else:
                 c = 'none'
+                set_hatch_color = False
+
         self._is_stroked = True
         try:
             if c.lower() == 'none':
@@ -693,6 +675,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except AttributeError:
             pass
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
+        if set_hatch_color and len(self._edgecolors):
+            self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
     def set_edgecolor(self, c):
@@ -1882,17 +1866,12 @@ class QuadMesh(Collection):
             if len(self._offsets):
                 xs = self.convert_xunits(self._offsets[:, 0])
                 ys = self.convert_yunits(self._offsets[:, 1])
-                offsets = list(zip(xs, ys))
-
-        offsets = np.asarray(offsets, float).reshape((-1, 2))
+                offsets = np.column_stack([xs, ys])
 
         self.update_scalarmappable()
 
         if not transform.is_affine:
-            coordinates = self._coordinates.reshape(
-                (self._coordinates.shape[0] *
-                 self._coordinates.shape[1],
-                 2))
+            coordinates = self._coordinates.reshape((-1, 2))
             coordinates = transform.transform(coordinates)
             coordinates = coordinates.reshape(self._coordinates.shape)
             transform = transforms.IdentityTransform()

@@ -8,8 +8,18 @@ Getting started
 ===============
 
 The documentation for matplotlib is generated from ReStructured Text using the
-Sphinx_ documentation generation tool. Sphinx-1.0 or later and numpydoc 0.4 or
-later is required.
+
+Sphinx_ documentation generation tool.
+The requirements are as follows (https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt)
+
+1. Sphinx-1.3 or later(Version 1.5.0 is not supported)
+2. numpydoc 0.4 or later
+3. IPython
+4. Mock
+5. colorspacious
+6. pillow
+7. graphviz
+
 
 The documentation sources are found in the :file:`doc/` directory in
 the trunk.  To build the users guide in html format, cd into

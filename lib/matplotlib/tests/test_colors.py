@@ -3,10 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import itertools
-import pytest
+import warnings
 from distutils.version import LooseVersion as V
 
 import numpy as np
+import pytest
 
 from numpy.testing import assert_equal
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -18,8 +19,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import (image_comparison,
-                                           cleanup, knownfailureif)
+from matplotlib.testing.decorators import image_comparison
 
 
 def test_resample():
@@ -226,7 +226,6 @@ def test_SymLogNorm():
     assert_array_almost_equal(normed_vals, expected)
 
 
-@cleanup
 def test_SymLogNorm_colorbar():
     """
     Test un-called SymLogNorm in a colorbar.
@@ -350,7 +349,6 @@ def test_rgb_hsv_round_trip():
             mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
 
 
-@cleanup
 def test_autoscale_masked():
     # Test for #2336. Previously fully masked data would trigger a ValueError.
     data = np.ma.masked_all((12, 20))
@@ -448,8 +446,8 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@knownfailureif((V(np.__version__) <= V('1.9.0')
-                and V(np.__version__) >= V('1.7.0')))
+@pytest.mark.xfail(V('1.7.0') <= V(np.__version__) <= V('1.9.0'),
+                   reason='NumPy version is not buggy')
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
@@ -608,19 +606,24 @@ def test_pandas_iterable():
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-def test_colormap_reversing():
+@pytest.mark.parametrize('name', cm.cmap_d)
+def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
-    for name in cm.cmap_d:
+    should_have_warning = {'spectral', 'spectral_r', 'Vega10', 'Vega10_r',
+                           'Vega20', 'Vega20_r', 'Vega20b', 'Vega20b_r',
+                           'Vega20c', 'Vega20c_r'}
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
         cmap = plt.get_cmap(name)
-        cmap_r = cmap.reversed()
-        if not cmap_r._isinit:
-            cmap._init()
-            cmap_r._init()
-        assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+    assert len(w) == (1 if name in should_have_warning else 0)
+    cmap_r = cmap.reversed()
+    if not cmap_r._isinit:
+        cmap._init()
+        cmap_r._init()
+    assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
 
 
-@cleanup
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])

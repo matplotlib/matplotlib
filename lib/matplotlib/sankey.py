@@ -6,36 +6,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import zip
-
-# Original version by Yannick Copin (ycopin@ipnl.in2p3.fr) 10/2/2010, available
-# at:
-#     http://matplotlib.org/examples/api/sankey_demo_old.html
-# Modifications by Kevin Davies (kld@alumni.carnegiemellon.edu) 6/3/2011:
-#   --Used arcs for the curves (so that the widths of the paths are uniform)
-#   --Converted the function to a class and created methods to join multiple
-#     simple Sankey diagrams
-#   --Provided handling for cases where the total of the inputs isn't 100
-#     Now, the default layout is based on the assumption that the inputs sum to
-#     1.  A scaling parameter can be used in other cases.
-#   --The call structure was changed to be more explicit about layout,
-#     including the length of the trunk, length of the paths, gap between the
-#     paths, and the margin around the diagram.
-#   --Allowed the lengths of paths to be adjusted individually, with an option
-#     to automatically justify them
-#   --The call structure was changed to make the specification of path
-#     orientation more flexible.  Flows are passed through one array, with
-#     inputs being positive and outputs being negative.  An orientation
-#     argument specifies the direction of the arrows.  The "main"
-#     inputs/outputs are now specified via an orientation of 0, and there may
-#     be several of each.
-#   --Changed assertions to ValueError to catch common calling errors (by
-#     Francesco Montesano, franz.bergesung@gmail.com)
-#   --Added the physical unit as a string argument to be used in the labels, so
-#     that the values of the flows can usually be applied automatically
-#   --Added an argument for a minimum magnitude below which flows are not shown
-#   --Added a tapered trunk in the case that the flows do not sum to 0
-#   --Allowed the diagram to be rotated
-
 import numpy as np
 
 from matplotlib.cbook import iterable, Bunch
@@ -148,7 +118,7 @@ class Sankey(object):
 
         **Examples:**
 
-            .. plot:: mpl_examples/api/sankey_demo_basics.py
+            .. plot:: gallery/api/sankey_basics.py
         """
         # Check the arguments.
         if gap < 0:

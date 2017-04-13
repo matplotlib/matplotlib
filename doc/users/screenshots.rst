@@ -22,7 +22,7 @@ Subplot demo
 Multiple axes (i.e. subplots) are created with the
 :func:`~matplotlib.pyplot.subplot` command:
 
-.. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+.. plot:: gallery/subplots_axes_and_figures/subplot.py
 
 .. _screenshots_histogram_demo:
 
@@ -32,7 +32,7 @@ Histograms
 The :func:`~matplotlib.pyplot.hist` command automatically generates
 histograms and returns the bin counts or probabilities:
 
-.. plot:: mpl_examples/statistics/histogram_demo_features.py
+.. plot:: gallery/statistics/histogram_features.py
 
 
 .. _screenshots_path_demo:
@@ -43,7 +43,7 @@ Path demo
 You can add arbitrary paths in matplotlib using the
 :mod:`matplotlib.path` module:
 
-.. plot:: mpl_examples/shapes_and_collections/path_patch_demo.py
+.. plot:: gallery/shapes_and_collections/path_patch.py
 
 .. _screenshots_mplot3d_surface:
 
@@ -54,7 +54,7 @@ The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
 :ref:`mplot3d-examples-index`) has support for simple 3d graphs
 including surface, wireframe, scatter, and bar charts.
 
-.. plot:: mpl_examples/mplot3d/surface3d_demo.py
+.. plot:: gallery/mplot3d/surface3d.py
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
 the `mplot3d` toolkit. This toolkit is included with all standard matplotlib
@@ -71,7 +71,7 @@ a vector field. In addition to simply plotting the streamlines, it allows you
 to map the colors and/or line widths of streamlines to a separate parameter,
 such as the speed or local intensity of the vector field.
 
-.. plot:: mpl_examples/images_contours_and_fields/streamplot_demo_features.py
+.. plot:: mpl_examples/images_contours_and_fields/plot_streamplot.py
 
 This feature complements the :meth:`~matplotlib.pyplot.quiver` function for
 plotting vector fields. Thanks to Tom Flannaghan and Tony Yu for adding the
@@ -103,7 +103,7 @@ command, which includes customizations such as error bars:
 It's also simple to create stacked bars
 (`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
 or horizontal bar charts
-(`barh_demo.py <../examples/lines_bars_and_markers/barh_demo.html>`_).
+(`barh.py <../examples/lines_bars_and_markers/barh.html>`_).
 
 .. _screenshots_pie_demo:
 
@@ -117,7 +117,7 @@ exploding one or more wedges from the center of the pie, and a shadow effect.
 Take a close look at the attached code, which generates this figure in just
 a few lines of code.
 
-.. plot:: mpl_examples/pie_and_polar_charts/pie_demo_features.py
+.. plot:: gallery/pie_and_polar_charts/pie_features.py
 
 .. _screenshots_table_demo:
 
@@ -166,7 +166,7 @@ Fill demo
 The :func:`~matplotlib.pyplot.fill` command lets you
 plot filled curves and polygons:
 
-.. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
+.. plot:: gallery/lines_bars_and_markers/fill.py
 
 Thanks to Andrew Straw for adding this function.
 
@@ -178,7 +178,7 @@ Date demo
 You can plot date data with major and minor ticks and custom tick formatters
 for both.
 
-.. plot:: mpl_examples/api/date_demo.py
+.. plot:: gallery/api/date.py
 
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
@@ -217,7 +217,7 @@ The :func:`~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
-.. plot:: mpl_examples/api/legend_demo.py
+.. plot:: gallery/api/legend.py
 
 Thanks to Charles Twardy for input on the legend command.
 
@@ -278,4 +278,4 @@ XKCD-style sketch plots
 matplotlib supports plotting in the style of `xkcd
 <http://www.xkcd.com/>`.
 
-.. plot:: mpl_examples/showcase/xkcd.py
+.. plot:: gallery/showcase/xkcd.py

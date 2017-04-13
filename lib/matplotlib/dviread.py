@@ -31,8 +31,10 @@ import matplotlib.cbook as mpl_cbook
 from matplotlib.compat import subprocess
 from matplotlib import rcParams
 import numpy as np
+import re
 import struct
 import sys
+import textwrap
 import os
 
 if six.PY3:
@@ -216,24 +218,32 @@ class Dvi(object):
         return None
 
     def __enter__(self):
+        """
+        Context manager enter method, does nothing.
+        """
         return self
 
     def __exit__(self, etype, evalue, etrace):
+        """
+        Context manager exit method, closes the underlying file if it is open.
+        """
         self.close()
 
     def __iter__(self):
         """
         Iterate through the pages of the file.
 
-        Returns (text, boxes) pairs, where:
-          text is a list of (x, y, fontnum, glyphnum, width) tuples
-          boxes is a list of (x, y, height, width) tuples
-
-        The coordinates are transformed into a standard Cartesian
-        coordinate system at the dpi value given when initializing.
-        The coordinates are floating point numbers, but otherwise
-        precision is not lost and coordinate values are not clipped to
-        integers.
+        Yields
+        ------
+        Page
+            Details of all the text and box objects on the page.
+            The Page tuple contains lists of Text and Box tuples and
+            the page dimensions, and the Text and Box tuples contain
+            coordinates transformed into a standard Cartesian
+            coordinate system at the dpi value given when initializing.
+            The coordinates are floating point numbers, but otherwise
+            precision is not lost and coordinate values are not clipped to
+            integers.
         """
         while True:
             have_page = self._read()
@@ -498,27 +508,38 @@ class Dvi(object):
 
 class DviFont(object):
     """
-    Object that holds a font's texname and size, supports comparison,
+    Encapsulation of a font that a DVI file can refer to.
+
+    This class holds a font's texname and size, supports comparison,
     and knows the widths of glyphs in the same units as the AFM file.
     There are also internal attributes (for use by dviread.py) that
     are *not* used for comparison.
 
     The size is in Adobe points (converted from TeX points).
 
-    .. attribute:: texname
+    Parameters
+    ----------
 
-       Name of the font as used internally by TeX and friends. This
-       is usually very different from any external font names, and
-       :class:`dviread.PsfontsMap` can be used to find the external
-       name of the font.
+    scale : float
+        Factor by which the font is scaled from its natural size.
+    tfm : Tfm
+        TeX font metrics for this font
+    texname : bytes
+       Name of the font as used internally by TeX and friends, as an
+       ASCII bytestring. This is usually very different from any external
+       font names, and :class:`dviread.PsfontsMap` can be used to find
+       the external name of the font.
+    vf : Vf
+       A TeX "virtual font" file, or None if this font is not virtual.
 
-    .. attribute:: size
+    Attributes
+    ----------
 
+    texname : bytes
+    size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
-
-    .. attribute:: widths
-
+    widths : list
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
 
@@ -526,8 +547,9 @@ class DviFont(object):
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
-        if six.PY3 and isinstance(texname, bytes):
-            texname = texname.decode('ascii')
+        if not isinstance(texname, bytes):
+            raise ValueError("texname must be a bytestring, got %s"
+                             % type(texname))
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
@@ -579,21 +601,28 @@ class DviFont(object):
         return result
 
 
-# The virtual font format is a derivative of dvi:
-# http://mirrors.ctan.org/info/knuth/virtual-fonts
-# The following class reuses some of the machinery of Dvi
-# but replaces the _read loop and dispatch mechanism.
-
-
 class Vf(Dvi):
     """
-    A virtual font (\*.vf file) containing subroutines for dvi files.
+    A virtual font (\\*.vf file) containing subroutines for dvi files.
 
     Usage::
 
       vf = Vf(filename)
       glyph = vf[code]
       glyph.text, glyph.boxes, glyph.width
+
+    Parameters
+    ----------
+
+    filename : string or bytestring
+
+    Notes
+    -----
+
+    The virtual font format is a derivative of dvi:
+    http://mirrors.ctan.org/info/knuth/virtual-fonts
+    This class reuses some of the machinery of `Dvi`
+    but replaces the `_read` loop and dispatch mechanism.
     """
 
     def __init__(self, filename):
@@ -704,30 +733,24 @@ def _mul2012(num1, num2):
 
 class Tfm(object):
     """
-    A TeX Font Metric file. This implementation covers only the bare
-    minimum needed by the Dvi class.
+    A TeX Font Metric file.
 
-    .. attribute:: checksum
+    This implementation covers only the bare minimum needed by the Dvi class.
 
+    Parameters
+    ----------
+    filename : string or bytestring
+
+    Attributes
+    ----------
+    checksum : int
        Used for verifying against the dvi file.
-
-    .. attribute:: design_size
-
-       Design size of the font (in what units?)
-
-    .. attribute::  width
-
-       Width of each character, needs to be scaled by the factor
-       specified in the dvi file. This is a dict because indexing may
+    design_size : int
+       Design size of the font (unknown units)
+    width, height, depth : dict
+       Dimensions of each character, need to be scaled by the factor
+       specified in the dvi file. These are dicts because indexing may
        not start from 0.
-
-    .. attribute:: height
-
-       Height of each character.
-
-    .. attribute:: depth
-
-       Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
@@ -767,19 +790,28 @@ PsFont = namedtuple('Font', 'texname psname effects encoding filename')
 class PsfontsMap(object):
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
+
     Usage::
 
      >>> map = PsfontsMap(find_tex_file('pdftex.map'))
-     >>> entry = map['ptmbo8r']
+     >>> entry = map[b'ptmbo8r']
      >>> entry.texname
-     'ptmbo8r'
+     b'ptmbo8r'
      >>> entry.psname
-     'Times-Bold'
+     b'Times-Bold'
      >>> entry.encoding
      '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
      >>> entry.effects
      {'slant': 0.16700000000000001}
      >>> entry.filename
+
+    Parameters
+    ----------
+
+    filename : string or bytestring
+
+    Notes
+    -----
 
     For historical reasons, TeX knows many Type-1 fonts by different
     names than the outside world. (For one thing, the names have to
@@ -792,57 +824,53 @@ class PsfontsMap(object):
     file names.
 
     A texmf tree typically includes mapping files called e.g.
-    psfonts.map, pdftex.map, dvipdfm.map. psfonts.map is used by
-    dvips, pdftex.map by pdfTeX, and dvipdfm.map by dvipdfm.
-    psfonts.map might avoid embedding the 35 PostScript fonts (i.e.,
-    have no filename for them, as in the Times-Bold example above),
-    while the pdf-related files perhaps only avoid the "Base 14" pdf
-    fonts. But the user may have configured these files differently.
+    :file:`psfonts.map`, :file:`pdftex.map`, or :file:`dvipdfm.map`.
+    The file :file:`psfonts.map` is used by :program:`dvips`,
+    :file:`pdftex.map` by :program:`pdfTeX`, and :file:`dvipdfm.map`
+    by :program:`dvipdfm`. :file:`psfonts.map` might avoid embedding
+    the 35 PostScript fonts (i.e., have no filename for them, as in
+    the Times-Bold example above), while the pdf-related files perhaps
+    only avoid the "Base 14" pdf fonts. But the user may have
+    configured these files differently.
     """
-    __slots__ = ('_font',)
+    __slots__ = ('_font', '_filename')
 
     def __init__(self, filename):
         self._font = {}
-        with open(filename, 'rt') as file:
+        self._filename = filename
+        if six.PY3 and isinstance(filename, bytes):
+            encoding = sys.getfilesystemencoding() or 'utf-8'
+            self._filename = filename.decode(encoding, errors='replace')
+        with open(filename, 'rb') as file:
             self._parse(file)
 
     def __getitem__(self, texname):
+        assert isinstance(texname, bytes)
         try:
             result = self._font[texname]
         except KeyError:
-            result = self._font[texname.decode('ascii')]
+            fmt = ('A PostScript file for the font whose TeX name is "{0}" '
+                   'could not be found in the file "{1}". The dviread module '
+                   'can only handle fonts that have an associated PostScript '
+                   'font file. '
+                   'This problem can often be solved by installing '
+                   'a suitable PostScript font package in your (TeX) '
+                   'package manager.')
+            msg = fmt.format(texname.decode('ascii'), self._filename)
+            msg = textwrap.fill(msg, break_on_hyphens=False,
+                                break_long_words=False)
+            matplotlib.verbose.report(msg, 'helpful')
+            raise
         fn, enc = result.filename, result.encoding
-        if fn is not None and not fn.startswith('/'):
+        if fn is not None and not fn.startswith(b'/'):
             fn = find_tex_file(fn)
-        if enc is not None and not enc.startswith('/'):
+        if enc is not None and not enc.startswith(b'/'):
             enc = find_tex_file(result.encoding)
         return result._replace(filename=fn, encoding=enc)
 
     def _parse(self, file):
-        """Parse each line into words."""
-        for line in file:
-            line = line.strip()
-            if line == '' or line.startswith('%'):
-                continue
-            words, pos = [], 0
-            while pos < len(line):
-                if line[pos] == '"':   # double quoted word
-                    pos += 1
-                    end = line.index('"', pos)
-                    words.append(line[pos:end])
-                    pos = end + 1
-                else:                  # ordinary word
-                    end = line.find(' ', pos+1)
-                    if end == -1:
-                        end = len(line)
-                    words.append(line[pos:end])
-                    pos = end
-                while pos < len(line) and line[pos] == ' ':
-                    pos += 1
-            self._register(words)
-
-    def _register(self, words):
-        """Register a font described by "words".
+        """
+        Parse the font mapping file.
 
         The format is, AFAIK: texname fontname [effects and filenames]
         Effects are PostScript snippets like ".177 SlantFont",
@@ -854,52 +882,81 @@ class PsfontsMap(object):
         There is some difference between <foo.pfb and <<bar.pfb in
         subsetting, but I have no example of << in my TeX installation.
         """
-
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
         # http://tex.stackexchange.com/questions/10826/
         # http://article.gmane.org/gmane.comp.tex.pdftex/4914
 
-        texname, psname = words[:2]
-        effects, encoding, filename = '', None, None
-        for word in words[2:]:
-            if not word.startswith('<'):
-                effects = word
-            else:
-                word = word.lstrip('<')
-                if word.startswith('[') or word.endswith('.enc'):
+        empty_re = re.compile(br'%|\s*$')
+        word_re = re.compile(
+            br'''(?x) (?:
+                 "<\[ (?P<enc1>  [^"]+    )" | # quoted encoding marked by [
+                 "<   (?P<enc2>  [^"]+.enc)" | # quoted encoding, ends in .enc
+                 "<<? (?P<file1> [^"]+    )" | # quoted font file name
+                 "    (?P<eff1>  [^"]+    )" | # quoted effects or font name
+                 <\[  (?P<enc3>  \S+      )  | # encoding marked by [
+                 <    (?P<enc4>  \S+  .enc)  | # encoding, ends in .enc
+                 <<?  (?P<file2> \S+      )  | # font file name
+                      (?P<eff2>  \S+      )    # effects or font name
+            )''')
+        effects_re = re.compile(
+            br'''(?x) (?P<slant> -?[0-9]*(?:\.[0-9]+)) \s* SlantFont
+                    | (?P<extend>-?[0-9]*(?:\.[0-9]+)) \s* ExtendFont''')
+
+        lines = (line.strip()
+                 for line in file
+                 if not empty_re.match(line))
+        for line in lines:
+            effects, encoding, filename = b'', None, None
+            words = word_re.finditer(line)
+
+            # The named groups are mutually exclusive and are
+            # referenced below at an estimated order of probability of
+            # occurrence based on looking at my copy of pdftex.map.
+            # The font names are probably unquoted:
+            w = next(words)
+            texname = w.group('eff2') or w.group('eff1')
+            w = next(words)
+            psname = w.group('eff2') or w.group('eff1')
+
+            for w in words:
+                # Any effects are almost always quoted:
+                eff = w.group('eff1') or w.group('eff2')
+                if eff:
+                    effects = eff
+                    continue
+                # Encoding files usually have the .enc suffix
+                # and almost never need quoting:
+                enc = (w.group('enc4') or w.group('enc3') or
+                       w.group('enc2') or w.group('enc1'))
+                if enc:
                     if encoding is not None:
                         matplotlib.verbose.report(
                             'Multiple encodings for %s = %s'
-                            % (texname, psname), 'debug')
-                    if word.startswith('['):
-                        encoding = word[1:]
-                    else:
-                        encoding = word
+                            % (texname, psname),
+                            'debug')
+                    encoding = enc
+                    continue
+                # File names are probably unquoted:
+                filename = w.group('file2') or w.group('file1')
+
+            effects_dict = {}
+            for match in effects_re.finditer(effects):
+                slant = match.group('slant')
+                if slant:
+                    effects_dict['slant'] = float(slant)
                 else:
-                    assert filename is None
-                    filename = word
+                    effects_dict['extend'] = float(match.group('extend'))
 
-        eff = effects.split()
-        effects = {}
-        try:
-            effects['slant'] = float(eff[eff.index('SlantFont')-1])
-        except ValueError:
-            pass
-        try:
-            effects['extend'] = float(eff[eff.index('ExtendFont')-1])
-        except ValueError:
-            pass
-
-        self._font[texname] = PsFont(
-            texname=texname, psname=psname, effects=effects,
-            encoding=encoding, filename=filename)
+            self._font[texname] = PsFont(
+                texname=texname, psname=psname, effects=effects_dict,
+                encoding=encoding, filename=filename)
 
 
 class Encoding(object):
     """
-    Parses a \*.enc file referenced from a psfonts.map style file.
+    Parses a \\*.enc file referenced from a psfonts.map style file.
     The format this class understands is a very limited subset of
     PostScript.
 
@@ -907,11 +964,20 @@ class Encoding(object):
 
       for name in Encoding(filename):
           whatever(name)
+
+    Parameters
+    ----------
+    filename : string or bytestring
+
+    Attributes
+    ----------
+    encoding : list
+        List of character names
     """
     __slots__ = ('encoding',)
 
     def __init__(self, filename):
-        with open(filename, 'rt') as file:
+        with open(filename, 'rb') as file:
             matplotlib.verbose.report('Parsing TeX encoding ' + filename,
                                       'debug-annoying')
             self.encoding = self._parse(file)
@@ -925,48 +991,42 @@ class Encoding(object):
     def _parse(self, file):
         result = []
 
-        state = 0
-        for line in file:
-            comment_start = line.find('%')
-            if comment_start > -1:
-                line = line[:comment_start]
-            line = line.strip()
+        lines = (line.split(b'%', 1)[0].strip() for line in file)
+        data = b''.join(lines)
+        beginning = data.find(b'[')
+        if beginning < 0:
+            raise ValueError("Cannot locate beginning of encoding in {}"
+                             .format(file))
+        data = data[beginning:]
+        end = data.find(b']')
+        if end < 0:
+            raise ValueError("Cannot locate end of encoding in {}"
+                             .format(file))
+        data = data[:end]
 
-            if state == 0:
-                # Expecting something like /FooEncoding [
-                if '[' in line:
-                    state = 1
-                    line = line[line.index('[')+1:].strip()
-
-            if state == 1:
-                if ']' in line:  # ] def
-                    line = line[:line.index(']')]
-                    state = 2
-                words = line.split()
-                for w in words:
-                    if w.startswith('/'):
-                        # Allow for /abc/def/ghi
-                        subwords = w.split('/')
-                        result.extend(subwords[1:])
-                    else:
-                        raise ValueError("Broken name in encoding file: " + w)
-
-        return result
+        return re.findall(br'/([^][{}<>\s]+)', data)
 
 
 def find_tex_file(filename, format=None):
     """
-    Call :program:`kpsewhich` to find a file in the texmf tree. If
-    *format* is not None, it is used as the value for the
-    `--format` option.
+    Find a file in the texmf tree.
 
-    Apparently most existing TeX distributions on Unix-like systems
-    use kpathsea. It's also available as part of MikTeX, a popular
+    Calls :program:`kpsewhich` which is an interface to the kpathsea
+    library [1]_. Most existing TeX distributions on Unix-like systems use
+    kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
 
-    .. seealso::
+    Parameters
+    ----------
+    filename : string or bytestring
+    format : string or bytestring
+        Used as the value of the `--format` option to :program:`kpsewhich`.
+        Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 
-      `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
+    References
+    ----------
+
+    .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
         The library that :program:`kpsewhich` is part of.
     """
 

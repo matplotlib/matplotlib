@@ -1068,39 +1068,46 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             creator_str = "matplotlib version " + __version__ + \
                 ", http://matplotlib.org/"
-        def print_figure_impl():
+
+        def print_figure_impl(fh):
             # write the PostScript headers
-            if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-            else: print("%!PS-Adobe-3.0", file=fh)
-            if title: print("%%Title: "+title, file=fh)
+            if isEPSF:
+                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+            else:
+                print("%!PS-Adobe-3.0", file=fh)
+            if title:
+                print("%%Title: "+title, file=fh)
             print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
             if source_date_epoch:
                 source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
             print("%%Orientation: " + orientation, file=fh)
-            if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
+            if not isEPSF:
+                print("%%DocumentPaperSizes: "+papertype, file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-            if not isEPSF: print("%%Pages: 1", file=fh)
+            if not isEPSF:
+                print("%%Pages: 1", file=fh)
             print("%%EndComments", file=fh)
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
             if not rcParams['ps.useafm']:
                 Ndict += len(ps_renderer.used_characters)
-            print("/mpldict %d dict def"%Ndict, file=fh)
+            print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             for d in psDefs:
-                d=d.strip()
+                d = d.strip()
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in six.itervalues(ps_renderer.used_characters):
+                for font_filename, chars in six.itervalues(
+                        ps_renderer.used_characters):
                     if len(chars):
                         font = get_font(font_filename)
                         glyph_ids = []
@@ -1120,21 +1127,29 @@ class FigureCanvasPS(FigureCanvasBase):
                         # STIX fonts).  This will simply turn that off to avoid
                         # errors.
                         if is_opentype_cff_font(font_filename):
-                            raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
+                            msg = ("OpenType CFF fonts can not be saved "
+                                   "using the internal Postscript backend "
+                                   "at this time.\nConsider using the "
+                                   "Cairo backend.")
+                            raise RuntimeError(msg)
                         else:
                             fh.flush()
                             convert_ttf_to_ps(
-                                font_filename.encode(sys.getfilesystemencoding()),
+                                font_filename.encode(
+                                    sys.getfilesystemencoding()),
                                 fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
-            if not isEPSF: print("%%Page: 1 1", file=fh)
+            if not isEPSF:
+                print("%%Page: 1 1", file=fh)
             print("mpldict begin", file=fh)
-            #print >>fh, "gsave"
-            print("%s translate"%_nums_to_str(xo, yo), file=fh)
-            if rotation: print("%d rotate"%rotation, file=fh)
-            print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
+
+            print("%s translate" % _nums_to_str(xo, yo), file=fh)
+            if rotation:
+                print("%d rotate" % rotation, file=fh)
+            print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
+                  file=fh)
 
             # write the figure
             content = self._pswriter.getvalue()
@@ -1143,26 +1158,50 @@ class FigureCanvasPS(FigureCanvasBase):
             print(content, file=fh)
 
             # write the trailer
-            #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
-            if not isEPSF: print("%%EOF", file=fh)
+            if not isEPSF:
+                print("%%EOF", file=fh)
             fh.flush()
 
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
             fd, tmpfile = mkstemp()
-            with io.open(fd, 'w', encoding='latin-1') as fh:
-                print_figure_impl()
+            try:
+                with io.open(fd, 'w', encoding='latin-1') as fh:
+                    print_figure_impl(fh)
+                if rcParams['ps.usedistiller'] == 'ghostscript':
+                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                elif rcParams['ps.usedistiller'] == 'xpdf':
+                    xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+
+                if passed_in_file_object:
+                    if file_requires_unicode(outfile):
+                        with io.open(tmpfile, 'rb') as fh:
+                            outfile.write(fh.read().decode('latin-1'))
+                    else:
+                        with io.open(tmpfile, 'rb') as fh:
+                            outfile.write(fh.read())
+                else:
+                    with io.open(outfile, 'w') as fh:
+                        pass
+                    mode = os.stat(outfile).st_mode
+                    shutil.move(tmpfile, outfile)
+                    os.chmod(outfile, mode)
+            finally:
+                if os.path.isfile(tmpfile):
+                    os.unlink(tmpfile)
+
         else:
             # Write directly to outfile.
             if passed_in_file_object:
                 requires_unicode = file_requires_unicode(outfile)
 
                 if (not requires_unicode and
-                    (six.PY3 or not isinstance(outfile, StringIO))):
+                        (six.PY3 or not isinstance(outfile, StringIO))):
                     fh = io.TextIOWrapper(outfile, encoding="latin-1")
+
                     # Prevent the io.TextIOWrapper from closing the
                     # underlying file
                     def do_nothing():
@@ -1171,30 +1210,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 else:
                     fh = outfile
 
-                print_figure_impl()
+                print_figure_impl(fh)
             else:
                 with io.open(outfile, 'w', encoding='latin-1') as fh:
-                    print_figure_impl()
-
-        if rcParams['ps.usedistiller']:
-            if rcParams['ps.usedistiller'] == 'ghostscript':
-                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-            elif rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-
-            if passed_in_file_object:
-                if file_requires_unicode(outfile):
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read().decode('latin-1'))
-                else:
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read())
-            else:
-                with io.open(outfile, 'w') as fh:
-                    pass
-                mode = os.stat(outfile).st_mode
-                shutil.move(tmpfile, outfile)
-                os.chmod(outfile, mode)
+                    print_figure_impl(fh)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype, metadata=None,
@@ -1215,7 +1234,7 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             raise ValueError("outfile must be a path or a file-like object")
 
-        self.figure.dpi = 72 # ignore the dpi kwarg
+        self.figure.dpi = 72  # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
         xo = 0
         yo = 0
@@ -1243,18 +1262,17 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             self._pswriter = io.StringIO()
 
-
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height,
                                            self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
-            width, height, dpi, ps_renderer,
-            bbox_inches_restore=_bbox_inches_restore)
+                                     width, height, dpi, ps_renderer,
+                                     bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
 
-        if dryrun: # return immediately if dryrun (tightbbox=True)
+        if dryrun:  # return immediately if dryrun (tightbbox=True)
             return
 
         self.figure.set_facecolor(origfacecolor)
@@ -1268,107 +1286,118 @@ class FigureCanvasPS(FigureCanvasBase):
                 ", http://matplotlib.org/"
 
         # write to a temp file, we'll move it to outfile when done
+
         fd, tmpfile = mkstemp()
-        with io.open(fd, 'w', encoding='latin-1') as fh:
-            # write the Encapsulated PostScript headers
-            print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-            if title: print("%%Title: "+title, file=fh)
-            print("%%Creator: " + creator_str, file=fh)
-            # get source date from SOURCE_DATE_EPOCH, if set
-            # See https://reproducible-builds.org/specs/source-date-epoch/
-            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-            if source_date_epoch:
-                source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+        try:
+            with io.open(fd, 'w', encoding='latin-1') as fh:
+                # write the Encapsulated PostScript headers
+                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+                if title:
+                    print("%%Title: "+title, file=fh)
+                print("%%Creator: " + creator_str, file=fh)
+                # get source date from SOURCE_DATE_EPOCH, if set
+                # See https://reproducible-builds.org/specs/source-date-epoch/
+                source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+                if source_date_epoch:
+                    source_date = datetime.datetime.utcfromtimestamp(
+                        int(source_date_epoch)).strftime(
+                            "%a %b %d %H:%M:%S %Y")
+                else:
+                    source_date = time.ctime()
+                print("%%CreationDate: "+source_date, file=fh)
+                print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
+                print("%%EndComments", file=fh)
+
+                Ndict = len(psDefs)
+                print("%%BeginProlog", file=fh)
+                print("/mpldict %d dict def" % Ndict, file=fh)
+                print("mpldict begin", file=fh)
+                for d in psDefs:
+                    d = d.strip()
+                    for l in d.split('\n'):
+                        print(l.strip(), file=fh)
+                print("end", file=fh)
+                print("%%EndProlog", file=fh)
+
+                print("mpldict begin", file=fh)
+                print("%s translate" % _nums_to_str(xo, yo), file=fh)
+                print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
+                      file=fh)
+
+                # write the figure
+                print(self._pswriter.getvalue(), file=fh)
+
+                # write the trailer
+                print("end", file=fh)
+                print("showpage", file=fh)
+                fh.flush()
+
+            if isLandscape:  # now we are ready to rotate
+                isLandscape = True
+                width, height = height, width
+                bbox = (lly, llx, ury, urx)
+
+            # set the paper size to the figure size if isEPSF. The
+            # resulting ps file has the given size with correct bounding
+            # box so that there is no need to call 'pstoeps'
+            if isEPSF:
+                paperWidth, paperHeight = self.figure.get_size_inches()
+                if isLandscape:
+                    paperWidth, paperHeight = paperHeight, paperWidth
             else:
-                source_date = time.ctime()
-            print("%%CreationDate: "+source_date, file=fh)
-            print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-            print("%%EndComments", file=fh)
-
-            Ndict = len(psDefs)
-            print("%%BeginProlog", file=fh)
-            print("/mpldict %d dict def"%Ndict, file=fh)
-            print("mpldict begin", file=fh)
-            for d in psDefs:
-                d=d.strip()
-                for l in d.split('\n'):
-                    print(l.strip(), file=fh)
-            print("end", file=fh)
-            print("%%EndProlog", file=fh)
-
-            print("mpldict begin", file=fh)
-            #print >>fh, "gsave"
-            print("%s translate"%_nums_to_str(xo, yo), file=fh)
-            print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
-
-            # write the figure
-            print(self._pswriter.getvalue(), file=fh)
-
-            # write the trailer
-            #print >>fh, "grestore"
-            print("end", file=fh)
-            print("showpage", file=fh)
-            fh.flush()
-
-        if isLandscape: # now we are ready to rotate
-            isLandscape = True
-            width, height = height, width
-            bbox = (lly, llx, ury, urx)
-
-        # set the paper size to the figure size if isEPSF. The
-        # resulting ps file has the given size with correct bounding
-        # box so that there is no need to call 'pstoeps'
-        if isEPSF:
-            paperWidth, paperHeight = self.figure.get_size_inches()
-            if isLandscape:
-                paperWidth, paperHeight = paperHeight, paperWidth
-        else:
-            temp_papertype = _get_papertype(width, height)
-            if papertype=='auto':
-                papertype = temp_papertype
-                paperWidth, paperHeight = papersize[temp_papertype]
-            else:
-                paperWidth, paperHeight = papersize[papertype]
-                if (width>paperWidth or height>paperHeight) and isEPSF:
+                temp_papertype = _get_papertype(width, height)
+                if papertype == 'auto':
+                    papertype = temp_papertype
                     paperWidth, paperHeight = papersize[temp_papertype]
-                    verbose.report('Your figure is too big to fit on %s paper. %s \
-    paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
+                else:
+                    paperWidth, paperHeight = papersize[papertype]
+                    if (width > paperWidth or height > paperHeight) and isEPSF:
+                        paperWidth, paperHeight = papersize[temp_papertype]
+                        verbose.report(
+                            ('Your figure is too big to fit on %s paper. %s '
+                             'paper will be used to prevent clipping.'
+                             ) % (papertype, temp_papertype), 'helpful')
 
+            texmanager = ps_renderer.get_texmanager()
+            font_preamble = texmanager.get_font_preamble()
+            custom_preamble = texmanager.get_custom_preamble()
 
-        texmanager = ps_renderer.get_texmanager()
-        font_preamble = texmanager.get_font_preamble()
-        custom_preamble = texmanager.get_custom_preamble()
+            psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
+                                             font_preamble,
+                                             custom_preamble, paperWidth,
+                                             paperHeight,
+                                             orientation)
 
-        psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
-                                         font_preamble,
-                                         custom_preamble, paperWidth, paperHeight,
-                                         orientation)
-
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                       rotated=psfrag_rotated)
-        elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                         rotated=psfrag_rotated)
-        elif rcParams['text.usetex']:
-            if False: pass # for debugging
-            else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                           rotated=psfrag_rotated)
+            elif rcParams['ps.usedistiller'] == 'xpdf':
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
+            elif rcParams['text.usetex']:
+                if False:
+                    pass  # for debugging
+                else:
+                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                               rotated=psfrag_rotated)
 
-        if is_writable_file_like(outfile):
-            if file_requires_unicode(outfile):
-                with io.open(tmpfile, 'rb') as fh:
-                    outfile.write(fh.read().decode('latin-1'))
+            if is_writable_file_like(outfile):
+                if file_requires_unicode(outfile):
+                    with io.open(tmpfile, 'rb') as fh:
+                        outfile.write(fh.read().decode('latin-1'))
+                else:
+                    with io.open(tmpfile, 'rb') as fh:
+                        outfile.write(fh.read())
             else:
-                with io.open(tmpfile, 'rb') as fh:
-                    outfile.write(fh.read())
-        else:
-            with io.open(outfile, 'wb') as fh:
-                pass
-            mode = os.stat(outfile).st_mode
-            shutil.move(tmpfile, outfile)
-            os.chmod(outfile, mode)
+                with io.open(outfile, 'wb') as fh:
+                    pass
+                mode = os.stat(outfile).st_mode
+                shutil.move(tmpfile, outfile)
+                os.chmod(outfile, mode)
+        finally:
+            if os.path.isfile(tmpfile):
+                os.unlink(tmpfile)
+
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paperWidth, paperHeight, orientation):
@@ -1568,7 +1597,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     with io.open(outfile, 'rb') as fh:
         if exit_status:
             raise RuntimeError('ps2pdf was not able to process your \
-image.\n\Here is the report generated by ghostscript:\n\n' + fh.read())
+image.\nHere is the report generated by ghostscript:\n\n' + fh.read())
         else:
             verbose.report(fh.read(), 'debug')
     os.remove(outfile)

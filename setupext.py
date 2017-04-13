@@ -713,8 +713,8 @@ class Matplotlib(SetupPackage):
             'matplotlib.sphinxext',
             'matplotlib.style',
             'matplotlib.testing',
-            'matplotlib.testing.nose',
-            'matplotlib.testing.nose.plugins',
+            'matplotlib.testing._nose',
+            'matplotlib.testing._nose.plugins',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
             'matplotlib.cbook'
@@ -788,28 +788,28 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    nose_min_version = '0.11.1'
+    pytest_min_version = '3.0.0'
     default_config = False
 
     def check(self):
         super(Tests, self).check()
 
         msgs = []
-        msg_template = ('{package} is required to run the matplotlib test '
-                        'suite. Please install it with pip or your preferred'
-                        ' tool to run the test suite')
+        msg_template = ('{package} is required to run the Matplotlib test '
+                        'suite. Please install it with pip or your preferred '
+                        'tool to run the test suite')
 
-        bad_nose = msg_template.format(
-            package='nose %s or later' % self.nose_min_version
+        bad_pytest = msg_template.format(
+            package='pytest %s or later' % self.pytest_min_version
         )
         try:
-            import nose
-            if is_min_version(nose.__version__, self.nose_min_version):
-                msgs += ['using nose version %s' % nose.__version__]
+            import pytest
+            if is_min_version(pytest.__version__, self.pytest_min_version):
+                msgs += ['using pytest version %s' % pytest.__version__]
             else:
-                msgs += [bad_nose]
+                msgs += [bad_pytest]
         except ImportError:
-            msgs += [bad_nose]
+            msgs += [bad_pytest]
 
         if PY3min:
             msgs += ['using unittest.mock']
@@ -1146,12 +1146,15 @@ class FreeType(SetupPackage):
                     os.path.isfile(tarball_cache_path)):
                 if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
                     try:
-                        # fail on Lpy, oh well
-                        os.makedirs('build', exist_ok=True)
+                        os.makedirs('build')
+                    except OSError:
+                        # Don't care if it exists.
+                        pass
+                    try:
                         shutil.copy(tarball_cache_path, tarball_path)
                         print('Using cached tarball: {}'
                               .format(tarball_cache_path))
-                    except:
+                    except OSError:
                         # If this fails, oh well just re-download
                         pass
 
@@ -1165,12 +1168,12 @@ class FreeType(SetupPackage):
                     os.makedirs('build')
 
                 sourceforge_url = (
-                    'http://downloads.sourceforge.net/project/freetype'
+                    'https://downloads.sourceforge.net/project/freetype'
                     '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
                 )
                 url_fmts = (
                     sourceforge_url + '{0}',
-                    'http://download.savannah.gnu.org/releases/freetype/{0}'
+                    'https://download.savannah.gnu.org/releases/freetype/{0}'
                     )
                 for url_fmt in url_fmts:
                     tarball_url = url_fmt.format(tarball)
@@ -1186,12 +1189,15 @@ class FreeType(SetupPackage):
                     raise IOError("Failed to download freetype")
                 if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
                     try:
-                        # this will fail on LPy, oh well
-                        os.makedirs(tarball_cache_dir, exist_ok=True)
+                        os.makedirs(tarball_cache_dir)
+                    except OSError:
+                        # Don't care if it exists.
+                        pass
+                    try:
                         shutil.copy(tarball_path, tarball_cache_path)
                         print('Cached tarball at: {}'
                               .format(tarball_cache_path))
-                    except:
+                    except OSError:
                         # again, we do not care if this fails, can
                         # always re download
                         pass
@@ -1523,25 +1529,25 @@ class Dateutil(SetupPackage):
         return [dateutil]
 
 
-class FuncTools32(SetupPackage):
-    name = "functools32"
+class BackportsFuncToolsLRUCache(SetupPackage):
+    name = "backports.functools_lru_cache"
 
     def check(self):
         if not PY3min:
             try:
-                import functools32
+                import backports.functools_lru_cache
             except ImportError:
                 return (
-                    "functools32 was not found. It is required for"
+                    "backports.functools_lru_cache was not found. It is required for"
                     "Python versions prior to 3.2")
 
-            return "using functools32"
+            return "using backports.functools_lru_cache"
         else:
             return "Not required"
 
     def get_install_requires(self):
         if not PY3min:
-            return ['functools32']
+            return ['backports.functools_lru_cache']
         else:
             return []
 
