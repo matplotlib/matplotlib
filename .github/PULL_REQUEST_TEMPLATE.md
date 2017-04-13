@@ -1,5 +1,5 @@
 Thank you so much for your PR! To help us review, please make use of our 
-[development guide](http://matplotlib.org/devel/index.html) and fill out the form to the best of your ability. 
+[development guide](http://matplotlib.org/devdocs/devel/coding_guide.html#documentation) and fill out the form to the best of your ability. 
 
 **PR Summary**
 
