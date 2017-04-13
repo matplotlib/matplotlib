@@ -315,7 +315,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
     def make_tex_preview(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific
-        font size.  It uses the preview.sty to determin the dimension
+        font size. It uses the preview.sty to determine the dimension
         (width, height, descent) of the output.
 
         returns the file name
