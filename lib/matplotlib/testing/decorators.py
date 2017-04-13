@@ -330,12 +330,8 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
 
         @nose.tools.with_setup(self.setup, self.teardown)
         def runner_wrapper():
-            try:
-                for case in self.nose_runner():
-                    yield case
-            except GeneratorExit:
-                # nose bug...
-                self.teardown()
+            for case in self.nose_runner():
+                yield case
 
         return _copy_metadata(func, runner_wrapper)
 
