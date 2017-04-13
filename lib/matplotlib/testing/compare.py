@@ -366,7 +366,7 @@ def calculate_rms(expectedImage, actualImage):
     "Calculate the per-pixel errors, then compute the root mean square error."
     if expectedImage.shape != actualImage.shape:
         raise ImageComparisonFailure(
-            "image sizes do not match expected size: {0} "
+            "Image sizes do not match expected size: {0} "
             "actual size {1}".format(expectedImage.shape, actualImage.shape))
     num_values = expectedImage.size
     abs_diff_image = abs(expectedImage - actualImage)
@@ -470,7 +470,10 @@ def save_diff_image(expected, actual, output):
         actual, actualImage, expected, expectedImage)
     expectedImage = np.array(expectedImage).astype(float)
     actualImage = np.array(actualImage).astype(float)
-    assert expectedImage.shape == actualImage.shape
+    if expectedImage.shape != actualImage.shape:
+        raise ImageComparisonFailure(
+            "Image sizes do not match expected size: {0} "
+            "actual size {1}".format(expectedImage.shape, actualImage.shape))
     absDiffImage = np.abs(expectedImage - actualImage)
 
     # expand differences in luminance domain
