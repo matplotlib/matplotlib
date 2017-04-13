@@ -1103,6 +1103,7 @@ class Axes3D(Axes):
         self._zmargin = 0
 
         Axes.cla(self)
+        Axes.set_axis_off(self)
 
         self.grid(rcParams['axes3d.grid'])
 
