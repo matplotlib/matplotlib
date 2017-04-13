@@ -3,10 +3,7 @@ Thank you so much for your PR! To help us review, fill out the form to the best 
 <!--- Provide a general summary of your changes in the Title above, for example "Raises ValueError on Non-Numeric Input to set_xlim". Please avoid non-descriptive titles such as "Addresses issue #8576"-->
 
 ## PR Summary
-<!--- Please provide at least 1-2 sentences describing the pull request in detail. Also indicate the type of PR: bug fix or new feature, and documentation or code. -->
-
-## Motivation and Context
-<!--- Why is this change required? What problem does it solve? -->
+<!--- Please provide at least 1-2 sentences describing the pull request in detail. Why is this change required? What problem does it solve? -->
 <!--- If it fixes an open issue, please link to the issue here. -->
 
 ## PR Checklist
