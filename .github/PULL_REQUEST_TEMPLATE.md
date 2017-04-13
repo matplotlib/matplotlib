@@ -7,12 +7,12 @@ Thank you so much for your PR! To help us review, fill out the form to the best 
 <!--- If it fixes an open issue, please link to the issue here. -->
 
 ## PR Checklist
-- [ ] Code is tested using Py.test on Py2 and Py3
+- [ ] Has Pytest style unit tests
 - [ ] Code is PEP 8 compliant 
-- [ ] New features are documented-and have an example if plot related
+- [ ] New features are documented, with examples if plot related
 - [ ] Documentation is sphinx and numpydoc compliant
-- [ ] major new feature: added an entry to doc/users/whats_new.rst
-- [ ] change the API in a backward-incompatible way: documented it in doc/api/api_changes.rst
+- [ ] Added an entry to doc/users/whats_new.rst if major new feature: 
+- [ ] Documented in doc/api/api_changes.rst if API changed in a backward-incompatible way
 
-We understand that PRs can sometimes feel like a guantlet, especially as the reviews start coming in. Please let us know 
-if the reviews are unclear or the recommended next step is overwhelming, or if you would like help in addressing a reviewer's comments. And please ping us if you've been waiting too long to hear back on your PR!
+We understand that PRs can sometimes be overwhelming, especially as the reviews start coming in. Please let us know 
+if the reviews are unclear or the recommended next step seems overly demanding , or if you would like help in addressing a reviewer's comments. And please ping us if you've been waiting too long to hear back on your PR!
