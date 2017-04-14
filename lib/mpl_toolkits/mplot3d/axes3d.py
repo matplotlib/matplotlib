@@ -587,18 +587,6 @@ class Axes3D(Axes):
             xmax += 0.05
         return (xmin, xmax)
 
-    def _validate_axis_limits(self, limit, convert):
-        """
-        Raise ValueError if specified axis limits are infinite.
-
-        """
-        if limit is not None:
-            converted_limits = convert(limit)
-            if (isinstance(limit, float) and
-                    (not np.isreal(limit) or not np.isfinite(limit))):
-                raise ValueError("Axis limits cannot be NaN or Inf")
-            return converted_limits
-
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
         """
         Set 3D x limits.
@@ -617,8 +605,8 @@ class Axes3D(Axes):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
-        left = self._validate_axis_limits(left, self.convert_xunits)
-        right = self._validate_axis_limits(right, self.convert_xunits)
+        left = self._validate_converted_limits(left, self.convert_xunits)
+        right = self._validate_converted_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -669,14 +657,14 @@ class Axes3D(Axes):
             bottom, top = bottom
 
         self._process_unit_info(ydata=(bottom, top))
-        if bottom is not None:
-            bottom = self.convert_yunits(bottom)
-        if top is not None:
-            top = self.convert_yunits(top)
+        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
+        top = self._validate_converted_limits(top, self.convert_yunits)
 
         old_bottom, old_top = self.get_ylim()
-        bottom = self._validate_axis_limits(bottom, self.convert_yunits)
-        top = self._validate_axis_limits(top, self.convert_yunits)
+        if bottom is None:
+            bottom = old_bottom
+        if top is None:
+            top = old_top
 
         if top == bottom:
             warnings.warn(('Attempting to set identical bottom==top results\n'
@@ -721,8 +709,8 @@ class Axes3D(Axes):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
-        bottom = self._validate_axis_limits(bottom, self.convert_yunits)
-        top = self._validate_axis_limits(top, self.convert_yunits)
+        bottom = self._validate_converted_limits(bottom, self.convert_zunits)
+        top = self._validate_converted_limits(top, self.convert_zunits)
 
         old_bottom, old_top = self.get_zlim()
         if bottom is None:
