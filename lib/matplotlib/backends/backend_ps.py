@@ -8,21 +8,19 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import StringIO
 
-import glob, math, os, shutil, sys, time, datetime
+import glob, os, shutil, sys, time, datetime
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
 
-from hashlib import md5
-
 from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
     is_writable_file_like, maxdict, file_requires_unicode
+from matplotlib.compat.subprocess import subprocess
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -30,7 +28,6 @@ from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
-from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D
@@ -69,8 +66,8 @@ class PsBackendHelper(object):
         if gs_exe is None:
             gs_exe = 'gs'
 
-        self._cached["gs_exe"] = gs_exe
-        return gs_exe
+        self._cached["gs_exe"] = str(gs_exe)
+        return str(gs_exe)
 
     @property
     def gs_version(self):
@@ -83,8 +80,7 @@ class PsBackendHelper(object):
             pass
 
         from matplotlib.compat.subprocess import Popen, PIPE
-        s = Popen(self.gs_exe + " --version",
-                     shell=True, stdout=PIPE)
+        s = Popen([self.gs_exe, "--version"], stdout=PIPE)
         pipe, stderr = s.communicate()
         if six.PY3:
             ver = pipe.decode('ascii')
@@ -474,8 +470,6 @@ grestore
         self._pswriter.write(ps)
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
-        ps = []
-        last_points = None
         if clip:
             clip = (0.0, 0.0, self.width * 72.0,
                     self.height * 72.0)
@@ -515,8 +509,6 @@ grestore
         transformed by the transform
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
-
-        write = self._pswriter.write
 
         if rgbFace:
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
@@ -885,7 +877,6 @@ grestore
         write("grestore\n")
 
 
-
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt':0,
@@ -901,6 +892,7 @@ class GraphicsContextPS(GraphicsContextBase):
         return (self.get_linewidth() > 0.0 and
                 (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
+
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
@@ -914,6 +906,7 @@ def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasPS(figure)
     manager = FigureManagerPS(canvas, num)
     return manager
+
 
 class FigureCanvasPS(FigureCanvasBase):
     _renderer_class = RendererPS
@@ -1412,12 +1405,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     epsfile = tmpfile+'.eps'
     shutil.move(tmpfile, epsfile)
     latexfile = tmpfile+'.tex'
-    outfile = tmpfile+'.output'
     dvifile = tmpfile+'.dvi'
     psfile = tmpfile+'.ps'
 
-    if orientation=='landscape': angle = 90
-    else: angle = 0
+    if orientation == 'landscape':
+        angle = 90
+    else:
+        angle = 0
 
     if rcParams['text.latex.unicode']:
         unicode_preamble = """\\usepackage{ucs}
@@ -1458,40 +1452,39 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                                "rcParam.", 'helpful')
                 raise
 
-    # the split drive part of the command is necessary for windows users with
-    # multiple
-    if sys.platform == 'win32': precmd = '%s &&'% os.path.splitdrive(tmpdir)[0]
-    else: precmd = ''
-    #Replace \\ for / so latex does not think there is a function call
+    # Replace \\ for / so latex does not think there is a function call
     latexfile = latexfile.replace("\\", "/")
     # Replace ~ so Latex does not think it is line break
     latexfile = latexfile.replace("~", "\\string~")
-    command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
-                %(precmd, tmpdir, latexfile, outfile)
+    command = [str("latex"), "-interaction=nonstopmode",
+               '"%s"' % latexfile]
     verbose.report(command, 'debug')
-    exit_status = os.system(command)
+    try:
+        report = subprocess.check_output(command, cwd=tmpdir,
+                                         stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('LaTeX was not able to process the following '
+             'file:\n%s\n\n'
+             'Here is the full report generated by LaTeX:\n%s '
+             '\n\n' % (latexfile,
+                       exc.output.decode("utf-8"))))
+    verbose.report(report, 'debug')
 
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('LaTeX was not able to process your file:\
-    \nHere is the full report generated by LaTeX: \n\n%s'% fh.read())
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
-
-    command = '%s cd "%s" && dvips -q -R0 -o "%s" "%s" > "%s"'%(precmd, tmpdir,
-                os.path.split(psfile)[-1], os.path.split(dvifile)[-1], outfile)
+    command = [str('dvips'), '-q', '-R0', '-o', os.path.basename(psfile),
+               os.path.basename(dvifile)]
     verbose.report(command, 'debug')
-    exit_status = os.system(command)
-
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('dvips was not able to \
-    process the following file:\n%s\nHere is the full report generated by dvips: \
-    \n\n'% dvifile + fh.read())
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
+    try:
+        report = subprocess.check_output(command, cwd=tmpdir,
+                                         stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('dvips was not able to process the following '
+             'file:\n%s\n\n'
+             'Here is the full report generated by dvips:\n%s '
+             '\n\n' % (dvifile,
+                       exc.output.decode("utf-8"))))
+    verbose.report(report, 'debug')
     os.remove(epsfile)
     shutil.move(psfile, tmpfile)
 
@@ -1521,13 +1514,13 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     operators. The output is low-level, converting text to outlines.
     """
 
-    if eps: paper_option = "-dEPSCrop"
-    else: paper_option = "-sPAPERSIZE=%s" % ptype
+    if eps:
+        paper_option = "-dEPSCrop"
+    else:
+        paper_option = "-sPAPERSIZE=%s" % ptype
 
     psfile = tmpfile + '.ps'
-    outfile = tmpfile + '.output'
     dpi = rcParams['ps.distiller.res']
-
 
     gs_exe = ps_backend_helper.gs_exe
     if ps_backend_helper.supports_ps2write: # gs version >= 9
@@ -1535,25 +1528,18 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     else:
         device_name = "pswrite"
 
-    command = '%s -dBATCH -dNOPAUSE -r%d -sDEVICE=%s %s -sOutputFile="%s" \
-                "%s" > "%s"'% (gs_exe, dpi, device_name,
-                               paper_option, psfile, tmpfile, outfile)
-
+    command = [str(gs_exe), "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
+               "-sDEVICE=%s" % device_name, paper_option,
+               "-sOutputFile=%s" % psfile, tmpfile]
     verbose.report(command, 'debug')
-    exit_status = os.system(command)
-
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            output = fh.read()
-            m = "\n".join(["ghostscript was not able to process your image.",
-                           "Here is the full report generated by ghostscript:",
-                           "",
-                           "%s"])
-            # use % to prevent problems with bytes
-            raise RuntimeError(m % output)
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
+    try:
+        report = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('ghostscript was not able to process your image.\n'
+             'Here is the full report generated by ghostscript:\n%s '
+             '\n\n' % exc.output.decode("utf-8")))
+    verbose.report(report, 'debug')
     os.remove(tmpfile)
     shutil.move(psfile, tmpfile)
 
@@ -1582,37 +1568,48 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
-    outfile = tmpfile + '.output'
 
-    if eps: paper_option = "-dEPSCrop"
-    else: paper_option = "-sPAPERSIZE=%s" % ptype
-
-    command = 'ps2pdf -dAutoFilterColorImages=false \
--dAutoFilterGrayImages=false -sGrayImageFilter=FlateEncode \
--sColorImageFilter=FlateEncode %s "%s" "%s" > "%s"'% \
-(paper_option, tmpfile, pdffile, outfile)
-    if sys.platform == 'win32': command = command.replace('=', '#')
-    verbose.report(command, 'debug')
-    exit_status = os.system(command)
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('ps2pdf was not able to process your \
-image.\nHere is the report generated by ghostscript:\n\n' + fh.read())
+    if eps:
+        paper_option = "-dEPSCrop"
+    else:
+        if sys.platform == "win32":
+            paper_option = "-sPAPERSIZE#%s" % ptype
         else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
-    command = 'pdftops -paper match -level2 "%s" "%s" > "%s"'% \
-                (pdffile, psfile, outfile)
-    verbose.report(command, 'debug')
-    exit_status = os.system(command)
+            paper_option = "-sPAPERSIZE=%s" % ptype
 
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('pdftops was not able to process your \
-image.\nHere is the full report generated by pdftops: \n\n' + fh.read())
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
+    if sys.platform == "win32":
+        command = [str("ps2pdf"), "-dAutoFilterColorImages#false",
+                   "-dAutoFilterGrayImages#false",
+                   "-sGrayImageFilter#FlateEncode",
+                   "-sColorImageFilter#FlateEncode", paper_option, tmpfile,
+                   pdffile]
+    else:
+        command = [str("ps2pdf"), "-dAutoFilterColorImages=false",
+                   "-dAutoFilterGrayImages=false",
+                   "-sGrayImageFilter=FlateEncode",
+                   "-sColorImageFilter=FlateEncode", paper_option, tmpfile,
+                   pdffile]
+    verbose.report(command, 'debug')
+
+    try:
+        report = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('ps2pdf was not able to process your image.\n'
+             'Here is the full report generated by ps2pdf:\n%s '
+             '\n\n' % exc.output.decode("utf-8")))
+    verbose.report(report, 'debug')
+
+    command = [str("pdftops"), "-paper", "match", "-level2", pdffile, psfile]
+    verbose.report(command, 'debug')
+    try:
+        report = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('pdftops was not able to process your image.\n'
+             'Here is the full report generated by pdftops:\n%s '
+             '\n\n' % exc.output.decode("utf-8")))
+    verbose.report(report, 'debug')
     os.remove(tmpfile)
     shutil.move(psfile, tmpfile)
 
@@ -1622,6 +1619,7 @@ image.\nHere is the full report generated by pdftops: \n\n' + fh.read())
     for fname in glob.glob(tmpfile+'.*'):
         os.remove(fname)
 
+
 def get_bbox_header(lbrt, rotated=False):
     """
     return a postscript header stringfor the given bbox lbrt=(l, b, r, t).
@@ -1629,7 +1627,7 @@ def get_bbox_header(lbrt, rotated=False):
     """
 
     l, b, r, t = lbrt
-    if  rotated:
+    if rotated:
         rotate = "%.2f %.2f  translate\n90 rotate" % (l+r, 0)
     else:
         rotate = ""
@@ -1643,16 +1641,18 @@ def get_bbox_header(lbrt, rotated=False):
 # find the bounding box, as the required bounding box is alread known.
 def get_bbox(tmpfile, bbox):
     """
-    Use ghostscript's bbox device to find the center of the bounding box. Return
-    an appropriately sized bbox centered around that point. A bit of a hack.
+    Use ghostscript's bbox device to find the center of the bounding box.
+    Return an appropriately sized bbox centered around that point. A bit of a
+    hack.
     """
 
-    outfile = tmpfile + '.output'
     gs_exe = ps_backend_helper.gs_exe
-    command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' %\
-                (gs_exe, tmpfile)
+    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox" "%s" % tmpfile]
     verbose.report(command, 'debug')
-    stdin, stdout, stderr = os.popen3(command)
+    p = subprocess.Popen(command, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         close_fds=True)
+    (stdout, stderr) = (p.stdout, p.stderr)
     verbose.report(stdout.read(), 'debug-annoying')
     bbox_info = stderr.read()
     verbose.report(bbox_info, 'helpful')
@@ -1661,7 +1661,7 @@ def get_bbox(tmpfile, bbox):
         bbox_info = bbox_found.group()
     else:
         raise RuntimeError('Ghostscript was not able to extract a bounding box.\
-Here is the Ghostscript output:\n\n%s'% bbox_info)
+Here is the Ghostscript output:\n\n%s' % bbox_info)
     l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
 
     # this is a hack to deal with the fact that ghostscript does not return the

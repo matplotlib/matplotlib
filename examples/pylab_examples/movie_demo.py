@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-import os
+import subprocess
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,8 +22,8 @@ for i in range(50):  # 50 frames
     files.append(fname)
 
 print('Making movie animation.mpg - this may take a while')
-os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
-#os.system("convert _tmp*.png animation.mng")
+subprocess.call("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 -ovc lavc "
+                "-lavcopts vcodec=wmv2 -oac copy -o animation.mpg", shell=True)
 
 # cleanup
 for fname in files:

@@ -172,13 +172,9 @@ def latex():
             raise SystemExit("Building LaTeX failed.")
 
         # Produce pdf.
-        os.chdir('build/latex')
-
         # Call the makefile produced by sphinx...
-        if os.system('make'):
-            raise SystemExit("Rendering LaTeX failed.")
-
-        os.chdir('../..')
+        if subprocess.call("make", cwd="build/latex"):
+            raise SystemExit("Rendering LaTeX failed with.")
     else:
         print('latex build has not been tested on windows')
 
@@ -195,13 +191,9 @@ def texinfo():
             raise SystemExit("Building Texinfo failed.")
 
         # Produce info file.
-        os.chdir('build/texinfo')
-
         # Call the makefile produced by sphinx...
-        if os.system('make'):
-            raise SystemExit("Rendering Texinfo failed.")
-
-        os.chdir('../..')
+        if subprocess.call("make", cwd="build/texinfo"):
+            raise SystemExit("Rendering Texinfo failed with.")
     else:
         print('texinfo build has not been tested on windows')
 
