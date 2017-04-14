@@ -587,17 +587,17 @@ class Axes3D(Axes):
             xmax += 0.05
         return (xmin, xmax)
 
-    def _validate_axis_limits(self, limit, convert):
-        """
-        Raise ValueError if specified axis limits are infinite.
+    # def _validate_axis_limits(self, limit, convert):
+    #     """
+    #     Raise ValueError if specified axis limits are infinite.
 
-        """
-        if limit is not None:
-            converted_limit = convert(limit)
-            if (isinstance(converted_limit, float) and
-                    (not np.isreal(converted_limit) or not np.isfinite(converted_limit))):
-                raise ValueError("Axis limits cannot be NaN or Inf")
-            return converted_limit
+    #     """
+    #     if limit is not None:
+    #         converted_limit = convert(limit)
+    #         if (isinstance(converted_limit, float) and
+    #                 (not np.isreal(converted_limit) or not np.isfinite(converted_limit))):
+    #             raise ValueError("Axis limits cannot be NaN or Inf")
+    #         return converted_limit
 
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
         """

@@ -2810,6 +2810,19 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervalx)
 
+    def _validate_axis_limits(self, limit, convert):
+        """
+        Raise ValueError if specified axis limits are infinite.
+
+        """
+        if limit is not None:
+            converted_limit = convert(limit)
+            if (isinstance(converted_limit, float) and
+                    (not np.isreal(converted_limit) or
+                        not np.isfinite(converted_limit))):
+                raise ValueError("Axis limits cannot be NaN or Inf")
+            return converted_limit
+
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
         """
         Set the data limits for the x-axis
@@ -2876,15 +2889,8 @@ class _AxesBase(martist.Artist):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
-        if left is not None:
-            left = self.convert_xunits(left)
-        if right is not None:
-            right = self.convert_xunits(right)
-
-        if ((left is not None and not np.isfinite(left)) or
-                (right is not None and not np.isfinite(right))):
-            raise ValueError("Specified x limits must be finite; "
-                             "instead, found: (%s, %s)" % (left, right))
+        left = self._validate_axis_limits(left, self.convert_xunits)
+        right = self._validate_axis_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -3175,15 +3181,8 @@ class _AxesBase(martist.Artist):
         if top is None and iterable(bottom):
             bottom, top = bottom
 
-        if bottom is not None:
-            bottom = self.convert_yunits(bottom)
-        if top is not None:
-            top = self.convert_yunits(top)
-
-        if ((top is not None and not np.isfinite(top)) or
-                (bottom is not None and not np.isfinite(bottom))):
-            raise ValueError("Specified y limits must be finite; "
-                             "instead, found: (%s, %s)" % (bottom, top))
+        bottom = self._validate_axis_limits(bottom, self.convert_yunits)
+        top = self._validate_axis_limits(top, self.convert_yunits)
 
         old_bottom, old_top = self.get_ylim()
 
