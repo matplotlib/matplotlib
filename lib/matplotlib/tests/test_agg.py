@@ -222,14 +222,15 @@ def test_too_large_image():
 
 
 def test_chunksize():
-    x = range(9000000)
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    x = range(110)
 
-    # Test with small chunksize
-    tmp = rcParams['agg.path.chunksize']
-    rcParams['agg.path.chunksize'] = 500
+    # Test without chunksize
+    fig, ax = plt.subplots()
     ax.plot(x, np.sin(x))
-    plt.show()
+    fig.canvas.draw()
 
-    rcParams['agg.path.chunksize'] = tmp
+    # Test with chunksize
+    fig, ax = plt.subplots()
+    rcParams['agg.path.chunksize'] = 105
+    ax.plot(x, np.sin(x))
+    fig.canvas.draw()
