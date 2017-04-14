@@ -188,7 +188,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
     # tuple color.
     c = np.array(c)
-    if not np.can_cast(c.dtype, float) or c.ndim != 1:
+    if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
         # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
         # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
         # Test dimensionality to reject single floats.
@@ -934,6 +934,11 @@ class Normalize(object):
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
+        # Agg cannot handle float128.  We actually only need 32-bit of
+        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
+        # so casting to float32 would lose precision on float64s as well.
+        if result.dtype == np.longdouble:
+            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result

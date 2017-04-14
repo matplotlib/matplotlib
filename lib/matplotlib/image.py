@@ -299,9 +299,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         space.
         """
         if A is None:
-            raise RuntimeError('You must first set the image'
-                               ' array or the image attribute')
-        if any(s == 0 for s in A.shape):
+            raise RuntimeError('You must first set the image '
+                               'array or the image attribute')
+        if A.size == 0:
             raise RuntimeError("_make_image must get a non-empty image. "
                                "Your Artist's draw method must filter before "
                                "this method is called.")
@@ -359,7 +359,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             created_rgba_mask = False
 
             if A.ndim not in (2, 3):
-                raise ValueError("Invalid dimensions, got %s" % (A.shape,))
+                raise ValueError("Invalid dimensions, got {}".format(A.shape))
 
             if A.ndim == 2:
                 A = self.norm(A)
@@ -591,11 +591,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and
-                not np.can_cast(self._A.dtype, float)):
-            raise TypeError("Image data can not convert to float")
+                not np.can_cast(self._A.dtype, float, "same_kind")):
+            raise TypeError("Image data cannot be converted to float")
 
-        if (self._A.ndim not in (2, 3) or
-                (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
+        if not (self._A.ndim == 2
+                or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
             raise TypeError("Invalid dimensions for image data")
 
         self._imcache = None
