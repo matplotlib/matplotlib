@@ -144,7 +144,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
     elif isinstance(markevery, int):
         markevery = (0, markevery)
     # if just an numpy int, assume starting at 0 and make a tuple
-    elif isinstance(markevery, (int, np.integer)):
+    elif isinstance(markevery, np.integer):
         markevery = (0, markevery.item())
 
     if isinstance(markevery, tuple):
