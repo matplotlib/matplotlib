@@ -11,7 +11,7 @@ Thank you so much for your PR! To help us review, fill out the form to the best 
 - [ ] Code is PEP 8 compliant 
 - [ ] New features are documented, with examples if plot related
 - [ ] Documentation is sphinx and numpydoc compliant
-- [ ] Added an entry to doc/users/whats_new.rst if major new feature: 
+- [ ] Added an entry to doc/users/whats_new.rst if major new feature
 - [ ] Documented in doc/api/api_changes.rst if API changed in a backward-incompatible way
 
 We understand that PRs can sometimes be overwhelming, especially as the reviews start coming in. Please let us know 
