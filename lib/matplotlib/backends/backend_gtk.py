@@ -560,6 +560,7 @@ class FigureManagerGTK(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = gtk.Window()
+        self.window.set_wmclass("matplotlib", "Matplotlib")
         self.set_window_title("Figure %d" % num)
         if window_icon:
             try:
