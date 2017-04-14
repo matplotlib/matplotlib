@@ -709,8 +709,8 @@ class Axes3D(Axes):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        bottom = self._validate_converted_limits(bottom, self.convert_zunits)
+        top = self._validate_converted_limits(top, self.convert_zunits)
 
         old_bottom, old_top = self.get_zlim()
         if bottom is None:

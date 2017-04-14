@@ -2814,7 +2814,7 @@ class _AxesBase(martist.Artist):
         """
         Raise ValueError if converted limits are non-finite.
 
-        Note that this functions also accepts None as a limit argument.
+        Note that this function also accepts None as a limit argument.
 
         Returns
         -------
