@@ -2810,9 +2810,15 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervalx)
 
-    def _validate_axis_limits(self, limit, convert):
+    def _validate_converted_limits(self, limit, convert):
         """
-        Raise ValueError if specified axis limits are infinite.
+        Raise ValueError if converted limits are non-finite.
+
+        Note that this functions also accepts None as a limit argument.
+
+        Returns
+        -------
+        The limit value after call to convert(), or None if limit is None.
 
         """
         if limit is not None:
@@ -2889,8 +2895,8 @@ class _AxesBase(martist.Artist):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
-        left = self._validate_axis_limits(left, self.convert_xunits)
-        right = self._validate_axis_limits(right, self.convert_xunits)
+        left = self._validate_converted_limits(left, self.convert_xunits)
+        right = self._validate_converted_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -3181,8 +3187,8 @@ class _AxesBase(martist.Artist):
         if top is None and iterable(bottom):
             bottom, top = bottom
 
-        bottom = self._validate_axis_limits(bottom, self.convert_yunits)
-        top = self._validate_axis_limits(top, self.convert_yunits)
+        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
+        top = self._validate_converted_limits(top, self.convert_yunits)
 
         old_bottom, old_top = self.get_ylim()
 
