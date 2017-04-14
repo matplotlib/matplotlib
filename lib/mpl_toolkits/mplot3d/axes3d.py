@@ -95,11 +95,11 @@ class Axes3D(Axes):
             self._shared_z_axes.join(self, sharez)
             self._adjustable = 'datalim'
 
-        Axes.__init__(self, fig, rect,
-                      frameon=True,
-                      *args, **kwargs)
+        super(Axes3D, self).__init__(fig, rect,
+                                     frameon=True,
+                                     *args, **kwargs)
         # Disable drawing of axes by base class
-        Axes.set_axis_off(self)
+        super(Axes3D, self).set_axis_off()
         # Enable drawing of axes by Axes3D class
         self.set_axis_on()
         self.M = None
@@ -159,7 +159,8 @@ class Axes3D(Axes):
         Look for unit *kwargs* and update the axis instances as necessary
 
         """
-        Axes._process_unit_info(self, xdata=xdata, ydata=ydata, kwargs=kwargs)
+        super(Axes3D, self)._process_unit_info(xdata=xdata, ydata=ydata,
+                                               kwargs=kwargs)
 
         if self.xaxis is None or self.yaxis is None or self.zaxis is None:
             return
@@ -189,8 +190,8 @@ class Axes3D(Axes):
 
         # This is purposely using the 2D Axes's set_xlim and set_ylim,
         # because we are trying to place our viewing pane.
-        Axes.set_xlim(self, -xdwl, xdw, auto=None)
-        Axes.set_ylim(self, -ydwl, ydw, auto=None)
+        super(Axes3D, self).set_xlim(-xdwl, xdw, auto=None)
+        super(Axes3D, self).set_ylim(-ydwl, ydw, auto=None)
 
     def _init_axis(self):
         '''Init 3D axes; overrides creation of regular X/Y axes'''
@@ -208,7 +209,7 @@ class Axes3D(Axes):
             ax.init3d()
 
     def get_children(self):
-        return [self.zaxis, ] + Axes.get_children(self)
+        return [self.zaxis, ] + super(Axes3D, self).get_children()
 
     def _get_axis_list(self):
         return super(Axes3D, self)._get_axis_list() + (self.zaxis, )
@@ -293,7 +294,7 @@ class Axes3D(Axes):
                 ax.draw(renderer)
 
         # Then rest
-        Axes.draw(self, renderer)
+        super(Axes3D, self).draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()
@@ -313,7 +314,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        return Axes.get_autoscale_on(self) and self.get_autoscalez_on()
+        return super(Axes3D, self).get_autoscale_on() and self.get_autoscalez_on()
 
     def get_autoscalez_on(self):
         """
@@ -333,7 +334,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        Axes.set_autoscale_on(self, b)
+        super(Axes3D, self).set_autoscale_on(b)
         self.set_autoscalez_on(b)
 
     def set_autoscalez_on(self, b):
@@ -1076,7 +1077,7 @@ class Axes3D(Axes):
         # Disabling mouse interaction might have been needed a long
         # time ago, but I can't find a reason for it now - BVR (2012-03)
         #self.disable_mouse_rotation()
-        Axes.cla(self)
+        super(Axes3D, self).cla()
         self.zaxis.cla()
 
         if self._sharez is not None:
@@ -1094,7 +1095,6 @@ class Axes3D(Axes):
 
         self._autoscaleZon = True
         self._zmargin = 0
-
 
         self.grid(rcParams['axes3d.grid'])
 
@@ -1415,7 +1415,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        Axes.tick_params(self, axis, **kwargs)
+        super(Axes3D, self).tick_params(axis, **kwargs)
         if axis in ['z', 'both'] :
             zkw = dict(kwargs)
             zkw.pop('top', None)
@@ -1495,7 +1495,7 @@ class Axes3D(Axes):
         except for the `zdir` keyword, which sets the direction to be
         used as the z direction.
         '''
-        text = Axes.text(self, x, y, s, **kwargs)
+        text = super(Axes3D, self).text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
         return text
 
@@ -1538,7 +1538,7 @@ class Axes3D(Axes):
         if not cbook.iterable(zs):
             zs = np.ones(len(xs)) * zs
 
-        lines = Axes.plot(self, xs, ys, *args, **kwargs)
+        lines = super(Axes3D, self).plot(xs, ys, *args, **kwargs)
         for line in lines:
             art3d.line_2d_to_3d(line, zs=zs, zdir=zdir)
 
@@ -2107,7 +2107,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = Axes.contour(self, jX, jY, jZ, *args, **kwargs)
+        cset = super(Axes3D, self).contour(jX, jY, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2164,7 +2164,7 @@ class Axes3D(Axes):
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
 
-        cset = Axes.tricontour(self, tri, jZ, *args, **kwargs)
+        cset = super(Axes3D, self).tricontour(tri, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2199,7 +2199,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = Axes.contourf(self, jX, jY, jZ, *args, **kwargs)
+        cset = super(Axes3D, self).contourf(jX, jY, jZ, *args, **kwargs)
         self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2251,7 +2251,7 @@ class Axes3D(Axes):
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
 
-        cset = Axes.tricontourf(self, tri, jZ, *args, **kwargs)
+        cset = super(Axes3D, self).tricontourf(tri, jZ, *args, **kwargs)
         self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2288,7 +2288,7 @@ class Axes3D(Axes):
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
 
-        Axes.add_collection(self, col)
+        super(Axes3D, self).add_collection(col)
 
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
@@ -2347,7 +2347,8 @@ class Axes3D(Axes):
 
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
 
-        patches = Axes.scatter(self, xs, ys, s=s, c=c, *args, **kwargs)
+        patches = super(Axes3D, self).scatter(xs, ys, s=s, c=c, *args,
+                                              **kwargs)
         if not cbook.iterable(zs):
             is_2d = True
             zs = np.ones(len(xs)) * zs
@@ -2389,7 +2390,7 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        patches = Axes.bar(self, left, height, *args, **kwargs)
+        patches = super(Axes3D, self).bar(left, height, *args, **kwargs)
 
         if not cbook.iterable(zs):
             zs = np.ones(len(left)) * zs
@@ -2564,7 +2565,8 @@ class Axes3D(Axes):
         return col
 
     def set_title(self, label, fontdict=None, loc='center', **kwargs):
-        ret = Axes.set_title(self, label, fontdict=fontdict, loc=loc, **kwargs)
+        ret = super(Axes3D, self).set_title(label, fontdict=fontdict, loc=loc,
+                                            **kwargs)
         (x, y) = self.title.get_position()
         self.title.set_y(0.92 * y)
         return ret
