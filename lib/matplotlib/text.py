@@ -911,6 +911,7 @@ class Text(Artist):
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
                 self.figure.dpi, id(renderer or self._renderer),
+                self._linespacing
                 )
 
     def get_text(self):

@@ -421,3 +421,28 @@ def test_font_scaling():
 
     for i, fs in enumerate(range(4, 43, 2)):
         ax.text(0.1, i*30, "{fs} pt font size".format(fs=fs), fontsize=fs)
+
+
+def two_2line_texts(x1, y1, spacing1, x2, y2, spacing2):
+    text_string = 'line1\nline2'
+    plt.text(x1, y1, text_string, linespacing=spacing1, alpha=0.5)
+    plt.text(x2, y2, text_string, linespacing=spacing2, alpha=0.5)
+    plt.show()
+
+
+@image_comparison(baseline_images=['line_spacing'], tol=0.01)
+def test_linespacing_figure1():
+    two_2line_texts(x1=.5, y1=.5, spacing1=2,
+                    x2=.5, y2=.5, spacing2=0.4)
+
+
+@image_comparison(baseline_images=['line_spacing'], tol=0.01)
+def test_linespacing_figure2():
+    two_2line_texts(x1=.5, y1=.5, spacing1=0.4,
+                    x2=.5, y2=.5, spacing2=2)
+
+
+@image_comparison(baseline_images=['line_spacing'], tol=0.01)
+def test_linespacing_figure3():
+    two_2line_texts(x1=.5, y1=.5000000001, spacing1=0.4,
+                    x2=.5, y2=.5, spacing2=2)
