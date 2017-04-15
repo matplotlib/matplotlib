@@ -430,19 +430,25 @@ def two_2line_texts(x1, y1, spacing1, x2, y2, spacing2):
     plt.show()
 
 
-@image_comparison(baseline_images=['line_spacing'], tol=0.01)
+@image_comparison(baseline_images=['line_spacing'],
+                  extensions=['png'],
+                  tol=0.01)
 def test_linespacing_figure1():
     two_2line_texts(x1=.5, y1=.5, spacing1=2,
                     x2=.5, y2=.5, spacing2=0.4)
 
 
-@image_comparison(baseline_images=['line_spacing'], tol=0.01)
+@image_comparison(baseline_images=['line_spacing'],
+                  extensions=['png'],
+                  tol=0.01)
 def test_linespacing_figure2():
     two_2line_texts(x1=.5, y1=.5, spacing1=0.4,
                     x2=.5, y2=.5, spacing2=2)
 
 
-@image_comparison(baseline_images=['line_spacing'], tol=0.01)
+@image_comparison(baseline_images=['line_spacing'],
+                  extensions=['png'],
+                  tol=0.01)
 def test_linespacing_figure3():
     two_2line_texts(x1=.5, y1=.5000000001, spacing1=0.4,
                     x2=.5, y2=.5, spacing2=2)
