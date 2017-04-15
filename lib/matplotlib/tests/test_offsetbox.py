@@ -108,9 +108,9 @@ def test_rasterized_patch_pdf():
     ax = fig.add_subplot(111)
 
     patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
-                                          label='patch1')
+                                label='patch1')
     patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
-                                          label='patch2')
+                                label='patch2')
 
     ax.add_patch(patch1)
     ax.add_patch(patch2)
@@ -130,9 +130,9 @@ def test_rasterized_patches_pdf():
     ax = fig.add_subplot(111)
 
     patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
-                                          label='patch1')
+                                label='patch1')
     patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
-                                          label='patch2')
+                                label='patch2')
 
     ax.add_patch(patch1)
     ax.add_patch(patch2)
@@ -153,9 +153,9 @@ def test_rasterized_legend_pdf():
     ax = fig.add_subplot(111)
 
     patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
-                                          label='patch1')
+                                label='patch1')
     patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
-                                          label='patch2')
+                                label='patch2')
 
     ax.add_patch(patch1)
     ax.add_patch(patch2)
@@ -175,9 +175,9 @@ def test_rasterized_patch_png():
     ax = fig.add_subplot(111)
 
     patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
-                                          label='patch1')
+                                label='patch1')
     patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
-                                          label='patch2')
+                                label='patch2')
 
     ax.add_patch(patch1)
     ax.add_patch(patch2)
@@ -197,9 +197,9 @@ def test_rasterized_patches_png():
     ax = fig.add_subplot(111)
 
     patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
-                                          label='patch1')
+                                label='patch1')
     patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
-                                          label='patch2')
+                                label='patch2')
 
     ax.add_patch(patch1)
     ax.add_patch(patch2)
@@ -220,9 +220,9 @@ def test_rasterized_legend_png():
     ax = fig.add_subplot(111)
 
     patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
-                                          label='patch1')
+                                label='patch1')
     patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
-                                          label='patch2')
+                                label='patch2')
 
     ax.add_patch(patch1)
     ax.add_patch(patch2)
