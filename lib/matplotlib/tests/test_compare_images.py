@@ -1,6 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
+
 import io
 import os
 import shutil
@@ -206,7 +208,10 @@ def test_nose_image_comparison(func, kwargs, errors, failures, dots,
     suite = loader.loadTestsFromGenerator(
         func,
         'matplotlib.tests.test_compare_images')
-    output = io.StringIO()
+    if six.PY2:
+        output = io.BytesIO()
+    else:
+        output = io.StringIO()
     result = TestResultVerifier(stream=output, descriptions=True, verbosity=1)
     with warnings.catch_warnings():
         # Nose uses deprecated stuff; we don't care about it.
