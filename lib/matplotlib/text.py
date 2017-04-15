@@ -506,7 +506,8 @@ class Text(Artist):
                     pad = 0.3
 
             # boxstyle could be a callable or a string
-            if isinstance(boxstyle, six.string_types) and "pad" not in boxstyle:
+            if (isinstance(boxstyle, six.string_types)
+                    and "pad" not in boxstyle):
                 boxstyle += ",pad=%0.2f" % pad
 
             bbox_transmuter = props.pop("bbox_transmuter", None)
@@ -1865,8 +1866,10 @@ class _AnnotationBase(object):
 
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
-            if ((isinstance(s1, six.string_types) and s1.split()[0] == "offset") or
-                  (isinstance(s2, six.string_types) and s2.split()[0] == "offset")):
+            if ((isinstance(s1, six.string_types)
+                 and s1.split()[0] == "offset")
+                    or (isinstance(s2, six.string_types)
+                        and s2.split()[0] == "offset")):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)

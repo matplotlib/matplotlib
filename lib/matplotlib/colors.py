@@ -789,8 +789,7 @@ class ListedColormap(Colormap):
         if N is None:
             N = len(self.colors)
         else:
-            if (isinstance(self.colors, six.string_types) and
-                    cbook.is_hashable(self.colors)):
+            if isinstance(self.colors, six.string_types):
                 self.colors = [self.colors] * N
                 self.monochrome = True
             elif cbook.iterable(self.colors):

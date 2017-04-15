@@ -1221,7 +1221,8 @@ def finddir(o, match, case=False):
     is True require an exact case match.
     """
     if case:
-        names = [(name, name) for name in dir(o) if isinstance(name, six.string_types)]
+        names = [(name, name) for name in dir(o)
+                 if isinstance(name, six.string_types)]
     else:
         names = [(name.lower(), name) for name in dir(o)
                  if isinstance(name, six.string_types)]
@@ -1598,7 +1599,7 @@ def delete_masked_points(*args):
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if ((not isinstance(x, six.string_types)) and iterable(x)
+        if (not isinstance(x, six.string_types) and iterable(x)
                 and len(x) == nrecs):
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
