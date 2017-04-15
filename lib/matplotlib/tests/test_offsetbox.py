@@ -99,3 +99,137 @@ def test_offsetbox_loc_codes():
         anchored_box = AnchoredOffsetbox(loc=code, child=da)
         ax.add_artist(anchored_box)
     fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['rasterized_patch'],
+                  extensions=['pdf'], tol=0.01)
+def test_rasterized_patch_pdf():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
+                                          label='patch1')
+    patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
+                                          label='patch2')
+
+    ax.add_patch(patch1)
+    ax.add_patch(patch2)
+
+    ax.set_xlim(0., 3.5)
+    ax.set_ylim(0., 3)
+
+    legend = ax.legend()
+    # rasterize the first patch in the legend
+    legend.get_patches()[0].set_rasterized(True)
+
+
+@image_comparison(baseline_images=['rasterized_patches'],
+                  extensions=['pdf'], tol=0.01)
+def test_rasterized_patches_pdf():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
+                                          label='patch1')
+    patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
+                                          label='patch2')
+
+    ax.add_patch(patch1)
+    ax.add_patch(patch2)
+
+    ax.set_xlim(0., 3.5)
+    ax.set_ylim(0., 3)
+
+    legend = ax.legend()
+    # rasterize both patches in the legend
+    legend.get_patches()[0].set_rasterized(True)
+    legend.get_patches()[1].set_rasterized(True)
+
+
+@image_comparison(baseline_images=['rasterized_legend'],
+                  extensions=['pdf'], tol=0.01)
+def test_rasterized_legend_pdf():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
+                                          label='patch1')
+    patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
+                                          label='patch2')
+
+    ax.add_patch(patch1)
+    ax.add_patch(patch2)
+
+    ax.set_xlim(0., 3.5)
+    ax.set_ylim(0., 3)
+
+    legend = ax.legend()
+    # rasterize the entire legend
+    legend.set_rasterized(True)
+
+
+@image_comparison(baseline_images=['rasterized_patch'],
+                  extensions=['png'], tol=0.01)
+def test_rasterized_patch_png():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
+                                          label='patch1')
+    patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
+                                          label='patch2')
+
+    ax.add_patch(patch1)
+    ax.add_patch(patch2)
+
+    ax.set_xlim(0., 3.5)
+    ax.set_ylim(0., 3)
+
+    legend = ax.legend()
+    # rasterize the first patch in the legend
+    legend.get_patches()[0].set_rasterized(True)
+
+
+@image_comparison(baseline_images=['rasterized_patches'],
+                  extensions=['png'], tol=0.01)
+def test_rasterized_patches_png():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
+                                          label='patch1')
+    patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
+                                          label='patch2')
+
+    ax.add_patch(patch1)
+    ax.add_patch(patch2)
+
+    ax.set_xlim(0., 3.5)
+    ax.set_ylim(0., 3)
+
+    legend = ax.legend()
+    # rasterize both patches in the legend
+    legend.get_patches()[0].set_rasterized(True)
+    legend.get_patches()[1].set_rasterized(True)
+
+
+@image_comparison(baseline_images=['rasterized_legend'],
+                  extensions=['png'], tol=0.01)
+def test_rasterized_legend_png():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    patch1 = mpatches.Rectangle((0.5, 0.5), 1., 1., color='red',
+                                          label='patch1')
+    patch2 = mpatches.Rectangle((2.0, 0.5), 1., 1., color='blue',
+                                          label='patch2')
+
+    ax.add_patch(patch1)
+    ax.add_patch(patch2)
+
+    ax.set_xlim(0., 3.5)
+    ax.set_ylim(0., 3)
+
+    legend = ax.legend()
+    # rasterize the entire legend
+    legend.set_rasterized(True)

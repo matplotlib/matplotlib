@@ -695,6 +695,8 @@ class DrawingArea(OffsetBox):
                         [self.width, 0]]),
             self.get_transform())
         for c in self._children:
+            if (c.get_rasterized() and type(renderer).__name__ == 'MixedModeRenderer'):
+                c.set_rasterized(False)
             if self._clip_children and not (c.clipbox or c._clippath):
                 c.set_clip_path(tpath)
             c.draw(renderer)
