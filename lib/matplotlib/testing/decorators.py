@@ -234,6 +234,12 @@ def _mark_xfail_if_format_is_uncomparable(extension):
 
 
 class _ImageComparisonBase(object):
+    """
+    Image comparison base class
+
+    This class provides *just* the comparison-related functionality and avoids
+    any code that would be specific to any testing framework.
+    """
     def __init__(self, tol, remove_text, savefig_kwargs):
         self.func = self.baseline_dir = self.result_dir = None
         self.tol = tol
@@ -282,6 +288,15 @@ class _ImageComparisonBase(object):
 
 
 class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
+    """
+    Nose-based image comparison class
+
+    This class generates tests for a nose-based testing framework. Ideally,
+    this class would not be public, and the only publically visible API would
+    be the :func:`image_comparison` decorator. Unfortunately, there are
+    existing downstream users of this class (e.g., pytest-mpl) so it cannot yet
+    be removed.
+    """
     def __init__(self, baseline_images, extensions, tol,
                  freetype_version, remove_text, savefig_kwargs, style):
         _ImageComparisonBase.__init__(self, tol, remove_text, savefig_kwargs)
@@ -339,14 +354,24 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
 def _pytest_image_comparison(baseline_images, extensions, tol,
                              freetype_version, remove_text, savefig_kwargs,
                              style):
+    """
+    Decorate function with image comparison for pytest.
+
+    This function creates a decorator that wraps a figure-generating function
+    with image comparison code. Pytest can become confused if we change the
+    signature of the function, so we indirectly pass anything we need via the
+    `mpl_image_comparison_parameters` fixture and extra markers.
+    """
     import pytest
 
     extensions = map(_mark_xfail_if_format_is_uncomparable, extensions)
 
     def decorator(func):
+        # Parameter indirection; see docstring above and comment below.
         @pytest.mark.usefixtures('mpl_image_comparison_parameters')
         @pytest.mark.parametrize('extension', extensions)
         @pytest.mark.baseline_images(baseline_images)
+        # END Parameter indirection.
         @pytest.mark.style(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
@@ -358,6 +383,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             matplotlib.testing.set_font_settings_for_testing()
             func(*args, **kwargs)
 
+            # Parameter indirection:
             # This is hacked on via the mpl_image_comparison_parameters fixture
             # so that we don't need to modify the function's real signature for
             # any parametrization. Modifying the signature is very very tricky

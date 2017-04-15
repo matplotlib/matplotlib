@@ -45,6 +45,7 @@ env:
     - NPROC=2
     - INSTALL_PEP8=
     - RUN_PEP8=
+    - NOSE=
     - PYTEST_ARGS="-ra --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
@@ -52,7 +53,7 @@ env:
 matrix:
   include:
     - python: 2.7
-      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas
+      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas NOSE=nose
     - python: 2.7
       env: BUILD_DOCS=true
     - python: 3.4
@@ -114,7 +115,7 @@ install:
     pip install --upgrade setuptools
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK $NOSE
     pip install $PRE -r doc-requirements.txt
 
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124

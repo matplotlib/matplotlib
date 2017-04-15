@@ -73,5 +73,7 @@ def mpl_image_comparison_parameters(request, extension):
 
     func = request.function
     func.__wrapped__.parameters = (baseline_images, extension)
-    yield
-    delattr(func.__wrapped__, 'parameters')
+    try:
+        yield
+    finally:
+        delattr(func.__wrapped__, 'parameters')
