@@ -71,4 +71,3 @@ python documentation system built on top of ReST.  This directory contains
 
 * mpl_examples - a link to the Matplotlib examples in case any
   documentation wants to literal include them
-

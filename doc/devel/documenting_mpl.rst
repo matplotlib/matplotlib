@@ -8,7 +8,6 @@ Getting started
 ===============
 
 The documentation for matplotlib is generated from ReStructured Text using the
-
 Sphinx_ documentation generation tool.
 The requirements are as follows (https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt)
 
