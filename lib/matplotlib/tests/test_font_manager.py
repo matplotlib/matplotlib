@@ -2,7 +2,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
 import os
 import tempfile
 import warnings
@@ -13,6 +12,7 @@ from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
     get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
+from matplotlib.testing.decorators import cleanup
 
 if six.PY2:
     from distutils.spawn import find_executable
@@ -23,6 +23,7 @@ else:
     has_fclist = which('fc-list') is not None
 
 
+@cleanup
 def test_font_priority():
     with rc_context(rc={
             'font.sans-serif':
