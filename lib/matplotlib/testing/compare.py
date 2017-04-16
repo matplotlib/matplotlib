@@ -60,7 +60,9 @@ def compare_float(expected, actual, relTol=None, absTol=None):
                         'Actual:   {actual}',
                         'Abs diff: {absDiff}',
                         'Abs tol:  {absTol}']
-            msg += '\n  '.join([line.format(**locals()) for line in template])
+            msg += '\n  '.join([line.format(expected=expected, actual=actual,
+                                            absDiff=absDiff, absTol=absTol)
+                                for line in template])
 
     if relTol is not None:
         # The relative difference of the two values.  If the expected value is
@@ -76,7 +78,9 @@ def compare_float(expected, actual, relTol=None, absTol=None):
                         'Actual:   {actual}',
                         'Rel diff: {relDiff}',
                         'Rel tol:  {relTol}']
-            msg += '\n  '.join([line.format(**locals()) for line in template])
+            msg += '\n  '.join([line.format(expected=expected, actual=actual,
+                                            relDiff=relDiff, relTol=relTol)
+                                for line in template])
 
     return msg or None
 
