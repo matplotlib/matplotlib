@@ -66,9 +66,12 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.canvas.draw_idle()
 
+gtk_main_called = False
 class Show(ShowBase):
     def mainloop(self):
         if Gtk.main_level() == 0:
+            global gtk_main_called
+            gtk_main_called = True
             Gtk.main()
 
 show = Show()
@@ -477,7 +480,8 @@ class FigureManagerGTK3(FigureManagerBase):
 
         if Gcf.get_num_fig_managers()==0 and \
                not matplotlib.is_interactive() and \
-               Gtk.main_level() >= 1:
+               Gtk.main_level() >= 1 and \
+               gtk_main_called:
             Gtk.main_quit()
 
     def show(self):
