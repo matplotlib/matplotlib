@@ -3360,6 +3360,10 @@ or tuple of floats
                     flierprops['markerfacecolor'] = color
                     flierprops['markeredgecolor'] = color
 
+        # do not show fliers if sym is empty string
+        if sym == '':
+            showfliers = False
+
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
