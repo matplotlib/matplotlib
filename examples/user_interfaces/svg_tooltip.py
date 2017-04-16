@@ -31,41 +31,22 @@ ET.register_namespace("", "http://www.w3.org/2000/svg")
 fig, ax = plt.subplots()
 
 # Create patches to which tooltips will be assigned.
-circle = plt.Circle((0, 0), 5, fc='blue')
-rect = plt.Rectangle((-5, 10), 10, 5, fc='green')
+rect1 = plt.Rectangle((10, -20), 10, 5, fc='blue')
+rect2 = plt.Rectangle((-20, 15), 10, 5, fc='green')
 
-ax.add_patch(circle)
-ax.add_patch(rect)
+shapes = [rect1, rect2]
+labels = ['This is a blue rectangle.', 'This is a green rectangle']
 
-# Create the tooltips
-circle_tip = ax.annotate(
-    'This is a blue circle.',
-    xy=(0, 0),
-    xytext=(30, -30),
-    textcoords='offset points',
-    color='w',
-    ha='left',
-    bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92),
-              ec=(1., 1., 1.), lw=1, zorder=1))
+for i, (item, label) in enumerate(zip(shapes, labels)):
+    patch = ax.add_patch(item)
+    annotate = ax.annotate(labels[i], xy=item.get_xy(), xytext=(0, 0), 
+                           textcoords='offset points', color='w', ha='center', 
+                           fontsize=8, bbox=dict(boxstyle='round, pad=.5', fc=(.1, .1, .1, .92), 
+                                                 ec=(1., 1., 1.), lw=1, zorder=1))
 
-rect_tip = ax.annotate(
-    'This is a green rectangle.',
-    xy=(-5, 10),
-    xytext=(30, 40),
-    textcoords='offset points',
-    color='w',
-    ha='left',
-    bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92),
-              ec=(1., 1., 1.), lw=1, zorder=1))
-
-# Set id for the patches
-for i, t in enumerate(ax.patches):
-    t.set_gid('patch_%d' % i)
-
-# Set id for the annotations
-for i, t in enumerate(ax.texts):
-    t.set_gid('tooltip_%d' % i)
-
+    ax.add_patch(patch)
+    patch.set_gid('mypatch_{:03d}'.format(i))
+    annotate.set_gid('mytooltip_{:03d}'.format(i))
 
 # Save the figure in a fake file object
 ax.set_xlim(-30, 30)
@@ -81,16 +62,16 @@ plt.savefig(f, format="svg")
 tree, xmlid = ET.XMLID(f.getvalue())
 tree.set('onload', 'init(evt)')
 
-# Hide the tooltips
-for i, t in enumerate(ax.texts):
-    el = xmlid['tooltip_%d' % i]
-    el.set('visibility', 'hidden')
-
-# Assign onmouseover and onmouseout callbacks to patches.
-for i, t in enumerate(ax.patches):
-    el = xmlid['patch_%d' % i]
-    el.set('onmouseover', "ShowTooltip(this)")
-    el.set('onmouseout', "HideTooltip(this)")
+for i in shapes:
+    # Get the index of the shape
+    index = shapes.index(i)
+    # Hide the tooltips
+    tooltip = xmlid['mytooltip_{:03d}'.format(index)]
+    tooltip.set('visibility', 'hidden')
+    # Assign onmouseover and onmouseout callbacks to patches.
+    mypatch = xmlid['mypatch_{:03d}'.format(index)]
+    mypatch.set('onmouseover', "ShowTooltip(this)")
+    mypatch.set('onmouseout', "HideTooltip(this)")
 
 # This is the script defining the ShowTooltip and HideTooltip functions.
 script = """
@@ -104,15 +85,14 @@ script = """
         }
 
     function ShowTooltip(obj) {
-        var cur = obj.id.slice(-1);
-
-        var tip = svgDocument.getElementById('tooltip_' + cur);
+        var cur = obj.id.split("_")[1];
+        var tip = svgDocument.getElementById('mytooltip_' + cur);
         tip.setAttribute('visibility',"visible")
         }
 
     function HideTooltip(obj) {
-        var cur = obj.id.slice(-1);
-        var tip = svgDocument.getElementById('tooltip_' + cur);
+        var cur = obj.id.split("_")[1];
+        var tip = svgDocument.getElementById('mytooltip_' + cur);
         tip.setAttribute('visibility',"hidden")
         }
 
