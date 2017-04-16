@@ -44,6 +44,13 @@ projection_registry.register(
     LambertAxes,
     MollweideAxes)
 
+try:
+    from mpl_toolkits.mplot3d import Axes3D
+except ImportError:
+    pass
+else:
+    projection_registry.register(Axes3D)
+
 
 def register_projection(cls):
     projection_registry.register(cls)
