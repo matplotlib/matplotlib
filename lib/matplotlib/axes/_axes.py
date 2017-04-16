@@ -6174,9 +6174,6 @@ or tuple of floats
             if len(color) != nx:
                 raise ValueError("color kwarg must have one color per dataset")
 
-        # Save the datalimits for the same reason:
-        _saved_bounds = self.dataLim.bounds
-
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
