@@ -424,7 +424,8 @@ def test_font_scaling():
 
 
 @pytest.mark.parametrize('spacing1, spacing2', [(2, 0.4), (0.4, 2)])
-@image_comparison(baseline_images=['figure1'], extensions=['png'], tol=0.01)
+@image_comparison(baseline_images=['line_spacing'], extensions=['png'],
+                  tol=0.01)
 def two_2line_texts(spacing1, spacing2):
     text_string = 'line1\nline2'
     plt.text(0.5, 0.5, text_string, linespacing=spacing1, alpha=0.5)
