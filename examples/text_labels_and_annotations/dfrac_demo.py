@@ -5,7 +5,7 @@ The difference between \dfrac and \frac
 
 In this example, the differences between the \dfrac and \frac TeX macros are
 illustrated; in particular, the difference between display style and text style
-fractions when using Mathtex. aasdsads
+fractions when using Mathtex.
 
 .. versionadded:: 2.1
 
