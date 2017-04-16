@@ -1430,18 +1430,19 @@ class QuadContourSet(ContourSet):
 
             x, y, z = self._contour_args(args, kwargs)
 
-            _mask = ma.getmask(z)
-            if _mask is ma.nomask or not _mask.any():
-                _mask = None
+            self._mask = ma.getmask(z)
+            if self._mask is ma.nomask or not self._mask.any():
+                self._mask = None
 
             if self._corner_mask == 'legacy':
                 cbook.warn_deprecated('1.5',
                                       name="corner_mask='legacy'",
                                       alternative='corner_mask=False or True')
-                contour_generator = _cntr.Cntr(x, y, z.filled(), _mask)
+                contour_generator = _cntr.Cntr(x, y, z.filled(), self._mask)
             else:
                 contour_generator = _contour.QuadContourGenerator(
-                    x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
+                    x, y, z.filled(), self._mask, self._corner_mask,
+                    self.nchunk)
 
             t = self.get_transform()
 
