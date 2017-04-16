@@ -2228,9 +2228,11 @@ def set_cmap(cmap):
     """
     cmap = cm.get_cmap(cmap)
 
+    # set the default colormap
     rc('image', cmap=cmap.name)
+    
+    # apply to current image if any
     im = gci()
-
     if im is not None:
         im.set_cmap(cmap)
 
