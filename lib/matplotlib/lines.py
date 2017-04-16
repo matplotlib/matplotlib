@@ -16,7 +16,7 @@ import numpy as np
 from . import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    iterable, is_numlike, ls_mapper, ls_mapper_r, is_hashable, STEP_LOOKUP_MAP)
+    iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -33,10 +33,9 @@ from .markers import (
 
 def _get_dash_pattern(style):
     """Convert linestyle -> dash pattern
-
     """
     # go from short hand -> full strings
-    if isinstance(style, six.string_types) and is_hashable(style):
+    if isinstance(style, six.string_types):
         style = ls_mapper.get(style, style)
     # un-dashed styles
     if style in ['solid', 'None']:
