@@ -1106,9 +1106,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         :class:`~matplotlib.gridspec.GridSpec` constructor used to create the
         grid the subplots are placed on.
 
-    fig_kw : dict, optional
-        Dict with keywords passed to the :func:`figure` call.  Note that all
-        keywords not recognized above will be automatically included here.
+    **fig_kw :
+        All additional keyword arguments are passed to the :func:`figure` call.
 
     Returns
     -------
