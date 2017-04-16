@@ -526,6 +526,16 @@ class FigureCanvasCairo (FigureCanvasBase):
 
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
+        
+    def print_surface(self, fobj, *args, **kwargs):
+        dpi = 72
+        self.figure.dpi = dpi
+        w_in, h_in = self.figure.get_size_inches()
+        width_pt, height_pt = w_in * dpi, h_in * dpi
+        renderer = RendererCairo(self.figure.dpi)
+        renderer.set_width_height(width_pt, height_pt)
+        renderer.set_ctx_from_surface(fobj)
+        self.figure.draw(renderer)
 
     def _save (self, fo, format, **kwargs):
         # save PDF/PS/SVG
