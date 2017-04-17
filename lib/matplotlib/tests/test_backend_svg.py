@@ -215,12 +215,12 @@ def test_unicode_won():
     matplotlib.rcParams['text.usetex'] = True
     matplotlib.rcParams['text.latex.unicode'] = True
 
-    plt.figure()
+    fig = plt.figure()
     plt.plot(1, 1)
     plt.ylabel(r'\textwon')
 
     fd = BytesIO()
-    plt.savefig(fd, format='svg')
+    fig.savefig(fd, format='svg')
     fd.seek(0)
     buf = fd.read().decode()
     fd.close()
