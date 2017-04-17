@@ -243,6 +243,7 @@ def figure_edit(axes, parent=None):
 
         # Redraw
         figure = axes.get_figure()
+        axes.legend()
         figure.canvas.draw()
 
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,
