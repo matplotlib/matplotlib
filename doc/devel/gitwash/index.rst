@@ -15,5 +15,4 @@ Contents:
    git_development
    git_resources
    dot2_dot3
-
-
+   contributor_git_faq
