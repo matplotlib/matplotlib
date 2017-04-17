@@ -10,7 +10,6 @@ from six import unichr
 
 import matplotlib
 
-from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2
@@ -865,7 +864,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
 
 
 def error_msg_qt(msg, parent=None):
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = ','.join(map(str, msg))
 
     QtWidgets.QMessageBox.warning(None, "Matplotlib",

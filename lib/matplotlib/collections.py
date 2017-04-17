@@ -511,7 +511,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             The line style.
         """
         try:
-            if cbook.is_string_like(ls) and cbook.is_hashable(ls):
+            if isinstance(ls, six.string_types):
                 ls = cbook.ls_mapper.get(ls, ls)
                 dashes = [mlines._get_dash_pattern(ls)]
             else:

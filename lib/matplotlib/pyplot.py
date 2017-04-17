@@ -29,7 +29,7 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib.cbook import dedent, silent_list, is_numlike
 from matplotlib.cbook import _string_to_bool
 from matplotlib.cbook import deprecated
 from matplotlib import docstring
@@ -505,7 +505,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     figLabel = ''
     if num is None:
         num = next_num
-    elif is_string_like(num):
+    elif isinstance(num, six.string_types):
         figLabel = num
         allLabels = get_figlabels()
         if figLabel not in allLabels:
@@ -663,7 +663,7 @@ def close(*args):
             # if we are dealing with a type UUID, we
             # can use its integer representation
             _pylab_helpers.Gcf.destroy(arg.int)
-        elif is_string_like(arg):
+        elif isinstance(arg, six.string_types):
             allLabels = get_figlabels()
             if arg in allLabels:
                 num = get_fignums()[allLabels.index(arg)]
@@ -2378,7 +2378,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     def getname_val(identifier):
         'return the name and column data for identifier'
-        if is_string_like(identifier):
+        if isinstance(identifier, six.string_types):
             return identifier, r[identifier]
         elif is_numlike(identifier):
             name = r.dtype.names[int(identifier)]

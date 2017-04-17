@@ -10,7 +10,6 @@ import sys
 
 import matplotlib
 
-from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2

@@ -121,14 +121,10 @@ import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
-from matplotlib.cbook import (is_string_like,
-                              mplDeprecation,
-                              dedent, get_label,
-                              sanitize_sequence)
+from matplotlib.cbook import (
+    mplDeprecation, dedent, get_label, sanitize_sequence)
 from matplotlib.compat import subprocess
-from matplotlib.rcsetup import (defaultParams,
-                                validate_backend,
-                                cycler)
+from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
 from six.moves.urllib.request import urlopen
@@ -1225,7 +1221,7 @@ def rc(group, **kwargs):
         'aa':  'antialiased',
         }
 
-    if is_string_like(group):
+    if isinstance(group, six.string_types):
         group = (group,)
     for g in group:
         for k, v in six.iteritems(kwargs):

@@ -696,7 +696,7 @@ class LinearSegmentedColormap(Colormap):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
-                and not cbook.is_string_like(colors[0])):
+                and not isinstance(colors[0], six.string_types)):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -789,8 +789,7 @@ class ListedColormap(Colormap):
         if N is None:
             N = len(self.colors)
         else:
-            if (cbook.is_string_like(self.colors) and
-                    cbook.is_hashable(self.colors)):
+            if isinstance(self.colors, six.string_types):
                 self.colors = [self.colors] * N
                 self.monochrome = True
             elif cbook.iterable(self.colors):

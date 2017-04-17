@@ -33,7 +33,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import is_string_like, silent_list, is_hashable
+from matplotlib.cbook import silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -317,7 +317,7 @@ class Legend(Artist):
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
-        if is_string_like(loc):
+        if isinstance(loc, six.string_types):
             if loc not in self.codes:
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '

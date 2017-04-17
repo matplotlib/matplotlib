@@ -94,7 +94,7 @@ from collections import Sized
 import numpy as np
 
 from . import rcParams
-from .cbook import is_math_text, is_string_like, is_numlike
+from .cbook import is_math_text, is_numlike
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 
@@ -259,7 +259,7 @@ class MarkerStyle(object):
               marker in self.markers):
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
-        elif is_string_like(marker) and is_math_text(marker):
+        elif isinstance(marker, six.string_types) and is_math_text(marker):
             self._marker_function = self._set_mathtext_path
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker

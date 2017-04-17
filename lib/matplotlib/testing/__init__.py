@@ -6,13 +6,13 @@ import warnings
 from contextlib import contextmanager
 
 import matplotlib
-from matplotlib.cbook import is_string_like, iterable
+from matplotlib.cbook import iterable
 from matplotlib import rcParams, rcdefaults, use
 
 
 def _is_list_like(obj):
     """Returns whether the obj is iterable and not a string"""
-    return not is_string_like(obj) and iterable(obj)
+    return not isinstance(obj, six.string_types) and iterable(obj)
 
 
 def is_called_from_pytest():

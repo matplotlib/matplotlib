@@ -352,7 +352,7 @@ class _process_plot_var_args(object):
 
     def _plot_args(self, tup, kwargs):
         ret = []
-        if len(tup) > 1 and is_string_like(tup[-1]):
+        if len(tup) > 1 and isinstance(tup[-1], six.string_types):
             linestyle, marker, color = _process_plot_format(tup[-1])
             tup = tup[:-1]
         elif len(tup) == 3:
@@ -398,7 +398,7 @@ class _process_plot_var_args(object):
     def _grab_next_args(self, *args, **kwargs):
         while args:
             this, args = args[:2], args[2:]
-            if args and is_string_like(args[0]):
+            if args and isinstance(args[0], six.string_types):
                 this += args[0],
                 args = args[1:]
             for seg in self._plot_args(this, kwargs):
@@ -1290,7 +1290,8 @@ class _AxesBase(martist.Artist):
           etc.
           =====   =====================
         """
-        if cbook.is_string_like(aspect) and aspect in ('equal', 'auto'):
+        if (isinstance(aspect, six.string_types)
+                and aspect in ('equal', 'auto')):
             self._aspect = aspect
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary
@@ -1565,7 +1566,7 @@ class _AxesBase(martist.Artist):
 
         emit = kwargs.get('emit', True)
 
-        if len(v) == 1 and is_string_like(v[0]):
+        if len(v) == 1 and isinstance(v[0], six.string_types):
             s = v[0].lower()
             if s == 'on':
                 self.set_axis_on()

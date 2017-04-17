@@ -38,7 +38,7 @@ import abc
 import contextlib
 import tempfile
 import warnings
-from matplotlib.cbook import iterable, is_string_like, deprecated
+from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams, rcParamsDefault, rc_context
@@ -1023,7 +1023,7 @@ class Animation(object):
         # to use
         if writer is None:
             writer = rcParams['animation.writer']
-        elif (not is_string_like(writer) and
+        elif (not isinstance(writer, six.string_types) and
                 any(arg is not None
                     for arg in (fps, codec, bitrate, extra_args, metadata))):
             raise RuntimeError('Passing in values for arguments '
@@ -1068,7 +1068,7 @@ class Animation(object):
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
-        if is_string_like(writer):
+        if isinstance(writer, six.string_types):
             if writer in writers.avail:
                 writer = writers[writer](fps, codec, bitrate,
                                          extra_args=extra_args,

@@ -220,7 +220,7 @@ import six
 import sys, warnings
 
 from matplotlib.cbook import (
-    flatten, is_string_like, exception_to_str, silent_list, iterable, dedent)
+    flatten, exception_to_str, silent_list, iterable, dedent)
 
 import matplotlib as mpl
 # make mpl.finance module available for backwards compatability, in case folks

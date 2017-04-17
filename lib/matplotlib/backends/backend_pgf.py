@@ -25,7 +25,7 @@ from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _png, rcParams
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
 
@@ -859,7 +859,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             return
 
         # figure out where the pgf is to be written to
-        if is_string_like(fname_or_fh):
+        if isinstance(fname_or_fh, six.string_types):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -923,7 +923,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             return
 
         # figure out where the pdf is to be written to
-        if is_string_like(fname_or_fh):
+        if isinstance(fname_or_fh, six.string_types):
             with open(fname_or_fh, "wb") as fh:
                 self._print_pdf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -959,7 +959,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
 
-        if is_string_like(fname_or_fh):
+        if isinstance(fname_or_fh, six.string_types):
             with open(fname_or_fh, "wb") as fh:
                 self._print_png_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):

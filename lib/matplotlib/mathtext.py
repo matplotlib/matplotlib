@@ -44,8 +44,7 @@ else:
     ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import (Bunch, get_realpath_and_stat, is_string_like,
-                              maxdict)
+from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
 from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
                                 LOAD_NO_HINTING)
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -1841,7 +1840,7 @@ class Glue(Node):
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
         self.glue_subtype   = 'normal'
-        if is_string_like(glue_type):
+        if isinstance(glue_type, six.string_types):
             glue_spec = GlueSpec.factory(glue_type)
         elif isinstance(glue_type, GlueSpec):
             glue_spec = glue_type

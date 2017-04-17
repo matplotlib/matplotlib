@@ -266,7 +266,7 @@ def from_any(size, fraction_ref=None):
     """
     if cbook.is_numlike(size):
         return Fixed(size)
-    elif cbook.is_string_like(size):
+    elif isinstance(size, six.string_types):
         if size[-1] == "%":
             return Fraction(float(size[:-1])/100., fraction_ref)
 

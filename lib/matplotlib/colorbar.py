@@ -317,7 +317,7 @@ class ColorbarBase(cm.ScalarMappable):
                                         linthresh=self.norm.linthresh)
             else:
                 self.formatter = ticker.ScalarFormatter()
-        elif cbook.is_string_like(format):
+        elif isinstance(format, six.string_types):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter

@@ -494,12 +494,14 @@ def iterable(obj):
     return True
 
 
+@deprecated('2.1')
 def is_string_like(obj):
     """Return True if *obj* looks like a string"""
     # (np.str_ == np.unicode_ on Py3).
     return isinstance(obj, (six.string_types, np.str_, np.unicode_))
 
 
+@deprecated('2.1')
 def is_sequence_of_strings(obj):
     """Returns true if *obj* is iterable and contains strings"""
     if not iterable(obj):
@@ -546,7 +548,7 @@ def file_requires_unicode(x):
 @deprecated('2.1')
 def is_scalar(obj):
     """return true if *obj* is not string like and is not iterable"""
-    return not is_string_like(obj) and not iterable(obj)
+    return not isinstance(obj, six.string_types) and not iterable(obj)
 
 
 def is_numlike(obj):
@@ -560,7 +562,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
-    if is_string_like(fname):
+    if isinstance(fname, six.string_types):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
@@ -585,12 +587,12 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return is_string_like(val) or not iterable(val)
+    return isinstance(val, six.string_types) or not iterable(val)
 
 
 def _string_to_bool(s):
     """Parses the string argument as a boolean"""
-    if not is_string_like(s):
+    if not isinstance(s, six.string_types):
         return bool(s)
     if s.lower() in ['on', 'true']:
         return True
@@ -1219,10 +1221,11 @@ def finddir(o, match, case=False):
     is True require an exact case match.
     """
     if case:
-        names = [(name, name) for name in dir(o) if is_string_like(name)]
+        names = [(name, name) for name in dir(o)
+                 if isinstance(name, six.string_types)]
     else:
         names = [(name.lower(), name) for name in dir(o)
-                 if is_string_like(name)]
+                 if isinstance(name, six.string_types)]
         match = match.lower()
     return [orig for name, orig in names if name.find(match) >= 0]
 
@@ -1590,13 +1593,14 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if (is_string_like(args[0]) or not iterable(args[0])):
+    if (isinstance(args[0], six.string_types) or not iterable(args[0])):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if (not is_string_like(x)) and iterable(x) and len(x) == nrecs:
+        if (not isinstance(x, six.string_types) and iterable(x)
+                and len(x) == nrecs):
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:

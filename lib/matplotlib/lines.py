@@ -16,8 +16,7 @@ import numpy as np
 from . import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    iterable, is_string_like, is_numlike, ls_mapper, ls_mapper_r, is_hashable,
-    STEP_LOOKUP_MAP)
+    iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -34,10 +33,9 @@ from .markers import (
 
 def _get_dash_pattern(style):
     """Convert linestyle -> dash pattern
-
     """
     # go from short hand -> full strings
-    if is_string_like(style) and is_hashable(style):
+    if isinstance(style, six.string_types):
         style = ls_mapper.get(style, style)
     # un-dashed styles
     if style in ['solid', 'None']:
@@ -358,7 +356,7 @@ class Line2D(Artist):
         if solid_joinstyle is None:
             solid_joinstyle = rcParams['lines.solid_joinstyle']
 
-        if is_string_like(linestyle):
+        if isinstance(linestyle, six.string_types):
             ds, ls = self._split_drawstyle_linestyle(linestyle)
             if ds is not None and drawstyle is not None and ds != drawstyle:
                 raise ValueError("Inconsistent drawstyle ({0!r}) and "
@@ -809,14 +807,15 @@ class Line2D(Artist):
             rgbaFace = self._get_rgba_face()
             rgbaFaceAlt = self._get_rgba_face(alt=True)
             edgecolor = self.get_markeredgecolor()
-            if is_string_like(edgecolor) and edgecolor.lower() == 'none':
+            if (isinstance(edgecolor, six.string_types)
+                    and edgecolor.lower() == 'none'):
                 gc.set_linewidth(0)
                 gc.set_foreground(rgbaFace, isRGBA=True)
             else:
                 gc.set_foreground(edgecolor)
                 gc.set_linewidth(self._markeredgewidth)
                 mec = self._markeredgecolor
-                if (is_string_like(mec) and mec == 'auto' and
+                if (isinstance(mec, six.string_types) and mec == 'auto' and
                         rgbaFace is not None):
                     gc.set_alpha(rgbaFace[3])
                 else:
@@ -843,7 +842,7 @@ class Line2D(Artist):
                 marker_trans = marker.get_transform()
                 w = renderer.points_to_pixels(self._markersize)
 
-                if (is_string_like(marker.get_marker()) and
+                if (isinstance(marker.get_marker(), six.string_types) and
                         marker.get_marker() == ','):
                     gc.set_linewidth(0)
                 else:
@@ -858,7 +857,7 @@ class Line2D(Artist):
                 if alt_marker_path:
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
-                    if (is_string_like(mec) and mec == 'auto' and
+                    if (isinstance(mec, six.string_types) and mec == 'auto' and
                             rgbaFaceAlt is not None):
                         gc.set_alpha(rgbaFaceAlt[3])
                     else:
@@ -893,7 +892,7 @@ class Line2D(Artist):
 
     def get_markeredgecolor(self):
         mec = self._markeredgecolor
-        if (is_string_like(mec) and mec == 'auto'):
+        if isinstance(mec, six.string_types) and mec == 'auto':
             if rcParams['_internal.classic_mode']:
                 if self._marker.get_marker() in ('.', ','):
                     return self._color
@@ -912,7 +911,7 @@ class Line2D(Artist):
         else:
             fc = self._markerfacecolor
 
-        if (is_string_like(fc) and fc.lower() == 'auto'):
+        if (isinstance(fc, six.string_types) and fc.lower() == 'auto'):
             if self.get_fillstyle() == 'none':
                 return 'none'
             else:
@@ -1109,7 +1108,7 @@ class Line2D(Artist):
         ls : { ``'-'``,  ``'--'``, ``'-.'``, ``':'``} and more see description
             The line style.
         """
-        if is_string_like(ls):
+        if isinstance(ls, six.string_types):
             ds, ls = self._split_drawstyle_linestyle(ls)
             if ds is not None:
                 self.set_drawstyle(ds)
@@ -1292,7 +1291,8 @@ class Line2D(Artist):
 
     def _get_rgba_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
-        if is_string_like(facecolor) and facecolor.lower() == 'none':
+        if (isinstance(facecolor, six.string_types)
+                and facecolor.lower() == 'none'):
             rgbaFace = None
         else:
             rgbaFace = mcolors.to_rgba(facecolor, self._alpha)

@@ -265,7 +265,7 @@ class ContourLabeler(object):
         """
         Return the width of the label in points.
         """
-        if not cbook.is_string_like(lev):
+        if not isinstance(lev, six.string_types):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -321,7 +321,7 @@ class ContourLabeler(object):
 
     def get_text(self, lev, fmt):
         "get the text of the label"
-        if cbook.is_string_like(lev):
+        if isinstance(lev, six.string_types):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -1300,7 +1300,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if cbook.is_string_like(linestyles):
+            if isinstance(linestyles, six.string_types):
                 tlinestyles = [linestyles] * Nlev
             elif cbook.iterable(linestyles):
                 tlinestyles = list(linestyles)

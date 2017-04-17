@@ -31,7 +31,7 @@ from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
                                       FigureCanvasBase)
-from matplotlib.cbook import is_string_like, maxdict, restrict_dict
+from matplotlib.cbook import maxdict, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
@@ -530,7 +530,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        if is_string_like(filename_or_obj):
+        if isinstance(filename_or_obj, six.string_types):
             fileobj = open(filename_or_obj, 'wb')
             close = True
         else:
@@ -549,7 +549,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        if is_string_like(filename_or_obj):
+        if isinstance(filename_or_obj, six.string_types):
             filename_or_obj = open(filename_or_obj, 'wb')
             close = True
         else:
