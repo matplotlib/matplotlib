@@ -12,7 +12,7 @@ import six
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import patheffects
+from matplotlib import patheffects, rcParams
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
@@ -174,3 +174,16 @@ def test_determinism_all():
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""
     _determinism_check(format="ps", usetex=True)
+
+
+@needs_usetex
+def test_failing_latex(tmpdir):
+    """Test failing latex subprocess call"""
+    path = tmpdir.join("tmpoutput.ps")
+
+    rcParams['text.usetex'] = True
+
+    # This failes with "Double subscript"
+    plt.xlabel("$%f_2_2$" % np.random.random())
+    with pytest.raises(RuntimeError) as excinfo:
+        plt.savefig(path)
