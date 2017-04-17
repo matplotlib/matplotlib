@@ -3,7 +3,7 @@
 3D parametric curve
 ===================
 
-Demonstrating plotting a parametric curve in 3D.
+This example demonstrates plotting a parametric curve in 3D.
 '''
 
 import matplotlib as mpl
