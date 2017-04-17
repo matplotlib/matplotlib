@@ -1,17 +1,44 @@
+'''
+This backend renders figures to `Scalable Vector Graphics <https://www.w3.org/Graphics/SVG/>`_, an
+XML-based graphics format. This format is an `W3C` open web standard for creating vector graphics
+which is implemented by most if not all modern web browsers, and tools exist to convert between SVG
+and PDF.
+
+When rendered in a browser, SVG documents may be added directly to the `Document Object Model (DOM)`,
+and can be enhanced with `JavaScript` and styled with `Cascading Style Sheets`. Additional semantic
+data may also be embedded in the SVG document which  further augments how the user interacts with
+the graphic.
+
+When rendering `Artist` objects, the value of `Artist.get_gid` method will be set as the resulting
+markup's `id` attribute.
+
+Additional information may be added to Figures rendered in SVG by passing a `Figure.savefig`
+the parameter `svg_gid_data` a `dict` mapping `gid -> tag-attributes`.
+
+Additionally, the `<svg>` tag may hold several additional attributes which influence the way the
+figure is rendered and aligned with surrounding content. These may be set by passing `Figure.savefig`
+the parameter `svg_attribs` a `dict` mapping `attr -> value`, with a special case for the key `extra_content`,
+which may contain arbitrary XML markup which will be embedded directly into the resulting SVG document
+before any `Artist` objects are rendered.
+'''
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from collections import OrderedDict
 
 import six
-from six import unichr
+from six import unichr, raise_from
 from six.moves import xrange
+
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
 
 import numpy as np
 
 from hashlib import md5
+from xml.etree import ElementTree
+
 import uuid
 
 from matplotlib import verbose, __version__, rcParams
@@ -71,6 +98,7 @@ backend_version = __version__
 # --------------------------------------------------------------------
 
 def escape_cdata(s):
+    s = force_textual(s)
     s = s.replace("&", "&amp;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
@@ -82,6 +110,7 @@ def escape_comment(s):
     return _escape_xml_comment.sub('- ', s)
 
 def escape_attrib(s):
+    s = force_textual(s)
     s = s.replace("&", "&amp;")
     s = s.replace("'", "&apos;")
     s = s.replace("\"", "&quot;")
@@ -96,24 +125,78 @@ def short_float_fmt(x):
     """
     return '{0:f}'.format(x).rstrip('0').rstrip('.')
 
-##
-# XML writer class.
-#
-# @param file A file or file-like object.  This object must implement
-#    a <b>write</b> method that takes an 8-bit string.
+
+def validate_xml(text):
+    """Validates that `text` is well-formed XML
+    
+    Parameters
+    ----------
+    text : str
+        XML text to validate
+    
+    Returns
+    -------
+    bool
+    
+    Raises
+    ------
+    ValueError
+    """
+    try:
+        ElementTree.fromstring(text)
+    except ElementTree.ParseError as e:
+        raise_from(ValueError("Invalid XML: %s" % e.msg), e)
+    return True
+
+
+def force_textual(obj):
+    """Convert `obj` into a `str` at all costs. Need
+    to ensure that XML santitization functions receive
+    the expected API and encoding assumptions.
+
+    Parameters
+    ----------
+    obj : object
+        Any object to be included in an XML tag's attribute set
+
+    Returns
+    -------
+    str
+    """
+    if six.PY3:
+        if isinstance(obj, str):
+            return obj
+        elif isinstance(obj, bytes):
+            return obj.decode("utf8")
+        else:
+            return str(obj)
+    else:
+        return unicode(obj)
+
 
 class XMLWriter(object):
+    """XML writer class wrapping a file or file-like object. This object
+    must implement a `write` method that takes an 8-bit string (:class:`bytes`).    
+    """
     def __init__(self, file):
         self.__write = file.write
         if hasattr(file, "flush"):
             self.flush = file.flush
-        self.__open = 0 # true if start tag is open
+        self.__open = 0  # true if start tag is open
         self.__tags = []
         self.__data = []
         self.__indentation = " " * 64
 
     def __flush(self, indent=True):
-        # flush internal buffers
+        """Format any pending buffered content and push into the underlying
+        file, closing the current open tag and emptying the data buffer.
+
+        Parameters
+        ----------
+        indent : bool, optional
+            Whether or not to attempt to put the next write
+            on a new line.
+        """
         if self.__open:
             if indent:
                 self.__write(">\n")
@@ -125,17 +208,29 @@ class XMLWriter(object):
             self.__write(escape_cdata(data))
             self.__data = []
 
-    ## Opens a new element.  Attributes can be given as keyword
-    # arguments, or as a string/string dictionary. The method returns
-    # an opaque identifier that can be passed to the <b>close</b>
-    # method, to close all open elements up to and including this one.
-    #
-    # @param tag Element tag.
-    # @param attrib Attribute dictionary.  Alternatively, attributes
-    #    can be given as keyword arguments.
-    # @return An element identifier.
-
     def start(self, tag, attrib={}, **extra):
+        """Opens a new element.  Attributes can be given as keyword
+        arguments, or as a string/string dictionary. The method returns
+        an opaque identifier that can be passed to the `close` method,
+        to close all open elements up to and including this one.
+
+        This method flushes the internal buffer before it begins making
+        additions.
+
+        Parameters
+        ----------
+        tag : str
+            The element name to open
+        attrib : dict, optional
+            A mapping of name=value pairs to be included in the opened tag
+        **extra
+            Any additional name=value pairs not part of `attrib`
+        
+        Returns
+        -------
+        int
+            The size of the :attr:`__tags`, the current tag stack, - 1
+        """
         self.__flush()
         tag = escape_cdata(tag)
         self.__data = []
@@ -152,34 +247,48 @@ class XMLWriter(object):
                     v = escape_attrib(v)
                     self.__write(" %s=\"%s\"" % (k, v))
         self.__open = 1
-        return len(self.__tags)-1
-
-    ##
-    # Adds a comment to the output stream.
-    #
-    # @param comment Comment text, as a Unicode string.
+        return len(self.__tags) - 1
 
     def comment(self, comment):
+        """Adds a comment to the output stream.
+
+        This method flushes the internal buffer.
+        
+        Parameters
+        ----------
+        comment : str
+            The comment content as text
+        """
         self.__flush()
         self.__write(self.__indentation[:len(self.__tags)])
         self.__write("<!-- %s -->\n" % escape_comment(comment))
 
-    ##
-    # Adds character data to the output stream.
-    #
-    # @param text Character data, as a Unicode string.
-
     def data(self, text):
+        """Adds character data to the internal data buffer.
+
+        Parameters
+        ----------
+        text : str
+            The textual data to add to the output stream
+        """
         self.__data.append(text)
 
-    ##
-    # Closes the current element (opened by the most recent call to
-    # <b>start</b>).
-    #
-    # @param tag Element tag.  If given, the tag must match the start
-    #    tag.  If omitted, the current element is closed.
-
     def end(self, tag=None, indent=True):
+        """Closes the current element (opened by the most recent call to
+        :meth:`start`).
+
+        This method will pop the end off :attr:`__tags`, and should not
+        be used without at least one open element on the stack.
+
+        This method will flush the internal buffer.
+        
+        Parameters
+        ----------
+        tag : str, optional
+            The element name to close, used only for validation purposes.
+        indent : bool, optional
+            Whether to format the data being written to the buffer.
+        """
         if tag:
             assert self.__tags, "unbalanced end(%s)" % tag
             assert escape_cdata(tag) == self.__tags[-1],\
@@ -197,32 +306,44 @@ class XMLWriter(object):
             self.__write(self.__indentation[:len(self.__tags)])
         self.__write("</%s>\n" % tag)
 
-    ##
-    # Closes open elements, up to (and including) the element identified
-    # by the given identifier.
-    #
-    # @param id Element identifier, as returned by the <b>start</b> method.
-
     def close(self, id):
+        """Closes open elements, up to (and including) the element identified
+        by the given identifier.
+        
+        Parameters
+        ----------
+        id : int
+            The tag index to close up to.
+        """
         while len(self.__tags) > id:
             self.end()
 
-    ##
-    # Adds an entire element.  This is the same as calling <b>start</b>,
-    # <b>data</b>, and <b>end</b> in sequence. The <b>text</b> argument
-    # can be omitted.
-
     def element(self, tag, text=None, attrib={}, **extra):
+        """Adds an entire element.  This is the same as calling :meth:`__start` ,
+        :meth:`__data` , and :meth:`__end` in sequence. The `text` argument can
+        be omitted.
+
+        Parameters
+        ----------
+        tag : str
+            The element name
+        text : str, optional
+            The text content of the element to write
+        attrib : dict, optional
+            As attrib argument of :meth:`start`
+        **extra
+            As extra argument of :meth:`start`
+        """
         self.start(*(tag, attrib), **extra)
         if text:
             self.data(text)
         self.end(indent=False)
 
-    ##
-    # Flushes the output stream.
-
     def flush(self):
-        pass # replaced by the constructor
+        """A dummy flush method that is overridden during
+        the constructor
+        """
+        pass
 
 # ----------------------------------------------------------------------
 
@@ -256,11 +377,18 @@ def generate_css(attrib={}):
     return ''
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
+
+
 class RendererSVG(RendererBase):
     FONT_SCALE = 100.0
     fontd = maxdict(50)
 
-    def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
+    def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
+                 svg_gid_data=None, svg_attribs=None):
+        if svg_gid_data is None:
+            svg_gid_data = dict()
+        if svg_attribs is None:
+            svg_attribs = dict()
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
@@ -282,18 +410,35 @@ class RendererSVG(RendererBase):
         self._fonts = OrderedDict()
         self.mathtext_parser = MathTextParser('SVG')
 
+        self.gid_data = svg_gid_data
+        self.svg_attribs = svg_attribs
+
         RendererBase.__init__(self)
         self._glyph_map = dict()
 
-        svgwriter.write(svgProlog)
-        self._start_id = self.writer.start(
-            'svg',
+        if self.svg_attribs.get("extra_content") is not None:
+            extra_content = self.svg_attribs.pop("extra_content")
+            if isinstance(extra_content, bytes):
+                extra_content = extra_content.decode('utf8')
+            validate_xml(extra_content)
+        else:
+            extra_content = None
+
+        svg_attrs = dict(
             width='%ipt' % width, height='%ipt' % height,
             viewBox='0 0 %i %i' % (width, height),
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
+        svg_attrs.update(self.svg_attribs)
+
+        svgwriter.write(svgProlog)
+        self._start_id = self.writer.start(
+            'svg',
+            **svg_attrs)
         self._write_default_style()
+        if extra_content is not None:
+            svgwriter.write(extra_content)
 
     def finalize(self):
         self._write_clips()
@@ -531,11 +676,25 @@ class RendererSVG(RendererBase):
 
     def open_group(self, s, gid=None):
         """
-        Open a grouping element with label *s*. If *gid* is given, use
-        *gid* as the id of the group.
+        Open a grouping element with label `s`. If `gid` is given, use
+        `gid` as the id of the group.
+
+        If `gid` is a key in `self.gid_data`,
+        include the value of `gid` in `self.gid_data` in  the attributes of
+        the new group.
         """
         if gid:
-            self.writer.start('g', id=gid)
+            if gid in self.gid_data:
+                extra_attrs = self.gid_data[gid]
+                try:
+                    extra_attrs = dict(extra_attrs)
+                except (ValueError, TypeError):
+                    raise ValueError(
+                        ("gid_data for \"{}\" is invalid. Expected dict, got {}. "
+                         "All gid_data values must be Mapping-like!").format(gid, type(extra_attrs)))
+            else:
+                extra_attrs = {}
+            self.writer.start('g', id=gid, **extra_attrs)
         else:
             self._groupd[s] = self._groupd.get(s, 0) + 1
             self.writer.start('g', id="%s_%d" % (s, self._groupd[s]))
@@ -584,7 +743,6 @@ class RendererSVG(RendererBase):
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if not len(path.vertices):
             return
-
         writer = self.writer
         path_data = self._convert_path(
             marker_path,
@@ -691,7 +849,6 @@ class RendererSVG(RendererBase):
         # The line between the stop points is perpendicular to the
         # opposite edge.  Underlying these three gradients is a solid
         # triangle whose color is the average of all three points.
-
         writer = self.writer
         if not self._has_gouraud:
             self._has_gouraud = True
@@ -1150,6 +1307,7 @@ class RendererSVG(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         clipid = self._get_clip(gc)
+
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
             # is has a transformation
@@ -1187,6 +1345,24 @@ class FigureCanvasSVG(FigureCanvasBase):
     fixed_dpi = 72
 
     def print_svg(self, filename, *args, **kwargs):
+        """Render the figure to an SVG document.
+        
+        Parameters
+        ----------
+        filename : str or file-like object
+            The path to write the resulting SVG document to,
+            or a file-like object to write the document to.
+        *args
+            Forwarded to :meth:`_print_svg`
+        **kwargs
+            Forwarded to :meth:`_print_svg`
+        
+        Raises
+        ------
+        ValueError
+            If `filename` cannot be used to hold the resulting figure
+            data
+        """
         if is_string_like(filename):
             with io.open(filename, 'w', encoding='utf-8') as svgwriter:
                 return self._print_svg(filename, svgwriter, **kwargs)
@@ -1222,6 +1398,27 @@ class FigureCanvasSVG(FigureCanvasBase):
         return result
 
     def print_svgz(self, filename, *args, **kwargs):
+        """Render the figure to an SVG document with Gzip compression.
+
+        Wraps the file opened from `filename` or itself if it was a
+        file-like object in a gzip.GzipFile and passes this to :meth:`print_svg`
+
+        Parameters
+        ----------
+        filename : str or file-like object
+            The path to write the resulting SVG document to,
+            or a file-like object to write the document to.
+        *args
+            Forwarded to :meth:`_print_svg`
+        **kwargs
+            Forwarded to :meth:`_print_svg`
+        
+        Raises
+        ------
+        ValueError
+            If `filename` cannot be used to hold the resulting figure
+            data
+        """
         if is_string_like(filename):
             options = dict(filename=filename)
         elif is_writable_file_like(filename):
@@ -1230,18 +1427,39 @@ class FigureCanvasSVG(FigureCanvasBase):
             raise ValueError("filename must be a path or a file-like object")
 
         with gzip.GzipFile(mode='w', **options) as gzipwriter:
-            return self.print_svg(gzipwriter)
+            return self.print_svg(gzipwriter, **kwargs)
 
-    def _print_svg(self, filename, svgwriter, **kwargs):
+    def _print_svg(self, filename, svgwriter, svg_gid_data=None,
+                   svg_attribs=None, **kwargs):
+        """Perform the low-level details
+        
+        Parameters
+        ----------
+        filename : str
+            Passed to :class:`RendererSVG`
+        svgwriter : file-like object
+            The buffer to write the figure data to.
+        svg_gid_data : dict, optional
+            Mapping from gid to XML attribute data.
+        svg_attribs : dict, optional
+            XML attribute data to include on the figure's `<svg>` element,
+            and any additional preamble to the document included under the key
+            `"extra_content"`.
+        **kwargs
+            Description
+        """
         image_dpi = kwargs.pop("dpi", 72)
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
-        w, h = width*72, height*72
+        w, h = width * 72, height * 72
 
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(
             self.figure,
-            width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
+            width, height, image_dpi, RendererSVG(
+                w, h, svgwriter, filename, image_dpi,
+                svg_gid_data=svg_gid_data,
+                svg_attribs=svg_attribs),
             bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
