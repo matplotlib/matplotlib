@@ -3,12 +3,12 @@
 Artist tests
 ============
 
-Test unit support with each of the matplotlib primitive artist types
+Test unit support with each of the Matplotlib primitive artist types.
 
-The axes handles unit conversions and the artists keep a pointer to
-their axes parent, so you must init the artists with the axes instance
-if you want to initialize them with unit data, or else they will not
-know how to convert the units to scalars.
+The axis handles unit conversions and the artists keep a pointer to their axis
+parent. You must initialize the artists with the axis instance if you want to
+use them with unit data, or else they will not know how to convert the units
+to scalars.
 """
 import random
 import matplotlib.lines as lines
@@ -38,15 +38,15 @@ if 0:
     ax.add_collection(lc)
 
 # test a plain-ol-line
-line = lines.Line2D(
-    [0*cm, 1.5*cm], [0*cm, 2.5*cm], lw=2, color='black', axes=ax)
+line = lines.Line2D([0*cm, 1.5*cm], [0*cm, 2.5*cm],
+                    lw=2, color='black', axes=ax)
 ax.add_line(line)
 
 if 0:
     # test a patch
     # Not supported at present.
-    rect = patches.Rectangle(
-        (1*cm, 1*cm), width=5*cm, height=2*cm, alpha=0.2, axes=ax)
+    rect = patches.Rectangle((1*cm, 1*cm), width=5*cm, height=2*cm,
+                             alpha=0.2, axes=ax)
     ax.add_patch(rect)
 
 
