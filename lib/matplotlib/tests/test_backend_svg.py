@@ -226,8 +226,10 @@ def test_unicode_won():
     fd.close()
 
     won_id = 'Computer_Modern_Roman-142'
+    empty_def = '<path id="{0}"/>'.format(won_id)
     expected_def = 'id="{0}"'.format(won_id)
     expected_ref = 'xlink:href="#{0}"'.format(won_id)
-    print(buf)
+
+    assert empty_def not in buf
     assert expected_def in buf
     assert expected_ref in buf
