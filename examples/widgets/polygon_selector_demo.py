@@ -1,4 +1,11 @@
+"""
+=====================
+Polygon Selector Demo
+=====================
 
+Shows how one can select indices of a polygon interactively.
+
+"""
 import numpy as np
 
 from matplotlib.widgets import PolygonSelector

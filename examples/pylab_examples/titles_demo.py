@@ -1,4 +1,8 @@
 """
+===========
+Titles Demo
+===========
+
 matplotlib can display plot titles centered, flush with the left side of
 a set of axes, and flush with the right side of a set of axes.
 

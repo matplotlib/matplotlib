@@ -1,4 +1,8 @@
 """
+==========
+Color Demo
+==========
+
 matplotlib gives you 5 ways to specify colors,
 
     1) as a single letter string, ala MATLAB

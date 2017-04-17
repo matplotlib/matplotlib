@@ -3,6 +3,7 @@
 Gallery
 =======
 
-Click on any image to see full size image and source code.
+This gallery contains examples of the many things you can do with
+Matplotlib. Click on any image to see the full image and source code.
 
 .. contents::

@@ -1,6 +1,12 @@
-# A matplotlib based game of Pong illustrating one way to write interactive
-# animation which are easily ported to multiple backends
-# pipong.py was written by Paul Ivanov <http://pirsquared.org>
+"""
+======
+Pipong
+======
+
+A Matplotlib based game of Pong illustrating one way to write interactive
+animation which are easily ported to multiple backends
+pipong.py was written by Paul Ivanov <http://pirsquared.org>
+"""
 
 from __future__ import print_function
 

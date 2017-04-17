@@ -1,3 +1,9 @@
+"""
+===================
+Inset Locator Demo2
+===================
+
+"""
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes

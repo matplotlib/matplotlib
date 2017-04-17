@@ -1,4 +1,8 @@
 """
+========
+Tex Demo
+========
+
 You can use TeX to render all of your matplotlib text if the rc
 parameter text.usetex is set.  This works currently on the agg and ps
 backends, and requires that you have tex and the other dependencies

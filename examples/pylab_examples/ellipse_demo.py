@@ -1,3 +1,9 @@
+"""
+============
+Ellipse Demo
+============
+
+"""
 import matplotlib.pyplot as plt
 import numpy.random as rnd
 from matplotlib.patches import Ellipse

@@ -1,3 +1,9 @@
+"""
+===============
+Line Collection
+===============
+
+"""
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors

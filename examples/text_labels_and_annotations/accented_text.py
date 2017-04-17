@@ -11,6 +11,7 @@ Using mathtext, the following accents are provided: \hat, \breve, \grave, \bar,
 e.g., to make an overbar you do \bar{o} or to make an o umlaut you do
 \ddot{o}.  The shortcuts are also provided, e.g.,: \"o \'e \`e \~n \.x
 \^y
+
 """
 from __future__ import unicode_literals
 import matplotlib.pyplot as plt

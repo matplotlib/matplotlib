@@ -1,3 +1,9 @@
+"""
+===============
+Dashpoint Label
+===============
+
+"""
 import matplotlib.pyplot as plt
 
 DATA = ((1, 3),

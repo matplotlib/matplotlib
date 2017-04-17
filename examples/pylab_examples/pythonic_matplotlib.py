@@ -1,4 +1,8 @@
 """
+===================
+Pythonic Matplotlib
+===================
+
 Some people prefer to write more pythonic, object-oriented code
 rather than use the pyplot interface to matplotlib.  This example shows
 you how.
@@ -30,25 +34,25 @@ is an easy mapping.  Many of those examples use 'set' to control
 figure properties.  Here's how to map those commands onto instance
 methods
 
-The syntax of set is
+The syntax of set is::
 
-  plt.setp(object or sequence, somestring, attribute)
+    plt.setp(object or sequence, somestring, attribute)
 
-if called with an object, set calls
+if called with an object, set calls::
 
-  object.set_somestring(attribute)
+    object.set_somestring(attribute)
 
-if called with a sequence, set does
+if called with a sequence, set does::
 
-  for object in sequence:
+    for object in sequence:
        object.set_somestring(attribute)
 
-So for your example, if a is your axes object, you can do
+So for your example, if a is your axes object, you can do::
 
-  a.set_xticklabels([])
-  a.set_yticklabels([])
-  a.set_xticks([])
-  a.set_yticks([])
+    a.set_xticklabels([])
+    a.set_yticklabels([])
+    a.set_xticks([])
+    a.set_yticks([])
 """
 
 

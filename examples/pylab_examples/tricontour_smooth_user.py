@@ -1,4 +1,8 @@
 """
+======================
+Tricontour Smooth User
+======================
+
 Demonstrates high-resolution tricontouring on user-defined triangular grids
 with matplotlib.tri.UniformTriRefiner
 """

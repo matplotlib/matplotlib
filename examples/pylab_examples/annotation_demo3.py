@@ -1,3 +1,9 @@
+"""
+================
+Annotation Demo3
+================
+
+"""
 import matplotlib.pyplot as plt
 from matplotlib.text import OffsetFrom
 

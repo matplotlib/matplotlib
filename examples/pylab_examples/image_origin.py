@@ -1,4 +1,8 @@
 """
+============
+Image Origin
+============
+
 You can specify whether images should be plotted with the array origin
 x[0,0] in the upper left or upper right by using the origin parameter.
 You can also control the default be setting image.origin in your

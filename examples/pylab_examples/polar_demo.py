@@ -1,4 +1,8 @@
 """
+==========
+Polar Demo
+==========
+
 Demo of a line plot on a polar axis.
 """
 import numpy as np

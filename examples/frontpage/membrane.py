@@ -3,7 +3,6 @@
 Frontpage plot example
 ======================
 
-
 This example reproduces the frontpage simple plot example.
 """
 

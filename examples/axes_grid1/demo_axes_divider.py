@@ -1,3 +1,9 @@
+"""
+=================
+Demo Axes Divider
+=================
+
+"""
 import matplotlib.pyplot as plt
 
 

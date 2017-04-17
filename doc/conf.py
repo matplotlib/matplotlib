@@ -107,7 +107,7 @@ autodoc_docstring_signature = True
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
     'examples_dirs': '../examples',
-    'filename_pattern': '\.py$',
+    'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': 'gallery'}
 
 plot_gallery = True

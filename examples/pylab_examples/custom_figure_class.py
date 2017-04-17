@@ -1,4 +1,8 @@
 """
+===================
+Custom Figure Class
+===================
+
 You can pass a custom Figure constructor to figure if you want to derive from the default Figure.  This simple example creates a figure with a figure title
 """
 from matplotlib.pyplot import figure, show

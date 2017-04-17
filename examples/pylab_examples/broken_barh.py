@@ -1,4 +1,8 @@
 """
+===========
+Broken Barh
+===========
+
 Make a "broken" horizontal bar plot, i.e., one with gaps
 """
 import matplotlib.pyplot as plt

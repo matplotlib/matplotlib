@@ -1,3 +1,9 @@
+"""
+=============
+Griddata Demo
+=============
+
+"""
 from matplotlib.mlab import griddata
 import matplotlib.pyplot as plt
 import numpy as np

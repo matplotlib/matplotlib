@@ -21,6 +21,7 @@ following question:
     Thanks.
 
 Paul Ivanov responded with this answer:
+
 """
 import matplotlib.pyplot as plt
 from matplotlib import transforms

@@ -1,7 +1,10 @@
+"""
+============
+Boxplot Demo
+============
 
-#
-# Example boxplot code
-#
+Example boxplot code
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

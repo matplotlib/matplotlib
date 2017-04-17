@@ -1,4 +1,8 @@
 """
+==========
+Lasso Demo
+==========
+
 Show how to use a lasso to select a set of points and get the indices
 of the selected points.  A callback is used to change the color of the
 selected points

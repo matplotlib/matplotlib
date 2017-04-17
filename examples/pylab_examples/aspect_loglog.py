@@ -1,3 +1,9 @@
+"""
+=============
+Loglog Aspect
+=============
+
+"""
 import matplotlib.pyplot as plt
 
 fig, (ax1, ax2) = plt.subplots(1, 2)

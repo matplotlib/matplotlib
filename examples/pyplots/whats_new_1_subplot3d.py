@@ -1,3 +1,9 @@
+"""
+=====================
+Whats New 1 Subplot3d
+=====================
+
+"""
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from matplotlib import cm
 #from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter

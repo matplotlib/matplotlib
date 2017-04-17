@@ -1,3 +1,9 @@
+"""
+============
+Pcolor Small
+============
+
+"""
 import matplotlib.pyplot as plt
 from numpy.random import rand
 

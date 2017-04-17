@@ -1,5 +1,11 @@
-# Creates two identical panels.  Zooming in on the right panel will show
-# a rectangle in the first panel, denoting the zoomed region.
+"""
+========
+Viewlims
+========
+
+Creates two identical panels.  Zooming in on the right panel will show
+a rectangle in the first panel, denoting the zoomed region.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle

@@ -1,4 +1,8 @@
 """
+=============
+Font Indexing
+=============
+
 A little example that shows how the various indexing into the font
 tables relate to one another.  Mainly for mpl developers....
 

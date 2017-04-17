@@ -1,4 +1,8 @@
 """
+=================
+Major Minor Demo2
+=================
+
 Automatic tick selection for major and minor ticks.
 
 Use interactive pan and zoom to see how the tick intervals

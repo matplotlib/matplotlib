@@ -1,4 +1,8 @@
 """
+=============
+Scatter Demo2
+=============
+
 Demo of scatter plot with varying marker colors and sizes.
 """
 import numpy as np

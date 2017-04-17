@@ -1,3 +1,9 @@
+"""
+===========
+Usetex Demo
+===========
+
+"""
 import matplotlib
 matplotlib.rc('text', usetex=True)
 import matplotlib.pyplot as plt

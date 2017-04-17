@@ -1,3 +1,9 @@
+"""
+===================
+Image Slices Viewer
+===================
+
+"""
 from __future__ import print_function
 import numpy
 import matplotlib.pyplot as plt

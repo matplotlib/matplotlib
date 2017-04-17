@@ -1,5 +1,8 @@
-
 """
+====================
+Date Index Formatter
+====================
+
 When plotting daily data, a frequent request is to plot the data
 ignoring skips, e.g., no extra spaces for weekends.  This is particularly
 common in financial time series, when you may have data for M-F and

@@ -1,3 +1,9 @@
+"""
+================
+Annotation Demo2
+================
+
+"""
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import numpy as np

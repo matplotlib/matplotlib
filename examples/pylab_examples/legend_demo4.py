@@ -1,3 +1,9 @@
+"""
+============
+Legend Demo4
+============
+
+"""
 import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(3, 1)

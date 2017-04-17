@@ -1,3 +1,9 @@
+"""
+==============
+Fancybox Demo2
+==============
+
+"""
 import matplotlib.patches as mpatch
 import matplotlib.pyplot as plt
 

@@ -1,4 +1,8 @@
 """
+============
+Legend Demo6
+============
+
 Showcases legend entries with more than one legend key.
 """
 import matplotlib.pyplot as plt
