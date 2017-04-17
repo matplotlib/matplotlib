@@ -31,7 +31,8 @@ from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
                                       FigureCanvasBase)
-from matplotlib.cbook import is_string_like, maxdict, restrict_dict
+from matplotlib.cbook import (is_string_like, maxdict, restrict_dict,
+                              fspath_no_except, to_filehandle)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
@@ -563,8 +564,9 @@ class FigureCanvasAgg(FigureCanvasBase):
             metadata.update(user_metadata)
 
         try:
-            _png.write_png(renderer._renderer, filename_or_obj,
-                           self.figure.dpi, metadata=metadata)
+            _png.write_png(
+                renderer._renderer, fspath_no_except(filename_or_obj),
+                self.figure.dpi, metadata=metadata)
         finally:
             if close:
                 filename_or_obj.close()
@@ -620,7 +622,8 @@ class FigureCanvasAgg(FigureCanvasBase):
             if 'quality' not in options:
                 options['quality'] = rcParams['savefig.jpeg_quality']
 
-            return background.save(filename_or_obj, format='jpeg', **options)
+            return background.save(to_filehandle(filename_or_obj), format='jpeg',
+                              **options)
         print_jpeg = print_jpg
 
         # add TIFF support
@@ -630,7 +633,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff',
+            return image.save(to_filehandle(filename_or_obj), format='tiff',
                               dpi=dpi)
         print_tiff = print_tif
 

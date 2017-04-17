@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from numpy.testing import assert_equal
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing import skip, closed_tempfile
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
@@ -273,3 +274,31 @@ def test_autofmt_xdate(which):
     if which in ('both', 'minor'):
         for label in fig.axes[0].get_xticklabels(True, 'minor'):
             assert int(label.get_rotation()) == angle
+
+
+@pytest.mark.parametrize('ext', ['png', 'svg', 'pdf'])
+def test_savefig_accept_pep_519(ext):
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+    with closed_tempfile(suffix='.{}'.format(ext)) as fname:
+        fig.savefig(FakeFSPathClass(fname))
+
+
+@pytest.mark.parametrize('ext', ['png', 'svg', 'pdf'])
+def test_savefig_accept_pathlib(ext):
+    try:
+        from pathlib import Path
+    except ImportError:
+        skip("pathlib not installed")
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+    with closed_tempfile(suffix='.{}'.format(ext)) as fname:
+        fig.savefig(Path(fname))

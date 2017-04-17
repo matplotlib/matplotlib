@@ -13,6 +13,7 @@ import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
 import pytest
+from matplotlib.testing import closed_tempfile
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -533,3 +534,27 @@ class TestFuncParser(object):
         func_parser = cbook._StringFuncParser(string)
         b = func_parser.is_bounded_0_1
         assert_array_equal(b, bounded)
+
+
+def test_to_filehandle_accept_pep_519():
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    with closed_tempfile() as tmpfile:
+        pep519_path = FakeFSPathClass(tmpfile)
+        cbook.to_filehandle(pep519_path)
+
+
+def test_to_filehandle_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise pytest.skip("pathlib not installed")
+
+    with closed_tempfile() as tmpfile:
+        path = Path(tmpfile)
+        cbook.to_filehandle(path)

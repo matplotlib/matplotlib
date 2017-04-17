@@ -38,7 +38,8 @@ import abc
 import contextlib
 import tempfile
 import warnings
-from matplotlib.cbook import iterable, is_string_like, deprecated
+from matplotlib.cbook import (iterable, is_string_like, deprecated,
+                              fspath_no_except)
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams, rcParamsDefault, rc_context
@@ -349,6 +350,7 @@ class MovieWriter(AbstractMovieWriter):
             output = sys.stdout
         else:
             output = subprocess.PIPE
+        command = [fspath_no_except(cmd) for cmd in command]
         verbose.report('MovieWriter.run: running command: %s' %
                        ' '.join(command))
         self._proc = subprocess.Popen(command, shell=False,

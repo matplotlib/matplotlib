@@ -4,6 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 import inspect
 import warnings
 from contextlib import contextmanager
+import shutil
+import tempfile
 
 import matplotlib
 from matplotlib.cbook import is_string_like, iterable
@@ -144,3 +146,21 @@ def setup():
 
     set_font_settings_for_testing()
     set_reproducibility_for_testing()
+
+
+@contextmanager
+def closed_tempfile(suffix='', text=None):
+    """
+    Context manager which yields the path to a closed temporary file with the
+    suffix `suffix`. The file will be deleted on exiting the context. An
+    additional argument `text` can be provided to have the file contain `text`.
+    """
+    with tempfile.NamedTemporaryFile(
+        'w+t', suffix=suffix, delete=False
+    ) as test_file:
+        file_name = test_file.name
+        if text is not None:
+            test_file.write(text)
+            test_file.flush()
+    yield file_name
+    shutil.rmtree(file_name, ignore_errors=True)

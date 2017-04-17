@@ -12,6 +12,7 @@ from numpy.testing import assert_array_equal
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
+from matplotlib.testing import closed_tempfile
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 from matplotlib import rcParams, rc_context
 from matplotlib import patches
@@ -783,3 +784,29 @@ def test_empty_imshow():
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
+
+
+def test_imsave_accept_pep_519():
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    a = np.array([[1, 2], [3, 4]])
+    with closed_tempfile(suffix='.pdf') as fname:
+        pep519_path = FakeFSPathClass(fname)
+        plt.imsave(pep519_path, a)
+
+
+def test_imsave_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise pytest.skip("pathlib not installed")
+
+    a = np.array([[1, 2], [3, 4]])
+    with closed_tempfile(suffix='.pdf') as fname:
+        path = Path(fname)
+        plt.imsave(path, a)

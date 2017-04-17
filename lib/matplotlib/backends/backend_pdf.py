@@ -35,7 +35,7 @@ from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
                                       FigureManagerBase, FigureCanvasBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import (Bunch, is_string_like, get_realpath_and_stat,
-                              is_writable_file_like, maxdict)
+                              is_writable_file_like, maxdict, fspath_no_except)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.afm import AFM
@@ -434,6 +434,7 @@ class PdfFile(object):
         self.passed_in_file_object = False
         self.original_file_like = None
         self.tell_base = 0
+        filename = fspath_no_except(filename)
         if is_string_like(filename):
             fh = open(filename, 'wb')
         elif is_writable_file_like(filename):
