@@ -60,6 +60,13 @@ possible to pass through the list of labels to :func:`legend`::
     line_down, = plt.plot([3,2,1], label='Line 1')
     plt.legend([line_up, line_down], ['Line Up', 'Line Down'])
 
+Known Issue
+-----------
+When creating a legend with raster and vector entries for PDF output, the
+children of the legend will have rasterization turned off. This is a result
+of a for-loop in the :class:`~matplotlib.offsetbox.DrawingArea`. This 
+functionality is implemented as a workaround for a rendering issue until a 
+better refactoring solution is developed.
 
 .. _proxy_legend_handles:
 
