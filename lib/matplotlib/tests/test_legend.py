@@ -331,3 +331,11 @@ def test_linecollection_scaled_dashes():
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
         assert oh.get_linestyles()[0][1] == lh._dashSeq
         assert oh.get_linestyles()[0][0] == lh._dashOffset
+
+
+def test_handler_numpoints():
+    '''test legend handler with numponts less than or equal to 1'''
+    # related to #6921 and PR #8478
+    fig, ax = plt.subplots()
+    ax.plot(range(5), label='test')
+    ax.legend(numpoints=0.5)
