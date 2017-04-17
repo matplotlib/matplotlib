@@ -212,20 +212,22 @@ def test_missing_psfont(monkeypatch):
 
 @needs_tex
 def test_unicode_won():
-    from pylab import rcParams, plot, ylabel, savefig
-    rcParams.update({'text.usetex': True, 'text.latex.unicode': True})
+    matplotlib.rcParams['text.usetex'] = True
+    matplotlib.rcParams['text.latex.unicode'] = True
 
-    plot(1, 1)
-    ylabel(r'\textwon')
+    plt.figure()
+    plt.plot(1, 1)
+    plt.ylabel(r'\textwon')
 
     fd = BytesIO()
-    savefig(fd, format='svg')
+    plt.savefig(fd, format='svg')
     fd.seek(0)
     buf = fd.read().decode()
     fd.close()
 
-    won_id = 'Computer_Modern_Sans_Serif-142'
-    def_regex = re.compile(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id))
-    use_regex = re.compile(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id))
-    assertTrue(bool(def_regex.search(buf)))
-    assertTrue(bool(use_regex.search(buf)))
+    won_id = 'Computer_Modern_Roman-142'
+    expected_def = 'id="{0}"'.format(won_id)
+    expected_ref = 'xlink:href="#{0}"'.format(won_id)
+    print(buf)
+    assert expected_def in buf
+    assert expected_ref in buf
