@@ -218,7 +218,7 @@ def test_edge_colour():
     ax2.table(
         cellText=data,
         cellColours=colours,
-        cellEdgeColour='#cccccc',
+        edgeColour='#cccccc',
         loc='best')
 
 
@@ -245,7 +245,7 @@ def test_bbox_table():
     ax.table(
         cellText=data,
         cellColours=colours,
-        cellEdgeColour='#cccccc',
+        edgeColour='#cccccc',
         bbox = (.0, .0, 1, 1))
 
     plt.draw()
