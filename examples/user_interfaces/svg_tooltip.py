@@ -39,10 +39,12 @@ labels = ['This is a blue rectangle.', 'This is a green rectangle']
 
 for i, (item, label) in enumerate(zip(shapes, labels)):
     patch = ax.add_patch(item)
-    annotate = ax.annotate(labels[i], xy=item.get_xy(), xytext=(0, 0), 
-                           textcoords='offset points', color='w', ha='center', 
-                           fontsize=8, bbox=dict(boxstyle='round, pad=.5', fc=(.1, .1, .1, .92), 
-                                                 ec=(1., 1., 1.), lw=1, zorder=1))
+    annotate = ax.annotate(labels[i], xy=item.get_xy(), xytext=(0, 0),
+                           textcoords='offset points', color='w', ha='center',
+                           fontsize=8, bbox=dict(boxstyle='round, pad=.5',
+                                                 fc=(.1, .1, .1, .92),
+                                                 ec=(1., 1., 1.), lw=1,
+                                                 zorder=1))
 
     ax.add_patch(patch)
     patch.set_gid('mypatch_{:03d}'.format(i))
