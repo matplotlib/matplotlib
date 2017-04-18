@@ -2,10 +2,6 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as pyplot
 
-#and then copy and paste your desired acceptance test.
-
-
-# Test 1 (Legend should have: tan, sin, cos, in that order.)
 x = np.linspace (0,50,400)
 y1 = np.sin(x)
 y2 = np.cos(x)
