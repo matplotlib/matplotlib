@@ -172,6 +172,7 @@ picker       A python object that controls object picking
 transform    The transformation
 visible      A boolean whether the artist should be drawn
 zorder       A number which determines the drawing order
+lorder       A number which determines the defaul label order in a legend
 rasterized   Boolean; Turns vectors into rastergraphics: (for compression & eps transparency)
 ==========   ================================================================================
 

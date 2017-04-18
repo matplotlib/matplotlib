@@ -328,6 +328,14 @@ If you maintain a third-party backend which extends
 `~matplotlib.backend_bases.GraphicsContextBase` this method is now
 available to you and should be used to color hatch patterns.
 
+New Keyword Lorder
+------------------
+The ``lorder`` parameter is added to create custom default legend order for items created using ``pyplot``.
+
+For example: ::
+.. plot:: mpl_examples/pyplots/pyplot_lorder.py
+   :include-source:
+
 Previous Whats New
 ==================
 
