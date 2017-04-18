@@ -172,7 +172,7 @@ plot_formats = [('png', 100), ('pdf', 100)]
 # Subdirectories in 'examples/' directory of package and titles for gallery
 mpl_example_sections = [
     ('lines_bars_and_markers', 'Lines, bars, and markers'),
-    ('shapes_and_collections', 'Shapes and collections'),
+    ('shapes_and_collections', 'Shapes, collections and paths'),
     ('statistics', 'Statistical plots'),
     ('images_contours_and_fields', 'Images, contours, and fields'),
     ('pie_and_polar_charts', 'Pie and polar charts'),
