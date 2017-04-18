@@ -18,7 +18,7 @@ class Container(tuple):
     def __new__(cls, *kl, **kwargs):
         return tuple.__new__(cls, kl[0])
 
-    def __init__(self, kl, label=None):
+    def __init__(self, kl, label=None, lorder=''):
 
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
@@ -27,6 +27,8 @@ class Container(tuple):
         self._remove_method = None
 
         self.set_label(label)
+
+        self.set_lorder(lorder)
 
     def set_remove_method(self, f):
         self._remove_method = f
@@ -62,6 +64,25 @@ class Container(tuple):
             self._label = '%s' % (s, )
         else:
             self._label = None
+        self.pchanged()
+
+    def get_lorder(self):
+        """
+        Get the lorder value used to determine this artist's relative position
+        in the legend.
+        """
+        return self._lorder
+
+    def set_lorder(self, lorder):
+        """
+        Set the lorder value for auto legend.
+
+        ACCEPTS: int or anything convertable to an int using int() conversion.
+        """
+        if (lorder is not None) or (lorder is not ''):
+            self._lorder = int(lorder)
+        else:
+            self._lorder = ''
         self.pchanged()
 
     def add_callback(self, func):

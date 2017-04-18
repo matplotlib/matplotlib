@@ -256,6 +256,15 @@ class Axes(_AxesBase):
             self.yaxis.labelpad = labelpad
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
+    def _order_handles(self, handles):
+        """
+        Return the list of handles ordered in ascending order
+        based on '_lorder' attribute of handles as key.
+        """
+        lambdaKey = lambda handle : handle.get_lorder()
+        handles.sort(key = lambdaKey)
+        return handles
+
     def _get_legend_handles(self, legend_handler_map=None):
         """
         Return a generator of artists that can be used as handles in
@@ -264,6 +273,7 @@ class Axes(_AxesBase):
         """
         handles_original = (self.lines + self.patches +
                             self.collections + self.containers)
+        handles_original = self._order_handles(handles_original)
         handler_map = mlegend.Legend.get_default_handler_map()
 
         if legend_handler_map is not None:

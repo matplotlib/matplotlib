@@ -107,6 +107,7 @@ class Artist(object):
         self._clippath = None
         self._clipon = True
         self._label = ''
+        self._lorder = ''
         self._picker = None
         self._contains = None
         self._rasterized = None
@@ -911,6 +912,26 @@ class Artist(object):
         self.pchanged()
         self.stale = True
 
+    def get_lorder(self):
+        """
+        Get the lorder value used to determine this artist's relative position
+        in the legend.
+        """
+        return self._lorder
+
+    def set_lorder(self, lorder):
+        """
+        Set the lorder value for auto legend.
+
+        ACCEPTS: int or anything convertable to an int using int() conversion.
+        """
+        if (lorder is not None) or (lorder is not ''):
+            self._lorder = int(lorder)
+        else:
+            self._lorder = ''
+        self.pchanged()
+        self.stale = True
+
     def get_zorder(self):
         """
         Return the :class:`Artist`'s zorder.
@@ -961,6 +982,7 @@ class Artist(object):
         self._clipon = other._clipon
         self._clippath = other._clippath
         self._label = other._label
+        self._lorder = other._lorder
         self._sketch = other._sketch
         self._path_effects = other._path_effects
         self.sticky_edges.x[:] = other.sticky_edges.x[:]
