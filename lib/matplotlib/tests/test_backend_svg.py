@@ -216,8 +216,7 @@ def test_unicode_won():
     matplotlib.rcParams['text.latex.unicode'] = True
 
     fig = plt.figure()
-    plt.plot(1, 1)
-    plt.ylabel(r'\textwon')
+    fig.suptitle(r'\textwon')
 
     fd = BytesIO()
     fig.savefig(fd, format='svg')
