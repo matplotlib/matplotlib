@@ -108,7 +108,12 @@ autodoc_docstring_signature = True
 sphinx_gallery_conf = {
     'examples_dirs': '../examples',
     'filename_pattern': '^((?!sgskip).)*$',
-    'gallery_dirs': 'gallery'}
+    'gallery_dirs': 'gallery',
+    'doc_module': ('matplotlib',),
+    'reference_url': {'matplotlib': None,
+                      'numpy': 'http://docs.scipy.org/doc/numpy/reference',
+                      'scipy': 'http://docs.scipy.org/doc/scipy/reference'},
+}
 
 plot_gallery = True
 
