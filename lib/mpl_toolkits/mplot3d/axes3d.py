@@ -983,11 +983,12 @@ class Axes3D(Axes):
         point.
 
         """
+        self.pbaspect = np.array([1.0, 1.0, 1.0])
         relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
 
-        xmin, xmax = self.get_xlim3d()
-        ymin, ymax = self.get_ylim3d()
-        zmin, zmax = self.get_zlim3d()
+        xmin, xmax = self.get_xlim3d() / self.pbaspect[0]
+        ymin, ymax = self.get_ylim3d() / self.pbaspect[1]
+        zmin, zmax = self.get_zlim3d() / self.pbaspect[2]
 
         # transform to uniform world coordinates 0-1.0,0-1.0,0-1.0
         worldM = proj3d.world_transformation(xmin, xmax,
@@ -995,7 +996,7 @@ class Axes3D(Axes):
                                              zmin, zmax)
 
         # look into the middle of the new coordinates
-        R = np.array([0.5, 0.5, 0.5])
+        R = np.array([0.5, 0.5, 0.5]) * self.pbaspect
 
         xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
         yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
