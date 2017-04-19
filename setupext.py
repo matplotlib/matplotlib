@@ -1223,9 +1223,8 @@ class FreeType(SetupPackage):
             FREETYPE_BUILD_CMD = """\
 call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
 call "{vcvarsall}" {xXX}
-set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
 rd /S /Q %FREETYPE%\\objs
-%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
+vcbuild /platform:{WinXX} "%FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln" "{config}|{WinXX}"
 echo Build completed, moving result"
 :: move to the "normal" path for the unix builds...
 mkdir %FREETYPE%\\objs\\.libs
