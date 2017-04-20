@@ -35,6 +35,9 @@
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'.
+#
+# If you omit this parameter, it will always default to "Agg", which is a
+# non-interactive backend.
 backend      : $TEMPLATE_BACKEND
 
 # If you are using the Qt4Agg backend, you can choose here
