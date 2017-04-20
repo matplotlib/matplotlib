@@ -113,7 +113,7 @@ sphinx_gallery_conf = {
     'reference_url': {'matplotlib': None,
                       'numpy': 'http://docs.scipy.org/doc/numpy/reference',
                       'scipy': 'http://docs.scipy.org/doc/scipy/reference'},
-    'backreferences_dir': False,
+    'backreferences_dir': 'api/_as_gen'
 }
 
 plot_gallery = True
