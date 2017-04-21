@@ -160,7 +160,12 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. plot:: gallery/api/skewt.py
+.. figure:: ../../gallery/api/images/sphx_glr_skewt_001.png
+   :target: ../../gallery/api/skewt.html
+   :align: center
+   :scale: 50
+
+   Skewt
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
@@ -243,7 +248,12 @@ term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
-.. plot:: gallery/mplot3d/quiver3d.py
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_quiver3d_001.png
+   :target: ../../gallery/mplot3d/quiver3d.html
+   :align: center
+   :scale: 50
+
+   Quiver3d
 
 polar-plot r-tick locations
 ```````````````````````````
@@ -417,3 +427,5 @@ rectangle stay on the axes after you release the mouse.
 GAE integration
 ---------------
 Matplotlib will now run on google app engine.
+
+

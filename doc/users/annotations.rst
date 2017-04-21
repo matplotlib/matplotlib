@@ -80,8 +80,12 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 ``fontsize`` are passed from `~matplotlib.Axes.annotate` to the
 ``Text`` instance.
 
-.. plot:: mpl_examples/pyplots/annotation_polar.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
+   :target: ../gallery/pyplots/annotation_polar.html
+   :align: center
+   :scale: 50
+
+   Annotation Polar
 
 For more on all the wild and wonderful things you can do with
 annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
@@ -144,7 +148,12 @@ keyword arguments. Currently, following box styles are implemented.
   Square       ``square``       pad=0.3
   ==========   ==============   ==========================
 
-.. plot:: mpl_examples/pylab_examples/fancybox_demo2.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_fancybox_demo2_001.png
+   :target: ../gallery/pylab_examples/fancybox_demo2.html
+   :align: center
+   :scale: 50
+
+   Fancybox Demo2
 
 
 Note that the attribute arguments can be specified within the style
@@ -250,7 +259,12 @@ an arrow patch, according to the given ``arrowstyle``.
     ``wedge``    tail_width=0.3,shrink_factor=0.5
     ==========   =============================================
 
-.. plot:: mpl_examples/pylab_examples/fancyarrow_demo.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_fancyarrow_demo_001.png
+   :target: ../gallery/pylab_examples/fancyarrow_demo.html
+   :align: center
+   :scale: 50
+
+   Fancyarrow Demo
 
 Some arrowstyles only work with connection styles that generate a
 quadratic-spline segment. They are ``fancy``, ``simple``, and ``wedge``.
@@ -465,7 +479,12 @@ knowledge of how mpl's transform works. But, utilizing it will be
 straight forward.
 
 
-.. plot:: mpl_examples/pylab_examples/axes_zoom_effect.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_axes_zoom_effect_001.png
+   :target: ../gallery/pylab_examples/axes_zoom_effect.html
+   :align: center
+   :scale: 50
+
+   Axes Zoom Effect
 
 
 Define Custom BoxStyle
@@ -501,3 +520,7 @@ matplotlib.patches.BoxStyle._Base as demonstrated below.
 Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check
 how each style class is defined.
+
+
+
+

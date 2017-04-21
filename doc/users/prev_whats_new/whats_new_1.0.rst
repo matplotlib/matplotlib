@@ -53,7 +53,12 @@ Additionally, he has contributed a new module :mod:`~matplotlib.tri` and
 helper function :func:`~matplotlib.pyplot.triplot` for creating and
 plotting unstructured triangular grids.
 
-.. plot:: mpl_examples/pylab_examples/triplot_demo.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_triplot_demo_001.png
+   :target: ../../gallery/pylab_examples/triplot_demo.html
+   :align: center
+   :scale: 50
+
+   Triplot Demo
 
 multiple calls to show supported
 ---------------------------------
@@ -82,7 +87,12 @@ supporting mixing of 2D and 3D graphs in the same figure, and/or
 multiple 3D graphs in a single figure, using the "projection" keyword
 argument to add_axes or add_subplot.  Thanks Ben Root.
 
-.. plot:: mpl_examples/pyplots/whats_new_1_subplot3d.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_1_subplot3d_001.png
+   :target: ../../gallery/pyplots/whats_new_1_subplot3d.html
+   :align: center
+   :scale: 50
+
+   Whats New 1 Subplot3d
 
 tick_params
 ------------
@@ -132,3 +142,5 @@ Eric Firing went on a bug fixing and closing marathon, closing over
 <http://sourceforge.net/tracker/?group_id=80706&atid=560720>`__ with
 help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
 Michiel de Hoon.
+
+

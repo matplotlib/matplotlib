@@ -12,7 +12,12 @@ Simple Plot
 
 Here's a very basic :func:`~matplotlib.pyplot.plot` with text labels:
 
-.. plot:: mpl_examples/pylab_examples/simple_plot.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_simple_plot_001.png
+   :target: ../gallery/pylab_examples/simple_plot.html
+   :align: center
+   :scale: 50
+
+   Simple Plot
 
 .. _screenshots_subplot_demo:
 
@@ -22,7 +27,12 @@ Subplot demo
 Multiple axes (i.e. subplots) are created with the
 :func:`~matplotlib.pyplot.subplot` command:
 
-.. plot:: gallery/subplots_axes_and_figures/subplot.py
+.. figure:: ../gallery/subplots_axes_and_figures/images/sphx_glr_subplot_001.png
+   :target: ../gallery/subplots_axes_and_figures/subplot.html
+   :align: center
+   :scale: 50
+
+   Subplot
 
 .. _screenshots_histogram_demo:
 
@@ -32,7 +42,12 @@ Histograms
 The :func:`~matplotlib.pyplot.hist` command automatically generates
 histograms and returns the bin counts or probabilities:
 
-.. plot:: gallery/statistics/histogram_features.py
+.. figure:: ../gallery/statistics/images/sphx_glr_histogram_features_001.png
+   :target: ../gallery/statistics/histogram_features.html
+   :align: center
+   :scale: 50
+
+   Histogram Features
 
 
 .. _screenshots_path_demo:
@@ -43,7 +58,12 @@ Path demo
 You can add arbitrary paths in matplotlib using the
 :mod:`matplotlib.path` module:
 
-.. plot:: gallery/shapes_and_collections/path_patch.py
+.. figure:: ../gallery/shapes_and_collections/images/sphx_glr_path_patch_001.png
+   :target: ../gallery/shapes_and_collections/path_patch.html
+   :align: center
+   :scale: 50
+
+   Path Patch
 
 .. _screenshots_mplot3d_surface:
 
@@ -54,7 +74,12 @@ The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
 :ref:`mplot3d-examples-index`) has support for simple 3d graphs
 including surface, wireframe, scatter, and bar charts.
 
-.. plot:: gallery/mplot3d/surface3d.py
+.. figure:: ../gallery/mplot3d/images/sphx_glr_surface3d_001.png
+   :target: ../gallery/mplot3d/surface3d.html
+   :align: center
+   :scale: 50
+
+   Surface3d
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
 the `mplot3d` toolkit. This toolkit is included with all standard matplotlib
@@ -71,7 +96,12 @@ a vector field. In addition to simply plotting the streamlines, it allows you
 to map the colors and/or line widths of streamlines to a separate parameter,
 such as the speed or local intensity of the vector field.
 
-.. plot:: mpl_examples/images_contours_and_fields/plot_streamplot.py
+.. figure:: ../gallery/images_contours_and_fields/images/sphx_glr_plot_streamplot_001.png
+   :target: ../gallery/images_contours_and_fields/plot_streamplot.html
+   :align: center
+   :scale: 50
+
+   Plot Streamplot
 
 This feature complements the :meth:`~matplotlib.pyplot.quiver` function for
 plotting vector fields. Thanks to Tom Flannaghan and Tony Yu for adding the
@@ -88,7 +118,12 @@ Michael Droettboom built on work by Charlie Moad to provide an extremely
 accurate  8-spline approximation to elliptical arcs (see
 :class:`~matplotlib.patches.Arc`), which are insensitive to zoom level.
 
-.. plot:: mpl_examples/pylab_examples/ellipse_demo.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_ellipse_demo_001.png
+   :target: ../gallery/pylab_examples/ellipse_demo.html
+   :align: center
+   :scale: 50
+
+   Ellipse Demo
 
 .. _screenshots_barchart_demo:
 
@@ -98,7 +133,12 @@ Bar charts
 Bar charts are simple to create using the :func:`~matplotlib.pyplot.bar`
 command, which includes customizations such as error bars:
 
-.. plot:: mpl_examples/pylab_examples/barchart_demo.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_barchart_demo_001.png
+   :target: ../gallery/pylab_examples/barchart_demo.html
+   :align: center
+   :scale: 50
+
+   Barchart Demo
 
 It's also simple to create stacked bars
 (`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
@@ -117,7 +157,12 @@ exploding one or more wedges from the center of the pie, and a shadow effect.
 Take a close look at the attached code, which generates this figure in just
 a few lines of code.
 
-.. plot:: gallery/pie_and_polar_charts/pie_features.py
+.. figure:: ../gallery/pie_and_polar_charts/images/sphx_glr_pie_features_001.png
+   :target: ../gallery/pie_and_polar_charts/pie_features.html
+   :align: center
+   :scale: 50
+
+   Pie Features
 
 .. _screenshots_table_demo:
 
@@ -127,7 +172,12 @@ Table demo
 The :func:`~matplotlib.pyplot.table` command adds a text table
 to an axes.
 
-.. plot:: mpl_examples/pylab_examples/table_demo.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_table_demo_001.png
+   :target: ../gallery/pylab_examples/table_demo.html
+   :align: center
+   :scale: 50
+
+   Table Demo
 
 
 .. _screenshots_scatter_demo:
@@ -142,7 +192,12 @@ in Google's stock price, with marker sizes reflecting the
 trading volume and colors varying with time. Here, the
 alpha attribute is used to make semitransparent circle markers.
 
-.. plot:: mpl_examples/pylab_examples/scatter_demo2.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_scatter_demo2_001.png
+   :target: ../gallery/pylab_examples/scatter_demo2.html
+   :align: center
+   :scale: 50
+
+   Scatter Demo2
 
 
 .. _screenshots_slider_demo:
@@ -155,7 +210,12 @@ user interface you are using, allowing you to write cross GUI figures
 and widgets.  See :mod:`matplotlib.widgets` and the
 `widget examples <../examples/widgets/index.html>`_.
 
-.. plot:: mpl_examples/widgets/slider_demo.py
+.. figure:: ../gallery/widgets/images/sphx_glr_slider_demo_001.png
+   :target: ../gallery/widgets/slider_demo.html
+   :align: center
+   :scale: 50
+
+   Slider Demo
 
 
 .. _screenshots_fill_demo:
@@ -166,7 +226,12 @@ Fill demo
 The :func:`~matplotlib.pyplot.fill` command lets you
 plot filled curves and polygons:
 
-.. plot:: gallery/lines_bars_and_markers/fill.py
+.. figure:: ../gallery/lines_bars_and_markers/images/sphx_glr_fill_001.png
+   :target: ../gallery/lines_bars_and_markers/fill.html
+   :align: center
+   :scale: 50
+
+   Fill
 
 Thanks to Andrew Straw for adding this function.
 
@@ -178,7 +243,12 @@ Date demo
 You can plot date data with major and minor ticks and custom tick formatters
 for both.
 
-.. plot:: gallery/api/date.py
+.. figure:: ../gallery/api/images/sphx_glr_date_001.png
+   :target: ../gallery/api/date.html
+   :align: center
+   :scale: 50
+
+   Date
 
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
@@ -193,7 +263,12 @@ The :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.loglog` functions simplify the creation of
 logarithmic plots.
 
-.. plot:: mpl_examples/pylab_examples/log_demo.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_log_demo_001.png
+   :target: ../gallery/pylab_examples/log_demo.html
+   :align: center
+   :scale: 50
+
+   Log Demo
 
 Thanks to Andrew Straw, Darren Dale and Gregory Lielens for contributions
 log-scaling infrastructure.
@@ -205,7 +280,12 @@ Polar plots
 
 The :func:`~matplotlib.pyplot.polar` command generates polar plots.
 
-.. plot:: mpl_examples/pylab_examples/polar_demo.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_polar_demo_001.png
+   :target: ../gallery/pylab_examples/polar_demo.html
+   :align: center
+   :scale: 50
+
+   Polar Demo
 
 .. _screenshots_legend_demo:
 
@@ -217,7 +297,12 @@ The :func:`~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
-.. plot:: gallery/api/legend.py
+.. figure:: ../gallery/api/images/sphx_glr_legend_001.png
+   :target: ../gallery/api/legend.html
+   :align: center
+   :scale: 50
+
+   Legend
 
 Thanks to Charles Twardy for input on the legend command.
 
@@ -232,7 +317,12 @@ expressions using `FreeType <https://www.freetype.org/>`_
 and the DejaVu, BaKoMa computer modern, or `STIX <http://www.stixfonts.org>`_
 fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
-.. plot:: mpl_examples/pylab_examples/mathtext_examples.py
+.. figure:: ../gallery/pylab_examples/images/sphx_glr_mathtext_examples_001.png
+   :target: ../gallery/pylab_examples/mathtext_examples.html
+   :align: center
+   :scale: 50
+
+   Mathtext Examples
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
@@ -248,7 +338,12 @@ Although matplotlib's internal math rendering engine is quite
 powerful, sometimes you need TeX. Matplotlib supports external TeX
 rendering of strings with the *usetex* option.
 
-.. plot:: mpl_examples/pyplots/tex_demo.py
+.. figure:: ../gallery/pyplots/images/sphx_glr_tex_demo_001.png
+   :target: ../gallery/pyplots/tex_demo.html
+   :align: center
+   :scale: 50
+
+   Tex Demo
 
 .. _screenshots_eeg_demo:
 
@@ -278,4 +373,30 @@ XKCD-style sketch plots
 matplotlib supports plotting in the style of `xkcd
 <http://www.xkcd.com/>`.
 
-.. plot:: gallery/showcase/xkcd.py
+.. figure:: ../gallery/showcase/images/sphx_glr_xkcd_001.png
+   :target: ../gallery/showcase/xkcd.html
+   :align: center
+   :scale: 50
+
+   Xkcd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

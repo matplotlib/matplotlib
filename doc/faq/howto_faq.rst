@@ -279,8 +279,12 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. plot:: mpl_examples/pyplots/align_ylabels.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
+   :target: ../gallery/pyplots/align_ylabels.html
+   :align: center
+   :scale: 50
+
+   Align Ylabels
 
 .. _date-index-plots:
 
@@ -754,3 +758,4 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
+

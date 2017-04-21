@@ -109,7 +109,12 @@ You can even multiply cyclers, which is like using `itertools.product()`
 on two or more property cycles. Remember to use parentheses if writing
 a multi-line `prop_cycle` parameter.
 
-.. plot:: gallery/color/color_cycle.py
+.. figure:: ../../gallery/color/images/sphx_glr_color_cycle_001.png
+   :target: ../../gallery/color/color_cycle.html
+   :align: center
+   :scale: 50
+
+   Color Cycle
 
 
 New Colormaps
@@ -309,7 +314,12 @@ quads touching the point; any triangular corners comprising three unmasked
 points are contoured as usual.  If the ``corner_mask`` keyword argument is not
 specified, the default value is taken from rcParams.
 
-.. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_contour_corner_mask_001.png
+   :target: ../../gallery/pylab_examples/contour_corner_mask.html
+   :align: center
+   :scale: 50
+
+   Contour Corner Mask
 
 
 Mostly unified linestyles for `Line2D`, `Patch` and `Collection`
@@ -367,7 +377,12 @@ kwargs names is not ideal, but `Axes.fill_between` already has a
 
 This is particularly useful for plotting pre-binned histograms.
 
-.. plot:: gallery/api/filled_step.py
+.. figure:: ../../gallery/api/images/sphx_glr_filled_step_001.png
+   :target: ../../gallery/api/filled_step.html
+   :align: center
+   :scale: 50
+
+   Filled Step
 
 
 Square Plot
@@ -729,3 +744,6 @@ is important if your toolchain is prefixed. This is done in a simpilar
 way as setting `CC` or `CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
+
+
+

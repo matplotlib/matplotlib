@@ -30,7 +30,12 @@ plotting (scatter, surf, line, mesh) tools.  Not the fastest or feature
 complete 3D library out there, but ships with Matplotlib and thus may be a
 lighter weight solution for some use cases.
 
-.. plot:: gallery/mplot3d/contourf3d_2.py
+.. figure:: ../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png
+   :target: ../gallery/mplot3d/contourf3d_2.html
+   :align: center
+   :scale: 50
+
+   Contourf3d 2
 
 .. _toolkit_axes_grid1:
 
@@ -54,3 +59,4 @@ axisartist
 
 The :ref:`mpl_toolkits.axisartist <toolkit_axisartist-index>` toolkit contains
 a custom Axes class that is meant to support for curvilinear grids.
+

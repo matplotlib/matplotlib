@@ -133,7 +133,12 @@ drawing of the ticks, tick labels and axis labels.
 
 Try creating the figure below.
 
-.. plot:: mpl_examples/pyplots/fig_axes_labels_simple.py
+.. figure:: ../gallery/pyplots/images/sphx_glr_fig_axes_labels_simple_001.png
+   :target: ../gallery/pyplots/fig_axes_labels_simple.html
+   :align: center
+   :scale: 50
+
+   Fig Axes Labels Simple
 
 .. _customizing-artists:
 
@@ -323,7 +328,12 @@ obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
 
     In [195]: fig.canvas.draw()
 
-.. plot:: mpl_examples/pyplots/fig_x.py
+.. figure:: ../gallery/pyplots/images/sphx_glr_fig_x_001.png
+   :target: ../gallery/pyplots/fig_x.html
+   :align: center
+   :scale: 50
+
+   Fig X
 
 
 Here is a summary of the Artists the figure contains
@@ -598,8 +608,12 @@ grid                    Turn the grid on or off for the major or minor ticks
 Here is an example, not recommended for its beauty, which customizes
 the axes and tick properties
 
-.. plot:: mpl_examples/pyplots/fig_axes_customize_simple.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_fig_axes_customize_simple_001.png
+   :target: ../gallery/pyplots/fig_axes_customize_simple.html
+   :align: center
+   :scale: 50
+
+   Fig Axes Customize Simple
 
 
 .. _tick-container:
@@ -635,5 +649,14 @@ label2On         boolean which determines whether to draw the 2nd tick label
 Here is an example which sets the formatter for the right side ticks with
 dollar signs and colors them green on the right side of the yaxis
 
-.. plot:: mpl_examples/pyplots/dollar_ticks.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_dollar_ticks_001.png
+   :target: ../gallery/pyplots/dollar_ticks.html
+   :align: center
+   :scale: 50
+
+   Dollar Ticks
+
+
+
+
+
