@@ -19,7 +19,7 @@ consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
 arguments are ``(x,y)`` tuples.
 
-.. plot:: mpl_examples/pyplots/annotation_basic.py
+.. image:: gallery/pyplots/images/annotation_basic.py
    :include-source:
 
 

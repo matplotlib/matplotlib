@@ -787,3 +787,12 @@ div.responsive_subfig img {
     }
 
 }
+
+div.align-center {
+    margin: auto;
+    text-align: center;
+}
+
+p.caption {
+    font-weight: bold;
+}

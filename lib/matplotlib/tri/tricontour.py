@@ -264,10 +264,6 @@ class TriContourSet(ContourSet):
         There is one exception: if the lowest boundary coincides with
         the minimum value of the *z* array, then that minimum value
         will be included in the lowest interval.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/pylab_examples/tricontour_demo.py
         """
 
 

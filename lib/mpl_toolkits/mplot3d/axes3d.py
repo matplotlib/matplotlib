@@ -2471,11 +2471,6 @@ class Axes3D(Axes):
         collection : Poly3DCollection
             A collection of three dimensional polygons representing
             the bars.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/mplot3d/3d_bars.py
-
         """
 
         had_data = self.has_data()

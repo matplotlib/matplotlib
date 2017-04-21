@@ -60,6 +60,9 @@
 
 .. currentmodule:: matplotlib
 
+The pyplot API
+--------------
+
 .. autosummary::
    :toctree: _as_gen
    :template: autofunctions.rst

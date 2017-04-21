@@ -164,15 +164,6 @@ class UniformTriRefiner(TriRefiner):
                      The returned refined triangulation
         refi_z : 1d array of length: *refi_tri* node count.
                    The returned interpolated field (at *refi_tri* nodes)
-
-        Examples
-        --------
-        The main application of this method is to plot high-quality
-        iso-contours on a coarse triangular grid (e.g., triangulation built
-        from relatively sparse test data):
-
-        .. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
-
         """
         if triinterpolator is None:
             interp = matplotlib.tri.CubicTriInterpolator(

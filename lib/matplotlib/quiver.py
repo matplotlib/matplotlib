@@ -165,10 +165,6 @@ keyword arguments:
 
 %(PolyCollection)s
 
-Examples
---------
-.. plot:: mpl_examples/pylab_examples/quiver_simple_demo.py
-
 See Also
 --------
 quiverkey : Add a key to a quiver plot

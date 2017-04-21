@@ -1302,10 +1302,6 @@ class EventCollection(LineCollection):
         :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/eventcollection_demo.py
         """
 
         segment = (lineoffset + linelength / 2.,

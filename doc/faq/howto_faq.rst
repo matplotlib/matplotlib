@@ -230,10 +230,14 @@ the left of the canvas over; see :ref:`event-handling-tutorial`.
 
 Here is an example that gets a bounding box in relative figure coordinates
 (0..1) of each of the labels and uses it to move the left of the subplots
-over so that the tick labels fit in the figure
+over so that the tick labels fit in the figure:
 
-.. plot:: mpl_examples/pyplots/auto_subplots_adjust.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_auto_subplots_adjust_001.png
+    :target: ../gallery/pyplots/auto_subplots_adjust.html
+    :align: center
+    :scale: 50
+
+    Auto Subplots Adjust
 
 .. _howto-ticks:
 
