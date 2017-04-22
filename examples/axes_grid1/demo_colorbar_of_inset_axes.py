@@ -1,3 +1,9 @@
+"""
+===========================
+Demo Colorbar of Inset Axes
+===========================
+
+"""
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes

@@ -1,3 +1,9 @@
+"""
+====================
+Demo Fixed Size Axes
+====================
+
+"""
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1 import Divider, LocatableAxes, Size

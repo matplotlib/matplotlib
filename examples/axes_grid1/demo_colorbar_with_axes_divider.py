@@ -1,3 +1,9 @@
+"""
+===============================
+Demo Colorbar with Axes Divider
+===============================
+
+"""
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 

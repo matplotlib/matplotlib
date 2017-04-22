@@ -1,6 +1,4 @@
-.. _user_demo:
+.. _userdemo:
 
-User Demo
-=========
-
-A collection of demo examples for the user manual.
+Userdemo
+========
