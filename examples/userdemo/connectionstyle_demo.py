@@ -1,3 +1,9 @@
+"""
+====================
+Connectionstyle Demo
+====================
+
+"""
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches

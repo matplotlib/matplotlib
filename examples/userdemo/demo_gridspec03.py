@@ -1,3 +1,9 @@
+"""
+===============
+Demo Gridspec03
+===============
+
+"""
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 

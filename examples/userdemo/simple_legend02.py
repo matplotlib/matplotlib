@@ -1,3 +1,9 @@
+"""
+===============
+Simple Legend02
+===============
+
+"""
 import matplotlib.pyplot as plt
 
 line1, = plt.plot([1,2,3], label="Line 1", linestyle='--')

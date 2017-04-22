@@ -1,3 +1,9 @@
+"""
+===============
+Demo Gridspec01
+===============
+
+"""
 import matplotlib.pyplot as plt
 
 def make_ticklabels_invisible(fig):

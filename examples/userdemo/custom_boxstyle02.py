@@ -1,3 +1,9 @@
+"""
+=================
+Custom Boxstyle02
+=================
+
+"""
 from matplotlib.path import Path
 from matplotlib.patches import BoxStyle
 import matplotlib.pyplot as plt

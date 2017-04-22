@@ -1,3 +1,9 @@
+"""
+==================
+Demo Parasite Axes
+==================
+
+"""
 from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 import matplotlib.pyplot as plt
 

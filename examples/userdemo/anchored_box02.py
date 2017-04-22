@@ -1,3 +1,9 @@
+"""
+==============
+Anchored Box02
+==============
+
+"""
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea

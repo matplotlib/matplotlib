@@ -1,3 +1,9 @@
+"""
+==========================
+Axis Direction Demo Step02
+==========================
+
+"""
 import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist as axisartist
 

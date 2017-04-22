@@ -1,3 +1,9 @@
+"""
+==============
+Anchored Box01
+==============
+
+"""
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 

@@ -1,3 +1,9 @@
+"""
+==============
+Anchored Box04
+==============
+
+"""
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, DrawingArea, HPacker
