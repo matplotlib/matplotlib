@@ -1,3 +1,10 @@
+"""
+=================
+List of Colormaps
+=================
+
+"""
+
 # Have colormaps separated into categories:
 # http://matplotlib.org/examples/color/colormaps_reference.html
 

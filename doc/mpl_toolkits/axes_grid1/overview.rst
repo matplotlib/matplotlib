@@ -35,7 +35,12 @@ data (e.g., different y-scale) in a same Axes. `AnchoredArtists`_
 includes custom artists which are placed at some anchored position,
 like the legend.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_axes_grid.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
+   :target: ../../gallery/axes_grid1/demo_axes_grid.html
+   :align: center
+   :scale: 50
+
+   Demo Axes Grid
 
 
 axes_grid1
@@ -52,8 +57,12 @@ ratio.  For example, displaying images of a same size with some fixed
 padding between them cannot be easily done in matplotlib. ImageGrid is
 used in such case.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/simple_axesgrid.py
-   :include-source:
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid_001.png
+   :target: ../../gallery/axes_grid1/simple_axesgrid.html
+   :align: center
+   :scale: 50
+
+   Simple Axesgrid
 
 * The position of each axes is determined at the drawing time (see
   `AxesDivider`_), so that the size of the entire grid fits in the
@@ -154,7 +163,12 @@ attribute.
 
 The examples below show what you can do with ImageGrid.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_axes_grid.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
+   :target: ../../gallery/axes_grid1/demo_axes_grid.html
+   :align: center
+   :scale: 50
+
+   Demo Axes Grid
 
 
 AxesDivider
@@ -185,8 +199,12 @@ creates a new axes on the given side of ("top", "right", "bottom" and
 colorbar whose height (or width) in sync with the master axes
 -------------------------------------------------------------
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_colorbar.py
-   :include-source:
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
+   :target: ../../gallery/axes_grid1/simple_colorbar.html
+   :align: center
+   :scale: 50
+
+   Simple Colorbar
 
 
 
@@ -215,7 +233,12 @@ The "scatter_hist.py" example in mpl can be rewritten using
 
 See the full source code below.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/scatter_hist.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_001.png
+   :target: ../../gallery/axes_grid1/scatter_hist.html
+   :align: center
+   :scale: 50
+
+   Scatter Hist
 
 
 The scatter_hist using the AxesDivider has some advantage over the
@@ -250,8 +273,12 @@ parasite axes.  To create a host axes, you may use *host_suplot* or
 Example 1. twinx
 ~~~~~~~~~~~~~~~~
 
-.. plot:: mpl_toolkits/axes_grid1/figures/parasite_simple.py
-   :include-source:
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
+   :target: ../../gallery/axes_grid1/parasite_simple.html
+   :align: center
+   :scale: 50
+
+   Parasite Simple
 
 Example 2. twin
 ~~~~~~~~~~~~~~~
@@ -267,7 +294,12 @@ tick-formatter for bottom(or left)-axis. ::
                        r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 
-.. plot:: mpl_toolkits/axes_grid1/examples/simple_axisline4.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
+   :target: ../../gallery/axes_grid1/simple_axisline4.html
+   :align: center
+   :scale: 50
+
+   Simple Axisline4
 
 
 
@@ -276,7 +308,12 @@ x-limit in the host axes, the x-limit of the parasite axes will change
 accordingly.
 
 
-.. plot:: mpl_toolkits/axes_grid1/examples/parasite_simple2.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple2_001.png
+   :target: ../../gallery/axes_grid1/parasite_simple2.html
+   :align: center
+   :scale: 50
+
+   Parasite Simple2
 
 
 AnchoredArtists
@@ -289,8 +326,12 @@ limited support for an arbitrary transform. For example, the ellipse
 in the example below will have width and height in the data
 coordinate.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/simple_anchored_artists.py
-   :include-source:
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
+   :target: ../../gallery/axes_grid1/simple_anchored_artists.html
+   :align: center
+   :scale: 50
+
+   Simple Anchored Artists
 
 
 InsetLocator
@@ -323,7 +364,12 @@ some factor. For example, ::
 creates an inset axes whose data scale is half of the parent axes.
 Here is complete examples.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/inset_locator_demo.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo_001.png
+   :target: ../../gallery/axes_grid1/inset_locator_demo.html
+   :align: center
+   :scale: 50
+
+   Inset Locator Demo
 
 For example, :func:`zoomed_inset_axes` can be used when you want the
 inset represents the zoom-up of the small portion in the parent axes.
@@ -331,8 +377,12 @@ And :mod:`~mpl_toolkits/axes_grid/inset_locator` provides a helper
 function :func:`mark_inset` to mark the location of the area
 represented by the inset axes.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/inset_locator_demo2.py
-   :include-source:
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
+   :target: ../../gallery/axes_grid1/inset_locator_demo2.html
+   :align: center
+   :scale: 50
+
+   Inset Locator Demo2
 
 
 RGB Axes
@@ -353,4 +403,22 @@ yaxis of each axes are shared. ::
                   origin="lower", interpolation="nearest")
 
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_rgb.py
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_rgb_001.png
+   :target: ../../gallery/axes_grid1/simple_rgb.html
+   :align: center
+   :scale: 50
+
+   Simple Rgb
+
+
+
+
+
+
+
+
+
+
+
+
+

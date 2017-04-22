@@ -29,7 +29,12 @@ In summary, all these changes was to support
 * a curvilinear grid.
 * a floating axis
 
-.. plot:: mpl_toolkits/axisartist/examples/demo_floating_axis.py
+.. figure:: ../../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
+   :target: ../../../gallery/axisartist/demo_floating_axis.html
+   :align: center
+   :scale: 50
+
+   Demo Floating Axis
 
 
 *mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
@@ -195,7 +200,12 @@ using "set_axis_direction" method. ::
   ax1.axis["left"].major_ticklabels.set_axis_direction("top")
   ax1.axis["right"].label.set_axis_direction("left")
 
-.. plot:: mpl_toolkits/axisartist/figures/simple_axis_direction01.py
+.. figure:: ../../../gallery/userdemo/images/sphx_glr_simple_axis_direction01_001.png
+   :target: ../../../gallery/userdemo/simple_axis_direction01.html
+   :align: center
+   :scale: 50
+
+   Simple Axis Direction01
 
 The parameter for set_axis_direction is one of ["left", "right",
 "bottom", "top"].
@@ -206,7 +216,12 @@ You must understand some underlying concept of directions.
     of the axis line with increasing coordinate.  For example, the
     reference direction of the left x-axis is from bottom to top.
 
-   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step01.py
+    .. figure:: ../../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step01_001.png
+       :target: ../../../gallery/userdemo/axis_direction_demo_step01.html
+       :align: center
+       :scale: 50
+
+       Axis Direction Demo - Step 01
 
    The direction, text angle, and alignments of the ticks, ticklabels and
    axis-label is determined with respect to the reference direction
@@ -214,11 +229,21 @@ You must understand some underlying concept of directions.
  2. *ticklabel_direction* is either the right-hand side (+) of the
     reference direction or the left-hand side (-).
 
-   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step02.py
+    .. figure:: ../../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step02_001.png
+       :target: ../../../gallery/userdemo/axis_direction_demo_step02.html
+       :align: center
+       :scale: 50
+
+       Axis Direction Demo - Step 02
 
  3. same for the *label_direction*
 
-   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step03.py
+    .. figure:: ../../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step03_001.png
+       :target: ../../../gallery/userdemo/axis_direction_demo_step03.html
+       :align: center
+       :scale: 50
+
+       Axis Direction Demo - Step 03
 
  4. ticks are by default drawn toward the opposite direction of the ticklabels.
 
@@ -226,7 +251,12 @@ You must understand some underlying concept of directions.
     to the *ticklabel_direction* or *label_direction*,
     respectively. The rotation of ticklabels and label is anchored.
 
-   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step04.py
+    .. figure:: ../../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step04_001.png
+       :target: ../../../gallery/userdemo/axis_direction_demo_step04.html
+       :align: center
+       :scale: 50
+
+       Axis Direction Demo - Step 04
 
 
 On the other hand, there is a concept of "axis_direction". This is a
@@ -251,7 +281,12 @@ And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
 direction can be more clear with curved axis.
 
-.. plot:: mpl_toolkits/axisartist/figures/demo_axis_direction.py
+.. figure:: ../../../gallery/userdemo/images/sphx_glr_demo_axis_direction_001.png
+   :target: ../../../gallery/userdemo/demo_axis_direction.html
+   :align: center
+   :scale: 50
+
+   Demo Axis Direction
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
 level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
@@ -281,7 +316,12 @@ default direction). ::
 
    ax.axis[:].major_ticks.set_tick_out(True)
 
-.. plot:: mpl_toolkits/axisartist/figures/simple_axis_direction03.py
+.. figure:: ../../../gallery/userdemo/images/sphx_glr_simple_axis_direction03_001.png
+   :target: ../../../gallery/userdemo/simple_axis_direction03.html
+   :align: center
+   :scale: 50
+
+   Simple Axis Direction03
 
 
 So, in summary,
@@ -310,7 +350,12 @@ Adjusting ticklabels alignment
 
 Alignment of TickLabels are treated specially. See below
 
-.. plot:: mpl_toolkits/axisartist/figures/demo_ticklabel_alignment.py
+.. figure:: ../../../gallery/userdemo/images/sphx_glr_demo_ticklabel_alignment_001.png
+   :target: ../../../gallery/userdemo/demo_ticklabel_alignment.html
+   :align: center
+   :scale: 50
+
+   Demo Ticklabel Alignment
 
 Adjusting  pad
 --------------
@@ -324,7 +369,12 @@ Or ticklabels and axis-label ::
   ax.axis["left"].label.set_pad(10)
 
 
-.. plot:: mpl_toolkits/axisartist/figures/simple_axis_pad.py
+.. figure:: ../../../gallery/userdemo/images/sphx_glr_simple_axis_pad_001.png
+   :target: ../../../gallery/userdemo/simple_axis_pad.html
+   :align: center
+   :scale: 50
+
+   Simple Axis Pad
 
 
 GridHelper
@@ -418,7 +468,12 @@ coordinates, or you may use Parasite Axes for convenience.::
     ax1.parasites.append(ax2)
 
 
-.. plot:: mpl_toolkits/axisartist/examples/demo_curvelinear_grid.py
+.. figure:: ../../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
+   :target: ../../../gallery/axisartist/demo_curvelinear_grid.html
+   :align: center
+   :scale: 50
+
+   Demo Curvelinear Grid
 
 
 
@@ -455,3 +510,10 @@ The code need more refinement. Here is a incomplete list of issues and TODO's
 
 * The location of axislabel of FloatingAxis needs to be optionally
   given as a coordinate value. ex, a floating axis of x=0 with label at y=1
+
+
+
+
+
+
+

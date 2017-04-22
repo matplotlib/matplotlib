@@ -25,7 +25,12 @@ Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
 more.  See :ref:`gridspec-guide` for a tutorial overview.
 
-.. plot:: users/plotting/examples/demo_gridspec01.py
+.. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_000.png
+   :target: ../../gallery/userdemo/demo_gridspec01.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec01
 
 Easy pythonic subplots
 -----------------------
@@ -142,5 +147,6 @@ Eric Firing went on a bug fixing and closing marathon, closing over
 <http://sourceforge.net/tracker/?group_id=80706&atid=560720>`__ with
 help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
 Michiel de Hoon.
+
 
 

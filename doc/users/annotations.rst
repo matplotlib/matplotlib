@@ -110,7 +110,12 @@ Annotating with Text with Box
 
 Let's start with a simple example.
 
-.. plot:: users/plotting/examples/annotate_text_arrow.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_text_arrow_001.png
+   :target: ../gallery/userdemo/annotate_text_arrow.html
+   :align: center
+   :scale: 50
+
+   Annotate Text Arrow
 
 
 The :func:`~matplotlib.pyplot.text` function in the pyplot module (or
@@ -197,7 +202,12 @@ empty string as the first argument. ::
                                 connectionstyle="arc3"),
                 )
 
-.. plot:: users/plotting/examples/annotate_simple01.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple01_001.png
+   :target: ../gallery/userdemo/annotate_simple01.html
+   :align: center
+   :scale: 50
+
+   Annotate Simple01
 
 The arrow drawing takes a few steps.
 
@@ -214,7 +224,12 @@ The arrow drawing takes a few steps.
    ``arrowstyle`` key value.
 
 
-.. plot:: users/plotting/examples/annotate_explain.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_explain_001.png
+   :target: ../gallery/userdemo/annotate_explain.html
+   :align: center
+   :scale: 50
+
+   Annotate Explain
 
 
 The creation of the connecting path between two points is controlled by
@@ -239,7 +254,12 @@ The behavior of each connection style is (limitedly) demonstrated in the
 example below. (Warning : The behavior of the ``bar`` style is currently not
 well defined, it may be changed in the future).
 
-.. plot:: users/plotting/examples/connectionstyle_demo.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
+   :target: ../gallery/userdemo/connectionstyle_demo.html
+   :align: center
+   :scale: 50
+
+   Connectionstyle Demo
 
 
 The connecting path (after clipping and shrinking) is then mutated to
@@ -277,19 +297,34 @@ style.
 If the annotation string is given, the patchA is set to the bbox patch
 of the text by default.
 
-.. plot:: users/plotting/examples/annotate_simple02.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple02_001.png
+   :target: ../gallery/userdemo/annotate_simple02.html
+   :align: center
+   :scale: 50
+
+   Annotate Simple02
 
 As in the text command, a box around the text can be drawn using
 the ``bbox`` argument.
 
-.. plot:: users/plotting/examples/annotate_simple03.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
+   :target: ../gallery/userdemo/annotate_simple03.html
+   :align: center
+   :scale: 50
+
+   Annotate Simple03
 
 By default, the starting point is set to the center of the text
 extent.  This can be adjusted with ``relpos`` key value. The values
 are normalized to the extent of the text. For example, (0,0) means
 lower-left corner and (1,1) means top-right.
 
-.. plot:: users/plotting/examples/annotate_simple04.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
+   :target: ../gallery/userdemo/annotate_simple04.html
+   :align: center
+   :scale: 50
+
+   Annotate Simple04
 
 
 Placing Artist at the anchored location of the Axes
@@ -310,7 +345,12 @@ available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
     ax.add_artist(at)
 
 
-.. plot:: users/plotting/examples/anchored_box01.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box01_001.png
+   :target: ../gallery/userdemo/anchored_box01.html
+   :align: center
+   :scale: 50
+
+   Anchored Box01
 
 
 The *loc* keyword has same meaning as in the legend command.
@@ -339,7 +379,12 @@ transform set (it will be overridden) and the dimensions of those
 artists are interpreted as a pixel coordinate, i.e., the radius of the
 circles in above example are 10 pixels and 5 pixels, respectively.
 
-.. plot:: users/plotting/examples/anchored_box02.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box02_001.png
+   :target: ../gallery/userdemo/anchored_box02.html
+   :align: center
+   :scale: 50
+
+   Anchored Box02
 
 Sometimes, you want your artists to scale with the data coordinate (or
 coordinates other than canvas pixels). You can use
@@ -357,13 +402,23 @@ The ellipse in the above example will have width and height
 corresponding to 0.1 and 0.4 in data coordinateing and will be
 automatically scaled when the view limits of the axes change.
 
-.. plot:: users/plotting/examples/anchored_box03.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box03_001.png
+   :target: ../gallery/userdemo/anchored_box03.html
+   :align: center
+   :scale: 50
+
+   Anchored Box03
 
 As in the legend, the bbox_to_anchor argument can be set.  Using the
 HPacker and VPacker, you can have an arrangement(?) of artist as in the
 legend (as a matter of fact, this is how the legend is created).
 
-.. plot:: users/plotting/examples/anchored_box04.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
+   :target: ../gallery/userdemo/anchored_box04.html
+   :align: center
+   :scale: 50
+
+   Anchored Box04
 
 Note that unlike the legend, the ``bbox_transform`` is set
 to IdentityTransform by default.
@@ -403,7 +458,12 @@ more control, it supports a few other options.
                         bbox=dict(boxstyle="round", fc="w"),
                         arrowprops=dict(arrowstyle="->"))
 
-    .. plot:: users/plotting/examples/annotate_simple_coord01.py
+    .. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
+       :target: ../gallery/userdemo/annotate_simple_coord01.html
+       :align: center
+       :scale: 50
+
+       Annotation with Simple Coordinates
 
     Note that it is your responsibility that the extent of the
     coordinate artist (*an1* in above example) is determined before *an2*
@@ -433,16 +493,23 @@ more control, it supports a few other options.
     0.5 is in data coordinates, and 1 is in normalized axes coordinates.
     You may use an artist or transform as with a tuple. For example,
 
-    .. plot:: users/plotting/examples/annotate_simple_coord02.py
-       :include-source:
+    .. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
+       :target: ../gallery/userdemo/annotate_simple_coord02.html
+       :align: center
+       :scale: 50
 
+       Annotation with Simple Coordinates 2
 
  5. Sometimes, you want your annotation with some "offset points", not from the
     annotated point but from some other point.
     :class:`~matplotlib.text.OffsetFrom` is a helper class for such cases.
 
-    .. plot:: users/plotting/examples/annotate_simple_coord03.py
-      :include-source:
+    .. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
+       :target: ../gallery/userdemo/annotate_simple_coord03.html
+       :align: center
+       :scale: 50
+
+       Annotation with Simple Coordinates 3
 
     You may take a look at this example :ref:`pylab_examples-annotation_demo3`.
 
@@ -462,7 +529,12 @@ you want to connect points in different axes. ::
 The above code connects point xy in the data coordinates of ``ax1`` to
 point xy in the data coordinates of ``ax2``. Here is a simple example.
 
-.. plot:: users/plotting/examples/connect_simple01.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
+   :target: ../gallery/userdemo/connect_simple01.html
+   :align: center
+   :scale: 50
+
+   Connect Simple01
 
 
 While the ConnectorPatch instance can be added to any axes, you may want to add
@@ -511,18 +583,41 @@ callable object in the following forms.::
 
 Here is a complete example.
 
-.. plot:: users/plotting/examples/custom_boxstyle01.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
+   :target: ../gallery/userdemo/custom_boxstyle01.html
+   :align: center
+   :scale: 50
+
+   Custom Boxstyle01
 
 However, it is recommended that you derive from the
 matplotlib.patches.BoxStyle._Base as demonstrated below.
 
-.. plot:: users/plotting/examples/custom_boxstyle02.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_custom_boxstyle02_001.png
+   :target: ../gallery/userdemo/custom_boxstyle02.html
+   :align: center
+   :scale: 50
+
+   Custom Boxstyle02
 
 
 Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check
 how each style class is defined.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
