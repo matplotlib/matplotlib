@@ -19,9 +19,12 @@ consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
 arguments are ``(x,y)`` tuples.
 
-.. image:: gallery/pyplots/images/annotation_basic.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
+   :target: ../gallery/pyplots/annotation_basic.html
+   :align: center
+   :scale: 50
 
+   Annotation Basic
 
 In this example, both the ``xy`` (arrow tip) and ``xytext`` locations
 (text location) are in data coordinates.  There are a variety of other
