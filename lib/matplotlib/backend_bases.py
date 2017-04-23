@@ -2743,9 +2743,13 @@ class NavigationToolbar2(object):
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
       )
 
+    def __new__(cls, canvas):
+        instance = super(NavigationToolbar2, cls).__new__(cls, canvas)
+        instance.canvas = canvas
+        canvas.toolbar = instance
+        return instance
+
     def __init__(self, canvas):
-        self.canvas = canvas
-        canvas.toolbar = self
         # a dict from axes index to a list of view limits
         self._views = cbook.Stack()
         self._positions = cbook.Stack()  # stack of subplot positions
