@@ -1,4 +1,6 @@
 """
+.. _lines_bars_and_markers-marker_reference:
+
 ================================
 Filled and unfilled-marker types
 ================================

@@ -1,4 +1,6 @@
 """
+.. _api-sankey_rankine:
+
 ===================
 Rankine power cycle
 ===================

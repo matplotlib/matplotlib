@@ -1,4 +1,6 @@
 """
+.. _pylab_examples-psd_demo3:
+
 =========
 Psd Demo3
 =========

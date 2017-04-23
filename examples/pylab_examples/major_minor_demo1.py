@@ -1,4 +1,6 @@
 """
+.. _pylab_examples-major_minor_demo1:
+
 =================
 Major Minor Demo1
 =================

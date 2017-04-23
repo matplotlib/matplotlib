@@ -1,4 +1,6 @@
 """
+.. _statistics-boxplot:
+
 =========================================
 Demo of artist customization in box plots
 =========================================

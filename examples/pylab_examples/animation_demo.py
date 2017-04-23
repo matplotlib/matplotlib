@@ -1,4 +1,6 @@
 """
+.. _pylab_examples-animation_demo:
+
 ==============
 Animation Demo
 ==============

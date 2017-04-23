@@ -1,4 +1,6 @@
 """
+.. _pylab_examples-figlegend_demo:
+
 ==================
 Figure legend demo
 ==================

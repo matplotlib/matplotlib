@@ -141,9 +141,9 @@ command, which includes customizations such as error bars:
    Barchart Demo
 
 It's also simple to create stacked bars
-(`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
+(`bar_stacked.py <../gallery/pylab_examples/bar_stacked.html>`_),
 or horizontal bar charts
-(`barh.py <../examples/lines_bars_and_markers/barh.html>`_).
+(`barh.py <../gallery/lines_bars_and_markers/barh.html>`_).
 
 .. _screenshots_pie_demo:
 
@@ -208,7 +208,7 @@ Slider demo
 Matplotlib has basic GUI widgets that are independent of the graphical
 user interface you are using, allowing you to write cross GUI figures
 and widgets.  See :mod:`matplotlib.widgets` and the
-`widget examples <../examples/widgets/index.html>`_.
+`widget examples <../gallery/index.html>`_.
 
 .. figure:: ../gallery/widgets/images/sphx_glr_slider_demo_001.png
    :target: ../gallery/widgets/slider_demo.html

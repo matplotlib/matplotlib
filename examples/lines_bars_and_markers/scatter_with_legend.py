@@ -1,4 +1,6 @@
-'''
+"""
+.. _lines_bars_and_markers-scatter_with_legend:
+
 ===========================
 Scatter plots with a legend
 ===========================
@@ -6,7 +8,7 @@ Scatter plots with a legend
 Also demonstrates how transparency of the markers
 can be adjusted by giving ``alpha`` a value between
 0 and 1.
-'''
+"""
 
 import matplotlib.pyplot as plt
 from numpy.random import rand

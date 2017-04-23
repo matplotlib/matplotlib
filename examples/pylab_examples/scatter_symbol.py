@@ -1,4 +1,6 @@
 """
+.. _pylab_examples-scatter_symbol:
+
 ==============
 Scatter Symbol
 ==============
