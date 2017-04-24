@@ -638,7 +638,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
             
-            compressed = kwargs.pop("compressed", False):
+            compressed = kwargs.pop("compressed", False)
             if compressed:
                 libtiff_original_value = TiffImagePlugin.WRITE_LIBTIFF
                 TiffImagePlugin.WRITE_LIBTIFF = True    
