@@ -640,11 +640,11 @@ class FigureCanvasAgg(FigureCanvasBase):
             
             compressed = kwargs.pop("compressed", False):
             if compressed:
-                original_value = TiffImagePlugin.WRITE_LIBTIFF
+                libtiff_original_value = TiffImagePlugin.WRITE_LIBTIFF
                 TiffImagePlugin.WRITE_LIBTIFF = True    
                 return_value = image.save(filename_or_obj, format='tiff',
-                              dpi=dpi, compression = "tiff_lzw")
-                TiffImagePlugin.WRITE_LIBTIFF = original_value
+                              dpi=dpi, compression='tiff_lzw')
+                TiffImagePlugin.WRITE_LIBTIFF = libtiff_original_value
                 return return_value
             else:
                 return image.save(filename_or_obj, format='tiff',
