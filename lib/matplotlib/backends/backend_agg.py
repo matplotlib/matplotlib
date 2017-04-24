@@ -625,12 +625,29 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         # add TIFF support
         def print_tif(self, filename_or_obj, *args, **kwargs):
+            """
+            Other Parameters
+            ----------------
+            compressed : bool
+                If present, indicates that this image
+                should be stored using the LZW compression algorithm.
+            """
             buf, size = self.print_to_buffer()
             if kwargs.pop("dryrun", False):
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff',
+            
+            compressed = kwargs.pop("compressed", False):
+            if compressed:
+                original_value = TiffImagePlugin.WRITE_LIBTIFF
+                TiffImagePlugin.WRITE_LIBTIFF = True    
+                return_value = image.save(filename_or_obj, format='tiff',
+                              dpi=dpi, compression = "tiff_lzw")
+                TiffImagePlugin.WRITE_LIBTIFF = original_value
+                return return_value
+            else:
+                return image.save(filename_or_obj, format='tiff',
                               dpi=dpi)
         print_tiff = print_tif
 
