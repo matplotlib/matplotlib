@@ -1255,9 +1255,9 @@ def rc(group, **kwargs):
 
       rc('font', **font)  # pass in the font dict as kwargs
 
-    This enables you to easily switch between several configurations.
-    Use :func:`~matplotlib.pyplot.rcdefaults` to restore the default
-    rc params after changes.
+    This enables you to easily switch between several configurations.  Use
+    ``matplotlib.style.use('default')`` or :func:`~matplotlib.rcdefaults` to
+    restore the default rc params after changes.
     """
 
     aliases = {
@@ -1284,13 +1284,24 @@ def rc(group, **kwargs):
 
 
 def rcdefaults():
-    """
-    Restore the default rc params.  These are not the params loaded by
-    the rc file, but mpl's internal params.  See rc_file_defaults for
-    reloading the default params from the rc file
+    """Restore the rc params from Matplotlib's internal defaults.
+
+    See Also
+    --------
+    rc_file_defaults :
+        Restore the rc params from the rc file originally loaded by Matplotlib.
+    matplotlib.style.use :
+        Use a specific style file.  Call ``style.use('default')`` to restore
+        the default style.
     """
     rcParams.clear()
     rcParams.update(rcParamsDefault)
+
+
+def rc_file_defaults():
+    """Restore the rc params from the original rc file loaded by Matplotlib.
+    """
+    rcParams.update(rcParamsOrig)
 
 
 def rc_file(fname):
@@ -1347,16 +1358,9 @@ class rc_context(object):
         rcParams.update(self._rcparams)
 
 
-def rc_file_defaults():
-    """
-    Restore the default rc params from the original matplotlib rc that
-    was loaded
-    """
-    rcParams.update(rcParamsOrig)
-
-_use_error_msg = """ This call to matplotlib.use() has no effect
-because the backend has already been chosen;
-matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
+_use_error_msg = """
+This call to matplotlib.use() has no effect because the backend has already
+been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
 or matplotlib.backends is imported for the first time.
 """
 
