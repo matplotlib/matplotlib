@@ -4901,6 +4901,21 @@ def test_minorticks_on():
             ax.minorticks_on()
 
 
+def test_twinx_knows_limits():
+    fig, ax = plt.subplots()
+
+    ax.axvspan(1, 2)
+    xtwin = ax.twinx()
+    xtwin.plot([0, 0.5], [1, 2])
+    # control axis
+    fig2, ax2 = plt.subplots()
+
+    ax2.axvspan(1, 2)
+    ax2.plot([0, 0.5], [1, 2])
+
+    assert((xtwin.viewLim.intervalx == ax2.viewLim.intervalx).all())
+
+
 if __name__ == '__main__':
     import nose
     import sys
