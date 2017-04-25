@@ -2,25 +2,11 @@
 
 
 .. automodule:: {{ fullname }}
+   :no-members:
+   :no-inherited-members:
 
 {% block functions %}
 {% if functions %}
-
-Functions
----------
-
-.. autosummary:: 
-   :template: autosummary.rst
-   :toctree:
-
-{% for item in functions %}
-   {{ item }}
-{% endfor %}
-{% endif %}
-{% endblock %}
-
-{% block classes %}
-{% if classes %}
 
 Classes
 -------
@@ -37,6 +23,22 @@ Classes
 
 {% block exceptions %}
 {% if exceptions %}
+
+Functions
+---------
+
+.. autosummary:: 
+   :template: autosummary.rst
+   :toctree:
+
+{% for item in functions %}
+   {{ item }}
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block classes %}
+{% if classes %}
 
 Exceptions
 ----------
