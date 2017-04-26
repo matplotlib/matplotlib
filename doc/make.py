@@ -301,13 +301,14 @@ if args.allowsphinxwarnings:
 if args.n is not None:
     n_proc = int(args.n)
 
+_valid_commands = "Valid targets are: {}".format(", ".join(sorted(funcd)))
 if args.cmd:
     for command in args.cmd:
         func = funcd.get(command)
         if func is None:
-            raise SystemExit(('Do not know how to handle %s; valid commands'
-                              ' are %s' % (command, funcd.keys())))
+            raise SystemExit("Do not know how to handle {}.  {}"
+                             .format(command, _valid_commands))
         func()
 else:
-    all()
+    raise SystemExit(_valid_commands)
 os.chdir(current_dir)
