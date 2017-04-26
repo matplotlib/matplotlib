@@ -628,28 +628,25 @@ class FigureCanvasAgg(FigureCanvasBase):
             """
             Other Parameters
             ----------------
-            compressed : bool
-                If present, indicates that this image
-                should be stored using the LZW compression algorithm.
+            compression : 'tiff_deflate', 'tiff_adobe_deflate', 'tiff_lzw', 
+                and other values allowed by LIBTIFF_CORE.
+                If present, indicates the compression algorithm that
+                will be passed to the backend to save the image.
             """
             buf, size = self.print_to_buffer()
             if kwargs.pop("dryrun", False):
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
-            #add TIFF compression support
-            compressed = kwargs.pop("compressed", False)
-            if compressed:
-                libtiff_original_value = TiffImagePlugin.WRITE_LIBTIFF
-                TiffImagePlugin.WRITE_LIBTIFF = True    
-                return_value = image.save(filename_or_obj, format='tiff',
-                                          dpi=dpi, compression='tiff_lzw')
-                TiffImagePlugin.WRITE_LIBTIFF = libtiff_original_value
-                return return_value
+            #add TIFF compression support by passing the parameter to backend
+            compressed = kwargs.pop("compression", None)
+            if compression is not None:
+                return image.save(filename_or_obj, format='tiff',
+                                      dpi=dpi, compression=compression)
             else:
                 return image.save(filename_or_obj, format='tiff',
-                                  dpi=dpi)
+                                  dpi=dpi) 
+            
         print_tiff = print_tif
-
 
 FigureCanvas = FigureCanvasAgg
