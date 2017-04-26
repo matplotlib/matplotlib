@@ -1856,6 +1856,8 @@ class _AxesBase(martist.Artist):
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
+        if self.name != 'rectilinear':
+            p.get_path()._interpolation_steps = max(p.get_path()._interpolation_steps, 100)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
         return p
