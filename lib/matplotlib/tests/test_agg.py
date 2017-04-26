@@ -222,7 +222,7 @@ def test_too_large_image():
 
 
 def test_chunksize():
-    x = range(110)
+    x = range(200)
 
     # Test without chunksize
     fig, ax = plt.subplots()

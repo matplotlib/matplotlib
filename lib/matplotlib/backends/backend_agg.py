@@ -165,12 +165,12 @@ class RendererAgg(RendererBase):
                 p = Path(v, c)
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError as e:
+                except OverflowError:
                     raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError as e:
+            except OverflowError:
                 raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
 
 
