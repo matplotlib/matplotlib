@@ -1522,10 +1522,10 @@ class Axes3D(Axes):
         '''
         had_data = self.has_data()
 
-        # `zs` can be passed positionally or as keyword; checking with
-        # `_is_string_like` matches the behavior of 2D `plot` (via
+        # `zs` can be passed positionally or as keyword; checking whether
+        # args[0] is a string matches the behavior of 2D `plot` (via
         # `_process_plot_var_args`).
-        if args and not cbook.is_string_like(args[0]):
+        if args and not isinstance(args[0], six.string_types):
             zs = args[0]
             args = args[1:]
             if 'zs' in kwargs:
