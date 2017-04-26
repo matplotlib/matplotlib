@@ -2,11 +2,23 @@
 gridspec
 ********
 
-
 :mod:`matplotlib.gridspec`
 ==========================
 
+.. currentmodule:: matplotlib.gridspec
+
 .. automodule:: matplotlib.gridspec
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   GridSpec
+   SubplotSpec
+   GridSpecBase
+   GridSpecFromSubplotSpec
