@@ -639,13 +639,8 @@ class FigureCanvasAgg(FigureCanvasBase):
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
             #add TIFF compression support by passing the parameter to backend
-            compressed = kwargs.pop("compression", None)
-            if compression is not None:
-                return image.save(filename_or_obj, format='tiff',
-                                      dpi=dpi, compression=compression)
-            else:
-                return image.save(filename_or_obj, format='tiff',
-                                  dpi=dpi) 
+            compression = kwargs.pop("compression", None)
+            return image.save(filename_or_obj, format='tiff', dpi=dpi,                                 compression=compression)
             
         print_tiff = print_tif
 
