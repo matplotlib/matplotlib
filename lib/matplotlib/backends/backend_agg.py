@@ -45,7 +45,7 @@ from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
 
 try:
-    from PIL import Image, TiffImagePlugin
+    from PIL import Image
     _has_pil = True
 except ImportError:
     _has_pil = False
