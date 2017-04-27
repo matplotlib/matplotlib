@@ -3,6 +3,5 @@
 Tutorials
 =========
 
-These tutorials cover the basics of creating visualizations with
-Matplotlib, as well as some best-practices in using the package
-effectively.
+This page contains more in-depth guides for using Matplotlib. It is broken up into
+beginner, intermediate, and advanced sections.
