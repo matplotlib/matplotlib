@@ -337,3 +337,16 @@ def test_multi_color_hatch():
         with mstyle.context({'hatch.color': 'C{}'.format(i)}):
             r = Rectangle((i-.8/2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
+
+@image_comparison(baseline_images=['polar_proj'],extensions=['png'])
+def test_adding_rectangle_patch_with_polar_projection():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='polar')
+
+    # add quadrant as example
+    ax.add_patch(
+        patches.Rectangle(
+            (0, 1), width=np.pi * 0.5, height=0.5
+        )
+    )
+    ax.set_rmax(2)
