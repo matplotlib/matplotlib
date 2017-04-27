@@ -660,9 +660,6 @@ class Figure(Artist):
 
         An :class:`matplotlib.image.FigureImage` instance is returned.
 
-        .. plot:: mpl_examples/pylab_examples/figimage_demo.py
-
-
         Additional kwargs are Artist kwargs passed on to
         :class:`~matplotlib.image.FigureImage`
         """
@@ -1412,10 +1409,6 @@ class Figure(Artist):
         -----
         Not all kinds of artist are supported by the legend command.
         See :ref:`plotting-guide-legend` for details.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
 
         # If no arguments given, collect up all the artists on the figure

@@ -438,16 +438,7 @@ class CubicTriInterpolator(TriInterpolator):
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient + """
-
-        Examples
-        --------
-        An example of effective application is shown below (plot of the
-        direction of the vector field derivated from a known potential field):
-
-        .. plot:: mpl_examples/pylab_examples/trigradient_demo.py
-
-        """
+    gradient.__doc__ = TriInterpolator.docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         tris_pts = self._tris_pts[tri_index]

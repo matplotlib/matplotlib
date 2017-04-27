@@ -89,7 +89,7 @@ Here are all the date tickers:
       :class:`dateutil.rrule` (`dateutil
       <https://dateutil.readthedocs.io/en/stable/>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
-      <../examples/pylab_examples/date_demo_rrule.html>`_.
+      <../gallery/pylab_examples/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
       :class:`MultipleDateLocator` to set the view limits and the tick

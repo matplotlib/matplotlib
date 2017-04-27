@@ -1,4 +1,6 @@
 """
+.. _pylab_examples-axhspan_demo:
+
 ============
 Axhspan Demo
 ============

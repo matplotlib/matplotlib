@@ -230,10 +230,14 @@ the left of the canvas over; see :ref:`event-handling-tutorial`.
 
 Here is an example that gets a bounding box in relative figure coordinates
 (0..1) of each of the labels and uses it to move the left of the subplots
-over so that the tick labels fit in the figure
+over so that the tick labels fit in the figure:
 
-.. plot:: mpl_examples/pyplots/auto_subplots_adjust.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_auto_subplots_adjust_001.png
+    :target: ../gallery/pyplots/auto_subplots_adjust.html
+    :align: center
+    :scale: 50
+
+    Auto Subplots Adjust
 
 .. _howto-ticks:
 
@@ -275,8 +279,12 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. plot:: mpl_examples/pyplots/align_ylabels.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
+   :target: ../gallery/pyplots/align_ylabels.html
+   :align: center
+   :scale: 50
+
+   Align Ylabels
 
 .. _date-index-plots:
 
@@ -750,3 +758,4 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
+

@@ -184,4 +184,11 @@ All that remains is to create the path, attach it to a
 
 Here is the result
 
-.. plot:: mpl_examples/pyplots/compound_path_demo.py
+.. figure:: ../gallery/pyplots/images/sphx_glr_compound_path_demo_001.png
+   :target: ../gallery/pyplots/compound_path_demo.html
+   :align: center
+   :scale: 50
+
+   Compound Path Demo
+
+

@@ -91,7 +91,12 @@ before creating your plot. For really fine control, it is also possible
 to modify each artist's sketch parameters individually with
 :meth:`matplotlib.artist.Artist.set_sketch_params`.
 
-.. plot:: gallery/showcase/xkcd.py
+.. figure:: ../../gallery/showcase/images/sphx_glr_xkcd_001.png
+   :target: ../../gallery/showcase/xkcd.html
+   :align: center
+   :scale: 50
+
+   Xkcd
 
 Updated Axes3D.contour methods
 ------------------------------
@@ -100,14 +105,24 @@ Damon McDougall updated the
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontourf` methods to allow 3D
 contour plots on abitrary unstructured user-specified triangulations.
 
-.. plot:: gallery/mplot3d/tricontour3d.py
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_tricontour3d_001.png
+   :target: ../../gallery/mplot3d/tricontour3d.html
+   :align: center
+   :scale: 50
+
+   Tricontour3d
 
 New eventplot plot type
 ```````````````````````
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
 create multiple rows or columns of identical line segments
 
-.. plot:: mpl_examples/pylab_examples/eventplot_demo.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_eventplot_demo_001.png
+   :target: ../../gallery/pylab_examples/eventplot_demo.html
+   :align: center
+   :scale: 50
+
+   Eventplot Demo
 
 As part of this feature, there is a new
 :class:`~matplotlib.collections.EventCollection` class that allows for
@@ -126,7 +141,12 @@ perform mesh refinement and smooth contouring was also added
 implementing some basic tools for triangular mesh improvement was
 added (:class:`~matplotlib.tri.TriAnalyzer`).
 
-.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_tricontour_smooth_user_001.png
+   :target: ../../gallery/pylab_examples/tricontour_smooth_user.html
+   :align: center
+   :scale: 50
+
+   Tricontour Smooth User
 
 Baselines for stackplot
 ```````````````````````
@@ -134,7 +154,12 @@ Till Stensitzki added non-zero baselines to
 :func:`~matplotlib.pyplot.stackplot`.  They may be symmetric or
 weighted.
 
-.. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_stackplot_demo2_001.png
+   :target: ../../gallery/pylab_examples/stackplot_demo2.html
+   :align: center
+   :scale: 50
+
+   Stackplot Demo2
 
 Rectangular colorbar extensions
 ```````````````````````````````
@@ -174,7 +199,12 @@ Path effects on lines
 `````````````````````
 Thanks to Jae-Joon Lee, path effects now also work on plot lines.
 
-.. plot:: mpl_examples/pylab_examples/patheffect_demo.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_patheffect_demo_001.png
+   :target: ../../gallery/pylab_examples/patheffect_demo.html
+   :align: center
+   :scale: 50
+
+   Patheffect Demo
 
 Easier creation of colormap and normalizer for levels with colors
 `````````````````````````````````````````````````````````````````
@@ -370,3 +400,9 @@ matplotlib will now display a `RuntimeWarning` when too many figures
 have been opened at once.  By default, this is displayed for 20 or
 more figures, but the exact number may be controlled using the
 ``figure.max_open_warning`` rcParam.
+
+
+
+
+
+

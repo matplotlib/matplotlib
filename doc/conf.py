@@ -31,7 +31,6 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.doctest', 'sphinx.ext.autosummary',
               'sphinx.ext.inheritance_diagram',
               'sphinx_gallery.gen_gallery',
-              'sphinxext.gen_rst',
               'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
               'numpydoc']
@@ -113,7 +112,7 @@ sphinx_gallery_conf = {
     'reference_url': {'matplotlib': None,
                       'numpy': 'http://docs.scipy.org/doc/numpy/reference',
                       'scipy': 'http://docs.scipy.org/doc/scipy/reference'},
-    'backreferences_dir': False,
+    'backreferences_dir': 'api/_as_gen'
 }
 
 plot_gallery = True

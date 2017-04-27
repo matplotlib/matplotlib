@@ -44,7 +44,6 @@
    path_api.rst
    patheffects_api.rst
    projections_api.rst
-   pyplot_api.rst
    rcsetup_api.rst
    sankey_api.rst
    scale_api.rst
@@ -58,3 +57,11 @@
    type1font.rst
    units_api.rst
    widgets_api.rst
+
+.. currentmodule:: matplotlib
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autofunctions.rst
+
+   pyplot

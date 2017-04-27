@@ -13,8 +13,7 @@ NUM = 250
 ells = [Ellipse(xy=rnd.rand(2)*10, width=rnd.rand(), height=rnd.rand(), angle=rnd.rand()*360)
         for i in range(NUM)]
 
-fig = plt.figure(0)
-ax = fig.add_subplot(111, aspect='equal')
+fig, ax = plt.subplots(subplot_kw={'aspect': 'equal'})
 for e in ells:
     ax.add_artist(e)
     e.set_clip_box(ax.bbox)

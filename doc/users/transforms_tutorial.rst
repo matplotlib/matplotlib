@@ -112,7 +112,12 @@ dpi setting.  Likewise, in the figure below, the display labeled
 points are probably not the same as in the ipython session because the
 documentation figure size defaults are different.
 
-.. plot:: mpl_examples/pyplots/annotate_transform.py
+.. figure:: ../gallery/pyplots/images/sphx_glr_annotate_transform_001.png
+   :target: ../gallery/pyplots/annotate_transform.html
+   :align: center
+   :scale: 50
+
+   Annotate Transform
 
 
 .. note::
@@ -453,3 +458,4 @@ see how to make your own, since matplotlib supports extensible axes
 and projections.  Michael Droettboom has provided a nice tutorial
 example of creating a hammer projection axes; see
 :ref:`api-custom_projection_example`.
+

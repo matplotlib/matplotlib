@@ -340,5 +340,11 @@ Example
 
 Here is an example illustrating many of these features in context.
 
-.. plot:: mpl_examples/pyplots/pyplot_mathtext.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_mathtext_001.png
+   :target: ../gallery/pyplots/pyplot_mathtext.html
+   :align: center
+   :scale: 50
+
+   Pyplot Mathtext
+
+

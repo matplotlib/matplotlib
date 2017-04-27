@@ -125,7 +125,12 @@ that the :math:`L^*` values vary widely throughout the colormap, making it a
 poor choice for representing data for viewers to see perceptually. See an
 extension on this idea at [mycarta-jet]_.
 
-.. plot:: users/plotting/colormaps/lightness.py
+.. figure:: ../gallery/color/images/sphx_glr_lightness_001.png
+   :target: ../gallery/color/lightness.html
+   :align: center
+   :scale: 50
+
+   Lightness
 
 Grayscale conversion
 ====================
@@ -161,7 +166,12 @@ lighter and back to darker gray throughout the colormap. This would make it
 impossible for a viewer to interpret the information in a plot once it is
 printed in grayscale.
 
-.. plot:: users/plotting/colormaps/grayscale.py
+.. figure:: ../gallery/color/images/sphx_glr_grayscale_001.png
+   :target: ../gallery/color/grayscale.html
+   :align: center
+   :scale: 50
+
+   Grayscale
 
 
 Color vision deficiencies
@@ -192,3 +202,5 @@ References
 .. [colorblindness] http://www.color-blindness.com/
 .. [vischeck] http://www.vischeck.com/vischeck/
 .. [IBM] http://www.research.ibm.com/people/l/lloydt/color/color.HTM
+
+

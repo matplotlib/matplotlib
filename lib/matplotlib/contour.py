@@ -133,8 +133,6 @@ class ContourLabeler(object):
             matplotlib.Text) is used to create labels. ClabelText
             recalculates rotation angles of texts during the drawing time,
             therefore this can be used if aspect of the axes changes.
-
-        .. plot:: mpl_examples/pylab_examples/contour_demo.py
         """
 
         """
@@ -794,10 +792,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Keyword arguments are as described in
         :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/misc/contour_manual.py
         """
         self.ax = ax
         self.levels = kwargs.get('levels', None)
@@ -1822,12 +1816,4 @@ class QuadContourSet(ContourSet):
         There is one exception: if the lowest boundary coincides with
         the minimum value of the *z* array, then that minimum value
         will be included in the lowest interval.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/pylab_examples/contour_demo.py
-
-        .. plot:: mpl_examples/pylab_examples/contourf_demo.py
-
-        .. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
         """

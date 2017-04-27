@@ -171,13 +171,6 @@ class TriAnalyzer(object):
         triangulation would contain no more unmasked border triangles
         with a circle ratio below *min_circle_ratio*, thus improving the
         mesh quality for subsequent plots or interpolation.
-
-        Examples
-        --------
-        Please refer to the following illustrating example:
-
-        .. plot:: mpl_examples/pylab_examples/tricontour_smooth_delaunay.py
-
         """
         # Recursively computes the mask_current_borders, true if a triangle is
         # at the border of the mesh OR touching the border through a chain of

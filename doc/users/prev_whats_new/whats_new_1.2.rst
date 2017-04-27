@@ -62,7 +62,12 @@ Damon McDougall added a new plotting method for the
 :mod:`~mpl_toolkits.mplot3d` toolkit called
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 
-.. plot:: gallery/mplot3d/trisurf3d.py
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_trisurf3d_001.png
+   :target: ../../gallery/mplot3d/trisurf3d.html
+   :align: center
+   :scale: 50
+
+   Trisurf3d
 
 Control the lengths of colorbar extensions
 ------------------------------------------
@@ -123,7 +128,12 @@ confidence intervals into the :meth:`~matplotlib.axes.boxplot` method. For
 every column of data passed to boxplot, the user can specify an accompanying
 median and confidence interval.
 
-.. plot:: mpl_examples/pylab_examples/boxplot_demo3.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_boxplot_demo3_001.png
+   :target: ../../gallery/pylab_examples/boxplot_demo3.html
+   :align: center
+   :scale: 50
+
+   Boxplot Demo3
 
 
 New RC parameter functionality
@@ -153,7 +163,12 @@ In addition to simply plotting the streamlines of the vector field,
 line widths of the streamlines to a separate parameter, such as the speed or
 local intensity of the vector field.
 
-.. plot:: mpl_examples/images_contours_and_fields/plot_streamplot.py
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_plot_streamplot_001.png
+   :target: ../../gallery/images_contours_and_fields/plot_streamplot.html
+   :align: center
+   :scale: 50
+
+   Plot Streamplot
 
 
 New hist functionality
@@ -185,7 +200,12 @@ Ian Thomas extended :meth:`~matplotlib.pyplot.tripcolor` to allow one color
 value to be specified for each triangular face rather than for each point in
 a triangulation.
 
-.. plot:: mpl_examples/pylab_examples/tripcolor_demo.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_tripcolor_demo_001.png
+   :target: ../../gallery/pylab_examples/tripcolor_demo.html
+   :align: center
+   :scale: 50
+
+   Tripcolor Demo
 
 Hatching patterns in filled contour plots, with legends
 -------------------------------------------------------
@@ -194,7 +214,12 @@ Phil Elson added support for hatching to
 :func:`~matplotlib.pyplot.contourf`, together with the ability
 to use a legend to identify contoured ranges.
 
-.. plot:: mpl_examples/pylab_examples/contourf_hatching.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_contourf_hatching_001.png
+   :target: ../../gallery/pylab_examples/contourf_hatching.html
+   :align: center
+   :scale: 50
+
+   Contourf Hatching
 
 Known issues in the matplotlib 1.2 release
 ------------------------------------------
@@ -202,3 +227,8 @@ Known issues in the matplotlib 1.2 release
 - When using the Qt4Agg backend with IPython 0.11 or later, the save
   dialog will not display.  This should be fixed in a future version
   of IPython.
+
+
+
+
+

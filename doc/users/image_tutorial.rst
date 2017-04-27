@@ -226,7 +226,7 @@ Note that you can also change colormaps on existing plot objects using the
 
 There are many other colormap schemes available.  See the `list and
 images of the colormaps
-<../examples/color/colormaps_reference.html>`_.
+<../gallery/color/colormaps_reference.html>`_.
 
 .. _`Color Bars`:
 

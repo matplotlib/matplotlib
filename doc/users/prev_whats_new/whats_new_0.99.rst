@@ -29,7 +29,12 @@ toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
 installs).  See :ref:`mplot3d-examples-index` and
 :ref:`toolkit_mplot3d-tutorial`
 
-.. plot:: mpl_examples/pyplots/whats_new_99_mplot3d.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_99_mplot3d_001.png
+   :target: ../../gallery/pyplots/whats_new_99_mplot3d.html
+   :align: center
+   :scale: 50
+
+   Whats New 99 Mplot3d
 
 .. _whats-new-axes-grid:
 
@@ -43,7 +48,12 @@ new mpl installs.   See :ref:`axes_grid1-examples-index`,
 :ref:`axisartist-examples-index`, :ref:`axes_grid1_users-guide-index` and
 :ref:`axisartist_users-guide-index`
 
-.. plot:: mpl_examples/pyplots/whats_new_99_axes_grid.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_99_axes_grid_001.png
+   :target: ../../gallery/pyplots/whats_new_99_axes_grid.html
+   :align: center
+   :scale: 50
+
+   Whats New 99 Axes Grid
 
 .. _whats-new-spine:
 
@@ -58,4 +68,13 @@ well as "detach" the spine to offset it away from the data.  See
 :ref:`pylab_examples-spine_placement_demo` and
 :class:`matplotlib.spines.Spine`.
 
-.. plot:: mpl_examples/pyplots/whats_new_99_spines.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_99_spines_001.png
+   :target: ../../gallery/pyplots/whats_new_99_spines.html
+   :align: center
+   :scale: 50
+
+   Whats New 99 Spines
+
+
+
+

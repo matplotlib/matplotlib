@@ -21,7 +21,6 @@ Overview
    resources/index.rst
    thirdpartypackages/index.rst
    devel/index.rst
-   examples/index.rst
    glossary/index.rst
 
 .. htmlonly::

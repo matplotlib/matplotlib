@@ -1,4 +1,6 @@
 """
+.. _api-custom_projection_example:
+
 =================
 Custom projection
 =================

@@ -44,8 +44,12 @@ there are two bumps, one much smaller than the other. Using
 :func:`colors.LogNorm`, the shape and location of each bump can clearly
 be seen:
 
-.. plot:: users/plotting/examples/colormap_normalizations_lognorm.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_colormap_normalizations_lognorm_001.png
+   :target: ../gallery/userdemo/colormap_normalizations_lognorm.html
+   :align: center
+   :scale: 50
+
+   Colormap Normalizations Lognorm
 
 Symmetric logarithmic
 ---------------------
@@ -65,8 +69,12 @@ set by *linscale*.  When *linscale* == 1.0 (the default), the space used
 for the positive and negative halves of the linear range will be equal
 to one decade in the logarithmic range.
 
-.. plot:: users/plotting/examples/colormap_normalizations_symlognorm.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_colormap_normalizations_symlognorm_001.png
+   :target: ../gallery/userdemo/colormap_normalizations_symlognorm.html
+   :align: center
+   :scale: 50
+
+   Colormap Normalizations Symlognorm
 
 Power-law
 ---------
@@ -86,8 +94,12 @@ normalization):
    been used.
 
 
-.. plot:: users/plotting/examples/colormap_normalizations_power.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_colormap_normalizations_power_001.png
+   :target: ../gallery/userdemo/colormap_normalizations_power.html
+   :align: center
+   :scale: 50
+
+   Colormap Normalizations Power
 
 Discrete bounds
 ---------------
@@ -111,8 +123,12 @@ instance:
 
 Note unlike the other norms, this norm returns values from 0 to *ncolors*-1.
 
-.. plot:: users/plotting/examples/colormap_normalizations_bounds.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_colormap_normalizations_bounds_001.png
+   :target: ../gallery/userdemo/colormap_normalizations_bounds.html
+   :align: center
+   :scale: 50
+
+   Colormap Normalizations Bounds
 
 
 Custom normalization: Two linear ranges
@@ -132,5 +148,15 @@ cases such as masked data)
    practical example is having an ocean/land colormap where the land and
    ocean data span different ranges.
 
-.. plot:: users/plotting/examples/colormap_normalizations_custom.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_colormap_normalizations_custom_001.png
+   :target: ../gallery/userdemo/colormap_normalizations_custom.html
+   :align: center
+   :scale: 50
+
+   Colormap Normalizations Custom
+
+
+
+
+
+

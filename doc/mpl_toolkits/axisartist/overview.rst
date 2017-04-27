@@ -15,7 +15,12 @@ to draw ticks, ticklines and etc., Axes in axisartist uses special
 artist (AxisArtist) which can handle tick, ticklines and etc. for
 curved coordinate systems.
 
-.. plot:: mpl_toolkits/axisartist/examples/demo_floating_axis.py
+.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
+   :target: ../../gallery/axisartist/demo_floating_axis.html
+   :align: center
+   :scale: 50
+
+   Demo Floating Axis
 
 Since it uses special artists, some mpl commands that work on
 Axes.xaxis and Axes.yaxis may not work.
@@ -57,7 +62,12 @@ For example, you can hide the right, and top axis by ::
   ax.axis["top"].set_visible(False)
 
 
-.. plot:: mpl_toolkits/axisartist/figures/simple_axisline3.py
+.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axisline3_001.png
+   :target: ../../gallery/userdemo/simple_axisline3.html
+   :align: center
+   :scale: 50
+
+   Simple Axisline3
 
 
 It is also possible to add an extra axis. For example, you may have an
@@ -65,8 +75,12 @@ horizontal axis at y=0 (in data coordinate). ::
 
     ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
 
-.. plot:: mpl_toolkits/axisartist/figures/simple_axisartist1.py
-   :include-source:
+.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axisartist1_001.png
+   :target: ../../gallery/userdemo/simple_axisartist1.html
+   :align: center
+   :scale: 50
+
+   Simple Axisartist1
 
 
 Or a fixed axis with some offset ::
@@ -93,7 +107,12 @@ to create a host subplot with axisartist.Axes, ::
 Here is an example that uses  parasiteAxes.
 
 
-.. plot:: mpl_toolkits/axisartist/examples/demo_parasite_axes2.py
+.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_parasite_axes2_001.png
+   :target: ../../gallery/axisartist/demo_parasite_axes2.html
+   :align: center
+   :scale: 50
+
+   Demo Parasite Axes2
 
 
 
@@ -103,7 +122,12 @@ Curvilinear Grid
 The motivation behind the AxisArtist module is to support curvilinear grid
 and ticks.
 
-.. plot:: mpl_toolkits/axisartist/examples/demo_curvelinear_grid.py
+.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
+   :target: ../../gallery/axisartist/demo_curvelinear_grid.html
+   :align: center
+   :scale: 50
+
+   Demo Curvelinear Grid
 
 See :ref:`axisartist-manual` for more details.
 
@@ -114,4 +138,16 @@ Floating Axes
 This also support a Floating Axes whose outer axis are defined as
 floating axis.
 
-.. plot:: mpl_toolkits/axisartist/examples/demo_floating_axes.py
+.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axes_001.png
+   :target: ../../gallery/axisartist/demo_floating_axes.html
+   :align: center
+   :scale: 50
+
+   Demo Floating Axes
+
+
+
+
+
+
+

@@ -1,4 +1,6 @@
 """
+.. _widgets-polygon_selector_demo:
+
 =====================
 Polygon Selector Demo
 =====================

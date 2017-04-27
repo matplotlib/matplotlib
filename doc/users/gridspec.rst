@@ -49,7 +49,12 @@ For example, the following commands  ::
 
 creates
 
-.. plot:: users/plotting/examples/demo_gridspec01.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec01_000.png
+   :target: ../gallery/userdemo/demo_gridspec01.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec01
 
 
 GridSpec and SubplotSpec
@@ -84,7 +89,12 @@ The above example becomes ::
   ax4 = plt.subplot(gs[-1, 0])
   ax5 = plt.subplot(gs[-1, -2])
 
-.. plot:: users/plotting/examples/demo_gridspec02.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec02_001.png
+   :target: ../gallery/userdemo/demo_gridspec02.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec02
 
 Adjust GridSpec layout
 ======================
@@ -114,7 +124,12 @@ The code below ::
 
 creates
 
-.. plot:: users/plotting/examples/demo_gridspec03.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec03_001.png
+   :target: ../gallery/userdemo/demo_gridspec03.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec03
 
 GridSpec using SubplotSpec
 ==========================
@@ -129,7 +144,12 @@ the given SubplotSpec. ::
   gs01 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[1])
 
 
-.. plot:: users/plotting/examples/demo_gridspec04.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec04_001.png
+   :target: ../gallery/userdemo/demo_gridspec04.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec04
 
 
 A Complex Nested GridSpec using SubplotSpec
@@ -139,7 +159,12 @@ Here's a more sophisticated example of nested GridSpec where we put
 a box around each cell of the outer 4x4 grid, by hiding appropriate
 spines in each of the inner 3x3 grids.
 
-.. plot:: users/plotting/examples/demo_gridspec06.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec06_001.png
+   :target: ../gallery/userdemo/demo_gridspec06.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec06
 
 
 GridSpec with Varying Cell Sizes
@@ -160,5 +185,16 @@ values are meaningless, only their relative ratios matter. ::
   ax4 = plt.subplot(gs[3])
 
 
-.. plot:: users/plotting/examples/demo_gridspec05.py
+.. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec05_001.png
+   :target: ../gallery/userdemo/demo_gridspec05.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec05
+
+
+
+
+
+
 

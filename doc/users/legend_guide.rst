@@ -116,8 +116,12 @@ the corner's location, and the coordinate system of that location::
 
 More examples of custom legend placement:
 
-.. plot:: users/plotting/examples/simple_legend01.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_simple_legend01_001.png
+   :target: ../gallery/userdemo/simple_legend01.html
+   :align: center
+   :scale: 50
+
+   Simple Legend01
 
 
 Multiple legends on the same Axes
@@ -131,8 +135,12 @@ to call :func:`legend` repeatedly to update the legend to the latest
 handles on the Axes, so to persist old legend instances, we must add them
 manually to the Axes:
 
-.. plot:: users/plotting/examples/simple_legend02.py
-   :include-source:
+.. figure:: ../gallery/userdemo/images/sphx_glr_simple_legend02_001.png
+   :target: ../gallery/userdemo/simple_legend02.html
+   :align: center
+   :scale: 50
+
+   Simple Legend02
 
 Legend Handlers
 ===============
@@ -294,3 +302,5 @@ being used in various ways:
 * :ref:`pylab_examples-contourf_hatching`
 * :ref:`pylab_examples-figlegend_demo`
 * :ref:`pylab_examples-scatter_symbol`
+
+

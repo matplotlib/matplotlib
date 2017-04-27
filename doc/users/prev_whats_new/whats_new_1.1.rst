@@ -20,7 +20,12 @@ Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:ref:`api-sankey_basics`, :ref:`api-sankey_links`,
 :ref:`api-sankey_rankine`).
 
-.. plot:: gallery/api/sankey_rankine.py
+.. figure:: ../../gallery/api/images/sphx_glr_sankey_rankine_001.png
+   :target: ../../gallery/api/sankey_rankine.html
+   :align: center
+   :scale: 50
+
+   Sankey Rankine
 
 
 Animation
@@ -114,7 +119,12 @@ been improved in the presence of NANs.
 See the :ref:`plotting-guide-legend` for more detailed explanation and
 examples.
 
-.. plot:: mpl_examples/pylab_examples/legend_demo4.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_legend_demo4_001.png
+   :target: ../../gallery/pylab_examples/legend_demo4.html
+   :align: center
+   :scale: 50
+
+   Legend Demo4
 
 mplot3d
 -------
@@ -135,12 +145,22 @@ as 2D plotting, Ben Root has made several improvements to the
 
 * Ticker offset display added:
 
-.. plot:: gallery/mplot3d/offset.py
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_offset_001.png
+   :target: ../../gallery/mplot3d/offset.html
+   :align: center
+   :scale: 50
+
+   Offset
 
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 
-.. plot:: gallery/mplot3d/contourf3d_2.py
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png
+   :target: ../../gallery/mplot3d/contourf3d_2.html
+   :align: center
+   :scale: 50
+
+   Contourf3d 2
 
 Numerix support removed
 -----------------------
@@ -208,3 +228,7 @@ Other improvements
   other colormaps :ref:`here <color-colormaps_reference>`.
 
 * Many bug fixes and documentation improvements.
+
+
+
+

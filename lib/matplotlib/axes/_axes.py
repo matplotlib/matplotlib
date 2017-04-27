@@ -831,10 +831,6 @@ or tuple of floats
         --------
         axvspan : Add a vertical span (rectangle) across the axes.
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
-
         """
         trans = self.get_yaxis_transform(which='grid')
 
@@ -951,10 +947,6 @@ or tuple of floats
         --------
         vlines : vertical lines
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
-
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -1032,10 +1024,6 @@ or tuple of floats
         See also
         --------
         hlines : horizontal lines
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         """
 
@@ -1135,10 +1123,6 @@ or tuple of floats
         kwargs are :class:`~matplotlib.collections.LineCollection` properties:
 
         %(LineCollection)s
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/eventplot_demo.py
         """
         self._process_unit_info(xdata=positions,
                                 ydata=[lineoffsets, linelengths],
@@ -1517,10 +1501,6 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/log_demo.py
-
         """
         if not self._hold:
             self.cla()
@@ -1702,15 +1682,6 @@ or tuple of floats
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
         `mode` = 2.
-
-        Examples
-        --------
-
-        `~matplotlib.pyplot.xcorr` is top graph, and
-        `~matplotlib.pyplot.acorr` is bottom graph.
-
-        .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
-
         """
         if "hold" in kwargs:
             warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
@@ -1957,13 +1928,6 @@ or tuple of floats
         See also
         --------
         barh: Plot a horizontal bar plot.
-
-        Examples
-        --------
-
-        **Example:** A stacked bar chart.
-
-        .. plot:: mpl_examples/pylab_examples/bar_stacked.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
         if not self._hold:
@@ -2315,10 +2279,6 @@ or tuple of floats
         or a sequence of arguments for the various bars, i.e.,::
 
           facecolors = ('black', 'red', 'green')
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/broken_barh.py
         """
         # process the unit information
         if len(xranges):
@@ -2366,10 +2326,6 @@ or tuple of floats
             `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
             for details.
 
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/stem_plot.py
         """
         remember_hold = self._hold
         if not self._hold:
@@ -2563,10 +2519,6 @@ or tuple of floats
         -----
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pie_and_polar_charts/pie_features.py
 
 
         """
@@ -2795,10 +2747,6 @@ or tuple of floats
             valid kwargs for the marker properties are
 
             %(Line2D)s
-
-        Examples
-        --------
-        .. plot:: gallery/statistics/errorbar.py
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
@@ -3267,10 +3215,6 @@ or tuple of floats
             the whiskers (fliers).
 
           - ``means``: points or lines representing the means.
-
-        Examples
-        --------
-        .. plot:: gallery/statistics/boxplot.py
 
         """
 
@@ -3914,10 +3858,6 @@ or tuple of floats
           flattened. The exception is `c`, which will be flattened only if its
           size matches the size of `x` and `y`.
 
-        Examples
-        --------
-        .. plot:: gallery/shapes_and_collections/scatter.py
-
         """
 
         if not self._hold:
@@ -4206,10 +4146,6 @@ or tuple of floats
             If *marginals* is *True*, horizontal
             bar and vertical bar (both PolyCollections) will be attached
             to the return collection as attributes *hbar* and *vbar*.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/hexbin_demo.py
 
         Notes
         --------
@@ -4573,12 +4509,6 @@ or tuple of floats
 
             ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="->"))
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/arrow_demo.py
-
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -4648,10 +4578,6 @@ or tuple of floats
     def barbs(self, *args, **kw):
         """
         %(barbs_doc)s
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/barb_demo.py
         """
         if not self._hold:
             self.cla()
@@ -4696,10 +4622,6 @@ or tuple of floats
 
         If you would like to fill below a curve, e.g., shade a region
         between 0 and *y* along *x*, use :meth:`fill_between`
-
-        Examples
-        --------
-        .. plot:: gallery/lines_bars_and_markers/fill.py
 
 
         """
@@ -4764,11 +4686,6 @@ or tuple of floats
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/fill_between_demo.py
 
         See Also
         --------
@@ -4931,11 +4848,6 @@ or tuple of floats
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/fill_betweenx_demo.py
 
         See Also
         --------
@@ -5158,11 +5070,6 @@ or tuple of floats
         Unless *extent* is used, pixel centers will be located at integer
         coordinates. In other words: the origin will coincide with the center
         of pixel (0, 0).
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/image_demo.py
 
         """
 
@@ -6100,10 +6007,6 @@ or tuple of floats
         inherited that error.  It is now corrected within MPL when using
         earlier numpy versions.
 
-        Examples
-        --------
-        .. plot:: gallery/statistics/histogram_features.py
-
         """
         # Avoid shadowing the builtin.
         bin_range = range
@@ -6480,10 +6383,6 @@ or tuple of floats
         the *norm* keyword argument. Likewise, power-law normalization
         (similar in effect to gamma correction) can be accomplished with
         :class:`colors.PowerNorm`.
-
-        Examples
-        --------
-        .. plot:: gallery/statistics/hist.py
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -6576,10 +6475,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/psd_demo.py
 
         See Also
         --------
@@ -6708,10 +6603,6 @@ or tuple of floats
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/csd_demo.py
-
         See Also
         --------
         :func:`psd`
@@ -6800,10 +6691,6 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
 
         See Also
         --------
@@ -6898,10 +6785,6 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
-
         See Also
         --------
         :func:`magnitude_spectrum`
@@ -6980,10 +6863,6 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
-
         See Also
         --------
         :func:`magnitude_spectrum`
@@ -7061,10 +6940,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        Examples
-        --------
-        .. plot:: gallery/lines_bars_and_markers/cohere.py
         """
         if not self._hold:
             self.cla()
@@ -7172,10 +7047,6 @@ or tuple of floats
 
         im : instance of class :class:`~matplotlib.image.AxesImage`
             The image created by imshow containing the spectrogram
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/specgram_demo.py
 
         See Also
         --------
@@ -7383,10 +7254,6 @@ or tuple of floats
         See also
         --------
         imshow : plot an image
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/matshow.py
 
         """
         Z = np.asanyarray(Z)

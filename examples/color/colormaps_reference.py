@@ -1,4 +1,6 @@
 """
+.. _color-colormaps_reference:
+
 ==================
 Colormap reference
 ==================

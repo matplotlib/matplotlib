@@ -1228,8 +1228,6 @@ class Cursor(AxesWidget):
         Add a cursor to *ax*.  If ``useblit=True``, use the backend-
         dependent blitting features for faster updates (GTKAgg
         only for now).  *lineprops* is a dictionary of line properties.
-
-        .. plot :: mpl_examples/widgets/cursor.py
         """
         # TODO: Is the GTKAgg limitation still true?
         AxesWidget.__init__(self, ax)

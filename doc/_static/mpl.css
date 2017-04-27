@@ -786,4 +786,18 @@ div.responsive_subfig img {
         width: 50%;  /* we want 2 subfigs in a row */
     }
 
+/* Sphinx gallery display */
+}
+
+div.align-center {
+    margin: auto;
+    text-align: center;
+}
+
+p.caption {
+    font-weight: bold;
+}
+
+div#gallery.section {
+    overflow: hidden;
 }

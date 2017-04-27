@@ -58,5 +58,11 @@ All of these functions create and return a
 variety of font and other properties.  The example below shows all of
 these commands in action.
 
-.. plot:: mpl_examples/pyplots/text_commands.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_text_commands_001.png
+   :target: ../gallery/pyplots/text_commands.html
+   :align: center
+   :scale: 50
+
+   Text Commands
+
+

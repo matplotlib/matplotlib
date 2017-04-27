@@ -58,8 +58,12 @@ code indicates that the coordinates are given relative to the axes
 bounding box, with 0,0 being the lower left of the axes and 1,1 the
 upper right.
 
-.. plot:: mpl_examples/pyplots/text_layout.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_text_layout_001.png
+   :target: ../gallery/pyplots/text_layout.html
+   :align: center
+   :scale: 50
+
+   Text Layout
 
 
 ==============
@@ -155,3 +159,4 @@ useful tool to discover the font name; for example ::
    Noto Sans CJK SC,Noto Sans CJK SC Light
 
 lists all of the fonts that support Chinese.
+

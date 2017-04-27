@@ -17,8 +17,12 @@ and in most places in the documentation refers to the *axes*
 `part of a figure <http://matplotlib.org/faq/usage_faq.html#parts-of-a-figure>`__
 and not the strict mathematical term for more than one axis).
 
-.. plot:: mpl_examples/pyplots/pyplot_simple.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_simple_001.png
+   :target: ../gallery/pyplots/pyplot_simple.html
+   :align: center
+   :scale: 50
+
+   Pyplot Simple
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
 from 1-4.  If you provide a single list or array to the
@@ -41,8 +45,12 @@ MATLAB, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
-.. plot:: mpl_examples/pyplots/pyplot_formatstr.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_formatstr_001.png
+   :target: ../gallery/pyplots/pyplot_formatstr.html
+   :align: center
+   :scale: 50
+
+   Pyplot Formatstr
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
 list of line styles and format strings.  The
@@ -57,8 +65,12 @@ converted to numpy arrays internally.  The example below illustrates a
 plotting several lines with different format styles in one command
 using arrays.
 
-.. plot:: mpl_examples/pyplots/pyplot_three.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_three_001.png
+   :target: ../gallery/pyplots/pyplot_three.html
+   :align: center
+   :scale: 50
+
+   Pyplot Three
 
 .. _controlling-line-properties:
 
@@ -164,8 +176,12 @@ current axes (a :class:`matplotlib.axes.Axes` instance), and
 to worry about this, because it is all taken care of behind the
 scenes.  Below is a script to create two subplots.
 
-.. plot:: mpl_examples/pyplots/pyplot_two_subplots.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_two_subplots_001.png
+   :target: ../gallery/pyplots/pyplot_two_subplots.html
+   :align: center
+   :scale: 50
+
+   Pyplot Two Subplots
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
 ``figure(1)`` will be created by default, just as a ``subplot(111)``
@@ -231,8 +247,12 @@ an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 are used to add text in the indicated locations (see :ref:`text-intro`
 for a more detailed example)
 
-.. plot:: mpl_examples/pyplots/pyplot_text.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_text_001.png
+   :target: ../gallery/pyplots/pyplot_text.html
+   :align: center
+   :scale: 50
+
+   Pyplot Text
 
 
 All of the :func:`~matplotlib.pyplot.text` commands return an
@@ -277,8 +297,12 @@ two points to consider: the location being annotated represented by
 the argument ``xy`` and the location of the text ``xytext``.  Both of
 these arguments are ``(x,y)`` tuples.
 
-.. plot:: mpl_examples/pyplots/pyplot_annotate.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_annotate_001.png
+   :target: ../gallery/pyplots/pyplot_annotate.html
+   :align: center
+   :scale: 50
+
+   Pyplot Annotate
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``
 locations (text location) are in data coordinates.  There are a
@@ -300,8 +324,19 @@ of magnitude. Changing the scale of an axis is easy:
 An example of four plots with the same data and different scales for the y axis
 is shown below.
 
-.. plot:: mpl_examples/pyplots/pyplot_scales.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_pyplot_scales_001.png
+   :target: ../gallery/pyplots/pyplot_scales.html
+   :align: center
+   :scale: 50
+
+   Pyplot Scales
 
 It is also possible to add your own scale, see :ref:`adding-new-scales` for
 details.
+
+
+
+
+
+
+
