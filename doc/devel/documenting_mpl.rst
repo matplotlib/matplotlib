@@ -7,9 +7,14 @@ Developer's tips for documenting matplotlib
 Getting started
 ===============
 
+Installing dependencies
+-----------------------
+
 The documentation for matplotlib is generated from ReStructured Text using the
-Sphinx_ documentation generation tool.
-The requirements are as follows (https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt)
+Sphinx_ documentation generation tool. There are several extra requirements that
+are needed to build the documentation. They are listed in the file
+`doc-requirements.txt <https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt>`_
+as well as listed below:
 
 1. Sphinx-1.3 or later(Version 1.5.0 is not supported)
 2. numpydoc 0.4 or later
@@ -19,6 +24,30 @@ The requirements are as follows (https://github.com/matplotlib/matplotlib/blob/m
 6. pillow
 7. graphviz
 
+.. note::
+
+  * You'll need a minimal working latex distribution for many examples to run.
+  * Graphviz is not pip-installable so you need to install this on your own.
+
+General structure
+-----------------
+
+All documentation is built from the :file:`doc/` directory. This folder contains both
+``.rst`` files that contains pages in the documentation, folders that contain more
+``.rst`` files, and configuration for Sphinx.
+
+.. note::
+
+  An exception to this are the folders :file:`gallery` and :file:`tutorials`, which
+  exist in the root folder. These contain python files that are built by ``sphinx-gallery``.
+  When the docs are built, folders of the same name will be generated inside of :file:`docs/`.
+  These can be safely deleted.
+
+The configuration file for Sphinx is in :file:`doc/conf.py`. It controls which folders
+sphinx parses, how the docs are built, and how the extensions are used.
+
+Building the docs
+-----------------
 
 The documentation sources are found in the :file:`doc/` directory in
 the trunk.  To build the users guide in html format, cd into
@@ -30,11 +59,18 @@ or::
 
   ./make.py html
 
-you can also pass a ``latex`` flag to make.py to build a pdf, or pass no
-arguments to build everything.
+There are many other flags you can pass to ``make.py``, and you can see the
+full list inside that file. Here are two useful ones:
 
-The output produced by Sphinx can be configured by editing the :file:`conf.py`
-file located in the :file:`doc/`.
+* ``clean`` will delete the built sphinx files. Call if you're getting strange
+  errors about missing paths or broken links, particularly if you move files around.
+* ``latex`` builds a pdf of the documentation
+
+In addition, these are useful flags:
+
+* ``--allowsphinxwarnings`` will allow the docs to continue building even if sphinx
+  throws a warning. This is useful for debugging and spot-checking many warnings
+  at once.
 
 
 Organization of matplotlib's documentation
