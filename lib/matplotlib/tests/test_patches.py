@@ -345,7 +345,7 @@ def test_adding_rectangle_patch_with_polar_projection():
 
     # add quadrant as example
     ax.add_patch(
-        patches.Rectangle(
+        mpatches.Rectangle(
             (0, 1), width=np.pi * 0.5, height=0.5
         )
     )
