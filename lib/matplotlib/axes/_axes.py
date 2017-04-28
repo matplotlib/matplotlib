@@ -3762,9 +3762,9 @@ or tuple of floats
                 verts=None, edgecolors=None,
                 **kwargs):
         """
-        Make a scatter plot of `x` vs `y`
+        Make a scatter plot of `x` vs `y`.
 
-        Marker size is scaled by `s` and marker color is mapped to `c`
+        Marker size is scaled by `s` and marker color is mapped to `c`.
 
         Parameters
         ----------
