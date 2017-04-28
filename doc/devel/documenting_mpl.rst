@@ -40,7 +40,7 @@ All documentation is built from the :file:`doc/` directory. This directory conta
 .. note::
 
   An exception to this are the directories :file:`gallery` and :file:`tutorials`, which
-  exist in the root directory. These contain Python files that are built by `Sphinx Gallery <sphinx_gallery>`_.
+  exist in the root directory. These contain Python files that are built by `Sphinx Gallery`_.
   When the docs are built, directories of the same name will be generated inside of :file:`docs/`.
   The generated directories :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
 
@@ -542,4 +542,4 @@ Some helpful functions::
 .. _documentation: http://www.sphinx-doc.org/contents.html
 .. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
 .. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
-.. _sphinx_gallery: https://sphinx-gallery.readthedocs.io/en/latest/
+.. _`Sphinx Gallery`: https://sphinx-gallery.readthedocs.io/en/latest/
