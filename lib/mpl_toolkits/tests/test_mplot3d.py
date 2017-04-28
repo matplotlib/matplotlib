@@ -129,8 +129,7 @@ def test_mixedsubplots():
     R = np.sqrt(X ** 2 + Y ** 2)
     Z = np.sin(R)
 
-    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40,
-                           linewidth=0, antialiased=False)
+    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, linewidth=0)
 
     ax.set_zlim3d(-1, 1)
 
