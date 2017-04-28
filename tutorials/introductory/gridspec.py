@@ -5,6 +5,8 @@
 Customizing Location of Subplot Using GridSpec
 ==============================================
 
+How to create grid-shaped combinations of axes.
+
     :class:`~matplotlib.gridspec.GridSpec`
         specifies the geometry of the grid that a subplot will be
         placed. The number of rows and number of columns of the grid
@@ -143,15 +145,47 @@ gs01 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[1])
 # Here's a more sophisticated example of nested GridSpec where we put
 # a box around each cell of the outer 4x4 grid, by hiding appropriate
 # spines in each of the inner 3x3 grids.
-#
-# .. figure:: ../gallery/userdemo/images/sphx_glr_demo_gridspec06_001.png
-#    :target: ../gallery/userdemo/demo_gridspec06.html
-#    :align: center
-#    :scale: 50
-#
-#    Demo Gridspec06
-#
-#
+
+import numpy as np
+from itertools import product
+
+
+def squiggle_xy(a, b, c, d, i=np.arange(0.0, 2*np.pi, 0.05)):
+    return np.sin(i*a)*np.cos(i*b), np.sin(i*c)*np.cos(i*d)
+
+fig = plt.figure(figsize=(8, 8))
+
+# gridspec inside gridspec
+outer_grid = gridspec.GridSpec(4, 4, wspace=0.0, hspace=0.0)
+
+for i in range(16):
+    inner_grid = gridspec.GridSpecFromSubplotSpec(
+      3, 3, subplot_spec=outer_grid[i], wspace=0.0, hspace=0.0)
+    a, b = int(i/4)+1, i % 4+1
+    for j, (c, d) in enumerate(product(range(1, 4), repeat=2)):
+        ax = plt.Subplot(fig, inner_grid[j])
+        ax.plot(*squiggle_xy(a, b, c, d))
+        ax.set_xticks([])
+        ax.set_yticks([])
+        fig.add_subplot(ax)
+
+all_axes = fig.get_axes()
+
+# show only the outside spines
+for ax in all_axes:
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    if ax.is_first_row():
+        ax.spines['top'].set_visible(True)
+    if ax.is_last_row():
+        ax.spines['bottom'].set_visible(True)
+    if ax.is_first_col():
+        ax.spines['left'].set_visible(True)
+    if ax.is_last_col():
+        ax.spines['right'].set_visible(True)
+
+plt.show()
+
 # GridSpec with Varying Cell Sizes
 # ================================
 #

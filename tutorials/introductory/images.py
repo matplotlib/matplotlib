@@ -49,59 +49,41 @@ interface, a great place to start is our `FAQ on usage
 with the imperative-style approach:
 """
 
-# .. sourcecode:: ipython
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
 
-#    In [2]: import matplotlib.pyplot as plt
-#    In [3]: import matplotlib.image as mpimg
-#    In [4]: import numpy as np
-
+###############################################################################
 # .. _importing_data:
-
+#
 # Importing image data into Numpy arrays
 # ===============================================
-
+#
 # Loading image data is supported by the `Pillow
 # <http://python-imaging.github.io/>`_ library.  Natively, matplotlib only
 # supports PNG images.  The commands shown below fall back on Pillow if the
 # native read fails.
-
+#
 # The image used in this example is a PNG file, but keep that Pillow
 # requirement in mind for your own data.
-
+#
 # Here's the image we're going to play with:
-
-# .. image:: ../_static/stinkbug.png
-
+#
+# .. image:: ../../_static/stinkbug.png
+#
 # It's a 24-bit RGB PNG image (8 bits for each of R, G, B).  Depending
 # on where you get your data, the other kinds of image that you'll most
 # likely encounter are RGBA images, which allow for transparency, or
 # single-channel grayscale (luminosity) images.  You can right click on
 # it and choose "Save image as" to download it to your computer for the
 # rest of this tutorial.
-
+#
 # And here we go...
 
-# .. sourcecode:: ipython
+img = mpimg.imread('../../doc/_static/stinkbug.png')
+print(img)
 
-#     In [5]: img=mpimg.imread('stinkbug.png')
-#     Out[5]:
-#     array([[[ 0.40784314,  0.40784314,  0.40784314],
-#             [ 0.40784314,  0.40784314,  0.40784314],
-#             [ 0.40784314,  0.40784314,  0.40784314],
-#             ...,
-#             [ 0.42745098,  0.42745098,  0.42745098],
-#             [ 0.42745098,  0.42745098,  0.42745098],
-#             [ 0.42745098,  0.42745098,  0.42745098]],
-
-#            ...,
-#            [[ 0.44313726,  0.44313726,  0.44313726],
-#             [ 0.4509804 ,  0.4509804 ,  0.4509804 ],
-#             [ 0.4509804 ,  0.4509804 ,  0.4509804 ],
-#             ...,
-#             [ 0.44705883,  0.44705883,  0.44705883],
-#             [ 0.44705883,  0.44705883,  0.44705883],
-#             [ 0.44313726,  0.44313726,  0.44313726]]], dtype=float32)
-
+###############################################################################
 # Note the dtype there - float32.  Matplotlib has rescaled the 8 bit
 # data from each channel to floating point data between 0.0 and 1.0.  As
 # a side note, the only datatype that Pillow can work with is uint8.
@@ -112,7 +94,7 @@ with the imperative-style approach:
 # Because that's about all the human eye can see.  More here (from a
 # photography standpoint): `Luminous Landscape bit depth tutorial
 # <https://luminous-landscape.com/bit-depth/>`_.
-
+#
 # Each inner list represents a pixel.  Here, with an RGB image, there
 # are 3 values.  Since it's a black and white image, R, G, and B are all
 # similar.  An RGBA (where A is alpha, or transparency), has 4 values
@@ -121,169 +103,105 @@ with the imperative-style approach:
 # matplotlib supports float32 and uint8 data types.  For grayscale,
 # matplotlib supports only float32.  If your array data does not meet
 # one of these descriptions, you need to rescale it.
-
+#
 # .. _plotting_data:
-
+#
 # Plotting numpy arrays as images
 # ===================================
-
+#
 # So, you have your data in a numpy array (either by importing it, or by
 # generating it).  Let's render it.  In Matplotlib, this is performed
 # using the :func:`~matplotlib.pyplot.imshow` function.  Here we'll grab
 # the plot object.  This object gives you an easy way to manipulate the
 # plot from the prompt.
 
-# .. sourcecode:: ipython
+imgplot = plt.imshow(img)
 
-#     In [6]: imgplot = plt.imshow(img)
-
-# .. plot::
-
-#         import matplotlib.pyplot as plt
-#         import matplotlib.image as mpimg
-#         import numpy as np
-#         img = mpimg.imread('../_static/stinkbug.png')
-#         imgplot = plt.imshow(img)
-
+###############################################################################
 # You can also plot any numpy array.
-
+#
 # .. _Pseudocolor:
-
+#
 # Applying pseudocolor schemes to image plots
 # -------------------------------------------------
-
+#
 # Pseudocolor can be a useful tool for enhancing contrast and
 # visualizing your data more easily.  This is especially useful when
 # making presentations of your data using projectors - their contrast is
 # typically quite poor.
-
+#
 # Pseudocolor is only relevant to single-channel, grayscale, luminosity
 # images.  We currently have an RGB image.  Since R, G, and B are all
 # similar (see for yourself above or in your data), we can just pick one
 # channel of our data:
 
-# .. sourcecode:: ipython
-
-#     In [7]: lum_img = img[:,:,0]
+lum_img = img[:, :, 0]
 
 # This is array slicing.  You can read more in the `Numpy tutorial
 # <https://docs.scipy.org/doc/numpy-dev/user/quickstart.html>`_.
 
-# .. sourcecode:: ipython
+plt.imshow(lum_img)
 
-#     In [8]: plt.imshow(lum_img)
-
-# .. plot::
-
-#     import matplotlib.pyplot as plt
-#     import matplotlib.image as mpimg
-#     import numpy as np
-#     img = mpimg.imread('../_static/stinkbug.png')
-#     lum_img = img[:, :, 0]
-#     plt.imshow(lum_img)
-
+###############################################################################
 # Now, with a luminosity (2D, no color) image, the default colormap (aka lookup table,
 # LUT), is applied.  The default is called viridis.  There are plenty of
 # others to choose from.
 
-# .. sourcecode:: ipython
+plt.imshow(lum_img, cmap="hot")
 
-#     In [9]: plt.imshow(lum_img, cmap="hot")
-
-# .. plot::
-
-#         import matplotlib.pyplot as plt
-#         import matplotlib.image as mpimg
-#         import numpy as np
-#         img = mpimg.imread('../_static/stinkbug.png')
-#         lum_img = img[:,:,0]
-#         imgplot = plt.imshow(lum_img)
-#         imgplot.set_cmap('hot')
-
+###############################################################################
 # Note that you can also change colormaps on existing plot objects using the
 # :meth:`~matplotlib.image.Image.set_cmap` method:
 
-# .. sourcecode:: ipython
+imgplot = plt.imshow(lum_img)
+imgplot.set_cmap('nipy_spectral')
 
-#     In [10]: imgplot = plt.imshow(lum_img)
-#     In [11]: imgplot.set_cmap('nipy_spectral')
-
-# .. plot::
-
-#         import matplotlib.pyplot as plt
-#         import matplotlib.image as mpimg
-#         import numpy as np
-#         img = mpimg.imread('../_static/stinkbug.png')
-#         lum_img = img[:, :, 0]
-#         imgplot = plt.imshow(lum_img)
-#         imgplot.set_cmap('nipy_spectral')
-
+###############################################################################
+#
 # .. note::
-
+#
 #    However, remember that in the IPython notebook with the inline backend,
 #    you can't make changes to plots that have already been rendered.  If you
 #    create imgplot here in one cell, you cannot call set_cmap() on it in a later
 #    cell and expect the earlier plot to change.  Make sure that you enter these
 #    commands together in one cell.  plt commands will not change plots from earlier
 #    cells.
-
+#
 # There are many other colormap schemes available.  See the `list and
 # images of the colormaps
 # <../gallery/color/colormaps_reference.html>`_.
-
+#
 # .. _`Color Bars`:
-
+#
 # Color scale reference
 # ------------------------
-
+#
 # It's helpful to have an idea of what value a color represents.  We can
 # do that by adding color bars.
 
-# .. sourcecode:: ipython
+imgplot = plt.imshow(lum_img)
+plt.colorbar()
 
-#     In [12]: imgplot = plt.imshow(lum_img)
-#     In [13]: plt.colorbar()
-
-# .. plot::
-
-#             import matplotlib.pyplot as plt
-#             import matplotlib.image as mpimg
-#             import numpy as np
-#             img = mpimg.imread('../_static/stinkbug.png')
-#             lum_img = img[:, :, 0]
-#             imgplot = plt.imshow(lum_img)
-#             imgplot.set_cmap('nipy_spectral')
-#             plt.colorbar()
-
+###############################################################################
 # This adds a colorbar to your existing figure.  This won't
 # automatically change if you change you switch to a different
 # colormap - you have to re-create your plot, and add in the colorbar
 # again.
-
+#
 # .. _`Data ranges`:
-
+#
 # Examining a specific data range
 # ---------------------------------
-
+#
 # Sometimes you want to enhance the contrast in your image, or expand
 # the contrast in a particular region while sacrificing the detail in
 # colors that don't vary much, or don't matter.  A good tool to find
 # interesting regions is the histogram.  To create a histogram of our
 # image data, we use the :func:`~matplotlib.pyplot.hist` function.
 
-# .. sourcecode:: ipython
+plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 
-#     In [14]: plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
-
-# .. plot::
-
-#     import matplotlib.pyplot as plt
-#     import matplotlib.image as mpimg
-#     import numpy as np
-#     img = mpimg.imread('../_static/stinkbug.png')
-#     lum_img = img[:,:,0]
-#     plt.hist(lum_img.flatten(), 256, range=(0.0, 1.0), fc='k', ec='k')
-
+###############################################################################
 # Most often, the "interesting" part of the image is around the peak,
 # and you can get extra contrast by clipping the regions above and/or
 # below the peak.  In our histogram, it looks like there's not much
@@ -295,34 +213,30 @@ with the imperative-style approach:
 # object, but make sure that you do so in the same cell as your plot
 # command when working with the IPython Notebook - it will not change
 # plots from earlier cells.
+#
+# You can specify the clim in the call to ``plot``.
 
-# .. sourcecode:: ipython
+imgplot = plt.imshow(lum_img, clim=(0.0, 0.7))
 
-#     In [15]: imgplot = plt.imshow(lum_img, clim=(0.0, 0.7))
+###############################################################################
+# You can also specify the clim using the returned object
+fig = plt.figure()
+a = fig.add_subplot(1, 2, 1)
+imgplot = plt.imshow(lum_img)
+a.set_title('Before')
+plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
+a = fig.add_subplot(1, 2, 2)
+imgplot = plt.imshow(lum_img)
+imgplot.set_clim(0.0, 0.7)
+a.set_title('After')
+plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
 
-# .. plot::
-
-#     import matplotlib.pyplot as plt
-#     import matplotlib.image as mpimg
-#     import numpy as np
-#     fig = plt.figure()
-#     a=fig.add_subplot(1,2,1)
-#     img = mpimg.imread('../_static/stinkbug.png')
-#     lum_img = img[:,:,0]
-#     imgplot = plt.imshow(lum_img)
-#     a.set_title('Before')
-#     plt.colorbar(ticks=[0.1,0.3,0.5,0.7], orientation ='horizontal')
-#     a=fig.add_subplot(1,2,2)
-#     imgplot = plt.imshow(lum_img)
-#     imgplot.set_clim(0.0,0.7)
-#     a.set_title('After')
-#     plt.colorbar(ticks=[0.1,0.3,0.5,0.7], orientation='horizontal')
-
+###############################################################################
 # .. _Interpolation:
-
+#
 # Array Interpolation schemes
 # ---------------------------
-
+#
 # Interpolation calculates what the color or value of a pixel "should"
 # be, according to different mathematical schemes.  One common place
 # that this happens is when you resize an image.  The number of pixels
@@ -335,53 +249,29 @@ with the imperative-style approach:
 # only keeping a select few.  Now when we plot it, that data gets blown
 # up to the size on your screen.  The old pixels aren't there anymore,
 # and the computer has to draw in pixels to fill that space.
-
+#
 # We'll use the Pillow library that we used to load the image also to resize
 # the image.
 
-# .. sourcecode:: ipython
+from PIL import Image
 
-#     In [16]: from PIL import Image
-#     In [17]: img = Image.open('../_static/stinkbug.png')
-#     In [18]: img.thumbnail((64, 64), Image.ANTIALIAS) # resizes image in-place
-#     In [19]: imgplot = plt.imshow(img)
+img = Image.open('../../doc/_static/stinkbug.png')
+img.thumbnail((64, 64), Image.ANTIALIAS)  # resizes image in-place
+imgplot = plt.imshow(img)
 
-# .. plot::
-
-#     import matplotlib.pyplot as plt
-#     from PIL import Image
-#     img = Image.open('../_static/stinkbug.png')  # opens the file using Pillow - it's not an array yet
-#     img.thumbnail((64, 64), Image.ANTIALIAS)  # resizes image in-place
-#     imgplot = plt.imshow(img)
-
+###############################################################################
 # Here we have the default interpolation, bilinear, since we did not
 # give :func:`~matplotlib.pyplot.imshow` any interpolation argument.
+#
+# Let's try some others. Here's "nearest", which does no interpolation.
 
-# Let's try some others:
+imgplot = plt.imshow(img, interpolation="nearest")
 
-# .. sourcecode:: ipython
+###############################################################################
+# and bucibic:
 
-#     In [20]: imgplot = plt.imshow(img, interpolation="nearest")
+imgplot = plt.imshow(img, interpolation="bicubic")
 
-# .. plot::
-
-#    import matplotlib.pyplot as plt
-#    from PIL import Image
-#    img = Image.open('../_static/stinkbug.png')  # opens the file using Pillow - it's not an array yet
-#    img.thumbnail((64, 64), Image.ANTIALIAS)  # resizes image in-place
-#    imgplot = plt.imshow(img, interpolation="nearest")
-
-# .. sourcecode:: ipython
-
-#     In [21]: imgplot = plt.imshow(img, interpolation="bicubic")
-
-# .. plot::
-
-#    import matplotlib.pyplot as plt
-#    from PIL import Image
-#    img = Image.open('../_static/stinkbug.png')  # opens the file using Pillow - it's not an array yet
-#    img.thumbnail((64, 64), Image.ANTIALIAS)  # resizes image in-place
-#    imgplot = plt.imshow(img, interpolation="bicubic")
-
+###############################################################################
 # Bicubic interpolation is often used when blowing up photos - people
 # tend to prefer blurry over pixelated.

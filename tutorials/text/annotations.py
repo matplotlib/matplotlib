@@ -1,6 +1,7 @@
-============
- Annotation
-============
+"""
+
+Annotations
+===========
 
 .. contents:: Table of Contents
    :depth: 3
@@ -19,8 +20,8 @@ consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
 arguments are ``(x,y)`` tuples.
 
-.. figure:: ../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
-   :target: ../gallery/pyplots/annotation_basic.html
+.. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
+   :target: ../../gallery/pyplots/annotation_basic.html
    :align: center
    :scale: 50
 
@@ -83,8 +84,8 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 ``fontsize`` are passed from `~matplotlib.Axes.annotate` to the
 ``Text`` instance.
 
-.. figure:: ../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
-   :target: ../gallery/pyplots/annotation_polar.html
+.. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
+   :target: ../../gallery/pyplots/annotation_polar.html
    :align: center
    :scale: 50
 
@@ -110,8 +111,8 @@ Annotating with Text with Box
 
 Let's start with a simple example.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_text_arrow_001.png
-   :target: ../gallery/userdemo/annotate_text_arrow.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_text_arrow_001.png
+   :target: ../../gallery/userdemo/annotate_text_arrow.html
    :align: center
    :scale: 50
 
@@ -156,8 +157,8 @@ keyword arguments. Currently, following box styles are implemented.
   Square       ``square``       pad=0.3
   ==========   ==============   ==========================
 
-.. figure:: ../gallery/pylab_examples/images/sphx_glr_fancybox_demo2_001.png
-   :target: ../gallery/pylab_examples/fancybox_demo2.html
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_fancybox_demo2_001.png
+   :target: ../../gallery/pylab_examples/fancybox_demo2.html
    :align: center
    :scale: 50
 
@@ -202,8 +203,8 @@ empty string as the first argument. ::
                                 connectionstyle="arc3"),
                 )
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple01_001.png
-   :target: ../gallery/userdemo/annotate_simple01.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple01_001.png
+   :target: ../../gallery/userdemo/annotate_simple01.html
    :align: center
    :scale: 50
 
@@ -224,8 +225,8 @@ The arrow drawing takes a few steps.
    ``arrowstyle`` key value.
 
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_explain_001.png
-   :target: ../gallery/userdemo/annotate_explain.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_explain_001.png
+   :target: ../../gallery/userdemo/annotate_explain.html
    :align: center
    :scale: 50
 
@@ -254,8 +255,8 @@ The behavior of each connection style is (limitedly) demonstrated in the
 example below. (Warning : The behavior of the ``bar`` style is currently not
 well defined, it may be changed in the future).
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
-   :target: ../gallery/userdemo/connectionstyle_demo.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
+   :target: ../../gallery/userdemo/connectionstyle_demo.html
    :align: center
    :scale: 50
 
@@ -282,8 +283,8 @@ an arrow patch, according to the given ``arrowstyle``.
     ``wedge``    tail_width=0.3,shrink_factor=0.5
     ==========   =============================================
 
-.. figure:: ../gallery/pylab_examples/images/sphx_glr_fancyarrow_demo_001.png
-   :target: ../gallery/pylab_examples/fancyarrow_demo.html
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_fancyarrow_demo_001.png
+   :target: ../../gallery/pylab_examples/fancyarrow_demo.html
    :align: center
    :scale: 50
 
@@ -297,8 +298,8 @@ style.
 If the annotation string is given, the patchA is set to the bbox patch
 of the text by default.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple02_001.png
-   :target: ../gallery/userdemo/annotate_simple02.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple02_001.png
+   :target: ../../gallery/userdemo/annotate_simple02.html
    :align: center
    :scale: 50
 
@@ -307,8 +308,8 @@ of the text by default.
 As in the text command, a box around the text can be drawn using
 the ``bbox`` argument.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
-   :target: ../gallery/userdemo/annotate_simple03.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
+   :target: ../../gallery/userdemo/annotate_simple03.html
    :align: center
    :scale: 50
 
@@ -319,8 +320,8 @@ extent.  This can be adjusted with ``relpos`` key value. The values
 are normalized to the extent of the text. For example, (0,0) means
 lower-left corner and (1,1) means top-right.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
-   :target: ../gallery/userdemo/annotate_simple04.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
+   :target: ../../gallery/userdemo/annotate_simple04.html
    :align: center
    :scale: 50
 
@@ -345,8 +346,8 @@ available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
     ax.add_artist(at)
 
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box01_001.png
-   :target: ../gallery/userdemo/anchored_box01.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box01_001.png
+   :target: ../../gallery/userdemo/anchored_box01.html
    :align: center
    :scale: 50
 
@@ -379,8 +380,8 @@ transform set (it will be overridden) and the dimensions of those
 artists are interpreted as a pixel coordinate, i.e., the radius of the
 circles in above example are 10 pixels and 5 pixels, respectively.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box02_001.png
-   :target: ../gallery/userdemo/anchored_box02.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box02_001.png
+   :target: ../../gallery/userdemo/anchored_box02.html
    :align: center
    :scale: 50
 
@@ -402,8 +403,8 @@ The ellipse in the above example will have width and height
 corresponding to 0.1 and 0.4 in data coordinateing and will be
 automatically scaled when the view limits of the axes change.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box03_001.png
-   :target: ../gallery/userdemo/anchored_box03.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box03_001.png
+   :target: ../../gallery/userdemo/anchored_box03.html
    :align: center
    :scale: 50
 
@@ -413,8 +414,8 @@ As in the legend, the bbox_to_anchor argument can be set.  Using the
 HPacker and VPacker, you can have an arrangement(?) of artist as in the
 legend (as a matter of fact, this is how the legend is created).
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
-   :target: ../gallery/userdemo/anchored_box04.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
+   :target: ../../gallery/userdemo/anchored_box04.html
    :align: center
    :scale: 50
 
@@ -458,8 +459,8 @@ more control, it supports a few other options.
                         bbox=dict(boxstyle="round", fc="w"),
                         arrowprops=dict(arrowstyle="->"))
 
-    .. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
-       :target: ../gallery/userdemo/annotate_simple_coord01.html
+    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
+       :target: ../../gallery/userdemo/annotate_simple_coord01.html
        :align: center
        :scale: 50
 
@@ -493,8 +494,8 @@ more control, it supports a few other options.
     0.5 is in data coordinates, and 1 is in normalized axes coordinates.
     You may use an artist or transform as with a tuple. For example,
 
-    .. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
-       :target: ../gallery/userdemo/annotate_simple_coord02.html
+    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
+       :target: ../../gallery/userdemo/annotate_simple_coord02.html
        :align: center
        :scale: 50
 
@@ -504,8 +505,8 @@ more control, it supports a few other options.
     annotated point but from some other point.
     :class:`~matplotlib.text.OffsetFrom` is a helper class for such cases.
 
-    .. figure:: ../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
-       :target: ../gallery/userdemo/annotate_simple_coord03.html
+    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
+       :target: ../../gallery/userdemo/annotate_simple_coord03.html
        :align: center
        :scale: 50
 
@@ -529,8 +530,8 @@ you want to connect points in different axes. ::
 The above code connects point xy in the data coordinates of ``ax1`` to
 point xy in the data coordinates of ``ax2``. Here is a simple example.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
-   :target: ../gallery/userdemo/connect_simple01.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
+   :target: ../../gallery/userdemo/connect_simple01.html
    :align: center
    :scale: 50
 
@@ -554,8 +555,8 @@ knowledge of how mpl's transform works. But, utilizing it will be
 straight forward.
 
 
-.. figure:: ../gallery/pylab_examples/images/sphx_glr_axes_zoom_effect_001.png
-   :target: ../gallery/pylab_examples/axes_zoom_effect.html
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_axes_zoom_effect_001.png
+   :target: ../../gallery/pylab_examples/axes_zoom_effect.html
    :align: center
    :scale: 50
 
@@ -570,21 +571,21 @@ callable object in the following forms.::
 
         def __call__(self, x0, y0, width, height, mutation_size,
                      aspect_ratio=1.):
-            """
+            '''
             Given the location and size of the box, return the path of
             the box around it.
 
               - *x0*, *y0*, *width*, *height* : location and size of the box
               - *mutation_size* : a reference scale for the mutation.
               - *aspect_ratio* : aspect-ratio for the mutation.
-            """
+            '''
             path = ...
             return path
 
 Here is a complete example.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
-   :target: ../gallery/userdemo/custom_boxstyle01.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
+   :target: ../../gallery/userdemo/custom_boxstyle01.html
    :align: center
    :scale: 50
 
@@ -593,8 +594,8 @@ Here is a complete example.
 However, it is recommended that you derive from the
 matplotlib.patches.BoxStyle._Base as demonstrated below.
 
-.. figure:: ../gallery/userdemo/images/sphx_glr_custom_boxstyle02_001.png
-   :target: ../gallery/userdemo/custom_boxstyle02.html
+.. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle02_001.png
+   :target: ../../gallery/userdemo/custom_boxstyle02.html
    :align: center
    :scale: 50
 
@@ -604,21 +605,4 @@ matplotlib.patches.BoxStyle._Base as demonstrated below.
 Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check
 how each style class is defined.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""

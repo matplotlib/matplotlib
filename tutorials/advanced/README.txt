@@ -1,4 +1,4 @@
-.. _tutorials:
+.. _tutorials-advanced:
 
 Advanced
 ========

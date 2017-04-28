@@ -1,3 +1,4 @@
+"""
 .. _pgf-tutorial:
 
 *********************************
@@ -70,7 +71,7 @@ fonts *CMU Serif*, *CMU Sans Serif*, etc.
 When saving to ``.pgf``, the font configuration matplotlib used for the
 layout of the figure is included in the header of the text file.
 
-.. literalinclude:: ../gallery/userdemo/pgf_fonts_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_fonts_sgskip.py
    :end-before: plt.savefig
 
 
@@ -87,12 +88,12 @@ specified in the rc parameters, make sure to disable ``pgf.rcfonts``.
 
 .. htmlonly::
 
-    .. literalinclude:: ../gallery/userdemo/pgf_preamble_sgskip.py
+    .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
         :end-before: plt.savefig
 
 .. latexonly::
 
-    .. literalinclude:: ../gallery/userdemo/pgf_preamble_sgskip.py
+    .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
         :end-before: import matplotlib.pyplot as plt
 
 
@@ -106,7 +107,7 @@ parameter. Possible values are ``'xelatex'`` (default), ``'lualatex'`` and
 ``'pdflatex'``. Please note that when selecting pdflatex the fonts and
 unicode handling must be configured in the preamble.
 
-.. literalinclude:: ../gallery/userdemo/pgf_texsystem_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_texsystem_sgskip.py
    :end-before: plt.savefig
 
 
@@ -169,3 +170,4 @@ Troubleshooting
 
 .. _LaTeX: http://www.tug.org
 .. _TeXLive: http://www.tug.org/texlive/
+"""

@@ -798,6 +798,6 @@ p.caption {
     font-weight: bold;
 }
 
-div#gallery.section {
+div#gallery.section, div#tutorials.section {
     overflow: hidden;
 }

@@ -5,4 +5,3 @@
 .. toctree::
 
     screenshots.rst
-    recipes.rst
