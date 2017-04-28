@@ -10,7 +10,7 @@ Getting started
 Installing dependencies
 -----------------------
 
-The documentation for matplotlib is generated from ReStructured Text using the
+The documentation for matplotlib is generated from reStructuredText using the
 Sphinx_ documentation generation tool. There are several extra requirements that
 are needed to build the documentation. They are listed in the file
 `doc-requirements.txt <https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt>`_
@@ -26,26 +26,26 @@ as well as listed below:
 
 .. note::
 
-  * You'll need a minimal working latex distribution for many examples to run.
-  * `Graphviz <http://graphviz.readthedocs.io/en/latest/manual.html>`_ is not pip-installable so you need
+  * You'll need a minimal working LaTeX distribution for many examples to run.
+  * `Graphviz <http://www.graphviz.org/Download.php>`_ is not pip-installable so you need
     to install this on your own.
 
 General structure
 -----------------
 
-All documentation is built from the :file:`doc/` directory. This folder contains both
-``.rst`` files that contain pages in the documentation, folders that contain more
+All documentation is built from the :file:`doc/` directory. This directory contains both
+``.rst`` files that contain pages in the documentation, directory that contain more
 ``.rst`` files, and configuration files for Sphinx.
 
 .. note::
 
-  An exception to this are the folders :file:`gallery` and :file:`tutorials`, which
-  exist in the root folder. These contain python files that are built by ``sphinx-gallery``.
-  When the docs are built, folders of the same name will be generated inside of :file:`docs/`.
-  The generated folders :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
+  An exception to this are the directories :file:`gallery` and :file:`tutorials`, which
+  exist in the root directory. These contain Python files that are built by ``sphinx-gallery``.
+  When the docs are built, directory of the same name will be generated inside of :file:`docs/`.
+  The generated directories :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
 
-The configuration file for Sphinx is :file:`doc/conf.py`. It controls which folders
-sphinx parses, how the docs are built, and how the extensions are used.
+The configuration file for Sphinx is :file:`doc/conf.py`. It controls which directory
+Sphinx parses, how the docs are built, and how the extensions are used.
 
 Building the docs
 -----------------
@@ -63,14 +63,14 @@ or::
 There are many other flags you can pass to ``make.py``, and you can see the
 full list inside that file. Here are two useful ones:
 
-* ``clean`` will delete the built sphinx files. Use this command if you're getting strange
+* ``clean`` will delete the built Sphinx files. Use this command if you're getting strange
   errors about missing paths or broken links, particularly if you move files around.
-* ``latex`` builds a pdf of the documentation.
+* ``latex`` builds a PDF of the documentation.
 
 In addition, these are useful flags:
 
 * ``--help`` will (among other things) display the allowed commands for ``make.py``.
-* ``--allowsphinxwarnings`` will allow the docs to continue building even if sphinx
+* ``--allowsphinxwarnings`` will allow the docs to continue building even if Sphinx
   throws a warning. This is useful for debugging and spot-checking many warnings
   at once.
 
