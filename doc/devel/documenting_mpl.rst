@@ -27,8 +27,8 @@ as well as listed below:
 .. note::
 
   * You'll need a minimal working LaTeX distribution for many examples to run.
-  * `Graphviz <http://www.graphviz.org/Download.php>`_ is not pip-installable so you need
-    to install this on your own.
+  * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a python package, and needs
+    to be installed separately.
 
 General structure
 -----------------
