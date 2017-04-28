@@ -1860,6 +1860,7 @@ class _AxesBase(martist.Artist):
             p.get_path()._interpolation_steps = max(p.get_path()._interpolation_steps, 100)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
+        self.axes.autoscale_view()
         return p
 
     def _update_patch_limits(self, patch):
