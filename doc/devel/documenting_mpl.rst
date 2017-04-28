@@ -28,14 +28,13 @@ as well as listed below:
 
   * You'll need a minimal working latex distribution for many examples to run.
   * `Graphviz <http://graphviz.readthedocs.io/en/latest/manual.html>`_ is not pip-installable so you need
-    to install this on your own. This is straightforward with something like
-    the `anaconda distribution <https://anaconda.org/>`_.
+    to install this on your own.
 
 General structure
 -----------------
 
 All documentation is built from the :file:`doc/` directory. This folder contains both
-``.rst`` files that contains pages in the documentation, folders that contain more
+``.rst`` files that contain pages in the documentation, folders that contain more
 ``.rst`` files, and configuration files for Sphinx.
 
 .. note::
@@ -45,7 +44,7 @@ All documentation is built from the :file:`doc/` directory. This folder contains
   When the docs are built, folders of the same name will be generated inside of :file:`docs/`.
   The generated folders :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
 
-The configuration file for Sphinx is in :file:`doc/conf.py`. It controls which folders
+The configuration file for Sphinx is :file:`doc/conf.py`. It controls which folders
 sphinx parses, how the docs are built, and how the extensions are used.
 
 Building the docs
@@ -70,6 +69,7 @@ full list inside that file. Here are two useful ones:
 
 In addition, these are useful flags:
 
+* ``--help`` will (among other things) display the allowed commands for ``make.py``.
 * ``--allowsphinxwarnings`` will allow the docs to continue building even if sphinx
   throws a warning. This is useful for debugging and spot-checking many warnings
   at once.
