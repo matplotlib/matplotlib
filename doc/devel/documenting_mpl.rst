@@ -27,21 +27,23 @@ as well as listed below:
 .. note::
 
   * You'll need a minimal working latex distribution for many examples to run.
-  * Graphviz is not pip-installable so you need to install this on your own.
+  * `Graphviz <http://graphviz.readthedocs.io/en/latest/manual.html>`_ is not pip-installable so you need
+    to install this on your own. This is straightforward with something like
+    the `anaconda distribution <https://anaconda.org/>`_.
 
 General structure
 -----------------
 
 All documentation is built from the :file:`doc/` directory. This folder contains both
 ``.rst`` files that contains pages in the documentation, folders that contain more
-``.rst`` files, and configuration for Sphinx.
+``.rst`` files, and configuration files for Sphinx.
 
 .. note::
 
   An exception to this are the folders :file:`gallery` and :file:`tutorials`, which
   exist in the root folder. These contain python files that are built by ``sphinx-gallery``.
   When the docs are built, folders of the same name will be generated inside of :file:`docs/`.
-  These can be safely deleted.
+  The generated folders :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
 
 The configuration file for Sphinx is in :file:`doc/conf.py`. It controls which folders
 sphinx parses, how the docs are built, and how the extensions are used.
@@ -62,9 +64,9 @@ or::
 There are many other flags you can pass to ``make.py``, and you can see the
 full list inside that file. Here are two useful ones:
 
-* ``clean`` will delete the built sphinx files. Call if you're getting strange
+* ``clean`` will delete the built sphinx files. Use this command if you're getting strange
   errors about missing paths or broken links, particularly if you move files around.
-* ``latex`` builds a pdf of the documentation
+* ``latex`` builds a pdf of the documentation.
 
 In addition, these are useful flags:
 
