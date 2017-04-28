@@ -7,3 +7,5 @@ Gallery
 
 This gallery contains examples of the many things you can do with
 Matplotlib. Click on any image to see the full image and source code.
+
+See the sidebar to the right for a list of topics covered.

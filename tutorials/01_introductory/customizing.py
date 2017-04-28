@@ -83,13 +83,10 @@ print(plt.style.available)
 # If you only want to use a style for a specific block of code but don't want
 # to change the global styling, the style package provides a context manager
 # for limiting your changes to a specific scope. To isolate your styling
-# changes, you can write something like the following::
+# changes, you can write something like the following:
 
 with plt.style.context(('dark_background')):
     plt.plot(np.sin(np.linspace(0, 2 * np.pi)), 'r-o')
-
-# Some plotting code with the default style
-
 plt.show()
 
 ###############################################################################
@@ -97,7 +94,7 @@ plt.show()
 # ===================
 #
 # .. _customizing-with-dynamic-rc-settings:
-
+#
 # Dynamic rc settings
 # -------------------
 #
