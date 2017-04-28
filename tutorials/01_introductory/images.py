@@ -169,7 +169,7 @@ imgplot.set_cmap('nipy_spectral')
 #
 # There are many other colormap schemes available.  See the `list and
 # images of the colormaps
-# <../gallery/color/colormaps_reference.html>`_.
+# <../colors/colormaps.html>`_.
 #
 # .. _`Color Bars`:
 #

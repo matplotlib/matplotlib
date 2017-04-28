@@ -1,4 +1,3 @@
-"""
 .. _tutorials-text:
 
 Text
@@ -9,4 +8,3 @@ mathematical expressions, truetype support for raster and
 vector outputs, newline separated text with arbitrary
 rotations, and unicode support. These tutorials cover
 the basics of working with text in Matplotlib.
-"""
