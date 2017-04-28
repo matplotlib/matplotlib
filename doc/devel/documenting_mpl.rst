@@ -34,17 +34,17 @@ General structure
 -----------------
 
 All documentation is built from the :file:`doc/` directory. This directory contains both
-``.rst`` files that contain pages in the documentation, directory that contain more
+``.rst`` files that contain pages in the documentation, directories that contain more
 ``.rst`` files, and configuration files for Sphinx.
 
 .. note::
 
   An exception to this are the directories :file:`gallery` and :file:`tutorials`, which
   exist in the root directory. These contain Python files that are built by ``sphinx-gallery``.
-  When the docs are built, directory of the same name will be generated inside of :file:`docs/`.
+  When the docs are built, directories of the same name will be generated inside of :file:`docs/`.
   The generated directories :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
 
-The configuration file for Sphinx is :file:`doc/conf.py`. It controls which directory
+The configuration file for Sphinx is :file:`doc/conf.py`. It controls which directories
 Sphinx parses, how the docs are built, and how the extensions are used.
 
 Building the docs
