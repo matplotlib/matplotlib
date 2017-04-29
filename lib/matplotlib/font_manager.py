@@ -93,20 +93,26 @@ stretch_dict = {
     'ultra-expanded'  : 900}
 
 weight_dict = {
-    'ultralight' : 100,
-    'light'      : 200,
+    'hair'       : 100,
+    'thin'       : 100,
+    'extralight' : 200,
+    'ultralight' : 200,
+    'light'      : 300,
     'normal'     : 400,
     'regular'    : 400,
     'book'       : 400,
+    'plain'      : 400,
+    'roman'      : 400,
     'medium'     : 500,
-    'roman'      : 500,
     'semibold'   : 600,
     'demibold'   : 600,
     'demi'       : 600,
     'bold'       : 700,
-    'heavy'      : 800,
+    'extrabold'  : 800,
     'extra bold' : 800,
-    'black'      : 900}
+    'ultrabold'  : 800,
+    'black'      : 900,
+    'heavy'      : 900}
 
 font_family_aliases = {
     'serif',
