@@ -64,6 +64,7 @@ doc/examples
 doc/modules
 doc/pyplots/tex_demo.png
 doc/users/installing.rst
+doc/_static/depsy_badge.svg
 doc/_static/matplotlibrc
 lib/dateutil
 examples/*/*.pdf

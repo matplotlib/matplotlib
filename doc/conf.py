@@ -37,48 +37,40 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
-# Use IPython's console highlighting by default
-try:
-    from IPython.sphinxext import ipython_console_highlighting
-except ImportError:
-    raise ImportError(
-        "IPython must be installed to build the Matplotlib docs")
-else:
-    extensions.append('IPython.sphinxext.ipython_console_highlighting')
-    extensions.append('IPython.sphinxext.ipython_directive')
 
-try:
-    import numpydoc
-except ImportError:
-    raise ImportError("No module named numpydoc - you need to install "
-                      "numpydoc to build the documentation.")
+def _check_deps():
+    names = ["colorspacious",
+             "IPython.sphinxext.ipython_console_highlighting",
+             "matplotlib",
+             "numpydoc",
+             "PIL.Image",
+             "scipy",
+             "sphinx_gallery"]
+    if sys.version_info < (3, 3):
+        names.append("mock")
+    missing = []
+    for name in names:
+        try:
+            __import__(name)
+        except ImportError:
+            missing.append(name)
+    if missing:
+        raise ImportError(
+            "The following dependencies are missing to build the "
+            "documentation: {}".format(", ".join(missing)))
 
-try:
-    import sphinx_gallery
-except ImportError:
-    raise ImportError("No module named sphinx_gallery - you need to install "
-                      "sphinx_gallery to build the documentation.")
+_check_deps()
 
-try:
-    import colorspacious
-except ImportError:
-    raise ImportError("No module named colorspacious - you need to install "
-                      "colorspacious to build the documentation")
-
+import matplotlib
 try:
     from unittest.mock import MagicMock
 except ImportError:
-    try:
-        from mock import MagicMock
-    except ImportError:
-        raise ImportError("No module named mock - you need to install "
-                          "mock to build the documentation")
+    from mock import MagicMock
 
-try:
-    from PIL import Image
-except ImportError:
-    raise ImportError("No module named Image - you need to install "
-                      "pillow to build the documentation")
+
+# Use IPython's console highlighting by default
+extensions.extend(['IPython.sphinxext.ipython_console_highlighting',
+                   'IPython.sphinxext.ipython_directive'])
 
 if six.PY2:
     from distutils.spawn import find_executable
@@ -90,12 +82,6 @@ if not has_dot:
     raise OSError(
         "No binary named dot - you need to install the Graph Visualization "
         "software (usually packaged as 'graphviz') to build the documentation")
-
-try:
-    import matplotlib
-except ImportError:
-    msg = "Error: Matplotlib must be installed before building the documentation"
-    sys.exit(msg)
 
 
 autosummary_generate = True
@@ -133,7 +119,7 @@ master_doc = 'contents'
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2016 The Matplotlib development team')
+             'team; 2012 - 2017 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
