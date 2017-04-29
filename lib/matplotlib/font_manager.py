@@ -408,6 +408,7 @@ def ttfFontProperty(font):
     *font* is a :class:`FT2Font` instance.
     """
     name = font.family_name
+    style_name = font.style_name.lower().strip()
 
     #  Styles are: italic, oblique, and normal (default)
 
@@ -443,10 +444,14 @@ def ttfFontProperty(font):
 
     weight = next((w for w in weight_dict if sfnt4.find(w) >= 0), None)
     if not weight:
-        if font.style_flags & ft2font.BOLD:
-            weight = 700
-        else:
+        weight = next((w for w in weight_dict if style_name.find(w) >= 0), None)
+        if weight:
+            pass
+        elif style_name in ["italic", "oblique", "condensed"]:
             weight = 400
+        else:
+            # give up rather than risk making mistakes (reason: #8550)
+            raise KeyError("unknown weight: {!r}".format(font.family_name))
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
