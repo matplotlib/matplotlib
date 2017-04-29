@@ -3,5 +3,5 @@
 Advanced
 ========
 
-These tutorials cover advanced topics for experience Matplotlib
+These tutorials cover advanced topics for experienced Matplotlib
 users and developers.
