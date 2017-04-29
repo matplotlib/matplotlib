@@ -167,6 +167,9 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
+# See #7911 for why these tests are flaky and #7107 for why they are not so
+# easy to fix.
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
                          ids=[str(index) for index in range(len(math_tests))])
 @pytest.mark.parametrize('fontset',
@@ -181,6 +184,9 @@ def test_mathtext_rendering(baseline_images, fontset, index, test):
              horizontalalignment='center', verticalalignment='center')
 
 
+# See #7911 for why these tests are flaky and #7107 for why they are not so
+# easy to fix.
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('index, test', enumerate(font_tests),
                          ids=[str(index) for index in range(len(font_tests))])
 @pytest.mark.parametrize('fontset',
