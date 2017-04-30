@@ -1,6 +1,4 @@
 """
-.. _animation-double_pendulum_animated:
-
 ===========================
 The double pendulum problem
 ===========================

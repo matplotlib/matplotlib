@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ===========
 Ginput Demo

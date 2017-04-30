@@ -1,7 +1,4 @@
-# -*- noplot -*-
 """
-.. _animation-moviewriter:
-
 ===========
 MovieWriter
 ===========

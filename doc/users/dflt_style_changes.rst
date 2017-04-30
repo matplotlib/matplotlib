@@ -94,7 +94,7 @@ are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'``, where ``N``
 takes values 0-9, was added to
 denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
-:ref:`colors` for more details.
+:ref:`sphx_glr_tutorials_colors_colors.py` for more details.
 
 To restore the old color cycle use
 
@@ -143,7 +143,7 @@ watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
 See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
 map.  For details on all of the color maps available in matplotlib see
-:ref:`colormaps`.
+:ref:`sphx_glr_tutorials_colors_colormaps.py`.
 
 .. raw:: html
 

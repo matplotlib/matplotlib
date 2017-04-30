@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ===================
 Saving an animation

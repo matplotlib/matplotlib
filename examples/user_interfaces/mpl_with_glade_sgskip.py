@@ -1,6 +1,4 @@
 """
-.. _user_interfaces-mpl_with_glade:
-
 =====================
 Matplotlib With Glade
 =====================

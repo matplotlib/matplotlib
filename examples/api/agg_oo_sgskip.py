@@ -1,7 +1,4 @@
-# -*- noplot -*-
 """
-.. _api-agg_oo:
-
 =============================
 The object-oriented interface
 =============================

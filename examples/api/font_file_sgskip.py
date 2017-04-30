@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ===================================
 Using a ttf font file in matplotlib

@@ -1,6 +1,4 @@
 """
-.. _animation-subplots:
-
 =================
 Animated subplots
 =================

@@ -1,6 +1,4 @@
 """
-.. _widgets-span_selector:
-
 =============
 Span Selector
 =============

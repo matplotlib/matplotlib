@@ -1,6 +1,4 @@
 """
-.. _pylab_examples-contourf_hatching:
-
 =================
 Contourf Hatching
 =================

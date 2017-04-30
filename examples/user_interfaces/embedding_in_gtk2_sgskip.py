@@ -1,6 +1,4 @@
 """
-.. _user_interfaces-embedding_in_gtk2:
-
 =================
 Embedding In GTK2
 =================

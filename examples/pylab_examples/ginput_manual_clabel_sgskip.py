@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 =====================
 Interactive functions

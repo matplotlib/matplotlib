@@ -1,6 +1,4 @@
 """
-.. _pylab_examples-zorder_demo:
-
 ===========
 Zorder Demo
 ===========

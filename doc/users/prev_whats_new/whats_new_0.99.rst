@@ -11,11 +11,11 @@ New in matplotlib 0.99
 New documentation
 -----------------
 
-Jae-Joon Lee has written two new guides :ref:`plotting-guide-legend`
+Jae-Joon Lee has written two new guides :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py`
 and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
-:ref:`image_tutorial`.  John Hunter has written two new tutorials on
-working with paths and transformations: :ref:`path_tutorial` and
-:ref:`transforms_tutorial`.
+:ref:`sphx_glr_tutorials_01_introductory_images.py`.  John Hunter has written two new tutorials on
+working with paths and transformations: :ref:`sphx_glr_tutorials_03_advanced_path_tutorial.py` and
+:ref:`sphx_glr_tutorials_03_advanced_transforms_tutorial.py`.
 
 .. _whats-new-mplot3d:
 
@@ -65,7 +65,7 @@ that denote the data limits -- in various arbitrary locations.  No
 longer are your axis lines constrained to be a simple rectangle around
 the figure -- you can turn on or off left, bottom, right and top, as
 well as "detach" the spine to offset it away from the data.  See
-:ref:`pylab_examples-spine_placement_demo` and
+:ref:`sphx_glr_gallery_pylab_examples_spine_placement_demo.py` and
 :class:`matplotlib.spines.Spine`.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_99_spines_001.png

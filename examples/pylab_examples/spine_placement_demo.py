@@ -1,6 +1,4 @@
 """
-.. _pylab_examples-spine_placement_demo:
-
 ====================
 Spine Placement Demo
 ====================

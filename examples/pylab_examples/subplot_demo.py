@@ -1,6 +1,4 @@
 """
-.. _pylab_examples-subplots_demo:
-
 ============
 Subplot Demo
 ============

@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ===========
 Cursor Demo

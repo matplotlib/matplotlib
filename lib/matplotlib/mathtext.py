@@ -2,7 +2,7 @@ r"""
 :mod:`~matplotlib.mathtext` is a module for parsing a subset of the
 TeX math syntax and drawing them to a matplotlib backend.
 
-For a tutorial of its usage see :ref:`mathtext-tutorial`.  This
+For a tutorial of its usage see :ref:`sphx_glr_tutorials_text_mathtext.py`.  This
 document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.

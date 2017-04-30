@@ -1,6 +1,4 @@
 """
-.. _user_interfaces-embedding_in_qt4:
-
 ================
 Embedding In QT4
 ================

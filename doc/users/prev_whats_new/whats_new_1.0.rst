@@ -23,7 +23,7 @@ Sophisticated subplot grid layout
 
 Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
-more.  See :ref:`gridspec-guide` for a tutorial overview.
+more.  See :ref:`sphx_glr_tutorials_02_intermediate_gridspec.py` for a tutorial overview.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_000.png
    :target: ../../gallery/userdemo/demo_gridspec01.html
@@ -44,7 +44,7 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :ref:`pylab_examples-subplots_demo` for several code examples.
+See :ref:`sphx_glr_gallery_pylab_examples_subplot_demo.py` for several code examples.
 
 Contour fixes and and triplot
 ---------------------------------

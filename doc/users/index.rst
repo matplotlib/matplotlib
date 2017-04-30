@@ -14,10 +14,6 @@ User's Guide
 
     intro.rst
     installing.rst
-    tutorials.rst
-    index_text.rst
-    color_index.rst
-    customizing.rst
     interactive.rst
     examples_index
     whats_new.rst

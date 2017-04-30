@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ======================
 Embedding in Tk Canvas

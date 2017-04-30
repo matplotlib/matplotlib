@@ -1,6 +1,4 @@
 """
-.. _api-sankey_basics:
-
 ================
 The Sankey class
 ================
