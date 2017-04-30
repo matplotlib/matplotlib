@@ -1,6 +1,4 @@
 """
-.. _gridspec-guide:
-
 ==============================================
 Customizing Location of Subplot Using GridSpec
 ==============================================

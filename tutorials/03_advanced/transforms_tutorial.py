@@ -1,6 +1,4 @@
 """
-.. _transforms_tutorial:
-
 ========================
 Transformations Tutorial
 ========================
@@ -460,4 +458,4 @@ plt.show()
 # see how to make your own, since matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial
 # example of creating a hammer projection axes; see
-# :ref:`api-custom_projection_example`.
+# :ref:`sphx_glr_gallery_api_custom_projection_example.py`.

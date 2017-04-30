@@ -1,6 +1,4 @@
 """
-.. _statistics-bxp:
-
 ===================================
 Demo of the boxplot drawer function
 ===================================

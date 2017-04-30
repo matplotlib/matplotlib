@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ============
 Print Stdout

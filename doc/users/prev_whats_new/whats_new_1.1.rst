@@ -17,8 +17,8 @@ Sankey Diagrams
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:mod:`~matplotlib.sankey`) and provided new examples
-(:ref:`api-sankey_basics`, :ref:`api-sankey_links`,
-:ref:`api-sankey_rankine`).
+(:ref:`sphx_glr_gallery_api_sankey_basics.py`, :ref:`sphx_glr_gallery_api_sankey_links.py`,
+:ref:`sphx_glr_gallery_api_sankey_rankine.py`).
 
 .. figure:: ../../gallery/api/images/sphx_glr_sankey_rankine_001.png
    :target: ../../gallery/api/sankey_rankine.html
@@ -36,7 +36,7 @@ animated figures. The :mod:`~matplotlib.animation` module is intended
 to replace the backend-specific examples formerly in the
 :ref:`examples-index` listings.  Examples using the new framework are
 in :ref:`animation-examples-index`; see the entrancing :ref:`double
-pendulum <animation-double_pendulum_animated>` which uses
+pendulum <sphx_glr_gallery_animation_double_pendulum_animated_sgskip.py>` which uses
 :meth:`matplotlib.animation.Animation.save` to create the movie below.
 
 .. raw:: html
@@ -87,7 +87,7 @@ The usage of this functionality can be as simple as ::
 
 and it will adjust the spacing between subplots
 so that the axis labels do not overlap with neighboring subplots. A
-:ref:`plotting-guide-tight-layout` has been created to show how to use
+:ref:`sphx_glr_tutorials_02_intermediate_tight_layout_guide.py` has been created to show how to use
 this new tool.
 
 PyQT4, PySide, and IPython
@@ -116,7 +116,7 @@ legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
-See the :ref:`plotting-guide-legend` for more detailed explanation and
+See the :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for more detailed explanation and
 examples.
 
 .. figure:: ../../gallery/pylab_examples/images/sphx_glr_legend_demo4_001.png

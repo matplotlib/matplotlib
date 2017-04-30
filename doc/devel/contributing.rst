@@ -414,7 +414,7 @@ Developing a new backend
 ------------------------
 
 If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
+:file:`matplotlibrc` (:ref:`sphx_glr_tutorials_01_introductory_customizing.py`) supports an
 external backend via the ``module`` directive.  If
 :file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways

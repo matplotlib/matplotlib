@@ -1,6 +1,4 @@
 """
-.. _colormapnorm-tutorial:
-
 Colormap Normalization
 ======================
 

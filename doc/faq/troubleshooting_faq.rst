@@ -108,7 +108,7 @@ please provide the following information in your e-mail to the
 
 
   * any customizations to your ``matplotlibrc`` file (see
-    :ref:`customizing-matplotlib`).
+    :ref:`sphx_glr_tutorials_01_introductory_customizing.py`).
 
   * if the problem is reproducible, please try to provide a *minimal*,
     standalone Python script that demonstrates the problem.  This is

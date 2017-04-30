@@ -1,6 +1,4 @@
 """
-.. _plotting-guide-legend:
-
 ============
 Legend guide
 ============

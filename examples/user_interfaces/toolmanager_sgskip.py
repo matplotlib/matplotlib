@@ -1,6 +1,4 @@
 """
-.. _user_interfaces-toolmanager:
-
 ============
 Tool Manager
 ============

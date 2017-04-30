@@ -1,6 +1,4 @@
 """
-.. _path_tutorial:
-
 =============
 Path Tutorial
 =============

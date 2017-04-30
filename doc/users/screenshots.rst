@@ -326,7 +326,7 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
-the tutorial at :ref:`mathtext-tutorial`.
+the tutorial at :ref:`sphx_glr_tutorials_text_mathtext.py`.
 
 
 .. _screenshots_tex_demo:
@@ -361,11 +361,11 @@ to plot the spectrogram of one of the EEG channels.
 
 For examples of how to embed matplotlib in different toolkits, see:
 
-   * :ref:`user_interfaces-embedding_in_gtk2`
-   * :ref:`user_interfaces-embedding_in_wx2`
-   * :ref:`user_interfaces-mpl_with_glade`
-   * :ref:`user_interfaces-embedding_in_qt4`
-   * :ref:`user_interfaces-embedding_in_tk`
+   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_gtk2_sgskip.py`
+   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_wx2_sgskip.py`
+   * :ref:`sphx_glr_gallery_user_interfaces_mpl_with_glade_sgskip.py`
+   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_qt4_sgskip.py`
+   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_tk_sgskip.py`
 
 XKCD-style sketch plots
 =======================

@@ -82,8 +82,8 @@ with :func:`~matplotlib.Axes.bxp`.
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`statistics-boxplot` and
-:ref:`statistics-bxp`
+:ref:`sphx_glr_gallery_statistics_boxplot.py` and
+:ref:`sphx_glr_gallery_statistics_bxp.py`
 
 Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
 of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
@@ -410,7 +410,7 @@ instead of ``:context:`` any time you want to reset the context.
 
 Legend and PathEffects documentation
 ------------------------------------
-The :ref:`plotting-guide-legend` and :ref:`patheffects-guide` have both been
+The :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` and :ref:`sphx_glr_tutorials_03_advanced_patheffects_guide.py` have both been
 updated to better reflect the full potential of each of these powerful
 features.
 

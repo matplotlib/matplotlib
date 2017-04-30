@@ -1,6 +1,4 @@
 """
-.. _user_interfaces-embedding_in_wx2:
-
 ================
 Embedding In Wx2
 ================

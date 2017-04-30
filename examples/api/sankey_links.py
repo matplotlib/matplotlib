@@ -1,6 +1,4 @@
 """
-.. _api-sankey_links:
-
 ======================================
 Long chain of connections using Sankey
 ======================================

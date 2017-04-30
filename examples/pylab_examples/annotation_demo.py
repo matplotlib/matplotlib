@@ -1,6 +1,4 @@
 """
-.. _pylab_examples-annotation_demo:
-
 ===============
 Annotation Demo
 ===============

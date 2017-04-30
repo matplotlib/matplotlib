@@ -1,6 +1,4 @@
 """
-.. _artist-tutorial:
-
 ===============
 Artist tutorial
 ===============

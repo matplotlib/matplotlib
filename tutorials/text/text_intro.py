@@ -1,14 +1,15 @@
 """
-.. _text-intro:
-
 Text introduction
 =================
 
-matplotlib has extensive text support, including support for
+Introduction to plotting and working with text in Matplotlib.
+
+Matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
 vector outputs, newline separated text with arbitrary
-rotations, and unicode support.  Because it embeds
-fonts directly in output documents, e.g., for postscript
+rotations, and unicode support. 
+
+Because it embeds fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
 `FreeType <https://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
@@ -23,7 +24,7 @@ the `rc file <http://matplotlib.org/users/customizing.html>`.
 And significantly, for those interested in mathematical
 or scientific figures, matplotlib implements a large number of TeX
 math symbols and commands, supporting :ref:`mathematical expressions
-<mathtext-tutorial>` anywhere in your figure.
+<sphx_glr_tutorials_text_mathtext.py>` anywhere in your figure.
 
 
 Basic text commands

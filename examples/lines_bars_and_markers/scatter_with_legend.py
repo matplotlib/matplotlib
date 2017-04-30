@@ -1,6 +1,4 @@
 """
-.. _lines_bars_and_markers-scatter_with_legend:
-
 ===========================
 Scatter plots with a legend
 ===========================

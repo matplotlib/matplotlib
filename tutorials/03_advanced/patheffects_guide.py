@@ -1,6 +1,4 @@
 """
-.. _patheffects-guide:
-
 ==================
 Path effects guide
 ==================

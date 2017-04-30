@@ -1,4 +1,3 @@
-# -*- noplot -*-
 """
 ===========================
 Configuring the font family

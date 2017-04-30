@@ -501,7 +501,7 @@ or tuple of floats
         -----
 
         Not all kinds of artist are supported by the legend command.
-        See :ref:`plotting-guide-legend` for details.
+        See :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for details.
 
         Examples
         --------

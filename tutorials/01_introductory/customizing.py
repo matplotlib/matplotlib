@@ -1,8 +1,8 @@
 """
-.. _customizing-matplotlib:
-
 Customizing matplotlib
 ======================
+
+Tips for customizing the properties and default styles of matplotlib.
 
 Using style sheets
 ------------------

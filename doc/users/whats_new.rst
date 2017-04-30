@@ -287,7 +287,7 @@ Filled ``+`` and ``x`` markers
 
 New fillable *plus* and *x* markers have been added. See
 the :mod:`~matplotlib.markers` module and
-:ref:`marker reference <lines_bars_and_markers-marker_reference>`
+:ref:`marker reference <sphx_glr_gallery_lines_bars_and_markers_marker_reference.py>`
 examples.
 
 `rcount` and `ccount` for `plot_surface()`

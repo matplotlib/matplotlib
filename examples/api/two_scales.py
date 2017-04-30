@@ -1,6 +1,4 @@
 """
-.. _api-two_scales:
-
 ===========================
 Plots with different scales
 ===========================

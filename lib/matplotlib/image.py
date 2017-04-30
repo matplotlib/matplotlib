@@ -1434,7 +1434,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     .. htmlonly::
 
-        :ref:`misc-image_thumbnail`
+        :ref:`sphx_glr_gallery_misc_image_thumbnail_sgskip.py`
 
     Return value is the figure instance containing the thumbnail
 

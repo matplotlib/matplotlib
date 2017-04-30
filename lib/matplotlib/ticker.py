@@ -163,7 +163,7 @@ following methods::
   ax.yaxis.set_major_formatter( ymajorFormatter )
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
-See :ref:`pylab_examples-major_minor_demo1` for an example of setting
+See :ref:`sphx_glr_gallery_pylab_examples_major_minor_demo1.py` for an example of setting
 major and minor ticks. See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """

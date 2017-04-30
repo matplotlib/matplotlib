@@ -1,6 +1,4 @@
 """
-.. _pylab_examples-axes_demo:
-
 =========
 Axes Demo
 =========

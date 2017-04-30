@@ -1,6 +1,4 @@
 """
-.. _image_tutorial:
-
 ==============
 Image tutorial
 ==============

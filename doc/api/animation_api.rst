@@ -243,7 +243,7 @@ to use the `~MovieWriter.saving` context manager ::
 to ensures that setup and cleanup are performed as necessary.
 
 
-:ref:`animation-moviewriter`
+:ref:`sphx_glr_gallery_animation_moviewriter_sgskip.py`
 
 
 .. _ani_writer_classes:
@@ -267,7 +267,7 @@ Animation Base Classes
 Custom Animation classes
 ------------------------
 
-:ref:`animation-subplots`
+:ref:`sphx_glr_gallery_animation_subplots.py`
 
 Writer Registry
 ---------------

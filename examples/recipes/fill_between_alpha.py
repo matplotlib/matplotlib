@@ -133,4 +133,4 @@ ax.grid()
 # vertical spans of an axes -- for that matplotlib has some helper
 # functions :meth:`~matplotlib.axes.Axes.axhspan` and
 # :meth:`~matplotlib.axes.Axes.axvspan` and example
-# :ref:`pylab_examples-axhspan_demo`.
+# :ref:`sphx_glr_gallery_pylab_examples_axhspan_demo.py`.

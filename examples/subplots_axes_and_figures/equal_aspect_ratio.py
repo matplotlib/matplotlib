@@ -1,6 +1,4 @@
 """
-.. _subplots_axes_and_figures-equal_aspect_ratio:
-
 =================
 Equal aspect axes
 =================

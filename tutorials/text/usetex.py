@@ -1,9 +1,9 @@
 """
-.. _usetex-tutorial:
-
 *************************
 Text rendering With LaTeX
 *************************
+
+Rendering text with LaTeX in Matplotlib.
 
 Matplotlib has the option to use LaTeX to manage all text layout.  This
 option is available with the following backends:
@@ -15,7 +15,7 @@ option is available with the following backends:
 The LaTeX option is activated by setting ``text.usetex : True`` in
 your rc settings.  Text handling with matplotlib's LaTeX support is
 slower than matplotlib's very capable :ref:`mathtext
-<mathtext-tutorial>`, but is more flexible, since different LaTeX
+<sphx_glr_tutorials_text_mathtext.py>`, but is more flexible, since different LaTeX
 packages (font packages, math packages, etc.)  can be used. The
 results can be striking, especially when you take care to use the same
 fonts in your figures as in the main document.
@@ -26,7 +26,7 @@ Matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
 external dependencies must all be located on your :envvar:`PATH`.
 
 There are a couple of options to mention, which can be changed using :ref:`rc
-settings <customizing-matplotlib>`. Here is an example matplotlibrc file::
+settings <sphx_glr_tutorials_01_introductory_customizing.py>`. Here is an example matplotlibrc file::
 
   font.family        : serif
   font.serif         : Times, Palatino, New Century Schoolbook, Bookman, Computer Modern Roman

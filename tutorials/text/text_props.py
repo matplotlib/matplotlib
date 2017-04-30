@@ -1,9 +1,9 @@
 """
-.. _text-properties:
-
 ============================
  Text properties and layout
 ============================
+
+Controlling properties of text and its layout with Matplotlib.
 
 The :class:`matplotlib.text.Text` instances have a variety of
 properties which can be configured via keyword arguments to the text
@@ -14,12 +14,12 @@ commands (e.g., :func:`~matplotlib.pyplot.title`,
 Property                    Value Type
 ==========================  ======================================================================================================================
 alpha                       `float`
-backgroundcolor             any matplotlib :ref:`color <colors>`
+backgroundcolor             any matplotlib :ref:`color <sphx_glr_tutorials_colors_colors.py>`
 bbox                        `~matplotlib.patches.Rectangle` prop dict plus key ``'pad'`` which is a pad in points
 clip_box                    a matplotlib.transform.Bbox instance
 clip_on                     [True | False]
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
-color                       any matplotlib :ref:`color <colors>`
+color                       any matplotlib :ref:`color <sphx_glr_tutorials_colors_colors.py>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
 fontproperties              a `~matplotlib.font_manager.FontProperties` instance
 horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
@@ -216,7 +216,7 @@ plt.show()
 #
 # To control the font used on per-artist basis use the ``'name'``,
 # ``'fontname'`` or ``'fontproperties'`` kwargs documented :ref:`above
-# <text-properties>`.
+# <sphx_glr_tutorials_text_text_props.py>`.
 #
 #
 # On linux, `fc-list <https://linux.die.net/man/1/fc-list>`__ can be a

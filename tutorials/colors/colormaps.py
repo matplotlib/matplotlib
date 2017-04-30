@@ -1,6 +1,4 @@
 """
-.. _colormaps:
-
 ***********************
 Colormaps in Matplotlib
 ***********************

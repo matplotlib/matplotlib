@@ -1,11 +1,10 @@
 """
-.. _pyplot-tutorial:
-
 ===============
 Pyplot tutorial
 ===============
 
-Simple demo of the imshow function.
+An introduction to the pyplot interface.
+
 """
 
 ###############################################################################
@@ -229,8 +228,8 @@ plt.show()
 # rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
-# coordinates.  See :ref:`pylab_examples-axes_demo` for an example of
-# placing axes manually and :ref:`pylab_examples-subplots_demo` for an
+# coordinates.  See :ref:`sphx_glr_gallery_pylab_examples_axes_demo.py` for an example of
+# placing axes manually and :ref:`sphx_glr_gallery_pylab_examples_subplot_demo.py` for an
 # example with lots of subplots.
 #
 #
@@ -259,7 +258,7 @@ plt.show()
 # it annoying that states (specifically the current image, figure and axes)
 # are being maintained for you behind the scenes, don't despair: this is just a thin
 # stateful wrapper around an object oriented API, which you can use
-# instead (see :ref:`artist-tutorial`)
+# instead (see :ref:`sphx_glr_tutorials_02_intermediate_artists.py`)
 #
 # If you are making lots of figures, you need to be aware of one
 # more thing: the memory required for a figure is not completely
@@ -278,7 +277,7 @@ plt.show()
 # The :func:`~matplotlib.pyplot.text` command can be used to add text in
 # an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 # :func:`~matplotlib.pyplot.ylabel` and :func:`~matplotlib.pyplot.title`
-# are used to add text in the indicated locations (see :ref:`text-intro`
+# are used to add text in the indicated locations (see :ref:`sphx_glr_tutorials_text_text_intro.py`
 # for a more detailed example)
 
 mu, sigma = 100, 15
@@ -304,7 +303,7 @@ plt.show()
 #
 #   t = plt.xlabel('my data', fontsize=14, color='red')
 #
-# These properties are covered in more detail in :ref:`text-properties`.
+# These properties are covered in more detail in :ref:`sphx_glr_tutorials_text_text_props.py`.
 #
 #
 # Using mathematical expressions in text
@@ -320,11 +319,11 @@ plt.show()
 # that the string is a *raw* string and not to treat backslashes as
 # python escapes.  matplotlib has a built-in TeX expression parser and
 # layout engine, and ships its own math fonts -- for details see
-# :ref:`mathtext-tutorial`.  Thus you can use mathematical text across platforms
+# :ref:`sphx_glr_tutorials_text_mathtext.py`.  Thus you can use mathematical text across platforms
 # without requiring a TeX installation.  For those who have LaTeX and
 # dvipng installed, you can also use LaTeX to format your text and
 # incorporate the output directly into your display figures or saved
-# postscript -- see :ref:`usetex-tutorial`.
+# postscript -- see :ref:`sphx_glr_tutorials_text_usetex.py`.
 #
 #
 # Annotating text
@@ -358,7 +357,7 @@ plt.show()
 # variety of other coordinate systems one can choose -- see
 # :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
 # details.  More examples can be found in
-# :ref:`pylab_examples-annotation_demo`.
+# :ref:`sphx_glr_gallery_pylab_examples_annotation_demo.py`.
 #
 #
 # Logarithmic and other nonlinear axes
