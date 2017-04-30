@@ -434,16 +434,17 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         global qApp
         qApp.processEvents()
 
-    def start_event_loop(self, timeout):
-        FigureCanvasBase.start_event_loop_default(self, timeout)
+    def start_event_loop(self, timeout=0):
+        if hasattr(self, "_event_loop") and self._event_loop.isRunning():
+            raise RuntimeError("Event loop already running")
+        self._event_loop = event_loop = QtCore.QEventLoop()
+        if timeout:
+            timer = QtCore.QTimer.singleShot(timeout * 1000, event_loop.quit)
+        event_loop.exec_()
 
-    start_event_loop.__doc__ = \
-                             FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        FigureCanvasBase.stop_event_loop_default(self)
-
-    stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
+    def stop_event_loop(self, event=None):
+        if hasattr(self, "_event_loop"):
+            self._event_loop.quit()
 
 
 class MainWindow(QtWidgets.QMainWindow):
