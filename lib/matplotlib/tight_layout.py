@@ -217,6 +217,8 @@ def get_renderer(fig):
 
         if canvas and hasattr(canvas, "get_renderer"):
             renderer = canvas.get_renderer()
+        elif canvas and hasattr(canvas, "renderer"):
+            renderer = canvas.renderer
         else:
             # not sure if this can happen
             warnings.warn("tight_layout : falling back to Agg renderer")
