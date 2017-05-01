@@ -4,7 +4,7 @@ Group barchart with units
 =========================
 
 This is the same example as :doc:`the barchart demo<../api/barchart>`
-the barchart demo in centimeters.
+in centimeters.
 
 .. only:: builder_html
 
