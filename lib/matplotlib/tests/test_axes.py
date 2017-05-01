@@ -4901,6 +4901,7 @@ def test_minorticks_on():
             ax.minorticks_on()
 
 
+@cleanup
 def test_twinx_knows_limits():
     fig, ax = plt.subplots()
 
