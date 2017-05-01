@@ -1,5 +1,7 @@
 .. _units_examples:
 
+.. _units-examples-index:
+
 Units in Matplotlib
 ===================
 

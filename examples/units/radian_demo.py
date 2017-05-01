@@ -3,10 +3,11 @@
 Radian ticks
 ============
 
-Plot with radians from the basic_units mockup example package.
+Plot using radian units.
 
-This example shows how the unit class can determine the tick locating,
-formatting and axis labeling.
+.. only:: builder_html
+
+   This example requires :download:`basic_units.py <basic_units.py>`
 """
 import numpy as np
 from basic_units import radians, degrees, cos

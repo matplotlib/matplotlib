@@ -3,9 +3,12 @@
 Group barchart with units
 =========================
 
-This is the same example as
-<a href='http://matplotlib.org/examples/api/barchart_demo.html'>
-the barchart demo</a> in centimeters.
+This is the same example as :doc:`the barchart demo<../api/barchart>`
+the barchart demo in centimeters.
+
+.. only:: builder_html
+
+   This example requires :download:`basic_units.py <basic_units.py>`
 """
 
 import numpy as np
