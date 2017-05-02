@@ -1439,7 +1439,6 @@ class BoundaryNorm(Normalize):
         If the number of bins doesn't equal *ncolors*, the color is chosen
         by linear interpolation of the bin number onto color numbers.
         """
-
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
         self.clip = clip
