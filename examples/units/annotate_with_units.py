@@ -6,7 +6,11 @@ Annotation with units
 The example illustrates how to create text and arrow
 annotations using a centimeter-scale plot.
 
+.. only:: builder_html
+
+   This example requires :download:`basic_units.py <basic_units.py>`
 """
+
 import matplotlib.pyplot as plt
 from basic_units import cm
 

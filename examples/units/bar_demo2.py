@@ -9,6 +9,9 @@ set the x and y units to override the defaults (ax2, ax3, ax4) and how one can
 set the xlimits using scalars (ax3, current units assumed) or units
 (conversions applied to get the numbers to current units).
 
+.. only:: builder_html
+
+   This example requires :download:`basic_units.py <basic_units.py>`
 """
 import numpy as np
 from basic_units import cm, inch
