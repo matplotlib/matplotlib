@@ -1246,7 +1246,7 @@ class BoundaryNorm(Normalize):
     simpler, and reduces the number of conversions back and forth
     between integer and floating point.
     """
-    def __init__(self, boundaries, ncolors, clip=False):
+    def __init__(self, boundaries, ncolors, clip=False, extend='neither'):
         """
         Parameters
         ----------
@@ -1258,11 +1258,14 @@ class BoundaryNorm(Normalize):
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
             above ``boundaries[-1]``.
-
+            
             If clip is ``False``, out of range values are mapped to -1 if
             they are below ``boundaries[0]`` or mapped to ncolors if they are
             above ``boundaries[-1]``. These are then converted to valid indices
             by :meth:`Colormap.__call__`.
+        extend : str, optional
+            'neither', 'both', 'min', or 'max': select the colors out of
+            cmap so that the extensions are considered in the interpolation
 
         Notes
         -----
@@ -1278,7 +1281,24 @@ class BoundaryNorm(Normalize):
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
         self.Ncmap = ncolors
-        if self.N - 1 == self.Ncmap:
+
+        # Extension. We use the same trick as colorbar.py and add a fake
+        # boundary were needed. Since colorbar does it too, we have to use a
+        #  private property for that.
+        _b = list(boundaries)
+        if extend == 'both':
+            _b = [_b[0] - 1] + _b + [_b[-1] + 1]
+        elif extend == 'min':
+            _b = [_b[0] - 1] + _b
+        elif extend == 'max':
+            _b = _b + [_b[-1] + 1]
+        self._b = np.array(_b)
+
+        # I am not sure if the private _N is necessary (I dont think so,
+        # but it should be consistent with boundaries I guess. This _N is
+        # used for interpolation).
+        self._N = len(self._b)
+        if self._N - 1 == self.Ncmap:
             self._interp = False
         else:
             self._interp = True
@@ -1296,10 +1316,10 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         iret = np.zeros(xx.shape, dtype=np.int16)
-        for i, b in enumerate(self.boundaries):
+        for i, b in enumerate(self._b):
             iret[xx >= b] = i
         if self._interp:
-            scalefac = (self.Ncmap - 1) / (self.N - 2)
+            scalefac = float(self.Ncmap - 1) / (self._N - 2)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col

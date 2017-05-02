@@ -144,6 +144,82 @@ def test_BoundaryNorm():
     vals = np.ma.masked_invalid([np.Inf])
     assert np.all(bn(vals).mask)
 
+    # Testing extend keyword
+    bounds = [1, 2, 3]
+    cmap = cm.get_cmap('jet')
+
+    refnorm = mcolors.BoundaryNorm([0] + bounds + [4], cmap.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
+    x = np.random.random(100) + 1.5
+    np.testing.assert_array_equal(refnorm(x), mynorm(x))
+
+    # Min and max
+    cmref = mcolors.ListedColormap(['blue', 'red'])
+    cmref.set_over('black')
+    cmref.set_under('white')
+
+    cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
+    cmshould.set_over(cmshould(cmshould.N))
+    cmshould.set_under(cmshould(0))
+
+    refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='both')
+    np.testing.assert_array_equal(refnorm.vmin, mynorm.vmin)
+    np.testing.assert_array_equal(refnorm.vmax, mynorm.vmax)
+    x = [-1, 1.2, 2.3, 9.6]
+    np.testing.assert_array_equal(cmshould([0, 1, 2, 3]), cmshould(mynorm(x)))
+    x = np.random.randn(100) * 10 + 2
+    np.testing.assert_array_equal(cmref(refnorm(x)), cmshould(mynorm(x)))
+
+    np.testing.assert_array_equal(-1, mynorm(-1))
+    np.testing.assert_array_equal(1, mynorm(1.1))
+    np.testing.assert_array_equal(4, mynorm(12))
+
+    # Just min
+    cmref = mcolors.ListedColormap(['blue', 'red'])
+    cmref.set_under('white')
+    cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
+    cmshould.set_under(cmshould(0))
+
+    np.testing.assert_array_equal(2, cmref.N)
+    np.testing.assert_array_equal(3, cmshould.N)
+    refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='min')
+    np.testing.assert_array_equal(refnorm.vmin, mynorm.vmin)
+    np.testing.assert_array_equal(refnorm.vmax, mynorm.vmax)
+    x = [-1, 1.2, 2.3]
+    np.testing.assert_array_equal(cmshould([0, 1, 2]), cmshould(mynorm(x)))
+    x = np.random.randn(100) * 10 + 2
+    np.testing.assert_array_equal(cmref(refnorm(x)), cmshould(mynorm(x)))
+
+    # Just max
+    cmref = mcolors.ListedColormap(['blue', 'red'])
+    cmref.set_over('black')
+    cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
+    cmshould.set_over(cmshould(2))
+
+    np.testing.assert_array_equal(2, cmref.N)
+    np.testing.assert_array_equal(3, cmshould.N)
+    refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='max')
+    np.testing.assert_array_equal(refnorm.vmin, mynorm.vmin)
+    np.testing.assert_array_equal(refnorm.vmax, mynorm.vmax)
+    x = [1.2, 2.3, 4]
+    np.testing.assert_array_equal(cmshould([0, 1, 2]), cmshould(mynorm(x)))
+    x = np.random.randn(100) * 10 + 2
+    np.testing.assert_array_equal(cmref(refnorm(x)), cmshould(mynorm(x)))
+
+    # General case
+    bounds = [1, 2, 3, 4]
+    cmap = cm.get_cmap('jet')
+    mynorm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
+    refnorm = mcolors.BoundaryNorm([-100] + bounds + [100], cmap.N)
+    x = np.random.randn(100) * 10 - 5
+    ref = refnorm(x)
+    ref = np.where(ref == 0, -1, ref)
+    ref = np.where(ref == cmap.N-1, cmap.N, ref)
+    np.testing.assert_array_equal(ref, mynorm(x))
+
 
 def test_LogNorm():
     """
