@@ -6,7 +6,7 @@ import pytest
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cyclert
+from matplotlib import cycler
 import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
@@ -176,8 +176,8 @@ def test_BoundaryNorm():
     np.testing.assert_array_equal(4, mynorm(12))
 
     # Test raises
-    assert_raises(ValueError, mcolors.BoundaryNorm, bounds, cmref.N,
-                  extend='both', clip=True)
+    with pytest.raises(ValueError):
+        mcolors.BoundaryNorm(bounds, cmref.N, extend='both', clip=True)
 
     # Just min
     cmref = mcolors.ListedColormap(['blue', 'red'])

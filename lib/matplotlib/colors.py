@@ -1258,7 +1258,7 @@ class BoundaryNorm(Normalize):
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
             above ``boundaries[-1]``.
-            
+
             If clip is ``False``, out of range values are mapped to -1 if
             they are below ``boundaries[0]`` or mapped to ncolors if they are
             above ``boundaries[-1]``. These are then converted to valid indices
@@ -1275,7 +1275,6 @@ class BoundaryNorm(Normalize):
         If the number of bins doesn't equal *ncolors*, the color is chosen
         by linear interpolation of the bin number onto color numbers.
         """
-
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
         self.clip = clip
