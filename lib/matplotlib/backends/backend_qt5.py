@@ -588,7 +588,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(os.path.join(self.basedir, name))
-        pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        if hasattr(pm, 'setDevicePixelRatio'):
+            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
         return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
