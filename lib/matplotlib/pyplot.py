@@ -1330,7 +1330,7 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
 
     fig = gcf()
-    fig.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+    fig.set_tight_layout(dict(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect))
 
 
 def box(on=None):
