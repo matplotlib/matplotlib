@@ -9,7 +9,6 @@ from distutils.version import LooseVersion as V
 import numpy as np
 import pytest
 
-from numpy.testing import assert_equal
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 
 from matplotlib import cycler
@@ -160,8 +159,8 @@ def test_PowerNorm():
     expected = [0, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[2]), expected[2])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[2]) == expected[2]
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
     # Clip = True
@@ -169,16 +168,16 @@ def test_PowerNorm():
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[-1]), expected[-1])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[-1]) == expected[-1]
 
     # Clip = True at call time
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
-    assert_equal(pnorm(a[0], clip=True), expected[0])
-    assert_equal(pnorm(a[-1], clip=True), expected[-1])
+    assert pnorm(a[0], clip=True) == expected[0]
+    assert pnorm(a[-1], clip=True) == expected[-1]
 
 
 def test_Normalize():
@@ -652,14 +651,14 @@ def test_conversions():
         mcolors.to_rgba_array([".2", ".5", ".8"]),
         np.vstack([mcolors.to_rgba(c) for c in [".2", ".5", ".8"]]))
     # alpha is properly set.
-    assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
-    assert_equal(mcolors.to_rgba(".1", .5), (.1, .1, .1, .5))
+    assert mcolors.to_rgba((1, 1, 1), .5) == (1, 1, 1, .5)
+    assert mcolors.to_rgba(".1", .5) == (.1, .1, .1, .5)
     # builtin round differs between py2 and py3.
-    assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2")
+    assert mcolors.to_hex((.7, .7, .7)) == "#b2b2b2"
     # hex roundtrip.
     hex_color = "#1234abcd"
-    assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True),
-                 hex_color)
+    assert mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True) == \
+        hex_color
 
 
 def test_grey_gray():

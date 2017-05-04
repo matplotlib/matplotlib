@@ -6,7 +6,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from numpy.testing import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -177,7 +176,7 @@ def test_legend_remove():
     lines = ax.plot(range(10))
     leg = fig.legend(lines, "test")
     leg.remove()
-    assert_equal(fig.legends, [])
+    assert fig.legends == []
     leg = ax.legend("test")
     leg.remove()
     assert ax.get_legend() is None
