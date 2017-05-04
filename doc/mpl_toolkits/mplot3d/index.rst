@@ -11,6 +11,9 @@ The mplot3d toolkit adds simple 3D plotting capabilities to matplotlib by
 supplying an axes object that can create a 2D projection of a 3D scene.
 The resulting graph will have the same look and feel as regular 2D plots.
 
+See the :ref:`mplot3d tutorial <sphx_glr_tutorials_toolkits_mplot3d.py>` for
+more information on how to use this toolkit.
+
 .. image:: ../../_static/demo_mplot3d.png
 
 The interactive backends also provide the ability to rotate and zoom
@@ -22,6 +25,4 @@ would use for regular 2D plots.
 .. toctree::
     :maxdepth: 2
 
-    tutorial.rst
-    api.rst
     faq.rst

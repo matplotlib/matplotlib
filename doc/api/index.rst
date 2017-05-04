@@ -65,3 +65,13 @@
    :template: autofunctions.rst
 
    pyplot
+
+
+Toolkits
+--------
+
+.. toctree::
+   :maxdepth: 1
+
+   toolkits/axes_grid.rst
+   toolkits/mplot3d.rst

@@ -101,7 +101,7 @@ sphinx_gallery_conf = {
     'examples_dirs': ['../examples', '../tutorials'],
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': ['gallery', 'tutorials'],
-    'doc_module': ('matplotlib',),
+    'doc_module': ('matplotlib', 'mpl_toolkits'),
     'reference_url': {'matplotlib': None,
                       'numpy': 'http://docs.scipy.org/doc/numpy/reference',
                       'scipy': 'http://docs.scipy.org/doc/scipy/reference'},
@@ -166,32 +166,6 @@ default_role = 'obj'
 # ----------------------------
 
 plot_formats = [('png', 100), ('pdf', 100)]
-
-# Subdirectories in 'examples/' directory of package and titles for gallery
-mpl_example_sections = [
-    ('lines_bars_and_markers', 'Lines, bars, and markers'),
-    ('shapes_and_collections', 'Shapes and collections'),
-    ('statistics', 'Statistical plots'),
-    ('images_contours_and_fields', 'Images, contours, and fields'),
-    ('pie_and_polar_charts', 'Pie and polar charts'),
-    ('color', 'Color'),
-    ('text_labels_and_annotations', 'Text, labels, and annotations'),
-    ('ticks_and_spines', 'Ticks and spines'),
-    ('scales', 'Axis scales'),
-    ('subplots_axes_and_figures', 'Subplots, axes, and figures'),
-    ('style_sheets', 'Style sheets'),
-    ('specialty_plots', 'Specialty plots'),
-    ('showcase', 'Showcase'),
-    ('api', 'API'),
-    ('pylab_examples', 'pylab examples'),
-    ('mplot3d', 'mplot3d toolkit'),
-    ('axes_grid1', 'axes_grid1 toolkit'),
-    ('axisartist', 'axisartist toolkit'),
-    ('units', 'units'),
-    ('widgets', 'widgets'),
-    ('misc', 'Miscellaneous examples'),
-    ]
-
 
 # Github extension
 

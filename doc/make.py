@@ -202,12 +202,8 @@ def clean():
     """Remove generated files. """
     shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("examples", ignore_errors=True)
-    for pattern in ['mpl_examples/api/*.png',
-                    'mpl_examples/pylab_examples/*.png',
-                    'mpl_examples/pylab_examples/*.pdf',
-                    'mpl_examples/units/*.png',
-                    'mpl_examples/pyplots/tex_demo.png',
-                    '_static/matplotlibrc',
+    shutil.rmtree("api/_as_gen", ignore_errors=True)
+    for pattern in ['_static/matplotlibrc',
                     '_templates/gallery.html',
                     'users/installing.rst']:
         for filename in glob.glob(pattern):
@@ -246,40 +242,6 @@ n_proc = 1
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
 copy_if_out_of_date('../INSTALL.rst', 'users/installing.rst')
-
-# Create the examples symlink, if it doesn't exist
-
-required_symlinks = [
-    ('mpl_examples', '../examples/'),
-    ('mpl_toolkits/axes_grid1/examples', '../../../examples/axes_grid1/'),
-    ('mpl_toolkits/axisartist/examples', '../../../examples/axisartist/')
-    ]
-
-symlink_warnings = []
-for link, target in required_symlinks:
-    if sys.platform == 'win32' and os.path.isfile(link):
-        # This is special processing that applies on platforms that don't deal
-        # with git symlinks -- probably only MS windows.
-        delete = False
-        with open(link, 'r') as link_content:
-            delete = target == link_content.read()
-        if delete:
-            symlink_warnings.append('deleted:  doc/{0}'.format(link))
-            os.unlink(link)
-        else:
-            raise RuntimeError("doc/{0} should be a directory or symlink -- it"
-                               " isn't".format(link))
-    if not os.path.exists(link):
-        try:
-            os.symlink(os.path.normcase(target), link)
-        except OSError:
-            symlink_warnings.append('files copied to {0}'.format(link))
-            shutil.copytree(os.path.join(link, '..', target), link)
-
-if sys.platform == 'win32' and len(symlink_warnings) > 0:
-    print('The following items related to symlinks will show up '
-          'as spurious changes in your \'git status\':\n\t{0}'
-          .format('\n\t'.join(symlink_warnings)))
 
 parser = argparse.ArgumentParser(description='Build matplotlib docs')
 parser.add_argument("cmd", help=("Command to execute. Can be multiple. "

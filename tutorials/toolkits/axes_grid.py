@@ -1,25 +1,14 @@
+"""
 ==============================
 Overview of axes_grid1 toolkit
 ==============================
 
+Controlling the layout of plots with the axes_grid toolkit.
+
+.. _axes_grid1_users-guide-index:
+
 What is axes_grid1 toolkit?
 ===========================
-
-The matplotlib axes_grid1 toolkit is a collection of helper classes,
-mainly to ease displaying (multiple) images in matplotlib.
-
-.. contents::
-   :depth: 1
-   :local:
-
-.. note:: 
-   AxesGrid toolkit has been a part of matplotlib since v
-   0.99. Originally, the toolkit had a single namespace of 
-   *axes_grid*. In more recent version, the toolkit 
-   has divided into two separate namespace (*axes_grid1* and *axisartist*).
-   While *axes_grid* namespace is maintained for the backward compatibility,
-   use of *axes_grid1* and *axisartist* is recommended.
-
 
 *axes_grid1* is a collection of helper classes to ease displaying
 (multiple) images with matplotlib.  In matplotlib, the axes location
@@ -75,8 +64,12 @@ used in such case.
   height. The widths (height) of the axes in the same row (column) are
   scaled according to their view limits (xlim or ylim).
 
-  .. plot:: mpl_toolkits/axes_grid1/examples/simple_axesgrid2.py
-     :include-source:
+  .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid2_001.png
+     :target: ../../gallery/axes_grid1/simple_axesgrid2.html
+     :align: center
+     :scale: 50
+
+     Simple Axes Grid
 
 * xaxis are shared among axes in a same column. Similarly, yaxis are
   shared among axes in a same row. Therefore, changing axis properties
@@ -171,8 +164,8 @@ The examples below show what you can do with ImageGrid.
    Demo Axes Grid
 
 
-AxesDivider
------------
+AxesDivider Class
+-----------------
 
 Behind the scene, the ImageGrid class and the RGBAxes class utilize the
 AxesDivider class, whose role is to calculate the location of the axes
@@ -183,8 +176,8 @@ axes_divider module provides a helper function make_axes_locatable,
 which can be useful. It takes a existing axes instance and create a
 divider for it. ::
 
-	ax = subplot(1,1,1)
-	divider = make_axes_locatable(ax)
+  ax = subplot(1,1,1)
+  divider = make_axes_locatable(ax)
 
 
 
@@ -411,14 +404,104 @@ yaxis of each axes are shared. ::
    Simple Rgb
 
 
+AxesDivider
+===========
+
+The axes_divider module provide helper classes to adjust the axes
+positions of set of images in the drawing time.
+
+* :mod:`~mpl_toolkits.axes_grid1.axes_size` provides a classes of
+  units that the size of each axes will be determined. For example,
+  you can specify a fixed size
+
+* :class:`~mpl_toolkits.axes_grid1.axes_size.Divider` this is the class
+  that is used calculates the axes position. It divides the given
+  rectangular area into several areas. You initialize the divider by
+  setting the horizontal and vertical list of sizes that the division
+  will be based on. You then use the new_locator method, whose return
+  value is a callable object that can be used to set the axes_locator
+  of the axes.
 
 
+You first initialize the divider by specifying its grids, i.e.,
+horizontal and vertical.
+
+for example,::
+
+    rect = [0.2, 0.2, 0.6, 0.6]
+    horiz=[h0, h1, h2, h3]
+    vert=[v0, v1, v2]
+    divider = Divider(fig, rect, horiz, vert)
+
+where, rect is a bounds of the box that will be divided and h0,..h3,
+v0,..v2 need to be an instance of classes in the
+:mod:`~mpl_toolkits.axes_grid1.axes_size`.  They have *get_size* method
+that returns a tuple of two floats. The first float is the relative
+size, and the second float is the absolute size. Consider a following
+grid.
+
++-----+-----+-----+-----+
+| v0  |     |     |     |
++-----+-----+-----+-----+
+| v1  |     |     |     |
++-----+-----+-----+-----+
+|h0,v2| h1  | h2  | h3  |
++-----+-----+-----+-----+
 
 
+* v0 => 0, 2
+* v1 => 2, 0
+* v2 => 3, 0
+
+The height of the bottom row is always 2 (axes_divider internally
+assumes that the unit is inch). The first and the second rows with
+height ratio of 2:3. For example, if the total height of the grid 6,
+then the first and second row will each occupy 2/(2+3) and 3/(2+3) of
+(6-1) inches. The widths of columns (horiz) will be similarly
+determined. When aspect ratio is set, the total height (or width) will
+be adjusted accordingly.
 
 
+The :mod:`mpl_toolkits.axes_grid1.axes_size` contains several classes
+that can be used to set the horizontal and vertical configurations. For
+example, for the vertical configuration above will be::
 
+  from mpl_toolkits.axes_grid1.axes_size import Fixed, Scaled
+  vert = [Fixed(2), Scaled(2), Scaled(3)]
 
+After you set up the divider object, then you create a locator
+instance which will be given to the axes.::
 
+     locator = divider.new_locator(nx=0, ny=1)
+     ax.set_axes_locator(locator)
 
+The return value of the new_locator method is a instance of the
+AxesLocator class. It is a callable object that returns the
+location and size of the cell at the first column and the second row.
+You may create a locator that spans over multiple cells.::
 
+     locator = divider.new_locator(nx=0, nx=2, ny=1)
+
+The above locator, when called, will return the position and size of
+the cells spanning the first and second column and the first row. You
+may consider it as [0:2, 1].
+
+See the example,
+
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider2_001.png
+   :target: ../../gallery/axes_grid1/simple_axes_divider2.html
+   :align: center
+   :scale: 50
+
+   Simple Axes Divider2
+
+You can adjust the size of the each axes according to their x or y
+data limits (AxesX and AxesY), similar to the axes aspect parameter.
+
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider3_001.png
+   :target: ../../gallery/axes_grid1/simple_axes_divider3.html
+   :align: center
+   :scale: 50
+
+   Simple Axes Divider3
+"""

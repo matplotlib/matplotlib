@@ -1,16 +1,19 @@
-.. _toolkit_mplot3d-tutorial:
+"""
+===================
+The mplot3d Toolkit
+===================
+
+Generating 3D plots the mplot3d toolkit.
+
 .. currentmodule:: mpl_toolkits.mplot3d
 
-****************
-mplot3d tutorial
-****************
 .. contents::
       :backlinks: none
 
-.. _mplot3d_getting_started:
+.. _toolkit_mplot3d-tutorial:
 
 Getting started
-===============
+---------------
 An Axes3D object is created just like any other axes using
 the projection='3d' keyword.
 Create a new :class:`matplotlib.figure.Figure` and
@@ -29,6 +32,9 @@ add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
    different. For those using older versions of matplotlib, change
    ``ax = fig.add_subplot(111, projection='3d')``
    to ``ax = Axes3D(fig)``.
+
+See the :ref:`toolkit_mplot3d-faq` for more information about the mplot3d
+toolkit.
 
 .. _plot3d:
 
@@ -219,23 +225,4 @@ in the same figure.
    Subplot3d
 
    Mixed Subplots
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""

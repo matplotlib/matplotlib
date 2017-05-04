@@ -76,7 +76,7 @@ class AxisArtistHelper(object):
     """
     AxisArtistHelper should define
     following method with given APIs. Note that the first axes argument
-    will be axes attribute of the caller artist.
+    will be axes attribute of the caller artist.::
 
 
         # LINE (spinal line?)
@@ -119,7 +119,7 @@ class AxisArtistHelper(object):
             return iter_major, iter_minor
 
 
-        """
+    """
 
     class _Base(object):
         """
