@@ -1,25 +1,69 @@
 """
-==============
-Barchart Demo2
-==============
+=============
+Barchart Demo
+=============
 
-Thanks Josh Hemann for the example
+Bar charts of many shapes and sizes with Matplotlib.
 
-This examples comes from an application in which grade school gym
-teachers wanted to be able to show parents how their child did across
-a handful of fitness tests, and importantly, relative to how other
-children did. To extract the plotting code for demo purposes, we'll
-just make up some data for little Johnny Doe...
+Bar charts are useful for visualizing counts, or summary statistics
+with error bars. These examples show a few ways to do this with Matplotlib.
 
 """
+
+# Credit: Josh Hemann
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
 
+n_groups = 5
+
+means_men = (20, 35, 30, 35, 27)
+std_men = (2, 3, 4, 1, 2)
+
+means_women = (25, 32, 34, 20, 25)
+std_women = (3, 5, 2, 3, 3)
+
+fig, ax = plt.subplots()
+
+index = np.arange(n_groups)
+bar_width = 0.35
+
+opacity = 0.4
+error_config = {'ecolor': '0.3'}
+
+rects1 = plt.bar(index, means_men, bar_width,
+                 alpha=opacity,
+                 color='b',
+                 yerr=std_men,
+                 error_kw=error_config,
+                 label='Men')
+
+rects2 = plt.bar(index + bar_width, means_women, bar_width,
+                 alpha=opacity,
+                 color='r',
+                 yerr=std_women,
+                 error_kw=error_config,
+                 label='Women')
+
+plt.xlabel('Group')
+plt.ylabel('Scores')
+plt.title('Scores by group and gender')
+plt.xticks(index + bar_width / 2, ('A', 'B', 'C', 'D', 'E'))
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+
+###############################################################################
+# This example comes from an application in which grade school gym
+# teachers wanted to be able to show parents how their child did across
+# a handful of fitness tests, and importantly, relative to how other
+# children did. To extract the plotting code for demo purposes, we'll
+# just make up some data for little Johnny Doe...
 
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['score', 'percentile'])

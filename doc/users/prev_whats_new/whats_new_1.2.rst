@@ -128,8 +128,8 @@ confidence intervals into the :meth:`~matplotlib.axes.boxplot` method. For
 every column of data passed to boxplot, the user can specify an accompanying
 median and confidence interval.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_boxplot_demo3_001.png
-   :target: ../../gallery/pylab_examples/boxplot_demo3.html
+.. figure:: ../../gallery/statistics/images/sphx_glr_boxplot_demo_003.png
+   :target: ../../gallery/statistics/boxplot_demo.html
    :align: center
    :scale: 50
 

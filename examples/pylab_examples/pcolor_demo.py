@@ -3,12 +3,39 @@
 Pcolor Demo
 ===========
 
-Demonstrates similarities between pcolor, pcolormesh, imshow and pcolorfast
-for drawing quadrilateral grids.
+Generating images with pcolor.
 
+Pcolor allows you to generate 2-D image-style plots. Below we will show how
+to do so in Matplotlib.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.random import rand
+from matplotlib.colors import LogNorm
+from matplotlib.mlab import bivariate_normal
+
+###############################################################################
+# A simple pcolor demo
+# --------------------
+
+Z = rand(6, 10)
+
+plt.subplot(2, 1, 1)
+c = plt.pcolor(Z)
+plt.title('default: no edges')
+
+plt.subplot(2, 1, 2)
+c = plt.pcolor(Z, edgecolors='k', linewidths=4)
+plt.title('thick edges')
+
+plt.show()
+
+###############################################################################
+# Comparing pcolor with similar functions
+# ---------------------------------------
+#
+# Demonstrates similarities between pcolor, pcolormesh, imshow and pcolorfast
+# for drawing quadrilateral grids.
 
 # make these smaller to increase the resolution
 dx, dy = 0.15, 0.05
@@ -53,5 +80,30 @@ plt.title('pcolorfast')
 plt.colorbar()
 
 plt.subplots_adjust(wspace=0.5, hspace=0.5)
+
+plt.show()
+
+
+###############################################################################
+# Pcolor with a log scale
+# -----------------------
+#
+# The following shows pcolor plots with a log scale.
+
+N = 100
+X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
+
+# A low hump with a spike coming out of the top right.
+# Needs to have z/colour axis on a log scale so we see both hump and spike.
+# linear scale only shows the spike.
+Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+
+plt.subplot(2, 1, 1)
+plt.pcolor(X, Y, Z1, norm=LogNorm(vmin=Z1.min(), vmax=Z1.max()), cmap='PuBu_r')
+plt.colorbar()
+
+plt.subplot(2, 1, 2)
+plt.pcolor(X, Y, Z1, cmap='PuBu_r')
+plt.colorbar()
 
 plt.show()

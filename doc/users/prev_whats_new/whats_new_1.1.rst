@@ -119,8 +119,8 @@ been improved in the presence of NANs.
 See the :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for more detailed explanation and
 examples.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_legend_demo4_001.png
-   :target: ../../gallery/pylab_examples/legend_demo4.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
+   :target: ../../gallery/text_labels_and_annotations/legend_demo.html
    :align: center
    :scale: 50
 

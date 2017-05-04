@@ -406,7 +406,7 @@ plt.show()
 # variety of other coordinate systems one can choose -- see
 # :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
 # details.  More examples can be found in
-# :ref:`sphx_glr_gallery_pylab_examples_annotation_demo.py`.
+# :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
 #
 #
 # Logarithmic and other nonlinear axes

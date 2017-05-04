@@ -6,7 +6,7 @@ Annotating Plots
 The following examples show how it is possible to annotate plots in matplotlib.
 This includes highlighting specific points of interest and using various
 visual tools to call attention to this point. For a more complete and in-depth
-description of the annotation and text tools in :ref:`matplotlib`, see the
+description of the annotation and text tools in :mod:`matplotlib`, see the
 `tutorial on annotation <http://matplotlib.org/users/annotations.html>`_.
 """
 
@@ -24,7 +24,7 @@ from matplotlib.text import OffsetFrom
 # additionally, you may specify a text point `xytext=(x,y)` for the
 # location of the text for this annotation.  Optionally, you can
 # specify the coordinate system of `xy` and `xytext` with one of the
-# following strings for `xycoords` and `textcoords` (default is 'data')
+# following strings for `xycoords` and `textcoords` (default is 'data')::
 #
 #   'figure points'   : points from the lower left corner of the figure
 #   'figure pixels'   : pixels from the lower left corner of the figure
@@ -43,14 +43,14 @@ from matplotlib.text import OffsetFrom
 # from the text to the annotated point by giving a dictionary of arrow
 # properties
 #
-# Valid keys are
+# Valid keys are::
 #
-#           width : the width of the arrow in points
-#           frac  : the fraction of the arrow length occupied by the head
-#           headwidth : the width of the base of the arrow head in points
-#           shrink : move the tip and base some percent away from the
-#                    annotated point and text
-#           any key for matplotlib.patches.polygon  (e.g., facecolor)
+#   width : the width of the arrow in points
+#   frac  : the fraction of the arrow length occupied by the head
+#   headwidth : the width of the base of the arrow head in points
+#   shrink : move the tip and base some percent away from the
+#            annotated point and text
+#   any key for matplotlib.patches.polygon  (e.g., facecolor)
 
 # Create our figure and data we'll use for plotting
 fig, ax = plt.subplots(figsize=(3, 3))
