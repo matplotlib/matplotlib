@@ -115,7 +115,7 @@ install:
     pip install --upgrade setuptools
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK $NOSE
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK $NOSE sphinx
     if [[ $BUILD_DOCS == true ]]; then
       pip install $PRE -r doc-requirements.txt
     fi
