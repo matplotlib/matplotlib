@@ -340,3 +340,15 @@ def test_internal_cpp_api():
     with pytest.raises(ValueError) as excinfo:
         qcg.create_filled_contour(1, 0)
     excinfo.match(r'filled contour levels must be increasing')
+
+
+def test_circular_contour_warning():
+    # Check that almost circular contours don't throw a warning
+    with pytest.warns(None) as record:
+        x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
+        r = np.sqrt(x ** 2 + y ** 2)
+
+        plt.figure()
+        cs = plt.contour(x, y, r)
+        plt.clabel(cs)
+    assert len(record) == 0
