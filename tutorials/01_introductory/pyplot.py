@@ -94,6 +94,31 @@ plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
 plt.show()
 
 ###############################################################################
+# .. _plotting-with-keywords:
+#
+# Plotting with keyword strings
+# =============================
+#
+# There are some instances where you have data in a format that lets you
+# access particular variables with strings. For example, with
+# :class:`numpy.recarray` or :class:`pandas.DataFrame`.
+#
+# Matplotlib allows you provide such an object with
+# the ``data`` keyword argument. If provided, then you may generate plots with
+# the strings corresponding to these variables.
+
+data = {'a': np.arange(50),
+        'c': np.random.randint(0, 50, 50),
+        'd': np.random.randn(50)}
+data['b'] = data['a'] + 10 * np.random.randn(50)
+data['d'] = np.abs(data['d']) * 100
+
+plt.scatter('a', 'b', c='c', s='d', data=data)
+plt.xlabel('entry a')
+plt.ylabel('entry b')
+plt.show()
+
+###############################################################################
 # .. _controlling-line-properties:
 #
 # Controlling line properties

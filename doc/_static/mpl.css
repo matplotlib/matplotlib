@@ -19,7 +19,7 @@ body {
 }
 
 a {
-    color: #CA7900;
+    color: #CA7900 !important;
     text-decoration: none;
 }
 
