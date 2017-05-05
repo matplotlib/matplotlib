@@ -29,7 +29,7 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'sphinx.ext.doctest', 'sphinx.ext.autosummary',
-              'sphinx.ext.inheritance_diagram',
+              'sphinx.ext.inheritance_diagram', 'sphinx.ext.intersphinx',
               'sphinx_gallery.gen_gallery',
               'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
@@ -87,6 +87,13 @@ if not has_dot:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
+
+intersphinx_mapping = {
+  'python': ('https://docs.python.org/', None),
+  'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+  'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+  'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None)
+  }
 
 
 # Sphinx gallery configuration
