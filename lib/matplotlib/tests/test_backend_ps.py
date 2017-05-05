@@ -27,7 +27,26 @@ needs_tex = pytest.mark.xfail(
     reason="This test needs a TeX installation")
 
 
-def _test_savefig_to_stringio(format='ps', use_log=False):
+@pytest.mark.parametrize('format, use_log, rcParams', [
+    ('ps', False, {}),
+    needs_ghostscript(('ps', False, {'ps.usedistiller': 'ghostscript'})),
+    needs_tex(needs_ghostscript(('ps', False, {'text.latex.unicode': True,
+                                               'text.usetex': True}))),
+    ('eps', False, {}),
+    ('eps', True, {'ps.useafm': True}),
+    needs_tex(needs_ghostscript(('eps', False, {'text.latex.unicode': True,
+                                                'text.usetex': True}))),
+], ids=[
+    'ps',
+    'ps with distiller',
+    'ps with usetex',
+    'eps',
+    'eps afm',
+    'eps with usetex'
+])
+def test_savefig_to_stringio(format, use_log, rcParams):
+    matplotlib.rcParams.update(rcParams)
+
     fig, ax = plt.subplots()
     buffers = [
         six.moves.StringIO(),
@@ -58,41 +77,6 @@ def _test_savefig_to_stringio(format='ps', use_log=False):
     assert values[1] == values[2].replace(b'\r\n', b'\n')
     for buffer in buffers:
         buffer.close()
-
-
-def test_savefig_to_stringio():
-    _test_savefig_to_stringio()
-
-
-@needs_ghostscript
-def test_savefig_to_stringio_with_distiller():
-    matplotlib.rcParams['ps.usedistiller'] = 'ghostscript'
-    _test_savefig_to_stringio()
-
-
-@needs_tex
-@needs_ghostscript
-def test_savefig_to_stringio_with_usetex():
-    matplotlib.rcParams['text.latex.unicode'] = True
-    matplotlib.rcParams['text.usetex'] = True
-    _test_savefig_to_stringio()
-
-
-def test_savefig_to_stringio_eps():
-    _test_savefig_to_stringio(format='eps')
-
-
-def test_savefig_to_stringio_eps_afm():
-    matplotlib.rcParams['ps.useafm'] = True
-    _test_savefig_to_stringio(format='eps', use_log=True)
-
-
-@needs_tex
-@needs_ghostscript
-def test_savefig_to_stringio_with_usetex_eps():
-    matplotlib.rcParams['text.latex.unicode'] = True
-    matplotlib.rcParams['text.usetex'] = True
-    _test_savefig_to_stringio(format='eps')
 
 
 def test_composite_image():

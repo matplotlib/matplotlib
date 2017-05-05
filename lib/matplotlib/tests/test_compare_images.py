@@ -8,7 +8,7 @@ import os
 import shutil
 import warnings
 
-from numpy.testing import assert_equal, assert_almost_equal
+from numpy.testing import assert_almost_equal
 import pytest
 
 from matplotlib.testing.compare import compare_images
@@ -41,7 +41,7 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     results = compare_images(im1, im2, tol=tol, in_decorator=True)
 
     if expect_rms is None:
-        assert_equal(None, results)
+        assert results is None
     else:
         assert results is not None
         assert_almost_equal(expect_rms, results['rms'], decimal=4)
