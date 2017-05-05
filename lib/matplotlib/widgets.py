@@ -1341,7 +1341,7 @@ class MultiCursor(Widget):
 
         self.visible = True
         self.useblit = useblit and self.canvas.supports_blit
-        self.background = None
+        self.backgrounds = None
         self.needclear = False
 
         if self.useblit:
@@ -1377,8 +1377,8 @@ class MultiCursor(Widget):
         if self.ignore(event):
             return
         if self.useblit:
-            self.background = (
-                self.canvas.copy_from_bbox(self.canvas.figure.bbox))
+            self.backgrounds = (
+                [self.canvas.copy_from_bbox(ax.bbox) for ax in self.axes])
         for line in self.vlines + self.hlines:
             line.set_visible(False)
 
@@ -1404,8 +1404,9 @@ class MultiCursor(Widget):
 
     def _update(self):
         if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
+            if self.backgrounds is not None:
+                for background in self.backgrounds:
+                    self.canvas.restore_region(background)
             if self.vertOn:
                 for ax, line in zip(self.axes, self.vlines):
                     ax.draw_artist(line)
