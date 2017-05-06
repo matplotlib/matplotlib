@@ -437,7 +437,7 @@ def test_date2num_dst_pandas():
     pd = pytest.importorskip('pandas')
 
     def tz_convert(*args):
-        return pd.DatetimeIndex.tz_convert(*args).astype(datetime.datetime)
+        return pd.DatetimeIndex.tz_convert(*args).astype(object)
 
     _test_date2num_dst(pd.date_range, tz_convert)
 
