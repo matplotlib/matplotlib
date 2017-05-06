@@ -52,45 +52,6 @@ def linkcheck():
         [sys.executable]
         + '-msphinx -b linkcheck -d build/doctrees . build/linkcheck'.split())
 
-
-# For generating PNGs of the top row of index.html:
-FRONTPAGE_PY_PATH = "../examples/frontpage/"  # python scripts location
-FRONTPAGE_PNG_PATH = "_static/"  # png files location
-# png files and corresponding generation scripts:
-FRONTPAGE_PNGS = {"surface3d_frontpage.png": "3D.py",
-                  "contour_frontpage.png":   "contour.py",
-                  "histogram_frontpage.png": "histogram.py",
-                  "membrane_frontpage.png":  "membrane.py"}
-
-
-def generate_frontpage_pngs(only_if_needed=True):
-    """Executes the scripts for PNG generation of the top row of index.html.
-
-    If `only_if_needed` is `True`, then the PNG file is only generated, if it
-    doesn't exist or if the python file is newer.
-
-    Note that the element `div.responsive_screenshots` in the file
-    `_static/mpl.css` has the height and cumulative width of the used PNG files
-    as attributes. This ensures that the magnification of those PNGs is <= 1.
-    """
-    for fn_png, fn_py in FRONTPAGE_PNGS.items():
-        pn_png = os.path.join(FRONTPAGE_PNG_PATH, fn_png)  # get full paths
-        pn_py = os.path.join(FRONTPAGE_PY_PATH, fn_py)
-
-        # Read file modification times:
-        mtime_py = os.path.getmtime(pn_py)
-        mtime_png = (os.path.getmtime(pn_png) if os.path.exists(pn_png) else
-                     mtime_py - 1)  # set older time, if file doesn't exist
-
-        if only_if_needed and mtime_py <= mtime_png:
-            continue  # do nothing if png is newer
-
-        # Execute python as subprocess (preferred over os.system()):
-        subprocess.check_call(
-            [sys.executable, pn_py])  # raises CalledProcessError()
-        os.rename(fn_png, pn_png)  # move file to _static/ directory
-
-
 DEPSY_PATH = "_static/depsy_badge.svg"
 DEPSY_URL = "http://depsy.org/api/package/pypi/matplotlib/badge.svg"
 DEPSY_DEFAULT = "_static/depsy_badge_default.svg"
@@ -121,7 +82,6 @@ def fetch_depsy_badge():
 def html(buildername='html'):
     """Build Sphinx 'html' target. """
     check_build()
-    generate_frontpage_pngs()
     fetch_depsy_badge()
 
     rc = '../lib/matplotlib/mpl-data/matplotlibrc'
@@ -213,10 +173,6 @@ def clean():
         for filename in glob.glob(pattern):
             if os.path.exists(filename):
                 os.remove(filename)
-        for fn in FRONTPAGE_PNGS.keys():  # remove generated PNGs
-            pn = os.path.join(FRONTPAGE_PNG_PATH, fn)
-            if os.path.exists(pn):
-                os.remove(os.path.join(pn))
 
 
 def build_all():
