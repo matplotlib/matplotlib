@@ -2061,43 +2061,41 @@ def violin_stats(X, method, custom_stat_func_obj, points=100):
     The second list of dictionaries contains the results for each column of 
     data computed from the custom each of the statistics function
     """
-
-
-# List of dictionaries describing each of the violins.
-vpstats = []
-custom_stat_vals = []
-
-# Want X to be a list of data sequences
-X = _reshape_2D(X, "X")
-
-for x in X:
-    # Dictionary of results for this distribution
-    stats = {}
-    stats2 = {}
-
-    # Calculate basic stats for the distribution
-    min_val = np.min(x)
-    max_val = np.max(x)
-
-    # Evaluate the kernel density estimate
-    coords = np.linspace(min_val, max_val, points)
-    stats['vals'] = method(x, coords)
-    stats['coords'] = coords
-
-    # Store additional statistics for this distribution
-    stats['mean'] = np.mean(x)
-    stats['median'] = np.median(x)
-    stats['min'] = min_val
-    stats['max'] = max_val
-    for func_obj in custom_stat_func_obj:
-        stats2[func_obj.alias] = \
-            func_obj.func_callable(x, *func_obj.optional_args)
-
-    # Append to output
-    vpstats.append(stats)
-    custom_stat_vals.append(stats2)
-
-return vpstats, custom_stat_vals
+    # List of dictionaries describing each of the violins.
+    vpstats = []
+    custom_stat_vals = []
+    
+    # Want X to be a list of data sequences
+    X = _reshape_2D(X, "X")
+    
+    for x in X:
+        # Dictionary of results for this distribution
+        stats = {}
+        stats2 = {}
+    
+        # Calculate basic stats for the distribution
+        min_val = np.min(x)
+        max_val = np.max(x)
+    
+        # Evaluate the kernel density estimate
+        coords = np.linspace(min_val, max_val, points)
+        stats['vals'] = method(x, coords)
+        stats['coords'] = coords
+    
+        # Store additional statistics for this distribution
+        stats['mean'] = np.mean(x)
+        stats['median'] = np.median(x)
+        stats['min'] = min_val
+        stats['max'] = max_val
+        for func_obj in custom_stat_func_obj:
+            stats2[func_obj.alias] = \
+                func_obj.func_callable(x, *func_obj.optional_args)
+    
+        # Append to output
+        vpstats.append(stats)
+        custom_stat_vals.append(stats2)
+    
+    return vpstats, custom_stat_vals
 
 
 class _NestedClassGetter(object):
