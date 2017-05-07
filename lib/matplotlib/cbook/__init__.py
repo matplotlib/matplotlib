@@ -69,6 +69,7 @@ class converter(object):
     Base class for handling string -> python type with support for
     missing values
     """
+
     def __init__(self, missing='Null', missingval=None):
         self.missing = missing
         self.missingval = missingval
@@ -85,6 +86,7 @@ class converter(object):
 @deprecated('2.1')
 class tostr(converter):
     """convert to string or None"""
+
     def __init__(self, missing='Null', missingval=''):
         converter.__init__(self, missing=missing, missingval=missingval)
 
@@ -92,6 +94,7 @@ class tostr(converter):
 @deprecated('2.1')
 class todatetime(converter):
     """convert to a datetime or None"""
+
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
         'use a :func:`time.strptime` format string for conversion'
         converter.__init__(self, missing, missingval)
@@ -107,6 +110,7 @@ class todatetime(converter):
 @deprecated('2.1')
 class todate(converter):
     """convert to a date or None"""
+
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
         """use a :func:`time.strptime` format string for conversion"""
         converter.__init__(self, missing, missingval)
@@ -122,6 +126,7 @@ class todate(converter):
 @deprecated('2.1')
 class tofloat(converter):
     """convert to a float or None"""
+
     def __init__(self, missing='Null', missingval=None):
         converter.__init__(self, missing)
         self.missingval = missingval
@@ -135,6 +140,7 @@ class tofloat(converter):
 @deprecated('2.1')
 class toint(converter):
     """convert to an int or None"""
+
     def __init__(self, missing='Null', missingval=None):
         converter.__init__(self, missing)
 
@@ -157,6 +163,7 @@ class _BoundMethodProxy(object):
 
     Minor bugfixes by Michael Droettboom
     """
+
     def __init__(self, cb):
         self._hash = hash(cb)
         self._destroy_callbacks = []
@@ -287,6 +294,7 @@ class CallbackRegistry(object):
     `"Mindtrove" blog
     <http://mindtrove.info/python-weak-references/>`_.
     """
+
     def __init__(self):
         self.callbacks = dict()
         self._cid = 0
@@ -373,6 +381,7 @@ class silent_list(list):
     prevent long, meaningless output.  This is meant to be used for a
     homogeneous list of a given type
     """
+
     def __init__(self, type, seq=None):
         self.type = type
         if seq is not None:
@@ -451,7 +460,8 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
 def strip_math(s):
     """remove latex formatting from mathtext"""
-    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
+    remove = (
+    r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
     s = s[1:-1]
     for r in remove:
         s = s.replace(r, '')
@@ -471,6 +481,7 @@ class Bunch(object):
       By: Alex Martelli
       From: https://code.activestate.com/recipes/121294/
     """
+
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
 
@@ -756,7 +767,7 @@ def soundex(name, len=4):
     for c in name.upper():
         if c.isalpha():
             if not fc:
-                fc = c   # Remember first letter
+                fc = c  # Remember first letter
             d = soundex_digits[ord(c) - ord('A')]
             # Duplicate consecutive soundex digits are skipped
             if not sndx or (d != sndx[-1]):
@@ -858,12 +869,14 @@ def dict_delall(d, keys):
 @deprecated('2.1')
 class RingBuffer(object):
     """ class that implements a not-yet-full buffer """
+
     def __init__(self, size_max):
         self.max = size_max
         self.data = []
 
     class __Full:
         """ class that implements a full buffer """
+
         def append(self, x):
             """ Append an element overwriting the oldest one. """
             self.data[self.cur] = x
@@ -954,7 +967,7 @@ def dedent(s):
     # matplotlib startup time, so it is worthy of optimization at all
     # costs.
 
-    if not s:      # includes case of s is None
+    if not s:  # includes case of s is None
         return ''
 
     match = _find_dedent_regex.match(s)
@@ -1105,6 +1118,7 @@ class maxdict(dict):
     relevant methods to constrain the size, just setitem, so use with
     caution
     """
+
     def __init__(self, maxsize):
         dict.__init__(self)
         self.maxsize = maxsize
@@ -1432,6 +1446,7 @@ class Grouper(object):
         False
 
     """
+
     def __init__(self, init=()):
         mapping = self._mapping = {}
         for x in init:
@@ -1548,13 +1563,13 @@ def simple_linear_interpolation(a, steps):
 def recursive_remove(path):
     if os.path.isdir(path):
         for fname in (glob.glob(os.path.join(path, '*')) +
-                      glob.glob(os.path.join(path, '.*'))):
+                          glob.glob(os.path.join(path, '.*'))):
             if os.path.isdir(fname):
                 recursive_remove(fname)
                 os.removedirs(fname)
             else:
                 os.remove(fname)
-        # os.removedirs(path)
+                # os.removedirs(path)
     else:
         os.remove(path)
 
@@ -1600,7 +1615,7 @@ def delete_masked_points(*args):
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
         if (not isinstance(x, six.string_types) and iterable(x)
-                and len(x) == nrecs):
+            and len(x) == nrecs):
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1608,7 +1623,7 @@ def delete_masked_points(*args):
             else:
                 x = np.asarray(x)
         margs.append(x)
-    masks = []    # list of masks that are True where good
+    masks = []  # list of masks that are True where good
     for i, x in enumerate(margs):
         if seqlist[i]:
             if x.ndim > 1:
@@ -1912,6 +1927,7 @@ def align_iterators(func, *iterables):
 
     It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
     """
+
     class myiter:
         def __init__(self, it):
             self.it = it
@@ -2002,19 +2018,19 @@ def _reshape_2D(X, name):
 
 
 def violin_stats(X, method, custom_stat_func_obj, points=100):
-"""
+    """
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
     of the dictionary. Users can skip this function and pass a user-defined
     set of dictionaries to the `axes.vplot` method instead of using MPL to do
     the calculations.
-
+    
     Parameters
     ----------
     X : array-like
         Sample data that will be used to produce the gaussian kernel density
         estimates. Must have 2 or fewer dimensions.
-
+    
     method : callable
         The method used to calculate the kernel density estimate for each
         column of data. When called via `method(v, coords)`, it should
@@ -2022,64 +2038,66 @@ def violin_stats(X, method, custom_stat_func_obj, points=100):
         specified in coords.
     
     custom_stat_func_obj : a list of ViolinStatFunc object, each containing a
-        custom statistics to be drawn on the violin plot
-
+    custom statistics to be drawn on the violin plot
+    
     points : scalar, default = 100
-        Defines the number of points to evaluate each of the gaussian kernel
-        density estimates at.
-
+    Defines the number of points to evaluate each of the gaussian kernel
+    density estimates at.
+    
     Returns
     -------
-
+    
     Two lists of dictionaries containing the results for each column of data.
     The first list of dictionaries contain at least the following:
-
-        - coords: A list of scalars containing the coordinates this particular
-            kernel density estimate was evaluated at.
-        - vals: A list of scalars containing the values of the kernel density
-            estimate at each of the coordinates given in `coords`.
-        - mean: The mean value for this column of data.
-        - median: The median value for this column of data.
-        - min: The minimum value for this column of data.
-        - max: The maximum value for this column of data.
+    
+    - coords: A list of scalars containing the coordinates this particular
+    kernel density estimate was evaluated at.
+    - vals: A list of scalars containing the values of the kernel density
+    estimate at each of the coordinates given in `coords`.
+    - mean: The mean value for this column of data.
+    - median: The median value for this column of data.
+    - min: The minimum value for this column of data.
+    - max: The maximum value for this column of data.
     The second list of dictionaries contains the results for each column of 
-        data computed from the custom each of the statistics function
-"""
-    # List of dictionaries describing each of the violins.
-    vpstats = []
-    custom_stat_vals = []
+    data computed from the custom each of the statistics function
+    """
 
-    # Want X to be a list of data sequences
-    X = _reshape_2D(X, "X")
 
-    for x in X:
-        # Dictionary of results for this distribution
-        stats = {}
-        stats2 = {}
+# List of dictionaries describing each of the violins.
+vpstats = []
+custom_stat_vals = []
 
-        # Calculate basic stats for the distribution
-        min_val = np.min(x)
-        max_val = np.max(x)
+# Want X to be a list of data sequences
+X = _reshape_2D(X, "X")
 
-        # Evaluate the kernel density estimate
-        coords = np.linspace(min_val, max_val, points)
-        stats['vals'] = method(x, coords)
-        stats['coords'] = coords
+for x in X:
+    # Dictionary of results for this distribution
+    stats = {}
+    stats2 = {}
 
-        # Store additional statistics for this distribution
-        stats['mean'] = np.mean(x)
-        stats['median'] = np.median(x)
-        stats['min'] = min_val
-        stats['max'] = max_val
-        for func_obj in custom_stat_func_obj:
-            stats2[func_obj.alias] = \
-                func_obj.func_callable(x, *func_obj.optional_args)
+    # Calculate basic stats for the distribution
+    min_val = np.min(x)
+    max_val = np.max(x)
 
-        # Append to output
-        vpstats.append(stats)
-        custom_stat_vals.append(stats2)
+    # Evaluate the kernel density estimate
+    coords = np.linspace(min_val, max_val, points)
+    stats['vals'] = method(x, coords)
+    stats['coords'] = coords
 
-    return vpstats, custom_stat_vals
+    # Store additional statistics for this distribution
+    stats['mean'] = np.mean(x)
+    stats['median'] = np.median(x)
+    stats['min'] = min_val
+    stats['max'] = max_val
+    for func_obj in custom_stat_func_obj:
+        stats2[func_obj.alias] = \
+            func_obj.func_callable(x, *func_obj.optional_args)
+
+    # Append to output
+    vpstats.append(stats)
+    custom_stat_vals.append(stats2)
+
+return vpstats, custom_stat_vals
 
 
 class _NestedClassGetter(object):
@@ -2089,6 +2107,7 @@ class _NestedClassGetter(object):
     and the name of the nested class as the second argument,
     returns an instance of the nested class.
     """
+
     def __call__(self, containing_class, class_name):
         nested_class = getattr(containing_class, class_name)
 
@@ -2107,6 +2126,7 @@ class _InstanceMethodPickler(object):
     Pickle cannot handle instancemethod saving. _InstanceMethodPickler
     provides a solution to this.
     """
+
     def __init__(self, instancemethod):
         """Takes an instancemethod as its only argument."""
         if six.PY3:
@@ -2363,7 +2383,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
             if len(tmp) > 1:
                 warnings.warn("Saw kwargs {seen!r} which are all aliases for "
                               "{canon!r}.  Kept value from {used!r}".format(
-                                  seen=seen, canon=canonical, used=seen[-1]))
+                    seen=seen, canon=canonical, used=seen[-1]))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -2386,8 +2406,8 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
             raise TypeError("kwargs contains {keys!r} which are not in "
                             "the required {req!r} or "
                             "allowed {allow!r} keys".format(
-                                keys=fail_keys, req=required,
-                                allow=allowed))
+                keys=fail_keys, req=required,
+                allow=allowed))
 
     return ret
 
@@ -2469,7 +2489,8 @@ class _FuncInfo(object):
 
     """
 
-    def __init__(self, function, inverse, bounded_0_1=True, check_params=None):
+    def __init__(self, function, inverse, bounded_0_1=True,
+                 check_params=None):
         """
         Parameters
         ----------
@@ -2572,44 +2593,44 @@ class _StringFuncParser(object):
     _funcs['quadratic'] = _FuncInfo(np.square,
                                     np.sqrt,
                                     True)
-    _funcs['cubic'] = _FuncInfo(lambda x: x**3,
-                                lambda x: x**(1. / 3),
+    _funcs['cubic'] = _FuncInfo(lambda x: x ** 3,
+                                lambda x: x ** (1. / 3),
                                 True)
     _funcs['sqrt'] = _FuncInfo(np.sqrt,
                                np.square,
                                True)
-    _funcs['cbrt'] = _FuncInfo(lambda x: x**(1. / 3),
-                               lambda x: x**3,
+    _funcs['cbrt'] = _FuncInfo(lambda x: x ** (1. / 3),
+                               lambda x: x ** 3,
                                True)
     _funcs['log10'] = _FuncInfo(np.log10,
-                                lambda x: (10**(x)),
+                                lambda x: (10 ** (x)),
                                 False)
     _funcs['log'] = _FuncInfo(np.log,
                               np.exp,
                               False)
     _funcs['log2'] = _FuncInfo(np.log2,
-                               lambda x: (2**x),
+                               lambda x: (2 ** x),
                                False)
-    _funcs['x**{p}'] = _FuncInfo(lambda x, p: x**p[0],
-                                 lambda x, p: x**(1. / p[0]),
+    _funcs['x**{p}'] = _FuncInfo(lambda x, p: x ** p[0],
+                                 lambda x, p: x ** (1. / p[0]),
                                  True)
-    _funcs['root{p}(x)'] = _FuncInfo(lambda x, p: x**(1. / p[0]),
-                                     lambda x, p: x**p,
+    _funcs['root{p}(x)'] = _FuncInfo(lambda x, p: x ** (1. / p[0]),
+                                     lambda x, p: x ** p,
                                      True)
     _funcs['log{p}(x)'] = _FuncInfo(lambda x, p: (np.log(x) /
                                                   np.log(p[0])),
-                                    lambda x, p: p[0]**(x),
+                                    lambda x, p: p[0] ** (x),
                                     False,
                                     lambda p: p[0] > 0)
     _funcs['log10(x+{p})'] = _FuncInfo(lambda x, p: np.log10(x + p[0]),
-                                       lambda x, p: 10**x - p[0],
+                                       lambda x, p: 10 ** x - p[0],
                                        lambda p: p[0] > 0)
     _funcs['log(x+{p})'] = _FuncInfo(lambda x, p: np.log(x + p[0]),
                                      lambda x, p: np.exp(x) - p[0],
                                      lambda p: p[0] > 0)
     _funcs['log{p}(x+{p})'] = _FuncInfo(lambda x, p: (np.log(x + p[1]) /
                                                       np.log(p[0])),
-                                        lambda x, p: p[0]**(x) - p[1],
+                                        lambda x, p: p[0] ** (x) - p[1],
                                         lambda p: p[1] > 0,
                                         lambda p: p[0] > 0)
 
