@@ -416,6 +416,10 @@ By default, caps on the ends of errorbars are not present.
    demo(ax1, {'errorbar.capsize': 3}, 'classic')
    demo(ax2, {}, 'v2.0')
 
+This also changes the return value of
+:meth:`~matplotlib.axes.Axes.errorbar` as the list of 'caplines' will
+be empty by default.
+
 The previous defaults can be restored by setting::
 
     mpl.rcParams['errorbar.capsize'] = 3
