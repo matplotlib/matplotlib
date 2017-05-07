@@ -15,11 +15,11 @@ Overview
    :maxdepth: 2
 
    users/index.rst
-   api/index.rst
    faq/index.rst
    mpl_toolkits/index.rst
    resources/index.rst
    thirdpartypackages/index.rst
+   api/index.rst
    devel/index.rst
    glossary/index.rst
 
