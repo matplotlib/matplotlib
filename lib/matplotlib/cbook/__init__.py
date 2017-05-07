@@ -2002,7 +2002,7 @@ def _reshape_2D(X, name):
 
 
 def violin_stats(X, method, custom_stat_func_obj, points=100):
-    """
+"""
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
     of the dictionary. Users can skip this function and pass a user-defined
@@ -2020,6 +2020,9 @@ def violin_stats(X, method, custom_stat_func_obj, points=100):
         column of data. When called via `method(v, coords)`, it should
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
+    
+    custom_stat_func_obj : a list of ViolinStatFunc object, each containing a
+        custom statistics to be drawn on the violin plot
 
     points : scalar, default = 100
         Defines the number of points to evaluate each of the gaussian kernel
@@ -2028,19 +2031,20 @@ def violin_stats(X, method, custom_stat_func_obj, points=100):
     Returns
     -------
 
-    A list of dictionaries containing the results for each column of data.
-    The dictionaries contain at least the following:
+    Two lists of dictionaries containing the results for each column of data.
+    The first list of dictionaries contain at least the following:
 
         - coords: A list of scalars containing the coordinates this particular
-          kernel density estimate was evaluated at.
+            kernel density estimate was evaluated at.
         - vals: A list of scalars containing the values of the kernel density
-          estimate at each of the coordinates given in `coords`.
+            estimate at each of the coordinates given in `coords`.
         - mean: The mean value for this column of data.
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
         - max: The maximum value for this column of data.
-    """
-
+    The second list of dictionaries contains the results for each column of 
+        data computed from the custom each of the statistics function
+"""
     # List of dictionaries describing each of the violins.
     vpstats = []
     custom_stat_vals = []
