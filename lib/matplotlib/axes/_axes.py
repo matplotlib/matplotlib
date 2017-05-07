@@ -88,6 +88,26 @@ def _plot_args_replacer(args, data):
                          "multiple plotting calls instead.")
 
 
+class ViolinStatFunc:
+    """
+    The :class:`ViolinStatFunc` contains:
+    1) a callable whose first argument is compulsory and is a 1-d list of data
+    that is used to plot the violin. This first argument is not required to be
+    specified.
+    2) an alias for this callable. When violinplot outputs the dictionary of
+    artists, this alias is used to identify the artist object corresponding to
+    this callable
+    3) a list of additional arguments. This list does not contain the
+    aforementioned compulsory 1-d list of data.
+    """
+    def __init__(self, func_callable, **kargs):
+        self.func_callable = func_callable
+        self.alias = kargs.pop('alias', func_callable.__name__)
+        self.optional_args = kargs.pop('args', [])
+        if not isinstance(self.optional_args, list):
+            raise ValueError('args has to be a list')
+
+
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
 
@@ -7277,7 +7297,7 @@ or tuple of floats
     @_preprocess_data(replace_names=["dataset"], label_namer=None)
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   points=100, bw_method=None):
+                   points=100, bw_method=None, statistics_function_list=[]):
         """
         Make a violin plot.
 
@@ -7324,6 +7344,13 @@ or tuple of floats
           callable, it should take a `GaussianKDE` instance as its only
           parameter and return a scalar. If None (default), 'scott' is used.
 
+        statistics_function_list: a list of callable or ViolinStatFunc. The
+        element of this list can be any custom summary statistics to be
+        displayed on the voilin plot (with one constraint that the first
+        argument of these function has to be the input data of violin plot
+        i.e. dataset if dataset is 1-d or an element of dataset if dataset is
+        2-d)
+
         Returns
         -------
 
@@ -7369,12 +7396,44 @@ or tuple of floats
             kde = mlab.GaussianKDE(X, bw_method)
             return kde.evaluate(coords)
 
-        vpstats = cbook.violin_stats(dataset, _kde_method, points=points)
-        return self.violin(vpstats, positions=positions, vert=vert,
+        def _resolve_duplicate_alias(func_obj_list):
+            unique_alias_set = set()
+            for func_obj in func_obj_list:
+                while func_obj.alias in unique_alias_set:
+                    func_obj.alias += 'x'
+                unique_alias_set.add(func_obj.alias)
+
+        violin_stat_func_obj_list = []
+        for func in statistics_function_list:
+            if not isinstance(func, ViolinStatFunc):
+                if callable(func):
+                    violin_stat_func_obj_list.append(ViolinStatFunc(func))
+                else:
+                    raise ValueError(
+                        'Optional argument has to be a callable' +
+                        'or a ViolinStatFunc object')
+            else:
+                violin_stat_func_obj_list.append(func)
+
+        custom_stat_alias_list = [func_obj.alias for func_obj in
+                                  violin_stat_func_obj_list]
+        if len(custom_stat_alias_list) > len(set(custom_stat_alias_list)):
+            _resolve_duplicate_alias(violin_stat_func_obj_list)
+            # remake alias list based on updated unique aliases
+            custom_stat_alias_list = [func_obj.alias for func_obj in
+                                      violin_stat_func_obj_list]
+
+        vpstats, custom_stat_vals = \
+            cbook.violin_stats(dataset, _kde_method,
+                               violin_stat_func_obj_list, points=points)
+
+        return self.violin(vpstats, custom_stat_vals, custom_stat_alias_list,
+                           positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
                            showextrema=showextrema, showmedians=showmedians)
 
-    def violin(self, vpstats, positions=None, vert=True, widths=0.5,
+    def violin(self, vpstats, custom_stat_vals, custom_stat_alias_list,
+               positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
         """Drawing function for violin plots.
 
@@ -7511,7 +7570,9 @@ or tuple of floats
 
         # Render violins
         bodies = []
-        for stats, pos, width in zip(vpstats, positions, widths):
+        custom_vals = {}
+        for stats, pos, width, stat_val_dict in zip(vpstats, positions,
+                                                    widths, custom_stat_vals):
             # The 0.5 factor reflects the fact that we plot from v-p to
             # v+p
             vals = np.array(stats['vals'])
@@ -7525,6 +7586,11 @@ or tuple of floats
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
+            for alias in custom_stat_alias_list:
+                if alias not in custom_vals:
+                    custom_vals[alias] = []
+                custom_vals[alias].append(stat_val_dict[alias])
+
         artists['bodies'] = bodies
 
         # Render means
@@ -7547,6 +7613,12 @@ or tuple of floats
                                              pmins,
                                              pmaxes,
                                              colors=edgecolor)
+        # Render custom statistics
+        for alias in custom_stat_alias_list:
+            artists['custom_' + alias] = perp_lines(custom_vals[alias],
+                                                    pmins,
+                                                    pmaxes,
+                                                    colors=edgecolor)
 
         return artists
 

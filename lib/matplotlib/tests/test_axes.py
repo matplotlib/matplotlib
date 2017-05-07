@@ -2329,7 +2329,8 @@ def test_vert_violinplot_baseline():
                   showmedians=0, data=data)
 
 
-@image_comparison(baseline_images=['violinplot_vert_showmeans'],
+@image_comparison(baseline_images=['violinplot_vert_showmeans',
+                                   'violinplot_vert_showmeans'],
                   extensions=['png'])
 def test_vert_violinplot_showmeans():
     ax = plt.axes()
@@ -2337,6 +2338,11 @@ def test_vert_violinplot_showmeans():
     np.random.seed(732050807)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=0,
+                  showmedians=0)
+    fig, ax = plt.subplots()
+    ax = plt.axes()
+    ax.violinplot(data, statistics_function_list=[np.mean],
+                  positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0)
 
 
@@ -2351,7 +2357,8 @@ def test_vert_violinplot_showextrema():
                   showmedians=0)
 
 
-@image_comparison(baseline_images=['violinplot_vert_showmedians'],
+@image_comparison(baseline_images=['violinplot_vert_showmedians',
+                                   'violinplot_vert_showmedians'],
                   extensions=['png'])
 def test_vert_violinplot_showmedians():
     ax = plt.axes()
@@ -2360,6 +2367,11 @@ def test_vert_violinplot_showmedians():
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=1)
+    fig, ax = plt.subplots()
+    ax = plt.axes()
+    ax.violinplot(data, statistics_function_list=[np.median],
+                  positions=range(4), showmeans=0, showextrema=0,
+                  showmedians=0)
 
 
 @image_comparison(baseline_images=['violinplot_vert_showall'],
@@ -2395,6 +2407,31 @@ def test_vert_violinplot_custompoints_200():
                   showmedians=0, points=200)
 
 
+@image_comparison(baseline_images=['violinplot_vert_showstdev',
+                                   'violinplot_vert_show80_20percentiles'],
+                  extensions=['png'])
+def test_vert_violinplot_showcustomstat():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(31))
+    np.random.seed(567764362)
+    data = [np.random.normal(size=100) for i in range(4)]
+    func_list = [lambda x: np.mean(x) + np.std(x),
+                 lambda x: np.mean(x) - np.std(x)]
+    ax.violinplot(data, statistics_function_list=func_list,
+                  positions=range(4), showmeans=0,
+                  showextrema=0, showmedians=0)
+    fig, ax = plt.subplots()
+    ax = plt.axes()
+    from matplotlib.axes._axes import ViolinStatFunc
+    percentile95 = ViolinStatFunc(np.percentile,
+                                  alias='95 percentile', args=[80])
+    percentile5 = ViolinStatFunc(np.percentile,
+                                 alias='5 percentile', args=[20])
+    ax.violinplot(data, statistics_function_list=[percentile95, percentile5],
+                  positions=range(4), showmeans=0,
+                  showextrema=0, showmedians=0)
+
+
 @image_comparison(baseline_images=['violinplot_horiz_baseline'],
                   extensions=['png'])
 def test_horiz_violinplot_baseline():
@@ -2406,7 +2443,8 @@ def test_horiz_violinplot_baseline():
                   showextrema=0, showmedians=0)
 
 
-@image_comparison(baseline_images=['violinplot_horiz_showmedians'],
+@image_comparison(baseline_images=['violinplot_horiz_showmedians',
+                                   'violinplot_horiz_showmedians'],
                   extensions=['png'])
 def test_horiz_violinplot_showmedians():
     ax = plt.axes()
@@ -2415,9 +2453,15 @@ def test_horiz_violinplot_showmedians():
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=1)
+    fig, ax = plt.subplots()
+    ax = plt.axes()
+    ax.violinplot(data, statistics_function_list=[np.median],
+                  positions=range(4), vert=False,
+                  showmeans=0, showextrema=0, showmedians=0)
 
 
-@image_comparison(baseline_images=['violinplot_horiz_showmeans'],
+@image_comparison(baseline_images=['violinplot_horiz_showmeans',
+                                   'violinplot_horiz_showmeans'],
                   extensions=['png'])
 def test_horiz_violinplot_showmeans():
     ax = plt.axes()
@@ -2426,6 +2470,11 @@ def test_horiz_violinplot_showmeans():
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=0, showmedians=0)
+    fig, ax = plt.subplots()
+    ax = plt.axes()
+    ax.violinplot(data, statistics_function_list=[np.mean],
+                  positions=range(4), vert=False,
+                  showmeans=0, showmedians=0, showextrema=0)
 
 
 @image_comparison(baseline_images=['violinplot_horiz_showextrema'],
@@ -2470,6 +2519,31 @@ def test_horiz_violinplot_custompoints_200():
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=200)
+
+
+@image_comparison(baseline_images=['violinplot_horiz_showstdev',
+                                   'violinplot_horiz_show95_5percentiles'],
+                  extensions=['png'])
+def test_horiz_violinplot_showcustomstat():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(31))
+    np.random.seed(567764362)
+    data = [np.random.normal(size=100) for i in range(4)]
+    func_list = [lambda x: np.mean(x) + np.std(x),
+                 lambda x: np.mean(x) - np.std(x)]
+    ax.violinplot(data, statistics_function_list=func_list,
+                  positions=range(4), vert=False, showmeans=0,
+                  showextrema=0, showmedians=0)
+    fig, ax = plt.subplots()
+    ax = plt.axes()
+    from matplotlib.axes._axes import ViolinStatFunc
+    percentile95 = ViolinStatFunc(np.percentile,
+                                  alias='95 percentile', args=[95])
+    percentile5 = ViolinStatFunc(np.percentile,
+                                 alias='5 percentile', args=[5])
+    ax.violinplot(data, statistics_function_list=[percentile95, percentile5],
+                  positions=range(4), vert=False, showmeans=0,
+                  showextrema=0, showmedians=0)
 
 
 def test_violinplot_bad_positions():

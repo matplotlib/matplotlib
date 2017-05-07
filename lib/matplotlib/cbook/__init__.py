@@ -2001,13 +2001,13 @@ def _reshape_2D(X, name):
         raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
-def violin_stats(X, method, points=100):
+def violin_stats(X, method, custom_stat_func_obj, points=100):
     """
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
-    of the dictionary. Users can skip this function and pass a user-defined set
-    of dictionaries to the `axes.vplot` method instead of using MPL to do the
-    calculations.
+    of the dictionary. Users can skip this function and pass a user-defined
+    set of dictionaries to the `axes.vplot` method instead of using MPL to do
+    the calculations.
 
     Parameters
     ----------
@@ -2043,6 +2043,7 @@ def violin_stats(X, method, points=100):
 
     # List of dictionaries describing each of the violins.
     vpstats = []
+    custom_stat_vals = []
 
     # Want X to be a list of data sequences
     X = _reshape_2D(X, "X")
@@ -2050,6 +2051,7 @@ def violin_stats(X, method, points=100):
     for x in X:
         # Dictionary of results for this distribution
         stats = {}
+        stats2 = {}
 
         # Calculate basic stats for the distribution
         min_val = np.min(x)
@@ -2065,11 +2067,15 @@ def violin_stats(X, method, points=100):
         stats['median'] = np.median(x)
         stats['min'] = min_val
         stats['max'] = max_val
+        for func_obj in custom_stat_func_obj:
+            stats2[func_obj.alias] = \
+                func_obj.func_callable(x, *func_obj.optional_args)
 
         # Append to output
         vpstats.append(stats)
+        custom_stat_vals.append(stats2)
 
-    return vpstats
+    return vpstats, custom_stat_vals
 
 
 class _NestedClassGetter(object):
