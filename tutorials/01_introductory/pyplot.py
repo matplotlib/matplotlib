@@ -119,6 +119,26 @@ plt.ylabel('entry b')
 plt.show()
 
 ###############################################################################
+# .. _plotting-with-categorical-vars:
+#
+# Plotting with categorical variables
+# ===================================
+#
+# It is also possible to create a plot using categorical variables
+# Matplotlib allows you to pass categorical variables directly to
+# many plotting functions. For example:
+
+names = ['group_a', 'group_b', 'group_c']
+values = [1, 10, 100]
+
+fig, axs = plt.subplots(1, 3, figsize=(9, 3))
+axs[0].bar(names, values)
+axs[1].scatter(names, values)
+axs[2].plot(names, values)
+fig.suptitle('Categorical Plotting')
+plt.show()
+
+###############################################################################
 # .. _controlling-line-properties:
 #
 # Controlling line properties
