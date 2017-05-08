@@ -17,7 +17,7 @@ import collections
 
 
 def shim_array(data):
-    if LooseVersion(np.__version__) <= LooseVersion('1.8.0'):
+    if LooseVersion(np.__version__) < LooseVersion('1.8.0'):
         if (isinstance(data, six.string_types) or
                 not isinstance(data, collections.Iterable)):
             data = [data]
