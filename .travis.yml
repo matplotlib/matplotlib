@@ -61,7 +61,7 @@ matrix:
     - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8
+      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas
     - python: "nightly"
       env: PRE=--pre
     - os: osx
