@@ -200,6 +200,7 @@ class Patch(artist.Artist):
         self._facecolor = other._facecolor
         self._fill = other._fill
         self._hatch = other._hatch
+        self._hatch_color = other._hatch_color
         # copy the unscaled dash pattern
         self._us_dashes = other._us_dashes
         self.set_linewidth(other._linewidth)  # also sets dash properties

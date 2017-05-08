@@ -274,3 +274,15 @@ def test_autofmt_xdate(which):
     if which in ('both', 'minor'):
         for label in fig.axes[0].get_xticklabels(True, 'minor'):
             assert int(label.get_rotation()) == angle
+
+
+@pytest.mark.style('default')
+def test_change_dpi():
+    fig = plt.figure(figsize=(4, 4))
+    fig.canvas.draw()
+    assert fig.canvas.renderer.height == 400
+    assert fig.canvas.renderer.width == 400
+    fig.dpi = 50
+    fig.canvas.draw()
+    assert fig.canvas.renderer.height == 200
+    assert fig.canvas.renderer.width == 200

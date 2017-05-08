@@ -3,7 +3,11 @@
 Radian ticks
 ============
 
-Plot using radian units.
+Plot with radians from the basic_units mockup example package.
+
+
+This example shows how the unit class can determine the tick locating,
+formatting and axis labeling.
 
 .. only:: builder_html
 

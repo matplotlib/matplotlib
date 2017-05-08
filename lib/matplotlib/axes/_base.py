@@ -2274,10 +2274,14 @@ class _AxesBase(martist.Artist):
             # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
-                # if finite limits exist for atleast one axis (and the other is infinite), restore the
-                # finite limits
-                x_finite = [d for d in dl if (np.isfinite(d.intervalx).all() and (d not in finite_dl))]
-                y_finite = [d for d in dl if (np.isfinite(d.intervaly).all() and (d not in finite_dl))]
+                # if finite limits exist for atleast one axis (and the
+                # other is infinite), restore the finite limits
+                x_finite = [d for d in dl
+                            if (np.isfinite(d.intervalx).all() and
+                                (d not in finite_dl))]
+                y_finite = [d for d in dl
+                            if (np.isfinite(d.intervaly).all() and
+                                (d not in finite_dl))]
 
                 dl = finite_dl
                 dl.extend(x_finite)

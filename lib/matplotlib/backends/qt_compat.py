@@ -76,6 +76,7 @@ if (QT_API_ENV is not None) and QT_API is None:
         # compatible use the env variable.
         QT_API = ETS[QT_API_ENV][0]
 
+_fallback_to_qt4 = False
 if QT_API is None:
     # No ETS environment or incompatible so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
@@ -87,7 +88,7 @@ if QT_API is None:
         # bindings is imported, but we still got here because a Qt
         # related file was imported. This is allowed, fall back to Qt5
         # using which ever binding the rparams ask for.
-
+        _fallback_to_qt4 = True
         QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
@@ -136,9 +137,12 @@ if _sip_imported:
             from PyQt5 import QtCore, QtGui, QtWidgets
             _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
         except ImportError:
-            # fell through, tried PyQt5, failed fall back to PyQt4
-            QT_API = rcParams['backend.qt4']
-            QT_RC_MAJOR_VERSION = 4
+            if _fallback_to_qt4:
+                # fell through, tried PyQt5, failed fall back to PyQt4
+                QT_API = rcParams['backend.qt4']
+                QT_RC_MAJOR_VERSION = 4
+            else:
+                raise
 
     # needs to be if so we can re-test the value of QT_API which may
     # have been changed in the above if block
