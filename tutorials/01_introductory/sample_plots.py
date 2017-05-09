@@ -386,6 +386,7 @@ matplotlib supports plotting in the style of `xkcd
 import matplotlib.pyplot as plt
 import numpy as np
 
+np.random.seed(19680801)
 data = np.random.randn(2, 100)
 
 fig, axs = plt.subplots(2, 2, figsize=(5, 5))

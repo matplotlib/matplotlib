@@ -131,11 +131,15 @@ plt.show()
 names = ['group_a', 'group_b', 'group_c']
 values = [1, 10, 100]
 
-fig, axs = plt.subplots(1, 3, figsize=(9, 3))
-axs[0].bar(names, values)
-axs[1].scatter(names, values)
-axs[2].plot(names, values)
-fig.suptitle('Categorical Plotting')
+plt.figure(1, figsize=(9, 3))
+
+plt.subplot(131)
+plt.bar(names, values)
+plt.subplot(132)
+plt.scatter(names, values)
+plt.subplot(133)
+plt.plot(names, values)
+plt.suptitle('Categorical Plotting')
 plt.show()
 
 ###############################################################################
