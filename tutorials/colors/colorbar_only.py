@@ -110,4 +110,3 @@ cb3 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap,
 cb3.set_label('Custom extension lengths, some other units')
 
 plt.show()
-
