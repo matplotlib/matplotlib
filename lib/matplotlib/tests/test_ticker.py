@@ -467,6 +467,10 @@ class TestLogFormatter(object):
         (100000, 1000000.0, '1e5'),
     ]
 
+    call_data = [
+            1, 5, 10, 50, 100, 10000
+    ]
+
     @pytest.mark.parametrize('value, domain, expected', pprint_data)
     def test_pprint(self, value, domain, expected):
         fmt = mticker.LogFormatter()
@@ -520,6 +524,15 @@ class TestLogFormatter(object):
         # axis range at 0 to 0.4 decades, label all
         ax.set_xlim(0.5, 0.9)
         self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
+
+    @pytest.mark.parametrize('val', call_data)
+    def test_LogFormatter_call(self, val):
+        # test _num_to_string method used in __call__
+        fig, ax = plt.subplots()
+        lf = matplotlib.ticker.LogFormatter()
+        ax.xaxis.set_major_formatter(lf)
+
+        assert str(lf(val)) is not None
 
 
 class TestFormatStrFormatter(object):
