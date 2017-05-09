@@ -530,7 +530,7 @@ class TestLogFormatter(object):
         # test _num_to_string method used in __call__
         temp_lf = mticker.LogFormatter()
         temp_lf.axis = FakeAxis()
-        assert str(temp_lf(val)) is not None
+        assert temp_lf(val) == str(val)
 
 
 class TestFormatStrFormatter(object):
