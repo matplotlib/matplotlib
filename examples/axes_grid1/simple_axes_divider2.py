@@ -12,7 +12,7 @@ fig1 = plt.figure(1, (5.5, 4.))
 
 # the rect parameter will be ignore as we will set axes_locator
 rect = (0.1, 0.1, 0.8, 0.8)
-ax = [fig1.add_axes(rect, label="%d"%i) for i in range(4)]
+ax = [fig1.add_axes(rect, label="%d" % i) for i in range(4)]
 
 horiz = [Size.Scaled(1.5), Size.Fixed(.5), Size.Scaled(1.),
          Size.Scaled(.5)]
@@ -31,5 +31,4 @@ for ax1 in ax:
     plt.setp(ax1.get_xticklabels()+ax1.get_yticklabels(),
              visible=False)
 
-plt.draw()
 plt.show()

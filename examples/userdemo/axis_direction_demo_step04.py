@@ -7,6 +7,7 @@ Axis Direction Demo Step04
 import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist as axisartist
 
+
 def setup_axes(fig, rect):
     ax = axisartist.Subplot(fig, rect)
     fig.add_axes(ax)
@@ -24,7 +25,8 @@ def setup_axes(fig, rect):
 
     return ax
 
-fig = plt.figure(figsize=(6,2.5))
+
+fig = plt.figure(figsize=(6, 2.5))
 fig.subplots_adjust(bottom=0.2, top=0.8)
 
 ax1 = setup_axes(fig, "121")
@@ -51,10 +53,8 @@ ax2.axis["x2"].label.set_text("rotation=10")
 ax2.axis["x2"].label.set_rotation(10)
 ax2.axis["x2"].toggle(ticklabels=False)
 
-
 ax2.annotate("label direction=$-$", (0.5, 0), xycoords="axes fraction",
              xytext=(0, -10), textcoords="offset points",
              va="top", ha="center")
-
 
 plt.show()

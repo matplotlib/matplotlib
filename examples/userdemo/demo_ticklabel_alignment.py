@@ -11,7 +11,6 @@ import mpl_toolkits.axisartist as axisartist
 
 
 def setup_axes(fig, rect):
-    
     ax = axisartist.Subplot(fig, rect)
     fig.add_subplot(ax)
 
@@ -22,10 +21,9 @@ def setup_axes(fig, rect):
 
     return ax
 
+
 fig = plt.figure(1, figsize=(3, 5))
 fig.subplots_adjust(left=0.5, hspace=0.7)
-
-
 
 ax = setup_axes(fig, 311)
 ax.set_ylabel("ha=right")
@@ -42,3 +40,5 @@ ax.axis["left"].major_ticklabels.set_ha("left")
 ax.axis["bottom"].major_ticklabels.set_va("bottom")
 ax.set_ylabel("ha=left")
 ax.set_xlabel("va=bottom")
+
+plt.show()

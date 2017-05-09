@@ -15,18 +15,17 @@ def make_ticklabels_invisible(fig):
             tl.set_visible(False)
 
 
-plt.figure()
+fig = plt.figure()
 
 gs = GridSpec(3, 3)
 ax1 = plt.subplot(gs[0, :])
-# identical to ax1 = plt.subplot(gs.new_subplotspec((0,0), colspan=3))
-ax2 = plt.subplot(gs[1,:-1])
+# identical to ax1 = plt.subplot(gs.new_subplotspec((0, 0), colspan=3))
+ax2 = plt.subplot(gs[1, :-1])
 ax3 = plt.subplot(gs[1:, -1])
-ax4 = plt.subplot(gs[-1,0])
-ax5 = plt.subplot(gs[-1,-2])
+ax4 = plt.subplot(gs[-1, 0])
+ax5 = plt.subplot(gs[-1, -2])
 
-plt.suptitle("GridSpec")
-make_ticklabels_invisible(plt.gcf())
+fig.suptitle("GridSpec")
+make_ticklabels_invisible(fig)
 
 plt.show()
-

@@ -14,8 +14,6 @@ modified with no restriction; raw copies as well as modified versions
 may be distributed without limitation.
 """
 
-
-
 from __future__ import unicode_literals
 import sys
 import os

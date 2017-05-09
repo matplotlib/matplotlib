@@ -33,7 +33,6 @@ if __name__ == "__main__":
                                        axes=par2,
                                        offset=offset)
 
-
     fig.add_axes(host)
 
     host.set_xlim(0, 2)
@@ -56,5 +55,4 @@ if __name__ == "__main__":
     par1.axis["right"].label.set_color(p2.get_color())
     par2.axis["right2"].label.set_color(p3.get_color())
 
-    plt.draw()
     plt.show()

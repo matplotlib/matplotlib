@@ -33,7 +33,6 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 
 pcm = ax[1].pcolor(X, Y, Z1, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
-fig.show()
 
 
 '''
@@ -51,7 +50,6 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
-fig.show()
 
 '''
 SymLogNorm: two humps, one negative and one positive, The positive
@@ -77,7 +75,6 @@ fig.colorbar(pcm, ax=ax[0], extend='both')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[1], extend='both')
-fig.show()
 
 
 '''
@@ -114,7 +111,6 @@ fig.colorbar(pcm, ax=ax[0], extend='both')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[1], extend='both')
-fig.show()
 
 '''
 BoundaryNorm: For this one you provide the boundaries for your colors,
@@ -140,5 +136,5 @@ fig.colorbar(pcm, ax=ax[1], extend='both', orientation='vertical')
 
 pcm = ax[2].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[2], extend='both', orientation='vertical')
-fig.show()
 
+plt.show()

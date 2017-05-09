@@ -5,16 +5,17 @@ Demo Axis Direction
 
 """
 
-
 import numpy as np
-import  mpl_toolkits.axisartist.angle_helper as angle_helper
-import  mpl_toolkits.axisartist.grid_finder as grid_finder
+import matplotlib.pyplot as plt
+import mpl_toolkits.axisartist.angle_helper as angle_helper
+import mpl_toolkits.axisartist.grid_finder as grid_finder
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 
 import mpl_toolkits.axisartist as axisartist
 
-from mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_helper_curvelinear import \
+    GridHelperCurveLinear
 
 
 def setup_axes(fig, rect):
@@ -26,10 +27,10 @@ def setup_axes(fig, rect):
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
 
     extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
-                                                     lon_cycle = 360,
-                                                     lat_cycle = None,
-                                                     lon_minmax = None,
-                                                     lat_minmax = (0, np.inf),
+                                                     lon_cycle=360,
+                                                     lat_cycle=None,
+                                                     lon_minmax=None,
+                                                     lat_minmax=(0, np.inf),
                                                      )
 
     grid_locator1 = angle_helper.LocatorDMS(12)
@@ -44,7 +45,6 @@ def setup_axes(fig, rect):
                                         tick_formatter1=tick_formatter1
                                         )
 
-
     ax1 = axisartist.Subplot(fig, rect, grid_helper=grid_helper)
     ax1.axis[:].toggle(ticklabels=False)
 
@@ -53,8 +53,6 @@ def setup_axes(fig, rect):
     ax1.set_aspect(1.)
     ax1.set_xlim(-5, 12)
     ax1.set_ylim(-5, 10)
-
-    #ax1.grid(True)
 
     return ax1
 
@@ -75,8 +73,7 @@ def add_floating_axis2(ax1):
     return axis
 
 
-import matplotlib.pyplot as plt
-fig = plt.figure(1, figsize=(8, 4.))
+fig = plt.figure(1, figsize=(8, 4))
 fig.clf()
 fig.subplots_adjust(left=0.01, right=0.99, bottom=0.01, top=0.99,
                     wspace=0.01, hspace=0.01)
@@ -97,8 +94,4 @@ for i, d in enumerate(["bottom", "left", "top", "right"]):
                  xycoords="axes fraction", textcoords="offset points",
                  va="top", ha="left")
 
-
-
 plt.show()
-
-

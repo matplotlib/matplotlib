@@ -27,4 +27,3 @@ par.yaxis.get_label().set_color(p2.get_color())
 leg.texts[1].set_color(p2.get_color())
 
 plt.show()
-

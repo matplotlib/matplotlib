@@ -8,9 +8,8 @@ from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
 
-fig=plt.figure(1, figsize=(3,3))
-ax = plt.subplot(111)
 
+fig, ax = plt.subplots(figsize=(3, 3))
 
 ada = AnchoredDrawingArea(40, 20, 0, 0,
                           loc=1, pad=0., frameon=False)

@@ -39,6 +39,5 @@ if 1:
                                      axes=ax)
     ax.axis["right2"].label.set_text("Label Y2")
 
-    ax.plot([-2,3,2])
-    plt.draw()
+    ax.plot([-2, 3, 2])
     plt.show()

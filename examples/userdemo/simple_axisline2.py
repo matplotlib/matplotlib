@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axisartist.axislines import SubplotZero
 import numpy as np
 
-fig = plt.figure(1, (4,3))
+fig = plt.figure(1, (4, 3))
 
 # a subplot with two additional axis, "xzero" and "yzero". "xzero" is
 # y=0 line, and "yzero" is x=0 line.
