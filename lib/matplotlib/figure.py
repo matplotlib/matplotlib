@@ -1411,8 +1411,8 @@ class Figure(Artist):
 
         Notes
         -----
-        Not all kinds of artist are supported by the legend command.
-        See :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for details.
+        Not all kinds of artist are supported by the legend command. See
+        :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for details.
         """
 
         # If no arguments given, collect up all the artists on the figure
