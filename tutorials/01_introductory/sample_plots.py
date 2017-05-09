@@ -8,10 +8,11 @@ generated them.
 
 .. _matplotlibscreenshots:
 
-Simple Plot
-===========
+Line Plot
+=========
 
-Here's a very basic :func:`~matplotlib.pyplot.plot` with text labels:
+Here's now to create a line plot with  text labels using
+:func:`~matplotlib.pyplot.plot`.
 
 .. figure:: ../../gallery/pylab_examples/images/sphx_glr_simple_plot_001.png
    :target: ../../gallery/pylab_examples/simple_plot.html
@@ -56,7 +57,7 @@ histograms and returns the bin counts or probabilities:
 Path demo
 =========
 
-You can add arbitrary paths in matplotlib using the
+You can add other paths in matplotlib using the
 :mod:`matplotlib.path` module:
 
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_path_patch_001.png
@@ -131,8 +132,8 @@ accurate  8-spline approximation to elliptical arcs (see
 Bar charts
 ==========
 
-Bar charts are simple to create using the :func:`~matplotlib.pyplot.bar`
-command, which includes customizations such as error bars:
+Use the :func:`~matplotlib.pyplot.bar` command to make bar charts, which
+includes customizations such as error bars:
 
 .. figure:: ../../gallery/pylab_examples/images/sphx_glr_barchart_demo_001.png
    :target: ../../gallery/pylab_examples/barchart_demo.html
@@ -141,7 +142,7 @@ command, which includes customizations such as error bars:
 
    Barchart Demo
 
-It's also simple to create stacked bars
+You can also create stacked bars
 (`bar_stacked.py <../../gallery/pylab_examples/bar_stacked.html>`_),
 or horizontal bar charts
 (`barh.py <../../gallery/lines_bars_and_markers/barh.html>`_).
@@ -152,7 +153,7 @@ or horizontal bar charts
 Pie charts
 ==========
 
-The :func:`~matplotlib.pyplot.pie` command allows you to easily create pie
+The :func:`~matplotlib.pyplot.pie` command allows you to create pie
 charts.  Optional features include auto-labeling the percentage of area,
 exploding one or more wedges from the center of the pie, and a shadow effect.
 Take a close look at the attached code, which generates this figure in just
