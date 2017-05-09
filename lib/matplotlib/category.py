@@ -16,8 +16,11 @@ from distutils.version import LooseVersion
 import collections
 
 
-def shim_array(data):
-    if LooseVersion(np.__version__) < LooseVersion('1.8.0'):
+if LooseVersion(np.__version__) >= LooseVersion('1.8.0'):
+    def shim_array(data):
+        return np.array(data, dtype=np.unicode)
+else:
+    def shim_array(data):
         if (isinstance(data, six.string_types) or
                 not isinstance(data, collections.Iterable)):
             data = [data]
@@ -28,8 +31,7 @@ def shim_array(data):
             # render under numpy1.6 anyway
             data = [d.encode('utf-8', 'ignore').decode('utf-8')
                     for d in data]
-
-    return np.array(data, dtype=np.unicode)
+        return np.array(data, dtype=np.unicode)
 
 
 class StrCategoryConverter(units.ConversionInterface):
