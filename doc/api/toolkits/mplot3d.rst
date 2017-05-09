@@ -24,12 +24,7 @@ mplot3d API
    :toctree: ../_as_gen
    :template: autosummary.rst
 
-   axes3d.Axes
    axes3d.Axes3D
-   axes3d.Bbox
-   axes3d.LightSource
-   axes3d.Normalize
-   axes3d.Triangulation
 
 
 .. _toolkit_mplot3d-axisapi:
@@ -51,12 +46,6 @@ mplot3d API
    :template: autosummary.rst
 
    axis3d.Axis
-   axis3d.XAxis
-   axis3d.YAxis
-   axis3d.ZAxis
-   axis3d.get_flip_min_max
-   axis3d.move_from_center
-   axis3d.tick_update_position
 
 
 .. _toolkit_mplot3d-artapi:
@@ -76,6 +65,15 @@ mplot3d API
    art3d.PathPatch3D
    art3d.Poly3DCollection
    art3d.Text3D
+
+
+Art3D Utility Functions
+=======================
+
+.. autosummary::
+   :toctree: ../_as_gen
+   :template: autosummary.rst
+
    art3d.get_colors
    art3d.get_dir_vector
    art3d.get_patch_verts

@@ -3,7 +3,7 @@
 The mplot3d Toolkit
 ===================
 
-Generating 3D plots the mplot3d toolkit.
+Generating 3D plots using the mplot3d toolkit.
 
 .. currentmodule:: mpl_toolkits.mplot3d
 
@@ -19,10 +19,10 @@ the projection='3d' keyword.
 Create a new :class:`matplotlib.figure.Figure` and
 add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
 
-  import matplotlib.pyplot as plt
-  from mpl_toolkits.mplot3d import Axes3D
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection='3d')
+   import matplotlib.pyplot as plt
+   from mpl_toolkits.mplot3d import Axes3D
+   fig = plt.figure()
+   ax = fig.add_subplot(111, projection='3d')
 
 .. versionadded:: 1.0.0
    This approach is the preferred method of creating a 3D axes.
