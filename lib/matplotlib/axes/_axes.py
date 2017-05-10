@@ -403,9 +403,10 @@ or tuple of floats
             the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
         markerfirst : bool
-            if *True*, legend marker is placed to the left of the legend label
-            if *False*, legend marker is placed to the right of the legend
-            label
+            If *True*, legend marker is placed to the left of the legend label.
+            If *False*, legend marker is placed to the right of the legend
+            label.
+            Default is *True*.
 
         frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
