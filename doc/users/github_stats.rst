@@ -3,13 +3,13 @@
 GitHub Stats
 ============
 
-GitHub stats for 2015/10/29 - 2017/05/01 (tag: v1.5.0)
+GitHub stats for 2015/10/29 - 2017/05/09 (tag: v1.5.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 1111 issues and merged 997 pull requests.
+We closed 1130 issues and merged 1003 pull requests.
 
-The following 291 authors contributed 3991 commits.
+The following 292 authors contributed 4014 commits.
 
 * 4over7
 * Aashil Patel
@@ -92,6 +92,7 @@ The following 291 authors contributed 3991 commits.
 * Erin Pintozzi
 * Eugene Yurtsev
 * Fabian-Robert Stöter
+* FedeMiorelli
 * Federico Ariza
 * Felix Yan
 * fibersnet
@@ -305,8 +306,14 @@ The following 291 authors contributed 3991 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (997):
+Pull Requests (1003):
 
+* :ghpull:`8594`: Missing return in _num_to_string()
+* :ghpull:`8584`: Add pandas to python 3.6 build
+* :ghpull:`8583`: Fix pandas datetime test on pandas 0.20
+* :ghpull:`8566`: adding keyword plotting
+* :ghpull:`8567`: Minor pytest parametrization
+* :ghpull:`8554`: added basic_units download link to units examples
 * :ghpull:`8545`: Add tutorials
 * :ghpull:`8176`: Custom error message for draw_path. issues : #8131 (bad error message from pyplot.plot)
 * :ghpull:`8185`: Implement blocking Qt event loop.
@@ -1305,8 +1312,27 @@ Pull Requests (997):
 * :ghpull:`5357`: Fixed typo
 * :ghpull:`4920`: ENH: Add TransformedPatchPath for clipping.
 
-Issues (1111):
+Issues (1130):
 
+* :ghissue:`8599`: Pie Chart from CSV File
+* :ghissue:`8586`: update errorbar in Matplotlib 2.0.0
+* :ghissue:`8463`: wrong hatch color in legend
+* :ghissue:`8558`: Rendering really large image
+* :ghissue:`8312`: Matplotlib attempts to import PyQt4 when PyQt5 is not available
+* :ghissue:`3528`: PS backend is not tested
+* :ghissue:`4389`: Windows installer does not run -> restarts itself continually
+* :ghissue:`8592`: Qt4 backend (PySide) seemingly tries to use Qt5
+* :ghissue:`8579`: Python 2.7 travis build failing
+* :ghissue:`8349`: [feature request] Accepting ``slice`` arguments in ``ax.set_xlim()`` (Python 3)
+* :ghissue:`4379`: for the root example page, please provide more description
+* :ghissue:`8571`: plt.subplots return is inconsistent
+* :ghissue:`8570`: release 2.0.1 has qt4-incompatible code in backend_qt5.py
+* :ghissue:`8569`: Superimposed markers when scatterpoints=1
+* :ghissue:`8565`: Unexpected mixing of qt4backend and qt5backend
+* :ghissue:`8563`: mpl2.0.1 seems to have broken Qt4Agg
+* :ghissue:`8562`: 'QPixmap' object has no attribute 'setDevicePixelRatio'
+* :ghissue:`8560`: Calling close() on a figure doesn't seem to close it
+* :ghissue:`8174`: Update list of dependencies to build docs
 * :ghissue:`8557`: Log scale on pcolor plot with only one tick
 * :ghissue:`7412`: Documentation guidelines improvements 2
 * :ghissue:`8541`: Generate a ``tutorials`` sphinx gallery
