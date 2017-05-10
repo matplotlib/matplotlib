@@ -521,7 +521,7 @@ class TestLogFormatter(object):
         ax.set_xlim(0.5, 0.9)
         self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
 
-    @pytest.mark.parametrize('val', [1, 10, 100, 1000]), 
+    @pytest.mark.parametrize('val', [1, 10, 100, 1000])
     def test_LogFormatter_call(self, val):
         # test _num_to_string method used in __call__
         temp_lf = mticker.LogFormatter()
