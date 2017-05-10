@@ -467,10 +467,6 @@ class TestLogFormatter(object):
         (100000, 1000000.0, '1e5'),
     ]
 
-    call_data = [
-            1, 10, 100, 1000
-    ]
-
     @pytest.mark.parametrize('value, domain, expected', pprint_data)
     def test_pprint(self, value, domain, expected):
         fmt = mticker.LogFormatter()
@@ -525,12 +521,14 @@ class TestLogFormatter(object):
         ax.set_xlim(0.5, 0.9)
         self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
 
-    @pytest.mark.parametrize('val', call_data)
-    def test_LogFormatter_call(self, val):
+    def test_LogFormatter_call(self):
         # test _num_to_string method used in __call__
+        call_data = [ 1, 10, 100, 1000 ]   
         temp_lf = mticker.LogFormatter()
         temp_lf.axis = FakeAxis()
-        assert temp_lf(val) == str(val)
+
+        for val in call_data:
+            assert temp_lf(val) == str(val)
 
 
 class TestFormatStrFormatter(object):
