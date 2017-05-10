@@ -950,7 +950,7 @@ class LogFormatter(Formatter):
         else:
             s = self.pprint_val(x, vmax - vmin)
         return s
-   
+
     def __call__(self, x, pos=None):
         """
         Return the format for tick val `x`.
