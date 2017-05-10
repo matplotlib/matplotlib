@@ -34,18 +34,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 # History:
-# 1.0.10: added float validator (disable "Ok" and "Apply" button when not valid)
+# 1.0.10: added float validator
+#   (disable "Ok" and "Apply" button when not valid)
 # 1.0.7: added support for "Apply" button
 # 1.0.6: code cleaning
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
-__version__ = '1.0.10'
-__license__ = __doc__
-
-DEBUG = False
-
 import copy
 import datetime
 import warnings
@@ -55,7 +49,10 @@ import six
 from matplotlib import colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
+__version__ = '1.0.10'
+__license__ = __doc__
 
+DEBUG = False
 BLACKLIST = {"title", "label"}
 
 
@@ -123,7 +120,8 @@ class ColorLayout(QtWidgets.QHBoxLayout):
     def update_color(self):
         color = self.text()
         qcolor = to_qcolor(color)
-        self.colorbtn.color = qcolor  # defaults to black if not qcolor.isValid()
+        # next line defaults to black if not qcolor.isValid()
+        self.colorbtn.color = qcolor
 
     def update_text(self, color):
         self.lineedit.setText(mcolors.to_hex(color.getRgbF(), keep_alpha=True))
@@ -214,6 +212,7 @@ def is_edit_valid(edit):
 
 class FormWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
+
     def __init__(self, data, comment="", parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.data = copy.deepcopy(data)
@@ -242,7 +241,8 @@ class FormWidget(QtWidgets.QWidget):
                 print("value:", value)
             if label is None and value is None:
                 # Separator: (None, None)
-                self.formlayout.addRow(QtWidgets.QLabel(" "), QtWidgets.QLabel(" "))
+                self.formlayout.addRow(QtWidgets.QLabel(" "),
+                                       QtWidgets.QLabel(" "))
                 self.widgets.append(None)
                 continue
             elif label is None:
@@ -353,7 +353,8 @@ class FormComboWidget(QtWidgets.QWidget):
 
         self.stackwidget = QtWidgets.QStackedWidget(self)
         layout.addWidget(self.stackwidget)
-        self.combobox.currentIndexChanged.connect(self.stackwidget.setCurrentIndex)
+        self.combobox.currentIndexChanged.connect(
+            self.stackwidget.setCurrentIndex)
 
         self.widgetlist = []
         for data, title, comment in datalist:
@@ -437,7 +438,8 @@ class FormDialog(QtWidgets.QDialog):
 
         self.setWindowTitle(title)
         if not isinstance(icon, QtGui.QIcon):
-            icon = QtWidgets.QWidget().style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion)
+            icon = QtWidgets.QWidget().style().standardIcon(
+                QtWidgets.QStyle.SP_MessageBoxQuestion)
         self.setWindowIcon(icon)
 
     def register_float_field(self, field):
@@ -492,8 +494,8 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
 
     Supported types for field_value:
       - int, float, str, unicode, bool
-      - colors: in Qt-compatible text form, i.e. in hex format or name (red,...)
-                (automatically detected from a string)
+      - colors: in Qt-compatible text form, i.e. in hex format or name
+                (red,...) (automatically detected from a string)
       - list/tuple:
           * the first element will be the selected index (or value)
           * the other elements can be couples (key, value) or only values
@@ -532,7 +534,7 @@ if __name__ == "__main__":
                 (datalist, "Category 2", "Category 2 comment"),
                 (datalist, "Category 3", "Category 3 comment"))
 
-    #--------- datalist example
+    # datalist example
     datalist = create_datalist_example()
 
     def apply_test(data):
@@ -541,14 +543,14 @@ if __name__ == "__main__":
                            comment="This is just an <b>example</b>.",
                            apply=apply_test))
 
-    #--------- datagroup example
+    # datagroup example
     datagroup = create_datagroup_example()
     print("result:", fedit(datagroup, "Global title"))
 
-    #--------- datagroup inside a datagroup example
+    # datagroup inside a datagroup example
     datalist = create_datalist_example()
     datagroup = create_datagroup_example()
     print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),
                             (datalist, "Title 2", "Tab 2 comment"),
                             (datalist, "Title 3", "Tab 3 comment")),
-                            "Global title"))
+          "Global title"))
