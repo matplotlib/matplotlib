@@ -26,6 +26,7 @@
    collections_api.rst
    colorbar_api.rst
    colors_api.rst
+   contour_api.rst
    container_api.rst
    dates_api.rst
    dviread.rst
