@@ -95,6 +95,8 @@ stretch_dict = {
 weight_dict = {
     'ultralight' : 100,
     'light'      : 200,
+    'thin'       : 200,
+    'demilight'  : 300,
     'normal'     : 400,
     'regular'    : 400,
     'book'       : 400,
