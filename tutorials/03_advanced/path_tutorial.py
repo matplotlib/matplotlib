@@ -19,19 +19,20 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 
 verts = [
-   (0., 0.), # left, bottom
-   (0., 1.), # left, top
-   (1., 1.), # right, top
-   (1., 0.), # right, bottom
-   (0., 0.), # ignored
-   ]
+   (0., 0.),  # left, bottom
+   (0., 1.),  # left, top
+   (1., 1.),  # right, top
+   (1., 0.),  # right, bottom
+   (0., 0.),  # ignored
+]
 
-codes = [Path.MOVETO,
-         Path.LINETO,
-         Path.LINETO,
-         Path.LINETO,
-         Path.CLOSEPOLY,
-         ]
+codes = [
+    Path.MOVETO,
+    Path.LINETO,
+    Path.LINETO,
+    Path.LINETO,
+    Path.CLOSEPOLY,
+]
 
 path = Path(verts, codes)
 
@@ -75,17 +76,18 @@ plt.show()
 # point
 
 verts = [
-   (0., 0.),  # P0
-   (0.2, 1.), # P1
-   (1., 0.8), # P2
-   (0.8, 0.), # P3
-   ]
+   (0., 0.),   # P0
+   (0.2, 1.),  # P1
+   (1., 0.8),  # P2
+   (0.8, 0.),  # P3
+]
 
-codes = [Path.MOVETO,
-         Path.CURVE4,
-         Path.CURVE4,
-         Path.CURVE4,
-         ]
+codes = [
+    Path.MOVETO,
+    Path.CURVE4,
+    Path.CURVE4,
+    Path.CURVE4,
+]
 
 path = Path(verts, codes)
 

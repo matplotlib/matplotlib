@@ -236,8 +236,10 @@ l = plt.legend([(p1, p2)], ['Two keys'], numpoints=1,
 
 import matplotlib.patches as mpatches
 
+
 class AnyObject(object):
     pass
+
 
 class AnyObjectHandler(object):
     def legend_artist(self, legend, orig_handle, fontsize, handlebox):
@@ -248,6 +250,7 @@ class AnyObjectHandler(object):
                                    transform=handlebox.get_transform())
         handlebox.add_artist(patch)
         return patch
+
 
 plt.legend([AnyObject()], ['My first handler'],
            handler_map={AnyObject: AnyObjectHandler()})
@@ -266,6 +269,7 @@ plt.legend([AnyObject()], ['My first handler'],
 # rectangular ones:
 
 from matplotlib.legend_handler import HandlerPatch
+
 
 class HandlerEllipse(HandlerPatch):
     def create_artists(self, legend, orig_handle,

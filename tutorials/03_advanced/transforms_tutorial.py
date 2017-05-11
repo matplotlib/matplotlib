@@ -24,11 +24,11 @@ description of that system. In the `Transformation Object` column,
 Coordinate  Transformation Object  Description
 ==========  =====================  ====================================================================================
 `data`      ``ax.transData``       The userland data coordinate system, controlled by the xlim and ylim
-`axes`      ``ax.transAxes``       The coordinate system of the :class:`~matplotlib.axes.Axes`; (0,0) is
-                                   bottom left of the axes, and (1,1) is top right of the axes.
-`figure`    ``fig.transFigure``    The coordinate system of the :class:`~matplotlib.figure.Figure`; (0,0)
-                                   is bottom left of the figure, and (1,1) is top right of the figure.
-`display`   `None`                 This is the pixel coordinate system of the display; (0,0) is the bottom
+`axes`      ``ax.transAxes``       The coordinate system of the :class:`~matplotlib.axes.Axes`; (0, 0) is
+                                   bottom left of the axes, and (1, 1) is top right of the axes.
+`figure`    ``fig.transFigure``    The coordinate system of the :class:`~matplotlib.figure.Figure`; (0, 0)
+                                   is bottom left of the figure, and (1, 1) is top right of the figure.
+`display`   `None`                 This is the pixel coordinate system of the display; (0, 0) is the bottom
                                    left of the display, and (width, height) is the top right of the display in pixels.
                                    Alternatively, the identity transform
                                    (:class:`matplotlib.transforms.IdentityTransform()`) may be used instead of None.
@@ -87,7 +87,7 @@ plt.show()
 #     In [15]: ax.transData.transform((5, 0))
 #     Out[15]: array([ 335.175,  247.   ])
 #
-#     In [16]: ax.transData.transform([(5, 0), (1,2)])
+#     In [16]: ax.transData.transform([(5, 0), (1, 2)])
 #     Out[16]:
 #     array([[ 335.175,  247.   ],
 #            [ 132.435,  642.2  ]])
@@ -170,13 +170,13 @@ plt.show()
 #     In [54]: ax.transData.transform((5, 0))
 #     Out[54]: array([ 335.175,  247.   ])
 #
-#     In [55]: ax.set_ylim(-1,2)
+#     In [55]: ax.set_ylim(-1, 2)
 #     Out[55]: (-1, 2)
 #
 #     In [56]: ax.transData.transform((5, 0))
 #     Out[56]: array([ 335.175     ,  181.13333333])
 #
-#     In [57]: ax.set_xlim(10,20)
+#     In [57]: ax.set_xlim(10, 20)
 #     Out[57]: (10, 20)
 #
 #     In [58]: ax.transData.transform((5, 0))
@@ -189,7 +189,7 @@ plt.show()
 # ================
 #
 # After the `data` coordinate system, `axes` is probably the second most
-# useful coordinate system.  Here the point (0,0) is the bottom left of
+# useful coordinate system.  Here the point (0, 0) is the bottom left of
 # your axes or subplot, (0.5, 0.5) is the center, and (1.0, 1.0) is the
 # top right.  You can also refer to points outside the range, so (-0.1,
 # 1.1) is to the left and above your axes.  This coordinate system is
@@ -272,7 +272,7 @@ trans = transforms.blended_transform_factory(
 # highlight the 1..2 stddev region with a span.
 # We want x to be in data coordinates and y to
 # span from 0..1 in axes coords
-rect = patches.Rectangle((1,0), width=1, height=1,
+rect = patches.Rectangle((1, 0), width=1, height=1,
                          transform=trans, color='yellow',
                          alpha=0.5)
 
@@ -389,7 +389,7 @@ plt.show()
 #   self.transData = self.transScale + (self.transLimits + self.transAxes)
 #
 # We've been introduced to the ``transAxes`` instance above in
-# :ref:`axes-coords`, which maps the (0,0), (1,1) corners of the
+# :ref:`axes-coords`, which maps the (0, 0), (1, 1) corners of the
 # axes or subplot bounding box to `display` space, so let's look at
 # these other two pieces.
 #
@@ -405,19 +405,19 @@ plt.show()
 #     In [81]: ax.set_xlim(0, 10)
 #     Out[81]: (0, 10)
 #
-#     In [82]: ax.set_ylim(-1,1)
+#     In [82]: ax.set_ylim(-1, 1)
 #     Out[82]: (-1, 1)
 #
-#     In [84]: ax.transLimits.transform((0,-1))
+#     In [84]: ax.transLimits.transform((0, -1))
 #     Out[84]: array([ 0.,  0.])
 #
-#     In [85]: ax.transLimits.transform((10,-1))
+#     In [85]: ax.transLimits.transform((10, -1))
 #     Out[85]: array([ 1.,  0.])
 #
-#     In [86]: ax.transLimits.transform((10,1))
+#     In [86]: ax.transLimits.transform((10, 1))
 #     Out[86]: array([ 1.,  1.])
 #
-#     In [87]: ax.transLimits.transform((5,0))
+#     In [87]: ax.transLimits.transform((5, 0))
 #     Out[87]: array([ 0.5,  0.5])
 #
 # and we can use this same inverted transformation to go from the unit
