@@ -444,7 +444,9 @@ def ttfFontProperty(font):
     else:
         variant = 'normal'
 
-    weight = next((w for w in weight_dict if sfnt4.find(w) >= 0), None)
+    sorted_weights = sorted(weight_dict.keys(), key=lambda k: len(k),
+                            reverse=True)
+    weight = next((w for w in sorted_weights if sfnt4.find(w) >= 0), None)
     if not weight:
         if font.style_flags & ft2font.BOLD:
             weight = 700
