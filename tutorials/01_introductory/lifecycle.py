@@ -19,7 +19,7 @@ to highlight some neat features and best-practices using Matplotlib.
 A note on the Object-Oriented API vs Pyplot
 ===========================================
 
-Matplotlib has two interfaces. The first is an an object-oriented (OO)
+Matplotlib has two interfaces. The first is an object-oriented (OO)
 interface. In this case, we utilize an instance of :class:`axes.Axes`
 in order to render visualizations on an instance of :class:`figure.Figure`.
 
