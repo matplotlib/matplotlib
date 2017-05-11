@@ -6,10 +6,8 @@ Plotting categorical variables
 How to use categorical variables in matplotlib.
 
 Many times you want to create a plot that uses categorical variables
-in Matplotlib. For example, your data may naturally fall into
-several "bins" and you're interested in summarizing the data per
-bin. Matplotlib allows you to pass categorical variables directly to
-many plotting functions.
+in Matplotlib. Matplotlib allows you to pass categorical variables directly to
+many plotting functions, which we demonstrate below.
 """
 import matplotlib.pyplot as plt
 

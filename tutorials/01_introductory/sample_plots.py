@@ -11,7 +11,7 @@ generated them.
 Line Plot
 =========
 
-Here's now to create a line plot with  text labels using
+Here's how to create a line plot with  text labels using
 :func:`~matplotlib.pyplot.plot`.
 
 .. figure:: ../../gallery/pylab_examples/images/sphx_glr_simple_plot_001.png
@@ -57,7 +57,7 @@ histograms and returns the bin counts or probabilities:
 Path demo
 =========
 
-You can add other paths in matplotlib using the
+You can add arbitrary paths in Matplotlib using the
 :mod:`matplotlib.path` module:
 
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_path_patch_001.png
@@ -84,7 +84,7 @@ including surface, wireframe, scatter, and bar charts.
    Surface3d
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
-the `mplot3d` toolkit. This toolkit is included with all standard matplotlib
+the `mplot3d` toolkit. This toolkit is included with all standard Matplotlib
 installs.
 
 .. _screenshots_ellipse_demo:
@@ -115,7 +115,7 @@ Ellipses
 
 In support of the
 `Phoenix <http://www.jpl.nasa.gov/news/phoenix/main.php>`_ mission to
-Mars (which used matplotlib to display ground tracking of spacecraft),
+Mars (which used Matplotlib to display ground tracking of spacecraft),
 Michael Droettboom built on work by Charlie Moad to provide an extremely
 accurate  8-spline approximation to elliptical arcs (see
 :class:`~matplotlib.patches.Arc`), which are insensitive to zoom level.
@@ -242,8 +242,8 @@ Thanks to Andrew Straw for adding this function.
 Date demo
 =========
 
-You can plot date data with major and minor ticks and custom tick formatters
-for both.
+You can plot timeseries data with major and minor ticks and custom
+tick formatters for both.
 
 .. figure:: ../../gallery/api/images/sphx_glr_date_001.png
    :target: ../../gallery/api/date.html
@@ -313,7 +313,7 @@ Thanks to Charles Twardy for input on the legend command.
 Mathtext_examples
 =================
 
-Below is a sampling of the many TeX expressions now supported by matplotlib's
+Below is a sampling of the many TeX expressions now supported by Matplotlib's
 internal mathtext engine.  The mathtext module provides TeX style mathematical
 expressions using `FreeType <https://www.freetype.org/>`_
 and the DejaVu, BaKoMa computer modern, or `STIX <http://www.stixfonts.org>`_
@@ -336,7 +336,7 @@ the tutorial at :ref:`sphx_glr_tutorials_text_mathtext.py`.
 Native TeX rendering
 ====================
 
-Although matplotlib's internal math rendering engine is quite
+Although Matplotlib's internal math rendering engine is quite
 powerful, sometimes you need TeX. Matplotlib supports external TeX
 rendering of strings with the *usetex* option.
 
@@ -352,7 +352,7 @@ rendering of strings with the *usetex* option.
 EEG demo
 =========
 
-You can embed matplotlib into pygtk, wx, Tk, or Qt applications.
+You can embed Matplotlib into pygtk, wx, Tk, or Qt applications.
 Here is a screenshot of an EEG viewer called `pbrain
 <https://github.com/nipy/pbrain>`__.
 
@@ -361,7 +361,7 @@ Here is a screenshot of an EEG viewer called `pbrain
 The lower axes uses :func:`~matplotlib.pyplot.specgram`
 to plot the spectrogram of one of the EEG channels.
 
-For examples of how to embed matplotlib in different toolkits, see:
+For examples of how to embed Matplotlib in different toolkits, see:
 
    * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_gtk2_sgskip.py`
    * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_wx2_sgskip.py`
@@ -372,7 +372,7 @@ For examples of how to embed matplotlib in different toolkits, see:
 XKCD-style sketch plots
 =======================
 
-matplotlib supports plotting in the style of `xkcd
+Matplotlib supports plotting in the style of `xkcd
 <http://www.xkcd.com/>`.
 
 .. figure:: ../../gallery/showcase/images/sphx_glr_xkcd_001.png

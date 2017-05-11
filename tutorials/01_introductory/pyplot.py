@@ -124,7 +124,7 @@ plt.show()
 # Plotting with categorical variables
 # ===================================
 #
-# It is also possible to create a plot using categorical variables
+# It is also possible to create a plot using categorical variables.
 # Matplotlib allows you to pass categorical variables directly to
 # many plotting functions. For example:
 

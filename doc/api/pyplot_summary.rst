@@ -21,13 +21,15 @@ The Object-Oriented API
 
 Most of these functions also exist as methods in the
 :class:`matplotlib.axes.Axes` class. You can use them with the
-so-called "Object Oriented" approach to Matplotlib.
+"Object Oriented" approach to Matplotlib.
 
 While it is easy to quickly generate plots with the
 :mod:`matplotlib.pyplot` module,
 we recommend using the object-oriented approach for more control
-and customization of your plots. For some examples of the OO approach
-to Matplotlib, see the :ref:`api_examples` examples.
+and customization of your plots. See the methods in the
+:meth:`matplotlib.axes.Axes` class for many of the same plotting functions.
+For examples of the OO approach to Matplotlib, see the
+:ref:`API Examples<api_examples>`.
 
 Colors in Matplotlib
 --------------------
