@@ -1492,6 +1492,9 @@ def setp(obj, *args, **kwargs):
     else:
         objs = list(cbook.flatten(obj))
 
+    if not objs:
+        return
+
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 

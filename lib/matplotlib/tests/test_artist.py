@@ -236,6 +236,25 @@ def test_properties():
         assert len(w) == 0
 
 
+@cleanup
+def test_setp():
+    # Check empty list
+    plt.setp([])
+    plt.setp([[]])
+
+    # Check arbitrary iterables
+    fig, axes = plt.subplots()
+    lines1 = axes.plot(range(3))
+    lines2 = axes.plot(range(3))
+    martist.setp(chain(lines1, lines2), 'lw', 5)
+    plt.setp(axes.spines.values(), color='green')
+
+    # Check `file` argument
+    sio = io.StringIO()
+    plt.setp(lines1, 'zorder', file=sio)
+    assert sio.getvalue() == '  zorder: any number \n'
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
