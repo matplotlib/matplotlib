@@ -409,13 +409,20 @@ def ttfFontProperty(font):
 
     sfnt = font.get_sfnt()
     sfnt2 = sfnt.get((1,0,0,2))
+    sfnt2_3 = sfnt.get((3,1,1033,2))
     sfnt4 = sfnt.get((1,0,0,4))
+    sfnt4_3 = sfnt.get((3,1,1033,4))
     if sfnt2:
         sfnt2 = sfnt2.decode('macroman').lower()
+    elif sfnt2_3:
+        sfnt2 = sfnt2_3.decode('utf_16_be').lower()
     else:
         sfnt2 = ''
+
     if sfnt4:
         sfnt4 = sfnt4.decode('macroman').lower()
+    elif sfnt4_3:
+        sfnt4 = sfnt4_3.decode('utf_16_be').lower()
     else:
         sfnt4 = ''
     if sfnt4.find('oblique') >= 0:
