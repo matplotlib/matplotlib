@@ -3,7 +3,7 @@
 Customized Colorbars Tutorial
 =============================
 
-This tutorial shows how to build colorbars without an attached mappable.
+This tutorial shows how to build colorbars without an attached plot.
 
 """
 
@@ -11,23 +11,18 @@ This tutorial shows how to build colorbars without an attached mappable.
 # Customized Colorbars
 # ====================
 #
-# `matplotlib.colorbar.ColorbarBase` derives from `ScalarMappable` and puts a
-# colorbar in specified axes, it is the base class with standalone colorbar
-# drawing functionality. It can be used as-is to make a colorbar for a given
-# colormap and does not need a mappable object like an image. In this tutorial
-# we will explore what can be done with standalone colorbar.
+# ColorbarBase derives from ScalarMappable and puts a colorbar in a specified
+# axes, so it has everything needed for a standalone colorbar. It can be used
+# as is to make a colorbar for a given colormap and does not need a mappable
+# object like an image. In this tutorial we will explore what can be done with
+# standalone colorbar.
 #
-# We will start by making a figure of desired size and adding axis at position
-# [left, bottom, width, height] where all quantities are in fractions of figure
-# width and height.
+# We will start by making a figure of desired size and adding thress axes.
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-fig = plt.figure(figsize=(8, 3))
-ax1 = fig.add_axes([0.05, 0.80, 0.9, 0.15])
-ax2 = fig.add_axes([0.05, 0.475, 0.9, 0.15])
-ax3 = fig.add_axes([0.05, 0.15, 0.9, 0.15])
+fig, (ax1, ax2, ax3) = plt.subplots(nrows=3)
 
 ###############################################################################
 # Basic continuous colorbar
@@ -51,9 +46,9 @@ cb1.set_label('Some Units')
 # Discrete intervals colorbar
 # ---------------------------
 #
-# The second example illustrates the use of a ListedColormap which generates
+# The second example illustrates the use of a ListedColormap which generates a
 # colormap from a set of listed colors, a BoundaryNorm which generates a
-# colormap index based on discrete interval and extended ends to show the
+# colormap index based on discrete intervals and extended ends to show the
 # "over" and "under" value colors. Over and under are used to display data
 # outside of the normalized [0,1] range. Here we pass colors as gray shades as
 # a string encoding a float in the 0-1 range.
@@ -87,10 +82,10 @@ cb2.set_label('Discrete intervals, some other units')
 # Colorbar with custom extension lengths
 # --------------------------------------
 #
-# Now in the third example we illustrate the use of custom length colorbar
-# extensions, used on a colorbar with discrete intervals. Here we pass colors
-# as RGB triplet. To make the length of each extension the same as the length
-# of the interior colors pass extendfrac argument as auto
+# Here we illustrate the use of custom length colorbar extensions, used on a
+# colorbar with discrete intervals. Here we pass colors as RGB triplet. To make
+# the length of each extension the same as the length of the interior colors
+# pass the extendfrac argument as auto.
 
 cmap = mpl.colors.ListedColormap([[0., .4, 1.], [0., .8, 1.],
                                   [1., .8, 0.], [1., .4, 0.]])
@@ -109,4 +104,5 @@ cb3 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap,
                                 orientation='horizontal')
 cb3.set_label('Custom extension lengths, some other units')
 
+plt.tight_layout()
 plt.show()
