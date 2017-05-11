@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -e
+set -ev
 
 # This script is meant to be called by the "script" step defined in
 # .travis.yml. See http://docs.travis-ci.com/ for more details.
@@ -26,9 +26,9 @@ if [[ $BUILD_DOCS == false ]]; then
 
   echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-    python tests.py $PYTEST_ARGS $RUN_PEP8
+    pytest $PYTEST_ARGS $RUN_PEP8
   else
-    gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $PYTEST_ARGS $RUN_PEP8
+    gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS -m pytest $PYTEST_ARGS $RUN_PEP8
   fi
 else
   cd doc
