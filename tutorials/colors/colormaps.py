@@ -27,7 +27,7 @@ steps in the color space. Researchers have found that the human brain
 perceives changes in the lightness parameter as changes in the data
 much better than, for example, changes in hue. Therefore, colormaps
 which have monotonically increasing lightness through the colormap
-will be better interpreted by the viewer. A wonderful example of 
+will be better interpreted by the viewer. A wonderful example of
 perceptually uniform colormaps is [colorcet]_.
 
 Color can be represented in 3D space in various ways. One way to represent color
@@ -340,11 +340,11 @@ def plot_color_gradients(cmap_category, cmap_list):
     for ax, name in zip(axes, cmap_list):
 
         # Get RGB values for colormap.
-        rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis,:,:3]
+        rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis, :, :3]
 
         # Get colormap in CAM02-UCS colorspace. We want the lightness.
         lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
-        L = lab[0,:,0]
+        L = lab[0, :, 0]
         L = np.float32(np.vstack((L, L, L)))
 
         ax[0].imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))

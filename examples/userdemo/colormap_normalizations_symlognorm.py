@@ -19,11 +19,12 @@ negative data separately.
 
 Note that colorbar labels do not come out looking very good.
 """
-N=100
+
+N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
-Z1 = (bivariate_normal(X, Y, 1., 1., 1.0, 1.0))**2  \
-    - 0.4 * (bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0))**2
-Z1 = Z1/0.03
+Z1 = (bivariate_normal(X, Y, 1., 1., 1.0, 1.0)**2 -
+      0.4 * bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0)**2)
+Z1 = Z1 / 0.03
 
 fig, ax = plt.subplots(2, 1)
 
@@ -35,5 +36,5 @@ fig.colorbar(pcm, ax=ax[0], extend='both')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[1], extend='both')
-fig.show()
 
+plt.show()

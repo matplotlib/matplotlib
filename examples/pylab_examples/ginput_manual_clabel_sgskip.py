@@ -61,6 +61,7 @@ while not happy:
         for p in ph:
             p.remove()
 
+
 ##################################################
 # Now contour according to distance from triangle
 # corners - just an example

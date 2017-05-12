@@ -9,8 +9,11 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 from itertools import product
 
-def squiggle_xy(a, b, c, d, i=np.arange(0.0, 2*np.pi, 0.05)):
+
+def squiggle_xy(a, b, c, d):
+    i = np.arange(0.0, 2*np.pi, 0.05)
     return np.sin(i*a)*np.cos(i*b), np.sin(i*c)*np.cos(i*d)
+
 
 fig = plt.figure(figsize=(8, 8))
 
@@ -20,7 +23,8 @@ outer_grid = gridspec.GridSpec(4, 4, wspace=0.0, hspace=0.0)
 for i in range(16):
     inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3,
             subplot_spec=outer_grid[i], wspace=0.0, hspace=0.0)
-    a, b = int(i/4)+1,i%4+1
+    a = i // 4 + 1
+    b = i % 4 + 1
     for j, (c, d) in enumerate(product(range(1, 4), repeat=2)):
         ax = plt.Subplot(fig, inner_grid[j])
         ax.plot(*squiggle_xy(a, b, c, d))

@@ -41,5 +41,5 @@ fig.colorbar(pcm, ax=ax[1], extend='both', orientation='vertical')
 
 pcm = ax[2].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[2], extend='both', orientation='vertical')
-fig.show()
 
+plt.show()

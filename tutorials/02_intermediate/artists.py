@@ -668,7 +668,7 @@ plt.show()
 # gridline         Line2D instance
 # label1           Text instance
 # label2           Text instance
-# gridOn           boolean which determines whether to draw the gridline 
+# gridOn           boolean which determines whether to draw the gridline
 # tick1On          boolean which determines whether to draw the 1st tickline
 # tick2On          boolean which determines whether to draw the 2nd tickline
 # label1On         boolean which determines whether to draw the 1st tick label

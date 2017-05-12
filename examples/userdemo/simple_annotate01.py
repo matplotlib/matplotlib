@@ -18,6 +18,7 @@ from matplotlib.offsetbox import AnchoredText
 
 from matplotlib.font_manager import FontProperties
 
+
 def add_at(ax, t, loc=2):
     fp = dict(size=10)
     _at = AnchoredText(t, loc=loc, prop=fp)
@@ -38,13 +39,13 @@ ax.annotate("",
 
 add_at(ax, "A $->$ B", loc=2)
 
+
 ax = grid[1]
 ax.plot([x1, x2], [y1, y2], "o")
 ax.annotate("",
             xy=(x1, y1), xycoords='data',
             xytext=(x2, y2), textcoords='data',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=0.3"))
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0.3"))
 
 add_at(ax, "connectionstyle=arc3", loc=2)
 
@@ -54,10 +55,8 @@ ax.plot([x1, x2], [y1, y2], "o")
 ax.annotate("",
             xy=(x1, y1), xycoords='data',
             xytext=(x2, y2), textcoords='data',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=0.3",
-                            shrinkB=5,
-                            )
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0.3",
+                            shrinkB=5)
             )
 
 add_at(ax, "shrinkB=5", loc=2)
@@ -70,9 +69,7 @@ ax.add_artist(el)
 ax.annotate("",
             xy=(x1, y1), xycoords='data',
             xytext=(x2, y2), textcoords='data',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=0.2",
-                            )
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0.2")
             )
 
 
@@ -83,15 +80,11 @@ ax.add_artist(el)
 ax.annotate("",
             xy=(x1, y1), xycoords='data',
             xytext=(x2, y2), textcoords='data',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=0.2",
-                            patchB=el,
-                            )
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0.2",
+                            patchB=el)
             )
 
-
 add_at(ax, "patchB", loc=2)
-
 
 
 ax = grid[5]
@@ -100,14 +93,9 @@ ax.annotate("Test",
             xy=(x1, y1), xycoords='data',
             xytext=(x2, y2), textcoords='data',
             ha="center", va="center",
-            bbox=dict(boxstyle="round",
-                      fc="w",
-                      ),
-            arrowprops=dict(arrowstyle="->",
-                            #connectionstyle="arc3,rad=0.2",
-                            )
+            bbox=dict(boxstyle="round", fc="w"),
+            arrowprops=dict(arrowstyle="->")
             )
-
 
 add_at(ax, "annotate", loc=2)
 
@@ -118,21 +106,10 @@ ax.annotate("Test",
             xy=(x1, y1), xycoords='data',
             xytext=(x2, y2), textcoords='data',
             ha="center", va="center",
-            bbox=dict(boxstyle="round",
-                      fc="w",
-                      ),
-            arrowprops=dict(arrowstyle="->",
-                            #connectionstyle="arc3,rad=0.2",
-                            relpos=(0., 0.)
-                            )
+            bbox=dict(boxstyle="round", fc="w", ),
+            arrowprops=dict(arrowstyle="->", relpos=(0., 0.))
             )
-
 
 add_at(ax, "relpos=(0,0)", loc=2)
 
-
-
-#ax.set_xlim(0, 1)
-#ax.set_ylim(0, 1)
-plt.draw()
 plt.show()

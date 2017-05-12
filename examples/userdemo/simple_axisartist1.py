@@ -25,4 +25,3 @@ ax.axis["y=0"].label.set_text("y = 0")
 ax.set_ylim(-2, 4)
 
 plt.show()
-

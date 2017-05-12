@@ -7,6 +7,7 @@ Axis Direction Demo Step01
 import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist as axisartist
 
+
 def setup_axes(fig, rect):
     ax = axisartist.Subplot(fig, rect)
     fig.add_axes(ax)
@@ -21,11 +22,11 @@ def setup_axes(fig, rect):
 
     return ax
 
-fig = plt.figure(figsize=(3,2.5))
+
+fig = plt.figure(figsize=(3, 2.5))
 fig.subplots_adjust(top=0.8)
 ax1 = setup_axes(fig, "111")
 
 ax1.axis["x"].set_axis_direction("left")
-
 
 plt.show()

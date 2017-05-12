@@ -29,6 +29,5 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
-fig.show()
 
-
+plt.show()

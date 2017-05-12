@@ -7,7 +7,7 @@ Simple Axis Direction01
 import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist as axisartist
 
-fig = plt.figure(figsize=(4,2.5))
+fig = plt.figure(figsize=(4, 2.5))
 ax1 = fig.add_subplot(axisartist.Subplot(fig, "111"))
 fig.subplots_adjust(right=0.8)
 

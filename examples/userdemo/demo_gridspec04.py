@@ -7,12 +7,12 @@ Demo Gridspec04
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+
 def make_ticklabels_invisible(fig):
     for i, ax in enumerate(fig.axes):
         ax.text(0.5, 0.5, "ax%d" % (i+1), va="center", ha="center")
         for tl in ax.get_xticklabels() + ax.get_yticklabels():
             tl.set_visible(False)
-
 
 
 # gridspec inside gridspec
@@ -41,7 +41,6 @@ ax6 = plt.Subplot(f, gs01[-1, -1])
 f.add_subplot(ax6)
 
 plt.suptitle("GridSpec Inside GridSpec")
-make_ticklabels_invisible(plt.gcf())
+make_ticklabels_invisible(f)
 
 plt.show()
-

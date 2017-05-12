@@ -7,7 +7,7 @@ Introduction to plotting and working with text in Matplotlib.
 Matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
 vector outputs, newline separated text with arbitrary
-rotations, and unicode support. 
+rotations, and unicode support.
 
 Because it embeds fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.

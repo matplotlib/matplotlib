@@ -6,8 +6,8 @@ Annotate Simple03
 """
 import matplotlib.pyplot as plt
 
-plt.figure(1, figsize=(3,3))
-ax = plt.subplot(111)
+
+fig, ax = plt.subplots(figsize=(3, 3))
 
 ann = ax.annotate("Test",
                   xy=(0.2, 0.2), xycoords='data',
@@ -16,8 +16,7 @@ ann = ax.annotate("Test",
                   bbox=dict(boxstyle="round4", fc="w"),
                   arrowprops=dict(arrowstyle="-|>",
                                   connectionstyle="arc3,rad=-0.2",
-                                  fc="w"), 
+                                  fc="w"),
                   )
 
 plt.show()
-

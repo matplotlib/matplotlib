@@ -10,13 +10,13 @@ import matplotlib as mpl
 mpl.use("pgf")
 pgf_with_rc_fonts = {
     "font.family": "serif",
-    "font.serif": [],                   # use latex default serif font
-    "font.sans-serif": ["DejaVu Sans"], # use a specific sans-serif font
+    "font.serif": [],                    # use latex default serif font
+    "font.sans-serif": ["DejaVu Sans"],  # use a specific sans-serif font
 }
 mpl.rcParams.update(pgf_with_rc_fonts)
 
 import matplotlib.pyplot as plt
-plt.figure(figsize=(4.5,2.5))
+plt.figure(figsize=(4.5, 2.5))
 plt.plot(range(5))
 plt.text(0.5, 3., "serif")
 plt.text(0.5, 2., "monospace", family="monospace")

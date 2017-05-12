@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1 import Divider, LocatableAxes, Size
 
-def demo_fixed_size_axes():
 
+def demo_fixed_size_axes():
     fig1 = plt.figure(1, (6, 6))
 
     # The first items are for padding and the second items are for the axes.
@@ -25,19 +25,16 @@ def demo_fixed_size_axes():
 
     fig1.add_axes(ax)
 
-    ax.plot([1,2,3])
-
-
+    ax.plot([1, 2, 3])
 
 
 def demo_fixed_pad_axes():
-
     fig = plt.figure(2, (6, 6))
 
-    # The first & third items are for padding and the second items are for the axes.
-    # sizes are in inch.
-    h = [Size.Fixed(1.0), Size.Scaled(1.), Size.Fixed(.2),]
-    v = [Size.Fixed(0.7), Size.Scaled(1.), Size.Fixed(.5),]
+    # The first & third items are for padding and the second items are for the
+    # axes. Sizes are in inches.
+    h = [Size.Fixed(1.0), Size.Scaled(1.), Size.Fixed(.2)]
+    v = [Size.Fixed(0.7), Size.Scaled(1.), Size.Fixed(.5)]
 
     divider = Divider(fig, (0.0, 0.0, 1., 1.), h, v, aspect=False)
     # the width and height of the rectangle is ignored.
@@ -47,16 +44,11 @@ def demo_fixed_pad_axes():
 
     fig.add_axes(ax)
 
-    ax.plot([1,2,3])
-
-
-
-
+    ax.plot([1, 2, 3])
 
 
 if __name__ == "__main__":
     demo_fixed_size_axes()
     demo_fixed_pad_axes()
 
-    plt.draw()
     plt.show()
