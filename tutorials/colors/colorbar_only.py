@@ -85,7 +85,7 @@ cb2.set_label('Discrete intervals, some other units')
 #
 # Here we illustrate the use of custom length colorbar extensions, used on a
 # colorbar with discrete intervals. To make the length of each extension same
-# as the length of the interior colors, use extendfrac='auto'.
+# as the length of the interior colors, use ``extendfrac='auto'``.
 
 cmap = mpl.colors.ListedColormap(['royalblue', 'cyan',
                                   'yellow', 'orange'])
