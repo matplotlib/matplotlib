@@ -46,7 +46,7 @@ axs[1].hist(y, bins=n_bins)
 # edit the histogram to our liking. Let's change the color of each bar
 # based on its y value.
 
-fig, axs = plt.subplots(1, 2, figsize=(10, 5), tight_layout=True)
+fig, axs = plt.subplots(1, 2, tight_layout=True)
 
 # N is the count in each bin, bins is the lower-limit of the bin
 N, bins, patches = axs[0].hist(x, bins=n_bins)
@@ -87,7 +87,7 @@ hist = ax.hist2d(x, y)
 # Customizing a 2D histogram is similar to the 1D case, you can control
 # visual components such as the bin size or color normalization.
 
-fig, axs = plt.subplots(1, 3, figsize=(15, 5), sharex=True, sharey=True,
+fig, axs = plt.subplots(3, 1, figsize=(5, 15), sharex=True, sharey=True,
                         tight_layout=True)
 
 # We can increase the number of bins on each axis
