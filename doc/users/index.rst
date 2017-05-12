@@ -15,7 +15,6 @@ User's Guide
     intro.rst
     installing.rst
     interactive.rst
-    examples_index
     whats_new.rst
     github_stats.rst
     license.rst
