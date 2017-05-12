@@ -1,6 +1,5 @@
 """
-These are  classes to support contour plotting and
-labelling for the axes class
+These are classes to support contour plotting and labelling for the Axes class.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
