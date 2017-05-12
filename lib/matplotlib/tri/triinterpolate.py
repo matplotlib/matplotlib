@@ -898,7 +898,7 @@ class _ReducedHCT_Element():
         pts = self.gauss_pts
         for igauss in range(self.n_gauss):
             alpha = np.tile(pts[igauss, :], n).reshape(n, 3)
-            alpha = np.expand_dims(alpha, 3)
+            alpha = np.expand_dims(alpha, 2)
             weight = weights[igauss]
             d2Skdksi2 = self.get_d2Sidksij2(alpha, ecc)
             d2Skdx2 = _prod_vectorized(d2Skdksi2, H_rot)
