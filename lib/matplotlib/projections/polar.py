@@ -15,6 +15,7 @@ import matplotlib.axis as maxis
 from matplotlib import cbook
 from matplotlib import docstring
 from matplotlib.patches import Circle
+from matplotlib.patches import Wedge
 from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator, FormatStrFormatter
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
@@ -334,6 +335,9 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             Affine2D().scale(1.0 / 360.0, 1.0) +
             self._yaxis_transform
             )
+
+        # This is the offset of the polar origin. Impacts rmin when changed.
+        self._r_offset = 0.
 
     def get_xaxis_transform(self,which='grid'):
         if which not in ['tick1','tick2','grid']:
@@ -680,6 +684,38 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             scale = r / startr
             self.set_rmax(p.rmax / scale)
 
+    def set_r_offset(self, input_offset):
+        """
+        Creates an offset from the origin of a polar plot
+        
+        Parameters
+        ----------
+        input_offset : float
+              A number between 0 and 1 where 0 is the center of the plot and 1
+              is the edge of the plot            
+        """
+        if input_offset < 0 or input_offset >= 1:
+            raise NotImplementedError("Offset must be greater than 0 and less than 1.")
+        elif input_offset == 0:
+            return
+        rmax = self.get_rmax()
+        rmin = self.get_rmin()
+        rrange = rmax-rmin
+        offset = rmin-(input_offset*rrange)/(1.0-input_offset)
+        self.set_rmin(offset)
+        self._r_offset = input_offset
+        self.add_artist(Wedge((0.5,0.5), input_offset*.5, 0,360, transform=self.transAxes, color=self.patch.get_facecolor(),zorder=99,ec='k'))
+
+    def get_r_offset(self):
+        """
+        Returns the radial offset
+        
+        Returns
+        -------
+        self._r_offset : float
+            The current radial offset
+        """
+        return self._r_offset
 
 # to keep things all self contained, we can put aliases to the Polar classes
 # defined above. This isn't strictly necessary, but it makes some of the
