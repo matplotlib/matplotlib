@@ -69,7 +69,7 @@ def DEBUG_MSG(string, lvl=3, o=None):
 
 def debug_on_error(type, value, tb):
     """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
-    traceback.print_exc(type, value, tb)
+    traceback.print_exception(type, value, tb)
     print()
     pdb.pm()  # jdh uncomment
 

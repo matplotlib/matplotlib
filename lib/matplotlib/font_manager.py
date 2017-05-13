@@ -1234,7 +1234,7 @@ class FontManager(object):
         try:
             sizeval1 = float(size1)
         except ValueError:
-            sizeval1 = self.default_size * font_scalings(size1)
+            sizeval1 = self.default_size * font_scalings[size1]
         try:
             sizeval2 = float(size2)
         except ValueError:

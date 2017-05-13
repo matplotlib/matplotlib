@@ -200,7 +200,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
             else:
                 mpl.verbose.report('No LaTeX-compatible font found for the '
                                    '%s font family in rcParams. Using '
-                                   'default.' % ff, 'helpful')
+                                   'default.' % font_family, 'helpful')
                 setattr(self, font_family_attr, self.font_info[font_family])
             fontconfig.append(getattr(self, font_family_attr)[0])
         # Add a hash of the latex preamble to self._fontconfig so that the
