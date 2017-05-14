@@ -47,28 +47,14 @@ def test_resample():
 
 def test_colormap_copy():
     cm = plt.cm.Reds
-    cm([-1, 0, .5, np.nan, np.inf])
-    cm.set_bad('y')
-    cm2 = copy.copy(cm)
-    cm2.set_bad('b')
-    cm.set_under('k')
-    cm2.set_under('r')
-    cm.set_over('c')
-    cm2.set_over('m')
-
-    expected1 = plt.cm.Reds
-    expected2 = plt.cm.Reds
-    expected1([-1, 0, .5, np.nan, np.inf])
-    expected2([-1, 0, .5, np.nan, np.inf])
-    expected1.set_bad('y')
-    expected2.set_bad('b')
-    expected1.set_under('k')
-    expected2.set_under('r')
-    expected1.set_over('c')
-    expected2.set_over('m')
-
-    assert_array_equal(cm._lut, expected1._lut)
-    assert_array_equal(cm2._lut, expected2._lut)
+    cm_copy = copy.copy(cm)
+    with np.errstate(invalid='ignore'):
+        ret1 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+    cm2 = copy.copy(cm_copy)
+    cm2.set_bad('g')
+    with np.errstate(invalid='ignore'):
+        ret2 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+    assert_array_equal(ret1, ret2)
 
 
 def test_colormap_endian():
