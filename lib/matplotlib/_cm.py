@@ -126,9 +126,9 @@ _brg_data = ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
 
 # Gnuplot palette functions
 gfunc = {
-        0: lambda x: 0,
-        1: lambda x: 0.5,
-        2: lambda x: 1,
+        0: lambda x: zeros(len(x)),
+        1: lambda x: ones(len(x))*0.5,
+        2: lambda x: ones(len(x)),
         3: lambda x: x,
         4: lambda x: x ** 2,
         5: lambda x: x ** 3,
