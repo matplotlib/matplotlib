@@ -15,8 +15,6 @@ make a colorbar for a given colormap and does not need a mappable object like
 an image. In this tutorial we will explore what can be done with standalone
 colorbar.
 
-We will start by making a figure of desired size and adding three axes.
-
 Basic continuous colorbar
 -------------------------
 
