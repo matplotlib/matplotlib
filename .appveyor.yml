@@ -20,25 +20,18 @@ environment:
                        # https://github.com/pytest-dev/pytest/issues/1075
 
   matrix:
-    # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
-    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
-    # one for 64bit because we construct envs anyway. But using one for the
-    # right python version is hopefully making it fast due to package caching.
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
-      CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
       TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
-      CONDA_NPY: "110"
       PYTHON_VERSION: "3.5"
       TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
     - TARGET_ARCH: "x86"
       CONDA_PY: "27"
-      CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
       # this variable influence pdf/svg and most importantly the latex related tests
       # which triples the runtime of the tests (7-8min vs 30min).
