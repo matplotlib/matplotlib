@@ -16,31 +16,31 @@ an image. In this tutorial we will explore what can be done with standalone
 colorbar.
 
 We will start by making a figure of desired size and adding three axes.
+
+Basic continuous colorbar
+-------------------------
+
+Set the colormap and norm to correspond to the data for which the colorbar
+will be used. Then create the colorbar by calling
+:class:`~matplotlib.colorbar.ColorbarBase` and specify axis, colormap, norm
+and orientation as parameters. Here we create a basic continuous colorbar
+with ticks and labels. More information on colorbar api can be found
+`here <https://matplotlib.org/api/colorbar_api.html>`.
 """
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-fig, (ax1, ax2, ax3) = plt.subplots(nrows=3)
-
-###############################################################################
-# Basic continuous colorbar
-# -------------------------
-#
-# Set the colormap and norm to correspond to the data for which the colorbar
-# will be used. Then create the colorbar by calling
-# :class:`~matplotlib.colorbar.ColorbarBase` and specify axis, colormap, norm
-# and orientation as parameters. Here we create a basic continuous colorbar
-# with ticks and labels. More information on colorbar api can be found
-# `here <https://matplotlib.org/api/colorbar_api.html>`.
+fig, ax = plt.subplots()
 
 cmap = mpl.cm.cool
 norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
-cb1 = mpl.colorbar.ColorbarBase(ax1, cmap=cmap,
+cb1 = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
                                 norm=norm,
                                 orientation='horizontal')
 cb1.set_label('Some Units')
+fig.show()
 
 ###############################################################################
 # Discrete intervals colorbar
@@ -64,13 +64,15 @@ cb1.set_label('Some Units')
 # *extend*, you must specify two extra boundaries. Finally spacing argument
 # ensures that intervals are shown on colorbar proportionally.
 
+fig, ax = plt.subplots()
+
 cmap = mpl.colors.ListedColormap(['red', 'green', 'blue', 'cyan'])
 cmap.set_over('0.25')
 cmap.set_under('0.75')
 
 bounds = [1, 2, 4, 7, 8]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-cb2 = mpl.colorbar.ColorbarBase(ax2, cmap=cmap,
+cb2 = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
                                 norm=norm,
                                 boundaries=[0] + bounds + [13],
                                 extend='both',
@@ -78,6 +80,7 @@ cb2 = mpl.colorbar.ColorbarBase(ax2, cmap=cmap,
                                 spacing='proportional',
                                 orientation='horizontal')
 cb2.set_label('Discrete intervals, some other units')
+fig.show()
 
 ###############################################################################
 # Colorbar with custom extension lengths
@@ -87,6 +90,8 @@ cb2.set_label('Discrete intervals, some other units')
 # colorbar with discrete intervals. To make the length of each extension same
 # as the length of the interior colors, use ``extendfrac='auto'``.
 
+fig, ax = plt.subplots()
+
 cmap = mpl.colors.ListedColormap(['royalblue', 'cyan',
                                   'yellow', 'orange'])
 cmap.set_over('red')
@@ -94,7 +99,7 @@ cmap.set_under('blue')
 
 bounds = [-1.0, -0.5, 0.0, 0.5, 1.0]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-cb3 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap,
+cb3 = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
                                 norm=norm,
                                 boundaries=[-10] + bounds + [10],
                                 extend='both',
@@ -103,6 +108,4 @@ cb3 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap,
                                 spacing='uniform',
                                 orientation='horizontal')
 cb3.set_label('Custom extension lengths, some other units')
-
-plt.tight_layout()
-plt.show()
+fig.show()
