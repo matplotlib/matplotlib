@@ -783,7 +783,7 @@ Keyword arguments:
   *length*:
     Length of the barb in points; the other parts of the barb
     are scaled against this.
-    Default is 9
+    Default is 7.
 
   *pivot*: [ 'tip' | 'middle' ]
     The part of the arrow that is at the grid point; the arrow rotates
