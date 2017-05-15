@@ -785,9 +785,11 @@ Keyword arguments:
     are scaled against this.
     Default is 7.
 
-  *pivot*: [ 'tip' | 'middle' ]
+  *pivot*: [ 'tip' | 'middle' | float ]
     The part of the arrow that is at the grid point; the arrow rotates
-    about this point, hence the name *pivot*.  Default is 'tip'
+    about this point, hence the name *pivot*.  Default is 'tip'. Can
+    also be a number, which shifts the start of the barb that many
+    points from the origin.
 
   *barbcolor*: [ color | color sequence ]
     Specifies the color all parts of the barb except any flags.  This
@@ -1010,7 +1012,7 @@ class Barbs(mcollections.PolyCollection):
         *pivot* specifies the point on the barb around which the
         entire barb should be rotated.  Right now, valid options are
         'tip' and 'middle'. Can also be a number, which shifts the start
-        of the barb that many units from the origin.
+        of the barb that many points from the origin.
 
         *sizes* is a dictionary of coefficients specifying the ratio
         of a given feature to the length of the barb. These features
