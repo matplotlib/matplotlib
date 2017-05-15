@@ -479,6 +479,7 @@ class _AxesBase(martist.Artist):
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
+        self._in_init = True
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
         else:
@@ -575,6 +576,8 @@ class _AxesBase(martist.Artist):
             left=rcParams['ytick.left'] and rcParams['ytick.major.left'],
             right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
             which='major')
+
+        self._in_init = False
 
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
@@ -965,10 +968,13 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        self.xaxis.cla()
-        self.yaxis.cla()
-        for name, spine in six.iteritems(self.spines):
-            spine.cla()
+        # Don't clear during __init__ because they're already been cleared by
+        # their own __init__.
+        if not self._in_init:
+            self.xaxis.cla()
+            self.yaxis.cla()
+            for name, spine in six.iteritems(self.spines):
+                spine.cla()
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()
