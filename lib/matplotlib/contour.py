@@ -453,7 +453,10 @@ class ContourLabeler(object):
 
             # Round to integer values but keep as float
             # To allow check against nan below
-            I = [np.floor(I[0]), np.ceil(I[1])]
+            # Ignore nans here to avoid throwing an error on on Appveyor build
+            # (can possibly be removed when build uses numpy 1.13)
+            with np.errstate(invalid='ignore'):
+                I = [np.floor(I[0]), np.ceil(I[1])]
 
             # Actually break contours
             if closed:
