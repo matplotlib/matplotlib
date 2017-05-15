@@ -1209,11 +1209,11 @@ class Figure(Artist):
         self._suptitle = None
         self.stale = True
 
-    def clear(self):
+    def clear(self, keep_observers=False):
         """
         Clear the figure -- synonym for :meth:`clf`.
         """
-        self.clf()
+        self.clf(keep_observers=keep_observers)
 
     @allow_rasterization
     def draw(self, renderer):
