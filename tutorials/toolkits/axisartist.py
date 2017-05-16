@@ -10,11 +10,11 @@ The axisartist toolkit tutorial.
    (derived from the mpl's original Axes class).
    As a side effect, some commands (mostly tick-related) do not work.
 
-The *axisartist* contains custom Axes class that is meant to support for
+The *axisartist* contains a custom Axes class that is meant to support
 curvilinear grids (e.g., the world coordinate system in astronomy).
 Unlike mpl's original Axes class which uses Axes.xaxis and Axes.yaxis
-to draw ticks, ticklines and etc., Axes in axisartist uses special
-artist (AxisArtist) which can handle tick, ticklines and etc. for
+to draw ticks, ticklines, etc., axisartist uses a special
+artist (AxisArtist) that can handle ticks, ticklines, etc. for
 curved coordinate systems.
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
@@ -24,7 +24,7 @@ curved coordinate systems.
 
    Demo Floating Axis
 
-Since it uses special artists, some mpl commands that work on
+Since it uses special artists, some Matplotlib commands that work on
 Axes.xaxis and Axes.yaxis may not work.
 
 .. _axisartist_users-guide-index:
@@ -32,21 +32,21 @@ Axes.xaxis and Axes.yaxis may not work.
 axisartist
 ==========
 
-*axisartist* module provides a custom (and very experimental) Axes
-class, where each axis (left, right, top and bottom) have a separate
-associated artist which is responsible to draw axis-line, ticks,
-ticklabels, label.  Also, you can create your own axis, which can pass
+The *axisartist* module provides a custom (and very experimental) Axes
+class, where each axis (left, right, top, and bottom) have a separate
+associated artist which is responsible for drawing the axis-line, ticks,
+ticklabels, and labels.  You can also create your own axis, which can pass
 through a fixed position in the axes coordinate, or a fixed position
 in the data coordinate (i.e., the axis floats around when viewlimit
 changes).
 
 The axes class, by default, has its xaxis and yaxis invisible, and
-has 4 additional artists which are responsible for drawing the 4 axis sides in
-"left","right","bottom" and "top".  They are accessed as
+has 4 additional artists which are responsible for drawing the 4 axis spines in
+"left", "right", "bottom", and "top".  They are accessed as
 ax.axis["left"], ax.axis["right"], and so on, i.e., ax.axis is a
 dictionary that contains artists (note that ax.axis is still a
-callable methods and it behaves as an original Axes.axis method in
-mpl).
+callable method and it behaves as an original Axes.axis method in
+Matplotlib).
 
 To create an axes, ::
 
@@ -60,7 +60,7 @@ or to create a subplot ::
   ax = AA.Subplot(fig, 111)
   fig.add_subplot(ax)
 
-For example, you can hide the right, and top axis by ::
+For example, you can hide the right and top spines using::
 
   ax.axis["right"].set_visible(False)
   ax.axis["top"].set_visible(False)
@@ -74,7 +74,7 @@ For example, you can hide the right, and top axis by ::
    Simple Axisline3
 
 
-It is also possible to add an extra axis. For example, you may have an
+It is also possible to add a horizontal axis. For example, you may have an
 horizontal axis at y=0 (in data coordinate). ::
 
     ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
@@ -98,8 +98,8 @@ Or a fixed axis with some offset ::
 axisartist with ParasiteAxes
 ----------------------------
 
-Most commands in the axes_grid1 toolkit can take a axes_class keyword
-argument, and the commands creates an axes of the given class. For example,
+Most commands in the axes_grid1 toolkit can take an axes_class keyword
+argument, and the commands create an axes of the given class. For example,
 to create a host subplot with axisartist.Axes, ::
 
   import mpl_toolkits.axisartist as AA
@@ -108,7 +108,7 @@ to create a host subplot with axisartist.Axes, ::
   host = host_subplot(111, axes_class=AA.Axes)
 
 
-Here is an example that uses  parasiteAxes.
+Here is an example that uses parasiteAxes.
 
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_parasite_axes2_001.png
@@ -123,7 +123,7 @@ Here is an example that uses  parasiteAxes.
 Curvilinear Grid
 ----------------
 
-The motivation behind the AxisArtist module is to support curvilinear grid
+The motivation behind the AxisArtist module is to support a curvilinear grid
 and ticks.
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
@@ -137,7 +137,7 @@ and ticks.
 Floating Axes
 -------------
 
-This also support a Floating Axes whose outer axis are defined as
+AxisArtist also supports a Floating Axes whose outer axes are defined as
 floating axis.
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axes_001.png

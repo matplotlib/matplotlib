@@ -13,10 +13,11 @@ Axes Grid
 ---------
 .. note::
    
-   There is an older version of the AxesGrid toolkit, simply called ``axes_grid`` instead of
-   ``axes_grid1``.  the toolkit had a single namespace of axes_grid. This toolkit was broken
-   into the two modules below. For the documentation on the original ``axes_grid``
-   module, see the `previous version of the docs 
+   There is an older version of the AxesGrid toolkit, ``axes_grid`` (instead of
+   ``axes_grid1``).  The old version had a single namespace for all axes_grid
+   objects, and in the new version this toolkit was broken
+   into the two modules below. For the documentation on ``axes_grid``,
+   see the `previous version of the docs 
    <http://matplotlib.org/2.0.1/mpl_toolkits/axes_grid/index.html#toolkit-axesgrid-index>`_.
 
 .. autosummary::

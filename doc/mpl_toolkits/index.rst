@@ -18,8 +18,8 @@ mplot3d
 =======
 
 :mod:`mpl_toolkits.mplot3d` provides some basic 3D
-plotting (scatter, surf, line, mesh) tools.  Not the fastest or feature
-complete 3D library out there, but ships with Matplotlib and thus may be a
+plotting (scatter, surf, line, mesh) tools.  Not the fastest or most feature
+complete 3D library out there, but it ships with Matplotlib and thus may be a
 lighter weight solution for some use cases. Check out the
 :ref:`mplot3d tutorial <sphx_glr_tutorials_toolkits_mplot3d.py>` for more
 information.
@@ -47,7 +47,7 @@ axes_grid1
 ==========
 
 The :mod:`mpl_toolkits.axes_grid1` toolkit is a
-collection of helper classes to ease displaying multiple axes in Matplotlib.
+collection of helper classes for displaying multiple axes in Matplotlib.
 
 .. image:: /_static/demo_axes_grid.png
 
@@ -63,7 +63,7 @@ axisartist
 ==========
 
 The :mod:`mpl_toolkits.axisartist` toolkit contains
-a custom Axes class that is meant to support for curvilinear grids.
+a custom Axes class that is meant to support curvilinear grids.
 
 .. toctree::
     :maxdepth: 2

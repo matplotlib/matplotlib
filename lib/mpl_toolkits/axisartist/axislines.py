@@ -1,10 +1,9 @@
 """
 Axislines includes modified implementation of the Axes class. The
-biggest difference is that the artists responsible to draw axis line,
-ticks, ticklabel and axis labels are separated out from the mpl's Axis
-class, which are much more than artists in the original
-mpl. Originally, this change was motivated to support curvilinear
-grid. Here are a few reasons that I came up with new axes class.
+biggest difference is that the artists responsible for drawing the axis spine,
+ticks, ticklabels and axis labels are separated out from mpl's Axis
+class. Originally, this change was motivated to support curvilinear
+grid. Here are a few reasons that I came up with a new axes class:
 
 
  * "top" and "bottom" x-axis (or "left" and "right" y-axis) can have

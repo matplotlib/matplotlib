@@ -33,13 +33,13 @@ mplot3d API
 ===================================
 
 .. note::
-   Historically, axis3d has suffered from having hard-coded constants
-   controlling the look and feel of the 3D plot. This precluded user
-   level adjustments such as label spacing, font colors and panel colors.
-   For version 1.1.0, these constants have been consolidated into a single
-   private member dictionary, `self._axinfo`, for the axis object. This is
-   intended only as a stop-gap measure to allow user-level customization,
-   but it is not intended to be permanent.
+   See :attr:`mpl_toolkits.mplot3d.axis3d._axinfo` for a dictionary containing
+   constants that may be modified for controlling the look and feel
+   of mplot3d axes (e.g., label spacing, font colors and panel colors).
+    Historically, axis3d has suffered from having hard-coded constants
+    that precluded user adjustments, and this dictionary was implemented
+    in version 1.1 as a stop-gap measure.
+
 
 .. autosummary::
    :toctree: ../_as_gen
