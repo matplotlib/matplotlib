@@ -162,18 +162,15 @@ parents[-1].link|e }}" />
 
 {% block relbar1 %}
 
-<!-- The "Fork me on github" ribbon -->
-<img style="float: right; margin-bottom: -40px; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" usemap="#ribbonmap"/>
-<map name="ribbonmap">
-    <area shape="poly" coords="15,0,148,-1,148,135" href="https://github.com/matplotlib/matplotlib" title="Fork me on GitHub" />
-</map>
-
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
 {%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
 <a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.png", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
 {%- else %}
 <a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.svg", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
 {%- endif %}
+
+<!-- The "Fork me on github" ribbon -->
+<div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
 </div>
 
 {% endblock %}
