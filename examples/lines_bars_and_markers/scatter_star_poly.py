@@ -25,7 +25,7 @@ verts = list(zip([-1., 1., 1., -1.], [-1., -1., 1., -1.]))
 plt.subplot(323)
 plt.scatter(x, y, s=80, c=z, marker=(verts, 0))
 # equivalent:
-#plt.scatter(x,y,s=80, c=z, marker=None, verts=verts)
+# plt.scatter(x, y, s=80, c=z, marker=None, verts=verts)
 
 plt.subplot(324)
 plt.scatter(x, y, s=80, c=z, marker=(5, 1))

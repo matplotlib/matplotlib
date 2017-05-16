@@ -16,7 +16,7 @@ with cbook.get_sample_data('goog.npz') as datafile:
     price_data = np.load(datafile)['price_data'].view(np.recarray)
 price_data = price_data[-250:]  # get the most recent 250 trading days
 
-delta1 = np.diff(price_data.adj_close)/price_data.adj_close[:-1]
+delta1 = np.diff(price_data.adj_close) / price_data.adj_close[:-1]
 
 # Marker size in units of points^2
 volume = (15 * price_data.volume[:-2] / price_data.volume[0])**2
