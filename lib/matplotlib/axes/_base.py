@@ -610,11 +610,11 @@ class _AxesBase(martist.Artist):
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
-        self.spines['bottom'].register_axis(self.xaxis)
-        self.spines['top'].register_axis(self.xaxis)
+        self.spines['bottom'].register_axis(self.xaxis, _init=True)
+        self.spines['top'].register_axis(self.xaxis, _init=True)
         self.yaxis = maxis.YAxis(self)
-        self.spines['left'].register_axis(self.yaxis)
-        self.spines['right'].register_axis(self.yaxis)
+        self.spines['left'].register_axis(self.yaxis, _init=True)
+        self.spines['right'].register_axis(self.yaxis, _init=True)
         self._update_transScale()
 
     def set_figure(self, fig):
