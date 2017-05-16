@@ -245,8 +245,10 @@ class PolarAxes(Axes):
 If you need to interpolate data points, consider running
 cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         Axes.__init__(self, *args, **kwargs)
+        self._in_init = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
+        self._in_init = False
     __init__.__doc__ = Axes.__init__.__doc__
 
     def cla(self):
