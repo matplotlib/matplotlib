@@ -1,10 +1,11 @@
-# axes3d.py, original mplot3d version by John Porter
-# Created: 23 Sep 2005
-# Parts fixed by Reinier Heeres <reinier@heeres.eu>
-# Minor additions by Ben Axelrod <baxelrod@coroware.com>
-# Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
-
 """
+axes3d.py, original mplot3d version by John Porter
+Created: 23 Sep 2005
+
+Parts fixed by Reinier Heeres <reinier@heeres.eu>
+Minor additions by Ben Axelrod <baxelrod@coroware.com>
+Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
+
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """

@@ -5,8 +5,8 @@
    :no-members:
    :no-inherited-members:
 
-{% block functions %}
-{% if functions %}
+{% block classes %}
+{% if classes %}
 
 Classes
 -------
@@ -14,15 +14,13 @@ Classes
 .. autosummary:: 
    :template: autosummary.rst
    :toctree:
-
-{% for item in classes %}
-   {{ item }}
-{% endfor %}
+{% for item in classes %}{% if item not in ['zip', 'map', 'reduce'] %}
+   {{ item }}{% endif %}{% endfor %}
 {% endif %}
 {% endblock %}
 
-{% block exceptions %}
-{% if exceptions %}
+{% block functions %}
+{% if functions %}
 
 Functions
 ---------
@@ -31,21 +29,7 @@ Functions
    :template: autosummary.rst
    :toctree:
 
-{% for item in functions %}
-   {{ item }}
-{% endfor %}
-{% endif %}
-{% endblock %}
-
-{% block classes %}
-{% if classes %}
-
-Exceptions
-----------
-
-.. autosummary::
-{% for item in exceptions %}
-   {{ item }}
-{%- endfor %}
+{% for item in functions %}{% if item not in ['zip', 'map', 'reduce'] %}
+   {{ item }}{% endif %}{% endfor %}
 {% endif %}
 {% endblock %}
