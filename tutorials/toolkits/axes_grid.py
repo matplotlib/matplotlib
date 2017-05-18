@@ -245,7 +245,7 @@ ParasiteAxes
 
 The ParasiteAxes is an axes whose location is identical to its host
 axes. The location is adjusted in the drawing time, thus it works even
-if the host change its location (e.g., images). 
+if the host change its location (e.g., images).
 
 In most cases, you first create a host axes, which provides a few
 method that can be used to create parasite axes. They are *twinx*,
@@ -276,7 +276,7 @@ Example 1. twinx
 Example 2. twin
 ~~~~~~~~~~~~~~~
 
-*twin* without a transform argument assumes that the parasite axes has the 
+*twin* without a transform argument assumes that the parasite axes has the
 same data transform as the host. This can be useful when you want the
 top(or right)-axis to have different tick-locations, tick-labels, or
 tick-formatter for bottom(or left)-axis. ::

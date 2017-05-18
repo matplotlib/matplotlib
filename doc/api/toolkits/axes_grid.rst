@@ -18,7 +18,7 @@ Axes Grid
    objects, and in the new version this toolkit was broken
    into the two modules below. For the documentation on ``axes_grid``,
    see the `previous version of the docs 
-   <http://matplotlib.org/2.0.1/mpl_toolkits/axes_grid/index.html#toolkit-axesgrid-index>`_.
+   <https://matplotlib.org/2.0.1/mpl_toolkits/axes_grid/index.html#toolkit-axesgrid-index>`_.
 
 .. autosummary::
    :toctree: ../_as_gen
