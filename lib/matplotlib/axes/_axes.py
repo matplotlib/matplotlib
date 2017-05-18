@@ -6612,7 +6612,9 @@ optional.
             bin_range = self.convert_xunits(bin_range)
 
         # Check whether bins or range are given explicitly.
-        binsgiven = np.iterable(bins) or bin_range is not None
+        binsgiven = ((np.iterable(bins) and
+                      not isinstance(bins, str)) or
+                     bin_range is not None)
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
