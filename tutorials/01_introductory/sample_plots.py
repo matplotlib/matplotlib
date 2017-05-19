@@ -135,8 +135,8 @@ Bar charts
 Use the :func:`~matplotlib.pyplot.bar` command to make bar charts, which
 includes customizations such as error bars:
 
-.. figure:: ../gallery/statistics/images/sphx_glr_barchart_demo_001.png
-   :target: ../gallery/statistics/barchart_demo.html
+.. figure:: ../../gallery/statistics/images/sphx_glr_barchart_demo_001.png
+   :target: ../../gallery/statistics/barchart_demo.html
    :align: center
    :scale: 50
 
