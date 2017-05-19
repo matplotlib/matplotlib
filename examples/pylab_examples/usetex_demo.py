@@ -36,13 +36,13 @@ plt.plot((-delta / 2, -delta / 2 + offset * 2), (height, height - offset), 'k', 
 plt.plot((-delta / 2, -delta / 2 + offset * 2), (height, height + offset), 'k', linewidth=2)
 plt.plot((delta / 2, delta / 2 - offset * 2), (height, height - offset), 'k', linewidth=2)
 plt.plot((delta / 2, delta / 2 - offset * 2), (height, height + offset), 'k', linewidth=2)
-plt.text(-0.06, height - 0.06, r'$\delta$', {'color': 'k', 'fontsize': 24})
+plt.text(-0.06, height - 0.06, '$\delta$', {'color': 'k', 'fontsize': 24})
 
 # X-axis label
 plt.xticks((-1, 0, 1), ('-1', '0', '1'), color='k', size=20)
 
 # Left Y-axis labels
-plt.ylabel(r'\bf{phase field} $\phi$', {'color': 'b',
+plt.ylabel('\bf{phase field} $\phi$', {'color': 'b',
                                           'fontsize': 20})
 plt.yticks((0, 0.5, 1), ('0', '.5', '1'), color='k', size=20)
 
@@ -58,19 +58,19 @@ plt.text(1.01, 0.48, "0", {'color': 'k', 'fontsize': 20})
 
 # level set equations
 plt.text(0.1, 0.85,
-           r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\partial t}'
-           r'+ U|\nabla \phi| = 0$',
+           '$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\partial t}'
+           '+ U|\nabla \phi| = 0$',
            {'color': 'g', 'fontsize': 20})
 
 # phase field equations
 plt.text(0.2, 0.15,
-           r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline '
-           r'$ \frac{ \partial \phi } { \partial t } = -M_{ \phi } '
-           r'\frac{ \delta \mathcal{F} } { \delta \phi }$',
+           '$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline '
+           '$ \frac{ \partial \phi } { \partial t } = -M_{ \phi } '
+           '\frac{ \delta \mathcal{F} } { \delta \phi }$',
            {'color': 'b', 'fontsize': 20})
 
 # these went wrong in pdf in a previous version
-plt.text(-.9, .42, r'gamma: $\gamma$', {'color': 'r', 'fontsize': 20})
-plt.text(-.9, .36, r'Omega: $\Omega$', {'color': 'b', 'fontsize': 20})
+plt.text(-.9, .42, 'gamma: $\gamma$', {'color': 'r', 'fontsize': 20})
+plt.text(-.9, .36, 'Omega: $\Omega$', {'color': 'b', 'fontsize': 20})
 
 plt.show()
