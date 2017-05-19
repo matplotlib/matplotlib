@@ -71,6 +71,11 @@ You can check out the latest sources with the command (see
 
 and navigate to the :file:`matplotlib` directory.
 
+Installation is required before you can start hacking into the local fork.
+Instructions to build from source can be found
+`here <http://matplotlib.org/users/installing.html#installing-from-source>`.
+Although installation is not necessary to contribute to documentation.
+
 To make sure the tests run locally you must build against the correct version
 of freetype.  To configure the build system to fetch and build it either export
 the env ``MPLLOCALFREETYPE`` as::
