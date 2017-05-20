@@ -388,8 +388,6 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
 # .. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
 # .. [mycarta-jet] https://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
-# .. [mycarta-lablinear] https://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
-# .. [mycarta-cubelaw] https://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
 # .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [vischeck] http://www.vischeck.com/vischeck/
