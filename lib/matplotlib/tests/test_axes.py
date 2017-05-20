@@ -4974,6 +4974,7 @@ def test_large_offset():
     fig.canvas.draw()
 
 
+@cleanup
 def test_bar_color_cycle():
     ccov = mcolors.colorConverter.to_rgb
     fig, ax = plt.subplots()
