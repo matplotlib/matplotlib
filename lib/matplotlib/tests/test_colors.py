@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
 import six
 import itertools
 import warnings
@@ -41,6 +42,32 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+
+
+def test_colormap_copy():
+    cm = plt.cm.Reds
+    cm([-1, 0, .5, np.nan, np.inf])
+    cm.set_bad('y')
+    cm2 = copy.copy(cm)
+    cm2.set_bad('b')
+    cm.set_under('k')
+    cm2.set_under('r')
+    cm.set_over('c')
+    cm2.set_over('m')
+    
+    expected1 = plt.cm.Reds
+    expected2 = plt.cm.Reds
+    expected1([-1, 0, .5, np.nan, np.inf])
+    expected2([-1, 0, .5, np.nan, np.inf])
+    expected1.set_bad('y')
+    expected2.set_bad('b')
+    expected1.set_under('k')
+    expected2.set_under('r')
+    expected1.set_over('c')
+    expected2.set_over('m')
+    
+    assert_array_equal(cm._lut, expected1._lut)
+    assert_array_equal(cm2._lut, expected2._lut)
 
 
 def test_colormap_endian():
