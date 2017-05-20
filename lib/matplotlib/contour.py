@@ -357,7 +357,7 @@ class ContourLabeler(object):
         L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.add.reduce(([(abs(s)[i] / L[i]) for i in range(xsize)]),
+            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
                                  -1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
