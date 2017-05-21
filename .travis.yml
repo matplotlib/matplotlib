@@ -36,7 +36,6 @@ env:
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
-    - BUILD_DOCS=false
     - NUMPY=numpy
     - OPENBLAS_NUM_THREADS=1
     - PANDAS=
@@ -52,12 +51,8 @@ matrix:
   include:
     - python: 2.7
       env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas NOSE=nose
-    - python: 2.7
-      env: NUMPY=numpy==1.7.1 BUILD_DOCS=true
     - python: 3.4
       env: PYTHON_ARGS=-OO
-    - python: 3.5
-      env: BUILD_DOCS=true
     - python: 3.6
       env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas
     - python: "nightly"
@@ -139,10 +134,6 @@ install:
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    if [[ $BUILD_DOCS == true ]]; then
-      pip install $PRE -r doc-requirements.txt
-    fi
-
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
     pip install $PRE \
         pytest \
@@ -153,24 +144,8 @@ install:
         pytest-xdist \
         $INSTALL_PEP8
 
-    # We manually install humor sans using the package from Ubuntu 14.10.
-    # Unfortunatly humor sans is not availible in the Ubuntu version used by
-    # Travis but we can manually install the deb from a later version since is
-    # it basically just a .ttf file.  The current Travis Ubuntu image is to old
-    # to search .local/share/fonts so we store fonts in .fonts
-    if [[ $BUILD_DOCS == true ]]; then
-      wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
-      wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
-      mkdir -p tmp
-      mkdir -p ~/.fonts
-      dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
-      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.fonts
-      cp Felipa-Regular.ttf ~/.fonts
-      fc-cache -f -v
-    else
-      # Use the special local version of freetype for testing
-      cp ci/travis/setup.cfg .
-    fi;
+    # Use the special local version of freetype for testing
+    cp ci/travis/setup.cfg .
   - |
     # Install matplotlib
     pip install -ve .
@@ -190,7 +165,7 @@ before_cache:
 
 after_failure:
   - |
-    if [[ $BUILD_DOCS == false && $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
+    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
       gem install travis-artifacts
       cd $TRAVIS_BUILD_DIR/../tmp_test_dir
       tar cjf result_images.tar.bz2 result_images
@@ -201,31 +176,4 @@ after_failure:
     fi
 
 after_success:
-  - |
-    if [[ $BUILD_DOCS == false ]]; then
-      codecov -e TRAVIS_PYTHON_VERSION
-    fi
-  - |
-    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_PYTHON_VERSION == "3.5" && $TRAVIS_BRANCH == 'master' ]]; then
-      cd $TRAVIS_BUILD_DIR
-      echo "Uploading documentation"
-      openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in ci/travis/matplotlibDeployKey.enc -out ci/travis/matplotlibDeployKey -d
-      eval `ssh-agent -s`
-      chmod 600 ci/travis/matplotlibDeployKey
-      ssh-add ci/travis/matplotlibDeployKey
-      cd ..
-      git clone git@github.com:matplotlib/devdocs.git
-      cd devdocs
-      git checkout --orphan gh-pages
-      git reset --hard first_commit
-      cp -R ../matplotlib/doc/build/html/. .
-      touch .nojekyll
-      git config --global user.email "MatplotlibTravisBot@nomail"
-      git config --global user.name "MatplotlibTravisBot"
-      git config --global push.default simple
-      git add .
-      git commit -m "Docs build of $TRAVIS_COMMIT"
-      git push --set-upstream origin gh-pages --force
-    else
-      echo "Will only deploy docs build from matplotlib master branch"
-    fi
+  - codecov -e TRAVIS_PYTHON_VERSION
