@@ -1,0 +1,116 @@
+# Circle CI configuration file
+# https://circleci.com/docs/
+
+machine:
+  post:
+    - if [ $CIRCLE_NODE_INDEX == "0" ] ; then pyenv global 3.5.3 ; fi
+    - if [ $CIRCLE_NODE_INDEX == "1" ] ; then pyenv global 2.7.12 ; fi
+    - pyenv version
+
+dependencies:
+  cache_directories:
+    - ~/.cache/pip
+    - ~/.local/share/fonts
+  pre:
+    - sudo apt-get update
+  override:
+    # Virtualenv breaks pyenv, so just delete it.
+    - rm -rf ~/virtualenvs/venv-system
+    - pyenv rehash
+    - |
+      sudo apt-get install \
+        inkscape \
+        libav-tools \
+        mencoder \
+        dvipng \
+        pgf \
+        lmodern \
+        cm-super \
+        texlive-latex-base \
+        texlive-latex-extra \
+        texlive-fonts-recommended \
+        texlive-latex-recommended \
+        texlive-xetex \
+        graphviz \
+        libgeos-dev \
+        otf-freefont
+    # We manually install Humor-Sans using the package from Ubuntu 14.10.
+    # Unfortunately humor sans is not available in the Ubuntu version used by
+    # CircleCI but we can manually install the deb from a later version since
+    # it is basically just a .ttf file.
+    - mkdir -p ~/.local/share/fonts
+    - wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+    - |
+      if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
+        wget https://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
+        mkdir tmp
+        dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
+        cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
+        rm -rf tmp
+      else
+        echo "Not downloading Humor-Sans; file already exists."
+      fi
+    - fc-cache -f -v
+
+    # Upgrade pip and setuptools and wheel to get as clean an install as possible
+    - pip install --upgrade pip
+    - pip install --upgrade wheel
+    - pip install --upgrade setuptools
+
+    # Install dependencies from pypi
+    - |
+      if [ $CIRCLE_NODE_INDEX == "1" ]; then NUMPY_VERSION="==1.7.1"; fi
+      pip install python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+    - pip install -r doc-requirements.txt
+    # Linkchecker only works with python 2.7 for the time being.
+    # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
+    - if [ $CIRCLE_NODE_INDEX == "1" ]; then pip install $PRE requests==2.9.2 linkchecker; fi
+
+compile:
+  override:
+    # Install matplotlib
+    - pip install -ve .
+
+test:
+  # Note: test block doesn't run in parallel by default, so we need to enable
+  # it manually with this extra metadata.
+  override:
+    - python make.py html:
+        parallel: true
+        pwd: doc
+    # We don't build the LaTeX docs here, so linkchecker will complain
+    - touch doc/build/html/Matplotlib.pdf:
+        parallel: true
+    # Linkchecker only works with python 2.7 for the time being
+    - if [ $CIRCLE_NODE_INDEX == "1" ]; then linkchecker build/html/index.html; fi:
+        parallel: true
+        pwd: doc
+    - echo "Built documentation is available at ${CIRCLE_BUILD_URL}/artifacts/0/${HOME}/${CIRCLE_PROJECT_REPONAME}/doc/build/html/index.html"
+
+general:
+  artifacts:
+    - doc/build/html/
+
+deployment:
+  development:
+    branch: master
+    commands:
+      - git clone git@github.com:matplotlib/devdocs.git
+      - git checkout --orphan gh-pages || true:
+          pwd: devdocs
+      - git reset --hard first_commit:
+          pwd: devdocs
+      - cp -R doc/build/html/. devdocs/
+      - touch devdocs/.nojekyll
+      - git config --global user.email "MatplotlibCircleBot@nomail":
+          pwd: devdocs
+      - git config --global user.name "MatplotlibCircleBot":
+          pwd: devdocs
+      - git config --global push.default simple:
+          pwd: devdocs
+      - git add .:
+          pwd: devdocs
+      - git commit -m "Docs build of $CIRCLE_SHA1":
+          pwd: devdocs
+      - git push --set-upstream origin gh-pages --force:
+          pwd: devdocs
