@@ -1647,6 +1647,14 @@ class AffineBase(Transform):
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
 
+    # python3 requires that if a class defines __eq__ then in must
+    # define __hash__ if they need to be hashable (so that if a == b
+    # then hash(a) == hash(b)).  Define 64bit hash by pulling the
+    # first 8 characters out of a sha1 hash of the matrix see issue
+    # #2828
+    def __hash__(self):
+        return hash(self.get_matrix().tostring)
+
     def transform(self, values):
         return self.transform_affine(values)
     transform.__doc__ = Transform.transform.__doc__
