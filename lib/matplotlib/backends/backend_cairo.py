@@ -293,7 +293,7 @@ class RendererCairo(RendererBase):
                 if not six.PY3 and isinstance(s, six.text_type):
                     s = s.encode("utf-8")
 
-            ctx.show_text(s)
+            ctx.show_text(s.decode())
             ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
