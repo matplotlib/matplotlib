@@ -101,8 +101,9 @@ class BlockingInput(object):
         self.events = []
         self.callbacks = []
 
-        # Ensure that the figure is shown
-        self.fig.show()
+        if hasattr(self.fig, "manager"):
+            # Ensure that the figure is shown, if we are managing it.
+            self.fig.show()
 
         # connect the events to the on_event function call
         for n in self.eventslist:
