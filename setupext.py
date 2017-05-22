@@ -15,6 +15,7 @@ import subprocess
 from subprocess import check_output
 import sys
 import warnings
+import platform
 from textwrap import fill
 import shutil
 import versioneer
@@ -994,6 +995,9 @@ class Numpy(SetupPackage):
     def get_install_requires(self):
         return ['numpy>=1.7.1']
 
+        # OSX 10.9 requires a special flag
+        if sys.platform == "darwin" and re.match("10\.9.*$", platform.mac_ver()[0]):
+            ext.extra_compile_args.append("-mmacosx-version-min=10.9")
 
 class LibAgg(SetupPackage):
     name = 'libagg'
