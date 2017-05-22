@@ -1,25 +1,31 @@
 '''
-This backend renders figures to `Scalable Vector Graphics <https://www.w3.org/Graphics/SVG/>`_, an
-XML-based graphics format. This format is an `W3C` open web standard for creating vector graphics
-which is implemented by most if not all modern web browsers, and tools exist to convert between SVG
-and PDF.
+This backend renders figures to `Scalable Vector Graphics
+<https://www.w3.org/Graphics/SVG/>`_, an XML-based graphics
+format. This format is an ``W3C`` open web standard for creating
+vector graphics which is implemented by most if not all modern
+web browsers, and tools exist to convert between SVG and PDF.
 
-When rendered in a browser, SVG documents may be added directly to the `Document Object Model (DOM)`,
-and can be enhanced with `JavaScript` and styled with `Cascading Style Sheets`. Additional semantic
-data may also be embedded in the SVG document which  further augments how the user interacts with
-the graphic.
+When rendered in a browser, SVG documents may be added directly
+to the ``Document Object Model (DOM)``, and can be enhanced with
+``JavaScript`` and styled with ``Cascading Style Sheets``. Additional
+semantic data may also be embedded in the SVG document which
+further augments how the user interacts with the graphic.
 
-When rendering `Artist` objects, the value of `Artist.get_gid` method will be set as the resulting
-markup's `id` attribute.
+When rendering ``Artist`` objects, the value of ``Artist.get_gid``
+method will be set as the resulting markup's `id` attribute.
 
-Additional information may be added to Figures rendered in SVG by passing a `Figure.savefig`
-the parameter `svg_gid_data` a `dict` mapping `gid -> tag-attributes`.
+Additional information may be added to Figures rendered in SVG
+by passing a ``Figure.savefig`` the parameter ``svg_gid_data`` a
+``dict`` mapping ``gid -> tag-attributes``.
 
-Additionally, the `<svg>` tag may hold several additional attributes which influence the way the
-figure is rendered and aligned with surrounding content. These may be set by passing `Figure.savefig`
-the parameter `svg_attribs` a `dict` mapping `attr -> value`, with a special case for the key `extra_content`,
-which may contain arbitrary XML markup which will be embedded directly into the resulting SVG document
-before any `Artist` objects are rendered.
+Additionally, the `<svg>` tag may hold several additional
+attributes which influence the way the figure is rendered
+and aligned with surrounding content. These may be set by
+passing ``Figure.savefig`` the parameter ``svg_attribs`` a ``dict``
+mapping ``attr -> value``, with a special case for the key
+`extra_content`, which may contain arbitrary XML markup which
+will be embedded directly into the resulting SVG document
+before any ``Artist`` objects are rendered.
 '''
 
 from __future__ import (absolute_import, division, print_function,
@@ -30,7 +36,6 @@ from collections import OrderedDict
 import six
 from six import unichr, raise_from
 from six.moves import xrange
-
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
 
@@ -149,10 +154,11 @@ def validate_xml(text):
     return True
 
 
-def force_textual(obj):
-    """Convert `obj` into a `str` at all costs. Need
-    to ensure that XML santitization functions receive
-    the expected API and encoding assumptions.
+def force_textual(obj, coerce_str=False):
+    """Convert `obj` into a `str` at all costs, or throw an error.
+
+    Need to ensure that XML santitization functions
+    receive the expected API and encoding assumptions.
 
     Parameters
     ----------
@@ -163,20 +169,31 @@ def force_textual(obj):
     -------
     str
     """
-    if six.PY3:
-        if isinstance(obj, str):
-            return obj
-        elif isinstance(obj, bytes):
-            return obj.decode("utf8")
+    if coerce_str:
+        if six.PY3:
+            if isinstance(obj, str):
+                return obj
+            elif isinstance(obj, bytes):
+                return obj.decode("utf8")
+            else:
+                return str(obj)
         else:
-            return str(obj)
+            return unicode(obj)
     else:
-        return unicode(obj)
+        if six.PY3:
+            if not isinstance(obj, str):
+                raise TypeError("Requires str, not {}".format(type(obj)))
+            return obj
+        else:
+            if isinstance(obj, six.string_types):
+                return obj
+            else:
+                raise TypeError("Requires str-like, not {}".format(type(obj)))
 
 
 class XMLWriter(object):
     """XML writer class wrapping a file or file-like object. This object
-    must implement a `write` method that takes an 8-bit string (:class:`bytes`).    
+    must implement a `write` method that takes :class:`bytes`.
     """
     def __init__(self, file):
         self.__write = file.write
@@ -209,7 +226,9 @@ class XMLWriter(object):
             self.__data = []
 
     def start(self, tag, attrib={}, **extra):
-        """Opens a new element.  Attributes can be given as keyword
+        """Opens a new element.
+
+        Attributes can be given as keyword
         arguments, or as a string/string dictionary. The method returns
         an opaque identifier that can be passed to the `close` method,
         to close all open elements up to and including this one.
@@ -225,7 +244,7 @@ class XMLWriter(object):
             A mapping of name=value pairs to be included in the opened tag
         **extra
             Any additional name=value pairs not part of `attrib`
-        
+
         Returns
         -------
         int
@@ -253,7 +272,7 @@ class XMLWriter(object):
         """Adds a comment to the output stream.
 
         This method flushes the internal buffer.
-        
+
         Parameters
         ----------
         comment : str
@@ -281,7 +300,7 @@ class XMLWriter(object):
         be used without at least one open element on the stack.
 
         This method will flush the internal buffer.
-        
+
         Parameters
         ----------
         tag : str, optional
@@ -309,7 +328,7 @@ class XMLWriter(object):
     def close(self, id):
         """Closes open elements, up to (and including) the element identified
         by the given identifier.
-        
+
         Parameters
         ----------
         id : int
@@ -416,13 +435,9 @@ class RendererSVG(RendererBase):
         RendererBase.__init__(self)
         self._glyph_map = dict()
 
-        if self.svg_attribs.get("extra_content") is not None:
-            extra_content = self.svg_attribs.pop("extra_content")
-            if isinstance(extra_content, bytes):
-                extra_content = extra_content.decode('utf8')
+        extra_content = self.svg_attribs.pop("extra_content", None)
+        if extra_content is not None:
             validate_xml(extra_content)
-        else:
-            extra_content = None
 
         svg_attrs = dict(
             width='%ipt' % width, height='%ipt' % height,
@@ -676,12 +691,12 @@ class RendererSVG(RendererBase):
 
     def open_group(self, s, gid=None):
         """
-        Open a grouping element with label `s`. If `gid` is given, use
-        `gid` as the id of the group.
+        Open a grouping element with label *s*. If *gid* is given, use
+        *gid* as the id of the group.
 
-        If `gid` is a key in `self.gid_data`,
-        include the value of `gid` in `self.gid_data` in  the attributes of
-        the new group.
+        If *gid* is a key in :attr:`self.gid_data`,
+        include the value of *gid* in :attr:`self.gid_data` in  the
+        attributes of the new group.
         """
         if gid:
             if gid in self.gid_data:
@@ -1398,7 +1413,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         return result
 
     def print_svgz(self, filename, *args, **kwargs):
-        """Render the figure to an SVG document with Gzip compression.
+        """Render the figure to an SVG document with gzip compression.
 
         Wraps the file opened from `filename` or itself if it was a
         file-like object in a gzip.GzipFile and passes this to :meth:`print_svg`
@@ -1412,7 +1427,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             Forwarded to :meth:`_print_svg`
         **kwargs
             Forwarded to :meth:`_print_svg`
-        
+
         Raises
         ------
         ValueError
@@ -1431,7 +1446,8 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def _print_svg(self, filename, svgwriter, svg_gid_data=None,
                    svg_attribs=None, **kwargs):
-        """Perform the low-level details
+        """Perform the low-level details of rendering a :class:`Figure`
+        to SVG using :class:`.MixedModeRenderer` and :class:`RendererSVG`
         
         Parameters
         ----------
@@ -1442,11 +1458,13 @@ class FigureCanvasSVG(FigureCanvasBase):
         svg_gid_data : dict, optional
             Mapping from gid to XML attribute data.
         svg_attribs : dict, optional
-            XML attribute data to include on the figure's `<svg>` element,
+            XML attribute data to include on the figure's ``<svg>`` element,
             and any additional preamble to the document included under the key
-            `"extra_content"`.
+            ``"extra_content"``.
+        dpi : int
+            dpi of the canvas, used for rasterization and scaling
         **kwargs
-            Description
+            Any additional arguments are passed through and used if applicable
         """
         image_dpi = kwargs.pop("dpi", 72)
         self.figure.set_dpi(72.0)

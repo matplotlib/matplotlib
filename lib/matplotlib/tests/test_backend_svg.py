@@ -227,13 +227,13 @@ def test_gid_data():
         for spine in ax.spines.values():
             spine.set_visible(False)
 
-    fig = figure.Figure((2, 2))
+    fig = plt.figure(figsize=(2, 2))
     canvas = FigureCanvasSVG(fig)
     ax = fig.add_subplot(1, 1, 1)
     draw_graphics(ax)
     figure_buffer = BytesIO()
     svg_attribs = {
-        'extra_content': b"""
+        'extra_content': """
     <defs>
         <style id='my-style'>
             #rectangle-of-paint path {
@@ -252,7 +252,7 @@ def test_gid_data():
     svg_gid_data = {
         "rectangle-of-paint": {
             "class": "wet-paint",
-            "data-lead-level": 77.5,
+            "data-lead-level": "77.5",
             "onclick": ("alert(\"Caution! Wet Paint. Lead Level:"
                         " \" + this.dataset.leadLevel)")
         },
@@ -270,7 +270,7 @@ def test_gid_data():
 
     figure_buffer = BytesIO()
     svg_attribs['extra_content'] = svg_attribs['extra_content'].replace(
-        b"<defs>", b"<defs")
+        "<defs>", "<defs")
     with pytest.raises(ValueError):
         fig.savefig(figure_buffer, format='svg',
                     svg_attribs=svg_attribs.copy(),
