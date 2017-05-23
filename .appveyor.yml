@@ -94,7 +94,7 @@ install:
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-  - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-warnings pytest-xdist
+  - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-xdist
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
