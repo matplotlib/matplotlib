@@ -324,7 +324,11 @@ class Figure(Artist):
         if frameon is None:
             frameon = rcParams['figure.frameon']
 
+        if not np.isfinite(figsize).all():
+            raise ValueError('figure size must be finite not '
+                             '{}'.format(figsize))
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
         # do not use property as it will trigger
         self._dpi = dpi
@@ -710,7 +714,9 @@ class Figure(Artist):
         # argument, so unpack them
         if h is None:
             w, h = w
-
+        if not all(np.isfinite(_) for _ in (w, h)):
+            raise ValueError('figure size must be finite not '
+                             '({}, {})'.format(w, h))
         dpival = self.dpi
         self.bbox_inches.p1 = w, h
 
@@ -920,6 +926,9 @@ class Figure(Artist):
                 raise ValueError(msg)
         else:
             rect = args[0]
+            if not np.isfinite(rect).all():
+                raise ValueError('all entries in rect must be finite '
+                                 'not {}'.format(rect))
             projection_class, kwargs, key = process_projection_requirements(
                 self, *args, **kwargs)
 

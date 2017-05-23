@@ -79,8 +79,8 @@ class _ColorMapping(dict):
         super(_ColorMapping, self).__setitem__(key, value)
         self.cache.clear()
 
-    def __delitem__(self, key, value):
-        super(_ColorMapping, self).__delitem__(key, value)
+    def __delitem__(self, key):
+        super(_ColorMapping, self).__delitem__(key)
         self.cache.clear()
 
 
