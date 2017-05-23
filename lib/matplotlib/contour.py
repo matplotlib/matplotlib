@@ -962,9 +962,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.changed()  # set the colors
 
         if kwargs:
-            s = ''
-            for key, value in kwargs.items():
-                s += '"' + str(key) + '"' + ', '
+            s = ", ".join(map(repr, kwargs))
             warnings.warn('The following kwargs were not used by contour: ' +
                           s)
 
