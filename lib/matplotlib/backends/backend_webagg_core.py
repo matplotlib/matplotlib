@@ -236,8 +236,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 self._last_renderer, renderer)
             self._force_full = False
             self._png_is_old = False
-            self.buff = buff
-        return self.buff
+            return buff
 
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one
@@ -487,8 +486,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def refresh_all(self):
         if self.web_sockets:
             diff = self.canvas.get_diff_image()
-            for s in self.web_sockets:
-                s.send_binary(diff)
+            if diff is not None:
+                for s in self.web_sockets:
+                    s.send_binary(diff)
 
     @classmethod
     def get_javascript(cls, stream=None):
