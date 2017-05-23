@@ -236,8 +236,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 self._last_renderer, renderer)
             self._force_full = False
             self._png_is_old = False
-
-        return buff
+            self.buff = buff
+        return self.buff
 
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one
