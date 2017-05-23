@@ -212,6 +212,7 @@ class RendererBase(object):
 
     """
     def __init__(self):
+        super(RendererBase, self).__init__()
         self._texmanager = None
 
         self._text2path = textpath.TextToPath()
@@ -799,6 +800,7 @@ class GraphicsContextBase(object):
     """
 
     def __init__(self):
+        super(GraphicsContextBase, self).__init__()
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
         self._antialiased = 1  # use 0,1 not True, False for extension code
@@ -1225,6 +1227,7 @@ class TimerBase(object):
 
     '''
     def __init__(self, interval=None, callbacks=None):
+        super(TimerBase, self).__init()
         #Initialize empty callbacks list and setup default settings if necssary
         if callbacks is None:
             self.callbacks = []
@@ -1708,6 +1711,7 @@ class FigureCanvasBase(object):
                          'Tagged Image File Format')
 
     def __init__(self, figure):
+        super(FigureCanvasBase, self).__init__()
         self._is_idle_drawing = True
         self._is_saving = False
         figure.set_canvas(self)
@@ -2613,6 +2617,7 @@ class FigureManagerBase(object):
 
     """
     def __init__(self, canvas, num):
+        super(FigureManagerBase, self).__init__()
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
         self.num = num
@@ -2744,6 +2749,7 @@ class NavigationToolbar2(object):
       )
 
     def __init__(self, canvas):
+        super(NavigationToolbar2, self).__init__()
         self.canvas = canvas
         canvas.toolbar = self
         # a dict from axes index to a list of view limits
@@ -3196,6 +3202,7 @@ class ToolContainerBase(object):
     """
 
     def __init__(self, toolmanager):
+        super(ToolContainerBase, self).__init__()
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_removed_event',
                                              self._remove_tool_cbk)
@@ -3321,6 +3328,7 @@ class ToolContainerBase(object):
 class StatusbarBase(object):
     """Base class for the statusbar"""
     def __init__(self, toolmanager):
+        super(StatusbarBase, self).__init__()
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_message_event',
                                              self._message_cbk)
