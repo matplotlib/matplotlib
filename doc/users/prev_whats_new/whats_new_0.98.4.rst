@@ -79,7 +79,7 @@ psd amplitude scaling
 
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
-:ref:`sphx_glr_gallery_pylab_examples_psd_demo2.py`. and :ref:`sphx_glr_gallery_pylab_examples_psd_demo3.py`.
+:ref:`sphx_glr_gallery_pylab_examples_psd_demo.py`.
 The changes should increase MATLAB
 compatibility and increase scaling options.
 

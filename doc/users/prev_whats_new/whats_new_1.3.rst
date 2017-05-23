@@ -154,8 +154,8 @@ Till Stensitzki added non-zero baselines to
 :func:`~matplotlib.pyplot.stackplot`.  They may be symmetric or
 weighted.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_stackplot_demo2_001.png
-   :target: ../../gallery/pylab_examples/stackplot_demo2.html
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_stackplot_demo_001.png
+   :target: ../../gallery/pylab_examples/stackplot_demo.html
    :align: center
    :scale: 50
 

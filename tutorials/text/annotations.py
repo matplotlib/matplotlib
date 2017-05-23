@@ -94,7 +94,7 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 
 For more on all the wild and wonderful things you can do with
 annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
-and :ref:`sphx_glr_gallery_pylab_examples_annotation_demo.py`.
+and :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
 
 
 Do not proceed unless you have already read :ref:`annotations-tutorial`,
@@ -158,12 +158,12 @@ keyword arguments. Currently, following box styles are implemented.
   Square       ``square``       pad=0.3
   ==========   ==============   ==========================
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_fancybox_demo2_001.png
-   :target: ../../gallery/pylab_examples/fancybox_demo2.html
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_fancybox_demo_001.png
+   :target: ../../gallery/pylab_examples/fancybox_demo.html
    :align: center
    :scale: 50
 
-   Fancybox Demo2
+   Fancybox Demo
 
 
 Note that the attribute arguments can be specified within the style
@@ -513,7 +513,8 @@ more control, it supports a few other options.
 
        Annotation with Simple Coordinates 3
 
-    You may take a look at this example :ref:`sphx_glr_gallery_pylab_examples_annotation_demo3.py`.
+    You may take a look at this example
+    :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
 
 Using ConnectorPatch
 --------------------

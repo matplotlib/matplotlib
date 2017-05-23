@@ -1,28 +1,85 @@
 """
-=============
-Boxplot Demo2
-=============
+========
+Boxplots
+========
 
-Thanks Josh Hemann for the example
+Visualizing boxplots with matplotlib.
+
+The following examples show off how to visualize boxplots with
+Matplotlib. There are many options to control their appearance and
+the statistics that they use to summarize the data.
+
 """
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.patches import Polygon
 
 
-# Generate some data from five different probability distributions,
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+# fake up some data
+spread = np.random.rand(50) * 100
+center = np.ones(25) * 50
+flier_high = np.random.rand(10) * 100 + 100
+flier_low = np.random.rand(10) * -100
+data = np.concatenate((spread, center, flier_high, flier_low), 0)
+
+# basic plot
+plt.boxplot(data)
+
+# notched plot
+plt.figure()
+plt.boxplot(data, 1)
+
+# change outlier point symbols
+plt.figure()
+plt.boxplot(data, 0, 'gD')
+
+# don't show outlier points
+plt.figure()
+plt.boxplot(data, 0, '')
+
+# horizontal boxes
+plt.figure()
+plt.boxplot(data, 0, 'rs', 0)
+
+# change whisker length
+plt.figure()
+plt.boxplot(data, 0, 'rs', 0, 0.75)
+
+# fake up some more data
+spread = np.random.rand(50) * 100
+center = np.ones(25) * 40
+flier_high = np.random.rand(10) * 100 + 100
+flier_low = np.random.rand(10) * -100
+d2 = np.concatenate((spread, center, flier_high, flier_low), 0)
+data.shape = (-1, 1)
+d2.shape = (-1, 1)
+# data = concatenate( (data, d2), 1 )
+# Making a 2-D array only works if all the columns are the
+# same length.  If they are not, then use a list instead.
+# This is actually more efficient because boxplot converts
+# a 2-D array into a list of vectors internally anyway.
+data = [data, d2, d2[::2, 0]]
+# multiple box plots on one figure
+plt.figure()
+plt.boxplot(data)
+
+plt.show()
+
+
+###############################################################################
+# Below we'll generate data from five different probability distributions,
 # each with different characteristics. We want to play with how an IID
 # bootstrap resample of the data preserves the distributional
 # properties of the original sample, and a boxplot is one visual tool
 # to make this assessment
+
 numDists = 5
 randomDists = ['Normal(1,1)', ' Lognormal(1,1)', 'Exp(1)', 'Gumbel(6,4)',
                'Triangular(2,9,11)']
 N = 500
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
 
 norm = np.random.normal(1, 1, N)
 logn = np.random.lognormal(1, 1, N)
@@ -125,4 +182,51 @@ plt.figtext(0.80, 0.015, '*', color='white', backgroundcolor='silver',
 plt.figtext(0.815, 0.013, ' Average Value', color='black', weight='roman',
             size='x-small')
 
+plt.show()
+
+###############################################################################
+# Here we write a custom function to bootstrap confidence intervals.
+# We can then use the boxplot along with this function to show these intervals.
+
+
+def fakeBootStrapper(n):
+    '''
+    This is just a placeholder for the user's method of
+    bootstrapping the median and its confidence intervals.
+
+    Returns an arbitrary median and confidence intervals
+    packed into a tuple
+    '''
+    if n == 1:
+        med = 0.1
+        CI = (-0.25, 0.25)
+    else:
+        med = 0.2
+        CI = (-0.35, 0.50)
+
+    return med, CI
+
+inc = 0.1
+e1 = np.random.normal(0, 1, size=(500,))
+e2 = np.random.normal(0, 1, size=(500,))
+e3 = np.random.normal(0, 1 + inc, size=(500,))
+e4 = np.random.normal(0, 1 + 2*inc, size=(500,))
+
+treatments = [e1, e2, e3, e4]
+med1, CI1 = fakeBootStrapper(1)
+med2, CI2 = fakeBootStrapper(2)
+medians = [None, None, med1, med2]
+conf_intervals = [None, None, CI1, CI2]
+
+fig, ax = plt.subplots()
+pos = np.array(range(len(treatments))) + 1
+bp = ax.boxplot(treatments, sym='k+', positions=pos,
+                notch=1, bootstrap=5000,
+                usermedians=medians,
+                conf_intervals=conf_intervals)
+
+ax.set_xlabel('treatment')
+ax.set_ylabel('response')
+plt.setp(bp['whiskers'], color='k', linestyle='-')
+plt.setp(bp['fliers'], markersize=3.0)
 plt.show()
