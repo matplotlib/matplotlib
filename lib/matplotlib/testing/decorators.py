@@ -223,7 +223,11 @@ def _xfail_if_format_is_uncomparable(extension):
 
 
 def _mark_xfail_if_format_is_uncomparable(extension):
-    will_fail = extension not in comparable_formats()
+    if isinstance(extension, six.string_types):
+        will_fail = extension not in comparable_formats()
+    else:
+        # Extension might be a pytest marker instead of a plain string.
+        will_fail = extension.args[0] not in comparable_formats()
     if will_fail:
         fail_msg = 'Cannot compare %s files on this system' % extension
         import pytest
