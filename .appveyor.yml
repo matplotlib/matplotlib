@@ -89,7 +89,7 @@ install:
   - conda create -q -n test-environment python=%PYTHON_VERSION%
     pip setuptools numpy python-dateutil freetype=2.6 msinttypes "tk=8.5"
     pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10"
-    mock sphinx
+    mock sphinx pandas
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
