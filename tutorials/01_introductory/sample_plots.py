@@ -194,8 +194,8 @@ in Google's stock price, with marker sizes reflecting the
 trading volume and colors varying with time. Here, the
 alpha attribute is used to make semitransparent circle markers.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_scatter_demo2_001.png
-   :target: ../../gallery/pylab_examples/scatter_demo2.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_scatter_demo2_001.png
+   :target: ../../gallery/lines_bars_and_markers/scatter_demo2.html
    :align: center
    :scale: 50
 

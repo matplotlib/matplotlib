@@ -314,8 +314,8 @@ quads touching the point; any triangular corners comprising three unmasked
 points are contoured as usual.  If the ``corner_mask`` keyword argument is not
 specified, the default value is taken from rcParams.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_contour_corner_mask_001.png
-   :target: ../../gallery/pylab_examples/contour_corner_mask.html
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_contour_corner_mask_001.png
+   :target: ../../gallery/images_contours_and_fields/contour_corner_mask.html
    :align: center
    :scale: 50
 
@@ -744,6 +744,3 @@ is important if your toolchain is prefixed. This is done in a simpilar
 way as setting `CC` or `CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
-
-
-
