@@ -14,7 +14,7 @@ is assumed to be at bottom right.
 You can add additional cells outside this range to have convenient
 ways of positioning more interesting grids.
 
-Author    : John Gill <swfiua@gmail.com>
+Author    : John Gill <jng@europe.renre.com> now <swfiua@gmail.com>
 Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
