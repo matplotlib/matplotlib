@@ -1,3 +1,13 @@
+"""
+====================
+Shaded table example
+====================
+
+This example shows line plots and a table of values.
+
+The table cells are shaded according to the values.
+"""
+
 from matplotlib import pyplot as plt
 
 from matplotlib import colors, cm, table
@@ -68,6 +78,6 @@ def draw_table():
 
 
 draw_table()
-plt.show()
+plt.savefig("shaded_table_text_labels_and_annotations.png")
     
     
