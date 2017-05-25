@@ -336,7 +336,7 @@ class MovieWriter(AbstractMovieWriter):
         self.dpi = dpi
         self._w, self._h = self._adjust_frame_size()
 
-        if not isinstance(self.outfile, basestring):
+        if not isinstance(self.outfile, six.string_types):
             msg = (
                 'output file must be a string like object.\n The provided'
                 'output file value is "{}" that is of type {}'.format(
