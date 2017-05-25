@@ -1,4 +1,4 @@
-'''
+"""
 ========================================================
 Demonstration of advanced quiver and quiverkey functions
 ========================================================
@@ -7,7 +7,7 @@ Known problem: the plot autoscaling does not take into account
 the arrows, so those on the boundaries are often out of the picture.
 This is *not* an easy problem to solve in a perfectly general way.
 The workaround is to manually expand the axes.
-'''
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ma

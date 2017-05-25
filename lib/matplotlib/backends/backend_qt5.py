@@ -10,7 +10,6 @@ from six import unichr
 
 import matplotlib
 
-from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2
@@ -130,18 +129,30 @@ def _create_qApp():
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
-            if hasattr(QtGui, "QX11Info"):
+            if is_pyqt5():
+                try:
+                    from PyQt5 import QtX11Extras
+                    is_x11_build = True
+                except ImportError:
+                    is_x11_build = False
+            else:
+                is_x11_build = hasattr(QtGui, "QX11Info")
+            if is_x11_build:
                 display = os.environ.get('DISPLAY')
                 if display is None or not re.search(r':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtWidgets.QApplication([str(" ")])
+            qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
 
     if is_pyqt5():
-        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+        try:
+            qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+            qApp.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        except AttributeError:
+            pass
 
 
 class Show(ShowBase):
@@ -150,6 +161,7 @@ class Show(ShowBase):
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         global qApp
         qApp.exec_()
+
 
 show = Show()
 
@@ -197,16 +209,6 @@ class TimerQT(TimerBase):
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
         self._timer_set_interval()
-
-    def __del__(self):
-        # Probably not necessary in practice, but is good behavior to
-        # disconnect
-        try:
-            TimerBase.__del__(self)
-            self._timer.timeout.disconnect(self._on_timer)
-        except RuntimeError:
-            # Timer C++ object already deleted
-            pass
 
     def _timer_set_single_shot(self):
         self._timer.setSingleShot(self._single)
@@ -270,10 +272,20 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
     def mouseEventCoords(self, pos):
-        x = pos.x() * self._dpi_ratio
+        """Calculate mouse coordinates in physical pixels
+
+        Qt5 use logical pixels, but the figure is scaled to physical
+        pixels for rendering.   Transform to physical pixels so that
+        all of the down-stream transforms work as expected.
+
+        Also, the origin is different and needs to be corrected.
+
+        """
+        dpi_ratio = self._dpi_ratio
+        x = pos.x()
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - pos.y() * self._dpi_ratio
-        return x, y
+        y = self.figure.bbox.height / dpi_ratio - pos.y()
+        return x * dpi_ratio, y * dpi_ratio
 
     def mousePressEvent(self, event):
         x, y = self.mouseEventCoords(event.pos())
@@ -430,16 +442,17 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         global qApp
         qApp.processEvents()
 
-    def start_event_loop(self, timeout):
-        FigureCanvasBase.start_event_loop_default(self, timeout)
+    def start_event_loop(self, timeout=0):
+        if hasattr(self, "_event_loop") and self._event_loop.isRunning():
+            raise RuntimeError("Event loop already running")
+        self._event_loop = event_loop = QtCore.QEventLoop()
+        if timeout:
+            timer = QtCore.QTimer.singleShot(timeout * 1000, event_loop.quit)
+        event_loop.exec_()
 
-    start_event_loop.__doc__ = \
-                             FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        FigureCanvasBase.stop_event_loop_default(self)
-
-    stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
+    def stop_event_loop(self, event=None):
+        if hasattr(self, "_event_loop"):
+            self._event_loop.quit()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -597,7 +610,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def _icon(self, name):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
-        return QtGui.QIcon(os.path.join(self.basedir, name))
+        pm = QtGui.QPixmap(os.path.join(self.basedir, name))
+        if hasattr(pm, 'setDevicePixelRatio'):
+            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
@@ -607,7 +623,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 self.addSeparator()
             else:
                 a = self.addAction(self._icon(image_file + '.png'),
-                                         text, getattr(self, callback))
+                                   text, getattr(self, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
@@ -629,7 +645,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
             self.locLabel.setSizePolicy(
                 QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                  QtWidgets.QSizePolicy.Ignored))
+                                      QtWidgets.QSizePolicy.Ignored))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
 
@@ -860,7 +876,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
 
 
 def error_msg_qt(msg, parent=None):
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = ','.join(map(str, msg))
 
     QtWidgets.QMessageBox.warning(None, "Matplotlib",

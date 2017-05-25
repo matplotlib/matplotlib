@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+=============
+Text Commands
+=============
+
+Plotting text of many different kinds.
+"""
 import matplotlib.pyplot as plt
 
 fig = plt.figure()

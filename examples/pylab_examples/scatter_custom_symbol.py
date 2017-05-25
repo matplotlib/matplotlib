@@ -1,3 +1,9 @@
+"""
+=====================
+Scatter Custom Symbol
+=====================
+
+"""
 import matplotlib.pyplot as plt
 from numpy import arange, pi, cos, sin
 from numpy.random import rand

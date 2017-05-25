@@ -22,9 +22,8 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from matplotlib import _path
-from matplotlib.cbook import simple_linear_interpolation, maxdict
-from matplotlib import rcParams
+from . import _path, rcParams
+from .cbook import simple_linear_interpolation, maxdict
 
 
 class Path(object):
@@ -318,7 +317,7 @@ class Path(object):
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
 
-        .. plot:: mpl_examples/api/histogram_path_demo.py
+        .. plot:: gallery/api/histogram_path.py
 
         """
 
@@ -483,30 +482,33 @@ class Path(object):
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Returns *True* if the path contains the given point.
+        Returns whether the (closed) path contains the given point.
 
-        If *transform* is not *None*, the path will be transformed
-        before performing the test.
+        If *transform* is not ``None``, the path will be transformed before
+        performing the test.
 
-        *radius* allows the path to be made slightly larger or
-        smaller.
+        *radius* allows the path to be made slightly larger or smaller.
         """
         if transform is not None:
             transform = transform.frozen()
-        result = _path.point_in_path(point[0], point[1], radius, self,
-                                     transform)
-        return result
+        # `point_in_path` does not handle nonlinear transforms, so we
+        # transform the path ourselves.  If `transform` is affine, letting
+        # `point_in_path` handle the transform avoids allocating an extra
+        # buffer.
+        if transform and not transform.is_affine:
+            self = transform.transform_path(self)
+            transform = None
+        return _path.point_in_path(point[0], point[1], radius, self, transform)
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Returns a bool array which is *True* if the path contains the
-        corresponding point.
+        Returns a bool array which is ``True`` if the (closed) path contains
+        the corresponding point.
 
-        If *transform* is not *None*, the path will be transformed
-        before performing the test.
+        If *transform* is not ``None``, the path will be transformed before
+        performing the test.
 
-        *radius* allows the path to be made slightly larger or
-        smaller.
+        *radius* allows the path to be made slightly larger or smaller.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -515,10 +517,10 @@ class Path(object):
 
     def contains_path(self, path, transform=None):
         """
-        Returns *True* if this path completely contains the given path.
+        Returns whether this (closed) path completely contains the given path.
 
-        If *transform* is not *None*, the path will be transformed
-        before performing the test.
+        If *transform* is not ``None``, the path will be transformed before
+        performing the test.
         """
         if transform is not None:
             transform = transform.frozen()

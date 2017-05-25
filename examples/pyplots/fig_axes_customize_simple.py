@@ -1,3 +1,9 @@
+"""
+=========================
+Fig Axes Customize Simple
+=========================
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

@@ -1,4 +1,8 @@
 """
+============
+Subplot Demo
+============
+
 Simple demo with multiple subplots.
 """
 import numpy as np

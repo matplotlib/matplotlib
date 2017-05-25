@@ -352,7 +352,7 @@ class _process_plot_var_args(object):
 
     def _plot_args(self, tup, kwargs):
         ret = []
-        if len(tup) > 1 and is_string_like(tup[-1]):
+        if len(tup) > 1 and isinstance(tup[-1], six.string_types):
             linestyle, marker, color = _process_plot_format(tup[-1])
             tup = tup[:-1]
         elif len(tup) == 3:
@@ -398,7 +398,7 @@ class _process_plot_var_args(object):
     def _grab_next_args(self, *args, **kwargs):
         while args:
             this, args = args[:2], args[2:]
-            if args and is_string_like(args[0]):
+            if args and isinstance(args[0], six.string_types):
                 this += args[0],
                 args = args[1:]
             for seg in self._plot_args(this, kwargs):
@@ -997,6 +997,10 @@ class _AxesBase(martist.Artist):
             self.xaxis.set_minor_locator(minl)
         else:
             self.xaxis._set_scale('linear')
+            try:
+                self.set_xlim(0, 1)
+            except TypeError:
+                pass
 
         if self._sharey is not None:
             self.yaxis.major = self._sharey.yaxis.major
@@ -1020,6 +1024,10 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_minor_locator(minl)
         else:
             self.yaxis._set_scale('linear')
+            try:
+                self.set_ylim(0, 1)
+            except TypeError:
+                pass
 
         # update the minor locator for x and y axis based on rcParams
         if (rcParams['xtick.minor.visible']):
@@ -1110,6 +1118,7 @@ class _AxesBase(martist.Artist):
         if self._sharey:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
+
         self.stale = True
 
     @cbook.deprecated("2.1", alternative="Axes.patch")
@@ -1281,7 +1290,8 @@ class _AxesBase(martist.Artist):
           etc.
           =====   =====================
         """
-        if cbook.is_string_like(aspect) and aspect in ('equal', 'auto'):
+        if (isinstance(aspect, six.string_types)
+                and aspect in ('equal', 'auto')):
             self._aspect = aspect
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary
@@ -1556,7 +1566,7 @@ class _AxesBase(martist.Artist):
 
         emit = kwargs.get('emit', True)
 
-        if len(v) == 1 and is_string_like(v[0]):
+        if len(v) == 1 and isinstance(v[0], six.string_types):
             s = v[0].lower()
             if s == 'on':
                 self.set_axis_on()
@@ -1846,6 +1856,9 @@ class _AxesBase(martist.Artist):
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
+        if self.name != 'rectilinear':
+            path = p.get_path()
+            path._interpolation_steps = max(path._interpolation_steps, 100)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
         return p
@@ -2262,7 +2275,18 @@ class _AxesBase(martist.Artist):
             # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
+                # if finite limits exist for atleast one axis (and the
+                # other is infinite), restore the finite limits
+                x_finite = [d for d in dl
+                            if (np.isfinite(d.intervalx).all() and
+                                (d not in finite_dl))]
+                y_finite = [d for d in dl
+                            if (np.isfinite(d.intervaly).all() and
+                                (d not in finite_dl))]
+
                 dl = finite_dl
+                dl.extend(x_finite)
+                dl.extend(y_finite)
 
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = getattr(bb, interval)
@@ -2810,6 +2834,25 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervalx)
 
+    def _validate_converted_limits(self, limit, convert):
+        """
+        Raise ValueError if converted limits are non-finite.
+
+        Note that this function also accepts None as a limit argument.
+
+        Returns
+        -------
+        The limit value after call to convert(), or None if limit is None.
+
+        """
+        if limit is not None:
+            converted_limit = convert(limit)
+            if (isinstance(converted_limit, float) and
+                    (not np.isreal(converted_limit) or
+                        not np.isfinite(converted_limit))):
+                raise ValueError("Axis limits cannot be NaN or Inf")
+            return converted_limit
+
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
         """
         Set the data limits for the x-axis
@@ -2876,15 +2919,8 @@ class _AxesBase(martist.Artist):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
-        if left is not None:
-            left = self.convert_xunits(left)
-        if right is not None:
-            right = self.convert_xunits(right)
-
-        if ((left is not None and not np.isfinite(left)) or
-                (right is not None and not np.isfinite(right))):
-            raise ValueError("Specified x limits must be finite; "
-                             "instead, found: (%s, %s)" % (left, right))
+        left = self._validate_converted_limits(left, self.convert_xunits)
+        right = self._validate_converted_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -3175,15 +3211,8 @@ class _AxesBase(martist.Artist):
         if top is None and iterable(bottom):
             bottom, top = bottom
 
-        if bottom is not None:
-            bottom = self.convert_yunits(bottom)
-        if top is not None:
-            top = self.convert_yunits(top)
-
-        if ((top is not None and not np.isfinite(top)) or
-                (bottom is not None and not np.isfinite(bottom))):
-            raise ValueError("Specified y limits must be finite; "
-                             "instead, found: (%s, %s)" % (bottom, top))
+        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
+        top = self._validate_converted_limits(top, self.convert_yunits)
 
         old_bottom, old_top = self.get_ylim()
 
@@ -3413,7 +3442,7 @@ class _AxesBase(martist.Artist):
             elif scale == 'symlog':
                 s = ax._scale
                 ax.set_minor_locator(
-                    mticker.SymmetricalLogLocator(s.base, s.subs))
+                    mticker.SymmetricalLogLocator(s._transform, s.subs))
             else:
                 ax.set_minor_locator(mticker.AutoMinorLocator())
 

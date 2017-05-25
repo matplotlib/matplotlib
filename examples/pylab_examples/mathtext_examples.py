@@ -1,9 +1,13 @@
 """
+=================
+Mathtext Examples
+=================
+
 Selected features of Matplotlib's math rendering engine.
 """
 from __future__ import print_function
 import matplotlib.pyplot as plt
-import os
+import subprocess
 import sys
 import re
 import gc
@@ -120,6 +124,6 @@ if '--latex' in sys.argv:
     fd.write("\\end{document}\n")
     fd.close()
 
-    os.system("pdflatex mathtext_examples.ltx")
+    subprocess.call(["pdflatex", "mathtext_examples.ltx"])
 else:
     doall()

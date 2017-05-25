@@ -1,4 +1,8 @@
 """
+==========
+Table Demo
+==========
+
 Demo of table function to display a table within a plot.
 """
 import numpy as np

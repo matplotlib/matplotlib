@@ -6,13 +6,12 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from numpy.testing import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 
@@ -171,13 +170,44 @@ def test_legend_expand():
         ax.legend(loc=3, mode=mode, ncol=2)
 
 
+@image_comparison(baseline_images=['hatching'], remove_text=True,
+                  style='default')
+def test_hatching():
+    fig, ax = plt.subplots()
+
+    # Patches
+    patch = plt.Rectangle((0, 0), 0.3, 0.3, hatch='xx',
+                          label='Patch\ndefault color\nfilled')
+    ax.add_patch(patch)
+    patch = plt.Rectangle((0.33, 0), 0.3, 0.3, hatch='||', edgecolor='C1',
+                          label='Patch\nexplicit color\nfilled')
+    ax.add_patch(patch)
+    patch = plt.Rectangle((0, 0.4), 0.3, 0.3, hatch='xx', fill=False,
+                          label='Patch\ndefault color\nunfilled')
+    ax.add_patch(patch)
+    patch = plt.Rectangle((0.33, 0.4), 0.3, 0.3, hatch='||', fill=False,
+                          edgecolor='C1',
+                          label='Patch\nexplicit color\nunfilled')
+    ax.add_patch(patch)
+
+    # Paths
+    ax.fill_between([0, .15, .3], [.8, .8, .8], [.9, 1.0, .9],
+                    hatch='+', label='Path\ndefault color')
+    ax.fill_between([.33, .48, .63], [.8, .8, .8], [.9, 1.0, .9],
+                    hatch='+', edgecolor='C2', label='Path\nexplicit color')
+
+    ax.set_xlim(-0.01, 1.1)
+    ax.set_ylim(-0.01, 1.1)
+    ax.legend(handlelength=4, handleheight=4)
+
+
 def test_legend_remove():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     lines = ax.plot(range(10))
     leg = fig.legend(lines, "test")
     leg.remove()
-    assert_equal(fig.legends, [])
+    assert fig.legends == []
     leg = ax.legend("test")
     leg.remove()
     assert ax.get_legend() is None
@@ -293,7 +323,7 @@ def test_not_covering_scatter():
                   extensions=['png'])
 def test_not_covering_scatter_transform():
     # Offsets point to top left, the default auto position
-    offset = mtrans.Affine2D().translate(-20, 20)
+    offset = mtransforms.Affine2D().translate(-20, 20)
     x = np.linspace(0, 30, 1000)
     plt.plot(x, x)
 
@@ -321,3 +351,11 @@ def test_linecollection_scaled_dashes():
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
         assert oh.get_linestyles()[0][1] == lh._dashSeq
         assert oh.get_linestyles()[0][0] == lh._dashOffset
+
+
+def test_handler_numpoints():
+    '''test legend handler with numponts less than or equal to 1'''
+    # related to #6921 and PR #8478
+    fig, ax = plt.subplots()
+    ax.plot(range(5), label='test')
+    ax.legend(numpoints=0.5)

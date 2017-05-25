@@ -87,7 +87,7 @@ units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
 
     'dots' or 'inches': pixels or inches, based on the figure dpi
 
-    'x', 'y', or 'xy': respectively *X*, *Y*, or :math:`\sqrt{X^2 + Y^2}`
+    'x', 'y', or 'xy': respectively *X*, *Y*, or :math:`\\sqrt{X^2 + Y^2}`
     in data units
 
     The arrows scale differently depending on the units.  For
@@ -164,10 +164,6 @@ Additional :class:`~matplotlib.collections.PolyCollection`
 keyword arguments:
 
 %(PolyCollection)s
-
-Examples
---------
-.. plot:: mpl_examples/pylab_examples/quiver_simple_demo.py
 
 See Also
 --------

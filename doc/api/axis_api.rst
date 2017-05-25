@@ -27,6 +27,7 @@ Inheritance
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.cla
@@ -38,6 +39,7 @@ Formatters and Locators
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.get_major_formatter
@@ -55,6 +57,7 @@ Axis Label
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.set_label_coords
@@ -68,6 +71,7 @@ Ticks, tick labels and Offset text
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.get_major_ticks
@@ -100,6 +104,7 @@ Data and view internvals
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.get_data_interval
@@ -112,6 +117,7 @@ Rendering helpers
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.get_minpos
@@ -125,6 +131,7 @@ Interactive
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 
@@ -137,6 +144,7 @@ Units
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.convert_units
@@ -150,6 +158,7 @@ Incremental navigation
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.pan
@@ -161,6 +170,7 @@ YAxis Specific
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    YAxis.axis_name
@@ -176,6 +186,7 @@ XAxis Specific
 --------------
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    XAxis.axis_name
@@ -191,6 +202,7 @@ Other
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 
@@ -211,6 +223,7 @@ not used together may de-couple your tick labels from your data.
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    Axis.set_ticklabels
@@ -228,6 +241,7 @@ not used together may de-couple your tick labels from your data.
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 
@@ -252,6 +266,7 @@ Common and inherited methods
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    XTick.apply_tickdir
@@ -274,6 +289,7 @@ YTick
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
    YTick.apply_tickdir
@@ -293,6 +309,7 @@ YAxis
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 
@@ -360,6 +377,7 @@ YAxis
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 
@@ -431,6 +449,7 @@ Ticks
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 
@@ -650,6 +669,7 @@ Axis
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary.rst
    :nosignatures:
 
 

@@ -16,9 +16,8 @@ import matplotlib
 from matplotlib import _preprocess_data
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
-                              iterable, is_string_like,
-                              safe_first_element)
+from matplotlib.cbook import (
+    mplDeprecation, STEP_LOOKUP_MAP, iterable, safe_first_element)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -40,7 +39,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
@@ -405,9 +403,10 @@ or tuple of floats
             the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
         markerfirst : bool
-            if *True*, legend marker is placed to the left of the legend label
-            if *False*, legend marker is placed to the right of the legend
-            label
+            If *True*, legend marker is placed to the left of the legend label.
+            If *False*, legend marker is placed to the right of the legend
+            label.
+            Default is *True*.
 
         frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
@@ -502,13 +501,13 @@ or tuple of floats
         Notes
         -----
 
-        Not all kinds of artist are supported by the legend command.
-        See :ref:`plotting-guide-legend` for details.
+        Not all kinds of artist are supported by the legend command. See
+        :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for details.
 
         Examples
         --------
 
-        .. plot:: mpl_examples/api/legend_demo.py
+        .. plot:: gallery/api/legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
@@ -566,8 +565,7 @@ or tuple of floats
         self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
         return self.legend_
 
-    def text(self, x, y, s, fontdict=None,
-             withdash=False, **kwargs):
+    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to the axes.
 
@@ -834,10 +832,6 @@ or tuple of floats
         --------
         axvspan : Add a vertical span (rectangle) across the axes.
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
-
         """
         trans = self.get_yaxis_transform(which='grid')
 
@@ -920,8 +914,8 @@ or tuple of floats
         self.autoscale_view(scaley=False)
         return p
 
-    @_preprocess_data(replace_names=['y', 'xmin', 'xmax', 'colors'],
-                      label_namer='y')
+    @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
+                      label_namer="y")
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -953,10 +947,6 @@ or tuple of floats
         See also
         --------
         vlines : vertical lines
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         """
 
@@ -1000,8 +990,8 @@ or tuple of floats
 
         return lines
 
-    @_preprocess_data(replace_names=['x', 'ymin', 'ymax', 'colors'],
-                      label_namer='x')
+    @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
+                      label_namer="x")
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -1035,10 +1025,6 @@ or tuple of floats
         See also
         --------
         hlines : horizontal lines
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         """
 
@@ -1083,9 +1069,9 @@ or tuple of floats
         return lines
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
-                                        "linelengths", "linewidths",
-                                        "colors", "linestyles"],
-                         label_namer=None)
+                                     "linelengths", "linewidths",
+                                     "colors", "linestyles"],
+                      label_namer=None)
     @docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None,
@@ -1138,10 +1124,6 @@ or tuple of floats
         kwargs are :class:`~matplotlib.collections.LineCollection` properties:
 
         %(LineCollection)s
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/eventplot_demo.py
         """
         self._process_unit_info(xdata=positions,
                                 ydata=[lineoffsets, linelengths],
@@ -1264,8 +1246,8 @@ or tuple of floats
     # ### Basic plotting
     # The label_naming happens in `matplotlib.axes._base._plot_args`
     @_preprocess_data(replace_names=["x", "y"],
-                         positional_parameter_names=_plot_args_replacer,
-                         label_namer=None)
+                      positional_parameter_names=_plot_args_replacer,
+                      label_namer=None)
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
@@ -1520,10 +1502,6 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/log_demo.py
-
         """
         if not self._hold:
             self.cla()
@@ -1705,15 +1683,6 @@ or tuple of floats
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
         `mode` = 2.
-
-        Examples
-        --------
-
-        `~matplotlib.pyplot.xcorr` is top graph, and
-        `~matplotlib.pyplot.acorr` is bottom graph.
-
-        .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
-
         """
         if "hold" in kwargs:
             warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
@@ -1858,10 +1827,10 @@ or tuple of floats
         return self.plot(x, y, *args, **kwargs)
 
     @_preprocess_data(replace_names=["left", "height", "width", "bottom",
-                                        "color", "edgecolor", "linewidth",
-                                        "tick_label", "xerr", "yerr",
-                                        "ecolor"],
-                         label_namer=None)
+                                     "color", "edgecolor", "linewidth",
+                                     "tick_label", "xerr", "yerr",
+                                     "ecolor"],
+                      label_namer=None)
     @docstring.dedent_interpd
     def bar(self, left, height, width=0.8, bottom=None, **kwargs):
         """
@@ -1960,13 +1929,6 @@ or tuple of floats
         See also
         --------
         barh: Plot a horizontal bar plot.
-
-        Examples
-        --------
-
-        **Example:** A stacked bar chart.
-
-        .. plot:: mpl_examples/pylab_examples/bar_stacked.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
         if not self._hold:
@@ -2318,10 +2280,6 @@ or tuple of floats
         or a sequence of arguments for the various bars, i.e.,::
 
           facecolors = ('black', 'red', 'green')
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/broken_barh.py
         """
         # process the unit information
         if len(xranges):
@@ -2369,10 +2327,6 @@ or tuple of floats
             `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
             for details.
 
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/stem_plot.py
         """
         remember_hold = self._hold
         if not self._hold:
@@ -2469,8 +2423,8 @@ or tuple of floats
 
         return stem_container
 
-    @_preprocess_data(replace_names=['x', 'explode', 'labels', 'colors'],
-                         label_namer=None)
+    @_preprocess_data(replace_names=["x", "explode", "labels", "colors"],
+                      label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
@@ -2480,95 +2434,94 @@ or tuple of floats
         Plot a pie chart.
 
         Make a pie chart of array *x*.  The fractional area of each
-        wedge is given by x/sum(x).  If sum(x) <= 1, then the values
-        of x give the fractional area directly and the array will not
-        be normalized.  The wedges are plotted counterclockwise,
-        by default starting from the x-axis.
+        wedge is given by ``x/sum(x)``.  If ``sum(x) <= 1``, then the
+        values of x give the fractional area directly and the array
+        will not be normalized.  The wedges are plotted
+        counterclockwise, by default starting from the x-axis.
 
-        Keyword arguments:
+        Parameters
+        ----------
+        x : array-like
+            The input array used to make the pie chart.
 
-          *explode*: [ *None* | len(x) sequence ]
+        explode : array-like, optional, default: None
             If not *None*, is a ``len(x)`` array which specifies the
             fraction of the radius with which to offset each wedge.
 
-          *colors*: [ *None* | color sequence ]
+        labels : list, optional, default: None
+            A sequence of strings providing the labels for each wedge
+
+        colors : array-like, optional, default: None
             A sequence of matplotlib color args through which the pie chart
             will cycle.  If `None`, will use the colors in the currently
             active cycle.
 
-          *labels*: [ *None* | len(x) sequence of strings ]
-            A sequence of strings providing the labels for each wedge
-
-          *autopct*: [ *None* | format string | format function ]
+        autopct : None (default), string, or function, optional
             If not *None*, is a string or function used to label the wedges
             with their numeric value.  The label will be placed inside the
             wedge.  If it is a format string, the label will be ``fmt%pct``.
             If it is a function, it will be called.
 
-          *pctdistance*: scalar
+        pctdistance : float, optional, default: 0.6
             The ratio between the center of each pie slice and the
             start of the text generated by *autopct*.  Ignored if
-            *autopct* is *None*; default is 0.6.
+            *autopct* is *None*.
 
-          *labeldistance*: scalar
-            The radial distance at which the pie labels are drawn
-
-          *shadow*: [ *False* | *True* ]
+        shadow : bool, optional, default: False
             Draw a shadow beneath the pie.
 
-          *startangle*: [ *None* | Offset angle ]
+        labeldistance : float, optional, default: 1.1
+            The radial distance at which the pie labels are drawn
+
+        startangle : float, optional, default: None
             If not *None*, rotates the start of the pie chart by *angle*
             degrees counterclockwise from the x-axis.
 
-          *radius*: [ *None* | scalar ]
-          The radius of the pie, if *radius* is *None* it will be set to 1.
+        radius : float, optional, default: None
+            The radius of the pie, if *radius* is *None* it will be set to 1.
 
-          *counterclock*: [ *False* | *True* ]
+        counterclock : bool, optional, default: True
             Specify fractions direction, clockwise or counterclockwise.
 
-          *wedgeprops*: [ *None* | dict of key value pairs ]
+        wedgeprops : dict, optional, default: None
             Dict of arguments passed to the wedge objects making the pie.
-            For example, you can pass in wedgeprops = { 'linewidth' : 3 }
+            For example, you can pass in``wedgeprops = {'linewidth': 3}``
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
-            By default `clip_on=False`.
+            By default ``clip_on=False``.
 
-          *textprops*: [ *None* | dict of key value pairs ]
+        textprops : dict, optional, default: None
             Dict of arguments to pass to the text objects.
 
-          *center*: [ (0,0) | sequence of 2 scalars ]
-          Center position of the chart.
+        center :  list of float, optional, default: (0, 0)
+            Center position of the chart. Takes value (0, 0) or is a
+            sequence of 2 scalars.
 
-          *frame*: [ *False* | *True* ]
-            Plot axes frame with the chart.
+        frame : bool, optional, default: False
+            Plot axes frame with the chart if true.
 
-          *rotatelabels*: [ *False* | *True* ]
-            Rotate each label to the angle of the corresponding slice.
+        rotatelabels : bool, optional, default: False
+            Rotate each label to the angle of the corresponding slice if true.
 
+        Returns
+        -------
+        patches : list
+            A sequence of :class:`matplotlib.patches.Wedge` instances
+
+        texts : list
+            A is a list of the label :class:`matplotlib.text.Text` instances.
+
+        autotexts : list
+            A is a list of :class:`~matplotlib.text.Text` instances for the
+            numeric labels. Is returned only if parameter *autopct* is
+            not *None*.
+
+        Notes
+        -----
         The pie chart will probably look best if the figure and axes are
-        square, or the Axes aspect is equal.  e.g.::
+        square, or the Axes aspect is equal.
 
-          figure(figsize=(8,8))
-          ax = axes([0.1, 0.1, 0.8, 0.8])
 
-        or::
-
-          axes(aspect=1)
-
-        Return value:
-          If *autopct* is *None*, return the tuple (*patches*, *texts*):
-
-            - *patches* is a sequence of
-              :class:`matplotlib.patches.Wedge` instances
-
-            - *texts* is a list of the label
-              :class:`matplotlib.text.Text` instances.
-
-          If *autopct* is not *None*, return the tuple (*patches*,
-          *texts*, *autotexts*), where *patches* and *texts* are as
-          above, and *autotexts* is a list of
-          :class:`~matplotlib.text.Text` instances for the numeric
-          labels.
         """
 
         x = np.array(x, np.float32)
@@ -2624,9 +2577,9 @@ or tuple of floats
             y += expl * math.sin(thetam)
 
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
-                            360. * max(theta1, theta2),
-                            facecolor=get_next_color(),
-                            **wedgeprops)
+                               360. * max(theta1, theta2),
+                               facecolor=get_next_color(),
+                               **wedgeprops)
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
@@ -2661,7 +2614,7 @@ or tuple of floats
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
                 yt = y + pctdistance * radius * math.sin(thetam)
-                if is_string_like(autopct):
+                if isinstance(autopct, six.string_types):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
                     s = autopct(100. * frac)
@@ -2683,9 +2636,9 @@ or tuple of floats
             self.set_frame_on(False)
 
             self.set_xlim((-1.25 + center[0],
-                            1.25 + center[0]))
+                           1.25 + center[0]))
             self.set_ylim((-1.25 + center[1],
-                            1.25 + center[1]))
+                           1.25 + center[1]))
             self.set_xticks([])
             self.set_yticks([])
 
@@ -2695,7 +2648,7 @@ or tuple of floats
             return slices, texts, autotexts
 
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
-                         label_namer="y")
+                      label_namer="y")
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
@@ -2796,9 +2749,6 @@ or tuple of floats
 
             %(Line2D)s
 
-        Examples
-        --------
-        .. plot:: mpl_examples/statistics/errorbar_demo.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
@@ -3267,10 +3217,6 @@ or tuple of floats
 
           - ``means``: points or lines representing the means.
 
-        Examples
-        --------
-        .. plot:: mpl_examples/statistics/boxplot_demo.py
-
         """
 
         # If defined in matplotlibrc, apply the value from rc file
@@ -3279,6 +3225,7 @@ or tuple of floats
             whis = rcParams['boxplot.whiskers']
         if bootstrap is None:
             bootstrap = rcParams['boxplot.bootstrap']
+
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels, autorange=autorange)
         if notch is None:
@@ -3538,7 +3485,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/statistics/bxp_demo.py
+        .. plot:: gallery/statistics/bxp.py
 
         """
         # lists of artists to be output
@@ -3808,17 +3755,17 @@ or tuple of floats
                     medians=medians, fliers=fliers, means=means)
 
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
-                                        "edgecolors", "c", 'facecolor',
-                                        'facecolors', 'color'],
-                         label_namer="y")
+                                     "edgecolors", "c", "facecolor",
+                                     "facecolors", "color"],
+                      label_namer="y")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
                 **kwargs):
         """
-        Make a scatter plot of `x` vs `y`
+        Make a scatter plot of `x` vs `y`.
 
-        Marker size is scaled by `s` and marker color is mapped to `c`
+        Marker size is scaled by `s` and marker color is mapped to `c`.
 
         Parameters
         ----------
@@ -3911,10 +3858,6 @@ or tuple of floats
           may be input as 2-D arrays, but within scatter they will be
           flattened. The exception is `c`, which will be flattened only if its
           size matches the size of `x` and `y`.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
 
         """
 
@@ -4039,7 +3982,7 @@ or tuple of floats
             edgecolors = 'face'
             linewidths = rcParams['lines.linewidth']
 
-        offsets = np.dstack((x, y))
+        offsets = np.column_stack([x, y])
 
         collection = mcoll.PathCollection(
                 (path,), scales,
@@ -4205,10 +4148,6 @@ or tuple of floats
             bar and vertical bar (both PolyCollections) will be attached
             to the return collection as attributes *hbar* and *vbar*.
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/hexbin_demo.py
-
         Notes
         --------
         The standard descriptions of all the
@@ -4251,8 +4190,8 @@ or tuple of floats
             ymin, ymax = (np.min(y), np.max(y)) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
-            xmin, xmax = mtrans.nonsingular(xmin, xmax, expander=0.1)
-            ymin, ymax = mtrans.nonsingular(ymin, ymax, expander=0.1)
+            xmin, xmax = mtransforms.nonsingular(xmin, xmax, expander=0.1)
+            ymin, ymax = mtransforms.nonsingular(ymin, ymax, expander=0.1)
 
         # In the x-direction, the hexagons exactly cover the region from
         # xmin to xmax. Need some padding to avoid roundoff errors.
@@ -4571,12 +4510,6 @@ or tuple of floats
 
             ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="->"))
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/arrow_demo.py
-
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -4614,7 +4547,7 @@ or tuple of floats
     stackplot.__doc__ = mstack.stackplot.__doc__
 
     @_preprocess_data(replace_names=["x", "y", "u", "v", "start_points"],
-                         label_namer=None)
+                      label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None, zorder=None,
@@ -4646,10 +4579,6 @@ or tuple of floats
     def barbs(self, *args, **kw):
         """
         %(barbs_doc)s
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/barb_demo.py
         """
         if not self._hold:
             self.cla()
@@ -4695,10 +4624,6 @@ or tuple of floats
         If you would like to fill below a curve, e.g., shade a region
         between 0 and *y* along *x*, use :meth:`fill_between`
 
-        Examples
-        --------
-        .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
-
 
         """
         if not self._hold:
@@ -4714,7 +4639,7 @@ or tuple of floats
         return patches
 
     @_preprocess_data(replace_names=["x", "y1", "y2", "where"],
-                         label_namer=None)
+                      label_namer=None)
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None,
@@ -4762,11 +4687,6 @@ or tuple of floats
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/fill_between_demo.py
 
         See Also
         --------
@@ -4883,7 +4803,7 @@ or tuple of floats
         return collection
 
     @_preprocess_data(replace_names=["y", "x1", "x2", "where"],
-                         label_namer=None)
+                      label_namer=None)
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
                       step=None, interpolate=False, **kwargs):
@@ -4929,11 +4849,6 @@ or tuple of floats
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/fill_betweenx_demo.py
 
         See Also
         --------
@@ -5156,11 +5071,6 @@ or tuple of floats
         Unless *extent* is used, pixel centers will be located at integer
         coordinates. In other words: the origin will coincide with the center
         of pixel (0, 0).
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/image_demo.py
 
         """
 
@@ -5469,8 +5379,8 @@ or tuple of floats
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and (is_string_like(ec) and
-                                             ec.lower() == "none"):
+        if 'antialiaseds' not in kwargs and (
+                isinstance(ec, six.string_types) and ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -6098,45 +6008,10 @@ or tuple of floats
         inherited that error.  It is now corrected within MPL when using
         earlier numpy versions.
 
-        Examples
-        --------
-        .. plot:: mpl_examples/statistics/histogram_demo_features.py
-
         """
-        def _normalize_input(inp, ename='input'):
-            """Normalize 1 or 2d input into list of np.ndarray or
-            a single 2D np.ndarray.
-
-            Parameters
-            ----------
-            inp : iterable
-            ename : str, optional
-                Name to use in ValueError if `inp` can not be normalized
-
-            """
-            if (isinstance(x, np.ndarray) or
-                    not iterable(cbook.safe_first_element(inp))):
-                # TODO: support masked arrays;
-                inp = np.asarray(inp)
-                if inp.ndim == 2:
-                    # 2-D input with columns as datasets; switch to rows
-                    inp = inp.T
-                elif inp.ndim == 1:
-                    # new view, single row
-                    inp = inp.reshape(1, inp.shape[0])
-                else:
-                    raise ValueError(
-                        "{ename} must be 1D or 2D".format(ename=ename))
-                if inp.shape[1] < inp.shape[0]:
-                    warnings.warn(
-                        '2D hist input should be nsamples x nvariables;\n '
-                        'this looks transposed '
-                        '(shape is %d x %d)' % inp.shape[::-1])
-            else:
-                # multiple hist with data of different length
-                inp = [np.asarray(xi) for xi in inp]
-
-            return inp
+        # Avoid shadowing the builtin.
+        bin_range = range
+        del range
 
         if not self._hold:
             self.cla()
@@ -6146,13 +6021,6 @@ or tuple of floats
 
         if bins is None:
             bins = rcParams['hist.bins']
-
-        # xrange becomes range after 2to3
-        bin_range = range
-        range = __builtins__["range"]
-
-        # NOTE: the range keyword overwrites the built-in func range !!!
-        #       needs to be fixed in numpy                           !!!
 
         # Validate string inputs here so we don't have to clutter
         # subsequent code.
@@ -6179,20 +6047,18 @@ or tuple of floats
         binsgiven = (cbook.iterable(bins) or bin_range is not None)
 
         # basic input validation
-        flat = np.ravel(x)
-
-        input_empty = len(flat) == 0
+        input_empty = np.size(x) == 0
 
         # Massage 'x' for processing.
         if input_empty:
             x = np.array([[]])
         else:
-            x = _normalize_input(x, 'x')
+            x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
-            w = _normalize_input(weights, 'weights')
+            w = cbook._reshape_2D(weights, 'weights')
         else:
             w = [None]*nx
 
@@ -6210,9 +6076,6 @@ or tuple of floats
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
                 raise ValueError("color kwarg must have one color per dataset")
-
-        # Save the datalimits for the same reason:
-        _saved_bounds = self.dataLim.bounds
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
@@ -6417,7 +6280,7 @@ or tuple of floats
 
         if label is None:
             labels = [None]
-        elif is_string_like(label):
+        elif isinstance(label, six.string_types):
             labels = [label]
         else:
             labels = [six.text_type(lab) for lab in label]
@@ -6495,7 +6358,20 @@ or tuple of floats
 
         Other parameters
         ----------------
-        kwargs : :meth:`pcolorfast` properties.
+        cmap : {Colormap, string}, optional
+            A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
+            settings.
+
+        norm : Normalize, optional
+            A :class:`matplotlib.colors.Normalize` instance is used to
+            scale luminance data to ``[0, 1]``. If not set, defaults to
+            ``Normalize()``.
+
+        vmin/vmax : {None, scalar}, optional
+            Arguments passed to the `Normalize` instance.
+
+        alpha : ``0 <= scalar <= 1`` or ``None``, optional
+            The alpha blending value.
 
         See also
         --------
@@ -6508,16 +6384,9 @@ or tuple of floats
         the *norm* keyword argument. Likewise, power-law normalization
         (similar in effect to gamma correction) can be accomplished with
         :class:`colors.PowerNorm`.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/statistics/plot_hist.py
         """
 
-        # xrange becomes range after 2to3
-        bin_range = range
-        range = __builtins__["range"]
-        h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
+        h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
                                            normed=normed, weights=weights)
 
         if cmin is not None:
@@ -6607,10 +6476,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/psd_demo.py
 
         See Also
         --------
@@ -6739,10 +6604,6 @@ or tuple of floats
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/csd_demo.py
-
         See Also
         --------
         :func:`psd`
@@ -6831,10 +6692,6 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
 
         See Also
         --------
@@ -6929,10 +6786,6 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
-
         See Also
         --------
         :func:`magnitude_spectrum`
@@ -7011,10 +6864,6 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
-
         See Also
         --------
         :func:`magnitude_spectrum`
@@ -7092,10 +6941,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        Examples
-        --------
-        .. plot:: mpl_examples/lines_bars_and_markers/cohere_demo.py
         """
         if not self._hold:
             self.cla()
@@ -7203,10 +7048,6 @@ or tuple of floats
 
         im : instance of class :class:`~matplotlib.image.AxesImage`
             The image created by imshow containing the spectrogram
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/specgram_demo.py
 
         See Also
         --------
@@ -7414,10 +7255,6 @@ or tuple of floats
         See also
         --------
         imshow : plot an image
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/matshow.py
 
         """
         Z = np.asanyarray(Z)

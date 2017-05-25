@@ -1,4 +1,8 @@
 """
+============
+Triplot Demo
+============
+
 Creating and plotting unstructured triangular grids.
 """
 import matplotlib.pyplot as plt

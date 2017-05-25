@@ -1,4 +1,8 @@
 '''
+===========
+Masked Demo
+===========
+
 Plot lines with points masked out.
 
 This would typically be used with gappy data, to

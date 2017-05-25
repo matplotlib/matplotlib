@@ -121,14 +121,10 @@ import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
-from matplotlib.cbook import (is_string_like,
-                              mplDeprecation,
-                              dedent, get_label,
-                              sanitize_sequence)
+from matplotlib.cbook import (
+    mplDeprecation, dedent, get_label, sanitize_sequence)
 from matplotlib.compat import subprocess
-from matplotlib.rcsetup import (defaultParams,
-                                validate_backend,
-                                cycler)
+from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
 from six.moves.urllib.request import urlopen
@@ -575,26 +571,15 @@ def _create_tmp_config_dir():
 
     Returns None if a writable temporary directory could not be created.
     """
-    import getpass
-    import tempfile
-    from matplotlib.cbook import mkdirs
-
     try:
         tempdir = tempfile.gettempdir()
     except NotImplementedError:
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-    try:
-        username = getpass.getuser()
-    except KeyError:
-        username = str(os.getuid())
-
-    tempdir = tempfile.mkdtemp(prefix='matplotlib-%s-' % username, dir=tempdir)
-
-    os.environ['MPLCONFIGDIR'] = tempdir
-
-    return tempdir
+    configdir = os.environ['MPLCONFIGDIR'] = (
+        tempfile.mkdtemp(prefix='matplotlib-', dir=tempdir))
+    return configdir
 
 
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
@@ -645,7 +630,7 @@ def _get_config_or_cache_dir(xdg_base):
     h = get_home()
     if h is not None:
         p = os.path.join(h, '.matplotlib')
-    if sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
+    if sys.platform.startswith(('linux', 'freebsd')):
         p = None
         if xdg_base is not None:
             p = os.path.join(xdg_base, 'matplotlib')
@@ -805,34 +790,24 @@ def matplotlib_fname():
     - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
       system-defined copy.
     """
-    if six.PY2:
-        cwd = os.getcwdu()
-    else:
-        cwd = os.getcwd()
-    fname = os.path.join(cwd, 'matplotlibrc')
-    if os.path.exists(fname):
-        return fname
 
-    if 'MATPLOTLIBRC' in os.environ:
-        path = os.environ['MATPLOTLIBRC']
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                return path
-            fname = os.path.join(path, 'matplotlibrc')
-            if os.path.exists(fname):
-                return fname
+    def gen_candidates():
+        yield os.path.join(six.moves.getcwd(), 'matplotlibrc')
+        try:
+            matplotlibrc = os.environ['MATPLOTLIBRC']
+        except KeyError:
+            pass
+        else:
+            yield matplotlibrc
+            yield os.path.join(matplotlibrc, 'matplotlibrc')
+        yield os.path.join(_get_configdir(), 'matplotlibrc')
+        yield os.path.join(get_data_path(), 'matplotlibrc')
 
-    configdir = _get_configdir()
-    if os.path.exists(configdir):
-        fname = os.path.join(configdir, 'matplotlibrc')
-        if os.path.exists(fname):
-            return fname
-
-    path = get_data_path()  # guaranteed to exist or raise
-    fname = os.path.join(path, 'matplotlibrc')
-    if not os.path.exists(fname):
-        warnings.warn('Could not find matplotlibrc; using defaults')
-
+    for fname in gen_candidates():
+        if os.path.isfile(fname):
+            break
+    # Return first candidate that is a file, or last candidate if none is
+    # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
 
 
@@ -1231,9 +1206,9 @@ def rc(group, **kwargs):
 
       rc('font', **font)  # pass in the font dict as kwargs
 
-    This enables you to easily switch between several configurations.
-    Use :func:`~matplotlib.pyplot.rcdefaults` to restore the default
-    rc params after changes.
+    This enables you to easily switch between several configurations.  Use
+    ``matplotlib.style.use('default')`` or :func:`~matplotlib.rcdefaults` to
+    restore the default rc params after changes.
     """
 
     aliases = {
@@ -1246,7 +1221,7 @@ def rc(group, **kwargs):
         'aa':  'antialiased',
         }
 
-    if is_string_like(group):
+    if isinstance(group, six.string_types):
         group = (group,)
     for g in group:
         for k, v in six.iteritems(kwargs):
@@ -1260,13 +1235,24 @@ def rc(group, **kwargs):
 
 
 def rcdefaults():
-    """
-    Restore the default rc params.  These are not the params loaded by
-    the rc file, but mpl's internal params.  See rc_file_defaults for
-    reloading the default params from the rc file
+    """Restore the rc params from Matplotlib's internal defaults.
+
+    See Also
+    --------
+    rc_file_defaults :
+        Restore the rc params from the rc file originally loaded by Matplotlib.
+    matplotlib.style.use :
+        Use a specific style file.  Call ``style.use('default')`` to restore
+        the default style.
     """
     rcParams.clear()
     rcParams.update(rcParamsDefault)
+
+
+def rc_file_defaults():
+    """Restore the rc params from the original rc file loaded by Matplotlib.
+    """
+    rcParams.update(rcParamsOrig)
 
 
 def rc_file(fname):
@@ -1329,14 +1315,6 @@ class rc_context(object):
 
     def __exit__(self, type, value, tb):
         rcParams.update(self._rcparams)
-
-
-def rc_file_defaults():
-    """
-    Restore the default rc params from the original matplotlib rc that
-    was loaded
-    """
-    rcParams.update(rcParamsOrig)
 
 
 _use_error_msg = """

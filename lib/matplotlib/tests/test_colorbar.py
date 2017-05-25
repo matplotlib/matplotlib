@@ -2,6 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
+import pytest
+
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -207,7 +209,9 @@ def test_colorbar_single_scatter():
     plt.colorbar(cs)
 
 
-def _test_remove_from_figure(use_gridspec):
+@pytest.mark.parametrize('use_gridspec', [False, True],
+                         ids=['no gridspec', 'with gridspec'])
+def test_remove_from_figure(use_gridspec):
     """
     Test `remove_from_figure` with the specified ``use_gridspec`` setting
     """
@@ -222,22 +226,6 @@ def _test_remove_from_figure(use_gridspec):
     fig.subplots_adjust()
     post_figbox = np.array(ax.figbox)
     assert (pre_figbox == post_figbox).all()
-
-
-def test_remove_from_figure_with_gridspec():
-    """
-    Make sure that `remove_from_figure` removes the colorbar and properly
-    restores the gridspec
-    """
-    _test_remove_from_figure(True)
-
-
-def test_remove_from_figure_no_gridspec():
-    """
-    Make sure that `remove_from_figure` removes a colorbar that was created
-    without modifying the gridspec
-    """
-    _test_remove_from_figure(False)
 
 
 def test_colorbarbase():

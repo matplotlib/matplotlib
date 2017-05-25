@@ -1,4 +1,8 @@
 """
+===============
+Errorbar Limits
+===============
+
 Illustration of upper and lower limit symbols on errorbars
 """
 

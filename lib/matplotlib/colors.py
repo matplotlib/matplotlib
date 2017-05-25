@@ -79,8 +79,8 @@ class _ColorMapping(dict):
         super(_ColorMapping, self).__setitem__(key, value)
         self.cache.clear()
 
-    def __delitem__(self, key, value):
-        super(_ColorMapping, self).__delitem__(key, value)
+    def __delitem__(self, key):
+        super(_ColorMapping, self).__delitem__(key)
         self.cache.clear()
 
 
@@ -188,7 +188,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
     # tuple color.
     c = np.array(c)
-    if not np.can_cast(c.dtype, float) or c.ndim != 1:
+    if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
         # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
         # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
         # Test dimensionality to reject single floats.
@@ -530,6 +530,16 @@ class Colormap(object):
             rgba = tuple(rgba[0, :])
         return rgba
 
+    def __copy__(self):
+        """Create new object with the same class, update attributes
+        """
+        cls = self.__class__
+        cmapobject = cls.__new__(cls)
+        cmapobject.__dict__.update(self.__dict__)
+        if self._isinit:
+            cmapobject._lut = np.copy(self._lut)
+        return cmapobject
+
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
         """
@@ -696,7 +706,7 @@ class LinearSegmentedColormap(Colormap):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
-                and not cbook.is_string_like(colors[0])):
+                and not isinstance(colors[0], six.string_types)):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -789,8 +799,7 @@ class ListedColormap(Colormap):
         if N is None:
             N = len(self.colors)
         else:
-            if (cbook.is_string_like(self.colors) and
-                    cbook.is_hashable(self.colors)):
+            if isinstance(self.colors, six.string_types):
                 self.colors = [self.colors] * N
                 self.monochrome = True
             elif cbook.iterable(self.colors):
@@ -934,6 +943,11 @@ class Normalize(object):
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
+        # Agg cannot handle float128.  We actually only need 32-bit of
+        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
+        # so casting to float32 would lose precision on float64s as well.
+        if result.dtype == np.longdouble:
+            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result

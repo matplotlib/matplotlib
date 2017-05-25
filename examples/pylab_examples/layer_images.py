@@ -1,4 +1,8 @@
 """
+============
+Layer Images
+============
+
 Layer images above one another using alpha blending
 """
 from __future__ import division

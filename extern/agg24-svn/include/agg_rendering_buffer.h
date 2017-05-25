@@ -62,7 +62,7 @@ namespace agg
             m_stride = stride;
             if(stride < 0) 
             { 
-                m_start = m_buf - int(height - 1) * stride;
+                m_start = m_buf - (AGG_INT64)(height - 1) * stride;
             }
         }
 
@@ -80,10 +80,10 @@ namespace agg
         //--------------------------------------------------------------------
         AGG_INLINE       T* row_ptr(int, int y, unsigned) 
         { 
-            return m_start + y * m_stride; 
+            return m_start + y * (AGG_INT64)m_stride;
         }
-        AGG_INLINE       T* row_ptr(int y)       { return m_start + y * m_stride; }
-        AGG_INLINE const T* row_ptr(int y) const { return m_start + y * m_stride; }
+        AGG_INLINE       T* row_ptr(int y)       { return m_start + y * (AGG_INT64)m_stride; }
+        AGG_INLINE const T* row_ptr(int y) const { return m_start + y * (AGG_INT64)m_stride; }
         AGG_INLINE row_data row    (int y) const 
         { 
             return row_data(0, m_width-1, row_ptr(y)); 
@@ -181,7 +181,7 @@ namespace agg
 
             if(stride < 0)
             {
-                row_ptr = m_buf - int(height - 1) * stride;
+                row_ptr = m_buf - (AGG_INT64)(height - 1) * stride;
             }
 
             T** rows = &m_rows[0];

@@ -146,7 +146,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         self._offsets = np.array([[0, 0]], float)
         if offsets is not None:
-            offsets = np.asanyarray(offsets).reshape((-1, 2))
+            offsets = np.asanyarray(offsets, float)
             if transOffset is not None:
                 self._offsets = offsets
                 self._transOffset = transOffset
@@ -186,7 +186,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
@@ -220,14 +219,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs, ys = vertices[:, 0], vertices[:, 1]
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
-                paths.append(mpath.Path(list(zip(xs, ys)), path.codes))
+                paths.append(mpath.Path(np.column_stack([xs, ys]), path.codes))
 
             if offsets.size > 0:
                 xs = self.convert_xunits(offsets[:, 0])
                 ys = self.convert_yunits(offsets[:, 1])
-                offsets = list(zip(xs, ys))
-
-        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
+                offsets = np.column_stack([xs, ys])
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path)
@@ -413,7 +410,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
-        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
+        offsets = np.asanyarray(offsets, float)
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
             self._offsets = offsets
@@ -514,7 +511,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             The line style.
         """
         try:
-            if cbook.is_string_like(ls) and cbook.is_hashable(ls):
+            if isinstance(ls, six.string_types):
                 ls = cbook.ls_mapper.get(ls, ls)
                 dashes = [mlines._get_dash_pattern(ls)]
             else:
@@ -1305,10 +1302,6 @@ class EventCollection(LineCollection):
         :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
-
-        **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/eventcollection_demo.py
         """
 
         segment = (lineoffset + linelength / 2.,
@@ -1869,17 +1862,12 @@ class QuadMesh(Collection):
             if len(self._offsets):
                 xs = self.convert_xunits(self._offsets[:, 0])
                 ys = self.convert_yunits(self._offsets[:, 1])
-                offsets = list(zip(xs, ys))
-
-        offsets = np.asarray(offsets, float).reshape((-1, 2))
+                offsets = np.column_stack([xs, ys])
 
         self.update_scalarmappable()
 
         if not transform.is_affine:
-            coordinates = self._coordinates.reshape(
-                (self._coordinates.shape[0] *
-                 self._coordinates.shape[1],
-                 2))
+            coordinates = self._coordinates.reshape((-1, 2))
             coordinates = transform.transform(coordinates)
             coordinates = coordinates.reshape(self._coordinates.shape)
             transform = transforms.IdentityTransform()

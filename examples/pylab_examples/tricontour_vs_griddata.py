@@ -1,4 +1,8 @@
 """
+======================
+Tricontour Vs Griddata
+======================
+
 Comparison of griddata and tricontour for an unstructured triangular grid.
 """
 from __future__ import print_function

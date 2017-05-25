@@ -38,6 +38,17 @@ def test_font_priority():
     assert cmap[8729] == 30
 
 
+def test_score_weight():
+    assert 0 == fontManager.score_weight("regular", "regular")
+    assert 0 == fontManager.score_weight("bold", "bold")
+    assert (0 < fontManager.score_weight(400, 400) <
+            fontManager.score_weight("normal", "bold"))
+    assert (0 < fontManager.score_weight("normal", "regular") <
+            fontManager.score_weight("normal", "bold"))
+    assert (fontManager.score_weight("normal", "regular") ==
+            fontManager.score_weight(400, 400))
+
+
 def test_json_serialization():
     # on windows, we can't open a file twice, so save the name and unlink
     # manually...

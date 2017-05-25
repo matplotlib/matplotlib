@@ -118,17 +118,18 @@ class AxesStack(Stack):
         # All the error checking may be unnecessary; but this method
         # is called so seldom that the overhead is negligible.
         if not isinstance(a, Axes):
-            raise ValueError("second argument, %s, is not an Axes" % a)
+            raise ValueError("second argument, {!r}, is not an Axes".format(a))
         try:
             hash(key)
         except TypeError:
-            raise ValueError("first argument, %s, is not a valid key" % key)
+            raise ValueError(
+                "first argument, {!r}, is not a valid key".format(key))
 
         a_existing = self.get(key)
         if a_existing is not None:
             Stack.remove(self, (key, a_existing))
             warnings.warn(
-                "key %s already existed; Axes is being replaced" % key)
+                "key {!r} already existed; Axes is being replaced".format(key))
             # I don't think the above should ever happen.
 
         if a in self:
@@ -323,9 +324,14 @@ class Figure(Artist):
         if frameon is None:
             frameon = rcParams['figure.frameon']
 
-        self.dpi_scale_trans = Affine2D()
-        self.dpi = dpi
+        if not np.isfinite(figsize).all():
+            raise ValueError('figure size must be finite not '
+                             '{}'.format(figsize))
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+
+        self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
+        # do not use property as it will trigger
+        self._dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
         self.frameon = frameon
@@ -414,6 +420,7 @@ class Figure(Artist):
     def _set_dpi(self, dpi):
         self._dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi, dpi)
+        self.set_size_inches(*self.get_size_inches())
         self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
 
@@ -440,7 +447,7 @@ class Figure(Artist):
         self._tight_parameters = tight if isinstance(tight, dict) else {}
         self.stale = True
 
-    def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
+    def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right', which=None):
         """
         Date ticklabels often overlap, so it is useful to rotate them
         and right align them.  Also, a common use case is a number of
@@ -449,29 +456,36 @@ class Figure(Artist):
         bottom subplot and turn them off on other subplots, as well as
         turn off xlabels.
 
-        *bottom*
+        Parameters
+        ----------
+
+        bottom : scalar
             The bottom of the subplots for :meth:`subplots_adjust`
 
-        *rotation*
+        rotation : angle in degrees
             The rotation of the xtick labels
 
-        *ha*
+        ha : string
             The horizontal alignment of the xticklabels
+
+        which : {None, 'major', 'minor', 'both'}
+            Selects which ticklabels to rotate (default is None which works
+            same as major)
         """
         allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
         if len(self.axes) == 1:
-            for label in self.axes[0].get_xticklabels():
+            for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
                 label.set_rotation(rotation)
         else:
             if allsubplots:
                 for ax in self.get_axes():
                     if ax.is_last_row():
-                        for label in ax.get_xticklabels():
+                        for label in ax.get_xticklabels(which=which):
                             label.set_ha(ha)
                             label.set_rotation(rotation)
                     else:
-                        for label in ax.get_xticklabels():
+                        for label in ax.get_xticklabels(which=which):
                             label.set_visible(False)
                         ax.set_xlabel('')
 
@@ -652,9 +666,6 @@ class Figure(Artist):
 
         An :class:`matplotlib.image.FigureImage` instance is returned.
 
-        .. plot:: mpl_examples/pylab_examples/figimage_demo.py
-
-
         Additional kwargs are Artist kwargs passed on to
         :class:`~matplotlib.image.FigureImage`
         """
@@ -703,18 +714,22 @@ class Figure(Artist):
         # argument, so unpack them
         if h is None:
             w, h = w
-
+        if not all(np.isfinite(_) for _ in (w, h)):
+            raise ValueError('figure size must be finite not '
+                             '({}, {})'.format(w, h))
         dpival = self.dpi
         self.bbox_inches.p1 = w, h
 
         if forward:
-            ratio = getattr(self.canvas, '_dpi_ratio', 1)
-            dpival = self.dpi / ratio
-            canvasw = w * dpival
-            canvash = h * dpival
-            manager = getattr(self.canvas, 'manager', None)
-            if manager is not None:
-                manager.resize(int(canvasw), int(canvash))
+            canvas = getattr(self, 'canvas')
+            if canvas is not None:
+                ratio = getattr(self.canvas, '_dpi_ratio', 1)
+                dpival = self.dpi / ratio
+                canvasw = w * dpival
+                canvash = h * dpival
+                manager = getattr(self.canvas, 'manager', None)
+                if manager is not None:
+                    manager.resize(int(canvasw), int(canvash))
         self.stale = True
 
     def get_size_inches(self):
@@ -911,6 +926,9 @@ class Figure(Artist):
                 raise ValueError(msg)
         else:
             rect = args[0]
+            if not np.isfinite(rect).all():
+                raise ValueError('all entries in rect must be finite '
+                                 'not {}'.format(rect))
             projection_class, kwargs, key = process_projection_requirements(
                 self, *args, **kwargs)
 
@@ -1200,11 +1218,11 @@ class Figure(Artist):
         self._suptitle = None
         self.stale = True
 
-    def clear(self):
+    def clear(self, keep_observers=False):
         """
         Clear the figure -- synonym for :meth:`clf`.
         """
-        self.clf()
+        self.clf(keep_observers=keep_observers)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -1320,6 +1338,7 @@ class Figure(Artist):
             If *True*, legend marker is placed to the left of the legend label.
             If *False*, legend marker is placed to the right of the legend
             label.
+            Default is *True*.
 
         frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
@@ -1402,12 +1421,8 @@ class Figure(Artist):
 
         Notes
         -----
-        Not all kinds of artist are supported by the legend command.
-        See :ref:`plotting-guide-legend` for details.
-
-        Examples
-        --------
-        .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
+        Not all kinds of artist are supported by the legend command. See
+        :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for details.
         """
 
         # If no arguments given, collect up all the artists on the figure

@@ -7,9 +7,48 @@ Developer's tips for documenting matplotlib
 Getting started
 ===============
 
-The documentation for matplotlib is generated from ReStructured Text using the
-Sphinx_ documentation generation tool. Sphinx-1.3 or later and numpydoc 0.4 or
-later is required.
+Installing dependencies
+-----------------------
+
+The documentation for matplotlib is generated from reStructuredText using the
+Sphinx_ documentation generation tool. There are several extra requirements that
+are needed to build the documentation. They are listed in the file
+`doc-requirements.txt <https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt>`_
+as well as listed below:
+
+1. Sphinx-1.3 or later(Version 1.5.0 is not supported)
+2. numpydoc 0.4 or later
+3. IPython
+4. Mock
+5. colorspacious
+6. pillow
+7. graphviz
+
+.. note::
+
+  * You'll need a minimal working LaTeX distribution for many examples to run.
+  * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a python package, and needs
+    to be installed separately.
+
+General structure
+-----------------
+
+All documentation is built from the :file:`doc/` directory. This directory contains both
+``.rst`` files that contain pages in the documentation, directories that contain more
+``.rst`` files, and configuration files for Sphinx_.
+
+.. note::
+
+  An exception to this are the directories :file:`gallery` and :file:`tutorials`, which
+  exist in the root directory. These contain Python files that are built by `Sphinx Gallery`_.
+  When the docs are built, directories of the same name will be generated inside of :file:`docs/`.
+  The generated directories :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
+
+The configuration file for Sphinx is :file:`doc/conf.py`. It controls which directories
+Sphinx parses, how the docs are built, and how the extensions are used.
+
+Building the docs
+-----------------
 
 The documentation sources are found in the :file:`doc/` directory in
 the trunk.  To build the users guide in html format, cd into
@@ -21,11 +60,19 @@ or::
 
   ./make.py html
 
-you can also pass a ``latex`` flag to make.py to build a pdf, or pass no
-arguments to build everything.
+There are many other flags you can pass to ``make.py``, and you can see the
+full list inside that file. Here are two useful ones:
 
-The output produced by Sphinx can be configured by editing the :file:`conf.py`
-file located in the :file:`doc/`.
+* ``clean`` will delete the built Sphinx files. Use this command if you're getting strange
+  errors about missing paths or broken links, particularly if you move files around.
+* ``latex`` builds a PDF of the documentation.
+
+In addition, these are useful flags:
+
+* ``--help`` will (among other things) display the allowed commands for ``make.py``.
+* ``--allowsphinxwarnings`` will allow the docs to continue building even if Sphinx
+  throws a warning. This is useful for debugging and spot-checking many warnings
+  at once.
 
 
 Organization of matplotlib's documentation
@@ -254,11 +301,6 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 
 * The autodoc extension will handle index entries for the API, but additional
   entries in the index_ need to be explicitly added.
-
-.. _Sphinx: http://www.sphinx-doc.org
-.. _documentation: http://www.sphinx-doc.org/contents.html
-.. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
-.. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
 
 * Please limit the text width of docstrings to 70 characters.
 
@@ -495,3 +537,9 @@ Some helpful functions::
         Shift region to the right
 
 .. TODO: Add section about uploading docs
+
+.. _Sphinx: http://www.sphinx-doc.org
+.. _documentation: http://www.sphinx-doc.org/contents.html
+.. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
+.. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
+.. _`Sphinx Gallery`: https://sphinx-gallery.readthedocs.io/en/latest/

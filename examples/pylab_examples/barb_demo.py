@@ -1,4 +1,8 @@
 '''
+=========
+Barb Demo
+=========
+
 Demonstration of wind barb plots
 '''
 import matplotlib.pyplot as plt

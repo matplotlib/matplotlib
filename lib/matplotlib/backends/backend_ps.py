@@ -8,21 +8,19 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import StringIO
 
-import glob, math, os, shutil, sys, time, datetime
+import glob, os, shutil, sys, time, datetime
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
 
-from hashlib import md5
-
 from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.afm import AFM
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+                                      FigureManagerBase, FigureCanvasBase)
 
-from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
-    is_writable_file_like, maxdict, file_requires_unicode
+from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
+                              maxdict, file_requires_unicode)
+from matplotlib.compat.subprocess import subprocess
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -30,7 +28,6 @@ from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
-from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D
@@ -69,8 +66,8 @@ class PsBackendHelper(object):
         if gs_exe is None:
             gs_exe = 'gs'
 
-        self._cached["gs_exe"] = gs_exe
-        return gs_exe
+        self._cached["gs_exe"] = str(gs_exe)
+        return str(gs_exe)
 
     @property
     def gs_version(self):
@@ -83,8 +80,7 @@ class PsBackendHelper(object):
             pass
 
         from matplotlib.compat.subprocess import Popen, PIPE
-        s = Popen(self.gs_exe + " --version",
-                     shell=True, stdout=PIPE)
+        s = Popen([self.gs_exe, "--version"], stdout=PIPE)
         pipe, stderr = s.communicate()
         if six.PY3:
             ver = pipe.decode('ascii')
@@ -145,10 +141,10 @@ def _get_papertype(w, h):
         return 'a0'
 
 def _num_to_str(val):
-    if is_string_like(val): return val
+    if isinstance(val, six.string_types): return val
 
     ival = int(val)
-    if val==ival: return str(ival)
+    if val == ival: return str(ival)
 
     s = "%1.3f"%val
     s = s.rstrip("0")
@@ -474,8 +470,6 @@ grestore
         self._pswriter.write(ps)
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
-        ps = []
-        last_points = None
         if clip:
             clip = (0.0, 0.0, self.width * 72.0,
                     self.height * 72.0)
@@ -515,8 +509,6 @@ grestore
         transformed by the transform
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
-
-        write = self._pswriter.write
 
         if rgbFace:
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
@@ -885,7 +877,6 @@ grestore
         write("grestore\n")
 
 
-
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt':0,
@@ -901,6 +892,7 @@ class GraphicsContextPS(GraphicsContextBase):
         return (self.get_linewidth() > 0.0 and
                 (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
+
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
@@ -914,6 +906,7 @@ def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasPS(figure)
     manager = FigureManagerPS(canvas, num)
     return manager
+
 
 class FigureCanvasPS(FigureCanvasBase):
     _renderer_class = RendererPS
@@ -984,7 +977,7 @@ class FigureCanvasPS(FigureCanvasBase):
         """
         isEPSF = format == 'eps'
         passed_in_file_object = False
-        if is_string_like(outfile):
+        if isinstance(outfile, six.string_types):
             title = outfile
         elif is_writable_file_like(outfile):
             title = None
@@ -1068,39 +1061,46 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             creator_str = "matplotlib version " + __version__ + \
                 ", http://matplotlib.org/"
-        def print_figure_impl():
+
+        def print_figure_impl(fh):
             # write the PostScript headers
-            if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-            else: print("%!PS-Adobe-3.0", file=fh)
-            if title: print("%%Title: "+title, file=fh)
+            if isEPSF:
+                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+            else:
+                print("%!PS-Adobe-3.0", file=fh)
+            if title:
+                print("%%Title: "+title, file=fh)
             print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
             if source_date_epoch:
                 source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
             print("%%Orientation: " + orientation, file=fh)
-            if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
+            if not isEPSF:
+                print("%%DocumentPaperSizes: "+papertype, file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-            if not isEPSF: print("%%Pages: 1", file=fh)
+            if not isEPSF:
+                print("%%Pages: 1", file=fh)
             print("%%EndComments", file=fh)
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
             if not rcParams['ps.useafm']:
                 Ndict += len(ps_renderer.used_characters)
-            print("/mpldict %d dict def"%Ndict, file=fh)
+            print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             for d in psDefs:
-                d=d.strip()
+                d = d.strip()
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in six.itervalues(ps_renderer.used_characters):
+                for font_filename, chars in six.itervalues(
+                        ps_renderer.used_characters):
                     if len(chars):
                         font = get_font(font_filename)
                         glyph_ids = []
@@ -1120,21 +1120,29 @@ class FigureCanvasPS(FigureCanvasBase):
                         # STIX fonts).  This will simply turn that off to avoid
                         # errors.
                         if is_opentype_cff_font(font_filename):
-                            raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
+                            msg = ("OpenType CFF fonts can not be saved "
+                                   "using the internal Postscript backend "
+                                   "at this time.\nConsider using the "
+                                   "Cairo backend.")
+                            raise RuntimeError(msg)
                         else:
                             fh.flush()
                             convert_ttf_to_ps(
-                                font_filename.encode(sys.getfilesystemencoding()),
+                                font_filename.encode(
+                                    sys.getfilesystemencoding()),
                                 fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
-            if not isEPSF: print("%%Page: 1 1", file=fh)
+            if not isEPSF:
+                print("%%Page: 1 1", file=fh)
             print("mpldict begin", file=fh)
-            #print >>fh, "gsave"
-            print("%s translate"%_nums_to_str(xo, yo), file=fh)
-            if rotation: print("%d rotate"%rotation, file=fh)
-            print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
+
+            print("%s translate" % _nums_to_str(xo, yo), file=fh)
+            if rotation:
+                print("%d rotate" % rotation, file=fh)
+            print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
+                  file=fh)
 
             # write the figure
             content = self._pswriter.getvalue()
@@ -1143,26 +1151,50 @@ class FigureCanvasPS(FigureCanvasBase):
             print(content, file=fh)
 
             # write the trailer
-            #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
-            if not isEPSF: print("%%EOF", file=fh)
+            if not isEPSF:
+                print("%%EOF", file=fh)
             fh.flush()
 
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
             fd, tmpfile = mkstemp()
-            with io.open(fd, 'w', encoding='latin-1') as fh:
-                print_figure_impl()
+            try:
+                with io.open(fd, 'w', encoding='latin-1') as fh:
+                    print_figure_impl(fh)
+                if rcParams['ps.usedistiller'] == 'ghostscript':
+                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                elif rcParams['ps.usedistiller'] == 'xpdf':
+                    xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+
+                if passed_in_file_object:
+                    if file_requires_unicode(outfile):
+                        with io.open(tmpfile, 'rb') as fh:
+                            outfile.write(fh.read().decode('latin-1'))
+                    else:
+                        with io.open(tmpfile, 'rb') as fh:
+                            outfile.write(fh.read())
+                else:
+                    with io.open(outfile, 'w') as fh:
+                        pass
+                    mode = os.stat(outfile).st_mode
+                    shutil.move(tmpfile, outfile)
+                    os.chmod(outfile, mode)
+            finally:
+                if os.path.isfile(tmpfile):
+                    os.unlink(tmpfile)
+
         else:
             # Write directly to outfile.
             if passed_in_file_object:
                 requires_unicode = file_requires_unicode(outfile)
 
                 if (not requires_unicode and
-                    (six.PY3 or not isinstance(outfile, StringIO))):
+                        (six.PY3 or not isinstance(outfile, StringIO))):
                     fh = io.TextIOWrapper(outfile, encoding="latin-1")
+
                     # Prevent the io.TextIOWrapper from closing the
                     # underlying file
                     def do_nothing():
@@ -1171,30 +1203,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 else:
                     fh = outfile
 
-                print_figure_impl()
+                print_figure_impl(fh)
             else:
                 with io.open(outfile, 'w', encoding='latin-1') as fh:
-                    print_figure_impl()
-
-        if rcParams['ps.usedistiller']:
-            if rcParams['ps.usedistiller'] == 'ghostscript':
-                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-            elif rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-
-            if passed_in_file_object:
-                if file_requires_unicode(outfile):
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read().decode('latin-1'))
-                else:
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read())
-            else:
-                with io.open(outfile, 'w') as fh:
-                    pass
-                mode = os.stat(outfile).st_mode
-                shutil.move(tmpfile, outfile)
-                os.chmod(outfile, mode)
+                    print_figure_impl(fh)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype, metadata=None,
@@ -1208,14 +1220,14 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if is_string_like(outfile):
+        if isinstance(outfile, six.string_types):
             title = outfile
         elif is_writable_file_like(outfile):
             title = None
         else:
             raise ValueError("outfile must be a path or a file-like object")
 
-        self.figure.dpi = 72 # ignore the dpi kwarg
+        self.figure.dpi = 72  # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
         xo = 0
         yo = 0
@@ -1243,18 +1255,17 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             self._pswriter = io.StringIO()
 
-
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height,
                                            self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
-            width, height, dpi, ps_renderer,
-            bbox_inches_restore=_bbox_inches_restore)
+                                     width, height, dpi, ps_renderer,
+                                     bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
 
-        if dryrun: # return immediately if dryrun (tightbbox=True)
+        if dryrun:  # return immediately if dryrun (tightbbox=True)
             return
 
         self.figure.set_facecolor(origfacecolor)
@@ -1268,107 +1279,118 @@ class FigureCanvasPS(FigureCanvasBase):
                 ", http://matplotlib.org/"
 
         # write to a temp file, we'll move it to outfile when done
+
         fd, tmpfile = mkstemp()
-        with io.open(fd, 'w', encoding='latin-1') as fh:
-            # write the Encapsulated PostScript headers
-            print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-            if title: print("%%Title: "+title, file=fh)
-            print("%%Creator: " + creator_str, file=fh)
-            # get source date from SOURCE_DATE_EPOCH, if set
-            # See https://reproducible-builds.org/specs/source-date-epoch/
-            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-            if source_date_epoch:
-                source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+        try:
+            with io.open(fd, 'w', encoding='latin-1') as fh:
+                # write the Encapsulated PostScript headers
+                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+                if title:
+                    print("%%Title: "+title, file=fh)
+                print("%%Creator: " + creator_str, file=fh)
+                # get source date from SOURCE_DATE_EPOCH, if set
+                # See https://reproducible-builds.org/specs/source-date-epoch/
+                source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+                if source_date_epoch:
+                    source_date = datetime.datetime.utcfromtimestamp(
+                        int(source_date_epoch)).strftime(
+                            "%a %b %d %H:%M:%S %Y")
+                else:
+                    source_date = time.ctime()
+                print("%%CreationDate: "+source_date, file=fh)
+                print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
+                print("%%EndComments", file=fh)
+
+                Ndict = len(psDefs)
+                print("%%BeginProlog", file=fh)
+                print("/mpldict %d dict def" % Ndict, file=fh)
+                print("mpldict begin", file=fh)
+                for d in psDefs:
+                    d = d.strip()
+                    for l in d.split('\n'):
+                        print(l.strip(), file=fh)
+                print("end", file=fh)
+                print("%%EndProlog", file=fh)
+
+                print("mpldict begin", file=fh)
+                print("%s translate" % _nums_to_str(xo, yo), file=fh)
+                print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
+                      file=fh)
+
+                # write the figure
+                print(self._pswriter.getvalue(), file=fh)
+
+                # write the trailer
+                print("end", file=fh)
+                print("showpage", file=fh)
+                fh.flush()
+
+            if isLandscape:  # now we are ready to rotate
+                isLandscape = True
+                width, height = height, width
+                bbox = (lly, llx, ury, urx)
+
+            # set the paper size to the figure size if isEPSF. The
+            # resulting ps file has the given size with correct bounding
+            # box so that there is no need to call 'pstoeps'
+            if isEPSF:
+                paperWidth, paperHeight = self.figure.get_size_inches()
+                if isLandscape:
+                    paperWidth, paperHeight = paperHeight, paperWidth
             else:
-                source_date = time.ctime()
-            print("%%CreationDate: "+source_date, file=fh)
-            print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-            print("%%EndComments", file=fh)
-
-            Ndict = len(psDefs)
-            print("%%BeginProlog", file=fh)
-            print("/mpldict %d dict def"%Ndict, file=fh)
-            print("mpldict begin", file=fh)
-            for d in psDefs:
-                d=d.strip()
-                for l in d.split('\n'):
-                    print(l.strip(), file=fh)
-            print("end", file=fh)
-            print("%%EndProlog", file=fh)
-
-            print("mpldict begin", file=fh)
-            #print >>fh, "gsave"
-            print("%s translate"%_nums_to_str(xo, yo), file=fh)
-            print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
-
-            # write the figure
-            print(self._pswriter.getvalue(), file=fh)
-
-            # write the trailer
-            #print >>fh, "grestore"
-            print("end", file=fh)
-            print("showpage", file=fh)
-            fh.flush()
-
-        if isLandscape: # now we are ready to rotate
-            isLandscape = True
-            width, height = height, width
-            bbox = (lly, llx, ury, urx)
-
-        # set the paper size to the figure size if isEPSF. The
-        # resulting ps file has the given size with correct bounding
-        # box so that there is no need to call 'pstoeps'
-        if isEPSF:
-            paperWidth, paperHeight = self.figure.get_size_inches()
-            if isLandscape:
-                paperWidth, paperHeight = paperHeight, paperWidth
-        else:
-            temp_papertype = _get_papertype(width, height)
-            if papertype=='auto':
-                papertype = temp_papertype
-                paperWidth, paperHeight = papersize[temp_papertype]
-            else:
-                paperWidth, paperHeight = papersize[papertype]
-                if (width>paperWidth or height>paperHeight) and isEPSF:
+                temp_papertype = _get_papertype(width, height)
+                if papertype == 'auto':
+                    papertype = temp_papertype
                     paperWidth, paperHeight = papersize[temp_papertype]
-                    verbose.report('Your figure is too big to fit on %s paper. %s \
-    paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
+                else:
+                    paperWidth, paperHeight = papersize[papertype]
+                    if (width > paperWidth or height > paperHeight) and isEPSF:
+                        paperWidth, paperHeight = papersize[temp_papertype]
+                        verbose.report(
+                            ('Your figure is too big to fit on %s paper. %s '
+                             'paper will be used to prevent clipping.'
+                             ) % (papertype, temp_papertype), 'helpful')
 
+            texmanager = ps_renderer.get_texmanager()
+            font_preamble = texmanager.get_font_preamble()
+            custom_preamble = texmanager.get_custom_preamble()
 
-        texmanager = ps_renderer.get_texmanager()
-        font_preamble = texmanager.get_font_preamble()
-        custom_preamble = texmanager.get_custom_preamble()
+            psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
+                                             font_preamble,
+                                             custom_preamble, paperWidth,
+                                             paperHeight,
+                                             orientation)
 
-        psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
-                                         font_preamble,
-                                         custom_preamble, paperWidth, paperHeight,
-                                         orientation)
-
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                       rotated=psfrag_rotated)
-        elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                         rotated=psfrag_rotated)
-        elif rcParams['text.usetex']:
-            if False: pass # for debugging
-            else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                           rotated=psfrag_rotated)
+            elif rcParams['ps.usedistiller'] == 'xpdf':
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
+            elif rcParams['text.usetex']:
+                if False:
+                    pass  # for debugging
+                else:
+                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                               rotated=psfrag_rotated)
 
-        if is_writable_file_like(outfile):
-            if file_requires_unicode(outfile):
-                with io.open(tmpfile, 'rb') as fh:
-                    outfile.write(fh.read().decode('latin-1'))
+            if is_writable_file_like(outfile):
+                if file_requires_unicode(outfile):
+                    with io.open(tmpfile, 'rb') as fh:
+                        outfile.write(fh.read().decode('latin-1'))
+                else:
+                    with io.open(tmpfile, 'rb') as fh:
+                        outfile.write(fh.read())
             else:
-                with io.open(tmpfile, 'rb') as fh:
-                    outfile.write(fh.read())
-        else:
-            with io.open(outfile, 'wb') as fh:
-                pass
-            mode = os.stat(outfile).st_mode
-            shutil.move(tmpfile, outfile)
-            os.chmod(outfile, mode)
+                with io.open(outfile, 'wb') as fh:
+                    pass
+                mode = os.stat(outfile).st_mode
+                shutil.move(tmpfile, outfile)
+                os.chmod(outfile, mode)
+        finally:
+            if os.path.isfile(tmpfile):
+                os.unlink(tmpfile)
+
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paperWidth, paperHeight, orientation):
@@ -1383,12 +1405,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     epsfile = tmpfile+'.eps'
     shutil.move(tmpfile, epsfile)
     latexfile = tmpfile+'.tex'
-    outfile = tmpfile+'.output'
     dvifile = tmpfile+'.dvi'
     psfile = tmpfile+'.ps'
 
-    if orientation=='landscape': angle = 90
-    else: angle = 0
+    if orientation == 'landscape':
+        angle = 90
+    else:
+        angle = 0
 
     if rcParams['text.latex.unicode']:
         unicode_preamble = """\\usepackage{ucs}
@@ -1429,40 +1452,39 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                                "rcParam.", 'helpful')
                 raise
 
-    # the split drive part of the command is necessary for windows users with
-    # multiple
-    if sys.platform == 'win32': precmd = '%s &&'% os.path.splitdrive(tmpdir)[0]
-    else: precmd = ''
-    #Replace \\ for / so latex does not think there is a function call
+    # Replace \\ for / so latex does not think there is a function call
     latexfile = latexfile.replace("\\", "/")
     # Replace ~ so Latex does not think it is line break
     latexfile = latexfile.replace("~", "\\string~")
-    command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
-                %(precmd, tmpdir, latexfile, outfile)
+    command = [str("latex"), "-interaction=nonstopmode",
+               '"%s"' % latexfile]
     verbose.report(command, 'debug')
-    exit_status = os.system(command)
+    try:
+        report = subprocess.check_output(command, cwd=tmpdir,
+                                         stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('LaTeX was not able to process the following '
+             'file:\n%s\n\n'
+             'Here is the full report generated by LaTeX:\n%s '
+             '\n\n' % (latexfile,
+                       exc.output.decode("utf-8"))))
+    verbose.report(report, 'debug')
 
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('LaTeX was not able to process your file:\
-    \nHere is the full report generated by LaTeX: \n\n%s'% fh.read())
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
-
-    command = '%s cd "%s" && dvips -q -R0 -o "%s" "%s" > "%s"'%(precmd, tmpdir,
-                os.path.split(psfile)[-1], os.path.split(dvifile)[-1], outfile)
+    command = [str('dvips'), '-q', '-R0', '-o', os.path.basename(psfile),
+               os.path.basename(dvifile)]
     verbose.report(command, 'debug')
-    exit_status = os.system(command)
-
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('dvips was not able to \
-    process the following file:\n%s\nHere is the full report generated by dvips: \
-    \n\n'% dvifile + fh.read())
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
+    try:
+        report = subprocess.check_output(command, cwd=tmpdir,
+                                         stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('dvips was not able to process the following '
+             'file:\n%s\n\n'
+             'Here is the full report generated by dvips:\n%s '
+             '\n\n' % (dvifile,
+                       exc.output.decode("utf-8"))))
+    verbose.report(report, 'debug')
     os.remove(epsfile)
     shutil.move(psfile, tmpfile)
 
@@ -1492,13 +1514,13 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     operators. The output is low-level, converting text to outlines.
     """
 
-    if eps: paper_option = "-dEPSCrop"
-    else: paper_option = "-sPAPERSIZE=%s" % ptype
+    if eps:
+        paper_option = "-dEPSCrop"
+    else:
+        paper_option = "-sPAPERSIZE=%s" % ptype
 
     psfile = tmpfile + '.ps'
-    outfile = tmpfile + '.output'
     dpi = rcParams['ps.distiller.res']
-
 
     gs_exe = ps_backend_helper.gs_exe
     if ps_backend_helper.supports_ps2write: # gs version >= 9
@@ -1506,25 +1528,18 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     else:
         device_name = "pswrite"
 
-    command = '%s -dBATCH -dNOPAUSE -r%d -sDEVICE=%s %s -sOutputFile="%s" \
-                "%s" > "%s"'% (gs_exe, dpi, device_name,
-                               paper_option, psfile, tmpfile, outfile)
-
+    command = [str(gs_exe), "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
+               "-sDEVICE=%s" % device_name, paper_option,
+               "-sOutputFile=%s" % psfile, tmpfile]
     verbose.report(command, 'debug')
-    exit_status = os.system(command)
-
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            output = fh.read()
-            m = "\n".join(["ghostscript was not able to process your image.",
-                           "Here is the full report generated by ghostscript:",
-                           "",
-                           "%s"])
-            # use % to prevent problems with bytes
-            raise RuntimeError(m % output)
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
+    try:
+        report = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('ghostscript was not able to process your image.\n'
+             'Here is the full report generated by ghostscript:\n%s '
+             '\n\n' % exc.output.decode("utf-8")))
+    verbose.report(report, 'debug')
     os.remove(tmpfile)
     shutil.move(psfile, tmpfile)
 
@@ -1553,37 +1568,48 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
-    outfile = tmpfile + '.output'
 
-    if eps: paper_option = "-dEPSCrop"
-    else: paper_option = "-sPAPERSIZE=%s" % ptype
-
-    command = 'ps2pdf -dAutoFilterColorImages=false \
--dAutoFilterGrayImages=false -sGrayImageFilter=FlateEncode \
--sColorImageFilter=FlateEncode %s "%s" "%s" > "%s"'% \
-(paper_option, tmpfile, pdffile, outfile)
-    if sys.platform == 'win32': command = command.replace('=', '#')
-    verbose.report(command, 'debug')
-    exit_status = os.system(command)
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('ps2pdf was not able to process your \
-image.\nHere is the report generated by ghostscript:\n\n' + fh.read())
+    if eps:
+        paper_option = "-dEPSCrop"
+    else:
+        if sys.platform == "win32":
+            paper_option = "-sPAPERSIZE#%s" % ptype
         else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
-    command = 'pdftops -paper match -level2 "%s" "%s" > "%s"'% \
-                (pdffile, psfile, outfile)
-    verbose.report(command, 'debug')
-    exit_status = os.system(command)
+            paper_option = "-sPAPERSIZE=%s" % ptype
 
-    with io.open(outfile, 'rb') as fh:
-        if exit_status:
-            raise RuntimeError('pdftops was not able to process your \
-image.\nHere is the full report generated by pdftops: \n\n' + fh.read())
-        else:
-            verbose.report(fh.read(), 'debug')
-    os.remove(outfile)
+    if sys.platform == "win32":
+        command = [str("ps2pdf"), "-dAutoFilterColorImages#false",
+                   "-dAutoFilterGrayImages#false",
+                   "-sGrayImageFilter#FlateEncode",
+                   "-sColorImageFilter#FlateEncode", paper_option, tmpfile,
+                   pdffile]
+    else:
+        command = [str("ps2pdf"), "-dAutoFilterColorImages=false",
+                   "-dAutoFilterGrayImages=false",
+                   "-sGrayImageFilter=FlateEncode",
+                   "-sColorImageFilter=FlateEncode", paper_option, tmpfile,
+                   pdffile]
+    verbose.report(command, 'debug')
+
+    try:
+        report = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('ps2pdf was not able to process your image.\n'
+             'Here is the full report generated by ps2pdf:\n%s '
+             '\n\n' % exc.output.decode("utf-8")))
+    verbose.report(report, 'debug')
+
+    command = [str("pdftops"), "-paper", "match", "-level2", pdffile, psfile]
+    verbose.report(command, 'debug')
+    try:
+        report = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            ('pdftops was not able to process your image.\n'
+             'Here is the full report generated by pdftops:\n%s '
+             '\n\n' % exc.output.decode("utf-8")))
+    verbose.report(report, 'debug')
     os.remove(tmpfile)
     shutil.move(psfile, tmpfile)
 
@@ -1593,6 +1619,7 @@ image.\nHere is the full report generated by pdftops: \n\n' + fh.read())
     for fname in glob.glob(tmpfile+'.*'):
         os.remove(fname)
 
+
 def get_bbox_header(lbrt, rotated=False):
     """
     return a postscript header stringfor the given bbox lbrt=(l, b, r, t).
@@ -1600,7 +1627,7 @@ def get_bbox_header(lbrt, rotated=False):
     """
 
     l, b, r, t = lbrt
-    if  rotated:
+    if rotated:
         rotate = "%.2f %.2f  translate\n90 rotate" % (l+r, 0)
     else:
         rotate = ""
@@ -1614,16 +1641,18 @@ def get_bbox_header(lbrt, rotated=False):
 # find the bounding box, as the required bounding box is alread known.
 def get_bbox(tmpfile, bbox):
     """
-    Use ghostscript's bbox device to find the center of the bounding box. Return
-    an appropriately sized bbox centered around that point. A bit of a hack.
+    Use ghostscript's bbox device to find the center of the bounding box.
+    Return an appropriately sized bbox centered around that point. A bit of a
+    hack.
     """
 
-    outfile = tmpfile + '.output'
     gs_exe = ps_backend_helper.gs_exe
-    command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' %\
-                (gs_exe, tmpfile)
+    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox" "%s" % tmpfile]
     verbose.report(command, 'debug')
-    stdin, stdout, stderr = os.popen3(command)
+    p = subprocess.Popen(command, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         close_fds=True)
+    (stdout, stderr) = (p.stdout, p.stderr)
     verbose.report(stdout.read(), 'debug-annoying')
     bbox_info = stderr.read()
     verbose.report(bbox_info, 'helpful')
@@ -1632,7 +1661,7 @@ def get_bbox(tmpfile, bbox):
         bbox_info = bbox_found.group()
     else:
         raise RuntimeError('Ghostscript was not able to extract a bounding box.\
-Here is the Ghostscript output:\n\n%s'% bbox_info)
+Here is the Ghostscript output:\n\n%s' % bbox_info)
     l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
 
     # this is a hack to deal with the fact that ghostscript does not return the

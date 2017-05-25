@@ -1,4 +1,8 @@
 """
+===============
+Tricontour Demo
+===============
+
 Contour plots of unstructured triangular grids.
 """
 import matplotlib.pyplot as plt

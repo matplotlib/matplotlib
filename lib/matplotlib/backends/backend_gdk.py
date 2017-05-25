@@ -26,7 +26,7 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like, restrict_dict, warn_deprecated
+from matplotlib.cbook import restrict_dict, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D

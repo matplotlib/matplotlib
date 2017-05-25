@@ -516,7 +516,7 @@ def test_regularpolycollection_rotate():
     for xy, alpha in zip(xy_points, rotations):
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
-            offsets=xy, transOffset=ax.transData)
+            offsets=[xy], transOffset=ax.transData)
         ax.add_collection(col, autolim=True)
     ax.autoscale_view()
 

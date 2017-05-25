@@ -48,10 +48,6 @@ def tripcolor(ax, *args, **kwargs):
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
-
-    **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/tripcolor_demo.py
     """
     if not ax._hold:
         ax.cla()

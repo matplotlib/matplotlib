@@ -282,24 +282,44 @@ class TestLogFormatterExponent(object):
         assert formatter(10**0.1) == ''
 
 
+class TestLogFormatterMathtext():
+    fmt = mticker.LogFormatterMathtext()
+    test_data = [
+        (0, 1, '$\\mathdefault{10^{0}}$'),
+        (0, 1e-2, '$\\mathdefault{10^{-2}}$'),
+        (0, 1e2, '$\\mathdefault{10^{2}}$'),
+        (3, 1, '$\\mathdefault{1}$'),
+        (3, 1e-2, '$\\mathdefault{0.01}$'),
+        (3, 1e2, '$\\mathdefault{100}$'),
+        (3, 1e-3, '$\\mathdefault{10^{-3}}$'),
+        (3, 1e3, '$\\mathdefault{10^{3}}$'),
+    ]
+
+    @pytest.mark.parametrize('min_exponent, value, expected', test_data)
+    def test_min_exponent(self, min_exponent, value, expected):
+        with matplotlib.rc_context({'axes.formatter.min_exponent':
+                                    min_exponent}):
+            assert self.fmt(value) == expected
+
+
 class TestLogFormatterSciNotation(object):
     test_data = [
-        (2, 0.03125, '${2^{-5}}$'),
-        (2, 1, '${2^{0}}$'),
-        (2, 32, '${2^{5}}$'),
-        (2, 0.0375, '${1.2\\times2^{-5}}$'),
-        (2, 1.2, '${1.2\\times2^{0}}$'),
-        (2, 38.4, '${1.2\\times2^{5}}$'),
-        (10, -1, '${-10^{0}}$'),
-        (10, 1e-05, '${10^{-5}}$'),
-        (10, 1, '${10^{0}}$'),
-        (10, 100000, '${10^{5}}$'),
-        (10, 2e-05, '${2\\times10^{-5}}$'),
-        (10, 2, '${2\\times10^{0}}$'),
-        (10, 200000, '${2\\times10^{5}}$'),
-        (10, 5e-05, '${5\\times10^{-5}}$'),
-        (10, 5, '${5\\times10^{0}}$'),
-        (10, 500000, '${5\\times10^{5}}$'),
+        (2, 0.03125, '$\\mathdefault{2^{-5}}$'),
+        (2, 1, '$\\mathdefault{2^{0}}$'),
+        (2, 32, '$\\mathdefault{2^{5}}$'),
+        (2, 0.0375, '$\\mathdefault{1.2\\times2^{-5}}$'),
+        (2, 1.2, '$\\mathdefault{1.2\\times2^{0}}$'),
+        (2, 38.4, '$\\mathdefault{1.2\\times2^{5}}$'),
+        (10, -1, '$\\mathdefault{-10^{0}}$'),
+        (10, 1e-05, '$\\mathdefault{10^{-5}}$'),
+        (10, 1, '$\\mathdefault{10^{0}}$'),
+        (10, 100000, '$\\mathdefault{10^{5}}$'),
+        (10, 2e-05, '$\\mathdefault{2\\times10^{-5}}$'),
+        (10, 2, '$\\mathdefault{2\\times10^{0}}$'),
+        (10, 200000, '$\\mathdefault{2\\times10^{5}}$'),
+        (10, 5e-05, '$\\mathdefault{5\\times10^{-5}}$'),
+        (10, 5, '$\\mathdefault{5\\times10^{0}}$'),
+        (10, 500000, '$\\mathdefault{5\\times10^{5}}$'),
     ]
 
     @pytest.mark.style('default')
@@ -500,6 +520,13 @@ class TestLogFormatter(object):
         # axis range at 0 to 0.4 decades, label all
         ax.set_xlim(0.5, 0.9)
         self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
+
+    @pytest.mark.parametrize('val', [1, 10, 100, 1000])
+    def test_LogFormatter_call(self, val):
+        # test _num_to_string method used in __call__
+        temp_lf = mticker.LogFormatter()
+        temp_lf.axis = FakeAxis()
+        assert temp_lf(val) == str(val)
 
 
 class TestFormatStrFormatter(object):

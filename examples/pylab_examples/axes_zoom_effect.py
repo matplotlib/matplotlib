@@ -1,3 +1,9 @@
+"""
+================
+Axes Zoom Effect
+================
+
+"""
 from matplotlib.transforms import Bbox, TransformedBbox, \
     blended_transform_factory
 

@@ -1,10 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
-
 """
+=========================================
 Creating a colormap from a list of colors
------------------------------------------
+=========================================
+
 Creating a colormap from a list of colors can be done with the `from_list`
 method of `LinearSegmentedColormap`. You must pass a list of RGB tuples that
 define the mixture of colors from 0 to 1.
@@ -18,20 +16,20 @@ change from one end of the cmap to the other.
 
 Example: suppose you want red to increase from 0 to 1 over the bottom
 half, green to do the same over the middle half, and blue over the top
-half.  Then you would use:
+half.  Then you would use::
 
-cdict = {'red':   ((0.0,  0.0, 0.0),
-                   (0.5,  1.0, 1.0),
-                   (1.0,  1.0, 1.0)),
+  cdict = {'red':   ((0.0,  0.0, 0.0),
+                     (0.5,  1.0, 1.0),
+                     (1.0,  1.0, 1.0)),
 
-         'green': ((0.0,  0.0, 0.0),
-                   (0.25, 0.0, 0.0),
-                   (0.75, 1.0, 1.0),
-                   (1.0,  1.0, 1.0)),
+           'green': ((0.0,  0.0, 0.0),
+                     (0.25, 0.0, 0.0),
+                     (0.75, 1.0, 1.0),
+                     (1.0,  1.0, 1.0)),
 
-         'blue':  ((0.0,  0.0, 0.0),
-                   (0.5,  0.0, 0.0),
-                   (1.0,  1.0, 1.0))}
+           'blue':  ((0.0,  0.0, 0.0),
+                     (0.5,  0.0, 0.0),
+                     (1.0,  1.0, 1.0))}
 
 If, as in this example, there are no discontinuities in the r, g, and b
 components, then it is quite simple: the second and third element of
@@ -55,18 +53,22 @@ Going back to the cookbook example, look at cdict['red']; because y0 !=
 y1, it is saying that for x from 0 to 0.5, red increases from 0 to 1,
 but then it jumps down, so that for x from 0.5 to 1, red increases from
 0.7 to 1.  Green ramps from 0 to 1 as x goes from 0 to 0.5, then jumps
-back to 0, and ramps back to 1 as x goes from 0.5 to 1.
+back to 0, and ramps back to 1 as x goes from 0.5 to 1.::
 
-row i:   x  y0  y1
-                /
-               /
-row i+1: x  y0  y1
+  row i:   x  y0  y1
+                  /
+                 /
+  row i+1: x  y0  y1
 
 Above is an attempt to show that for x in the range x[i] to x[i+1], the
 interpolation is between y1[i] and y0[i+1].  So, y0[0] and y1[-1] are
 never used.
 
 """
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+
 # Make some illustrative fake data:
 
 x = np.arange(0, np.pi, 0.1)

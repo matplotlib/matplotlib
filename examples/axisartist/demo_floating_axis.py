@@ -1,4 +1,8 @@
 """
+==================
+Demo Floating Axis
+==================
+
 Axis within rectangular frame
 
 The following code demonstrates how to put a floating polar curve within a

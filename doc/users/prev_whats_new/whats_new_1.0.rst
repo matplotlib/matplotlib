@@ -23,9 +23,14 @@ Sophisticated subplot grid layout
 
 Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
-more.  See :ref:`gridspec-guide` for a tutorial overview.
+more.  See :ref:`sphx_glr_tutorials_02_intermediate_gridspec.py` for a tutorial overview.
 
-.. plot:: users/plotting/examples/demo_gridspec01.py
+.. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_000.png
+   :target: ../../gallery/userdemo/demo_gridspec01.html
+   :align: center
+   :scale: 50
+
+   Demo Gridspec01
 
 Easy pythonic subplots
 -----------------------
@@ -39,7 +44,7 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :ref:`pylab_examples-subplots_demo` for several code examples.
+See :ref:`sphx_glr_gallery_pylab_examples_subplot_demo.py` for several code examples.
 
 Contour fixes and and triplot
 ---------------------------------
@@ -53,7 +58,12 @@ Additionally, he has contributed a new module :mod:`~matplotlib.tri` and
 helper function :func:`~matplotlib.pyplot.triplot` for creating and
 plotting unstructured triangular grids.
 
-.. plot:: mpl_examples/pylab_examples/triplot_demo.py
+.. figure:: ../../gallery/pylab_examples/images/sphx_glr_triplot_demo_001.png
+   :target: ../../gallery/pylab_examples/triplot_demo.html
+   :align: center
+   :scale: 50
+
+   Triplot Demo
 
 multiple calls to show supported
 ---------------------------------
@@ -82,7 +92,12 @@ supporting mixing of 2D and 3D graphs in the same figure, and/or
 multiple 3D graphs in a single figure, using the "projection" keyword
 argument to add_axes or add_subplot.  Thanks Ben Root.
 
-.. plot:: mpl_examples/pyplots/whats_new_1_subplot3d.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_1_subplot3d_001.png
+   :target: ../../gallery/pyplots/whats_new_1_subplot3d.html
+   :align: center
+   :scale: 50
+
+   Whats New 1 Subplot3d
 
 tick_params
 ------------
@@ -132,3 +147,6 @@ Eric Firing went on a bug fixing and closing marathon, closing over
 <http://sourceforge.net/tracker/?group_id=80706&atid=560720>`__ with
 help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
 Michiel de Hoon.
+
+
+

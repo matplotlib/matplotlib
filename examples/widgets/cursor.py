@@ -1,3 +1,9 @@
+"""
+======
+Cursor
+======
+
+"""
 from matplotlib.widgets import Cursor
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,7 +1,12 @@
-# -*- coding: utf-8 -*-
 """
+================
+Tex Unicode Demo
+================
+
 This demo is tex_demo.py modified to have unicode. See that file for
 more information.
+
+-*- coding: utf-8 -*-
 """
 
 from __future__ import unicode_literals

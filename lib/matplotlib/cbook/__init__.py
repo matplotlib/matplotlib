@@ -494,12 +494,14 @@ def iterable(obj):
     return True
 
 
+@deprecated('2.1')
 def is_string_like(obj):
     """Return True if *obj* looks like a string"""
     # (np.str_ == np.unicode_ on Py3).
     return isinstance(obj, (six.string_types, np.str_, np.unicode_))
 
 
+@deprecated('2.1')
 def is_sequence_of_strings(obj):
     """Returns true if *obj* is iterable and contains strings"""
     if not iterable(obj):
@@ -546,7 +548,7 @@ def file_requires_unicode(x):
 @deprecated('2.1')
 def is_scalar(obj):
     """return true if *obj* is not string like and is not iterable"""
-    return not is_string_like(obj) and not iterable(obj)
+    return not isinstance(obj, six.string_types) and not iterable(obj)
 
 
 def is_numlike(obj):
@@ -560,7 +562,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
-    if is_string_like(fname):
+    if isinstance(fname, six.string_types):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
@@ -585,12 +587,12 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return is_string_like(val) or not iterable(val)
+    return isinstance(val, six.string_types) or not iterable(val)
 
 
 def _string_to_bool(s):
     """Parses the string argument as a boolean"""
-    if not is_string_like(s):
+    if not isinstance(s, six.string_types):
         return bool(s)
     if s.lower() in ['on', 'true']:
         return True
@@ -1219,10 +1221,11 @@ def finddir(o, match, case=False):
     is True require an exact case match.
     """
     if case:
-        names = [(name, name) for name in dir(o) if is_string_like(name)]
+        names = [(name, name) for name in dir(o)
+                 if isinstance(name, six.string_types)]
     else:
         names = [(name.lower(), name) for name in dir(o)
-                 if is_string_like(name)]
+                 if isinstance(name, six.string_types)]
         match = match.lower()
     return [orig for name, orig in names if name.find(match) >= 0]
 
@@ -1590,13 +1593,14 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if (is_string_like(args[0]) or not iterable(args[0])):
+    if (isinstance(args[0], six.string_types) or not iterable(args[0])):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if (not is_string_like(x)) and iterable(x) and len(x) == nrecs:
+        if (not isinstance(x, six.string_types) and iterable(x)
+                and len(x) == nrecs):
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1744,7 +1748,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     bxpstats = []
 
     # convert X to a list of lists
-    X = _reshape_2D(X)
+    X = _reshape_2D(X, "X")
 
     ncols = len(X)
     if labels is None:
@@ -1974,41 +1978,27 @@ def _check_1d(x):
             return np.atleast_1d(x)
 
 
-def _reshape_2D(X):
+def _reshape_2D(X, name):
     """
-    Converts a non-empty list or an ndarray of two or fewer dimensions
-    into a list of iterable objects so that in
+    Use Fortran ordering to convert ndarrays and lists of iterables to lists of
+    1D arrays.
 
-        for v in _reshape_2D(X):
+    Lists of iterables are converted by applying `np.asarray` to each of their
+    elements.  1D ndarrays are returned in a singleton list containing them.
+    2D ndarrays are converted to the list of their *columns*.
 
-    v is iterable and can be used to instantiate a 1D array.
+    *name* is used to generate the error message for invalid inputs.
     """
-    if hasattr(X, 'shape'):
-        # one item
-        if len(X.shape) == 1:
-            if hasattr(X[0], 'shape'):
-                X = list(X)
-            else:
-                X = [X, ]
-
-        # several items
-        elif len(X.shape) == 2:
-            nrows, ncols = X.shape
-            if nrows == 1:
-                X = [X]
-            elif ncols == 1:
-                X = [X.ravel()]
-            else:
-                X = [X[:, i] for i in xrange(ncols)]
-        else:
-            raise ValueError("input `X` must have 2 or fewer dimensions")
-
-    if not hasattr(X[0], '__len__'):
-        X = [X]
+    # Iterate over columns for ndarrays, over rows otherwise.
+    X = X.T if isinstance(X, np.ndarray) else np.asarray(X)
+    if X.ndim == 1 and X.dtype.type != np.object_:
+        # 1D array of scalars: directly return it.
+        return [X]
+    elif X.ndim in [1, 2]:
+        # 2D array, or 1D array of iterables: flatten them first.
+        return [np.reshape(x, -1) for x in X]
     else:
-        X = [np.ravel(x) for x in X]
-
-    return X
+        raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
 def violin_stats(X, method, points=100):
@@ -2055,7 +2045,7 @@ def violin_stats(X, method, points=100):
     vpstats = []
 
     # Want X to be a list of data sequences
-    X = _reshape_2D(X)
+    X = _reshape_2D(X, "X")
 
     for x in X:
         # Dictionary of results for this distribution

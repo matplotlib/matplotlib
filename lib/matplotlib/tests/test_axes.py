@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange
-from itertools import chain
+from itertools import chain, product
 from distutils.version import LooseVersion
 import io
 
@@ -178,6 +178,54 @@ def test_twin_inherit_autoscale_setting():
     assert not ax_y_off.get_autoscaley_on()
 
 
+def test_inverted_cla():
+    # Github PR #5450. Setting autoscale should reset
+    # axes to be non-inverted.
+    # plotting an image, then 1d graph, axis is now down
+    fig = plt.figure(0)
+    ax = fig.gca()
+    # 1. test that a new axis is not inverted per default
+    assert not(ax.xaxis_inverted())
+    assert not(ax.yaxis_inverted())
+    img = np.random.random((100, 100))
+    ax.imshow(img)
+    # 2. test that a image axis is inverted
+    assert not(ax.xaxis_inverted())
+    assert ax.yaxis_inverted()
+    # 3. test that clearing and plotting a line, axes are
+    # not inverted
+    ax.cla()
+    x = np.linspace(0, 2*np.pi, 100)
+    ax.plot(x, np.cos(x))
+    assert not(ax.xaxis_inverted())
+    assert not(ax.yaxis_inverted())
+
+    # 4. autoscaling should not bring back axes to normal
+    ax.cla()
+    ax.imshow(img)
+    plt.autoscale()
+    assert not(ax.xaxis_inverted())
+    assert ax.yaxis_inverted()
+
+    # 5. two shared axes. Clearing the master axis should bring axes in shared
+    # axes back to normal
+    ax0 = plt.subplot(211)
+    ax1 = plt.subplot(212, sharey=ax0)
+    ax0.imshow(img)
+    ax1.plot(x, np.cos(x))
+    ax0.cla()
+    assert not(ax1.yaxis_inverted())
+    ax1.cla()
+    # 6. clearing the nonmaster should not touch limits
+    ax0.imshow(img)
+    ax1.plot(x, np.cos(x))
+    ax1.cla()
+    assert ax.yaxis_inverted()
+
+    # clean up
+    plt.close(fig)
+
+
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"],
                   extensions=['png'])
 def test_minorticks_on_rcParams_both():
@@ -261,6 +309,34 @@ def test_basic_annotate():
 
     ax.annotate('local max', xy=(3, 1), xycoords='data',
                 xytext=(3, 3), textcoords='offset points')
+
+
+@image_comparison(baseline_images=['arrow_simple'],
+                  extensions=['png'], remove_text=True)
+def test_arrow_simple():
+    # Simple image test for ax.arrow
+    # kwargs that take discrete values
+    length_includes_head = (True, False)
+    shape = ('full', 'left', 'right')
+    head_starts_at_zero = (True, False)
+    # Create outer product of values
+    kwargs = list(product(length_includes_head, shape, head_starts_at_zero))
+
+    fig, axs = plt.subplots(3, 4)
+    for i, (ax, kwarg) in enumerate(zip(axs.flatten(), kwargs)):
+        ax.set_xlim(-2, 2)
+        ax.set_ylim(-2, 2)
+        # Unpack kwargs
+        (length_includes_head, shape, head_starts_at_zero) = kwarg
+        theta = 2 * np.pi * i / 12
+        # Draw arrow
+        ax.arrow(0, 0, np.sin(theta), np.cos(theta),
+                 width=theta/100,
+                 length_includes_head=length_includes_head,
+                 shape=shape,
+                 head_starts_at_zero=head_starts_at_zero,
+                 head_width=theta / 10,
+                 head_length=theta / 10)
 
 
 def test_annotate_default_arrow():
@@ -5047,3 +5123,29 @@ def test_invalid_axis_limits():
         plt.ylim(np.nan)
     with pytest.raises(ValueError):
         plt.ylim(np.inf)
+
+
+# Test all 4 combinations of logs/symlogs for minorticks_on()
+@pytest.mark.parametrize('xscale', ['symlog', 'log'])
+@pytest.mark.parametrize('yscale', ['symlog', 'log'])
+def test_minorticks_on(xscale, yscale):
+    ax = plt.subplot(111)
+    ax.plot([1, 2, 3, 4])
+    ax.set_xscale(xscale)
+    ax.set_yscale(yscale)
+    ax.minorticks_on()
+
+
+def test_twinx_knows_limits():
+    fig, ax = plt.subplots()
+
+    ax.axvspan(1, 2)
+    xtwin = ax.twinx()
+    xtwin.plot([0, 0.5], [1, 2])
+    # control axis
+    fig2, ax2 = plt.subplots()
+
+    ax2.axvspan(1, 2)
+    ax2.plot([0, 0.5], [1, 2])
+
+    assert((xtwin.viewLim.intervalx == ax2.viewLim.intervalx).all())

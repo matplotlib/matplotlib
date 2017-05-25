@@ -33,7 +33,6 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from matplotlib import rcParams
 
 from matplotlib import docstring
-from matplotlib.cbook import is_string_like
 
 #from bboximage import BboxImage
 from matplotlib.image import BboxImage
@@ -1042,7 +1041,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if is_string_like(loc):
+        if isinstance(loc, six.string_types):
             try:
                 loc = self.codes[loc]
             except KeyError:

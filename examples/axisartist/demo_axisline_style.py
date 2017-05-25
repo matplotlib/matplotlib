@@ -1,3 +1,9 @@
+"""
+===================
+Demo Axisline Style
+===================
+
+"""
 
 from mpl_toolkits.axisartist.axislines import SubplotZero
 import matplotlib.pyplot as plt

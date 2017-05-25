@@ -1,5 +1,10 @@
-"""Displays a set of subplots with an MRI image, its intensity histogram and
-some EEG traces.
+"""
+============
+MRI With EEG
+============
+
+Displays a set of subplots with an MRI image, its intensity
+histogram and some EEG traces.
 """
 
 from __future__ import division, print_function

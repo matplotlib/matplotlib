@@ -31,7 +31,7 @@ def mpl_test_settings(request):
         backend = backend_marker.args[0]
         prev_backend = matplotlib.get_backend()
 
-    style = 'classic'
+    style = '_classic_test'  # Default of cleanup and image_comparison too.
     style_marker = request.keywords.get('style')
     if style_marker is not None:
         assert len(style_marker.args) == 1, \
@@ -53,3 +53,27 @@ def mpl_test_settings(request):
             plt.switch_backend(prev_backend)
         _do_cleanup(original_units_registry,
                     original_settings)
+
+
+@pytest.fixture
+def mpl_image_comparison_parameters(request, extension):
+    # This fixture is applied automatically by the image_comparison decorator.
+    #
+    # The sole purpose of this fixture is to provide an indirect method of
+    # obtaining parameters *without* modifying the decorated function
+    # signature. In this way, the function signature can stay the same and
+    # pytest won't get confused.
+    # We annotate the decorated function with any parameters captured by this
+    # fixture so that they can be used by the wrapper in image_comparison.
+    baseline_images = request.keywords['baseline_images'].args[0]
+    if baseline_images is None:
+        # Allow baseline image list to be produced on the fly based on current
+        # parametrization.
+        baseline_images = request.getfixturevalue('baseline_images')
+
+    func = request.function
+    func.__wrapped__.parameters = (baseline_images, extension)
+    try:
+        yield
+    finally:
+        delattr(func.__wrapped__, 'parameters')

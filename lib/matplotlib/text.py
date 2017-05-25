@@ -18,7 +18,7 @@ from matplotlib import cbook
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import Artist
-from matplotlib.cbook import is_string_like, maxdict
+from matplotlib.cbook import maxdict
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch
@@ -215,7 +215,7 @@ class Text(Artist):
             color = rcParams['text.color']
         if fontproperties is None:
             fontproperties = FontProperties()
-        elif is_string_like(fontproperties):
+        elif isinstance(fontproperties, six.string_types):
             fontproperties = FontProperties(fontproperties)
 
         self.set_text(text)
@@ -506,7 +506,8 @@ class Text(Artist):
                     pad = 0.3
 
             # boxstyle could be a callable or a string
-            if is_string_like(boxstyle) and "pad" not in boxstyle:
+            if (isinstance(boxstyle, six.string_types)
+                    and "pad" not in boxstyle):
                 boxstyle += ",pad=%0.2f" % pad
 
             bbox_transmuter = props.pop("bbox_transmuter", None)
@@ -911,6 +912,7 @@ class Text(Artist):
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
                 self.figure.dpi, id(renderer or self._renderer),
+                self._linespacing
                 )
 
     def get_text(self):
@@ -1241,7 +1243,7 @@ class Text(Artist):
 
         ACCEPTS: a :class:`matplotlib.font_manager.FontProperties` instance
         """
-        if is_string_like(fp):
+        if isinstance(fp, six.string_types):
             fp = FontProperties(fp)
         self._fontproperties = fp.copy()
         self.stale = True
@@ -1798,7 +1800,7 @@ class _AnnotationBase(object):
             return BboxTransformTo(s)
         elif isinstance(s, Transform):
             return s
-        elif not is_string_like(s):
+        elif not isinstance(s, six.string_types):
             raise RuntimeError("unknown coordinate type : %s" % (s,))
 
         if s == 'data':
@@ -1865,14 +1867,16 @@ class _AnnotationBase(object):
 
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
-            if ((is_string_like(s1) and s1.split()[0] == "offset") or
-                  (is_string_like(s2) and s2.split()[0] == "offset")):
+            if ((isinstance(s1, six.string_types)
+                 and s1.split()[0] == "offset")
+                    or (isinstance(s2, six.string_types)
+                        and s2.split()[0] == "offset")):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
             x2, y2 = self._get_xy(renderer, x, y, s2)
             return x1, y2
-        elif (is_string_like(self.xycoords) and
+        elif (isinstance(self.xycoords, six.string_types) and
               self.xycoords.split()[0] == "offset"):
             raise ValueError("xycoords should not be an offset coordinate")
         else:

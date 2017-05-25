@@ -1,4 +1,8 @@
 """
+==============
+Animation Demo
+==============
+
 Pyplot animation example.
 
 The method shown here is only for very simple, low-performance

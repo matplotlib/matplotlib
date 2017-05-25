@@ -1,4 +1,8 @@
 """
+=============
+Fonts Demo Kw
+=============
+
 Same as fonts_demo using kwargs.  If you prefer a more pythonic, OO
 style of coding, see examples/fonts_demo.py.
 

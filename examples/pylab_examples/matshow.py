@@ -1,4 +1,10 @@
-"""Simple matshow() example."""
+"""
+=======
+Matshow
+=======
+
+Simple matshow() example.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 

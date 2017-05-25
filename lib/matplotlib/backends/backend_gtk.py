@@ -34,7 +34,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 from matplotlib.cbook import warn_deprecated
@@ -490,7 +490,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
             options['quality'] = str(options['quality'])
 
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             try:
                 pixbuf.save(filename, format, options=options)
             except gobject.GError as exc:
@@ -560,6 +560,7 @@ class FigureManagerGTK(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = gtk.Window()
+        self.window.set_wmclass("matplotlib", "Matplotlib")
         self.set_window_title("Figure %d" % num)
         if window_icon:
             try:
@@ -907,7 +908,7 @@ class DialogLineprops(object):
     linestyled = {s: i for i, s in enumerate(linestyles)}
 
     markers =  [m for m in markers.MarkerStyle.markers
-                if cbook.is_string_like(m)]
+                if isinstance(m, six.string_types)]
     markerd = {s: i for i, s in enumerate(markers)}
 
     def __init__(self, lines):
@@ -1067,7 +1068,7 @@ def error_msg_gtk(msg, parent=None):
         if parent.flags() & gtk.TOPLEVEL == 0:
             parent = None
 
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = ','.join(map(str,msg))
 
     dialog = gtk.MessageDialog(

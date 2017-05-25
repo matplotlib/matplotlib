@@ -1,4 +1,8 @@
 """
+========
+Tex Demo
+========
+
 Demo of TeX rendering.
 
 You can use TeX to render all of your matplotlib text if the rc

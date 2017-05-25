@@ -1,3 +1,9 @@
+"""
+============
+Data Browser
+============
+
+"""
 import numpy as np
 
 

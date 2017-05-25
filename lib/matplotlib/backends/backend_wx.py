@@ -35,8 +35,7 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import (is_string_like, is_writable_file_like,
-                              warn_deprecated)
+from matplotlib.cbook import is_writable_file_like, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -70,7 +69,7 @@ def DEBUG_MSG(string, lvl=3, o=None):
 
 def debug_on_error(type, value, tb):
     """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
-    traceback.print_exc(type, value, tb)
+    traceback.print_exception(type, value, tb)
     print()
     pdb.pm()  # jdh uncomment
 
@@ -115,7 +114,7 @@ def error_msg_wx(msg, parent=None):
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = '\n'.join(map(str, msg))
     return msg
 
@@ -910,7 +909,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             if not image.SaveFile(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError(

@@ -16,7 +16,6 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.backends.windowing as windowing
 
 import matplotlib
-from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
@@ -52,7 +51,7 @@ cursord = {
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = '\n'.join(map(str, msg))
     return msg
 
@@ -86,7 +85,7 @@ def new_figure_manager_given_figure(num, figure):
     Create a new figure manager instance for the given figure.
     """
     _focus = windowing.FocusManager()
-    window = Tk.Tk()
+    window = Tk.Tk(className="matplotlib")
     window.withdraw()
 
     if Tk.TkVersion >= 8.5:

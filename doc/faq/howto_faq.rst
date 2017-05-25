@@ -48,7 +48,7 @@ If you only want to use the `pandas` converter for `datetime64` values ::
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every Matplotlib artist (see :ref:`artist-tutorial`) has a method
+Every Matplotlib artist (see :ref:`sphx_glr_tutorials_02_intermediate_artists.py`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
@@ -160,7 +160,7 @@ labels::
     ax = fig.add_subplot(111)
 
 You can control the defaults for these parameters in your
-:file:`matplotlibrc` file; see :ref:`customizing-matplotlib`.  For
+:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`.  For
 example, to make the above setting permanent, you would set::
 
     figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
@@ -191,7 +191,7 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:ref:`pylab_examples-axes_demo` for an example of placing axes manually.
+:ref:`sphx_glr_gallery_pylab_examples_axes_demo.py` for an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -201,7 +201,7 @@ Automatically make room for tick labels
 .. note::
    This is now easier to handle than ever before.
    Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :ref:`plotting-guide-tight-layout`.
+   layout issues. See the :ref:`sphx_glr_tutorials_02_intermediate_tight_layout_guide.py`.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -230,10 +230,14 @@ the left of the canvas over; see :ref:`event-handling-tutorial`.
 
 Here is an example that gets a bounding box in relative figure coordinates
 (0..1) of each of the labels and uses it to move the left of the subplots
-over so that the tick labels fit in the figure
+over so that the tick labels fit in the figure:
 
-.. plot:: mpl_examples/pyplots/auto_subplots_adjust.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_auto_subplots_adjust_001.png
+    :target: ../gallery/pyplots/auto_subplots_adjust.html
+    :align: center
+    :scale: 50
+
+    Auto Subplots Adjust
 
 .. _howto-ticks:
 
@@ -275,8 +279,12 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. plot:: mpl_examples/pyplots/align_ylabels.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
+   :target: ../gallery/pyplots/align_ylabels.html
+   :align: center
+   :scale: 50
+
+   Align Ylabels
 
 .. _date-index-plots:
 
@@ -332,7 +340,7 @@ and patches, respectively::
 
 .. htmlonly::
 
-    See :ref:`pylab_examples-zorder_demo` for a complete example.
+    See :ref:`sphx_glr_gallery_pylab_examples_zorder_demo.py` for a complete example.
 
 You can also use the Axes property
 :meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
@@ -353,7 +361,8 @@ some ratio which controls the ratio::
 
 .. htmlonly::
 
-    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
+    See :ref:`sphx_glr_gallery_subplots_axes_and_figures_equal_aspect_ratio.py` for a complete
+    example.
 
 
 .. _howto-twoscale:
@@ -397,7 +406,7 @@ locators as desired because the two axes are independent.
 
 .. htmlonly::
 
-    See :ref:`api-two_scales` for a complete example
+    See :ref:`sphx_glr_gallery_api_two_scales.py` for a complete example
 
 .. _howto-batch:
 
@@ -643,7 +652,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:ref:`api-agg_oo`.
+:ref:`sphx_glr_gallery_api_agg_oo_sgskip.py`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
@@ -749,3 +758,4 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
+

@@ -6,7 +6,29 @@ figure
 :mod:`matplotlib.figure`
 ========================
 
+.. currentmodule:: matplotlib.figure
+
 .. automodule:: matplotlib.figure
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   AxesStack
+   Figure
+   SubplotParams
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   figaspect
+   

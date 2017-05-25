@@ -29,7 +29,7 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib.cbook import dedent, silent_list, is_numlike
 from matplotlib.cbook import _string_to_bool
 from matplotlib.cbook import deprecated
 from matplotlib import docstring
@@ -505,7 +505,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     figLabel = ''
     if num is None:
         num = next_num
-    elif is_string_like(num):
+    elif isinstance(num, six.string_types):
         figLabel = num
         allLabels = get_figlabels()
         if figLabel not in allLabels:
@@ -663,7 +663,7 @@ def close(*args):
             # if we are dealing with a type UUID, we
             # can use its integer representation
             _pylab_helpers.Gcf.destroy(arg.int)
-        elif is_string_like(arg):
+        elif isinstance(arg, six.string_types):
             allLabels = get_figlabels()
             if arg in allLabels:
                 num = get_fignums()[allLabels.index(arg)]
@@ -1037,12 +1037,12 @@ def subplot(*args, **kwargs):
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pie_and_polar_charts/polar_scatter_demo.py`
+        :file:`gallery/pie_and_polar_charts/polar_scatter.py`
             For an example
 
     **Example:**
 
-    .. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+    .. plot:: gallery/subplots_axes_and_figures/subplot.py
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
@@ -1125,9 +1125,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         :class:`~matplotlib.gridspec.GridSpec` constructor used to create the
         grid the subplots are placed on.
 
-    fig_kw : dict, optional
-        Dict with keywords passed to the :func:`figure` call.  Note that all
-        keywords not recognized above will be automatically included here.
+    **fig_kw :
+        All additional keyword arguments are passed to the :func:`figure` call.
 
     Returns
     -------
@@ -2379,7 +2378,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     def getname_val(identifier):
         'return the name and column data for identifier'
-        if is_string_like(identifier):
+        if isinstance(identifier, six.string_types):
             return identifier, r[identifier]
         elif is_numlike(identifier):
             name = r.dtype.names[int(identifier)]

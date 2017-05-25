@@ -34,7 +34,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
                                       FigureManagerBase, FigureCanvasBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (Bunch, is_string_like, get_realpath_and_stat,
+from matplotlib.cbook import (Bunch, get_realpath_and_stat,
                               is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -434,7 +434,7 @@ class PdfFile(object):
         self.passed_in_file_object = False
         self.original_file_like = None
         self.tell_base = 0
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             fh = open(filename, 'wb')
         elif is_writable_file_like(filename):
             try:
@@ -1563,6 +1563,9 @@ end"""
 
     def writeInfoDict(self):
         """Write out the info dictionary, checking it for good form"""
+
+        def is_string_like(x):
+            return isinstance(x, six.string_types)
 
         def is_date(x):
             return isinstance(x, datetime)

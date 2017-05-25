@@ -1,4 +1,8 @@
 """
+===========
+Broken Axis
+===========
+
 Broken axis example, where the y-axis will have a portion cut out.
 """
 import matplotlib.pyplot as plt

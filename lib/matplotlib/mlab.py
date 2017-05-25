@@ -319,7 +319,7 @@ def detrend(x, key=None, axis=None):
         return detrend(x, key=detrend_linear, axis=axis)
     elif key == 'none':
         return detrend(x, key=detrend_none, axis=axis)
-    elif cbook.is_string_like(key):
+    elif isinstance(key, six.string_types):
         raise ValueError("Unknown value for key %s, must be one of: "
                          "'default', 'constant', 'mean', "
                          "'linear', or a function" % key)
@@ -2296,7 +2296,7 @@ def isvector(X):
 
 def safe_isnan(x):
     ':func:`numpy.isnan` for arbitrary types'
-    if cbook.is_string_like(x):
+    if isinstance(x, six.string_types):
         return False
     try:
         b = np.isnan(x)
@@ -2310,7 +2310,7 @@ def safe_isnan(x):
 
 def safe_isinf(x):
     ':func:`numpy.isinf` for arbitrary types'
-    if cbook.is_string_like(x):
+    if isinstance(x, six.string_types):
         return False
     try:
         b = np.isinf(x)
@@ -2329,8 +2329,8 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     *arrs* and *dtypes* do not have to be lists. They can just be the
     values themselves.
     """
-    if (not cbook.is_string_like(names) and cbook.iterable(names)
-            and len(names) and cbook.is_string_like(names[0])):
+    if (not isinstance(names, six.string_types) and cbook.iterable(names)
+            and len(names) and isinstance(names[0]), six.string_types):
         if len(names) != len(arrs):
             raise ValueError("number of arrays do not match number of names")
     else:  # we have only 1 name and 1 array
@@ -2380,7 +2380,7 @@ def rec_keep_fields(rec, names):
     Return a new numpy record array with only fields listed in names
     """
 
-    if cbook.is_string_like(names):
+    if isinstance(names, six.string_types):
         names = names.split(',')
 
     arrays = []
@@ -2477,7 +2477,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     (other than keys) that are both in *r1* and *r2*.
     """
 
-    if cbook.is_string_like(key):
+    if isinstance(key, six.string_types):
         key = (key, )
 
     for name in key:
@@ -2709,8 +2709,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
       for further information.
 
-      If no rows are found, *None* is returned -- see
-      :file:`examples/loadrec.py`
+      If no rows are found, *None* is returned
     """
 
     if converterd is None:
@@ -2889,7 +2888,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             seen[item] = cnt+1
 
     else:
-        if cbook.is_string_like(names):
+        if isinstance(names, six.string_types):
             names = [n.strip() for n in names.split(',')]
 
     # get the converter functions by inspecting checkrows

@@ -45,22 +45,23 @@ env:
     - NPROC=2
     - INSTALL_PEP8=
     - RUN_PEP8=
-    - PYTEST_ARGS="-ra --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - NOSE=
+    - PYTEST_ARGS="-rawR --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
 
 matrix:
   include:
     - python: 2.7
-      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas
+      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas NOSE=nose
     - python: 2.7
-      env: BUILD_DOCS=true
+      env: NUMPY=numpy==1.7.1 BUILD_DOCS=true
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8
+      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -114,11 +115,13 @@ install:
     pip install --upgrade setuptools
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK
-    pip install $PRE -r doc-requirements.txt
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK $NOSE sphinx pillow
+    if [[ $BUILD_DOCS == true ]]; then
+      pip install $PRE -r doc-requirements.txt
+    fi
 
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-timeout pytest-xdist pytest-faulthandler $INSTALL_PEP8
+    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-faulthandler pytest-rerunfailures pytest-timeout pytest-xdist $INSTALL_PEP8
 
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -141,7 +144,8 @@ install:
     # Install matplotlib
     pip install -ve .
 
-script: source ci/travis/test_script.sh
+script: ci/travis/test_script.sh
+
 before_cache:
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache

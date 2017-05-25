@@ -1,4 +1,8 @@
 """
+==================
+Demo Floating Axes
+==================
+
 Demo of the floating axes.
 
 This demo shows features of functions in floating_axes:

@@ -1,6 +1,5 @@
 """
-These are  classes to support contour plotting and
-labelling for the axes class
+These are classes to support contour plotting and labelling for the Axes class.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -26,7 +25,7 @@ import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
@@ -133,8 +132,6 @@ class ContourLabeler(object):
             matplotlib.Text) is used to create labels. ClabelText
             recalculates rotation angles of texts during the drawing time,
             therefore this can be used if aspect of the axes changes.
-
-        .. plot:: mpl_examples/pylab_examples/contour_demo.py
         """
 
         """
@@ -265,7 +262,7 @@ class ContourLabeler(object):
         """
         Return the width of the label in points.
         """
-        if not cbook.is_string_like(lev):
+        if not isinstance(lev, six.string_types):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -321,7 +318,7 @@ class ContourLabeler(object):
 
     def get_text(self, lev, fmt):
         "get the text of the label"
-        if cbook.is_string_like(lev):
+        if isinstance(lev, six.string_types):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -794,10 +791,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Keyword arguments are as described in
         :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/misc/contour_manual.py
         """
         self.ax = ax
         self.levels = kwargs.get('levels', None)
@@ -967,7 +960,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         if self._transform is None:
             self._transform = self.ax.transData
-        elif (not isinstance(self._transform, mtrans.Transform)
+        elif (not isinstance(self._transform, mtransforms.Transform)
               and hasattr(self._transform, '_as_mpl_transform')):
             self._transform = self._transform._as_mpl_transform(self.ax)
         return self._transform
@@ -1300,7 +1293,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if cbook.is_string_like(linestyles):
+            if isinstance(linestyles, six.string_types):
                 tlinestyles = [linestyles] * Nlev
             elif cbook.iterable(linestyles):
                 tlinestyles = list(linestyles)
@@ -1822,12 +1815,4 @@ class QuadContourSet(ContourSet):
         There is one exception: if the lowest boundary coincides with
         the minimum value of the *z* array, then that minimum value
         will be included in the lowest interval.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/pylab_examples/contour_demo.py
-
-        .. plot:: mpl_examples/pylab_examples/contourf_demo.py
-
-        .. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
         """

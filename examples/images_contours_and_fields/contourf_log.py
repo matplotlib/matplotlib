@@ -1,10 +1,10 @@
-'''
+"""
 ============================
 Contourf and log color scale
 ============================
 
 Demonstrate use of a log color scale in contourf
-'''
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
