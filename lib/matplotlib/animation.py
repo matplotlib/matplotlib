@@ -336,6 +336,15 @@ class MovieWriter(AbstractMovieWriter):
         self.dpi = dpi
         self._w, self._h = self._adjust_frame_size()
 
+        if not isinstance(self.outfile, basestring):
+            msg = (
+                'output file must be a string like object.\n The provided'
+                'output file value is "{}" that is of type {}'.format(
+                    self.outfile, type(self.outfile)
+                )
+            )
+            raise ValueError(msg)
+
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
         self._run()
