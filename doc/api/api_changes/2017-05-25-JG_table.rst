@@ -1,0 +1,15 @@
+Improvements to tables
+----------------------
+
+Text alignment within cells now uses `center_baseline` for vertical
+alignment, than `center`.  This looks better, with the text no
+longer hugging the top of the cells.
+
+Internal logic improved to improve auto-sizing of fonts.
+
+`table` function now allows control of the cell edge colours with the
+addition of `cellEdgeColours`, `rowEdgeColours`, `colEdgeColours` and
+`edgeColour` keywords.   Default values are `None` which preserves the
+previous behaviour of black edges to cells.
+
+
