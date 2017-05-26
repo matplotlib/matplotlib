@@ -1007,13 +1007,13 @@ class AnchoredOffsetbox(OffsetBox):
                  **kwargs):
         """
         loc is a string or an integer specifying the legend location.
-        The valid  location codes are::
+        The valid location codes are::
 
         'upper right'  : 1,
         'upper left'   : 2,
         'lower left'   : 3,
         'lower right'  : 4,
-        'right'        : 5,
+        'right'        : 5, (same as 'center right', for back-compatibility)
         'center left'  : 6,
         'center right' : 7,
         'lower center' : 8,
