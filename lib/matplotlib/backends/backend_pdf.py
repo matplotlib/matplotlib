@@ -1626,6 +1626,13 @@ class RendererPdf(RendererBase):
 
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
+        if gc._rgb is None:
+            if gc.get_linewidth() != 0:
+                warnings.warn('if rgb is None, ' +
+                              'linewidth should also be 0')
+            # doesn't matter what color here
+            gc._rgb = [1, 0, 0, 1]
+
         if gc._forced_alpha:
             gc._effective_alphas = (gc._alpha, gc._alpha)
         elif fillcolor is None or len(fillcolor) < 4:
@@ -2621,3 +2628,4 @@ class FigureManagerPdf(FigureManagerBase):
 
 FigureCanvas = FigureCanvasPdf
 FigureManager = FigureManagerPdf
+
