@@ -27,9 +27,6 @@ addons:
       - graphviz
       - libgeos-dev
       - otf-freefont
-#     - fonts-humor-sans
-#    sources:
-#      - debian-sid
 
 env:
   global:
@@ -95,7 +92,7 @@ before_install:
     else
       brew update
       brew tap homebrew/gui
-      brew install python libpng  ffmpeg imagemagick mplayer ccache
+      brew install python libpng ffmpeg imagemagick mplayer ccache
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
@@ -110,23 +107,44 @@ install:
     ccache -s
     git describe
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
-    pip install --upgrade pip
-    pip install --upgrade wheel
-    pip install --upgrade setuptools
+    pip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler codecov coverage $MOCK $NOSE sphinx pillow
+    pip install $PRE \
+        $MOCK \
+        $NOSE \
+        $NUMPY \
+        $PANDAS \
+        codecov \
+        coverage \
+        cycler \
+        pillow \
+        pyparsing!=2.1.6 \
+        python-dateutil \
+        sphinx
+    # GUI toolkits are pip-installable only for some versions of Python so don't
+    # fail if we can't install them.
+    pip install pyqt5 || true
+    python -c 'import PyQt5.QtCore' || true
     if [[ $BUILD_DOCS == true ]]; then
       pip install $PRE -r doc-requirements.txt
     fi
 
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-faulthandler pytest-rerunfailures pytest-timeout pytest-xdist $INSTALL_PEP8
+    pip install $PRE \
+        pytest \
+        pytest-cov>=2.3.1 \
+        pytest-faulthandler \
+        pytest-rerunfailures \
+        pytest-timeout \
+        pytest-xdist \
+        $INSTALL_PEP8
 
-    # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
-    # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
-    # version since is it basically just a .ttf file
-    # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
+    # We manually install humor sans using the package from Ubuntu 14.10.
+    # Unfortunatly humor sans is not availible in the Ubuntu version used by
+    # Travis but we can manually install the deb from a later version since is
+    # it basically just a .ttf file.  The current Travis Ubuntu image is to old
+    # to search .local/share/fonts so we store fonts in .fonts
     if [[ $BUILD_DOCS == true ]]; then
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
@@ -143,6 +161,13 @@ install:
   - |
     # Install matplotlib
     pip install -ve .
+
+before_script:
+  - |
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      export DISPLAY=:99.0
+      sh -e /etc/init.d/xvfb start
+    fi
 
 script: ci/travis/test_script.sh
 

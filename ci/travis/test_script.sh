@@ -11,9 +11,6 @@ set -ev
 # Travis VM to run out of memory (since so many copies of inkscape and
 # ghostscript are running at the same time).
 
-echo Testing import of tkagg backend
-MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
-
 if [[ $BUILD_DOCS == false ]]; then
   if [[ $DELETE_FONT_CACHE == 1 ]]; then
     rm -rf ~/.cache/matplotlib
