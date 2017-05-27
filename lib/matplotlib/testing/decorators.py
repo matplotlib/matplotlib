@@ -223,7 +223,12 @@ def _xfail_if_format_is_uncomparable(extension):
 
 
 def _mark_xfail_if_format_is_uncomparable(extension):
-    will_fail = extension not in comparable_formats()
+    will_fail = True
+    for compare_type in comparable_formats():
+        if (isinstance(extension, type(compare_type)) and\
+           extension == compare_type):
+            will_fail = False
+            break
     if will_fail:
         fail_msg = 'Cannot compare %s files on this system' % extension
         import pytest
@@ -569,3 +574,4 @@ def skip_if_command_unavailable(cmd):
         return pytest.mark.skip(reason='missing command: %s' % cmd[0])
 
     return lambda f: f
+
