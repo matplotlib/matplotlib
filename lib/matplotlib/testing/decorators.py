@@ -574,4 +574,3 @@ def skip_if_command_unavailable(cmd):
         return pytest.mark.skip(reason='missing command: %s' % cmd[0])
 
     return lambda f: f
-
