@@ -2628,4 +2628,3 @@ class FigureManagerPdf(FigureManagerBase):
 
 FigureCanvas = FigureCanvasPdf
 FigureManager = FigureManagerPdf
-

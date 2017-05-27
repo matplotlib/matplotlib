@@ -212,4 +212,3 @@ def test_pdf_savefig_when_color_is_none():
     remove('figure.eps')
     remove('figure.pdf')
     mpl.rcParams.update(backup_params)
-
