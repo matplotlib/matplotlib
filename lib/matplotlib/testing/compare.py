@@ -492,4 +492,3 @@ def save_diff_image(expected, actual, output):
     save_image_np[:, :, 3] = 255
 
     _png.write_png(save_image_np, output)
-
