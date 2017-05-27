@@ -20,16 +20,15 @@ import pytest
 
 
 def _get_available_backends():
-    if sys.version_info < (3,):
-        return []
-    else:
-        return [
-            pytest.mark.skipif(
-                importlib.util.find_spec(module_name) is None,
-                reason="Could not import {!r}".format(module_name))(backend)
-            for module_name, backend in [
+    return [
+        pytest.mark.skipif(sys.version_info < (3,)
+                           or importlib.util.find_spec(module_name) is None,
+                           reason="Could not import {!r}".format(module_name))(
+                               backend)
+        for module_name, backend in [
                 ("PyQt5", "qt5agg"),
-                ("tkinter", "tkagg")]]
+                ("tkinter", "tkagg"),
+                ("wx", "wxagg")]]
 
 
 _test_script = """\
