@@ -23,11 +23,8 @@ def test_patheffect1():
                                                           foreground="w"),
                                       path_effects.Normal()])
 
-    ax1.grid(True, linestyle="-")
-
     pe = [path_effects.withStroke(linewidth=3, foreground="w")]
-    for l in ax1.get_xgridlines() + ax1.get_ygridlines():
-        l.set_path_effects(pe)
+    ax1.grid(True, linestyle="-", path_effects=pe)
 
 
 @image_comparison(baseline_images=['patheffect2'], remove_text=True)
