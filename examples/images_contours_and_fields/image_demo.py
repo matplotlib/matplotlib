@@ -41,8 +41,8 @@ plt.show()
 # It is also possible to show images of pictures.
 
 # A sample image
-image_file = cbook.get_sample_data('ada.png')
-image = plt.imread(image_file)
+with cbook.get_sample_data('ada.png') as image_file:
+    image = plt.imread(image_file)
 
 fig, ax = plt.subplots()
 ax.imshow(image)
@@ -53,8 +53,8 @@ ax.axis('off')  # clear x- and y-axes
 
 w, h = 512, 512
 
-datafile = cbook.get_sample_data('ct.raw.gz', asfileobj=True)
-s = datafile.read()
+with cbook.get_sample_data('ct.raw.gz', asfileobj=True) as datafile:
+    s = datafile.read()
 A = np.fromstring(s, np.uint16).astype(float).reshape((w, h))
 A /= A.max()
 

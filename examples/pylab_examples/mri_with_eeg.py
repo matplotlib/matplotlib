@@ -20,9 +20,8 @@ from matplotlib.ticker import MultipleLocator
 fig = plt.figure("MRI_with_EEG")
 
 # Load the MRI data (256x256 16 bit integers)
-dfile = cbook.get_sample_data('s1045.ima.gz')
-im = np.fromstring(dfile.read(), np.uint16).reshape((256, 256))
-dfile.close()
+with cbook.get_sample_data('s1045.ima.gz') as dfile:
+    im = np.fromstring(dfile.read(), np.uint16).reshape((256, 256))
 
 # Plot the MRI image
 ax0 = fig.add_subplot(2, 2, 1)
@@ -43,9 +42,8 @@ ax1.set_ylabel('MRI density')
 
 # Load the EEG data
 numSamples, numRows = 800, 4
-eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
-print('Loading EEG %s' % eegfile)
-data = np.fromfile(eegfile, dtype=float)
+with cbook.get_sample_data('eeg.dat') as eegfile:
+    data = np.fromfile(eegfile, dtype=float)
 data.shape = (numSamples, numRows)
 t = 10.0 * np.arange(numSamples) / numSamples
 
