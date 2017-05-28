@@ -783,11 +783,13 @@ Keyword arguments:
   *length*:
     Length of the barb in points; the other parts of the barb
     are scaled against this.
-    Default is 9
+    Default is 7.
 
-  *pivot*: [ 'tip' | 'middle' ]
+  *pivot*: [ 'tip' | 'middle' | float ]
     The part of the arrow that is at the grid point; the arrow rotates
-    about this point, hence the name *pivot*.  Default is 'tip'
+    about this point, hence the name *pivot*.  Default is 'tip'. Can
+    also be a number, which shifts the start of the barb that many
+    points from the origin.
 
   *barbcolor*: [ color | color sequence ]
     Specifies the color all parts of the barb except any flags.  This
@@ -1009,7 +1011,8 @@ class Barbs(mcollections.PolyCollection):
 
         *pivot* specifies the point on the barb around which the
         entire barb should be rotated.  Right now, valid options are
-        'head' and 'middle'.
+        'tip' and 'middle'. Can also be a number, which shifts the start
+        of the barb that many points from the origin.
 
         *sizes* is a dictionary of coefficients specifying the ratio
         of a given feature to the length of the barb. These features
@@ -1032,7 +1035,7 @@ class Barbs(mcollections.PolyCollection):
 
         *flip* is a flag indicating whether the features should be flipped to
         the other side of the barb (useful for winds in the southern
-        hemisphere.
+        hemisphere).
 
         This function returns list of arrays of vertices, defining a polygon
         for each of the wind barbs.  These polygons have been rotated to
@@ -1054,7 +1057,10 @@ class Barbs(mcollections.PolyCollection):
             full_height = -full_height
 
         endx = 0.0
-        endy = pivot_points[pivot.lower()]
+        try:
+            endy = float(pivot)
+        except ValueError:
+            endy = pivot_points[pivot.lower()]
 
         # Get the appropriate angle for the vector components.  The offset is
         # due to the way the barb is initially drawn, going down the y-axis.
