@@ -15,8 +15,7 @@ array
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.mlab import normpdf
-from numpy.random import randn
-import numpy
+import numpy as np
 
 fig = Figure(figsize=(5, 4), dpi=100)
 ax = fig.add_subplot(111)
@@ -24,7 +23,7 @@ ax = fig.add_subplot(111)
 canvas = FigureCanvasAgg(fig)
 
 mu, sigma = 100, 15
-x = mu + sigma*randn(10000)
+x = mu + sigma * np.random.randn(10000)
 
 # the histogram of the data
 n, bins, patches = ax.hist(x, 50, normed=1)
@@ -52,7 +51,7 @@ w, h = int(w), int(h)
 
 if 0:
     # convert to a numpy array
-    X = numpy.fromstring(s, numpy.uint8).reshape((h, w, 3))
+    X = np.fromstring(s, np.uint8).reshape((h, w, 3))
 
 if 0:
     # pass off to PIL

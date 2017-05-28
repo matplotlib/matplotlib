@@ -10,15 +10,15 @@ to do so in Matplotlib.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.random import rand
 from matplotlib.colors import LogNorm
 from matplotlib.mlab import bivariate_normal
+
 
 ###############################################################################
 # A simple pcolor demo
 # --------------------
 
-Z = rand(6, 10)
+Z = np.random.rand(6, 10)
 
 plt.subplot(2, 1, 1)
 c = plt.pcolor(Z)
