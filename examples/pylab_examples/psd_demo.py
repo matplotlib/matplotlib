@@ -5,7 +5,7 @@ Psd Demo
 
 Plotting Power Spectral Density (PSD) in Matplotlib.
 
-The PSD is a common plot in the field of signal processing. Numpy has
+The PSD is a common plot in the field of signal processing. NumPy has
 many useful libraries for computing a PSD. Below we demo a few examples
 of how this can be accomplished and visualized with Matplotlib.
 """

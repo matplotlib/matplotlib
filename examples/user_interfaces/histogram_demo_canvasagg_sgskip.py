@@ -44,13 +44,13 @@ canvas.draw()
 
 s = canvas.tostring_rgb()  # save this and convert to bitmap as needed
 
-# get the figure dimensions for creating bitmaps or numpy arrays,
+# Get the figure dimensions for creating bitmaps or NumPy arrays,
 # etc.
 l, b, w, h = fig.bbox.bounds
 w, h = int(w), int(h)
 
 if 0:
-    # convert to a numpy array
+    # Convert to a NumPy array
     X = np.fromstring(s, np.uint8).reshape((h, w, 3))
 
 if 0:

@@ -138,9 +138,9 @@ plt.show()
 
 ###############################################################################
 # You can specify whether images should be plotted with the array origin
-# x[0,0] in the upper left or upper right by using the origin parameter.
-# You can also control the default be setting image.origin in your
-# matplotlibrc file; see http://matplotlib.org/matplotlibrc
+# x[0,0] in the upper left or lower right by using the origin parameter.
+# You can also control the default setting image.origin in your
+# :ref:`matplotlibrc file <customizing-with-matplotlibrc-files>`
 
 x = np.arange(120).reshape((10, 12))
 
