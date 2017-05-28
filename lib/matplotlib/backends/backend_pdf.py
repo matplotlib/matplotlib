@@ -1627,7 +1627,7 @@ class RendererPdf(RendererBase):
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
         if gc._rgb is None:
-            # it should not matter what color here 
+            # it should not matter what color here
             # since linewidth should be 0
             # unless affected by global settings in rcParams
             # hence setting zero alpha just incase
