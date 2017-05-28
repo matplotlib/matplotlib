@@ -20,13 +20,13 @@ from matplotlib.mlab import bivariate_normal
 
 Z = np.random.rand(6, 10)
 
-plt.subplot(2, 1, 1)
-c = plt.pcolor(Z)
-plt.title('default: no edges')
+fig, (ax0, ax1) = plt.subplots(2, 1)
 
-plt.subplot(2, 1, 2)
-c = plt.pcolor(Z, edgecolors='k', linewidths=4)
-plt.title('thick edges')
+c = ax0.pcolor(Z)
+ax0.set_title('default: no edges')
+
+c = ax1.pcolor(Z, edgecolors='k', linewidths=4)
+ax1.set_title('thick edges')
 
 plt.show()
 
@@ -49,37 +49,35 @@ z = (1 - x / 2. + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
 z = z[:-1, :-1]
 z_min, z_max = -np.abs(z).max(), np.abs(z).max()
 
+fig, axs = plt.subplots(2, 2)
 
-plt.subplot(2, 2, 1)
-plt.pcolor(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
-plt.title('pcolor')
+ax = axs[0, 0]
+c = ax.pcolor(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.set_title('pcolor')
 # set the limits of the plot to the limits of the data
-plt.axis([x.min(), x.max(), y.min(), y.max()])
-plt.colorbar()
+ax.axis([x.min(), x.max(), y.min(), y.max()])
+fig.colorbar(c, ax=ax)
 
-
-plt.subplot(2, 2, 2)
-plt.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
-plt.title('pcolormesh')
+ax = axs[0, 1]
+c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.set_title('pcolormesh')
 # set the limits of the plot to the limits of the data
-plt.axis([x.min(), x.max(), y.min(), y.max()])
-plt.colorbar()
+ax.axis([x.min(), x.max(), y.min(), y.max()])
+fig.colorbar(c, ax=ax)
 
+ax = axs[1, 0]
+c = ax.imshow(z, cmap='RdBu', vmin=z_min, vmax=z_max,
+              extent=[x.min(), x.max(), y.min(), y.max()],
+              interpolation='nearest', origin='lower')
+ax.set_title('image (nearest)')
+fig.colorbar(c, ax=ax)
 
-plt.subplot(2, 2, 3)
-plt.imshow(z, cmap='RdBu', vmin=z_min, vmax=z_max,
-           extent=[x.min(), x.max(), y.min(), y.max()],
-           interpolation='nearest', origin='lower')
-plt.title('image (nearest)')
-plt.colorbar()
+ax = axs[1, 1]
+c = ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.set_title('pcolorfast')
+fig.colorbar(c, ax=ax)
 
-
-ax = plt.subplot(2, 2, 4)
-ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
-plt.title('pcolorfast')
-plt.colorbar()
-
-plt.subplots_adjust(wspace=0.5, hspace=0.5)
+fig.subplots_adjust(wspace=0.5, hspace=0.5)
 
 plt.show()
 
@@ -98,12 +96,13 @@ X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 # linear scale only shows the spike.
 Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 
-plt.subplot(2, 1, 1)
-plt.pcolor(X, Y, Z1, norm=LogNorm(vmin=Z1.min(), vmax=Z1.max()), cmap='PuBu_r')
-plt.colorbar()
+fig, (ax0, ax1) = plt.subplots(2, 1)
 
-plt.subplot(2, 1, 2)
-plt.pcolor(X, Y, Z1, cmap='PuBu_r')
-plt.colorbar()
+c = ax0.pcolor(X, Y, Z1,
+               norm=LogNorm(vmin=Z1.min(), vmax=Z1.max()), cmap='PuBu_r')
+fig.colorbar(c, ax=ax0)
+
+c = ax1.pcolor(X, Y, Z1, cmap='PuBu_r')
+fig.colorbar(c, ax=ax1)
 
 plt.show()

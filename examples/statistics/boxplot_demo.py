@@ -25,28 +25,34 @@ flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 data = np.concatenate((spread, center, flier_high, flier_low), 0)
 
+fig, axs = plt.subplots(2, 3)
+
 # basic plot
-plt.boxplot(data)
+axs[0, 0].boxplot(data)
+axs[0, 0].set_title('basic plot')
 
 # notched plot
-plt.figure()
-plt.boxplot(data, 1)
+axs[0, 1].boxplot(data, 1)
+axs[0, 1].set_title('notched plot')
 
 # change outlier point symbols
-plt.figure()
-plt.boxplot(data, 0, 'gD')
+axs[0, 2].boxplot(data, 0, 'gD')
+axs[0, 2].set_title('change outlier\npoint symbols')
 
 # don't show outlier points
-plt.figure()
-plt.boxplot(data, 0, '')
+axs[1, 0].boxplot(data, 0, '')
+axs[1, 0].set_title("don't show\noutlier points")
 
 # horizontal boxes
-plt.figure()
-plt.boxplot(data, 0, 'rs', 0)
+axs[1, 1].boxplot(data, 0, 'rs', 0)
+axs[1, 1].set_title('horizontal boxes')
 
 # change whisker length
-plt.figure()
-plt.boxplot(data, 0, 'rs', 0, 0.75)
+axs[1, 2].boxplot(data, 0, 'rs', 0, 0.75)
+axs[1, 2].set_title('change whisker length')
+
+fig.subplots_adjust(left=0.08, right=0.98, bottom=0.05, top=0.9,
+                    hspace=0.4, wspace=0.3)
 
 # fake up some more data
 spread = np.random.rand(50) * 100
@@ -56,15 +62,15 @@ flier_low = np.random.rand(10) * -100
 d2 = np.concatenate((spread, center, flier_high, flier_low), 0)
 data.shape = (-1, 1)
 d2.shape = (-1, 1)
-# data = concatenate( (data, d2), 1 )
 # Making a 2-D array only works if all the columns are the
 # same length.  If they are not, then use a list instead.
 # This is actually more efficient because boxplot converts
 # a 2-D array into a list of vectors internally anyway.
 data = [data, d2, d2[::2, 0]]
-# multiple box plots on one figure
-plt.figure()
-plt.boxplot(data)
+
+# Multiple box plots on one Axes
+fig, ax = plt.subplots()
+ax.boxplot(data)
 
 plt.show()
 
@@ -101,9 +107,9 @@ data = [norm, normBoot, logn, lognBoot, expo, expoBoot, gumb, gumbBoot,
 
 fig, ax1 = plt.subplots(figsize=(10, 6))
 fig.canvas.set_window_title('A Boxplot Example')
-plt.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
+fig.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
-bp = plt.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
+bp = ax1.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
 plt.setp(bp['boxes'], color='black')
 plt.setp(bp['whiskers'], color='black')
 plt.setp(bp['fliers'], color='red', marker='+')
@@ -142,11 +148,11 @@ for i in range(numBoxes):
     for j in range(2):
         medianX.append(med.get_xdata()[j])
         medianY.append(med.get_ydata()[j])
-        plt.plot(medianX, medianY, 'k')
+        ax1.plot(medianX, medianY, 'k')
         medians[i] = medianY[0]
     # Finally, overplot the sample averages, with horizontal alignment
     # in the center of each box
-    plt.plot([np.average(med.get_xdata())], [np.average(data[i])],
+    ax1.plot([np.average(med.get_xdata())], [np.average(data[i])],
              color='w', marker='*', markeredgecolor='k')
 
 # Set the axes ranges and axes labels
@@ -154,8 +160,8 @@ ax1.set_xlim(0.5, numBoxes + 0.5)
 top = 40
 bottom = -5
 ax1.set_ylim(bottom, top)
-xtickNames = plt.setp(ax1, xticklabels=np.repeat(randomDists, 2))
-plt.setp(xtickNames, rotation=45, fontsize=8)
+ax1.set_xticklabels(np.repeat(randomDists, 2),
+                    rotation=45, fontsize=8)
 
 # Due to the Y-axis scale being different across samples, it can be
 # hard to compare differences in medians across the samples. Add upper
@@ -171,16 +177,16 @@ for tick, label in zip(range(numBoxes), ax1.get_xticklabels()):
              color=boxColors[k])
 
 # Finally, add a basic legend
-plt.figtext(0.80, 0.08, str(N) + ' Random Numbers',
-            backgroundcolor=boxColors[0], color='black', weight='roman',
-            size='x-small')
-plt.figtext(0.80, 0.045, 'IID Bootstrap Resample',
-            backgroundcolor=boxColors[1],
-            color='white', weight='roman', size='x-small')
-plt.figtext(0.80, 0.015, '*', color='white', backgroundcolor='silver',
-            weight='roman', size='medium')
-plt.figtext(0.815, 0.013, ' Average Value', color='black', weight='roman',
-            size='x-small')
+fig.text(0.80, 0.08, str(N) + ' Random Numbers',
+         backgroundcolor=boxColors[0], color='black', weight='roman',
+         size='x-small')
+fig.text(0.80, 0.045, 'IID Bootstrap Resample',
+         backgroundcolor=boxColors[1],
+         color='white', weight='roman', size='x-small')
+fig.text(0.80, 0.015, '*', color='white', backgroundcolor='silver',
+         weight='roman', size='medium')
+fig.text(0.815, 0.013, ' Average Value', color='black', weight='roman',
+         size='x-small')
 
 plt.show()
 

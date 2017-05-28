@@ -58,14 +58,15 @@ with cbook.get_sample_data('ct.raw.gz', asfileobj=True) as datafile:
 A = np.fromstring(s, np.uint16).astype(float).reshape((w, h))
 A /= A.max()
 
+fig, ax = plt.subplots()
 extent = (0, 25, 0, 25)
-im = plt.imshow(A, cmap=plt.cm.hot, origin='upper', extent=extent)
+im = ax.imshow(A, cmap=plt.cm.hot, origin='upper', extent=extent)
 
 markers = [(15.9, 14.5), (16.8, 15)]
 x, y = zip(*markers)
-plt.plot(x, y, 'o')
+ax.plot(x, y, 'o')
 
-plt.title('CT density')
+ax.set_title('CT density')
 
 plt.show()
 
@@ -121,17 +122,12 @@ plt.show()
 # suggested.
 
 A = np.random.rand(5, 5)
-plt.figure(1)
-plt.imshow(A, interpolation='nearest')
-plt.grid(True)
 
-plt.figure(2)
-plt.imshow(A, interpolation='bilinear')
-plt.grid(True)
-
-plt.figure(3)
-plt.imshow(A, interpolation='bicubic')
-plt.grid(True)
+fig, axs = plt.subplots(1, 3, figsize=(10, 3))
+for ax, interp in zip(axs, ['nearest', 'bilinear', 'bicubic']):
+    ax.imshow(A, interpolation=interp)
+    ax.set_title(interp.capitalize())
+    ax.grid(True)
 
 plt.show()
 
@@ -166,11 +162,13 @@ Z = Z2 - Z1  # difference of Gaussians
 
 path = Path([[0, 1], [1, 0], [0, -1], [-1, 0], [0, 1]])
 patch = PathPatch(path, facecolor='none')
-plt.gca().add_patch(patch)
 
-im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
-                origin='lower', extent=[-3, 3, -3, 3],
-                clip_path=patch, clip_on=True)
+fig, ax = plt.subplots()
+ax.add_patch(patch)
+
+im = ax.imshow(Z, interpolation='bilinear', cmap=cm.gray,
+               origin='lower', extent=[-3, 3, -3, 3],
+               clip_path=patch, clip_on=True)
 im.set_clip_path(patch)
 
 plt.show()
