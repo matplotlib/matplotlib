@@ -7,9 +7,7 @@ sometimes it is nice to have ticklabels centered.  Matplotlib currently
 associates a label with a tick, and the label can be aligned
 'center', 'left', or 'right' using the horizontal alignment property::
 
-
-    for label in ax.xaxis.get_xticklabels():
-        label.set_horizontalalignment('right')
+    ax.xaxis.set_tick_params(horizontalalignment='right')
 
 but this doesn't help center the label between ticks.  One solution
 is to "fake it".  Use the minor ticks to place a tick centered
