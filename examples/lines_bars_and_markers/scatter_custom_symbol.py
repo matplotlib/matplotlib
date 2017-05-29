@@ -5,16 +5,15 @@ Scatter Custom Symbol
 
 """
 import matplotlib.pyplot as plt
-from numpy import arange, pi, cos, sin
-from numpy.random import rand
+import numpy as np
 
 # unit area ellipse
 rx, ry = 3., 1.
-area = rx * ry * pi
-theta = arange(0, 2*pi + 0.01, 0.1)
-verts = list(zip(rx/area*cos(theta), ry/area*sin(theta)))
+area = rx * ry * np.pi
+theta = np.arange(0, 2 * np.pi + 0.01, 0.1)
+verts = list(zip(rx / area * np.cos(theta), ry / area * np.sin(theta)))
 
-x, y, s, c = rand(4, 30)
+x, y, s, c = np.random.rand(4, 30)
 s *= 10**2.
 
 fig, ax = plt.subplots()

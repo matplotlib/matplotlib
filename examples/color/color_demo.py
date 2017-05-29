@@ -22,12 +22,13 @@ See help(colors) for more info.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.subplot(111, facecolor='darkslategray')
-#subplot(111, facecolor='#ababab')
 t = np.arange(0.0, 2.0, 0.01)
-s = np.sin(2*np.pi*t)
-plt.plot(t, s, 'C1')
-plt.xlabel('time (s)', color='C1')
-plt.ylabel('voltage (mV)', color='0.5')  # grayscale color
-plt.title('About as silly as it gets, folks', color='#afeeee')
+s = np.sin(2 * np.pi * t)
+
+fig, ax = plt.subplots(facecolor='darkslategray')
+ax.plot(t, s, 'C1')
+ax.set_xlabel('time (s)', color='C1')
+ax.set_ylabel('voltage (mV)', color='0.5')  # grayscale color
+ax.set_title('About as silly as it gets, folks', color='#afeeee')
+
 plt.show()

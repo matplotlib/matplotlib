@@ -44,7 +44,7 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :ref:`sphx_glr_gallery_pylab_examples_subplot_demo.py` for several code examples.
+See :ref:`sphx_glr_gallery_subplots_axes_and_figures_subplot_demo.py` for several code examples.
 
 Contour fixes and and triplot
 ---------------------------------
@@ -147,6 +147,3 @@ Eric Firing went on a bug fixing and closing marathon, closing over
 <http://sourceforge.net/tracker/?group_id=80706&atid=560720>`__ with
 help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
 Michiel de Hoon.
-
-
-
