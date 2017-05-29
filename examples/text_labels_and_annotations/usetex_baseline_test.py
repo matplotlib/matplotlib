@@ -37,6 +37,7 @@ class Axes(maxes.Axes):
         plt.rcParams["text.usetex"] = usetex
         plt.rcParams["text.latex.preview"] = preview
 
+
 subplot = maxes.subplot_class_factory(Axes)
 
 
@@ -46,7 +47,6 @@ def test_window_extent(ax, usetex, preview):
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
 
-    #t = ax.text(0., 0., r"mlp", va="baseline", size=150)
     text_kw = dict(va=va,
                    size=50,
                    bbox=dict(pad=0., ec="k", fc="none"))
@@ -67,7 +67,7 @@ def test_window_extent(ax, usetex, preview):
     ax.set_title("usetex=%s\npreview=%s" % (str(usetex), str(preview)))
 
 
-fig = plt.figure(figsize=(2.*3, 6.5))
+fig = plt.figure(figsize=(2 * 3, 6.5))
 
 for i, usetex, preview in [[0, False, False],
                            [1, True, False],

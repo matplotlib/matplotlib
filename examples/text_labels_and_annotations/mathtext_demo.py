@@ -25,6 +25,7 @@ ax.text(1, 1.6, tex, fontsize=20, va='bottom')
 
 ax.legend([r"$\sqrt{x^2}$"])
 
-ax.set_title(r'$\Delta_i^j \hspace{0.4} \mathrm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
+ax.set_title(r'$\Delta_i^j \hspace{0.4} \mathrm{versus} \hspace{0.4} '
+             r'\Delta_{i+1}^j$', fontsize=20)
 
 show()
