@@ -334,6 +334,7 @@ class ContourLabeler(object):
         part of the contour).
         """
 
+        # Number of contour points
         nsize = len(linecontour)
         if labelwidth > 1:
             xsize = int(np.ceil(nsize / labelwidth))
@@ -353,7 +354,10 @@ class ContourLabeler(object):
         xlast = XX[:, -1].reshape(xsize, 1)
         s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
         L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
-        dist = np.add.reduce(([(abs(s)[i] / L[i]) for i in range(xsize)]), -1)
+        # Ignore warning that divide by zero throws, as this is a valid option
+        with np.errstate(divide='ignore', invalid='ignore'):
+            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
+                                 -1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
         # There must be a more efficient way...
@@ -448,7 +452,10 @@ class ContourLabeler(object):
 
             # Round to integer values but keep as float
             # To allow check against nan below
-            I = [np.floor(I[0]), np.ceil(I[1])]
+            # Ignore nans here to avoid throwing an error on on Appveyor build
+            # (can possibly be removed when build uses numpy 1.13)
+            with np.errstate(invalid='ignore'):
+                I = [np.floor(I[0]), np.ceil(I[1])]
 
             # Actually break contours
             if closed:
