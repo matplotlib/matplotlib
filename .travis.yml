@@ -123,10 +123,22 @@ install:
         pyparsing!=2.1.6 \
         python-dateutil \
         sphinx
-    # GUI toolkits are pip-installable only for some versions of Python so don't
-    # fail if we can't install them.
-    pip install pyqt5 || true
-    python -c 'import PyQt5.QtCore' || true
+    # GUI toolkits are pip-installable only for some versions of Python so
+    # don't fail if we can't install them.  Make it easier to check whether the
+    # install was successful by trying to import the toolkit (sometimes, the
+    # install appears to be successful but shared libraries cannot be loaded at
+    # runtime, so an actual import is a better check).
+    pip install pyqt5 &&
+      python -c 'import PyQt5.QtCore' &&
+      echo 'PyQt5 is available' ||
+      echo 'PyQt5 is not available'
+    pip install -U --pre \
+      -f https://wxpython.org/Phoenix/release-extras/linux/gtk3/ubuntu-14.04 \
+      wxPython &&
+      python -c 'import wx' &&
+      echo 'wxPython is available' ||
+      echo 'wxPython is not available'
+
     if [[ $BUILD_DOCS == true ]]; then
       pip install $PRE -r doc-requirements.txt
     fi
