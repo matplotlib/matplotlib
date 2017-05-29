@@ -340,8 +340,8 @@ Although Matplotlib's internal math rendering engine is quite
 powerful, sometimes you need TeX. Matplotlib supports external TeX
 rendering of strings with the *usetex* option.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_tex_demo_001.png
-   :target: ../../gallery/pyplots/tex_demo.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
+   :target: ../../gallery/text_labels_and_annotations/tex_demo.html
    :align: center
    :scale: 50
 
