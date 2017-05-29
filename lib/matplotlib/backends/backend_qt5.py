@@ -782,97 +782,47 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
     def __init__(self, targetfig, parent):
         UiSubplotTool.__init__(self, None)
 
-        self.targetfig = targetfig
-        self.parent = parent
-        self.donebutton.clicked.connect(self.close)
-        self.resetbutton.clicked.connect(self.reset)
-        self.tightlayout.clicked.connect(self.functight)
+        self._figure = targetfig
 
-        # constraints
-        self.sliderleft.valueChanged.connect(self.sliderright.setMinimum)
-        self.sliderright.valueChanged.connect(self.sliderleft.setMaximum)
-        self.sliderbottom.valueChanged.connect(self.slidertop.setMinimum)
-        self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
+        for lower, higher in [("bottom", "top"), ("left", "right")]:
+            self._widgets[lower].valueChanged.connect(
+                lambda val: self._widgets[higher].setMinimum(val + .001))
+            self._widgets[higher].valueChanged.connect(
+                lambda val: self._widgets[lower].setMaximum(val - .001))
 
-        self.defaults = {}
-        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
-            val = getattr(self.targetfig.subplotpars, attr)
-            self.defaults[attr] = val
-            slider = getattr(self, 'slider' + attr)
-            txt = getattr(self, attr + 'value')
-            slider.setMinimum(0)
-            slider.setMaximum(1000)
-            slider.setSingleStep(5)
-            # do this before hooking up the callbacks
-            slider.setSliderPosition(int(val * 1000))
-            txt.setText("%.2f" % val)
-            slider.valueChanged.connect(getattr(self, 'func' + attr))
-        self._setSliderPositions()
+        self.defaults = {
+            attr: getattr(self._figure.subplotpars, attr)
+            for attr in ["left", "bottom", "right", "top", "wspace", "hspace"]}
+        # Set values after setting the range callbacks, but before setting up
+        # the redraw callbacks.
+        self._reset()
 
-    def _setSliderPositions(self):
-        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
-            slider = getattr(self, 'slider' + attr)
-            slider.setSliderPosition(int(self.defaults[attr] * 1000))
+        for attr in self.defaults:
+            self._widgets[attr].valueChanged.connect(self._on_value_changed)
+        for action, method in [("Tight Layout", self._tight_layout),
+                               ("Reset", self._reset),
+                               ("Close", self.close)]:
+            self._widgets[action].clicked.connect(method)
 
-    def funcleft(self, val):
-        if val == self.sliderright.value():
-            val -= 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(left=val)
-        self.leftvalue.setText("%.2f" % val)
+    def _on_value_changed(self):
+        self._figure.subplots_adjust(
+            **{attr: self._widgets[attr].value() for attr in self.defaults})
         if self.drawon:
-            self.targetfig.canvas.draw_idle()
+            self._figure.canvas.draw_idle()
 
-    def funcright(self, val):
-        if val == self.sliderleft.value():
-            val += 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(right=val)
-        self.rightvalue.setText("%.2f" % val)
+    def _tight_layout(self):
+        self._figure.tight_layout()
+        for attr in self.defaults:
+            widget = self._widgets[attr]
+            widget.blockSignals(True)
+            widget.setValue(getattr(self._figure.subplotpars, attr))
+            widget.blockSignals(False)
         if self.drawon:
-            self.targetfig.canvas.draw_idle()
+            self._figure.canvas.draw_idle()
 
-    def funcbottom(self, val):
-        if val == self.slidertop.value():
-            val -= 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(bottom=val)
-        self.bottomvalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
-
-    def functop(self, val):
-        if val == self.sliderbottom.value():
-            val += 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(top=val)
-        self.topvalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
-
-    def funcwspace(self, val):
-        val /= 1000.
-        self.targetfig.subplots_adjust(wspace=val)
-        self.wspacevalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
-
-    def funchspace(self, val):
-        val /= 1000.
-        self.targetfig.subplots_adjust(hspace=val)
-        self.hspacevalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
-
-    def functight(self):
-        self.targetfig.tight_layout()
-        self._setSliderPositions()
-        self.targetfig.canvas.draw_idle()
-
-    def reset(self):
-        self.targetfig.subplots_adjust(**self.defaults)
-        self._setSliderPositions()
-        self.targetfig.canvas.draw_idle()
+    def _reset(self):
+        for attr in self.defaults:
+            self._widgets[attr].setValue(self.defaults[attr])
 
 
 def error_msg_qt(msg, parent=None):
