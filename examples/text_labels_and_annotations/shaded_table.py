@@ -10,12 +10,12 @@ The table cells are shaded according to the values.
 
 from matplotlib import pyplot as plt
 
-from matplotlib import colors, cm, table
+from matplotlib import colors, cm
 
 import random
 
-def gendata(n=5, k=8):
 
+def gendata(n=5, k=8):
 
     data = []
     for value in range(n):
@@ -27,6 +27,7 @@ def gendata(n=5, k=8):
 
     return data
 
+
 def draw_table():
     """ Draw a table on the axes """
 
@@ -34,9 +35,6 @@ def draw_table():
 
     data = gendata()
     data.sort(key=sum)
-
-    rows = len(data)
-    cols = len(data[0])
 
     axes = plt.axes()
 
@@ -46,12 +44,11 @@ def draw_table():
         patches = axes.plot(row)
         rcolours.append(patches[0].get_color())
 
-
     rcolours = [colors.to_rgba(x, 0.2) for x in rcolours]
 
     means = [sum(x) / len(x) for x in data]
     rlabels = ['Mean {x:,.0f}'.format(x=x) for x in means]
-    
+
     colours = cm.get_cmap()(norm(data))
     alpha = 0.2
     colours[:, :, 3] = alpha
@@ -64,11 +61,11 @@ def draw_table():
     plt.subplots_adjust(left=0.2, bottom=0.3)
 
     tab = axes.table(
-        rowLabels = rlabels,
-        rowColours = rcolours,
-        rowEdgeColours = rcolours,
-        cellText = text,
-        cellColours = colours,
+        rowLabels=rlabels,
+        rowColours=rcolours,
+        rowEdgeColours=rcolours,
+        cellText=text,
+        cellColours=colours,
         cellEdgeColours=colours,
         loc='bottom')
 
@@ -78,6 +75,4 @@ def draw_table():
 
 
 draw_table()
-plt.savefig("shaded_table_text_labels_and_annotations.png")
-    
-    
+plt.show()
