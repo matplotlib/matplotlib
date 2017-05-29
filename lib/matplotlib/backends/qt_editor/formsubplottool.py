@@ -40,10 +40,16 @@ class UiSubplotTool(QtWidgets.QDialog):
             widget.setSingleStep(.005)
             widget.setKeyboardTracking(False)
             inner.addRow(side, widget)
+        right.addStretch(1)
 
-        for action in ["Tight Layout", "Reset", "Close"]:
+        widget = QtWidgets.QPushButton("Export values")
+        self._widgets["Export values"] = widget
+        # Don't trigger on <enter>, which is used to input values.
+        widget.setAutoDefault(False)
+        left.addWidget(widget)
+
+        for action in ["Tight layout", "Reset", "Close"]:
             self._widgets[action] = widget = QtWidgets.QPushButton(action)
-            # Don't trigger on <enter>, which is used to input values.
             widget.setAutoDefault(False)
             right.addWidget(widget)
 

@@ -21,7 +21,6 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
-from matplotlib.widgets import SubplotTool
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 
 from .qt_compat import (QtCore, QtGui, QtWidgets, _getSaveFileName,
@@ -778,7 +777,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
-class SubplotToolQt(SubplotTool, UiSubplotTool):
+class SubplotToolQt(UiSubplotTool):
     def __init__(self, targetfig, parent):
         UiSubplotTool.__init__(self, None)
 
@@ -790,39 +789,60 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
             self._widgets[higher].valueChanged.connect(
                 lambda val: self._widgets[lower].setMaximum(val - .001))
 
-        self.defaults = {
-            attr: getattr(self._figure.subplotpars, attr)
-            for attr in ["left", "bottom", "right", "top", "wspace", "hspace"]}
+        self._attrs = ["top", "bottom", "left", "right", "hspace", "wspace"]
+        self._defaults = {attr: vars(self._figure.subplotpars)[attr]
+                          for attr in self._attrs}
+
         # Set values after setting the range callbacks, but before setting up
         # the redraw callbacks.
         self._reset()
 
-        for attr in self.defaults:
+        for attr in self._attrs:
             self._widgets[attr].valueChanged.connect(self._on_value_changed)
-        for action, method in [("Tight Layout", self._tight_layout),
+        for action, method in [("Export values", self._export_values),
+                               ("Tight layout", self._tight_layout),
                                ("Reset", self._reset),
                                ("Close", self.close)]:
             self._widgets[action].clicked.connect(method)
 
+    def _export_values(self):
+        # Explicitly round to 3 decimals (which is also the spinbox precision)
+        # to avoid numbers of the form 0.100...001.
+        dialog = QtWidgets.QDialog()
+        layout = QtWidgets.QVBoxLayout()
+        dialog.setLayout(layout)
+        text = QtWidgets.QPlainTextEdit()
+        text.setReadOnly(True)
+        layout.addWidget(text)
+        text.setPlainText(
+            ",\n".join("{}={:.3}".format(attr, self._widgets[attr].value())
+                       for attr in self._attrs))
+        # Adjust the height of the text widget to fit the whole text, plus
+        # some padding.
+        size = text.maximumSize()
+        size.setHeight(
+            QtGui.QFontMetrics(text.document().defaultFont())
+            .size(0, text.toPlainText()).height() + 20)
+        text.setMaximumSize(size)
+        dialog.exec_()
+
     def _on_value_changed(self):
-        self._figure.subplots_adjust(
-            **{attr: self._widgets[attr].value() for attr in self.defaults})
-        if self.drawon:
-            self._figure.canvas.draw_idle()
+        self._figure.subplots_adjust(**{attr: self._widgets[attr].value()
+                                        for attr in self._attrs})
+        self._figure.canvas.draw_idle()
 
     def _tight_layout(self):
         self._figure.tight_layout()
-        for attr in self.defaults:
+        for attr in self._attrs:
             widget = self._widgets[attr]
             widget.blockSignals(True)
-            widget.setValue(getattr(self._figure.subplotpars, attr))
+            widget.setValue(vars(self._figure.subplotpars)[attr])
             widget.blockSignals(False)
-        if self.drawon:
-            self._figure.canvas.draw_idle()
+        self._figure.canvas.draw_idle()
 
     def _reset(self):
-        for attr in self.defaults:
-            self._widgets[attr].setValue(self.defaults[attr])
+        for attr, value in self._defaults.items():
+            self._widgets[attr].setValue(value)
 
 
 def error_msg_qt(msg, parent=None):
