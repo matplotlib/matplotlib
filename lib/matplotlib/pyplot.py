@@ -270,6 +270,46 @@ def ion():
     matplotlib.interactive(True)
     install_repl_displayhook()
 
+def pickle_save(obj, f=None, protocol=0):
+    """
+    Write a pickled representation of obj as a string or a file depending on the number and type of arguments used.
+
+    ``pickle_save(obj, file, protocol)`` Write a pickled representation of obj to the open file object file.
+    
+    ``pickle_save(obj, protocol)`` Return the pickled representation of the object as a string, instead of writing it to a file.
+    """
+    import pickle 
+    
+    if not f: 
+        return pickle.dumps(obj, protocol) 
+    
+    pickle.dump(obj, f, protocol)
+
+def pickle_load(*args, **kwargs):
+    """ 
+    Read a string or pickled object and reconstruct the original object hierarchy.
+    
+    ``pickle_load(file)`` Read a string from the open file object file and interpret it as a pickle data stream, reconstructing and returning the original object hierarchy.
+    
+    ``pick_load(str)`` Read a pickled object hierarchy from a string. Characters in the string past the pickled object’s representation are ignored.
+
+    """
+    import pickle
+    
+    state = isinteractive()
+    if state:
+        ioff()
+    if len(args) != 1 or not(isinstance(args[0], str) or isinstance(args[0], file)):
+        warnings.warn('Unsupported number/type of argument(s).')
+    if isinstance(args[0], str):
+        unpickledobj = pickle.loads(args[0])
+        if state:
+            ion()
+        return unpickledobj
+    
+    pickle.load(args[0])
+    if state:
+        ion()
 
 def pause(interval):
     """
