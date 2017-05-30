@@ -162,14 +162,14 @@ def pdfRepr(obj):
     elif isinstance(obj, (six.integer_types, np.integer)):
         return ("%d" % obj).encode('ascii')
 
-    # Unicode strings are encoded in UTF-16BE with byte-order mark.
+    # Unicode strings are encoded in UTF-16BE.
     elif isinstance(obj, six.text_type):
         try:
             # But maybe it's really ASCII?
             s = obj.encode('ASCII')
             return pdfRepr(s)
         except UnicodeEncodeError:
-            s = codecs.BOM_UTF16_BE + obj.encode('UTF-16BE')
+            s = obj.encode('UTF-16BE')
             return pdfRepr(s)
 
     # Strings are written in parentheses, with backslashes and parens
