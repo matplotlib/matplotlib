@@ -9,6 +9,8 @@ import io
 
 import datetime
 
+from itertools import product
+
 import pytz
 
 import numpy as np
@@ -1435,6 +1437,37 @@ def test_hist_step_log_bottom():
     ax.hist(data, bins=10, log=True, histtype='stepfilled',
             alpha=0.5, color='y', bottom=np.arange(10))
     ax.set_ylim(9e-3, 1e3)
+
+
+@cleanup
+def test_hist_datalims_binsgiven():
+    # Checks that the hist function updates axes' dataLim to minimum and maximum
+    # bins if the latter are given explicitly as a sequence.
+    # Helper function that runs actual tests
+    @cleanup
+    def do_test(histtype, orientation, stacked):
+        # Random values between -1 and 1
+        x1 = 2*np.random.randn(10)-1
+	# Random values between -5 and 5
+        x2 = 10*np.random.randn(10)-5
+        # Plot histogram with explicitly given bins from -3 to 3
+        plt.hist([x1, x2], bins=[-3, -2, -1, 0, 1, 2, 3], histtype=histtype,
+                 orientation=orientation, stacked=stacked)
+        # Check that dataLim is given by bin range and not by data range
+        if orientation == "horizontal":
+            assert_equal(plt.gca().dataLim.y0, -3)
+            assert_equal(plt.gca().dataLim.y1, 3)
+        elif orientation == "vertical":
+            assert_equal(plt.gca().dataLim.x0, -3)
+            assert_equal(plt.gca().dataLim.x1, 3)
+    # Test generation
+    np.random.seed(0)
+    histtypes = [ "bar", "step", "stepfilled" ]
+    orientations = [ "horizontal", "vertical" ]
+    stacked = [ True, False ]
+    all_combinations = product(histtypes, orientations, stacked)
+    for histtype, orientation, stacked in all_combinations:
+        yield do_test, histtype, orientation, stacked
 
 
 def contour_dat():
