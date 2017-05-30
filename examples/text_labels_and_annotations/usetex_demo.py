@@ -46,8 +46,7 @@ plt.text(-0.06, height - 0.06, r'$\delta$', {'color': 'k', 'fontsize': 24})
 plt.xticks((-1, 0, 1), ('-1', '0', '1'), color='k', size=20)
 
 # Left Y-axis labels
-plt.ylabel(r'\bf{phase field} $\phi$', {'color': 'b',
-                                        'fontsize': 20})
+plt.ylabel(r'\bf{phase field} $\phi$', {'color': 'b', 'fontsize': 20})
 plt.yticks((0, 0.5, 1), ('0', '.5', '1'), color='k', size=20)
 
 # Right Y-axis labels

@@ -59,9 +59,9 @@ mathext_demos = {
 
 def doall():
     # Colors used in mpl online documentation.
-    mpl_blue_rvb = (191 / 255, 209 / 256, 212 / 255)
-    mpl_orange_rvb = (202 / 255, 121 / 256, 0 / 255)
-    mpl_grey_rvb = (51 / 255, 51 / 255, 51 / 255)
+    mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
+    mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
+    mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
 
     # Creating figure and axis.
     plt.figure(figsize=(6, 7))
@@ -86,7 +86,7 @@ def doall():
     # Plotting features demonstration formulae
     for i_line in range(1, n_lines):
         baseline = 1 - (i_line) * line_axesfrac
-        baseline_next = baseline - line_axesfrac * 1
+        baseline_next = baseline - line_axesfrac
         title = mathtext_titles[i_line] + ":"
         fill_color = ['white', mpl_blue_rvb][i_line % 2]
         plt.fill_between([0., 1.], [baseline, baseline],
