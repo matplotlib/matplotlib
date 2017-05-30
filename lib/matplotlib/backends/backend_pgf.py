@@ -220,19 +220,19 @@ class LatexManagerFactory(object):
     def get_latex_manager():
         texcommand = get_texcommand()
         latex_header = LatexManager._build_latex_header()
-        prev = LatexManagerFactory.previous_instance
+        if LatexManagerFactory.previous_instance:
+            prev = LatexManagerFactory.previous_instance()
 
-        # check if the previous instance of LatexManager can be reused
-        if prev and prev.latex_header == latex_header and prev.texcommand == texcommand:
-            if rcParams.get("pgf.debug", False):
-                print("reusing LatexManager")
-            return prev
-        else:
-            if rcParams.get("pgf.debug", False):
-                print("creating LatexManager")
-            new_inst = LatexManager()
-            LatexManagerFactory.previous_instance = new_inst
-            return new_inst
+            # check if the previous instance of LatexManager can be reused
+            if prev and prev.latex_header == latex_header and prev.texcommand == texcommand:
+                if rcParams.get("pgf.debug", False):
+                    print("reusing LatexManager")
+                return prev
+        if rcParams.get("pgf.debug", False):
+            print("creating LatexManager")
+        new_inst = LatexManager()
+        LatexManagerFactory.previous_instance = weakref.ref(new_inst)
+        return new_inst
 
 
 class LatexManager(object):
