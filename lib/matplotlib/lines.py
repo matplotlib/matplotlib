@@ -1082,8 +1082,6 @@ class Line2D(Artist):
         ``''``                        draw nothing
         ===========================   =================
 
-        'steps' is equivalent to 'steps-pre' and is maintained for
-        backward-compatibility.
 
         Alternatively a dash tuple of the following form can be provided::
 
