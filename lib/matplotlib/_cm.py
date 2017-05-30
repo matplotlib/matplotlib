@@ -1248,6 +1248,18 @@ _CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
                            (0.875, 0.50, 0.50),
                            (1.000, 1.00, 1.00))}
 
+# Modification of CMRmap to improve linearity of luminance
+# by Christopher Hummersone, BSD Licensed
+# http://www.mathworks.com/matlabcentral/fileexchange/39552-modified-cmrmap
+_CMRmap2_data = ((0.0, 0.0,  0.0),
+                 (0.1, 0.1,  0.35),
+                 (0.3, 0.15, 0.65),
+                 (0.6, 0.2,  0.50),
+                 (1.0, 0.25, 0.15),
+                 (0.9, 0.55, 0.0),
+                 (0.9, 0.75, 0.1),
+                 (0.9, 0.9,  0.5),
+                 (1.0, 1.0,  1.0))
 
 # An MIT licensed, colorblind-friendly heatmap from Wistia:
 #   https://github.com/wistia/heatmap-palette
@@ -1400,6 +1412,7 @@ datad = _deprecation_datad({
     'bwr':    _bwr_data,
     'brg':    _brg_data,
     'CMRmap': _CMRmap_data,
+    'CMRmap2': _CMRmap2_data,
     'cool':   _cool_data,
     'copper': _copper_data,
     'cubehelix': _cubehelix_data,

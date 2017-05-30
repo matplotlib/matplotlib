@@ -2057,6 +2057,8 @@ def colormaps():
                     maintains an aesthetically pleasing color image that
                     automatically reproduces to a monotonic grayscale with
                     discrete, quantifiable saturation levels." [#]_
+      CMRmap2       Modified version of CMRmap that improves its luminosity
+                    linearity for low values. [#]_
       cubehelix     Unlike most other color schemes cubehelix was designed
                     by D.A. Green to be monotonically increasing in terms
                     of perceived brightness. Also, when printed on a black
@@ -2110,6 +2112,10 @@ def colormaps():
       Color-Scale Images
       <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
+
+    .. [#] See `Modified CMRmap
+      <http://www.mathworks.com/matlabcentral/fileexchange/39552-modified-cmrmap>`_
+      by Christopher Hummersone
 
     .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
       :func:`spectral` still works, but
