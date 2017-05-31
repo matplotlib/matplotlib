@@ -19,12 +19,14 @@ import pytest
 # an undesirable input hook).
 
 
-def _get_available_backends():
+def _get_testable_interactive_backends():
     return [
-        pytest.mark.skipif(sys.version_info < (3,)
-                           or importlib.util.find_spec(module_name) is None,
-                           reason="Could not import {!r}".format(module_name))(
-                               backend)
+        pytest.mark.skipif(
+            not os.environ.get("DISPLAY")
+            or sys.version_info < (3,)
+            or importlib.util.find_spec(module_name) is None,
+            reason="No $DISPLAY or could not import {!r}".format(module_name))(
+                backend)
         for module_name, backend in [
                 ("PyQt5", "qt5agg"),
                 ("tkinter", "tkagg"),
@@ -41,9 +43,7 @@ plt.show()
 """
 
 
-@pytest.mark.skipif("DISPLAY" not in os.environ,
-                    reason="The DISPLAY environment variable is not set.")
-@pytest.mark.parametrize("backend", _get_available_backends())
+@pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 def test_backend(backend):
     environ = os.environ.copy()
     environ["MPLBACKEND"] = backend
