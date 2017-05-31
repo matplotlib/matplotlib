@@ -11,8 +11,8 @@ import matplotlib.cbook as cbook
 import numpy as np
 
 
-datafile = cbook.get_sample_data('membrane.dat', asfileobj=False)
-x = np.fromfile(datafile, np.float32)
+with cbook.get_sample_data('membrane.dat') as datafile:
+    x = np.fromfile(datafile, np.float32)
 # 0.0005 is the sample interval
 
 fig, ax = plt.subplots()

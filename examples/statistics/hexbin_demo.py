@@ -79,18 +79,17 @@ ymax = y.max()
 
 gridsize = 30
 
-plt.subplot(211)
-plt.hexbin(x, y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu,
-           vmax=abs(z).max(), vmin=-abs(z).max())
-plt.axis([xmin, xmax, ymin, ymax])
-cb = plt.colorbar()
+fig, (ax0, ax1) = plt.subplots(2, 1)
+
+c = ax0.hexbin(x, y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu,
+               vmax=abs(z).max(), vmin=-abs(z).max())
+ax0.axis([xmin, xmax, ymin, ymax])
+cb = fig.colorbar(c, ax=ax0)
 cb.set_label('mean value')
 
-
-plt.subplot(212)
-plt.hexbin(x, y, gridsize=gridsize, cmap=plt.cm.Blues_r)
-plt.axis([xmin, xmax, ymin, ymax])
-cb = plt.colorbar()
+c = ax1.hexbin(x, y, gridsize=gridsize, cmap=plt.cm.Blues_r)
+ax1.axis([xmin, xmax, ymin, ymax])
+cb = fig.colorbar(c, ax=ax1)
 cb.set_label('N observations')
 
 plt.show()

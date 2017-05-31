@@ -30,7 +30,7 @@ segs[:, :, 0] = x
 segs = np.ma.masked_where((segs > 50) & (segs < 60), segs)
 
 # We need to set the plot limits.
-ax = plt.axes()
+fig, ax = plt.subplots()
 ax.set_xlim(x.min(), x.max())
 ax.set_ylim(ys.min(), ys.max())
 
@@ -60,7 +60,7 @@ x = np.arange(N)
 ys = [x + i for i in x]
 
 # We need to set the plot limits, they will not autoscale
-ax = plt.axes()
+fig, ax = plt.subplots()
 ax.set_xlim(np.min(x), np.max(x))
 ax.set_ylim(np.min(ys), np.max(ys))
 
@@ -77,7 +77,6 @@ line_segments = LineCollection([list(zip(x, y)) for y in ys],
                                linestyles='solid')
 line_segments.set_array(x)
 ax.add_collection(line_segments)
-fig = plt.gcf()
 axcb = fig.colorbar(line_segments)
 axcb.set_label('Line Number')
 ax.set_title('Line Collection with mapped colors')

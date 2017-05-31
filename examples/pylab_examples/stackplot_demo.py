@@ -55,6 +55,6 @@ def layers(n, m):
 
 d = layers(3, 100)
 
-plt.subplots()
-plt.stackplot(range(100), d.T, baseline='wiggle')
+fig, ax = plt.subplots()
+ax.stackplot(range(100), d.T, baseline='wiggle')
 plt.show()

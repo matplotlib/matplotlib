@@ -9,16 +9,15 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
-import numpy.random as rnd
 import matplotlib.mlab as mlab
 import time
 
-rnd.seed(0)
+np.random.seed(0)
 npts = 200
 ngridx = 100
 ngridy = 200
-x = rnd.uniform(-2, 2, npts)
-y = rnd.uniform(-2, 2, npts)
+x = np.random.uniform(-2, 2, npts)
+y = np.random.uniform(-2, 2, npts)
 z = x*np.exp(-x**2 - y**2)
 
 # griddata and contour.

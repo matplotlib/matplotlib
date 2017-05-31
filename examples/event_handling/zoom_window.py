@@ -14,7 +14,7 @@ Note the diameter of the circles in the scatter are defined in
 points**2, so their size is independent of the zoom
 """
 from matplotlib.pyplot import figure, show
-import numpy
+import numpy as np
 figsrc = figure()
 figzoom = figure()
 
@@ -23,7 +23,7 @@ axzoom = figzoom.add_subplot(111, xlim=(0.45, 0.55), ylim=(0.4, .6),
                              autoscale_on=False)
 axsrc.set_title('Click to zoom')
 axzoom.set_title('zoom window')
-x, y, s, c = numpy.random.rand(4, 200)
+x, y, s, c = np.random.rand(4, 200)
 s *= 200
 
 

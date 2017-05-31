@@ -9,7 +9,6 @@ This example showcases the functions hlines and vlines.
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory as btf
 import numpy as np
-import numpy.random as rnd
 
 
 def f(t):
@@ -19,7 +18,7 @@ def f(t):
 
 t = np.arange(0.0, 5.0, 0.1)
 s = f(t)
-nse = rnd.normal(0.0, 0.3, t.shape) * s
+nse = np.random.normal(0.0, 0.3, t.shape) * s
 
 fig = plt.figure(figsize=(12, 6))
 vax = fig.add_subplot(121)

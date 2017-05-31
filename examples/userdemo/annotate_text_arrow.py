@@ -5,16 +5,16 @@ Annotate Text Arrow
 
 """
 
-import numpy.random
+import numpy as np
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(5, 5))
 ax.set_aspect(1)
 
-x1 = -1 + numpy.random.randn(100)
-y1 = -1 + numpy.random.randn(100)
-x2 = 1. + numpy.random.randn(100)
-y2 = 1. + numpy.random.randn(100)
+x1 = -1 + np.random.randn(100)
+y1 = -1 + np.random.randn(100)
+x2 = 1. + np.random.randn(100)
+y2 = 1. + np.random.randn(100)
 
 ax.scatter(x1, y1, color="r")
 ax.scatter(x2, y2, color="g")
