@@ -126,6 +126,9 @@ class AxesY(_Base):
         self._ref_ax = ref_ax
 
     def get_size(self, renderer):
+        #Reset the aspect. The grid aspect may have been changed.
+        self._aspect = self._axes.get_aspect()
+
         l1, l2 = self._axes.get_ylim()
 
         if self._aspect == "axes":
