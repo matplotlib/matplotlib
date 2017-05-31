@@ -907,7 +907,11 @@ class Normalize(object):
         if np.issubdtype(dtype, np.integer) or dtype.type is np.bool_:
             # bool_/int8/int16 -> float32; int32/int64 -> float64
             dtype = np.promote_types(dtype, np.float32)
-        result = np.ma.array(value, dtype=dtype, copy=True)
+        # ensure data passed in as an ndarray subclass are interpreted as
+        # an ndarray. See issue #6622.
+        mask = np.ma.getmask(value)
+        data = np.asarray(np.ma.getdata(value))
+        result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -937,9 +941,7 @@ class Normalize(object):
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             # ma division is very slow; we can take a shortcut
-            # use np.asarray so data passed in as an ndarray subclass are
-            # interpreted as an ndarray. See issue #6622.
-            resdat = np.asarray(result.data)
+            resdat = result.data
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
@@ -1007,7 +1009,7 @@ class LogNorm(Normalize):
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                                     mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
             mask = result.mask
