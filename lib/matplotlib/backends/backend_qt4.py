@@ -24,7 +24,6 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from .qt_compat import QtCore, QtWidgets, _getSaveFileName, __version__
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 
 from .backend_qt5 import (backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL,
                         SHIFT, MODIFIER_KEYS, fn_name, cursord,

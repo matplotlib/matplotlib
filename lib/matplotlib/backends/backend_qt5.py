@@ -21,7 +21,6 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
-from matplotlib.widgets import SubplotTool
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 
 from .qt_compat import (QtCore, QtGui, QtWidgets, _getSaveFileName,
@@ -778,101 +777,72 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
-class SubplotToolQt(SubplotTool, UiSubplotTool):
+class SubplotToolQt(UiSubplotTool):
     def __init__(self, targetfig, parent):
         UiSubplotTool.__init__(self, None)
 
-        self.targetfig = targetfig
-        self.parent = parent
-        self.donebutton.clicked.connect(self.close)
-        self.resetbutton.clicked.connect(self.reset)
-        self.tightlayout.clicked.connect(self.functight)
+        self._figure = targetfig
 
-        # constraints
-        self.sliderleft.valueChanged.connect(self.sliderright.setMinimum)
-        self.sliderright.valueChanged.connect(self.sliderleft.setMaximum)
-        self.sliderbottom.valueChanged.connect(self.slidertop.setMinimum)
-        self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
+        for lower, higher in [("bottom", "top"), ("left", "right")]:
+            self._widgets[lower].valueChanged.connect(
+                lambda val: self._widgets[higher].setMinimum(val + .001))
+            self._widgets[higher].valueChanged.connect(
+                lambda val: self._widgets[lower].setMaximum(val - .001))
 
-        self.defaults = {}
-        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
-            val = getattr(self.targetfig.subplotpars, attr)
-            self.defaults[attr] = val
-            slider = getattr(self, 'slider' + attr)
-            txt = getattr(self, attr + 'value')
-            slider.setMinimum(0)
-            slider.setMaximum(1000)
-            slider.setSingleStep(5)
-            # do this before hooking up the callbacks
-            slider.setSliderPosition(int(val * 1000))
-            txt.setText("%.2f" % val)
-            slider.valueChanged.connect(getattr(self, 'func' + attr))
-        self._setSliderPositions()
+        self._attrs = ["top", "bottom", "left", "right", "hspace", "wspace"]
+        self._defaults = {attr: vars(self._figure.subplotpars)[attr]
+                          for attr in self._attrs}
 
-    def _setSliderPositions(self):
-        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
-            slider = getattr(self, 'slider' + attr)
-            slider.setSliderPosition(int(self.defaults[attr] * 1000))
+        # Set values after setting the range callbacks, but before setting up
+        # the redraw callbacks.
+        self._reset()
 
-    def funcleft(self, val):
-        if val == self.sliderright.value():
-            val -= 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(left=val)
-        self.leftvalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
+        for attr in self._attrs:
+            self._widgets[attr].valueChanged.connect(self._on_value_changed)
+        for action, method in [("Export values", self._export_values),
+                               ("Tight layout", self._tight_layout),
+                               ("Reset", self._reset),
+                               ("Close", self.close)]:
+            self._widgets[action].clicked.connect(method)
 
-    def funcright(self, val):
-        if val == self.sliderleft.value():
-            val += 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(right=val)
-        self.rightvalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
+    def _export_values(self):
+        # Explicitly round to 3 decimals (which is also the spinbox precision)
+        # to avoid numbers of the form 0.100...001.
+        dialog = QtWidgets.QDialog()
+        layout = QtWidgets.QVBoxLayout()
+        dialog.setLayout(layout)
+        text = QtWidgets.QPlainTextEdit()
+        text.setReadOnly(True)
+        layout.addWidget(text)
+        text.setPlainText(
+            ",\n".join("{}={:.3}".format(attr, self._widgets[attr].value())
+                       for attr in self._attrs))
+        # Adjust the height of the text widget to fit the whole text, plus
+        # some padding.
+        size = text.maximumSize()
+        size.setHeight(
+            QtGui.QFontMetrics(text.document().defaultFont())
+            .size(0, text.toPlainText()).height() + 20)
+        text.setMaximumSize(size)
+        dialog.exec_()
 
-    def funcbottom(self, val):
-        if val == self.slidertop.value():
-            val -= 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(bottom=val)
-        self.bottomvalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
+    def _on_value_changed(self):
+        self._figure.subplots_adjust(**{attr: self._widgets[attr].value()
+                                        for attr in self._attrs})
+        self._figure.canvas.draw_idle()
 
-    def functop(self, val):
-        if val == self.sliderbottom.value():
-            val += 1
-        val /= 1000.
-        self.targetfig.subplots_adjust(top=val)
-        self.topvalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
+    def _tight_layout(self):
+        self._figure.tight_layout()
+        for attr in self._attrs:
+            widget = self._widgets[attr]
+            widget.blockSignals(True)
+            widget.setValue(vars(self._figure.subplotpars)[attr])
+            widget.blockSignals(False)
+        self._figure.canvas.draw_idle()
 
-    def funcwspace(self, val):
-        val /= 1000.
-        self.targetfig.subplots_adjust(wspace=val)
-        self.wspacevalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
-
-    def funchspace(self, val):
-        val /= 1000.
-        self.targetfig.subplots_adjust(hspace=val)
-        self.hspacevalue.setText("%.2f" % val)
-        if self.drawon:
-            self.targetfig.canvas.draw_idle()
-
-    def functight(self):
-        self.targetfig.tight_layout()
-        self._setSliderPositions()
-        self.targetfig.canvas.draw_idle()
-
-    def reset(self):
-        self.targetfig.subplots_adjust(**self.defaults)
-        self._setSliderPositions()
-        self.targetfig.canvas.draw_idle()
+    def _reset(self):
+        for attr, value in self._defaults.items():
+            self._widgets[attr].setValue(value)
 
 
 def error_msg_qt(msg, parent=None):
