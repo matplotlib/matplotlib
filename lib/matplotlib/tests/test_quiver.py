@@ -167,6 +167,26 @@ def test_bad_masked_sizes():
         ax.barbs(x, y, u, v)
 
 
+def test_angles_and_scale():
+    # angles array + scale_units kwarg
+    fig, ax = plt.subplots()
+    X, Y = np.meshgrid(np.arange(15), np.arange(10))
+    U = V = np.ones_like(X)
+    phi = (np.random.rand(15, 10) - .5) * 150
+    ax.quiver(X, Y, U, V, angles=phi, scale_units='xy')
+
+
+@image_comparison(baseline_images=['quiver_xy'],
+                  extensions=['png'], remove_text=True)
+def test_quiver_xy():
+    # simple arrow pointing from SW to NE
+    fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'))
+    ax.quiver(0, 0, 1, 1, angles='xy', scale_units='xy', scale=1)
+    ax.set_xlim(0, 1.1)
+    ax.set_ylim(0, 1.1)
+    ax.grid()
+
+
 def test_quiverkey_angles():
     # Check that only a single arrow is plotted for a quiverkey when an array
     # of angles is given to the original quiver plot
