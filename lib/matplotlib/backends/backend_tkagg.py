@@ -698,6 +698,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def set_cursor(self, cursor):
         self.window.configure(cursor=cursord[cursor])
+        self.window.update_idletasks()
 
     def _Button(self, text, file, command, extension='.gif'):
         img_file = os.path.join(

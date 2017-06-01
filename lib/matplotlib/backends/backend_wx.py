@@ -1595,6 +1595,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def set_cursor(self, cursor):
         cursor = wxc.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
+        self.canvas.Update()
 
     def release(self, event):
         try:

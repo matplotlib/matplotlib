@@ -500,7 +500,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
-        #self.canvas.set_cursor(cursord[cursor])
+        Gtk.main_iteration()
 
     def release(self, event):
         try: del self._pixmapBack
