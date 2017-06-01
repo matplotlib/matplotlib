@@ -5149,3 +5149,93 @@ def test_twinx_knows_limits():
     ax2.plot([0, 0.5], [1, 2])
 
     assert((xtwin.viewLim.intervalx == ax2.viewLim.intervalx).all())
+
+
+def test_adjustable_limits():
+
+    # Test the 'datalim', 'xlim', and 'ylim' options
+
+    image = np.ones((5, 5))
+
+    # First, we test adjustable='datalim'. Here, whether xlim or ylim are
+    # changed is up to Matplotlib.
+
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_axes([0, 0, 1, 1], aspect='equal')
+    ax.imshow(image, origin='lower')
+
+    # Since the axes has a landscape aspect ratio, the image should fit
+    # vertically and have white padding horizontally:
+    ax.set_adjustable('datalim')
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [-1.75, 5.75])
+    assert_allclose(ax.get_ylim(), [-0.5, 4.5])
+
+    # Because of the way Matplotlib computes the aspect internally, it turns out
+    # that in this scenario ylim is the adjustable, so even if we change ylim,
+    # xlim will stay the same and ylim will get adjusted. This could be improved
+    # in future by checking in set_xlim and set_ylim whether adjustable='datalim'
+    # and try and make sure this value is respected.
+    ax.set_ylim(4, 5)
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [-1.75, 5.75])
+    assert_allclose(ax.get_ylim(), [2, 7])
+
+    # Similarly, if xlim is changed, the values are not necessarily respected
+    # and in fact ylim is the one that stays constant. This behavior is the
+    # reason for adding explicit adjustable='xlim' and adjustable='ylim' options.
+    ax.set_xlim(1, 4)
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [-1.25, 6.25])
+    assert_allclose(ax.get_ylim(), [2, 7])
+
+    # We now test adjustable='xlim', which should behave in a much more
+    # predictable way.
+
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_axes([0, 0, 1, 1], aspect='equal')
+    ax.imshow(image, origin='lower')
+
+    ax.set_adjustable('xlim')
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [-1.75, 5.75])
+    assert_allclose(ax.get_ylim(), [-0.5, 4.5])
+
+    # Changing ylim results in ylim changing predictably and xlim getting
+    # adjusted
+    ax.set_ylim(4, 6)
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [0.5, 3.5])
+    assert_allclose(ax.get_ylim(), [4, 6])
+
+    # Changing xlim results in xlim adjusting itself and ylim staying the same
+    ax.set_xlim(2, 4)
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [1.5, 4.5])
+    assert_allclose(ax.get_ylim(), [4, 6])
+
+    # Finally we test adjustable='ylim', which should behave similarly to 'xlim'
+
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_axes([0, 0, 1, 1], aspect='equal')
+    ax.imshow(image, origin='lower')
+
+    # In the case where ylim is the adjustable, the image will fill the axes
+    # horizontally.
+    ax.set_adjustable('ylim')
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [-0.5, 4.5])
+    assert_allclose(ax.get_ylim(), [1 / 3., 11 / 3.])
+
+    # Changing xlim results in xlim changing predictably and ylim getting
+    # adjusted
+    ax.set_xlim(4, 6)
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [4, 6])
+    assert_allclose(ax.get_ylim(), [4 / 3., 8 / 3.])
+
+    # Changing ylim results in ylim adjusting itself and xlim staying the same
+    ax.set_ylim(2, 4)
+    ax.apply_aspect()
+    assert_allclose(ax.get_xlim(), [4, 6])
+    assert_allclose(ax.get_ylim(), [7 / 3., 11 / 3.])

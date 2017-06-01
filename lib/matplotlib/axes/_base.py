@@ -438,7 +438,8 @@ class _AxesBase(martist.Artist):
           ================   =========================================
           Keyword            Description
           ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' | 'box-forced']
+          *adjustable*       [ 'box' | 'datalim' | 'xlim' | 'ylim' |
+                               'box-forced' ]
           *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
@@ -1271,6 +1272,8 @@ class _AxesBase(martist.Artist):
           ============   =====================================
           'box'          change physical size of axes
           'datalim'      change xlim or ylim
+          'xlim'         change xlim
+          'ylim'         change ylim
           'box-forced'   same as 'box', but axes can be shared
           ============   =====================================
 
@@ -1307,9 +1310,9 @@ class _AxesBase(martist.Artist):
 
     def set_adjustable(self, adjustable):
         """
-        ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
+        ACCEPTS: [ 'box' | 'datalim' | 'xlim' | 'ylim' | 'box-forced']
         """
-        if adjustable in ('box', 'datalim', 'box-forced'):
+        if adjustable in ('box', 'datalim', 'xlim', 'ylim', 'box-forced'):
             if self in self._shared_x_axes or self in self._shared_y_axes:
                 if adjustable == 'box':
                     raise ValueError(
@@ -1482,11 +1485,27 @@ class _AxesBase(martist.Artist):
                    self not in self._shared_x_axes)
         changey = (self in self._shared_x_axes and
                    self not in self._shared_y_axes)
+
         if changex and changey:
-            warnings.warn("adjustable='datalim' cannot work with shared "
-                          "x and y axes")
+            warnings.warn("adjustable='{0}' cannot work with shared "
+                          "x and y axes".format(self._adjustable))
             return
-        if changex:
+
+        if self._adjustable == 'xlim' and changey:
+            warnings.warn("adjustable='xlim' cannot work with shared "
+                          "x axes".format(self._adjustable))
+            return
+
+        if self._adjustable == 'ylim' and changex:
+            warnings.warn("adjustable='ylim' cannot work with shared "
+                          "y axes".format(self._adjustable))
+            return
+
+        if self._adjustable == 'xlim':
+            adjust_y = False
+        elif self._adjustable == 'ylim':
+            adjust_y = True
+        elif changex:
             adjust_y = False
         else:
             if xmarg > xm and ymarg > ym:
@@ -1495,6 +1514,7 @@ class _AxesBase(martist.Artist):
             else:
                 adjy = y_expander > 0
             adjust_y = changey or adjy  # (Ymarg > xmarg)
+
         if adjust_y:
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
