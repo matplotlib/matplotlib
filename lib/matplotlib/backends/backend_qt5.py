@@ -706,9 +706,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         super(NavigationToolbar2QT, self).zoom(*args)
         self._update_buttons_checked()
 
-    def dynamic_update(self):
-        self.canvas.draw_idle()
-
     def set_message(self, s):
         self.message.emit(s)
         if self.coordinates:

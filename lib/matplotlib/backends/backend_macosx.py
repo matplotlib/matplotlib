@@ -241,8 +241,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def set_message(self, message):
         _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
 
-    def dynamic_update(self):
-        self.canvas.draw_idle()
 
 ########################################################################
 #

@@ -544,10 +544,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         try: del self._pixmapBack
         except AttributeError: pass
 
-    def dynamic_update(self):
-        # legacy method; new method is canvas.draw_idle
-        self.canvas.draw_idle()
-
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
         self.ctx = self.canvas.get_property("window").cairo_create()

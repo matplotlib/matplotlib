@@ -40,7 +40,7 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 
 from . import wx_compat as wxc
 import wx
@@ -1675,6 +1675,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         except AttributeError:
             pass
 
+    @cbook.deprecated("2.1", alternative="canvas.draw_idle")
     def dynamic_update(self):
         d = self._idle
         self._idle = False

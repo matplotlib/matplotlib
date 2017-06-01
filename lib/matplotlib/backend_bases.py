@@ -2711,9 +2711,6 @@ class NavigationToolbar2(object):
          whenever a mouse button is released, you'll be notified with
          the event
 
-      :meth:`dynamic_update` (optional)
-         dynamically update the window while navigating
-
       :meth:`set_message` (optional)
          display message
 
@@ -2778,8 +2775,9 @@ class NavigationToolbar2(object):
         self.set_history_buttons()
         self._update_view()
 
+    @cbook.deprecated("2.1", alternative="canvas.draw_idle")
     def dynamic_update(self):
-        pass
+        self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         """Draw a rectangle rubberband to indicate zoom limits."""
@@ -3024,7 +3022,7 @@ class NavigationToolbar2(object):
             #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
-        self.dynamic_update()
+        self.canvas.draw_idle()
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
