@@ -13,6 +13,7 @@ from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import randn, randint
+from matplotlib.font_manager import FontProperties
 
 instructions = """
 Player A:       Player B:
@@ -216,12 +217,11 @@ class Game(object):
                         "   " + str(self.pads[0].score))
                     self.pads[1].disp.set_label(
                         "   " + str(self.pads[1].score))
-                    self.ax.legend(loc='center')
-                    self.leg = self.ax.get_legend()
-                    self.leg.get_frame().set_alpha(.2)
-                    plt.setp(self.leg.get_texts(), fontweight='bold',
-                             fontsize='xx-large')
-                    self.leg.get_frame().set_facecolor('0.2')
+                    self.ax.legend(loc='center', framealpha=.2,
+                                   facecolor='0.5',
+                                   prop=FontProperties(size='xx-large',
+                                                       weight='bold'))
+
                     self.background = None
                     self.ax.figure.canvas.draw_idle()
                     return True
