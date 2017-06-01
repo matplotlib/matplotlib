@@ -5171,11 +5171,11 @@ def test_adjustable_limits():
     assert_allclose(ax.get_xlim(), [-1.75, 5.75])
     assert_allclose(ax.get_ylim(), [-0.5, 4.5])
 
-    # Because of the way Matplotlib computes the aspect internally, it turns out
-    # that in this scenario ylim is the adjustable, so even if we change ylim,
-    # xlim will stay the same and ylim will get adjusted. This could be improved
-    # in future by checking in set_xlim and set_ylim whether adjustable='datalim'
-    # and try and make sure this value is respected.
+    # Because of the way Matplotlib computes the aspect internally, it turns
+    # out that in this scenario ylim is the adjustable, so even if we change
+    # ylim, xlim will stay the same and ylim will get adjusted. This could be
+    # improved in future by checking in set_xlim and set_ylim whether
+    # adjustable='datalim' and try and make sure this value is respected.
     ax.set_ylim(4, 5)
     ax.apply_aspect()
     assert_allclose(ax.get_xlim(), [-1.75, 5.75])
@@ -5183,7 +5183,8 @@ def test_adjustable_limits():
 
     # Similarly, if xlim is changed, the values are not necessarily respected
     # and in fact ylim is the one that stays constant. This behavior is the
-    # reason for adding explicit adjustable='xlim' and adjustable='ylim' options.
+    # reason for adding explicit adjustable='xlim' and adjustable='ylim'
+    # options.
     ax.set_xlim(1, 4)
     ax.apply_aspect()
     assert_allclose(ax.get_xlim(), [-1.25, 6.25])
@@ -5214,7 +5215,8 @@ def test_adjustable_limits():
     assert_allclose(ax.get_xlim(), [1.5, 4.5])
     assert_allclose(ax.get_ylim(), [4, 6])
 
-    # Finally we test adjustable='ylim', which should behave similarly to 'xlim'
+    # Finally we test adjustable='ylim', which should behave similarly to
+    # 'xlim'
 
     fig = plt.figure(figsize=(6, 4))
     ax = fig.add_axes([0, 0, 1, 1], aspect='equal')
