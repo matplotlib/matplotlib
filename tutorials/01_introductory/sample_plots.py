@@ -319,8 +319,8 @@ expressions using `FreeType <https://www.freetype.org/>`_
 and the DejaVu, BaKoMa computer modern, or `STIX <http://www.stixfonts.org>`_
 fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_mathtext_examples_001.png
-   :target: ../../gallery/pylab_examples/mathtext_examples.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_mathtext_examples_001.png
+   :target: ../../gallery/text_labels_and_annotations/mathtext_examples.html
    :align: center
    :scale: 50
 

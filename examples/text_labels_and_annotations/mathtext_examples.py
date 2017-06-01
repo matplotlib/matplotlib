@@ -59,9 +59,9 @@ mathext_demos = {
 
 def doall():
     # Colors used in mpl online documentation.
-    mpl_blue_rvb = (191./255., 209./256., 212./255.)
-    mpl_orange_rvb = (202/255., 121/256., 0./255.)
-    mpl_grey_rvb = (51./255., 51./255., 51./255.)
+    mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
+    mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
+    mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
 
     # Creating figure and axis.
     plt.figure(figsize=(6, 7))
@@ -79,25 +79,25 @@ def doall():
     # Plotting header demonstration formula
     full_demo = mathext_demos[0]
     plt.annotate(full_demo,
-                 xy=(0.5, 1. - 0.59*line_axesfrac),
+                 xy=(0.5, 1. - 0.59 * line_axesfrac),
                  xycoords='data', color=mpl_orange_rvb, ha='center',
                  fontsize=20)
 
     # Plotting features demonstration formulae
     for i_line in range(1, n_lines):
-        baseline = 1. - (i_line)*line_axesfrac
-        baseline_next = baseline - line_axesfrac*1.
+        baseline = 1 - (i_line) * line_axesfrac
+        baseline_next = baseline - line_axesfrac
         title = mathtext_titles[i_line] + ":"
         fill_color = ['white', mpl_blue_rvb][i_line % 2]
         plt.fill_between([0., 1.], [baseline, baseline],
                          [baseline_next, baseline_next],
                          color=fill_color, alpha=0.5)
         plt.annotate(title,
-                     xy=(0.07, baseline - 0.3*line_axesfrac),
+                     xy=(0.07, baseline - 0.3 * line_axesfrac),
                      xycoords='data', color=mpl_grey_rvb, weight='bold')
         demo = mathext_demos[i_line]
         plt.annotate(demo,
-                     xy=(0.05, baseline - 0.75*line_axesfrac),
+                     xy=(0.05, baseline - 0.75 * line_axesfrac),
                      xycoords='data', color=mpl_grey_rvb,
                      fontsize=16)
 
@@ -105,6 +105,7 @@ def doall():
         s = mathext_demos[i]
         print(i, s)
     plt.show()
+
 
 if '--latex' in sys.argv:
     # Run: python mathtext_examples.py --latex

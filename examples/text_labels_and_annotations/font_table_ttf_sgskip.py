@@ -55,8 +55,8 @@ plt.title(fontname)
 tab = plt.table(cellText=chars,
                 rowLabels=labelr,
                 colLabels=labelc,
-                rowColours=[lightgrn]*16,
-                colColours=[lightgrn]*16,
+                rowColours=[lightgrn] * 16,
+                colColours=[lightgrn] * 16,
                 cellColours=colors,
                 cellLoc='center',
                 loc='upper left')
