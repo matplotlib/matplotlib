@@ -201,7 +201,7 @@ def test_pdf_savefig_when_color_is_none(tempdir_factory):
     plt.subplot()
     plt.axis('off')
     plt.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
-    tmpdir_name = str(np.random.randint(10000, 10000000))
+    tmpdir_name = str(np.random.randint(100000, 10000000))
     actual_image = tempdir_factory.mktemp(tmpdir_name).join('figure.pdf')
     expected_image = tempdir_factory.mktemp(tmpdir_name).join('figure.eps')
     plt.savefig(str(actual_image), format='pdf')
