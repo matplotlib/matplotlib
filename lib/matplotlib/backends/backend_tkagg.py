@@ -859,11 +859,6 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         #    self.omenu.adjust(naxes)
         NavigationToolbar2.update(self)
 
-    def dynamic_update(self):
-        'update drawing area only if idle'
-        # legacy method; new method is canvas.draw_idle
-        self.canvas.draw_idle()
-
 
 class ToolTip(object):
     """
