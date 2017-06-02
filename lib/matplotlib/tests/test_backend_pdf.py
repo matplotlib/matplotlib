@@ -195,20 +195,16 @@ def test_missing_psfont(monkeypatch):
         fig.savefig(tmpfile, format='pdf')
 
 
-def test_pdf_savefig_when_color_is_none():
-    backup_params = mpl.rcParams.copy()
-    mpl.rcParams.update(mpl.rcParamsDefault)
+@pytest.mark.style('default')
+@pytest.fixture(scope='function')
+def test_pdf_savefig_when_color_is_none(tempdir_factory):
     plt.subplot()
     plt.axis('off')
     plt.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
-    try:
-        plt.savefig("figure.pdf", format='pdf')
-    except Exception:
-        pytest.fail("Failed to save pdf")
-    plt.savefig("figure.eps", format='eps')
-    result = compare_images('figure.pdf', 'figure.eps', 0)
+    tmpdir_name = str(np.random.randint(10000, 10000000))
+    actual_image = tempdir_factory.mktemp(tmpdir_name).join('figure.pdf')
+    expected_image = tempdir_factory.mktemp(tmpdir_name).join('figure.eps')
+    plt.savefig(str(actual_image), format='pdf')
+    plt.savefig(str(expected_image), format='eps')
+    result = compare_images(str(actual_image), str(expected_image), 0)
     assert result is None
-    from os import remove
-    remove('figure.eps')
-    remove('figure.pdf')
-    mpl.rcParams.update(backup_params)
