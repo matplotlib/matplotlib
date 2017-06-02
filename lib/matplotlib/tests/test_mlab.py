@@ -32,29 +32,29 @@ def test_colinear_pca():
     assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
 
 
-def test_prctile():
+@pytest.mark.parametrize('input', [
     # test odd lengths
-    x = [1, 2, 3]
-    assert mlab.prctile(x, 50) == np.median(x)
-
+    [1, 2, 3],
     # test even lengths
-    x = [1, 2, 3, 4]
-    assert mlab.prctile(x, 50) == np.median(x)
-
+    [1, 2, 3, 4],
     # derived from email sent by jason-sage to MPL-user on 20090914
-    ob1 = [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3,
-           4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5]
-    p = [0, 75, 100]
-    expected = [1, 5.5, 9]
-
-    # test vectorized
-    actual = mlab.prctile(ob1, p)
-    assert_allclose(expected, actual)
-
-    # test scalar
-    for pi, expectedi in zip(p, expected):
-        actuali = mlab.prctile(ob1, pi)
-        assert_allclose(expectedi, actuali)
+    [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5],
+],
+ids=[
+    'odd length',
+    'even length',
+    'custom data',
+])
+@pytest.mark.parametrize('percentile', [
+    0,
+    50,
+    75,
+    100,
+    [0, 75, 100],
+])
+def test_prctile(input, percentile):
+    assert_allclose(mlab.prctile(input, percentile),
+                    np.percentile(input, percentile))
 
 
 def test_norm():
