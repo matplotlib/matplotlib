@@ -2598,6 +2598,21 @@ def test_errorbar_shape():
         ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o')
 
 
+@image_comparison(baseline_images=['errorbar_border'])
+def test_errorbar_border():
+    x = np.arange(0.1, 4, 0.5)
+    y = np.exp(-x)
+
+    yerr = 0.1 + 0.2*np.sqrt(x)
+    xerr = 0.1 + yerr
+
+    # reused from above with new optional argument added
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.errorbar(x, y, xerr=0.2, yerr=0.4, border='black')
+    ax.set_title("Simplest errorbars, 0.2 in x, 0.4 in y")
+
+
 @image_comparison(baseline_images=['errorbar_limits'])
 def test_errorbar_limits():
     x = np.arange(0.5, 5.5, 0.5)
@@ -2642,6 +2657,56 @@ def test_errorbar_limits():
                  xlolims=xlolims, xuplims=xuplims, uplims=uplims,
                  lolims=lolims, ls='none', mec='blue', capsize=0,
                  color='cyan')
+    ax.set_xlim((0, 5.5))
+    ax.set_title('Errorbar upper and lower limits')
+
+
+@image_comparison(baseline_images=['errorbar_limits_border'])
+def test_errorbar_limits_border():
+    # this test case is taken from above.
+
+    x = np.arange(0.5, 5.5, 0.5)
+    y = np.exp(-x)
+    xerr = 0.1
+    yerr = 0.2
+    ls = 'dotted'
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    # standard error bars
+    plt.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue', border='red')
+
+    # including upper limits
+    uplims = np.zeros_like(x)
+    uplims[[1, 5, 9]] = True
+    plt.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
+                 color='green', border='red')
+
+    # including lower limits
+    lolims = np.zeros_like(x)
+    lolims[[2, 4, 8]] = True
+    plt.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
+                 color='red', border='cyan')
+
+    # including upper and lower limits
+    plt.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                 lolims=lolims, uplims=uplims, ls=ls, color='magenta', border='black')
+
+    # including xlower and xupper limits
+    xerr = 0.2
+    yerr = np.zeros_like(x) + 0.2
+    yerr[[3, 6]] = 0.3
+    xlolims = lolims
+    xuplims = uplims
+    lolims = np.zeros_like(x)
+    uplims = np.zeros_like(x)
+    lolims[[6]] = True
+    uplims[[3]] = True
+    plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                 xlolims=xlolims, xuplims=xuplims, uplims=uplims,
+                 lolims=lolims, ls='none', mec='blue', capsize=0,
+                 color='cyan', border='red')
     ax.set_xlim((0, 5.5))
     ax.set_title('Errorbar upper and lower limits')
 

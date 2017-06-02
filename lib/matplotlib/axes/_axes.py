@@ -31,6 +31,7 @@ import matplotlib.markers as mmarkers
 import matplotlib.mlab as mlab
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
+import matplotlib.patheffects as mpatheffects
 import matplotlib.quiver as mquiver
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
@@ -2654,6 +2655,7 @@ or tuple of floats
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
+                 border=None, borderwidth=3,
                  **kwargs):
         """
         Plot an errorbar graph.
@@ -2721,6 +2723,15 @@ or tuple of floats
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
+
+        border : mpl color, optional, default: None
+            A matplotlib color arg denoting the desired color of the border
+            of the errorbar.
+            Default, no border is drawn around the errorbar.
+
+        borderwidth : positive integer, optional, default:3
+            Sets the thickness of the border around the errorbar.
+            Irrelevant if border=None.
 
         Returns
         -------
@@ -2813,6 +2824,12 @@ or tuple of floats
             if not iterable(yerr):
                 yerr = [yerr] * len(y)
 
+        # Define errorbar border effect
+        if border is not None:
+            path_effects = [mpatheffects.Stroke(linewidth=borderwidth,
+                            foreground=border),
+                            mpatheffects.Normal()]
+
         # make the style dict for the 'normal' plot line
         plot_line_style = dict(base_style)
         plot_line_style.update(**kwargs)
@@ -2832,6 +2849,9 @@ or tuple of floats
         elif 'linewidth' in kwargs:
             eb_lines_style['linewidth'] = kwargs['linewidth']
 
+        if border is not None:
+            eb_lines_style['path_effects'] = path_effects
+
         for key in ('transform', 'alpha', 'zorder', 'rasterized'):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
@@ -2848,6 +2868,9 @@ or tuple of floats
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
+
+        if border is not None:
+            eb_cap_style['path_effects'] = path_effects
 
         # For backwards-compat, allow explicit setting of
         # 'markeredgewidth' to over-ride capthick.
@@ -3003,8 +3026,8 @@ or tuple of floats
                 else:
                     marker = mlines.CARETUPBASE
                 caplines.append(
-                    mlines.Line2D(xup, upperup, ls='None', marker=marker,
-                                  **eb_cap_style))
+                        mlines.Line2D(xup, upperup, ls='None', marker=marker,
+                                      **eb_cap_style))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, lolims & everymask)
                     caplines.append(mlines.Line2D(xlo, ylo, marker='_',
@@ -3022,6 +3045,7 @@ or tuple of floats
                 caplines.append(
                     mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
                                   **eb_cap_style))
+
                 if capsize > 0:
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='_',
