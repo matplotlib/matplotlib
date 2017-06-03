@@ -195,9 +195,9 @@ def test_missing_psfont(monkeypatch):
         fig.savefig(tmpfile, format='pdf')
 
 
-@pytest.mark.style('default')
 @pytest.fixture(scope='function')
 def test_pdf_savefig_when_color_is_none(tempdir_factory):
+    rcParams['_internal.classic_mode'] = False
     plt.subplot()
     plt.axis('off')
     plt.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
