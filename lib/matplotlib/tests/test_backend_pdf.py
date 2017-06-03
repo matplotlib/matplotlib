@@ -178,6 +178,8 @@ def test_grayscale_alpha():
     ax.set_yticks([])
 
 
+# This tests tends to hit a TeX cache lock on AppVeyor.
+@pytest.mark.flaky(reruns=3)
 @needs_tex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""

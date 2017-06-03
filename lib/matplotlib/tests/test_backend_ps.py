@@ -27,6 +27,8 @@ needs_tex = pytest.mark.xfail(
     reason="This test needs a TeX installation")
 
 
+# This tests tends to hit a TeX cache lock on AppVeyor.
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
     needs_ghostscript(('ps', False, {'ps.usedistiller': 'ghostscript'})),
