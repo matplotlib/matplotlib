@@ -44,7 +44,7 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
         self._render_figure(w, h)
         if toolbar:
-            toolbar.set_cursor(cursors.POINTER)
+            toolbar.set_cursor(toolbar._lastCursor)
         return False  # finish event propagation?
 
 

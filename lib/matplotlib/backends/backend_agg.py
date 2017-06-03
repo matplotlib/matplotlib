@@ -429,7 +429,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.figure.draw(self.renderer)
         finally:
             if toolbar:
-                toolbar.set_cursor(cursors.POINTER)
+                toolbar.set_cursor(toolbar._lastCursor)
             RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):

@@ -400,7 +400,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             self.window.draw_drawable (self.style.fg_gc[self.state],
                                        self._pixmap, x, y, x, y, w, h)
         if toolbar:
-            toolbar.set_cursor(cursors.POINTER)
+            toolbar.set_cursor(toolbar._lastCursor)
         return False  # finish event propagation?
 
     filetypes = FigureCanvasBase.filetypes.copy()
