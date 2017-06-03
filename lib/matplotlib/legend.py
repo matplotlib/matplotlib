@@ -188,6 +188,7 @@ class Legend(Artist):
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
                  handler_map=None,
+                 displace=None,
                  ):
         """
         - *parent*: the artist that contains the legend
@@ -225,6 +226,7 @@ class Legend(Artist):
         title              the legend title
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
+        displace           the legend posistion will be anchored
         ================   ====================================================
 
 
@@ -393,6 +395,9 @@ class Legend(Artist):
         self.set_title(title)
         self._last_fontsize_points = self._fontsize
         self._draggable = None
+
+        if displace is not None:
+            self.set_displace(displace)
 
     def _set_artist_props(self, a):
         """
@@ -823,6 +828,83 @@ class Legend(Artist):
             return self.parent.bbox
         else:
             return self._bbox_to_anchor
+
+    def set_displace(self, displace):
+        """
+        Place a legend on the plot by given displace codes.
+        on the axes at location loc.  Labels are a
+        sequence of strings and loc can be a string or an integer
+        specifying the legend location
+
+        The displace code are::
+
+          'Outside'         : 'in',
+          'Inner'           : 'out',
+          'Right Center'    : 'RC',
+          'Upper Center'    : 'UC',
+          'Left Center'     : 'LC',
+          'Bottom Center'   : 'BC',
+          'Upper Right'     : 'UR',
+          'Upper Left'      : 'UL',
+          'Bottom Right'    : 'BR',
+          'Bottom Left'     : 'BL',
+
+        by given inner and outside code before given position code.
+        The default setting with displace will be Inner Upper Right
+
+        >>>plt.legend(displace['out','UL'])
+        it is an example for setting legend out side to the plot at
+        Upper Left conner
+        """
+
+        #displace_code return (bbox[0], bbox[1], loc)
+        out_displace_code = {"RC": (1.1, 0.5, 6),
+                             "UC": (0.5, 1.1, 8),
+                             "LC": (-0.1, 0.5, 5),
+                             "BC": (0.5, -0.1, 9),
+                             "UR": (1.1, 1, 2),
+                             "UL": (-0.1, 1, 1),
+                             "BR": (1.1, 0, 3),
+                             "BL": (-0.1, 0, 4)}
+
+        in_displace_code = {"RC": (1, 0.5, 5),
+                            "UC": (0.5, 1, 9),
+                            "LC": (0, 0.5, 6),
+                            "BC": (0.5, 0, 8),
+                            "UR": (1, 1, 1),
+                            "UL": (0, 1, 2),
+                            "BR": (1, 0, 4),
+                            "BL": (0, 0, 3)}
+
+        #default displacement inner UpperRight
+        anchor = "in"
+        position = in_displace_code["UR"]
+
+        try:
+            l = len(displace)
+        except TypeError:
+            raise ValueError("Invalid argument for displace : %s" %
+                str(displace))
+        else:
+            for displacement in displace:
+                if displacement.lower() == "in":
+                    anchor = "in"
+                elif displacement.lower() == "out":
+                    anchor = "out"
+                else:
+                    try:
+                        if anchor == "in":
+                            position = in_displace_code[displacement]
+                        else:
+                            position = out_displace_code[displacement]
+                    except KeyError:
+                        raise ValueError("Invalid argument for displace : %s" %
+                            str(displacement))
+
+        self.set_bbox_to_anchor((position[0], position[1]))
+        self._set_loc(position[2])
+
+        self.stale = True
 
     def set_bbox_to_anchor(self, bbox, transform=None):
         """
