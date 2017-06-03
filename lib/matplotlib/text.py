@@ -907,11 +907,12 @@ class Text(Artist):
         need to know if the text has changed.
         """
         x, y = self.get_unitless_position()
+        renderer = renderer or self._renderer
         return (x, y, self.get_text(), self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
-                self.figure.dpi, id(renderer or self._renderer),
+                self.figure.dpi, id(renderer), getattr(renderer, '_uid', 0),
                 self._linespacing
                 )
 

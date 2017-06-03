@@ -49,6 +49,7 @@ class MixedModeRenderer(object):
         if raster_renderer_class is None:
             raster_renderer_class = RendererAgg
 
+        self._id = None
         self._raster_renderer_class = raster_renderer_class
         self._width = width
         self._height = height
@@ -79,6 +80,18 @@ class MixedModeRenderer(object):
         draw_gouraud_triangles option_scale_image
         _text2path _get_text_path_transform height width
         """.split()
+
+    @property
+    def _uid(self):
+        """
+        See matplotlib.backend_bases.RendererBase._uid.
+        """
+        if self._id is None:
+            from matplotlib import backend_bases
+            backend_bases._unique_renderer_id
+            backend_bases._unique_renderer_id += 1
+            self._id = backend_bases._unique_renderer_id
+        return self._id
 
     def _set_current_renderer(self, renderer):
         self._renderer = renderer

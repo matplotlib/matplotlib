@@ -100,6 +100,11 @@ _default_backends = {
 }
 
 
+# Used to ensure that caching based on renderer id() is unique without being as
+# expensive as a real UUID.
+_unique_renderer_id = 0
+
+
 def register_backend(format, backend, description=None):
     """
     Register a backend for saving to a given file format.
@@ -212,9 +217,24 @@ class RendererBase(object):
 
     """
     def __init__(self):
+        self._id = None
         self._texmanager = None
 
         self._text2path = textpath.TextToPath()
+
+    @property
+    def _uid(self):
+        """
+        A lightweight id for unique-ification purposes.
+
+        Along with id(self), this combination should be unique enough to use as
+        part of a caching key.
+        """
+        if self._id is None:
+            global _unique_renderer_id
+            _unique_renderer_id += 1
+            self._id = _unique_renderer_id
+        return self._id
 
     def open_group(self, s, gid=None):
         """
