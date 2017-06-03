@@ -9,6 +9,7 @@ from matplotlib.testing.decorators import image_comparison
 
 from matplotlib.table import CustomCell
 from matplotlib.path import Path
+from matplotlib.colors import Normalize
 
 
 def test_non_square():
@@ -182,3 +183,40 @@ def test_auto_column():
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
     tb4.auto_set_column_width("-101")
+
+
+@image_comparison(baseline_images=['table_edge_colour'],
+                  extensions=['png'])
+def test_edge_colour():
+
+    fig = plt.figure()
+
+    #iteratble list input
+    ax1 = fig.add_subplot(4, 1, 1)
+    ax1.axis('off')
+
+    data = [
+        [1, 10, 100],
+        [2, 40,  50],
+        [1, 10,  80],
+        [4, 20,  60]]
+
+    norm = Normalize()
+    colours = plt.cm.RdYlGn(norm(data))
+
+    alpha = 0.2
+    colours[:, :, 3] = alpha
+    ax1.table(
+        cellText=data,
+        cellColours=colours,
+        cellEdgeColours=colours,
+        loc='best')
+
+    ax2 = fig.add_subplot(4, 1, 2)
+    ax2.axis('off')
+
+    ax2.table(
+        cellText=data,
+        cellColours=colours,
+        cellEdgeColour='#cccccc',
+        loc='best')

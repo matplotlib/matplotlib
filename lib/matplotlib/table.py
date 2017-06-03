@@ -14,7 +14,7 @@ is assumed to be at bottom right.
 You can add additional cells outside this range to have convenient
 ways of positioning more interesting grids.
 
-Author    : John Gill <jng@europe.renre.com>
+Author    : John Gill <swfiua@gmail.com>
 Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
@@ -85,14 +85,27 @@ class Cell(Rectangle):
         'Return the cell fontsize'
         return self._text.get_fontsize()
 
-    def auto_set_font_size(self, renderer):
+    def auto_set_font_size(self, renderer, hint=None):
         """ Shrink font size until text fits. """
+        if hint:
+            self.set_fontsize(hint)
         fontsize = self.get_fontsize()
-        required = self.get_required_width(renderer)
-        while fontsize > 1 and required > self.get_width():
+
+        width, height = self.get_required_dimensions(renderer)
+
+        if width == 0: return fontsize
+
+        # make sure font is large enough
+        while width < self.get_width() and height < self.get_height():
+            fontsize += 1
+            self.set_fontsize(fontsize)
+            width, height = self.get_required_dimensions(renderer)
+
+        # now shrink until it fits
+        while fontsize > 1 and (width > self.get_width() or height > self.get_height()):
             fontsize -= 1
             self.set_fontsize(fontsize)
-            required = self.get_required_width(renderer)
+            width, height = self.get_required_dimensions(renderer)
 
         return fontsize
 
@@ -117,7 +130,7 @@ class Cell(Rectangle):
         l, b, w, h = bbox.bounds
 
         # draw in center vertically
-        self._text.set_verticalalignment('center')
+        self._text.set_verticalalignment('center_baseline')
         y = b + (h / 2.0)
 
         # now position horizontally
@@ -143,6 +156,13 @@ class Cell(Rectangle):
         """ Get width required for this cell. """
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
+
+    def get_required_dimensions(self, renderer):
+        """ Get width and height required for this cell. """
+        l, b, w, h = self.get_text_bounds(renderer)
+        width = w * (1.0 + (2.0 * self.PAD))
+        height = h * (1.0 + (2.0 * self.PAD))
+        return width, height
 
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
@@ -452,19 +472,17 @@ class Table(Artist):
 
         if len(self._cells) == 0:
             return
-        fontsize = list(six.itervalues(self._cells))[0].get_fontsize()
-        cells = []
+        fontsize = self.FONTSIZE
+
         for key, cell in six.iteritems(self._cells):
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
-            size = cell.auto_set_font_size(renderer)
+            size = cell.auto_set_font_size(renderer, hint=None)
             fontsize = min(fontsize, size)
-            cells.append(cell)
 
         # now set all fontsizes equal
-        for cell in six.itervalues(self._cells):
-            cell.set_fontsize(fontsize)
+        self.set_fontsize(fontsize)
 
     def scale(self, xscale, yscale):
         """ Scale column widths by xscale and row heights by yscale. """
@@ -478,7 +496,6 @@ class Table(Artist):
 
         ACCEPTS: a float in points
         """
-
         for cell in six.itervalues(self._cells):
             cell.set_fontsize(size)
         self.stale = True
@@ -557,6 +574,10 @@ def table(ax,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
           loc='bottom', bbox=None, edges='closed',
+          cellEdgeColour=None,
+          cellEdgeColours=None,
+          rowEdgeColours=None,
+          colEdgeColours=None,
           **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
@@ -598,6 +619,20 @@ def table(ax,
     else:
         cellColours = ['w' * cols] * rows
 
+
+    if cellEdgeColour is None:
+        cellEdgeColour = 'k'
+        
+    if cellEdgeColours is not None:
+        if len(cellEdgeColours) != rows:
+            raise ValueError("'cellEdgeColours' must have {0} rows".format(rows))
+        for row in cellEdgeColours:
+            if len(row) != cols:
+                msg = "Each row in 'cellColours' must have {0} columns"
+                raise ValueError(msg.format(cols))
+    else:
+        cellEdgeColours = [[cellEdgeColour] * cols] * rows
+
     # Set colwidths if not given
     if colWidths is None:
         colWidths = [1.0 / cols] * cols
@@ -616,6 +651,9 @@ def table(ax,
         if len(rowLabels) != rows:
             raise ValueError("'rowLabels' must be of length {0}".format(rows))
 
+    if rowEdgeColours is None:
+        rowEdgeColours = [cellEdgeColour] * rows
+
     # If we have column labels, need to shift
     # the text and colour arrays down 1 row
     offset = 1
@@ -627,6 +665,9 @@ def table(ax,
     elif colColours is None:
         colColours = 'w' * cols
 
+    if colEdgeColours is None:
+        colEdgeColours = [cellEdgeColour] * cols
+        
     # Set up cell colours if not given
     if cellColours is None:
         cellColours = ['w' * cols] * rows
@@ -643,6 +684,7 @@ def table(ax,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
                            facecolor=cellColours[row][col],
+                           edgecolor=cellEdgeColours[row][col],
                            loc=cellLoc)
     # Do column labels
     if colLabels is not None:
@@ -650,6 +692,7 @@ def table(ax,
             table.add_cell(0, col,
                            width=colWidths[col], height=height,
                            text=colLabels[col], facecolor=colColours[col],
+                           edgecolor=colEdgeColours[col],
                            loc=colLoc)
 
     # Do row labels
@@ -658,6 +701,7 @@ def table(ax,
             table.add_cell(row + offset, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
+                           edgecolor=rowEdgeColours[row],
                            loc=rowLoc)
         if rowLabelWidth == 0:
             table.auto_set_column_width(-1)

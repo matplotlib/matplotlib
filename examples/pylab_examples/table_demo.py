@@ -43,6 +43,7 @@ cell_text.reverse()
 
 # Add a table at the bottom of the axes
 the_table = plt.table(cellText=cell_text,
+                      cellEdgeColour='#cccccc',
                       rowLabels=rows,
                       rowColours=colors,
                       colLabels=columns,
