@@ -101,6 +101,13 @@ def test_image_python_io():
     buffer.seek(0)
     plt.imread(buffer)
 
+@knownfailureif(not HAS_PIL)
+def test_imread_normalization():
+    'test imread for normalizing images to values between 0 and 1'
+    for typ in ['png', 'jpg']:
+        img = plt.imread(os.path.join(os.path.dirname(__file__),
+                         'baseline_images', 'test_image', 'imread_normalization.' + typ))
+        assert img.min() == 0.0 and img.max() == 1.0
 
 @needs_pillow
 def test_imread_pil_uint16():

@@ -1252,7 +1252,11 @@ def imread(fname, format=None):
         except ImportError:
             return None
         with Image.open(fname) as image:
-            return pil_to_array(image)
+            array = pil_to_array(image)
+            # Since the handler for PNGs normalizes the image to values from 0 to 1
+            # this should be done for all other images too as it might lead to
+            # confusion if different value ranges appear for different image types.
+            return array / float(array.max())
 
     handlers = {'png': _png.read_png, }
     if format is None:
