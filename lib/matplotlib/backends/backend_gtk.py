@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os, sys, warnings
-def fn_name(): return sys._getframe(1).f_code.co_name
 
 if six.PY3:
     warnings.warn(
@@ -43,9 +42,6 @@ from matplotlib import (
     cbook, colors as mcolors, lines, markers, rcParams, verbose)
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
-
-_debug = False
-#_debug = True
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -225,7 +221,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                             "See Matplotlib usage FAQ for"
                             " more info on backends.",
                             alternative="GTKAgg")
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
 
@@ -261,7 +256,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             gobject.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -273,7 +267,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -297,7 +290,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -305,21 +297,16 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return True  # stop event propagation
 
     def key_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         if event.is_hint:
             x, y, state = event.window.get_pointer()
         else:
@@ -355,7 +342,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return key
 
     def configure_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         if widget.window is None:
             return
         w, h = event.width, event.height
@@ -408,8 +394,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         Make sure _._pixmap is at least width, height,
         create new pixmap if necessary
         """
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
-
         create_pixmap = False
         if width > self._pixmap_width:
             # increase the pixmap in 10%+ (rather than 1 pixel) steps
@@ -438,8 +422,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def expose_event(self, widget, event):
         """Expose_event for all GTK backends. Should not be overridden.
         """
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
-
         if GTK_WIDGET_DRAWABLE(self):
             if self._need_redraw:
                 x, y, w, h = self.allocation
@@ -556,7 +538,6 @@ class FigureManagerGTK(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
-        if _debug: print('FigureManagerGTK.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = gtk.Window()
@@ -610,7 +591,6 @@ class FigureManagerGTK(FigureManagerBase):
         self.canvas.grab_focus()
 
     def destroy(self, *args):
-        if _debug: print('FigureManagerGTK.%s' % fn_name())
         if hasattr(self, 'toolbar') and self.toolbar is not None:
             self.toolbar.destroy()
         if hasattr(self, 'vbox'):

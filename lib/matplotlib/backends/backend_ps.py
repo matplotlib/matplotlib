@@ -9,7 +9,6 @@ import six
 from six.moves import StringIO
 
 import glob, os, shutil, sys, time, datetime
-def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
 
 from tempfile import mkstemp
