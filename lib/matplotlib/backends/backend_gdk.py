@@ -7,7 +7,6 @@ import math
 import os
 import sys
 import warnings
-def fn_name(): return sys._getframe(1).f_code.co_name
 
 import gobject
 import gtk; gdk = gtk.gdk
@@ -24,8 +23,8 @@ import numpy as np
 import matplotlib
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (
+    RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase)
 from matplotlib.cbook import restrict_dict, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
@@ -33,7 +32,6 @@ from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
-_debug = False
 
 # Image formats that this backend supports - for FileChooser and print_figure()
 IMAGE_FORMAT = sorted(['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']) # 'raw', 'rgb'

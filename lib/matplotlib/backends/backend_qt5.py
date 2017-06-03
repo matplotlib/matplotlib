@@ -90,11 +90,6 @@ if sys.platform == 'darwin':
                         QtCore.Qt.Key_Meta)
 
 
-def fn_name():
-    return sys._getframe(1).f_code.co_name
-
-DEBUG = False
-
 cursord = {
     cursors.MOVE: QtCore.Qt.SizeAllCursor,
     cursors.HAND: QtCore.Qt.PointingHandCursor,
@@ -123,8 +118,6 @@ def _create_qApp():
     global qApp
 
     if qApp is None:
-        if DEBUG:
-            print("Starting up QApplication")
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
@@ -233,8 +226,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                }
 
     def __init__(self, figure):
-        if DEBUG:
-            print('FigureCanvasQt qt5: ', figure)
         _create_qApp()
 
         # NB: Using super for this call to avoid a TypeError:
@@ -292,8 +283,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if button is not None:
             FigureCanvasBase.button_press_event(self, x, y, button,
                                                 guiEvent=event)
-        if DEBUG:
-            print('button pressed:', event.button())
 
     def mouseDoubleClickEvent(self, event):
         x, y = self.mouseEventCoords(event.pos())
@@ -302,13 +291,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.button_press_event(self, x, y,
                                                 button, dblclick=True,
                                                 guiEvent=event)
-        if DEBUG:
-            print('button doubleclicked:', event.button())
 
     def mouseMoveEvent(self, event):
         x, y = self.mouseEventCoords(event)
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
-        # if DEBUG: print('mouse move')
 
     def mouseReleaseEvent(self, event):
         x, y = self.mouseEventCoords(event)
@@ -316,8 +302,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if button is not None:
             FigureCanvasBase.button_release_event(self, x, y, button,
                                                   guiEvent=event)
-        if DEBUG:
-            print('button released')
 
     def wheelEvent(self, event):
         x, y = self.mouseEventCoords(event)
@@ -326,28 +310,18 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             steps = event.angleDelta().y() / 120
         else:
             steps = event.pixelDelta().y()
-
-        if steps != 0:
+        if steps:
             FigureCanvasBase.scroll_event(self, x, y, steps, guiEvent=event)
-            if DEBUG:
-                print('scroll event: delta = %i, '
-                      'steps = %i ' % (event.delta(), steps))
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
-        if key is None:
-            return
-        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
-        if DEBUG:
-            print('key press', key)
+        if key is not None:
+            FigureCanvasBase.key_press_event(self, key, guiEvent=event)
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
-        if key is None:
-            return
-        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
-        if DEBUG:
-            print('key release', key)
+        if key is not None:
+            FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
     @property
     def keyAutoRepeat(self):
@@ -363,9 +337,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def resizeEvent(self, event):
         w = event.size().width() * self._dpi_ratio
         h = event.size().height() * self._dpi_ratio
-        if DEBUG:
-            print('resize (%d x %d)' % (w, h))
-            print("FigureCanvasQt.resizeEvent(%d, %d)" % (w, h))
         dpival = self.figure.dpi
         winch = w / dpival
         hinch = h / dpival
@@ -478,8 +449,6 @@ class FigureManagerQT(FigureManagerBase):
     """
 
     def __init__(self, canvas, num):
-        if DEBUG:
-            print('FigureManagerQT.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
         self.canvas = canvas
         self.window = MainWindow()
@@ -578,11 +547,8 @@ class FigureManagerQT(FigureManagerBase):
             return
         self.window._destroying = True
         self.window.destroyed.connect(self._widgetclosed)
-
         if self.toolbar:
             self.toolbar.destroy()
-        if DEBUG:
-            print("destroy figure manager")
         self.window.close()
 
     def get_window_title(self):
@@ -712,8 +678,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self.locLabel.setText(s)
 
     def set_cursor(self, cursor):
-        if DEBUG:
-            print('Set cursor', cursor)
         self.canvas.setCursor(cursord[cursor])
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
@@ -724,7 +688,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         w = abs(x1 - x0)
         h = abs(y1 - y0)
 
-        rect = [int(val)for val in (min(x0, x1), min(y0, y1), w, h)]
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
         self.canvas.drawRectangle(rect)
 
     def remove_rubberband(self):
