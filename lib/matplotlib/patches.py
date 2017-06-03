@@ -722,6 +722,10 @@ class Rectangle(Patch):
         self._update_patch_transform()
         return self._rect_transform
 
+    def get_angle(self):
+        """Return the rotation in degrees (anti-clockwise)"""
+        return self._angle
+
     def get_x(self):
         "Return the left coord of the rectangle"
         return self._x
@@ -741,6 +745,15 @@ class Rectangle(Patch):
     def get_height(self):
         "Return the height of the rectangle"
         return self._height
+
+    def set_angle(self, angle):
+        """
+        Set the rotation in degrees (anti-clockwise).
+
+        ACCEPTS: float
+        """
+        self._angle = angle
+        self.stale = True
 
     def set_x(self, x):
         """
