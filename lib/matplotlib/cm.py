@@ -273,6 +273,13 @@ class ScalarMappable(object):
         x = ma.asarray(x)
         if norm:
             x = self.norm(x)
+
+        np_alpha = ma.asarray(alpha)
+        if np_alpha.ndim == 1 and np_alpha.shape == x.shape:
+            rgba = self.cmap(x, bytes=bytes)
+            rgba[0:, 3] = np_alpha
+            return rgba
+
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
         return rgba
 
