@@ -1250,7 +1250,7 @@ class Animation(object):
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
   Your browser does not support the video tag.
 </video>'''
-        # Cache the the rendering of the video as HTML
+        # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
             # First write the video to a tempfile. Set delete to False
             # so we can re-open to read binary data.

@@ -1640,7 +1640,7 @@ class DraggableBase(object):
 
     *artist_picker* is a picker method that will be
      used. *finalize_offset* is called when the mouse is released. In
-     current implementaion of DraggableLegend and DraggableAnnotation,
+     current implementation of DraggableLegend and DraggableAnnotation,
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.

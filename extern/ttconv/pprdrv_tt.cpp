@@ -1102,7 +1102,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
 
         stream.put_char('\n');
 
-        /* This proceedure is for compatiblity with */
+        /* This proceedure is for compatibility with */
         /* level 1 interpreters. */
         stream.putline("/BuildChar {");
         stream.putline(" 1 index /Encoding get exch get");

@@ -11,7 +11,7 @@ properly installed on your system.  The first time you run a script
 you will see a lot of output from tex and associated tools.  The next
 time, the run may be silent, as a lot of the information is cached.
 
-Notice how the the label for the y axis is provided using unicode!
+Notice how the label for the y axis is provided using unicode!
 
 """
 from __future__ import unicode_literals

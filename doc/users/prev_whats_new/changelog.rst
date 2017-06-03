@@ -1488,7 +1488,7 @@ the `API changes <../../api/api_changes.html>`_.
            (instead of deprecated popen*) and distutils (for version
            checking) - DSD
 
-2008-11-30 Reimplementaion of the legend which supports baseline alignement,
+2008-11-30 Reimplementation of the legend which supports baseline alignement,
            multi-column, and expand mode. - JJL
 
 2008-12-01 Fixed histogram autoscaling bug when bins or range are given
@@ -5142,7 +5142,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2004-05-19 0.54 released
 
-2004-05-18 Added newline seperated text with rotations to text.Text
+2004-05-18 Added newline separated text with rotations to text.Text
            layout - JDH
 
 2004-05-16 Added fast pcolor using PolyCollections.  - JDH
