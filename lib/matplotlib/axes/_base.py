@@ -1072,6 +1072,8 @@ class _AxesBase(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
+        self._shared_x_axes.clean()
+        self._shared_y_axes.clean()
         if self._sharex:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
