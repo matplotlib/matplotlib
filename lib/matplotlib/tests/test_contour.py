@@ -132,6 +132,28 @@ def test_contour_shape_invalid_2():
     excinfo.match(r'Input z must be a 2D array.')
 
 
+def test_contour_empty_levels():
+
+    x = np.arange(9)
+    z = np.random.random((9, 9))
+
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning) as record:
+        ax.contour(x, x, z, levels=[])
+    assert len(record) == 1
+
+
+def test_contour_uniform_z():
+
+    x = np.arange(9)
+    z = np.ones((9, 9))
+
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning) as record:
+        ax.contour(x, x, z)
+    assert len(record) == 1
+
+
 @image_comparison(baseline_images=['contour_manual_labels'])
 def test_contour_manual_labels():
 

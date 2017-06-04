@@ -1132,14 +1132,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.LogLocator()
             else:
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
-        zmax = self.zmax
-        zmin = self.zmin
-        lev = self.locator.tick_values(zmin, zmax)
+
+        lev = self.locator.tick_values(self.zmin, self.zmax)
         self._auto = True
-        if self.filled:
-            return lev
-        # For line contours, drop levels outside the data range.
-        return lev[(lev > zmin) & (lev < zmax)]
+        return lev
 
     def _contour_level_args(self, z, args):
         """
@@ -1165,6 +1161,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                         "Last {0} arg must give levels; see help({0})"
                         .format(fn))
             self.levels = lev
+        else:
+            self.levels = np.asarray(self.levels).astype(np.float64)
+
+        if not self.filled:
+            inside = (self.levels > self.zmin) & (self.levels < self.zmax)
+            self.levels = self.levels[inside]
+            if len(self.levels) == 0:
+                self.levels = [self.zmin]
+                warnings.warn("No contour levels were found"
+                              " within the data range.")
+
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
 
