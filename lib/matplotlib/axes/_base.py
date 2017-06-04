@@ -980,21 +980,8 @@ class _AxesBase(martist.Artist):
             self.xaxis.minor = self._sharex.xaxis.minor
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False, auto=None)
-
-            # Save the current formatter/locator so we don't lose it
-            majf = self._sharex.xaxis.get_major_formatter()
-            minf = self._sharex.xaxis.get_minor_formatter()
-            majl = self._sharex.xaxis.get_major_locator()
-            minl = self._sharex.xaxis.get_minor_locator()
-
-            # This overwrites the current formatter/locator
-            self.xaxis._set_scale(self._sharex.xaxis.get_scale())
-
-            # Reset the formatter/locator
-            self.xaxis.set_major_formatter(majf)
-            self.xaxis.set_minor_formatter(minf)
-            self.xaxis.set_major_locator(majl)
-            self.xaxis.set_minor_locator(minl)
+            self.xaxis._scale = mscale.scale_factory(
+                    self._sharex.xaxis.get_scale(), self.xaxis)
         else:
             self.xaxis._set_scale('linear')
             try:
@@ -1007,21 +994,8 @@ class _AxesBase(martist.Artist):
             self.yaxis.minor = self._sharey.yaxis.minor
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False, auto=None)
-
-            # Save the current formatter/locator so we don't lose it
-            majf = self._sharey.yaxis.get_major_formatter()
-            minf = self._sharey.yaxis.get_minor_formatter()
-            majl = self._sharey.yaxis.get_major_locator()
-            minl = self._sharey.yaxis.get_minor_locator()
-
-            # This overwrites the current formatter/locator
-            self.yaxis._set_scale(self._sharey.yaxis.get_scale())
-
-            # Reset the formatter/locator
-            self.yaxis.set_major_formatter(majf)
-            self.yaxis.set_minor_formatter(minf)
-            self.yaxis.set_major_locator(majl)
-            self.yaxis.set_minor_locator(minl)
+            self.yaxis._scale = mscale.scale_factory(
+                    self._sharey.yaxis.get_scale(), self.yaxis)
         else:
             self.yaxis._set_scale('linear')
             try:
