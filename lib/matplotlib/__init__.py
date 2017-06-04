@@ -1115,7 +1115,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
     if config['datapath'] is None:
         config['datapath'] = get_data_path()
 
-    if not config['text.latex.preamble'] == ['']:
+    if "".join(config['text.latex.preamble']):
         verbose.report("""
 *****************************************************************
 You have the following UNSUPPORTED LaTeX preamble customizations:
