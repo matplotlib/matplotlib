@@ -41,6 +41,7 @@ from six.moves import xrange
 from contextlib import contextmanager
 import importlib
 import io
+import itertools
 import os
 import sys
 import time
@@ -101,8 +102,9 @@ _default_backends = {
 
 
 # Used to ensure that caching based on renderer id() is unique without being as
-# expensive as a real UUID.
-_unique_renderer_id = 0
+# expensive as a real UUID. 0 is used for renderers that don't derive from
+# here, so start at 1.
+_unique_renderer_id = itertools.count(1)
 
 
 def register_backend(format, backend, description=None):
@@ -217,24 +219,13 @@ class RendererBase(object):
 
     """
     def __init__(self):
-        self._id = None
+        # A lightweight id for unique-ification purposes. Along with id(self),
+        # the combination should be unique enough to use as part of a cache key.
+        self._uid = next(_unique_renderer_id)
+
         self._texmanager = None
 
         self._text2path = textpath.TextToPath()
-
-    @property
-    def _uid(self):
-        """
-        A lightweight id for unique-ification purposes.
-
-        Along with id(self), this combination should be unique enough to use as
-        part of a caching key.
-        """
-        if self._id is None:
-            global _unique_renderer_id
-            _unique_renderer_id += 1
-            self._id = _unique_renderer_id
-        return self._id
 
     def open_group(self, s, gid=None):
         """
