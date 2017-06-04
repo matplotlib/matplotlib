@@ -724,6 +724,13 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
+                if callback == 'save_figure':
+                    btn = self.widgetForAction(a)
+                    btn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
+                    menu = a.__menu = QtWidgets.QMenu()
+                    a.setMenu(menu)
+                    menu.addAction(
+                        'Options for saving', self._ui_get_save_options)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
                 if text == 'Subplots':
@@ -854,31 +861,31 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
                     os.path.dirname(six.text_type(fname)))
-            options = _default_savefig_options
-            try:
-                options = (options
-                           + [None]
-                           + _extra_savefig_options[
-                               os.path.splitext(fname)[1].lower()])
-            except KeyError:
-                pass
-            fedit_arg = []
-            for option in options:
-                if option is None:
-                    fedit_arg.append((None, None))
-                else:
-                    fedit_arg.append(option.make_fedit_entry())
-            fedit_res = formlayout.fedit(fedit_arg, "Options")
-            if not fedit_res:
-                return
-            for option, res in zip(filter(None, options), fedit_res):
-                option.setter(res)
             try:
                 self.canvas.figure.savefig(six.text_type(fname))
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", six.text_type(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+
+    def _ui_get_save_options(self):
+        fedit_arg = []
+        for tab_name, options in _savefig_options:
+            fedit_arg.append(([], tab_name, ""))
+            for option in options:
+                if option is None:
+                    fedit_arg[-1][0].append((None, None))
+                else:
+                    fedit_arg[-1][0].append(option.make_fedit_entry())
+        fedit_res = formlayout.fedit(fedit_arg, "Options")
+        if not fedit_res:
+            return
+        for option, res in zip(
+                [option
+                 for tab_name, options in _savefig_options
+                 for option in options],
+                [res for tab in fedit_res for res in tab]):
+            option.setter(res)
 
 
 class _Option(object):
@@ -903,33 +910,29 @@ class _Option(object):
         self.setter = setter
 
 
-_default_savefig_options = [
-    _Option("DPI", "savefig.dpi"),
-    _Option("Face color", "savefig.facecolor"),
-    _Option("Edge color", "savefig.edgecolor"),
-    _Option("Tight bounding box",
-            getter=lambda: matplotlib.rcParams["savefig.bbox"] == "tight",
-            setter=lambda val: matplotlib.rcParams.__setitem__(
-                "savefig.bbox", "tight" if val else "standard")),
-    _Option("Tight bounding box padding", "savefig.pad_inches"),
-    _Option("Transparent background", "savefig.transparent")]
-
-
-_extra_savefig_options = {
-    ".jpg": [
-        _Option("JPEG quality", "savefig.jpeg_quality")],
-    ".jpeg": [
-        _Option("JPEG quality", "savefig.jpeg_quality")],
-    ".pdf": [
-        _Option("PDF compression", "pdf.compression"),
-        _Option("PDF font type",
+_savefig_options = [
+    ("Common", [
+        _Option("DPI", "savefig.dpi"),
+        _Option("Face color", "savefig.facecolor"),
+        _Option("Edge color", "savefig.edgecolor"),
+        _Option("Tight bounding box",
+                getter=lambda: matplotlib.rcParams["savefig.bbox"] == "tight",
+                setter=lambda val: matplotlib.rcParams.__setitem__(
+                    "savefig.bbox", "tight" if val else "standard")),
+        _Option("Tight bounding box padding", "savefig.pad_inches"),
+        _Option("Transparent background", "savefig.transparent")]),
+    ("JPEG", [
+        _Option("Quality", "savefig.jpeg_quality")]),
+    ("PDF", [
+        _Option("Compression", "pdf.compression"),
+        _Option("Font type",
                 getter=lambda:
                     [str(matplotlib.rcParams["pdf.fonttype"]),
                      "3", "42"],
                 setter=lambda val:
-                    matplotlib.rcParams.__setitem__("pdf.fonttype", val))],
-    ".ps": [
-        _Option("PS paper size",
+                    matplotlib.rcParams.__setitem__("pdf.fonttype", val))]),
+    ("PS", [
+        _Option("Paper size",
                 getter=lambda:
                     [matplotlib.rcParams["ps.papersize"]]
                     + ["auto", "letter", "legal", "ledger"]
@@ -937,21 +940,20 @@ _extra_savefig_options = {
                     + ["B{}".format(i) for i in range(11)],
                 setter=lambda val:
                     matplotlib.rcParams.__setitem__("ps.papersize", val)),
-        _Option("PS use AFM font", "ps.useafm"),
-        _Option("PS distiller",
+        _Option("Use AFM font?", "ps.useafm"),
+        _Option("Distiller",
                 getter=lambda:
                     [str(matplotlib.rcParams["ps.usedistiller"])]
                     + ["None", "ghostscript", "xpdf"],
                 setter=lambda val:
                     matplotlib.rcParams.__setitem__("ps.usedistiller", val)),
-        _Option("PS distiller resolution", "ps.distiller.res"),
-        _Option("PS font type",
+        _Option("Distiller resolution", "ps.distiller.res"),
+        _Option("Font type",
                 getter=lambda:
                     [str(matplotlib.rcParams["ps.fonttype"]),
                      "3", "42"],
                 setter=lambda val:
-                    matplotlib.rcParams.__setitem__("ps.fonttype", val))]
-}
+                    matplotlib.rcParams.__setitem__("ps.fonttype", val))])]
 
 
 class SubplotToolQt(UiSubplotTool):
