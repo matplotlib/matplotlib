@@ -279,18 +279,6 @@ def validate_toolbar(s):
     return validator(s)
 
 
-def validate_maskedarray(v):
-    # 2008/12/12: start warning; later, remove all traces of maskedarray
-    try:
-        if v == 'obsolete':
-            return v
-    except ValueError:
-        pass
-    warnings.warn('rcParams key "maskedarray" is obsolete and has no effect;\n'
-                  ' please delete it from your matplotlibrc file',
-                  mplDeprecation)
-
-
 _seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
                 'values: {s}')
 
@@ -492,13 +480,6 @@ def validate_whiskers(s):
                                  "(float, float)]")
 
 
-def deprecate_savefig_extension(value):
-    warnings.warn("savefig.extension is deprecated.  Use savefig.format "
-                  "instead. Will be removed in 1.4.x",
-                  mplDeprecation)
-    return value
-
-
 def update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
@@ -575,12 +556,6 @@ def validate_corner_mask(s):
     else:
         return validate_bool(s)
 
-
-def validate_tkpythoninspect(s):
-    # Introduced 2010/07/05
-    warnings.warn("tk.pythoninspect is obsolete, and has no effect",
-                  mplDeprecation)
-    return validate_bool(s)
 
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
@@ -1330,8 +1305,6 @@ defaultParams = {
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
     'savefig.jpeg_quality': [95, validate_int],
-    # what to add to extensionless filenames
-    'savefig.extension':  ['png', deprecate_savefig_extension],
     # value checked by backend at runtime
     'savefig.format':     ['png', update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
@@ -1343,7 +1316,6 @@ defaultParams = {
 
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],
-    'tk.pythoninspect': [False, validate_tkpythoninspect],  # obsolete
 
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],

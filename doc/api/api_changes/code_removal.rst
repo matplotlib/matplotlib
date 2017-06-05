@@ -36,8 +36,15 @@ favor of the synonym ``"auto"``.
 The ``shading`` kwarg to ``pcolor`` has been removed.  Set ``edgecolors``
 appropriately instead.
 
+
 Removed internal functions
 --------------------------
 
 The ``matplotlib.backends.backend_ps.seq_allequal`` function has been removed.
 Use ``np.array_equal`` instead.
+
+The deprecated ``matplotlib.rcsetup.validate_maskedarray``,
+``matplotlib.rcsetup.deprecate_savefig_extension`` and
+``matplotlib.rcsetup.validate_tkpythoninspect`` functions, and associated
+``savefig.extension`` and ``tk.pythoninspect`` rcparams entries have been
+removed.
