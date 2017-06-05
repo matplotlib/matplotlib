@@ -14,22 +14,20 @@ may be distributed without limitation.
 """
 
 from __future__ import unicode_literals
-import sys
 import os
 import random
-from matplotlib.backends import qt_compat
-use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
-if use_pyside:
-    from PySide import QtGui, QtCore
-else:
-    from PyQt4 import QtGui, QtCore
+import sys
 
 from numpy import arange, sin, pi
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+
+import matplotlib
+matplotlib.use("Qt4Agg")
+from matplotlib.backends.backend_qt4agg import (
+    FigureCanvasQTAgg as FigureCanvas)
+from matplotlib.backends.qt_compat import QtCore, QtGui
 from matplotlib.figure import Figure
 
 progname = os.path.basename(sys.argv[0])
-progversion = "0.1"
 
 
 class MyMplCanvas(FigureCanvas):
