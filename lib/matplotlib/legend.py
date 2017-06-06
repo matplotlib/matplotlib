@@ -286,6 +286,13 @@ class Legend(Artist):
             ncol = 1
         self._ncol = ncol
 
+        if (
+            not isinstance(self.numpoints, int) and
+            not isinstance(self.numpoints, float) and
+            not self.numpoints.is_integer()
+        ):
+            raise ValueError("numpoints must be a whole number; it was %f"
+                % numpoints)
         if self.numpoints <= 0:
             raise ValueError("numpoints must be > 0; it was %d" % numpoints)
 
