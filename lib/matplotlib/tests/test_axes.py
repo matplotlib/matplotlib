@@ -4220,6 +4220,15 @@ def test_empty_shared_subplots():
     assert y1 >= 6
 
 
+def test_shared_fig_fails():
+    # Github Issue #2790, sharing works only within a figure
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        plt.subplots(sharex=ax)
+    with pytest.raises(ValueError):
+        plt.subplots(sharey=ax)
+
+
 def test_relim_visible_only():
     x1 = (0., 10.)
     y1 = (0., 10.)

@@ -435,9 +435,9 @@ class _AxesBase(martist.Artist):
 
         Optional keyword arguments:
 
-          ================   =========================================
+          ================   ==============================================
           Keyword            Description
-          ================   =========================================
+          ================   ==============================================
           *adjustable*       [ 'box' | 'datalim' | 'box-forced']
           *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
@@ -458,10 +458,10 @@ class _AxesBase(martist.Artist):
                              toolbar button status
           *position*         [left, bottom, width, height] in
                              class:`~matplotlib.figure.Figure` coords
-          *sharex*           an class:`~matplotlib.axes.Axes` instance
-                             to share the x-axis with
-          *sharey*           an class:`~matplotlib.axes.Axes` instance
-                             to share the y-axis with
+          *sharex*           another class:`~matplotlib.axes.Axes` instance
+                             in *fig* to share the x-axis with
+          *sharey*           another class:`~matplotlib.axes.Axes` instance
+                             in *fig* to share the y-axis with
           *title*            the title string
           *visible*          [ *True* | *False* ] whether the axes is
                              visible
@@ -475,7 +475,7 @@ class _AxesBase(martist.Artist):
           *yscale*           [%(scale)s]
           *yticklabels*      sequence of strings
           *yticks*           sequence of floats
-          ================   =========================================
+          ================   ==============================================
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
@@ -494,6 +494,8 @@ class _AxesBase(martist.Artist):
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
+            if sharex.get_figure() is not fig:
+                raise ValueError('Shared Axes must be in the same figure')
             self._shared_x_axes.join(self, sharex)
             if sharex._adjustable == 'box':
                 sharex._adjustable = 'datalim'
@@ -501,6 +503,8 @@ class _AxesBase(martist.Artist):
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         if sharey is not None:
+            if sharey.get_figure() is not fig:
+                raise ValueError('Shared Axes must be in the same figure')
             self._shared_y_axes.join(self, sharey)
             if sharey._adjustable == 'box':
                 sharey._adjustable = 'datalim'
