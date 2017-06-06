@@ -678,7 +678,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.Bind(wx.EVT_MOTION, self._onMotion)
         self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
         self.Bind(wx.EVT_ENTER_WINDOW, self._onEnter)
-        self.Bind(wx.EVT_IDLE, self._onIdle)
         # Add middle button events
         self.Bind(wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
         self.Bind(wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDClick)
@@ -1006,11 +1005,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
                 key = '{0}+{1}'.format(prefix, key)
 
         return key
-
-    def _onIdle(self, evt):
-        'a GUI idle event'
-        evt.Skip()
-        FigureCanvasBase.idle_event(self, guiEvent=evt)
 
     def _onKeyDown(self, evt):
         """Capture key press."""
