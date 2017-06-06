@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 """
 A PDF matplotlib backend
@@ -1625,6 +1625,8 @@ class RendererPdf(RendererBase):
         gc._fillcolor = fillcolor
 
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
+        if gc.get_rgb() is None:
+            gc.set_foreground([0.0, 0.0, 0.0, 1.0])
 
         if gc._forced_alpha:
             gc._effective_alphas = (gc._alpha, gc._alpha)
