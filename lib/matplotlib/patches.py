@@ -1271,8 +1271,6 @@ class FancyArrow(Polygon):
 
 docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
 
-docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
-
 
 class YAArrow(Patch):
     """
