@@ -4085,7 +4085,7 @@ class FancyArrowPatch(Patch):
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : scalar, optional (defualt: 1)
+        dpi_cor : scalar, optional (default: 1)
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 

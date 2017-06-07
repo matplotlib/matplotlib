@@ -18,7 +18,7 @@
 // It's not a part of the AGG library, it's just a helper class to create 
 // interactive demo examples. Since the examples should not be too complex
 // this class is provided to support some very basic interactive graphical
-// funtionality, such as putting the rendered image to the window, simple 
+// functionality, such as putting the rendered image to the window, simple 
 // keyboard and mouse input, window resizing, setting the window title,
 // and catching the "idle" events.
 // 
