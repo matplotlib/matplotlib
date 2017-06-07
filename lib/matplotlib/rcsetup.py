@@ -1216,9 +1216,6 @@ defaultParams = {
     'legend.borderaxespad': [0.5, validate_float],
     # the border between the axes and legend edge
     'legend.columnspacing': [2., validate_float],
-    # the relative size of legend markers vs. original
-    'legend.markerscale': [1.0, validate_float],
-    'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
     'legend.edgecolor': ['0.8', validate_color_or_inherit],
 

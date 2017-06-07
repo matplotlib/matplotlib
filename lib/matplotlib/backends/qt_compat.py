@@ -190,7 +190,6 @@ if QT_API == QT_API_PYSIDE2:
         _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
     except ImportError:
         # tried PySide2, failed, fall back to PySide
-        QT_API = rcParams['backend.qt4']
         QT_RC_MAJOR_VERSION = 4
         QT_API = QT_API_PYSIDE
 
