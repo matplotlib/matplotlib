@@ -1054,7 +1054,7 @@ def candlestick2_ochl(ax, opens, closes, highs, lows,  width=4,
         (lineCollection, barCollection)
     """
 
-    candlestick2_ohlc(ax, opens, highs, lows, closes, width=width,
+    return candlestick2_ohlc(ax, opens, highs, lows, closes, width=width,
                      colorup=colorup, colordown=colordown,
                      alpha=alpha)
 
