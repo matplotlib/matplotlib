@@ -2291,6 +2291,8 @@ class SymmetricalLogLocator(Locator):
                 a_range = get_log_range(t, -vmin + 1)
             else:
                 a_range = get_log_range(-vmax, -vmin + 1)
+                if vmin<0 and vmax<0:
+                    a_range = ( a_range[0], a_range[1]+1 )
         else:
             a_range = (0, 0)
 

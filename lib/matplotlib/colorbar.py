@@ -610,12 +610,17 @@ class ColorbarBase(cm.ScalarMappable):
         formatter.set_data_interval(*intv)
 
         b = np.array(locator())
-        if isinstance(locator, ticker.LogLocator):
+        if isinstance(locator, ticker.LogLocator) or isinstance(locator, ticker.SymmetricalLogLocator):
             eps = 1e-10
             b = b[(b <= intv[1] * (1 + eps)) & (b >= intv[0] * (1 - eps))]
         else:
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
+
+        #failsafe in case less than 2 decades found    
+        if len(b)<2:
+            b = np.array(locator())
+
         self._tick_data_values = b
         ticks = self._locate(b)
         formatter.set_locs(b)
