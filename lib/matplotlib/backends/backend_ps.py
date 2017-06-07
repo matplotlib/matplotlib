@@ -137,8 +137,7 @@ def _get_papertype(w, h):
         if key.startswith('l'): continue
         pw, ph = papersize[key]
         if (w < pw) and (h < ph): return key
-    else:
-        return 'a0'
+    return 'a0'
 
 def _num_to_str(val):
     if isinstance(val, six.string_types): return val

@@ -183,8 +183,7 @@ def get_milestone_id(project, milestone, auth=False, **params):
     for mstone in milestones:
         if mstone['title'] == milestone:
             return mstone['number']
-    else:
-        raise ValueError("milestone %s not found" % milestone)
+    raise ValueError("milestone %s not found" % milestone)
 
 def is_pull_request(issue):
     """Return True if the given issue is a pull request."""
