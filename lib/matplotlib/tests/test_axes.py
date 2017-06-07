@@ -852,6 +852,10 @@ def test_polycollection_joinstyle():
         (np.zeros((2, 2)), 3, 3),
         (np.arange(0.0, 2, 0.02), np.zeros((2, 2)), 3),
         (np.arange(0.0, 2, 0.02), 3, np.zeros((2, 2)))
+    ], ids=[
+        '2d_x_input',
+        '2d_y1_input',
+        '2d_y2_input'
     ]
 )
 def test_fill_between_input(x, y1, y2):
@@ -866,6 +870,10 @@ def test_fill_between_input(x, y1, y2):
         (np.zeros((2, 2)), 3, 3),
         (np.arange(0.0, 2, 0.02), np.zeros((2, 2)), 3),
         (np.arange(0.0, 2, 0.02), 3, np.zeros((2, 2)))
+    ], ids=[
+        '2d_y_input',
+        '2d_x1_input',
+        '2d_x2_input'
     ]
 )
 def test_fill_betweenx_input(y, x1, x2):
