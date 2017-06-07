@@ -847,40 +847,32 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
 
 
-def test_fill_between_2d_x_input():
-    x = np.zeros((2, 2))
-    y1 = 3
-    y2 = 3
-
+@pytest.mark.parametrize(
+    'x, y1, y2', [
+        (np.zeros((2, 2)), 3, 3),
+        (np.arange(0.0, 2, 0.02), np.zeros((2, 2)), 3),
+        (np.arange(0.0, 2, 0.02), 3, np.zeros((2, 2)))
+    ]
+)
+def test_fill_between_input(x, y1, y2):
     fig = plt.figure()
     ax = fig.add_subplot(211)
     with pytest.raises(ValueError):
-        ax.plot(x, y1, x, y2, color='black')
         ax.fill_between(x, y1, y2)
 
 
-def test_fill_between_2d_y1_input():
-    x = np.arange(0.0, 2, 0.02)
-    y1 = np.zeros((2, 2))
-    y2 = 3
-
+@pytest.mark.parametrize(
+    'y, x1, x2', [
+        (np.zeros((2, 2)), 3, 3),
+        (np.arange(0.0, 2, 0.02), np.zeros((2, 2)), 3),
+        (np.arange(0.0, 2, 0.02), 3, np.zeros((2, 2)))
+    ]
+)
+def test_fill_betweenx_input(y, x1, x2):
     fig = plt.figure()
     ax = fig.add_subplot(211)
     with pytest.raises(ValueError):
-        ax.plot(x, y1, x, y2, color='black')
-        ax.fill_between(x, y1, y2)
-
-
-def test_fill_between_2d_y2_input():
-    x = np.arange(0.0, 2, 0.02)
-    y1 = 3
-    y2 = np.zeros((2, 2))
-
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
-    with pytest.raises(ValueError):
-        ax.plot(x, y1, x, y2, color='black')
-        ax.fill_between(x, y1, y2)
+        ax.fill_betweenx(y, x1, x2)
 
 
 @image_comparison(baseline_images=['fill_between_interpolate'],
@@ -4993,42 +4985,6 @@ def test_tick_param_label_rotation():
         assert text.get_rotation() == 75
     for text in ax.get_yticklabels(which='both'):
         assert text.get_rotation() == 90
-
-
-def test_fill_betweenx_2d_y_input():
-    y = np.zeros((2, 2))
-    x1 = 3
-    x2 = 3
-
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
-    with pytest.raises(ValueError):
-        ax.plot(y, x1, y, x2, color='black')
-        ax.fill_betweenx(y, x1, x2)
-
-
-def test_fill_betweenx_2d_x1_input():
-    y = np.arange(0.0, 2, 0.02)
-    x1 = np.zeros((2, 2))
-    x2 = 3
-
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
-    with pytest.raises(ValueError):
-        ax.plot(y, x1, y, x2, color='black')
-        ax.fill_betweenx(y, x1, x2)
-
-
-def test_fill_betweenx_2d_x2_input():
-    y = np.arange(0.0, 2, 0.02)
-    x1 = 3
-    x2 = np.zeros((2, 2))
-
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
-    with pytest.raises(ValueError):
-        ax.plot(y, x1, y, x2, color='black')
-        ax.fill_betweenx(y, x1, x2)
 
 
 @pytest.mark.style('default')
