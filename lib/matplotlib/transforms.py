@@ -1305,7 +1305,6 @@ class Transform(TransformNode):
             return res.reshape(-1)
         elif ndim == 2:
             return res
-        
         raise ValueError(
             "Input values must have shape (N x {dims}) "
             "or ({dims}).".format(dims=self.input_dims))

@@ -162,7 +162,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
                                                       max_head_length)
         else:
             length = max_arrow_length
-        
         # set the transparency of the arrow
         if display == 'alpha':
             alpha = min(data[pair]/sf, alpha)
