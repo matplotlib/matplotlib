@@ -1893,7 +1893,7 @@ or tuple of floats
             dictionary of kwargs to be passed to errorbar method. *ecolor* and
             *capsize* may be specified here rather than as independent kwargs.
 
-        align : {'center', 'edge'}, optional
+        align : {'center', 'edge'}, optional, default: 'center'
             If 'edge', aligns bars by their left edges (for vertical bars) and
             by their bottom edges (for horizontal bars). If 'center', interpret
             the `left` argument as the coordinates of the centers of the bars.
@@ -2216,7 +2216,7 @@ or tuple of floats
             dictionary of kwargs to be passed to errorbar method. `ecolor` and
             `capsize` may be specified here rather than as independent kwargs.
 
-        align : {'center', 'edge'}, optional
+        align : {'center', 'edge'}, optional, default: 'center'
             If 'edge', aligns bars by their left edges (for vertical
             bars) and by their bottom edges (for horizontal bars). If
             'center', interpret the `bottom` argument as the
