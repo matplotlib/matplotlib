@@ -1,7 +1,7 @@
 """
-===================================
-Demo of the boxplot drawer function
-===================================
+=======================
+Boxplot drawer function
+=======================
 
 This example demonstrates how to pass pre-computed box plot
 statistics to the box plot drawer. The first figure demonstrates

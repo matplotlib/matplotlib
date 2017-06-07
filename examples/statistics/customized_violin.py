@@ -1,7 +1,7 @@
 """
-=================================
-Demo of violin plot customization
-=================================
+=========================
+Violin plot customization
+=========================
 
 This example demonstrates how to fully customize violin plots.
 The first plot shows the default style by providing only

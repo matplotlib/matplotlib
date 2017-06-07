@@ -1,7 +1,7 @@
 """
-=============================
-Demo of the errorbar function
-=============================
+=================
+Errorbar function
+=================
 
 This exhibits the most basic use of the error bar method.
 In this case, constant values are provided for the error
