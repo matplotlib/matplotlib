@@ -1,7 +1,7 @@
 """
-==========================================================
-Demo of using histograms to plot a cumulative distribution
-==========================================================
+==================================================
+Using histograms to plot a cumulative distribution
+==================================================
 
 This shows how to plot a cumulative, normalized histogram as a
 step function in order to visualize the empirical cumulative

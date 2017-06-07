@@ -1,7 +1,7 @@
 """
-=========================================
-Demo of artist customization in box plots
-=========================================
+=================================
+Artist customization in box plots
+=================================
 
 This example demonstrates how to use the various kwargs
 to fully customize box plots. The first figure demonstrates
