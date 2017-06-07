@@ -5,8 +5,6 @@ Demo Text Path
 
 """
 
-# -*- coding: utf-8 -*-
-
 import matplotlib.pyplot as plt
 from matplotlib.image import BboxImage
 import numpy as np
