@@ -717,7 +717,6 @@ class Figure(Artist):
         if not all(np.isfinite(_) for _ in (w, h)):
             raise ValueError('figure size must be finite not '
                              '({}, {})'.format(w, h))
-        dpival = self.dpi
         self.bbox_inches.p1 = w, h
 
         if forward:
