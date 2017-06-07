@@ -3997,8 +3997,8 @@ class FancyArrowPatch(Patch):
     A fancy arrow patch. It draws an arrow using the :class:`ArrowStyle`.
 
     The head and tail positions are fixed at the specified start and end points
-    of the arrow, but the size and shape of the arrow does not change when the
-    axis is moved or zoomed.
+    of the arrow, but the size and shape (in display coordinates) of the arrow
+    does not change when the axis is moved or zoomed.
     """
     _edge_default = True
 
