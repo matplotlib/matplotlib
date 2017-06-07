@@ -1305,12 +1305,10 @@ class Transform(TransformNode):
             return res.reshape(-1)
         elif ndim == 2:
             return res
-        else:
-            raise ValueError(
-                "Input values must have shape (N x {dims}) "
-                "or ({dims}).".format(dims=self.input_dims))
-
-        return res
+        
+        raise ValueError(
+            "Input values must have shape (N x {dims}) "
+            "or ({dims}).".format(dims=self.input_dims))
 
     def transform_affine(self, values):
         """
