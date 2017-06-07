@@ -3881,7 +3881,6 @@ def cross_from_below(x, threshold):
 
     """
     x = np.asarray(x)
-    threshold = threshold
     ind = np.nonzero((x[:-1] < threshold) & (x[1:] >= threshold))[0]
     if len(ind):
         return ind+1
