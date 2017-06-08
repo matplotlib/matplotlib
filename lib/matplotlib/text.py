@@ -32,6 +32,7 @@ from matplotlib.artist import allow_rasterization
 
 from matplotlib.backend_bases import RendererBase
 from matplotlib.textpath import TextPath
+from matplotlib.colors import colorConverter
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
@@ -767,8 +768,10 @@ class Text(Artist):
             if textobj._bbox_patch:
                 textobj._draw_bbox(renderer, posx, posy)
 
+            color = textobj.get_color()
+            color = colorConverter.to_rgb(color)
+            prop = textobj._fontproperties
             gc = renderer.new_gc()
-            gc.set_foreground(textobj.get_color())
             gc.set_alpha(textobj.get_alpha())
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
@@ -786,19 +789,24 @@ class Text(Artist):
                                                           self.get_usetex())
 
                 if textobj.get_path_effects():
-                    from matplotlib.patheffects import PathEffectRenderer
-                    textrenderer = PathEffectRenderer(
-                                        textobj.get_path_effects(), renderer)
+                    path_effects = textobj.get_path_effects()
+                    if textobj.get_usetex():
+                        ismath = "TeX"
+                    path, transform = renderer._get_text_path_transform(
+                        x, y, clean_line, prop, angle, ismath)
+                    gc.set_linewidth(0.0)
+                    for path_effect in path_effects:
+                        path_effect.draw_path(renderer, gc, path, transform,
+                                              rgbFace=color)
                 else:
-                    textrenderer = renderer
-
-                if textobj.get_usetex():
-                    textrenderer.draw_tex(gc, x, y, clean_line,
-                                          textobj._fontproperties, angle,
+                    gc.set_foreground(color)
+                    if textobj.get_usetex():
+                        renderer.draw_tex(gc, x, y, clean_line,
+                                          prop, angle,
                                           mtext=mtext)
-                else:
-                    textrenderer.draw_text(gc, x, y, clean_line,
-                                           textobj._fontproperties, angle,
+                    else:
+                        renderer.draw_text(gc, x, y, clean_line,
+                                           prop, angle,
                                            ismath=ismath, mtext=mtext)
 
         gc.restore()
