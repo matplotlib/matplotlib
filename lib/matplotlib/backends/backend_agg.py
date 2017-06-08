@@ -230,7 +230,7 @@ class RendererAgg(RendererBase):
         # texmanager more efficient.  It is not meant to be used
         # outside the backend
         """
-        if rcParams['text.usetex']:
+        if rcParams['text.usetex'] or ismath=='TeX' or ismath=='TeX!':
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
