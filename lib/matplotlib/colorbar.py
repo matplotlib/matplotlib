@@ -1118,7 +1118,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     pad = kw.pop('pad', loc_settings['pad'])
 
     # turn parents into a list if it is not already
-    if isinstance(parents,object):
+    if isinstance(parents, object):
         parents = parents.flatten().tolist()
     if not isinstance(parents, (list, tuple)):
         parents = [parents]
