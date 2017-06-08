@@ -677,7 +677,7 @@ Pull Requests (1003):
 * :ghpull:`7548`: Clarify to_rgba docstring.
 * :ghpull:`7476`: Sticky margins
 * :ghpull:`7552`: Correctly extend a lognormed colorbar
-* :ghpull:`7499`: Improve the the marker table in markers_api documentation
+* :ghpull:`7499`: Improve the marker table in markers_api documentation
 * :ghpull:`7468`: TST: Enable pytest-xdist
 * :ghpull:`7530`: MAINT: TkAgg default backend depends on tkinter
 * :ghpull:`7531`: double tolerance for test_png.py/pngsuite on Windows

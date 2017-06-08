@@ -30,7 +30,7 @@ pos = ax1.imshow(Zpos, cmap='Blues', interpolation='none')
 # which axes object it should be near
 fig.colorbar(pos, ax=ax1)
 
-# repeat everything above for the the negative data
+# repeat everything above for the negative data
 neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
 fig.colorbar(neg, ax=ax2)
 
