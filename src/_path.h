@@ -787,6 +787,10 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
     agg::rect_d b;
     int count = 0;
 
+    // If bboxes is empty return zero
+    if (bboxes.dim(0) == 0 || bboxes.dim(1) == 0 || bboxes.dim(2) == 0)
+        return 0;
+
     if (a.x2 < a.x1) {
         std::swap(a.x1, a.x2);
     }
