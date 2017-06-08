@@ -23,7 +23,6 @@ canvas = ax.figure.canvas
 
 
 def start_anim(event):
-    # gobject.idle_add(animation.draw,animation)
     gobject.timeout_add(10, animation.draw, animation)
     canvas.mpl_disconnect(start_anim.cid)
 
@@ -34,4 +33,4 @@ start_anim.cid = canvas.mpl_connect('draw_event', start_anim)
 tstart = time.time()
 plt.grid()  # to ensure proper background restore
 plt.show()
-print('FPS: %f' % animation.cnt/(time.time() - tstart))
+print('FPS: {}'.format(animation.cnt / (time.time() - tstart)))
