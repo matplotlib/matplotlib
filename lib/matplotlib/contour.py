@@ -1254,11 +1254,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             i0, i1 = 0, len(self.levels)
             if self.filled:
                 i1 -= 1
-            # Out of range indices for over and under:
-            if self.extend in ('both', 'min'):
-                i0 = -1
-            if self.extend in ('both', 'max'):
-                i1 += 1
+                # Out of range indices for over and under:
+                if self.extend in ('both', 'min'):
+                    i0 -= 1
+                if self.extend in ('both', 'max'):
+                    i1 += 1
             self.cvalues = list(range(i0, i1))
             self.set_norm(colors.NoNorm())
         else:
