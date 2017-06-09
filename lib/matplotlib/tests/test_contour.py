@@ -168,21 +168,22 @@ def test_given_colors_levels_and_extends():
     levels = [2, 4, 8, 10]
 
     for i, ax in enumerate(axes.flatten()):
-        plt.sca(ax)
-
         filled = i % 2 == 0.
         extend = ['neither', 'min', 'max', 'both'][i // 2]
 
         if filled:
-            last_color = -1 if extend in ['min', 'max'] else None
-            plt.contourf(data, colors=colors[:last_color], levels=levels,
-                         extend=extend)
+            # If filled, we have 3 colors with no extension,
+            # 4 colors with one extension, and 5 colors with both extensions
+            first_color = 1 if extend in ['max', 'neither'] else None
+            last_color = -1 if extend in ['min', 'neither'] else None
+            c = ax.contourf(data, colors=colors[first_color:last_color],
+                            levels=levels, extend=extend)
         else:
-            last_level = -1 if extend == 'both' else None
-            plt.contour(data, colors=colors, levels=levels[:last_level],
-                        extend=extend)
+            # If not filled, we have 4 levels and 4 colors
+            c = ax.contour(data, colors=colors[:-1],
+                           levels=levels, extend=extend)
 
-        plt.colorbar()
+        plt.colorbar(c, ax=ax)
 
 
 @image_comparison(baseline_images=['contour_datetime_axis'],
