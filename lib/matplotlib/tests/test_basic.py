@@ -20,7 +20,8 @@ def test_override_builtins():
         '__spec__',
         'any',
         'all',
-        'sum'
+        'sum',
+        'divmod'
     }
 
     # We could use six.moves.builtins here, but that seems
