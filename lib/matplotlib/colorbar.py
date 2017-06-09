@@ -1117,11 +1117,10 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
     pad = kw.pop('pad', loc_settings['pad'])
 
-    # turn parents into a list if it is not already
-    if isinstance(parents, np.ndarray):
-        parents = parents.flatten().tolist()
-    if not isinstance(parents, (list, tuple)):
-        parents = [parents]
+    # turn parents into a list if it is not already. We do this w/ np
+    # because `ax=plt.subplots(1,1)` is an ndarray and is natural to
+    # pass to `colorbar`
+    parents = np.atleast_1d(parents).ravel().tolist()
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
