@@ -5,6 +5,10 @@ Pong
 
 A small game demo using Matplotlib.
 
+.. only:: builder_html
+
+   This example requires :download:`pipong.py <pipong.py>`
+
 """
 from __future__ import print_function, division
 import time
