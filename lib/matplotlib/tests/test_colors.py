@@ -273,30 +273,32 @@ def _mask_tester(norm_instance, vals):
     assert_array_equal(masked_array.mask, norm_instance(masked_array).mask)
 
 @pytest.mark.parametrize(
-    'norm_instances, values, expected, clip', [
+    'norm1, norm2, values, expected, clip', [
         (
+            None,
             None,
             [[0.2, 0.4, 0.5], [5, 7, 9, 10]],
             [[0, 0.666667, 1], [0, 0.4, 0.8, 1]],
             None
         ),
         (
-            [mcolors.LogNorm(clip=True, vmax=5), mcolors.Normalize()],
+            mcolors.LogNorm(clip=True, vmax=5),
+            None,
             [[1, 6], [5, 7, 9, 10]],
             [[0, 1.0], [0, 0.4, 0.8, 1]],
             None
         ),
         (
-            [mcolors.PowerNorm(2, vmin=0, vmax=8, clip=None),
-                mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)],
+            mcolors.PowerNorm(2, vmin=0, vmax=8, clip=None),
+            mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True),
             [np.array([-0.5, 0, 2, 4, 8], dtype=float),
                 np.array([-0.5, 0, 1, 8, 16], dtype=float)],
             [[0, 0, 1/16, 1/4, 1], [0, 0, 0, 1, 1]],
             None
         ),
         (
-            [mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2),
-                mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)],
+            mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2),
+            mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False),
             [np.array([-30, -1, 2, 6], dtype=float),
                 np.array([-0.5, 0, 1, 8, 16], dtype=float)],
             [[0., 0.53980074, 0.826991, 1.02758204], [0, 0, 0, 1, 1]],
@@ -309,8 +311,8 @@ def _mask_tester(norm_instance, vals):
             'SymLogNorm_and_PowerNorm_clip_in_call'
     ]
 )
-def test_norm2d(norm_instances, values, expected, clip):
-    norm = mcolors.Norm2d(norm_instances=norm_instances)
+def test_BivariateNorm(norm1, norm2, values, expected, clip):
+    norm = mcolors.BivariateNorm(norm1=norm1, norm2=norm2)
     ans1, ans2 = norm(values=values, clip=clip)
     assert_array_almost_equal(ans1, expected[0])
     assert_array_almost_equal(ans2, expected[1])

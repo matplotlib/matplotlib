@@ -1349,21 +1349,27 @@ class NoNorm(Normalize):
     def inverse(self, value):
         return value
 
-class Norm2d:
+class BivariateNorm:
     """
     Normalize a list of two values corresponding to two 1D normalizers
     """
-    def __init__(self, norm_instances=None):
+    def __init__(self, norm1=None, norm2=None):
         """
         Parameters
         ----------
-        norm_instances :
-            A list of length two having instances of 1D normalizers
+        norm1 :
+            An instance of 1D normalizers
+        norm2 :
+            An instance of 1D normalizers
         """
-        if norm_instances is None:
-            self.norm_instances = [Normalize(), Normalize()]
+        if norm1 is None:
+            self.norm1 = Normalize()
         else:
-            self.norm_instances = norm_instances
+            self.norm1 = norm1
+        if norm2 is None:
+            self.norm2 = Normalize()
+        else:
+            self.norm2 = norm2
 
     def __call__(self, values, clip=None):
         """
@@ -1381,13 +1387,11 @@ class Norm2d:
         A list of two normalized values according to corresponding 1D
         normalizers.
         """
-        norm_one, norm_two = self.norm_instances
-
         if clip is None:
-            clip = [norm_one.clip, norm_two.clip]
+            clip = [self.norm1.clip, self.norm2.clip]
 
-        return [norm_one(values[0], clip=clip[0]),
-                norm_two(values[1], clip=clip[1])]
+        return [self.norm1(values[0], clip=clip[0]),
+                self.norm2(values[1], clip=clip[1])]
 
     def inverse(self, values):
         """
@@ -1400,9 +1404,7 @@ class Norm2d:
         -------
         A list of two unnormalized values
         """
-        norm_one, norm_two = self.norm_instances
-
-        return [norm_one.inverse(values[0]), norm_two.inverse(values[1])]
+        return [self.norm1.inverse(values[0]), self.norm.inverse(values[1])]
 
 def rgb_to_hsv(arr):
     """
