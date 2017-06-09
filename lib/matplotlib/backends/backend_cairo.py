@@ -27,8 +27,6 @@ import os, sys, warnings, gzip
 
 import numpy as np
 
-def _fn_name(): return sys._getframe(1).f_code.co_name
-
 try:
     import cairocffi as cairo
 except ImportError:
@@ -57,9 +55,6 @@ from matplotlib.mathtext     import MathTextParser
 from matplotlib.path         import Path
 from matplotlib.transforms   import Bbox, Affine2D
 from matplotlib.font_manager import ttfFontProperty
-
-_debug = False
-#_debug = True
 
 # Image::color_conv(format) for draw_image()
 if sys.byteorder == 'little':
@@ -114,7 +109,6 @@ class RendererCairo(RendererBase):
     def __init__(self, dpi):
         """
         """
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         self.dpi = dpi
         self.gc = GraphicsContextCairo (renderer=self)
         self.text_ctx = cairo.Context (
@@ -227,8 +221,6 @@ class RendererCairo(RendererBase):
 
     def draw_image(self, gc, x, y, im):
         # bbox - not currently used
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
-
         if sys.byteorder == 'little':
             im = im[:, :, (2, 1, 0, 3)]
         else:
@@ -266,8 +258,6 @@ class RendererCairo(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # Note: x,y are device/display coords, not user-coords, unlike other
         # draw_* methods
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
-
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
 
@@ -297,8 +287,6 @@ class RendererCairo(RendererBase):
             ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
-
         ctx = gc.ctx
         width, height, descent, glyphs, rects = self.mathtext_parser.parse(
             s, self.dpi, prop)
@@ -335,19 +323,16 @@ class RendererCairo(RendererBase):
 
 
     def flipy(self):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         return True
         #return False # tried - all draw objects ok except text (and images?)
         # which comes out mirrored!
 
 
     def get_canvas_width_height(self):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         return self.width, self.height
 
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         if ismath:
             width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
                s, self.dpi, prop)
@@ -376,7 +361,6 @@ class RendererCairo(RendererBase):
 
 
     def new_gc(self):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         self.gc.ctx.save()
         self.gc._alpha = 1.0
         self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
@@ -384,7 +368,6 @@ class RendererCairo(RendererBase):
 
 
     def points_to_pixels(self, points):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         return points/72.0 * self.dpi
 
 
@@ -488,7 +471,6 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
     """
-    if _debug: print('%s()' % (_fn_name()))
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
