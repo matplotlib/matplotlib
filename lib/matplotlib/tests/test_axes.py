@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
+import matplotlib.ticker as mticker
 from numpy.testing import assert_allclose, assert_array_equal
 from matplotlib.cbook import IgnoredKeywordWarning
 
@@ -141,6 +142,58 @@ def test_twinx_cla():
     assert ax.xaxis.get_visible()
     assert ax.patch.get_visible()
     assert ax.yaxis.get_visible()
+
+@cleanup
+def test_twin_xy_sharing():
+    fig, ax = plt.subplots()
+
+    # Make some twinned axes to play with (with share_tickers=True)
+    ax2 = ax.twinx()
+    ax3 = ax2.twiny()
+    plt.draw()
+
+    assert ax.xaxis.major is ax2.xaxis.major
+    assert ax.xaxis.minor is ax2.xaxis.minor
+    assert ax2.yaxis.major is ax3.yaxis.major
+    assert ax2.yaxis.minor is ax3.yaxis.minor
+
+    # Verify that for share_tickers=True, the formatters and locators
+    # are identical no matter what
+    ax2.xaxis.set_major_formatter(mticker.PercentFormatter())
+    ax3.yaxis.set_major_locator(mticker.MaxNLocator())
+
+    assert ax.xaxis.get_major_formatter() is ax2.xaxis.get_major_formatter()
+    assert ax2.yaxis.get_major_locator() is ax3.yaxis.get_major_locator()
+
+    # Make some more twinned axes to play with (with share_tickers=False)
+    ax4 = ax.twinx(share_tickers=False)
+    ax5 = ax2.twiny(share_tickers=False)
+    plt.draw()
+
+    assert ax4 is not ax2
+    assert ax5 is not ax3
+
+    assert ax.xaxis.major is not ax4.xaxis.major
+    assert ax.xaxis.minor is not ax4.xaxis.minor
+    assert ax.xaxis.get_major_formatter() is ax4.xaxis.get_major_formatter()
+    assert ax.xaxis.get_minor_formatter() is ax4.xaxis.get_minor_formatter()
+    assert ax.xaxis.get_major_locator() is ax4.xaxis.get_major_locator()
+    assert ax.xaxis.get_minor_locator() is ax4.xaxis.get_minor_locator()
+
+    assert ax2.yaxis.major is not ax5.yaxis.major
+    assert ax2.yaxis.minor is not ax5.yaxis.minor
+    assert ax2.yaxis.get_major_formatter() is ax5.yaxis.get_major_formatter()
+    assert ax2.yaxis.get_minor_formatter() is ax5.yaxis.get_minor_formatter()
+    assert ax2.yaxis.get_major_locator() is ax5.yaxis.get_major_locator()
+    assert ax2.yaxis.get_minor_locator() is ax5.yaxis.get_minor_locator()
+
+    # Verify that for share_tickers=False, the formatters and locators
+    # can be changed independently
+    ax4.xaxis.set_minor_formatter(mticker.PercentFormatter())
+    ax5.yaxis.set_minor_locator(mticker.MaxNLocator())
+
+    assert ax.xaxis.get_minor_formatter() is not ax4.xaxis.get_minor_formatter()
+    assert ax2.yaxis.get_minor_locator() is not ax4.yaxis.get_minor_locator()
 
 
 @image_comparison(baseline_images=['twin_autoscale'], extensions=['png'])
