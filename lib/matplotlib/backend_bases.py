@@ -41,6 +41,7 @@ from six.moves import xrange
 from contextlib import contextmanager
 import importlib
 import io
+import itertools
 import os
 import sys
 import time
@@ -98,6 +99,12 @@ _default_backends = {
     'svg': 'matplotlib.backends.backend_svg',
     'svgz': 'matplotlib.backends.backend_svg',
 }
+
+
+# Used to ensure that caching based on renderer id() is unique without being as
+# expensive as a real UUID. 0 is used for renderers that don't derive from
+# here, so start at 1.
+_unique_renderer_id = itertools.count(1)
 
 
 def register_backend(format, backend, description=None):
@@ -212,6 +219,10 @@ class RendererBase(object):
 
     """
     def __init__(self):
+        # A lightweight id for unique-ification purposes. Along with id(self),
+        # the combination should be unique enough to use as part of a cache key.
+        self._uid = next(_unique_renderer_id)
+
         self._texmanager = None
 
         self._text2path = textpath.TextToPath()
