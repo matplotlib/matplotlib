@@ -973,28 +973,9 @@ class _AxesBase(martist.Artist):
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()
 
+        # clear the shared axes
         if self._sharex is not None:
-            # major and minor are class instances with
-            # locator and formatter attributes
-            self.xaxis.major = self._sharex.xaxis.major
-            self.xaxis.minor = self._sharex.xaxis.minor
-            x0, x1 = self._sharex.get_xlim()
-            self.set_xlim(x0, x1, emit=False, auto=None)
-
-            # Save the current formatter/locator so we don't lose it
-            majf = self._sharex.xaxis.get_major_formatter()
-            minf = self._sharex.xaxis.get_minor_formatter()
-            majl = self._sharex.xaxis.get_major_locator()
-            minl = self._sharex.xaxis.get_minor_locator()
-
-            # This overwrites the current formatter/locator
-            self.xaxis._set_scale(self._sharex.xaxis.get_scale())
-
-            # Reset the formatter/locator
-            self.xaxis.set_major_formatter(majf)
-            self.xaxis.set_minor_formatter(minf)
-            self.xaxis.set_major_locator(majl)
-            self.xaxis.set_minor_locator(minl)
+            self._cla_shared("x")
         else:
             self.xaxis._set_scale('linear')
             try:
@@ -1003,25 +984,7 @@ class _AxesBase(martist.Artist):
                 pass
 
         if self._sharey is not None:
-            self.yaxis.major = self._sharey.yaxis.major
-            self.yaxis.minor = self._sharey.yaxis.minor
-            y0, y1 = self._sharey.get_ylim()
-            self.set_ylim(y0, y1, emit=False, auto=None)
-
-            # Save the current formatter/locator so we don't lose it
-            majf = self._sharey.yaxis.get_major_formatter()
-            minf = self._sharey.yaxis.get_minor_formatter()
-            majl = self._sharey.yaxis.get_major_locator()
-            minl = self._sharey.yaxis.get_minor_locator()
-
-            # This overwrites the current formatter/locator
-            self.yaxis._set_scale(self._sharey.yaxis.get_scale())
-
-            # Reset the formatter/locator
-            self.yaxis.set_major_formatter(majf)
-            self.yaxis.set_minor_formatter(minf)
-            self.yaxis.set_major_locator(majl)
-            self.yaxis.set_minor_locator(minl)
+            self._cla_shared("y")
         else:
             self.yaxis._set_scale('linear')
             try:
@@ -1120,6 +1083,48 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    def _cla_shared(self, axistype):
+        ''' clear the shared axes, for the given axis type.
+            Note : if cla is overrided, this method must
+            not be used.
+        '''
+        # major and minor are class instances with
+        # locator and formatter attributes
+        if not isinstance(axistype, str):
+            raise ValueError("Axis type is not a string (x or y for example)")
+        # ex : "self.xaxis"
+        axis = getattr(self, axistype + "axis")
+        # ex : self._sharex
+        share = getattr(self, "_share" + axistype)
+        # ex : self._sharex.xaxis
+        shareaxis = getattr(share, axistype+"axis")
+        # ex : self._sharex.get_xlim
+        limget = getattr(share, "get_"+axistype+"lim")
+        # ex : self.set_xlim
+        limset = getattr(self, "set_"+axistype+"lim")
+
+        # major and minor are class instances with
+        # locator and formatter attributes
+        axis.major = shareaxis.major
+        axis.minor = shareaxis.minor
+        x0, x1 = limget()
+        limset(x0, x1, emit=False, auto=None)
+
+        # Save the current formatter/locator so we don't lose it
+        majf = shareaxis.get_major_formatter()
+        minf = shareaxis.get_minor_formatter()
+        majl = shareaxis.get_major_locator()
+        minl = shareaxis.get_minor_locator()
+
+        # This overwrites the current formatter/locator
+        axis._set_scale(shareaxis.get_scale())
+
+        # Reset the formatter/locator
+        axis.set_major_formatter(majf)
+        axis.set_minor_formatter(minf)
+        axis.set_major_locator(majl)
+        axis.set_minor_locator(minl)
 
     @cbook.deprecated("2.1", alternative="Axes.patch")
     def axesPatch(self):
