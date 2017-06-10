@@ -616,7 +616,7 @@ class FFMpegBase(object):
     def _handle_subprocess(cls, process):
         _, err = process.communicate()
         # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use
-        if 'Libav' in err.decode():
+        if 'Libav' in err.decode() and 'AVConv' not in cls.__name__:
             return False
         return True
 
