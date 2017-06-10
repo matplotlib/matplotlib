@@ -438,7 +438,7 @@ class _AxesBase(martist.Artist):
           ================   =========================================
           Keyword            Description
           ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' | 'xlim' | 'ylim' |
+          *adjustable*       [ 'box' | 'datalim' | 'xlim' | 'ylim' | \
                                'box-forced' ]
           *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
