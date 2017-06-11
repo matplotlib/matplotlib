@@ -1118,7 +1118,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     pad = kw.pop('pad', loc_settings['pad'])
 
     # turn parents into a list if it is not already. We do this w/ np
-    # because `ax=plt.subplots(1,1)` is an ndarray and is natural to
+    # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
     parents = np.atleast_1d(parents).ravel()
 
