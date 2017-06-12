@@ -677,6 +677,14 @@ or tuple of floats
         -------
         :class:`~matplotlib.lines.Line2D`
 
+        Other parameters
+        ----------------
+        **kwargs :
+            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            with the exception of 'transform':
+
+            %(Line2D)s
+
         Notes
         -----
         kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
@@ -697,11 +705,6 @@ or tuple of floats
           the xrange::
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
-
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
-
-        %(Line2D)s
 
         See also
         --------
@@ -748,6 +751,13 @@ or tuple of floats
         -------
         :class:`~matplotlib.lines.Line2D`
 
+        Other parameters
+        ----------------
+        **kwargs :
+            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            with the exception of 'transform':
+
+            %(Line2D)s
 
         Examples
         --------
@@ -763,11 +773,6 @@ or tuple of floats
           the yrange::
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
-
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
-
-        %(Line2D)s
 
         See also
         --------
@@ -1449,11 +1454,13 @@ or tuple of floats
         matplotlib.dates.num2date : how to convert num to dates
         matplotlib.dates.drange : how floating point dates
 
-
-        Other Parameters
+        Other parameters
         ----------------
-        kwargs : :class:`matplotlib.lines.Line2D`
-        properties : %(Line2D)s
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         """
 
@@ -1552,22 +1559,19 @@ or tuple of floats
         `~matplotlib.pyplot.plot`
             Log-scaled plot on the *x* axis.
 
-        Other Parameters
+        Other parameters
         ----------------
-        :class:`~matplotlib.lines.Line2D` properties:
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
 
-        %(Line2D)s
-
-        See Also
-        --------
-        loglog : For example code and figure.
+            %(Line2D)s
 
         Notes
         -----
         This function supports all the keyword arguments of
         :func:`~matplotlib.pyplot.plot` and
         :meth:`matplotlib.axes.Axes.set_xscale`.
-
         """
         if not self._hold:
             self.cla()
@@ -1608,18 +1612,17 @@ or tuple of floats
         `~matplotlib.lines.Line2D`
             Line instance of the plot.
 
-        Other Parameters
+        Other parameters
         ----------------
-        kwargs : `~matplotlib.lines.Line2D` properties,
-        `~matplotlib.pylab.plot` and
-        `matplotlib.axes.Axes.set_yscale` arguments.
+        **kwargs :
+            This function supports all the keyword arguments of
+            :func:`~matplotlib.pyplot.plot` and
+            :meth:`matplotlib.axes.Axes.set_xscale`.
 
-        %(Line2D)s
+            Keyword arguments also control the
+            :class:`~matplotlib.lines.Line2D` properties:
 
-        See also
-        --------
-        :meth:`loglog`: For example code and figure.
-
+            %(Line2D)s
         """
         if not self._hold:
             self.cla()
@@ -2733,7 +2736,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : All other keyword arguments are passed on to the plot
+        **kwargs : All other keyword arguments are passed on to the plot
             command for the markers. For example, this code makes big red
             squares with thick green edges::
 
@@ -2745,7 +2748,7 @@ or tuple of floats
             property names, markerfacecolor, markeredgecolor, markersize
             and markeredgewidth.
 
-            valid kwargs for the marker properties are
+            Valid kwargs for the marker properties are
 
             %(Line2D)s
 
@@ -6447,12 +6450,6 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         Pxx : 1-D array
@@ -6465,6 +6462,14 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
+
+        Other parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         Notes
         -----
@@ -6574,12 +6579,6 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         Pxy : 1-D array
@@ -6592,6 +6591,14 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
+
+        Other parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         Notes
         -----
@@ -6675,12 +6682,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         spectrum : 1-D array
@@ -6691,6 +6692,14 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
+
+        Other parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         See Also
         --------
@@ -6768,12 +6777,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         spectrum : 1-D array
@@ -6784,6 +6787,14 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
+
+        Other parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         See Also
         --------
@@ -6846,12 +6857,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         spectrum : 1-D array
@@ -6862,6 +6867,14 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
+
+        Other parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         See Also
         --------
@@ -6923,11 +6936,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties of the coherence plot:
-
-        %(Line2D)s
 
         Returns
         -------
@@ -6935,6 +6943,14 @@ or tuple of floats
         frequencies of the coherence vector.
 
         kwargs are applied to the lines.
+
+        Other parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         References
         ----------
