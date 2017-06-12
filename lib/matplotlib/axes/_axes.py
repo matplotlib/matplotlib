@@ -6666,8 +6666,7 @@ or tuple of floats
 
         scale : [ 'default' | 'linear' | 'dB' ]
             The scaling of the values in the *spec*.  'linear' is no scaling.
-            'dB' returns the values in dB scale.  When *mode* is 'density',
-            this is dB power (10 * log10).  Otherwise this is dB amplitude
+            'dB' returns the values in dB scale, i.e., the dB amplitude
             (20 * log10). 'default' is 'linear'.
 
         Fc : integer
