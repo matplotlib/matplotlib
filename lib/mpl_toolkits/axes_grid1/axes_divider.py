@@ -915,9 +915,14 @@ class LocatableAxesBase(object):
         Need to overload so that twinx/twiny will work with
         these axes.
         """
+        if 'sharex' in kwargs and 'sharey' in kwargs:
+            raise ValueError("Twinned Axes may share only one axis.")
         ax2 = type(self)(self.figure, self.get_position(True), *kl, **kwargs)
         ax2.set_axes_locator(self.get_axes_locator())
         self.figure.add_axes(ax2)
+        self.set_adjustable('datalim')
+        ax2.set_adjustable('datalim')
+        self._twinned_axes.join(self, ax2)
         return ax2
 
 _locatableaxes_classes = {}
