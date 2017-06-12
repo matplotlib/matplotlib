@@ -1341,7 +1341,7 @@ class Qhull(SetupPackage):
                                        default_libraries=['qhull'])
         else:
             ext.include_dirs.append('extern')
-            ext.sources.extend(glob.glob('extern/libqhull/*.c'))
+            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
 
 
 class TTConv(SetupPackage):
