@@ -488,25 +488,15 @@ class _AxesBase(martist.Artist):
         self._originalPosition = self._position.frozen()
         # self.set_axes(self)
         self.axes = self
-        self.set_aspect('auto')
+        self._aspect = 'auto'
         self._adjustable = 'box'
-        self.set_anchor('C')
+        self._anchor = 'C'
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
             self._shared_x_axes.join(self, sharex)
-            if sharex._adjustable == 'box':
-                sharex._adjustable = 'datalim'
-                # warnings.warn(
-                #    'shared axes: "adjustable" is being changed to "datalim"')
-            self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
-            if sharey._adjustable == 'box':
-                sharey._adjustable = 'datalim'
-                # warnings.warn(
-                #    'shared axes: "adjustable" is being changed to "datalim"')
-            self._adjustable = 'datalim'
         self.set_label(label)
         self.set_figure(fig)
 
@@ -537,7 +527,11 @@ class _AxesBase(martist.Artist):
             self._hold = True
 
         self._connected = {}  # a dict from events to (id, func)
-        self.cla()
+        try:
+            self.cla(clear_axis=False)  # new xaxis and yaxis are already cleared
+        except TypeError:
+            self.cla()  # For Axes subclasses lacking clear_axis argument.
+
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
         self.fmt_ydata = None
@@ -607,11 +601,11 @@ class _AxesBase(martist.Artist):
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
-        self.spines['bottom'].register_axis(self.xaxis)
-        self.spines['top'].register_axis(self.xaxis)
+        self.spines['bottom'].register_axis(self.xaxis, clear_axis=False)
+        self.spines['top'].register_axis(self.xaxis, clear_axis=False)
         self.yaxis = maxis.YAxis(self)
-        self.spines['left'].register_axis(self.yaxis)
-        self.spines['right'].register_axis(self.yaxis)
+        self.spines['left'].register_axis(self.yaxis, clear_axis=False)
+        self.spines['right'].register_axis(self.yaxis, clear_axis=False)
         self._update_transScale()
 
     def set_figure(self, fig):
@@ -634,8 +628,7 @@ class _AxesBase(martist.Artist):
 
     def _set_lim_and_transforms(self):
         """
-        set the *dataLim* and *viewLim*
-        :class:`~matplotlib.transforms.Bbox` attributes and the
+        set the *_xaxis_transform*, *_yaxis_transform*,
         *transScale*, *transData*, *transLimits* and *transAxes*
         transformations.
 
@@ -952,7 +945,7 @@ class _AxesBase(martist.Artist):
             ('bottom', mspines.Spine.linear_spine(self, 'bottom')),
             ('top', mspines.Spine.linear_spine(self, 'top'))])
 
-    def cla(self):
+    def cla(self, clear_axis=True):
         """Clear the current axes."""
         # Note: this is called by Axes.__init__()
 
@@ -965,50 +958,45 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        self.xaxis.cla()
-        self.yaxis.cla()
+        # The axis cla() sets the scale and default locators and
+        # formatters. It needs to know if the axis is shared
+        # so that it can preserve the shared scale.
+        shared_x = self._sharex.xaxis if self._sharex else None
+        shared_y = self._sharey.yaxis if self._sharey else None
+
+        if clear_axis:
+            self.xaxis.cla(shared_x)
+            self.yaxis.cla(shared_y)            #
+
         for name, spine in six.iteritems(self.spines):
-            spine.cla()
+            spine.cla(clear_axis=False)  # Clears only the position.
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()
 
-        if self._sharex is not None:
-            # major and minor are class instances with
+        if shared_x is not None:
+            # major and minor are axis.Ticker class instances with
             # locator and formatter attributes
-            self.xaxis.major = self._sharex.xaxis.major
-            self.xaxis.minor = self._sharex.xaxis.minor
+            self.xaxis.major = shared_x.major
+            self.xaxis.minor = shared_x.minor
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False, auto=None)
-            self.xaxis._scale = mscale.scale_factory(
-                    self._sharex.xaxis.get_scale(), self.xaxis)
         else:
-            self.xaxis._set_scale('linear')
             try:
                 self.set_xlim(0, 1)
             except TypeError:
                 pass
 
-        if self._sharey is not None:
-            self.yaxis.major = self._sharey.yaxis.major
-            self.yaxis.minor = self._sharey.yaxis.minor
+        if shared_y is not None:
+            self.yaxis.major = shared_y.major
+            self.yaxis.minor = shared_y.minor
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False, auto=None)
-            self.yaxis._scale = mscale.scale_factory(
-                    self._sharey.yaxis.get_scale(), self.yaxis)
         else:
-            self.yaxis._set_scale('linear')
             try:
                 self.set_ylim(0, 1)
             except TypeError:
                 pass
-
-        # update the minor locator for x and y axis based on rcParams
-        if (rcParams['xtick.minor.visible']):
-            self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
-
-        if (rcParams['ytick.minor.visible']):
-            self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
         self._autoscaleXon = True
         self._autoscaleYon = True
@@ -1092,6 +1080,14 @@ class _AxesBase(martist.Artist):
         if self._sharey:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
+
+        # It is not clear to me (EF) why this reset is needed here, but
+        # it does seem to be needed somewhere in this vicinity.  Otherwise,
+        # setting tick rotation via set_params doesn't work until the
+        # first draw has occurred.
+        self.xaxis.reset_ticks()
+        self.yaxis.reset_ticks()
+
 
         self.stale = True
 
@@ -1224,7 +1220,7 @@ class _AxesBase(martist.Artist):
     def get_aspect(self):
         return self._aspect
 
-    def set_aspect(self, aspect, adjustable=None, anchor=None):
+    def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
         *aspect*
 
@@ -1245,12 +1241,9 @@ class _AxesBase(martist.Artist):
           ============   =====================================
           'box'          change physical size of axes
           'datalim'      change xlim or ylim
-          'box-forced'   same as 'box', but axes can be shared
           ============   =====================================
 
-        'box' does not allow axes sharing, as this can cause
-        unintended side effect. For cases when sharing axes is
-        fine, use 'box-forced'.
+        When both axes are shared, only 'box' is allowable.
 
         *anchor*
 
@@ -1270,8 +1263,17 @@ class _AxesBase(martist.Artist):
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary
 
-        if adjustable is not None:
-            self.set_adjustable(adjustable)
+        if share and self in self._shared_x_axes:
+            for ax in self._shared_x_axes.get_siblings(self):
+                ax._aspect = aspect
+        if share and self in self._shared_y_axes:
+            for ax in self._shared_y_axes.get_siblings(self):
+                ax._aspect = aspect
+
+        if adjustable is None:
+            adjustable = self._adjustable
+        self.set_adjustable(adjustable, share=share)  # Always call this to handle sharing.
+
         if anchor is not None:
             self.set_anchor(anchor)
         self.stale = True
@@ -1279,15 +1281,22 @@ class _AxesBase(martist.Artist):
     def get_adjustable(self):
         return self._adjustable
 
-    def set_adjustable(self, adjustable):
+    def set_adjustable(self, adjustable, share=False):
         """
-        ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
+        ACCEPTS: [ 'box' | 'datalim']
         """
+        # FIXME: add box-forced deprecation
         if adjustable in ('box', 'datalim', 'box-forced'):
-            if self in self._shared_x_axes or self in self._shared_y_axes:
-                if adjustable == 'box':
+            if self in self._shared_x_axes and self in self._shared_y_axes:
+                if adjustable == 'datalim':
                     raise ValueError(
-                        'adjustable must be "datalim" for shared axes')
+                        'adjustable must be "box" when both axes are shared')
+            if share and self in self._shared_x_axes:
+                for ax in self._shared_x_axes.get_siblings(self):
+                    ax._adjustable = adjustable
+            if share and self in self._shared_y_axes:
+                for ax in self._shared_y_axes.get_siblings(self):
+                    ax._adjustable = adjustable
             self._adjustable = adjustable
         else:
             raise ValueError('argument must be "box", or "datalim"')
@@ -1387,14 +1396,6 @@ class _AxesBase(martist.Artist):
         else:
             A = aspect
 
-        # Ensure at drawing time that any Axes involved in axis-sharing
-        # does not have its position changed.
-        if self in self._shared_x_axes or self in self._shared_y_axes:
-            if self._adjustable == 'box':
-                self._adjustable = 'datalim'
-                warnings.warn(
-                    'shared axes: "adjustable" is being changed to "datalim"')
-
         figW, figH = self.get_figure().get_size_inches()
         fig_aspect = figH / figW
         if self._adjustable in ['box', 'box-forced']:
@@ -1452,15 +1453,15 @@ class _AxesBase(martist.Artist):
         xm = 0
         ym = 0
 
-        changex = (self in self._shared_y_axes and
-                   self not in self._shared_x_axes)
-        changey = (self in self._shared_x_axes and
-                   self not in self._shared_y_axes)
-        if changex and changey:
-            warnings.warn("adjustable='datalim' cannot work with shared "
-                          "x and y axes")
-            return
-        if changex:
+        shared_x = self in self._shared_x_axes
+        shared_y = self in self._shared_y_axes
+        # Not sure whether we need this check:
+        if shared_x and shared_y:
+            raise RuntimeError("adjustable='datalim' is not allowed when both"
+                               " axes are shared.")
+
+        # If y is shared, then we are only allowed to change x, etc.
+        if shared_y:
             adjust_y = False
         else:
             if xmarg > xm and ymarg > ym:
@@ -1468,7 +1469,8 @@ class _AxesBase(martist.Artist):
                         (Xmarg < 0 and y_expander > 0))
             else:
                 adjy = y_expander > 0
-            adjust_y = changey or adjy  # (Ymarg > xmarg)
+            adjust_y = shared_x or adjy  # (Ymarg > xmarg)
+
         if adjust_y:
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
@@ -3977,9 +3979,9 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def get_shared_x_axes(self):
-        'Return a copy of the shared axes Grouper object for x axes'
+        'Return a reference to the shared axes Grouper object for x axes'
         return self._shared_x_axes
 
     def get_shared_y_axes(self):
-        'Return a copy of the shared axes Grouper object for y axes'
+        'Return a reference to the shared axes Grouper object for y axes'
         return self._shared_y_axes

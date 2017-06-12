@@ -82,6 +82,10 @@ class Tick(artist.Artist):
                  label2On=False,
                  major=True,
                  labelrotation=0,
+                 grid_color=None,
+                 grid_linestyle=None,
+                 grid_linewidth=None,
+                 grid_alpha=None,
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
@@ -148,6 +152,15 @@ class Tick(artist.Artist):
             else:
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
+
+        self._grid_color = (rcParams['grid.color']
+                            if grid_color is None else grid_color)
+        self._grid_linestyle = (rcParams['grid.linestyle']
+                                if grid_linestyle is None else grid_linestyle)
+        self._grid_linewidth = (rcParams['grid.linewidth']
+                                if grid_linewidth is None else grid_linewidth)
+        self._grid_alpha = (rcParams['grid.alpha']
+                                if grid_alpha is None else grid_alpha)
 
         self.apply_tickdir(tickdir)
 
@@ -344,6 +357,15 @@ class Tick(artist.Artist):
                 v = getattr(self.label1, 'get_' + k)()
                 setattr(self, '_label' + k, v)
 
+        grid_list = [k for k in six.iteritems(kw)
+                     if k[0] in ['grid_color', 'grid_linestyle',
+                                 'grid_linewidth', 'grid_alpha']]
+        if grid_list:
+            grid_kw = {k[5:]: v for k, v in grid_list}
+            self.gridline.set(**grid_kw)
+            for k, v in six.iteritems(grid_kw):
+                setattr(self, '_grid_' + k, v)
+
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar *loc*'
         raise NotImplementedError('Derived must override')
@@ -445,10 +467,10 @@ class XTick(Tick):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = mlines.Line2D(xdata=(0.0, 0.0), ydata=(0, 1.0),
-                          color=rcParams['grid.color'],
-                          linestyle=rcParams['grid.linestyle'],
-                          linewidth=rcParams['grid.linewidth'],
-                          alpha=rcParams['grid.alpha'],
+                          color=self._grid_color,
+                          linestyle=self._grid_linestyle,
+                          linewidth=self._grid_linewidth,
+                          alpha=self._grid_alpha,
                           markersize=0)
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
@@ -568,10 +590,10 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = mlines.Line2D(xdata=(0, 1), ydata=(0, 0),
-                          color=rcParams['grid.color'],
-                          linestyle=rcParams['grid.linestyle'],
-                          linewidth=rcParams['grid.linewidth'],
-                          alpha=rcParams['grid.alpha'],
+                          color=self._grid_color,
+                          linestyle=self._grid_linestyle,
+                          linewidth=self._grid_linewidth,
+                          alpha=self._grid_alpha,
                           markersize=0)
 
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
@@ -626,13 +648,6 @@ class Axis(artist.Artist):
         artist.Artist.__init__(self)
         self.set_figure(axes.figure)
 
-        # Keep track of setting to the default value, this allows use to know
-        # if any of the following values is explicitly set by the user, so as
-        # to not overwrite their settings with any of our 'auto' settings.
-        self.isDefault_majloc = True
-        self.isDefault_minloc = True
-        self.isDefault_majfmt = True
-        self.isDefault_minfmt = True
         self.isDefault_label = True
 
         self.axes = axes
@@ -656,7 +671,6 @@ class Axis(artist.Artist):
         self._minor_tick_kw = dict()
 
         self.cla()
-        self._set_scale('linear')
 
     def set_label_coords(self, x, y, transform=None):
         """
@@ -719,24 +733,17 @@ class Axis(artist.Artist):
         children.extend(minorticks)
         return children
 
-    def cla(self):
+    def cla(self, shared=None):
         'clear the current axis'
-        self.set_major_locator(mticker.AutoLocator())
-        self.set_major_formatter(mticker.ScalarFormatter())
-        self.set_minor_locator(mticker.NullLocator())
-        self.set_minor_formatter(mticker.NullFormatter())
 
-        self.set_label_text('')
-        self._set_artist_props(self.label)
+        self.label.set_text('')  # self.set_label_text would change isDefault_
+        self._set_artist_props(self.label)  # sets figure; needed here?
 
-        # Keep track of setting to the default value, this allows use to know
-        # if any of the following values is explicitly set by the user, so as
-        # to not overwrite their settings with any of our 'auto' settings.
-        self.isDefault_majloc = True
-        self.isDefault_minloc = True
-        self.isDefault_majfmt = True
-        self.isDefault_minfmt = True
-        self.isDefault_label = True
+        if shared is None:
+            self._set_scale('linear')
+        else:
+            name = shared.get_scale()
+            self._scale = mscale.scale_factory(name, self)
 
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry()
@@ -746,9 +753,6 @@ class Axis(artist.Artist):
                              rcParams['axes.grid.which'] in ('both', 'major'))
         self._gridOnMinor = (rcParams['axes.grid'] and
                              rcParams['axes.grid.which'] in ('both', 'minor'))
-
-        self.label.set_text('')
-        self._set_artist_props(self.label)
 
         self.reset_ticks()
 
@@ -769,6 +773,11 @@ class Axis(artist.Artist):
         self._lastNumMajorTicks = 1
         self._lastNumMinorTicks = 1
 
+        try:
+            self.set_clip_path(self.axes.patch)
+        except AttributeError:
+            pass
+
     def set_tick_params(self, which='major', reset=False, **kw):
         """
         Set appearance parameters for ticks and ticklabels.
@@ -786,8 +795,10 @@ class Axis(artist.Artist):
             if reset:
                 d.clear()
             d.update(kwtrans)
+
         if reset:
             self.reset_ticks()
+        # Is this "else" correct? Shouldn't kwargs be applied after a reset?
         else:
             if which == 'major' or which == 'both':
                 for tick in self.majorTicks:
@@ -809,7 +820,9 @@ class Axis(artist.Artist):
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
                    'labelleft', 'labelbottom', 'labelright', 'labeltop',
                    'rotation']
-        kwkeys = kwkeys0 + kwkeys1
+        kwkeys2 = ['grid_color', 'grid_linestyle', 'grid_linewidth',
+                   'grid_alpha']
+        kwkeys = kwkeys0 + kwkeys1 + kwkeys2
         kwtrans = dict()
         if to_init_kw:
             if 'length' in kw:
@@ -951,7 +964,7 @@ class Axis(artist.Artist):
         """
 
         interval = self.get_view_interval()
-        tick_tups = list(self.iter_ticks())
+        tick_tups = list(self.iter_ticks())  # iter_ticks calls the locator
         if self._smart_bounds and tick_tups:
             # handle inverted limits
             view_low, view_high = sorted(interval)
@@ -1376,30 +1389,21 @@ class Axis(artist.Artist):
         if len(kwargs):
             b = True
         which = which.lower()
+        gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
         if which in ['minor', 'both']:
             if b is None:
                 self._gridOnMinor = not self._gridOnMinor
             else:
                 self._gridOnMinor = b
-            for tick in self.minorTicks:  # don't use get_ticks here!
-                if tick is None:
-                    continue
-                tick.gridOn = self._gridOnMinor
-                if len(kwargs):
-                    tick.gridline.update(kwargs)
-            self._minor_tick_kw['gridOn'] = self._gridOnMinor
+            self.set_tick_params(which='minor', gridOn=self._gridOnMinor,
+                                 **gridkw)
         if which in ['major', 'both']:
             if b is None:
                 self._gridOnMajor = not self._gridOnMajor
             else:
                 self._gridOnMajor = b
-            for tick in self.majorTicks:  # don't use get_ticks here!
-                if tick is None:
-                    continue
-                tick.gridOn = self._gridOnMajor
-                if len(kwargs):
-                    tick.gridline.update(kwargs)
-            self._major_tick_kw['gridOn'] = self._gridOnMajor
+            self.set_tick_params(which='major', gridOn=self._gridOnMajor,
+                                 **gridkw)
         self.stale = True
 
     def update_units(self, data):
@@ -1429,11 +1433,11 @@ class Axis(artist.Artist):
         check the axis converter for the stored units to see if the
         axis info needs to be updated
         """
-
         if self.converter is None:
             return
 
         info = self.converter.axisinfo(self.units, self)
+
         if info is None:
             return
         if info.majloc is not None and \

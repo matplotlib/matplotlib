@@ -189,16 +189,16 @@ def test_set_line_coll_dash_image():
 
 
 @image_comparison(baseline_images=['skew_rects'], remove_text=True)
-def test_skew_rectange():
+def test_skew_rectangle():
 
-    fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(16, 12))
+    fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(8, 8))
     axes = axes.flat
 
     rotations = list(itertools.product([-3, -1, 0, 1, 3], repeat=2))
 
-    axes[0].set_xlim([-4, 4])
-    axes[0].set_ylim([-4, 4])
-    axes[0].set_aspect('equal')
+    axes[0].set_xlim([-3, 3])
+    axes[0].set_ylim([-3, 3])
+    axes[0].set_aspect('equal', share=True)
 
     for ax, (xrots, yrots) in zip(axes, rotations):
         xdeg, ydeg = 45 * xrots, 45 * yrots
@@ -209,4 +209,4 @@ def test_skew_rectange():
                                       transform=t + ax.transData,
                                       alpha=0.5, facecolor='coral'))
 
-    plt.subplots_adjust(wspace=0, left=0, right=1, bottom=0)
+    plt.subplots_adjust(wspace=0, left=0.01, right=0.99, bottom=0.01, top=0.99)

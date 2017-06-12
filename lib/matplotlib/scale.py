@@ -10,9 +10,10 @@ from matplotlib.cbook import dedent
 from matplotlib.ticker import (NullFormatter, ScalarFormatter,
                                LogFormatterSciNotation, LogitFormatter)
 from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator,
+                               AutoMinorLocator,
                                SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
-from matplotlib import docstring
+from matplotlib import docstring, rcParams
 
 
 class ScaleBase(object):
@@ -73,8 +74,12 @@ class LinearScale(ScaleBase):
         """
         axis.set_major_locator(AutoLocator())
         axis.set_major_formatter(ScalarFormatter())
-        axis.set_minor_locator(NullLocator())
         axis.set_minor_formatter(NullFormatter())
+        # update the minor locator for x and y axis based on rcParams
+        if (rcParams['xtick.minor.visible']):
+            axis.set_minor_locator(AutoMinorLocator())
+        else:
+            axis.set_minor_locator(NullLocator())
 
     def get_transform(self):
         """
