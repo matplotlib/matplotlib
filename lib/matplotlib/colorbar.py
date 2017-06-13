@@ -1166,7 +1166,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes_gridspec(parent, **kw):
+def make_axes_gridspec(parents, **kw):
     '''
     Resize and reposition a parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
@@ -1213,13 +1213,35 @@ def make_axes_gridspec(parent, **kw):
     pad_s = (1. - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
+    # make parents a 1-d ndarray if its not already...
+    parents = np.atleast_1d(parents).ravel()
+    # get the appropriate subplot spec.  Loop through the parents.
+    gs0 = parents[0].get_subplotspec().get_gridspec()
+    minind = 10000
+    maxind = -10000
+    for parent in parents:
+        gs = parent.get_subplotspec().get_gridspec()
+        if gs == gs0:
+            ss = parent.get_subplotspec().get_geometry()
+            if ss[2]<minind:
+                minind = ss[2]
+            if ss[3]>maxind:
+                maxind = ss[3]
+        else:
+            pass
+    print(minind)
+    print(maxind)
+    subspec = gridspec.SubplotSpec(gs0,minind,maxind)
+    print(subspec)
+    print(subspec.get_geometry())
+
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         wh_space = 2 * pad / (1 - pad)
 
         gs = gs_from_subplotspec(1, 2,
-                                 subplot_spec=parent.get_subplotspec(),
+                                 subplot_spec=subspec,
                                  wspace=wh_space,
                                  width_ratios=[x1 - pad, fraction]
                                  )
@@ -1229,6 +1251,8 @@ def make_axes_gridspec(parent, **kw):
                                   hspace=0.,
                                   height_ratios=wh_ratios,
                                   )
+        print(gs)
+        print(gs2)
 
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
@@ -1237,7 +1261,7 @@ def make_axes_gridspec(parent, **kw):
         wh_space = 2 * pad / (1 - pad)
 
         gs = gs_from_subplotspec(2, 1,
-                                 subplot_spec=parent.get_subplotspec(),
+                                 subplot_spec=subspec,
                                  hspace=wh_space,
                                  height_ratios=[x1 - pad, fraction]
                                  )
@@ -1252,12 +1276,13 @@ def make_axes_gridspec(parent, **kw):
         anchor = (0.5, 1.0)
         panchor = (0.5, 0.0)
 
-    parent.set_subplotspec(gs[0])
-    parent.update_params()
-    parent.set_position(parent.figbox)
-    parent.set_anchor(panchor)
+    for parent in parents:
+        parent.set_subplotspec(gs[0])
+        parent.update_params()
+        parent.set_position(parent.figbox)
+        parent.set_anchor(panchor)
 
-    fig = parent.get_figure()
+    fig = parents[0].get_figure()
     cax = fig.add_subplot(gs2[1])
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
