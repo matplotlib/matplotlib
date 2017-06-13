@@ -13,19 +13,19 @@
 # set this to True.  It will download and build a specific version of
 # FreeType, and then use that to build the ft2font extension.  This
 # ensures that test images are exactly reproducible.
-#local_freetype = False
+local_freetype = True
 
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
-#suppress = True 
+#suppress = True
 
 [packages]
 # There are a number of subpackages of Matplotlib that are considered
 # optional. All except tests are installed by default, but that can
 # be changed here.
 #
-#tests = False
+tests = True
 #sample_data = True
 #toolkits = True
 # Tests for the toolkits are only automatically installed
