@@ -1184,7 +1184,7 @@ def make_axes_gridspec(parents, **kw):
      * *make_axes_gridspec* only handles the *orientation* keyword
        and cannot handle the "location" keyword.
 
-     * *make_axes_gridspec* should only be used with a subplot parent.
+     * *make_axes_gridspec* should only be used with subplot parents.
 
      * *make_axes* creates an instance of Axes. *make_axes_gridspec*
         creates an instance of Subplot.
