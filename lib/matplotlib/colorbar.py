@@ -39,7 +39,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
-import matplotlib.transforms as mtransforms
+import matplotlib.transforms as mtrans
 
 from matplotlib import docstring
 
@@ -317,7 +317,7 @@ class ColorbarBase(cm.ScalarMappable):
                                         linthresh=self.norm.linthresh)
             else:
                 self.formatter = ticker.ScalarFormatter()
-        elif isinstance(format, six.string_types):
+        elif cbook.is_string_like(format):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
@@ -344,7 +344,6 @@ class ColorbarBase(cm.ScalarMappable):
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
         '''
-
         self._process_values()
         self._find_range()
         X, Y = self._mesh()
@@ -399,10 +398,6 @@ class ColorbarBase(cm.ScalarMappable):
         if update_ticks:
             self.update_ticks()
         self.stale = True
-
-    def get_ticks(self, minor=False):
-        """Return the x ticks as a list of locations"""
-        return self._tick_data_values
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
@@ -616,7 +611,6 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        self._tick_data_values = b
         ticks = self._locate(b)
         formatter.set_locs(b)
         ticklabels = [formatter(t, i) for i, t in enumerate(b)]
@@ -687,10 +681,9 @@ class ColorbarBase(cm.ScalarMappable):
                 self.norm.vmin = 0
                 self.norm.vmax = 1
 
-            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
-                self.norm.vmin,
-                self.norm.vmax,
-                expander=0.1)
+            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
+                                                                self.norm.vmax,
+                                                                expander=0.1)
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
 
@@ -1117,10 +1110,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
     pad = kw.pop('pad', loc_settings['pad'])
 
-    # turn parents into a list if it is not already. We do this w/ np
-    # because `plt.subplots` can return an ndarray and is natural to
-    # pass to `colorbar`.
-    parents = np.atleast_1d(parents).ravel()
+    # turn parents into a list if it is not already
+    parents = np.atleast_1d(parents).ravel().tolist()
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
@@ -1128,8 +1119,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
                          'parents share the same figure.')
 
     # take a bounding box around all of the given axes
-    parents_bbox = mtransforms.Bbox.union(
-        [ax.get_position(original=True).frozen() for ax in parents])
+    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen()
+                                      for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
@@ -1150,12 +1141,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     # define a transform which takes us from old axes coordinates to
     # new axes coordinates
-    shrinking_trans = mtransforms.BboxTransform(parents_bbox, pb1)
+    shrinking_trans = mtrans.BboxTransform(parents_bbox, pb1)
 
     # transform each of the axes in parents using the new transform
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
-        new_posn = mtransforms.Bbox(new_posn)
+        new_posn = mtrans.Bbox(new_posn)
         ax.set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
