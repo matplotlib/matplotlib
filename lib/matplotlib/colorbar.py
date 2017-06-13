@@ -1168,7 +1168,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 # helper functions for row,col to index.
 def index2rowcolunm(index, ncols):
     col = index % ncols + 1
-    row = int(np.floor(index / ncols ) + 1)
+    row = int(np.floor(index / ncols) + 1)
     return row, col
 
 
