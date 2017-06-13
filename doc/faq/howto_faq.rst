@@ -357,13 +357,10 @@ some ratio which controls the ratio::
 
   ax = fig.add_subplot(111, aspect='equal')
 
-
-
 .. htmlonly::
 
-    See :ref:`sphx_glr_gallery_subplots_axes_and_figures_equal_aspect_ratio.py` for a complete
-    example.
-
+    See :ref:`sphx_glr_gallery_pylab_examples_axis_equal_demo.py` for a
+    complete example.
 
 .. _howto-twoscale:
 

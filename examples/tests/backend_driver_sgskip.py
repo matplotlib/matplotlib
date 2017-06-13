@@ -156,7 +156,6 @@ files['pylab'] = [
     'ellipse_collection.py',
     'ellipse_demo.py',
     'ellipse_rotated.py',
-    'equal_aspect_ratio.py',
     'errorbar_limits.py',
     'fancyarrow_demo.py',
     'fancybox_demo.py',
