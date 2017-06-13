@@ -1179,7 +1179,7 @@ def make_axes_gridspec(parents, **kw):
     '''
     Resize and reposition a parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
-    make_axes. Prmary differences are
+    make_axes. Primary differences are
 
      * *make_axes_gridspec* only handles the *orientation* keyword
        and cannot handle the "location" keyword.
@@ -1224,10 +1224,11 @@ def make_axes_gridspec(parents, **kw):
 
     # make parents a 1-d ndarray if its not already...
     parents = np.atleast_1d(parents).ravel()
-    # get the appropriate subplot spec.  Loop through the parents.
+    # For the subplotspec that these axes belong to, loop through and get
+    # the maximum and minimum index into the subplotspec.  The result is the
+    # size the new gridspec that we will create must be.
     gsp0 = parents[0].get_subplotspec().get_gridspec()
-    minind = 10000
-    maxind = -10000
+    minind = 10000;maxind = -10000
     for parent in parents:
         gsp = parent.get_subplotspec().get_gridspec()
         if gsp == gsp0:
@@ -1238,47 +1239,37 @@ def make_axes_gridspec(parents, **kw):
             if ss[3]>maxind:
                 maxind = ss[3]
         else:
-            pass
-    # get from maxind and minind to nrows and ncols..
+            raise NotImplementedError('List of axes passed to colorbar must be from the same gridspec or call to plt.subplots')
+    # map the extent of the gridspec from indices to rows and columns.
+    # We need this below to assign the parents into the new gridspec.
     ncols0 = gsp0.get_geometry()[1]
-    print(ncols0)
-    print(maxind)
-
     minrow,mincol=index2rowcolunm(minind,ncols0)
     maxrow,maxcol=index2rowcolunm(maxind,ncols0)
-    print('mnind %d maxind %d'%(minind,maxind))
-    print('mncol %d maxcol %d'%(mincol,maxcol))
-    print('mnrow %d maxrow %d'%(minrow,maxrow))
     nrows = maxrow-minrow+1
     ncols = maxcol-mincol+1
 
-    print('nrows %d ncols %d'%(nrows,ncols))
-    print(minind)
-    print(maxind)
+    # this is subplot spec the region that we need to resize and add
+    # a colorbar to.
     subspec = gridspec.SubplotSpec(gsp0,minind,maxind)
-    print('GSP0')
-    print(gsp0.get_geometry())
-    print(subspec)
-    print(subspec.get_geometry())
 
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         wh_space = 2 * pad / (1 - pad)
 
+        # split the subplotspec containing parents into two, with one only
+        # `fraction` wide for the colorbar, and the other with some padding.
         gs = gs_from_subplotspec(1, 2,
                                  subplot_spec=subspec,
                                  wspace=wh_space,
                                  width_ratios=[x1 - pad, fraction]
                                  )
-
+        # center the colorbar vertically.
         gs2 = gs_from_subplotspec(3, 1,
                                   subplot_spec=gs[1],
                                   hspace=0.,
                                   height_ratios=wh_ratios,
                                   )
-        print(gs)
-        print(gs2)
 
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
@@ -1310,18 +1301,22 @@ def make_axes_gridspec(parents, **kw):
     for parent in parents:
         geo=parent.get_subplotspec().get_geometry()
         ncol0 = geo[1]
-        print("Parent Geo:")
-        print(geo)
+
+        # remap the old min gridspec index (geo[2]) into a new
+        # index.
         oldrow,oldcol = index2rowcolunm(geo[2],ncol0)
         newrow = oldrow-minrow+1
         newcol = oldcol-mincol+1
         newminind = rowcolunm2index(newrow,newcol,ncols)
+
+        # remap the old max gridspec index (geo[3]) into a new
+        # index.
         oldrow,oldcol = index2rowcolunm(geo[3],ncol0)
         newrow = oldrow-minrow+1
         newcol = oldcol-mincol+1
         newmaxind = rowcolunm2index(newrow,newcol,ncols)
-        print('newminind %d newmaxind %d'%(newminind,newmaxind))
 
+        # change the subplotspec for this parent.  
         parent.set_subplotspec(gridspec.SubplotSpec(gsnew,newminind,newmaxind))
         parent.update_params()
         parent.set_position(parent.figbox)
