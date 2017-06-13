@@ -528,7 +528,7 @@ class _AxesBase(martist.Artist):
 
         self._connected = {}  # a dict from events to (id, func)
         try:
-            self.cla(clear_axis=False)  # new xaxis and yaxis are already cleared
+            self.cla(clear_axis=False)  # new xaxis, yaxis are already cleared
         except TypeError:
             self.cla()  # For Axes subclasses lacking clear_axis argument.
 
@@ -1088,7 +1088,6 @@ class _AxesBase(martist.Artist):
         self.xaxis.reset_ticks()
         self.yaxis.reset_ticks()
 
-
         self.stale = True
 
     @cbook.deprecated("2.1", alternative="Axes.patch")
@@ -1272,7 +1271,7 @@ class _AxesBase(martist.Artist):
 
         if adjustable is None:
             adjustable = self._adjustable
-        self.set_adjustable(adjustable, share=share)  # Always call this to handle sharing.
+        self.set_adjustable(adjustable, share=share)  # Handle sharing.
 
         if anchor is not None:
             self.set_anchor(anchor)
