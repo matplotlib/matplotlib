@@ -22,8 +22,8 @@ needs_ghostscript = pytest.mark.xfail(
     reason="This test needs a ghostscript installation")
 
 
-needs_tex = pytest.mark.xfail(
-    not matplotlib.checkdep_tex(),
+needs_usetex = pytest.mark.xfail(
+    not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -32,12 +32,12 @@ needs_tex = pytest.mark.xfail(
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
     needs_ghostscript(('ps', False, {'ps.usedistiller': 'ghostscript'})),
-    needs_tex(needs_ghostscript(('ps', False, {'text.latex.unicode': True,
-                                               'text.usetex': True}))),
+    needs_usetex(needs_ghostscript(('ps', False, {'text.latex.unicode': True,
+                                                  'text.usetex': True}))),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    needs_tex(needs_ghostscript(('eps', False, {'text.latex.unicode': True,
-                                                'text.usetex': True}))),
+    needs_usetex(needs_ghostscript(('eps', False, {'text.latex.unicode': True,
+                                                   'text.usetex': True}))),
 ], ids=[
     'ps',
     'ps with distiller',
@@ -115,7 +115,7 @@ def test_patheffects():
             fig.savefig(ps, format='ps')
 
 
-@needs_tex
+@needs_usetex
 @needs_ghostscript
 def test_tilde_in_tempfilename():
     # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP oder TEMP on windows
@@ -169,7 +169,7 @@ def test_determinism_all():
     _determinism_check(format="ps")
 
 
-@needs_tex
+@needs_usetex
 @needs_ghostscript
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""

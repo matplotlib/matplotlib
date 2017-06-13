@@ -21,8 +21,8 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib import dviread
 
 
-needs_tex = pytest.mark.xfail(
-    not checkdep_tex(),
+needs_usetex = pytest.mark.xfail(
+    not checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -180,7 +180,7 @@ def test_grayscale_alpha():
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
 @pytest.mark.flaky(reruns=3)
-@needs_tex
+@needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     def psfont(*args, **kwargs):
