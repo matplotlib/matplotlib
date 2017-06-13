@@ -1233,7 +1233,6 @@ def make_axes_gridspec(parents, **kw):
         gsp = parent.get_subplotspec().get_gridspec()
         if gsp == gsp0:
             ss = parent.get_subplotspec().get_geometry()
-            print(ss)
             if ss[2]<minind:
                 minind = ss[2]
             if ss[3]>maxind:
@@ -1316,7 +1315,7 @@ def make_axes_gridspec(parents, **kw):
         newcol = oldcol-mincol+1
         newmaxind = rowcolunm2index(newrow,newcol,ncols)
 
-        # change the subplotspec for this parent.  
+        # change the subplotspec for this parent.
         parent.set_subplotspec(gridspec.SubplotSpec(gsnew,newminind,newmaxind))
         parent.update_params()
         parent.set_position(parent.figbox)
