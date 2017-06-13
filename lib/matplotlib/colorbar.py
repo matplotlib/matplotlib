@@ -1242,8 +1242,8 @@ def make_axes_gridspec(parents, **kw):
     # map the extent of the gridspec from indices to rows and columns.
     # We need this below to assign the parents into the new gridspec.
     ncols0 = gsp0.get_geometry()[1]
-    minrow,mincol=index2rowcolunm(minind,ncols0)
-    maxrow,maxcol=index2rowcolunm(maxind,ncols0)
+    minrow, mincol = index2rowcolunm(minind, ncols0)
+    maxrow, maxcol = index2rowcolunm(maxind, ncols0)
     nrows = maxrow-minrow+1
     ncols = maxcol-mincol+1
 
@@ -1298,25 +1298,25 @@ def make_axes_gridspec(parents, **kw):
     gsnew = gs_from_subplotspec(nrows, ncols, subplot_spec=gs[0])
 
     for parent in parents:
-        geo=parent.get_subplotspec().get_geometry()
+        geo = parent.get_subplotspec().get_geometry()
         ncol0 = geo[1]
 
         # remap the old min gridspec index (geo[2]) into a new
         # index.
-        oldrow,oldcol = index2rowcolunm(geo[2],ncol0)
-        newrow = oldrow-minrow+1
-        newcol = oldcol-mincol+1
-        newminind = rowcolunm2index(newrow,newcol,ncols)
+        oldrow, oldcol = index2rowcolunm(geo[2], ncol0)
+        newrow = oldrow - minrow+1
+        newcol = oldcol - mincol+1
+        newminind = rowcolunm2index(newrow, newcol, ncols)
 
         # remap the old max gridspec index (geo[3]) into a new
         # index.
-        oldrow,oldcol = index2rowcolunm(geo[3],ncol0)
-        newrow = oldrow-minrow+1
-        newcol = oldcol-mincol+1
-        newmaxind = rowcolunm2index(newrow,newcol,ncols)
+        oldrow, oldcol = index2rowcolunm(geo[3], ncol0)
+        newrow = oldrow - minrow+1
+        newcol = oldcol - mincol+1
+        newmaxind = rowcolunm2index(newrow, newcol, ncols)
 
         # change the subplotspec for this parent.
-        parent.set_subplotspec(gridspec.SubplotSpec(gsnew,newminind,newmaxind))
+        parent.set_subplotspec(gridspec.SubplotSpec(gsnew, newminind, newmaxind))
         parent.update_params()
         parent.set_position(parent.figbox)
         parent.set_anchor(panchor)
