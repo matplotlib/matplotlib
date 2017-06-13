@@ -1177,7 +1177,7 @@ def rowcolunm2index(row,col,ncols):
 @docstring.Substitution(make_axes_kw_doc)
 def make_axes_gridspec(parents, **kw):
     '''
-    Resize and reposition a parent axes, and return a child axes
+    Resize and reposition a list of parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
     make_axes. Primary differences are
 
@@ -1190,8 +1190,8 @@ def make_axes_gridspec(parents, **kw):
         creates an instance of Subplot.
 
      * *make_axes* updates the position of the
-        parent. *make_axes_gridspec* replaces the grid_spec attribute
-        of the parent with a new one.
+        parents. *make_axes_gridspec* replaces the grid_spec attribute
+        of the parents with new ones.
 
     While this function is meant to be compatible with *make_axes*,
     there could be some minor differences.
