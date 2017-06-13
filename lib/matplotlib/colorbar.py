@@ -1178,7 +1178,7 @@ def rowcolunm2index(row, col, ncols):
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes_gridspec(parents, **kw):
+def make_axes_gridspec(parent, **kw):
     '''
     Resize and reposition a list of parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
@@ -1226,13 +1226,13 @@ def make_axes_gridspec(parents, **kw):
     wh_ratios = [pad_s, shrink, pad_s]
 
     # make parents a 1-d ndarray if its not already...
-    parents = np.atleast_1d(parents).ravel()
+    parents = np.atleast_1d(parent).ravel()
     # For the subplotspec that these axes belong to, loop through and get
     # the maximum and minimum index into the subplotspec.  The result is the
     # size the new gridspec that we will create must be.
     gsp0 = parents[0].get_subplotspec().get_gridspec()
-    minind = 10000
-    maxind = -10000
+    minind = np.inf
+    maxind = -np.inf
     for parent in parents:
         gsp = parent.get_subplotspec().get_gridspec()
         if gsp == gsp0:
