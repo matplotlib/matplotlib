@@ -39,7 +39,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
-import matplotlib.transforms as mtransforms
+import matplotlib.transforms as mtrans
 
 from matplotlib import docstring
 
@@ -317,7 +317,7 @@ class ColorbarBase(cm.ScalarMappable):
                                         linthresh=self.norm.linthresh)
             else:
                 self.formatter = ticker.ScalarFormatter()
-        elif isinstance(format, six.string_types):
+        elif cbook.is_string_like(format):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
@@ -344,7 +344,6 @@ class ColorbarBase(cm.ScalarMappable):
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
         '''
-
         self._process_values()
         self._find_range()
         X, Y = self._mesh()
@@ -399,10 +398,6 @@ class ColorbarBase(cm.ScalarMappable):
         if update_ticks:
             self.update_ticks()
         self.stale = True
-
-    def get_ticks(self, minor=False):
-        """Return the x ticks as a list of locations"""
-        return self._tick_data_values
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
@@ -616,7 +611,6 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        self._tick_data_values = b
         ticks = self._locate(b)
         formatter.set_locs(b)
         ticklabels = [formatter(t, i) for i, t in enumerate(b)]
@@ -687,10 +681,9 @@ class ColorbarBase(cm.ScalarMappable):
                 self.norm.vmin = 0
                 self.norm.vmax = 1
 
-            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
-                self.norm.vmin,
-                self.norm.vmax,
-                expander=0.1)
+            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
+                                                                self.norm.vmax,
+                                                                expander=0.1)
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
 
@@ -1117,10 +1110,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
     pad = kw.pop('pad', loc_settings['pad'])
 
-    # turn parents into a list if it is not already. We do this w/ np
-    # because `plt.subplots` can return an ndarray and is natural to
-    # pass to `colorbar`.
-    parents = np.atleast_1d(parents).ravel()
+    # turn parents into a list if it is not already
+    parents = np.atleast_1d(parents).ravel().tolist()
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
@@ -1128,8 +1119,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
                          'parents share the same figure.')
 
     # take a bounding box around all of the given axes
-    parents_bbox = mtransforms.Bbox.union(
-        [ax.get_position(original=True).frozen() for ax in parents])
+    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen()
+                                      for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
@@ -1150,12 +1141,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     # define a transform which takes us from old axes coordinates to
     # new axes coordinates
-    shrinking_trans = mtransforms.BboxTransform(parents_bbox, pb1)
+    shrinking_trans = mtrans.BboxTransform(parents_bbox, pb1)
 
     # transform each of the axes in parents using the new transform
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
-        new_posn = mtransforms.Bbox(new_posn)
+        new_posn = mtrans.Bbox(new_posn)
         ax.set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
@@ -1166,7 +1157,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes_gridspec(parents, **kw):
+def make_axes_gridspec(parent, **kw):
     '''
     Resize and reposition a parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
@@ -1213,35 +1204,13 @@ def make_axes_gridspec(parents, **kw):
     pad_s = (1. - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
-    # make parents a 1-d ndarray if its not already...
-    parents = np.atleast_1d(parents).ravel()
-    # get the appropriate subplot spec.  Loop through the parents.
-    gs0 = parents[0].get_subplotspec().get_gridspec()
-    minind = 10000
-    maxind = -10000
-    for parent in parents:
-        gs = parent.get_subplotspec().get_gridspec()
-        if gs == gs0:
-            ss = parent.get_subplotspec().get_geometry()
-            if ss[2]<minind:
-                minind = ss[2]
-            if ss[3]>maxind:
-                maxind = ss[3]
-        else:
-            pass
-    print(minind)
-    print(maxind)
-    subspec = gridspec.SubplotSpec(gs0,minind,maxind)
-    print(subspec)
-    print(subspec.get_geometry())
-
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         wh_space = 2 * pad / (1 - pad)
 
         gs = gs_from_subplotspec(1, 2,
-                                 subplot_spec=subspec,
+                                 subplot_spec=parent.get_subplotspec(),
                                  wspace=wh_space,
                                  width_ratios=[x1 - pad, fraction]
                                  )
@@ -1251,8 +1220,6 @@ def make_axes_gridspec(parents, **kw):
                                   hspace=0.,
                                   height_ratios=wh_ratios,
                                   )
-        print(gs)
-        print(gs2)
 
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
@@ -1261,7 +1228,7 @@ def make_axes_gridspec(parents, **kw):
         wh_space = 2 * pad / (1 - pad)
 
         gs = gs_from_subplotspec(2, 1,
-                                 subplot_spec=subspec,
+                                 subplot_spec=parent.get_subplotspec(),
                                  hspace=wh_space,
                                  height_ratios=[x1 - pad, fraction]
                                  )
@@ -1276,13 +1243,12 @@ def make_axes_gridspec(parents, **kw):
         anchor = (0.5, 1.0)
         panchor = (0.5, 0.0)
 
-    for parent in parents:
-        parent.set_subplotspec(gs[0])
-        parent.update_params()
-        parent.set_position(parent.figbox)
-        parent.set_anchor(panchor)
+    parent.set_subplotspec(gs[0])
+    parent.update_params()
+    parent.set_position(parent.figbox)
+    parent.set_anchor(panchor)
 
-    fig = parents[0].get_figure()
+    fig = parent.get_figure()
     cax = fig.add_subplot(gs2[1])
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
