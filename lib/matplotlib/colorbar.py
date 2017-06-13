@@ -1164,12 +1164,15 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
 
+
 # helper functions for row,col to index.
-def index2rowcolunm(index,ncols):
+def index2rowcolunm(index, ncols):
     col = index%ncols + 1
     row = int(np.floor(index/ncols)+1)
-    return row,col
-def rowcolunm2index(row,col,ncols):
+    return row, col
+
+
+def rowcolunm2index(row, col, ncols):
     index = col-1+(row-1)*ncols
     return index
 
@@ -1228,17 +1231,21 @@ def make_axes_gridspec(parents, **kw):
     # the maximum and minimum index into the subplotspec.  The result is the
     # size the new gridspec that we will create must be.
     gsp0 = parents[0].get_subplotspec().get_gridspec()
-    minind = 10000;maxind = -10000
+    minind = 10000
+    maxind = -10000
     for parent in parents:
         gsp = parent.get_subplotspec().get_gridspec()
         if gsp == gsp0:
-            ss = parent.get_subplotspec().get_geometry()
-            if ss[2]<minind:
+            ss = list(parent.get_subplotspec().get_geometry())
+            if ss[3] is None:
+                ss[3] = ss[2]
+            if ss[2] < minind:
                 minind = ss[2]
-            if ss[3]>maxind:
+            if ss[3] > maxind:
                 maxind = ss[3]
         else:
-            raise NotImplementedError('List of axes passed to colorbar must be from the same gridspec or call to plt.subplots')
+            raise NotImplementedError('List of axes passed to colorbar '
+             'must be from the same gridspec or call to plt.subplots')
     # map the extent of the gridspec from indices to rows and columns.
     # We need this below to assign the parents into the new gridspec.
     ncols0 = gsp0.get_geometry()[1]
@@ -1249,7 +1256,7 @@ def make_axes_gridspec(parents, **kw):
 
     # this is subplot spec the region that we need to resize and add
     # a colorbar to.
-    subspec = gridspec.SubplotSpec(gsp0,minind,maxind)
+    subspec = gridspec.SubplotSpec(gsp0, minind, maxind)
 
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
@@ -1310,13 +1317,17 @@ def make_axes_gridspec(parents, **kw):
 
         # remap the old max gridspec index (geo[3]) into a new
         # index.
-        oldrow, oldcol = index2rowcolunm(geo[3], ncol0)
-        newrow = oldrow - minrow+1
-        newcol = oldcol - mincol+1
-        newmaxind = rowcolunm2index(newrow, newcol, ncols)
+        if geo[3] is None:
+            newmaxind = newminind
+        else:
+            oldrow, oldcol = index2rowcolunm(geo[3], ncol0)
+            newrow = oldrow - minrow+1
+            newcol = oldcol - mincol+1
+            newmaxind = rowcolunm2index(newrow, newcol, ncols)
 
         # change the subplotspec for this parent.
-        parent.set_subplotspec(gridspec.SubplotSpec(gsnew, newminind, newmaxind))
+        parent.set_subplotspec(
+            gridspec.SubplotSpec(gsnew, newminind, newmaxind))
         parent.update_params()
         parent.set_position(parent.figbox)
         parent.set_anchor(panchor)
