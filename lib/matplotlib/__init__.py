@@ -153,10 +153,11 @@ __bibtex__ = r"""@Article{Hunter:2007,
   year      = 2007
 }"""
 
-try:
-    import dateutil
-except ImportError:
-    raise ImportError("matplotlib requires dateutil")
+
+_python27 = (sys.version_info.major == 2 and sys.version_info.minor >= 7)
+_python34 = (sys.version_info.major == 3 and sys.version_info.minor >= 4)
+if not (_python27 or _python34):
+    raise ImportError("Matplotlib requires Python 2.7 or 3.4 or later")
 
 
 def compare_versions(a, b):
@@ -173,37 +174,37 @@ def compare_versions(a, b):
     else:
         return False
 
-if not compare_versions(six.__version__, '1.3'):
+
+try:
+    import dateutil
+except ImportError:
+    raise ImportError("Matplotlib requires dateutil")
+
+
+if not compare_versions(six.__version__, '1.10'):
     raise ImportError(
-        'six 1.3 or later is required; you have %s' % (
-            six.__version__))
+        "Matplotlib requires six>=1.10; you have %s" % six.__version__)
+
 
 try:
     import pyparsing
 except ImportError:
-    raise ImportError("matplotlib requires pyparsing")
+    raise ImportError("Matplotlib requires pyparsing")
 else:
     if not compare_versions(pyparsing.__version__, '2.0.1'):
         raise ImportError(
-            "matplotlib requires pyparsing >= 2.0.1")
-
-
-if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = [str('modpython')]
-
-
-major, minor1, minor2, s, tmp = sys.version_info
-_python27 = (major == 2 and minor1 >= 7)
-_python34 = (major == 3 and minor1 >= 4)
-
-if not (_python27 or _python34):
-    raise ImportError('matplotlib requires Python 2.7 or 3.4 or later')
+            "Matplotlib requires pyparsing>=2.0.1; you have %s"
+            % pyparsing.__version__)
 
 
 if not compare_versions(numpy.__version__, __version__numpy__):
     raise ImportError(
-        'numpy %s or later is required; you have %s' % (
+        "Matplotlib requires numpy>=%s; you have %s" % (
             __version__numpy__, numpy.__version__))
+
+
+if not hasattr(sys, 'argv'):  # for modpython
+    sys.argv = [str('modpython')]
 
 
 def _is_writable_dir(p):
@@ -1432,7 +1433,7 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
         ft2font.__freetype_build_type__ != 'local'):
         warnings.warn(
-            "matplotlib is not built with the correct FreeType version to run "
+            "Matplotlib is not built with the correct FreeType version to run "
             "tests.  Set local_freetype=True in setup.cfg and rebuild. "
             "Expect many image comparison failures below. "
             "Expected freetype version {0}. "
@@ -1460,7 +1461,7 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
     """run the matplotlib test suite"""
     _init_tests()
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        raise ImportError("matplotlib test data is not installed")
+        raise ImportError("Matplotlib test data is not installed")
 
     old_backend = get_backend()
     old_recursionlimit = sys.getrecursionlimit()
@@ -1574,8 +1575,8 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
 
     def param(func):
         new_sig = None
-        python_has_signature = major >= 3 and minor1 >= 3
-        python_has_wrapped = major >= 3 and minor1 >= 2
+        # signature is since 3.3 and wrapped since 3.2, but we support 3.4+.
+        python_has_signature = python_has_wrapped = six.PY3
 
         # if in a legacy version of python and IPython is already imported
         # try to use their back-ported signature
