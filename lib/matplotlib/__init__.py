@@ -496,7 +496,7 @@ def checkdep_usetex(s):
         return False
 
     gs_req = '8.60'
-    dvipng_req = '1.5'
+    dvipng_req = '1.6'
     flag = True
 
     if _backports.which("tex") is None:
@@ -508,8 +508,8 @@ def checkdep_usetex(s):
     if not compare_versions(dvipng_v, dvipng_req):
         flag = False
         warnings.warn('matplotlibrc text.usetex can not be used with *Agg '
-                      'backend unless dvipng-1.5 or later is installed on '
-                      'your system')
+                      'backend unless dvipng-%s or later is installed on '
+                      'your system' % dvipng_req)
 
     gs_exec, gs_v = checkdep_ghostscript()
     if not compare_versions(gs_v, gs_req):
@@ -812,7 +812,7 @@ _deprecated_map = {
 
 _deprecated_ignore_map = {}
 
-_obsolete_set = {'legend.isaxes'}
+_obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
 
 # The following may use a value of None to suppress the warning.
 _deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
