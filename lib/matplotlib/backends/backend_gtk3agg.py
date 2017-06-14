@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import numpy as np
-import sys
 import warnings
 
 from . import backend_agg

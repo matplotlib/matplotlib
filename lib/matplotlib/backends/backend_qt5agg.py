@@ -14,27 +14,16 @@ from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
 from .backend_agg import FigureCanvasAgg
-from .backend_qt5 import QtCore
-from .backend_qt5 import QtGui
-from .backend_qt5 import FigureManagerQT
-from .backend_qt5 import NavigationToolbar2QT
-##### Modified Qt5 backend import
-from .backend_qt5 import FigureCanvasQT
-##### not used
-from .backend_qt5 import show
-from .backend_qt5 import draw_if_interactive
-from .backend_qt5 import backend_version
-######
+from .backend_qt5 import (
+    QtCore, QtGui, FigureCanvasQT, FigureManagerQT, NavigationToolbar2QT,
+    backend_version, draw_if_interactive, show)
 from .qt_compat import QT_API
 
-DEBUG = False
 
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if DEBUG:
-        print('backend_qt5agg.new_figure_manager')
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
@@ -80,8 +69,8 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         return self._bbox_queue
 
     def paintEvent(self, e):
-        """
-        Copy the image from the Agg canvas to the qt.drawable.
+        """Copy the image from the Agg canvas to the qt.drawable.
+
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
@@ -127,17 +116,15 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         painter.end()
 
     def draw(self):
-        """
-        Draw the figure with Agg, and queue a request for a Qt draw.
+        """Draw the figure with Agg, and queue a request for a Qt draw.
         """
         # The Agg draw is done here; delaying causes problems with code that
         # uses the result of the draw() to update plot elements.
-        FigureCanvasAgg.draw(self)
+        super(FigureCanvasQTAggBase, self).draw()
         self.update()
 
     def draw_idle(self):
-        """
-        Queue redraw of the Agg buffer and request Qt paintEvent.
+        """Queue redraw of the Agg buffer and request Qt paintEvent.
         """
         # The Agg draw needs to be handled by the same thread matplotlib
         # modifies the scene graph from. Post Agg draw request to the
@@ -153,8 +140,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             self._agg_draw_pending = False
             return
         try:
-            FigureCanvasAgg.draw(self)
-            self.update()
+            self.draw()
         except Exception:
             # Uncaught exceptions are fatal for PyQt5, so catch them instead.
             traceback.print_exc()
@@ -162,8 +148,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             self._agg_draw_pending = False
 
     def blit(self, bbox=None):
-        """
-        Blit the region in bbox
+        """Blit the region in bbox.
         """
         # If bbox is None, blit the entire canvas. Otherwise
         # blit only the area defined by the bbox.
@@ -178,7 +163,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
 
     def print_figure(self, *args, **kwargs):
-        FigureCanvasAgg.print_figure(self, *args, **kwargs)
+        super(FigureCanvasQTAggBase, self).print_figure(*args, **kwargs)
         self.draw()
 
 
@@ -197,8 +182,6 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
     """
 
     def __init__(self, figure):
-        if DEBUG:
-            print('FigureCanvasQtAgg: ', figure)
         super(FigureCanvasQTAgg, self).__init__(figure=figure)
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
