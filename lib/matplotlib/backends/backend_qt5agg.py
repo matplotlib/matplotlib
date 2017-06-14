@@ -10,31 +10,13 @@ import ctypes
 import traceback
 
 from matplotlib import cbook
-from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
 from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import (
-    QtCore, QtGui, FigureCanvasQT, FigureManagerQT, NavigationToolbar2QT,
-    backend_version, draw_if_interactive, show)
+    QtCore, QtGui, _BackendQT5, FigureCanvasQT, FigureManagerQT,
+    NavigationToolbar2QT, backend_version)
 from .qt_compat import QT_API
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasQTAgg(figure)
-    return FigureManagerQT(canvas, num)
 
 
 class FigureCanvasQTAggBase(FigureCanvasAgg):
@@ -190,5 +172,6 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
         self.figure.dpi = self._dpi_ratio * self.figure._original_dpi
 
 
-FigureCanvas = FigureCanvasQTAgg
-FigureManager = FigureManagerQT
+@_BackendQT5.export
+class _BackendQT5Agg(_BackendQT5):
+    FigureCanvas = FigureCanvasQTAgg

@@ -24,7 +24,8 @@ import matplotlib
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.cbook import restrict_dict, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
@@ -381,24 +382,6 @@ class GraphicsContextGDK(GraphicsContextBase):
             self.gdkGC.line_width = max(1, int(np.round(pixels)))
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas  = FigureCanvasGDK(figure)
-    manager = FigureManagerBase(canvas, num)
-    return manager
-
-
 class FigureCanvasGDK (FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -452,3 +435,9 @@ class FigureCanvasGDK (FigureCanvasBase):
             options['quality'] = str(options['quality'])
 
         pixbuf.save(filename, format, options=options)
+
+
+@_Backend.export
+class _BackendGDK(_Backend):
+    FigureCanvas = FigureCanvasGDK
+    FigureManager = FigureManagerBase

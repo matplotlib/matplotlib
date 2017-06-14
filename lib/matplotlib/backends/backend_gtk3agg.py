@@ -6,9 +6,9 @@ import six
 import numpy as np
 import warnings
 
-from . import backend_agg
-from . import backend_gtk3
+from . import backend_agg, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
+from .backend_gtk3 import _BackendGTK3
 from matplotlib.figure import Figure
 from matplotlib import transforms
 
@@ -97,24 +97,7 @@ class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
     pass
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasGTK3Agg(figure)
-    manager = FigureManagerGTK3Agg(canvas, num)
-    return manager
-
-
-FigureCanvas = FigureCanvasGTK3Agg
-FigureManager = FigureManagerGTK3Agg
-show = backend_gtk3.show
+@_BackendGTK3.export
+class _BackendGTK3Cairo(_BackendGTK3):
+    FigureCanvas = FigureCanvasGTK3Agg
+    FigureManager = FigureManagerGTK3Agg

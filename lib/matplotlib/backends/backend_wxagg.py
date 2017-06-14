@@ -10,13 +10,10 @@ from .backend_agg import FigureCanvasAgg
 
 from . import wx_compat as wxc
 from . import backend_wx
-from .backend_wx import (FigureManagerWx, FigureCanvasWx,
+from .backend_wx import (_BackendWx, FigureManagerWx, FigureCanvasWx,
     FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, Toolbar)
 
 import wx
-
-
-show = backend_wx.Show()
 
 
 class FigureFrameWxAgg(FigureFrameWx):
@@ -101,36 +98,8 @@ class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
         return FigureCanvasWxAgg(frame, -1, fig)
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # in order to expose the Figure constructor to the pylab
-    # interface we need to create the figure here
-    DEBUG_MSG("new_figure_manager()", 3, None)
-    backend_wx._create_wx_app()
-
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    fig = FigureClass(*args, **kwargs)
-
-    return new_figure_manager_given_figure(num, fig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    frame = FigureFrameWxAgg(num, figure)
-    figmgr = frame.get_figure_manager()
-    if matplotlib.is_interactive():
-        figmgr.frame.Show()
-        figure.canvas.draw_idle()
-    return figmgr
-
-
-#
 # agg/wxPython image conversion functions (wxPython >= 2.8)
-#
+
 
 def _convert_agg_to_wx_image(agg, bbox):
     """
@@ -193,5 +162,8 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
 
     return destBmp
 
-FigureCanvas = FigureCanvasWxAgg
-FigureManager = FigureManagerWx
+
+@_BackendWx.export
+class _BackendWxAgg(_BackendWx):
+    FigureCanvas = FigureCanvasWxAgg
+    _frame_class = FigureFrameWxAgg

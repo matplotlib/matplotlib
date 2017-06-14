@@ -52,11 +52,12 @@ backend_version = cairo.version
 del _version_required
 
 from matplotlib.backend_bases import (
-    RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase)
-from matplotlib.figure       import Figure
-from matplotlib.mathtext     import MathTextParser
-from matplotlib.path         import Path
-from matplotlib.transforms   import Bbox, Affine2D
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
+from matplotlib.figure import Figure
+from matplotlib.mathtext import MathTextParser
+from matplotlib.path import Path
+from matplotlib.transforms import Bbox, Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
 
@@ -452,24 +453,6 @@ class GraphicsContextCairo(GraphicsContextBase):
         self.ctx.set_line_width(self.renderer.points_to_pixels(w))
 
 
-def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas  = FigureCanvasCairo(figure)
-    manager = FigureManagerBase(canvas, num)
-    return manager
-
-
 class FigureCanvasCairo(FigureCanvasBase):
     def print_png(self, fobj, *args, **kwargs):
         width, height = self.get_width_height()
@@ -555,4 +538,7 @@ class FigureCanvasCairo(FigureCanvasBase):
             fo.close()
 
 
-FigureCanvas = FigureCanvasCairo
+@_Backend.export
+class _BackendCairo(_Backend):
+    FigureCanvas = FigureCanvasCairo
+    FigureManager = FigureManagerBase

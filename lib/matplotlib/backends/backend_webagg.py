@@ -37,58 +37,11 @@ import tornado.websocket
 import matplotlib
 from matplotlib import rcParams
 from matplotlib import backend_bases
+from matplotlib.backend_bases import _Backend
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 from .backend_webagg_core import TimerTornado
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasWebAgg(figure)
-    manager = core.FigureManagerWebAgg(canvas, num)
-    return manager
-
-
-def draw_if_interactive():
-    """
-    Is called after every pylab drawing command
-    """
-    if matplotlib.is_interactive():
-        figManager = Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
-
-class Show(backend_bases.ShowBase):
-    def mainloop(self):
-        WebAggApplication.initialize()
-
-        url = "http://127.0.0.1:{port}{prefix}".format(
-            port=WebAggApplication.port,
-            prefix=WebAggApplication.url_prefix)
-
-        if rcParams['webagg.open_in_browser']:
-            import webbrowser
-            webbrowser.open(url)
-        else:
-            print("To view figure, visit {0}".format(url))
-
-        WebAggApplication.start()
-
-
-show = Show().mainloop
 
 
 class ServerThread(threading.Thread):
@@ -381,4 +334,27 @@ def ipython_inline_display(figure):
         port=WebAggApplication.port).decode('utf-8')
 
 
-FigureCanvas = FigureCanvasWebAgg
+@_Backend.export
+class _BackendWebAgg(_Backend):
+    FigureCanvas = FigureCanvasWebAgg
+    FigureManager = FigureManagerWebAgg
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @staticmethod
+    def show():
+        WebAggApplication.initialize()
+
+        url = "http://127.0.0.1:{port}{prefix}".format(
+            port=WebAggApplication.port,
+            prefix=WebAggApplication.url_prefix)
+
+        if rcParams['webagg.open_in_browser']:
+            import webbrowser
+            webbrowser.open(url)
+        else:
+            print("To view figure, visit {0}".format(url))
+
+        WebAggApplication.start()

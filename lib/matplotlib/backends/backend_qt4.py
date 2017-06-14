@@ -8,48 +8,22 @@ import re
 import signal
 import sys
 
-import matplotlib
-
-from matplotlib.backend_bases import FigureManagerBase
-from matplotlib.backend_bases import FigureCanvasBase
-from matplotlib.backend_bases import NavigationToolbar2
-
-from matplotlib.backend_bases import cursors
-from matplotlib.backend_bases import TimerBase
-from matplotlib.backend_bases import ShowBase
-
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backend_bases import (
+    FigureCanvasBase, FigureManagerBase, NavigationToolbar2, TimerBase,
+    cursors)
 from matplotlib.figure import Figure
-
 from matplotlib.widgets import SubplotTool
 
 from .qt_compat import QtCore, QtWidgets, _getSaveFileName, __version__
 
 from .backend_qt5 import (
     backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL, SHIFT, MODIFIER_KEYS,
-    cursord, draw_if_interactive, _create_qApp, show, TimerQT, MainWindow,
-    FigureManagerQT, NavigationToolbar2QT, SubplotToolQt, error_msg_qt,
-    exception_handler)
+    cursord, _create_qApp, _BackendQT5, TimerQT, MainWindow, FigureManagerQT,
+    NavigationToolbar2QT, SubplotToolQt, error_msg_qt, exception_handler)
 from .backend_qt5 import FigureCanvasQT as FigureCanvasQT5
 
 DEBUG = False
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    thisFig = Figure(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasQT(figure)
-    manager = FigureManagerQT(canvas, num)
-    return manager
 
 
 class FigureCanvasQT(FigureCanvasQT5):
@@ -84,5 +58,6 @@ class FigureCanvasQT(FigureCanvasQT5):
                       'steps = %i ' % (event.delta(), steps))
 
 
-FigureCanvas = FigureCanvasQT
-FigureManager = FigureManagerQT
+@_BackendQT5.export
+class _BackendQT4(_BackendQT5):
+    FigureCanvas = FigureCanvasQT

@@ -11,10 +11,9 @@ import os
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.backends.backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
-     show, draw_if_interactive,\
-     error_msg_gtk, PIXELS_PER_INCH, backend_version, \
-     NavigationToolbar2GTK
+from matplotlib.backends.backend_gtk import (
+    gtk, _BackendGTK, FigureCanvasGTK, FigureManagerGTK, NavigationToolbar2GTK,
+    backend_version, error_msg_gtk, PIXELS_PER_INCH)
 from matplotlib.backends._gtkagg import agg_to_gtk_drawable
 
 
@@ -34,26 +33,6 @@ class FigureManagerGTKAgg(FigureManagerGTK):
         else:
             toolbar = None
         return toolbar
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    if DEBUG: print('backend_gtkagg.new_figure_manager')
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasGTKAgg(figure)
-    figuremanager = FigureManagerGTKAgg(canvas, num)
-    if DEBUG: print('backend_gtkagg.new_figure_manager done')
-    return figuremanager
 
 
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
@@ -115,14 +94,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         return agg.print_png(filename, *args, **kwargs)
 
 
-"""\
-Traceback (most recent call last):
-  File "/home/titan/johnh/local/lib/python2.3/site-packages/matplotlib/backends/backend_gtk.py", line 304, in expose_event
-    self._render_figure(self._pixmap, w, h)
-  File "/home/titan/johnh/local/lib/python2.3/site-packages/matplotlib/backends/backend_gtkagg.py", line 77, in _render_figure
-    pixbuf = gtk.gdk.pixbuf_new_from_data(
-ValueError: data length (3156672) is less then required by the other parameters (3160608)
-"""
-
-FigureCanvas = FigureCanvasGTKAgg
-FigureManager = FigureManagerGTKAgg
+@_BackendGTK.export
+class _BackendGTKAgg(_BackendGTK):
+    FigureCanvas = FigureCanvasGTKAgg
+    FigureManager = FigureManagerGTKAgg

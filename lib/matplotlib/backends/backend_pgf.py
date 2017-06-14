@@ -18,8 +18,9 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-    FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.text import Text
@@ -743,32 +744,6 @@ class GraphicsContextPgf(GraphicsContextBase):
 ########################################################################
 
 
-def draw_if_interactive():
-    pass
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # if a main-level app must be created, this is the usual place to
-    # do it -- see backend_wx, backend_wxagg and backend_tkagg for
-    # examples.  Not all GUIs require explicit instantiation of a
-    # main-level app (egg backend_gtk, backend_gtkagg) for pylab
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasPgf(figure)
-    manager = FigureManagerPgf(canvas, num)
-    return manager
-
-
 class TmpDirCleaner(object):
     remaining_tmpdirs = set()
 
@@ -976,8 +951,10 @@ class FigureManagerPgf(FigureManagerBase):
         FigureManagerBase.__init__(self, *args)
 
 
-FigureCanvas = FigureCanvasPgf
-FigureManager = FigureManagerPgf
+@_Backend.export
+class _BackendPgf(_Backend):
+    FigureCanvas = FigureCanvasPgf
+    FigureManager = FigureManagerPgf
 
 
 def _cleanup_all():

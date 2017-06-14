@@ -55,8 +55,8 @@ import matplotlib.widgets as widgets
 from matplotlib import rcParams
 from matplotlib import is_interactive
 from matplotlib import get_backend
-from matplotlib._pylab_helpers import Gcf
 from matplotlib import lines
+from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
@@ -141,60 +141,118 @@ def get_registered_canvas_class(format):
     return backend_class
 
 
-class ShowBase(object):
+class _Backend(object):
+    # A backend can be defined by using the following pattern:
+    #
+    # @_Backend.export
+    # class FooBackend(_Backend):
+    #     # override the attributes and methods documented below.
+
+    # The following attributes and methods must be overridden by subclasses.
+
+    # The `FigureCanvas` and `FigureManager` classes must be defined.
+    FigureCanvas = None
+    FigureManager = None
+
+    # The following methods must be left as None for non-interactive backends.
+    # For interactive backends, `trigger_manager_draw` should be a function
+    # taking a manager as argument and triggering a canvas draw, and `mainloop`
+    # should be a function taking no argument and starting the backend main
+    # loop.
+    trigger_manager_draw = None
+    mainloop = None
+
+    # The following methods will be automatically defined and exported, but
+    # can be overridden.
+
+    @classmethod
+    def new_figure_manager(cls, num, *args, **kwargs):
+        """Create a new figure manager instance.
+        """
+        # This import needs to happen here due to circular imports.
+        from matplotlib.figure import Figure
+        fig_cls = kwargs.pop('FigureClass', Figure)
+        fig = fig_cls(*args, **kwargs)
+        return cls.new_figure_manager_given_figure(num, fig)
+
+    @classmethod
+    def new_figure_manager_given_figure(cls, num, figure):
+        """Create a new figure manager instance for the given figure.
+        """
+        canvas = cls.FigureCanvas(figure)
+        manager = cls.FigureManager(canvas, num)
+        return manager
+
+    @classmethod
+    def draw_if_interactive(cls):
+        if cls.trigger_manager_draw is not None and is_interactive():
+            manager = Gcf.get_active()
+            if manager:
+                cls.trigger_manager_draw(manager)
+
+    @classmethod
+    def show(cls, block=None):
+        """Show all figures.
+
+        `show` blocks by calling `mainloop` if *block* is ``True``, or if it
+        is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
+        `interactive` mode.
+        """
+        if cls.mainloop is None:
+            return
+        managers = Gcf.get_all_fig_managers()
+        if not managers:
+            return
+        for manager in managers:
+            manager.show()
+        if block is None:
+            # Hack: Are we in IPython's pylab mode?
+            from matplotlib import pyplot
+            try:
+                # IPython versions >= 0.10 tack the _needmain attribute onto
+                # pyplot.show, and always set it to False, when in %pylab mode.
+                ipython_pylab = not pyplot.show._needmain
+            except AttributeError:
+                ipython_pylab = False
+            block = not ipython_pylab and not is_interactive()
+            # TODO: The above is a hack to get the WebAgg backend working with
+            # ipython's `%pylab` mode until proper integration is implemented.
+            if get_backend() == "WebAgg":
+                block = True
+        if block:
+            cls.mainloop()
+
+    # This method is the one actually exporting the required methods.
+
+    @staticmethod
+    def export(cls):
+        for name in ["FigureCanvas",
+                     "FigureManager",
+                     "new_figure_manager",
+                     "new_figure_manager_given_figure",
+                     "draw_if_interactive",
+                     "show"]:
+            setattr(sys.modules[cls.__module__], name, getattr(cls, name))
+
+        # For back-compatibility, generate a shim `Show` class.
+
+        class Show(ShowBase):
+            def mainloop(self):
+                return cls.mainloop()
+
+        setattr(sys.modules[cls.__module__], "Show", Show)
+        return cls
+
+
+class ShowBase(_Backend):
     """
     Simple base class to generate a show() callable in backends.
 
     Subclass must override mainloop() method.
     """
+
     def __call__(self, block=None):
-        """
-        Show all figures.  If *block* is not None, then
-        it is a boolean that overrides all other factors
-        determining whether show blocks by calling mainloop().
-        The other factors are:
-        it does not block if run inside ipython's "%pylab" mode
-        it does not block in interactive mode.
-        """
-        managers = Gcf.get_all_fig_managers()
-        if not managers:
-            return
-
-        for manager in managers:
-            manager.show()
-
-        if block is not None:
-            if block:
-                self.mainloop()
-                return
-            else:
-                return
-
-        # Hack: determine at runtime whether we are
-        # inside ipython in pylab mode.
-        from matplotlib import pyplot
-        try:
-            ipython_pylab = not pyplot.show._needmain
-            # IPython versions >= 0.10 tack the _needmain
-            # attribute onto pyplot.show, and always set
-            # it to False, when in %pylab mode.
-            ipython_pylab = ipython_pylab and get_backend() != 'WebAgg'
-            # TODO: The above is a hack to get the WebAgg backend
-            # working with ipython's `%pylab` mode until proper
-            # integration is implemented.
-        except AttributeError:
-            ipython_pylab = False
-
-        # Leave the following as a separate step in case we
-        # want to control this behavior with an rcParam.
-        if ipython_pylab:
-            return
-
-        if not is_interactive() or get_backend() == 'WebAgg':
-            self.mainloop()
-
-    def mainloop(self):
-        pass
+        return self.show(block=block)
 
 
 class RendererBase(object):

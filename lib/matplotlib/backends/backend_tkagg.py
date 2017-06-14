@@ -16,11 +16,10 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.backends.windowing as windowing
 
 import matplotlib
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase
-from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
-from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
-                                      StatusbarBase)
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
+    ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
 from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -58,58 +57,6 @@ def raise_msg_to_str(msg):
 def error_msg_tkpaint(msg, parent=None):
     from six.moves import tkinter_messagebox as tkMessageBox
     tkMessageBox.showerror("matplotlib", msg)
-
-def draw_if_interactive():
-    if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
-        if figManager is not None:
-            figManager.show()
-
-class Show(ShowBase):
-    def mainloop(self):
-        Tk.mainloop()
-
-show = Show()
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    figure = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, figure)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    _focus = windowing.FocusManager()
-    window = Tk.Tk(className="matplotlib")
-    window.withdraw()
-
-    if Tk.TkVersion >= 8.5:
-        # put a mpl icon on the window rather than the default tk icon. Tkinter
-        # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
-        # command which we call directly. Source:
-        # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.ppm')
-        icon_img = Tk.PhotoImage(file=icon_fname)
-        try:
-            window.tk.call('wm', 'iconphoto', window._w, icon_img)
-        except (SystemExit, KeyboardInterrupt):
-            # re-raise exit type Exceptions
-            raise
-        except:
-            # log the failure, but carry on
-            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
-
-    canvas = FigureCanvasTkAgg(figure, master=window)
-    figManager = FigureManagerTkAgg(canvas, num, window)
-    if matplotlib.is_interactive():
-        figManager.show()
-        canvas.draw_idle()
-    return figManager
 
 
 class TimerTk(TimerBase):
@@ -1095,5 +1042,46 @@ backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
 backend_tools.ToolSetCursor = SetCursorTk
 backend_tools.ToolRubberband = RubberbandTk
 Toolbar = ToolbarTk
-FigureCanvas = FigureCanvasTkAgg
-FigureManager = FigureManagerTkAgg
+
+
+@_Backend.export
+class _BackendTkAgg(_Backend):
+    FigureCanvas = FigureCanvasTkAgg
+    FigureManager = FigureManagerTkAgg
+
+    @staticmethod
+    def new_figure_manager_given_figure(num, figure):
+        """
+        Create a new figure manager instance for the given figure.
+        """
+        _focus = windowing.FocusManager()
+        window = Tk.Tk(className="matplotlib")
+        window.withdraw()
+
+        # Put a mpl icon on the window rather than the default tk icon.
+        # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5 has
+        # a iconphoto command which we call directly. Source:
+        # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
+        icon_fname = os.path.join(
+            rcParams['datapath'], 'images', 'matplotlib.ppm')
+        icon_img = Tk.PhotoImage(file=icon_fname)
+        try:
+            window.tk.call('wm', 'foobar', window._w, icon_img)
+        except Exception as exc:
+            # log the failure (due e.g. to Tk version), but carry on
+            verbose.report('Could not load matplotlib icon: %s' % exc)
+
+        canvas = FigureCanvasTkAgg(figure, master=window)
+        manager = FigureManagerTkAgg(canvas, num, window)
+        if matplotlib.is_interactive():
+            manager.show()
+            canvas.draw_idle()
+        return manager
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.show()
+
+    @staticmethod
+    def mainloop():
+        Tk.mainloop()

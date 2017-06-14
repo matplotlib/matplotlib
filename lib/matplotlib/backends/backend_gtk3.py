@@ -28,10 +28,9 @@ except ImportError:
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     NavigationToolbar2, RendererBase, TimerBase, cursors)
-from matplotlib.backend_bases import (
-    ShowBase, ToolContainerBase, StatusbarBase)
+from matplotlib.backend_bases import ToolContainerBase, StatusbarBase
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
@@ -53,22 +52,6 @@ cursord = {
     cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
     cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
     }
-
-def draw_if_interactive():
-    """
-    Is called after every pylab drawing command
-    """
-    if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
-class Show(ShowBase):
-    def mainloop(self):
-        if Gtk.main_level() == 0:
-            Gtk.main()
-
-show = Show()
 
 
 class TimerGTK3(TimerBase):
@@ -947,5 +930,18 @@ backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
-FigureCanvas = FigureCanvasGTK3
-FigureManager = FigureManagerGTK3
+
+
+@_Backend.export
+class _BackendGTK3(_Backend):
+    FigureCanvas = FigureCanvasGTK3
+    FigureManager = FigureManagerGTK3
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @staticmethod
+    def mainloop():
+        if Gtk.main_level() == 0:
+            Gtk.main()

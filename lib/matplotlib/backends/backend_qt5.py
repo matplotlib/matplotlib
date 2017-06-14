@@ -10,22 +10,16 @@ from six import unichr
 
 import matplotlib
 
-from matplotlib.backend_bases import FigureManagerBase
-from matplotlib.backend_bases import FigureCanvasBase
-from matplotlib.backend_bases import NavigationToolbar2
-
-from matplotlib.backend_bases import cursors
-from matplotlib.backend_bases import TimerBase
-from matplotlib.backend_bases import ShowBase
-
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.figure import Figure
-
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    TimerBase, cursors)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
+from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
+from matplotlib.figure import Figure
 
 from .qt_compat import (QtCore, QtGui, QtWidgets, _getSaveFileName,
                         __version__, is_pyqt5)
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 
 backend_version = __version__
 
@@ -98,15 +92,6 @@ cursord = {
     }
 
 
-def draw_if_interactive():
-    """
-    Is called after every pylab drawing command
-    """
-    if matplotlib.is_interactive():
-        figManager = Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
 # make place holder
 qApp = None
 
@@ -145,34 +130,6 @@ def _create_qApp():
             qApp.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         except AttributeError:
             pass
-
-
-class Show(ShowBase):
-    def mainloop(self):
-        # allow KeyboardInterrupt exceptions to close the plot window.
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-        global qApp
-        qApp.exec_()
-
-
-show = Show()
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    thisFig = Figure(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasQT(figure)
-    manager = FigureManagerQT(canvas, num)
-    return manager
 
 
 class TimerQT(TimerBase):
@@ -826,5 +783,19 @@ def exception_handler(type, value, tb):
     if len(msg):
         error_msg_qt(msg)
 
-FigureCanvas = FigureCanvasQT
-FigureManager = FigureManagerQT
+
+@_Backend.export
+class _BackendQT5(_Backend):
+    FigureCanvas = FigureCanvasQT
+    FigureManager = FigureManagerQT
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @staticmethod
+    def mainloop():
+        # allow KeyboardInterrupt exceptions to close the plot window.
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        global qApp
+        qApp.exec_()

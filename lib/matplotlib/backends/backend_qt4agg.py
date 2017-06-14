@@ -6,31 +6,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib
-from matplotlib.figure import Figure
-
 from .backend_agg import FigureCanvasAgg
 from .backend_qt4 import (
-    QtCore, FigureCanvasQT, FigureManagerQT, NavigationToolbar2QT,
-    backend_version, draw_if_interactive, show)
+    QtCore, _BackendQT4, FigureCanvasQT, FigureManagerQT, NavigationToolbar2QT)
 from .backend_qt5agg import FigureCanvasQTAggBase
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasQTAgg(figure)
-    return FigureManagerQT(canvas, num)
 
 
 class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
@@ -46,5 +25,6 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
     """
 
 
-FigureCanvas = FigureCanvasQTAgg
-FigureManager = FigureManagerQT
+@_BackendQT4.export
+class _BackendQT4Agg(_BackendQT4):
+    FigureCanvas = FigureCanvasQTAgg
