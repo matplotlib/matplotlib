@@ -1794,12 +1794,12 @@ class Figure(Artist):
         """
         if ax is None:
             ax = self.gca()
+        ax = np.atleast_1d(ax).ravel()
 
         # Store the value of gca so that we can set it back later on.
         current_ax = self.gca()
-
         if cax is None:
-            if use_gridspec and isinstance(ax, SubplotBase):
+            if use_gridspec and isinstance(ax[0], SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
