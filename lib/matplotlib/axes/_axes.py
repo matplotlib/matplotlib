@@ -6255,7 +6255,7 @@ or tuple of floats
             # stepfill is closed, step is not
             split = -1 if fill else 2 * len(bins)
             # add patches in reverse order so that when stacking,
-            # items lower in the stack are plottted on top of
+            # items lower in the stack are plotted on top of
             # items higher in the stack
             for x, y, c in reversed(list(zip(xvals, yvals, color))):
                 patches.append(self.fill(

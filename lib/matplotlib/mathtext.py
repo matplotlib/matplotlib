@@ -2689,7 +2689,7 @@ class Parser(object):
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
     _char_over_chars = {
-        # The first 2 entires in the tuple are (font, char, sizescale) for
+        # The first 2 entries in the tuple are (font, char, sizescale) for
         # the two symbols under and over.  The third element is the space
         # (in multiples of underline height)
         r'AA': (('it', 'A', 1.0), (None, '\\circ', 0.5), 0.0),
