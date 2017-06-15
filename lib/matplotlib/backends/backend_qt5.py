@@ -7,7 +7,7 @@ import os
 import re
 import signal
 import sys
-from six import unichr
+import traceback
 
 import matplotlib
 
@@ -226,19 +226,16 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                # QtCore.Qt.XButton2: None,
                }
 
-    def _update_figure_dpi(self):
-        dpi = self._dpi_ratio * self.figure._original_dpi
-        self.figure._set_dpi(dpi, forward=False)
-
     @_allow_super_init
     def __init__(self, figure):
         _create_qApp()
         super(FigureCanvasQT, self).__init__(figure=figure)
 
-        figure._original_dpi = figure.dpi
         self.figure = figure
+        # We don't want to scale up the figure DPI more than once.
+        # Note, we don't handle a signal for changing DPI yet.
+        figure._original_dpi = figure.dpi
         self._update_figure_dpi()
-        self.resize(*self.get_width_height())
         # In cases with mixed resolution displays, we need to be careful if the
         # dpi_ratio changes - in this case we need to resize the canvas
         # accordingly. We could watch for screenChanged events from Qt, but
@@ -248,12 +245,22 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # needed.
         self._dpi_ratio_prev = None
 
+        self._draw_pending = False
+        self._is_drawing = False
+        self._draw_rect_callback = lambda painter: None
+
+        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
+        self.resize(*self.get_width_height())
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
 
         palette = QtGui.QPalette(QtCore.Qt.white)
         self.setPalette(palette)
+
+    def _update_figure_dpi(self):
+        dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
 
     @property
     def _dpi_ratio(self):
@@ -408,7 +415,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             if event_key > MAX_UNICODE:
                 return None
 
-            key = unichr(event_key)
+            key = six.unichr(event_key)
             # qt delivers capitalized letters.  fix capitalization
             # note that capslock is ignored
             if 'shift' in mods:
@@ -452,6 +459,59 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def stop_event_loop(self, event=None):
         if hasattr(self, "_event_loop"):
             self._event_loop.quit()
+
+    def draw(self):
+        """Render the figure, and queue a request for a Qt draw.
+        """
+        # The Agg draw is done here; delaying causes problems with code that
+        # uses the result of the draw() to update plot elements.
+        if self._is_drawing:
+            return
+        self._is_drawing = True
+        try:
+            super(FigureCanvasQT, self).draw()
+        finally:
+            self._is_drawing = False
+        self.update()
+
+    def draw_idle(self):
+        """Queue redraw of the Agg buffer and request Qt paintEvent.
+        """
+        # The Agg draw needs to be handled by the same thread matplotlib
+        # modifies the scene graph from. Post Agg draw request to the
+        # current event loop in order to ensure thread affinity and to
+        # accumulate multiple draw requests from event handling.
+        # TODO: queued signal connection might be safer than singleShot
+        if not (self._draw_pending or self._is_drawing):
+            self._draw_pending = True
+            QtCore.QTimer.singleShot(0, self._draw_idle)
+
+    def _draw_idle(self):
+        if self.height() < 0 or self.width() < 0:
+            self._draw_pending = False
+            return
+        try:
+            self.draw()
+        except Exception:
+            # Uncaught exceptions are fatal for PyQt5, so catch them instead.
+            traceback.print_exc()
+        finally:
+            self._draw_pending = False
+
+    def drawRectangle(self, rect):
+        # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
+        # to be called at the end of paintEvent.
+        if rect is not None:
+            def _draw_rect_callback(painter):
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                 QtCore.Qt.DotLine)
+                painter.setPen(pen)
+                painter.drawRect(*(pt / self._dpi_ratio for pt in rect))
+        else:
+            def _draw_rect_callback(painter):
+                return
+        self._draw_rect_callback = _draw_rect_callback
+        self.update()
 
 
 class MainWindow(QtWidgets.QMainWindow):
