@@ -160,7 +160,7 @@ class Tick(artist.Artist):
         self._grid_linewidth = (rcParams['grid.linewidth']
                                 if grid_linewidth is None else grid_linewidth)
         self._grid_alpha = (rcParams['grid.alpha']
-                                if grid_alpha is None else grid_alpha)
+                            if grid_alpha is None else grid_alpha)
 
         self.apply_tickdir(tickdir)
 
@@ -737,7 +737,6 @@ class Axis(artist.Artist):
         'clear the current axis'
 
         self.label.set_text('')  # self.set_label_text would change isDefault_
-        self._set_artist_props(self.label)  # sets figure; needed here?
 
         if shared is None:
             self._set_scale('linear')
@@ -798,7 +797,6 @@ class Axis(artist.Artist):
 
         if reset:
             self.reset_ticks()
-        # Is this "else" correct? Shouldn't kwargs be applied after a reset?
         else:
             if which == 'major' or which == 'both':
                 for tick in self.majorTicks:

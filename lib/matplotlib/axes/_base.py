@@ -966,7 +966,7 @@ class _AxesBase(martist.Artist):
 
         if clear_axis:
             self.xaxis.cla(shared_x)
-            self.yaxis.cla(shared_y)            #
+            self.yaxis.cla(shared_y)
 
         for name, spine in six.iteritems(self.spines):
             spine.cla(clear_axis=False)  # Clears only the position.
