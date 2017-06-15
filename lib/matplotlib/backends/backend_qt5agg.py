@@ -107,9 +107,6 @@ class FigureCanvasQTAggBase(object):
                 stringBuffer = self.renderer._renderer.tostring_bgra()
             else:
                 stringBuffer = self.renderer._renderer.tostring_argb()
-
-            refcnt = sys.getrefcount(stringBuffer)
-
             qImage = QtGui.QImage(
                 _make_non_owning_array(stringBuffer),
                 self.renderer.width, self.renderer.height,
@@ -134,8 +131,6 @@ class FigureCanvasQTAggBase(object):
                 p.drawRect(x, y, w, h)
             p.end()
 
-            assert refcnt == sys.getrefcount(stringBuffer)
-
         else:
             p = QtGui.QPainter(self)
 
@@ -153,7 +148,6 @@ class FigureCanvasQTAggBase(object):
                 if hasattr(qImage, 'setDevicePixelRatio'):
                     # Not available on Qt4 or some older Qt5.
                     qImage.setDevicePixelRatio(self._dpi_ratio)
-                assert ctypes.c_long.from_address(id(stringBuffer)).value == 1
                 origin = QtCore.QPoint(l, self.renderer.height - t)
                 pixmap = QtGui.QPixmap.fromImage(qImage)
                 p.drawPixmap(origin / self._dpi_ratio, pixmap)
