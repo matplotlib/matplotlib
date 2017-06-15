@@ -11,6 +11,7 @@ import sys
 import traceback
 
 from matplotlib.figure import Figure
+import numpy as np
 
 from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import QtCore
@@ -28,9 +29,16 @@ from .qt_compat import QT_API
 
 DEBUG = False
 
-_decref = ctypes.pythonapi.Py_DecRef
-_decref.argtypes = [ctypes.py_object]
-_decref.restype = None
+
+def _make_non_owning_array(buf):
+    """Create a buffer object that points to some memory without owning it.
+
+    This works around https://bugreports.qt.io/browse/PYSIDE-140 ("QImage
+    constructor never frees his memory"), as the non-owning array prevents
+    QImage from establishing a hold on the actual memory.
+    """
+    return np.ctypeslib.as_array(
+        ctypes.cast(buf, ctypes.POINTER(ctypes.c_ubyte)), (len(buf),))
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -102,10 +110,10 @@ class FigureCanvasQTAggBase(object):
 
             refcnt = sys.getrefcount(stringBuffer)
 
-            # convert the Agg rendered image -> qImage
-            qImage = QtGui.QImage(stringBuffer, self.renderer.width,
-                                  self.renderer.height,
-                                  QtGui.QImage.Format_ARGB32)
+            qImage = QtGui.QImage(
+                _make_non_owning_array(stringBuffer),
+                self.renderer.width, self.renderer.height,
+                QtGui.QImage.Format_ARGB32)
             if hasattr(qImage, 'setDevicePixelRatio'):
                 # Not available on Qt4 or some older Qt5.
                 qImage.setDevicePixelRatio(self._dpi_ratio)
@@ -126,13 +134,8 @@ class FigureCanvasQTAggBase(object):
                 p.drawRect(x, y, w, h)
             p.end()
 
-            # This works around a bug in PySide 1.1.2 on Python 3.x,
-            # where the reference count of stringBuffer is incremented
-            # but never decremented by QImage.
-            # TODO: revert PR #1323 once the issue is fixed in PySide.
-            del qImage
-            if refcnt != sys.getrefcount(stringBuffer):
-                _decref(stringBuffer)
+            assert refcnt == sys.getrefcount(stringBuffer)
+
         else:
             p = QtGui.QPainter(self)
 
@@ -144,17 +147,13 @@ class FigureCanvasQTAggBase(object):
                 t = int(b) + h
                 reg = self.copy_from_bbox(bbox)
                 stringBuffer = reg.to_string_argb()
-                qImage = QtGui.QImage(stringBuffer, w, h,
-                                      QtGui.QImage.Format_ARGB32)
+                qImage = QtGui.QImage(
+                    _make_non_owning_array(stringBuffer), w, h,
+                    QtGui.QImage.Format_ARGB32)
                 if hasattr(qImage, 'setDevicePixelRatio'):
                     # Not available on Qt4 or some older Qt5.
                     qImage.setDevicePixelRatio(self._dpi_ratio)
-                # Adjust the stringBuffer reference count to work
-                # around a memory leak bug in QImage() under PySide on
-                # Python 3.x
-                if QT_API == 'PySide' and six.PY3:
-                    ctypes.c_long.from_address(id(stringBuffer)).value = 1
-
+                assert ctypes.c_long.from_address(id(stringBuffer)).value == 1
                 origin = QtCore.QPoint(l, self.renderer.height - t)
                 pixmap = QtGui.QPixmap.fromImage(qImage)
                 p.drawPixmap(origin / self._dpi_ratio, pixmap)
