@@ -4259,7 +4259,7 @@ def test_shared_with_aspect():
             box_aspect = p.height / p.width
             lim_aspect = ax.viewLim.height / ax.viewLim.width
             expected = fig_aspect * box_aspect / lim_aspect
-            assert  round(expected, 4) == round(ax.get_aspect(), 4)
+            assert round(expected, 4) == round(ax.get_aspect(), 4)
 
 
 def test_relim_visible_only():
