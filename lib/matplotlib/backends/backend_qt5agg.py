@@ -98,6 +98,8 @@ class FigureCanvasQTAggBase(object):
             print('FigureCanvasQtAgg.paintEvent: ', self,
                   self.get_width_height())
 
+        p = QtGui.QPainter(self)
+
         if len(self.blitbox) == 0:
             # matplotlib is in rgba byte order.  QImage wants to put the bytes
             # into argb format and is in a 4 byte unsigned int.  Little endian
@@ -115,31 +117,17 @@ class FigureCanvasQTAggBase(object):
                 # Not available on Qt4 or some older Qt5.
                 qImage.setDevicePixelRatio(self._dpi_ratio)
             # get the rectangle for the image
-            rect = qImage.rect()
-            p = QtGui.QPainter(self)
             # reset the image area of the canvas to be the back-ground color
-            p.eraseRect(rect)
+            p.eraseRect(qImage.rect())
             # draw the rendered image on to the canvas
             p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
-            # draw the zoom rectangle to the QPainter
-            if self._drawRect is not None:
-                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
-                                 QtCore.Qt.DotLine)
-                p.setPen(pen)
-                x, y, w, h = self._drawRect
-                p.drawRect(x, y, w, h)
-            p.end()
-
         else:
-            p = QtGui.QPainter(self)
-
             while len(self.blitbox):
                 bbox = self.blitbox.pop()
-                l, b, r, t = bbox.extents
-                w = int(r) - int(l)
-                h = int(t) - int(b)
-                t = int(b) + h
+                l, b, r, t = map(int, bbox.extents)
+                w = r - l
+                h = t - b
                 reg = self.copy_from_bbox(bbox)
                 stringBuffer = reg.to_string_argb()
                 qImage = QtGui.QImage(
@@ -152,15 +140,15 @@ class FigureCanvasQTAggBase(object):
                 pixmap = QtGui.QPixmap.fromImage(qImage)
                 p.drawPixmap(origin / self._dpi_ratio, pixmap)
 
-            # draw the zoom rectangle to the QPainter
-            if self._drawRect is not None:
-                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
-                                 QtCore.Qt.DotLine)
-                p.setPen(pen)
-                x, y, w, h = self._drawRect
-                p.drawRect(x, y, w, h)
+        # draw the zoom rectangle to the QPainter
+        if self._drawRect is not None:
+            pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                QtCore.Qt.DotLine)
+            p.setPen(pen)
+            x, y, w, h = self._drawRect
+            p.drawRect(x, y, w, h)
 
-            p.end()
+        p.end()
 
     def draw(self):
         """
