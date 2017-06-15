@@ -166,7 +166,7 @@ class Axes(_AxesBase):
         text : :class:`~matplotlib.text.Text`
             The matplotlib text instance representing the title
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : text properties
             Other keyword arguments are text properties, see
@@ -210,7 +210,7 @@ class Axes(_AxesBase):
         labelpad : scalar, optional, default: None
             spacing in points between the label and the x-axis
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.text.Text` properties
 
@@ -241,7 +241,7 @@ class Axes(_AxesBase):
         labelpad : scalar, optional, default: None
             spacing in points between the label and the x-axis
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.text.Text` properties
 
@@ -588,7 +588,7 @@ or tuple of floats
             Creates a `~matplotlib.text.TextWithDash` instance instead of a
             `~matplotlib.text.Text` instance.
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.text.Text` properties.
             Other miscellaneous text parameters.
@@ -677,7 +677,7 @@ or tuple of floats
         -------
         :class:`~matplotlib.lines.Line2D`
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
@@ -751,7 +751,7 @@ or tuple of floats
         -------
         :class:`~matplotlib.lines.Line2D`
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
@@ -945,7 +945,7 @@ or tuple of floats
         -------
         lines : `~matplotlib.collections.LineCollection`
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs :  `~matplotlib.collections.LineCollection` properties.
 
@@ -1023,7 +1023,7 @@ or tuple of floats
         -------
         lines : `~matplotlib.collections.LineCollection`
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.collections.LineCollection` properties.
 
@@ -1454,7 +1454,7 @@ or tuple of floats
         matplotlib.dates.num2date : how to convert num to dates
         matplotlib.dates.drange : how floating point dates
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -1559,7 +1559,7 @@ or tuple of floats
         `~matplotlib.pyplot.plot`
             Log-scaled plot on the *x* axis.
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -1612,7 +1612,7 @@ or tuple of floats
         `~matplotlib.lines.Line2D`
             Line instance of the plot.
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             This function supports all the keyword arguments of
@@ -1675,7 +1675,7 @@ or tuple of floats
             `plot`.
           - `b` is the x-axis.
 
-        Other parameters
+        Other Parameters
         ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
@@ -1733,7 +1733,7 @@ or tuple of floats
             `plot`.
           - `b` is the x-axis (none, if plot is used).
 
-        Other parameters
+        Other Parameters
         ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
@@ -1803,7 +1803,7 @@ or tuple of floats
         list
             List of lines that were added.
 
-        Other parameters
+        Other Parameters
         ----------------
         where : [ 'pre' | 'post' | 'mid'  ]
             If 'pre' (the default), the interval from
@@ -2186,7 +2186,7 @@ or tuple of floats
         -------
         `matplotlib.patches.Rectangle` instances.
 
-        Other parameters
+        Other Parameters
         ----------------
         color : scalar or array-like, optional
             the colors of the bars
@@ -3838,7 +3838,7 @@ or tuple of floats
         -------
         paths : `~matplotlib.collections.PathCollection`
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.collections.Collection` properties
 
@@ -4105,7 +4105,7 @@ or tuple of floats
 
             Order of scalars is (left, right, bottom, top).
 
-        Other parameters
+        Other Parameters
         ----------------
         cmap : object, optional, default is *None*
             a :class:`matplotlib.colors.Colormap` instance. If *None*,
@@ -5061,7 +5061,7 @@ or tuple of floats
         -------
         image : `~matplotlib.image.AxesImage`
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.artist.Artist` properties.
 
@@ -6359,7 +6359,7 @@ or tuple of floats
         -------
         The return value is ``(counts, xedges, yedges, Image)``.
 
-        Other parameters
+        Other Parameters
         ----------------
         cmap : {Colormap, string}, optional
             A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
@@ -6463,7 +6463,7 @@ or tuple of floats
             The line created by this function.
             Only returned if *return_line* is True.
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -6592,7 +6592,7 @@ or tuple of floats
             The line created by this function.
             Only returned if *return_line* is True.
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -6693,7 +6693,7 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -6788,7 +6788,7 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -6868,7 +6868,7 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -6944,7 +6944,7 @@ or tuple of floats
 
         kwargs are applied to the lines.
 
-        Other parameters
+        Other Parameters
         ----------------
         **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
@@ -7261,7 +7261,7 @@ or tuple of floats
         -------
         image : `~matplotlib.image.AxesImage`
 
-        Other parameters
+        Other Parameters
         ----------------
         kwargs : `~matplotlib.axes.Axes.imshow` arguments
             Sets `origin` to 'upper', 'interpolation' to 'nearest' and
