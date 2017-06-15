@@ -38,11 +38,8 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         w, h = allocation.width, allocation.height
 
         if not len(self._bbox_queue):
-            if self._need_redraw:
-                self._render_figure(w, h)
-                bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
-            else:
-                return
+            self._render_figure(w, h)
+            bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
         else:
             bbox_queue = self._bbox_queue
 

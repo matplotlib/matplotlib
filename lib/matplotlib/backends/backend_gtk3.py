@@ -186,7 +186,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         GObject.GObject.__init__(self)
 
         self._idle_draw_id  = 0
-        self._need_redraw   = True
         self._lastCursor    = None
 
         self.connect('scroll_event',         self.scroll_event)
@@ -299,12 +298,9 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         w, h = event.width, event.height
         if w < 3 or h < 3:
             return # empty fig
-
         # resize the figure (in inches)
         dpi = self.figure.dpi
         self.figure.set_size_inches(w/dpi, h/dpi, forward=False)
-        self._need_redraw = True
-
         return False  # finish event propagation?
 
     def on_draw_event(self, widget, ctx):
@@ -312,7 +308,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         pass
 
     def draw(self):
-        self._need_redraw = True
         if self.get_visible() and self.get_mapped():
             self.queue_draw()
             # do a synchronous draw (its less efficient than an async draw,
