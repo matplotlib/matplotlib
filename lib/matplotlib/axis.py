@@ -24,6 +24,13 @@ import warnings
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
+# This list is being used for compatibility with Axes.grid, which
+# allows all Line2D kwargs.
+_line_AI = artist.ArtistInspector(mlines.Line2D)
+_line_param_names = _line_AI.get_setters()
+_line_param_aliases =  [list(d.keys())[0] for d in _line_AI.aliasd.values()]
+_gridline_param_names = ['grid_' + name
+                         for name in _line_param_names + _line_param_aliases]
 
 class Tick(artist.Artist):
     """
@@ -86,6 +93,7 @@ class Tick(artist.Artist):
                  grid_linestyle=None,
                  grid_linewidth=None,
                  grid_alpha=None,
+                 **kw  # Other Line2D kwargs applied to gridlines.
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
@@ -161,6 +169,8 @@ class Tick(artist.Artist):
                                 if grid_linewidth is None else grid_linewidth)
         self._grid_alpha = (rcParams['grid.alpha']
                             if grid_alpha is None else grid_alpha)
+
+        self._grid_kw = {k[5:]:v for k, v in kw.items()}
 
         self.apply_tickdir(tickdir)
 
@@ -358,8 +368,7 @@ class Tick(artist.Artist):
                 setattr(self, '_label' + k, v)
 
         grid_list = [k for k in six.iteritems(kw)
-                     if k[0] in ['grid_color', 'grid_linestyle',
-                                 'grid_linewidth', 'grid_alpha']]
+                     if k[0] in _gridline_param_names]
         if grid_list:
             grid_kw = {k[5:]: v for k, v in grid_list}
             self.gridline.set(**grid_kw)
@@ -471,7 +480,8 @@ class XTick(Tick):
                           linestyle=self._grid_linestyle,
                           linewidth=self._grid_linewidth,
                           alpha=self._grid_alpha,
-                          markersize=0)
+                          markersize=0,
+                          **self._grid_kw)
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
@@ -594,8 +604,8 @@ class YTick(Tick):
                           linestyle=self._grid_linestyle,
                           linewidth=self._grid_linewidth,
                           alpha=self._grid_alpha,
-                          markersize=0)
-
+                          markersize=0,
+                          **self._grid_kw)
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
@@ -761,9 +771,11 @@ class Axis(artist.Artist):
         self.stale = True
 
     def reset_ticks(self):
-        # build a few default ticks; grow as necessary later; only
-        # define 1 so properties set on ticks will be copied as they
-        # grow
+        """
+        Re-initialize the major and minor Tick lists.
+
+        Each list starts with a single fresh Tick.
+        """
         del self.majorTicks[:]
         del self.minorTicks[:]
 
@@ -818,8 +830,7 @@ class Axis(artist.Artist):
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
                    'labelleft', 'labelbottom', 'labelright', 'labeltop',
                    'rotation']
-        kwkeys2 = ['grid_color', 'grid_linestyle', 'grid_linewidth',
-                   'grid_alpha']
+        kwkeys2 = _gridline_param_names
         kwkeys = kwkeys0 + kwkeys1 + kwkeys2
         kwtrans = dict()
         if to_init_kw:
