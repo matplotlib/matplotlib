@@ -4,6 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 import io
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal, assert_array_equal
+
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
@@ -49,7 +51,7 @@ def test_diamond():
 
 def test_noise():
     np.random.seed(0)
-    x = np.random.uniform(size=(5000,)) * 50
+    x = np.random.uniform(size=(50000,)) * 50
 
     fig, ax = plt.subplots()
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
@@ -57,15 +59,140 @@ def test_noise():
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
-    simplified = list(path.iter_segments(simplify=(800, 600)))
+    simplified = path.cleaned(simplify=True)
 
-    assert len(simplified) == 3884
+    assert simplified.vertices.size == 25512
+
+
+def test_antiparallel_simplification():
+    def _get_simplified(x, y):
+        fig, ax = plt.subplots()
+        p1 = ax.plot(x, y)
+
+        path = p1[0].get_path()
+        transform = p1[0].get_transform()
+        path = transform.transform_path(path)
+        simplified = path.cleaned(simplify=True)
+        simplified = transform.inverted().transform_path(simplified)
+
+        return simplified
+
+    # test ending on a maximum
+    x = [0, 0, 0, 0, 0, 1]
+    y = [.5, 1, -1, 1, 2, .5]
+
+    simplified = _get_simplified(x, y)
+
+    assert_array_almost_equal([[0., 0.5],
+                               [0., -1.],
+                               [0., 2.],
+                               [1., 0.5]],
+                              simplified.vertices[:-2, :])
+
+    # test ending on a minimum
+    x = [0, 0,  0, 0, 0, 1]
+    y = [.5, 1, -1, 1, -2, .5]
+
+    simplified = _get_simplified(x, y)
+
+    assert_array_almost_equal([[0., 0.5],
+                               [0., 1.],
+                               [0., -2.],
+                               [1., 0.5]],
+                              simplified.vertices[:-2, :])
+
+    # test ending in between
+    x = [0, 0, 0, 0, 0, 1]
+    y = [.5, 1, -1, 1, 0, .5]
+
+    simplified = _get_simplified(x, y)
+
+    assert_array_almost_equal([[0., 0.5],
+                               [0., 1.],
+                               [0., -1.],
+                               [0., 0.],
+                               [1., 0.5]],
+                              simplified.vertices[:-2, :])
+
+    # test no anti-parallel ending at max
+    x = [0, 0, 0, 0, 0, 1]
+    y = [.5, 1, 2, 1, 3, .5]
+
+    simplified = _get_simplified(x, y)
+
+    assert_array_almost_equal([[0., 0.5],
+                               [0., 3.],
+                               [1., 0.5]],
+                              simplified.vertices[:-2, :])
+
+    # test no anti-parallel ending in middle
+    x = [0, 0, 0, 0, 0, 1]
+    y = [.5, 1, 2, 1, 1, .5]
+
+    simplified = _get_simplified(x, y)
+
+    assert_array_almost_equal([[0., 0.5],
+                               [0., 2.],
+                               [0., 1.],
+                               [1., 0.5]],
+                              simplified.vertices[:-2, :])
+
+
+# Only consider angles in 0 <= angle <= pi/2, otherwise
+# using min/max will get the expected results out of order:
+# min/max for simplification code depends on original vector,
+# and if angle is outside above range then simplification
+# min/max will be opposite from actual min/max.
+@pytest.mark.parametrize('angle', [0, np.pi/4, np.pi/3, np.pi/2])
+@pytest.mark.parametrize('offset', [0, .5])
+def test_angled_antiparallel(angle, offset):
+    scale = 5
+    np.random.seed(19680801)
+    # get 15 random offsets
+    # TODO: guarantee offset > 0 results in some offsets < 0
+    vert_offsets = (np.random.rand(15) - offset) * scale
+    # always start at 0 so rotation makes sense
+    vert_offsets[0] = 0
+    # always take the first step the same direction
+    vert_offsets[1] = 1
+    # compute points along a diagonal line
+    x = np.sin(angle) * vert_offsets
+    y = np.cos(angle) * vert_offsets
+
+    # will check these later
+    x_max = x[1:].max()
+    x_min = x[1:].min()
+
+    y_max = y[1:].max()
+    y_min = y[1:].min()
+
+    if offset > 0:
+        p_expected = Path([[0, 0],
+                           [x_max, y_max],
+                           [x_min, y_min],
+                           [x[-1], y[-1]],
+                           [0, 0]],
+                          codes=[1, 2, 2, 2, 0])
+
+    else:
+        p_expected = Path([[0, 0],
+                           [x_max, y_max],
+                           [x[-1], y[-1]],
+                           [0, 0]],
+                          codes=[1, 2, 2, 0])
+
+    p = Path(np.vstack([x, y]).T)
+    p2 = p.cleaned(simplify=True)
+
+    assert_array_almost_equal(p_expected.vertices,
+                              p2.vertices)
+    assert_array_equal(p_expected.codes, p2.codes)
 
 
 def test_sine_plus_noise():
     np.random.seed(0)
-    x = (np.sin(np.linspace(0, np.pi * 2.0, 1000)) +
-         np.random.uniform(size=(1000,)) * 0.01)
+    x = (np.sin(np.linspace(0, np.pi * 2.0, 50000)) +
+         np.random.uniform(size=(50000,)) * 0.01)
 
     fig, ax = plt.subplots()
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
@@ -73,9 +200,9 @@ def test_sine_plus_noise():
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
-    simplified = list(path.iter_segments(simplify=(800, 600)))
+    simplified = path.cleaned(simplify=True)
 
-    assert len(simplified) == 876
+    assert simplified.vertices.size == 25240
 
 
 @image_comparison(baseline_images=['simplify_curve'], remove_text=True)
@@ -110,9 +237,9 @@ def test_fft_peaks():
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
-    simplified = list(path.iter_segments(simplify=(800, 600)))
+    simplified = path.cleaned(simplify=True)
 
-    assert len(simplified) == 20
+    assert simplified.vertices.size == 36
 
 
 def test_start_with_moveto():

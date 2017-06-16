@@ -559,21 +559,50 @@ class PathSimplifier : protected EmbeddedQueue<9>
     PathSimplifier(VertexSource &source, bool do_simplify, double simplify_threshold)
         : m_source(&source),
           m_simplify(do_simplify),
+          /* we square simplify_threshold so that we can compute
+             norms without doing the square root every step. */
           m_simplify_threshold(simplify_threshold * simplify_threshold),
+
           m_moveto(true),
           m_after_moveto(false),
+          m_clipped(false),
+
+          // the x, y values from last iteration
           m_lastx(0.0),
           m_lasty(0.0),
-          m_clipped(false),
+
+          // the dx, dy comprising the original vector, used in conjunction
+          // with m_currVecStart* to define the original vector.
           m_origdx(0.0),
           m_origdy(0.0),
+
+          // the squared norm of the original vector
           m_origdNorm2(0.0),
-          m_dnorm2Max(0.0),
-          m_lastMax(false),
+
+          // maximum squared norm of vector in forward (parallel) direction
+          m_dnorm2ForwardMax(0.0),
+          // maximum squared norm of vector in backward (anti-parallel) direction
+          m_dnorm2BackwardMax(0.0),
+
+          // was the last point the furthest from lastWritten in the
+          // forward (parallel) direction?
+          m_lastForwardMax(false),
+          // was the last point the furthest from lastWritten in the
+          // backward (anti-parallel) direction?
+          m_lastBackwardMax(false),
+
+          // added to queue when _push is called
           m_nextX(0.0),
           m_nextY(0.0),
-          m_lastWrittenX(0.0),
-          m_lastWrittenY(0.0)
+
+          // added to queue when _push is called if any backwards
+          // (anti-parallel) vectors were observed
+          m_nextBackwardX(0.0),
+          m_nextBackwardY(0.0),
+
+          // start of the current vector that is being simplified
+          m_currVecStartX(0.0),
+          m_currVecStartY(0.0)
     {
         // empty
     }
@@ -595,8 +624,8 @@ class PathSimplifier : protected EmbeddedQueue<9>
             return m_source->vertex(x, y);
         }
 
-        /* idea: we can skip drawing many lines: lines < 1 pixel in
-           length, and we can combine sequential parallel lines into a
+        /* idea: we can skip drawing many lines: we can combine
+           sequential parallel lines into a
            single line instead of redrawing lines over the same
            points.  The loop below works a bit like a state machine,
            where what it does depends on what it did in the last
@@ -614,6 +643,14 @@ class PathSimplifier : protected EmbeddedQueue<9>
            queue in subsequent calls.  The following block will empty
            the queue before proceeding to the main loop below.
            -- Michael Droettboom */
+
+        /* This code was originally written by Allan Haldane and
+           updated by Michael Droettboom. I have modified it to
+           handle anti-parallel vectors. This is done essentially
+           the same way as parallel vectors, but requires a little
+           additional book-keeping to track whether or not we have
+           observed an anti-parallel vector during the current run.
+           -- Kevin Rose */
 
         if (queue_pop(&cmd, x, y)) {
             return cmd;
@@ -644,6 +681,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
                 m_lasty = *y;
                 m_moveto = false;
                 m_origdNorm2 = 0.0;
+                m_dnorm2BackwardMax = 0.0;
                 m_clipped = true;
                 if (queue_nonempty()) {
                     /* If we did a push, empty the queue now. */
@@ -677,11 +715,15 @@ class PathSimplifier : protected EmbeddedQueue<9>
                 m_origdNorm2 = m_origdx * m_origdx + m_origdy * m_origdy;
 
                 // set all the variables to reflect this new orig vector
-                m_dnorm2Max = m_origdNorm2;
-                m_lastMax = true;
+                m_dnorm2ForwardMax = m_origdNorm2;
+                m_dnorm2BackwardMax = 0.0;
+                m_lastForwardMax = true;
+                m_lastBackwardMax = false;
 
-                m_nextX = m_lastWrittenX = m_lastx = *x;
-                m_nextY = m_lastWrittenY = m_lasty = *y;
+                m_currVecStartX = m_lastx;
+                m_currVecStartY = m_lasty;
+                m_nextX = m_lastx = *x;
+                m_nextY = m_lasty = *y;
                 continue;
             }
 
@@ -693,12 +735,14 @@ class PathSimplifier : protected EmbeddedQueue<9>
                building is not too much. If o is the orig vector (we
                are building on), and v is the vector from the last
                written point to the current point, then the
-               perpendicular vector is p = v - (o.v)o, and we
-               normalize o (by dividing the second term by o.o). */
+               perpendicular vector is p = v - (o.v)o/(o.o)
+               (here, a.b indicates the dot product of a and b). */
 
             /* get the v vector */
-            double totdx = *x - m_lastWrittenX;
-            double totdy = *y - m_lastWrittenY;
+            double totdx = *x - m_currVecStartX;
+            double totdy = *y - m_currVecStartY;
+
+            /* get the dot product o.v */
             double totdot = m_origdx * totdx + m_origdy * totdy;
 
             /* get the para vector ( = (o.v)o/(o.o)) */
@@ -708,29 +752,37 @@ class PathSimplifier : protected EmbeddedQueue<9>
             /* get the perp vector ( = v - para) */
             double perpdx = totdx - paradx;
             double perpdy = totdy - parady;
+
+            /* get the squared norm of perp vector ( = p.p) */
             double perpdNorm2 = perpdx * perpdx + perpdy * perpdy;
 
-            /* If the perp vector is less than some number of (squared)
-               pixels in size, then merge the current vector */
+            /* If the perpendicular vector is less than
+               m_simplify_threshold pixels in size, then merge
+               current x,y with the current vector */
             if (perpdNorm2 < m_simplify_threshold) {
                 /* check if the current vector is parallel or
-                   anti-parallel to the orig vector. If it is
-                   parallel, test if it is the longest of the vectors
-                   we are merging in that direction. */
+                   anti-parallel to the orig vector. In either case,
+                   test if it is the longest of the vectors
+                   we are merging in that direction. If it is, then
+                   update the current vector in that direction. */
                 double paradNorm2 = paradx * paradx + parady * parady;
 
-                m_lastMax = false;
+                m_lastForwardMax = false;
+                m_lastBackwardMax = false;
                 if (totdot > 0.0) {
-                    if (paradNorm2 > m_dnorm2Max) {
-                        m_lastMax = true;
-                        m_dnorm2Max = paradNorm2;
+                    if (paradNorm2 > m_dnorm2ForwardMax) {
+                        m_lastForwardMax = true;
+                        m_dnorm2ForwardMax = paradNorm2;
                         m_nextX = *x;
                         m_nextY = *y;
                     }
                 } else {
-                    _push(&m_lastx, &m_lasty);
-                    _push(x, y);
-                    break;
+                    if (paradNorm2 > m_dnorm2BackwardMax) {
+                        m_lastBackwardMax = true;
+                        m_dnorm2BackwardMax = paradNorm2;
+                        m_nextBackwardX = *x;
+                        m_nextBackwardY = *y;
+                    }
                 }
 
                 m_lastx = *x;
@@ -758,6 +810,12 @@ class PathSimplifier : protected EmbeddedQueue<9>
                                                         : agg::path_cmd_line_to,
                            m_nextX,
                            m_nextY);
+                if (m_dnorm2BackwardMax > 0.0) {
+                    queue_push((m_moveto || m_after_moveto) ? agg::path_cmd_move_to
+                                                            : agg::path_cmd_line_to,
+                               m_nextBackwardX,
+                               m_nextBackwardY);
+                }
                 m_moveto = false;
             }
             queue_push((m_moveto || m_after_moveto) ? agg::path_cmd_move_to : agg::path_cmd_line_to,
@@ -789,22 +847,46 @@ class PathSimplifier : protected EmbeddedQueue<9>
     double m_origdx;
     double m_origdy;
     double m_origdNorm2;
-    double m_dnorm2Max;
-    bool m_lastMax;
+    double m_dnorm2ForwardMax;
+    double m_dnorm2BackwardMax;
+    bool m_lastForwardMax;
+    bool m_lastBackwardMax;
     double m_nextX;
     double m_nextY;
-    double m_lastWrittenX;
-    double m_lastWrittenY;
+    double m_nextBackwardX;
+    double m_nextBackwardY;
+    double m_currVecStartX;
+    double m_currVecStartY;
 
     inline void _push(double *x, double *y)
     {
-        queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
+        bool needToPushBack = (m_dnorm2BackwardMax > 0.0);
+
+        /* If we observed any backward (anti-parallel) vectors, then
+           we need to push both forward and backward vectors. */
+        if (needToPushBack) {
+            /* If the last vector seen was the maximum in the forward direction,
+               then we need to push the forward after the backward. Otherwise,
+               the last vector seen was the maximum in the backward direction,
+               or somewhere in between, either way we are safe pushing forward
+               before backward. */
+            if (m_lastForwardMax) {
+                queue_push(agg::path_cmd_line_to, m_nextBackwardX, m_nextBackwardY);
+                queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
+            } else {
+                queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
+                queue_push(agg::path_cmd_line_to, m_nextBackwardX, m_nextBackwardY);
+            }
+        } else {
+            /* If we did not observe any backwards vectors, just push forward. */
+            queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
+        }
 
         /* If we clipped some segments between this line and the next line
            we are starting, we also need to move to the last point. */
         if (m_clipped) {
             queue_push(agg::path_cmd_move_to, m_lastx, m_lasty);
-        } else if (!m_lastMax) {
+        } else if ((!m_lastForwardMax) && (!m_lastBackwardMax)) {
             /* If the last line was not the longest line, then move
                back to the end point of the last line in the
                sequence. Only do this if not clipped, since in that
@@ -819,12 +901,14 @@ class PathSimplifier : protected EmbeddedQueue<9>
         m_origdy = *y - m_lasty;
         m_origdNorm2 = m_origdx * m_origdx + m_origdy * m_origdy;
 
-        m_dnorm2Max = m_origdNorm2;
-        m_lastMax = true;
-        m_lastWrittenX = m_queue[m_queue_write - 1].x;
-        m_lastWrittenY = m_queue[m_queue_write - 1].y;
+        m_dnorm2ForwardMax = m_origdNorm2;
+        m_lastForwardMax = true;
+        m_currVecStartX = m_queue[m_queue_write - 1].x;
+        m_currVecStartY = m_queue[m_queue_write - 1].y;
         m_lastx = m_nextX = *x;
         m_lasty = m_nextY = *y;
+        m_dnorm2BackwardMax = 0.0;
+        m_lastBackwardMax = false;
 
         m_clipped = false;
     }
