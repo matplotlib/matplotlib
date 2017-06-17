@@ -1131,21 +1131,42 @@ class Arrow(Patch):
     def __str__(self):
         return "Arrow()"
 
-    _path = Path([
-            [0.0,  0.1], [0.0, -0.1],
-            [0.8, -0.1], [0.8, -0.3],
-            [1.0,  0.0], [0.8,  0.3],
-            [0.8,  0.1], [0.0,  0.1]],
-                  closed=True)
+    _path = Path([[0.0, 0.1], [0.0, -0.1],
+                  [0.8, -0.1], [0.8, -0.3],
+                  [1.0, 0.0], [0.8, 0.3],
+                  [0.8, 0.1], [0.0, 0.1]],
+                 closed=True)
 
     @docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
         """
-        Draws an arrow, starting at (*x*, *y*), direction and length
-        given by (*dx*, *dy*) the width of the arrow is scaled by *width*.
+        Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
+        The width of the arrow is scaled by *width*.
 
-        Valid kwargs are:
-        %(Patch)s
+        Parameters
+        ----------
+        x : scalar
+            x coordinate of the arrow tail
+        y : scalar
+            y coordinate of the arrow tail
+        dx : scalar
+            Arrow length in the x direction
+        dy : scalar
+            Arrow length in the y direction
+        width : scalar, optional (default: 1)
+            Scale factor for the width of the arrow. With a default value of
+            1, the tail width is 0.2 and head width is 0.6.
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.patches.Patch`
+            properties:
+
+            %(Patch)s
+
+        See Also
+        --------
+        :class:`FancyArrow` :
+            Patch that allows independent control of the head and tail
+            properties
         """
         Patch.__init__(self, **kwargs)
         L = np.hypot(dx, dy)
