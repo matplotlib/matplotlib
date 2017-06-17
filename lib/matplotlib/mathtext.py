@@ -34,14 +34,7 @@ from pyparsing import (Combine, Group, Optional, Forward,
      ParseResults, Suppress, oneOf, StringEnd, ParseFatalException,
      FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException)
 
-# Enable packrat parsing
-if (six.PY3 and
-    [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]):
-    warn("Due to a bug in pyparsing <= 2.0.0 on Python 3.x, packrat parsing "
-         "has been disabled.  Mathtext rendering will be much slower as a "
-         "result.  Install pyparsing 2.0.0 or later to improve performance.")
-else:
-    ParserElement.enablePackrat()
+ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
