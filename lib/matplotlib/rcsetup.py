@@ -29,20 +29,17 @@ from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
-
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
 
-# interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
-#                  'tkagg', 'wx', 'wxagg', 'webagg']
-# The capitalized forms are needed for ipython at present; this may
-# change for later versions.
 
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'Qt5Agg', 'Qt5Cairo', 'TkAgg', 'WX', 'WXAgg',
-                  'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
-
-
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'GTK3Agg', 'GTK3Cairo',
+                  'MacOSX',
+                  'nbAgg',
+                  'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
+                  'TkAgg',
+                  'WebAgg',
+                  'WX', 'WXAgg']
 non_interactive_bk = ['agg', 'cairo', 'gdk',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
