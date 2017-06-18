@@ -1,8 +1,8 @@
 
-:mod:`matplotlib.backends.backend_mixed`
+:mod:`matplotlib.backends.backend_cairo`
 ========================================
 
-.. automodule:: matplotlib.backends.backend_mixed
+.. automodule:: matplotlib.backends.backend_cairo
    :members:
    :undoc-members:
    :show-inheritance:
