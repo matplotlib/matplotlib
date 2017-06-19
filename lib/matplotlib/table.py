@@ -92,7 +92,8 @@ class Cell(Rectangle):
 
         width, height = self.get_required_dimensions(renderer)
 
-        if width == 0: return fontsize
+        if width == 0:
+            return fontsize
 
         # make sure font is large enough
         if grow:
@@ -103,7 +104,9 @@ class Cell(Rectangle):
                 width, height = self.get_required_dimensions(renderer)
 
         # now shrink until it fits
-        while fontsize > 1 and (width > self.get_width() or height > self.get_height()):
+        while (fontsize > 1 and
+               (width > self.get_width() or height > self.get_height())):
+
             fontsize -= 1
             self.set_fontsize(fontsize)
             width, height = self.get_required_dimensions(renderer)
@@ -523,9 +526,12 @@ class Table(Artist):
             c.set_y(y + oy)
 
     def _update_positions(self, renderer):
-        # called from renderer to allow more precise estimates of
-        # widths and heights with get_window_extent
+        """ Called from renderer 
 
+          allow more precise estimates of
+          widths and heights with get_window_extent
+
+        """
 
         if self._autoFontsize:
             self._auto_set_font_size(renderer)
@@ -682,7 +688,7 @@ def table(ax,
 
     if colEdgeColours is None:
         colEdgeColours = [edgeColour] * cols
-        
+
     # Set up cell colours if not given
     if cellColours is None:
         cellColours = ['w' * cols] * rows
