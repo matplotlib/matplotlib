@@ -1997,7 +1997,7 @@ class FigureCanvasBase(object):
 
     def draw_idle(self, *args, **kwargs):
         """
-        :meth:`draw` only if idle; defaults to draw but backends can overrride
+        :meth:`draw` only if idle; defaults to draw but backends can override
         """
         if not self._is_idle_drawing:
             with self._idle_draw_cntx():
@@ -2636,7 +2636,7 @@ class FigureManagerBase(object):
             self.key_press_handler_id = None
         """
         The returned id from connecting the default key handler via
-        :meth:`FigureCanvasBase.mpl_connnect`.
+        :meth:`FigureCanvasBase.mpl_connect`.
 
         To disable default key press handling::
 
