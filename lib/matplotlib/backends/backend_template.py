@@ -69,8 +69,8 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import matplotlib
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     WindowBase, FigureCanvasBase, MainLoopBase, ToolbarBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+     WindowBase, FigureCanvasBase, MainLoopBase, ToolbarBase)
 from matplotlib import backend_tools
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
