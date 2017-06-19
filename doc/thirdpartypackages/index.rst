@@ -108,6 +108,12 @@ Windrose
 Numpy library to manage wind data, draw windroses (also known as polar rose
 plots), draw probability density functions and fit Weibull distributions.
 
+DeCiDa
+======
+
+`_DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a Library of functions
+and classes for device characterization, circuit design and data analysis.
+
 Interactivity
 *************
 
