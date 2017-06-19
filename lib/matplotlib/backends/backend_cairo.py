@@ -102,14 +102,11 @@ class RendererCairo(RendererBase):
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
+        self.set_width_height(surface.get_width(), surface.get_height())
 
     def set_width_height(self, width, height):
         self.width  = width
         self.height = height
-        self.matrix_flipy = cairo.Matrix(yy=-1, y0=self.height)
-        # use matrix_flipy for ALL rendering?
-        # - problem with text? - will need to switch matrix_flipy off, or do a
-        # font transform?
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
@@ -302,11 +299,6 @@ class RendererCairo(RendererBase):
             ctx.fill_preserve()
 
         ctx.restore()
-
-    def flipy(self):
-        return True
-        #return False # tried - all draw objects ok except text (and images?)
-        # which comes out mirrored!
 
     def get_canvas_width_height(self):
         return self.width, self.height
@@ -503,7 +495,6 @@ class FigureCanvasCairo(FigureCanvasBase):
 
         # surface.set_dpi() can be used
         renderer = RendererCairo(self.figure.dpi)
-        renderer.set_width_height(width_in_points, height_in_points)
         renderer.set_ctx_from_surface(surface)
         ctx = renderer.gc.ctx
 
