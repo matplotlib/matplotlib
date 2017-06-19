@@ -99,7 +99,7 @@ class Cell(Rectangle):
         if grow:
             while width < self.get_width() and height < self.get_height():
                 fontsize += 1
-        
+
                 self.set_fontsize(fontsize)
                 width, height = self.get_required_dimensions(renderer)
 
@@ -485,7 +485,7 @@ class Table(Artist):
 
             # set initial guess at cell font size
             cell.set_fontsize(fontsize or self.FONTSIZE)
-            
+
             size = cell.auto_set_font_size(
                 renderer,
                 grow=grow)
@@ -526,7 +526,7 @@ class Table(Artist):
             c.set_y(y + oy)
 
     def _update_positions(self, renderer):
-        """ Called from renderer 
+        """ Called from renderer
 
           allow more precise estimates of
           widths and heights with get_window_extent
