@@ -645,7 +645,8 @@ def table(ax,
 
     if cellEdgeColours is not None:
         if len(cellEdgeColours) != rows:
-            raise ValueError("'cellEdgeColours' must have {0} rows".format(rows))
+            raise ValueError(
+                "'cellEdgeColours' must have {0} rows".format(rows))
         for row in cellEdgeColours:
             if len(row) != cols:
                 msg = "Each row in 'cellColours' must have {0} columns"
