@@ -111,8 +111,9 @@ plots), draw probability density functions and fit Weibull distributions.
 DeCiDa
 ======
 
-`_DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a Library of functions
-and classes for device characterization, circuit design and data analysis.
+`DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a library of functions
+and classes for electron device characterization, electronic circuit design and 
+general data visualization and analysis.
 
 Interactivity
 *************
