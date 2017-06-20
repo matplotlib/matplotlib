@@ -18,26 +18,30 @@ import warnings
 
 import numpy as np
 
-try:
-    import cairocffi as cairo
-except ImportError:
+# In order to make it possible to pick the binding, use whichever has already
+# been imported, if any.  (The intermediate call to iter is just to placate
+# Python2.)
+cairo = next(
+    (mod for mod in (
+        sys.modules.get(name) for name in ["cairocffi", "cairo"]) if mod),
+    None)
+if cairo is None:
     try:
-        import cairo
+        import cairocffi as cairo
     except ImportError:
-        raise ImportError("Cairo backend requires that cairocffi or pycairo "
-                          "is installed.")
-    else:
-        HAS_CAIRO_CFFI = False
-else:
-    HAS_CAIRO_CFFI = True
+        try:
+            import cairo
+        except ImportError:
+            raise ImportError(
+                "The cairo backend requires cairocffi or pycairo")
+# cairocffi can install itself as cairo (`install_as_pycairo`) -- don't get
+# fooled!
+HAS_CAIRO_CFFI = cairo.__name__ == "cairocffi"
 
-_version_required = (1, 2, 0)
-if cairo.version_info < _version_required:
-    raise ImportError("Pycairo %d.%d.%d is installed\n"
-                      "Pycairo %d.%d.%d or later is required"
-                      % (cairo.version_info + _version_required))
+if cairo.version_info < (1, 2, 0):
+    raise ImportError("cairo {} is installed; "
+                      "cairo>=1.2.0 is required".format(cairo.version))
 backend_version = cairo.version
-del _version_required
 
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
