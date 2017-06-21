@@ -2066,10 +2066,9 @@ or tuple of floats
 
         if align == 'center':
             if orientation == 'vertical':
-                left = [left[i] - width[i] / 2. for i in xrange(len(left))]
+                left = [l - w / 2. for l, w in zip(left, width)]
             elif orientation == 'horizontal':
-                bottom = [bottom[i] - height[i] / 2.
-                          for i in xrange(len(bottom))]
+                bottom = [b - h / 2. for b, h in zip(bottom, height)]
 
         elif align != 'edge':
             raise ValueError('invalid alignment: %s' % align)
