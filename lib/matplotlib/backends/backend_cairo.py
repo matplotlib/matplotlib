@@ -79,6 +79,87 @@ class ArrayWrapper:
         return (self.__data, self.__size)
 
 
+# Mapping from Matplotlib Path codes to cairo path codes.
+_MPL_TO_CAIRO_PATH_TYPE = np.zeros(80, dtype=int)  # CLOSEPOLY = 79.
+_MPL_TO_CAIRO_PATH_TYPE[Path.MOVETO] = cairo.PATH_MOVE_TO
+_MPL_TO_CAIRO_PATH_TYPE[Path.LINETO] = cairo.PATH_LINE_TO
+_MPL_TO_CAIRO_PATH_TYPE[Path.CURVE4] = cairo.PATH_CURVE_TO
+_MPL_TO_CAIRO_PATH_TYPE[Path.CLOSEPOLY] = cairo.PATH_CLOSE_PATH
+# Sizes in cairo_path_data_t of each cairo path element.
+_CAIRO_PATH_TYPE_SIZES = np.zeros(4, dtype=int)
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_MOVE_TO] = 2
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_LINE_TO] = 2
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_CURVE_TO] = 4
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
+
+
+def _convert_path(ctx, path, transform, clip=None):
+    if HAS_CAIRO_CFFI:
+        try:
+            return _convert_path_fast(ctx, path, transform, clip)
+        except NotImplementedError:
+            pass
+    return _convert_path_slow(ctx, path, transform, clip)
+
+
+def _convert_path_slow(ctx, path, transform, clip=None):
+    for points, code in path.iter_segments(transform, clip=clip):
+        if code == Path.MOVETO:
+            ctx.move_to(*points)
+        elif code == Path.CLOSEPOLY:
+            ctx.close_path()
+        elif code == Path.LINETO:
+            ctx.line_to(*points)
+        elif code == Path.CURVE3:
+            ctx.curve_to(points[0], points[1],
+                         points[0], points[1],
+                         points[2], points[3])
+        elif code == Path.CURVE4:
+            ctx.curve_to(*points)
+
+
+def _convert_path_fast(ctx, path, transform, clip=None):
+    ffi = cairo.ffi
+    cleaned = path.cleaned(transform=transform, clip=clip)
+    vertices = cleaned.vertices
+    codes = cleaned.codes
+
+    # TODO: Implement Bezier degree elevation formula.  Note that the "slow"
+    # implementation is, in fact, also incorrect...
+    if np.any(codes == Path.CURVE3):
+        raise NotImplementedError("Quadratic Bezier curves are not supported")
+    # Remove unused vertices and convert to cairo codes.  Note that unlike
+    # cairo_close_path, we do not explicitly insert an extraneous MOVE_TO after
+    # CLOSE_PATH, so our resulting buffer may be smaller.
+    if codes[-1] == Path.STOP:
+        codes = codes[:-1]
+        vertices = vertices[:-1]
+    vertices = vertices[codes != Path.CLOSEPOLY]
+    codes = _MPL_TO_CAIRO_PATH_TYPE[codes]
+    # Where are the headers of each cairo portions?
+    cairo_type_sizes = _CAIRO_PATH_TYPE_SIZES[codes]
+    cairo_type_positions = np.insert(np.cumsum(cairo_type_sizes), 0, 0)
+    cairo_num_data = cairo_type_positions[-1]
+    cairo_type_positions = cairo_type_positions[:-1]
+
+    # Fill the buffer.
+    buf = np.empty(cairo_num_data * 16, np.uint8)
+    as_int = np.frombuffer(buf.data, np.int32)
+    as_float = np.frombuffer(buf.data, np.float64)
+    mask = np.ones_like(as_float, bool)
+    as_int[::4][cairo_type_positions] = codes
+    as_int[1::4][cairo_type_positions] = cairo_type_sizes
+    mask[::2][cairo_type_positions] = mask[1::2][cairo_type_positions] = False
+    as_float[mask] = vertices.ravel()
+
+    # Construct the cairo_path_t, and pass it to the context.
+    ptr = ffi.new("cairo_path_t *")
+    ptr.status = cairo.STATUS_SUCCESS
+    ptr.data = ffi.cast("cairo_path_data_t *", ffi.from_buffer(buf))
+    ptr.num_data = cairo_num_data
+    cairo.cairo.cairo_append_path(ctx._pointer, ptr)
+
+
 class RendererCairo(RendererBase):
     fontweights = {
         100          : cairo.FONT_WEIGHT_NORMAL,
@@ -138,38 +219,16 @@ class RendererCairo(RendererBase):
             ctx.restore()
         ctx.stroke()
 
-    @staticmethod
-    def convert_path(ctx, path, transform, clip=None):
-        for points, code in path.iter_segments(transform, clip=clip):
-            if code == Path.MOVETO:
-                ctx.move_to(*points)
-            elif code == Path.CLOSEPOLY:
-                ctx.close_path()
-            elif code == Path.LINETO:
-                ctx.line_to(*points)
-            elif code == Path.CURVE3:
-                ctx.curve_to(points[0], points[1],
-                             points[0], points[1],
-                             points[2], points[3])
-            elif code == Path.CURVE4:
-                ctx.curve_to(*points)
-
     def draw_path(self, gc, path, transform, rgbFace=None):
         ctx = gc.ctx
-
-        # We'll clip the path to the actual rendering extents
-        # if the path isn't filled.
-        if rgbFace is None and gc.get_hatch() is None:
-            clip = ctx.clip_extents()
-        else:
-            clip = None
-
+        # Clip the path to the actual rendering extents if it isn't filled.
+        clip = (ctx.clip_extents()
+                if rgbFace is None and gc.get_hatch() is None
+                else None)
         transform = (transform
-                     + Affine2D().scale(1.0, -1.0).translate(0, self.height))
-
+                     + Affine2D().scale(1, -1).translate(0, self.height))
         ctx.new_path()
-        self.convert_path(ctx, path, transform, clip)
-
+        _convert_path(ctx, path, transform, clip)
         self._fill_and_stroke(
             ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
@@ -179,8 +238,8 @@ class RendererCairo(RendererBase):
 
         ctx.new_path()
         # Create the path for the marker; it needs to be flipped here already!
-        self.convert_path(
-            ctx, marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
+        _convert_path(
+            ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
         marker_path = ctx.copy_path_flat()
 
         # Figure out whether the path has a fill
@@ -193,7 +252,7 @@ class RendererCairo(RendererBase):
             filled = True
 
         transform = (transform
-                     + Affine2D().scale(1.0, -1.0).translate(0, self.height))
+                     + Affine2D().scale(1, -1).translate(0, self.height))
 
         ctx.new_path()
         for i, (vertices, codes) in enumerate(
@@ -247,7 +306,7 @@ class RendererCairo(RendererBase):
 
         ctx.save()
         ctx.set_source_surface(surface, float(x), float(y))
-        if gc.get_alpha() != 1.0:
+        if gc.get_alpha() != 1:
             ctx.paint_with_alpha(gc.get_alpha())
         else:
             ctx.paint()
@@ -413,7 +472,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         ctx.new_path()
         affine = (affine
                   + Affine2D().scale(1, -1).translate(0, self.renderer.height))
-        RendererCairo.convert_path(ctx, tpath, affine)
+        _convert_path(ctx, tpath, affine)
         ctx.clip()
 
     def set_dashes(self, offset, dashes):
