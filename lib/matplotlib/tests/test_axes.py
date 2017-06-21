@@ -4863,6 +4863,25 @@ def test_pandas_indexing_hist():
     axes.hist(ser_2)
 
 
+def test_pandas_bar_align_center():
+    # Tests fix for issue 8767
+    pd = pytest.importorskip('pandas')
+
+    df = pd.DataFrame({'col1': [1] + [2],
+                       'col2': [1]*2,
+                       'col3': [1]*2})
+
+    fig, axArr = plt.subplots(2)
+
+    curr = 1
+    for ax in axArr:
+        rects = ax.bar(df.loc[df['col1'] == curr, 'col2'],
+                       df.loc[df['col1'] == curr, 'col3'],
+                       align='center')
+
+        curr = curr + 1
+
+
 def test_axis_set_tick_params_labelsize_labelcolor():
     # Tests fix for issue 4346
     axis_1 = plt.subplot()
