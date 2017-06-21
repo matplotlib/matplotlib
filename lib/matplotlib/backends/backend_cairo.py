@@ -9,6 +9,7 @@ cairocffi, or (Python 2 only) on pycairo.
 
 import six
 
+import copy
 import gzip
 import sys
 import warnings
@@ -94,35 +95,41 @@ _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
 
 
 def _convert_path(ctx, path, transform, clip=None):
+    return _convert_paths(ctx, [path], [transform], clip)
+
+
+def _convert_paths(ctx, paths, transforms, clip=None):
     if HAS_CAIRO_CFFI:
         try:
-            return _convert_path_fast(ctx, path, transform, clip)
+            return _convert_paths_fast(ctx, paths, transforms, clip)
         except NotImplementedError:
             pass
-    return _convert_path_slow(ctx, path, transform, clip)
+    return _convert_paths_slow(ctx, paths, transforms, clip)
 
 
-def _convert_path_slow(ctx, path, transform, clip=None):
-    for points, code in path.iter_segments(transform, clip=clip):
-        if code == Path.MOVETO:
-            ctx.move_to(*points)
-        elif code == Path.CLOSEPOLY:
-            ctx.close_path()
-        elif code == Path.LINETO:
-            ctx.line_to(*points)
-        elif code == Path.CURVE3:
-            ctx.curve_to(points[0], points[1],
-                         points[0], points[1],
-                         points[2], points[3])
-        elif code == Path.CURVE4:
-            ctx.curve_to(*points)
+def _convert_paths_slow(ctx, paths, transforms, clip=None):
+    for path, transform in zip(paths, transforms):
+        for points, code in path.iter_segments(transform, clip=clip):
+            if code == Path.MOVETO:
+                ctx.move_to(*points)
+            elif code == Path.CLOSEPOLY:
+                ctx.close_path()
+            elif code == Path.LINETO:
+                ctx.line_to(*points)
+            elif code == Path.CURVE3:
+                ctx.curve_to(points[0], points[1],
+                             points[0], points[1],
+                             points[2], points[3])
+            elif code == Path.CURVE4:
+                ctx.curve_to(*points)
 
 
-def _convert_path_fast(ctx, path, transform, clip=None):
+def _convert_paths_fast(ctx, paths, transforms, clip=None):
     ffi = cairo.ffi
-    cleaned = path.cleaned(transform=transform, clip=clip)
-    vertices = cleaned.vertices
-    codes = cleaned.codes
+    cleaneds = [path.cleaned(transform=transform, clip=clip)
+                for path, transform in zip(paths, transforms)]
+    vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
+    codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
 
     # TODO: Implement Bezier degree elevation formula.  Note that the "slow"
     # implementation is, in fact, also incorrect...
@@ -131,10 +138,8 @@ def _convert_path_fast(ctx, path, transform, clip=None):
     # Remove unused vertices and convert to cairo codes.  Note that unlike
     # cairo_close_path, we do not explicitly insert an extraneous MOVE_TO after
     # CLOSE_PATH, so our resulting buffer may be smaller.
-    if codes[-1] == Path.STOP:
-        codes = codes[:-1]
-        vertices = vertices[:-1]
-    vertices = vertices[codes != Path.CLOSEPOLY]
+    vertices = vertices[(codes != Path.STOP) & (codes != Path.CLOSEPOLY)]
+    codes = codes[codes != Path.STOP]
     codes = _MPL_TO_CAIRO_PATH_TYPE[codes]
     # Where are the headers of each cairo portions?
     cairo_type_sizes = _CAIRO_PATH_TYPE_SIZES[codes]
@@ -279,6 +284,54 @@ class RendererCairo(RendererBase):
         if not filled:
             self._fill_and_stroke(
                 ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
+
+    def draw_path_collection(
+            self, gc, master_transform, paths, all_transforms, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
+
+        path_ids = []
+        for path, transform in self._iter_collection_raw_paths(
+                master_transform, paths, all_transforms):
+            path_ids.append((path, Affine2D(transform)))
+
+        reuse_key = None
+        grouped_draw = []
+
+        def _draw_paths():
+            if not grouped_draw:
+                return
+            gc_vars, rgb_fc = reuse_key
+            gc = copy.copy(gc0)
+            vars(gc).update(gc_vars)
+            for k, v in gc_vars.items():
+                try:
+                    getattr(gc, "set" + k)(v)
+                except (AttributeError, TypeError):
+                    pass
+            gc.ctx.new_path()
+            paths, transforms = zip(*grouped_draw)
+            grouped_draw.clear()
+            _convert_paths(gc.ctx, paths, transforms)
+            self._fill_and_stroke(
+                gc.ctx, rgb_fc, gc.get_alpha(), gc.get_forced_alpha())
+
+        for xo, yo, path_id, gc0, rgb_fc in self._iter_collection(
+                gc, master_transform, all_transforms, path_ids, offsets,
+                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                antialiaseds, urls, offset_position):
+            path, transform = path_id
+            transform = (Affine2D(transform.get_matrix()).translate(xo, yo)
+                         + Affine2D().scale(1, -1).translate(0, self.height))
+            # rgb_fc could be a ndarray, for which equality is elementwise.
+            new_key = vars(gc0), tuple(rgb_fc) if rgb_fc is not None else None
+            if new_key == reuse_key:
+                grouped_draw.append((path, transform))
+            else:
+                _draw_paths()
+                grouped_draw.append((path, transform))
+                reuse_key = new_key
+        _draw_paths()
 
     def draw_image(self, gc, x, y, im):
         # bbox - not currently used
