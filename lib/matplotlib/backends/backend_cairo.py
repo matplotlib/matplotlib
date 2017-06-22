@@ -299,7 +299,6 @@ class RendererCairo(RendererBase):
             ctx.move_to(ox, oy)
 
             fontProp = ttfFontProperty(font)
-            ctx.save()
             ctx.select_font_face(fontProp.name,
                                  self.fontangles[fontProp.style],
                                  self.fontweights[fontProp.weight])
@@ -309,7 +308,6 @@ class RendererCairo(RendererBase):
             if not six.PY3 and isinstance(s, six.text_type):
                 s = s.encode("utf-8")
             ctx.show_text(s)
-            ctx.restore()
 
         for ox, oy, w, h in rects:
             ctx.new_path()
