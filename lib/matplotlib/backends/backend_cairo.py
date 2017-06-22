@@ -233,12 +233,12 @@ class RendererCairo(RendererBase):
             # on ctypes to get a pointer to the numpy array. This works
             # correctly on a numpy array in python3 but not 2.7. We replicate
             # the array.array functionality here to get cross version support.
-            imbuffer = ArrayWrapper(im.flatten())
+            imbuffer = ArrayWrapper(im.ravel())
         else:
-            # pycairo uses PyObject_AsWriteBuffer to get a pointer to the
+            # py2cairo uses PyObject_AsWriteBuffer to get a pointer to the
             # numpy array; this works correctly on a regular numpy array but
-            # not on a py2 memoryview.
-            imbuffer = im.flatten()
+            # not on a memory view.
+            imbuffer = im.ravel()
         surface = cairo.ImageSurface.create_for_data(
             imbuffer, cairo.FORMAT_ARGB32,
             im.shape[1], im.shape[0], im.shape[1]*4)
