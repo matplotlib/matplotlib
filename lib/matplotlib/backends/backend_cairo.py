@@ -125,22 +125,31 @@ def _convert_paths_slow(ctx, paths, transforms, clip=None):
 
 
 def _convert_paths_fast(ctx, paths, transforms, clip=None):
+    # We directly convert to the internal representation used by cairo, for
+    # which ABI compatibility is guaranteed.  The layout is for each item is
+    # --CODE(4)--  -LENGTH(4)-  ---------PAD(8)---------
+    # ----------X(8)----------  ----------Y(8)----------
+    # with the size in bytes in parentheses, and (X, Y) repeated as many times
+    # as there are points for the current code.
     ffi = cairo.ffi
     cleaneds = [path.cleaned(transform=transform, clip=clip)
                 for path, transform in zip(paths, transforms)]
     vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
     codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
 
-    # TODO: Implement Bezier degree elevation formula.  Note that the "slow"
-    # implementation is, in fact, also incorrect...
+    # TODO: Implement Bezier degree elevation formula.  For now, fall back to
+    # the "slow" implementation, though note that that implementation is, in
+    # fact, also incorrect...
     if np.any(codes == Path.CURVE3):
         raise NotImplementedError("Quadratic Bezier curves are not supported")
+
     # Remove unused vertices and convert to cairo codes.  Note that unlike
     # cairo_close_path, we do not explicitly insert an extraneous MOVE_TO after
     # CLOSE_PATH, so our resulting buffer may be smaller.
     vertices = vertices[(codes != Path.STOP) & (codes != Path.CLOSEPOLY)]
     codes = codes[codes != Path.STOP]
     codes = _MPL_TO_CAIRO_PATH_TYPE[codes]
+
     # Where are the headers of each cairo portions?
     cairo_type_sizes = _CAIRO_PATH_TYPE_SIZES[codes]
     cairo_type_positions = np.insert(np.cumsum(cairo_type_sizes), 0, 0)
@@ -303,6 +312,7 @@ class RendererCairo(RendererBase):
                 return
             gc_vars, rgb_fc = reuse_key
             gc = copy.copy(gc0)
+            # We actually need to call the setters to reset the internal state.
             vars(gc).update(gc_vars)
             for k, v in gc_vars.items():
                 try:
