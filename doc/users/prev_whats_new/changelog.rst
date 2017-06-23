@@ -596,7 +596,7 @@ the `API changes <../../api/api_changes.html>`_.
 2010-06-30 Added autoscale convenience method and corresponding
            pyplot function for simplified control of autoscaling;
            and changed axis, set_xlim, and set_ylim so that by
-           default, they turn off the autoscaling on the relevent
+           default, they turn off the autoscaling on the relevant
            axis or axes.  Therefore one can call set_xlim before
            plotting a line, for example, and the limits will be
            retained. - EF

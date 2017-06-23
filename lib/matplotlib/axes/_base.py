@@ -3827,7 +3827,7 @@ class _AxesBase(martist.Artist):
 
     def contains(self, mouseevent):
         """
-        Test whether the mouse event occured in the axes.
+        Test whether the mouse event occurred in the axes.
 
         Returns *True* / *False*, {}
         """

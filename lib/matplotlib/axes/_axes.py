@@ -4038,7 +4038,7 @@ or tuple of floats
 
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length, *N*. If *C* is *None*
-        (the default), this is a histogram of the number of occurences
+        (the default), this is a histogram of the number of occurrences
         of the observations at (x[i],y[i]).
 
         If *C* is specified, it specifies values at the coordinate

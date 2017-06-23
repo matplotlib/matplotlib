@@ -85,7 +85,7 @@
 #
 # The Agg, Ps, Pdf and SVG backends do not require external
 # dependencies. Do not choose GTK, GTKAgg, GTKCairo, MacOSX, or TkAgg
-# if you have disabled the relevent extension modules.  Agg will be used
+# if you have disabled the relevant extension modules.  Agg will be used
 # by default.
 #
 #backend = Agg

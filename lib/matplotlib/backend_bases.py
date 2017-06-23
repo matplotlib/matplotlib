@@ -382,7 +382,7 @@ class RendererBase(object):
                                    all_transforms):
         """
         This is a helper method (along with :meth:`_iter_collection`) to make
-        it easier to write a space-efficent :meth:`draw_path_collection`
+        it easier to write a space-efficient :meth:`draw_path_collection`
         implementation in a backend.
 
         This method yields all of the base path/transform
@@ -433,7 +433,7 @@ class RendererBase(object):
         """
         This is a helper method (along with
         :meth:`_iter_collection_raw_paths`) to make it easier to write
-        a space-efficent :meth:`draw_path_collection` implementation in a
+        a space-efficient :meth:`draw_path_collection` implementation in a
         backend.
 
         This method yields all of the path, offset and graphics

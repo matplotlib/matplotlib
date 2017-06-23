@@ -548,7 +548,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """
-        Test whether the mouse event occured within the image.
+        Test whether the mouse event occurred within the image.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -1195,7 +1195,7 @@ class BboxImage(_ImageBase):
             raise ValueError("unknown type of bbox")
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured within the image."""
+        """Test whether the mouse event occurred within the image."""
         if callable(self._contains):
             return self._contains(self, mouseevent)
 

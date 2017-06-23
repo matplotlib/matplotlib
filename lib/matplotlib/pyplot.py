@@ -2312,7 +2312,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',',
              names=None, subplots=True, newfig=True, **kwargs):
     """
-    Plot the data in in a file.
+    Plot the data in a file.
 
     *cols* is a sequence of column identifiers to plot.  An identifier
     is either an int or a string.  If it is an int, it indicates the
