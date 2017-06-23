@@ -99,12 +99,8 @@ def _convert_path(ctx, path, transform, clip=None):
 
 
 def _convert_paths(ctx, paths, transforms, clip=None):
-    if HAS_CAIRO_CFFI:
-        try:
-            return _convert_paths_fast(ctx, paths, transforms, clip)
-        except NotImplementedError:
-            pass
-    return _convert_paths_slow(ctx, paths, transforms, clip)
+    return (_convert_paths_fast if HAS_CAIRO_CFFI else _convert_paths_slow)(
+        ctx, paths, transforms, clip)
 
 
 def _convert_paths_slow(ctx, paths, transforms, clip=None):
@@ -117,9 +113,10 @@ def _convert_paths_slow(ctx, paths, transforms, clip=None):
             elif code == Path.LINETO:
                 ctx.line_to(*points)
             elif code == Path.CURVE3:
-                ctx.curve_to(points[0], points[1],
-                             points[0], points[1],
-                             points[2], points[3])
+                cur = ctx.get_current_point()
+                ctx.curve_to(
+                    *np.concatenate([cur / 3 + points[:2] * 2 / 3,
+                                     points[:2] * 2 / 3 + points[-2:] / 3]))
             elif code == Path.CURVE4:
                 ctx.curve_to(*points)
 
@@ -132,16 +129,14 @@ def _convert_paths_fast(ctx, paths, transforms, clip=None):
     # with the size in bytes in parentheses, and (X, Y) repeated as many times
     # as there are points for the current code.
     ffi = cairo.ffi
-    cleaneds = [path.cleaned(transform=transform, clip=clip)
+
+    # Convert curves to segment, so that 1. we don't have to handle
+    # variable-sized CURVE-n codes, and 2. we don't have to implement degree
+    # elevation for quadratic Beziers.
+    cleaneds = [path.cleaned(transform=transform, clip=clip, curves=False)
                 for path, transform in zip(paths, transforms)]
     vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
     codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
-
-    # TODO: Implement Bezier degree elevation formula.  For now, fall back to
-    # the "slow" implementation, though note that that implementation is, in
-    # fact, also incorrect...
-    if np.any(codes == Path.CURVE3):
-        raise NotImplementedError("Quadratic Bezier curves are not supported")
 
     # Remove unused vertices and convert to cairo codes.  Note that unlike
     # cairo_close_path, we do not explicitly insert an extraneous MOVE_TO after
