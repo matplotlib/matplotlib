@@ -79,7 +79,7 @@ class RendererAgg(RendererBase):
     # FigureCanvas acquire a lock on the fontd at the start of the
     # draw, and release it when it is done.  This allows multiple
     # renderers to share the cached fonts, but only one figure can
-    # draw at at time and so the font cache is used by only one
+    # draw at time and so the font cache is used by only one
     # renderer at a time
 
     lock = threading.RLock()

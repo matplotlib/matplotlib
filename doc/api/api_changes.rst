@@ -2902,7 +2902,7 @@ Changes for 0.50
       canvas.show()
       vbox.pack_start(canvas)
 
-    If you use the NavigationToolbar, this in now intialized with a
+    If you use the NavigationToolbar, this in now initialized with a
     FigureCanvas, not a Figure.  The examples embedding_in_gtk.py,
     embedding_in_gtk2.py, and mpl_with_glade.py all reflect the new
     API so use these as a guide.
