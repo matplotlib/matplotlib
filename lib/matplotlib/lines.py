@@ -1160,7 +1160,8 @@ class Line2D(Artist):
         """
         if ec is None:
             ec = 'auto'
-        if self._markeredgecolor is None or self._markeredgecolor != ec:
+        if self._markeredgecolor is None or \
+           np.any(self._markeredgecolor != ec):
             self.stale = True
         self._markeredgecolor = ec
 
@@ -1184,7 +1185,7 @@ class Line2D(Artist):
         """
         if fc is None:
             fc = 'auto'
-        if self._markerfacecolor != fc:
+        if np.any(self._markerfacecolor != fc):
             self.stale = True
         self._markerfacecolor = fc
 
@@ -1196,7 +1197,7 @@ class Line2D(Artist):
         """
         if fc is None:
             fc = 'auto'
-        if self._markerfacecoloralt != fc:
+        if np.any(self._markerfacecoloralt != fc):
             self.stale = True
         self._markerfacecoloralt = fc
 
