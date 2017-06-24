@@ -16,7 +16,7 @@ def connect_bbox(bbox1, bbox2,
                  prop_lines, prop_patches=None):
     if prop_patches is None:
         prop_patches = prop_lines.copy()
-        prop_patches["alpha"] = prop_patches.get("alpha", 1)*0.2
+        prop_patches["alpha"] = prop_patches.get("alpha", 1) * 0.2
 
     c1 = BboxConnector(bbox1, bbox2, loc1=loc1a, loc2=loc2a, **prop_lines)
     c1.set_clip_on(False)

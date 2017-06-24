@@ -25,7 +25,7 @@ y4 = np.array([6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, 6.89
 
 
 def fit(x):
-    return 3 + 0.5*x
+    return 3 + 0.5 * x
 
 
 xfit = np.array([np.min(x), np.max(x)])
@@ -39,7 +39,8 @@ plt.text(3, 12, 'I', fontsize=20)
 plt.subplot(222)
 plt.plot(x, y2, 'ks', xfit, fit(xfit), 'r-', lw=2)
 plt.axis([2, 20, 2, 14])
-plt.setp(plt.gca(), xticklabels=[], yticks=(4, 8, 12), yticklabels=[], xticks=(0, 10, 20))
+plt.setp(plt.gca(), xticks=(0, 10, 20), xticklabels=[],
+         yticks=(4, 8, 12), yticklabels=[], )
 plt.text(3, 12, 'II', fontsize=20)
 
 plt.subplot(223)
@@ -58,6 +59,7 @@ plt.text(3, 12, 'IV', fontsize=20)
 # verify the stats
 pairs = (x, y1), (x, y2), (x, y3), (x4, y4)
 for x, y in pairs:
-    print('mean=%1.2f, std=%1.2f, r=%1.2f' % (np.mean(y), np.std(y), np.corrcoef(x, y)[0][1]))
+    print('mean=%1.2f, std=%1.2f, r=%1.2f' % (np.mean(y), np.std(y),
+          np.corrcoef(x, y)[0][1]))
 
 plt.show()
