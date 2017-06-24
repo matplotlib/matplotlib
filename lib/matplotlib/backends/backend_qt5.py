@@ -457,7 +457,7 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window.setWindowTitle("Figure %d" % num)
         image = os.path.join(matplotlib.rcParams['datapath'],
-                             'images', 'matplotlib.png')
+                             'images', 'matplotlib.svg')
         self.window.setWindowIcon(QtGui.QIcon(image))
 
         # Give the keyboard focus to the figure instead of the
