@@ -86,10 +86,7 @@ The description of this MEP gives us most of the solution:
    subclass the GUI specific window class to ensure backward
    compatibility (``manager.window == manager.window``).
 2. Refactor the mainloop of ``ShowBase`` into ``MainLoopBase``, which
-   encapsulates the end of the loop as well.  We give an instance of
-   ``MainLoop`` to ``FigureManager`` as a key unlock the exit method
-   (requiring all keys returned before the loop can die).  Note this
-   opens the possibility for multiple backends to run concurrently.
+   encapsulates the end of the loop as well.
 3. Now that ``FigureManagerBase`` has no backend specifics in it, to
    rename it to ``FigureManager``, and move to a new file
    ``backend_managers.py`` noting that:

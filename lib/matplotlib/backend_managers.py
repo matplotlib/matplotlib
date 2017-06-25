@@ -85,7 +85,6 @@ class FigureManager(cbook.EventEmitter):
             self.window = None
             return
 
-        self._mainloop = self._backend.MainLoop()
         self.window = self._backend.Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self.destroy)
 
@@ -150,10 +149,6 @@ class FigureManager(cbook.EventEmitter):
         if self.toolbar:
             self.toolbar.destroy()
         self.window.destroy()
-
-        # Fix as for some reason we have extra references to this#
-        # i.e. ``del self._mainloop`` doesn't work
-        self._mainloop.__del__()
 
         s = 'window_destroy_event'
         event = FigureManagerEvent(s, self)

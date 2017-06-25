@@ -156,13 +156,6 @@ class MainLoopBase(object):
     It should not matter if this gets used as a singleton or not due to
     clever magic.
     """
-    _instance_count = {}
-    _running = False
-
-    def __init__(self):
-        MainLoopBase._instance_count.setdefault(self.__class__, 0)
-        MainLoopBase._instance_count[self.__class__] += 1
-
     def begin(self):
         pass
 
@@ -172,12 +165,7 @@ class MainLoopBase(object):
     def __call__(self):
         MainLoopBase._running = True
         self.begin()
-
-    def __del__(self):
-        MainLoopBase._instance_count[self.__class__] -= 1
-        if (MainLoopBase._instance_count[self.__class__] <= 0 and
-                not is_interactive() and MainLoopBase._running):
-            self.end()
+        self.end()
 
     def __enter__(self):
         pass
