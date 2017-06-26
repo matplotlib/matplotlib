@@ -22,6 +22,12 @@ removed.
 The ``ArtistInspector.findobj`` method, which was never working due to the lack
 of a ``get_children`` method, has been removed.
 
+The deprecated ``point_in_path``, ``get_path_extents``,
+``point_in_path_collection``, ``path_intersects_path``,
+``convert_path_to_polygons``, ``cleanup_path`` and ``clip_path_to_rect``
+functions in the ``matplotlib.path`` module have been removed.  Their
+functionality remains exposed as methods on the ``Path`` class.
+
 
 `Axes.set_aspect("normal")`
 ---------------------------

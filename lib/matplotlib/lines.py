@@ -771,11 +771,9 @@ class Line2D(Artist):
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
         renderer.open_group('line2d', self.get_gid())
-        funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
-        if funcname != '_draw_nothing':
+        if self._lineStyles[self._linestyle] != '_draw_nothing':
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
-                line_func = getattr(self, funcname)
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
 
@@ -798,7 +796,8 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                line_func(renderer, gc, tpath, affine.frozen())
+                gc.set_dashes(self._dashOffset, self._dashSeq)
+                renderer.draw_path(gc, tpath, affine.frozen())
                 gc.restore()
 
         if self._marker and self._markersize > 0:
@@ -1244,26 +1243,6 @@ class Line2D(Artist):
             self.set_linestyle('-')
         else:
             self.set_linestyle((0, seq))
-
-    def _draw_solid(self, renderer, gc, path, trans):
-        gc.set_linestyle('solid')
-        gc.set_dashes(self._dashOffset, self._dashSeq)
-        renderer.draw_path(gc, path, trans)
-
-    def _draw_dashed(self, renderer, gc, path, trans):
-        gc.set_linestyle('dashed')
-        gc.set_dashes(self._dashOffset, self._dashSeq)
-        renderer.draw_path(gc, path, trans)
-
-    def _draw_dash_dot(self, renderer, gc, path, trans):
-        gc.set_linestyle('dashdot')
-        gc.set_dashes(self._dashOffset, self._dashSeq)
-        renderer.draw_path(gc, path, trans)
-
-    def _draw_dotted(self, renderer, gc, path, trans):
-        gc.set_linestyle('dotted')
-        gc.set_dashes(self._dashOffset, self._dashSeq)
-        renderer.draw_path(gc, path, trans)
 
     def update_from(self, other):
         """copy properties from other to self"""
