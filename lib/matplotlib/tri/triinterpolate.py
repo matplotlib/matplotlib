@@ -57,7 +57,7 @@ class TriInterpolator(object):
         self._unit_y = 1.0
 
         # Default triangle renumbering: None (= no renumbering)
-        # Renumbering may be used to avoid unecessary computations
+        # Renumbering may be used to avoid unnecessary computations
         # if complex calculations are done inside the Interpolator.
         # Please refer to :meth:`_interpolate_multikeys` for details.
         self._tri_renum = None

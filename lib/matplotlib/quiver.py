@@ -925,7 +925,7 @@ class Barbs(mcollections.PolyCollection):
         self.flip = kw.pop('flip_barb', False)
         transform = kw.pop('transform', ax.transData)
 
-        # Flagcolor and and barbcolor provide convenience parameters for
+        # Flagcolor and barbcolor provide convenience parameters for
         # setting the facecolor and edgecolor, respectively, of the barb
         # polygon.  We also work here to make the flag the same color as the
         # rest of the barb by default

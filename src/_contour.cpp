@@ -1213,7 +1213,7 @@ void QuadContourGenerator::init_cache_grid(const MaskArray& mask)
     long i, j, quad;
 
     if (mask.empty()) {
-        // No mask, easy to calculate quad existance and boundaries together.
+        // No mask, easy to calculate quad existence and boundaries together.
         quad = 0;
         for (j = 0; j < _ny; ++j) {
             for (i = 0; i < _nx; ++i, ++quad) {
