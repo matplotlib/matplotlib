@@ -5524,19 +5524,14 @@ or tuple of floats
         X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
         Ny, Nx = X.shape
 
-        # convert to one dimensional arrays
-        C = C.ravel()
-        X = X.ravel()
-        Y = Y.ravel()
-
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
         X = self.convert_xunits(X)
         Y = self.convert_yunits(Y)
 
-        coords = np.zeros(((Nx * Ny), 2), dtype=float)
-        coords[:, 0] = X
-        coords[:, 1] = Y
+        # convert to one dimensional arrays
+        C = C.ravel()
+        coords = np.column_stack((X.flat, Y.flat)).astype(float, copy=False)
 
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
@@ -5561,17 +5556,12 @@ or tuple of floats
 
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
-            pts = np.vstack([X, Y]).T.astype(float)
-            transformed_pts = trans_to_data.transform(pts)
-            X = transformed_pts[..., 0]
-            Y = transformed_pts[..., 1]
+            coords = trans_to_data.transform(coords)
 
         self.add_collection(collection, autolim=False)
 
-        minx = np.min(X)
-        maxx = np.max(X)
-        miny = np.min(Y)
-        maxy = np.max(Y)
+        minx, miny = np.min(coords, axis=0)
+        maxx, maxy = np.max(coords, axis=0)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
