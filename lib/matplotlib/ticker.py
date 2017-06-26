@@ -1480,6 +1480,15 @@ class Locator(TickHelper):
         step = 0.1 * interval * direction
         self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
+    def _decrease_lower_bound(self, levels, lower_bound):
+        levels.insert(0, lower_bound - 1.0)
+
+    def _increase_upper_bound(self, levels, upper_bound):
+        levels.append(upper_bound + 1.0)
+
+    def _get_lower_extend_layer_value(self):
+        return -1e150
+
     def refresh(self):
         """refresh internal information based on current lim"""
         pass
@@ -2191,6 +2200,15 @@ class LogLocator(Locator):
             vmin = decade_down(vmin, self._base)
             vmax = decade_up(vmax, self._base)
         return vmin, vmax
+
+    def _decrease_lower_bound(self, levels, lower_bound):
+        levels.insert(0, lower_bound / self._base)
+
+    def _increase_upper_bound(self, levels, upper_bound):
+        levels.append(upper_bound * self._base)
+
+    def _get_lower_extend_layer_value(self):
+        return np.nextafter(0,1)
 
 
 class SymmetricalLogLocator(Locator):

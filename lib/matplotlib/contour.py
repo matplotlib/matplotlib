@@ -27,6 +27,7 @@ import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
 from matplotlib.cbook import mplDeprecation
+from matplotlib.ticker import Locator
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -831,9 +832,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.logscale = True
             if norm is None:
                 norm = colors.LogNorm()
-            if self.extend is not 'neither':
-                raise ValueError('extend kwarg does not work yet with log '
-                                 ' scale')
         else:
             self.logscale = False
 
@@ -1213,10 +1211,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
 
+        tempLocator = Locator()
+        if self.locator is not None:
+            tempLocator = self.locator
         if self.extend in ('both', 'min'):
-            self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
+            lowerbound = min(self.levels[0], self.zmin)
+            tempLocator._decrease_lower_bound(self._levels, lowerbound)
         if self.extend in ('both', 'max'):
-            self._levels.append(max(self.levels[-1], self.zmax) + 1)
+            upperbound = max(self.levels[-1], self.zmax)
+            tempLocator._increase_upper_bound(self._levels, upperbound)
         self._levels = np.asarray(self._levels)
 
         if not self.filled:
@@ -1228,7 +1231,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            self.layers[0] = -1e150
+            self.layers[0] = tempLocator._get_lower_extend_layer_value()
         if self.extend in ('both', 'max'):
             self.layers[-1] = 1e150
 
