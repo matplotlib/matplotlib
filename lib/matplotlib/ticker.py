@@ -2208,7 +2208,7 @@ class LogLocator(Locator):
         levels.append(upper_bound * self._base)
 
     def _get_lower_extend_layer_value(self):
-        return np.nextafter(0,1)
+        return np.nextafter(0, 1)
 
 
 class SymmetricalLogLocator(Locator):
