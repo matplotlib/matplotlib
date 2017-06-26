@@ -55,7 +55,7 @@
 # therefore they are installed unconditionally.
 #
 # You can uncomment any the following lines to change this
-# behavior. Acceptible values are:
+# behavior. Acceptable values are:
 #
 #     True: build the extension. Exits with a warning if the
 #           required dependencies are not available

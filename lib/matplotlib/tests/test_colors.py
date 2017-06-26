@@ -410,7 +410,7 @@ def test_light_source_shading_default():
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
-    # Result stored transposed and rounded for for more compact display...
+    # Result stored transposed and rounded for more compact display...
     expect = np.array(
         [[[0.00, 0.45, 0.90, 0.90, 0.82, 0.62, 0.28, 0.00],
           [0.45, 0.94, 0.99, 1.00, 1.00, 0.96, 0.65, 0.17],
@@ -475,7 +475,7 @@ def test_light_source_masked_shading():
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
-    # Result stored transposed and rounded for for more compact display...
+    # Result stored transposed and rounded for more compact display...
     expect = np.array(
         [[[0.00, 0.46, 0.91, 0.91, 0.84, 0.64, 0.29, 0.00],
           [0.46, 0.96, 1.00, 1.00, 1.00, 0.97, 0.67, 0.18],
