@@ -1,0 +1,7 @@
+WX no longer calls generates ``IdleEvent`` events or calls ``idle_event``
+`````````````````````````````````````````````````````````````````````````
+
+Removed unused private method ``_onIdle`` from ``FigureCanvasWx``.
+
+The ``IdleEvent`` class and ``FigureCanvasBase.idle_event`` method
+will be removed in 2.2

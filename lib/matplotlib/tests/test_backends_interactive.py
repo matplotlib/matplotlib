@@ -10,9 +10,6 @@ import pytest
 # PyPI-installable on Travis.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
 #
-# Once the Travis build environment switches to Ubuntu 14.04, we should be able
-# to add wxagg (which has wheels for 14.04 but not for 12.04).
-#
 # We also don't test on Py2 because its subprocess module doesn't support
 # timeouts, and it would require a separate code path to check for module
 # existence without actually trying to import the module (which may install
