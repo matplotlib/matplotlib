@@ -27,7 +27,7 @@ import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
 from matplotlib.cbook import mplDeprecation
-from matplotlib.ticker import Locator
+from matplotlib.ticker import Locator, LogLocator
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -1212,6 +1212,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._levels = list(self.levels)
 
         tempLocator = Locator()
+        if self.logscale:
+            tempLocator = LogLocator()
         if self.locator is not None:
             tempLocator = self.locator
         if self.extend in ('both', 'min'):
