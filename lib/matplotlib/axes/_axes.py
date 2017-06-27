@@ -5945,7 +5945,7 @@ or tuple of floats
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
             only contributes its associated weight towards the bin count
-            (instead of 1).  If `normed` and/or 'density' is True,
+            (instead of 1).  If `normed` or 'density' is True,
             the weights are normalized, so that the integral of the density
             over the range remains 1.
 
@@ -5954,7 +5954,7 @@ or tuple of floats
         cumulative : boolean, optional
             If `True`, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints. If `normed` and/or 'density'
+            gives the total number of datapoints. If `normed` or 'density'
             is also `True` then the histogram is normalized such that the last
             bin equals 1. If `cumulative` evaluates to less than 0 (e.g., -1),
             the direction of accumulation is reversed.  In this case, if
@@ -6042,12 +6042,13 @@ or tuple of floats
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram bins. See **normed or density** and **weights**
-            for a description of the possible semantics. If input **x** is an
-            array, then this is an array of length **nbins**. If input is a
-            sequence arrays ``[data1, data2,..]``, then this is a list of
-            arrays with the values of the histograms for each of the arrays
-            in the same order.
+            The values of the histogram bins. See **normed or density**
+            and **weights** for a description of the possible semantics.
+            If input **x** is an array, then this is an array of length
+            **nbins**. If input is a sequence arrays
+            ``[data1, data2,..]``, then this is a list of arrays with
+            the values of the histograms for each of the arrays in the
+            same order.
 
         bins : array
             The edges of the bins. Length nbins + 1 (nbins left edges and right
