@@ -7,7 +7,7 @@ How to create grid-shaped combinations of axes.
 
     :class:`~matplotlib.gridspec.GridSpec`
         specifies the geometry of the grid that a subplot will be
-        placed. The number of rows and number of columns of the grid
+        placed in. The number of rows and number of columns of the grid
         need to be set. Optionally, the subplot layout parameters
         (e.g., left, right, etc.) can be tuned.
 
