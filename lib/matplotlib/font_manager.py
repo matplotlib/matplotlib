@@ -56,7 +56,6 @@ import warnings
 
 import matplotlib
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
-from matplotlib.cbook import is_string_like
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
@@ -64,7 +63,7 @@ from matplotlib.fontconfig_pattern import (
 try:
     from functools import lru_cache
 except ImportError:
-    from functools32 import lru_cache
+    from backports.functools_lru_cache import lru_cache
 
 
 USE_FONTCONFIG = False
@@ -184,7 +183,7 @@ def win32FontDirectory():
     Return the user-specified font directory for Win32.  This is
     looked up from the registry key::
 
-      \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
+      \\\\HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\Fonts
 
     If the key is not found, $WINDIR/Fonts will be returned.
     """
@@ -234,7 +233,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             for j in range(winreg.QueryInfoKey(local)[1]):
                 try:
                     key, direc, any = winreg.EnumValue( local, j)
-                    if not is_string_like(direc):
+                    if not isinstance(direc, six.string_types):
                         continue
                     if not os.path.dirname(direc):
                         direc = os.path.join(directory, direc)
@@ -281,7 +280,7 @@ def _call_fc_list():
         'This may take a moment.'))
     timer.start()
     try:
-        out = subprocess.check_output(['fc-list', '--format=%{file}'])
+        out = subprocess.check_output([str('fc-list'), '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
     finally:
@@ -346,6 +345,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
+@cbook.deprecated("2.1")
 def weight_as_number(weight):
     """
     Return the weight property as a numeric value.  String values
@@ -435,17 +435,12 @@ def ttfFontProperty(font):
     else:
         variant = 'normal'
 
-    #  Weights are: 100, 200, 300, 400 (normal: default), 500 (medium),
-    #    600 (semibold, demibold), 700 (bold), 800 (heavy), 900 (black)
-    #    lighter and bolder are also allowed.
-
     weight = next((w for w in weight_dict if sfnt4.find(w) >= 0), None)
     if not weight:
         if font.style_flags & ft2font.BOLD:
             weight = 700
         else:
             weight = 400
-    weight = weight_as_number(weight)
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
@@ -511,11 +506,7 @@ def afmFontProperty(fontpath, font):
     else:
         variant = 'normal'
 
-    #  Weights are: 100, 200, 300, 400 (normal: default), 500 (medium),
-    #    600 (semibold, demibold), 700 (bold), 800 (heavy), 900 (black)
-    #    lighter and bolder are also allowed.
-
-    weight = weight_as_number(font.get_weight().lower())
+    weight = font.get_weight().lower()
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
@@ -688,7 +679,7 @@ class FontProperties(object):
             self.__dict__.update(_init.__dict__)
             return
 
-        if is_string_like(family):
+        if isinstance(family, six.string_types):
             # Treat family as a fontconfig pattern if it is the only
             # parameter provided.
             if (style is None and
@@ -855,7 +846,6 @@ class FontProperties(object):
         except ValueError:
             if weight not in weight_dict:
                 raise ValueError("weight is invalid")
-            weight = weight_dict[weight]
         self._weight = weight
 
     def set_stretch(self, stretch):
@@ -926,6 +916,7 @@ class FontProperties(object):
         return FontProperties(_init=self)
 
 
+@cbook.deprecated("2.1")
 def ttfdict_to_fnames(d):
     """
     flatten a ttfdict to all the filenames it contains
@@ -984,7 +975,7 @@ def json_load(filename):
 
 
 def _normalize_font_family(family):
-    if is_string_like(family):
+    if isinstance(family, six.string_types):
         family = [six.text_type(family)]
     elif isinstance(family, Iterable):
         family = [six.text_type(f) for f in family]
@@ -1040,7 +1031,7 @@ class FontManager(object):
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 200
+    __version__ = 201
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1203,10 +1194,19 @@ class FontManager(object):
         """
         Returns a match score between *weight1* and *weight2*.
 
-        The result is the absolute value of the difference between the
+        The result is 0.0 if both weight1 and weight 2 are given as strings
+        and have the same value.
+
+        Otherwise, the result is the absolute value of the difference between the
         CSS numeric values of *weight1* and *weight2*, normalized
-        between 0.0 and 1.0.
+        between 0.05 and 1.0.
         """
+
+        # exact match of the weight names (e.g. weight1 == weight2 == "regular")
+        if (isinstance(weight1, six.string_types) and
+                isinstance(weight2, six.string_types) and
+                weight1 == weight2):
+            return 0.0
         try:
             weightval1 = int(weight1)
         except ValueError:
@@ -1215,7 +1215,7 @@ class FontManager(object):
             weightval2 = int(weight2)
         except ValueError:
             weightval2 = weight_dict.get(weight2, 500)
-        return abs(weightval1 - weightval2) / 1000.0
+        return 0.95*(abs(weightval1 - weightval2) / 1000.0) + 0.05
 
     def score_size(self, size1, size2):
         """
@@ -1234,7 +1234,7 @@ class FontManager(object):
         try:
             sizeval1 = float(size1)
         except ValueError:
-            sizeval1 = self.default_size * font_scalings(size1)
+            sizeval1 = self.default_size * font_scalings[size1]
         try:
             sizeval2 = float(size2)
         except ValueError:
@@ -1283,13 +1283,16 @@ class FontManager(object):
             cached = _lookup_cache[fontext].get(prop)
             if cached is not None:
                 return cached
+        else:
+            directory = os.path.normcase(directory)
 
         best_score = 1e64
         best_font = None
 
         for font in fontlist:
             if (directory is not None and
-                os.path.commonprefix([font.fname, directory]) != directory):
+                    os.path.commonprefix([os.path.normcase(font.fname),
+                                          directory]) != directory):
                 continue
             # Matching family should have highest priority, so it is multiplied
             # by 10.0
@@ -1398,7 +1401,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
-        if not is_string_like(prop):
+        if not isinstance(prop, six.string_types):
             prop = prop.get_fontconfig_pattern()
         cached = _fc_match_cache.get(prop)
         if cached is not None:

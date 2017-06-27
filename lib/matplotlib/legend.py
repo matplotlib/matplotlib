@@ -7,7 +7,8 @@ drawing legends associated with axes and/or figures.
     It is unlikely that you would ever create a Legend instance manually.
     Most users would normally create a legend via the
     :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
-    there is also a :ref:`legend guide <plotting-guide-legend>`.
+    there is also a :ref:`legend guide
+    <sphx_glr_tutorials_02_intermediate_legend_guide.py>`.
 
 The Legend class can be considered as a container of legend handles
 and legend texts. Creation of corresponding legend handles from the
@@ -16,9 +17,9 @@ specified by the handler map, which defines the mapping between the
 plot elements and the legend handlers to be used (the default legend
 handlers are defined in the :mod:`~matplotlib.legend_handler` module).
 Note that not all kinds of artist are supported by the legend yet by default
-but it is possible to extend the legend handler's capabilities to
-support arbitrary objects. See the :ref:`legend guide <plotting-guide-legend>`
-for more information.
+but it is possible to extend the legend handler's capabilities to support
+arbitrary objects. See the :ref:`legend guide
+<sphx_glr_tutorials_02_intermediate_legend_guide.py>` for more information.
 
 """
 from __future__ import (absolute_import, division, print_function,
@@ -33,7 +34,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import is_string_like, iterable, silent_list, is_hashable
+from matplotlib.cbook import silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -117,7 +118,7 @@ class Legend(Artist):
       'upper left'   : 2,
       'lower left'   : 3,
       'lower right'  : 4,
-      'right'        : 5,
+      'right'        : 5, (same as 'center right', for back-compatibility)
       'center left'  : 6,
       'center right' : 7,
       'lower center' : 8,
@@ -317,7 +318,7 @@ class Legend(Artist):
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
-        if is_string_like(loc):
+        if isinstance(loc, six.string_types):
             if loc not in self.codes:
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '
@@ -409,17 +410,6 @@ class Legend(Artist):
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
         self._loc_real = loc
-        if loc == 0:
-            _findoffset = self._findoffset_best
-        else:
-            _findoffset = self._findoffset_loc
-
-#       def findoffset(width, height, xdescent, ydescent):
-#           return _findoffset(width, height, xdescent, ydescent, renderer)
-
-        self._legend_box.set_offset(_findoffset)
-
-        self._loc_real = loc
         self.stale = True
 
     def _get_loc(self):
@@ -427,24 +417,20 @@ class Legend(Artist):
 
     _loc = property(_get_loc, _set_loc)
 
-    def _findoffset_best(self, width, height, xdescent, ydescent, renderer):
-        "Helper function to locate the legend at its best position"
-        ox, oy = self._find_best_position(width, height, renderer)
-        return ox + xdescent, oy + ydescent
+    def _findoffset(self, width, height, xdescent, ydescent, renderer):
+        "Helper function to locate the legend"
 
-    def _findoffset_loc(self, width, height, xdescent, ydescent, renderer):
-        "Helper function to locate the legend using the location code"
-
-        if iterable(self._loc) and len(self._loc) == 2:
-            # when loc is a tuple of axes(or figure) coordinates.
-            fx, fy = self._loc
-            bbox = self.get_bbox_to_anchor()
-            x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
-        else:
+        if self._loc == 0:  # "best".
+            x, y = self._find_best_position(width, height, renderer)
+        elif self._loc in Legend.codes.values():  # Fixed location.
             bbox = Bbox.from_bounds(0, 0, width, height)
             x, y = self._get_anchored_bbox(self._loc, bbox,
                                            self.get_bbox_to_anchor(),
                                            renderer)
+        else:  # Axes or figure coordinates.
+            fx, fy = self._loc
+            bbox = self.get_bbox_to_anchor()
+            x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
 
         return x + xdescent, y + ydescent
 
@@ -701,6 +687,7 @@ class Legend(Artist):
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
+        self._legend_box.set_offset(self._findoffset)
         self.texts = text_list
         self.legendHandles = handle_list
 
@@ -923,47 +910,25 @@ class Legend(Artist):
                                                 renderer)
                         for x in range(1, len(self.codes))]
 
-#       tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
-
         candidates = []
-        for l, b in consider:
+        for idx, (l, b) in enumerate(consider):
             legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
             # XXX TODO: If markers are present, it would be good to
-            # take their into account when checking vertex overlaps in
+            # take them into account when checking vertex overlaps in
             # the next line.
-            badness = legendBox.count_contains(verts)
-            badness += legendBox.count_contains(offsets)
-            badness += legendBox.count_overlaps(bboxes)
-            for line in lines:
-                # FIXME: the following line is ill-suited for lines
-                # that 'spiral' around the center, because the bbox
-                # may intersect with the legend even if the line
-                # itself doesn't. One solution would be to break up
-                # the line into its straight-segment components, but
-                # this may (or may not) result in a significant
-                # slowdown if lines with many vertices are present.
-                if line.intersects_bbox(legendBox):
-                    badness += 1
-
-            ox, oy = l, b
+            badness = (legendBox.count_contains(verts)
+                       + legendBox.count_contains(offsets)
+                       + legendBox.count_overlaps(bboxes)
+                       + sum(line.intersects_bbox(legendBox, filled=False)
+                             for line in lines))
             if badness == 0:
-                return ox, oy
+                return l, b
+            # Include the index to favor lower codes in case of a tie.
+            candidates.append((badness, idx, (l, b)))
 
-            candidates.append((badness, (l, b)))
-
-        # rather than use min() or list.sort(), do this so that we are assured
-        # that in the case of two equal badnesses, the one first considered is
-        # returned.
-        # NOTE: list.sort() is stable.But leave as it is for now. -JJL
-        minCandidate = candidates[0]
-        for candidate in candidates:
-            if candidate[0] < minCandidate[0]:
-                minCandidate = candidate
-
-        ox, oy = minCandidate[1]
-
-        return ox, oy
+        _, _, (l, b) = min(candidates)
+        return l, b
 
     def contains(self, event):
         return self.legendPatch.contains(event)

@@ -6,14 +6,13 @@ import os
 import shutil
 
 import numpy as np
-from nose.plugins.skip import SkipTest
+import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.testing.decorators import (_image_directories, switch_backend,
-                                           cleanup)
+from matplotlib.testing.decorators import _image_directories
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -28,7 +27,7 @@ def check_for(texsystem):
     \\@@end
     """
     try:
-        latex = subprocess.Popen([texsystem, "-halt-on-error"],
+        latex = subprocess.Popen([str(texsystem), "-halt-on-error"],
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE)
         stdout, stderr = latex.communicate(header.encode("utf8"))
@@ -36,6 +35,12 @@ def check_for(texsystem):
         return False
 
     return latex.returncode == 0
+
+
+needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
+                                   reason='xelatex + pgf is required')
+needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
+                                    reason='pdflatex + pgf is required')
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -76,12 +81,10 @@ def create_figure():
 
 
 # test compiling a figure to pdf with xelatex
-@cleanup(style='classic')
-@switch_backend('pgf')
+@needs_xelatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_xelatex():
-    if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
-
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
@@ -90,16 +93,14 @@ def test_xelatex():
 
 
 # test compiling a figure to pdf with pdflatex
-@cleanup(style='classic')
-@switch_backend('pgf')
+@needs_pdflatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_pdflatex():
     import os
     if os.environ.get('APPVEYOR', False):
-        from matplotlib.testing import xfail
-        xfail("pdflatex test does not work on appveyor due "
-              "to missing latex fonts")
-    if not check_for('pdflatex'):
-        raise SkipTest('pdflatex + pgf is required')
+        pytest.xfail("pdflatex test does not work on appveyor due to missing "
+                     "LaTeX fonts")
 
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
@@ -112,12 +113,11 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
-@cleanup(style='classic')
-@switch_backend('pgf')
+@needs_xelatex
+@needs_pdflatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_rcupdate():
-    if not check_for('xelatex') or not check_for('pdflatex'):
-        raise SkipTest('xelatex and pdflatex + pgf required')
-
     rc_sets = []
     rc_sets.append({'font.family': 'sans-serif',
                     'font.size': 30,
@@ -145,12 +145,10 @@ def test_rcupdate():
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
-@cleanup(style='classic')
-@switch_backend('pgf')
+@needs_xelatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_pathclip():
-    if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
-
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
@@ -164,12 +162,10 @@ def test_pathclip():
 
 
 # test mixed mode rendering
-@cleanup(style='classic')
-@switch_backend('pgf')
+@needs_xelatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_mixedmode():
-    if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
-
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
@@ -181,12 +177,10 @@ def test_mixedmode():
 
 
 # test bbox_inches clipping
-@cleanup(style='classic')
-@switch_backend('pgf')
+@needs_xelatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_bbox_inches():
-    if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
-
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
@@ -202,8 +196,3 @@ def test_bbox_inches():
     bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox},
                    tol=0)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

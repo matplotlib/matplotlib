@@ -1,22 +1,16 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
 import six
 import itertools
+import warnings
 from distutils.version import LooseVersion as V
 
-from nose.tools import assert_raises, assert_equal, assert_true
-from nose.tools import assert_sequence_equal
-
-try:
-    # this is not available in nose + py2.6
-    from nose.tools import assert_sequence_equal
-except ImportError:
-    assert_sequence_equal = None
-
 import numpy as np
+import pytest
+
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
-from nose.plugins.skip import SkipTest
 
 from matplotlib import cycler
 import matplotlib
@@ -25,8 +19,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import (image_comparison,
-                                           cleanup, knownfailureif)
+from matplotlib.testing.decorators import image_comparison
 
 
 def test_resample():
@@ -49,6 +42,18 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+
+
+def test_colormap_copy():
+    cm = plt.cm.Reds
+    cm_copy = copy.copy(cm)
+    with np.errstate(invalid='ignore'):
+        ret1 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+    cm2 = copy.copy(cm_copy)
+    cm2.set_bad('g')
+    with np.errstate(invalid='ignore'):
+        ret2 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+    assert_array_equal(ret1, ret2)
 
 
 def test_colormap_endian():
@@ -103,7 +108,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 1, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -112,7 +117,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 2, 3]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -121,7 +126,7 @@ def test_BoundaryNorm():
     expected = [0, 0, 2, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -142,9 +147,9 @@ def test_BoundaryNorm():
 
     # Non-trivial masked arrays
     vals = np.ma.masked_invalid([np.Inf, np.NaN])
-    assert_true(np.all(bn(vals).mask))
+    assert np.all(bn(vals).mask)
     vals = np.ma.masked_invalid([np.Inf])
-    assert_true(np.all(bn(vals).mask))
+    assert np.all(bn(vals).mask)
 
 
 def test_LogNorm():
@@ -167,8 +172,8 @@ def test_PowerNorm():
     expected = [0, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[2]), expected[2])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[2]) == expected[2]
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
     # Clip = True
@@ -176,16 +181,16 @@ def test_PowerNorm():
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[-1]), expected[-1])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[-1]) == expected[-1]
 
     # Clip = True at call time
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
-    assert_equal(pnorm(a[0], clip=True), expected[0])
-    assert_equal(pnorm(a[-1], clip=True), expected[-1])
+    assert pnorm(a[0], clip=True) == expected[0]
+    assert pnorm(a[-1], clip=True) == expected[-1]
 
 
 def test_Normalize():
@@ -233,7 +238,6 @@ def test_SymLogNorm():
     assert_array_almost_equal(normed_vals, expected)
 
 
-@cleanup
 def test_SymLogNorm_colorbar():
     """
     Test un-called SymLogNorm in a colorbar.
@@ -343,7 +347,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+    with pytest.raises(ValueError):
+        mcolors.from_levels_and_colors(levels, colors)
 
 
 def test_rgb_hsv_round_trip():
@@ -356,7 +361,6 @@ def test_rgb_hsv_round_trip():
             mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
 
 
-@cleanup
 def test_autoscale_masked():
     # Test for #2336. Previously fully masked data would trigger a ValueError.
     data = np.ma.masked_all((12, 20))
@@ -366,11 +370,8 @@ def test_autoscale_masked():
 
 def test_colors_no_float():
     # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
-
-    def gray_from_float_rgba():
-        return mcolors.to_rgba(0.4)
-
-    assert_raises(ValueError, gray_from_float_rgba)
+    with pytest.raises(ValueError):
+        mcolors.to_rgba(0.4)
 
 
 @image_comparison(baseline_images=['light_source_shading_topo'],
@@ -409,7 +410,7 @@ def test_light_source_shading_default():
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
-    # Result stored transposed and rounded for for more compact display...
+    # Result stored transposed and rounded for more compact display...
     expect = np.array(
         [[[0.00, 0.45, 0.90, 0.90, 0.82, 0.62, 0.28, 0.00],
           [0.45, 0.94, 0.99, 1.00, 1.00, 0.96, 0.65, 0.17],
@@ -457,8 +458,8 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@knownfailureif((V(np.__version__) <= V('1.9.0')
-                and V(np.__version__) >= V('1.7.0')))
+@pytest.mark.xfail(V('1.7.0') <= V(np.__version__) <= V('1.9.0'),
+                   reason='NumPy version is not buggy')
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
@@ -474,7 +475,7 @@ def test_light_source_masked_shading():
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
-    # Result stored transposed and rounded for for more compact display...
+    # Result stored transposed and rounded for more compact display...
     expect = np.array(
         [[[0.00, 0.46, 0.91, 0.91, 0.84, 0.64, 0.29, 0.00],
           [0.46, 0.96, 1.00, 1.00, 1.00, 0.97, 0.67, 0.18],
@@ -584,9 +585,10 @@ def test_light_source_planar_hillshading():
             assert_array_almost_equal(h, np.cos(np.radians(angle)))
 
 
-def test_xkcd():
+def test_color_names():
     assert mcolors.to_hex("blue") == "#0000ff"
     assert mcolors.to_hex("xkcd:blue") == "#0343df"
+    assert mcolors.to_hex("tab:blue") == "#1f77b4"
 
 
 def _sph2cart(theta, phi):
@@ -605,12 +607,7 @@ def _azimuth2math(azimuth, elevation):
 
 
 def test_pandas_iterable():
-    try:
-        import pandas as pd
-    except ImportError:
-        raise SkipTest("Pandas not installed")
-    if assert_sequence_equal is None:
-        raise SkipTest("nose lacks required function")
+    pd = pytest.importorskip('pandas')
     # Using a list or series yields equivalent
     # color maps, i.e the series isn't seen as
     # a single color
@@ -618,22 +615,27 @@ def test_pandas_iterable():
     s = pd.Series(lst)
     cm1 = mcolors.ListedColormap(lst, N=5)
     cm2 = mcolors.ListedColormap(s, N=5)
-    assert_sequence_equal(cm1.colors, cm2.colors)
+    assert_array_equal(cm1.colors, cm2.colors)
 
 
-def test_colormap_reversing():
+@pytest.mark.parametrize('name', cm.cmap_d)
+def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
-    for name in cm.cmap_d:
+    should_have_warning = {'spectral', 'spectral_r', 'Vega10', 'Vega10_r',
+                           'Vega20', 'Vega20_r', 'Vega20b', 'Vega20b_r',
+                           'Vega20c', 'Vega20c_r'}
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
         cmap = plt.get_cmap(name)
-        cmap_r = cmap.reversed()
-        if not cmap_r._isinit:
-            cmap._init()
-            cmap_r._init()
-        assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+    assert len(w) == (1 if name in should_have_warning else 0)
+    cmap_r = cmap.reversed()
+    if not cmap_r._isinit:
+        cmap._init()
+        cmap_r._init()
+    assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
 
 
-@cleanup
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])
@@ -657,17 +659,52 @@ def test_cn():
 def test_conversions():
     # to_rgba_array("none") returns a (0, 4) array.
     assert_array_equal(mcolors.to_rgba_array("none"), np.zeros((0, 4)))
+    # a list of grayscale levels, not a single color.
+    assert_array_equal(
+        mcolors.to_rgba_array([".2", ".5", ".8"]),
+        np.vstack([mcolors.to_rgba(c) for c in [".2", ".5", ".8"]]))
     # alpha is properly set.
-    assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
-    assert_equal(mcolors.to_rgba(".1", .5), (.1, .1, .1, .5))
+    assert mcolors.to_rgba((1, 1, 1), .5) == (1, 1, 1, .5)
+    assert mcolors.to_rgba(".1", .5) == (.1, .1, .1, .5)
     # builtin round differs between py2 and py3.
-    assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2")
+    assert mcolors.to_hex((.7, .7, .7)) == "#b2b2b2"
     # hex roundtrip.
     hex_color = "#1234abcd"
-    assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True),
-                 hex_color)
+    assert mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True) == \
+        hex_color
 
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+def test_grey_gray():
+    color_mapping = mcolors._colors_full_map
+    for k in color_mapping.keys():
+        if 'grey' in k:
+            assert color_mapping[k] == color_mapping[k.replace('grey', 'gray')]
+        if 'gray' in k:
+            assert color_mapping[k] == color_mapping[k.replace('gray', 'grey')]
+
+
+def test_tableau_order():
+    dflt_cycle = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                  '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                  '#bcbd22', '#17becf']
+
+    assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
+
+
+def test_ndarray_subclass_norm():
+    # Emulate an ndarray subclass that handles units
+    # which objects when adding or subtracting with other
+    # arrays. See #6622 and #8696
+    class MyArray(np.ndarray):
+        def __isub__(self, other):
+            raise RuntimeError
+
+        def __add__(self, other):
+            raise RuntimeError
+
+    data = np.arange(-10, 10, 1, dtype=float)
+
+    for norm in [mcolors.Normalize(), mcolors.LogNorm(),
+                 mcolors.SymLogNorm(3, vmax=5, linscale=1),
+                 mcolors.PowerNorm(1)]:
+        assert_array_equal(norm(data.view(MyArray)), norm(data))

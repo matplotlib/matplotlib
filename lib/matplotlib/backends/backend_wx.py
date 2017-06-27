@@ -28,6 +28,7 @@ import warnings
 import numpy as np
 
 import matplotlib
+from matplotlib import cbook
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
     FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     cursors, TimerBase)
@@ -35,13 +36,12 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import (is_string_like, is_writable_file_like,
-                              warn_deprecated)
+from matplotlib.cbook import is_writable_file_like, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 
 from . import wx_compat as wxc
 import wx
@@ -70,7 +70,7 @@ def DEBUG_MSG(string, lvl=3, o=None):
 
 def debug_on_error(type, value, tb):
     """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
-    traceback.print_exc(type, value, tb)
+    traceback.print_exception(type, value, tb)
     print()
     pdb.pm()  # jdh uncomment
 
@@ -115,7 +115,7 @@ def error_msg_wx(msg, parent=None):
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = '\n'.join(map(str, msg))
     return msg
 
@@ -409,8 +409,6 @@ class GraphicsContextWx(GraphicsContextBase):
               'miter': wx.JOIN_MITER,
               'round': wx.JOIN_ROUND}
 
-    _dashd_wx = wxc.dashd_wx
-
     _cache = weakref.WeakKeyDictionary()
 
     def __init__(self, bitmap, renderer):
@@ -510,6 +508,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
+    @cbook.deprecated("2.1")
     def set_linestyle(self, ls):
         """
         Set the line style to be one of
@@ -518,7 +517,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.select()
         GraphicsContextBase.set_linestyle(self, ls)
         try:
-            self._style = GraphicsContextWx._dashd_wx[ls]
+            self._style = wxc.dashd_wx[ls]
         except KeyError:
             self._style = wx.LONG_DASH  # Style not used elsewhere...
 
@@ -679,11 +678,13 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.Bind(wx.EVT_MOTION, self._onMotion)
         self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
         self.Bind(wx.EVT_ENTER_WINDOW, self._onEnter)
-        self.Bind(wx.EVT_IDLE, self._onIdle)
         # Add middle button events
         self.Bind(wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
         self.Bind(wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDClick)
         self.Bind(wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
+
+        self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._onCaptureLost)
+        self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._onCaptureLost)
 
         if wx.VERSION_STRING < "2.9":
             # only needed in 2.8 to reduce flicker
@@ -907,7 +908,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             if not image.SaveFile(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError(
@@ -1005,11 +1006,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         return key
 
-    def _onIdle(self, evt):
-        'a GUI idle event'
-        evt.Skip()
-        FigureCanvasBase.idle_event(self, guiEvent=evt)
-
     def _onKeyDown(self, evt):
         """Capture key press."""
         key = self._get_key(evt)
@@ -1023,12 +1019,23 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         evt.Skip()
         FigureCanvasBase.key_release_event(self, key, guiEvent=evt)
 
+    def _set_capture(self, capture=True):
+        """control wx mouse capture """
+        if self.HasCapture():
+            self.ReleaseMouse()
+        if capture:
+            self.CaptureMouse()
+
+    def _onCaptureLost(self, evt):
+        """Capture changed or lost"""
+        self._set_capture(False)
+
     def _onRightButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
+        self._set_capture(True)
         FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
 
     def _onRightButtonDClick(self, evt):
@@ -1036,7 +1043,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
+        self._set_capture(True)
         FigureCanvasBase.button_press_event(self, x, y, 3,
                                             dblclick=True, guiEvent=evt)
 
@@ -1045,8 +1052,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        if self.HasCapture():
-            self.ReleaseMouse()
+        self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 3, guiEvent=evt)
 
     def _onLeftButtonDown(self, evt):
@@ -1054,7 +1060,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
+        self._set_capture(True)
         FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
 
     def _onLeftButtonDClick(self, evt):
@@ -1062,7 +1068,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
+        self._set_capture(True)
         FigureCanvasBase.button_press_event(self, x, y, 1,
                                             dblclick=True, guiEvent=evt)
 
@@ -1072,8 +1078,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         # print 'release button', 1
         evt.Skip()
-        if self.HasCapture():
-            self.ReleaseMouse()
+        self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
 
     # Add middle button events
@@ -1082,7 +1087,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
+        self._set_capture(True)
         FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
 
     def _onMiddleButtonDClick(self, evt):
@@ -1090,7 +1095,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
+        self._set_capture(True)
         FigureCanvasBase.button_press_event(self, x, y, 2,
                                             dblclick=True, guiEvent=evt)
 
@@ -1100,8 +1105,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         # print 'release button', 1
         evt.Skip()
-        if self.HasCapture():
-            self.ReleaseMouse()
+        self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 2, guiEvent=evt)
 
     def _onMouseWheel(self, evt):
@@ -1665,6 +1669,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         except AttributeError:
             pass
 
+    @cbook.deprecated("2.1", alternative="canvas.draw_idle")
     def dynamic_update(self):
         d = self._idle
         self._idle = False

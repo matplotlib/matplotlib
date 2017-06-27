@@ -299,8 +299,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         space.
         """
         if A is None:
-            raise RuntimeError('You must first set the image'
-                               ' array or the image attribute')
+            raise RuntimeError('You must first set the image '
+                               'array or the image attribute')
+        if A.size == 0:
+            raise RuntimeError("_make_image must get a non-empty image. "
+                               "Your Artist's draw method must filter before "
+                               "this method is called.")
 
         clipped_bbox = Bbox.intersection(out_bbox, clip_bbox)
 
@@ -355,7 +359,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             created_rgba_mask = False
 
             if A.ndim not in (2, 3):
-                raise ValueError("Invalid dimensions, got %s" % (A.shape,))
+                raise ValueError("Invalid dimensions, got {}".format(A.shape))
 
             if A.ndim == 2:
                 A = self.norm(A)
@@ -368,9 +372,23 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # values to carry the over/under/bad information
                     rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
                     rgba[..., 0] = A  # normalized data
-                    rgba[..., 1] = A < 0  # under data
-                    rgba[..., 2] = A > 1  # over data
-                    rgba[..., 3] = ~A.mask  # bad data
+                    # this is to work around spurious warnings coming
+                    # out of masked arrays.
+                    with np.errstate(invalid='ignore'):
+                        rgba[..., 1] = np.where(A < 0, np.nan, 1)  # under data
+                        rgba[..., 2] = np.where(A > 1, np.nan, 1)  # over data
+                    # Have to invert mask, Agg knows what alpha means
+                    # so if you put this in as 0 for 'good' points, they
+                    # all get zeroed out
+                    rgba[..., 3] = 1
+                    if A.mask.shape == A.shape:
+                        # this is the case of a nontrivial mask
+                        mask = np.where(A.mask, np.nan, 1)
+                    else:
+                        # this is the case that the mask is a
+                        # numpy.bool_ of False
+                        mask = A.mask
+                    # ~A.mask  # masked data
                     A = rgba
                     output = np.zeros((out_height, out_width, 4),
                                       dtype=A.dtype)
@@ -411,12 +429,37 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # Convert back to a masked greyscale array so
                 # colormapping works correctly
                 hid_output = output
+                # any pixel where the a masked pixel is included
+                # in the kernel (pulling this down from 1) needs to
+                # be masked in the output
+                if len(mask.shape) == 2:
+                    out_mask = np.empty((out_height, out_width),
+                                        dtype=mask.dtype)
+                    _image.resample(mask, out_mask, t,
+                                    _interpd_[self.get_interpolation()],
+                                    True, 1,
+                                    self.get_filternorm() or 0.0,
+                                    self.get_filterrad() or 0.0)
+                    out_mask = np.isnan(out_mask)
+                else:
+                    out_mask = mask
+                # we need to mask both pixels which came in as masked
+                # and the pixels that Agg is telling us to ignore (relavent
+                # to non-affine transforms)
+                # Use half alpha as the threshold for pixels to mask.
+                out_mask = out_mask | (hid_output[..., 3] < .5)
                 output = np.ma.masked_array(
-                    hid_output[..., 0], hid_output[..., 3] < 0.5)
-                # relabel under data
-                output[hid_output[..., 1] > .5] = -1
+                    hid_output[..., 0],
+                    out_mask)
+                # 'unshare' the mask array to
+                # needed to suppress numpy warning
+                del out_mask
+                invalid_mask = ~output.mask * ~np.isnan(output.data)
+                # relabel under data.  If any of the input data for
+                # the pixel has input out of the norm bounds,
+                output[np.isnan(hid_output[..., 1]) * invalid_mask] = -1
                 # relabel over data
-                output[hid_output[..., 2] > .5] = 2
+                output[np.isnan(hid_output[..., 2]) * invalid_mask] = 2
 
             output = self.to_rgba(output, bytes=True, norm=False)
 
@@ -475,9 +518,17 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
+        # if not visible, declare victory and return
         if not self.get_visible():
+            self.stale = False
             return
 
+        # for empty images, there is nothing to draw!
+        if self.get_array().size == 0:
+            self.stale = False
+            return
+
+        # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self.get_alpha())
@@ -497,7 +548,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """
-        Test whether the mouse event occured within the image.
+        Test whether the mouse event occurred within the image.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -521,14 +572,17 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
-        im = self.to_rgba(self._A, bytes=True, norm=True)
+        im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
+                          bytes=True, norm=True)
         _png.write_png(im, fname)
 
     def set_data(self, A):
         """
-        Set the image array
+        Set the image array.
 
         ACCEPTS: numpy/PIL Image A
+
+        Note that this function does *not* update the normalization used.
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
@@ -537,11 +591,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and
-                not np.can_cast(self._A.dtype, float)):
-            raise TypeError("Image data can not convert to float")
+                not np.can_cast(self._A.dtype, float, "same_kind")):
+            raise TypeError("Image data cannot be converted to float")
 
-        if (self._A.ndim not in (2, 3) or
-                (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
+        if not (self._A.ndim == 2
+                or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
             raise TypeError("Invalid dimensions for image data")
 
         self._imcache = None
@@ -1141,7 +1195,7 @@ class BboxImage(_ImageBase):
             raise ValueError("unknown type of bbox")
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured within the image."""
+        """Test whether the mouse event occurred within the image."""
         if callable(self._contains):
             return self._contains(self, mouseevent)
 
@@ -1202,7 +1256,7 @@ def imread(fname, format=None):
 
     handlers = {'png': _png.read_png, }
     if format is None:
-        if cbook.is_string_like(fname):
+        if isinstance(fname, six.string_types):
             parsed = urlparse(fname)
             # If the string is a URL, assume png
             if len(parsed.scheme) > 1:
@@ -1231,7 +1285,7 @@ def imread(fname, format=None):
     # To handle Unicode filenames, we pass a file object to the PNG
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
-    if cbook.is_string_like(fname):
+    if isinstance(fname, six.string_types):
         parsed = urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
@@ -1380,7 +1434,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     .. htmlonly::
 
-        :ref:`misc-image_thumbnail`
+        :ref:`sphx_glr_gallery_misc_image_thumbnail_sgskip.py`
 
     Return value is the figure instance containing the thumbnail
 

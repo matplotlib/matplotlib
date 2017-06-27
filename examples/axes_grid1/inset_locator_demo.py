@@ -1,3 +1,9 @@
+"""
+==================
+Inset Locator Demo
+==================
+
+"""
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
@@ -17,7 +23,7 @@ def add_sizebar(ax, size):
 fig, (ax, ax2) = plt.subplots(1, 2, figsize=[5.5, 3])
 
 # first subplot
-ax.set_aspect(1.)
+ax.set_aspect(1)
 
 axins = inset_axes(ax,
                    width="30%",  # width = 30% of parent_bbox
@@ -29,9 +35,9 @@ plt.yticks(visible=False)
 
 
 # second subplot
-ax2.set_aspect(1.)
+ax2.set_aspect(1)
 
-axins = zoomed_inset_axes(ax2, 0.5, loc=1)  # zoom = 0.5
+axins = zoomed_inset_axes(ax2, zoom=0.5, loc='upper right')
 # fix the number of ticks on the inset axes
 axins.yaxis.get_major_locator().set_params(nbins=7)
 axins.xaxis.get_major_locator().set_params(nbins=7)

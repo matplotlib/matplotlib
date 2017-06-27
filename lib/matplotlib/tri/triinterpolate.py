@@ -57,7 +57,7 @@ class TriInterpolator(object):
         self._unit_y = 1.0
 
         # Default triangle renumbering: None (= no renumbering)
-        # Renumbering may be used to avoid unecessary computations
+        # Renumbering may be used to avoid unnecessary computations
         # if complex calculations are done inside the Interpolator.
         # Please refer to :meth:`_interpolate_multikeys` for details.
         self._tri_renum = None
@@ -438,16 +438,7 @@ class CubicTriInterpolator(TriInterpolator):
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient + """
-
-        Examples
-        --------
-        An example of effective application is shown below (plot of the
-        direction of the vector field derivated from a known potential field):
-
-        .. plot:: mpl_examples/pylab_examples/trigradient_demo.py
-
-        """
+    gradient.__doc__ = TriInterpolator.docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         tris_pts = self._tris_pts[tri_index]
@@ -907,7 +898,7 @@ class _ReducedHCT_Element():
         pts = self.gauss_pts
         for igauss in range(self.n_gauss):
             alpha = np.tile(pts[igauss, :], n).reshape(n, 3)
-            alpha = np.expand_dims(alpha, 3)
+            alpha = np.expand_dims(alpha, 2)
             weight = weights[igauss]
             d2Skdksi2 = self.get_d2Sidksij2(alpha, ecc)
             d2Skdx2 = _prod_vectorized(d2Skdksi2, H_rot)

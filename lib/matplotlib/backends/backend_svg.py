@@ -18,7 +18,7 @@ from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
+from matplotlib.cbook import is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -1187,7 +1187,7 @@ class FigureCanvasSVG(FigureCanvasBase):
     fixed_dpi = 72
 
     def print_svg(self, filename, *args, **kwargs):
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             with io.open(filename, 'w', encoding='utf-8') as svgwriter:
                 return self._print_svg(filename, svgwriter, **kwargs)
 
@@ -1222,7 +1222,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         return result
 
     def print_svgz(self, filename, *args, **kwargs):
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             options = dict(filename=filename)
         elif is_writable_file_like(filename):
             options = dict(fileobj=filename)

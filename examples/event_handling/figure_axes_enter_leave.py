@@ -1,4 +1,8 @@
 """
+=======================
+Figure Axes Enter Leave
+=======================
+
 Illustrate the figure and axes enter and leave events by changing the
 frame colors on enter and leave
 """

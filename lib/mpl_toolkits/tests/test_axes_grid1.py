@@ -5,7 +5,7 @@ import six
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -91,7 +91,6 @@ def test_twin_axes_empty_and_removed():
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
-@cleanup
 def test_axesgrid_colorbar_log_smoketest():
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
@@ -157,6 +156,18 @@ def test_inset_locator():
     ax.add_artist(asb)
 
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+@image_comparison(baseline_images=['zoomed_axes',
+                                   'inverted_zoomed_axes'],
+                  extensions=['png'])
+def test_zooming_with_inverted_axes():
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [1, 2, 3])
+    ax.axis([1, 3, 1, 3])
+    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
+    inset_ax.axis([1.1, 1.4, 1.1, 1.4])
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [1, 2, 3])
+    ax.axis([3, 1, 3, 1])
+    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
+    inset_ax.axis([1.4, 1.1, 1.4, 1.1])

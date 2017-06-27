@@ -1,3 +1,9 @@
+"""
+=================
+Fancytextbox Demo
+=================
+
+"""
 import matplotlib.pyplot as plt
 
 plt.text(0.6, 0.5, "test", size=50, rotation=30.,

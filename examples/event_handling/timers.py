@@ -1,5 +1,11 @@
-# Simple example of using general timer objects. This is used to update
-# the time placed in the title of the figure.
+"""
+======
+Timers
+======
+
+Simple example of using general timer objects. This is used to update
+the time placed in the title of the figure.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime

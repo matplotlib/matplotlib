@@ -156,12 +156,12 @@ class BezierPath(mlines.Line2D):
             join = self._solidjoinstyle
         gc.set_joinstyle(join)
         gc.set_capstyle(cap)
+        gc.set_dashes(self._dashOffset, self._dashSeq)
 
-        funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
-        if funcname != '_draw_nothing':
-            tpath, affine = self._transformed_path.get_transformed_path_and_affine()
-            lineFunc = getattr(self, funcname)
-            lineFunc(renderer, gc, tpath, affine.frozen())
+        if self._lineStyles[self._linestyle] != '_draw_nothing':
+            tpath, affine = (
+                self._transformed_path.get_transformed_path_and_affine())
+            renderer.draw_path(gc, tpath, affine.frozen())
 
         gc.restore()
         renderer.close_group('line2d')

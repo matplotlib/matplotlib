@@ -7,7 +7,6 @@ import pytest
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
 import matplotlib.category as cat
 
 import unittest
@@ -122,6 +121,25 @@ def lt(tl):
 
 
 class TestPlot(object):
+    bytes_data = [
+        ['a', 'b', 'c'],
+        [b'a', b'b', b'c'],
+        np.array([b'a', b'b', b'c'])
+    ]
+
+    bytes_ids = ['string list', 'bytes list', 'bytes ndarray']
+
+    numlike_data = [
+        ['1', '11', '3'],
+        np.array(['1', '11', '3']),
+        [b'1', b'11', b'3'],
+        np.array([b'1', b'11', b'3']),
+    ]
+
+    numlike_ids = [
+        'string list', 'string ndarray', 'bytes list', 'bytes ndarray'
+    ]
+
     @pytest.fixture
     def data(self):
         self.d = ['a', 'b', 'c', 'a']
@@ -144,7 +162,6 @@ class TestPlot(object):
         np.testing.assert_array_equal(axis.unit_data.locs, unit_data.locs)
         assert axis.unit_data.seq == unit_data.seq
 
-    @cleanup
     def test_plot_unicode(self):
         words = ['Здравствуйте', 'привет']
         locs = [0.0, 1.0]
@@ -156,7 +173,6 @@ class TestPlot(object):
 
         self.axis_test(ax.yaxis, locs, words, unit_data)
 
-    @cleanup
     @pytest.mark.usefixtures("data")
     def test_plot_1d(self):
         fig, ax = plt.subplots()
@@ -165,7 +181,6 @@ class TestPlot(object):
 
         self.axis_test(ax.yaxis, self.dticks, self.dlabels, self.dunit_data)
 
-    @cleanup
     @pytest.mark.usefixtures("missing_data")
     def test_plot_1d_missing(self):
         fig, ax = plt.subplots()
@@ -174,14 +189,8 @@ class TestPlot(object):
 
         self.axis_test(ax.yaxis, self.dmticks, self.dmlabels, self.dmunit_data)
 
-    @cleanup
     @pytest.mark.usefixtures("data")
-    @pytest.mark.parametrize("bars",
-                             [['a', 'b', 'c'],
-                              [b'a', b'b', b'c'],
-                              np.array([b'a', b'b', b'c'])],
-                             ids=['string list', 'bytes list',
-                                  'bytes ndarray'])
+    @pytest.mark.parametrize("bars", bytes_data, ids=bytes_ids)
     def test_plot_bytes(self, bars):
         counts = np.array([4, 6, 5])
 
@@ -191,14 +200,7 @@ class TestPlot(object):
 
         self.axis_test(ax.xaxis, self.dticks, self.dlabels, self.dunit_data)
 
-    @cleanup
-    @pytest.mark.parametrize("bars",
-                             [['1', '11', '3'],
-                              np.array(['1', '11', '3']),
-                              [b'1', b'11', b'3'],
-                              np.array([b'1', b'11', b'3'])],
-                             ids=['string list', 'string ndarray',
-                                  'bytes list', 'bytes ndarray'])
+    @pytest.mark.parametrize("bars", numlike_data, ids=numlike_ids)
     def test_plot_numlike(self, bars):
         counts = np.array([4, 6, 5])
 
@@ -209,7 +211,6 @@ class TestPlot(object):
         unitmap = MockUnitData([('1', 0), ('11', 1), ('3', 2)])
         self.axis_test(ax.xaxis, [0, 1, 2], ['1', '11', '3'], unitmap)
 
-    @cleanup
     @pytest.mark.usefixtures("data", "missing_data")
     def test_plot_2d(self):
         fig, ax = plt.subplots()
@@ -219,7 +220,6 @@ class TestPlot(object):
         self.axis_test(ax.xaxis, self.dmticks, self.dmlabels, self.dmunit_data)
         self.axis_test(ax.yaxis, self.dticks, self.dlabels, self.dunit_data)
 
-    @cleanup
     @pytest.mark.usefixtures("data", "missing_data")
     def test_scatter_2d(self):
 
@@ -230,7 +230,6 @@ class TestPlot(object):
         self.axis_test(ax.xaxis, self.dmticks, self.dmlabels, self.dmunit_data)
         self.axis_test(ax.yaxis, self.dticks, self.dlabels, self.dunit_data)
 
-    @cleanup
     def test_plot_update(self):
         fig, ax = plt.subplots()
 

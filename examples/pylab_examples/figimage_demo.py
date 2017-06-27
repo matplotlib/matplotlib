@@ -1,4 +1,8 @@
 """
+=============
+Figimage Demo
+=============
+
 This illustrates placing images directly in the figure, with no axes.
 
 """

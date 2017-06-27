@@ -1,4 +1,8 @@
 """
+=====================
+Demo Curvelinear Grid
+=====================
+
 Custom grid and ticklines.
 
 This example demonstrates how to use GridHelperCurveLinear to define

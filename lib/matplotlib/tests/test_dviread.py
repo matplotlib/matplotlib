@@ -4,62 +4,55 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from matplotlib.testing.decorators import skip_if_command_unavailable
 
-
-from nose.tools import assert_equal, with_setup
 import matplotlib.dviread as dr
 import os.path
 import json
+import pytest
 
 
-original_find_tex_file = dr.find_tex_file
+def test_PsfontsMap(monkeypatch):
+    monkeypatch.setattr(dr, 'find_tex_file', lambda x: x)
 
-
-def setup_PsfontsMap():
-    dr.find_tex_file = lambda x: x
-
-
-def teardown_PsfontsMap():
-    dr.find_tex_file = original_find_tex_file
-
-
-@with_setup(setup_PsfontsMap, teardown_PsfontsMap)
-def test_PsfontsMap():
     filename = os.path.join(
         os.path.dirname(__file__),
         'baseline_images', 'dviread', 'test.map')
     fontmap = dr.PsfontsMap(filename)
     # Check all properties of a few fonts
     for n in [1, 2, 3, 4, 5]:
-        key = 'TeXfont%d' % n
+        key = ('TeXfont%d' % n).encode('ascii')
         entry = fontmap[key]
-        assert_equal(entry.texname, key)
-        assert_equal(entry.psname, 'PSfont%d' % n)
+        assert entry.texname == key
+        assert entry.psname == ('PSfont%d' % n).encode('ascii')
         if n not in [3, 5]:
-            assert_equal(entry.encoding, 'font%d.enc' % n)
+            assert entry.encoding == ('font%d.enc' % n).encode('ascii')
         elif n == 3:
-            assert_equal(entry.encoding, 'enc3.foo')
+            assert entry.encoding == b'enc3.foo'
         # We don't care about the encoding of TeXfont5, which specifies
         # multiple encodings.
         if n not in [1, 5]:
-            assert_equal(entry.filename, 'font%d.pfa' % n)
+            assert entry.filename == ('font%d.pfa' % n).encode('ascii')
         else:
-            assert_equal(entry.filename, 'font%d.pfb' % n)
+            assert entry.filename == ('font%d.pfb' % n).encode('ascii')
         if n == 4:
-            assert_equal(entry.effects, {'slant': -0.1, 'extend': 2.2})
+            assert entry.effects == {'slant': -0.1, 'extend': 2.2}
         else:
-            assert_equal(entry.effects, {})
+            assert entry.effects == {}
     # Some special cases
-    entry = fontmap['TeXfont6']
-    assert_equal(entry.filename, None)
-    assert_equal(entry.encoding, None)
-    entry = fontmap['TeXfont7']
-    assert_equal(entry.filename, None)
-    assert_equal(entry.encoding, 'font7.enc')
-    entry = fontmap['TeXfont8']
-    assert_equal(entry.filename, 'font8.pfb')
-    assert_equal(entry.encoding, None)
-    entry = fontmap['TeXfont9']
-    assert_equal(entry.filename, '/absolute/font9.pfb')
+    entry = fontmap[b'TeXfont6']
+    assert entry.filename is None
+    assert entry.encoding is None
+    entry = fontmap[b'TeXfont7']
+    assert entry.filename is None
+    assert entry.encoding == b'font7.enc'
+    entry = fontmap[b'TeXfont8']
+    assert entry.filename == b'font8.pfb'
+    assert entry.encoding is None
+    entry = fontmap[b'TeXfont9']
+    assert entry.filename == b'/absolute/font9.pfb'
+    # Missing font
+    with pytest.raises(KeyError) as exc:
+        fontmap[b'no-such-font']
+    assert 'no-such-font' in str(exc.value)
 
 
 @skip_if_command_unavailable(["kpsewhich", "-version"])
@@ -67,12 +60,15 @@ def test_dviread():
     dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
     with open(os.path.join(dir, 'test.json')) as f:
         correct = json.load(f)
+        for entry in correct:
+            entry['text'] = [[a, b, c, d.encode('ascii'), e]
+                             for [a, b, c, d, e] in entry['text']]
     with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
         data = [{'text': [[t.x, t.y,
                            six.unichr(t.glyph),
-                           six.text_type(t.font.texname),
+                           t.font.texname,
                            round(t.font.size, 2)]
                           for t in page.text],
                  'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}
                 for page in dvi]
-    assert_equal(data, correct)
+    assert data == correct

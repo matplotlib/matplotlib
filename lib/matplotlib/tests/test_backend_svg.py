@@ -9,25 +9,19 @@ import os
 import tempfile
 import xml.parsers.expat
 
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-from nose.tools import raises
+import pytest
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib
 from matplotlib import dviread
 
 
-needs_tex = knownfailureif(
+needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
-@cleanup
 def test_visibility():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -69,7 +63,6 @@ def test_noscale():
     ax.imshow(Z, cmap='gray', interpolation='none')
 
 
-@cleanup
 def test_composite_images():
     #Test that figures can be saved with and without combining multiple images
     #(on a single set of axes) into a single composite image.
@@ -94,7 +87,6 @@ def test_composite_images():
         assert buff.count(six.b('<image ')) == 2
 
 
-@cleanup
 def test_text_urls():
     fig = plt.figure()
 
@@ -153,18 +145,16 @@ def _test_determinism_save(filename, usetex):
     a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
     for artist in b:
         artist.set_visible(False)
-    ax.set_title('A string $1+2+\sigma$')
-    ax.set_xlabel('A string $1+2+\sigma$')
-    ax.set_ylabel('A string $1+2+\sigma$')
+    ax.set_title('A string $1+2+\\sigma$')
+    ax.set_xlabel('A string $1+2+\\sigma$')
+    ax.set_ylabel('A string $1+2+\\sigma$')
 
     FigureCanvasSVG(fig).print_svg(filename)
 
 
 def _test_determinism(filename, usetex):
-    import os
     import sys
     from subprocess import check_output, STDOUT, CalledProcessError
-    from nose.tools import assert_equal
     plots = []
     for i in range(3):
         # Using check_output and setting stderr to STDOUT will capture the real
@@ -172,6 +162,7 @@ def _test_determinism(filename, usetex):
         try:
             check_output([sys.executable, '-R', '-c',
                           'import matplotlib; '
+                          'matplotlib._called_from_pytest = True;'
                           'matplotlib.use("svg"); '
                           'from matplotlib.tests.test_backend_svg '
                           'import _test_determinism_save;'
@@ -188,39 +179,32 @@ def _test_determinism(filename, usetex):
             plots.append(fd.read())
         os.unlink(filename)
     for p in plots[1:]:
-        assert_equal(p, plots[0])
+        assert p == plots[0]
 
 
-@cleanup
 def test_determinism_notex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_notex.svg', usetex=False)
 
 
-@cleanup
 @needs_tex
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
 
 
-@cleanup
 @needs_tex
-@raises(ValueError)
-@patch('matplotlib.dviread.PsfontsMap.__getitem__')
-def test_missing_psfont(mock):
+def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     from matplotlib import rc
-    psfont = dviread.PsFont(texname='texfont', psname='Some Font',
-                            effects=None, encoding=None, filename=None)
-    mock.configure_mock(return_value=psfont)
+
+    def psfont(*args, **kwargs):
+        return dviread.PsFont(texname='texfont', psname='Some Font',
+                              effects=None, encoding=None, filename=None)
+
+    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
     rc('text', usetex=True)
     fig, ax = plt.subplots()
     ax.text(0.5, 0.5, 'hello')
-    with tempfile.TemporaryFile() as tmpfile:
+    with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='svg')
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

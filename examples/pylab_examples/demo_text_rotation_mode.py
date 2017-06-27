@@ -1,3 +1,9 @@
+"""
+=======================
+Demo Text Rotation Mode
+=======================
+
+"""
 from mpl_toolkits.axes_grid1.axes_grid import ImageGrid
 
 

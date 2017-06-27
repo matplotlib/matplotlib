@@ -19,7 +19,7 @@ Plotting: howto
 Plot `numpy.datetime64` values
 ------------------------------
 
-For matplotlib to plot dates (or any scalar with units) a converter
+For Matplotlib to plot dates (or any scalar with units) a converter
 to float needs to be registered with the `matplolib.units` module.  The
 current best converters for `datetime64` values are in `pandas`.  Simply
 importing `pandas` ::
@@ -48,7 +48,7 @@ If you only want to use the `pandas` converter for `datetime64` values ::
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every matplotlib artist (see :ref:`artist-tutorial`) has a method
+Every Matplotlib artist (see :ref:`sphx_glr_tutorials_02_intermediate_artists.py`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
@@ -160,7 +160,7 @@ labels::
     ax = fig.add_subplot(111)
 
 You can control the defaults for these parameters in your
-:file:`matplotlibrc` file; see :ref:`customizing-matplotlib`.  For
+:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`.  For
 example, to make the above setting permanent, you would set::
 
     figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
@@ -191,7 +191,7 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:ref:`pylab_examples-axes_demo` for an example of placing axes manually.
+:ref:`sphx_glr_gallery_pylab_examples_axes_demo.py` for an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -201,7 +201,7 @@ Automatically make room for tick labels
 .. note::
    This is now easier to handle than ever before.
    Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :ref:`plotting-guide-tight-layout`.
+   layout issues. See the :ref:`sphx_glr_tutorials_02_intermediate_tight_layout_guide.py`.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -230,17 +230,21 @@ the left of the canvas over; see :ref:`event-handling-tutorial`.
 
 Here is an example that gets a bounding box in relative figure coordinates
 (0..1) of each of the labels and uses it to move the left of the subplots
-over so that the tick labels fit in the figure
+over so that the tick labels fit in the figure:
 
-.. plot:: mpl_examples/pyplots/auto_subplots_adjust.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_auto_subplots_adjust_001.png
+    :target: ../gallery/pyplots/auto_subplots_adjust.html
+    :align: center
+    :scale: 50
+
+    Auto Subplots Adjust
 
 .. _howto-ticks:
 
 Configure the tick linewidths
 -----------------------------
 
-In matplotlib, the ticks are *markers*.  All
+In Matplotlib, the ticks are *markers*.  All
 :class:`~matplotlib.lines.Line2D` objects support a line (solid,
 dashed, etc) and a marker (circle, square, tick).  The tick linewidth
 is controlled by the "markeredgewidth" property::
@@ -269,14 +273,18 @@ Align my ylabels across multiple subplots
 If you have multiple subplots over one another, and the y data have
 different scales, you can often get ylabels that do not align
 vertically across the multiple subplots, which can be unattractive.
-By default, matplotlib positions the x location of the ylabel so that
+By default, Matplotlib positions the x location of the ylabel so that
 it does not overlap any of the y ticks.  You can override this default
 behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. plot:: mpl_examples/pyplots/align_ylabels.py
-   :include-source:
+.. figure:: ../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
+   :target: ../gallery/pyplots/align_ylabels.html
+   :align: center
+   :scale: 50
+
+   Align Ylabels
 
 .. _date-index-plots:
 
@@ -332,7 +340,7 @@ and patches, respectively::
 
 .. htmlonly::
 
-    See :ref:`pylab_examples-zorder_demo` for a complete example.
+    See :ref:`sphx_glr_gallery_pylab_examples_zorder_demo.py` for a complete example.
 
 You can also use the Axes property
 :meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
@@ -349,12 +357,10 @@ some ratio which controls the ratio::
 
   ax = fig.add_subplot(111, aspect='equal')
 
-
-
 .. htmlonly::
 
-    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
-
+    See :ref:`sphx_glr_gallery_pylab_examples_axis_equal_demo.py` for a
+    complete example.
 
 .. _howto-twoscale:
 
@@ -372,7 +378,7 @@ The approach uses :func:`~matplotlib.pyplot.twinx` (and its sister
 :func:`~matplotlib.pyplot.twiny`) to use *2 different axes*,
 turning the axes rectangular frame off on the 2nd axes to keep it from
 obscuring the first, and manually setting the tick locs and labels as
-desired.  You can use separate matplotlib.ticker formatters and
+desired.  You can use separate ``matplotlib.ticker`` formatters and
 locators as desired because the two axes are independent.
 
 .. plot::
@@ -397,7 +403,7 @@ locators as desired because the two axes are independent.
 
 .. htmlonly::
 
-    See :ref:`api-two_scales` for a complete example
+    See :ref:`sphx_glr_gallery_api_two_scales.py` for a complete example
 
 .. _howto-batch:
 
@@ -430,11 +436,11 @@ Use :func:`~matplotlib.pyplot.show`
 When you want to view your plots on your display,
 the user interface backend will need to start the GUI mainloop.
 This is what :func:`~matplotlib.pyplot.show` does.  It tells
-matplotlib to raise all of the figure windows created so far and start
+Matplotlib to raise all of the figure windows created so far and start
 the mainloop. Because this mainloop is blocking by default (i.e., script
 execution is paused), you should only call this once per script, at the end.
 Script execution is resumed after the last window is closed. Therefore, if
-you are using matplotlib to generate only images and do not want a user
+you are using Matplotlib to generate only images and do not want a user
 interface window, you do not need to call ``show``  (see :ref:`howto-batch`
 and :ref:`what-is-a-backend`).
 
@@ -448,7 +454,7 @@ and :ref:`what-is-a-backend`).
    Therefore, multiple calls to ``show`` are now allowed.
 
 Having ``show`` block further execution of the script or the python
-interpreter depends on whether matplotlib is set for interactive mode
+interpreter depends on whether Matplotlib is set for interactive mode
 or not.  In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script
@@ -462,7 +468,7 @@ won't finish until the last figure window is closed).
    because it does not support non-interactive mode.
 
 
-Because it is expensive to draw, you typically will not want matplotlib
+Because it is expensive to draw, you typically will not want Matplotlib
 to redraw a figure many times in a script such as the following::
 
     plot([1,2,3])            # draw here ?
@@ -472,12 +478,12 @@ to redraw a figure many times in a script such as the following::
     show()
 
 
-However, it is *possible* to force matplotlib to draw after every command,
+However, it is *possible* to force Matplotlib to draw after every command,
 which might be what you want when working interactively at the
 python console (see :ref:`mpl-shell`), but in a script you want to
 defer all drawing until the call to ``show``.  This is especially
 important for complex figures that take some time to draw.
-:func:`~matplotlib.pyplot.show` is designed to tell matplotlib that
+:func:`~matplotlib.pyplot.show` is designed to tell Matplotlib that
 you're all done issuing commands and you want to draw the figure now.
 
 .. note::
@@ -519,7 +525,7 @@ Tukey's `box plots <http://matplotlib.org/examples/pylab_examples/boxplot_demo.h
 .. figure:: ../_static/boxplot_explanation.png
 
 `Violin plots <http://matplotlib.org/examples/statistics/violinplot_demo.html>`_ are closely related to box plots but add useful information such as the distribution of the sample data (density trace).
-Violin plots were added in matplotlib 1.4.
+Violin plots were added in Matplotlib 1.4.
 
 
 .. _howto-contribute:
@@ -532,7 +538,7 @@ Contributing: howto
 Request a new feature
 ---------------------
 
-Is there a feature you wish matplotlib had?  Then ask!  The best
+Is there a feature you wish Matplotlib had?  Then ask!  The best
 way to get started is to email the developer `mailing
 list <matplotlib-devel@python.org>`_ for discussion.
 This is an open source project developed primarily in the
@@ -545,7 +551,7 @@ you need added is to contribute it your self.
 Reporting a bug or submitting a patch
 -------------------------------------
 
-The development of matplotlib is organized through `github
+The development of Matplotlib is organized through `github
 <https://github.com/matplotlib/matplotlib>`_.  If you would like
 to report a bug or submit a patch please use that interface.
 
@@ -560,16 +566,16 @@ register with github, please email bug reports to the `mailing list
 <matplotlib-devel@python.org>`_.
 
 
-The easiest way to submit patches to matplotlib is through pull
+The easiest way to submit patches to Matplotlib is through pull
 requests on github.  Please see the :ref:`developers-guide-index` for
 the details.
 
 .. _how-to-contribute-docs:
 
-Contribute to matplotlib documentation
+Contribute to Matplotlib documentation
 --------------------------------------
 
-matplotlib is a big library, which is used in many ways, and the
+Matplotlib is a big library, which is used in many ways, and the
 documentation has only scratched the surface of everything it can
 do.  So far, the place most people have learned all these features are
 through studying the examples (:ref:`how-to-search-examples`), which is a
@@ -577,20 +583,20 @@ recommended and great way to learn, but it would be nice to have more
 official narrative documentation guiding people through all the dark
 corners.  This is where you come in.
 
-There is a good chance you know more about matplotlib usage in some
+There is a good chance you know more about Matplotlib usage in some
 areas, the stuff you do every day, than many of the core developers
 who wrote most of the documentation.  Just pulled your hair out
-compiling matplotlib for windows?  Write a FAQ or a section for the
+compiling Matplotlib for windows?  Write a FAQ or a section for the
 :ref:`installing-faq` page.  Are you a digital signal processing wizard?
 Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
-:func:`~matplotlib.pyplot.specgram`.  Do you use matplotlib with
+:func:`~matplotlib.pyplot.specgram`.  Do you use Matplotlib with
 `django <https://www.djangoproject.com/>`_ or other popular web
 application servers?  Write a FAQ or tutorial and we'll find a place
-for it in the :ref:`users-guide-index`.  Bundle matplotlib in a
+for it in the :ref:`users-guide-index`.  Bundle Matplotlib in a
 `py2exe <http://www.py2exe.org/>`_ app?  ... I think you get the idea.
 
-matplotlib is documented using the `sphinx
+Matplotlib is documented using the `sphinx
 <http://www.sphinx-doc.org/index.html>`_ extensions to restructured text
 `(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
 extensible python framework for documentation projects which generates
@@ -600,7 +606,7 @@ at the end of the page in the sidebar.
 
 The sphinx website is a good resource for learning sphinx, but we have
 put together a cheat-sheet at :ref:`documenting-matplotlib` which
-shows you how to get started, and outlines the matplotlib conventions
+shows you how to get started, and outlines the Matplotlib conventions
 and extensions, e.g., for including plots directly from external code in
 your documents.
 
@@ -619,10 +625,10 @@ Matplotlib in a web application server
 ======================================
 
 Many users report initial problems trying to use maptlotlib in web
-application servers, because by default matplotlib ships configured to
+application servers, because by default Matplotlib ships configured to
 work with a graphical user interface which may require an X11
 connection.  Since many barebones application servers do not have X11
-enabled, you may get errors if you don't configure matplotlib for use
+enabled, you may get errors if you don't configure Matplotlib for use
 in these environments.  Most importantly, you need to decide what
 kinds of images you want to generate (PNG, PDF, SVG) and configure the
 appropriate default backend.  For 99% of users, this will be the Agg
@@ -630,7 +636,7 @@ backend, which uses the C++
 `antigrain <http://antigrain.com>`_
 rendering engine to make nice PNGs.  The Agg backend is also
 configured to recognize requests to generate other output formats
-(PDF, PS, EPS, SVG).  The easiest way to configure matplotlib to use
+(PDF, PS, EPS, SVG).  The easiest way to configure Matplotlib to use
 Agg is to call::
 
     # do this before importing pylab or pyplot
@@ -643,7 +649,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:ref:`api-agg_oo`.
+:ref:`sphx_glr_gallery_api_agg_oo_sgskip.py`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
@@ -673,17 +679,17 @@ Pillow for further processing::
     im = Image.open(imgdata)
 
 
-matplotlib with apache
+Matplotlib with apache
 ----------------------
 
 TODO; see :ref:`how-to-contribute-docs`.
 
-matplotlib with django
+Matplotlib with django
 ----------------------
 
 TODO; see :ref:`how-to-contribute-docs`.
 
-matplotlib with zope
+Matplotlib with zope
 --------------------
 
 TODO; see :ref:`how-to-contribute-docs`.
@@ -696,7 +702,7 @@ Clickable images for HTML
 Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
 has written a nice `article
 <http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
-on how to make html click maps with matplotlib agg PNGs.  We would
+on how to make html click maps with Matplotlib agg PNGs.  We would
 also like to add this functionality to SVG.  If you are interested in
 contributing to these efforts that would be great.
 
@@ -706,7 +712,7 @@ contributing to these efforts that would be great.
 Search examples
 ===============
 
-The nearly 300 code :ref:`examples-index` included with the matplotlib
+The nearly 300 code :ref:`examples-index` included with the Matplotlib
 source distribution are full-text searchable from the :ref:`search`
 page, but sometimes when you search, you get a lot of results from the
 :ref:`api-index` or other documentation that you may not be interested
@@ -723,7 +729,7 @@ ellipse, :ref:`search` for ``codex ellipse``.
 Cite Matplotlib
 ===============
 
-If you want to refer to matplotlib in a publication, you can use
+If you want to refer to Matplotlib in a publication, you can use
 "Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
 in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
 reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
@@ -749,3 +755,4 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
+

@@ -14,7 +14,7 @@ from six.moves import zip
 
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
-from matplotlib._backports import numpy as _backports_np
+from matplotlib.cbook import _backports
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection,
     PathCollection)
@@ -589,7 +589,8 @@ class Poly3DCollection(PolyCollection):
         '''Set 3D vertices.'''
         self.get_vector(verts)
         # 2D verts will be updated at draw time
-        PolyCollection.set_verts(self, [], closed)
+        PolyCollection.set_verts(self, [], False)
+        self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
         '''Sets 3D vertices with path codes'''
@@ -654,7 +655,7 @@ class Poly3DCollection(PolyCollection):
             codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
-            PolyCollection.set_verts(self, segments_2d)
+            PolyCollection.set_verts(self, segments_2d, self._closed)
 
         self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
         if len(self._edgecolors3d) == len(cface):
@@ -774,7 +775,7 @@ def iscolor(c):
 
 def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
-    return _backports_np.broadcast_to(
+    return _backports.broadcast_to(
         mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
         (num, 4))
 

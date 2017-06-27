@@ -4,31 +4,36 @@
 Developer's tips for testing
 ============================
 
-Matplotlib has a testing infrastructure based on nose_, making it easy
-to write new tests. The tests are in :mod:`matplotlib.tests`, and
-customizations to the nose testing infrastructure are in
-:mod:`matplotlib.testing`. (There is other old testing cruft around,
-please ignore it while we consolidate our testing to these locations.)
+Matplotlib's testing infrastructure depends on pytest_. The tests are in
+:file:`lib/matplotlib/tests`, and customizations to the pytest testing
+infrastructure are in :mod:`matplotlib.testing`.
 
-.. _nose: https://nose.readthedocs.io/en/latest/
+.. _pytest: http://doc.pytest.org/en/latest/
+.. _mock: https://docs.python.org/dev/library/unittest.mock.html>
+.. _Ghostscript: https://www.ghostscript.com/
+.. _Inkscape: https://inkscape.org
+.. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
+.. _pytest-pep8: https://pypi.python.org/pypi/pytest-pep8
+.. _pytest-xdist: https://pypi.python.org/pypi/pytest-xdist
+.. _pytest-timeout: https://pypi.python.org/pypi/pytest-timeout
 
 Requirements
 ------------
 
 The following software is required to run the tests:
 
-  - nose_, version 1.0 or later
-  - `mock <https://docs.python.org/dev/library/unittest.mock.html>`_, when running python
-    versions < 3.3
-  - `Ghostscript <https://www.ghostscript.com/>`_ (to render PDF
-    files)
-  - `Inkscape <https://inkscape.org>`_ (to render SVG files)
+  - pytest_, version 3.0.0 or later
+  - mock_, when running Python versions < 3.3
+  - Ghostscript_ (to render PDF files)
+  - Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
-  - `coverage <https://coverage.readthedocs.io/en/latest/>`_ to collect coverage
-    information
-  - `pep8 <http://pep8.readthedocs.io/en/latest>`_ to test coding standards
+  - pytest-cov_ to collect coverage information
+  - pytest-pep8_ to test coding standards
+  - pytest-timeout_ to limit runtime in case of stuck tests
+  - pytest-xdist_ to run tests in parallel
+
 
 Building matplotlib for image comparison tests
 ----------------------------------------------
@@ -45,6 +50,7 @@ matplotlib source directory::
 
   [test]
   local_freetype = True
+  tests = True
 
 or by setting the ``MPLLOCALFREETYPE`` environmental variable to any true
 value.
@@ -52,7 +58,11 @@ value.
 Running the tests
 -----------------
 
-Running the tests is simple. Make sure you have nose installed and run::
+Running the tests is simple. Make sure you have pytest installed and run::
+
+   py.test
+
+or::
 
    python tests.py
 
@@ -60,50 +70,52 @@ in the root directory of the distribution. The script takes a set of
 commands, such as:
 
 ========================  ===========
-``--pep8``                pep8 checks
-``--no-pep8``             Do not perform pep8 checks
-``--no-network``          Disable tests that require network access
+``--pep8``                Perform pep8 checks (requires pytest-pep8_)
+``-m "not network"``      Disable tests that require network access
 ========================  ===========
 
-Additional arguments are passed on to nosetests. See the nose
-documentation for supported arguments. Some of the more important ones are given
-here:
+Additional arguments are passed on to pytest. See the pytest documentation for
+`supported arguments`_. Some of the more important ones are given here:
 
 =============================  ===========
 ``--verbose``                  Be more verbose
-``--processes=NUM``            Run tests in parallel over NUM processes
-``--process-timeout=SECONDS``  Set timeout for results from test runner process
-``--nocapture``                Do not capture stdout
+``--n NUM``                    Run tests in parallel over NUM
+                               processes (requires pytest-xdist_)
+``--timeout=SECONDS``          Set timeout for results from each test
+                               process (requires pytest-timeout_)
+``--capture=no`` or ``-s``     Do not capture stdout
 =============================  ===========
 
-To run a single test from the command line, you can provide a
-dot-separated path to the module followed by the function separated by
-a colon, e.g., (this is assuming the test is installed)::
+To run a single test from the command line, you can provide a file path,
+optionally followed by the function separated by two colons, e.g., (tests do
+not need to be installed, but Matplotlib should be)::
 
-  python tests.py matplotlib.tests.test_simplification:test_clipping
+  py.test lib/matplotlib/tests/test_simplification.py::test_clipping
+
+or, if tests are installed, a dot-separated path to the module, optionally
+followed by the function separated by two colons, such as::
+
+  py.test --pyargs matplotlib.tests.test_simplification::test_clipping
 
 If you want to run the full test suite, but want to save wall time try
 running the tests in parallel::
 
-  python tests.py --nocapture --nose-verbose --processes=5 --process-timeout=300
+  py.test --verbose -n 5
 
+Depending on your version of Python and pytest-xdist, you may need to set
+``PYTHONHASHSEED`` to a fixed value when running in parallel::
 
-An alternative implementation that does not look at command line
-arguments works from within Python is to run the tests from the
-matplotlib library function :func:`matplotlib.test`::
+  PYTHONHASHSEED=0 py.test --verbose -n 5
+
+An alternative implementation that does not look at command line arguments
+and works from within Python is to run the tests from the Matplotlib library
+function :func:`matplotlib.test`::
 
   import matplotlib
   matplotlib.test()
 
-.. hint::
 
-   To run the tests you need to install nose and mock if using python 2.7::
-
-      pip install nose
-      pip install mock
-
-
-.. _`nosetest arguments`: http://nose.readthedocs.io/en/latest/usage.html
+.. _supported arguments: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
@@ -112,30 +124,20 @@ Writing a simple test
 Many elements of Matplotlib can be tested using standard tests. For
 example, here is a test from :mod:`matplotlib.tests.test_basic`::
 
-  from nose.tools import assert_equal
-
   def test_simple():
       """
       very simple example test
       """
-      assert_equal(1+1,2)
+      assert 1 + 1 == 2
 
-Nose determines which functions are tests by searching for functions
-beginning with "test" in their name.
+Pytest determines which functions are tests by searching for files whose names
+begin with ``"test_"`` and then within those files for functions beginning with
+``"test"`` or classes beginning with ``"Test"``.
 
-If the test has side effects that need to be cleaned up, such as
-creating figures using the pyplot interface, use the ``@cleanup``
-decorator::
-
-  from matplotlib.testing.decorators import cleanup
-
-  @cleanup
-  def test_create_figure():
-      """
-      very simple example test that creates a figure using pyplot.
-      """
-      fig = figure()
-      ...
+Some tests have internal side effects that need to be cleaned up after their
+execution (such as created figures or modified rc params). The pytest fixture
+:func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
+these up; there is no need to do anything further.
 
 
 Writing an image comparison test
@@ -202,24 +204,22 @@ decorator:
 Known failing tests
 -------------------
 
-If you're writing a test, you may mark it as a known failing test with
-the :func:`~matplotlib.testing.decorators.knownfailureif`
-decorator. This allows the test to be added to the test suite and run
-on the buildbots without causing undue alarm. For example, although
-the following test will fail, it is an expected failure::
+If you're writing a test, you may mark it as a known failing test with the
+:func:`pytest.mark.xfail` decorator. This allows the test to be added to the
+test suite and run on the buildbots without causing undue alarm. For example,
+although the following test will fail, it is an expected failure::
 
-  from nose.tools import assert_equal
-  from matplotlib.testing.decorators import knownfailureif
+  import pytest
 
-  @knownfailureif(True)
+  @pytest.mark.xfail
   def test_simple_fail():
       '''very simple example test that should fail'''
-      assert_equal(1+1,3)
+      assert 1 + 1 == 3
 
-Note that the first argument to the
-:func:`~matplotlib.testing.decorators.knownfailureif` decorator is a
-fail condition, which can be a value such as True, False, or
-'indeterminate', or may be a dynamically evaluated expression.
+Note that the first argument to the :func:`~pytest.mark.xfail` decorator is a
+fail condition, which can be a value such as True, False, or may be a
+dynamically evaluated expression. If a condition is supplied, then a reason
+must also be supplied with the ``reason='message'`` keyword argument.
 
 Creating a new module in matplotlib.tests
 -----------------------------------------
@@ -227,11 +227,6 @@ Creating a new module in matplotlib.tests
 We try to keep the tests categorized by the primary module they are
 testing.  For example, the tests related to the ``mathtext.py`` module
 are in ``test_mathtext.py``.
-
-Let's say you've added a new module named ``whizbang.py`` and you want
-to add tests for it in ``matplotlib.tests.test_whizbang``.  To add
-this module to the list of default tests, append its name to
-``default_test_modules`` in :file:`lib/matplotlib/__init__.py`.
 
 Using Travis CI
 ---------------

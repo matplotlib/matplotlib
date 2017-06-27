@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import numpy as np
 import io
@@ -28,7 +28,6 @@ def test_logit_scales():
     ax.grid(True)
 
 
-@cleanup
 def test_log_scatter():
     """Issue #1799"""
     fig, ax = plt.subplots(1)
@@ -48,6 +47,8 @@ def test_log_scatter():
     fig.savefig(buf, format='svg')
 
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+def test_logscale_subs():
+    fig, ax = plt.subplots()
+    ax.set_yscale('log', subsy=np.array([2, 3, 4]))
+    # force draw
+    fig.canvas.draw()

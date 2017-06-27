@@ -1,0 +1,6 @@
+Updated qhull to 2015.2
+```````````````````````
+
+The version of qhull shipped with Matplotlib, which is used for
+Delaunay triangulation, has been updated from version 2012.1 to
+2015.2.

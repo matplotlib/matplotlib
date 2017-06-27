@@ -1,7 +1,11 @@
-'''
+"""
+==================
+Errorbar Subsample
+==================
+
 Demo for the errorevery keyword to show data full accuracy data plots with
 few errorbars.
-'''
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

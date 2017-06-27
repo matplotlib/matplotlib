@@ -118,17 +118,18 @@ class AxesStack(Stack):
         # All the error checking may be unnecessary; but this method
         # is called so seldom that the overhead is negligible.
         if not isinstance(a, Axes):
-            raise ValueError("second argument, %s, is not an Axes" % a)
+            raise ValueError("second argument, {!r}, is not an Axes".format(a))
         try:
             hash(key)
         except TypeError:
-            raise ValueError("first argument, %s, is not a valid key" % key)
+            raise ValueError(
+                "first argument, {!r}, is not a valid key".format(key))
 
         a_existing = self.get(key)
         if a_existing is not None:
             Stack.remove(self, (key, a_existing))
             warnings.warn(
-                "key %s already existed; Axes is being replaced" % key)
+                "key {!r} already existed; Axes is being replaced".format(key))
             # I don't think the above should ever happen.
 
         if a in self:
@@ -323,21 +324,23 @@ class Figure(Artist):
         if frameon is None:
             frameon = rcParams['figure.frameon']
 
-        self.dpi_scale_trans = Affine2D()
-        self.dpi = dpi
+        if not np.isfinite(figsize).all():
+            raise ValueError('figure size must be finite not '
+                             '{}'.format(figsize))
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+
+        self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
+        # do not use property as it will trigger
+        self._dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
         self.frameon = frameon
 
         self.transFigure = BboxTransformTo(self.bbox)
 
-        # the figurePatch name is deprecated
-        self.patch = self.figurePatch = Rectangle(
+        self.patch = Rectangle(
             xy=(0, 0), width=1, height=1,
-            facecolor=facecolor, edgecolor=edgecolor,
-            linewidth=linewidth)
-
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
 
@@ -357,6 +360,10 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+
+    @cbook.deprecated("2.1", alternative="Figure.patch")
+    def figurePatch(self):
+        return self.patch
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
@@ -413,6 +420,7 @@ class Figure(Artist):
     def _set_dpi(self, dpi):
         self._dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi, dpi)
+        self.set_size_inches(*self.get_size_inches())
         self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
 
@@ -439,7 +447,7 @@ class Figure(Artist):
         self._tight_parameters = tight if isinstance(tight, dict) else {}
         self.stale = True
 
-    def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
+    def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right', which=None):
         """
         Date ticklabels often overlap, so it is useful to rotate them
         and right align them.  Also, a common use case is a number of
@@ -448,29 +456,36 @@ class Figure(Artist):
         bottom subplot and turn them off on other subplots, as well as
         turn off xlabels.
 
-        *bottom*
+        Parameters
+        ----------
+
+        bottom : scalar
             The bottom of the subplots for :meth:`subplots_adjust`
 
-        *rotation*
+        rotation : angle in degrees
             The rotation of the xtick labels
 
-        *ha*
+        ha : string
             The horizontal alignment of the xticklabels
+
+        which : {None, 'major', 'minor', 'both'}
+            Selects which ticklabels to rotate (default is None which works
+            same as major)
         """
         allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
         if len(self.axes) == 1:
-            for label in self.axes[0].get_xticklabels():
+            for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
                 label.set_rotation(rotation)
         else:
             if allsubplots:
                 for ax in self.get_axes():
                     if ax.is_last_row():
-                        for label in ax.get_xticklabels():
+                        for label in ax.get_xticklabels(which=which):
                             label.set_ha(ha)
                             label.set_rotation(rotation)
                     else:
-                        for label in ax.get_xticklabels():
+                        for label in ax.get_xticklabels(which=which):
                             label.set_visible(False)
                         ax.set_xlabel('')
 
@@ -651,9 +666,6 @@ class Figure(Artist):
 
         An :class:`matplotlib.image.FigureImage` instance is returned.
 
-        .. plot:: mpl_examples/pylab_examples/figimage_demo.py
-
-
         Additional kwargs are Artist kwargs passed on to
         :class:`~matplotlib.image.FigureImage`
         """
@@ -679,15 +691,12 @@ class Figure(Artist):
         return im
 
     def set_size_inches(self, w, h=None, forward=True):
-        """
-        set_size_inches(w,h, forward=False)
+        """Set the figure size in inches (1in == 2.54cm)
 
-        Set the figure size in inches (1in == 2.54cm)
-
-        Usage::
+        Usage ::
 
              fig.set_size_inches(w,h)  # OR
-             fig.set_size_inches((w,h) )
+             fig.set_size_inches((w,h))
 
         optional kwarg *forward=True* will cause the canvas size to be
         automatically updated; e.g., you can resize the figure window
@@ -705,17 +714,21 @@ class Figure(Artist):
         # argument, so unpack them
         if h is None:
             w, h = w
-
-        dpival = self.dpi
+        if not all(np.isfinite(_) for _ in (w, h)):
+            raise ValueError('figure size must be finite not '
+                             '({}, {})'.format(w, h))
         self.bbox_inches.p1 = w, h
 
         if forward:
-            dpival = self.dpi
-            canvasw = w * dpival
-            canvash = h * dpival
-            manager = getattr(self.canvas, 'manager', None)
-            if manager is not None:
-                manager.resize(int(canvasw), int(canvash))
+            canvas = getattr(self, 'canvas')
+            if canvas is not None:
+                ratio = getattr(self.canvas, '_dpi_ratio', 1)
+                dpival = self.dpi / ratio
+                canvasw = w * dpival
+                canvash = h * dpival
+                manager = getattr(self.canvas, 'manager', None)
+                if manager is not None:
+                    manager.resize(int(canvasw), int(canvash))
         self.stale = True
 
     def get_size_inches(self):
@@ -912,6 +925,9 @@ class Figure(Artist):
                 raise ValueError(msg)
         else:
             rect = args[0]
+            if not np.isfinite(rect).all():
+                raise ValueError('all entries in rect must be finite '
+                                 'not {}'.format(rect))
             projection_class, kwargs, key = process_projection_requirements(
                 self, *args, **kwargs)
 
@@ -1201,11 +1217,11 @@ class Figure(Artist):
         self._suptitle = None
         self.stale = True
 
-    def clear(self):
+    def clear(self, keep_observers=False):
         """
         Clear the figure -- synonym for :meth:`clf`.
         """
-        self.clf()
+        self.clf(keep_observers=keep_observers)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -1261,127 +1277,214 @@ class Figure(Artist):
     def get_axes(self):
         return self.axes
 
-    def legend(self, handles, labels, *args, **kwargs):
+    def legend(self, *args, **kwargs):
         """
-        Place a legend in the figure.  Labels are a sequence of
-        strings, handles is a sequence of
-        :class:`~matplotlib.lines.Line2D` or
-        :class:`~matplotlib.patches.Patch` instances, and loc can be a
-        string or an integer specifying the legend location
+        Place a legend on the figure.
 
-        USAGE::
+        To make a legend from existing artists on every axes::
+
+          legend()
+
+        To make a legend for a list of lines and labels::
 
           legend( (line1, line2, line3),
                   ('label1', 'label2', 'label3'),
                   'upper right')
 
-        The *loc* location codes are::
+        Parameters
+        ----------
+        loc : string or integer
+            The location of the legend. Possible codes are:
 
-          'best' : 0,          (currently not supported for figure legends)
-          'upper right'  : 1,
-          'upper left'   : 2,
-          'lower left'   : 3,
-          'lower right'  : 4,
-          'right'        : 5,
-          'center left'  : 6,
-          'center right' : 7,
-          'lower center' : 8,
-          'upper center' : 9,
-          'center'       : 10,
+                ===============   =============
+                Location String   Location Code
+                ===============   =============
+                'upper right'     1
+                'upper left'      2
+                'lower left'      3
+                'lower right'     4
+                'right'           5
+                'center left'     6
+                'center right'    7
+                'lower center'    8
+                'upper center'    9
+                'center'          10
+                ===============   =============
 
-        *loc* can also be an (x,y) tuple in figure coords, which
-        specifies the lower left of the legend box.  figure coords are
-        (0,0) is the left, bottom of the figure and 1,1 is the right,
-        top.
+            *loc* can also be an (x,y) tuple in figure coords, which specifies
+            the lower left of the legend box. In figure coords (0,0) is the
+            bottom left of the figure, and (1,1) is the top right.
 
-        Keyword arguments:
+        prop : None or FontProperties or dict
+            A :class:`matplotlib.font_manager.FontProperties` instance. If
+            *prop* is a dictionary, a new instance will be created with *prop*.
+            If *None*, use rc settings.
 
-          prop: [ *None* | FontProperties | dict ]
-            A :class:`matplotlib.font_manager.FontProperties`
-            instance. If *prop* is a dictionary, a new instance will be
-            created with *prop*. If *None*, use rc settings.
-
-          numpoints: integer
+        numpoints : integer
             The number of points in the legend line, default is 4
 
-          scatterpoints: integer
+        scatterpoints : integer
             The number of points in the legend line, default is 4
 
-          scatteryoffsets: list of floats
-            a list of yoffsets for scatter symbols in legend
+        scatteryoffsets : list of floats
+            A list of yoffsets for scatter symbols in legend
 
-          markerscale: [ *None* | scalar ]
+        markerscale : None or scalar
             The relative size of legend markers vs. original. If *None*, use rc
             settings.
 
-          markerfirst: [ *True* | *False* ]
-            if *True*, legend marker is placed to the left of the legend label
-            if *False*, legend marker is placed to the right of the legend
-            label
+        markerfirst : bool
+            If *True*, legend marker is placed to the left of the legend label.
+            If *False*, legend marker is placed to the right of the legend
+            label.
+            Default is *True*.
 
-          frameon: [ *None* | bool ]
+        frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
             Default is *None* which will take the value from the
             ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
 
-          fancybox: [ *None* | *False* | *True* ]
-            if *True*, draw a frame with a round fancybox.  If *None*, use rc
+        fancybox : None or bool
+            If *True*, draw a frame with a round fancybox. If *None*, use rc
+            settings.
 
-          shadow: [ *None* | *False* | *True* ]
+        shadow : None or bool
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 
-          framealpha: [ *None* | float ]
+        framealpha : None or float
             Control the alpha transparency of the legend's background.
             Default is *None* which will take the value from the
             ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
 
-          facecolor: [ *None* | "inherit" | a color spec ]
+        facecolor : None or "inherit" or a color spec
             Control the legend's background color.
             Default is *None* which will take the value from the
             ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.facecolor``
             :data:`rcParam<matplotlib.rcParams>`.
 
-          edgecolor: [ *None* | "inherit" | a color spec ]
+        edgecolor : None or "inherit" or a color spec
             Control the legend's background patch edge color.
             Default is *None* which will take the value from the
             ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.edgecolor``
             :data:`rcParam<matplotlib.rcParams>`.
 
-          ncol : integer
-            number of columns. default is 1
+        ncol : integer
+            Number of columns. Default is 1.
 
-          mode : [ "expand" | *None* ]
-            if mode is "expand", the legend will be horizontally expanded
+        mode : "expand" or None
+            If mode is "expand", the legend will be horizontally expanded
             to fill the axes area (or *bbox_to_anchor*)
 
-          title : string
-            the legend title
+        title : string
+            The legend title
 
-        Padding and spacing between various elements use following keywords
-        parameters. The dimensions of these values are given as a fraction
-        of the fontsize. Values from rcParams will be used if None.
+        borderpad : float or None
+            The fractional whitespace inside the legend border, measured in
+            font-size units.
+            Default is *None* which will take the value from the
+            ``legend.borderpad`` :data:`rcParam<matplotlib.rcParams>`.
 
-        ================   ====================================================
-        Keyword            Description
-        ================   ====================================================
-        borderpad          the fractional whitespace inside the legend border
-        labelspacing       the vertical space between the legend entries
-        handlelength       the length of the legend handles
-        handletextpad      the pad between the legend handle and text
-        borderaxespad      the pad between the axes and legend border
-        columnspacing      the spacing between columns
-        ================   ====================================================
+        labelspacing : float or None
+            The vertical space between the legend entries, measured in
+            font-size units.
+            Default is *None* which will take the value from the
+            ``legend.labelspacing`` :data:`rcParam<matplotlib.rcParams>`.
 
-        .. Note:: Not all kinds of artist are supported by the legend.
-                  See LINK (FIXME) for details.
+        handlelength : float or None
+            The length of the legend handles, measured in font-size units.
+            Default is *None* which will take the value from the
+            ``legend.handlelength`` :data:`rcParam<matplotlib.rcParams>`.
 
-        **Example:**
+        handletextpad : float or None
+            The padding between the legend handle and text, measured in
+            font-size units.
+            Default is *None* which will take the value from the
+            ``legend.handletextpad`` :data:`rcParam<matplotlib.rcParams>`.
 
-        .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
+        borderaxespad : float or None
+            The padding between the axes and legend border, measured in
+            font-size units.
+            Default is *None* which will take the value from the
+            ``legend.borderaxespad`` :data:`rcParam<matplotlib.rcParams>`.
+
+        columnspacing : float or None
+            The spacing between columns, measured in font-size units.
+            Default is *None* which will take the value from the
+            ``legend.columnspacing`` :data:`rcParam<matplotlib.rcParams>`.
+
+        Returns
+        -------
+        :class:`matplotlib.legend.Legend` instance
+
+        Notes
+        -----
+        Not all kinds of artist are supported by the legend command. See
+        :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for details.
         """
-        l = Legend(self, handles, labels, *args, **kwargs)
+
+        # If no arguments given, collect up all the artists on the figure
+        if len(args) == 0:
+            handles = []
+            labels = []
+
+            def in_handles(h, l):
+                # Method to check if we already have a given handle and label.
+                # Consider two handles to be the same if they share a label,
+                # color, facecolor, and edgecolor.
+
+                # Loop through each handle and label already collected
+                for f_h, f_l in zip(handles, labels):
+                    if f_l != l:
+                        continue
+                    if type(f_h) != type(h):
+                        continue
+                    try:
+                        if f_h.get_color() != h.get_color():
+                            continue
+                    except AttributeError:
+                        pass
+                    try:
+                        if f_h.get_facecolor() != h.get_facecolor():
+                            continue
+                    except AttributeError:
+                        pass
+                    try:
+                        if f_h.get_edgecolor() != h.get_edgecolor():
+                            continue
+                    except AttributeError:
+                        pass
+                    return True
+                return False
+
+            for ax in self.axes:
+                ax_handles, ax_labels = ax.get_legend_handles_labels()
+                for h, l in zip(ax_handles, ax_labels):
+                    if not in_handles(h, l):
+                        handles.append(h)
+                        labels.append(l)
+            if len(handles) == 0:
+                warnings.warn("No labeled objects found. "
+                              "Use label='...' kwarg on individual plots.")
+                return None
+
+        elif len(args) == 2:
+            # LINES, LABELS
+            handles, labels = args
+
+        elif len(args) == 3:
+            # LINES, LABELS, LOC
+            handles, labels, loc = args
+            kwargs['loc'] = loc
+
+        else:
+            raise TypeError('Invalid number of arguments passed to legend. '
+                            'Please specify either 0 args, 2 args '
+                            '(artist handles, figure labels) or 3 args '
+                            '(artist handles, figure labels, legend location)')
+
+        l = Legend(self, handles, labels, **kwargs)
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
         self.stale = True
@@ -1464,7 +1567,7 @@ class Figure(Artist):
                 else:
                     warnings.warn('Requested projection is different from '
                                   'current axis projection, creating new axis '
-                                  'with requested projection.')
+                                  'with requested projection.', stacklevel=2)
 
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)
@@ -1738,17 +1841,10 @@ class Figure(Artist):
     def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1,
                mouse_pop=3, mouse_stop=2):
         """
-        Blocking call to interact with the figure.
+        Blocking call to interact with a figure.
 
-        This will wait for *n* clicks from the user and return a list of the
-        coordinates of each click.
-
-        If *timeout* is zero or negative, does not timeout.
-
-        If *n* is zero or negative, accumulate clicks until a middle click
-        (or potentially both mouse buttons at once) terminates the input.
-
-        Right clicking cancels last input.
+        Wait until the user clicks *n* times on the figure, and return the
+        coordinates of each click in a list.
 
         The buttons used for the various actions (adding points, removing
         points, terminating the inputs) can be overriden via the
@@ -1756,6 +1852,30 @@ class Figure(Artist):
         the associated mouse button: 1 for left, 2 for middle, 3 for
         right.
 
+        Parameters
+        ----------
+        n : int, optional, default: 1
+            Number of mouse clicks to accumulate. If negative, accumulate
+            clicks until the input is terminated manually.
+        timeout : scalar, optional, default: 30
+            Number of seconds to wait before timing out. If zero or negative
+            will never timeout.
+        show_clicks : bool, optional, default: False
+            If True, show a red cross at the location of each click.
+        mouse_add : int, one of (1, 2, 3), optional, default: 1 (left click)
+            Mouse button used to add points.
+        mouse_pop : int, one of (1, 2, 3), optional, default: 3 (right click)
+            Mouse button used to remove the most recently added point.
+        mouse_stop : int, one of (1, 2, 3), optional, default: 2 (middle click)
+            Mouse button used to stop input.
+
+        Returns
+        -------
+        points : list of tuples
+            A list of the clicked (x, y) coordinates.
+
+        Notes
+        -----
         The keyboard can also be used to select points in case your mouse
         does not have one or more of the buttons.  The delete and backspace
         keys act like right clicking (i.e., remove last point), the enter key

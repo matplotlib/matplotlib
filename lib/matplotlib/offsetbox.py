@@ -986,6 +986,19 @@ class AnchoredOffsetbox(OffsetBox):
     """
     zorder = 5  # zorder of the legend
 
+    # Location codes
+    codes = {'upper right': 1,
+             'upper left': 2,
+             'lower left': 3,
+             'lower right': 4,
+             'right': 5,
+             'center left': 6,
+             'center right': 7,
+             'lower center': 8,
+             'upper center': 9,
+             'center': 10,
+             }
+
     def __init__(self, loc,
                  pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
@@ -994,13 +1007,13 @@ class AnchoredOffsetbox(OffsetBox):
                  **kwargs):
         """
         loc is a string or an integer specifying the legend location.
-        The valid  location codes are::
+        The valid location codes are::
 
         'upper right'  : 1,
         'upper left'   : 2,
         'lower left'   : 3,
         'lower right'  : 4,
-        'right'        : 5,
+        'right'        : 5, (same as 'center right', for back-compatibility)
         'center left'  : 6,
         'center right' : 7,
         'lower center' : 8,
@@ -1027,6 +1040,14 @@ class AnchoredOffsetbox(OffsetBox):
 
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
+
+        if isinstance(loc, six.string_types):
+            try:
+                loc = self.codes[loc]
+            except KeyError:
+                raise ValueError('Unrecognized location "%s". Valid '
+                                 'locations are\n\t%s\n'
+                                 % (loc, '\n\t'.join(self.codes)))
 
         self.loc = loc
         self.borderpad = borderpad
@@ -1619,7 +1640,7 @@ class DraggableBase(object):
 
     *artist_picker* is a picker method that will be
      used. *finalize_offset* is called when the mouse is released. In
-     current implementaion of DraggableLegend and DraggableAnnotation,
+     current implementation of DraggableLegend and DraggableAnnotation,
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.

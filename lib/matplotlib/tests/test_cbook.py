@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import itertools
+import pickle
 from weakref import ref
 import warnings
 
@@ -16,33 +17,6 @@ import pytest
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points as dmp
-
-
-def test_is_string_like():
-    y = np.arange(10)
-    assert not cbook.is_string_like(y)
-    assert not cbook.is_string_like(y.reshape((-1, 1)))
-    assert not cbook.is_string_like(y.reshape((1, -1)))
-
-    assert cbook.is_string_like("hello world")
-    assert not cbook.is_string_like(10)
-
-    y = ['a', 'b', 'c']
-    assert not cbook.is_string_like(y)
-
-    y = np.array(y)
-    assert not cbook.is_string_like(y)
-
-    y = np.array(y, dtype=object)
-    assert cbook.is_string_like(y)
-
-
-def test_is_sequence_of_strings():
-    y = ['a', 'b', 'c']
-    assert cbook.is_sequence_of_strings(y)
-
-    y = np.array(y, dtype=object)
-    assert cbook.is_sequence_of_strings(y)
 
 
 def test_is_hashable():
@@ -70,7 +44,7 @@ def test_restrict_dict():
 
 
 class Test_delete_masked_points(object):
-    def setUp(self):
+    def setup_method(self):
         self.mask1 = [False, False, True, True, False, False]
         self.arr0 = np.arange(1.0, 7.0)
         self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
@@ -282,6 +256,10 @@ class Test_callback_registry(object):
 
     def dummy(self):
         pass
+
+    def test_pickling(self):
+        assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
+                       "callbacks")
 
 
 def test_sanitize_sequence():

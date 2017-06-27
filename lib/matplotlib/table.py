@@ -30,7 +30,6 @@ import warnings
 from . import artist
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
-from .cbook import is_string_like
 from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
@@ -253,12 +252,12 @@ class Table(Artist):
 
         Artist.__init__(self)
 
-        if is_string_like(loc) and loc not in self.codes:
+        if isinstance(loc, six.string_types) and loc not in self.codes:
             warnings.warn('Unrecognized location %s. Falling back on '
                           'bottom; valid locations are\n%s\t' %
                           (loc, '\n\t'.join(self.codes)))
             loc = 'bottom'
-        if is_string_like(loc):
+        if isinstance(loc, six.string_types):
             loc = self.codes.get(loc, 1)
         self.set_figure(ax.figure)
         self._axes = ax

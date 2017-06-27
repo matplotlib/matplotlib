@@ -1,18 +1,17 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import xrange
-
-from nose.tools import assert_equal, assert_true
 from matplotlib import rcParams
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.axes import Axes
+from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
+import warnings
+import pytest
 
 
-@cleanup
 def test_figure_label():
     # pyplot figure creation, selection and closing with figure label and
     # number
@@ -24,31 +23,49 @@ def test_figure_label():
     plt.figure(0)
     plt.figure(1)
     plt.figure(3)
-    assert_equal(plt.get_fignums(), [0, 1, 3, 4, 5])
-    assert_equal(plt.get_figlabels(), ['', 'today', '', 'tomorrow', ''])
+    assert plt.get_fignums() == [0, 1, 3, 4, 5]
+    assert plt.get_figlabels() == ['', 'today', '', 'tomorrow', '']
     plt.close(10)
     plt.close()
     plt.close(5)
     plt.close('tomorrow')
-    assert_equal(plt.get_fignums(), [0, 1])
-    assert_equal(plt.get_figlabels(), ['', 'today'])
+    assert plt.get_fignums() == [0, 1]
+    assert plt.get_figlabels() == ['', 'today']
 
 
-@cleanup
 def test_fignum_exists():
     # pyplot figure creation, selection and closing with fignum_exists
     plt.figure('one')
     plt.figure(2)
     plt.figure('three')
     plt.figure()
-    assert_equal(plt.fignum_exists('one'), True)
-    assert_equal(plt.fignum_exists(2), True)
-    assert_equal(plt.fignum_exists('three'), True)
-    assert_equal(plt.fignum_exists(4), True)
+    assert plt.fignum_exists('one')
+    assert plt.fignum_exists(2)
+    assert plt.fignum_exists('three')
+    assert plt.fignum_exists(4)
     plt.close('one')
     plt.close(4)
-    assert_equal(plt.fignum_exists('one'), False)
-    assert_equal(plt.fignum_exists(4), False)
+    assert not plt.fignum_exists('one')
+    assert not plt.fignum_exists(4)
+
+
+def test_clf_keyword():
+    # test if existing figure is cleared with figure() and subplots()
+    text1 = 'A fancy plot'
+    text2 = 'Really fancy!'
+
+    fig0 = plt.figure(num=1)
+    fig0.suptitle(text1)
+    assert [t.get_text() for t in fig0.texts] == [text1]
+
+    fig1 = plt.figure(num=1, clear=False)
+    fig1.text(0.5, 0.5, text2)
+    assert fig0 is fig1
+    assert [t.get_text() for t in fig1.texts] == [text1, text2]
+
+    fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
+    assert fig0 is fig2
+    assert [t.get_text() for t in fig2.texts] == []
 
 
 @image_comparison(baseline_images=['figure_today'])
@@ -57,7 +74,7 @@ def test_figure():
     fig = plt.figure('today')
     ax = fig.add_subplot(111)
     ax.set_title(fig.get_label())
-    ax.plot(list(xrange(5)))
+    ax.plot(np.arange(5))
     # plot red line in a different figure.
     plt.figure('tomorrow')
     plt.plot([0, 1], [1, 0], 'r')
@@ -66,49 +83,61 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@cleanup
+@image_comparison(baseline_images=['figure_legend'])
+def test_figure_legend():
+    fig, axes = plt.subplots(2)
+    axes[0].plot([0, 1], [1, 0], label='x', color='g')
+    axes[0].plot([0, 1], [0, 1], label='y', color='r')
+    axes[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
+
+    axes[1].plot([0, 1], [1, 0], label='y', color='r')
+    axes[1].plot([0, 1], [0, 1], label='z', color='b')
+    fig.legend()
+
+
 def test_gca():
     fig = plt.figure()
 
     ax1 = fig.add_axes([0, 0, 1, 1])
-    assert_true(fig.gca(projection='rectilinear') is ax1)
-    assert_true(fig.gca() is ax1)
+    assert fig.gca(projection='rectilinear') is ax1
+    assert fig.gca() is ax1
 
     ax2 = fig.add_subplot(121, projection='polar')
-    assert_true(fig.gca() is ax2)
-    assert_true(fig.gca(polar=True)is ax2)
+    assert fig.gca() is ax2
+    assert fig.gca(polar=True)is ax2
 
     ax3 = fig.add_subplot(122)
-    assert_true(fig.gca() is ax3)
+    assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    assert_true(fig.gca(polar=True) is not ax3)
-    assert_true(fig.gca(polar=True) is not ax2)
-    assert_equal(fig.gca().get_geometry(), (1, 1, 1))
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
+        # Changing the projection will throw a warning
+        assert fig.gca(polar=True) is not ax3
+        assert len(w) == 1
+    assert fig.gca(polar=True) is not ax2
+    assert fig.gca().get_geometry() == (1, 1, 1)
 
     fig.sca(ax1)
-    assert_true(fig.gca(projection='rectilinear') is ax1)
-    assert_true(fig.gca() is ax1)
+    assert fig.gca(projection='rectilinear') is ax1
+    assert fig.gca() is ax1
 
 
 @image_comparison(baseline_images=['figure_suptitle'])
 def test_suptitle():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
     fig.suptitle('title', color='g', rotation='30')
 
 
-@cleanup
 def test_suptitle_fontproperties():
     from matplotlib.font_manager import FontProperties
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     fps = FontProperties(size='large', weight='bold')
     txt = fig.suptitle('fontprops title', fontproperties=fps)
-    assert_equal(txt.get_fontsize(), fps.get_size_in_points())
-    assert_equal(txt.get_weight(), fps.get_weight())
+    assert txt.get_fontsize() == fps.get_size_in_points()
+    assert txt.get_weight() == fps.get_weight()
 
 
 @image_comparison(baseline_images=['alpha_background'],
@@ -131,14 +160,11 @@ def test_alpha():
                                               facecolor='red'))
 
 
-@cleanup
 def test_too_many_figures():
-    import warnings
-
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         for i in range(rcParams['figure.max_open_warning'] + 1):
-            fig = plt.figure()
+            plt.figure()
         assert len(w) == 1
 
 
@@ -168,41 +194,39 @@ def test_iterability_axes_argument():
             return MyAxes, {'myclass': self}
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, projection=MyClass())
+    fig.add_subplot(1, 1, 1, projection=MyClass())
     plt.close(fig)
 
 
-@cleanup
 def test_set_fig_size():
     fig = plt.figure()
 
     # check figwidth
     fig.set_figwidth(5)
-    assert_equal(fig.get_figwidth(), 5)
+    assert fig.get_figwidth() == 5
 
     # check figheight
     fig.set_figheight(1)
-    assert_equal(fig.get_figheight(), 1)
+    assert fig.get_figheight() == 1
 
     # check using set_size_inches
     fig.set_size_inches(2, 4)
-    assert_equal(fig.get_figwidth(), 2)
-    assert_equal(fig.get_figheight(), 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
 
     # check using tuple to first argument
     fig.set_size_inches((1, 3))
-    assert_equal(fig.get_figwidth(), 1)
-    assert_equal(fig.get_figheight(), 3)
+    assert fig.get_figwidth() == 1
+    assert fig.get_figheight() == 3
 
 
-@cleanup
 def test_axes_remove():
     fig, axes = plt.subplots(2, 2)
     axes[-1, -1].remove()
     for ax in axes.ravel()[:-1]:
         assert ax in fig.axes
     assert axes[-1, -1] not in fig.axes
-    assert_equal(len(fig.axes), 3)
+    assert len(fig.axes) == 3
 
 
 def test_figaspect():
@@ -216,6 +240,61 @@ def test_figaspect():
     assert h / w == 1
 
 
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+@pytest.mark.parametrize('which', [None, 'both', 'major', 'minor'])
+def test_autofmt_xdate(which):
+    date = ['3 Jan 2013', '4 Jan 2013', '5 Jan 2013', '6 Jan 2013',
+            '7 Jan 2013', '8 Jan 2013', '9 Jan 2013', '10 Jan 2013',
+            '11 Jan 2013', '12 Jan 2013', '13 Jan 2013', '14 Jan 2013']
+
+    time = ['16:44:00', '16:45:00', '16:46:00', '16:47:00', '16:48:00',
+            '16:49:00', '16:51:00', '16:52:00', '16:53:00', '16:55:00',
+            '16:56:00', '16:57:00']
+
+    angle = 60
+    minors = [1, 2, 3, 4, 5, 6, 7]
+
+    x = mdates.datestr2num(date)
+    y = mdates.datestr2num(time)
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x, y)
+    ax.yaxis_date()
+    ax.xaxis_date()
+
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.xaxis.set_minor_formatter(FixedFormatter(minors))
+
+    fig.autofmt_xdate(0.2, angle, 'right', which)
+
+    if which in ('both', 'major', None):
+        for label in fig.axes[0].get_xticklabels(False, 'major'):
+            assert int(label.get_rotation()) == angle
+
+    if which in ('both', 'minor'):
+        for label in fig.axes[0].get_xticklabels(True, 'minor'):
+            assert int(label.get_rotation()) == angle
+
+
+@pytest.mark.style('default')
+def test_change_dpi():
+    fig = plt.figure(figsize=(4, 4))
+    fig.canvas.draw()
+    assert fig.canvas.renderer.height == 400
+    assert fig.canvas.renderer.width == 400
+    fig.dpi = 50
+    fig.canvas.draw()
+    assert fig.canvas.renderer.height == 200
+    assert fig.canvas.renderer.width == 200
+
+
+def test_invalid_figure_size():
+    with pytest.raises(ValueError):
+        plt.figure(figsize=(1, np.nan))
+
+    fig = plt.figure()
+    with pytest.raises(ValueError):
+        fig.set_size_inches(1, np.nan)
+
+    with pytest.raises(ValueError):
+        fig.add_axes((.1, .1, .5, np.nan))

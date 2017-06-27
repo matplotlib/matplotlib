@@ -2,7 +2,7 @@ r"""
 :mod:`~matplotlib.mathtext` is a module for parsing a subset of the
 TeX math syntax and drawing them to a matplotlib backend.
 
-For a tutorial of its usage see :ref:`mathtext-tutorial`.  This
+For a tutorial of its usage see :ref:`sphx_glr_tutorials_text_mathtext.py`.  This
 document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.
@@ -34,18 +34,10 @@ from pyparsing import (Combine, Group, Optional, Forward,
      ParseResults, Suppress, oneOf, StringEnd, ParseFatalException,
      FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException)
 
-# Enable packrat parsing
-if (six.PY3 and
-    [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]):
-    warn("Due to a bug in pyparsing <= 2.0.0 on Python 3.x, packrat parsing "
-         "has been disabled.  Mathtext rendering will be much slower as a "
-         "result.  Install pyparsing 2.0.0 or later to improve performance.")
-else:
-    ParserElement.enablePackrat()
+ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import (Bunch, get_realpath_and_stat, is_string_like,
-                              maxdict)
+from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
 from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
                                 LOAD_NO_HINTING)
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -68,7 +60,7 @@ def get_unicode_index(symbol, math=True):
     """get_unicode_index(symbol, [bool]) -> integer
 
 Return the integer index (from the Unicode table) of symbol.  *symbol*
-can be a single unicode character, a TeX command (i.e. r'\pi'), or a
+can be a single unicode character, a TeX command (i.e. r'\\pi'), or a
 Type1 symbol name (i.e. 'phi').
 If math is False, the current symbol should be treated as a non-math symbol.
 """
@@ -430,7 +422,7 @@ class Fonts(object):
 
         *fontclassX*: TODO
 
-        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
+        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\\sigma'
 
         *fontsizeX*: the fontsize in points
 
@@ -446,7 +438,7 @@ class Fonts(object):
 
         *font_class*: TODO
 
-        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
+        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\\sigma'
 
         *fontsize*: font size in points
 
@@ -749,12 +741,12 @@ class BakomaFonts(TruetypeFonts):
         r'>'         : [('cal', 'i'), ('ex', 'E')]
         }
 
-    for alias, target in [('\leftparen', '('),
-                          ('\rightparent', ')'),
-                          ('\leftbrace', '{'),
-                          ('\rightbrace', '}'),
-                          ('\leftbracket', '['),
-                          ('\rightbracket', ']'),
+    for alias, target in [(r'\leftparen', '('),
+                          (r'\rightparent', ')'),
+                          (r'\leftbrace', '{'),
+                          (r'\rightbrace', '}'),
+                          (r'\leftbracket', '['),
+                          (r'\rightbracket', ']'),
                           (r'\{', '{'),
                           (r'\}', '}'),
                           (r'\[', '['),
@@ -1034,7 +1026,7 @@ class StixFonts(UnicodeFonts):
 
     _size_alternatives = {}
     def get_sized_alternatives_for_symbol(self, fontname, sym):
-        fixes = {'\{': '{', '\}': '}', '\[': '[', '\]': ']'}
+        fixes = {'\\{': '{', '\\}': '}', '\\[': '[', '\\]': ']'}
         sym = fixes.get(sym, sym)
 
         alternatives = self._size_alternatives.get(sym)
@@ -1841,7 +1833,7 @@ class Glue(Node):
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
         self.glue_subtype   = 'normal'
-        if is_string_like(glue_type):
+        if isinstance(glue_type, six.string_types):
             glue_spec = GlueSpec.factory(glue_type)
         elif isinstance(glue_type, GlueSpec):
             glue_spec = glue_type
@@ -2425,12 +2417,12 @@ class Parser(object):
                              Suppress(Literal(r"\sqrt"))
                            - ((Optional(p.lbracket + p.int_literal + p.rbracket, default=None)
                               + p.required_group)
-                           | Error("Expected \sqrt{value}"))
+                           | Error("Expected \\sqrt{value}"))
                          )
 
         p.overline      <<= Group(
                              Suppress(Literal(r"\overline"))
-                           - (p.required_group | Error("Expected \overline{value}"))
+                           - (p.required_group | Error("Expected \\overline{value}"))
                          )
 
         p.unknown_symbol<<= Combine(p.bslash + Regex("[A-Za-z]*"))
@@ -2438,7 +2430,7 @@ class Parser(object):
         p.operatorname  <<= Group(
                              Suppress(Literal(r"\operatorname"))
                            - ((p.lbrace + ZeroOrMore(p.simple | p.unknown_symbol) + p.rbrace)
-                              | Error("Expected \operatorname{value}"))
+                              | Error("Expected \\operatorname{value}"))
                          )
 
         p.placeable     <<= ( p.snowflake # this needs to be before accent so named symbols
@@ -2690,10 +2682,10 @@ class Parser(object):
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
     _char_over_chars = {
-        # The first 2 entires in the tuple are (font, char, sizescale) for
+        # The first 2 entries in the tuple are (font, char, sizescale) for
         # the two symbols under and over.  The third element is the space
         # (in multiples of underline height)
-        r'AA' : (  ('it', 'A', 1.0), (None, '\circ', 0.5), 0.0),
+        r'AA': (('it', 'A', 1.0), (None, '\\circ', 0.5), 0.0),
     }
 
     def c_over_c(self, s, loc, toks):
@@ -2877,21 +2869,18 @@ class Parser(object):
                 return toks[0] # .asList()
             else:
                 nucleus = toks[0]
-        elif len(toks) == 2:
-            op, next = toks
-            nucleus = Hbox(0.0)
+        elif len(toks) in (2, 3):
+            # single subscript or superscript
+            nucleus = toks[0] if len(toks) == 3 else Hbox(0.0)
+            op, next = toks[-2:]
             if op == '_':
                 sub = next
             else:
                 super = next
-        elif len(toks) == 3:
-            nucleus, op, next = toks
-            if op == '_':
-                sub = next
-            else:
-                super = next
-        elif len(toks) == 5:
-            nucleus, op1, next1, op2, next2 = toks
+        elif len(toks) in (4, 5):
+            # subscript and superscript
+            nucleus = toks[0] if len(toks) == 5 else Hbox(0.0)
+            op1, next1, op2, next2 = toks[-4:]
             if op1 == op2:
                 if op1 == '_':
                     raise ParseFatalException("Double subscript")
@@ -2918,7 +2907,7 @@ class Parser(object):
             if super is None:
                 super = Hlist([])
             for i in range(napostrophes):
-                super.children.extend(self.symbol(s, loc, ['\prime']))
+                super.children.extend(self.symbol(s, loc, ['\\prime']))
             # kern() and hpack() needed to get the metrics right after extending
             super.kern()
             super.hpack()
@@ -3291,7 +3280,7 @@ class MathTextParser(object):
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *dpi*
             The dots-per-inch to render the text
@@ -3317,7 +3306,7 @@ class MathTextParser(object):
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         """
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *color*
             Any matplotlib color argument
@@ -3357,7 +3346,7 @@ class MathTextParser(object):
             A writable filename or fileobject
 
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *color*
             A valid matplotlib color argument
@@ -3381,7 +3370,7 @@ class MathTextParser(object):
         image in pixels.
 
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *dpi*
             The dots-per-inch to render the text

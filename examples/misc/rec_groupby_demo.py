@@ -1,9 +1,15 @@
+"""
+================
+Rec Groupby Demo
+================
+
+"""
 from __future__ import print_function
 import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 
-datafile = cbook.get_sample_data('aapl.csv', asfileobj=False)
+datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
 print('loading', datafile)
 r = mlab.csv2rec(datafile)
 r.sort()

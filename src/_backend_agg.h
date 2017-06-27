@@ -182,8 +182,8 @@ class RendererAgg
     template <class CoordinateArray, class OffsetArray, class ColorArray>
     void draw_quad_mesh(GCAgg &gc,
                         agg::trans_affine &master_transform,
-                        size_t mesh_width,
-                        size_t mesh_height,
+                        unsigned int mesh_width,
+                        unsigned int mesh_height,
                         CoordinateArray &coordinates,
                         OffsetArray &offsets,
                         agg::trans_affine &offset_trans,
@@ -1148,8 +1148,8 @@ class QuadMeshGenerator
 template <class CoordinateArray, class OffsetArray, class ColorArray>
 inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                         agg::trans_affine &master_transform,
-                                        size_t mesh_width,
-                                        size_t mesh_height,
+                                        unsigned int mesh_width,
+                                        unsigned int mesh_height,
                                         CoordinateArray &coordinates,
                                         OffsetArray &offsets,
                                         agg::trans_affine &offset_trans,

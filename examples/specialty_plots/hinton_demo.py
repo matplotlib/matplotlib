@@ -1,5 +1,7 @@
 """
-Demo of a function to create Hinton diagrams.
+===============
+Hinton diagrams
+===============
 
 Hinton diagrams are useful for visualizing the values of a 2D array (e.g.
 a weight matrix): Positive and negative values are represented by white and

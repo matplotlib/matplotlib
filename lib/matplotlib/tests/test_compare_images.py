@@ -3,13 +3,17 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import io
 import os
 import shutil
+import warnings
 
-from nose.tools import assert_equal, assert_not_equal, assert_almost_equal
+from numpy.testing import assert_almost_equal
+import pytest
 
 from matplotlib.testing.compare import compare_images
-from matplotlib.testing.decorators import _image_directories
+from matplotlib.testing.decorators import _image_directories, image_comparison
+from matplotlib.testing.exceptions import ImageComparisonFailure
 
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
@@ -37,10 +41,10 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     results = compare_images(im1, im2, tol=tol, in_decorator=True)
 
     if expect_rms is None:
-        assert_equal(None, results)
+        assert results is None
     else:
-        assert_not_equal(None, results)
-        assert_almost_equal(expect_rms, results['rms'], places=4)
+        assert results is not None
+        assert_almost_equal(expect_rms, results['rms'], decimal=4)
 
 
 def test_image_compare_basic():
@@ -101,6 +105,119 @@ def test_image_compare_shade_difference():
     image_comparison_expect_rms(im2, im1, tol=0, expect_rms=1.0)
 
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+#
+# The following tests are used by test_nose_image_comparison to ensure that the
+# image_comparison decorator continues to work with nose. They should not be
+# prefixed by test_ so they don't run with pytest.
+#
+
+def nosetest_empty():
+    pass
+
+
+def nosetest_simple_figure():
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(6.4, 4), dpi=100)
+    ax.plot([1, 2, 3], [3, 4, 5])
+    return fig
+
+
+def nosetest_manual_text_removal():
+    from matplotlib.testing.decorators import ImageComparisonTest
+
+    fig = nosetest_simple_figure()
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
+        # Make sure this removes text like it should.
+        ImageComparisonTest.remove_text(fig)
+
+    assert len(w) == 1
+    assert 'remove_text function was deprecated in version 2.1.' in str(w[0])
+
+
+@pytest.mark.parametrize(
+    'func, kwargs, errors, failures, dots',
+    [
+        (nosetest_empty, {'baseline_images': []}, [], [], ''),
+        (nosetest_empty, {'baseline_images': ['foo']},
+         [(AssertionError,
+           'Test generated 0 images but there are 1 baseline images')],
+         [],
+         'E'),
+        (nosetest_simple_figure,
+         {'baseline_images': ['basn3p02'], 'extensions': ['png'],
+          'remove_text': True},
+         [],
+         [(ImageComparisonFailure, 'Image sizes do not match expected size:')],
+         'F'),
+        (nosetest_simple_figure,
+         {'baseline_images': ['simple']},
+         [],
+         [(ImageComparisonFailure, 'images not close')] * 3,
+         'FFF'),
+        (nosetest_simple_figure,
+         {'baseline_images': ['simple'], 'remove_text': True},
+         [],
+         [],
+         '...'),
+        (nosetest_manual_text_removal,
+         {'baseline_images': ['simple']},
+         [],
+         [],
+         '...'),
+    ],
+    ids=[
+        'empty',
+        'extra baselines',
+        'incorrect shape',
+        'failing figure',
+        'passing figure',
+        'manual text removal',
+    ])
+def test_nose_image_comparison(func, kwargs, errors, failures, dots,
+                               monkeypatch):
+    nose = pytest.importorskip('nose')
+    monkeypatch.setattr('matplotlib._called_from_pytest', False)
+
+    class TestResultVerifier(nose.result.TextTestResult):
+        def __init__(self, *args, **kwargs):
+            super(TestResultVerifier, self).__init__(*args, **kwargs)
+            self.error_count = 0
+            self.failure_count = 0
+
+        def addError(self, test, err):
+            super(TestResultVerifier, self).addError(test, err)
+
+            if self.error_count < len(errors):
+                assert err[0] is errors[self.error_count][0]
+                assert errors[self.error_count][1] in str(err[1])
+            else:
+                raise err[1]
+            self.error_count += 1
+
+        def addFailure(self, test, err):
+            super(TestResultVerifier, self).addFailure(test, err)
+
+            assert self.failure_count < len(failures), err[1]
+            assert err[0] is failures[self.failure_count][0]
+            assert failures[self.failure_count][1] in str(err[1])
+            self.failure_count += 1
+
+    func = image_comparison(**kwargs)(func)
+    loader = nose.loader.TestLoader()
+    suite = loader.loadTestsFromGenerator(
+        func,
+        'matplotlib.tests.test_compare_images')
+    if six.PY2:
+        output = io.BytesIO()
+    else:
+        output = io.StringIO()
+    result = TestResultVerifier(stream=output, descriptions=True, verbosity=1)
+    with warnings.catch_warnings():
+        # Nose uses deprecated stuff; we don't care about it.
+        warnings.simplefilter('ignore', DeprecationWarning)
+        suite.run(result=result)
+
+    assert output.getvalue() == dots
+    assert result.error_count == len(errors)
+    assert result.failure_count == len(failures)

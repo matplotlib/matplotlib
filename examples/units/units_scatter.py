@@ -1,12 +1,14 @@
 """
-Demonstrate unit handling
-
-basic_units is a mockup of a true units package used for testing
-purposed, which illustrates the basic interface that a units package
-must provide to matplotlib.
+=============
+Unit handling
+=============
 
 The example below shows support for unit conversions over masked
 arrays.
+
+.. only:: builder_html
+
+   This example requires :download:`basic_units.py <basic_units.py>`
 """
 import numpy as np
 import matplotlib.pyplot as plt

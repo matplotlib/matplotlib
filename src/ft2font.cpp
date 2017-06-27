@@ -280,9 +280,8 @@ int FT2Font::get_path_count()
             }
         }
 
-        count++;
-
     Count_Close:
+        count++;
         first = last + 1;
     }
 
@@ -478,11 +477,10 @@ void FT2Font::get_path(double *outpoints, unsigned char *outcodes)
             }
         }
 
+    Close:
         (*outpoints++) = 0.0;
         (*outpoints++) = 0.0;
         (*outcodes++) = ENDPOLY;
-
-    Close:
         first = last + 1;
     }
 }
@@ -508,6 +506,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
 
     error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * (unsigned int)hinting_factor, 72);
     if (error) {
+        FT_Done_Face(face);
         throw "Could not set the fontsize";
     }
 
@@ -574,7 +573,7 @@ void FT2Font::select_charmap(unsigned long i)
     }
 }
 
-int FT2Font::get_kerning(int left, int right, int mode)
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode)
 {
     if (!FT_HAS_KERNING(face)) {
         return 0;
@@ -589,7 +588,7 @@ int FT2Font::get_kerning(int left, int right, int mode)
 }
 
 void FT2Font::set_text(
-    size_t N, uint32_t *codepoints, double angle, FT_UInt32 flags, std::vector<double> &xys)
+    size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
     angle = angle / 360.0 * 2 * M_PI;
 
@@ -666,7 +665,7 @@ void FT2Font::set_text(
     }
 }
 
-void FT2Font::load_char(long charcode, FT_UInt32 flags)
+void FT2Font::load_char(long charcode, FT_Int32 flags)
 {
     int error = FT_Load_Char(face, (unsigned long)charcode, flags);
 
@@ -684,7 +683,7 @@ void FT2Font::load_char(long charcode, FT_UInt32 flags)
     glyphs.push_back(thisGlyph);
 }
 
-void FT2Font::load_glyph(FT_UInt glyph_index, FT_UInt32 flags)
+void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
     int error = FT_Load_Glyph(face, glyph_index, flags);
 

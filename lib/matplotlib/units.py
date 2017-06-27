@@ -90,8 +90,8 @@ class ConversionInterface(object):
     def convert(obj, unit, axis):
         """
         convert obj using unit for the specified axis.  If obj is a sequence,
-        return the converted sequence.  The ouput must be a sequence of scalars
-        that can be used by the numpy array layer
+        return the converted sequence.  The output must be a sequence of
+        scalars that can be used by the numpy array layer
         """
         return obj
 
@@ -157,11 +157,15 @@ class Registry(dict):
                     converter = self.get_converter(next_item)
                 return converter
 
-        if converter is None and iterable(x) and (len(x) > 0):
-            thisx = safe_first_element(x)
-            if classx and classx != getattr(thisx, '__class__', None):
-                converter = self.get_converter(thisx)
-                return converter
+        if converter is None:
+            try:
+                thisx = safe_first_element(x)
+            except (TypeError, StopIteration):
+                pass
+            else:
+                if classx and classx != getattr(thisx, '__class__', None):
+                    converter = self.get_converter(thisx)
+                    return converter
 
         # DISABLED self._cached[idx] = converter
         return converter

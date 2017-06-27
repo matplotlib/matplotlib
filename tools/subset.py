@@ -28,6 +28,7 @@ import fontforge
 import sys
 import getopt
 import os
+import subprocess
 import struct
 
 def log_namelist(nam, unicode):
@@ -145,7 +146,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
     if pe:
         print('Generate("' + font_out + '")', file=pe)
         pe.close()
-        os.system("fontforge -script " + pe_fn)
+        subprocess.call(["fontforge", "-script", pe_fn])
     else:
         font.generate(font_out, flags = flags)
     font.close()

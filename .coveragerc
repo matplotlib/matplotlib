@@ -1,13 +1,11 @@
 [run]
-source=
+branch = true
+source =
     matplotlib
     mpl_toolkits
-[report]
-omit =
-    lib/matplotlib/tests/*
-    lib/matplotlib/testing/*
-    lib/mpl_toolkits/tests/*
+omit = matplotlib/_version.py
 
+[report]
 exclude_lines =
     raise NotImplemented
     def __str__

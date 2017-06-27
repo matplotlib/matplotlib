@@ -31,7 +31,7 @@ from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
                                       FigureCanvasBase)
-from matplotlib.cbook import is_string_like, maxdict, restrict_dict
+from matplotlib.cbook import maxdict, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
@@ -79,30 +79,23 @@ class RendererAgg(RendererBase):
     # FigureCanvas acquire a lock on the fontd at the start of the
     # draw, and release it when it is done.  This allows multiple
     # renderers to share the cached fonts, but only one figure can
-    # draw at at time and so the font cache is used by only one
+    # draw at time and so the font cache is used by only one
     # renderer at a time
 
     lock = threading.RLock()
     def __init__(self, width, height, dpi):
-        if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
 
         self.dpi = dpi
         self.width = width
         self.height = height
-        if __debug__: verbose.report('RendererAgg.__init__ width=%s, height=%s'%(width, height), 'debug-annoying')
         self._renderer = _RendererAgg(int(width), int(height), dpi, debug=False)
         self._filter_renderers = []
-
-        if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
-                                     'debug-annoying')
 
         self._update_methods()
         self.mathtext_parser = MathTextParser('Agg')
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
-        if __debug__: verbose.report('RendererAgg.__init__ done',
-                                     'debug-annoying')
 
     def __getstate__(self):
         # We only want to preserve the init keywords of the Renderer.
@@ -147,31 +140,37 @@ class RendererAgg(RendererBase):
         """
         nmax = rcParams['agg.path.chunksize'] # here at least for testing
         npts = path.vertices.shape[0]
+
         if (nmax > 100 and npts > nmax and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
-            nch = np.ceil(npts/float(nmax))
-            chsize = int(np.ceil(npts/nch))
+            nch = np.ceil(npts / float(nmax))
+            chsize = int(np.ceil(npts / nch))
             i0 = np.arange(0, npts, chsize)
             i1 = np.zeros_like(i0)
             i1[:-1] = i0[1:] - 1
             i1[-1] = npts
             for ii0, ii1 in zip(i0, i1):
-                v = path.vertices[ii0:ii1,:]
+                v = path.vertices[ii0:ii1, :]
                 c = path.codes
                 if c is not None:
                     c = c[ii0:ii1]
-                    c[0] = Path.MOVETO # move to end of last chunk
+                    c[0] = Path.MOVETO  # move to end of last chunk
                 p = Path(v, c)
-                self._renderer.draw_path(gc, p, transform, rgbFace)
+                try:
+                    self._renderer.draw_path(gc, p, transform, rgbFace)
+                except OverflowError:
+                    raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
         else:
-            self._renderer.draw_path(gc, path, transform, rgbFace)
+            try:
+                self._renderer.draw_path(gc, path, transform, rgbFace)
+            except OverflowError:
+                raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
+
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
         """
-        if __debug__: verbose.report('RendererAgg.draw_mathtext',
-                                     'debug-annoying')
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
@@ -185,8 +184,6 @@ class RendererAgg(RendererBase):
         """
         Render the text
         """
-        if __debug__: verbose.report('RendererAgg.draw_text', 'debug-annoying')
-
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
@@ -271,9 +268,6 @@ class RendererAgg(RendererBase):
         """
         Get the font for text instance t, cacheing for efficiency
         """
-        if __debug__: verbose.report('RendererAgg._get_agg_font',
-                                     'debug-annoying')
-
         fname = findfont(prop)
         font = get_font(
             fname,
@@ -290,23 +284,15 @@ class RendererAgg(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        if __debug__: verbose.report('RendererAgg.points_to_pixels',
-                                     'debug-annoying')
         return points*self.dpi/72.0
 
     def tostring_rgb(self):
-        if __debug__: verbose.report('RendererAgg.tostring_rgb',
-                                     'debug-annoying')
         return self._renderer.tostring_rgb()
 
     def tostring_argb(self):
-        if __debug__: verbose.report('RendererAgg.tostring_argb',
-                                     'debug-annoying')
         return self._renderer.tostring_argb()
 
     def buffer_rgba(self):
-        if __debug__: verbose.report('RendererAgg.buffer_rgba',
-                                     'debug-annoying')
         return self._renderer.buffer_rgba()
 
     def clear(self):
@@ -415,10 +401,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if __debug__: verbose.report('backend_agg.new_figure_manager',
-                                 'debug-annoying')
-
-
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
@@ -457,8 +439,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         Draw the figure using the renderer
         """
-        if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
-
         self.renderer = self.get_renderer(cleared=True)
         # acquire a lock on the shared font cache
         RendererAgg.lock.acquire()
@@ -492,8 +472,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         -------
         bytes
         '''
-        if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb',
-                                     'debug-annoying')
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
@@ -507,8 +485,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         bytes
 
         '''
-        if __debug__: verbose.report('FigureCanvasAgg.tostring_argb',
-                                     'debug-annoying')
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
@@ -521,8 +497,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         -------
         bytes
         '''
-        if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba',
-                                     'debug-annoying')
         return self.renderer.buffer_rgba()
 
     def print_raw(self, filename_or_obj, *args, **kwargs):
@@ -530,7 +504,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        if is_string_like(filename_or_obj):
+        if isinstance(filename_or_obj, six.string_types):
             fileobj = open(filename_or_obj, 'wb')
             close = True
         else:
@@ -549,7 +523,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        if is_string_like(filename_or_obj):
+        if isinstance(filename_or_obj, six.string_types):
             filename_or_obj = open(filename_or_obj, 'wb')
             close = True
         else:

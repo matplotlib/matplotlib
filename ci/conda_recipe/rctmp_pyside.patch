@@ -1,11 +1,11 @@
-diff --git matplotlibrc.template matplotlibrc.template
-index fdbbf26..6902fe9 100644
---- matplotlibrc.template
-+++ matplotlibrc.template
-@@ -35,12 +35,12 @@
- # You can also deploy your own backend outside of matplotlib by
- # referring to the module name (which must be in the PYTHONPATH) as
- # 'module://my_backend'.
+diff --git a/matplotlibrc.template b/matplotlibrc.template
+index 2f0e5c4..c9b6e49 100644
+--- a/matplotlibrc.template
++++ b/matplotlibrc.template
+@@ -38,12 +38,12 @@
+ #
+ # If you omit this parameter, it will always default to "Agg", which is a
+ # non-interactive backend.
 -backend      : $TEMPLATE_BACKEND
 +backend      : Qt4Agg
  

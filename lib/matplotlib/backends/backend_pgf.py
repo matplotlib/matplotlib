@@ -25,7 +25,7 @@ from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _png, rcParams
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
 
@@ -45,7 +45,7 @@ else:
     # assuming fontconfig is installed and the command 'fc-list' exists
     try:
         # list scalable (non-bitmap) fonts
-        fc_list = check_output(['fc-list', ':outline,scalable', 'family'])
+        fc_list = check_output([str('fc-list'), ':outline,scalable', 'family'])
         fc_list = fc_list.decode('utf8')
         system_fonts = [f.split(',')[0] for f in fc_list.splitlines()]
         system_fonts = list(set(system_fonts))
@@ -179,7 +179,7 @@ def make_pdf_to_png_converter():
     tools_available = []
     # check for pdftocairo
     try:
-        check_output(["pdftocairo", "-v"], stderr=subprocess.STDOUT)
+        check_output([str("pdftocairo"), "-v"], stderr=subprocess.STDOUT)
         tools_available.append("pdftocairo")
     except:
         pass
@@ -191,14 +191,13 @@ def make_pdf_to_png_converter():
     # pick converter
     if "pdftocairo" in tools_available:
         def cairo_convert(pdffile, pngfile, dpi):
-            cmd = ["pdftocairo", "-singlefile", "-png",
-                   "-r %d" % dpi, pdffile, os.path.splitext(pngfile)[0]]
-            # for some reason this doesn't work without shell
-            check_output(" ".join(cmd), shell=True, stderr=subprocess.STDOUT)
+            cmd = [str("pdftocairo"), "-singlefile", "-png", "-r", "%d" % dpi,
+                   pdffile, os.path.splitext(pngfile)[0]]
+            check_output(cmd, stderr=subprocess.STDOUT)
         return cairo_convert
     elif "gs" in tools_available:
         def gs_convert(pdffile, pngfile, dpi):
-            cmd = [gs, '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
+            cmd = [str(gs), '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
                    '-sDEVICE=png16m', '-dUseCIEColor', '-dTextAlphaBits=4',
                    '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE', '-sOutputFile=%s' % pngfile,
                    '-r%d' % dpi, pdffile]
@@ -300,7 +299,7 @@ class LatexManager(object):
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
-            latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
+            latex = subprocess.Popen([str(self.texcommand), "-halt-on-error"],
                                      stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE,
                                      cwd=self.tmpdir)
@@ -318,7 +317,7 @@ class LatexManager(object):
             raise LatexError("LaTeX returned an error, probably missing font or error in preamble:\n%s" % stdout)
 
         # open LaTeX process for real work
-        latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
+        latex = subprocess.Popen([str(self.texcommand), "-halt-on-error"],
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                  cwd=self.tmpdir)
         self.latex = latex
@@ -860,7 +859,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             return
 
         # figure out where the pgf is to be written to
-        if is_string_like(fname_or_fh):
+        if isinstance(fname_or_fh, six.string_types):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -899,7 +898,7 @@ class FigureCanvasPgf(FigureCanvasBase):
                 fh_tex.write(latexcode)
 
             texcommand = get_texcommand()
-            cmdargs = [texcommand, "-interaction=nonstopmode",
+            cmdargs = [str(texcommand), "-interaction=nonstopmode",
                        "-halt-on-error", "figure.tex"]
             try:
                 check_output(cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
@@ -924,7 +923,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             return
 
         # figure out where the pdf is to be written to
-        if is_string_like(fname_or_fh):
+        if isinstance(fname_or_fh, six.string_types):
             with open(fname_or_fh, "wb") as fh:
                 self._print_pdf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -960,7 +959,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
 
-        if is_string_like(fname_or_fh):
+        if isinstance(fname_or_fh, six.string_types):
             with open(fname_or_fh, "wb") as fh:
                 self._print_png_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):

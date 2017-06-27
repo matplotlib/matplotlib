@@ -1,4 +1,8 @@
 """
+=========
+Pie Demo2
+=========
+
 Make a pie charts of varying size - see
 http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pie for the docstring.
 

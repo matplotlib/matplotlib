@@ -38,7 +38,7 @@ def tripcolor(ax, *args, **kwargs):
     are defined at triangles. If there are the same number of points
     and triangles in the triangulation it is assumed that color
     values are defined at points; to force the use of color values at
-    triangles use the kwarg *facecolors*=C instead of just *C*.
+    triangles use the kwarg ``facecolors=C`` instead of just ``C``.
 
     *shading* may be 'flat' (the default) or 'gouraud'. If *shading*
     is 'flat' and C values are defined at points, the color values
@@ -48,10 +48,6 @@ def tripcolor(ax, *args, **kwargs):
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
-
-    **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/tripcolor_demo.py
     """
     if not ax._hold:
         ax.cla()

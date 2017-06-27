@@ -1,15 +1,19 @@
 """
+================
+Pick Event Demo2
+================
+
 compute the mean and standard deviation (stddev) of 100 data sets and plot
 mean vs stddev.  When you click on one of the mu, sigma points, plot the raw
 data from the dataset that generated the mean and stddev.
 """
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 
 
-X = numpy.random.rand(100, 1000)
-xs = numpy.mean(X, axis=1)
-ys = numpy.std(X, axis=1)
+X = np.random.rand(100, 1000)
+xs = np.mean(X, axis=1)
+ys = np.std(X, axis=1)
 
 fig, ax = plt.subplots()
 ax.set_title('click on point to plot time series')

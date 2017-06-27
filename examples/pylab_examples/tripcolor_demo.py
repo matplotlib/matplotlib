@@ -1,4 +1,8 @@
 """
+==============
+Tripcolor Demo
+==============
+
 Pseudocolor plots of unstructured triangular grids.
 """
 import matplotlib.pyplot as plt

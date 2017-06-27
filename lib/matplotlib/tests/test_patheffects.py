@@ -1,21 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import numpy as np
+import pytest
 
-from matplotlib.testing.decorators import (image_comparison, cleanup,
-                                           knownfailureif)
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
-
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
-from nose.tools import assert_equal
 
 
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)
@@ -84,8 +75,35 @@ def test_patheffect3():
     t.set_path_effects(pe)
 
 
-@cleanup
-@knownfailureif(True)
+@image_comparison(baseline_images=['stroked_text'], extensions=['png'])
+def test_patheffects_stroked_text():
+    text_chunks = [
+        'A B C D E F G H I J K L',
+        'M N O P Q R S T U V W',
+        'X Y Z a b c d e f g h i j',
+        'k l m n o p q r s t u v',
+        'w x y z 0123456789',
+        r"!@#$%^&*()-=_+[]\;'",
+        ',./{}|:"<>?'
+    ]
+    font_size = 50
+
+    ax = plt.axes([0, 0, 1, 1])
+    for i, chunk in enumerate(text_chunks):
+        text = ax.text(x=0.01, y=(0.9 - i * 0.13), s=chunk,
+                       fontdict={'ha': 'left', 'va': 'center',
+                                 'size': font_size, 'color': 'white'})
+
+        text.set_path_effects([path_effects.Stroke(linewidth=font_size / 10,
+                                                   foreground='black'),
+                               path_effects.Normal()])
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+
+
+@pytest.mark.xfail
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
@@ -101,13 +119,12 @@ def test_PathEffect_points_to_pixels():
 
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
-    assert_equal(renderer.points_to_pixels(15),
-                 pe_renderer.points_to_pixels(15))
+    assert renderer.points_to_pixels(15) == pe_renderer.points_to_pixels(15)
 
 
 def test_SimplePatchShadow_offset():
     pe = path_effects.SimplePatchShadow(offset=(4, 5))
-    assert_equal(pe._offset, (4, 5))
+    assert pe._offset == (4, 5)
 
 
 @image_comparison(baseline_images=['collection'], tol=0.015)
@@ -127,8 +144,3 @@ def test_collection():
                                                        linewidth=3)])
         text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
                        'edgecolor': 'blue'})
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

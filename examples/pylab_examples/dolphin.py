@@ -1,3 +1,9 @@
+"""
+=======
+Dolphin
+=======
+
+"""
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, PathPatch

@@ -1,10 +1,9 @@
 from __future__ import print_function
 import warnings
 import numpy as np
-from nose.tools import raises
+import pytest
 import sys
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -18,7 +17,6 @@ def draw_quiver(ax, **kw):
     return Q
 
 
-@cleanup
 def test_quiver_memory_leak():
     fig, ax = plt.subplots()
 
@@ -31,7 +29,6 @@ def test_quiver_memory_leak():
     assert sys.getrefcount(ttX) == 2
 
 
-@cleanup
 def test_quiver_key_memory_leak():
     fig, ax = plt.subplots()
 
@@ -45,7 +42,6 @@ def test_quiver_key_memory_leak():
     assert sys.getrefcount(qk) == 2
 
 
-@cleanup
 def test_no_warnings():
     fig, ax = plt.subplots()
 
@@ -59,7 +55,6 @@ def test_no_warnings():
     assert len(w) == 0
 
 
-@cleanup
 def test_zero_headlength():
     # Based on report by Doug McNeil:
     # http://matplotlib.1069221.n5.nabble.com/quiver-warnings-td28107.html
@@ -111,7 +106,6 @@ def test_quiver_single():
     ax.quiver([1], [1], [2], [2])
 
 
-@cleanup
 def test_quiver_copy():
     fig, ax = plt.subplots()
     uv = dict(u=np.array([1.1]), v=np.array([2.0]))
@@ -148,8 +142,18 @@ def test_barbs():
              cmap='viridis')
 
 
-@cleanup
-@raises(ValueError)
+@image_comparison(baseline_images=['barbs_pivot_test_image'],
+                  extensions=['png'], remove_text=True)
+def test_barbs_pivot():
+    x = np.linspace(-5, 5, 5)
+    X, Y = np.meshgrid(x, x)
+    U, V = 12*X, 12*Y
+    fig, ax = plt.subplots()
+    ax.barbs(X, Y, U, V, fill_empty=True, rounding=False, pivot=1.7,
+             sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3))
+    ax.scatter(X, Y, s=49, c='black')
+
+
 def test_bad_masked_sizes():
     'Test error handling when given differing sized masked arrays'
     x = np.arange(3)
@@ -159,10 +163,30 @@ def test_bad_masked_sizes():
     u[1] = np.ma.masked
     v[1] = np.ma.masked
     fig, ax = plt.subplots()
-    ax.barbs(x, y, u, v)
+    with pytest.raises(ValueError):
+        ax.barbs(x, y, u, v)
 
 
-@cleanup
+def test_angles_and_scale():
+    # angles array + scale_units kwarg
+    fig, ax = plt.subplots()
+    X, Y = np.meshgrid(np.arange(15), np.arange(10))
+    U = V = np.ones_like(X)
+    phi = (np.random.rand(15, 10) - .5) * 150
+    ax.quiver(X, Y, U, V, angles=phi, scale_units='xy')
+
+
+@image_comparison(baseline_images=['quiver_xy'],
+                  extensions=['png'], remove_text=True)
+def test_quiver_xy():
+    # simple arrow pointing from SW to NE
+    fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'))
+    ax.quiver(0, 0, 1, 1, angles='xy', scale_units='xy', scale=1)
+    ax.set_xlim(0, 1.1)
+    ax.set_ylim(0, 1.1)
+    ax.grid()
+
+
 def test_quiverkey_angles():
     # Check that only a single arrow is plotted for a quiverkey when an array
     # of angles is given to the original quiver plot
@@ -176,7 +200,3 @@ def test_quiverkey_angles():
     # The arrows are only created when the key is drawn
     fig.canvas.draw()
     assert len(qk.verts) == 1
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule()

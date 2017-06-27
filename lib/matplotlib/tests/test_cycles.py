@@ -1,10 +1,10 @@
 import warnings
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from cycler import cycler
 
@@ -148,7 +148,6 @@ def test_property_collision_fill():
     ax.fill(xs, 5 * ys)
 
 
-@cleanup
 def test_valid_input_forms():
     fig, ax = plt.subplots()
     # These should not raise an error.
@@ -162,7 +161,7 @@ def test_valid_input_forms():
     ax.set_prop_cycle('color', np.array([[1, 0, 0],
                                          [0, 1, 0],
                                          [0, 0, 1]]))
-    ax.set_prop_cycle('dashes', [[], [13, 2], [8, 3, 1, 3]])
+    ax.set_prop_cycle('dashes', [[], [13, 2], [8, 3, 1, 3], [None, None]])
     ax.set_prop_cycle(lw=[1, 2], color=['k', 'w'], ls=['-', '--'])
     ax.set_prop_cycle(lw=np.array([1, 2]),
                       color=np.array(['k', 'w']),
@@ -170,7 +169,6 @@ def test_valid_input_forms():
     assert True
 
 
-@cleanup
 def test_cycle_reset():
     fig, ax = plt.subplots()
 
@@ -195,26 +193,30 @@ def test_cycle_reset():
         assert prop == got, "expected %s, got %s" % (prop, got)
 
 
-@cleanup
 def test_invalid_input_forms():
     fig, ax = plt.subplots()
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 1)
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, [1, 2])
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'color', 'fish')
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'linewidth', 1)
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
-            'linewidth', {'1': 1, '2': 2})
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
-            linewidth=1, color='r')
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'foobar', [1, 2])
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
-            foobar=[1, 2])
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
-            cycler(foobar=[1, 2]))
-    assert_raises(ValueError, ax.set_prop_cycle,
-            cycler(color='rgb', c='cmy'))
 
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle(1)
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle([1, 2])
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle('color', 'fish')
+
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle('linewidth', 1)
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle(linewidth=1, color='r')
+
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle('foobar', [1, 2])
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle(foobar=[1, 2])
+
+    with pytest.raises((TypeError, ValueError)):
+        ax.set_prop_cycle(cycler(foobar=[1, 2]))
+    with pytest.raises(ValueError):
+        ax.set_prop_cycle(cycler(color='rgb', c='cmy'))

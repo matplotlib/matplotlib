@@ -212,6 +212,46 @@ setting the private member ``_image_skew_coordinate`` has been
 removed.  Instead, images will obey the transform of the axes on which
 they are drawn.
 
+Non-linear scales on image plots
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:func:`imshow` now draws data at the requested points in data space after the
+application of non-linear scales.
+
+The image on the left demonstrates the new, correct behavior.
+The old behavior can be recreated using :func:`pcolormesh` as
+demonstrated on the right.
+
+
+.. plot::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    data = np.arange(30).reshape(5, 6)
+    x = np.linspace(0, 6, 7)
+    y = 10**np.linspace(0, 5, 6)
+    X, Y = np.meshgrid(x, y)
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+
+    ax1.imshow(data, aspect="auto", extent=(0, 6, 1e0, 1e5), interpolation='nearest')
+    ax1.set_yscale('log')
+    ax1.set_title('Using ax.imshow')
+
+    ax2.pcolormesh(x, y, np.flipud(data))
+    ax2.set_yscale('log')
+    ax2.set_title('Using ax.pcolormesh')
+    ax2.autoscale('tight')
+
+    plt.show()
+
+
+This can be understood by analogy to plotting a histogram with linearly spaced bins
+with a logarithmic x-axis.  Equal sized bins will be displayed as wider for small
+*x* and narrower for large *x*.
+
+
 
 Support for HiDPI (Retina) displays in the NbAgg and WebAgg backends
 --------------------------------------------------------------------
@@ -232,6 +272,61 @@ The use of mencoder for writing video files with mpl is problematic;
 switching to ffmpeg is strongly advised.  All support for mencoder
 will be removed in version 2.2.
 
+Boxplot Zorder Keyword Argument
+-------------------------------
+
+The ``zorder`` parameter now exists for :func:`boxplot`. This allows the zorder
+of a boxplot to be set in the plotting function call.
+
+::
+
+    boxplot(np.arange(10), zorder=10)
+
+Filled ``+`` and ``x`` markers
+------------------------------
+
+New fillable *plus* and *x* markers have been added. See
+the :mod:`~matplotlib.markers` module and
+:ref:`marker reference <sphx_glr_gallery_lines_bars_and_markers_marker_reference.py>`
+examples.
+
+`rcount` and `ccount` for `plot_surface()`
+------------------------------------------
+
+As of v2.0, mplot3d's :func:`~mpl_toolkits.mplot3d.axes3d.plot_surface` now
+accepts `rcount` and `ccount` arguments for controlling the sampling of the
+input data for plotting. These arguments specify the maximum number of
+evenly spaced samples to take from the input data. These arguments are
+also the new default sampling method for the function, and is
+considered a style change.
+
+The old `rstride` and `cstride` arguments, which specified the size of the
+evenly spaced samples, become the default when 'classic' mode is invoked,
+and are still available for use. There are no plans for deprecating these
+arguments.
+
+Streamplot Zorder Keyword Argument Changes
+------------------------------------------
+
+The ``zorder`` parameter for :func:`streamplot` now has default
+value of ``None`` instead of ``2``. If ``None`` is given as ``zorder``,
+:func:`streamplot` has a default ``zorder`` of
+``matplotlib.lines.Line2D.zorder``.
+
+.. _gc_get_hatch_color_wn:
+
+Extension to `matplotlib.backend_bases.GraphicsContextBase`
+-----------------------------------------------------------
+
+To support standardizing hatch behavior across the backends we ship
+the `matplotlib.backend_bases.GraphicsContextBase.get_hatch_color`
+method as added to `matplotlib.backend_bases.GraphicsContextBase`.
+This is only used during the render process in the backends we ship so
+will not break any third-party backends.
+
+If you maintain a third-party backend which extends
+`~matplotlib.backend_bases.GraphicsContextBase` this method is now
+available to you and should be used to color hatch patterns.
 
 Previous Whats New
 ==================
@@ -241,3 +336,4 @@ Previous Whats New
    :maxdepth: 1
 
    prev_whats_new/whats_new_*
+   prev_whats_new/changelog

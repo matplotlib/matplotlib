@@ -71,8 +71,8 @@ static PyObject *Py_agg_to_gtk_drawable(PyObject *self, PyObject *args, PyObject
         destwidth = (int)(rect.x2 - rect.x1);
         destheight = (int)(rect.y2 - rect.y1);
         deststride = destwidth * 4;
-        destbuffer.reserve(destheight * deststride);
-        destbufferptr = &destbuffer[0];
+        destbuffer.resize(destheight * deststride, 0);
+        destbufferptr = &destbuffer.front();
 
         agg::rendering_buffer destrbuf;
         destrbuf.attach(destbufferptr, destwidth, destheight, deststride);

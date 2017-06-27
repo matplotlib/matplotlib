@@ -2,13 +2,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
-from nose.tools import assert_true, assert_less
-import six
 
-import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 
 @image_comparison(baseline_images=['spines_axes_positions'])
@@ -50,7 +46,6 @@ def test_spines_capstyle():
     ax.set_yticks([])
 
 
-@cleanup
 def test_label_without_ticks():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -71,11 +66,11 @@ def test_label_without_ticks():
     spine = ax.spines['left']
     spinebbox = spine.get_transform().transform_path(
         spine.get_path()).get_extents()
-    assert_less(ax.yaxis.label.get_position()[0], spinebbox.xmin,
-                "Y-Axis label not left of the spine")
+    assert ax.yaxis.label.get_position()[0] < spinebbox.xmin, \
+        "Y-Axis label not left of the spine"
 
     spine = ax.spines['bottom']
     spinebbox = spine.get_transform().transform_path(
         spine.get_path()).get_extents()
-    assert_less(ax.xaxis.label.get_position()[1], spinebbox.ymin,
-                "X-Axis label not below the spine")
+    assert ax.xaxis.label.get_position()[1] < spinebbox.ymin, \
+        "X-Axis label not below the spine"

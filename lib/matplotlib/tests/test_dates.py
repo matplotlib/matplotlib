@@ -1,12 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import map
 
 import datetime
 import warnings
 import tempfile
+import pytest
 
 import dateutil
 import pytz
@@ -16,10 +16,8 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_raises, assert_equal
-from nose.plugins.skip import SkipTest
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
@@ -88,19 +86,12 @@ def test_date_axvline():
     fig.autofmt_xdate()
 
 
-@cleanup
 def test_too_many_date_ticks():
     # Attempt to test SF 2715172, see
     # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
     # setting equal datetimes triggers and expander call in
     # transforms.nonsingular which results in too many ticks in the
     # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
-    warnings.filterwarnings(
-        'ignore',
-        'Attempting to set identical left==right results\\nin singular '
-        'transformations; automatically expanding.\\nleft=\d*\.\d*, '
-        'right=\d*\.\d*',
-        UserWarning, module='matplotlib.axes')
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
@@ -108,7 +99,8 @@ def test_too_many_date_ticks():
     ax.set_xlim((t0, tf), auto=True)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    assert_raises(RuntimeError, fig.savefig, 'junk.png')
+    with pytest.raises(RuntimeError):
+        fig.savefig('junk.png')
 
 
 @image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
@@ -180,19 +172,17 @@ def test_date_formatter_strftime():
             "{hour24:02d} {hour12:02d} {minute:02d} {second:02d} "
             "%{microsecond:06d} %x"
             .format(
-            # weeknum=dt.isocalendar()[1],  # %U/%W {weeknum:02d}
-            # %w Sunday=0, weekday() Monday=0
-            weekday=str((dt.weekday() + 1) % 7),
-            day=dt.day,
-            month=dt.month,
-            year=dt.year % 100,
-            full_year=dt.year,
-            hour24=dt.hour,
-            hour12=((dt.hour-1) % 12) + 1,
-            minute=dt.minute,
-            second=dt.second,
-            microsecond=dt.microsecond))
-        assert_equal(formatter.strftime(dt), formatted_date_str)
+                weekday=str((dt.weekday() + 1) % 7),
+                day=dt.day,
+                month=dt.month,
+                year=dt.year % 100,
+                full_year=dt.year,
+                hour24=dt.hour,
+                hour12=((dt.hour-1) % 12) + 1,
+                minute=dt.minute,
+                second=dt.second,
+                microsecond=dt.microsecond))
+        assert formatter.strftime(dt) == formatted_date_str
 
         try:
             # Test strftime("%x") with the current locale.
@@ -200,8 +190,8 @@ def test_date_formatter_strftime():
             locale_formatter = mdates.DateFormatter("%x")
             locale_d_fmt = locale.nl_langinfo(locale.D_FMT)
             expanded_formatter = mdates.DateFormatter(locale_d_fmt)
-            assert_equal(locale_formatter.strftime(dt),
-                         expanded_formatter.strftime(dt))
+            assert locale_formatter.strftime(dt) == \
+                expanded_formatter.strftime(dt)
         except (ImportError, AttributeError):
             pass
 
@@ -219,8 +209,7 @@ def test_date_formatter_callable():
 
     formatter = mdates.AutoDateFormatter(locator)
     formatter.scaled[-10] = callable_formatting_function
-    assert_equal(formatter([datetime.datetime(2014, 12, 25)]),
-                 ['25-12//2014'])
+    assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 
 
 def test_drange():
@@ -233,12 +222,12 @@ def test_drange():
     delta = datetime.timedelta(hours=1)
     # We expect 24 values in drange(start, end, delta), because drange returns
     # dates from an half open interval [start, end)
-    assert_equal(24, len(mdates.drange(start, end, delta)))
+    assert len(mdates.drange(start, end, delta)) == 24
 
     # if end is a little bit later, we expect the range to contain one element
     # more
     end = end + datetime.timedelta(microseconds=1)
-    assert_equal(25, len(mdates.drange(start, end, delta)))
+    assert len(mdates.drange(start, end, delta)) == 25
 
     # reset end
     end = datetime.datetime(2011, 1, 2, tzinfo=mdates.UTC)
@@ -247,11 +236,10 @@ def test_drange():
     # 4 hours = 1/6 day, this is an "dangerous" float
     delta = datetime.timedelta(hours=4)
     daterange = mdates.drange(start, end, delta)
-    assert_equal(6, len(daterange))
-    assert_equal(mdates.num2date(daterange[-1]), end - delta)
+    assert len(daterange) == 6
+    assert mdates.num2date(daterange[-1]) == (end - delta)
 
 
-@cleanup
 def test_empty_date_with_year_formatter():
     # exposes sf bug 2861426:
     # https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
@@ -268,7 +256,8 @@ def test_empty_date_with_year_formatter():
     ax.xaxis.set_major_formatter(yearFmt)
 
     with tempfile.TemporaryFile() as fh:
-        assert_raises(ValueError, fig.savefig, fh)
+        with pytest.raises(ValueError):
+            fig.savefig(fh)
 
 
 def test_auto_date_locator():
@@ -339,8 +328,7 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert_equal(list(map(str, mdates.num2date(locator()))),
-                     expected)
+        assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 @image_comparison(baseline_images=['date_inverted_limit'],
@@ -376,7 +364,7 @@ def _test_date2num_dst(date_range, tz_convert):
     expected_ordinalf = [735322.0 + (i * interval_days) for i in range(N)]
     actual_ordinalf = list(mdates.date2num(dt_bxl))
 
-    assert_equal(actual_ordinalf, expected_ordinalf)
+    assert actual_ordinalf == expected_ordinalf
 
 
 def test_date2num_dst():
@@ -446,30 +434,26 @@ def test_date2num_dst():
 def test_date2num_dst_pandas():
     # Test for github issue #3896, but in date2num around DST transitions
     # with a timezone-aware pandas date_range object.
-    try:
-        import pandas as pd
-    except ImportError:
-        raise SkipTest('pandas not installed')
+    pd = pytest.importorskip('pandas')
 
     def tz_convert(*args):
-        return pd.DatetimeIndex.tz_convert(*args).astype(datetime.datetime)
+        return pd.DatetimeIndex.tz_convert(*args).astype(object)
 
     _test_date2num_dst(pd.date_range, tz_convert)
 
 
 def test_DayLocator():
-   assert_raises(ValueError, mdates.DayLocator, interval=-1)
-   assert_raises(ValueError, mdates.DayLocator, interval=-1.5)
-   assert_raises(ValueError, mdates.DayLocator, interval=0)
-   assert_raises(ValueError, mdates.DayLocator, interval=1.3)
-   mdates.DayLocator(interval=1.0)
+    with pytest.raises(ValueError):
+        mdates.DayLocator(interval=-1)
+    with pytest.raises(ValueError):
+        mdates.DayLocator(interval=-1.5)
+    with pytest.raises(ValueError):
+        mdates.DayLocator(interval=0)
+    with pytest.raises(ValueError):
+        mdates.DayLocator(interval=1.3)
+    mdates.DayLocator(interval=1.0)
 
 
 def test_tz_utc():
     dt = datetime.datetime(1970, 1, 1, tzinfo=mdates.UTC)
     dt.tzname()
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

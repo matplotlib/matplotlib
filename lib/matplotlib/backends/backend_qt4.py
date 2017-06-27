@@ -10,7 +10,6 @@ import sys
 
 import matplotlib
 
-from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2
@@ -25,14 +24,12 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from .qt_compat import QtCore, QtWidgets, _getSaveFileName, __version__
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 
-from .backend_qt5 import (backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL,
-                        SHIFT, MODIFIER_KEYS, fn_name, cursord,
-                        draw_if_interactive, _create_qApp, show, TimerQT,
-                        MainWindow, FigureManagerQT, NavigationToolbar2QT,
-                        SubplotToolQt, error_msg_qt, exception_handler)
-
+from .backend_qt5 import (
+    backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL, SHIFT, MODIFIER_KEYS,
+    cursord, draw_if_interactive, _create_qApp, show, TimerQT, MainWindow,
+    FigureManagerQT, NavigationToolbar2QT, SubplotToolQt, error_msg_qt,
+    exception_handler)
 from .backend_qt5 import FigureCanvasQT as FigureCanvasQT5
 
 DEBUG = False

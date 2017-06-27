@@ -1,6 +1,5 @@
 """
-These are  classes to support contour plotting and
-labelling for the axes class
+These are classes to support contour plotting and labelling for the Axes class.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -26,7 +25,7 @@ import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
@@ -133,8 +132,6 @@ class ContourLabeler(object):
             matplotlib.Text) is used to create labels. ClabelText
             recalculates rotation angles of texts during the drawing time,
             therefore this can be used if aspect of the axes changes.
-
-        .. plot:: mpl_examples/pylab_examples/contour_demo.py
         """
 
         """
@@ -265,7 +262,7 @@ class ContourLabeler(object):
         """
         Return the width of the label in points.
         """
-        if not cbook.is_string_like(lev):
+        if not isinstance(lev, six.string_types):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -321,7 +318,7 @@ class ContourLabeler(object):
 
     def get_text(self, lev, fmt):
         "get the text of the label"
-        if cbook.is_string_like(lev):
+        if isinstance(lev, six.string_types):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -337,6 +334,7 @@ class ContourLabeler(object):
         part of the contour).
         """
 
+        # Number of contour points
         nsize = len(linecontour)
         if labelwidth > 1:
             xsize = int(np.ceil(nsize / labelwidth))
@@ -356,7 +354,10 @@ class ContourLabeler(object):
         xlast = XX[:, -1].reshape(xsize, 1)
         s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
         L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
-        dist = np.add.reduce(([(abs(s)[i] / L[i]) for i in range(xsize)]), -1)
+        # Ignore warning that divide by zero throws, as this is a valid option
+        with np.errstate(divide='ignore', invalid='ignore'):
+            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
+                                 -1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
         # There must be a more efficient way...
@@ -451,7 +452,10 @@ class ContourLabeler(object):
 
             # Round to integer values but keep as float
             # To allow check against nan below
-            I = [np.floor(I[0]), np.ceil(I[1])]
+            # Ignore nans here to avoid throwing an error on on Appveyor build
+            # (can possibly be removed when build uses numpy 1.13)
+            with np.errstate(invalid='ignore'):
+                I = [np.floor(I[0]), np.ceil(I[1])]
 
             # Actually break contours
             if closed:
@@ -794,10 +798,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Keyword arguments are as described in
         :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/misc/contour_manual.py
         """
         self.ax = ax
         self.levels = kwargs.get('levels', None)
@@ -967,7 +967,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         if self._transform is None:
             self._transform = self.ax.transData
-        elif (not isinstance(self._transform, mtrans.Transform)
+        elif (not isinstance(self._transform, mtransforms.Transform)
               and hasattr(self._transform, '_as_mpl_transform')):
             self._transform = self._transform._as_mpl_transform(self.ax)
         return self._transform
@@ -1132,14 +1132,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.LogLocator()
             else:
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
-        zmax = self.zmax
-        zmin = self.zmin
-        lev = self.locator.tick_values(zmin, zmax)
+
+        lev = self.locator.tick_values(self.zmin, self.zmax)
         self._auto = True
-        if self.filled:
-            return lev
-        # For line contours, drop levels outside the data range.
-        return lev[(lev > zmin) & (lev < zmax)]
+        return lev
 
     def _contour_level_args(self, z, args):
         """
@@ -1165,6 +1161,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                         "Last {0} arg must give levels; see help({0})"
                         .format(fn))
             self.levels = lev
+        else:
+            self.levels = np.asarray(self.levels).astype(np.float64)
+
+        if not self.filled:
+            inside = (self.levels > self.zmin) & (self.levels < self.zmax)
+            self.levels = self.levels[inside]
+            if len(self.levels) == 0:
+                self.levels = [self.zmin]
+                warnings.warn("No contour levels were found"
+                              " within the data range.")
+
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
 
@@ -1254,11 +1261,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             i0, i1 = 0, len(self.levels)
             if self.filled:
                 i1 -= 1
-            # Out of range indices for over and under:
-            if self.extend in ('both', 'min'):
-                i0 = -1
-            if self.extend in ('both', 'max'):
-                i1 += 1
+                # Out of range indices for over and under:
+                if self.extend in ('both', 'min'):
+                    i0 -= 1
+                if self.extend in ('both', 'max'):
+                    i1 += 1
             self.cvalues = list(range(i0, i1))
             self.set_norm(colors.NoNorm())
         else:
@@ -1300,7 +1307,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if cbook.is_string_like(linestyles):
+            if isinstance(linestyles, six.string_types):
                 tlinestyles = [linestyles] * Nlev
             elif cbook.iterable(linestyles):
                 tlinestyles = list(linestyles)
@@ -1542,6 +1549,8 @@ class QuadContourSet(ContourSet):
 
         if z.ndim != 2:
             raise TypeError("Input z must be a 2D array.")
+        elif z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError("Input z must be at least a 2x2 array.")
         else:
             Ny, Nx = z.shape
 
@@ -1590,6 +1599,8 @@ class QuadContourSet(ContourSet):
         """
         if z.ndim != 2:
             raise TypeError("Input must be a 2D array.")
+        elif z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError("Input z must be at least a 2x2 array.")
         else:
             Ny, Nx = z.shape
         if self.origin is None:  # Not for image-matching.
@@ -1818,12 +1829,4 @@ class QuadContourSet(ContourSet):
         There is one exception: if the lowest boundary coincides with
         the minimum value of the *z* array, then that minimum value
         will be included in the lowest interval.
-
-        **Examples:**
-
-        .. plot:: mpl_examples/pylab_examples/contour_demo.py
-
-        .. plot:: mpl_examples/pylab_examples/contourf_demo.py
-
-        .. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
         """

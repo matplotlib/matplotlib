@@ -2,15 +2,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import copy
 
-import six
-
 import numpy as np
 
 from numpy.testing import assert_array_equal
+import pytest
 
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from nose.tools import assert_raises, assert_equal
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import transforms
@@ -22,7 +20,8 @@ def test_readonly_path():
     def modify_vertices():
         path.vertices = path.vertices * 2.0
 
-    assert_raises(AttributeError, modify_vertices)
+    with pytest.raises(AttributeError):
+        modify_vertices()
 
 
 def test_point_in_path():
@@ -46,6 +45,27 @@ def test_contains_points_negative_radius():
     assert np.all(result == expected)
 
 
+def test_point_in_path_nan():
+    box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
+    p = Path(box)
+    test = np.array([[np.nan, 0.5]])
+    contains = p.contains_points(test)
+    assert len(contains) == 1
+    assert not contains[0]
+
+
+def test_nonlinear_containment():
+    fig, ax = plt.subplots()
+    ax.set(xscale="log", ylim=(0, 1))
+    polygon = ax.axvspan(1, 10)
+    assert polygon.get_path().contains_point(
+        ax.transData.transform_point((5, .5)), ax.transData)
+    assert not polygon.get_path().contains_point(
+        ax.transData.transform_point((.5, .5)), ax.transData)
+    assert not polygon.get_path().contains_point(
+        ax.transData.transform_point((50, .5)), ax.transData)
+
+
 @image_comparison(baseline_images=['path_clipping'],
                   extensions=['svg'], remove_text=True)
 def test_path_clipping():
@@ -67,15 +87,6 @@ def test_path_clipping():
             xy, facecolor='none', edgecolor='red', closed=True))
 
 
-def test_point_in_path_nan():
-    box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
-    p = Path(box)
-    test = np.array([[np.nan, 0.5]])
-    contains = p.contains_points(test)
-    assert len(contains) == 1
-    assert not contains[0]
-
-
 @image_comparison(baseline_images=['semi_log_with_zero'], extensions=['png'])
 def test_log_transform_with_zero():
     x = np.arange(-10, 10)
@@ -90,14 +101,14 @@ def test_make_compound_path_empty():
     # We should be able to make a compound path with no arguments.
     # This makes it easier to write generic path based code.
     r = Path.make_compound_path()
-    assert_equal(r.vertices.shape, (0, 2))
+    assert r.vertices.shape == (0, 2)
 
 
 @image_comparison(baseline_images=['xkcd'], remove_text=True)
 def test_xkcd():
     np.random.seed(0)
 
-    x = np.linspace(0, 2.0 * np.pi, 100.0)
+    x = np.linspace(0, 2 * np.pi, 100)
     y = np.sin(x)
 
     with plt.xkcd():
@@ -115,6 +126,19 @@ def test_marker_paths_pdf():
                  np.ones(N))
     plt.xlim(-1, N)
     plt.ylim(-1, 7)
+
+
+@image_comparison(baseline_images=['nan_path'], style='default',
+                  remove_text=True, extensions=['pdf', 'svg', 'eps', 'png'])
+def test_nan_isolated_points():
+
+    y0 = [0, np.nan, 2, np.nan, 4, 5, 6]
+    y1 = [np.nan, 7, np.nan, 9, 10, np.nan, 12]
+
+    fig, ax = plt.subplots()
+
+    ax.plot(y0, '-o')
+    ax.plot(y1, '-o')
 
 
 def test_path_no_doubled_point_in_to_polygon():
@@ -181,8 +205,3 @@ def test_path_deepcopy():
     path2 = Path(verts, codes)
     copy.deepcopy(path1)
     copy.deepcopy(path2)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -30,7 +30,12 @@ multiple columns and rows, as well as fancy box drawing.  See
 :func:`~matplotlib.pyplot.legend` and
 :class:`matplotlib.legend.Legend`.
 
-.. plot:: mpl_examples/pyplots/whats_new_98_4_legend.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_98_4_legend_001.png
+   :target: ../../gallery/pyplots/whats_new_98_4_legend.html
+   :align: center
+   :scale: 50
+
+   Whats New 98 4 Legend
 
 .. _fancy-annotations:
 
@@ -44,7 +49,12 @@ boxes and connectors in annotations.  See
 :class:`~matplotlib.patches.ArrowStyle`, and
 :class:`~matplotlib.patches.ConnectionStyle`.
 
-.. plot:: mpl_examples/pyplots/whats_new_98_4_fancy.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_98_4_fancy_001.png
+   :target: ../../gallery/pyplots/whats_new_98_4_fancy.html
+   :align: center
+   :scale: 50
+
+   Whats New 98 4 Fancy
 
 .. _psd-amplitude:
 
@@ -69,7 +79,7 @@ psd amplitude scaling
 
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
-:ref:`pylab_examples-psd_demo2`. and :ref:`pylab_examples-psd_demo3`.
+:ref:`sphx_glr_gallery_pylab_examples_psd_demo.py`.
 The changes should increase MATLAB
 compatibility and increase scaling options.
 
@@ -84,7 +94,12 @@ can pass an *x* array and a *ylower* and *yupper* array to fill
 between, and an optional *where* argument which is a logical mask
 where you want to do the filling.
 
-.. plot:: mpl_examples/pyplots/whats_new_98_4_fill_between.py
+.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_98_4_fill_between_001.png
+   :target: ../../gallery/pyplots/whats_new_98_4_fill_between.html
+   :align: center
+   :scale: 50
+
+   Whats New 98 4 Fill Between
 
 Lots more
 -----------
@@ -283,3 +298,6 @@ Here are the 0.98.4 notes from the CHANGELOG::
 
     Added support for arbitrary rasterization resolutions to the SVG
     backend. - MW
+
+
+

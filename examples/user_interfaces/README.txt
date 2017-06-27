@@ -1,3 +1,5 @@
+.. _user_interfaces:
+
 Embedding matplotlib in graphical user interfaces
 =================================================
 

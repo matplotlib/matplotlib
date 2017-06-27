@@ -1,3 +1,9 @@
+"""
+=====
+Fig X
+=====
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines

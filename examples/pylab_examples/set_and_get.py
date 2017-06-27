@@ -1,47 +1,53 @@
 """
+===========
+Set And Get
+===========
 
 The pyplot interface allows you to use setp and getp to set and get
 object properties, as well as to do introspection on the object
 
-set:
-    To set the linestyle of a line to be dashed, you can do
+set
+===
 
-      >>> line, = plt.plot([1,2,3])
-      >>> plt.setp(line, linestyle='--')
+To set the linestyle of a line to be dashed, you can do::
 
-    If you want to know the valid types of arguments, you can provide the
-    name of the property you want to set without a value
+  >>> line, = plt.plot([1,2,3])
+  >>> plt.setp(line, linestyle='--')
 
-      >>> plt.setp(line, 'linestyle')
-          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+If you want to know the valid types of arguments, you can provide the
+name of the property you want to set without a value::
 
-    If you want to see all the properties that can be set, and their
-    possible values, you can do
+  >>> plt.setp(line, 'linestyle')
+      linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
 
-        >>> plt.setp(line)
+If you want to see all the properties that can be set, and their
+possible values, you can do::
 
-    set operates on a single instance or a list of instances.  If you are
-    in query mode introspecting the possible values, only the first
-    instance in the sequence is used.  When actually setting values, all
-    the instances will be set.  e.g., suppose you have a list of two lines,
-    the following will make both lines thicker and red
+    >>> plt.setp(line)
 
-        >>> x = np.arange(0,1.0,0.01)
-        >>> y1 = np.sin(2*np.pi*x)
-        >>> y2 = np.sin(4*np.pi*x)
-        >>> lines = plt.plot(x, y1, x, y2)
-        >>> plt.setp(lines, linewidth=2, color='r')
+set operates on a single instance or a list of instances.  If you are
+in query mode introspecting the possible values, only the first
+instance in the sequence is used.  When actually setting values, all
+the instances will be set.  e.g., suppose you have a list of two lines,
+the following will make both lines thicker and red::
+
+    >>> x = np.arange(0,1.0,0.01)
+    >>> y1 = np.sin(2*np.pi*x)
+    >>> y2 = np.sin(4*np.pi*x)
+    >>> lines = plt.plot(x, y1, x, y2)
+    >>> plt.setp(lines, linewidth=2, color='r')
 
 
-get:
+get
+===
 
-    get returns the value of a given attribute.  You can use get to query
-    the value of a single attribute
+get returns the value of a given attribute.  You can use get to query
+the value of a single attribute::
 
-        >>> plt.getp(line, 'linewidth')
-            0.5
+    >>> plt.getp(line, 'linewidth')
+        0.5
 
-    or all the attribute/value pairs
+or all the attribute/value pairs::
 
     >>> plt.getp(line)
         aa = True
@@ -52,16 +58,13 @@ get:
         color = b
         ... long listing skipped ...
 
-Aliases:
+Aliases
+=======
 
-  To reduce keystrokes in interactive mode, a number of properties
-  have short aliases, e.g., 'lw' for 'linewidth' and 'mec' for
-  'markeredgecolor'.  When calling set or get in introspection mode,
-  these properties will be listed as 'fullname or aliasname', as in
-
-
-
-
+To reduce keystrokes in interactive mode, a number of properties
+have short aliases, e.g., 'lw' for 'linewidth' and 'mec' for
+'markeredgecolor'.  When calling set or get in introspection mode,
+these properties will be listed as 'fullname or aliasname'.
 """
 
 from __future__ import print_function
@@ -77,7 +80,7 @@ lines = plt.plot(x, y1, x, y2)
 l1, l2 = lines
 plt.setp(lines, linestyle='--')       # set both to dashed
 plt.setp(l1, linewidth=2, color='r')  # line1 is thick and red
-plt.setp(l2, linewidth=1, color='g')  # line2 is thicker and green
+plt.setp(l2, linewidth=1, color='g')  # line2 is thinner and green
 
 
 print('Line setters')

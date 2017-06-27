@@ -1,3 +1,9 @@
+"""
+=======================
+Simple Anchored Artists
+=======================
+
+"""
 import matplotlib.pyplot as plt
 
 

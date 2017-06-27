@@ -705,7 +705,6 @@ class Matplotlib(SetupPackage):
     def get_packages(self):
         return [
             'matplotlib',
-            'matplotlib._backports',
             'matplotlib.backends',
             'matplotlib.backends.qt_editor',
             'matplotlib.compat',
@@ -714,10 +713,11 @@ class Matplotlib(SetupPackage):
             'matplotlib.sphinxext',
             'matplotlib.style',
             'matplotlib.testing',
-            'matplotlib.testing.nose',
-            'matplotlib.testing.nose.plugins',
+            'matplotlib.testing._nose',
+            'matplotlib.testing._nose.plugins',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
+            'matplotlib.cbook'
             ]
 
     def get_py_modules(self):
@@ -788,28 +788,28 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    nose_min_version = '0.11.1'
+    pytest_min_version = '3.0.0'
     default_config = False
 
     def check(self):
         super(Tests, self).check()
 
         msgs = []
-        msg_template = ('{package} is required to run the matplotlib test '
-                        'suite. Please install it with pip or your preferred'
-                        ' tool to run the test suite')
+        msg_template = ('{package} is required to run the Matplotlib test '
+                        'suite. Please install it with pip or your preferred '
+                        'tool to run the test suite')
 
-        bad_nose = msg_template.format(
-            package='nose %s or later' % self.nose_min_version
+        bad_pytest = msg_template.format(
+            package='pytest %s or later' % self.pytest_min_version
         )
         try:
-            import nose
-            if is_min_version(nose.__version__, self.nose_min_version):
-                msgs += ['using nose version %s' % nose.__version__]
+            import pytest
+            if is_min_version(pytest.__version__, self.pytest_min_version):
+                msgs += ['using pytest version %s' % pytest.__version__]
             else:
-                msgs += [bad_nose]
+                msgs += [bad_pytest]
         except ImportError:
-            msgs += [bad_nose]
+            msgs += [bad_pytest]
 
         if PY3min:
             msgs += ['using unittest.mock']
@@ -1146,12 +1146,15 @@ class FreeType(SetupPackage):
                     os.path.isfile(tarball_cache_path)):
                 if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
                     try:
-                        # fail on Lpy, oh well
-                        os.makedirs('build', exist_ok=True)
+                        os.makedirs('build')
+                    except OSError:
+                        # Don't care if it exists.
+                        pass
+                    try:
                         shutil.copy(tarball_cache_path, tarball_path)
                         print('Using cached tarball: {}'
                               .format(tarball_cache_path))
-                    except:
+                    except OSError:
                         # If this fails, oh well just re-download
                         pass
 
@@ -1165,12 +1168,12 @@ class FreeType(SetupPackage):
                     os.makedirs('build')
 
                 sourceforge_url = (
-                    'http://downloads.sourceforge.net/project/freetype'
+                    'https://downloads.sourceforge.net/project/freetype'
                     '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
                 )
                 url_fmts = (
                     sourceforge_url + '{0}',
-                    'http://download.savannah.gnu.org/releases/freetype/{0}'
+                    'https://download.savannah.gnu.org/releases/freetype/{0}'
                     )
                 for url_fmt in url_fmts:
                     tarball_url = url_fmt.format(tarball)
@@ -1186,12 +1189,15 @@ class FreeType(SetupPackage):
                     raise IOError("Failed to download freetype")
                 if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
                     try:
-                        # this will fail on LPy, oh well
-                        os.makedirs(tarball_cache_dir, exist_ok=True)
+                        os.makedirs(tarball_cache_dir)
+                    except OSError:
+                        # Don't care if it exists.
+                        pass
+                    try:
                         shutil.copy(tarball_path, tarball_cache_path)
                         print('Cached tarball at: {}'
                               .format(tarball_cache_path))
-                    except:
+                    except OSError:
                         # again, we do not care if this fails, can
                         # always re download
                         pass
@@ -1315,14 +1321,14 @@ class Qhull(SetupPackage):
         self.__class__.found_external = True
         try:
             return self._check_for_pkg_config(
-                'qhull', 'qhull/qhull_a.h', min_version='2003.1')
+                'libqhull', 'libqhull/qhull_a.h', min_version='2015.2')
         except CheckFailed as e:
             self.__class__.found_pkgconfig = False
             # Qhull may not be in the pkg-config system but may still be
             # present on this system, so check if the header files can be
             # found.
             include_dirs = [
-                os.path.join(x, 'qhull') for x in get_include_dirs()]
+                os.path.join(x, 'libqhull') for x in get_include_dirs()]
             if has_include_file(include_dirs, 'qhull_a.h'):
                 return 'Using system Qhull (version unknown, no pkg-config info)'
             else:
@@ -1335,7 +1341,7 @@ class Qhull(SetupPackage):
                                        default_libraries=['qhull'])
         else:
             ext.include_dirs.append('extern')
-            ext.sources.extend(glob.glob('extern/qhull/*.c'))
+            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
 
 
 class TTConv(SetupPackage):
@@ -1523,25 +1529,25 @@ class Dateutil(SetupPackage):
         return [dateutil]
 
 
-class FuncTools32(SetupPackage):
-    name = "functools32"
+class BackportsFuncToolsLRUCache(SetupPackage):
+    name = "backports.functools_lru_cache"
 
     def check(self):
         if not PY3min:
             try:
-                import functools32
+                import backports.functools_lru_cache
             except ImportError:
                 return (
-                    "functools32 was not found. It is required for"
+                    "backports.functools_lru_cache was not found. It is required for"
                     "Python versions prior to 3.2")
 
-            return "using functools32"
+            return "using backports.functools_lru_cache"
         else:
             return "Not required"
 
     def get_install_requires(self):
         if not PY3min:
-            return ['functools32']
+            return ['backports.functools_lru_cache']
         else:
             return []
 
@@ -1587,17 +1593,6 @@ class Tornado(OptionalPackage):
 
 class Pyparsing(SetupPackage):
     name = "pyparsing"
-    # pyparsing 2.0.4 has broken python 3 support.
-    # pyparsing 2.1.2 is broken in python3.4/3.3.
-    def is_ok(self):
-        # pyparsing 2.0.0 bug, but it may be patched in distributions
-        try:
-            import pyparsing
-            f = pyparsing.Forward()
-            f <<= pyparsing.Literal('a')
-            return f is not None
-        except (ImportError, TypeError):
-            return False
 
     def check(self):
         try:
@@ -1608,26 +1603,10 @@ class Pyparsing(SetupPackage):
                 "support. pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
-        required = [1, 5, 6]
-        if [int(x) for x in pyparsing.__version__.split('.')] < required:
-            return (
-                "matplotlib requires pyparsing >= {0}".format(
-                    '.'.join(str(x) for x in required)))
-
-        if not self.is_ok():
-            return (
-                "Your pyparsing contains a bug that will be monkey-patched by "
-                "matplotlib.  For best results, upgrade to pyparsing 2.0.1 or "
-                "later.")
-
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        versionstring = 'pyparsing>=1.5.6,!=2.0.4,!=2.1.2,!=2.1.6'
-        if self.is_ok():
-            return [versionstring]
-        else:
-            return [versionstring + ',!=2.0.0']
+        return ['pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6']
 
 
 class BackendAgg(OptionalBackendPackage):

@@ -1,21 +1,26 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from nose.tools import assert_equal
 import six
 
 import os
-
 import tempfile
 import warnings
 
+import pytest
+
 from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    is_opentype_cff_font, fontManager as fm)
-import os.path
-
-
+    get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
+
+if six.PY2:
+    from distutils.spawn import find_executable
+    has_fclist = find_executable('fc-list') is not None
+else:
+    # py >= 3.3
+    from shutil import which
+    has_fclist = which('fc-list') is not None
 
 
 def test_font_priority():
@@ -24,13 +29,24 @@ def test_font_priority():
             ['cmmi10', 'Bitstream Vera Sans']}):
         font = findfont(
             FontProperties(family=["sans-serif"]))
-    assert_equal(os.path.basename(font), 'cmmi10.ttf')
+    assert os.path.basename(font) == 'cmmi10.ttf'
 
     # Smoketest get_charmap, which isn't used internally anymore
     font = get_font(font)
     cmap = font.get_charmap()
     assert len(cmap) == 131
     assert cmap[8729] == 30
+
+
+def test_score_weight():
+    assert 0 == fontManager.score_weight("regular", "regular")
+    assert 0 == fontManager.score_weight("bold", "bold")
+    assert (0 < fontManager.score_weight(400, 400) <
+            fontManager.score_weight("normal", "bold"))
+    assert (0 < fontManager.score_weight("normal", "regular") <
+            fontManager.score_weight("normal", "bold"))
+    assert (fontManager.score_weight("normal", "regular") ==
+            fontManager.score_weight(400, 400))
 
 
 def test_json_serialization():
@@ -51,8 +67,8 @@ def test_json_serialization():
                      {'family': 'Bitstream Vera Sans', 'weight': 700},
                      {'family': 'no such font family'}):
             fp = FontProperties(**prop)
-            assert_equal(fontManager.findfont(fp, rebuild_if_missing=False),
-                         copy.findfont(fp, rebuild_if_missing=False))
+            assert (fontManager.findfont(fp, rebuild_if_missing=False) ==
+                    copy.findfont(fp, rebuild_if_missing=False))
 
 
 def test_otf():
@@ -65,3 +81,8 @@ def test_otf():
         with open(f, 'rb') as fd:
             res = fd.read(4) == b'OTTO'
         assert res == is_opentype_cff_font(f)
+
+
+@pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')
+def test_get_fontconfig_fonts():
+    assert len(get_fontconfig_fonts()) > 1

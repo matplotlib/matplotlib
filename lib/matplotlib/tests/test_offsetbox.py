@@ -1,9 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import nose
-from nose.tools import assert_true, assert_false
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
@@ -45,7 +43,6 @@ def test_offsetbox_clipping():
     ax.set_ylim((0, 1))
 
 
-@cleanup
 def test_offsetbox_clip_children():
     # - create a plot
     # - put an AnchoredOffsetbox with a child DrawingArea
@@ -78,9 +75,27 @@ def test_offsetbox_clip_children():
     ax.add_artist(anchored_box)
 
     fig.canvas.draw()
-    assert_false(fig.stale)
+    assert not fig.stale
     da.clip_children = True
-    assert_true(fig.stale)
+    assert fig.stale
 
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+
+def test_offsetbox_loc_codes():
+    # Check that valid string location codes all work with an AnchoredOffsetbox
+    codes = {'upper right': 1,
+             'upper left': 2,
+             'lower left': 3,
+             'lower right': 4,
+             'right': 5,
+             'center left': 6,
+             'center right': 7,
+             'lower center': 8,
+             'upper center': 9,
+             'center': 10,
+             }
+    fig, ax = plt.subplots()
+    da = DrawingArea(100, 100)
+    for code in codes:
+        anchored_box = AnchoredOffsetbox(loc=code, child=da)
+        ax.add_artist(anchored_box)
+    fig.canvas.draw()

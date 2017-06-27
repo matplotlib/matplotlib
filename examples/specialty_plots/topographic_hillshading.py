@@ -1,4 +1,8 @@
 """
+=======================
+Topographic hillshading
+=======================
+
 Demonstrates the visual effect of varying blend mode and vertical exaggeration
 on "hillshaded" plots.
 
@@ -17,22 +21,24 @@ import matplotlib.pyplot as plt
 from matplotlib.cbook import get_sample_data
 from matplotlib.colors import LightSource
 
-dem = np.load(get_sample_data('jacksboro_fault_dem.npz'))
-z = dem['elevation']
 
-#-- Optional dx and dy for accurate vertical exaggeration --------------------
-# If you need topographically accurate vertical exaggeration, or you don't want
-# to guess at what *vert_exag* should be, you'll need to specify the cellsize
-# of the grid (i.e. the *dx* and *dy* parameters).  Otherwise, any *vert_exag*
-# value you specify will be relative to the grid spacing of your input data
-# (in other words, *dx* and *dy* default to 1.0, and *vert_exag* is calculated
-# relative to those parameters).  Similarly, *dx* and *dy* are assumed to be in
-# the same units as your input z-values.  Therefore, we'll need to convert the
-# given dx and dy from decimal degrees to meters.
-dx, dy = dem['dx'], dem['dy']
-dy = 111200 * dy
-dx = 111200 * dx * np.cos(np.radians(dem['ymin']))
-#-----------------------------------------------------------------------------
+with np.load(get_sample_data('jacksboro_fault_dem.npz')) as dem:
+    z = dem['elevation']
+
+    #-- Optional dx and dy for accurate vertical exaggeration ----------------
+    # If you need topographically accurate vertical exaggeration, or you don't
+    # want to guess at what *vert_exag* should be, you'll need to specify the
+    # cellsize of the grid (i.e. the *dx* and *dy* parameters).  Otherwise, any
+    # *vert_exag* value you specify will be relative to the grid spacing of
+    # your input data (in other words, *dx* and *dy* default to 1.0, and
+    # *vert_exag* is calculated relative to those parameters).  Similarly, *dx*
+    # and *dy* are assumed to be in the same units as your input z-values.
+    # Therefore, we'll need to convert the given dx and dy from decimal degrees
+    # to meters.
+    dx, dy = dem['dx'], dem['dy']
+    dy = 111200 * dy
+    dx = 111200 * dx * np.cos(np.radians(dem['ymin']))
+    #-------------------------------------------------------------------------
 
 # Shade from the northwest, with the sun 45 degrees from horizontal
 ls = LightSource(azdeg=315, altdeg=45)

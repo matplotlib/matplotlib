@@ -1,128 +1,42 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import cPickle as pickle
-from six.moves import xrange
+from six.moves import range
 
 from io import BytesIO
 
-from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
+from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
 
-def depth_getter(obj,
-                 current_depth=0,
-                 depth_stack=None,
-                 nest_info='top level object'):
-    """
-    Returns a dictionary mapping:
-
-        id(obj): (shallowest_depth, obj, nest_info)
-
-    for the given object (and its subordinates).
-
-    This, in conjunction with recursive_pickle, can be used to debug
-    pickling issues, although finding others is sometimes a case of
-    trial and error.
-
-    """
-    if depth_stack is None:
-        depth_stack = {}
-
-    if id(obj) in depth_stack:
-        stack = depth_stack[id(obj)]
-        if stack[0] > current_depth:
-            del depth_stack[id(obj)]
-        else:
-            return depth_stack
-
-    depth_stack[id(obj)] = (current_depth, obj, nest_info)
-
-    if isinstance(obj, (list, tuple)):
-        for i, item in enumerate(obj):
-            depth_getter(item, current_depth=current_depth + 1,
-                         depth_stack=depth_stack,
-                         nest_info=('list/tuple item #%s in '
-                                    '(%s)' % (i, nest_info)))
-    else:
-        if isinstance(obj, dict):
-            state = obj
-        elif hasattr(obj, '__getstate__'):
-            state = obj.__getstate__()
-            if not isinstance(state, dict):
-                state = {}
-        elif hasattr(obj, '__dict__'):
-            state = obj.__dict__
-        else:
-            state = {}
-
-        for key, value in six.iteritems(state):
-            depth_getter(value, current_depth=current_depth + 1,
-                         depth_stack=depth_stack,
-                         nest_info=('attribute "%s" in '
-                                    '(%s)' % (key, nest_info)))
-
-    return depth_stack
-
-
-def recursive_pickle(top_obj):
-    """
-    Recursively pickle all of the given objects subordinates, starting with
-    the deepest first. **Very** handy for debugging pickling issues, but
-    also very slow (as it literally pickles each object in turn).
-
-    Handles circular object references gracefully.
-
-    """
-    objs = depth_getter(top_obj)
-    # sort by depth then by nest_info
-    objs = sorted(six.itervalues(objs), key=lambda val: (-val[0], val[2]))
-
-    for _, obj, location in objs:
-        try:
-            pickle.dump(obj, BytesIO(), pickle.HIGHEST_PROTOCOL)
-        except Exception as err:
-            print(obj)
-            print('Failed to pickle %s. \n Type: %s. Traceback '
-                  'follows:' % (location, type(obj)))
-            raise
-
-
-@cleanup
 def test_simple():
     fig = plt.figure()
-    # un-comment to debug
-#    recursive_pickle(fig)
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.subplot(121)
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.axes(projection='polar')
-    plt.plot(list(xrange(10)), label='foobar')
+    plt.plot(np.arange(10), label='foobar')
     plt.legend()
 
-    # Uncomment to debug any unpicklable objects. This is slow so is not
-    # uncommented by default.
-#    recursive_pickle(fig)
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 #    ax = plt.subplot(121, projection='hammer')
-#    recursive_pickle(ax, 'figure')
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
-    plt.bar(left=list(xrange(10)), height=list(xrange(10)))
+    plt.bar(left=np.arange(10), height=np.arange(10))
     pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     fig = plt.figure()
     ax = plt.axes()
-    plt.plot(list(xrange(10)))
+    plt.plot(np.arange(10))
     ax.set_yscale('log')
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
@@ -139,8 +53,9 @@ def test_complete():
     data = u = v = np.linspace(0, 10, 80).reshape(10, 8)
     v = np.sin(v * -0.6)
 
+    # Ensure lists also pickle correctly.
     plt.subplot(3, 3, 1)
-    plt.plot(list(xrange(10)))
+    plt.plot(list(range(10)))
 
     plt.subplot(3, 3, 2)
     plt.contourf(data, hatches=['//', 'ooo'])
@@ -172,30 +87,27 @@ def test_complete():
     plt.subplot(3, 3, 9)
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
 
-    ###### plotting is done, now test its pickle-ability #########
-
-    # Uncomment to debug any unpicklable objects. This is slow (~200 seconds).
-#    recursive_pickle(fig)
-
+    #
+    # plotting is done, now test its pickle-ability
+    #
     result_fh = BytesIO()
     pickle.dump(fig, result_fh, pickle.HIGHEST_PROTOCOL)
 
     plt.close('all')
 
     # make doubly sure that there are no figures left
-    assert_equal(plt._pylab_helpers.Gcf.figs, {})
+    assert plt._pylab_helpers.Gcf.figs == {}
 
     # wind back the fh and load in the figure
     result_fh.seek(0)
     fig = pickle.load(result_fh)
 
     # make sure there is now a figure manager
-    assert_not_equal(plt._pylab_helpers.Gcf.figs, {})
+    assert plt._pylab_helpers.Gcf.figs != {}
 
-    assert_equal(fig.get_label(), 'Figure with a label?')
+    assert fig.get_label() == 'Figure with a label?'
 
 
-@cleanup
 def test_no_pyplot():
     # tests pickle-ability of a figure not created with pyplot
     from matplotlib.backends.backend_pdf import FigureCanvasPdf as fc
@@ -208,14 +120,12 @@ def test_no_pyplot():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@cleanup
 def test_renderer():
     from matplotlib.backends.backend_agg import RendererAgg
     renderer = RendererAgg(10, 20, 30)
     pickle.dump(renderer, BytesIO())
 
 
-@cleanup
 def test_image():
     # Prior to v1.4.0 the Image would cache data which was not picklable
     # once it had been drawn.
@@ -228,11 +138,9 @@ def test_image():
     pickle.dump(fig, BytesIO())
 
 
-@cleanup
 def test_polar():
     ax = plt.subplot(111, polar=True)
     fig = plt.gcf()
-    result = BytesIO()
     pf = pickle.dumps(fig)
     pickle.loads(pf)
     plt.draw()
@@ -261,15 +169,18 @@ def test_transform():
 
     obj = pickle.loads(pf)
     # Check parent -> child links of TransformWrapper.
-    assert_equal(obj.wrapper._child, obj.composite)
+    assert obj.wrapper._child == obj.composite
     # Check child -> parent links of TransformWrapper.
-    assert_equal(
-        [v() for v in obj.wrapper._parents.values()], [obj.composite2])
+    assert [v() for v in obj.wrapper._parents.values()] == [obj.composite2]
     # Check input and output dimensions are set as expected.
-    assert_equal(obj.wrapper.input_dims, obj.composite.input_dims)
-    assert_equal(obj.wrapper.output_dims, obj.composite.output_dims)
+    assert obj.wrapper.input_dims == obj.composite.input_dims
+    assert obj.wrapper.output_dims == obj.composite.output_dims
 
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s'])
+def test_rrulewrapper():
+    r = rrulewrapper(2)
+    try:
+        pickle.loads(pickle.dumps(r))
+    except RecursionError:
+        print('rrulewrapper pickling test failed')
+        raise

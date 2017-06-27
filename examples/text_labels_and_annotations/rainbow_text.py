@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+============
+Rainbow text
+============
+
 The example shows how to string together several text objects.
 
 HISTORY
@@ -17,6 +21,7 @@ following question:
     Thanks.
 
 Paul Ivanov responded with this answer:
+
 """
 import matplotlib.pyplot as plt
 from matplotlib import transforms

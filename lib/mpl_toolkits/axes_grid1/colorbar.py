@@ -380,7 +380,7 @@ class ColorbarBase(cm.ScalarMappable):
                 formatter = ticker.LogFormatter()
             else:
                 formatter = None
-        elif cbook.is_string_like(format):
+        elif isinstance(format, six.string_types):
             formatter = ticker.FormatStrFormatter(format)
         else:
             formatter = format  # Assume it is a Formatter

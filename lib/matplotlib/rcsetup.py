@@ -18,19 +18,14 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
 import warnings
 import re
 
-try:
-    import collections.abc as abc
-except ImportError:
-    # python 2
-    import collections as abc
-
-from matplotlib.cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -92,7 +87,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
         # Numpy ndarrays, and pandas data structures.  However, unordered
         # sequences, such as sets, should be allowed but discouraged unless the
         # user desires pseudorandom behavior.
-        elif isinstance(s, abc.Iterable) and not isinstance(s, abc.Mapping):
+        elif isinstance(s, Iterable) and not isinstance(s, Mapping):
             # The condition on this list comprehension will preserve the
             # behavior of filtering out any empty strings (behavior was
             # from the original validate_stringlist()), while allowing
@@ -100,8 +95,13 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             return [scalar_validator(v) for v in s
                     if not isinstance(v, six.string_types) or v]
         else:
-            msg = "{0!r} must be of type: string or non-dictionary iterable.".format(s)
-            raise ValueError(msg)
+            raise ValueError("{!r} must be of type: string or non-dictionary "
+                             "iterable".format(s))
+    # Cast `str` to keep Py2 happy despite `unicode_literals`.
+    try:
+        f.__name__ = str("{}list".format(scalar_validator.__name__))
+    except AttributeError:  # class instance.
+        f.__name__ = str("{}List".format(type(scalar_validator).__name__))
     f.__doc__ = scalar_validator.__doc__
     return f
 
@@ -279,18 +279,6 @@ def validate_toolbar(s):
     return validator(s)
 
 
-def validate_maskedarray(v):
-    # 2008/12/12: start warning; later, remove all traces of maskedarray
-    try:
-        if v == 'obsolete':
-            return v
-    except ValueError:
-        pass
-    warnings.warn('rcParams key "maskedarray" is obsolete and has no effect;\n'
-                  ' please delete it from your matplotlibrc file',
-                  mplDeprecation)
-
-
 _seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
                 'values: {s}')
 
@@ -299,8 +287,9 @@ _str_err_msg = ('You must supply exactly {n} comma-separated values, you '
 
 
 class validate_nseq_float(object):
-    def __init__(self, n=None):
+    def __init__(self, n=None, allow_none=False):
         self.n = n
+        self.allow_none = allow_none
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
@@ -314,7 +303,10 @@ class validate_nseq_float(object):
             raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
 
         try:
-            return [float(val) for val in s]
+            return [float(val)
+                    if not self.allow_none or val is not None
+                    else val
+                    for val in s]
         except ValueError:
             raise ValueError('Could not convert all entries to floats')
 
@@ -467,6 +459,11 @@ validate_verbose = ValidateInStrings(
     'verbose',
     ['silent', 'helpful', 'debug', 'debug-annoying'])
 
+_validate_alignment = ValidateInStrings(
+    'alignment',
+    ['center', 'top', 'bottom', 'baseline',
+     'center_baseline'])
+
 def validate_whiskers(s):
     if s == 'range':
         return 'range'
@@ -481,13 +478,6 @@ def validate_whiskers(s):
             except ValueError:
                 raise ValueError("Not a valid whisker value ['range', float, "
                                  "(float, float)]")
-
-
-def deprecate_savefig_extension(value):
-    warnings.warn("savefig.extension is deprecated.  Use savefig.format "
-                  "instead. Will be removed in 1.4.x",
-                  mplDeprecation)
-    return value
 
 
 def update_savefig_format(value):
@@ -535,20 +525,28 @@ validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                         'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
-validate_negative_linestyle = ValidateInStrings('negative_linestyle',
-                                                ['solid', 'dashed'],
-                                                ignorecase=True)
+_validate_negative_linestyle = ValidateInStrings('negative_linestyle',
+                                                 ['solid', 'dashed'],
+                                                 ignorecase=True)
 
 
+@deprecated('2.1',
+            addendum=(" See 'validate_negative_linestyle_legacy' " +
+                      "deprecation warning for more information."))
+def validate_negative_linestyle(s):
+    return _validate_negative_linestyle(s)
+
+
+@deprecated('2.1',
+            addendum=(" The 'contour.negative_linestyle' rcParam now " +
+                      "follows the same validation as the other rcParams " +
+                      "that are related to line style."))
 def validate_negative_linestyle_legacy(s):
     try:
         res = validate_negative_linestyle(s)
         return res
     except ValueError:
         dashes = validate_nseq_float(2)(s)
-        warnings.warn("Deprecated negative_linestyle specification; use "
-                      "'solid' or 'dashed'",
-                      mplDeprecation)
         return (0, dashes)  # (offset, (solid, blank))
 
 
@@ -558,12 +556,6 @@ def validate_corner_mask(s):
     else:
         return validate_bool(s)
 
-
-def validate_tkpythoninspect(s):
-    # Introduced 2010/07/05
-    warnings.warn("tk.pythoninspect is obsolete, and has no effect",
-                  mplDeprecation)
-    return validate_bool(s)
 
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
@@ -694,7 +686,7 @@ def validate_hatch(s):
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
     return s
 validate_hatchlist = _listify_validator(validate_hatch)
-validate_dashlist = _listify_validator(validate_nseq_float())
+validate_dashlist = _listify_validator(validate_nseq_float(allow_none=True))
 
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
@@ -893,6 +885,55 @@ def validate_animation_writer_path(p):
         modules["matplotlib.animation"].writers.set_dirty()
     return p
 
+# A validator dedicated to the named line styles, based on the items in
+# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
+_validate_named_linestyle = ValidateInStrings('linestyle',
+                                              list(six.iterkeys(ls_mapper)) +
+                                              list(six.itervalues(ls_mapper)) +
+                                              ['None', 'none', ' ', ''],
+                                              ignorecase=True)
+
+
+def _validate_linestyle(ls):
+    """
+    A validator for all possible line styles, the named ones *and*
+    the on-off ink sequences.
+    """
+    # Look first for a valid named line style, like '--' or 'solid'
+    if isinstance(ls, six.string_types):
+        try:
+            return _validate_named_linestyle(ls)
+        except (UnicodeDecodeError, KeyError):
+            # On Python 2, string-like *ls*, like for example
+            # 'solid'.encode('utf-16'), may raise a unicode error.
+            raise ValueError("the linestyle string {!r} is not a valid "
+                             "string.".format(ls))
+
+    if isinstance(ls, (bytes, bytearray)):
+        # On Python 2, a string-like *ls* should already have lead to a
+        # successful return or to raising an exception. On Python 3, we have
+        # to manually raise an exception in the case of a byte-like *ls*.
+        # Otherwise, if *ls* is of even-length, it will be passed to the
+        # instance of validate_nseq_float, which will return an absurd on-off
+        # ink sequence...
+        raise ValueError("linestyle {!r} neither looks like an on-off ink "
+                         "sequence nor a valid string.".format(ls))
+
+    # Look for an on-off ink sequence (in points) *of even length*.
+    # Offset is set to None.
+    try:
+        if len(ls) % 2 != 0:
+            raise ValueError("the linestyle sequence {!r} is not of even "
+                             "length.".format(ls))
+
+        return (None, validate_nseq_float()(ls))
+
+    except (ValueError, TypeError):
+        # TypeError can be raised inside the instance of validate_nseq_float,
+        # by wrong types passed to float(), like NoneType.
+        raise ValueError("linestyle {!r} is not a valid on-off ink "
+                         "sequence.".format(ls))
+
 
 # a map from key -> value, converter
 defaultParams = {
@@ -917,7 +958,7 @@ defaultParams = {
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
-    'lines.linestyle':       ['-', six.text_type],             # solid line
+    'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', six.text_type],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
@@ -927,9 +968,10 @@ defaultParams = {
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
-    'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
-    'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
-    'lines.dotted_pattern':  [[1.1, 1.1], validate_nseq_float()],
+    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float(allow_none=True)],
+    'lines.dashdot_pattern': [[6.4, 1.6, 1, 1.6],
+                              validate_nseq_float(allow_none=True)],
+    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float(allow_none=True)],
     'lines.scale_dashes':  [True, validate_bool],
 
     # marker props
@@ -966,31 +1008,31 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['none', six.text_type],
+    'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['k', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
-    'boxplot.boxprops.linestyle': ['-', six.text_type],
+    'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.whiskerprops.color': ['k', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
-    'boxplot.whiskerprops.linestyle': ['-', six.text_type],
+    'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.capprops.color': ['k', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
-    'boxplot.capprops.linestyle': ['-', six.text_type],
+    'boxplot.capprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.medianprops.color': ['C1', validate_color],
     'boxplot.medianprops.linewidth': [1.0, validate_float],
-    'boxplot.medianprops.linestyle': ['-', six.text_type],
+    'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
     'boxplot.meanprops.marker': ['^', six.text_type],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
-    'boxplot.meanprops.linestyle': ['--', six.text_type],
+    'boxplot.meanprops.linestyle': ['--', _validate_linestyle],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
 
     ## font props
@@ -1056,8 +1098,7 @@ defaultParams = {
     'image.composite_image': [True, validate_bool],
 
     # contour props
-    'contour.negative_linestyle': ['dashed',
-                                    validate_negative_linestyle_legacy],
+    'contour.negative_linestyle': ['dashed', _validate_linestyle],
     'contour.corner_mask':        [True, validate_corner_mask],
 
     # errorbar props
@@ -1098,6 +1139,7 @@ defaultParams = {
     'axes.formatter.use_locale': [False, validate_bool],
                                # Use the current locale to format ticks
     'axes.formatter.use_mathtext': [False, validate_bool],
+    'axes.formatter.min_exponent': [0, validate_int],  # minimum exponent to format in scientific notation
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.formatter.offset_threshold': [4, validate_int],
     'axes.unicode_minus': [True, validate_bool],
@@ -1139,10 +1181,10 @@ defaultParams = {
     'date.autoformatter.year': ['%Y', six.text_type],
     'date.autoformatter.month': ['%Y-%m', six.text_type],
     'date.autoformatter.day': ['%Y-%m-%d', six.text_type],
-    'date.autoformatter.hour': ['%H:%M', six.text_type],
-    'date.autoformatter.minute': ['%H:%M:%S', six.text_type],
+    'date.autoformatter.hour': ['%m-%d %H', six.text_type],
+    'date.autoformatter.minute': ['%d %H:%M', six.text_type],
     'date.autoformatter.second': ['%H:%M:%S', six.text_type],
-    'date.autoformatter.microsecond': ['%H:%M:%S.%f', six.text_type],
+    'date.autoformatter.microsecond': ['%M:%S.%f', six.text_type],
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
@@ -1174,9 +1216,6 @@ defaultParams = {
     'legend.borderaxespad': [0.5, validate_float],
     # the border between the axes and legend edge
     'legend.columnspacing': [2., validate_float],
-    # the relative size of legend markers vs. original
-    'legend.markerscale': [1.0, validate_float],
-    'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
     'legend.edgecolor': ['0.8', validate_color_or_inherit],
 
@@ -1199,6 +1238,7 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', six.text_type],            # direction of xticks
+    'xtick.alignment': ["center", _validate_alignment],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
@@ -1218,9 +1258,11 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
+    'ytick.alignment': ["center_baseline", _validate_alignment],
+
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
-    'grid.linestyle':    ['-', six.text_type],      # solid
+    'grid.linestyle':    ['-', _validate_linestyle],  # solid
     'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
@@ -1260,8 +1302,6 @@ defaultParams = {
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
     'savefig.jpeg_quality': [95, validate_int],
-    # what to add to extensionless filenames
-    'savefig.extension':  ['png', deprecate_savefig_extension],
     # value checked by backend at runtime
     'savefig.format':     ['png', update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
@@ -1273,7 +1313,6 @@ defaultParams = {
 
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],
-    'tk.pythoninspect': [False, validate_tkpythoninspect],  # obsolete
 
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],

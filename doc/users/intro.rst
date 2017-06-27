@@ -1,18 +1,18 @@
 Introduction
 ============
 
-matplotlib is a library for making 2D plots of arrays in `Python
+Matplotlib is a library for making 2D plots of arrays in `Python
 <https://www.python.org>`_.  Although it has its origins in emulating
 the MATLAB |reg| [#]_ graphics commands, it is
 independent of MATLAB, and can be used in a Pythonic, object oriented
-way.  Although matplotlib is written primarily in pure Python, it
+way.  Although Matplotlib is written primarily in pure Python, it
 makes heavy use of `NumPy <http://www.numpy.org>`_ and other extension
 code to provide good performance even for large arrays.
 
 .. |reg| unicode:: 0xAE
    :ltrim:
 
-matplotlib is designed with the philosophy that you should be able to
+Matplotlib is designed with the philosophy that you should be able to
 create simple plots with just a few commands, or just one!  If you
 want to see a histogram of your data, you shouldn't need to
 instantiate objects, call methods, set properties, and so on; it
@@ -58,14 +58,14 @@ perspective, having a fixed user interface (the pylab interface) has
 been very useful, because the guts of the code base can be redesigned
 without affecting user code.
 
-The matplotlib code is conceptually divided into three parts: the
+The Matplotlib code is conceptually divided into three parts: the
 *pylab interface* is the set of functions provided by
 :mod:`matplotlib.pylab` which allow the user to create plots with code
 quite similar to MATLAB figure generating code
-(:ref:`pyplot-tutorial`).  The *matplotlib frontend* or *matplotlib
+(:ref:`sphx_glr_tutorials_01_introductory_pyplot.py`).  The *Matplotlib frontend* or *Matplotlib
 API* is the set of classes that do the heavy lifting, creating and
 managing figures, text, lines, plots and so on
-(:ref:`artist-tutorial`).  This is an abstract interface that knows
+(:ref:`sphx_glr_tutorials_02_intermediate_artists.py`).  This is an abstract interface that knows
 nothing about output.  The *backends* are device-dependent drawing
 devices, aka renderers, that transform the frontend representation to
 hardcopy or a display device (:ref:`what-is-a-backend`).  Example
@@ -74,7 +74,7 @@ backends: PS creates `PostScript®
 creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
 Geometry <http://antigrain.com/>`_
-library that ships with matplotlib, GTK embeds matplotlib in a
+library that ships with Matplotlib, GTK embeds Matplotlib in a
 `Gtk+ <https://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure
 and embed it in a Gtk+ application, and so on for `PDF
@@ -82,13 +82,13 @@ and embed it in a Gtk+ application, and so on for `PDF
 <https://www.wxpython.org/>`_, `Tkinter
 <https://docs.python.org/library/tkinter.html>`_, etc.
 
-matplotlib is used by many people in many different contexts.  Some
+Matplotlib is used by many people in many different contexts.  Some
 people want to automatically generate PostScript files to send
-to a printer or publishers.  Others deploy matplotlib on a web
+to a printer or publishers.  Others deploy Matplotlib on a web
 application server to generate PNG output for inclusion in
-dynamically-generated web pages.  Some use matplotlib interactively
+dynamically-generated web pages.  Some use Matplotlib interactively
 from the Python shell in Tkinter on Windows™. My primary use is to
-embed matplotlib in a Gtk+ EEG application that runs on Windows, Linux
+embed Matplotlib in a Gtk+ EEG application that runs on Windows, Linux
 and Macintosh OS X.
 
 .. [#] MATLAB is a registered trademark of The MathWorks, Inc.

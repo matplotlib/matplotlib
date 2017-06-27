@@ -1,4 +1,8 @@
 """
+===================
+Demo Parasite Axes2
+===================
+
 Parasite axis demo
 
 The following code is an example of a parasite axis. It aims to show a user how

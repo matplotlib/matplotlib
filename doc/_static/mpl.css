@@ -13,13 +13,22 @@ body {
     padding: 0;
     border: 1px solid #aaa;
     color: #333;
-    margin: 0px 80px 0px 80px;
+    margin: auto;
     min-width: 740px;
+    max-width: 1200px;
 }
 
 a {
     color: #CA7900;
     text-decoration: none;
+}
+
+div.highlight-python a {
+    color: #CA7900;
+}
+
+div.highlight-python a:hover {
+    color: #2491CF;
 }
 
 strong {
@@ -42,6 +51,7 @@ pre {
     border: 1px solid #ccc;
     background-color: #f8f8f8;
     line-height: 140%;
+    overflow-x: auto;
 }
 
 td.linenos pre {
@@ -738,8 +748,8 @@ div.responsive_screenshots {
     margin: auto;
 
     /* Do not go beyond 1:1 scale (and ensure a 1x4 tight layout) */
-    max-width: 648px;  /* at most 4 x 1:1 subfig width  */
-    max-height: 139px; /* at most 1 x 1:1 subfig height */
+    max-width: 640px;  /* at most 4 x 1:1 subfig width  */
+    max-height: 120px; /* at most 1 x 1:1 subfig height */
 }
 
 /* To avoid subfigure parts outside of the responsive_screenshots  */
@@ -783,5 +793,44 @@ div.responsive_subfig img {
     div.responsive_subfig {
         width: 50%;  /* we want 2 subfigs in a row */
     }
-
 }
+
+/* Sphinx gallery display */
+
+div.align-center {
+    margin: auto;
+    text-align: center;
+}
+
+p.caption {
+    font-weight: bold;
+}
+
+div#gallery.section, div#tutorials.section {
+    overflow: hidden;
+}
+
+.sphx-glr-thumbcontainer {
+    border: solid #d6d6d6 1px !important;
+    text-align: center !important;
+    font-size: 1.2em !important;
+}
+
+div.sphx-glr-download {
+    width: auto !important;
+}
+
+div.sphx-glr-download a {
+   background-color: #d9edf7 !important;
+   border: 1px solid #bce8f1 !important;
+   background-image: none !important;
+}
+
+p.sphx-glr-signature a.reference.external {
+   display: none !important;
+}
+
+.sphx-glr-thumbcontainer a.internal {
+    font-weight: 400;
+}
+

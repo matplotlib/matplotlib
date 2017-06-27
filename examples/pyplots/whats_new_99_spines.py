@@ -1,3 +1,9 @@
+"""
+=====================
+Whats New 0.99 Spines
+=====================
+
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 

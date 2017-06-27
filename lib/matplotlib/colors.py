@@ -58,14 +58,16 @@ are supported.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import re
 import six
 from six.moves import zip
+
+from collections import Sized
+import re
 import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
-from ._color_data import BASE_COLORS, CSS4_COLORS, XKCD_COLORS
+from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
 class _ColorMapping(dict):
@@ -77,15 +79,22 @@ class _ColorMapping(dict):
         super(_ColorMapping, self).__setitem__(key, value)
         self.cache.clear()
 
-    def __delitem__(self, key, value):
-        super(_ColorMapping, self).__delitem__(key, value)
+    def __delitem__(self, key):
+        super(_ColorMapping, self).__delitem__(key)
         self.cache.clear()
 
 
 _colors_full_map = {}
 # Set by reverse priority order.
 _colors_full_map.update(XKCD_COLORS)
+_colors_full_map.update({k.replace('grey', 'gray'): v
+                         for k, v in XKCD_COLORS.items()
+                         if 'grey' in k})
 _colors_full_map.update(CSS4_COLORS)
+_colors_full_map.update(TABLEAU_COLORS)
+_colors_full_map.update({k.replace('gray', 'grey'): v
+                         for k, v in TABLEAU_COLORS.items()
+                         if 'gray' in k})
 _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
@@ -178,12 +187,14 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             pass
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
     # tuple color.
-    # Python 2.7 / numpy 1.6 apparently require this to return builtin floats,
-    # not numpy floats.
-    try:
-        c = tuple(map(float, c))
-    except TypeError:
+    c = np.array(c)
+    if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
+        # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
+        # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
+        # Test dimensionality to reject single floats.
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
+    # Return a tuple to prevent the cached value from being modified.
+    c = tuple(c.astype(float))
     if len(c) not in [3, 4]:
         raise ValueError("RGBA sequence should have length 3 or 4")
     if len(c) == 3 and alpha is None:
@@ -252,8 +263,7 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 cnames = CSS4_COLORS
-COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS}
-hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
+hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")
 
 
 def rgb2hex(c):
@@ -402,7 +412,7 @@ class Colormap(object):
 
     """
     def __init__(self, name, N=256):
-        r"""
+        """
         Parameters
         ----------
         name : str
@@ -519,6 +529,16 @@ class Colormap(object):
         if vtype == 'scalar':
             rgba = tuple(rgba[0, :])
         return rgba
+
+    def __copy__(self):
+        """Create new object with the same class, update attributes
+        """
+        cls = self.__class__
+        cmapobject = cls.__new__(cls)
+        cmapobject.__dict__.update(self.__dict__)
+        if self._isinit:
+            cmapobject._lut = np.copy(self._lut)
+        return cmapobject
 
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
@@ -685,12 +705,12 @@ class LinearSegmentedColormap(Colormap):
         if not cbook.iterable(colors):
             raise ValueError('colors must be iterable')
 
-        if cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
-                not cbook.is_string_like(colors[0]):
+        if (isinstance(colors[0], Sized) and len(colors[0]) == 2
+                and not isinstance(colors[0], six.string_types)):
             # List of value, color pairs
-            vals, colors = list(zip(*colors))
+            vals, colors = zip(*colors)
         else:
-            vals = np.linspace(0., 1., len(colors))
+            vals = np.linspace(0, 1, len(colors))
 
         cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):
@@ -779,8 +799,7 @@ class ListedColormap(Colormap):
         if N is None:
             N = len(self.colors)
         else:
-            if (cbook.is_string_like(self.colors) and
-                    cbook.is_hashable(self.colors)):
+            if isinstance(self.colors, six.string_types):
                 self.colors = [self.colors] * N
                 self.monochrome = True
             elif cbook.iterable(self.colors):
@@ -888,7 +907,11 @@ class Normalize(object):
         if np.issubdtype(dtype, np.integer) or dtype.type is np.bool_:
             # bool_/int8/int16 -> float32; int32/int64 -> float64
             dtype = np.promote_types(dtype, np.float32)
-        result = np.ma.array(value, dtype=dtype, copy=True)
+        # ensure data passed in as an ndarray subclass are interpreted as
+        # an ndarray. See issue #6622.
+        mask = np.ma.getmask(value)
+        data = np.asarray(np.ma.getdata(value))
+        result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -918,12 +941,15 @@ class Normalize(object):
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             # ma division is very slow; we can take a shortcut
-            # use np.asarray so data passed in as an ndarray subclass are
-            # interpreted as an ndarray. See issue #6622.
-            resdat = np.asarray(result.data)
+            resdat = result.data
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
+        # Agg cannot handle float128.  We actually only need 32-bit of
+        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
+        # so casting to float32 would lose precision on float64s as well.
+        if result.dtype == np.longdouble:
+            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result
@@ -983,7 +1009,7 @@ class LogNorm(Normalize):
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                                     mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
             mask = result.mask
@@ -1237,25 +1263,29 @@ class BoundaryNorm(Normalize):
     """
     def __init__(self, boundaries, ncolors, clip=False):
         """
-        *boundaries*
-            a monotonically increasing sequence
-        *ncolors*
-            number of colors in the colormap to be used
+        Parameters
+        ----------
+        boundaries : array-like
+            Monotonically increasing sequence of boundaries
+        ncolors : int
+            Number of colors in the colormap to be used
+        clip : bool, optional
+            If clip is ``True``, out of range values are mapped to 0 if they
+            are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
+            above ``boundaries[-1]``.
 
-        If::
+            If clip is ``False``, out of range values are mapped to -1 if
+            they are below ``boundaries[0]`` or mapped to ncolors if they are
+            above ``boundaries[-1]``. These are then converted to valid indices
+            by :meth:`Colormap.__call__`.
 
-            b[i] <= v < b[i+1]
+        Notes
+        -----
+        *boundaries* defines the edges of bins, and data falling within a bin
+        is mapped to the color with the same index.
 
-        then v is mapped to color j;
-        as i varies from 0 to len(boundaries)-2,
-        j goes from 0 to ncolors-1.
-
-        Out-of-range values are mapped
-        to -1 if low and ncolors if high; these are converted
-        to valid indices by
-        :meth:`Colormap.__call__` .
-        If clip == True, out-of-range values
-        are mapped to 0 if low and ncolors-1 if high.
+        If the number of bins doesn't equal *ncolors*, the color is chosen
+        by linear interpolation of the bin number onto color numbers.
         """
         self.clip = clip
         self.vmin = boundaries[0]
@@ -1294,6 +1324,13 @@ class BoundaryNorm(Normalize):
         return ret
 
     def inverse(self, value):
+        """
+        Raises
+        ------
+        ValueError
+            BoundaryNorm is not invertible, so calling this method will always
+            raise an error
+        """
         return ValueError("BoundaryNorm is not invertible")
 
 

@@ -1702,7 +1702,7 @@ class XAxis(Axis):
     axis_name = 'x'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured in the x axis.
+        """Test whether the mouse event occurred in the x axis.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -2020,7 +2020,10 @@ class XAxis(Axis):
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
         size = tick.label1.get_size() * 3
-        return int(np.floor(length / size))
+        if size > 0:
+            return int(np.floor(length / size))
+        else:
+            return 2**31 - 1
 
 
 class YAxis(Axis):
@@ -2353,4 +2356,7 @@ class YAxis(Axis):
         tick = self._get_tick(True)
         # Having a spacing of at least 2 just looks good.
         size = tick.label1.get_size() * 2.0
-        return int(np.floor(length / size))
+        if size > 0:
+            return int(np.floor(length / size))
+        else:
+            return 2**31 - 1

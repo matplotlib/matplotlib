@@ -3,12 +3,75 @@
  API Changes
 =============
 
-Log of changes to matplotlib that affect the outward-facing API.  If
-updating matplotlib breaks your scripts, this list may help you figure
+Log of changes to Matplotlib that affect the outward-facing API.  If
+updating Matplotlib breaks your scripts, this list may help you figure
 out what caused the breakage and how to fix it by updating your code.
 
-For new features that were added to matplotlib, please see
+For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
+
+API Changes in 2.0.1
+====================
+
+Extensions to `matplotlib.backend_bases.GraphicsContextBase`
+------------------------------------------------------------
+
+To better support controlling the color of hatches, the method
+`matplotlib.backend_bases.GraphicsContextBase.set_hatch_color` was
+added to the expected API of ``GraphicsContext`` classes.  Calls to
+this method are currently wrapped with a ``try:...except Attribute:``
+block to preserve back-compatibility with any third-party backends
+which do not extend `~matplotlib.backend_bases.GraphicsContextBase`.
+
+This value can be accessed in the backends via
+`matplotlib.backend_bases.GraphicsContextBase.get_hatch_color` (which
+was added in 2.0 see :ref:`gc_get_hatch_color_wn`) and should be used
+to color the hatches.
+
+In the future there may also be ``hatch_linewidth`` and
+``hatch_density`` related methods added.  It is encouraged, but not
+required that third-party backends extend
+`~matplotlib.backend_bases.GraphicsContextBase` to make adapting to
+these changes easier.
+
+
+`afm.get_fontconfig_fonts` returns a list of paths and does not check for existence
+-----------------------------------------------------------------------------------
+
+`afm.get_fontconfig_fonts` used to return a set of paths encoded as a
+``{key: 1, ...}`` dict, and checked for the existence of the paths.  It now
+returns a list and dropped the existence check, as the same check is performed
+by the caller (`afm.findSystemFonts`) as well.
+
+
+`bar` now returns rectangles of negative height or width if the corresponding input is negative
+-----------------------------------------------------------------------------------------------
+
+`plt.bar` used to normalize the coordinates of the rectangles that it created,
+to keep their height and width positives, even if the corresponding input was
+negative.  This normalization has been removed to permit a simpler computation
+of the correct `sticky_edges` to use.
+
+
+Do not clip line width when scaling dashes
+------------------------------------------
+
+The algorithm to scale dashes was changed to no longer clip the
+scaling factor: the dash patterns now continue to shrink at thin line widths.
+If the line width is smaller than the effective pixel size, this may result in
+dashed lines turning into solid gray-ish lines.  This also required slightly
+tweaking the default patterns for '--', ':', and '.-' so that with the default
+line width the final patterns would not change.
+
+There is no way to restore the old behavior.
+
+
+Deprecate 'Vega' color maps
+---------------------------
+
+The "Vega" colormaps are deprecated in Matplotlib 2.0.1 and will be
+removed in Matplotlib 2.2. Use the "tab" colormaps instead: "tab10",
+"tab20", "tab20b", "tab20c".
 
 
 API Changes in 2.0.0
@@ -196,10 +259,24 @@ The spectral colormap is now nipy_spectral
 ------------------------------------------
 
 The colormaps formerly known as ``spectral`` and ``spectral_r`` have been
-replaced by ``nipy_spectral`` and ``nipy_spectral_r`` since matplotlib
-1.3.0. Even though the colormap was deprecated in matplotlib 1.3.0, it never
-raised a warning. As of matplotlib 2.0.0, using the old names raises a
+replaced by ``nipy_spectral`` and ``nipy_spectral_r`` since Matplotlib
+1.3.0. Even though the colormap was deprecated in Matplotlib 1.3.0, it never
+raised a warning. As of Matplotlib 2.0.0, using the old names raises a
 deprecation warning. In the future, using the old names will raise an error.
+
+Default install no longer includes test images
+----------------------------------------------
+
+To reduce the size of wheels and source installs, the tests and
+baseline images are no longer included by default.
+
+To restore installing the tests and images, use a `setup.cfg` with ::
+
+   [packages]
+   tests = True
+   toolkits_tests = True
+
+in the source directory at build/install time.
 
 Changes in 1.5.3
 ================
@@ -314,7 +391,7 @@ demonstrates the difference.  Use of the old contouring algorithm, which is
 obtained with `corner_mask='legacy'`, is now deprecated.
 
 Contour labels may now appear in different places than in earlier versions of
-matplotlib.
+Matplotlib.
 
 In addition, the keyword argument `nchunk` now applies to
 :func:`~matplotlib.pyplot.contour` as well as
@@ -545,7 +622,7 @@ Removed `Lena` images from sample_data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``lena.png`` and ``lena.jpg`` images have been removed from
-matplotlib's sample_data directory. The images are also no longer
+Matplotlib's sample_data directory. The images are also no longer
 available from `matplotlib.cbook.get_sample_data`. We suggest using
 `matplotlib.cbook.get_sample_data('grace_hopper.png')` or
 `matplotlib.cbook.get_sample_data('grace_hopper.jpg')` instead.
@@ -715,7 +792,7 @@ original location:
 
 * The Sphinx extensions `ipython_directive` and
   `ipython_console_highlighting` have been moved to the IPython
-  project itself.  While they remain in matplotlib for this release,
+  project itself.  While they remain in Matplotlib for this release,
   they have been deprecated.  Update your extensions in `conf.py` to
   point to `IPython.sphinxext.ipython_directive` instead of
   `matplotlib.sphinxext.ipython_directive`.
@@ -744,7 +821,7 @@ original location:
 * The legend handler interface has changed from a callable, to any object
   which implements the ``legend_artists`` method (a deprecation phase will
   see this interface be maintained for v1.4). See
-  :ref:`plotting-guide-legend` for further details. Further legend changes
+  :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for further details. Further legend changes
   include:
 
    * :func:`matplotlib.axes.Axes._get_legend_handles` now returns a generator
@@ -850,7 +927,7 @@ original location:
 
 * Clipping is now off by default on offset boxes.
 
-* matplotlib now uses a less-aggressive call to ``gc.collect(1)`` when
+* Matplotlib now uses a less-aggressive call to ``gc.collect(1)`` when
   closing figures to avoid major delays with large numbers of user objects
   in memory.
 
@@ -964,7 +1041,7 @@ Code deprecation
 * The `ScalarMappable` class' `set_colorbar` is now
   deprecated. Instead, the
   :attr:`matplotlib.cm.ScalarMappable.colorbar` attribute should be
-  used.  In previous matplotlib versions this attribute was an
+  used.  In previous Matplotlib versions this attribute was an
   undocumented tuple of ``(colorbar_instance, colorbar_axes)`` but is
   now just ``colorbar_instance``. To get the colorbar axes it is
   possible to just use the
@@ -1150,7 +1227,7 @@ Changes in 1.2.x
       ax = projection_class(self, rect, **kwargs)
 
   This change means that third party objects can expose themselves as
-  matplotlib axes by providing a ``_as_mpl_axes`` method. See
+  Matplotlib axes by providing a ``_as_mpl_axes`` method. See
   :ref:`adding-new-scales` for more detail.
 
 * A new keyword *extendfrac* in :meth:`~matplotlib.pyplot.colorbar` and
@@ -1405,7 +1482,7 @@ Changes in 0.99
 * Polar plots no longer accept a resolution kwarg.  Instead, each Path
   must specify its own number of interpolation steps.  This is
   unlikely to be a user-visible change -- if interpolation of data is
-  required, that should be done before passing it to matplotlib.
+  required, that should be done before passing it to Matplotlib.
 
 Changes for 0.98.x
 ==================
@@ -1542,7 +1619,7 @@ Changes for 0.98.0
   color cycle: :func:`matplotlib.axes.set_default_color_cycle` and
   :meth:`matplotlib.axes.Axes.set_color_cycle`.
 
-* matplotlib now requires Python 2.4, so :mod:`matplotlib.cbook` will
+* Matplotlib now requires Python 2.4, so :mod:`matplotlib.cbook` will
   no longer provide :class:`set`, :func:`enumerate`, :func:`reversed`
   or :func:`izip` compatibility functions.
 
@@ -2825,7 +2902,7 @@ Changes for 0.50
       canvas.show()
       vbox.pack_start(canvas)
 
-    If you use the NavigationToolbar, this in now intialized with a
+    If you use the NavigationToolbar, this in now initialized with a
     FigureCanvas, not a Figure.  The examples embedding_in_gtk.py,
     embedding_in_gtk2.py, and mpl_with_glade.py all reflect the new
     API so use these as a guide.

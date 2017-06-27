@@ -1,4 +1,8 @@
 """
+========
+Csd Demo
+========
+
 Compute the cross spectral density of two signals
 """
 import numpy as np

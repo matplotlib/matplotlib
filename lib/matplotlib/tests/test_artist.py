@@ -1,26 +1,22 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import warnings
-import six
 
 import io
+import warnings
 from itertools import chain
+
 import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.path as mpath
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
-import matplotlib as mpl
-from matplotlib.testing.decorators import image_comparison, cleanup
-
-from nose.tools import (assert_true, assert_false)
+from matplotlib.testing.decorators import image_comparison
 
 
-@cleanup
 def test_patch_transform_of_none():
     # tests the behaviour of patches added to an Axes with various transform
     # specifications
@@ -43,13 +39,13 @@ def test_patch_transform_of_none():
                          transform=None, alpha=0.5)
     assert e.is_transform_set() is True
     ax.add_patch(e)
-    assert isinstance(e._transform, mtrans.IdentityTransform)
+    assert isinstance(e._transform, mtransforms.IdentityTransform)
 
     # Providing an IdentityTransform puts the ellipse in device coordinates.
     e = mpatches.Ellipse(xy_pix, width=100, height=100,
-                         transform=mtrans.IdentityTransform(), alpha=0.5)
+                         transform=mtransforms.IdentityTransform(), alpha=0.5)
     ax.add_patch(e)
-    assert isinstance(e._transform, mtrans.IdentityTransform)
+    assert isinstance(e._transform, mtransforms.IdentityTransform)
 
     # Not providing a transform, and then subsequently "get_transform" should
     # not mean that "is_transform_set".
@@ -63,7 +59,6 @@ def test_patch_transform_of_none():
     assert e._transform == ax.transData
 
 
-@cleanup
 def test_collection_transform_of_none():
     # tests the behaviour of collections added to an Axes with various
     # transform specifications
@@ -72,7 +67,7 @@ def test_collection_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    #draw an ellipse over data coord (2,2) by specifying device coords
+    # draw an ellipse over data coord (2,2) by specifying device coords
     xy_data = (2, 2)
     xy_pix = ax.transData.transform_point(xy_data)
 
@@ -89,14 +84,15 @@ def test_collection_transform_of_none():
                                      alpha=0.5)
     c.set_transform(None)
     ax.add_collection(c)
-    assert isinstance(c.get_transform(), mtrans.IdentityTransform)
+    assert isinstance(c.get_transform(), mtransforms.IdentityTransform)
 
     # providing an IdentityTransform puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=100, height=100)
-    c = mcollections.PatchCollection([e], transform=mtrans.IdentityTransform(),
-                                     alpha=0.5)
+    c = mcollections.PatchCollection([e],
+                                 transform=mtransforms.IdentityTransform(),
+                                 alpha=0.5)
     ax.add_collection(c)
-    assert isinstance(c._transOffset, mtrans.IdentityTransform)
+    assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
 
 @image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
@@ -130,7 +126,6 @@ def test_clipping():
     ax1.set_ylim([-3, 3])
 
 
-@cleanup
 def test_cull_markers():
     x = np.random.random(20000)
     y = np.random.random(20000)
@@ -178,34 +173,33 @@ def test_hatching():
     ax.set_ylim(0, 9)
 
 
-@cleanup
 def test_remove():
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(36).reshape(6, 6))
     ln, = ax.plot(range(5))
 
-    assert_true(fig.stale)
-    assert_true(ax.stale)
+    assert fig.stale
+    assert ax.stale
 
     fig.canvas.draw()
-    assert_false(fig.stale)
-    assert_false(ax.stale)
-    assert_false(ln.stale)
+    assert not fig.stale
+    assert not ax.stale
+    assert not ln.stale
 
-    assert_true(im in ax.mouseover_set)
-    assert_true(ln not in ax.mouseover_set)
-    assert_true(im.axes is ax)
+    assert im in ax.mouseover_set
+    assert ln not in ax.mouseover_set
+    assert im.axes is ax
 
     im.remove()
     ln.remove()
 
     for art in [im, ln]:
-        assert_true(art.axes is None)
-        assert_true(art.figure is None)
+        assert art.axes is None
+        assert art.figure is None
 
-    assert_true(im not in ax.mouseover_set)
-    assert_true(fig.stale)
-    assert_true(ax.stale)
+    assert im not in ax.mouseover_set
+    assert fig.stale
+    assert ax.stale
 
 
 @image_comparison(baseline_images=["default_edges"], remove_text=True,
@@ -221,13 +215,12 @@ def test_default_edges():
     ax3.set_ylim((-1, 1))
     pp1 = mpatches.PathPatch(
         mpath.Path([(0, 0), (1, 0), (1, 1), (0, 0)],
-             [mpath.Path.MOVETO, mpath.Path.CURVE3,
-              mpath.Path.CURVE3, mpath.Path.CLOSEPOLY]),
+                   [mpath.Path.MOVETO, mpath.Path.CURVE3,
+                    mpath.Path.CURVE3, mpath.Path.CLOSEPOLY]),
         fc="none", transform=ax4.transData)
     ax4.add_patch(pp1)
 
 
-@cleanup
 def test_properties():
     ln = mlines.Line2D([], [])
     with warnings.catch_warnings(record=True) as w:
@@ -237,8 +230,11 @@ def test_properties():
         assert len(w) == 0
 
 
-@cleanup
 def test_setp():
+    # Check empty list
+    plt.setp([])
+    plt.setp([[]])
+
     # Check arbitrary iterables
     fig, axes = plt.subplots()
     lines1 = axes.plot(range(3))
@@ -250,8 +246,3 @@ def test_setp():
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: any number \n'
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
