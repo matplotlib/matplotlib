@@ -174,8 +174,10 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             def finalize(wrapper, new_doc):
                 try:
                     obj.__doc__ = new_doc
-                except AttributeError:
-                    pass  # cls.__doc__ is not writeable on Py2.
+                except (AttributeError, TypeError):
+                    # cls.__doc__ is not writeable on Py2.
+                    # TypeError occurs on PyPy
+                    pass
                 obj.__init__ = wrapper
                 return obj
         else:
