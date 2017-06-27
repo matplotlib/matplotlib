@@ -150,30 +150,27 @@ def get_registered_canvas_class(format):
 
 
 class MainLoopBase(object):
-    """This gets used as a key maintaining the event loop.
+    """Abstract base class for blocking GUI main loops
 
-    Backends should only need to override begin and end.
-    It should not matter if this gets used as a singleton or not due to
-    clever magic.
+    This provides a simple interface that backends can implement to
+    expose starting and stopping the event loop.
+
+    This class is primarily used by `pyplot` in not in 'interactive mode'.
     """
     def begin(self):
+        '''Start blocking GUI event loop
+
+        This should start the GUI event loop and block.
+        '''
         pass
 
     def end(self):
+        '''Stop the event loop.
+
+        This will need to be called from a callback inside the event loop (
+        which is arranged by `pyplot` if it is in use).
+        '''
         pass
-
-    def __call__(self):
-        MainLoopBase._running = True
-        self.begin()
-        self.end()
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, excp_type, excp_value, excp_traceback):
-        if not excp_type:
-            self.begin()
-            self.end()
 
 
 class ShowBase(object):

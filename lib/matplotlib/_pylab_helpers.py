@@ -73,40 +73,30 @@ class Gcf(object):
         if not managers:
             return
 
+        # treat the first manager as proto-typical of all
+        m0 = managers[0]
+
+        if block is None:
+            # webagg always needs to block because tornado is
+            # not integrated into the REPL
+            block = (not is_interactive()) or m0.backend_name == 'webagg'
+
         for manager in managers:
             manager.show()
 
-        if block is True:
-            # Start the mainloop on the last manager, so we don't have a
-            # mainloop starting for each manager. Not ideal, but works for now.
-            manager._mainloop()
-            return
-        elif block is False:
-            return
+        if block:
+            ml = m0.backend.MainLoop()
+            counter = {'open_windows': len(managers)}
 
-        # Hack: determine at runtime whether we are
-        # inside ipython in pylab mode.
-        from matplotlib import pyplot
-        try:
-            ipython_pylab = not pyplot.show._needmain
-            # IPython versions >= 0.10 tack the _needmain
-            # attribute onto pyplot.show, and always set
-            # it to False, when in %pylab mode.
-            ipython_pylab = ipython_pylab and manager.backend_name != 'webagg'
-            # TODO: The above is a hack to get the WebAgg backend
-            # working with ipython's `%pylab` mode until proper
-            # integration is implemented.
-        except AttributeError:
-            ipython_pylab = False
+            def on_window_close(ev):
+                counter['open_windows'] -= 1
+                if counter['open_windows'] < 1:
+                    ml.end()
 
-        # Leave the following as a separate step in case we
-        # want to control this behavior with an rcParam.
-        if ipython_pylab:
-            return
+            for manager in managers:
+                manager.mpl_connect('window_destroy_event', on_window_close)
 
-        # If not interactive we need to block
-        if not is_interactive() or manager.backend_name == 'webagg':
-            manager._mainloop()
+            ml.begin()
 
     @classmethod
     def destroy(cls, num):

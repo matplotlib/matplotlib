@@ -26,7 +26,6 @@ except ImportError:
     raise ImportError("Gtk3 backend requires pygobject to be installed.")
 
 import matplotlib
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors,
      TimerBase, WindowBase, MainLoopBase, ExpandableBase)
@@ -43,7 +42,9 @@ backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 # the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
+# see
+# http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
+# for some info about screen dpi
 PIXELS_PER_INCH = 96
 
 cursord = {
@@ -58,7 +59,8 @@ def draw_if_interactive():
     Is called after every pylab drawing command
     """
     if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
+        from matplotlib._pylab_helpers import Gcf
+        figManager = Gcf.get_active()
         if figManager is not None:
             figManager.canvas.draw_idle()
 
@@ -77,6 +79,7 @@ class Show(ShowBase):
     def mainloop(self):
         if Gtk.main_level() == 0:
             Gtk.main()
+
 
 show = Show()
 

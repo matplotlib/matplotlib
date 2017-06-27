@@ -152,7 +152,8 @@ class Show(ShowBase):
         # allow KeyboardInterrupt exceptions to close the plot window.
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         global qApp
-        qApp.exec_()
+        if qApp is not None:
+            qApp.exec_()
 
 
 show = Show()

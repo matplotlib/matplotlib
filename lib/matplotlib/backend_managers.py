@@ -20,8 +20,7 @@ import matplotlib.backend_tools as tools
 
 from matplotlib import is_interactive
 from matplotlib import rcParams
-from matplotlib.figure import Figure
-from matplotlib.backends import get_backend, backend as backend_name
+from matplotlib.backends import get_backend
 
 
 class FigureManagerEvent(object):
@@ -186,7 +185,7 @@ class FigureManager(cbook.EventEmitter):
 
     @property
     def backend(self):
-        return self._backend
+        return get_backend(self.backend_name)
 
     @property
     def backend_name(self):
