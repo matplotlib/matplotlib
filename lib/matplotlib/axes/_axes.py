@@ -705,7 +705,8 @@ or tuple of floats
 
         See also
         --------
-        axhspan : for example plot and source code
+        hline : add horizontal lines in data coordinates
+        axhspan : add a horizontal span (rectangle) across the axis
         """
 
         if "transform" in kwargs:
@@ -771,7 +772,8 @@ or tuple of floats
 
         See also
         --------
-        axhspan : for example plot and source code
+        vline : add vertical lines in data coordinates
+        axvspan : add a vertical span (rectangle) across the axis
         """
 
         if "transform" in kwargs:
@@ -830,8 +832,7 @@ or tuple of floats
 
         See Also
         --------
-        axvspan : Add a vertical span (rectangle) across the axes.
-
+        axvspan : add a vertical span across the axes
         """
         trans = self.get_yaxis_transform(which='grid')
 
@@ -888,7 +889,7 @@ or tuple of floats
 
         See Also
         --------
-        axhspan
+        axhspan : add a horizontal span across the axes
 
         Examples
         --------
@@ -947,7 +948,7 @@ or tuple of floats
         See also
         --------
         vlines : vertical lines
-
+        axhline: horizontal line across the axes
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -1025,7 +1026,7 @@ or tuple of floats
         See also
         --------
         hlines : horizontal lines
-
+        axvline: vertical line across the axes
         """
 
         self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
