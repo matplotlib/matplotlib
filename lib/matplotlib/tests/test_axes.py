@@ -1593,18 +1593,20 @@ def contour_dat():
     return x, y, z
 
 
-@image_comparison(baseline_images=['contour_hatching'])
+@image_comparison(baseline_images=['contour_hatching'],
+                  remove_text=True, style='mpl20')
 def test_contour_hatching():
     x, y, z = contour_dat()
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    cs = ax.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
+    cs = ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
                      cmap=plt.get_cmap('gray'),
                      extend='both', alpha=0.5)
 
 
-@image_comparison(baseline_images=['contour_colorbar'])
+@image_comparison(baseline_images=['contour_colorbar'],
+                  style='mpl20')
 def test_contour_colorbar():
     x, y, z = contour_dat()
 

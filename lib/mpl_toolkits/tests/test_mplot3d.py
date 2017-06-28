@@ -55,7 +55,8 @@ def test_bar3d_notshaded():
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['contour3d'], remove_text=True)
+@image_comparison(baseline_images=['contour3d'],
+                  remove_text=True, style='mpl20')
 def test_contour3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
