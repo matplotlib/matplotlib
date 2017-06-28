@@ -130,14 +130,14 @@ NAME_ID_TABLE = {
     1: ('family_name',
         """Font Family name. Up to four fonts can share the Font Family name,
 forming a font style linking group (regular, italic, bold, bold italic
-— as defined by OS/2.fsSelection bit settings)."""),
+- as defined by OS/2.fsSelection bit settings)."""),
     2: ('sub_family',
         """Font Subfamily name. The Font Subfamily name distiguishes the font
 in a group with the same Font Family name (name ID 1). This is assumed
 to address style (italic, oblique) and weight (light, bold, black,
 etc.). A font with no particular differences in weight or style
 (e.g. medium weight, not italic and fsSelection bit 6 set) should have
-the string “Regular” stored in this position."""),
+the string "Regular" stored in this position."""),
     3: ('ufi', """Unique font identifier"""),
     4: ('full_font_name',
         """Full font name; a combination of strings 1 and 2, or a similar
@@ -146,18 +146,18 @@ omitted from name ID 4."""),
     5: ('version',
         """Version string. Should begin with the syntax 'Version
 <number>.<number>' (upper case, lower case, or mixed, with a space
-between “Version” and the number).
+between "Version" and the number).
 
 The string must contain a version number of the following form: one or
 more digits (0-9) of value less than 65,535, followed by a period,
 followed by one or more digits of value less than 65,535. Any
 character other than a digit will terminate the minor number. A
-character such as “;” is helpful to separate different pieces of
+character such as ";" is helpful to separate different pieces of
 version information.
 
 The first such match in the string can be used by installation
 software to compare font versions. Note that some installers may
-require the string to start with “Version ”, followed by a version
+require the string to start with "Version ", followed by a version
 number as above."""),
     6: ('ps_name',
         """Postscript name for the font; Name ID 6 specifies a string which is
@@ -168,7 +168,7 @@ subset, codes 33 to 126, except for the 10 characters '[', ']', '(',
 ')', '{', '}', '<', '>', '/', '%'.
 
 In a CFF OpenType font, there is no requirement that this name be the
-same as the font name in the CFF’s Name INDEX. Thus, the same CFF may
+same as the font name in the CFF's Name INDEX. Thus, the same CFF may
 be shared among multiple font components in a Font Collection. See the
 'name' table section of Recommendations for OpenType fonts "" for
 additional information."""),
@@ -222,11 +222,11 @@ designer thinks is the best sample to display the font in."""),
     20: ('ps_cid',
          """PostScript CID findfont name; Its presence in a font means that the
 nameID 6 holds a PostScript font name that is meant to be used with
-the “composefont” invocation in order to invoke the font in a
+the "composefont" invocation in order to invoke the font in a
 PostScript interpreter. See the definition of name ID 6.
 
 The value held in the name ID 20 string is interpreted as a PostScript
-font name that is meant to be used with the “findfont” invocation, in
+font name that is meant to be used with the "findfont" invocation, in
 order to invoke the font in a PostScript interpreter.  When translated
 to ASCII, this name string must be restricted to the printable ASCII
 subset, codes 33 through 126, except for the 10 characters: '[', ']',
@@ -241,25 +241,25 @@ some attribute other than weight, width or slope.) If bit 8 of the
 fsSelection field is set, a WWS Family Name entry should not be needed
 and should not be included. Conversely, if an entry for this ID is
 include, bit 8 should not be set. (See OS/2 'fsSelection' field for
-details.) Examples of name ID 21: “Minion Pro Caption” and “Minion Pro
-Display”. (Name ID 16 would be “Minion Pro” for these examples.)"""),
+details.) Examples of name ID 21: "Minion Pro Caption" and "Minion Pro
+Display". (Name ID 16 would be "Minion Pro" for these examples.)"""),
     22: ('WWS_sub_family',
          """WWS Subfamily Name. Used in conjunction with ID 21, this ID
 provides a WWS-conformant subfamily name (reflecting only weight,
 width and slope attributes) in case the entries for IDs 16 and 17 do
 not conform to the WWS model. As in the case of ID 21, use of this ID
 should correlate inversely with bit 8 of the fsSelection field being
-set. Examples of name ID 22: “Semibold Italic”, “Bold
-Condensed”. (Name ID 17 could be “Semibold Italic Caption”, or “Bold
-Condensed Display”, for example.) """),
+set. Examples of name ID 22: "Semibold Italic", "Bold
+Condensed". (Name ID 17 could be "Semibold Italic Caption", or "Bold
+Condensed Display", for example.) """),
     23: ('lbp',
-         """Light Backgound Palette. This ID, if used in the CPAL table’s
+         """Light Backgound Palette. This ID, if used in the CPAL table's
 Palette Labels Array, specifies that the corresponding color palette
 in the CPAL table is appropriate to use with the font when displaying
 it on a light background such as white. Name table strings for this ID
 specify the user interface strings associated with this palette."""),
     24: ('dbp',
-         """Dark Backgound Palette. This ID, if used in the CPAL table’s
+         """Dark Backgound Palette. This ID, if used in the CPAL table's
 Palette Labels Array, specifies that the corresponding color palette
 in the CPAL table is appropriate to use with the font when displaying
 it on a dark background such as black. Name table strings for this ID
@@ -271,7 +271,7 @@ for Variation Fonts algorithm. The character set is restricted to
 ASCII-range uppercase Latin letters, lowercase Latin letters, and
 digits. All name strings for name ID 25 within a font, when converted
 to ASCII, must be identical. See Adobe Technical Note #5902:
-“PostScript Name Generation for Variation Fonts” for reasons to
+"PostScript Name Generation for Variation Fonts" for reasons to
 include name ID 25 in a font, and for examples. For general
 information on OpenType Font Variations, see the chapter, OpenType
 Font Variations Overview.""")}
