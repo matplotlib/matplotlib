@@ -1245,10 +1245,19 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
 
+        if self.logscale:
+            raised = lambda x: x * 1.1
+            lowered = lambda x: x / 1.1
+        else:
+            raised = lambda x: x + 1
+            lowered = lambda x: x - 1
+
         if self.extend in ('both', 'min'):
-            self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
+            lower = lowered(min(self.levels[0], self.zmin))
+            self._levels.insert(0, lower)
         if self.extend in ('both', 'max'):
-            self._levels.append(max(self.levels[-1], self.zmax) + 1)
+            upper = raised(max(self.levels[-1], self.zmax))
+            self._levels.append(upper)
         self._levels = np.asarray(self._levels)
 
         if not self.filled:
@@ -1260,10 +1269,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            if self.logscale:
-                self.layers[0] = 1e-150
-            else:
-                self.layers[0] = -1e150
+            self.layers[0] = 1e-150 if self.logscale else -1e150
         if self.extend in ('both', 'max'):
             self.layers[-1] = 1e150
 
