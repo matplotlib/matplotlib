@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm, LogNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
+from matplotlib import ticker, cm
+from matplotlib.mlab import bivariate_normal
 
 
 def _get_cmap_norms():
@@ -308,3 +310,34 @@ def test_colorbar_lognorm_extension():
     cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
                       orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
+
+
+@image_comparison(baseline_images=['extended_cbar_with_contourf_min',
+                                   'extended_cbar_with_contourf_max',
+                                   'extended_cbar_with_contourf_both'],
+                  extensions=['png'])
+def test_extended_colorbar_on_contourf():
+    np.random.seed(1)
+    N = 100
+    x = np.linspace(-3.0, 3.0, N)
+    y = np.linspace(-2.0, 2.0, N)
+    X, Y = np.meshgrid(x, y)
+    z = (bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0)
+         + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0))
+    plt.figure()
+    plt.subplot(111)
+    plt.contourf(X, Y, z, cmap=cm.PuBu_r, locator=ticker.LogLocator(),
+                 extend='min')
+    plt.colorbar()
+
+    plt.figure()
+    plt.subplot(111)
+    plt.contourf(X, Y, z, cmap=cm.PuBu_r, locator=ticker.LogLocator(),
+                 extend='max')
+    plt.colorbar()
+
+    plt.figure()
+    plt.subplot(111)
+    plt.contourf(X, Y, z, cmap=cm.PuBu_r, locator=ticker.LogLocator(),
+                 extend='both')
+    plt.colorbar()
