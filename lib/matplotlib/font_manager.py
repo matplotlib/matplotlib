@@ -25,6 +25,24 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import cPickle as pickle
 
+from collections import Iterable
+import json
+import os
+import sys
+from threading import Timer
+import warnings
+
+import matplotlib
+from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
+from matplotlib.compat import subprocess
+from matplotlib.fontconfig_pattern import (
+    parse_fontconfig_pattern, generate_fontconfig_pattern)
+from matplotlib._ttf_header_data import get_all_style_strings
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
+
 """
 KNOWN ISSUES
 
@@ -46,24 +64,6 @@ License   : matplotlib license (PSF compatible)
             The font directory code is from ttfquery,
             see license/LICENSE_TTFQUERY.
 """
-
-from collections import Iterable
-import json
-import os
-import sys
-from threading import Timer
-import warnings
-
-import matplotlib
-from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
-from matplotlib.compat import subprocess
-from matplotlib.fontconfig_pattern import (
-    parse_fontconfig_pattern, generate_fontconfig_pattern)
-
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 
 USE_FONTCONFIG = False
@@ -414,71 +414,63 @@ def ttfFontProperty(font):
     #  Styles are: italic, oblique, and normal (default)
 
     sfnt = font.get_sfnt()
-    sfnt2 = sfnt.get((1,0,0,2))
-    sfnt2_3 = sfnt.get((3,1,1033,2))
-    sfnt4 = sfnt.get((1,0,0,4))
-    sfnt4_3 = sfnt.get((3,1,1033,4))
-    if sfnt2:
-        sfnt2 = sfnt2.decode('macroman').lower()
-    elif sfnt2_3:
-        sfnt2 = sfnt2_3.decode('utf_16_be').lower()
-    else:
-        sfnt2 = ''
+    sfnt_strings = set(s
+                       for v in get_all_style_strings(sfnt)
+                       for s in v.lower().split())
+    # this may not be needed, to sure where how ft2font is computing this
+    # under the hood
+    sfnt_strings.update(set(style_name.lower().split()))
+    # discard regular because it appears in both style and weight and is
+    # the default value (patched up below)
+    sfnt_strings.discard('regular')
+    if name == 'Ubuntu':
+        # the platform 1 and platform 3 information is inconsistent for
+        # some of the meta data
+        sfnt_strings.discard('medium')
+    known_style = {'oblique', 'italic', 'regular'}
+    style_candidates = sfnt_strings & known_style
+    weight_candidates = sfnt_strings & set(weight_dict)
+    stretch_candidates = sfnt_strings & {'ultra-condensed',
+                                         'extra-condensed',
+                                         'condensed',
+                                         'semi-condensed', 'normal',
+                                         'semi-expanded', 'expanded',
+                                         'extra-expanded',
+                                         'ultra-expanded'}
 
-    if sfnt4:
-        sfnt4 = sfnt4.decode('macroman').lower()
-    elif sfnt4_3:
-        sfnt4 = sfnt4_3.decode('utf_16_be').lower()
+    if style_candidates:
+        if len(style_candidates) > 1:
+            raise RuntimeError('{} font is weird has too many styles')
+        style = style_candidates.pop()
     else:
-        sfnt4 = ''
-    if sfnt4.find('oblique') >= 0:
-        style = 'oblique'
-    elif sfnt4.find('italic') >= 0:
-        style = 'italic'
-    elif sfnt2.find('regular') >= 0:
-        style = 'normal'
-    elif font.style_flags & ft2font.ITALIC:
-        style = 'italic'
+        if font.style_flags & ft2font.ITALIC:
+            style = 'italic'
+        else:
+            style = 'regular'
+
+    if weight_candidates:
+        if len(weight_candidates) > 1:
+            raise RuntimeError('{} font is weird has too many weights')
+        weight = weight_candidates.pop()
     else:
-        style = 'normal'
+        if font.style_flags & ft2font.BOLD:
+            weight = 'bold'
+        else:
+            weight = 'regular'
+
+    if stretch_candidates:
+        if len(stretch_candidates) > 1:
+            raise RuntimeError('{} font is weird has too many stretches')
+        stretch = stretch_candidates.pop()
+    else:
+        stretch = 'normal'
 
     #  Variants are: small-caps and normal (default)
-
     #  !!!!  Untested
     if name.lower() in ['capitals', 'small-caps']:
         variant = 'small-caps'
     else:
         variant = 'normal'
-
-    sorted_weights = sorted(weight_dict.keys(), key=lambda k: len(k),
-                            reverse=True)
-    weight = next((w for w in sorted_weights if sfnt4.find(w) >= 0), None)
-    if not weight:
-        weight = next((w for w in weight_dict if style_name.find(w) >= 0), None)
-        if weight:
-            pass
-        elif style_name in ["italic", "oblique", "condensed"]:
-            weight = 400
-        else:
-            # give up rather than risk making mistakes (reason: #8550)
-            raise KeyError("unknown weight: {!r}".format(font.family_name))
-
-    #  Stretch can be absolute and relative
-    #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
-    #    semi-condensed, normal, semi-expanded, expanded, extra-expanded,
-    #    and ultra-expanded.
-    #  Relative stretches are: wider, narrower
-    #  Child value is: inherit
-
-    if (sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or
-            sfnt4.find('cond') >= 0):
-        stretch = 'condensed'
-    elif sfnt4.find('demi cond') >= 0:
-        stretch = 'semi-condensed'
-    elif sfnt4.find('wide') >= 0 or sfnt4.find('expanded') >= 0:
-        stretch = 'expanded'
-    else:
-        stretch = 'normal'
 
     #  Sizes can be absolute and relative.
     #  Absolute sizes are: xx-small, x-small, small, medium, large, x-large,
