@@ -616,7 +616,8 @@ class FFMpegBase(object):
     def _handle_subprocess(cls, process):
         _, err = process.communicate()
         # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use
-        if 'Libav' in err.decode() and 'AVConv' not in cls.__name__:
+        # NOTE : when removed, remove the same method in AVConvBase.
+        if 'Libav' in err.decode():
             return False
         return True
 
@@ -673,6 +674,11 @@ class AVConvBase(FFMpegBase):
 
     exec_key = 'animation.avconv_path'
     args_key = 'animation.avconv_args'
+
+    # NOTE : should be removed when the same method is removed in FFMpegBase.
+    @classmethod
+    def _handle_subprocess(cls, process):
+        return MovieWriter._handle_subprocess(process)
 
 
 # Combine AVConv options with pipe-based writing
