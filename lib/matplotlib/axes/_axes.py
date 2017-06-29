@@ -705,7 +705,7 @@ or tuple of floats
 
         See also
         --------
-        hline : add horizontal lines in data coordinates
+        hlines : add horizontal lines in data coordinates
         axhspan : add a horizontal span (rectangle) across the axis
         """
 
@@ -772,7 +772,7 @@ or tuple of floats
 
         See also
         --------
-        vline : add vertical lines in data coordinates
+        vlines : add vertical lines in data coordinates
         axvspan : add a vertical span (rectangle) across the axis
         """
 
