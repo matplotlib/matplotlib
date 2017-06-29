@@ -1,6 +1,6 @@
 """
 ============
-Axhspan Demo
+axhspan Demo
 ============
 
 Create lines or rectangles that span the axes in either the horizontal or
@@ -22,12 +22,10 @@ plt.axhline(y=1)
 # Draw a default vline at x=1 that spans the yrange
 plt.axvline(x=1)
 
-# Draw a thick blue vline at x=0 that spans the upper quadrant of
-# the yrange
+# Draw a thick blue vline at x=0 that spans the upper quadrant of the yrange
 plt.axvline(x=0, ymin=0.75, linewidth=8, color='#1f77b4')
 
-# Draw a default hline at y=.5 that spans the middle half of
-# the axes
+# Draw a default hline at y=.5 that spans the middle half of the axes
 plt.axhline(y=.5, xmin=0.25, xmax=0.75)
 
 plt.axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)

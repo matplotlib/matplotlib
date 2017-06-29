@@ -15,7 +15,7 @@ np.random.seed(19680801)
 # create some data to use for the plot
 dt = 0.001
 t = np.arange(0.0, 10.0, dt)
-r = np.exp(-t[:1000] / 0.05)               # impulse response
+r = np.exp(-t[:1000] / 0.05)  # impulse response
 x = np.random.randn(len(t))
 s = np.convolve(x, r)[:len(x)] * dt  # colored noise
 

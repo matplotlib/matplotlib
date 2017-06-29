@@ -37,7 +37,6 @@ for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
 
     ax.annotate(to_texstring(stylename), (x, y),
                 (x - 1.2, y),
-                # xycoords="figure fraction", textcoords="figure fraction",
                 ha="right", va="center",
                 size=fontsize,
                 arrowprops=dict(arrowstyle=stylename,
