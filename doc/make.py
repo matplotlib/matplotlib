@@ -161,7 +161,7 @@ def texinfo():
 def clean():
     """Remove generated files. """
     shutil.rmtree("build", ignore_errors=True)
-    shutil.rmtree("examples", ignore_errors=True)
+    shutil.rmtree("tutorials", ignore_errors=True)
     shutil.rmtree("api/_as_gen", ignore_errors=True)
     for pattern in ['_static/matplotlibrc',
                     '_templates/gallery.html',
