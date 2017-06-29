@@ -277,7 +277,7 @@ plt.show()
 # rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
-# coordinates.  See :ref:`sphx_glr_gallery_pylab_examples_axes_demo.py` for an example of
+# coordinates.  See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axes_demo.py` for an example of
 # placing axes manually and :ref:`sphx_glr_gallery_subplots_axes_and_figures_subplot_demo.py` for an
 # example with lots of subplots.
 #

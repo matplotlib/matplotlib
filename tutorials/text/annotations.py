@@ -284,8 +284,8 @@ an arrow patch, according to the given ``arrowstyle``.
     ``wedge``    tail_width=0.3,shrink_factor=0.5
     ==========   =============================================
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_fancyarrow_demo_001.png
-   :target: ../../gallery/pylab_examples/fancyarrow_demo.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
+   :target: ../../gallery/text_labels_and_annotations/fancyarrow_demo.html
    :align: center
    :scale: 50
 
@@ -557,8 +557,8 @@ knowledge of how mpl's transform works. But, utilizing it will be
 straight forward.
 
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_axes_zoom_effect_001.png
-   :target: ../../gallery/pylab_examples/axes_zoom_effect.html
+.. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
+   :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
    :align: center
    :scale: 50
 

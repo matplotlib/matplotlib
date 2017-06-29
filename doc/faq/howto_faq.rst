@@ -191,7 +191,7 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:ref:`sphx_glr_gallery_pylab_examples_axes_demo.py` for an example of placing axes manually.
+:ref:`sphx_glr_gallery_subplots_axes_and_figures_axes_demo.py` for an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -359,7 +359,7 @@ some ratio which controls the ratio::
 
 .. htmlonly::
 
-    See :ref:`sphx_glr_gallery_pylab_examples_axis_equal_demo.py` for a
+    See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axis_equal_demo.py` for a
     complete example.
 
 .. _howto-twoscale:
@@ -755,4 +755,3 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
-
