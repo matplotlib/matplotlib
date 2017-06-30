@@ -2315,7 +2315,7 @@ or tuple of floats
 
         A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
-        using *markerfmt*.  A horizontal line at 0 is is plotted using
+        using *markerfmt*.  A horizontal line at 0 is plotted using
         *basefmt*.
 
         If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)

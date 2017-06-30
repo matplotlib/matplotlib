@@ -84,7 +84,7 @@ class Completer(object):
         Assuming the text is of the form NAME.NAME....[NAME], and is
         evaluatable in the globals of __main__, it will be evaluated
         and its attributes (as revealed by dir()) are used as possible
-        completions.  (For class instances, class members are are also
+        completions.  (For class instances, class members are also
         considered.)
 
         WARNING: this can still invoke arbitrary C code, if an object

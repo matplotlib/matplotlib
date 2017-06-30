@@ -98,7 +98,7 @@ which removes some postscript operators used by LaTeX that are illegal in an
 eps file. This step produces results which may be unacceptable to some users,
 because the text is coarsely rasterized and converted to bitmaps, which are not
 scalable like standard postscript, and the text is not searchable. One
-workaround is to to set ``ps.distiller.res`` to a higher value (perhaps 6000)
+workaround is to set ``ps.distiller.res`` to a higher value (perhaps 6000)
 in your rc settings, which will produce larger files but may look better and
 scale reasonably. A better workaround, which requires Poppler_ or Xpdf_, can be
 activated by changing the ``ps.usedistiller`` rc setting to ``xpdf``. This
