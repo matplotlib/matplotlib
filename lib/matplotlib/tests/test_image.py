@@ -378,7 +378,7 @@ def test_rasterize_dpi():
     # It plots a rasterized line and a normal image with implot. So it will catch
     # when images end up in the wrong place in case of non-standard dpi setting.
     # Instead of high-res rasterization i use low-res.  Therefore the fact that the
-    # resolution is non-standard is is easily checked by image_comparison.
+    # resolution is non-standard is easily checked by image_comparison.
     import numpy as np
     import matplotlib.pyplot as plt
 

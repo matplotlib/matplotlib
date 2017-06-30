@@ -424,7 +424,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #                and pycairo_ or cairocffi_; Python2 only)
 # GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
 #                and pycairo_ or cairocffi_)
-# WXAgg          Agg rendering to to a :term:`wxWidgets` canvas
+# WXAgg          Agg rendering to a :term:`wxWidgets` canvas
 #                (requires wxPython_)
 # WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
 #                (not recommended and deprecated in 2.0) (requires wxPython_)
