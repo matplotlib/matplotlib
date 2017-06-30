@@ -17,8 +17,8 @@ import matplotlib
 from matplotlib import dviread
 
 
-needs_tex = pytest.mark.xfail(
-    not matplotlib.checkdep_tex(),
+needs_usetex = pytest.mark.xfail(
+    not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -187,13 +187,13 @@ def test_determinism_notex():
     _test_determinism('determinism_notex.svg', usetex=False)
 
 
-@needs_tex
+@needs_usetex
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
 
 
-@needs_tex
+@needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     from matplotlib import rc

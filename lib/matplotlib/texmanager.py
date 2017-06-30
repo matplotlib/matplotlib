@@ -7,9 +7,8 @@ sessions
 Requirements:
 
 * latex
-* \\*Agg backends: dvipng
-* PS backend: latex w/ psfrag, dvips, and Ghostscript 8.51
-  (older versions do not work properly)
+* \\*Agg backends: dvipng>=1.6
+* PS backend: psfrag, dvips, and Ghostscript>=8.60
 
 Backends:
 
@@ -23,7 +22,7 @@ as follows::
   texmanager = TexManager()
   s = ('\\TeX\\ is Number '
        '$\\displaystyle\\sum_{n=1}^\\infty\\frac{-e^{i\\pi}}{2^n}$!')
-  Z = self.texmanager.get_rgba(s, size=12, dpi=80, rgb=(1,0,0))
+  Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
 text.usetex in your matplotlibrc file or include these two lines in
@@ -66,6 +65,7 @@ else:
     cmd_split = ';'
 
 
+@mpl.cbook.deprecated("2.1")
 def dvipng_hack_alpha():
     try:
         p = Popen([str('dvipng'), '-version'], stdin=PIPE, stdout=PIPE,
@@ -123,8 +123,6 @@ Could not rename old TeX cache dir "%s": a suitable configuration
     if texcache is not None:
         mkdirs(texcache)
 
-    _dvipng_hack_alpha = None
-    #_dvipng_hack_alpha = dvipng_hack_alpha()
     # mappable cache of
     rgba_arrayd = {}
     grey_arrayd = {}
@@ -543,46 +541,10 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         """returns the alpha channel"""
         key = tex, self.get_font_config(), fontsize, dpi
         alpha = self.grey_arrayd.get(key)
-
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
             X = read_png(os.path.join(self.texcache, pngfile))
-
-            if rcParams['text.dvipnghack'] is not None:
-                hack = rcParams['text.dvipnghack']
-            else:
-                if TexManager._dvipng_hack_alpha is None:
-                    TexManager._dvipng_hack_alpha = dvipng_hack_alpha()
-                hack = TexManager._dvipng_hack_alpha
-
-            if hack:
-                # hack the alpha channel
-                # dvipng assumed a constant background, whereas we want to
-                # overlay these rasters with antialiasing over arbitrary
-                # backgrounds that may have other figure elements under them.
-                # When you set dvipng -bg Transparent, it actually makes the
-                # alpha channel 1 and does the background compositing and
-                # antialiasing itself and puts the blended data in the rgb
-                # channels.  So what we do is extract the alpha information
-                # from the red channel, which is a blend of the default dvipng
-                # background (white) and foreground (black).  So the amount of
-                # red (or green or blue for that matter since white and black
-                # blend to a grayscale) is the alpha intensity.  Once we
-                # extract the correct alpha information, we assign it to the
-                # alpha channel properly and let the users pick their rgb.  In
-                # this way, we can overlay tex strings on arbitrary
-                # backgrounds with antialiasing
-                #
-                # red = alpha*red_foreground + (1-alpha)*red_background
-                #
-                # Since the foreground is black (0) and the background is
-                # white (1) this reduces to red = 1-alpha or alpha = 1-red
-                #alpha = npy.sqrt(1-X[:,:,0]) # should this be sqrt here?
-                alpha = 1 - X[:, :, 0]
-            else:
-                alpha = X[:, :, -1]
-
-            self.grey_arrayd[key] = alpha
+            self.grey_arrayd[key] = alpha = X[:, :, -1]
         return alpha
 
     def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):

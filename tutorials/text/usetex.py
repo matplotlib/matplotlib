@@ -119,10 +119,6 @@ Possible hangups
 * Using MiKTeX with Computer Modern fonts, if you get odd \*Agg and PNG
   results, go to MiKTeX/Options and update your format files
 
-* The fonts look terrible on screen. You are probably running Mac OS, and there
-  is some funny business with older versions of dvipng on the mac. Set
-  ``text.dvipnghack : True`` in your matplotlibrc file.
-
 * On Ubuntu and Gentoo, the base texlive install does not ship with
   the type1cm package. You may need to install some of the extra
   packages to get all the goodies that come bundled with other latex

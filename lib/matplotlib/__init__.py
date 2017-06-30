@@ -122,7 +122,7 @@ import functools
 # definitions, so it is safe to import from it here.
 from . import cbook
 from matplotlib.cbook import (
-    mplDeprecation, dedent, get_label, sanitize_sequence)
+    _backports, mplDeprecation, dedent, get_label, sanitize_sequence)
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
@@ -371,6 +371,9 @@ checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
 
 
+# Deprecated, as it is unneeded and some distributions (e.g. MiKTeX 2.9.6350)
+# do not actually report the TeX version.
+@cbook.deprecated("2.1")
 def checkdep_tex():
     try:
         s = subprocess.Popen([str('tex'), '-version'], stdout=subprocess.PIPE,
@@ -440,16 +443,9 @@ def checkdep_ps_distiller(s):
         return False
 
     flag = True
-    gs_req = '7.07'
-    gs_sugg = '7.07'
+    gs_req = '8.60'
     gs_exec, gs_v = checkdep_ghostscript()
-    if compare_versions(gs_v, gs_sugg):
-        pass
-    elif compare_versions(gs_v, gs_req):
-        verbose.report(('ghostscript-%s found. ghostscript-%s or later '
-                        'is recommended to use the ps.usedistiller option.')
-                       % (gs_v, gs_sugg))
-    else:
+    if not compare_versions(gs_v, gs_req):
         flag = False
         warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
                        'unless ghostscript-%s or later is installed on your '
@@ -480,42 +476,28 @@ def checkdep_usetex(s):
     if not s:
         return False
 
-    tex_req = '3.1415'
-    gs_req = '7.07'
-    gs_sugg = '7.07'
-    dvipng_req = '1.5'
+    gs_req = '8.60'
+    dvipng_req = '1.6'
     flag = True
 
-    tex_v = checkdep_tex()
-    if compare_versions(tex_v, tex_req):
-        pass
-    else:
+    if _backports.which("tex") is None:
         flag = False
-        warnings.warn(('matplotlibrc text.usetex option can not be used '
-                       'unless TeX-%s or later is '
-                       'installed on your system') % tex_req)
+        warnings.warn('matplotlibrc text.usetex option can not be used unless '
+                      'TeX is installed on your system')
 
     dvipng_v = checkdep_dvipng()
-    if compare_versions(dvipng_v, dvipng_req):
-        pass
-    else:
+    if not compare_versions(dvipng_v, dvipng_req):
         flag = False
         warnings.warn('matplotlibrc text.usetex can not be used with *Agg '
-                      'backend unless dvipng-1.5 or later is '
-                      'installed on your system')
+                      'backend unless dvipng-%s or later is installed on '
+                      'your system' % dvipng_req)
 
     gs_exec, gs_v = checkdep_ghostscript()
-    if compare_versions(gs_v, gs_sugg):
-        pass
-    elif compare_versions(gs_v, gs_req):
-        verbose.report(('ghostscript-%s found. ghostscript-%s or later is '
-                        'recommended for use with the text.usetex '
-                        'option.') % (gs_v, gs_sugg))
-    else:
+    if not compare_versions(gs_v, gs_req):
         flag = False
-        warnings.warn(('matplotlibrc text.usetex can not be used '
-                       'unless ghostscript-%s or later is '
-                       'installed on your system') % gs_req)
+        warnings.warn('matplotlibrc text.usetex can not be used unless '
+                      'ghostscript-%s or later is installed on your system'
+                      % gs_req)
 
     return flag
 
@@ -811,7 +793,7 @@ _deprecated_map = {
 
 _deprecated_ignore_map = {}
 
-_obsolete_set = {'legend.isaxes'}
+_obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
 
 # The following may use a value of None to suppress the warning.
 _deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
