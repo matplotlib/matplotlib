@@ -232,8 +232,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
-                 fill=False, label_top=False, fontproperties=None,
-                 **kwargs):
+                 label_top=False, fontproperties=None,
+                 fill=False, **kwargs):
         """
         Draw a horizontal scale bar with a center-aligned label underneath.
 
@@ -288,15 +288,15 @@ class AnchoredSizeBar(AnchoredOffsetbox):
             Color for the size bar and label.
             Defaults to black.
 
-        fill : bool, optional
-            Sizebar rectangle fill. Defaults to False.
-
         label_top : bool, optional
             If True, the label will be over the size bar.
             Defaults to False.
 
         fontproperties : `matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
+
+        fill : bool, optional
+            Sizebar rectangle fill. Defaults to False.
 
         **kwargs :
             Keyworded arguments to pass to
