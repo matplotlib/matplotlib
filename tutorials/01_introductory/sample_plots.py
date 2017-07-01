@@ -143,7 +143,7 @@ includes customizations such as error bars:
    Barchart Demo
 
 You can also create stacked bars
-(`bar_stacked.py <../../gallery/pylab_examples/bar_stacked.html>`_),
+(`bar_stacked.py <../../gallery/lines_bars_and_markers/bar_stacked.html>`_),
 or horizontal bar charts
 (`barh.py <../../gallery/lines_bars_and_markers/barh.html>`_).
 
