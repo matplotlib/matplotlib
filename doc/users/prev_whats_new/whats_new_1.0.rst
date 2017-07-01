@@ -58,8 +58,8 @@ Additionally, he has contributed a new module :mod:`~matplotlib.tri` and
 helper function :func:`~matplotlib.pyplot.triplot` for creating and
 plotting unstructured triangular grids.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_triplot_demo_001.png
-   :target: ../../gallery/pylab_examples/triplot_demo.html
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_triplot_demo_001.png
+   :target: ../../gallery/images_contours_and_fields/triplot_demo.html
    :align: center
    :scale: 50
 
