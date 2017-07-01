@@ -166,9 +166,9 @@ class Axes(_AxesBase):
         text : :class:`~matplotlib.text.Text`
             The matplotlib text instance representing the title
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : text properties
+        **kwargs : `~matplotlib.text.Text` properties
             Other keyword arguments are text properties, see
             :class:`~matplotlib.text.Text` for a list of valid text
             properties.
@@ -210,9 +210,9 @@ class Axes(_AxesBase):
         labelpad : scalar, optional, default: None
             spacing in points between the label and the x-axis
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
 
         See also
         --------
@@ -241,9 +241,9 @@ class Axes(_AxesBase):
         labelpad : scalar, optional, default: None
             spacing in points between the label and the x-axis
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
 
         See also
         --------
@@ -588,9 +588,9 @@ or tuple of floats
             Creates a `~matplotlib.text.TextWithDash` instance instead of a
             `~matplotlib.text.Text` instance.
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.text.Text` properties.
+        **kwargs : `~matplotlib.text.Text` properties.
             Other miscellaneous text parameters.
 
         Examples
@@ -677,6 +677,14 @@ or tuple of floats
         -------
         :class:`~matplotlib.lines.Line2D`
 
+        Other Parameters
+        ----------------
+        **kwargs :
+            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            with the exception of 'transform':
+
+            %(Line2D)s
+
         Notes
         -----
         kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
@@ -697,11 +705,6 @@ or tuple of floats
           the xrange::
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
-
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
-
-        %(Line2D)s
 
         See also
         --------
@@ -749,6 +752,13 @@ or tuple of floats
         -------
         :class:`~matplotlib.lines.Line2D`
 
+        Other Parameters
+        ----------------
+        **kwargs :
+            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            with the exception of 'transform':
+
+            %(Line2D)s
 
         Examples
         --------
@@ -764,11 +774,6 @@ or tuple of floats
           the yrange::
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
-
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
-
-        %(Line2D)s
 
         See also
         --------
@@ -826,7 +831,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.patches.Polygon` properties.
+        **kwargs : `~matplotlib.patches.Polygon` properties.
 
         %(Polygon)s
 
@@ -941,9 +946,9 @@ or tuple of floats
         -------
         lines : `~matplotlib.collections.LineCollection`
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs :  `~matplotlib.collections.LineCollection` properties.
+        **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
         See also
         --------
@@ -1019,9 +1024,9 @@ or tuple of floats
         -------
         lines : `~matplotlib.collections.LineCollection`
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.collections.LineCollection` properties.
+        **kwargs : `~matplotlib.collections.LineCollection` properties.
 
         See also
         --------
@@ -1450,11 +1455,13 @@ or tuple of floats
         matplotlib.dates.num2date : how to convert num to dates
         matplotlib.dates.drange : how floating point dates
 
-
         Other Parameters
         ----------------
-        kwargs : :class:`matplotlib.lines.Line2D`
-        properties : %(Line2D)s
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         """
 
@@ -1555,20 +1562,17 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        :class:`~matplotlib.lines.Line2D` properties:
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
 
-        %(Line2D)s
-
-        See Also
-        --------
-        loglog : For example code and figure.
+            %(Line2D)s
 
         Notes
         -----
         This function supports all the keyword arguments of
         :func:`~matplotlib.pyplot.plot` and
         :meth:`matplotlib.axes.Axes.set_xscale`.
-
         """
         if not self._hold:
             self.cla()
@@ -1611,16 +1615,15 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.lines.Line2D` properties,
-        `~matplotlib.pylab.plot` and
-        `matplotlib.axes.Axes.set_yscale` arguments.
+        **kwargs :
+            This function supports all the keyword arguments of
+            :func:`~matplotlib.pyplot.plot` and
+            :meth:`matplotlib.axes.Axes.set_xscale`.
 
-        %(Line2D)s
+            Keyword arguments also control the
+            :class:`~matplotlib.lines.Line2D` properties:
 
-        See also
-        --------
-        :meth:`loglog`: For example code and figure.
-
+            %(Line2D)s
         """
         if not self._hold:
             self.cla()
@@ -1673,7 +1676,7 @@ or tuple of floats
             `plot`.
           - `b` is the x-axis.
 
-        Other parameters
+        Other Parameters
         ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
@@ -1731,7 +1734,7 @@ or tuple of floats
             `plot`.
           - `b` is the x-axis (none, if plot is used).
 
-        Other parameters
+        Other Parameters
         ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
@@ -1801,7 +1804,7 @@ or tuple of floats
         list
             List of lines that were added.
 
-        Other parameters
+        Other Parameters
         ----------------
         where : [ 'pre' | 'post' | 'mid'  ]
             If 'pre' (the default), the interval from
@@ -2184,7 +2187,7 @@ or tuple of floats
         -------
         `matplotlib.patches.Rectangle` instances.
 
-        Other parameters
+        Other Parameters
         ----------------
         color : scalar or array-like, optional
             the colors of the bars
@@ -2734,7 +2737,8 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : All other keyword arguments are passed on to the plot
+        **kwargs :
+            All other keyword arguments are passed on to the plot
             command for the markers. For example, this code makes big red
             squares with thick green edges::
 
@@ -2746,7 +2750,7 @@ or tuple of floats
             property names, markerfacecolor, markeredgecolor, markersize
             and markeredgewidth.
 
-            valid kwargs for the marker properties are
+            Valid kwargs for the marker properties are
 
             %(Line2D)s
 
@@ -3836,9 +3840,9 @@ or tuple of floats
         -------
         paths : `~matplotlib.collections.PathCollection`
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.collections.Collection` properties
+        **kwargs : `~matplotlib.collections.Collection` properties
 
         See Also
         --------
@@ -4103,7 +4107,7 @@ or tuple of floats
 
             Order of scalars is (left, right, bottom, top).
 
-        Other parameters
+        Other Parameters
         ----------------
         cmap : object, optional, default is *None*
             a :class:`matplotlib.colors.Colormap` instance. If *None*,
@@ -4615,7 +4619,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : :class:`~matplotlib.patches.Polygon` properties
+        **kwargs : :class:`~matplotlib.patches.Polygon` properties
 
         Notes
         -----
@@ -5059,9 +5063,9 @@ or tuple of floats
         -------
         image : `~matplotlib.image.AxesImage`
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.artist.Artist` properties.
+        **kwargs : `~matplotlib.artist.Artist` properties.
 
         See also
         --------
@@ -5986,7 +5990,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.patches.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         See also
         --------
@@ -6347,7 +6351,7 @@ or tuple of floats
         -------
         The return value is ``(counts, xedges, yedges, Image)``.
 
-        Other parameters
+        Other Parameters
         ----------------
         cmap : {Colormap, string}, optional
             A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
@@ -6438,12 +6442,6 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         Pxx : 1-D array
@@ -6456,6 +6454,14 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
+
+        Other Parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         Notes
         -----
@@ -6565,12 +6571,6 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         Pxy : 1-D array
@@ -6583,6 +6583,14 @@ or tuple of floats
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
+
+        Other Parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         Notes
         -----
@@ -6666,12 +6674,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         spectrum : 1-D array
@@ -6682,6 +6684,14 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
+
+        Other Parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         See Also
         --------
@@ -6759,12 +6769,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         spectrum : 1-D array
@@ -6775,6 +6779,14 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
+
+        Other Parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         See Also
         --------
@@ -6837,12 +6849,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-        %(Line2D)s
-
         Returns
         -------
         spectrum : 1-D array
@@ -6853,6 +6859,14 @@ or tuple of floats
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
+
+        Other Parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         See Also
         --------
@@ -6914,11 +6928,6 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties of the coherence plot:
-
-        %(Line2D)s
 
         Returns
         -------
@@ -6926,6 +6935,14 @@ or tuple of floats
         frequencies of the coherence vector.
 
         kwargs are applied to the lines.
+
+        Other Parameters
+        ----------------
+        **kwargs :
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+            %(Line2D)s
 
         References
         ----------
@@ -7236,9 +7253,9 @@ or tuple of floats
         -------
         image : `~matplotlib.image.AxesImage`
 
-        Other parameters
+        Other Parameters
         ----------------
-        kwargs : `~matplotlib.axes.Axes.imshow` arguments
+        **kwargs : `~matplotlib.axes.Axes.imshow` arguments
             Sets `origin` to 'upper', 'interpolation' to 'nearest' and
             'aspect' to equal.
 
