@@ -4867,19 +4867,26 @@ def test_pandas_bar_align_center():
     # Tests fix for issue 8767
     pd = pytest.importorskip('pandas')
 
-    df = pd.DataFrame({'col1': [1] + [2],
-                       'col2': [1]*2,
-                       'col3': [1]*2})
+    df = pd.DataFrame({'a': range(2), 'b': range(2)})
 
-    fig, axArr = plt.subplots(2)
+    fig, ax = plt.subplots(1)
 
-    curr = 1
-    for ax in axArr:
-        rects = ax.bar(df.loc[df['col1'] == curr, 'col2'],
-                       df.loc[df['col1'] == curr, 'col3'],
-                       align='center')
+    rects = ax.bar(df.loc[df['a'] == 1, 'b'],
+                   df.loc[df['a'] == 1, 'b'],
+                   align='center')
 
-        curr = curr + 1
+
+def test_pandas_bar_align_center():
+    # Tests fix for issue 8767
+    pd = pytest.importorskip('pandas')
+
+    df = pd.DataFrame({'a': range(2), 'b': range(2)})
+
+    fig, ax = plt.subplots(1)
+
+    rects = ax.barh(df.loc[df['a'] == 1, 'b'],
+                    df.loc[df['a'] == 1, 'b'],
+                    align='center')
 
 
 def test_axis_set_tick_params_labelsize_labelcolor():
