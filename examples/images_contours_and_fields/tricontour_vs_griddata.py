@@ -18,7 +18,7 @@ ngridx = 100
 ngridy = 200
 x = np.random.uniform(-2, 2, npts)
 y = np.random.uniform(-2, 2, npts)
-z = x*np.exp(-x**2 - y**2)
+z = x * np.exp(-x**2 - y**2)
 
 # griddata and contour.
 start = time.clock()
@@ -34,8 +34,8 @@ plt.plot(x, y, 'ko', ms=3)
 plt.xlim(-2, 2)
 plt.ylim(-2, 2)
 plt.title('griddata and contour (%d points, %d grid points)' %
-          (npts, ngridx*ngridy))
-print('griddata and contour seconds: %f' % (time.clock() - start))
+          (npts, ngridx * ngridy))
+print('griddata and contour: %f seconds' % (time.clock() - start))
 
 # tricontour.
 start = time.clock()
@@ -49,7 +49,7 @@ plt.plot(x, y, 'ko', ms=3)
 plt.xlim(-2, 2)
 plt.ylim(-2, 2)
 plt.title('tricontour (%d points)' % npts)
-print('tricontour seconds: %f' % (time.clock() - start))
+print('tricontour: %f seconds' % (time.clock() - start))
 
 plt.subplots_adjust(hspace=0.5)
 

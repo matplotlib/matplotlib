@@ -1,9 +1,9 @@
 """
-===============
-Tricontour Demo
-===============
+============
+Triplot Demo
+============
 
-Contour plots of unstructured triangular grids.
+Creating and plotting unstructured triangular grids.
 """
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -14,18 +14,17 @@ import math
 # Delaunay triangulation of the points.
 
 # First create the x and y coordinates of the points.
-n_angles = 48
+n_angles = 36
 n_radii = 8
 min_radius = 0.25
 radii = np.linspace(min_radius, 0.95, n_radii)
 
-angles = np.linspace(0, 2*math.pi, n_angles, endpoint=False)
+angles = np.linspace(0, 2 * math.pi, n_angles, endpoint=False)
 angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-angles[:, 1::2] += math.pi/n_angles
+angles[:, 1::2] += math.pi / n_angles
 
-x = (radii*np.cos(angles)).flatten()
-y = (radii*np.sin(angles)).flatten()
-z = (np.cos(radii)*np.cos(angles*3.0)).flatten()
+x = (radii * np.cos(angles)).flatten()
+y = (radii * np.sin(angles)).flatten()
 
 # Create the Triangulation; no triangles so Delaunay triangulation created.
 triang = tri.Triangulation(x, y)
@@ -33,16 +32,15 @@ triang = tri.Triangulation(x, y)
 # Mask off unwanted triangles.
 xmid = x[triang.triangles].mean(axis=1)
 ymid = y[triang.triangles].mean(axis=1)
-mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
+mask = np.where(xmid * xmid + ymid * ymid < min_radius * min_radius, 1, 0)
 triang.set_mask(mask)
 
-# pcolor plot.
+# Plot the triangulation.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tricontourf(triang, z)
-plt.colorbar()
-plt.tricontour(triang, z, colors='k')
-plt.title('Contour plot of Delaunay triangulation')
+plt.triplot(triang, 'bo-', lw=1)
+plt.title('triplot of Delaunay triangulation')
+
 
 # You can specify your own triangulation rather than perform a Delaunay
 # triangulation of the points, where each triangle is given by the indices of
@@ -71,9 +69,6 @@ xy = np.asarray([
     [-0.077, 0.990], [-0.059, 0.993]])
 x = np.degrees(xy[:, 0])
 y = np.degrees(xy[:, 1])
-x0 = -5
-y0 = 52
-z = np.exp(-0.01*((x - x0)*(x - x0) + (y - y0)*(y - y0)))
 
 triangles = np.asarray([
     [67, 66,  1], [65,  2, 66], [ 1, 66,  2], [64,  2, 65], [63,  3, 64],
@@ -94,14 +89,13 @@ triangles = np.asarray([
     [33, 38, 34], [37, 35, 38], [34, 38, 35], [35, 37, 36]])
 
 # Rather than create a Triangulation object, can simply pass x, y and triangles
-# arrays to tripcolor directly.  It would be better to use a Triangulation
-# object if the same triangulation was to be used more than once to save
-# duplicated calculations.
+# arrays to triplot directly.  It would be better to use a Triangulation object
+# if the same triangulation was to be used more than once to save duplicated
+# calculations.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tricontourf(x, y, triangles, z)
-plt.colorbar()
-plt.title('Contour plot of user-specified triangulation')
+plt.triplot(x, y, triangles, 'go-', lw=1.0)
+plt.title('triplot of user-specified triangulation')
 plt.xlabel('Longitude (degrees)')
 plt.ylabel('Latitude (degrees)')
 

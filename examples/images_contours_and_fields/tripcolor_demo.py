@@ -1,9 +1,9 @@
 """
-============
-Triplot Demo
-============
+==============
+Tripcolor Demo
+==============
 
-Creating and plotting unstructured triangular grids.
+Pseudocolor plots of unstructured triangular grids.
 """
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -19,12 +19,13 @@ n_radii = 8
 min_radius = 0.25
 radii = np.linspace(min_radius, 0.95, n_radii)
 
-angles = np.linspace(0, 2*math.pi, n_angles, endpoint=False)
+angles = np.linspace(0, 2 * math.pi, n_angles, endpoint=False)
 angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-angles[:, 1::2] += math.pi/n_angles
+angles[:, 1::2] += math.pi / n_angles
 
-x = (radii*np.cos(angles)).flatten()
-y = (radii*np.sin(angles)).flatten()
+x = (radii * np.cos(angles)).flatten()
+y = (radii * np.sin(angles)).flatten()
+z = (np.cos(radii) * np.cos(angles * 3.0)).flatten()
 
 # Create the Triangulation; no triangles so Delaunay triangulation created.
 triang = tri.Triangulation(x, y)
@@ -32,14 +33,22 @@ triang = tri.Triangulation(x, y)
 # Mask off unwanted triangles.
 xmid = x[triang.triangles].mean(axis=1)
 ymid = y[triang.triangles].mean(axis=1)
-mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
+mask = np.where(xmid * xmid + ymid * ymid < min_radius * min_radius, 1, 0)
 triang.set_mask(mask)
 
-# Plot the triangulation.
+# tripcolor plot.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.triplot(triang, 'bo-', lw=1)
-plt.title('triplot of Delaunay triangulation')
+plt.tripcolor(triang, z, shading='flat')
+plt.colorbar()
+plt.title('tripcolor of Delaunay triangulation, flat shading')
+
+# Illustrate Gouraud shading.
+plt.figure()
+plt.gca().set_aspect('equal')
+plt.tripcolor(triang, z, shading='gouraud')
+plt.colorbar()
+plt.title('tripcolor of Delaunay triangulation, gouraud shading')
 
 
 # You can specify your own triangulation rather than perform a Delaunay
@@ -67,8 +76,7 @@ xy = np.asarray([
     [-0.057, 0.881], [-0.062, 0.876], [-0.078, 0.876], [-0.087, 0.872],
     [-0.030, 0.907], [-0.007, 0.905], [-0.057, 0.916], [-0.025, 0.933],
     [-0.077, 0.990], [-0.059, 0.993]])
-x = np.degrees(xy[:, 0])
-y = np.degrees(xy[:, 1])
+x, y = np.rad2deg(xy).T
 
 triangles = np.asarray([
     [67, 66,  1], [65,  2, 66], [ 1, 66,  2], [64,  2, 65], [63,  3, 64],
@@ -88,14 +96,24 @@ triangles = np.asarray([
     [42, 41, 40], [72, 33, 31], [32, 31, 33], [39, 38, 72], [33, 72, 38],
     [33, 38, 34], [37, 35, 38], [34, 38, 35], [35, 37, 36]])
 
+xmid = x[triangles].mean(axis=1)
+ymid = y[triangles].mean(axis=1)
+x0 = -5
+y0 = 52
+zfaces = np.exp(-0.01 * ((xmid - x0) * (xmid - x0) +
+                         (ymid - y0) * (ymid - y0)))
+
 # Rather than create a Triangulation object, can simply pass x, y and triangles
-# arrays to triplot directly.  It would be better to use a Triangulation object
-# if the same triangulation was to be used more than once to save duplicated
-# calculations.
+# arrays to tripcolor directly.  It would be better to use a Triangulation
+# object if the same triangulation was to be used more than once to save
+# duplicated calculations.
+# Can specify one color value per face rather than one per point by using the
+# facecolors kwarg.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.triplot(x, y, triangles, 'go-', lw=1.0)
-plt.title('triplot of user-specified triangulation')
+plt.tripcolor(x, y, triangles, facecolors=zfaces, edgecolors='k')
+plt.colorbar()
+plt.title('tripcolor of user-specified triangulation')
 plt.xlabel('Longitude (degrees)')
 plt.ylabel('Latitude (degrees)')
 
