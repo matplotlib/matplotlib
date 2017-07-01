@@ -5113,3 +5113,8 @@ def test_twinx_knows_limits():
     ax2.plot([0, 0.5], [1, 2])
 
     assert((xtwin.viewLim.intervalx == ax2.viewLim.intervalx).all())
+
+
+def test_zero_linewidth():
+    # Check that setting a zero linewidth doesn't error
+    plt.plot([0, 1], [0, 1], ls='--', lw=0)
