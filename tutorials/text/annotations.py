@@ -158,8 +158,8 @@ keyword arguments. Currently, following box styles are implemented.
   Square       ``square``       pad=0.3
   ==========   ==============   ==========================
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_fancybox_demo_001.png
-   :target: ../../gallery/pylab_examples/fancybox_demo.html
+.. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
+   :target: ../../gallery/shapes_and_collections/fancybox_demo.html
    :align: center
    :scale: 50
 

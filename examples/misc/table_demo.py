@@ -9,11 +9,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-data = [[  66386,  174296,   75131,  577908,   32015],
-        [  58230,  381139,   78045,   99308,  160454],
-        [  89135,   80552,  152558,  497981,  603535],
-        [  78415,   81858,  150656,  193263,   69638],
-        [ 139361,  331509,  343164,  781380,   52269]]
+data = [[66386, 174296, 75131, 577908, 32015],
+        [58230, 381139, 78045, 99308, 160454],
+        [89135, 80552, 152558, 497981, 603535],
+        [78415, 81858, 150656, 193263, 69638],
+        [139361, 331509, 343164, 781380, 52269]]
 
 columns = ('Freeze', 'Wind', 'Flood', 'Quake', 'Hail')
 rows = ['%d year' % x for x in (100, 50, 20, 10, 5)]
@@ -36,7 +36,7 @@ cell_text = []
 for row in range(n_rows):
     plt.bar(index, data[row], bar_width, bottom=y_offset, color=colors[row])
     y_offset = y_offset + data[row]
-    cell_text.append(['%1.1f' % (x/1000.0) for x in y_offset])
+    cell_text.append(['%1.1f' % (x / 1000.0) for x in y_offset])
 # Reverse colors and text labels to display the last value at the top.
 colors = colors[::-1]
 cell_text.reverse()

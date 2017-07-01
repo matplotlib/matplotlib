@@ -20,7 +20,7 @@ styles = mpatch.BoxStyle.get_styles()
 spacing = 1.2
 
 figheight = (spacing * len(styles) + .5)
-fig1 = plt.figure(1, (4/1.5, figheight/1.5))
+fig1 = plt.figure(1, (4 / 1.5, figheight / 1.5))
 fontsize = 0.3 * 72
 
 for i, stylename in enumerate(sorted(styles)):
@@ -65,8 +65,8 @@ def test1(ax):
             size=10, transform=ax.transAxes)
 
     # draws control points for the fancy box.
-    #l = p_fancy.get_path().vertices
-    #ax.plot(l[:,0], l[:,1], ".")
+    # l = p_fancy.get_path().vertices
+    # ax.plot(l[:,0], l[:,1], ".")
 
     # draw the original bbox in black
     draw_bbox(ax, bb)
@@ -90,15 +90,15 @@ def test2(ax):
 
     p_fancy.set_boxstyle("round,pad=0.1, rounding_size=0.2")
     # or
-    #p_fancy.set_boxstyle("round", pad=0.1, rounding_size=0.2)
+    # p_fancy.set_boxstyle("round", pad=0.1, rounding_size=0.2)
 
     ax.text(0.1, 0.8,
             ' boxstyle="round,pad=0.1\n rounding_size=0.2"',
             size=10, transform=ax.transAxes)
 
     # draws control points for the fancy box.
-    #l = p_fancy.get_path().vertices
-    #ax.plot(l[:,0], l[:,1], ".")
+    # l = p_fancy.get_path().vertices
+    # ax.plot(l[:,0], l[:,1], ".")
 
     draw_bbox(ax, bb)
 
@@ -122,8 +122,8 @@ def test3(ax):
             size=10, transform=ax.transAxes)
 
     # draws control points for the fancy box.
-    #l = p_fancy.get_path().vertices
-    #ax.plot(l[:,0], l[:,1], ".")
+    # l = p_fancy.get_path().vertices
+    # ax.plot(l[:,0], l[:,1], ".")
 
     draw_bbox(ax, bb)
 
@@ -191,5 +191,6 @@ def test_all():
 
     plt.draw()
     plt.show()
+
 
 test_all()

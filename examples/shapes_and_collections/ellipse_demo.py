@@ -10,9 +10,9 @@ from matplotlib.patches import Ellipse
 
 NUM = 250
 
-ells = [Ellipse(xy=np.random.rand(2)*10,
+ells = [Ellipse(xy=np.random.rand(2) * 10,
                 width=np.random.rand(), height=np.random.rand(),
-                angle=np.random.rand()*360)
+                angle=np.random.rand() * 360)
         for i in range(NUM)]
 
 fig, ax = plt.subplots(subplot_kw={'aspect': 'equal'})
