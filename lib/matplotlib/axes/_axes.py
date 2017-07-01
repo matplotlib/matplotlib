@@ -168,7 +168,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        kwargs : text properties
+        **kwargs : `~matplotlib.text.Text` properties
             Other keyword arguments are text properties, see
             :class:`~matplotlib.text.Text` for a list of valid text
             properties.
@@ -212,7 +212,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
 
         See also
         --------
@@ -243,7 +243,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
 
         See also
         --------
@@ -590,7 +590,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.text.Text` properties.
+        **kwargs : `~matplotlib.text.Text` properties.
             Other miscellaneous text parameters.
 
         Examples
@@ -829,7 +829,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.patches.Polygon` properties.
+        **kwargs : `~matplotlib.patches.Polygon` properties.
 
         %(Polygon)s
 
@@ -947,7 +947,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs :  `~matplotlib.collections.LineCollection` properties.
+        **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
         See also
         --------
@@ -1025,7 +1025,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.collections.LineCollection` properties.
+        **kwargs : `~matplotlib.collections.LineCollection` properties.
 
         See also
         --------
@@ -2736,7 +2736,8 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        **kwargs : All other keyword arguments are passed on to the plot
+        **kwargs :
+            All other keyword arguments are passed on to the plot
             command for the markers. For example, this code makes big red
             squares with thick green edges::
 
@@ -3840,7 +3841,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.collections.Collection` properties
+        **kwargs : `~matplotlib.collections.Collection` properties
 
         See Also
         --------
@@ -4617,7 +4618,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : :class:`~matplotlib.patches.Polygon` properties
+        **kwargs : :class:`~matplotlib.patches.Polygon` properties
 
         Notes
         -----
@@ -5063,7 +5064,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.artist.Artist` properties.
+        **kwargs : `~matplotlib.artist.Artist` properties.
 
         See also
         --------
@@ -5998,7 +5999,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.patches.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         See also
         --------
@@ -7263,7 +7264,7 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.axes.Axes.imshow` arguments
+        **kwargs : `~matplotlib.axes.Axes.imshow` arguments
             Sets `origin` to 'upper', 'interpolation' to 'nearest' and
             'aspect' to equal.
 
