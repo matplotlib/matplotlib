@@ -44,7 +44,7 @@ minorLocator = MultipleLocator(5)
 
 
 t = np.arange(0.0, 100.0, 0.1)
-s = np.sin(0.1*np.pi*t)*np.exp(-t*0.01)
+s = np.sin(0.1 * np.pi * t) * np.exp(-t * 0.01)
 
 fig, ax = plt.subplots()
 ax.plot(t, s)
@@ -73,7 +73,7 @@ minorLocator = AutoMinorLocator()
 
 
 t = np.arange(0.0, 100.0, 0.01)
-s = np.sin(2*np.pi*t)*np.exp(-t*0.01)
+s = np.sin(2 * np.pi * t) * np.exp(-t * 0.01)
 
 fig, ax = plt.subplots()
 ax.plot(t, s)
