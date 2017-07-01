@@ -4871,9 +4871,11 @@ def test_pandas_bar_align_center():
 
     fig, ax = plt.subplots(1)
 
-    rects = ax.bar(df.loc[df['a'] == 1, 'b'],
-                   df.loc[df['a'] == 1, 'b'],
-                   align='center')
+    rect = ax.bar(df.loc[df['a'] == 1, 'b'],
+                  df.loc[df['a'] == 1, 'b'],
+                  align='center')
+
+    fig.canvas.draw()
 
 
 def test_pandas_bar_align_center():
@@ -4884,9 +4886,11 @@ def test_pandas_bar_align_center():
 
     fig, ax = plt.subplots(1)
 
-    rects = ax.barh(df.loc[df['a'] == 1, 'b'],
-                    df.loc[df['a'] == 1, 'b'],
-                    align='center')
+    rect = ax.barh(df.loc[df['a'] == 1, 'b'],
+                   df.loc[df['a'] == 1, 'b'],
+                   align='center')
+
+    fig.canvas.draw()
 
 
 def test_axis_set_tick_params_labelsize_labelcolor():
