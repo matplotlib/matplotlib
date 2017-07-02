@@ -4240,8 +4240,6 @@ def test_shared_with_aspect():
     plt.draw()  # Trigger apply_aspect().
     assert axes[0].get_xlim() == axes[1].get_xlim()
     assert axes[0].get_ylim() == axes[1].get_ylim()
-    with pytest.raises(ValueError):
-        axes[0].set_aspect(1, adjustable='datalim', share=True)
 
     # Different aspect ratios:
     for adjustable in ['box', 'datalim']:
@@ -4260,6 +4258,17 @@ def test_shared_with_aspect():
             lim_aspect = ax.viewLim.height / ax.viewLim.width
             expected = fig_aspect * box_aspect / lim_aspect
             assert round(expected, 4) == round(ax.get_aspect(), 4)
+
+
+@pytest.mark.parametrize('twin', ('x', 'y'))
+def test_twin_with_aspect(twin):
+    fig, ax = plt.subplots()
+    # test twinx or twiny
+    ax_twin = getattr(ax, 'twin{}'.format(twin))()
+    ax.set_aspect(5)
+    ax_twin.set_aspect(2)
+    assert_array_equal(ax.bbox.extents,
+                       ax_twin.bbox.extents)
 
 
 def test_relim_visible_only():

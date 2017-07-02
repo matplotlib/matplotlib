@@ -438,7 +438,7 @@ class _AxesBase(martist.Artist):
           ================   =========================================
           Keyword            Description
           ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' | 'box-forced']
+          *adjustable*       [ 'box' | 'datalim' ]
           *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
@@ -1286,10 +1286,6 @@ class _AxesBase(martist.Artist):
         """
         # FIXME: add box-forced deprecation
         if adjustable in ('box', 'datalim', 'box-forced'):
-            if self in self._shared_x_axes and self in self._shared_y_axes:
-                if adjustable == 'datalim':
-                    raise ValueError(
-                        'adjustable must be "box" when both axes are shared')
             if share and self in self._shared_x_axes:
                 for ax in self._shared_x_axes.get_siblings(self):
                     ax._adjustable = adjustable
@@ -3916,6 +3912,9 @@ class _AxesBase(martist.Artist):
         make a twinx axes of self. This is used for twinx and twiny.
         """
         ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
+        # do not touch every thing shared, just this and it's twin.
+        self.set_adjustable('datalim')
+        ax2.set_adjustable('datalim')
         return ax2
 
     def twinx(self):
