@@ -50,11 +50,8 @@ class TriAnalyzer(object):
         compressed_triangles = self._triangulation.get_masked_triangles()
         node_used = (np.bincount(np.ravel(compressed_triangles),
                                  minlength=self._triangulation.x.size) != 0)
-        x = self._triangulation.x[node_used]
-        y = self._triangulation.y[node_used]
-        ux = np.max(x)-np.min(x)
-        uy = np.max(y)-np.min(y)
-        return (1./float(ux), 1./float(uy))
+        return (1 / np.ptp(self._triangulation.x[node_used]),
+                1 / np.ptp(self._triangulation.y[node_used]))
 
     def circle_ratios(self, rescale=True):
         """

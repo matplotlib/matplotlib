@@ -3401,10 +3401,11 @@ or tuple of floats
           Sets the positions of the boxes. The ticks and limits
           are automatically set to match the positions.
 
-        widths : array-like, default = 0.5
+        widths : array-like, default = None
           Either a scalar or a vector and sets the width of each
-          box. The default is 0.5, or ``0.15*(distance between extreme
-          positions)`` if that is smaller.
+          box. The default is ``0.15*(distance between extreme
+          positions)``, clipped to no less than 0.15 and no more than
+          0.5.
 
         vert : bool, default = False
           If `True` (default), makes the boxes vertical.  If `False`,
@@ -3641,8 +3642,7 @@ or tuple of floats
 
         # width
         if widths is None:
-            distance = max(positions) - min(positions)
-            widths = [min(0.15 * max(distance, 1.0), 0.5)] * N
+            widths = [np.clip(0.15 * np.ptp(positions), 0.15, 0.5)] * N
         elif np.isscalar(widths):
             widths = [widths] * N
         elif len(widths) != N:
