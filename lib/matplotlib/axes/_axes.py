@@ -2751,6 +2751,10 @@ or tuple of floats
 
             %(Line2D)s
 
+        Notes
+        -----
+        Error bars with negative values will not be shown when plotted on a
+        logarithmic axis.
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
