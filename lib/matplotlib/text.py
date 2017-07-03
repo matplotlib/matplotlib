@@ -1192,7 +1192,8 @@ class Text(Artist):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline', 'center_baseline' ]
+        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' |
+                   'center_baseline' ]
         """
         legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
         if align not in legal:
