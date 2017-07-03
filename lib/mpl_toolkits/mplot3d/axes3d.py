@@ -2267,7 +2267,7 @@ class Axes3D(Axes):
 
         Supported are:
             - PolyCollection
-            - LineColleciton
+            - LineCollection
             - PatchCollection
         '''
         zvals = np.atleast_1d(zs)
