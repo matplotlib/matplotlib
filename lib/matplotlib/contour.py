@@ -1254,11 +1254,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._levels = list(self.levels)
 
         if self.logscale:
-            raised = lambda x: x * 1.1
-            lowered = lambda x: x / 1.1
+            def raised(x): return x * 1.1
+
+            def lowered(x): return x / 1.1
+
         else:
-            raised = lambda x: x + 1
-            lowered = lambda x: x - 1
+            def raised(x): return x + 1
+
+            def lowered(x): return x - 1
 
         if self.extend in ('both', 'min'):
             lower = lowered(min(self.levels[0], self.zmin))
