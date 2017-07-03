@@ -232,7 +232,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
-                 label_top=False, fontproperties=None,
+                 label_top=False, fontproperties=None, fill_bar=False,
                  **kwargs):
         """
         Draw a horizontal scale bar with a center-aligned label underneath.
@@ -295,6 +295,11 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         fontproperties : `matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
 
+        fill_bar : bool, optional
+            If True and if size_vertical is nonzero, the size bar will
+            be filled in with the color specified by the size bar.
+            Defaults to False.
+
         **kwargs :
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
@@ -336,7 +341,7 @@ fontproperties=fontprops)
         """
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Rectangle((0, 0), size, size_vertical,
-                                           fill=False, facecolor=color,
+                                           fill=fill_bar, facecolor=color,
                                            edgecolor=color))
 
         if fontproperties is None and 'prop' in kwargs:
