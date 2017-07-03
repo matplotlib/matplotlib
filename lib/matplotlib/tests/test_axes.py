@@ -1481,7 +1481,7 @@ def test_contour_colorbar():
 @image_comparison(baseline_images=['hist2d', 'hist2d'])
 def test_hist2d():
     np.random.seed(0)
-    # make it not symetric in case we switch x and y axis
+    # make it not symmetric in case we switch x and y axis
     x = np.random.randn(100)*2+5
     y = np.random.randn(100)-2
     fig = plt.figure()

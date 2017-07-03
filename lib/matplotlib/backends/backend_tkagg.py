@@ -320,9 +320,9 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # backend_bases, the canvas needs to know _lastx and _lasty.
         # There are three ways to get this info the canvas:
         #
-        # 1) set it explicity
+        # 1) set it explicitly
         #
-        # 2) call enter/leave events explicity.  The downside of this
+        # 2) call enter/leave events explicitly.  The downside of this
         #    in the impl below is that enter could be repeatedly
         #    triggered if thes  mouse is over the axes and one is
         #    resizing with the keyboard.  This is not entirely bad,

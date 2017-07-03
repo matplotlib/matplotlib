@@ -45,7 +45,7 @@ Call signatures::
   quiver(X, Y, U, V, **kw)
   quiver(X, Y, U, V, C, **kw)
 
-*U* and *V* are the arrow data, *X* and *Y* set the locaiton of the
+*U* and *V* are the arrow data, *X* and *Y* set the location of the
 arrows, and *C* sets the color of the arrows. These arguments may be 1-D or
 2-D arrays or sequences.
 
