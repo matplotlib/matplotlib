@@ -5141,12 +5141,30 @@ or tuple of floats
         if not self._hold:
             self.cla()
 
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+        isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
+        if norm is not None and not isNorm:
+            msg = "'norm' must be an instance of 'mcolors.Normalize' " \
+                  "or 'mcolors.BivariateNorm'"
             raise ValueError(msg)
+
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
+
+        temp = np.asarray(X)
+        if (temp.ndim == 3 and isinstance(norm, mcolors.BivariateNorm) or
+                isinstance(cmap, mcolors.BivariateColormap)):
+            if cmap is None:
+                cmap = mcolors.BivariateColormap()
+            if norm is None:
+                norm = mcolors.BivariateNorm()
+            temp = norm(temp)
+            temp[0] = temp[0] * (cmap.N-1)
+            temp[1] = temp[1] * (cmap.N-1)
+            temp = temp.astype(int)
+            X = temp[0] + cmap.N * temp[1]
+            norm = mcolors.NoNorm()
+
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
                               filternorm=filternorm, filterrad=filterrad,
                               resample=resample, **kwargs)
@@ -5173,7 +5191,6 @@ or tuple of floats
 
     @staticmethod
     def _pcolorargs(funcname, *args, **kw):
-        # This takes one kwarg, allmatch.
         # If allmatch is True, then the incoming X, Y, C must
         # have matching dimensions, taking into account that
         # X and Y can be 1-D rather than 2-D.  This perfect
@@ -5186,9 +5203,25 @@ or tuple of floats
         # is False.
 
         allmatch = kw.pop("allmatch", False)
+        norm = kw.pop("norm", None)
+        cmap = kw.pop("cmap", None)
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
+
+            if (C.ndim == 3 and isinstance(norm, mcolors.BivariateNorm) or
+                    isinstance(cmap, mcolors.BivariateColormap)):
+                if cmap is None:
+                    cmap = mcolors.BivariateColormap()
+                if norm is None:
+                    norm = mcolors.BivariateNorm()
+                C = norm(C)
+                C[0] = C[0] * (cmap.N-1)
+                C[1] = C[1] * (cmap.N-1)
+                C = C.astype(int)
+                C = C[0] + cmap.N * C[1]
+                C = np.array(C)
+
             numRows, numCols = C.shape
             if allmatch:
                 X, Y = np.meshgrid(np.arange(numCols), np.arange(numRows))
@@ -5200,6 +5233,18 @@ or tuple of floats
 
         if len(args) == 3:
             X, Y, C = [np.asanyarray(a) for a in args]
+            if (C.ndim == 3 and isinstance(norm, mcolors.BivariateNorm) or
+                    isinstance(cmap, mcolors.BivariateColormap)):
+                if cmap is None:
+                    cmap = mcolors.BivariateColormap()
+                if norm is None:
+                    norm = mcolors.BivariateNorm()
+                C = norm(C)
+                C[0] = C[0] * (cmap.N-1)
+                C[1] = C[1] * (cmap.N-1)
+                C = C.astype(int)
+                C = C[0] + cmap.N * C[1]
+                C = np.array(C)
             numRows, numCols = C.shape
         else:
             raise TypeError(
@@ -5382,8 +5427,13 @@ or tuple of floats
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
 
-        X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
+        kw = {'norm': norm, 'cmap': cmap, 'allmatch': False}
+        X, Y, C = self._pcolorargs('pcolor', *args, **kw)
         Ny, Nx = X.shape
+
+        if (isinstance(norm, mcolors.BivariateNorm) or
+                isinstance(cmap, mcolors.BivariateColormap)):
+            norm = mcolors.NoNorm()
 
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
@@ -5450,9 +5500,13 @@ or tuple of floats
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+
+        isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
+        if norm is not None and not isNorm:
+            msg = "'norm' must be an instance of 'mcolors.Normalize' " \
+                  "or 'mcolors.BivariateNorm'"
             raise ValueError(msg)
+
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5582,8 +5636,13 @@ or tuple of floats
 
         allmatch = (shading == 'gouraud')
 
-        X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
+        kw = {'norm': norm, 'cmap': cmap, 'allmatch': allmatch}
+        X, Y, C = self._pcolorargs('pcolormesh', *args, **kw)
         Ny, Nx = X.shape
+
+        if (isinstance(norm, mcolors.BivariateNorm) or
+                isinstance(cmap, mcolors.BivariateColormap)):
+            norm = mcolors.NoNorm()
 
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
@@ -5723,11 +5782,28 @@ or tuple of floats
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+        isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
+        if norm is not None and not isNorm:
+            msg = "'norm' must be an instance of 'mcolors.Normalize' " \
+                  "or 'mcolors.BivariateNorm'"
             raise ValueError(msg)
 
-        C = args[-1]
+        C = np.asarray(args[-1])
+
+        if (C.ndim == 3 and isinstance(norm, mcolors.BivariateNorm) or
+                isinstance(cmap, mcolors.BivariateColormap)):
+            if cmap is None:
+                cmap = mcolors.BivariateColormap()
+            if norm is None:
+                norm = mcolors.BivariateNorm()
+            C = norm(C)
+            C[0] = C[0] * (cmap.N-1)
+            C[1] = C[1] * (cmap.N-1)
+            C = C.astype(int)
+            C = C[0] + cmap.N * C[1]
+            C = np.array(C)
+            norm = mcolors.NoNorm()
+
         nr, nc = C.shape
         if len(args) == 1:
             style = "image"
