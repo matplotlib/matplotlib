@@ -1187,8 +1187,16 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
         lev = self.locator.tick_values(self.zmin, self.zmax)
+        i0 = np.nonzero(lev < self.zmin)[0][-1]
+        i1 = np.nonzero(lev > self.zmax)[0][0] + 1
+        if self.extend in ('min', 'both'):
+            i0 += 1
+        if self.extend in ('max', 'both'):
+            i1 -= 1
+        i1 = min(i1, len(lev))
+
         self._auto = True
-        return lev
+        return lev[i0:i1]
 
     def _contour_level_args(self, z, args):
         """
