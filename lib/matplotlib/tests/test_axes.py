@@ -1647,7 +1647,7 @@ def test_contour_hatching():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    cs = ax.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
+    cs = ax.contourf(x, y, z, hatches=['/', '\\', '//', '-'],
                      cmap=plt.get_cmap('gray'),
                      extend='both', alpha=0.5)
 
