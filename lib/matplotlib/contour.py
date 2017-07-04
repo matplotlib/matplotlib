@@ -1180,6 +1180,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
+        self._auto = True
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1187,15 +1188,25 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
         lev = self.locator.tick_values(self.zmin, self.zmax)
-        i0 = np.nonzero(lev < self.zmin)[0][-1]
-        i1 = np.nonzero(lev > self.zmax)[0][0] + 1
+
+        try:
+            if self.locator._symmetric:
+                return lev
+        except AttributeError:
+            pass
+
+        under = np.nonzero(lev < self.zmin)[0]
+        i0 = under[-1] if len(under) else 0
+        over = np.nonzero(lev > self.zmax)[0]
+        i1 = over[0] + 1 if len(over) else len(lev)
         if self.extend in ('min', 'both'):
             i0 += 1
         if self.extend in ('max', 'both'):
             i1 -= 1
-        i1 = min(i1, len(lev))
 
-        self._auto = True
+        if i1 - i0 < 3:
+            i0, i1 = 0, len(lev)
+
         return lev[i0:i1]
 
     def _contour_level_args(self, z, args):
