@@ -232,7 +232,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
-                 label_top=False, fontproperties=None, fill_bar=False,
+                 label_top=False, fontproperties=None, fill_bar=None,
                  **kwargs):
         """
         Draw a horizontal scale bar with a center-aligned label underneath.
@@ -298,7 +298,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         fill_bar : bool, optional
             If True and if size_vertical is nonzero, the size bar will
             be filled in with the color specified by the size bar.
-            Defaults to False.
+            Defaults to True if `size_vertical` is greater than
+            zero and False otherwise.
 
         **kwargs :
             Keyworded arguments to pass to
@@ -339,6 +340,9 @@ sep=5, borderpad=0.5, frameon=False, \
 size_vertical=0.5, color='white', \
 fontproperties=fontprops)
         """
+        if fill_bar is None:
+            fill_bar = size_vertical > 0
+
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Rectangle((0, 0), size, size_vertical,
                                            fill=fill_bar, facecolor=color,
