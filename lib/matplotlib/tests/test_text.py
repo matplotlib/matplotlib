@@ -396,7 +396,6 @@ def test_agg_text_clip():
     for x, y in np.random.rand(10, 2):
         ax1.text(x, y, "foo", clip_on=True)
         ax2.text(x, y, "foo")
-    plt.show()
 
 
 def test_text_size_binding():
