@@ -61,7 +61,7 @@ On windows, both the config directory and the cache directory are
 the same and are in your :file:`Documents and Settings` or :file:`Users`
 directory by default::
 
-    >>> import matplotlib
+    >>> import matplotlib as mpl
     >>> mpl.get_configdir()
     'C:\\Documents and Settings\\jdhunter\\.matplotlib'
     >>> mpl.get_cachedir()
@@ -108,7 +108,7 @@ please provide the following information in your e-mail to the
 
 
   * any customizations to your ``matplotlibrc`` file (see
-    :ref:`customizing-matplotlib`).
+    :ref:`sphx_glr_tutorials_01_introductory_customizing.py`).
 
   * if the problem is reproducible, please try to provide a *minimal*,
     standalone Python script that demonstrates the problem.  This is

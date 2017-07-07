@@ -53,24 +53,28 @@ static int PyTriangulation_init(PyTriangulation* self, PyObject* args, PyObject*
     if (x.empty() || y.empty() || x.dim(0) != y.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
             "x and y must be 1D arrays of the same length");
+        return -1;
     }
 
     // triangles.
     if (triangles.empty() || triangles.dim(1) != 3) {
         PyErr_SetString(PyExc_ValueError,
             "triangles must be a 2D array of shape (?,3)");
+        return -1;
     }
 
     // Optional mask.
     if (!mask.empty() && mask.dim(0) != triangles.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
             "mask must be a 1D array with the same length as the triangles array");
+        return -1;
     }
 
     // Optional edges.
     if (!edges.empty() && edges.dim(1) != 2) {
         PyErr_SetString(PyExc_ValueError,
             "edges must be a 2D array with shape (?,2)");
+        return -1;
     }
 
     // Optional neighbors.
@@ -78,6 +82,7 @@ static int PyTriangulation_init(PyTriangulation* self, PyObject* args, PyObject*
                                neighbors.dim(1) != triangles.dim(1))) {
         PyErr_SetString(PyExc_ValueError,
             "neighbors must be a 2D array with the same shape as the triangles array");
+        return -1;
     }
 
     CALL_CPP_INIT("Triangulation",
@@ -109,6 +114,7 @@ static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* s
     if (z.empty() || z.dim(0) != self->ptr->get_npoints()) {
         PyErr_SetString(PyExc_ValueError,
             "z array must have same length as triangulation x and y arrays");
+        return NULL;
     }
 
     Triangulation::TwoCoordinateArray result;
@@ -167,6 +173,7 @@ static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args,
     if (!mask.empty() && mask.dim(0) != self->ptr->get_ntri()) {
         PyErr_SetString(PyExc_ValueError,
             "mask must be a 1D array with the same length as the triangles array");
+        return NULL;
     }
 
     CALL_CPP("set_mask", (self->ptr->set_mask(mask)));
@@ -251,6 +258,7 @@ static int PyTriContourGenerator_init(PyTriContourGenerator* self, PyObject* arg
     if (z.empty() || z.dim(0) != triangulation.get_npoints()) {
         PyErr_SetString(PyExc_ValueError,
             "z must be a 1D array with the same length as the x and y arrays");
+        return -1;
     }
 
     CALL_CPP_INIT("TriContourGenerator",
@@ -299,6 +307,7 @@ static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerat
     {
         PyErr_SetString(PyExc_ValueError,
             "filled contour levels must be increasing");
+        return NULL;
     }
 
     PyObject* result;
@@ -407,6 +416,7 @@ static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self
     if (x.empty() || y.empty() || x.dim(0) != y.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
             "x and y must be array_like with same shape");
+        return NULL;
     }
 
     TrapezoidMapTriFinder::TriIndexArray result;

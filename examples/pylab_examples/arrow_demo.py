@@ -1,4 +1,9 @@
-"""Arrow drawing example for the new fancy_arrow facilities.
+"""
+==========
+Arrow Demo
+==========
+
+Arrow drawing example for the new fancy_arrow facilities.
 
 Code contributed by: Rob Knight <rob@spot.colorado.edu>
 
@@ -114,8 +119,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
 
     arrow_h_offset = 0.25  # data coordinates, empirically determined
     max_arrow_length = 1 - 2*arrow_h_offset
-
-    max_arrow_width = max_arrow_width
     max_head_width = 2.5*max_arrow_width
     max_head_length = 2*max_arrow_width
     arrow_params = {'length_includes_head': True, 'shape': shape,
@@ -160,10 +163,9 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         else:
             length = max_arrow_length
         # set the transparency of the arrow
-        if display == 'alph':
+        if display == 'alpha':
             alpha = min(data[pair]/sf, alpha)
-        else:
-            alpha = alpha
+
         # set the width of the arrow
         if display == 'width':
             scale = data[pair]/sf

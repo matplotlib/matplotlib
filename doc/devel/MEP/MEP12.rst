@@ -195,7 +195,3 @@ navigate the gallery. Thus, tags are complementary to this reorganization.
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 
 .. [1] https://github.com/matplotlib/matplotlib/pull/714
-.. [2] https://github.com/matplotlib/matplotlib/issues/524
-.. [3] http://matplotlib.1069221.n5.nabble.com/Matplotlib-gallery-td762.html#a33379091
-.. [4] http://www.labri.fr/perso/nrougier/teaching/matplotlib/
-.. [5] http://www.labri.fr/perso/nrougier/coding/gallery/

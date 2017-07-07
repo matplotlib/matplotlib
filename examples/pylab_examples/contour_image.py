@@ -1,4 +1,8 @@
-'''
+"""
+=============
+Contour Image
+=============
+
 Test combinations of contouring, filled contouring, and image plotting.
 For contour labelling, see contour_demo.py.
 
@@ -6,7 +10,7 @@ The emphasis in this demo is on showing how to make contours register
 correctly on images, and on how to get both of them oriented as
 desired.  In particular, note the usage of the "origin" and "extent"
 keyword arguments to imshow and contour.
-'''
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import mlab, cm

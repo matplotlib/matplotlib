@@ -1,5 +1,5 @@
-.. matplotlib
-.. _matplotlib: http://matplotlib.org
-.. _`matplotlib github`: https://github.com/matplotlib/matplotlib
+.. Matplotlib
+.. _`Matplotlib`: http://matplotlib.org
+.. _`Matplotlib github`: https://github.com/matplotlib/matplotlib
 
-.. _`matplotlib mailing list`: https://mail.python.org/mailman/listinfo/matplotlib-devel
+.. _`Matplotlib mailing list`: https://mail.python.org/mailman/listinfo/matplotlib-devel

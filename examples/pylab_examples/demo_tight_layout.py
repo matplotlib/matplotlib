@@ -1,3 +1,9 @@
+"""
+=================
+Demo Tight Layout
+=================
+
+"""
 
 import matplotlib.pyplot as plt
 import itertools

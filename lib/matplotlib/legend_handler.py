@@ -2,7 +2,7 @@
 This module defines default legend handlers.
 
 It is strongly encouraged to have read the :ref:`legend guide
-<plotting-guide-legend>` before this documentation.
+<sphx_glr_tutorials_02_intermediate_legend_guide.py>` before this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature. ::
@@ -147,20 +147,18 @@ class HandlerNpoints(HandlerBase):
 
     def get_xdata(self, legend, xdescent, ydescent, width, height, fontsize):
         numpoints = self.get_numpoints(legend)
-
         if numpoints > 1:
-            # we put some pad here to compensate the size of the
-            # marker
+            # we put some pad here to compensate the size of the marker
             pad = self._marker_pad * fontsize
             xdata = np.linspace(-xdescent + pad,
                                 -xdescent + width - pad,
                                 numpoints)
             xdata_marker = xdata
-        elif numpoints == 1:
-            xdata = np.linspace(-xdescent, -xdescent+width, 2)
+        else:
+            xdata = np.linspace(-xdescent, -xdescent + width, 2)
             xdata_marker = [-xdescent + 0.5 * width]
-
         return xdata, xdata_marker
+
 
 
 class HandlerNpointsYoffsets(HandlerNpoints):
@@ -634,6 +632,8 @@ class HandlerPolyCollection(HandlerBase):
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):
+            if colors is None:
+                return None
             colors = mcolors.to_rgba_array(colors)
             if len(colors):
                 return colors[0]
@@ -644,8 +644,12 @@ class HandlerPolyCollection(HandlerBase):
                 return prop_array[0]
             else:
                 return None
-        legend_handle.set_edgecolor(first_color(orig_handle.get_edgecolor()))
-        legend_handle.set_facecolor(first_color(orig_handle.get_facecolor()))
+        edgecolor = getattr(orig_handle, '_original_edgecolor',
+                            orig_handle.get_edgecolor())
+        legend_handle.set_edgecolor(first_color(edgecolor))
+        facecolor = getattr(orig_handle, '_original_facecolor',
+                            orig_handle.get_facecolor())
+        legend_handle.set_facecolor(first_color(facecolor))
         legend_handle.set_fill(orig_handle.get_fill())
         legend_handle.set_hatch(orig_handle.get_hatch())
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))

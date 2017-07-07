@@ -138,13 +138,10 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
                              self.parent_axes.transData)
 
         x, y, w, h = bb.bounds
-
-        xd, yd = 0, 0
-
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
 
-        return w*self.zoom+2*pad, h*self.zoom+2*pad, xd+pad, yd+pad
+        return abs(w*self.zoom)+2*pad, abs(h*self.zoom)+2*pad, pad, pad
 
 
 class BboxPatch(Patch):

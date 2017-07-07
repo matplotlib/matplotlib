@@ -89,7 +89,7 @@ Here are all the date tickers:
       :class:`dateutil.rrule` (`dateutil
       <https://dateutil.readthedocs.io/en/stable/>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
-      <../examples/pylab_examples/date_demo_rrule.html>`_.
+      <../gallery/pylab_examples/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
       :class:`MultipleDateLocator` to set the view limits and the tick
@@ -330,7 +330,7 @@ def datestr2num(d, default=None):
     default : datetime instance
         The default date to use when fields are missing in `d`.
     """
-    if cbook.is_string_like(d):
+    if isinstance(d, six.string_types):
         dt = dateutil.parser.parse(d, default=default)
         return date2num(dt)
     else:
@@ -711,11 +711,12 @@ class rrulewrapper(object):
         self._rrule = rrule(**self._construct)
 
     def __getattr__(self, name):
-        if name in ['__getstate__', '__setstate__']:
-            return object.__getattr__(self, name)
         if name in self.__dict__:
             return self.__dict__[name]
         return getattr(self._rrule, name)
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
 
 class DateLocator(ticker.Locator):

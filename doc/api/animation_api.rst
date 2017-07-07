@@ -139,17 +139,17 @@ Examples
 .. toctree::
    :maxdepth: 1
 
-   ../examples/animation/animate_decay
-   ../examples/animation/bayes_update
-   ../examples/animation/double_pendulum_animated
-   ../examples/animation/dynamic_image
-   ../examples/animation/histogram
-   ../examples/animation/rain
-   ../examples/animation/random_data
-   ../examples/animation/simple_3danim
-   ../examples/animation/simple_anim
-   ../examples/animation/strip_chart_demo
-   ../examples/animation/unchained
+   ../gallery/animation/animate_decay
+   ../gallery/animation/bayes_update_sgskip
+   ../gallery/animation/double_pendulum_animated_sgskip
+   ../gallery/animation/dynamic_image
+   ../gallery/animation/histogram
+   ../gallery/animation/rain
+   ../gallery/animation/random_data
+   ../gallery/animation/simple_3danim
+   ../gallery/animation/simple_anim
+   ../gallery/animation/strip_chart_demo
+   ../gallery/animation/unchained
 
 ``ArtistAnimation``
 -------------------
@@ -161,9 +161,9 @@ Examples
 .. toctree::
    :maxdepth: 1
 
-   ../examples/animation/basic_example
-   ../examples/animation/basic_example_writer
-   ../examples/animation/dynamic_image2
+   ../gallery/animation/basic_example
+   ../gallery/animation/basic_example_writer_sgskip
+   ../gallery/animation/dynamic_image2
 
 
 
@@ -243,7 +243,7 @@ to use the `~MovieWriter.saving` context manager ::
 to ensures that setup and cleanup are performed as necessary.
 
 
-:ref:`animation-moviewriter`
+:ref:`sphx_glr_gallery_animation_moviewriter_sgskip.py`
 
 
 .. _ani_writer_classes:
@@ -267,7 +267,7 @@ Animation Base Classes
 Custom Animation classes
 ------------------------
 
-:ref:`animation-subplots`
+:ref:`sphx_glr_gallery_animation_subplots.py`
 
 Writer Registry
 ---------------

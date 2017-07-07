@@ -32,7 +32,7 @@ BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
-STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
+STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
 
 
 # A list of rcParams that should not be applied from styles
@@ -89,14 +89,14 @@ def use(style):
 
 
     """
-    if cbook.is_string_like(style) or hasattr(style, 'keys'):
+    if isinstance(style, six.string_types) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
         styles = [style]
     else:
         styles = style
 
     for style in styles:
-        if not cbook.is_string_like(style):
+        if not isinstance(style, six.string_types):
             _apply_style(style)
         elif style == 'default':
             _apply_style(rcParamsDefault, warn=False)

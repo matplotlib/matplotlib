@@ -1,0 +1,8 @@
+Changes to PDF backend methods
+``````````````````````````````
+
+The methods `embedTeXFont` and `tex_font_mapping` of
+`matplotlib.backend_pdf.PdfFile` have been removed.
+It is unlikely that external users would have called
+these methods, which are related to the font system
+internal to the PDF backend.

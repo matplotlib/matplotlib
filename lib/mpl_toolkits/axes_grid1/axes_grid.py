@@ -212,7 +212,7 @@ class Grid(object):
 
         h = []
         v = []
-        if cbook.is_string_like(rect) or cbook.is_numlike(rect):
+        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=False)
         elif isinstance(rect, SubplotSpec):
@@ -533,7 +533,7 @@ class ImageGrid(Grid):
 
         h = []
         v = []
-        if cbook.is_string_like(rect) or cbook.is_numlike(rect):
+        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=aspect)
         elif isinstance(rect, SubplotSpec):

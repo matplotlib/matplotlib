@@ -29,7 +29,7 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib.cbook import dedent, silent_list, is_numlike
 from matplotlib.cbook import _string_to_bool
 from matplotlib.cbook import deprecated
 from matplotlib import docstring
@@ -505,7 +505,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     figLabel = ''
     if num is None:
         num = next_num
-    elif is_string_like(num):
+    elif isinstance(num, six.string_types):
         figLabel = num
         allLabels = get_figlabels()
         if figLabel not in allLabels:
@@ -663,7 +663,7 @@ def close(*args):
             # if we are dealing with a type UUID, we
             # can use its integer representation
             _pylab_helpers.Gcf.destroy(arg.int)
-        elif is_string_like(arg):
+        elif isinstance(arg, six.string_types):
             allLabels = get_figlabels()
             if arg in allLabels:
                 num = get_fignums()[allLabels.index(arg)]
@@ -875,7 +875,8 @@ def axes(*args, **kwargs):
       color for the axis, default white.
 
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
-      axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
+      axis and the parent of *h* the current figure.
+      An :class:`~matplotlib.axes.Axes` instance is returned.
 
     =========   ==============   ==============================================
     kwarg       Accepts          Description
@@ -909,7 +910,8 @@ def axes(*args, **kwargs):
     arg = args[0]
 
     if isinstance(arg, Axes):
-        a = gcf().sca(arg)
+        sca(arg)
+        a = arg
     else:
         rect = arg
         a = gcf().add_axes(rect, **kwargs)
@@ -1035,12 +1037,12 @@ def subplot(*args, **kwargs):
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pie_and_polar_charts/polar_scatter_demo.py`
+        :file:`gallery/pie_and_polar_charts/polar_scatter.py`
             For an example
 
     **Example:**
 
-    .. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+    .. plot:: gallery/subplots_axes_and_figures/subplot.py
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
@@ -1123,9 +1125,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         :class:`~matplotlib.gridspec.GridSpec` constructor used to create the
         grid the subplots are placed on.
 
-    fig_kw : dict, optional
-        Dict with keywords passed to the :func:`figure` call.  Note that all
-        keywords not recognized above will be automatically included here.
+    **fig_kw :
+        All additional keyword arguments are passed to the :func:`figure` call.
 
     Returns
     -------
@@ -2311,7 +2312,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',',
              names=None, subplots=True, newfig=True, **kwargs):
     """
-    Plot the data in in a file.
+    Plot the data in a file.
 
     *cols* is a sequence of column identifiers to plot.  An identifier
     is either an int or a string.  If it is an int, it indicates the
@@ -2377,7 +2378,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     def getname_val(identifier):
         'return the name and column data for identifier'
-        if is_string_like(identifier):
+        if isinstance(identifier, six.string_types):
             return identifier, r[identifier]
         elif is_numlike(identifier):
             name = r.dtype.names[int(identifier)]
@@ -3206,7 +3207,7 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
         radius=None, counterclock=True, wedgeprops=None, textprops=None,
-        center=(0, 0), frame=False, hold=None, data=None):
+        center=(0, 0), frame=False, rotatelabels=False, hold=None, data=None):
     ax = gca()
     # Deprecated: allow callers to override the hold state
     # by passing hold=True|False
@@ -3223,7 +3224,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      labeldistance=labeldistance, startangle=startangle,
                      radius=radius, counterclock=counterclock,
                      wedgeprops=wedgeprops, textprops=textprops, center=center,
-                     frame=frame, data=data)
+                     frame=frame, rotatelabels=rotatelabels, data=data)
     finally:
         ax._hold = washold
 

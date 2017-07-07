@@ -1,4 +1,8 @@
 """
+================
+Trigradient Demo
+================
+
 Demonstrates computation of gradient with matplotlib.tri.CubicTriInterpolator.
 """
 from matplotlib.tri import Triangulation, UniformTriRefiner,\

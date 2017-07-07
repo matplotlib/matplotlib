@@ -4,14 +4,34 @@ catch all for categorical functions
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
 import six
 
 import numpy as np
 
-import matplotlib.cbook as cbook
 import matplotlib.units as units
 import matplotlib.ticker as ticker
+
+# np 1.6/1.7 support
+from distutils.version import LooseVersion
+import collections
+
+
+if LooseVersion(np.__version__) >= LooseVersion('1.8.0'):
+    def shim_array(data):
+        return np.array(data, dtype=np.unicode)
+else:
+    def shim_array(data):
+        if (isinstance(data, six.string_types) or
+                not isinstance(data, collections.Iterable)):
+            data = [data]
+        try:
+            data = [str(d) for d in data]
+        except UnicodeEncodeError:
+            # this yields gibberish but unicode text doesn't
+            # render under numpy1.6 anyway
+            data = [d.encode('utf-8', 'ignore').decode('utf-8')
+                    for d in data]
+        return np.array(data, dtype=np.unicode)
 
 
 class StrCategoryConverter(units.ConversionInterface):
@@ -25,7 +45,8 @@ class StrCategoryConverter(units.ConversionInterface):
         if isinstance(value, six.string_types):
             return vmap[value]
 
-        vals = np.array(value, dtype=np.unicode)
+        vals = shim_array(value)
+
         for lab, loc in vmap.items():
             vals[vals == lab] = loc
 
@@ -81,8 +102,7 @@ class UnitData(object):
         self._set_seq_locs(new_data, value)
 
     def _set_seq_locs(self, data, value):
-        strdata = np.array(data, dtype=np.unicode)
-        # np.unique makes dateframes work
+        strdata = shim_array(data)
         new_s = [d for d in np.unique(strdata) if d not in self.seq]
         for ns in new_s:
             self.seq.append(ns)

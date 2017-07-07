@@ -14,6 +14,7 @@
 import os
 import sys
 import sphinx
+import six
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -28,62 +29,86 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'sphinx.ext.doctest', 'sphinx.ext.autosummary',
+              'sphinx.ext.inheritance_diagram', 'sphinx.ext.intersphinx',
+              'sphinx_gallery.gen_gallery',
               'matplotlib.sphinxext.plot_directive',
-              'sphinx.ext.inheritance_diagram',
-              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
               'sphinxext.github',
               'numpydoc']
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
-# Use IPython's console highlighting by default
-try:
-    from IPython.sphinxext import ipython_console_highlighting
-except ImportError:
-    raise ImportError(
-        "IPython must be installed to build the Matplotlib docs")
-else:
-    extensions.append('IPython.sphinxext.ipython_console_highlighting')
-    extensions.append('IPython.sphinxext.ipython_directive')
 
-try:
-    import numpydoc
-except ImportError:
-    raise ImportError("No module named numpydoc - you need to install "
-                      "numpydoc to build the documentation.")
+def _check_deps():
+    names = ["colorspacious",
+             "IPython.sphinxext.ipython_console_highlighting",
+             "matplotlib",
+             "numpydoc",
+             "PIL.Image",
+             "scipy",
+             "sphinx_gallery"]
+    if sys.version_info < (3, 3):
+        names.append("mock")
+    missing = []
+    for name in names:
+        try:
+            __import__(name)
+        except ImportError:
+            missing.append(name)
+    if missing:
+        raise ImportError(
+            "The following dependencies are missing to build the "
+            "documentation: {}".format(", ".join(missing)))
 
-try:
-    import colorspacious
-except ImportError:
-    raise ImportError("No module named colorspacious - you need to install "
-                      "colorspacious to build the documentation")
+_check_deps()
 
+import matplotlib
 try:
     from unittest.mock import MagicMock
 except ImportError:
-    try:
-        from mock import MagicMock
-    except ImportError:
-        raise ImportError("No module named mock - you need to install "
-                          "mock to build the documentation")
-
-try:
-    from PIL import Image
-except ImportError:
-    raise ImportError("No module named Image - you need to install "
-                      "pillow to build the documentation")
+    from mock import MagicMock
 
 
-try:
-    import matplotlib
-except ImportError:
-    msg = "Error: Matplotlib must be installed before building the documentation"
-    sys.exit(msg)
+# Use IPython's console highlighting by default
+extensions.extend(['IPython.sphinxext.ipython_console_highlighting',
+                   'IPython.sphinxext.ipython_directive'])
+
+if six.PY2:
+    from distutils.spawn import find_executable
+    has_dot = find_executable('dot') is not None
+else:
+    from shutil import which  # Python >= 3.3
+    has_dot = which('dot') is not None
+if not has_dot:
+    raise OSError(
+        "No binary named dot - you need to install the Graph Visualization "
+        "software (usually packaged as 'graphviz') to build the documentation")
 
 
 autosummary_generate = True
 
 autodoc_docstring_signature = True
+
+intersphinx_mapping = {
+  'python': ('https://docs.python.org/', None),
+  'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+  'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+  'pandas': ('http://pandas.pydata.org/pandas-docs/stable', None)
+  }
+
+
+# Sphinx gallery configuration
+sphinx_gallery_conf = {
+    'examples_dirs': ['../examples', '../tutorials'],
+    'filename_pattern': '^((?!sgskip).)*$',
+    'gallery_dirs': ['gallery', 'tutorials'],
+    'doc_module': ('matplotlib', 'mpl_toolkits'),
+    'reference_url': {'matplotlib': None,
+                      'numpy': 'http://docs.scipy.org/doc/numpy/reference',
+                      'scipy': 'http://docs.scipy.org/doc/scipy/reference'},
+    'backreferences_dir': 'api/_as_gen'
+}
+
+plot_gallery = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -101,7 +126,7 @@ master_doc = 'contents'
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2016 The Matplotlib development team')
+             'team; 2012 - 2017 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -141,32 +166,6 @@ default_role = 'obj'
 # ----------------------------
 
 plot_formats = [('png', 100), ('pdf', 100)]
-
-# Subdirectories in 'examples/' directory of package and titles for gallery
-mpl_example_sections = [
-    ('lines_bars_and_markers', 'Lines, bars, and markers'),
-    ('shapes_and_collections', 'Shapes and collections'),
-    ('statistics', 'Statistical plots'),
-    ('images_contours_and_fields', 'Images, contours, and fields'),
-    ('pie_and_polar_charts', 'Pie and polar charts'),
-    ('color', 'Color'),
-    ('text_labels_and_annotations', 'Text, labels, and annotations'),
-    ('ticks_and_spines', 'Ticks and spines'),
-    ('scales', 'Axis scales'),
-    ('subplots_axes_and_figures', 'Subplots, axes, and figures'),
-    ('style_sheets', 'Style sheets'),
-    ('specialty_plots', 'Specialty plots'),
-    ('showcase', 'Showcase'),
-    ('api', 'API'),
-    ('pylab_examples', 'pylab examples'),
-    ('mplot3d', 'mplot3d toolkit'),
-    ('axes_grid1', 'axes_grid1 toolkit'),
-    ('axisartist', 'axisartist toolkit'),
-    ('units', 'units'),
-    ('widgets', 'widgets'),
-    ('misc', 'Miscellaneous examples'),
-    ]
-
 
 # Github extension
 
@@ -223,7 +222,6 @@ html_sidebars = {
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 html_additional_pages = {'index': 'index.html',
-                         'gallery':'gallery.html',
                          'citing': 'citing.html'}
 
 # If false, no module index is generated.

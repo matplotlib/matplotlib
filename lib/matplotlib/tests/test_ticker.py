@@ -239,56 +239,6 @@ class TestScalarFormatter(object):
             assert use_offset == tmp_form.get_useOffset()
 
 
-class TestLogFormatter(object):
-    def _sub_labels(self, axis, subs=()):
-        "Test whether locator marks subs to be labeled"
-        fmt = axis.get_minor_formatter()
-        minor_tlocs = axis.get_minorticklocs()
-        fmt.set_locs(minor_tlocs)
-        coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
-        label_expected = [np.round(c) in subs for c in coefs]
-        label_test = [fmt(x) != '' for x in minor_tlocs]
-        assert label_test == label_expected
-
-    @pytest.mark.style('default')
-    def test_sublabel(self):
-        # test label locator
-        fig, ax = plt.subplots()
-        ax.set_xscale('log')
-        ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
-        ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
-                                                      subs=np.arange(2, 10)))
-        ax.xaxis.set_major_formatter(mticker.LogFormatter(labelOnlyBase=True))
-        ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
-        # axis range above 3 decades, only bases are labeled
-        ax.set_xlim(1, 1e4)
-        fmt = ax.xaxis.get_major_formatter()
-        fmt.set_locs(ax.xaxis.get_majorticklocs())
-        show_major_labels = [fmt(x) != ''
-                             for x in ax.xaxis.get_majorticklocs()]
-        assert np.all(show_major_labels)
-        self._sub_labels(ax.xaxis, subs=[])
-
-        # For the next two, if the numdec threshold in LogFormatter.set_locs
-        # were 3, then the label sub would be 3 for 2-3 decades and (2,5)
-        # for 1-2 decades.  With a threshold of 1, subs are not labeled.
-        # axis range at 2 to 3 decades
-        ax.set_xlim(1, 800)
-        self._sub_labels(ax.xaxis, subs=[])
-
-        # axis range at 1 to 2 decades
-        ax.set_xlim(1, 80)
-        self._sub_labels(ax.xaxis, subs=[])
-
-        # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
-        ax.set_xlim(1, 8)
-        self._sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
-
-        # axis range at 0 to 0.4 decades, label all
-        ax.set_xlim(0.5, 0.9)
-        self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
-
-
 class FakeAxis(object):
     """Allow Formatter to be called without having a "full" plot set up."""
     def __init__(self, vmin=1, vmax=10):
@@ -332,24 +282,44 @@ class TestLogFormatterExponent(object):
         assert formatter(10**0.1) == ''
 
 
+class TestLogFormatterMathtext():
+    fmt = mticker.LogFormatterMathtext()
+    test_data = [
+        (0, 1, '$\\mathdefault{10^{0}}$'),
+        (0, 1e-2, '$\\mathdefault{10^{-2}}$'),
+        (0, 1e2, '$\\mathdefault{10^{2}}$'),
+        (3, 1, '$\\mathdefault{1}$'),
+        (3, 1e-2, '$\\mathdefault{0.01}$'),
+        (3, 1e2, '$\\mathdefault{100}$'),
+        (3, 1e-3, '$\\mathdefault{10^{-3}}$'),
+        (3, 1e3, '$\\mathdefault{10^{3}}$'),
+    ]
+
+    @pytest.mark.parametrize('min_exponent, value, expected', test_data)
+    def test_min_exponent(self, min_exponent, value, expected):
+        with matplotlib.rc_context({'axes.formatter.min_exponent':
+                                    min_exponent}):
+            assert self.fmt(value) == expected
+
+
 class TestLogFormatterSciNotation(object):
     test_data = [
-        (2, 0.03125, '${2^{-5}}$'),
-        (2, 1, '${2^{0}}$'),
-        (2, 32, '${2^{5}}$'),
-        (2, 0.0375, '${1.2\\times2^{-5}}$'),
-        (2, 1.2, '${1.2\\times2^{0}}$'),
-        (2, 38.4, '${1.2\\times2^{5}}$'),
-        (10, -1, '${-10^{0}}$'),
-        (10, 1e-05, '${10^{-5}}$'),
-        (10, 1, '${10^{0}}$'),
-        (10, 100000, '${10^{5}}$'),
-        (10, 2e-05, '${2\\times10^{-5}}$'),
-        (10, 2, '${2\\times10^{0}}$'),
-        (10, 200000, '${2\\times10^{5}}$'),
-        (10, 5e-05, '${5\\times10^{-5}}$'),
-        (10, 5, '${5\\times10^{0}}$'),
-        (10, 500000, '${5\\times10^{5}}$'),
+        (2, 0.03125, '$\\mathdefault{2^{-5}}$'),
+        (2, 1, '$\\mathdefault{2^{0}}$'),
+        (2, 32, '$\\mathdefault{2^{5}}$'),
+        (2, 0.0375, '$\\mathdefault{1.2\\times2^{-5}}$'),
+        (2, 1.2, '$\\mathdefault{1.2\\times2^{0}}$'),
+        (2, 38.4, '$\\mathdefault{1.2\\times2^{5}}$'),
+        (10, -1, '$\\mathdefault{-10^{0}}$'),
+        (10, 1e-05, '$\\mathdefault{10^{-5}}$'),
+        (10, 1, '$\\mathdefault{10^{0}}$'),
+        (10, 100000, '$\\mathdefault{10^{5}}$'),
+        (10, 2e-05, '$\\mathdefault{2\\times10^{-5}}$'),
+        (10, 2, '$\\mathdefault{2\\times10^{0}}$'),
+        (10, 200000, '$\\mathdefault{2\\times10^{5}}$'),
+        (10, 5e-05, '$\\mathdefault{5\\times10^{-5}}$'),
+        (10, 5, '$\\mathdefault{5\\times10^{0}}$'),
+        (10, 500000, '$\\mathdefault{5\\times10^{5}}$'),
     ]
 
     @pytest.mark.style('default')
@@ -502,6 +472,61 @@ class TestLogFormatter(object):
         fmt = mticker.LogFormatter()
         label = fmt.pprint_val(value, domain)
         assert label == expected
+
+    def _sub_labels(self, axis, subs=()):
+        "Test whether locator marks subs to be labeled"
+        fmt = axis.get_minor_formatter()
+        minor_tlocs = axis.get_minorticklocs()
+        fmt.set_locs(minor_tlocs)
+        coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
+        label_expected = [np.round(c) in subs for c in coefs]
+        label_test = [fmt(x) != '' for x in minor_tlocs]
+        assert label_test == label_expected
+
+    @pytest.mark.style('default')
+    def test_sublabel(self):
+        # test label locator
+        fig, ax = plt.subplots()
+        ax.set_xscale('log')
+        ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
+        ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
+                                                      subs=np.arange(2, 10)))
+        ax.xaxis.set_major_formatter(mticker.LogFormatter(labelOnlyBase=True))
+        ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
+        # axis range above 3 decades, only bases are labeled
+        ax.set_xlim(1, 1e4)
+        fmt = ax.xaxis.get_major_formatter()
+        fmt.set_locs(ax.xaxis.get_majorticklocs())
+        show_major_labels = [fmt(x) != ''
+                             for x in ax.xaxis.get_majorticklocs()]
+        assert np.all(show_major_labels)
+        self._sub_labels(ax.xaxis, subs=[])
+
+        # For the next two, if the numdec threshold in LogFormatter.set_locs
+        # were 3, then the label sub would be 3 for 2-3 decades and (2,5)
+        # for 1-2 decades.  With a threshold of 1, subs are not labeled.
+        # axis range at 2 to 3 decades
+        ax.set_xlim(1, 800)
+        self._sub_labels(ax.xaxis, subs=[])
+
+        # axis range at 1 to 2 decades
+        ax.set_xlim(1, 80)
+        self._sub_labels(ax.xaxis, subs=[])
+
+        # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
+        ax.set_xlim(1, 8)
+        self._sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
+
+        # axis range at 0 to 0.4 decades, label all
+        ax.set_xlim(0.5, 0.9)
+        self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
+
+    @pytest.mark.parametrize('val', [1, 10, 100, 1000])
+    def test_LogFormatter_call(self, val):
+        # test _num_to_string method used in __call__
+        temp_lf = mticker.LogFormatter()
+        temp_lf.axis = FakeAxis()
+        assert temp_lf(val) == str(val)
 
 
 class TestFormatStrFormatter(object):

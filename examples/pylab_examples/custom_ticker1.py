@@ -1,4 +1,8 @@
 """
+==============
+Custom Ticker1
+==============
+
 The new ticker code was designed to explicitly support user customized
 ticking.  The documentation
 http://matplotlib.org/matplotlib.ticker.html details this

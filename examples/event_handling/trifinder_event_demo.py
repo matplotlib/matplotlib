@@ -1,4 +1,8 @@
 """
+====================
+Trifinder Event Demo
+====================
+
 Example showing the use of a TriFinder object.  As the mouse is moved over the
 triangulation, the triangle under the cursor is highlighted and the index of
 the triangle is displayed in the plot title.

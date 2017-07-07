@@ -1,3 +1,9 @@
+"""
+================
+Anchored Artists
+================
+
+"""
 from matplotlib.patches import Rectangle, Ellipse
 
 from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox, VPacker,\

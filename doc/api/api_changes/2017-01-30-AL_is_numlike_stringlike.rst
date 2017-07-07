@@ -1,8 +1,10 @@
-`cbook.is_numlike` and `cbook.is_string_like` only perform an instance check
-````````````````````````````````````````````````````````````````````````````
+`cbook.is_numlike` only performs an instance check, `cbook.is_string_like` is deprecated
+````````````````````````````````````````````````````````````````````````````````````````
 
-`cbook.is_numlike` and `cbook.is_string_like` now only check that
-their argument is an instance of ``(numbers.Number, np.Number)`` and
-``(six.string_types, np.str_, np.unicode_)`` respectively.  In particular, this
-means that arrays are now never num-like or string-like regardless of their
-dtype.
+`cbook.is_numlike` now only checks that its argument is an instance of
+``(numbers.Number, np.Number)``.  In particular, this means that arrays are now
+not num-like.
+
+`cbook.is_string_like` and `cbook.is_sequence_of_strings` have been
+deprecated.  Use ``isinstance(obj, six.string_types)`` and ``iterable(obj) and
+all(isinstance(o, six.string_types) for o in obj)`` instead.

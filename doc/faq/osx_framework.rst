@@ -100,6 +100,15 @@ framework build within the virtualenv. To run a script you can do
 framework build. To run an interactive ``IPython`` session with the framework
 build within the virtual environment you can do ``frameworkpython -m IPython``
 
+``PYTHONHOME`` and Jupyter
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This approach can be followed even if using `Jupyter <https://jupyter.org/>`_ 
+notebooks: you just need to setup a kernel with the suitable ``PYTHONHOME`` 
+definition. The  `jupyter-virtualenv-osx  <https://github.com/mapio/jupyter-virtualenv-osx>`_ 
+script automates the creation of such a kernel.
+
+
 ``PYTHONHOME`` Script
 ^^^^^^^^^^^^^^^^^^^^^
 

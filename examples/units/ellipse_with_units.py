@@ -1,5 +1,13 @@
 """
+==================
+Ellipse With Units
+==================
+
 Compare the ellipse generated with arcs versus a polygonal approximation
+
+.. only:: builder_html
+
+   This example requires :download:`basic_units.py <basic_units.py>`
 """
 from basic_units import cm
 import numpy as np
@@ -8,7 +16,6 @@ import matplotlib.pyplot as plt
 
 
 xcenter, ycenter = 0.38*cm, 0.52*cm
-#xcenter, ycenter = 0., 0.
 width, height = 1e-1*cm, 3e-1*cm
 angle = -30
 
@@ -29,7 +36,8 @@ y += ycenter
 
 fig = plt.figure()
 ax = fig.add_subplot(211, aspect='auto')
-ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
+ax.fill(x, y, alpha=0.2, facecolor='yellow',
+        edgecolor='yellow', linewidth=1, zorder=1)
 
 e1 = patches.Ellipse((xcenter, ycenter), width, height,
                      angle=angle, linewidth=2, fill=False, zorder=2)
@@ -43,13 +51,12 @@ e2 = patches.Ellipse((xcenter, ycenter), width, height,
 
 
 ax.add_patch(e2)
-
-#fig.savefig('ellipse_compare.png')
 fig.savefig('ellipse_compare')
 
 fig = plt.figure()
 ax = fig.add_subplot(211, aspect='auto')
-ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
+ax.fill(x, y, alpha=0.2, facecolor='yellow',
+        edgecolor='yellow', linewidth=1, zorder=1)
 
 e1 = patches.Arc((xcenter, ycenter), width, height,
                  angle=angle, linewidth=2, fill=False, zorder=2)
@@ -63,8 +70,6 @@ e2 = patches.Arc((xcenter, ycenter), width, height,
 
 
 ax.add_patch(e2)
-
-#fig.savefig('arc_compare.png')
 fig.savefig('arc_compare')
 
 plt.show()

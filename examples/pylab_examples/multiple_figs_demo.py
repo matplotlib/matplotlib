@@ -1,4 +1,10 @@
-# Working with multiple figure windows and subplots
+"""
+==================
+Multiple Figs Demo
+==================
+
+Working with multiple figure windows and subplots
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 

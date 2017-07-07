@@ -22,6 +22,7 @@ import pytest
 
 from copy import copy
 from numpy import ma
+import matplotlib.image as mimage
 import matplotlib.colors as colors
 
 
@@ -52,6 +53,7 @@ def test_image_interps():
     ax3 = fig.add_subplot(313)
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
+
 
 @image_comparison(baseline_images=['interp_nearest_vs_none'],
                   extensions=['pdf', 'svg'], remove_text=True)
@@ -376,7 +378,7 @@ def test_rasterize_dpi():
     # It plots a rasterized line and a normal image with implot. So it will catch
     # when images end up in the wrong place in case of non-standard dpi setting.
     # Instead of high-res rasterization i use low-res.  Therefore the fact that the
-    # resolution is non-standard is is easily checked by image_comparison.
+    # resolution is non-standard is easily checked by image_comparison.
     import numpy as np
     import matplotlib.pyplot as plt
 
@@ -503,9 +505,9 @@ def test_jpeg_alpha():
 def test_nonuniformimage_setdata():
     ax = plt.gca()
     im = NonUniformImage(ax)
-    x = np.arange(3, dtype=np.float64)
-    y = np.arange(4, dtype=np.float64)
-    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    x = np.arange(3, dtype=float)
+    y = np.arange(4, dtype=float)
+    z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(x, y, z)
     x[0] = y[0] = z[0, 0] = 9.9
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
@@ -514,7 +516,7 @@ def test_nonuniformimage_setdata():
 def test_axesimage_setdata():
     ax = plt.gca()
     im = AxesImage(ax)
-    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(z)
     z[0, 0] = 9.9
     assert im._A[0, 0] == 0, 'value changed'
@@ -523,7 +525,7 @@ def test_axesimage_setdata():
 def test_figureimage_setdata():
     fig = plt.gcf()
     im = FigureImage(fig)
-    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(z)
     z[0, 0] = 9.9
     assert im._A[0, 0] == 0, 'value changed'
@@ -532,9 +534,9 @@ def test_figureimage_setdata():
 def test_pcolorimage_setdata():
     ax = plt.gca()
     im = PcolorImage(ax)
-    x = np.arange(3, dtype=np.float64)
-    y = np.arange(4, dtype=np.float64)
-    z = np.arange(6, dtype=np.float64).reshape((3, 2))
+    x = np.arange(3, dtype=float)
+    y = np.arange(4, dtype=float)
+    z = np.arange(6, dtype=float).reshape((3, 2))
     im.set_data(x, y, z)
     x[0] = y[0] = z[0, 0] = 9.9
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
@@ -726,8 +728,58 @@ def test_imshow_endianess():
     ax2.imshow(Z.astype('>f8'), **kwargs)
 
 
+@image_comparison(baseline_images=['imshow_masked_interpolation'],
+                  remove_text=True, style='default')
+def test_imshow_masked_interpolation():
+
+    cm = copy(plt.get_cmap('viridis'))
+    cm.set_over('r')
+    cm.set_under('b')
+    cm.set_bad('k')
+
+    N = 20
+    n = colors.Normalize(vmin=0, vmax=N*N-1)
+
+    # data = np.random.random((N, N))*N*N
+    data = np.arange(N*N, dtype='float').reshape(N, N)
+
+    data[5, 5] = -1
+
+    data[15, 5] = 1e5
+
+    # data[3, 3] = np.nan
+
+    data[15, 15] = np.inf
+
+    mask = np.zeros_like(data).astype('bool')
+    mask[5, 15] = True
+
+    data = np.ma.masked_array(data, mask)
+
+    fig, ax_grid = plt.subplots(3, 6)
+    for interp, ax in zip(sorted(mimage._interpd_), ax_grid.ravel()):
+        ax.set_title(interp)
+        ax.imshow(data, norm=n, cmap=cm, interpolation=interp)
+        ax.axis('off')
+
+
 def test_imshow_no_warn_invalid():
     with warnings.catch_warnings(record=True) as warns:
         warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
+
+
+def test_empty_imshow():
+    fig, ax = plt.subplots()
+    im = ax.imshow([[]])
+    im.set_extent([-5, 5, -5, 5])
+    fig.canvas.draw()
+
+    with pytest.raises(RuntimeError):
+        im.make_image(fig._cachedRenderer)
+
+
+def test_imshow_float128():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((3, 3), dtype=np.longdouble))

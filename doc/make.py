@@ -10,6 +10,7 @@ import re
 import argparse
 import subprocess
 import matplotlib
+import six
 
 
 def copy_if_out_of_date(original, derived):
@@ -40,55 +41,48 @@ def check_build():
 
 def doctest():
     """Execute Sphinx 'doctest' target. """
-    os.system('sphinx-build -b doctest -d build/doctrees . build/doctest')
+    subprocess.call(
+        [sys.executable]
+        + '-msphinx -b doctest -d build/doctrees . build/doctest'.split())
 
 
 def linkcheck():
     """Execute Sphinx 'linkcheck' target. """
-    os.system('sphinx-build -b linkcheck -d build/doctrees . build/linkcheck')
+    subprocess.call(
+        [sys.executable]
+        + '-msphinx -b linkcheck -d build/doctrees . build/linkcheck'.split())
+
+DEPSY_PATH = "_static/depsy_badge.svg"
+DEPSY_URL = "http://depsy.org/api/package/pypi/matplotlib/badge.svg"
+DEPSY_DEFAULT = "_static/depsy_badge_default.svg"
 
 
-# For generating PNGs of the top row of index.html:
-FRONTPAGE_PY_PATH = "../examples/frontpage/"  # python scripts location
-FRONTPAGE_PNG_PATH = "_static/"  # png files location
-# png files and corresponding generation scripts:
-FRONTPAGE_PNGS = {"surface3d_frontpage.png": "plot_3D.py",
-                  "contour_frontpage.png":   "plot_contour.py",
-                  "histogram_frontpage.png": "plot_histogram.py",
-                  "membrane_frontpage.png":  "plot_membrane.py"}
+def fetch_depsy_badge():
+    """Fetches a static copy of the depsy badge.
 
+    If there is any network error, use a static copy from git.
 
-def generate_frontpage_pngs(only_if_needed=True):
-    """Executes the scripts for PNG generation of the top row of index.html.
+    This is to avoid a mixed-content warning when serving matplotlib.org
+    over https, see https://github.com/Impactstory/depsy/issues/77
 
-    If `only_if_needed` is `True`, then the PNG file is only generated, if it
-    doesn't exist or if the python file is newer.
-
-    Note that the element `div.responsive_screenshots` in the file
-    `_static/mpl.css` has the height and cumulative width of the used PNG files
-    as attributes. This ensures that the magnification of those PNGs is <= 1.
-    """
-    for fn_png, fn_py in FRONTPAGE_PNGS.items():
-        pn_png = os.path.join(FRONTPAGE_PNG_PATH, fn_png)  # get full paths
-        pn_py = os.path.join(FRONTPAGE_PY_PATH, fn_py)
-
-        # Read file modification times:
-        mtime_py = os.path.getmtime(pn_py)
-        mtime_png = (os.path.getmtime(pn_png) if os.path.exists(pn_png) else
-                     mtime_py - 1)  # set older time, if file doesn't exist
-
-        if only_if_needed and mtime_py <= mtime_png:
-            continue  # do nothing if png is newer
-
-        # Execute python as subprocess (preferred over os.system()):
-        subprocess.check_call(["python", pn_py])  # raises CalledProcessError()
-        os.rename(fn_png, pn_png)  # move file to _static/ directory
+    The downside is that the badge only updates when the documentation
+    is rebuilt."""
+    try:
+        request = six.moves.urllib.request.urlopen(DEPSY_URL)
+        try:
+            data = request.read().decode('utf-8')
+            with open(DEPSY_PATH, 'w') as output:
+                output.write(data)
+        finally:
+            request.close()
+    except six.moves.urllib.error.URLError:
+        shutil.copyfile(DEPSY_DEFAULT, DEPSY_PATH)
 
 
 def html(buildername='html'):
     """Build Sphinx 'html' target. """
     check_build()
-    generate_frontpage_pngs()
+    fetch_depsy_badge()
 
     rc = '../lib/matplotlib/mpl-data/matplotlibrc'
     default_rc = os.path.join(matplotlib._get_data_path(), 'matplotlibrc')
@@ -96,21 +90,21 @@ def html(buildername='html'):
         rc = default_rc
     copy_if_out_of_date(rc, '_static/matplotlibrc')
 
+    options = ['-j{}'.format(n_proc),
+               '-b{}'.format(buildername),
+               '-dbuild/doctrees']
     if small_docs:
-        options = "-D plot_formats=png:100"
-    else:
-        options = ''
+        options += ['-Dplot_formats=png:100']
     if warnings_as_errors:
-        options = options + ' -W'
-    if os.system('sphinx-build -j %d %s -b %s -d build/doctrees . build/%s' % (
-            n_proc, options, buildername, buildername)):
+        options += ['-W']
+    if subprocess.call(
+            [sys.executable, '-msphinx', '.', 'build/{}'.format(buildername)]
+            + options):
         raise SystemExit("Building HTML failed.")
 
     # Clean out PDF files from the _images directory
     for filename in glob.glob('build/%s/_images/*.pdf' % buildername):
         os.remove(filename)
-
-    shutil.copy('../CHANGELOG', 'build/%s/_static/CHANGELOG' % buildername)
 
 
 def htmlhelp():
@@ -132,17 +126,15 @@ def latex():
     # figs()
     if sys.platform != 'win32':
         # LaTeX format.
-        if os.system('sphinx-build -b latex -d build/doctrees . build/latex'):
+        if subprocess.call(
+                [sys.executable]
+                + '-msphinx -b latex -d build/doctrees . build/latex'.split()):
             raise SystemExit("Building LaTeX failed.")
 
         # Produce pdf.
-        os.chdir('build/latex')
-
         # Call the makefile produced by sphinx...
-        if os.system('make'):
-            raise SystemExit("Rendering LaTeX failed.")
-
-        os.chdir('../..')
+        if subprocess.call("make", cwd="build/latex"):
+            raise SystemExit("Rendering LaTeX failed with.")
     else:
         print('latex build has not been tested on windows')
 
@@ -153,18 +145,15 @@ def texinfo():
     # figs()
     if sys.platform != 'win32':
         # Texinfo format.
-        if os.system(
-                'sphinx-build -b texinfo -d build/doctrees . build/texinfo'):
+        if subprocess.call(
+                [sys.executable]
+                + '-msphinx -b texinfo -d build/doctrees . build/texinfo'.split()):
             raise SystemExit("Building Texinfo failed.")
 
         # Produce info file.
-        os.chdir('build/texinfo')
-
         # Call the makefile produced by sphinx...
-        if os.system('make'):
-            raise SystemExit("Rendering Texinfo failed.")
-
-        os.chdir('../..')
+        if subprocess.call("make", cwd="build/texinfo"):
+            raise SystemExit("Rendering Texinfo failed with.")
     else:
         print('texinfo build has not been tested on windows')
 
@@ -172,22 +161,14 @@ def texinfo():
 def clean():
     """Remove generated files. """
     shutil.rmtree("build", ignore_errors=True)
-    shutil.rmtree("examples", ignore_errors=True)
-    for pattern in ['mpl_examples/api/*.png',
-                    'mpl_examples/pylab_examples/*.png',
-                    'mpl_examples/pylab_examples/*.pdf',
-                    'mpl_examples/units/*.png',
-                    'mpl_examples/pyplots/tex_demo.png',
-                    '_static/matplotlibrc',
+    shutil.rmtree("tutorials", ignore_errors=True)
+    shutil.rmtree("api/_as_gen", ignore_errors=True)
+    for pattern in ['_static/matplotlibrc',
                     '_templates/gallery.html',
                     'users/installing.rst']:
         for filename in glob.glob(pattern):
             if os.path.exists(filename):
                 os.remove(filename)
-        for fn in FRONTPAGE_PNGS.keys():  # remove generated PNGs
-            pn = os.path.join(FRONTPAGE_PNG_PATH, fn)
-            if os.path.exists(pn):
-                os.remove(os.path.join(pn))
 
 
 def build_all():
@@ -216,41 +197,7 @@ n_proc = 1
 # Change directory to the one containing this file
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
-copy_if_out_of_date('../INSTALL', 'users/installing.rst')
-
-# Create the examples symlink, if it doesn't exist
-
-required_symlinks = [
-    ('mpl_examples', '../examples/'),
-    ('mpl_toolkits/axes_grid1/examples', '../../../examples/axes_grid1/'),
-    ('mpl_toolkits/axisartist/examples', '../../../examples/axisartist/')
-    ]
-
-symlink_warnings = []
-for link, target in required_symlinks:
-    if sys.platform == 'win32' and os.path.isfile(link):
-        # This is special processing that applies on platforms that don't deal
-        # with git symlinks -- probably only MS windows.
-        delete = False
-        with open(link, 'r') as link_content:
-            delete = target == link_content.read()
-        if delete:
-            symlink_warnings.append('deleted:  doc/{0}'.format(link))
-            os.unlink(link)
-        else:
-            raise RuntimeError("doc/{0} should be a directory or symlink -- it"
-                               " isn't".format(link))
-    if not os.path.exists(link):
-        try:
-            os.symlink(os.path.normcase(target), link)
-        except OSError:
-            symlink_warnings.append('files copied to {0}'.format(link))
-            shutil.copytree(os.path.join(link, '..', target), link)
-
-if sys.platform == 'win32' and len(symlink_warnings) > 0:
-    print('The following items related to symlinks will show up '
-          'as spurious changes in your \'git status\':\n\t{0}'
-          .format('\n\t'.join(symlink_warnings)))
+copy_if_out_of_date('../INSTALL.rst', 'users/installing.rst')
 
 parser = argparse.ArgumentParser(description='Build matplotlib docs')
 parser.add_argument("cmd", help=("Command to execute. Can be multiple. "
@@ -272,13 +219,14 @@ if args.allowsphinxwarnings:
 if args.n is not None:
     n_proc = int(args.n)
 
+_valid_commands = "Valid targets are: {}".format(", ".join(sorted(funcd)))
 if args.cmd:
     for command in args.cmd:
         func = funcd.get(command)
         if func is None:
-            raise SystemExit(('Do not know how to handle %s; valid commands'
-                              ' are %s' % (command, funcd.keys())))
+            raise SystemExit("Do not know how to handle {}.  {}"
+                             .format(command, _valid_commands))
         func()
 else:
-    all()
+    raise SystemExit(_valid_commands)
 os.chdir(current_dir)

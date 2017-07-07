@@ -1,3 +1,9 @@
+"""
+======================
+Whats New 0.98.4 Fancy
+======================
+
+"""
 import matplotlib.patches as mpatch
 import matplotlib.pyplot as plt
 

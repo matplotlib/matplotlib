@@ -15,7 +15,6 @@ import pytest
 
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
-from matplotlib.testing.decorators import CleanupTestCase
 
 
 try:
@@ -25,91 +24,74 @@ except ImportError:
     HAS_NATGRID = False
 
 
-class Test_general(CleanupTestCase):
-    def test_colinear_pca(self):
-        a = mlab.PCA._get_colinear()
-        pca = mlab.PCA(a)
+def test_colinear_pca():
+    a = mlab.PCA._get_colinear()
+    pca = mlab.PCA(a)
 
-        assert_allclose(pca.fracs[2:], 0., atol=1e-8)
-        assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
-
-    def test_prctile(self):
-        # test odd lengths
-        x = [1, 2, 3]
-        assert mlab.prctile(x, 50) == np.median(x)
-
-        # test even lengths
-        x = [1, 2, 3, 4]
-        assert mlab.prctile(x, 50) == np.median(x)
-
-        # derived from email sent by jason-sage to MPL-user on 20090914
-        ob1 = [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3,
-               4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5]
-        p = [0, 75, 100]
-        expected = [1, 5.5, 9]
-
-        # test vectorized
-        actual = mlab.prctile(ob1, p)
-        assert_allclose(expected, actual)
-
-        # test scalar
-        for pi, expectedi in zip(p, expected):
-            actuali = mlab.prctile(ob1, pi)
-            assert_allclose(expectedi, actuali)
-
-    def test_norm(self):
-        np.random.seed(0)
-        N = 1000
-        x = np.random.standard_normal(N)
-        targ = np.linalg.norm(x)
-        res = mlab._norm(x)
-        assert_almost_equal(targ, res)
+    assert_allclose(pca.fracs[2:], 0., atol=1e-8)
+    assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
 
 
-class Test_spacing(CleanupTestCase):
-    def test_logspace_tens(self):
-        xmin = .01
-        xmax = 1000.
-        N = 6
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_allclose(targ, res)
-
-    def test_logspace_primes(self):
-        xmin = .03
-        xmax = 1313.
-        N = 7
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_allclose(targ, res)
-
-    def test_logspace_none(self):
-        xmin = .03
-        xmax = 1313.
-        N = 0
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_array_equal(targ, res)
-        assert res.size == 0
-
-    def test_logspace_single(self):
-        xmin = .03
-        xmax = 1313.
-        N = 1
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_array_equal(targ, res)
-        assert res.size == 1
+@pytest.mark.parametrize('input', [
+    # test odd lengths
+    [1, 2, 3],
+    # test even lengths
+    [1, 2, 3, 4],
+    # derived from email sent by jason-sage to MPL-user on 20090914
+    [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5],
+],
+ids=[
+    'odd length',
+    'even length',
+    'custom data',
+])
+@pytest.mark.parametrize('percentile', [
+    0,
+    50,
+    75,
+    100,
+    [0, 75, 100],
+])
+def test_prctile(input, percentile):
+    assert_allclose(mlab.prctile(input, percentile),
+                    np.percentile(input, percentile))
 
 
-class Test_stride(CleanupTestCase):
+def test_norm():
+    np.random.seed(0)
+    N = 1000
+    x = np.random.standard_normal(N)
+    targ = np.linalg.norm(x)
+    res = mlab._norm(x)
+    assert_almost_equal(targ, res)
+
+
+@pytest.mark.parametrize('xmin, xmax, N', [
+    (.01, 1000., 6),
+    (.03, 1313., 7),
+    (.03, 1313., 0),
+    (.03, 1313., 1),
+], ids=[
+    'tens',
+    'primes',
+    'none',
+    'single',
+])
+def test_logspace(xmin, xmax, N):
+    res = mlab.logspace(xmin, xmax, N)
+    targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
+    assert_allclose(targ, res)
+    assert res.size == N
+
+
+class TestStride(object):
     def get_base(self, x):
         y = x
         while y.base is not None:
             y = y.base
         return y
 
-    def calc_window_target(self, x, NFFT, noverlap=0):
+    def calc_window_target(self, x, NFFT, noverlap=0, axis=0):
         '''This is an adaptation of the original window extraction
         algorithm.  This is here to test to make sure the new implementation
         has the same result'''
@@ -121,177 +103,89 @@ class Test_stride(CleanupTestCase):
         # do the ffts of the slices
         for i in range(n):
             result[:, i] = x[ind[i]:ind[i]+NFFT]
+        if axis == 1:
+            result = result.T
         return result
 
-    def test_stride_windows_2D_ValueError(self):
-        x = np.arange(10)[np.newaxis]
+    @pytest.mark.parametrize('shape', [(), (10, 1)], ids=['0D', '2D'])
+    def test_stride_windows_invalid_input_shape(self, shape):
+        x = np.arange(np.prod(shape)).reshape(shape)
         with pytest.raises(ValueError):
             mlab.stride_windows(x, 5)
 
-    def test_stride_windows_0D_ValueError(self):
-        x = np.array(0)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 5)
-
-    def test_stride_windows_noverlap_gt_n_ValueError(self):
+    @pytest.mark.parametrize('n, noverlap',
+                             [(0, None), (11, None), (2, 2), (2, 3)],
+                             ids=['n less than 1', 'n greater than input',
+                                  'noverlap greater than n',
+                                  'noverlap equal to n'])
+    def test_stride_windows_invalid_params(self, n, noverlap):
         x = np.arange(10)
         with pytest.raises(ValueError):
-            mlab.stride_windows(x, 2, 3)
+            mlab.stride_windows(x, n, noverlap)
 
-    def test_stride_windows_noverlap_eq_n_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 2, 2)
-
-    def test_stride_windows_n_gt_lenx_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 11)
-
-    def test_stride_windows_n_lt_1_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 0)
-
-    def test_stride_repeat_2D_ValueError(self):
-        x = np.arange(10)[np.newaxis]
+    @pytest.mark.parametrize('shape', [(), (10, 1)], ids=['0D', '2D'])
+    def test_stride_repeat_invalid_input_shape(self, shape):
+        x = np.arange(np.prod(shape)).reshape(shape)
         with pytest.raises(ValueError):
             mlab.stride_repeat(x, 5)
 
-    def test_stride_repeat_axis_lt_0_ValueError(self):
+    @pytest.mark.parametrize('axis', [-1, 2],
+                             ids=['axis less than 0',
+                                  'axis greater than input shape'])
+    def test_stride_repeat_invalid_axis(self, axis):
         x = np.array(0)
         with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 5, axis=-1)
-
-    def test_stride_repeat_axis_gt_1_ValueError(self):
-        x = np.array(0)
-        with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 5, axis=2)
+            mlab.stride_repeat(x, 5, axis=axis)
 
     def test_stride_repeat_n_lt_1_ValueError(self):
         x = np.arange(10)
         with pytest.raises(ValueError):
             mlab.stride_repeat(x, 0)
 
-    def test_stride_repeat_n1_axis0(self):
+    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
+    @pytest.mark.parametrize('n', [1, 5], ids=['n1', 'n5'])
+    def test_stride_repeat(self, n, axis):
         x = np.arange(10)
-        y = mlab.stride_repeat(x, 1)
-        assert (1, ) + x.shape == y.shape
-        assert_array_equal(x, y.flat)
-        assert self.get_base(y) is x
+        y = mlab.stride_repeat(x, n, axis=axis)
 
-    def test_stride_repeat_n1_axis1(self):
-        x = np.arange(10)
-        y = mlab.stride_repeat(x, 1, axis=1)
-        assert x.shape + (1, ) == y.shape
-        assert_array_equal(x, y.flat)
-        assert self.get_base(y) is x
+        expected_shape = [10, 10]
+        expected_shape[axis] = n
+        yr = np.repeat(np.expand_dims(x, axis), n, axis=axis)
 
-    def test_stride_repeat_n5_axis0(self):
-        x = np.arange(10)
-        y = mlab.stride_repeat(x, 5)
-        yr = np.repeat(x[np.newaxis], 5, axis=0)
         assert yr.shape == y.shape
         assert_array_equal(yr, y)
-        assert (5, ) + x.shape == y.shape
+        assert tuple(expected_shape) == y.shape
         assert self.get_base(y) is x
 
-    def test_stride_repeat_n5_axis1(self):
-        x = np.arange(10)
-        y = mlab.stride_repeat(x, 5, axis=1)
-        yr = np.repeat(x[np.newaxis], 5, axis=0).T
-        assert yr.shape == y.shape
-        assert_array_equal(yr, y)
-        assert x.shape + (5, ) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n1_noverlap0_axis0(self):
-        x = np.arange(10)
-        y = mlab.stride_windows(x, 1)
-        yt = self.calc_window_target(x, 1)
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert (1, ) + x.shape == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n1_noverlap0_axis1(self):
-        x = np.arange(10)
-        y = mlab.stride_windows(x, 1, axis=1)
-        yt = self.calc_window_target(x, 1).T
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert x.shape + (1, ) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n5_noverlap0_axis0(self):
+    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
+    @pytest.mark.parametrize('n, noverlap',
+                             [(1, 0), (5, 0), (15, 2), (13, -3)],
+                             ids=['n1-noverlap0', 'n5-noverlap0',
+                                  'n15-noverlap2', 'n13-noverlapn3'])
+    def test_stride_windows(self, n, noverlap, axis):
         x = np.arange(100)
-        y = mlab.stride_windows(x, 5)
-        yt = self.calc_window_target(x, 5)
+        y = mlab.stride_windows(x, n, noverlap=noverlap, axis=axis)
+
+        expected_shape = [0, 0]
+        expected_shape[axis] = n
+        expected_shape[1 - axis] = 100 // (n - noverlap)
+        yt = self.calc_window_target(x, n, noverlap=noverlap, axis=axis)
+
         assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert (5, 20) == y.shape
+        assert tuple(expected_shape) == y.shape
         assert self.get_base(y) is x
 
-    def test_stride_windows_n5_noverlap0_axis1(self):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 5, axis=1)
-        yt = self.calc_window_target(x, 5).T
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert (20, 5) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n15_noverlap2_axis0(self):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 15, 2)
-        yt = self.calc_window_target(x, 15, 2)
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert (15, 7) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n15_noverlap2_axis1(self):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 15, 2, axis=1)
-        yt = self.calc_window_target(x, 15, 2).T
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert (7, 15) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n13_noverlapn3_axis0(self):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 13, -3)
-        yt = self.calc_window_target(x, 13, -3)
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert (13, 6) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n13_noverlapn3_axis1(self):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 13, -3, axis=1)
-        yt = self.calc_window_target(x, 13, -3).T
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert (6, 13) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n32_noverlap0_axis0_unflatten(self):
+    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
+    def test_stride_windows_n32_noverlap0_unflatten(self, axis):
         n = 32
         x = np.arange(n)[np.newaxis]
         x1 = np.tile(x, (21, 1))
         x2 = x1.flatten()
-        y = mlab.stride_windows(x2, n)
-        assert y.shape == x1.T.shape
-        assert_array_equal(y, x1.T)
+        y = mlab.stride_windows(x2, n, axis=axis)
 
-    def test_stride_windows_n32_noverlap0_axis1_unflatten(self):
-        n = 32
-        x = np.arange(n)[np.newaxis]
-        x1 = np.tile(x, (21, 1))
-        x2 = x1.flatten()
-        y = mlab.stride_windows(x2, n, axis=1)
+        if axis == 0:
+            x1 = x1.T
         assert y.shape == x1.shape
         assert_array_equal(y, x1)
 
@@ -314,122 +208,107 @@ class Test_stride(CleanupTestCase):
         assert_array_equal(y_strided, 0.3)
 
 
-class Test_csv(CleanupTestCase):
-    def setUp(self):
-        if six.PY3:
-            self.fd = tempfile.TemporaryFile(suffix='csv', mode="w+",
-                                             newline='')
-        else:
-            self.fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
-
-    def tearDown(self):
-        self.fd.close()
-
-    def test_recarray_csv_roundtrip(self):
-        expected = np.recarray((99,),
-                               [(str('x'), float),
-                                (str('y'), float),
-                                (str('t'), float)])
-        # initialising all values: uninitialised memory sometimes produces
-        # floats that do not round-trip to string and back.
-        expected['x'][:] = np.linspace(-1e9, -1, 99)
-        expected['y'][:] = np.linspace(1, 1e9, 99)
-        expected['t'][:] = np.linspace(0, 0.01, 99)
-
-        mlab.rec2csv(expected, self.fd)
-        self.fd.seek(0)
-        actual = mlab.csv2rec(self.fd)
-
-        assert_allclose(expected['x'], actual['x'])
-        assert_allclose(expected['y'], actual['y'])
-        assert_allclose(expected['t'], actual['t'])
-
-    def test_rec2csv_bad_shape_ValueError(self):
-        bad = np.recarray((99, 4), [(str('x'), float),
-                                    (str('y'), float)])
-
-        # the bad recarray should trigger a ValueError for having ndim > 1.
-        with pytest.raises(ValueError):
-            mlab.rec2csv(bad, self.fd)
-
-    def test_csv2rec_names_with_comments(self):
-        self.fd.write('# comment\n1,2,3\n4,5,6\n')
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a,b,c')
-        assert len(array) == 2
-        assert len(array.dtype) == 3
-
-    def test_csv2rec_usdate(self):
-        self.fd.write('01/11/14\n'
-                      '03/05/76 12:00:01 AM\n'
-                      '07/09/83 5:17:34 PM\n'
-                      '06/20/2054 2:31:45 PM\n'
-                      '10/31/00 11:50:23 AM\n')
-        expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                    datetime.datetime(1976, 3, 5, 0, 0, 1),
-                    datetime.datetime(1983, 7, 9, 17, 17, 34),
-                    datetime.datetime(2054, 6, 20, 14, 31, 45),
-                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a')
-        assert_array_equal(array['a'].tolist(), expected)
-
-    def test_csv2rec_dayfirst(self):
-        self.fd.write('11/01/14\n' +
-                      '05/03/76 12:00:01 AM\n'
-                      '09/07/83 5:17:34 PM\n'
-                      '20/06/2054 2:31:45 PM\n'
-                      '31/10/00 11:50:23 AM\n')
-        expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                    datetime.datetime(1976, 3, 5, 0, 0, 1),
-                    datetime.datetime(1983, 7, 9, 17, 17, 34),
-                    datetime.datetime(2054, 6, 20, 14, 31, 45),
-                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a', dayfirst=True)
-        assert_array_equal(array['a'].tolist(), expected)
-
-    def test_csv2rec_yearfirst(self):
-        self.fd.write('14/01/11\n'
-                      '76/03/05 12:00:01 AM\n'
-                      '83/07/09 5:17:34 PM\n'
-                      '2054/06/20 2:31:45 PM\n'
-                      '00/10/31 11:50:23 AM\n')
-        expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                    datetime.datetime(1976, 3, 5, 0, 0, 1),
-                    datetime.datetime(1983, 7, 9, 17, 17, 34),
-                    datetime.datetime(2054, 6, 20, 14, 31, 45),
-                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a', yearfirst=True)
-        assert_array_equal(array['a'].tolist(), expected)
+@pytest.fixture
+def tempcsv():
+    if six.PY2:
+        fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
+    else:
+        fd = tempfile.TemporaryFile(suffix='csv', mode="w+", newline='')
+    with fd:
+        yield fd
 
 
-class Test_rec2txt(CleanupTestCase):
-    def test_csv2txt_basic(self):
-        # str() calls around field names necessary b/c as of numpy 1.11
-        # dtype doesn't like unicode names (caused by unicode_literals import)
-        a = np.array([(1.0, 2, 'foo', 'bing'),
-                      (2.0, 3, 'bar', 'blah')],
-                     dtype=np.dtype([(str('x'), np.float32),
-                                     (str('y'), np.int8),
-                                     (str('s'), str, 3),
-                                     (str('s2'), str, 4)]))
-        truth = ('       x   y   s     s2\n'
-                 '   1.000   2   foo   bing   \n'
-                 '   2.000   3   bar   blah   ').splitlines()
-        assert mlab.rec2txt(a).splitlines() == truth
+def test_recarray_csv_roundtrip(tempcsv):
+    expected = np.recarray((99,),
+                           [(str('x'), float),
+                            (str('y'), float),
+                            (str('t'), float)])
+    # initialising all values: uninitialised memory sometimes produces
+    # floats that do not round-trip to string and back.
+    expected['x'][:] = np.linspace(-1e9, -1, 99)
+    expected['y'][:] = np.linspace(1, 1e9, 99)
+    expected['t'][:] = np.linspace(0, 0.01, 99)
+
+    mlab.rec2csv(expected, tempcsv)
+    tempcsv.seek(0)
+    actual = mlab.csv2rec(tempcsv)
+
+    assert_allclose(expected['x'], actual['x'])
+    assert_allclose(expected['y'], actual['y'])
+    assert_allclose(expected['t'], actual['t'])
 
 
-class Test_window(CleanupTestCase):
-    def setUp(self):
+def test_rec2csv_bad_shape_ValueError(tempcsv):
+    bad = np.recarray((99, 4), [(str('x'), float),
+                                (str('y'), float)])
+
+    # the bad recarray should trigger a ValueError for having ndim > 1.
+    with pytest.raises(ValueError):
+        mlab.rec2csv(bad, tempcsv)
+
+
+def test_csv2rec_names_with_comments(tempcsv):
+    tempcsv.write('# comment\n1,2,3\n4,5,6\n')
+    tempcsv.seek(0)
+    array = mlab.csv2rec(tempcsv, names='a,b,c')
+    assert len(array) == 2
+    assert len(array.dtype) == 3
+
+
+@pytest.mark.parametrize('input, kwargs', [
+    ('01/11/14\n'
+     '03/05/76 12:00:01 AM\n'
+     '07/09/83 5:17:34 PM\n'
+     '06/20/2054 2:31:45 PM\n'
+     '10/31/00 11:50:23 AM\n',
+     {}),
+    ('11/01/14\n'
+     '05/03/76 12:00:01 AM\n'
+     '09/07/83 5:17:34 PM\n'
+     '20/06/2054 2:31:45 PM\n'
+     '31/10/00 11:50:23 AM\n',
+     {'dayfirst': True}),
+    ('14/01/11\n'
+     '76/03/05 12:00:01 AM\n'
+     '83/07/09 5:17:34 PM\n'
+     '2054/06/20 2:31:45 PM\n'
+     '00/10/31 11:50:23 AM\n',
+     {'yearfirst': True}),
+], ids=['usdate', 'dayfirst', 'yearfirst'])
+def test_csv2rec_dates(tempcsv, input, kwargs):
+    tempcsv.write(input)
+    expected = [datetime.datetime(2014, 1, 11, 0, 0),
+                datetime.datetime(1976, 3, 5, 0, 0, 1),
+                datetime.datetime(1983, 7, 9, 17, 17, 34),
+                datetime.datetime(2054, 6, 20, 14, 31, 45),
+                datetime.datetime(2000, 10, 31, 11, 50, 23)]
+    tempcsv.seek(0)
+    array = mlab.csv2rec(tempcsv, names='a', **kwargs)
+    assert_array_equal(array['a'].tolist(), expected)
+
+
+def test_rec2txt_basic():
+    # str() calls around field names necessary b/c as of numpy 1.11
+    # dtype doesn't like unicode names (caused by unicode_literals import)
+    a = np.array([(1.0, 2, 'foo', 'bing'),
+                  (2.0, 3, 'bar', 'blah')],
+                 dtype=np.dtype([(str('x'), np.float32),
+                                 (str('y'), np.int8),
+                                 (str('s'), str, 3),
+                                 (str('s2'), str, 4)]))
+    truth = ('       x   y   s     s2\n'
+             '   1.000   2   foo   bing   \n'
+             '   2.000   3   bar   blah   ').splitlines()
+    assert mlab.rec2txt(a).splitlines() == truth
+
+
+class TestWindow(object):
+    def setup(self):
         np.random.seed(0)
-        self.n = 1000
-        self.x = np.arange(0., self.n)
+        n = 1000
 
-        self.sig_rand = np.random.standard_normal(self.n) + 100.
-        self.sig_ones = np.ones_like(self.x)
-        self.sig_slope = np.linspace(-10., 90., self.n)
+        self.sig_rand = np.random.standard_normal(n) + 100.
+        self.sig_ones = np.ones(n)
 
     def check_window_apply_repeat(self, x, window, NFFT, noverlap):
         '''This is an adaptation of the original window application
@@ -673,8 +552,8 @@ class Test_window(CleanupTestCase):
         assert_allclose(ycontrol.T, result, atol=1e-08)
 
 
-class Test_detrend(CleanupTestCase):
-    def setUp(self):
+class TestDetrend(object):
+    def setup(self):
         np.random.seed(0)
         n = 1000
         x = np.linspace(0., 100, n)
@@ -887,73 +766,6 @@ class Test_detrend(CleanupTestCase):
         targ = np.vstack(arrt)
         res = mlab.detrend_mean(input)
         assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=None)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_none_T(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=None)
-        assert_allclose(res.T, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend_mean(input, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axism1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=-1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
 
     def test_detrend_mean_2D_none(self):
         arri = [self.sig_off,
@@ -1333,22 +1145,51 @@ class Test_detrend(CleanupTestCase):
         assert_allclose(res, targ, atol=self.atol)
 
 
-class Test_spectral_nosig_real_onesided(CleanupTestCase):
-    def setUp(self):
-        self.createStim(fstims=[],
-                        iscomplex=False, sides='onesided', nsides=1)
-
-    def createStim(self, fstims, iscomplex, sides, nsides, len_x=None,
-                   NFFT_density=-1, nover_density=-1, pad_to_density=-1,
-                   pad_to_spectrum=-1):
+@pytest.mark.parametrize('iscomplex', [False, True],
+                         ids=['real', 'complex'], scope='class')
+@pytest.mark.parametrize('sides', ['onesided', 'twosided', 'default'],
+                         scope='class')
+@pytest.mark.parametrize(
+    'fstims,len_x,NFFT_density,nover_density,pad_to_density,pad_to_spectrum',
+    [
+        ([], None, -1, -1, -1, -1),
+        ([4], None, -1, -1, -1, -1),
+        ([4, 5, 10], None, -1, -1, -1, -1),
+        ([], None, None, -1, -1, None),
+        ([], None, -1, -1, None, None),
+        ([], None, None, -1, None, None),
+        ([], 1024, 512, -1, -1, 128),
+        ([], 256, -1, -1, 33, 257),
+        ([], 255, 33, -1, -1, None),
+        ([], 256, 128, -1, 256, 256),
+        ([], None, -1, 32, -1, -1),
+   ],
+    ids=[
+        'nosig',
+        'Fs4',
+        'FsAll',
+        'nosig_noNFFT',
+        'nosig_nopad_to',
+        'nosig_noNFFT_no_pad_to',
+        'nosig_trim',
+        'nosig_odd',
+        'nosig_oddlen',
+        'nosig_stretch',
+        'nosig_overlap',
+    ],
+    scope='class')
+class TestSpectral(object):
+    @pytest.fixture(scope='class', autouse=True)
+    def stim(self, request, fstims, iscomplex, sides, len_x, NFFT_density,
+             nover_density, pad_to_density, pad_to_spectrum):
         Fs = 100.
 
-        x = np.arange(0, 10, 1/Fs)
+        x = np.arange(0, 10, 1 / Fs)
         if len_x is not None:
             x = x[:len_x]
 
         # get the stimulus frequencies, defaulting to None
-        fstims = [Fs/fstim for fstim in fstims]
+        fstims = [Fs / fstim for fstim in fstims]
 
         # get the constants, default to calculated values
         if NFFT_density is None:
@@ -1361,7 +1202,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         if nover_density is None:
             nover_density_real = 0
         elif nover_density < 0:
-            nover_density_real = nover_density = NFFT_density_real//2
+            nover_density_real = nover_density = NFFT_density_real // 2
         else:
             nover_density_real = nover_density
 
@@ -1392,60 +1233,60 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         NFFT_specgram_real = NFFT_density_real
         nover_specgram_real = nover_density_real
 
-        if nsides == 1:
+        if sides == 'onesided' or (sides == 'default' and not iscomplex):
             # frequencies for specgram, psd, and csd
             # need to handle even and odd differently
             if pad_to_density_real % 2:
-                freqs_density = np.linspace(0, Fs/2,
+                freqs_density = np.linspace(0, Fs / 2,
                                             num=pad_to_density_real,
                                             endpoint=False)[::2]
             else:
-                freqs_density = np.linspace(0, Fs/2,
-                                            num=pad_to_density_real//2+1)
+                freqs_density = np.linspace(0, Fs / 2,
+                                            num=pad_to_density_real // 2 + 1)
 
             # frequencies for complex, magnitude, angle, and phase spectrums
             # need to handle even and odd differently
             if pad_to_spectrum_real % 2:
-                freqs_spectrum = np.linspace(0, Fs/2,
+                freqs_spectrum = np.linspace(0, Fs / 2,
                                              num=pad_to_spectrum_real,
                                              endpoint=False)[::2]
             else:
-                freqs_spectrum = np.linspace(0, Fs/2,
-                                             num=pad_to_spectrum_real//2+1)
+                freqs_spectrum = np.linspace(0, Fs / 2,
+                                             num=pad_to_spectrum_real // 2 + 1)
         else:
             # frequencies for specgram, psd, and csd
             # need to handle even and odd differentl
             if pad_to_density_real % 2:
-                freqs_density = np.linspace(-Fs/2, Fs/2,
-                                            num=2*pad_to_density_real,
+                freqs_density = np.linspace(-Fs / 2, Fs / 2,
+                                            num=2 * pad_to_density_real,
                                             endpoint=False)[1::2]
             else:
-                freqs_density = np.linspace(-Fs/2, Fs/2,
+                freqs_density = np.linspace(-Fs / 2, Fs / 2,
                                             num=pad_to_density_real,
                                             endpoint=False)
 
             # frequencies for complex, magnitude, angle, and phase spectrums
             # need to handle even and odd differently
             if pad_to_spectrum_real % 2:
-                freqs_spectrum = np.linspace(-Fs/2, Fs/2,
-                                             num=2*pad_to_spectrum_real,
+                freqs_spectrum = np.linspace(-Fs / 2, Fs / 2,
+                                             num=2 * pad_to_spectrum_real,
                                              endpoint=False)[1::2]
             else:
-                freqs_spectrum = np.linspace(-Fs/2, Fs/2,
+                freqs_spectrum = np.linspace(-Fs / 2, Fs / 2,
                                              num=pad_to_spectrum_real,
                                              endpoint=False)
 
         freqs_specgram = freqs_density
         # time points for specgram
-        t_start = NFFT_specgram_real//2
-        t_stop = len(x) - NFFT_specgram_real//2+1
+        t_start = NFFT_specgram_real // 2
+        t_stop = len(x) - NFFT_specgram_real // 2 + 1
         t_step = NFFT_specgram_real - nover_specgram_real
         t_specgram = x[t_start:t_stop:t_step]
         if NFFT_specgram_real % 2:
-            t_specgram += 1/Fs/2
+            t_specgram += 1 / Fs / 2
         if len(t_specgram) == 0:
-            t_specgram = np.array([NFFT_specgram_real/(2*Fs)])
-        t_spectrum = np.array([NFFT_spectrum_real/(2*Fs)])
+            t_specgram = np.array([NFFT_specgram_real / (2 * Fs)])
+        t_spectrum = np.array([NFFT_spectrum_real / (2 * Fs)])
         t_density = t_specgram
 
         y = np.zeros_like(x)
@@ -1455,32 +1296,37 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         if iscomplex:
             y = y.astype('complex')
 
-        self.Fs = Fs
-        self.sides = sides
-        self.fstims = fstims
+        # Interestingly, the instance on which this fixture is called is not
+        # the same as the one on which a test is run. So we need to modify the
+        # class itself when using a class-scoped fixture.
+        cls = request.cls
 
-        self.NFFT_density = NFFT_density
-        self.nover_density = nover_density
-        self.pad_to_density = pad_to_density
+        cls.Fs = Fs
+        cls.sides = sides
+        cls.fstims = fstims
 
-        self.NFFT_spectrum = NFFT_spectrum
-        self.nover_spectrum = nover_spectrum
-        self.pad_to_spectrum = pad_to_spectrum
+        cls.NFFT_density = NFFT_density
+        cls.nover_density = nover_density
+        cls.pad_to_density = pad_to_density
 
-        self.NFFT_specgram = NFFT_specgram
-        self.nover_specgram = nover_specgram
-        self.pad_to_specgram = pad_to_specgram
+        cls.NFFT_spectrum = NFFT_spectrum
+        cls.nover_spectrum = nover_spectrum
+        cls.pad_to_spectrum = pad_to_spectrum
 
-        self.t_specgram = t_specgram
-        self.t_density = t_density
-        self.t_spectrum = t_spectrum
-        self.y = y
+        cls.NFFT_specgram = NFFT_specgram
+        cls.nover_specgram = nover_specgram
+        cls.pad_to_specgram = pad_to_specgram
 
-        self.freqs_density = freqs_density
-        self.freqs_spectrum = freqs_spectrum
-        self.freqs_specgram = freqs_specgram
+        cls.t_specgram = t_specgram
+        cls.t_density = t_density
+        cls.t_spectrum = t_spectrum
+        cls.y = y
 
-        self.NFFT_density_real = NFFT_density_real
+        cls.freqs_density = freqs_density
+        cls.freqs_spectrum = freqs_spectrum
+        cls.freqs_specgram = freqs_specgram
+
+        cls.NFFT_density_real = NFFT_density_real
 
     def check_freqs(self, vals, targfreqs, resfreqs, fstims):
         assert resfreqs.argmin() == 0
@@ -2290,547 +2136,6 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_allclose(speca, specb, atol=1e-08)
 
 
-class Test_spectral_nosig_real_twosided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_Fs4_real_onesided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4],
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_Fs4_real_twosided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4],
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_Fs4_real_defaultsided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4],
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_Fs4_complex_onesided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4],
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_Fs4_complex_twosided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4],
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_Fs4_complex_defaultsided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4],
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_FsAll_real_onesided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4, 5, 10],
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_FsAll_real_twosided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4, 5, 10],
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_FsAll_real_defaultsided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4, 5, 10],
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_FsAll_complex_onesided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4, 5, 10],
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_FsAll_complex_twosided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4, 5, 10],
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_FsAll_complex_defaultsided(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[4, 5, 10],
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_noNFFT(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_noNFFT(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_noNFFT(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_noNFFT(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_noNFFT(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_noNFFT(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_nopad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_nopad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_nopad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_nopad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_nopad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_nopad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_noNFFT_no_pad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_noNFFT_no_pad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_noNFFT_no_pad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_noNFFT_no_pad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_noNFFT_no_pad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_noNFFT_no_pad_to(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                NFFT_density=None,
-                                pad_to_density=None, pad_to_spectrum=None,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_trim(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=1024,
-                                NFFT_density=512, pad_to_spectrum=128,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_trim(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=1024,
-                                NFFT_density=512, pad_to_spectrum=128,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_trim(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=1024,
-                                NFFT_density=512, pad_to_spectrum=128,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_trim(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=1024,
-                                NFFT_density=512, pad_to_spectrum=128,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_trim(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=1024,
-                                NFFT_density=512, pad_to_spectrum=128,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_trim(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128, pad_to_spectrum=128,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_odd(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                pad_to_density=33, pad_to_spectrum=257,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_odd(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                pad_to_density=33, pad_to_spectrum=257,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_odd(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                pad_to_density=33, pad_to_spectrum=257,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_odd(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                pad_to_density=33, pad_to_spectrum=257,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_odd(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                pad_to_density=33, pad_to_spectrum=257,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_odd(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                pad_to_density=33, pad_to_spectrum=257,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_oddlen(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=255,
-                                NFFT_density=33, pad_to_spectrum=None,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_oddlen(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=255,
-                                NFFT_density=33, pad_to_spectrum=None,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_oddlen(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=255,
-                                NFFT_density=33, pad_to_spectrum=None,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_oddlen(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=255,
-                                NFFT_density=33, pad_to_spectrum=None,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_oddlen(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=255,
-                                NFFT_density=33, pad_to_spectrum=None,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_oddlen(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=255,
-                                NFFT_density=128, pad_to_spectrum=None,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_stretch(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128,
-                                pad_to_density=256, pad_to_spectrum=256,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_stretch(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128,
-                                pad_to_density=256, pad_to_spectrum=256,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_stretch(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128,
-                                pad_to_density=256, pad_to_spectrum=256,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_stretch(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128,
-                                pad_to_density=256, pad_to_spectrum=256,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_stretch(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128,
-                                pad_to_density=256, pad_to_spectrum=256,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_stretch(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                len_x=256,
-                                NFFT_density=128,
-                                pad_to_density=256, pad_to_spectrum=256,
-                                iscomplex=True, sides='default', nsides=2)
-
-
-class Test_spectral_nosig_real_onesided_overlap(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                nover_density=32,
-                                iscomplex=False, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_real_twosided_overlap(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                nover_density=32,
-                                iscomplex=False, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_real_defaultsided_overlap(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                nover_density=32,
-                                iscomplex=False, sides='default', nsides=1)
-
-
-class Test_spectral_nosig_complex_onesided_overlap(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                nover_density=32,
-                                iscomplex=True, sides='onesided', nsides=1)
-
-
-class Test_spectral_nosig_complex_twosided_overlap(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                nover_density=32,
-                                iscomplex=True, sides='twosided', nsides=2)
-
-
-class Test_spectral_nosig_complex_defaultsided_overlap(
-        Test_spectral_nosig_real_onesided):
-        def setUp(self):
-                self.createStim(fstims=[],
-                                nover_density=32,
-                                iscomplex=True, sides='default', nsides=2)
-
-
 def test_griddata_linear():
     # z is a linear function of x and y.
     def get_z(x, y):
@@ -2904,7 +2209,7 @@ def test_griddata_nn():
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
 #*****************************************************************
 
-class Test_gaussian_kde(object):
+class TestGaussianKDE(object):
 
     def test_kde_integer_input(self):
         """Regression test for #1181."""
@@ -2949,7 +2254,7 @@ class Test_gaussian_kde(object):
         assert kdepdf.all() == kdepdf3.all()
 
 
-class Test_gaussian_kde_custom(object):
+class TestGaussianKDECustom(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
         with pytest.raises(ValueError):
@@ -3038,7 +2343,7 @@ class Test_gaussian_kde_custom(object):
             mlab.GaussianKDE(data, bw_method="invalid")
 
 
-class Test_gaussian_kde_evaluate(object):
+class TestGaussianKDEEvaluate(object):
 
     def test_evaluate_diff_dim(self):
         """Test the evaluate method when the dim's of dataset and points are

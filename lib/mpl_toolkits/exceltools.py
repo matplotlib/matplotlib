@@ -92,7 +92,7 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf
     """
 
     autosave = False
-    if cbook.is_string_like(ws):
+    if isinstance(ws, six.string_types):
         filename = ws
         wb = excel.Workbook()
         ws = wb.add_sheet('worksheet')

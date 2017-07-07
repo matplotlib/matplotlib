@@ -18,7 +18,7 @@
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
-#suppress = False
+#suppress = True 
 
 [packages]
 # There are a number of subpackages of Matplotlib that are considered
@@ -55,7 +55,7 @@
 # therefore they are installed unconditionally.
 #
 # You can uncomment any the following lines to change this
-# behavior. Acceptible values are:
+# behavior. Acceptable values are:
 #
 #     True: build the extension. Exits with a warning if the
 #           required dependencies are not available
@@ -85,7 +85,7 @@
 #
 # The Agg, Ps, Pdf and SVG backends do not require external
 # dependencies. Do not choose GTK, GTKAgg, GTKCairo, MacOSX, or TkAgg
-# if you have disabled the relevent extension modules.  Agg will be used
+# if you have disabled the relevant extension modules.  Agg will be used
 # by default.
 #
 #backend = Agg

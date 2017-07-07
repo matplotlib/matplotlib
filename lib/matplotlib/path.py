@@ -22,9 +22,8 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from matplotlib import _path
-from matplotlib.cbook import simple_linear_interpolation, maxdict
-from matplotlib import rcParams
+from . import _path, rcParams
+from .cbook import simple_linear_interpolation, maxdict
 
 
 class Path(object):
@@ -318,7 +317,7 @@ class Path(object):
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
 
-        .. plot:: mpl_examples/api/histogram_path_demo.py
+        .. plot:: gallery/api/histogram_path.py
 
         """
 
@@ -483,30 +482,33 @@ class Path(object):
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Returns *True* if the path contains the given point.
+        Returns whether the (closed) path contains the given point.
 
-        If *transform* is not *None*, the path will be transformed
-        before performing the test.
+        If *transform* is not ``None``, the path will be transformed before
+        performing the test.
 
-        *radius* allows the path to be made slightly larger or
-        smaller.
+        *radius* allows the path to be made slightly larger or smaller.
         """
         if transform is not None:
             transform = transform.frozen()
-        result = _path.point_in_path(point[0], point[1], radius, self,
-                                     transform)
-        return result
+        # `point_in_path` does not handle nonlinear transforms, so we
+        # transform the path ourselves.  If `transform` is affine, letting
+        # `point_in_path` handle the transform avoids allocating an extra
+        # buffer.
+        if transform and not transform.is_affine:
+            self = transform.transform_path(self)
+            transform = None
+        return _path.point_in_path(point[0], point[1], radius, self, transform)
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Returns a bool array which is *True* if the path contains the
-        corresponding point.
+        Returns a bool array which is ``True`` if the (closed) path contains
+        the corresponding point.
 
-        If *transform* is not *None*, the path will be transformed
-        before performing the test.
+        If *transform* is not ``None``, the path will be transformed before
+        performing the test.
 
-        *radius* allows the path to be made slightly larger or
-        smaller.
+        *radius* allows the path to be made slightly larger or smaller.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -515,10 +517,10 @@ class Path(object):
 
     def contains_path(self, path, transform=None):
         """
-        Returns *True* if this path completely contains the given path.
+        Returns whether this (closed) path completely contains the given path.
 
-        If *transform* is not *None*, the path will be transformed
-        before performing the test.
+        If *transform* is not ``None``, the path will be transformed before
+        performing the test.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -558,14 +560,13 @@ class Path(object):
         :class:`~matplotlib.transforms.Bbox`.
 
         *filled*, when True, treats the path as if it was filled.
-        That is, if one path completely encloses the other,
-        :meth:`intersects_path` will return True.
+        That is, if the path completely encloses the bounding box,
+        :meth:`intersects_bbox` will return True.
+
+        The bounding box is always considered filled.
         """
-        from .transforms import BboxTransformTo
-        rectangle = self.unit_rectangle().transformed(
-            BboxTransformTo(bbox))
-        result = self.intersects_path(rectangle, filled)
-        return result
+        return _path.path_intersects_rectangle(self,
+            bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
     def interpolated(self, steps):
         """
@@ -1024,26 +1025,3 @@ def get_paths_extents(paths, transforms=[]):
         raise ValueError("No paths provided")
     return Bbox.from_extents(*_path.get_path_collection_extents(
         Affine2D(), paths, transforms, [], Affine2D()))
-
-
-def _define_deprecated_functions(ns):
-    from .cbook import deprecated
-
-    # The C++ functions are not meant to be used directly.
-    # Users should use the more pythonic wrappers in the Path
-    # class instead.
-    for func, alternative in [
-            ('point_in_path', 'path.Path.contains_point'),
-            ('get_path_extents', 'path.Path.get_extents'),
-            ('point_in_path_collection', 'collection.Collection.contains'),
-            ('path_in_path', 'path.Path.contains_path'),
-            ('path_intersects_path', 'path.Path.intersects_path'),
-            ('convert_path_to_polygons', 'path.Path.to_polygons'),
-            ('cleanup_path', 'path.Path.cleaned'),
-            ('points_in_path', 'path.Path.contains_points'),
-            ('clip_path_to_rect', 'path.Path.clip_to_bbox')]:
-        ns[func] = deprecated(
-            since='1.3', alternative=alternative)(getattr(_path, func))
-
-
-_define_deprecated_functions(locals())

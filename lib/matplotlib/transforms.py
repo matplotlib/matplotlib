@@ -29,6 +29,10 @@ The backends are not expected to handle non-affine transformations
 themselves.
 """
 
+# Note: There are a number of places in the code where we use `np.min` or
+# `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
+# done so that `nan`s are propagated, instead of being silently dropped.
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -258,11 +262,6 @@ class BboxBase(TransformNode):
     is_bbox = True
     is_affine = True
 
-    #* Redundant: Removed for performance
-    #
-    # def __init__(self):
-    #     TransformNode.__init__(self)
-
     if DEBUG:
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
@@ -287,169 +286,192 @@ class BboxBase(TransformNode):
         """
         return list(self.get_points().flatten()) == [0., 0., 1., 1.]
 
-    def _get_x0(self):
+    @property
+    def x0(self):
+        """
+        (property) :attr:`x0` is the first of the pair of *x* coordinates that
+        define the bounding box. :attr:`x0` is not guaranteed to be less than
+        :attr:`x1`.  If you require that, use :attr:`xmin`.
+        """
         return self.get_points()[0, 0]
-    x0 = property(_get_x0, None, None, """
-         (property) :attr:`x0` is the first of the pair of *x* coordinates that
-         define the bounding box.  :attr:`x0` is not guaranteed to be
-         less than :attr:`x1`.  If you require that, use :attr:`xmin`.""")
 
-    def _get_y0(self):
+    @property
+    def y0(self):
+        """
+        (property) :attr:`y0` is the first of the pair of *y* coordinates that
+        define the bounding box. :attr:`y0` is not guaranteed to be less than
+        :attr:`y1`.  If you require that, use :attr:`ymin`.
+        """
         return self.get_points()[0, 1]
-    y0 = property(_get_y0, None, None, """
-         (property) :attr:`y0` is the first of the pair of *y* coordinates that
-         define the bounding box.  :attr:`y0` is not guaranteed to be
-         less than :attr:`y1`.  If you require that, use :attr:`ymin`.""")
 
-    def _get_x1(self):
+    @property
+    def x1(self):
+        """
+        (property) :attr:`x1` is the second of the pair of *x* coordinates that
+        define the bounding box. :attr:`x1` is not guaranteed to be greater
+        than :attr:`x0`.  If you require that, use :attr:`xmax`.
+        """
         return self.get_points()[1, 0]
-    x1 = property(_get_x1, None, None, """
-         (property) :attr:`x1` is the second of the pair of *x* coordinates
-         that define the bounding box.  :attr:`x1` is not guaranteed to be
-         greater than :attr:`x0`.  If you require that, use :attr:`xmax`.""")
 
-    def _get_y1(self):
+    @property
+    def y1(self):
+        """
+        (property) :attr:`y1` is the second of the pair of *y* coordinates that
+        define the bounding box. :attr:`y1` is not guaranteed to be greater
+        than :attr:`y0`.  If you require that, use :attr:`ymax`.
+        """
         return self.get_points()[1, 1]
-    y1 = property(_get_y1, None, None, """
-         (property) :attr:`y1` is the second of the pair of *y* coordinates
-         that define the bounding box.  :attr:`y1` is not guaranteed to be
-         greater than :attr:`y0`.  If you require that, use :attr:`ymax`.""")
 
-    def _get_p0(self):
+    @property
+    def p0(self):
+        """
+        (property) :attr:`p0` is the first pair of (*x*, *y*) coordinates that
+        define the bounding box.  It is not guaranteed to be the bottom-left
+        corner.  For that, use :attr:`min`.
+        """
         return self.get_points()[0]
-    p0 = property(_get_p0, None, None, """
-         (property) :attr:`p0` is the first pair of (*x*, *y*) coordinates
-         that define the bounding box.  It is not guaranteed to be the
-         bottom-left corner.  For that, use :attr:`min`.""")
 
-    def _get_p1(self):
+    @property
+    def p1(self):
+        """
+        (property) :attr:`p1` is the second pair of (*x*, *y*) coordinates that
+        define the bounding box.  It is not guaranteed to be the top-right
+        corner.  For that, use :attr:`max`.
+        """
         return self.get_points()[1]
-    p1 = property(_get_p1, None, None, """
-         (property) :attr:`p1` is the second pair of (*x*, *y*) coordinates
-         that define the bounding box.  It is not guaranteed to be the
-         top-right corner.  For that, use :attr:`max`.""")
 
-    def _get_xmin(self):
-        return min(self.get_points()[:, 0])
-    xmin = property(_get_xmin, None, None, """
-        (property) :attr:`xmin` is the left edge of the bounding box.""")
+    @property
+    def xmin(self):
+        """
+        (property) :attr:`xmin` is the left edge of the bounding box.
+        """
+        return np.min(self.get_points()[:, 0])
 
-    def _get_ymin(self):
-        return min(self.get_points()[:, 1])
-    ymin = property(_get_ymin, None, None, """
-        (property) :attr:`ymin` is the bottom edge of the bounding box.""")
+    @property
+    def ymin(self):
+        """
+        (property) :attr:`ymin` is the bottom edge of the bounding box.
+        """
+        return np.min(self.get_points()[:, 1])
 
-    def _get_xmax(self):
-        return max(self.get_points()[:, 0])
-    xmax = property(_get_xmax, None, None, """
-        (property) :attr:`xmax` is the right edge of the bounding box.""")
+    @property
+    def xmax(self):
+        """
+        (property) :attr:`xmax` is the right edge of the bounding box.
+        """
+        return np.max(self.get_points()[:, 0])
 
-    def _get_ymax(self):
-        return max(self.get_points()[:, 1])
-    ymax = property(_get_ymax, None, None, """
-        (property) :attr:`ymax` is the top edge of the bounding box.""")
+    @property
+    def ymax(self):
+        """
+        (property) :attr:`ymax` is the top edge of the bounding box.
+        """
+        return np.max(self.get_points()[:, 1])
 
-    def _get_min(self):
-        return [min(self.get_points()[:, 0]),
-                min(self.get_points()[:, 1])]
-    min = property(_get_min, None, None, """
-        (property) :attr:`min` is the bottom-left corner of the bounding
-        box.""")
+    @property
+    def min(self):
+        """
+        (property) :attr:`min` is the bottom-left corner of the bounding box.
+        """
+        return np.min(self.get_points(), axis=0)
 
-    def _get_max(self):
-        return [max(self.get_points()[:, 0]),
-                max(self.get_points()[:, 1])]
-    max = property(_get_max, None, None, """
-        (property) :attr:`max` is the top-right corner of the bounding box.""")
+    @property
+    def max(self):
+        """
+        (property) :attr:`max` is the top-right corner of the bounding box.
+        """
+        return np.max(self.get_points(), axis=0)
 
-    def _get_intervalx(self):
-        return self.get_points()[:, 0]
-    intervalx = property(_get_intervalx, None, None, """
+    @property
+    def intervalx(self):
+        """
         (property) :attr:`intervalx` is the pair of *x* coordinates that define
-        the bounding box. It is not guaranteed to be sorted from left to
-        right.""")
+        the bounding box. It is not guaranteed to be sorted from left to right.
+        """
+        return self.get_points()[:, 0]
 
-    def _get_intervaly(self):
-        return self.get_points()[:, 1]
-    intervaly = property(_get_intervaly, None, None, """
+    @property
+    def intervaly(self):
+        """
         (property) :attr:`intervaly` is the pair of *y* coordinates that define
         the bounding box.  It is not guaranteed to be sorted from bottom to
-        top.""")
+        top.
+        """
+        return self.get_points()[:, 1]
 
-    def _get_width(self):
+    @property
+    def width(self):
+        """
+        (property) The width of the bounding box.  It may be negative if
+        :attr:`x1` < :attr:`x0`.
+        """
         points = self.get_points()
         return points[1, 0] - points[0, 0]
-    width = property(_get_width, None, None, """
-        (property) The width of the bounding box.  It may be negative if
-        :attr:`x1` < :attr:`x0`.""")
 
-    def _get_height(self):
+    @property
+    def height(self):
+        """
+        (property) The height of the bounding box.  It may be negative if
+        :attr:`y1` < :attr:`y0`.
+        """
         points = self.get_points()
         return points[1, 1] - points[0, 1]
-    height = property(_get_height, None, None, """
-        (property) The height of the bounding box.  It may be negative if
-        :attr:`y1` < :attr:`y0`.""")
 
-    def _get_size(self):
+    @property
+    def size(self):
+        """
+        (property) The width and height of the bounding box.  May be negative,
+        in the same way as :attr:`width` and :attr:`height`.
+        """
         points = self.get_points()
         return points[1] - points[0]
-    size = property(_get_size, None, None, """
-        (property) The width and height of the bounding box.  May be negative,
-        in the same way as :attr:`width` and :attr:`height`.""")
 
-    def _get_bounds(self):
+    @property
+    def bounds(self):
+        """
+        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
+        :attr:`height`).
+        """
         x0, y0, x1, y1 = self.get_points().flatten()
         return (x0, y0, x1 - x0, y1 - y0)
-    bounds = property(_get_bounds, None, None, """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
-        :attr:`height`).""")
 
-    def _get_extents(self):
-        return self.get_points().flatten().copy()
-    extents = property(_get_extents, None, None, """
+    @property
+    def extents(self):
+        """
         (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`,
-        :attr:`y1`).""")
+        :attr:`y1`).
+        """
+        return self.get_points().flatten().copy()
 
     def get_points(self):
-        return NotImplementedError()
+        raise NotImplementedError
 
     def containsx(self, x):
         """
-        Returns True if *x* is between or equal to :attr:`x0` and
-        :attr:`x1`.
+        Returns whether `x` is in the closed (:attr:`x0`, :attr:`x1`) interval.
         """
         x0, x1 = self.intervalx
-        return ((x0 < x1
-                 and (x >= x0 and x <= x1))
-                or (x >= x1 and x <= x0))
+        return x0 <= x <= x1 or x0 >= x >= x1
 
     def containsy(self, y):
         """
-        Returns True if *y* is between or equal to :attr:`y0` and
-        :attr:`y1`.
+        Returns whether `y` is in the closed (:attr:`y0`, :attr:`y1`) interval.
         """
         y0, y1 = self.intervaly
-        return ((y0 < y1
-                 and (y >= y0 and y <= y1))
-                or (y >= y1 and y <= y0))
+        return y0 <= y <= y1 or y0 >= y >= y1
 
     def contains(self, x, y):
         """
-        Returns *True* if (*x*, *y*) is a coordinate inside the
-        bounding box or on its edge.
+        Returns whether `x, y` is in the bounding box or on its edge.
         """
         return self.containsx(x) and self.containsy(y)
 
     def overlaps(self, other):
         """
-        Returns True if this bounding box overlaps with the given
-        bounding box *other*.
+        Returns whether this bounding box overlaps with the other bounding box.
         """
-        ax1, ay1, ax2, ay2 = self._get_extents()
-        bx1, by1, bx2, by2 = other._get_extents()
-        if any(np.isnan(v) for v in [ax1, ay1, ax2, ay2, bx1, by1, bx2, by2]):
-            return False
-
+        ax1, ay1, ax2, ay2 = self.extents
+        bx1, by1, bx2, by2 = other.extents
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
         if ay2 < ay1:
@@ -458,48 +480,35 @@ class BboxBase(TransformNode):
             bx2, bx1 = bx1, bx2
         if by2 < by1:
             by2, by1 = by1, by2
-
-        return not ((bx2 < ax1) or
-                    (by2 < ay1) or
-                    (bx1 > ax2) or
-                    (by1 > ay2))
+        return ax1 <= bx2 and bx1 <= ax2 and ay1 <= by2 and by1 <= ay2
 
     def fully_containsx(self, x):
         """
-        Returns True if *x* is between but not equal to :attr:`x0` and
-        :attr:`x1`.
+        Returns whether `x` is in the open (:attr:`x0`, :attr:`x1`) interval.
         """
         x0, x1 = self.intervalx
-        return ((x0 < x1
-                 and (x > x0 and x < x1))
-                or (x > x1 and x < x0))
+        return x0 < x < x1 or x0 > x > x1
 
     def fully_containsy(self, y):
         """
-        Returns True if *y* is between but not equal to :attr:`y0` and
-        :attr:`y1`.
+        Returns whether `y` is in the open (:attr:`y0`, :attr:`y1`) interval.
         """
         y0, y1 = self.intervaly
-        return ((y0 < y1
-                 and (y > y0 and y < y1))
-                or (y > y1 and y < y0))
+        return y0 < y < y1 or y0 > y > y1
 
     def fully_contains(self, x, y):
         """
-        Returns True if (*x*, *y*) is a coordinate inside the bounding
-        box, but not on its edge.
+        Returns whether `x, y` is in the bounding box, but not on its edge.
         """
-        return self.fully_containsx(x) \
-            and self.fully_containsy(y)
+        return self.fully_containsx(x) and self.fully_containsy(y)
 
     def fully_overlaps(self, other):
         """
-        Returns True if this bounding box overlaps with the given
-        bounding box *other*, but not on its edge alone.
+        Returns whether this bounding box overlaps with the other bounding box,
+        not including the edges.
         """
-        ax1, ay1, ax2, ay2 = self._get_extents()
-        bx1, by1, bx2, by2 = other._get_extents()
-
+        ax1, ay1, ax2, ay2 = self.extents
+        bx1, by1, bx2, by2 = other.extents
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
         if ay2 < ay1:
@@ -508,11 +517,7 @@ class BboxBase(TransformNode):
             bx2, bx1 = bx1, bx2
         if by2 < by1:
             by2, by1 = by1, by2
-
-        return not ((bx2 <= ax1) or
-                    (by2 <= ay1) or
-                    (bx1 >= ax2) or
-                    (by1 >= ay2))
+        return ax1 < bx2 and bx1 < ax2 and ay1 < by2 and by1 < ay2
 
     def transformed(self, transform):
         """
@@ -617,13 +622,11 @@ class BboxBase(TransformNode):
         splitting the original one with vertical lines at fractional
         positions *f1*, *f2*, ...
         """
-        boxes = []
         xf = [0] + list(args) + [1]
-        x0, y0, x1, y1 = self._get_extents()
+        x0, y0, x1, y1 = self.extents
         w = x1 - x0
-        for xf0, xf1 in zip(xf[:-1], xf[1:]):
-            boxes.append(Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]]))
-        return boxes
+        return [Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]])
+                for xf0, xf1 in zip(xf[:-1], xf[1:])]
 
     def splity(self, *args):
         """
@@ -633,31 +636,25 @@ class BboxBase(TransformNode):
         splitting the original one with horizontal lines at fractional
         positions *f1*, *f2*, ...
         """
-        boxes = []
         yf = [0] + list(args) + [1]
-        x0, y0, x1, y1 = self._get_extents()
+        x0, y0, x1, y1 = self.extents
         h = y1 - y0
-        for yf0, yf1 in zip(yf[:-1], yf[1:]):
-            boxes.append(Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]]))
-        return boxes
+        return [Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]])
+                for yf0, yf1 in zip(yf[:-1], yf[1:])]
 
     def count_contains(self, vertices):
         """
         Count the number of vertices contained in the :class:`Bbox`.
+        Any vertices with a non-finite x or y value are ignored.
 
         *vertices* is a Nx2 Numpy array.
         """
         if len(vertices) == 0:
             return 0
         vertices = np.asarray(vertices)
-        x0, y0, x1, y1 = self._get_extents()
         with np.errstate(invalid='ignore'):
-            dx0 = np.sign(vertices[:, 0] - x0)
-            dy0 = np.sign(vertices[:, 1] - y0)
-            dx1 = np.sign(vertices[:, 0] - x1)
-            dy1 = np.sign(vertices[:, 1] - y1)
-        inside = ((abs(dx0 + dx1) + abs(dy0 + dy1)) == 0)
-        return np.sum(inside)
+            return (((self.min < vertices) &
+                     (vertices < self.max)).all(axis=1).sum())
 
     def count_overlaps(self, bboxes):
         """
@@ -725,50 +722,23 @@ class BboxBase(TransformNode):
         """
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-
-        if len(bboxes) == 1:
-            return bboxes[0]
-
-        x0 = np.inf
-        y0 = np.inf
-        x1 = -np.inf
-        y1 = -np.inf
-
-        for bbox in bboxes:
-            points = bbox.get_points()
-            xs = points[:, 0]
-            ys = points[:, 1]
-            x0 = min(x0, np.min(xs))
-            y0 = min(y0, np.min(ys))
-            x1 = max(x1, np.max(xs))
-            y1 = max(y1, np.max(ys))
-
-        return Bbox.from_extents(x0, y0, x1, y1)
+        x0 = np.min([bbox.xmin for bbox in bboxes])
+        x1 = np.max([bbox.xmax for bbox in bboxes])
+        y0 = np.min([bbox.ymin for bbox in bboxes])
+        y1 = np.max([bbox.ymax for bbox in bboxes])
+        return Bbox([[x0, y0], [x1, y1]])
 
     @staticmethod
     def intersection(bbox1, bbox2):
         """
         Return the intersection of the two bboxes or None
         if they do not intersect.
-
-        Implements the algorithm described at:
-
-            http://www.tekpool.com/node/2687
-
         """
-        intersects = not (bbox2.xmin > bbox1.xmax or
-                          bbox2.xmax < bbox1.xmin or
-                          bbox2.ymin > bbox1.ymax or
-                          bbox2.ymax < bbox1.ymin)
-
-        if intersects:
-            x0 = max(bbox1.xmin, bbox2.xmin)
-            x1 = min(bbox1.xmax, bbox2.xmax)
-            y0 = max(bbox1.ymin, bbox2.ymin)
-            y1 = min(bbox1.ymax, bbox2.ymax)
-            return Bbox.from_extents(x0, y0, x1, y1)
-
-        return None
+        x0 = np.maximum(bbox1.xmin, bbox2.xmin)
+        x1 = np.minimum(bbox1.xmax, bbox2.xmax)
+        y0 = np.maximum(bbox1.ymin, bbox2.ymin)
+        y1 = np.minimum(bbox1.ymax, bbox2.ymax)
+        return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
 
 
 class Bbox(BboxBase):
@@ -953,65 +923,65 @@ class Bbox(BboxBase):
         self.update_from_path(path, ignore=ignore,
                                     updatex=updatex, updatey=updatey)
 
-    def _set_x0(self, val):
+    @BboxBase.x0.setter
+    def x0(self, val):
         self._points[0, 0] = val
         self.invalidate()
-    x0 = property(BboxBase._get_x0, _set_x0)
 
-    def _set_y0(self, val):
+    @BboxBase.y0.setter
+    def y0(self, val):
         self._points[0, 1] = val
         self.invalidate()
-    y0 = property(BboxBase._get_y0, _set_y0)
 
-    def _set_x1(self, val):
+    @BboxBase.x1.setter
+    def x1(self, val):
         self._points[1, 0] = val
         self.invalidate()
-    x1 = property(BboxBase._get_x1, _set_x1)
 
-    def _set_y1(self, val):
+    @BboxBase.y1.setter
+    def y1(self, val):
         self._points[1, 1] = val
         self.invalidate()
-    y1 = property(BboxBase._get_y1, _set_y1)
 
-    def _set_p0(self, val):
+    @BboxBase.p0.setter
+    def p0(self, val):
         self._points[0] = val
         self.invalidate()
-    p0 = property(BboxBase._get_p0, _set_p0)
 
-    def _set_p1(self, val):
+    @BboxBase.p1.setter
+    def p1(self, val):
         self._points[1] = val
         self.invalidate()
-    p1 = property(BboxBase._get_p1, _set_p1)
 
-    def _set_intervalx(self, interval):
+    @BboxBase.intervalx.setter
+    def intervalx(self, interval):
         self._points[:, 0] = interval
         self.invalidate()
-    intervalx = property(BboxBase._get_intervalx, _set_intervalx)
 
-    def _set_intervaly(self, interval):
+    @BboxBase.intervaly.setter
+    def intervaly(self, interval):
         self._points[:, 1] = interval
         self.invalidate()
-    intervaly = property(BboxBase._get_intervaly, _set_intervaly)
 
-    def _set_bounds(self, bounds):
+    @BboxBase.bounds.setter
+    def bounds(self, bounds):
         l, b, w, h = bounds
         points = np.array([[l, b], [l + w, b + h]], float)
         if np.any(self._points != points):
             self._points = points
             self.invalidate()
-    bounds = property(BboxBase._get_bounds, _set_bounds)
 
-    def _get_minpos(self):
+    @property
+    def minpos(self):
         return self._minpos
-    minpos = property(_get_minpos)
 
-    def _get_minposx(self):
+    @property
+    def minposx(self):
         return self._minpos[0]
-    minposx = property(_get_minposx)
 
-    def _get_minposy(self):
+    @property
+    def minposy(self):
         return self._minpos[1]
-    minposy = property(_get_minposy)
 
     def get_points(self):
         """
@@ -1188,11 +1158,9 @@ class Transform(TransformNode):
         raise TypeError(
             "Can not add Transform to object of type '%s'" % type(other))
 
-    def __eq__(self, other):
-        # equality is based on transform object id. Hence:
-        # Transform() != Transform().
-        # Some classes, such as TransformWrapper & AffineBase, will override.
-        return self is other
+    # Equality is based on object identity for `Transform`s (so we don't
+    # override `__eq__`), but some subclasses, such as TransformWrapper &
+    # AffineBase, override this behavior.
 
     def _iter_break_from_left_to_right(self):
         """
@@ -1337,12 +1305,9 @@ class Transform(TransformNode):
             return res.reshape(-1)
         elif ndim == 2:
             return res
-        else:
-            raise ValueError(
-                "Input values must have shape (N x {dims}) "
-                "or ({dims}).".format(dims=self.input_dims))
-
-        return res
+        raise ValueError(
+            "Input values must have shape (N x {dims}) "
+            "or ({dims}).".format(dims=self.input_dims))
 
     def transform_affine(self, values):
         """
@@ -2827,15 +2792,13 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 
 def interval_contains(interval, val):
     a, b = interval
-    return (
-        ((a < b) and (a <= val and b >= val))
-        or (b <= val and a >= val))
+    return a <= val <= b or a >= val >= b
+
 
 def interval_contains_open(interval, val):
     a, b = interval
-    return (
-        ((a < b) and (a < val and b > val))
-        or (b < val and a > val))
+    return a < val < b or a > val > b
+
 
 def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     '''

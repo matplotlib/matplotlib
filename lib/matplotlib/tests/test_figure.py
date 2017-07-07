@@ -1,13 +1,15 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from numpy.testing import assert_equal
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.axes import Axes
+from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import warnings
+import pytest
 
 
 def test_figure_label():
@@ -21,14 +23,14 @@ def test_figure_label():
     plt.figure(0)
     plt.figure(1)
     plt.figure(3)
-    assert_equal(plt.get_fignums(), [0, 1, 3, 4, 5])
-    assert_equal(plt.get_figlabels(), ['', 'today', '', 'tomorrow', ''])
+    assert plt.get_fignums() == [0, 1, 3, 4, 5]
+    assert plt.get_figlabels() == ['', 'today', '', 'tomorrow', '']
     plt.close(10)
     plt.close()
     plt.close(5)
     plt.close('tomorrow')
-    assert_equal(plt.get_fignums(), [0, 1])
-    assert_equal(plt.get_figlabels(), ['', 'today'])
+    assert plt.get_fignums() == [0, 1]
+    assert plt.get_figlabels() == ['', 'today']
 
 
 def test_fignum_exists():
@@ -37,31 +39,33 @@ def test_fignum_exists():
     plt.figure(2)
     plt.figure('three')
     plt.figure()
-    assert_equal(plt.fignum_exists('one'), True)
-    assert_equal(plt.fignum_exists(2), True)
-    assert_equal(plt.fignum_exists('three'), True)
-    assert_equal(plt.fignum_exists(4), True)
+    assert plt.fignum_exists('one')
+    assert plt.fignum_exists(2)
+    assert plt.fignum_exists('three')
+    assert plt.fignum_exists(4)
     plt.close('one')
     plt.close(4)
-    assert_equal(plt.fignum_exists('one'), False)
-    assert_equal(plt.fignum_exists(4), False)
+    assert not plt.fignum_exists('one')
+    assert not plt.fignum_exists(4)
 
 
 def test_clf_keyword():
     # test if existing figure is cleared with figure() and subplots()
+    text1 = 'A fancy plot'
+    text2 = 'Really fancy!'
+
     fig0 = plt.figure(num=1)
-    fig0.suptitle("A fancy plot")
-    assert_equal([t.get_text() for t in fig0.texts], ["A fancy plot"])
+    fig0.suptitle(text1)
+    assert [t.get_text() for t in fig0.texts] == [text1]
 
     fig1 = plt.figure(num=1, clear=False)
-    fig1.text(0.5, 0.5, "Really fancy!")
+    fig1.text(0.5, 0.5, text2)
     assert fig0 is fig1
-    assert_equal([t.get_text() for t in fig1.texts],
-                 ["A fancy plot", 'Really fancy!'])
+    assert [t.get_text() for t in fig1.texts] == [text1, text2]
 
     fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
     assert fig0 is fig2
-    assert_equal([t.get_text() for t in fig2.texts], [])
+    assert [t.get_text() for t in fig2.texts] == []
 
 
 @image_comparison(baseline_images=['figure_today'])
@@ -113,7 +117,7 @@ def test_gca():
         assert fig.gca(polar=True) is not ax3
         assert len(w) == 1
     assert fig.gca(polar=True) is not ax2
-    assert_equal(fig.gca().get_geometry(), (1, 1, 1))
+    assert fig.gca().get_geometry() == (1, 1, 1)
 
     fig.sca(ax1)
     assert fig.gca(projection='rectilinear') is ax1
@@ -132,8 +136,8 @@ def test_suptitle_fontproperties():
     fig, ax = plt.subplots()
     fps = FontProperties(size='large', weight='bold')
     txt = fig.suptitle('fontprops title', fontproperties=fps)
-    assert_equal(txt.get_fontsize(), fps.get_size_in_points())
-    assert_equal(txt.get_weight(), fps.get_weight())
+    assert txt.get_fontsize() == fps.get_size_in_points()
+    assert txt.get_weight() == fps.get_weight()
 
 
 @image_comparison(baseline_images=['alpha_background'],
@@ -199,21 +203,21 @@ def test_set_fig_size():
 
     # check figwidth
     fig.set_figwidth(5)
-    assert_equal(fig.get_figwidth(), 5)
+    assert fig.get_figwidth() == 5
 
     # check figheight
     fig.set_figheight(1)
-    assert_equal(fig.get_figheight(), 1)
+    assert fig.get_figheight() == 1
 
     # check using set_size_inches
     fig.set_size_inches(2, 4)
-    assert_equal(fig.get_figwidth(), 2)
-    assert_equal(fig.get_figheight(), 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
 
     # check using tuple to first argument
     fig.set_size_inches((1, 3))
-    assert_equal(fig.get_figwidth(), 1)
-    assert_equal(fig.get_figheight(), 3)
+    assert fig.get_figwidth() == 1
+    assert fig.get_figheight() == 3
 
 
 def test_axes_remove():
@@ -222,7 +226,7 @@ def test_axes_remove():
     for ax in axes.ravel()[:-1]:
         assert ax in fig.axes
     assert axes[-1, -1] not in fig.axes
-    assert_equal(len(fig.axes), 3)
+    assert len(fig.axes) == 3
 
 
 def test_figaspect():
@@ -234,3 +238,63 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
+
+
+@pytest.mark.parametrize('which', [None, 'both', 'major', 'minor'])
+def test_autofmt_xdate(which):
+    date = ['3 Jan 2013', '4 Jan 2013', '5 Jan 2013', '6 Jan 2013',
+            '7 Jan 2013', '8 Jan 2013', '9 Jan 2013', '10 Jan 2013',
+            '11 Jan 2013', '12 Jan 2013', '13 Jan 2013', '14 Jan 2013']
+
+    time = ['16:44:00', '16:45:00', '16:46:00', '16:47:00', '16:48:00',
+            '16:49:00', '16:51:00', '16:52:00', '16:53:00', '16:55:00',
+            '16:56:00', '16:57:00']
+
+    angle = 60
+    minors = [1, 2, 3, 4, 5, 6, 7]
+
+    x = mdates.datestr2num(date)
+    y = mdates.datestr2num(time)
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x, y)
+    ax.yaxis_date()
+    ax.xaxis_date()
+
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.xaxis.set_minor_formatter(FixedFormatter(minors))
+
+    fig.autofmt_xdate(0.2, angle, 'right', which)
+
+    if which in ('both', 'major', None):
+        for label in fig.axes[0].get_xticklabels(False, 'major'):
+            assert int(label.get_rotation()) == angle
+
+    if which in ('both', 'minor'):
+        for label in fig.axes[0].get_xticklabels(True, 'minor'):
+            assert int(label.get_rotation()) == angle
+
+
+@pytest.mark.style('default')
+def test_change_dpi():
+    fig = plt.figure(figsize=(4, 4))
+    fig.canvas.draw()
+    assert fig.canvas.renderer.height == 400
+    assert fig.canvas.renderer.width == 400
+    fig.dpi = 50
+    fig.canvas.draw()
+    assert fig.canvas.renderer.height == 200
+    assert fig.canvas.renderer.width == 200
+
+
+def test_invalid_figure_size():
+    with pytest.raises(ValueError):
+        plt.figure(figsize=(1, np.nan))
+
+    fig = plt.figure()
+    with pytest.raises(ValueError):
+        fig.set_size_inches(1, np.nan)
+
+    with pytest.raises(ValueError):
+        fig.add_axes((.1, .1, .5, np.nan))

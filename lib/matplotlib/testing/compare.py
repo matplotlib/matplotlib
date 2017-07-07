@@ -7,9 +7,15 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import atexit
+import functools
 import hashlib
+import itertools
 import os
+import re
 import shutil
+import sys
+from tempfile import TemporaryFile
 
 import numpy as np
 
@@ -19,7 +25,6 @@ from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
 from matplotlib import _get_cachedir
 from matplotlib import cbook
-from distutils import version
 
 __all__ = ['compare_float', 'compare_images', 'comparable_formats']
 
@@ -128,6 +133,110 @@ def make_external_conversion_command(cmd):
     return convert
 
 
+# Modified from https://bugs.python.org/issue25567.
+_find_unsafe_bytes = re.compile(br'[^a-zA-Z0-9_@%+=:,./-]').search
+
+
+def _shlex_quote_bytes(b):
+    return (b if _find_unsafe_bytes(b) is None
+            else b"'" + b.replace(b"'", b"'\"'\"'") + b"'")
+
+
+class _SVGConverter(object):
+    def __init__(self):
+        self._proc = None
+        # We cannot rely on the GC to trigger `__del__` at exit because
+        # other modules (e.g. `subprocess`) may already have their globals
+        # set to `None`, which make `proc.communicate` or `proc.terminate`
+        # fail.  By relying on `atexit` we ensure the destructor runs before
+        # `None`-setting occurs.
+        atexit.register(self.__del__)
+
+    def _read_to_prompt(self):
+        """Did Inkscape reach the prompt without crashing?
+        """
+        stream = iter(functools.partial(self._proc.stdout.read, 1), b"")
+        prompt = (b"\n", b">")
+        n = len(prompt)
+        its = itertools.tee(stream, n)
+        for i, it in enumerate(its):
+            next(itertools.islice(it, i, i), None)  # Advance `it` by `i`.
+        while True:
+            window = tuple(map(next, its))
+            if len(window) != n:
+                # Ran out of data -- one of the `next(it)` raised
+                # StopIteration, so the tuple is shorter.
+                return False
+            if self._proc.poll() is not None:
+                # Inkscape exited.
+                return False
+            if window == prompt:
+                # Successfully read until prompt.
+                return True
+
+    def __call__(self, orig, dest):
+        if (not self._proc  # First run.
+                or self._proc.poll() is not None):  # Inkscape terminated.
+            env = os.environ.copy()
+            # If one passes e.g. a png file to Inkscape, it will try to
+            # query the user for conversion options via a GUI (even with
+            # `--without-gui`).  Unsetting `DISPLAY` prevents this (and causes
+            # GTK to crash and Inkscape to terminate, but that'll just be
+            # reported as a regular exception below).
+            env.pop("DISPLAY", None)  # May already be unset.
+            # Do not load any user options.
+            # `os.environ` needs native strings on Py2+Windows.
+            env[str("INKSCAPE_PROFILE_DIR")] = os.devnull
+            # Old versions of Inkscape (0.48.3.1, used on Travis as of now)
+            # seem to sometimes deadlock when stderr is redirected to a pipe,
+            # so we redirect it to a temporary file instead.  This is not
+            # necessary anymore as of Inkscape 0.92.1.
+            self._stderr = TemporaryFile()
+            self._proc = subprocess.Popen(
+                [str("inkscape"), "--without-gui", "--shell"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=self._stderr, env=env)
+            if not self._read_to_prompt():
+                raise OSError("Failed to start Inkscape")
+
+        try:
+            fsencode = os.fsencode
+        except AttributeError:  # Py2.
+            def fsencode(s):
+                return s.encode(sys.getfilesystemencoding())
+
+        # Inkscape uses glib's `g_shell_parse_argv`, which has a consistent
+        # behavior across platforms, so we can just use `shlex.quote`.
+        orig_b, dest_b = map(_shlex_quote_bytes, map(fsencode, [orig, dest]))
+        if b"\n" in orig_b or b"\n" in dest_b:
+            # Who knows whether the current folder name has a newline, or if
+            # our encoding is even ASCII compatible...  Just fall back on the
+            # slow solution (Inkscape uses `fgets` so it will always stop at a
+            # newline).
+            return make_external_conversion_command(lambda old, new: [
+                str('inkscape'), '-z', old, '--export-png', new])(orig, dest)
+        self._proc.stdin.write(orig_b + b" --export-png=" + dest_b + b"\n")
+        self._proc.stdin.flush()
+        if not self._read_to_prompt():
+            # Inkscape's output is not localized but gtk's is, so the
+            # output stream probably has a mixed encoding.  Using
+            # `getfilesystemencoding` should at least get the filenames
+            # right...
+            self._stderr.seek(0)
+            raise ImageComparisonFailure(
+                self._stderr.read().decode(
+                    sys.getfilesystemencoding(), "replace"))
+
+    def __del__(self):
+        if self._proc:
+            if self._proc.poll() is None:  # Not exited yet.
+                self._proc.communicate(b"quit\n")
+                self._proc.wait()
+            self._proc.stdin.close()
+            self._proc.stdout.close()
+            self._stderr.close()
+
+
 def _update_converter():
     gs, gs_v = matplotlib.checkdep_ghostscript()
     if gs_v is not None:
@@ -138,9 +247,7 @@ def _update_converter():
         converter['eps'] = make_external_conversion_command(cmd)
 
     if matplotlib.checkdep_inkscape() is not None:
-        def cmd(old, new):
-            return [str('inkscape'), '-z', old, '--export-png', new]
-        converter['svg'] = make_external_conversion_command(cmd)
+        converter['svg'] = _SVGConverter()
 
 
 #: A dictionary that maps filename extensions to functions which
@@ -259,7 +366,7 @@ def calculate_rms(expectedImage, actualImage):
     "Calculate the per-pixel errors, then compute the root mean square error."
     if expectedImage.shape != actualImage.shape:
         raise ImageComparisonFailure(
-            "image sizes do not match expected size: {0} "
+            "Image sizes do not match expected size: {0} "
             "actual size {1}".format(expectedImage.shape, actualImage.shape))
     num_values = expectedImage.size
     abs_diff_image = abs(expectedImage - actualImage)
@@ -363,9 +470,11 @@ def save_diff_image(expected, actual, output):
         actual, actualImage, expected, expectedImage)
     expectedImage = np.array(expectedImage).astype(float)
     actualImage = np.array(actualImage).astype(float)
-    assert expectedImage.ndim == actualImage.ndim
-    assert expectedImage.shape == actualImage.shape
-    absDiffImage = abs(expectedImage - actualImage)
+    if expectedImage.shape != actualImage.shape:
+        raise ImageComparisonFailure(
+            "Image sizes do not match expected size: {0} "
+            "actual size {1}".format(expectedImage.shape, actualImage.shape))
+    absDiffImage = np.abs(expectedImage - actualImage)
 
     # expand differences in luminance domain
     absDiffImage *= 255 * 10

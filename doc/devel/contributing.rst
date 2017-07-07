@@ -120,14 +120,16 @@ environment is set up properly::
   python tests.py
 
 
-.. _nose: https://nose.readthedocs.io/en/latest/
+.. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
+.. _mock: https://docs.python.org/dev/library/unittest.mock.html
+.. _Ghostscript: https://www.ghostscript.com/
+.. _Inkscape: https://inkscape.org>
 
 .. note::
 
-  **Additional dependencies for testing**: nose_ (version 1.0 or later), `mock
-  <https://docs.python.org/dev/library/unittest.mock.html>`_ (if python < 3.3), `Ghostscript
-  <https://www.ghostscript.com/>`_, `Inkscape <https://inkscape.org>`_
+  **Additional dependencies for testing**: pytest_ (version 3.0 or later),
+  mock_ (if python < 3.3), Ghostscript_, Inkscape_
 
 .. seealso::
 
@@ -412,8 +414,8 @@ Developing a new backend
 ------------------------
 
 If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
-external backend via the ``module`` directive.  if
+:file:`matplotlibrc` (:ref:`sphx_glr_tutorials_01_introductory_customizing.py`) supports an
+external backend via the ``module`` directive.  If
 :file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways
 
@@ -421,15 +423,10 @@ external backend via the ``module`` directive.  if
 
     backend : module://my_backend
 
-
 * with the :envvar:`MPLBACKEND` environment variable::
 
     > export MPLBACKEND="module://my_backend"
     > python simple_plot.py
-
-* from the command shell with the `-d` flag::
-
-    > python simple_plot.py -dmodule://my_backend
 
 * with the use directive in your script::
 
@@ -443,9 +440,8 @@ Writing examples
 
 We have hundreds of examples in subdirectories of
 :file:`matplotlib/examples`, and these are automatically generated
-when the website is built to show up both in the `examples
-<../examples/index.html>`_ and `gallery
-<../gallery.html>`_ sections of the website.
+when the website is built to show up in the `examples
+<../gallery/index.html>` section of the website.
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the

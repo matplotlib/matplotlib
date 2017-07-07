@@ -39,7 +39,7 @@ def allow_rasterization(draw):
     """
     Decorator for Artist.draw method. Provides routines
     that run before and after the draw call. The before and after functions
-    are useful for changing artist-dependant renderer attributes or making
+    are useful for changing artist-dependent renderer attributes or making
     other setup function calls, such as starting and flushing a mixed-mode
     renderer.
     """
@@ -806,7 +806,7 @@ class Artist(object):
 
     def set_agg_filter(self, filter_func):
         """
-        set agg_filter fuction.
+        set agg_filter function.
 
         """
         self._agg_filter = filter_func

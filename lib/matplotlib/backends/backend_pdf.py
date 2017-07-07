@@ -34,7 +34,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
                                       FigureManagerBase, FigureCanvasBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (Bunch, is_string_like, get_realpath_and_stat,
+from matplotlib.cbook import (Bunch, get_realpath_and_stat,
                               is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -434,7 +434,7 @@ class PdfFile(object):
         self.passed_in_file_object = False
         self.original_file_like = None
         self.tell_base = 0
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             fh = open(filename, 'wb')
         elif is_writable_file_like(filename):
             try:
@@ -493,7 +493,8 @@ class PdfFile(object):
 
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
-        self.dviFontInfo = {}   # information on dvi fonts
+        self.dviFontInfo = {}   # maps dvi font names to embedding information
+        self._texFontMap = None  # maps TeX font names to PostScript fonts
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self.used_characters = {}
@@ -637,10 +638,10 @@ class PdfFile(object):
         """
         Select a font based on fontprop and return a name suitable for
         Op.selectfont. If fontprop is a string, it will be interpreted
-        as the filename (or dvi name) of the font.
+        as the filename of the font.
         """
 
-        if is_string_like(fontprop):
+        if isinstance(fontprop, six.string_types):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
             filename = findfont(
@@ -662,8 +663,55 @@ class PdfFile(object):
 
         return Fx
 
+    @property
+    def texFontMap(self):
+        # lazy-load texFontMap, it takes a while to parse
+        # and usetex is a relatively rare use case
+        if self._texFontMap is None:
+            self._texFontMap = dviread.PsfontsMap(
+                dviread.find_tex_file('pdftex.map'))
+
+        return self._texFontMap
+
+    def dviFontName(self, dvifont):
+        """
+        Given a dvi font object, return a name suitable for Op.selectfont.
+        This registers the font information in self.dviFontInfo if not yet
+        registered.
+        """
+
+        dvi_info = self.dviFontInfo.get(dvifont.texname)
+        if dvi_info is not None:
+            return dvi_info.pdfname
+
+        psfont = self.texFontMap[dvifont.texname]
+        if psfont.filename is None:
+            raise ValueError(
+                ("No usable font file found for {0} (TeX: {1}). "
+                 "The font may lack a Type-1 version.")
+                .format(psfont.psname, dvifont.texname))
+
+        pdfname = Name('F%d' % self.nextFont)
+        self.nextFont += 1
+        matplotlib.verbose.report(
+            'Assigning font {0} = {1} (dvi)'.format(pdfname, dvifont.texname),
+            'debug')
+        self.dviFontInfo[dvifont.texname] = Bunch(
+            dvifont=dvifont,
+            pdfname=pdfname,
+            fontfile=psfont.filename,
+            basefont=psfont.psname,
+            encodingfile=psfont.encoding,
+            effects=psfont.effects)
+        return pdfname
+
     def writeFonts(self):
         fonts = {}
+        for dviname, info in sorted(self.dviFontInfo.items()):
+            Fx = info.pdfname
+            matplotlib.verbose.report('Embedding Type-1 font %s from dvi'
+                                      % dviname, 'debug')
+            fonts[Fx] = self._embedTeXFont(info)
         for filename in sorted(self.fontNames):
             Fx = self.fontNames[filename]
             matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
@@ -671,12 +719,6 @@ class PdfFile(object):
                 # from pdf.use14corefonts
                 matplotlib.verbose.report('Writing AFM font', 'debug')
                 fonts[Fx] = self._write_afm_font(filename)
-            elif filename in self.dviFontInfo:
-                # a Type 1 font from a dvi file;
-                # the filename is really the TeX name
-                matplotlib.verbose.report('Writing Type-1 font', 'debug')
-                fonts[Fx] = self.embedTeXFont(filename,
-                                              self.dviFontInfo[filename])
             else:
                 # a normal TrueType font
                 matplotlib.verbose.report('Writing TrueType font', 'debug')
@@ -698,9 +740,9 @@ class PdfFile(object):
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def embedTeXFont(self, texname, fontinfo):
-        msg = ('Embedding TeX font ' + texname + ' - fontinfo=' +
-               repr(fontinfo.__dict__))
+    def _embedTeXFont(self, fontinfo):
+        msg = ('Embedding TeX font {0} - fontinfo={1}'
+               .format(fontinfo.dvifont.texname, fontinfo.__dict__))
         matplotlib.verbose.report(msg, 'debug')
 
         # Widths
@@ -1522,6 +1564,9 @@ end"""
     def writeInfoDict(self):
         """Write out the info dictionary, checking it for good form"""
 
+        def is_string_like(x):
+            return isinstance(x, six.string_types)
+
         def is_date(x):
             return isinstance(x, datetime)
 
@@ -1571,7 +1616,6 @@ class RendererPdf(RendererBase):
         self.gc = self.new_gc()
         self.mathtext_parser = MathTextParser("Pdf")
         self.image_dpi = image_dpi
-        self.tex_font_map = None
 
     def finalize(self):
         self.file.output(*self.gc.finalize())
@@ -1596,12 +1640,6 @@ class RendererPdf(RendererBase):
         # Restore gc to avoid unwanted side effects
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
-
-    def tex_font_mapping(self, texfont):
-        if self.tex_font_map is None:
-            self.tex_font_map = \
-                dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
-        return self.tex_font_map[texfont]
 
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
@@ -1895,21 +1933,7 @@ class RendererPdf(RendererBase):
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             if dvifont != oldfont:
-                pdfname = self.file.fontName(dvifont.texname)
-                if dvifont.texname not in self.file.dviFontInfo:
-                    psfont = self.tex_font_mapping(dvifont.texname)
-                    if psfont.filename is None:
-                        self.file.broken = True
-                        raise ValueError(
-                            ("No usable font file found for %s (%s). "
-                             "The font may lack a Type-1 version.")
-                            % (psfont.psname, dvifont.texname))
-                    self.file.dviFontInfo[dvifont.texname] = Bunch(
-                        fontfile=psfont.filename,
-                        basefont=psfont.psname,
-                        encodingfile=psfont.encoding,
-                        effects=psfont.effects,
-                        dvifont=dvifont)
+                pdfname = self.file.dviFontName(dvifont)
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             # We need to convert the glyph numbers to bytes, and the easiest
@@ -2253,14 +2277,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch):
+    def hatch_cmd(self, hatch, hatch_color):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (self._hatch_color, self._fillcolor, hatch)
+            hatch_style = (hatch_color, self._fillcolor, hatch)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
@@ -2324,10 +2348,9 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_linewidth',), linewidth_cmd),
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
-        (('_hatch',), hatch_cmd),  # must come after fillcolor and rgb
+        # must come after fillcolor and rgb
+        (('_hatch', '_hatch_color'), hatch_cmd),
         )
-
-    # TODO: _linestyle
 
     def delta(self, other):
         """
@@ -2355,7 +2378,7 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch',) and fill_performed:
+            if params == ('_hatch', '_hatch_color') and fill_performed:
                 different = True
 
             if different:

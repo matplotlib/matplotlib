@@ -10,19 +10,21 @@ coverage:
   status:
     patch:
       default:
-        target: '80'
+        target: 50%
         if_no_uploads: error
         if_not_found: success
         if_ci_failed: failure
     project:
       default: false
       library:
-        target: auto
+        target: 50%
         if_no_uploads: error
         if_not_found: success
         if_ci_failed: failure
         paths: '!lib/.*/tests/.*'
-
       tests:
-        target: 97.7%
+        target: auto
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: failure
         paths: 'lib/.*/tests/.*'

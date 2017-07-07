@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
+# Runtimes on a loaded system are inherently flaky. Not so much that a rerun
+# won't help, hopefully.
+@pytest.mark.flaky(reruns=3)
 def test_invisible_Line_rendering():
     """
     Github issue #1256 identified a bug in Line.draw method
@@ -140,7 +143,8 @@ def test_set_line_coll_dash_image():
 @image_comparison(baseline_images=['marker_fill_styles'], remove_text=True,
                   extensions=['png'])
 def test_marker_fill_styles():
-    colors = itertools.cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
+    colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
+                              np.array([0, 0, 0])])
     altcolor = 'lightgreen'
 
     y = np.array([1, 1])

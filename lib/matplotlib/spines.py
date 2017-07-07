@@ -177,7 +177,7 @@ class Spine(mpatches.Patch):
         """
         self._ensure_position_is_set()
         position = self._position
-        if cbook.is_string_like(position):
+        if isinstance(position, six.string_types):
             if position == 'center':
                 position = ('axes', 0.5)
             elif position == 'zero':
@@ -278,7 +278,7 @@ class Spine(mpatches.Patch):
         """calculate the offset transform performed by the spine"""
         self._ensure_position_is_set()
         position = self._position
-        if cbook.is_string_like(position):
+        if isinstance(position, six.string_types):
             if position == 'center':
                 position = ('axes', 0.5)
             elif position == 'zero':

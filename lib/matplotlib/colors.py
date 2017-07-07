@@ -79,8 +79,8 @@ class _ColorMapping(dict):
         super(_ColorMapping, self).__setitem__(key, value)
         self.cache.clear()
 
-    def __delitem__(self, key, value):
-        super(_ColorMapping, self).__delitem__(key, value)
+    def __delitem__(self, key):
+        super(_ColorMapping, self).__delitem__(key)
         self.cache.clear()
 
 
@@ -188,7 +188,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
     # tuple color.
     c = np.array(c)
-    if not np.can_cast(c.dtype, float) or c.ndim != 1:
+    if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
         # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
         # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
         # Test dimensionality to reject single floats.
@@ -530,6 +530,16 @@ class Colormap(object):
             rgba = tuple(rgba[0, :])
         return rgba
 
+    def __copy__(self):
+        """Create new object with the same class, update attributes
+        """
+        cls = self.__class__
+        cmapobject = cls.__new__(cls)
+        cmapobject.__dict__.update(self.__dict__)
+        if self._isinit:
+            cmapobject._lut = np.copy(self._lut)
+        return cmapobject
+
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
         """
@@ -696,7 +706,7 @@ class LinearSegmentedColormap(Colormap):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
-                and not cbook.is_string_like(colors[0])):
+                and not isinstance(colors[0], six.string_types)):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -789,8 +799,7 @@ class ListedColormap(Colormap):
         if N is None:
             N = len(self.colors)
         else:
-            if (cbook.is_string_like(self.colors) and
-                    cbook.is_hashable(self.colors)):
+            if isinstance(self.colors, six.string_types):
                 self.colors = [self.colors] * N
                 self.monochrome = True
             elif cbook.iterable(self.colors):
@@ -898,7 +907,11 @@ class Normalize(object):
         if np.issubdtype(dtype, np.integer) or dtype.type is np.bool_:
             # bool_/int8/int16 -> float32; int32/int64 -> float64
             dtype = np.promote_types(dtype, np.float32)
-        result = np.ma.array(value, dtype=dtype, copy=True)
+        # ensure data passed in as an ndarray subclass are interpreted as
+        # an ndarray. See issue #6622.
+        mask = np.ma.getmask(value)
+        data = np.asarray(np.ma.getdata(value))
+        result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -928,12 +941,15 @@ class Normalize(object):
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             # ma division is very slow; we can take a shortcut
-            # use np.asarray so data passed in as an ndarray subclass are
-            # interpreted as an ndarray. See issue #6622.
-            resdat = np.asarray(result.data)
+            resdat = result.data
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
+        # Agg cannot handle float128.  We actually only need 32-bit of
+        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
+        # so casting to float32 would lose precision on float64s as well.
+        if result.dtype == np.longdouble:
+            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result
@@ -993,7 +1009,7 @@ class LogNorm(Normalize):
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                                     mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
             mask = result.mask
@@ -1247,25 +1263,29 @@ class BoundaryNorm(Normalize):
     """
     def __init__(self, boundaries, ncolors, clip=False):
         """
-        *boundaries*
-            a monotonically increasing sequence
-        *ncolors*
-            number of colors in the colormap to be used
+        Parameters
+        ----------
+        boundaries : array-like
+            Monotonically increasing sequence of boundaries
+        ncolors : int
+            Number of colors in the colormap to be used
+        clip : bool, optional
+            If clip is ``True``, out of range values are mapped to 0 if they
+            are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
+            above ``boundaries[-1]``.
 
-        If::
+            If clip is ``False``, out of range values are mapped to -1 if
+            they are below ``boundaries[0]`` or mapped to ncolors if they are
+            above ``boundaries[-1]``. These are then converted to valid indices
+            by :meth:`Colormap.__call__`.
 
-            b[i] <= v < b[i+1]
+        Notes
+        -----
+        *boundaries* defines the edges of bins, and data falling within a bin
+        is mapped to the color with the same index.
 
-        then v is mapped to color j;
-        as i varies from 0 to len(boundaries)-2,
-        j goes from 0 to ncolors-1.
-
-        Out-of-range values are mapped
-        to -1 if low and ncolors if high; these are converted
-        to valid indices by
-        :meth:`Colormap.__call__` .
-        If clip == True, out-of-range values
-        are mapped to 0 if low and ncolors-1 if high.
+        If the number of bins doesn't equal *ncolors*, the color is chosen
+        by linear interpolation of the bin number onto color numbers.
         """
         self.clip = clip
         self.vmin = boundaries[0]
@@ -1304,6 +1324,13 @@ class BoundaryNorm(Normalize):
         return ret
 
     def inverse(self, value):
+        """
+        Raises
+        ------
+        ValueError
+            BoundaryNorm is not invertible, so calling this method will always
+            raise an error
+        """
         return ValueError("BoundaryNorm is not invertible")
 
 

@@ -10,7 +10,7 @@ import math
 import warnings
 
 def atan2(dy, dx):
-    if dx == 0 and dx == 0:
+    if dx == 0 and dy == 0:
         warnings.warn("dx and dy is 0")
         return 0
     else:

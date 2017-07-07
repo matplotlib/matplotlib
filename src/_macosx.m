@@ -13,9 +13,6 @@
 
 /* Proper way to check for the OS X version we are compiling for, from
    http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
-#define COMPILING_FOR_10_5
-#endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
 #define COMPILING_FOR_10_6
 #endif
@@ -26,13 +23,6 @@
 #define COMPILING_FOR_10_10
 #endif
 
-/* Use Atsui for Mac OS X 10.4, CoreText for Mac OS X 10.5 */
-#ifndef COMPILING_FOR_10_5
-static int ngc = 0;    /* The number of graphics contexts in use */
-
-#include <Carbon/Carbon.h>
-
-#endif
 
 /* CGFloat was defined in Mac OS X 10.5 */
 #ifndef CGFLOAT_DEFINED
@@ -43,6 +33,11 @@ static int ngc = 0;    /* The number of graphics contexts in use */
 /* Various NSApplicationDefined event subtypes */
 #define STOP_EVENT_LOOP 2
 #define WINDOW_CLOSING 3
+
+
+/* Keep track of number of windows present
+   Needed to know when to stop the NSApp */
+static long FigureWindowCount = 0;
 
 /* -------------------------- Helper function ---------------------------- */
 
@@ -672,6 +667,7 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
     self->window = window;
+    ++FigureWindowCount;
     return (PyObject*)self;
 }
 
@@ -2022,8 +2018,8 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 - (void)close
 {
     [super close];
-    NSArray *windowsArray = [NSApp windows];
-    if([windowsArray count]==0) [NSApp stop: self];
+    --FigureWindowCount;
+    if (!FigureWindowCount) [NSApp stop: self];
     /* This is needed for show(), which should exit from [NSApp run]
      * after all windows are closed.
      */

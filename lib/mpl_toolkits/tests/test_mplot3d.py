@@ -21,7 +21,12 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
 
 
-def test_bar3d_dflt_smoke():
+@image_comparison(
+    baseline_images=['bar3d_shaded'],
+    remove_text=True,
+    extensions=['png']
+)
+def test_bar3d_shaded():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     x = np.arange(4)
@@ -29,7 +34,24 @@ def test_bar3d_dflt_smoke():
     x2d, y2d = np.meshgrid(x, y)
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d
-    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z)
+    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    fig.canvas.draw()
+
+
+@image_comparison(
+    baseline_images=['bar3d_notshaded'],
+    remove_text=True,
+    extensions=['png']
+)
+def test_bar3d_notshaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = x2d + y2d
+    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
     fig.canvas.draw()
 
 
@@ -86,7 +108,10 @@ def test_lines3d():
     ax.plot(x, y, z)
 
 
-@image_comparison(baseline_images=['mixedsubplot'], remove_text=True)
+# Reason for flakiness of SVG test is still unknown.
+@image_comparison(baseline_images=['mixedsubplot'], remove_text=True,
+                  extensions=['png', 'pdf',
+                              pytest.mark.xfail('svg', strict=False)])
 def test_mixedsubplots():
     def f(t):
         s1 = np.cos(2*np.pi*t)
@@ -436,6 +461,33 @@ def test_proj_axes_cube():
     ax.set_ylim(-0.2, 0.2)
 
 
+@image_comparison(baseline_images=['proj3d_axes_cube_ortho'],
+                  extensions=['png'], remove_text=True, style='default')
+def test_proj_axes_cube_ortho():
+    E = np.array([200, 100, 100])
+    R = np.array([0, 0, 0])
+    V = np.array([0, 0, 1])
+    viewM = proj3d.view_transformation(E, R, V)
+    orthoM = proj3d.ortho_transformation(-1, 1)
+    M = np.dot(orthoM, viewM)
+
+    ts = '0 1 2 3 0 4 5 6 7 4'.split()
+    xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 100
+    ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 100
+    zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 100
+
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+
+    fig, ax = _test_proj_draw_axes(M, s=150)
+
+    ax.scatter(txs, tys, s=300-tzs)
+    ax.plot(txs, tys, c='r')
+    for x, y, t in zip(txs, tys, ts):
+        ax.text(x, y, t)
+
+    ax.set_xlim(-200, 200)
+    ax.set_ylim(-200, 200)
+
 def test_rot():
     V = [1, 0, 0, 1]
     rotated_V = proj3d.rot_x(V, np.pi / 6)
@@ -491,3 +543,47 @@ def test_autoscale():
     ax.set_autoscalez_on(True)
     ax.plot([0, 2], [0, 2], [0, 2])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
+
+
+@image_comparison(baseline_images=['axes3d_ortho'], style='default')
+def test_axes3d_ortho():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_proj_type('ortho')
+
+
+@pytest.mark.parametrize('value', [np.inf, np.nan])
+@pytest.mark.parametrize(('setter', 'side'), [
+    ('set_xlim3d', 'left'),
+    ('set_xlim3d', 'right'),
+    ('set_ylim3d', 'bottom'),
+    ('set_ylim3d', 'top'),
+    ('set_zlim3d', 'bottom'),
+    ('set_zlim3d', 'top'),
+])
+def test_invalid_axes_limits(setter, side, value):
+    limit = {side: value}
+    fig = plt.figure()
+    obj = fig.add_subplot(111, projection='3d')
+    with pytest.raises(ValueError):
+        getattr(obj, setter)(**limit)
+
+
+def test_inverted_cla():
+    # Github PR #5450. Setting autoscale should reset
+    # axes to be non-inverted.
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    # 1. test that a new axis is not inverted per default
+    assert not ax.xaxis_inverted()
+    assert not ax.yaxis_inverted()
+    assert not ax.zaxis_inverted()
+    ax.set_xlim(1, 0)
+    ax.set_ylim(1, 0)
+    ax.set_zlim(1, 0)
+    assert ax.xaxis_inverted()
+    assert ax.yaxis_inverted()
+    assert ax.zaxis_inverted()
+    ax.cla()
+    assert not ax.xaxis_inverted()
+    assert not ax.yaxis_inverted()
+    assert not ax.zaxis_inverted()

@@ -1,3 +1,9 @@
+"""
+=========
+Step Demo
+=========
+
+"""
 import numpy as np
 from numpy import ma
 import matplotlib.pyplot as plt

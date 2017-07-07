@@ -1,4 +1,8 @@
 """
+===========
+Simple Anim
+===========
+
 A simple example of an animated plot
 """
 import numpy as np

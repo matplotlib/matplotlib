@@ -1,3 +1,9 @@
+"""
+===============
+Patheffect Demo
+===============
+
+"""
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
 import numpy as np

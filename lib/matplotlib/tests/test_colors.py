@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
 import six
 import itertools
 import warnings
@@ -9,7 +10,6 @@ from distutils.version import LooseVersion as V
 import numpy as np
 import pytest
 
-from numpy.testing import assert_equal
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 
 from matplotlib import cycler
@@ -42,6 +42,18 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+
+
+def test_colormap_copy():
+    cm = plt.cm.Reds
+    cm_copy = copy.copy(cm)
+    with np.errstate(invalid='ignore'):
+        ret1 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+    cm2 = copy.copy(cm_copy)
+    cm2.set_bad('g')
+    with np.errstate(invalid='ignore'):
+        ret2 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+    assert_array_equal(ret1, ret2)
 
 
 def test_colormap_endian():
@@ -160,8 +172,8 @@ def test_PowerNorm():
     expected = [0, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[2]), expected[2])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[2]) == expected[2]
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
     # Clip = True
@@ -169,16 +181,16 @@ def test_PowerNorm():
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[-1]), expected[-1])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[-1]) == expected[-1]
 
     # Clip = True at call time
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
-    assert_equal(pnorm(a[0], clip=True), expected[0])
-    assert_equal(pnorm(a[-1], clip=True), expected[-1])
+    assert pnorm(a[0], clip=True) == expected[0]
+    assert pnorm(a[-1], clip=True) == expected[-1]
 
 
 def test_Normalize():
@@ -398,7 +410,7 @@ def test_light_source_shading_default():
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
-    # Result stored transposed and rounded for for more compact display...
+    # Result stored transposed and rounded for more compact display...
     expect = np.array(
         [[[0.00, 0.45, 0.90, 0.90, 0.82, 0.62, 0.28, 0.00],
           [0.45, 0.94, 0.99, 1.00, 1.00, 0.96, 0.65, 0.17],
@@ -463,7 +475,7 @@ def test_light_source_masked_shading():
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
-    # Result stored transposed and rounded for for more compact display...
+    # Result stored transposed and rounded for more compact display...
     expect = np.array(
         [[[0.00, 0.46, 0.91, 0.91, 0.84, 0.64, 0.29, 0.00],
           [0.46, 0.96, 1.00, 1.00, 1.00, 0.97, 0.67, 0.18],
@@ -652,14 +664,14 @@ def test_conversions():
         mcolors.to_rgba_array([".2", ".5", ".8"]),
         np.vstack([mcolors.to_rgba(c) for c in [".2", ".5", ".8"]]))
     # alpha is properly set.
-    assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
-    assert_equal(mcolors.to_rgba(".1", .5), (.1, .1, .1, .5))
+    assert mcolors.to_rgba((1, 1, 1), .5) == (1, 1, 1, .5)
+    assert mcolors.to_rgba(".1", .5) == (.1, .1, .1, .5)
     # builtin round differs between py2 and py3.
-    assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2")
+    assert mcolors.to_hex((.7, .7, .7)) == "#b2b2b2"
     # hex roundtrip.
     hex_color = "#1234abcd"
-    assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True),
-                 hex_color)
+    assert mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True) == \
+        hex_color
 
 
 def test_grey_gray():
@@ -677,3 +689,22 @@ def test_tableau_order():
                   '#bcbd22', '#17becf']
 
     assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
+
+
+def test_ndarray_subclass_norm():
+    # Emulate an ndarray subclass that handles units
+    # which objects when adding or subtracting with other
+    # arrays. See #6622 and #8696
+    class MyArray(np.ndarray):
+        def __isub__(self, other):
+            raise RuntimeError
+
+        def __add__(self, other):
+            raise RuntimeError
+
+    data = np.arange(-10, 10, 1, dtype=float)
+
+    for norm in [mcolors.Normalize(), mcolors.LogNorm(),
+                 mcolors.SymLogNorm(3, vmax=5, linscale=1),
+                 mcolors.PowerNorm(1)]:
+        assert_array_equal(norm(data.view(MyArray)), norm(data))

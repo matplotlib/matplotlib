@@ -39,7 +39,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 
 from matplotlib import docstring
 
@@ -317,7 +317,7 @@ class ColorbarBase(cm.ScalarMappable):
                                         linthresh=self.norm.linthresh)
             else:
                 self.formatter = ticker.ScalarFormatter()
-        elif cbook.is_string_like(format):
+        elif isinstance(format, six.string_types):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
@@ -387,9 +387,17 @@ class ColorbarBase(cm.ScalarMappable):
 
     def set_ticks(self, ticks, update_ticks=True):
         """
-        set tick locations. Tick locations are updated immediately unless
-        update_ticks is *False*. To manually update the ticks, call
-        *update_ticks* method explicitly.
+        Set tick locations.
+
+        Parameters
+        ----------
+        ticks : {None, sequence, :class:`~matplotlib.ticker.Locator` instance}
+            If None, a default Locator will be used.
+
+        update_ticks : {True, False}, optional
+            If True, tick locations are updated immediately.  If False,
+            use :meth:`update_ticks` to manually update the ticks.
+
         """
         if cbook.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
@@ -687,9 +695,10 @@ class ColorbarBase(cm.ScalarMappable):
                 self.norm.vmin = 0
                 self.norm.vmax = 1
 
-            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
-                                                                self.norm.vmax,
-                                                                expander=0.1)
+            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
+                self.norm.vmin,
+                self.norm.vmax,
+                expander=0.1)
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
 
@@ -800,6 +809,7 @@ class ColorbarBase(cm.ScalarMappable):
             y = y / (self._boundaries[-1] - self._boundaries[0])
         else:
             y = self.norm(self._boundaries.copy())
+            y = np.ma.filled(y, np.nan)
         if self.extend == 'min':
             # Exclude leftmost interval of y.
             clen = y[-1] - y[1]
@@ -810,21 +820,22 @@ class ColorbarBase(cm.ScalarMappable):
             clen = y[-2] - y[0]
             automin = (y[1] - y[0]) / clen
             automax = (y[-2] - y[-3]) / clen
-        else:
+        elif self.extend == 'both':
             # Exclude leftmost and rightmost intervals in y.
             clen = y[-2] - y[1]
             automin = (y[2] - y[1]) / clen
             automax = (y[-2] - y[-3]) / clen
-        extendlength = self._get_extension_lengths(self.extendfrac,
-                                                   automin, automax,
-                                                   default=0.05)
+        if self.extend in ('both', 'min', 'max'):
+            extendlength = self._get_extension_lengths(self.extendfrac,
+                                                       automin, automax,
+                                                       default=0.05)
         if self.extend in ('both', 'min'):
             y[0] = 0. - extendlength[0]
         if self.extend in ('both', 'max'):
             y[-1] = 1. + extendlength[1]
         yi = y[self._inside]
         norm = colors.Normalize(yi[0], yi[-1])
-        y[self._inside] = norm(yi)
+        y[self._inside] = np.ma.filled(norm(yi), np.nan)
         return y
 
     def _mesh(self):
@@ -1116,9 +1127,10 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
     pad = kw.pop('pad', loc_settings['pad'])
 
-    # turn parents into a list if it is not already
-    if not isinstance(parents, (list, tuple)):
-        parents = [parents]
+    # turn parents into a list if it is not already. We do this w/ np
+    # because `plt.subplots` can return an ndarray and is natural to
+    # pass to `colorbar`.
+    parents = np.atleast_1d(parents).ravel()
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
@@ -1126,8 +1138,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
                          'parents share the same figure.')
 
     # take a bounding box around all of the given axes
-    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen()
-                                      for ax in parents])
+    parents_bbox = mtransforms.Bbox.union(
+        [ax.get_position(original=True).frozen() for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
@@ -1148,12 +1160,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     # define a transform which takes us from old axes coordinates to
     # new axes coordinates
-    shrinking_trans = mtrans.BboxTransform(parents_bbox, pb1)
+    shrinking_trans = mtransforms.BboxTransform(parents_bbox, pb1)
 
     # transform each of the axes in parents using the new transform
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
-        new_posn = mtrans.Bbox(new_posn)
+        new_posn = mtransforms.Bbox(new_posn)
         ax.set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)

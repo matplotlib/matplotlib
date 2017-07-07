@@ -1,3 +1,9 @@
+"""
+===========
+Interp Demo
+===========
+
+"""
 import matplotlib.pyplot as plt
 from numpy import pi, sin, linspace
 from matplotlib.mlab import stineman_interp

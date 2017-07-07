@@ -1,5 +1,11 @@
-# This script demonstrates that font effects specified in your pdftex.map
-# are now supported in pdf usetex.
+"""
+==================
+Usetex Fonteffects
+==================
+
+This script demonstrates that font effects specified in your pdftex.map
+are now supported in pdf usetex.
+"""
 
 import matplotlib
 import matplotlib.pyplot as plt

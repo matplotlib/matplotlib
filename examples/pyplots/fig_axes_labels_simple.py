@@ -1,3 +1,9 @@
+"""
+======================
+Fig Axes Labels Simple
+======================
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

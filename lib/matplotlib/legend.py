@@ -7,7 +7,8 @@ drawing legends associated with axes and/or figures.
     It is unlikely that you would ever create a Legend instance manually.
     Most users would normally create a legend via the
     :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
-    there is also a :ref:`legend guide <plotting-guide-legend>`.
+    there is also a :ref:`legend guide
+    <sphx_glr_tutorials_02_intermediate_legend_guide.py>`.
 
 The Legend class can be considered as a container of legend handles
 and legend texts. Creation of corresponding legend handles from the
@@ -16,9 +17,9 @@ specified by the handler map, which defines the mapping between the
 plot elements and the legend handlers to be used (the default legend
 handlers are defined in the :mod:`~matplotlib.legend_handler` module).
 Note that not all kinds of artist are supported by the legend yet by default
-but it is possible to extend the legend handler's capabilities to
-support arbitrary objects. See the :ref:`legend guide <plotting-guide-legend>`
-for more information.
+but it is possible to extend the legend handler's capabilities to support
+arbitrary objects. See the :ref:`legend guide
+<sphx_glr_tutorials_02_intermediate_legend_guide.py>` for more information.
 
 """
 from __future__ import (absolute_import, division, print_function,
@@ -33,7 +34,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import is_string_like, silent_list, is_hashable
+from matplotlib.cbook import silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -117,7 +118,7 @@ class Legend(Artist):
       'upper left'   : 2,
       'lower left'   : 3,
       'lower right'  : 4,
-      'right'        : 5,
+      'right'        : 5, (same as 'center right', for back-compatibility)
       'center left'  : 6,
       'center right' : 7,
       'lower center' : 8,
@@ -317,7 +318,7 @@ class Legend(Artist):
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
-        if is_string_like(loc):
+        if isinstance(loc, six.string_types):
             if loc not in self.codes:
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '

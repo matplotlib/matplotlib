@@ -1,4 +1,9 @@
-"""Produce custom labelling for a colorbar.
+"""
+============================
+Colorbar Tick Labelling Demo
+============================
+
+Produce custom labelling for a colorbar.
 
 Contributed by Scott Sinclair
 """

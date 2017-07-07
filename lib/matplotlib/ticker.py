@@ -163,9 +163,9 @@ following methods::
   ax.yaxis.set_major_formatter( ymajorFormatter )
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
-See :ref:`pylab_examples-major_minor_demo1` for an example of setting
-major and minor ticks. See the :mod:`matplotlib.dates` module for
-more information and examples of using date locators and formatters.
+See :ref:`sphx_glr_gallery_pylab_examples_major_minor_demo.py` for an
+example of setting major and minor ticks. See the :mod:`matplotlib.dates`
+module for more information and examples of using date locators and formatters.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -212,16 +212,7 @@ def _divmod(x, y):
 
 
 def _mathdefault(s):
-    """
-    For backward compatibility, in classic mode we display
-    sub/superscripted text in a mathdefault block.  As of 2.0, the
-    math font already matches the default font, so we don't need to do
-    that anymore.
-    """
-    if rcParams['_internal.classic_mode']:
-        return '\\mathdefault{%s}' % s
-    else:
-        return '{%s}' % s
+    return '\\mathdefault{%s}' % s
 
 
 class _DummyAxis(object):
@@ -984,6 +975,7 @@ class LogFormatter(Formatter):
             s = '%1.0e' % x
         else:
             s = self.pprint_val(x, vmax - vmin)
+        return s
 
     def __call__(self, x, pos=None):
         """
@@ -1084,7 +1076,7 @@ class LogFormatterMathtext(LogFormatter):
             return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
         else:
             return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
-                (sign_string, base, fx)))
+                                          (sign_string, base, fx)))
 
     def __call__(self, x, pos=None):
         """
@@ -1093,6 +1085,8 @@ class LogFormatterMathtext(LogFormatter):
         The position `pos` is ignored.
         """
         usetex = rcParams['text.usetex']
+        min_exp = rcParams['axes.formatter.min_exponent']
+
         if x == 0:  # Symlog
             if usetex:
                 return '$0$'
@@ -1108,6 +1102,8 @@ class LogFormatterMathtext(LogFormatter):
         is_x_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
+        if is_x_decade:
+            fx = nearest_long(fx)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1120,7 +1116,13 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if not is_x_decade:
+        if np.abs(fx) < min_exp:
+            if usetex:
+                return r'${0}{1:g}$'.format(sign_string, x)
+            else:
+                return '${0}$'.format(_mathdefault(
+                    '{0}{1:g}'.format(sign_string, x)))
+        elif not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             if usetex:
@@ -1873,8 +1875,8 @@ class MaxNLocator(Locator):
     def _raw_ticks(self, vmin, vmax):
         if self._nbins == 'auto':
             if self.axis is not None:
-                nbins = max(min(self.axis.get_tick_space(), 9),
-                            max(1, self._min_n_ticks - 1))
+                nbins = np.clip(self.axis.get_tick_space(),
+                                max(1, self._min_n_ticks - 1), 9)
             else:
                 nbins = 9
         else:
@@ -2056,7 +2058,7 @@ class LogLocator(Locator):
         """
         if subs is None:  # consistency with previous bad API
             self._subs = 'auto'
-        elif cbook.is_string_like(subs):
+        elif isinstance(subs, six.string_types):
             if subs not in ('all', 'auto'):
                 raise ValueError("A subs string must be 'all' or 'auto'; "
                                  "found '%s'." % subs)
@@ -2072,7 +2074,7 @@ class LogLocator(Locator):
     def tick_values(self, vmin, vmax):
         if self.numticks == 'auto':
             if self.axis is not None:
-                numticks = max(min(self.axis.get_tick_space(), 9), 2)
+                numticks = np.clip(self.axis.get_tick_space(), 2, 9)
             else:
                 numticks = 9
         else:
@@ -2104,15 +2106,13 @@ class LogLocator(Locator):
 
         numdec = math.floor(vmax) - math.ceil(vmin)
 
-        if cbook.is_string_like(self._subs):
+        if isinstance(self._subs, six.string_types):
             _first = 2.0 if self._subs == 'auto' else 1.0
             if numdec > 10 or b < 3:
                 if self._subs == 'auto':
                     return np.array([])  # no minor or major ticks
                 else:
                     subs = np.array([1.0])  # major ticks
-            elif numdec > 5 and b >= 6:
-                subs = np.arange(_first, b, 2.0)
             else:
                 subs = np.arange(_first, b)
         else:
@@ -2128,17 +2128,25 @@ class LogLocator(Locator):
             while numdec // stride + 1 > numticks:
                 stride += 1
 
+        # Does subs include anything other than 1?
+        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+
         decades = np.arange(math.floor(vmin) - stride,
                             math.ceil(vmax) + 2 * stride, stride)
+
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
-            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
-                ticklocs = np.ravel(np.outer(subs, ticklocs))
+            if have_subs:
+                if stride == 1:
+                    ticklocs = np.ravel(np.outer(subs, ticklocs))
+                else:
+                    ticklocs = []
         else:
-            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
+            if have_subs:
                 ticklocs = []
-                for decadeStart in b ** decades:
-                    ticklocs.extend(subs * decadeStart)
+                if stride == 1:
+                    for decadeStart in b ** decades:
+                        ticklocs.extend(subs * decadeStart)
             else:
                 ticklocs = b ** decades
 

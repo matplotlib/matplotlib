@@ -86,7 +86,6 @@ def stackplot(axes, x, *args, **kwargs):
 
     elif baseline == 'weighted_wiggle':
         m, n = y.shape
-        center = np.zeros(n)
         total = np.sum(y, 0)
         # multiply by 1/total (or zero) to avoid infinities in the division:
         inv_total = np.zeros_like(total)

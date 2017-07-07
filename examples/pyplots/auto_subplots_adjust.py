@@ -1,3 +1,9 @@
+"""
+====================
+Auto Subplots Adjust
+====================
+
+"""
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 fig = plt.figure()

@@ -33,7 +33,6 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from matplotlib import rcParams
 
 from matplotlib import docstring
-from matplotlib.cbook import is_string_like
 
 #from bboximage import BboxImage
 from matplotlib.image import BboxImage
@@ -1008,13 +1007,13 @@ class AnchoredOffsetbox(OffsetBox):
                  **kwargs):
         """
         loc is a string or an integer specifying the legend location.
-        The valid  location codes are::
+        The valid location codes are::
 
         'upper right'  : 1,
         'upper left'   : 2,
         'lower left'   : 3,
         'lower right'  : 4,
-        'right'        : 5,
+        'right'        : 5, (same as 'center right', for back-compatibility)
         'center left'  : 6,
         'center right' : 7,
         'lower center' : 8,
@@ -1042,7 +1041,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if is_string_like(loc):
+        if isinstance(loc, six.string_types):
             try:
                 loc = self.codes[loc]
             except KeyError:
@@ -1641,7 +1640,7 @@ class DraggableBase(object):
 
     *artist_picker* is a picker method that will be
      used. *finalize_offset* is called when the mouse is released. In
-     current implementaion of DraggableLegend and DraggableAnnotation,
+     current implementation of DraggableLegend and DraggableAnnotation,
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.

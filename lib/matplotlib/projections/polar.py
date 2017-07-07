@@ -227,23 +227,11 @@ class PolarAxes(Axes):
     def __init__(self, *args, **kwargs):
         """
         Create a new Polar Axes for a polar plot.
-
-        The following optional kwargs are supported:
-
-          - *resolution*: The number of points of interpolation between
-            each pair of data points.  Set to 1 to disable
-            interpolation.
         """
-        self.resolution = kwargs.pop('resolution', 1)
         self._default_theta_offset = kwargs.pop('theta_offset', 0)
         self._default_theta_direction = kwargs.pop('theta_direction', 1)
         self._default_rlabel_position = kwargs.pop('rlabel_position', 22.5)
 
-        if self.resolution not in (None, 1):
-            warnings.warn(
-                """The resolution kwarg to Polar plots is now ignored.
-If you need to interpolate data points, consider running
-cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()

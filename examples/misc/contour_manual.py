@@ -1,4 +1,8 @@
 """
+==============
+Manual Contour
+==============
+
 Example of displaying your own contour lines and polygons using ContourSet.
 """
 import matplotlib.pyplot as plt

@@ -18,6 +18,7 @@ values is a single line of python
 See :ref:`customizing-with-matplotlibrc-files` for details about how to
 persistently and selectively revert many of these changes.
 
+
 .. contents:: Table of Contents
    :depth: 2
    :local:
@@ -93,7 +94,7 @@ are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'``, where ``N``
 takes values 0-9, was added to
 denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
-:ref:`colors` for more details.
+:ref:`sphx_glr_tutorials_colors_colors.py` for more details.
 
 To restore the old color cycle use
 
@@ -142,7 +143,7 @@ watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
 See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
 map.  For details on all of the color maps available in matplotlib see
-:ref:`colormaps`.
+:ref:`sphx_glr_tutorials_colors_colormaps.py`.
 
 .. raw:: html
 
@@ -255,6 +256,12 @@ or by setting::
    figure.titlesize : 'medium'
 
 In your :file:`matplotlibrc` file.
+
+In addition, the ``forward`` kwarg to
+`~matplotlib.Figure.set_size_inches` now defaults to `True` to improve
+the interactive experience.  Backend canvases that adjust the size of
+their bound `matplotlib.figure.Figure` must pass ``forward=False`` to
+avoid circular behavior.  This default is not configurable.
 
 
 Plotting functions
@@ -408,6 +415,10 @@ By default, caps on the ends of errorbars are not present.
 
    demo(ax1, {'errorbar.capsize': 3}, 'classic')
    demo(ax2, {}, 'v2.0')
+
+This also changes the return value of
+:meth:`~matplotlib.axes.Axes.errorbar` as the list of 'caplines' will
+be empty by default.
 
 The previous defaults can be restored by setting::
 
@@ -624,20 +635,24 @@ To restore the previous behavior explicitly pass the keyword argument
 Hatching
 ========
 
-The color and width of the lines in a hatch pattern are now configurable by the
-rcParams `hatch.color` and `hatch.linewidth`, with defaults of black and 1
-point, respectively.  The old behaviour for the color was to apply the edge
-color or use black, depending on the artist; the old behavior for the line
-width was different depending on backend:
+
+The color of the lines in the hatch is now determined by
+
+ - If an edge color is explicitly set, use that for the hatch color
+ - If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
+   is looked up at artist creation time.
+
+The width of the lines in a hatch pattern is now configurable by the
+rcParams `hatch.linewidth`, which defaults to 1 point.  The old
+behavior for the line width was different depending on backend:
 
     - PDF: 0.1 pt
     - SVG: 1.0 pt
     - PS:  1 px
     - Agg: 1 px
 
-The old color behavior can not be restored. The old line width behavior can not
-be restored across all backends simultaneously, but can be restored for a
-single backend by setting::
+The old line width behavior can not be restored across all backends
+simultaneously, but can be restored for a single backend by setting::
 
    mpl.rcParams['hatch.linewidth'] = 0.1  # previous pdf hatch linewidth
    mpl.rcParams['hatch.linewidth'] = 1.0  # previous svg hatch linewidth
@@ -650,7 +665,7 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
    mpl.rcParams['hatch.linewidth'] = 1.0 / dpi  # previous ps and Agg hatch linewidth
 
 
-There is no API level control of the hatch color or linewidth.
+There is no direct API level control of the hatch color or linewidth.
 
 Hatching patterns are now rendered at a consistent density, regardless of DPI.
 Formerly, high DPI figures would be more dense than the default, and low DPI

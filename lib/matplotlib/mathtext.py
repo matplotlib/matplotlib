@@ -2,7 +2,7 @@ r"""
 :mod:`~matplotlib.mathtext` is a module for parsing a subset of the
 TeX math syntax and drawing them to a matplotlib backend.
 
-For a tutorial of its usage see :ref:`mathtext-tutorial`.  This
+For a tutorial of its usage see :ref:`sphx_glr_tutorials_text_mathtext.py`.  This
 document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.
@@ -34,18 +34,10 @@ from pyparsing import (Combine, Group, Optional, Forward,
      ParseResults, Suppress, oneOf, StringEnd, ParseFatalException,
      FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException)
 
-# Enable packrat parsing
-if (six.PY3 and
-    [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]):
-    warn("Due to a bug in pyparsing <= 2.0.0 on Python 3.x, packrat parsing "
-         "has been disabled.  Mathtext rendering will be much slower as a "
-         "result.  Install pyparsing 2.0.0 or later to improve performance.")
-else:
-    ParserElement.enablePackrat()
+ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import (Bunch, get_realpath_and_stat, is_string_like,
-                              maxdict)
+from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
 from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
                                 LOAD_NO_HINTING)
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -1841,7 +1833,7 @@ class Glue(Node):
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
         self.glue_subtype   = 'normal'
-        if is_string_like(glue_type):
+        if isinstance(glue_type, six.string_types):
             glue_spec = GlueSpec.factory(glue_type)
         elif isinstance(glue_type, GlueSpec):
             glue_spec = glue_type
@@ -2701,7 +2693,7 @@ class Parser(object):
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
     _char_over_chars = {
-        # The first 2 entires in the tuple are (font, char, sizescale) for
+        # The first 2 entries in the tuple are (font, char, sizescale) for
         # the two symbols under and over.  The third element is the space
         # (in multiples of underline height)
         r'AA': (('it', 'A', 1.0), (None, '\\circ', 0.5), 0.0),

@@ -39,10 +39,6 @@ def triplot(ax, *args, **kwargs):
 
         - the lines plotted for triangles edges
         - the markers plotted for triangles nodes
-
-    **Example:**
-
-        .. plot:: mpl_examples/pylab_examples/triplot_demo.py
     """
     import matplotlib.axes
 

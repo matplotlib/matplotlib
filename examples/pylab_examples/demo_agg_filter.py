@@ -1,3 +1,9 @@
+"""
+===============
+Demo Agg Filter
+===============
+
+"""
 import matplotlib.pyplot as plt
 
 import numpy as np

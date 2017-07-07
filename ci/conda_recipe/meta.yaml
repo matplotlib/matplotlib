@@ -30,7 +30,7 @@ requirements:
     - freetype 2.6*
     - msinttypes  # [win]
     - cycler >=0.10
-    - nose
+    - pytest >=3.0.0
     - pyparsing
     - pytz
 #    - py2cairo  # [linux and py2k]
@@ -39,7 +39,7 @@ requirements:
     - zlib 1.2*  # [win]
     - pyqt  # [not osx]
     - tk 8.5* # [linux]
-    - functools32  # [py2k]
+    - backports.functools_lru_cache  # [py2k]
 
   run:
     - python
@@ -54,7 +54,7 @@ requirements:
     - libpng >=1.6.21,<1.7
     - pyqt  # [not osx]
     - tk 8.5*  # [linux and win]
-    - functools32  # [py2k]
+    - backports.functools_lru_cache  # [py2k]
 
 test:
     imports:

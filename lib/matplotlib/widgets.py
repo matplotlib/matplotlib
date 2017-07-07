@@ -266,36 +266,8 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    For the slider to remain responsive you must maintain a
-    reference to it.
-
-    The following attributes are defined
-      *ax*        : the slider :class:`matplotlib.axes.Axes` instance
-
-      *val*       : the current slider value
-
-      *vline*     : a :class:`matplotlib.lines.Line2D` instance
-                     representing the initial value of the slider
-
-      *poly*      : A :class:`matplotlib.patches.Polygon` instance
-                     which is the slider knob
-
-      *valfmt*    : the format string for formatting the slider text
-
-      *label*     : a :class:`matplotlib.text.Text` instance
-                     for the slider label
-
-      *closedmin* : whether the slider is closed on the minimum
-
-      *closedmax* : whether the slider is closed on the maximum
-
-      *slidermin* : another slider - if not *None*, this slider must be
-                     greater than *slidermin*
-
-      *slidermax* : another slider - if not *None*, this slider must be
-                     less than *slidermax*
-
-      *dragging*  : allow for mouse dragging on slider
+    Create a slider from `valmin` to `valmax` in axes `ax`. For the slider to
+    remain responsive you must maintain a reference to it.
 
     Call :meth:`on_changed` to connect to the slider event
     """
@@ -303,63 +275,69 @@ class Slider(AxesWidget):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, **kwargs):
         """
-        Create a slider from *valmin* to *valmax* in axes *ax*.
-
-        Additional kwargs are passed on to ``self.poly`` which is the
-        :class:`matplotlib.patches.Rectangle` that draws the slider
-        knob.  See the :class:`matplotlib.patches.Rectangle` documentation for
-        valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...).
-
         Parameters
         ----------
         ax : Axes
-            The Axes to put the slider in
+            The Axes to put the slider in.
 
         label : str
-            Slider label
+            Slider label.
 
         valmin : float
-            The minimum value of the slider
+            The minimum value of the slider.
 
         valmax : float
-            The maximum value of the slider
+            The maximum value of the slider.
 
-        valinit : float
-            The slider initial position
+        valinit : float, optional, default: 0.5
+            The slider initial position.
 
-        label : str
-            The slider label
+        valfmt : str, optional, default: "%1.2f"
+            Used to format the slider value, fprint format string.
 
-        valfmt : str
-            Used to format the slider value, fprint format string
+        closedmin : bool, optional, default: True
+            Indicate whether the slider interval is closed on the bottom.
 
-        closedmin : bool
-            Indicate whether the slider interval is closed on the bottom
+        closedmax : bool, optional, default: True
+            Indicate whether the slider interval is closed on the top.
 
-        closedmax : bool
-            Indicate whether the slider interval is closed on the top
-
-        slidermin : Slider or None
+        slidermin : Slider, optional, default: None
             Do not allow the current slider to have a value less than
-            `slidermin`
+            the value of the Slider `slidermin`.
 
-        slidermax : Slider or None
+        slidermax : Slider, optional, default: None
             Do not allow the current slider to have a value greater than
-            `slidermax`
+            the value of the Slider `slidermax`.
 
+        dragging : bool, optional, default: True
+            If True the slider can be dragged by the mouse.
 
-        dragging : bool
-            if the slider can be dragged by the mouse
-
+        Notes
+        -----
+        Additional kwargs are passed on to ``self.poly`` which is the
+        :class:`~matplotlib.patches.Rectangle` that draws the slider
+        knob.  See the :class:`~matplotlib.patches.Rectangle` documentation for
+        valid property names (e.g., `facecolor`, `edgecolor`, `alpha`).
         """
         AxesWidget.__init__(self, ax)
 
+        if slidermin is not None and not hasattr(slidermin, 'val'):
+            raise ValueError("Argument slidermin ({}) has no 'val'"
+                             .format(type(slidermin)))
+        if slidermax is not None and not hasattr(slidermax, 'val'):
+            raise ValueError("Argument slidermax ({}) has no 'val'"
+                             .format(type(slidermax)))
+        self.closedmin = closedmin
+        self.closedmax = closedmax
+        self.slidermin = slidermin
+        self.slidermax = slidermax
+        self.drag_active = False
         self.valmin = valmin
         self.valmax = valmax
+        valinit = self._value_in_bounds(valinit)
         self.val = valinit
         self.valinit = valinit
         self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-
         self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
 
         self.valfmt = valfmt
@@ -384,11 +362,29 @@ class Slider(AxesWidget):
         self.cnt = 0
         self.observers = {}
 
-        self.closedmin = closedmin
-        self.closedmax = closedmax
-        self.slidermin = slidermin
-        self.slidermax = slidermax
-        self.drag_active = False
+        self.set_val(valinit)
+
+    def _value_in_bounds(self, val):
+        """ Makes sure self.val is with given bounds."""
+        if val <= self.valmin:
+            if not self.closedmin:
+                return
+            val = self.valmin
+        elif val >= self.valmax:
+            if not self.closedmax:
+                return
+            val = self.valmax
+
+        if self.slidermin is not None and val <= self.slidermin.val:
+            if not self.closedmin:
+                return
+            val = self.slidermin.val
+
+        if self.slidermax is not None and val >= self.slidermax.val:
+            if not self.closedmax:
+                return
+            val = self.slidermax.val
+        return val
 
     def _update(self, event):
         """update the slider position"""
@@ -411,28 +407,8 @@ class Slider(AxesWidget):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
             return
-
         val = event.xdata
-        if val <= self.valmin:
-            if not self.closedmin:
-                return
-            val = self.valmin
-        elif val >= self.valmax:
-            if not self.closedmax:
-                return
-            val = self.valmax
-
-        if self.slidermin is not None and val <= self.slidermin.val:
-            if not self.closedmin:
-                return
-            val = self.slidermin.val
-
-        if self.slidermax is not None and val >= self.slidermax.val:
-            if not self.closedmax:
-                return
-            val = self.slidermax.val
-
-        self.set_val(val)
+        self.set_val(self._value_in_bounds(val))
 
     def set_val(self, val):
         xy = self.poly.xy
@@ -1252,8 +1228,6 @@ class Cursor(AxesWidget):
         Add a cursor to *ax*.  If ``useblit=True``, use the backend-
         dependent blitting features for faster updates (GTKAgg
         only for now).  *lineprops* is a dictionary of line properties.
-
-        .. plot :: mpl_examples/widgets/cursor.py
         """
         # TODO: Is the GTKAgg limitation still true?
         AxesWidget.__init__(self, ax)
@@ -1727,7 +1701,7 @@ class SpanSelector(_SelectorWidget):
                                      rectprops=rectprops)
     >>> fig.show()
 
-    See also: :ref:`widgets-span_selector`
+    See also: :ref:`sphx_glr_gallery_widgets_span_selector.py`
 
     """
 
@@ -2521,6 +2495,219 @@ class LassoSelector(_SelectorWidget):
         self.line.set_data(list(zip(*self.verts)))
 
         self.update()
+
+
+class PolygonSelector(_SelectorWidget):
+    """Select a polygon region of an axes.
+
+    Place vertices with each mouse click, and make the selection by completing
+    the polygon (clicking on the first vertex). Hold the *ctrl* key and click
+    and drag a vertex to reposition it (the *ctrl* key is not necessary if the
+    polygon has already been completed). Hold the *shift* key and click and
+    drag anywhere in the axes to move all vertices. Press the *esc* key to
+    start a new polygon.
+
+    For the selector to remain responsive you must keep a reference to
+    it.
+
+    Parameters
+    ----------
+    ax : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    onselect : function
+        When a polygon is completed or modified after completion,
+        the `onselect` function is called and passed a list of the vertices as
+        ``(xdata, ydata)`` tuples.
+    useblit : bool, optional
+    lineprops : dict, optional
+        The line for the sides of the polygon is drawn with the properties
+        given by `lineprops`. The default is ``dict(color='k', linestyle='-',
+        linewidth=2, alpha=0.5)``.
+    markerprops : dict, optional
+        The markers for the vertices of the polygon are drawn with the
+        properties given by `markerprops`. The default is ``dict(marker='o',
+        markersize=7, mec='k', mfc='k', alpha=0.5)``.
+    vertex_select_radius : float, optional
+        A vertex is selected (to complete the polygon or to move a vertex)
+        if the mouse click is within `vertex_select_radius` pixels of the
+        vertex. The default radius is 15 pixels.
+
+    See Also
+    --------
+    :ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py`
+    """
+
+    def __init__(self, ax, onselect, useblit=False,
+                 lineprops=None, markerprops=None, vertex_select_radius=15):
+        # The state modifiers 'move', 'square', and 'center' are expected by
+        # _SelectorWidget but are not supported by PolygonSelector
+        # Note: could not use the existing 'move' state modifier in-place of
+        # 'move_all' because _SelectorWidget automatically discards 'move'
+        # from the state on button release.
+        state_modifier_keys = dict(clear='escape', move_vertex='control',
+                                   move_all='shift', move='not-applicable',
+                                   square='not-applicable',
+                                   center='not-applicable')
+        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
+                                 state_modifier_keys=state_modifier_keys)
+
+        self._xs, self._ys = [0], [0]
+        self._polygon_completed = False
+
+        if lineprops is None:
+            lineprops = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+        lineprops['animated'] = self.useblit
+        self.line = Line2D(self._xs, self._ys, **lineprops)
+        self.ax.add_line(self.line)
+
+        if markerprops is None:
+            markerprops = dict(mec='k', mfc=lineprops.get('color', 'k'))
+        self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
+                                            useblit=self.useblit,
+                                            marker_props=markerprops)
+
+        self._active_handle_idx = -1
+        self.vertex_select_radius = vertex_select_radius
+
+        self.artists = [self.line, self._polygon_handles.artist]
+        self.set_visible(True)
+
+    def _press(self, event):
+        """Button press event handler"""
+        # Check for selection of a tool handle.
+        if ((self._polygon_completed or 'move_vertex' in self.state)
+                and len(self._xs) > 0):
+            h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
+            if h_dist < self.vertex_select_radius:
+                self._active_handle_idx = h_idx
+        # Save the vertex positions at the time of the press event (needed to
+        # support the 'move_all' state modifier).
+        self._xs_at_press, self._ys_at_press = self._xs[:], self._ys[:]
+
+    def _release(self, event):
+        """Button release event handler"""
+        # Release active tool handle.
+        if self._active_handle_idx >= 0:
+            self._active_handle_idx = -1
+
+        # Complete the polygon.
+        elif (len(self._xs) > 3
+              and self._xs[-1] == self._xs[0]
+              and self._ys[-1] == self._ys[0]):
+            self._polygon_completed = True
+
+        # Place new vertex.
+        elif (not self._polygon_completed
+              and 'move_all' not in self.state
+              and 'move_vertex' not in self.state):
+            self._xs.insert(-1, event.xdata)
+            self._ys.insert(-1, event.ydata)
+
+        if self._polygon_completed:
+            self.onselect(self.verts)
+
+    def onmove(self, event):
+        """Cursor move event handler and validator"""
+        # Method overrides _SelectorWidget.onmove because the polygon selector
+        # needs to process the move callback even if there is no button press.
+        # _SelectorWidget.onmove include logic to ignore move event if
+        # eventpress is None.
+        if not self.ignore(event):
+            event = self._clean_event(event)
+            self._onmove(event)
+            return True
+        return False
+
+    def _onmove(self, event):
+        """Cursor move event handler"""
+        # Move the active vertex (ToolHandle).
+        if self._active_handle_idx >= 0:
+            idx = self._active_handle_idx
+            self._xs[idx], self._ys[idx] = event.xdata, event.ydata
+            # Also update the end of the polygon line if the first vertex is
+            # the active handle and the polygon is completed.
+            if idx == 0 and self._polygon_completed:
+                self._xs[-1], self._ys[-1] = event.xdata, event.ydata
+
+        # Move all vertices.
+        elif 'move_all' in self.state and self.eventpress:
+            dx = event.xdata - self.eventpress.xdata
+            dy = event.ydata - self.eventpress.ydata
+            for k in range(len(self._xs)):
+                self._xs[k] = self._xs_at_press[k] + dx
+                self._ys[k] = self._ys_at_press[k] + dy
+
+        # Do nothing if completed or waiting for a move.
+        elif (self._polygon_completed
+              or 'move_vertex' in self.state or 'move_all' in self.state):
+            return
+
+        # Position pending vertex.
+        else:
+            # Calculate distance to the start vertex.
+            x0, y0 = self.line.get_transform().transform((self._xs[0],
+                                                          self._ys[0]))
+            v0_dist = np.sqrt((x0 - event.x) ** 2 + (y0 - event.y) ** 2)
+            # Lock on to the start vertex if near it and ready to complete.
+            if len(self._xs) > 3 and v0_dist < self.vertex_select_radius:
+                self._xs[-1], self._ys[-1] = self._xs[0], self._ys[0]
+            else:
+                self._xs[-1], self._ys[-1] = event.xdata, event.ydata
+
+        self._draw_polygon()
+
+    def _on_key_press(self, event):
+        """Key press event handler"""
+        # Remove the pending vertex if entering the 'move_vertex' or
+        # 'move_all' mode
+        if (not self._polygon_completed
+                and ('move_vertex' in self.state or 'move_all' in self.state)):
+            self._xs, self._ys = self._xs[:-1], self._ys[:-1]
+            self._draw_polygon()
+
+    def _on_key_release(self, event):
+        """Key release event handler"""
+        # Add back the pending vertex if leaving the 'move_vertex' or
+        # 'move_all' mode (by checking the released key)
+        if (not self._polygon_completed
+                and
+                (event.key == self.state_modifier_keys.get('move_vertex')
+                 or event.key == self.state_modifier_keys.get('move_all'))):
+            self._xs.append(event.xdata)
+            self._ys.append(event.ydata)
+            self._draw_polygon()
+        # Reset the polygon if the released key is the 'clear' key.
+        elif event.key == self.state_modifier_keys.get('clear'):
+            event = self._clean_event(event)
+            self._xs, self._ys = [event.xdata], [event.ydata]
+            self._polygon_completed = False
+            self.set_visible(True)
+
+    def _draw_polygon(self):
+        """Redraw the polygon based on the new vertex positions."""
+        self.line.set_data(self._xs, self._ys)
+        # Only show one tool handle at the start and end vertex of the polygon
+        # if the polygon is completed or the user is locked on to the start
+        # vertex.
+        if (self._polygon_completed
+                or (len(self._xs) > 3
+                    and self._xs[-1] == self._xs[0]
+                    and self._ys[-1] == self._ys[0])):
+            self._polygon_handles.set_data(self._xs[:-1], self._ys[:-1])
+        else:
+            self._polygon_handles.set_data(self._xs, self._ys)
+        self.update()
+
+    @property
+    def verts(self):
+        """Get the polygon vertices.
+
+        Returns
+        -------
+        list
+            A list of the vertices of the polygon as ``(xdata, ydata)`` tuples.
+        """
+        return list(zip(self._xs[:-1], self._ys[:-1]))
 
 
 class Lasso(AxesWidget):

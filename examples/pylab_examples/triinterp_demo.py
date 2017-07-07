@@ -1,4 +1,8 @@
 """
+==============
+Triinterp Demo
+==============
+
 Interpolation from triangular grid to quad grid.
 """
 import matplotlib.pyplot as plt

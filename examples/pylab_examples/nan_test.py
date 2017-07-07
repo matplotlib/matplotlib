@@ -1,4 +1,8 @@
 """
+========
+Nan Test
+========
+
 Example: simple line plots with NaNs inserted.
 """
 import numpy as np

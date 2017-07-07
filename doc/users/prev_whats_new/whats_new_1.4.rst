@@ -82,8 +82,8 @@ with :func:`~matplotlib.Axes.bxp`.
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`statistics-boxplot_demo` and
-:ref:`statistics-bxp_demo`
+:ref:`sphx_glr_gallery_statistics_boxplot.py` and
+:ref:`sphx_glr_gallery_statistics_bxp.py`
 
 Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
 of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
@@ -160,7 +160,12 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. plot:: mpl_examples/api/skewt.py
+.. figure:: ../../gallery/api/images/sphx_glr_skewt_001.png
+   :target: ../../gallery/api/skewt.html
+   :align: center
+   :scale: 50
+
+   Skewt
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
@@ -243,7 +248,12 @@ term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
-.. plot:: mpl_examples/mplot3d/quiver3d_demo.py
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_quiver3d_001.png
+   :target: ../../gallery/mplot3d/quiver3d.html
+   :align: center
+   :scale: 50
+
+   Quiver3d
 
 polar-plot r-tick locations
 ```````````````````````````
@@ -400,7 +410,7 @@ instead of ``:context:`` any time you want to reset the context.
 
 Legend and PathEffects documentation
 ------------------------------------
-The :ref:`plotting-guide-legend` and :ref:`patheffects-guide` have both been
+The :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` and :ref:`sphx_glr_tutorials_03_advanced_patheffects_guide.py` have both been
 updated to better reflect the full potential of each of these powerful
 features.
 
@@ -417,3 +427,5 @@ rectangle stay on the axes after you release the mouse.
 GAE integration
 ---------------
 Matplotlib will now run on google app engine.
+
+

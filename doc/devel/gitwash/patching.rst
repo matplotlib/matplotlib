@@ -1,6 +1,21 @@
+.. highlight:: bash
+
 ================
  Making a patch
 ================
+
+You've discovered a bug or something else you want to change
+in `Matplotlib`_ .. |emdash| excellent!
+
+You've worked out a way to fix it |emdash| even better!
+
+You want to tell us about it |emdash| best of all!
+
+The easiest way is to make a *patch* or set of patches.  Here
+we explain how.  Making a patch is the simplest and quickest,
+but if you're going to be doing anything more than simple
+quick things, please consider following the
+:ref:`git-development` model instead.
 
 .. _making-patches:
 
@@ -31,20 +46,20 @@ Overview
    # make the patch files
    git format-patch -M -C master
 
-Then, send the generated patch files to the `matplotlib
+Then, send the generated patch files to the `Matplotlib
 mailing list`_ |emdash| where we will thank you warmly.
 
 In detail
 ---------
 
-#. Tell git_ who you are so it can label the commits you've
+#. Tell git who you are so it can label the commits you've
    made::
 
       git config --global user.email you@yourdomain.example.com
       git config --global user.name "Your Name Comes Here"
 
 #. If you don't already have one, clone a copy of the
-   matplotlib_ repository::
+   `Matplotlib`_ repository::
 
       git clone git://github.com/matplotlib/matplotlib.git
       cd matplotlib
@@ -82,16 +97,42 @@ In detail
 
       git format-patch -M -C master
 
-   You will now have several files named for the commits::
+   You will now have several files named for the commits:
+
+   .. code-block:: none
 
       0001-BF-added-tests-for-Funny-bug.patch
       0002-BF-added-fix-for-Funny-bug.patch
 
-   Send these files to the `matplotlib mailing list`_.
+   Send these files to the `Matplotlib mailing list`_.
 
 When you are done, to switch back to the main copy of the
 code, just return to the ``master`` branch::
 
    git checkout master
+
+Moving from patching to development
+===================================
+
+If you find you have done some patches, and you have one or
+more feature branches, you will probably want to switch to
+development mode.  You can do this with the repository you
+have.
+
+Fork the `Matplotlib`_ repository on github |emdash| :ref:`forking`.
+Then::
+
+   # checkout and refresh master branch from main repo
+   git checkout master
+   git pull origin master
+   # rename pointer to main repository to 'upstream'
+   git remote rename origin upstream
+   # point your repo to default read / write to your fork on github
+   git remote add origin git@github.com:your-user-name/matplotlib.git
+   # push up any branches you've made and want to keep
+   git push origin the-fix-im-thinking-of
+
+Then you can, if you want, follow the
+:ref:`development-workflow`.
 
 .. include:: links.inc

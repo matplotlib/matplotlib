@@ -35,6 +35,9 @@
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'.
+#
+# If you omit this parameter, it will always default to "Agg", which is a
+# non-interactive backend.
 backend      : $TEMPLATE_BACKEND
 
 # If you are using the Qt4Agg backend, you can choose here
@@ -240,14 +243,6 @@ backend      : $TEMPLATE_BACKEND
                             # beware of package collisions: color, geometry, graphicx,
                             # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
                             # may also be loaded, depending on your font settings
-
-#text.dvipnghack : None      # some versions of dvipng don't handle alpha
-                             # channel properly.  Use True to correct
-                             # and flush ~/.matplotlib/tex.cache
-                             # before testing and False to force
-                             # correction off.  None will try and
-                             # guess based on your dvipng version
-
 #text.hinting : auto   # May be one of the following:
                        #   'none': Perform no hinting
                        #   'auto': Use FreeType's autohinter
@@ -315,6 +310,7 @@ backend      : $TEMPLATE_BACKEND
                                    # separator in the fr_FR locale.
 #axes.formatter.use_mathtext : False # When True, use mathtext for scientific
                                      # notation.
+#axes.formatter.min_exponent: 0 # minimum exponent to format in scientific notation
 #axes.formatter.useoffset      : True    # If True, the tick label formatter
                                          # will default to labeling ticks relative
                                          # to an offset when the data range is
@@ -399,10 +395,10 @@ backend      : $TEMPLATE_BACKEND
 #ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : out    # direction: in, out, or inout
 #ytick.minor.visible  : False  # visibility of minor ticks on y-axis
-#xtick.major.left     : True   # draw y axis left major ticks
-#xtick.major.right    : True   # draw y axis right major ticks
-#xtick.minor.left     : True   # draw y axis left minor ticks
-#xtick.minor.right    : True   # draw y axis right minor ticks
+#ytick.major.left     : True   # draw y axis left major ticks
+#ytick.major.right    : True   # draw y axis right major ticks
+#ytick.minor.left     : True   # draw y axis left minor ticks
+#ytick.minor.right    : True   # draw y axis right minor ticks
 
 
 ### GRIDS
@@ -471,7 +467,7 @@ backend      : $TEMPLATE_BACKEND
                                   # such as a PDF.
 
 ### CONTOUR PLOTS
-#contour.negative_linestyle : dashed # dashed | solid
+#contour.negative_linestyle : dashed # string or on-off ink sequence
 #contour.corner_mask        : True   # True | False | legacy
 
 ### ERRORBAR PLOTS

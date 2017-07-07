@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os, sys, warnings
-def fn_name(): return sys._getframe(1).f_code.co_name
 
 if six.PY3:
     warnings.warn(
@@ -34,7 +33,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 from matplotlib.cbook import warn_deprecated
@@ -43,9 +42,6 @@ from matplotlib import (
     cbook, colors as mcolors, lines, markers, rcParams, verbose)
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
-
-_debug = False
-#_debug = True
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -225,7 +221,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                             "See Matplotlib usage FAQ for"
                             " more info on backends.",
                             alternative="GTKAgg")
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
 
@@ -261,7 +256,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             gobject.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -273,7 +267,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -297,7 +290,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -305,21 +297,16 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return True  # stop event propagation
 
     def key_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         if event.is_hint:
             x, y, state = event.window.get_pointer()
         else:
@@ -355,7 +342,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return key
 
     def configure_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         if widget.window is None:
             return
         w, h = event.width, event.height
@@ -408,8 +394,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         Make sure _._pixmap is at least width, height,
         create new pixmap if necessary
         """
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
-
         create_pixmap = False
         if width > self._pixmap_width:
             # increase the pixmap in 10%+ (rather than 1 pixel) steps
@@ -438,8 +422,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def expose_event(self, widget, event):
         """Expose_event for all GTK backends. Should not be overridden.
         """
-        if _debug: print('FigureCanvasGTK.%s' % fn_name())
-
         if GTK_WIDGET_DRAWABLE(self):
             if self._need_redraw:
                 x, y, w, h = self.allocation
@@ -490,7 +472,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
             options['quality'] = str(options['quality'])
 
-        if is_string_like(filename):
+        if isinstance(filename, six.string_types):
             try:
                 pixbuf.save(filename, format, options=options)
             except gobject.GError as exc:
@@ -556,10 +538,10 @@ class FigureManagerGTK(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
-        if _debug: print('FigureManagerGTK.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = gtk.Window()
+        self.window.set_wmclass("matplotlib", "Matplotlib")
         self.set_window_title("Figure %d" % num)
         if window_icon:
             try:
@@ -609,7 +591,6 @@ class FigureManagerGTK(FigureManagerBase):
         self.canvas.grab_focus()
 
     def destroy(self, *args):
-        if _debug: print('FigureManagerGTK.%s' % fn_name())
         if hasattr(self, 'toolbar') and self.toolbar is not None:
             self.toolbar.destroy()
         if hasattr(self, 'vbox'):
@@ -679,10 +660,6 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     def release(self, event):
         try: del self._pixmapBack
         except AttributeError: pass
-
-    def dynamic_update(self):
-        # legacy method; new method is canvas.draw_idle
-        self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
@@ -907,7 +884,7 @@ class DialogLineprops(object):
     linestyled = {s: i for i, s in enumerate(linestyles)}
 
     markers =  [m for m in markers.MarkerStyle.markers
-                if cbook.is_string_like(m)]
+                if isinstance(m, six.string_types)]
     markerd = {s: i for i, s in enumerate(markers)}
 
     def __init__(self, lines):
@@ -1067,7 +1044,7 @@ def error_msg_gtk(msg, parent=None):
         if parent.flags() & gtk.TOPLEVEL == 0:
             parent = None
 
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = ','.join(map(str,msg))
 
     dialog = gtk.MessageDialog(

@@ -124,13 +124,6 @@ text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURE
                            # may also be loaded, depending on your font settings
 text.latex.preview : False
 
-text.dvipnghack : None      # some versions of dvipng don't handle alpha
-                            # channel properly.  Use True to correct
-                            # and flush ~/.matplotlib/tex.cache
-                            # before testing and False to force
-                            # correction off.  None will try and
-                            # guess based on your dvipng version
-
 text.hinting : auto   # May be one of the following:
                       #   'none': Perform no hinting
                       #   'auto': Use freetype's autohinter
@@ -254,6 +247,7 @@ xtick.major.top      : True   # draw x axis top major ticks
 xtick.major.bottom   : True   # draw x axis bottom major ticks
 xtick.minor.top      : True   # draw x axis top minor ticks
 xtick.minor.bottom   : True   # draw x axis bottom minor ticks
+xtick.alignment : center
 
 ytick.left           : True   # draw ticks on the left side
 ytick.right          : True   # draw ticks on the right side
@@ -271,6 +265,7 @@ ytick.major.left     : True   # draw y axis left major ticks
 ytick.major.right    : True   # draw y axis right major ticks
 ytick.minor.left     : True   # draw y axis left minor ticks
 ytick.minor.right    : True   # draw y axis right minor ticks
+ytick.alignment      : center
 
 ### GRIDS
 grid.color       :   k       # grid color

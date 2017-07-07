@@ -46,10 +46,9 @@ def test_contour_shape_mismatch_1():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
-    except TypeError as exc:
-        assert exc.args[0] == 'Length of x must be number of columns in z.'
+    excinfo.match(r'Length of x must be number of columns in z.')
 
 
 def test_contour_shape_mismatch_2():
@@ -61,10 +60,9 @@ def test_contour_shape_mismatch_2():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
-    except TypeError as exc:
-        assert exc.args[0] == 'Length of y must be number of rows in z.'
+    excinfo.match(r'Length of y must be number of rows in z.')
 
 
 def test_contour_shape_mismatch_3():
@@ -77,15 +75,13 @@ def test_contour_shape_mismatch_3():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(xg, y, z)
-    except TypeError as exc:
-        assert exc.args[0] == 'Number of dimensions of x and y should match.'
+    excinfo.match(r'Number of dimensions of x and y should match.')
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(x, yg, z)
-    except TypeError as exc:
-        assert exc.args[0] == 'Number of dimensions of x and y should match.'
+    excinfo.match(r'Number of dimensions of x and y should match.')
 
 
 def test_contour_shape_mismatch_4():
@@ -97,21 +93,15 @@ def test_contour_shape_mismatch_4():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(b, g, z)
-    except TypeError as exc:
-        assert re.match(
-            r'Shape of x does not match that of z: ' +
-            r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
-            exc.args[0]) is not None, exc.args[0]
+    excinfo.match(r'Shape of x does not match that of z: found \(9L?, 9L?\) ' +
+                  r'instead of \(9L?, 10L?\)')
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(g, b, z)
-    except TypeError as exc:
-        assert re.match(
-            r'Shape of y does not match that of z: ' +
-            r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
-            exc.args[0]) is not None, exc.args[0]
+    excinfo.match(r'Shape of y does not match that of z: found \(9L?, 9L?\) ' +
+                  r'instead of \(9L?, 10L?\)')
 
 
 def test_contour_shape_invalid_1():
@@ -123,10 +113,9 @@ def test_contour_shape_invalid_1():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
-    except TypeError as exc:
-        assert exc.args[0] == 'Inputs x and y must be 1D or 2D.'
+    excinfo.match(r'Inputs x and y must be 1D or 2D.')
 
 
 def test_contour_shape_invalid_2():
@@ -138,10 +127,31 @@ def test_contour_shape_invalid_2():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    try:
+    with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
-    except TypeError as exc:
-        assert exc.args[0] == 'Input z must be a 2D array.'
+    excinfo.match(r'Input z must be a 2D array.')
+
+
+def test_contour_empty_levels():
+
+    x = np.arange(9)
+    z = np.random.random((9, 9))
+
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning) as record:
+        ax.contour(x, x, z, levels=[])
+    assert len(record) == 1
+
+
+def test_contour_uniform_z():
+
+    x = np.arange(9)
+    z = np.ones((9, 9))
+
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning) as record:
+        ax.contour(x, x, z)
+    assert len(record) == 1
 
 
 @image_comparison(baseline_images=['contour_manual_labels'])
@@ -158,7 +168,7 @@ def test_contour_manual_labels():
 
 @image_comparison(baseline_images=['contour_labels_size_color'],
                   extensions=['png'], remove_text=True)
-def test_contour_manual_labels():
+def test_contour_labels_size_color():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
@@ -180,21 +190,22 @@ def test_given_colors_levels_and_extends():
     levels = [2, 4, 8, 10]
 
     for i, ax in enumerate(axes.flatten()):
-        plt.sca(ax)
-
         filled = i % 2 == 0.
         extend = ['neither', 'min', 'max', 'both'][i // 2]
 
         if filled:
-            last_color = -1 if extend in ['min', 'max'] else None
-            plt.contourf(data, colors=colors[:last_color], levels=levels,
-                         extend=extend)
+            # If filled, we have 3 colors with no extension,
+            # 4 colors with one extension, and 5 colors with both extensions
+            first_color = 1 if extend in ['max', 'neither'] else None
+            last_color = -1 if extend in ['min', 'neither'] else None
+            c = ax.contourf(data, colors=colors[first_color:last_color],
+                            levels=levels, extend=extend)
         else:
-            last_level = -1 if extend == 'both' else None
-            plt.contour(data, colors=colors, levels=levels[:last_level],
-                        extend=extend)
+            # If not filled, we have 4 levels and 4 colors
+            c = ax.contour(data, colors=colors[:-1],
+                           levels=levels, extend=extend)
 
-        plt.colorbar()
+        plt.colorbar(c, ax=ax)
 
 
 @image_comparison(baseline_images=['contour_datetime_axis'],
@@ -309,3 +320,58 @@ def test_contourf_symmetric_locator():
     locator = plt.MaxNLocator(nbins=4, symmetric=True)
     cs = plt.contourf(z, locator=locator)
     assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
+
+
+def test_contour_1x1_array():
+    # github issue 8197
+    with pytest.raises(TypeError) as excinfo:
+        plt.contour([[0]])
+    excinfo.match(r'Input z must be at least a 2x2 array.')
+
+    with pytest.raises(TypeError) as excinfo:
+        plt.contour([0], [0], [[0]])
+    excinfo.match(r'Input z must be at least a 2x2 array.')
+
+
+def test_internal_cpp_api():
+    # Following github issue 8197.
+    import matplotlib._contour as _contour
+
+    with pytest.raises(TypeError) as excinfo:
+        qcg = _contour.QuadContourGenerator()
+    excinfo.match(r'function takes exactly 6 arguments \(0 given\)')
+
+    with pytest.raises(ValueError) as excinfo:
+        qcg = _contour.QuadContourGenerator(1, 2, 3, 4, 5, 6)
+    excinfo.match(r'Expected 2-dimensional array, got 0')
+
+    with pytest.raises(ValueError) as excinfo:
+        qcg = _contour.QuadContourGenerator([[0]], [[0]], [[]], None, True, 0)
+    excinfo.match(r'x, y and z must all be 2D arrays with the same dimensions')
+
+    with pytest.raises(ValueError) as excinfo:
+        qcg = _contour.QuadContourGenerator([[0]], [[0]], [[0]], None, True, 0)
+    excinfo.match(r'x, y and z must all be at least 2x2 arrays')
+
+    arr = [[0, 1], [2, 3]]
+    with pytest.raises(ValueError) as excinfo:
+        qcg = _contour.QuadContourGenerator(arr, arr, arr, [[0]], True, 0)
+    excinfo.match(r'If mask is set it must be a 2D array with the same ' +
+                  r'dimensions as x.')
+
+    qcg = _contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
+    with pytest.raises(ValueError) as excinfo:
+        qcg.create_filled_contour(1, 0)
+    excinfo.match(r'filled contour levels must be increasing')
+
+
+def test_circular_contour_warning():
+    # Check that almost circular contours don't throw a warning
+    with pytest.warns(None) as record:
+        x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
+        r = np.sqrt(x ** 2 + y ** 2)
+
+        plt.figure()
+        cs = plt.contour(x, y, r)
+        plt.clabel(cs)
+    assert len(record) == 0

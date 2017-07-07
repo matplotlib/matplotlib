@@ -1,4 +1,10 @@
-# This file generates an old version of the matplotlib logo
+"""
+====
+Logo
+====
+
+This file generates an old version of the Matplotlib logo.
+"""
 
 from __future__ import print_function
 # Above import not necessary for Python 3 onwards. Recommend taking this

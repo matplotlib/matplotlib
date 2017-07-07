@@ -1,3 +1,9 @@
+"""
+===============
+Fancyarrow Demo
+===============
+
+"""
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 

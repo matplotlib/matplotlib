@@ -23,6 +23,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip
 
+import numpy as np
 import os
 import platform
 import sys
@@ -37,7 +38,7 @@ import abc
 import contextlib
 import tempfile
 import warnings
-from matplotlib.cbook import iterable, is_string_like, deprecated
+from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams, rcParamsDefault, rc_context
@@ -62,9 +63,38 @@ else:
 
 
 def adjusted_figsize(w, h, dpi, n):
+    '''Compute figure size so that pixels are a multiple of n
+
+    Parameters
+    ----------
+    w, h : float
+        Size in inches
+
+    dpi : float
+        The dpi
+
+    n : int
+        The target multiple
+
+    Returns
+    -------
+    wnew, hnew : float
+        The new figure size in inches.
+    '''
+
+    # this maybe simplified if / when we adopt consistent rounding for
+    # pixel size across the whole library
+    def correct_roundoff(x, dpi, n):
+        if int(x*dpi) % n != 0:
+            if int(np.nextafter(x, np.inf)*dpi) % n == 0:
+                x = np.nextafter(x, np.inf)
+            elif int(np.nextafter(x, -np.inf)*dpi) % n == 0:
+                x = np.nextafter(x, -np.inf)
+        return x
+
     wnew = int(w * dpi / n) * n / dpi
     hnew = int(h * dpi / n) * n / dpi
-    return wnew, hnew
+    return (correct_roundoff(wnew, dpi, n), correct_roundoff(hnew, dpi, n))
 
 
 # A registry for available MovieWriter classes
@@ -155,7 +185,7 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
     '''
 
     @abc.abstractmethod
-    def setup(self, fig, outfile, dpi):
+    def setup(self, fig, outfile, dpi=None):
         '''
         Perform setup for writing the movie file.
 
@@ -163,9 +193,9 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
             The figure object that contains the information for frames
         outfile: string
             The filename of the resulting movie file
-        dpi: int
+        dpi: int, optional
             The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file.
+            in pixels of the resulting movie file. Default is fig.dpi.
         '''
 
     @abc.abstractmethod
@@ -278,10 +308,13 @@ class MovieWriter(AbstractMovieWriter):
                 verbose.report('figure size (inches) has been adjusted '
                                'from %s x %s to %s x %s' % (wo, ho, w, h),
                                level='helpful')
+        else:
+            w, h = self.fig.get_size_inches()
         verbose.report('frame size in pixels is %s x %s' % self.frame_size,
                        level='debug')
+        return w, h
 
-    def setup(self, fig, outfile, dpi):
+    def setup(self, fig, outfile, dpi=None):
         '''
         Perform setup for writing the movie file.
 
@@ -292,14 +325,16 @@ class MovieWriter(AbstractMovieWriter):
             The figure object that contains the information for frames
         outfile : string
             The filename of the resulting movie file
-        dpi : int
+        dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file.
+            in pixels of the resulting movie file. Default is fig.dpi.
         '''
         self.outfile = outfile
         self.fig = fig
+        if dpi is None:
+            dpi = self.fig.dpi
         self.dpi = dpi
-        self._adjust_frame_size()
+        self._w, self._h = self._adjust_frame_size()
 
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
@@ -335,6 +370,10 @@ class MovieWriter(AbstractMovieWriter):
         verbose.report('MovieWriter.grab_frame: Grabbing frame.',
                        level='debug')
         try:
+            # re-adjust the figure size in case it has been changed by the
+            # user.  We must ensure that every frame is the same size or
+            # the movie will not save correctly.
+            self.fig.set_size_inches(self._w, self._h)
             # Tell the figure to save its data to the sink, using the
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
@@ -384,15 +423,20 @@ class MovieWriter(AbstractMovieWriter):
         if not bin_path:
             return False
         try:
-            p = subprocess.Popen(bin_path,
-                             shell=False,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             creationflags=subprocess_creation_flags)
-            p.communicate()
-            return True
+            p = subprocess.Popen(
+                bin_path,
+                shell=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                creationflags=subprocess_creation_flags)
+            return cls._handle_subprocess(p)
         except OSError:
             return False
+
+    @classmethod
+    def _handle_subprocess(cls, process):
+        process.communicate()
+        return True
 
 
 class FileMovieWriter(MovieWriter):
@@ -404,7 +448,8 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
-    def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
+    def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
+              clear_temp=True):
         '''Perform setup for writing the movie file.
 
         Parameters
@@ -413,9 +458,10 @@ class FileMovieWriter(MovieWriter):
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
-        dpi : number
+        dpi : number, optional
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
+            Default is fig.dpi.
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  Defaults to
             '_tmp'.
@@ -427,6 +473,8 @@ class FileMovieWriter(MovieWriter):
         '''
         self.fig = fig
         self.outfile = outfile
+        if dpi is None:
+            dpi = self.fig.dpi
         self.dpi = dpi
         self._adjust_frame_size()
 
@@ -564,10 +612,18 @@ class FFMpegBase(object):
 
         return args + ['-y', self.outfile]
 
+    @classmethod
+    def _handle_subprocess(cls, process):
+        _, err = process.communicate()
+        # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use
+        if 'Libav' in err.decode():
+            return False
+        return True
+
 
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
-class FFMpegWriter(MovieWriter, FFMpegBase):
+class FFMpegWriter(FFMpegBase, MovieWriter):
     '''Pipe-based ffmpeg writer.
 
     Frames are streamed directly to ffmpeg via a pipe and written in a single
@@ -588,7 +644,7 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 
 # Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
-class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
+class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     '''File-based ffmpeg writer.
 
     Frames are written to temporary files on disk and then stitched
@@ -967,7 +1023,7 @@ class Animation(object):
         # to use
         if writer is None:
             writer = rcParams['animation.writer']
-        elif (not is_string_like(writer) and
+        elif (not isinstance(writer, six.string_types) and
                 any(arg is not None
                     for arg in (fps, codec, bitrate, extra_args, metadata))):
             raise RuntimeError('Passing in values for arguments '
@@ -1012,7 +1068,7 @@ class Animation(object):
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
-        if is_string_like(writer):
+        if isinstance(writer, six.string_types):
             if writer in writers.avail:
                 writer = writers[writer](fps, codec, bitrate,
                                          extra_args=extra_args,
@@ -1194,7 +1250,7 @@ class Animation(object):
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
   Your browser does not support the video tag.
 </video>'''
-        # Cache the the rendering of the video as HTML
+        # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
             # First write the video to a tempfile. Set delete to False
             # so we can re-open to read binary data.

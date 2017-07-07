@@ -74,6 +74,26 @@ def test_null_movie_writer():
     assert writer._count == num_frames
 
 
+def test_movie_writer_dpi_default():
+    # Test setting up movie writer with figure.dpi default.
+
+    fig = plt.figure()
+
+    filename = "unused.null"
+    fps = 5
+    codec = "unused"
+    bitrate = 1
+    extra_args = ["unused"]
+
+    def run():
+        pass
+
+    writer = animation.MovieWriter(fps, codec, bitrate, extra_args)
+    writer._run = run
+    writer.setup(fig, filename)
+    assert writer.dpi == fig.dpi
+
+
 @animation.writers.register('null')
 class RegisteredNullMovieWriter(NullMovieWriter):
 
@@ -125,6 +145,14 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     ax.set_xlim(0, 10)
     ax.set_ylim(-1, 1)
 
+    dpi = None
+    codec = None
+    if writer == 'ffmpeg':
+        # Issue #8253
+        fig.set_size_inches((10.85, 9.21))
+        dpi = 100.
+        codec = 'h264'
+
     def init():
         line.set_data([], [])
         return line,
@@ -140,7 +168,8 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     with tmpdir.as_cwd():
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
         try:
-            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500)
+            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500,
+                      dpi=dpi, codec=codec)
         except UnicodeDecodeError:
             pytest.xfail("There can be errors in the numpy import stack, "
                          "see issues #1891 and #2679")
@@ -162,6 +191,8 @@ def test_no_length_frames():
 
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                    frames=iter(range(5)))
+    writer = NullMovieWriter()
+    anim.save('unused.null', writer=writer)
 
 
 def test_movie_writer_registry():

@@ -1,4 +1,8 @@
 """
+=============
+QuadMesh Demo
+=============
+
 pcolormesh uses a QuadMesh, a faster generalization of pcolor, but
 with some restrictions.
 

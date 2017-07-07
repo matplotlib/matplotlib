@@ -1,12 +1,5 @@
 .. _toolkits-index:
 
-.. toctree::
-   :hidden:
-
-   axes_grid1/index.rst
-   axisartist/index.rst
-   mplot3d/index.rst
-
 .. _toolkits:
 
 ########
@@ -15,7 +8,8 @@ Toolkits
 
 
 
-Toolkits are collections of application-specific functions that extend matplotlib.
+Toolkits are collections of application-specific functions that extend
+Matplotlib.
 
 
 .. _toolkit_mplot3d:
@@ -23,26 +17,44 @@ Toolkits are collections of application-specific functions that extend matplotli
 mplot3d
 =======
 
+:mod:`mpl_toolkits.mplot3d` provides some basic 3D
+plotting (scatter, surf, line, mesh) tools.  Not the fastest or most feature
+complete 3D library out there, but it ships with Matplotlib and thus may be a
+lighter weight solution for some use cases. Check out the
+:ref:`mplot3d tutorial <sphx_glr_tutorials_toolkits_mplot3d.py>` for more
+information.
 
-:ref:`mpl_toolkits.mplot3d <toolkit_mplot3d-index>` provides some basic 3D plotting (scatter, surf,
-line, mesh) tools.  Not the fastest or feature complete 3D library out
-there, but ships with matplotlib and thus may be a lighter weight
-solution for some use cases.
+.. figure:: ../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png
+   :target: ../gallery/mplot3d/contourf3d_2.html
+   :align: center
+   :scale: 50
 
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+   Contourf3d 2
+
+.. toctree::
+    :maxdepth: 2
+
+    mplot3d/index.rst
+    mplot3d/faq.rst
+
+Links
+-----
+* mpl3d API: :ref:`toolkit_mplot3d-api`
 
 .. _toolkit_axes_grid1:
 
 axes_grid1
 ==========
 
-
-The :ref:`mpl_toolkits.axes_grid1 <toolkit_axesgrid1-index>` toolkit is a
-collection of helper classes to ease displaying multiple axes in matplotlib.
-
-
+The :mod:`mpl_toolkits.axes_grid1` toolkit is a
+collection of helper classes for displaying multiple axes in Matplotlib.
 
 .. image:: /_static/demo_axes_grid.png
+
+.. toctree::
+    :maxdepth: 2
+
+    axes_grid1/index.rst
 
 
 .. _toolkit_axisartist:
@@ -50,26 +62,16 @@ collection of helper classes to ease displaying multiple axes in matplotlib.
 axisartist
 ==========
 
+The :mod:`mpl_toolkits.axisartist` toolkit contains
+a custom Axes class that is meant to support curvilinear grids.
 
-The :ref:`mpl_toolkits.axisartist <toolkit_axisartist-index>` toolkit contains
-a custom Axes class that is meant to support for curvilinear grids.
+.. toctree::
+    :maxdepth: 2
 
-
-.. _toolkit_gtk:
-
-GTK Tools
-=========
-
-``mpl_toolkits.gtktools`` provides some utilities for working with GTK.
-This toolkit ships with matplotlib, but requires `pygtk
-<http://www.pygtk.org/>`_.
+    axisartist/index.rst
 
 
-.. _toolkit_excel:
+API
+---
+* Axes Grid and Axis Artist API: :ref:`axes_grid-api-index`
 
-Excel Tools
-===========
-
-``mpl_toolkits.exceltools`` provides some utilities for working with
-Excel.  This toolkit ships with matplotlib, but requires
-`xlwt <https://pypi.python.org/pypi/xlwt>`_

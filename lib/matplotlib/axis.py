@@ -1702,7 +1702,7 @@ class XAxis(Axis):
     axis_name = 'x'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured in the x axis.
+        """Test whether the mouse event occurred in the x axis.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)

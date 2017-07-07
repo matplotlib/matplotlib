@@ -27,7 +27,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from matplotlib import verbose
-from matplotlib.cbook import is_sequence_of_strings
 import matplotlib.lines as mlines
 
 import warnings
@@ -40,8 +39,6 @@ class BlockingInput(object):
     """
     def __init__(self, fig, eventslist=()):
         self.fig = fig
-        if not is_sequence_of_strings(eventslist):
-            raise ValueError("Requires a sequence of event name strings")
         self.eventslist = eventslist
 
     def on_event(self, event):
@@ -104,8 +101,9 @@ class BlockingInput(object):
         self.events = []
         self.callbacks = []
 
-        # Ensure that the figure is shown
-        self.fig.show()
+        if hasattr(self.fig, "manager"):
+            # Ensure that the figure is shown, if we are managing it.
+            self.fig.show()
 
         # connect the events to the on_event function call
         for n in self.eventslist:

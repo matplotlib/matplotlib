@@ -12,7 +12,7 @@ import tempfile
 import pytest
 
 import numpy as np
-from matplotlib import checkdep_tex, cm, rcParams
+from matplotlib import checkdep_usetex, cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
@@ -21,8 +21,8 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib import dviread
 
 
-needs_tex = pytest.mark.xfail(
-    not checkdep_tex(),
+needs_usetex = pytest.mark.xfail(
+    not checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -178,7 +178,9 @@ def test_grayscale_alpha():
     ax.set_yticks([])
 
 
-@needs_tex
+# This tests tends to hit a TeX cache lock on AppVeyor.
+@pytest.mark.flaky(reruns=3)
+@needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     def psfont(*args, **kwargs):
