@@ -195,16 +195,14 @@ def test_missing_psfont(monkeypatch):
         fig.savefig(tmpfile, format='pdf')
 
 
-@pytest.fixture(scope='function')
-def test_pdf_savefig_when_color_is_none(tempdir_factory):
-    rcParams['_internal.classic_mode'] = False
-    plt.subplot()
+@pytest.mark.style('default')
+def test_pdf_savefig_when_color_is_none(tmpdir):
+    fig, ax = plt.subplots()
     plt.axis('off')
-    plt.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
-    tmpdir_name = str(np.random.randint(100000, 10000000))
-    actual_image = tempdir_factory.mktemp(tmpdir_name).join('figure.pdf')
-    expected_image = tempdir_factory.mktemp(tmpdir_name).join('figure.eps')
-    plt.savefig(str(actual_image), format='pdf')
-    plt.savefig(str(expected_image), format='eps')
+    ax.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
+    actual_image = tmpdir.join('figure.pdf')
+    expected_image = tmpdir.join('figure.eps')
+    fig.savefig(str(actual_image), format='pdf')
+    fig.savefig(str(expected_image), format='eps')
     result = compare_images(str(actual_image), str(expected_image), 0)
     assert result is None
