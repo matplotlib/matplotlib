@@ -190,6 +190,7 @@ Tagging examples will also help users search the example gallery. Although tags
 would be a big win for users with specific goals, the plot gallery will remain
 the entry point to these examples, and sections could really help users
 navigate the gallery. Thus, tags are complementary to this reorganization.
+[2]_ [3]_ [4]_ [5]_
 
 
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
