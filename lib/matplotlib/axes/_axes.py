@@ -3979,6 +3979,17 @@ or tuple of floats
         else:
             try:
                 c_array = np.asanyarray(c, dtype=float)
+                if c_array.ndim > 1:
+                    if cmap is None:
+                        cmap = mcolors.BivariateColormap()
+                    if norm is None:
+                        norm = mcolors.BivariateNorm()
+                    c_array = norm(c_array)
+                    c_array[0] = c_array[0] * (cmap.N-1)
+                    c_array[1] = c_array[1] * (cmap.N-1)
+                    c_array = c_array.astype(int)
+                    c_array = c_array[0] + cmap.N * c_array[1]
+                    norm = mcolors.NoNorm()
                 if c_array.shape in xy_shape:
                     c = np.ma.ravel(c_array)
                 else:
@@ -4043,8 +4054,10 @@ or tuple of floats
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None and not isinstance(norm, mcolors.Normalize):
-                msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
+            if norm is not None and not isNorm:
+                msg = "'norm' must be an instance of 'mcolors.Normalize' " \
+                      "or 'mcolors.BivariateNorm'"
                 raise ValueError(msg)
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)

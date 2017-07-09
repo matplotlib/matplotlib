@@ -859,7 +859,7 @@ class ListedColormap(Colormap):
 
 
 class BivariateColormap(Colormap):
-    def __init__(self, name, N=256):
+    def __init__(self, name='bivariate', N=256):
         Colormap.__init__(self, name, N)
 
     def _init(self):
