@@ -212,20 +212,17 @@ class RendererAgg(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-
-        # passing rgb is a little hack to make caching in the
-        # texmanager more efficient.  It is not meant to be used
-        # outside the backend
+        Get the width, height, and descent (offset from the bottom
+        to the baseline), in display coords, of the string *s* with
+        :class:`~matplotlib.font_manager.FontProperties` *prop*
         """
         if rcParams['text.usetex']:
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
+            w, h, d = texmanager.get_text_width_height_descent(
+                s, fontsize, renderer=self)
             return w, h, d
 
         if ismath:

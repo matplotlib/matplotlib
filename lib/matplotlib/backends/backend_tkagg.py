@@ -522,6 +522,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
+
 class FigureManagerTkAgg(FigureManagerBase):
     """
     Attributes
