@@ -549,18 +549,6 @@ class FigureCanvasCairo(FigureCanvasBase):
 
         self.figure.draw(renderer)
 
-        show_fig_border = False  # for testing figure orientation and scaling
-        if show_fig_border:
-            ctx.new_path()
-            ctx.rectangle(0, 0, width_in_points, height_in_points)
-            ctx.set_line_width(4.0)
-            ctx.set_source_rgb(1,0,0)
-            ctx.stroke()
-            ctx.move_to(30,30)
-            ctx.select_font_face('sans-serif')
-            ctx.set_font_size(20)
-            ctx.show_text('Origin corner')
-
         ctx.show_page()
         surface.finish()
         if fmt == 'svgz':
