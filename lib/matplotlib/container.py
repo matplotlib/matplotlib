@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import matplotlib.cbook as cbook
-import matplotlib.artist as martist
+import matplotlib.artist.artist as martist
 
 
 class Container(tuple):

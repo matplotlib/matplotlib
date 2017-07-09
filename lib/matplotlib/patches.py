@@ -12,8 +12,8 @@ import math
 import matplotlib as mpl
 import numpy as np
 import matplotlib.cbook as cbook
-import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
+import matplotlib.artist.artist as artist
+from matplotlib.artist.artist import allow_rasterization
 import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms

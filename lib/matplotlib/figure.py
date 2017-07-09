@@ -24,8 +24,8 @@ from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib import __version__ as _mpl_version
 
-import matplotlib.artist as martist
-from matplotlib.artist import Artist, allow_rasterization
+import matplotlib.artist.artist as martist
+from matplotlib.artist.artist import Artist, allow_rasterization
 
 import matplotlib.cbook as cbook
 

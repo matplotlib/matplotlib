@@ -22,7 +22,7 @@ from six.moves import xrange, zip
 
 import warnings
 import matplotlib.transforms as mtransforms
-import matplotlib.artist as martist
+import matplotlib.artist.artist as martist
 import matplotlib.text as mtext
 import matplotlib.path as mpath
 import numpy as np
