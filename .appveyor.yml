@@ -68,9 +68,7 @@ install:
   # for obvci_appveyor_python_build_env.cmd
   - conda install -c pelson/channel/development --yes --quiet obvious-ci
   # for msinttypes and newer stuff
-  # conda-forge may serve outdated versions of certain packages (e.g. conda
-  # itself), so append it to the end of the list.
-  - conda config --append channels conda-forge
+  - conda config --prepend channels conda-forge
   - conda config --set show_channel_urls yes
   - conda config --set always_yes true
   # For building conda packages
