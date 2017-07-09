@@ -174,7 +174,7 @@ def test_contains():
 
     # draw the text. This is important, as the contains method can only work
     # when a renderer exists.
-    plt.draw()
+    fig.canvas.draw()
 
     for x, y in zip(xs.flat, ys.flat):
         mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
@@ -238,12 +238,12 @@ def test_set_position():
     # test set_position
     ann = ax.annotate(
         'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
-    plt.draw()
+    fig.canvas.draw()
 
     init_pos = ann.get_window_extent(fig.canvas.renderer)
     shift_val = 15
     ann.set_position((shift_val, shift_val))
-    plt.draw()
+    fig.canvas.draw()
     post_pos = ann.get_window_extent(fig.canvas.renderer)
 
     for a, b in zip(init_pos.min, post_pos.min):
@@ -252,12 +252,12 @@ def test_set_position():
     # test xyann
     ann = ax.annotate(
         'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
-    plt.draw()
+    fig.canvas.draw()
 
     init_pos = ann.get_window_extent(fig.canvas.renderer)
     shift_val = 15
     ann.xyann = (shift_val, shift_val)
-    plt.draw()
+    fig.canvas.draw()
     post_pos = ann.get_window_extent(fig.canvas.renderer)
 
     for a, b in zip(init_pos.min, post_pos.min):
@@ -396,7 +396,6 @@ def test_agg_text_clip():
     for x, y in np.random.rand(10, 2):
         ax1.text(x, y, "foo", clip_on=True)
         ax2.text(x, y, "foo")
-    plt.show()
 
 
 def test_text_size_binding():
