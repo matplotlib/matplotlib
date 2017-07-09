@@ -151,6 +151,8 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #
 #     \sqrt[3]{x}
 #
+# .. _mathtext_fonts:
+#
 # Fonts
 # -----
 #
