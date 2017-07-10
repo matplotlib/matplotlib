@@ -4,7 +4,7 @@ Dolphins
 ========
 
 This example shows how to draw, and manipulate shapes given vertices
-and nodes using the `patches`, `path` and `transforms` classes.
+and nodes using the `Patches`, `Path` and `Transforms` classes.
 
 """
 
