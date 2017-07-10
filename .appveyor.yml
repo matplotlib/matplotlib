@@ -39,7 +39,7 @@ environment:
     - TARGET_ARCH: "x64"
       CONDA_PY: "36"
       PYTHON_VERSION: "3.6"
-      CONDA_NPY: "110"
+      CONDA_NPY: "111"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
 
