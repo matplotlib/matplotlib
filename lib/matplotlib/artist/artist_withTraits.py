@@ -70,3 +70,233 @@ class Artist(HasTraits):
     #TO DO: create  PICKER trait that takes in a None, float, boolean, callable
     #TO DO: not sure to create snap ?
     #group id
+
+"""
+_______________________________________________________________________________
+"""
+
+    #stale default
+    @default("stale")
+    def stale_default(self):
+        pass
+    #stale validate
+    @validate("stale")
+    def stale_validate(self, proposal):
+        pass
+    #stale observer
+    @observe("stale", type = change)
+    def stale_observer(self, change):
+
+    #axes default
+    @default("axes")
+    def axes_default(self):
+        pass
+    #axes validate
+    @validate("axes")
+    def axes_validate(self, proposal):
+        pass
+    #axes observer
+    @observer("axes", type = change)
+    def axes_observer(self, change):
+        pass
+
+    #figure default
+    @default("")
+    def _default(self):
+        pass
+    #figure validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
+    #figure observer
+
+    #transform default
+    @default("")
+    def _default(self):
+        pass
+    #transform validate
+    #transform observer
+
+    #transformSet default
+    @default("")
+    def _default(self):
+        pass
+    #transformSet validate
+    #transformSet observer
+
+    #visible default
+    @default("")
+    def _default(self):
+        pass
+    #visible validate
+    #visible observer
+
+    #animated default
+    @default("")
+    def _default(self):
+        pass
+    #animated validate
+    #animated observer
+
+    #alpha default
+    @default("")
+    def _default(self):
+        pass
+    #alpha validate
+    #alpha observer
+
+    #clipbox default
+    @default("")
+    def _default(self):
+        pass
+    #clipbox validate
+    #clipbox observer
+
+    #To do: create either a clippath trait or modify the get and set functions
+    #for now i have comments down for default, validate and observer decortors
+    #clippath default
+    @default("")
+    def _default(self):
+        pass
+    #clippath validate
+    #clippath observer
+
+    #clipon default
+    @default("")
+    def _default(self):
+        pass
+    #clipon validate
+    #clipon observer
+
+    #label default
+    @default("")
+    def _default(self):
+        pass
+    #label validate
+    #label observer
+
+    #picker default
+    @default("")
+    def _default(self):
+        pass
+    #picker validate
+    #picker observer
+
+    #contains default
+    @default("")
+    def _default(self):
+        pass
+    #contains validate
+    #contains observer
+
+    #rasterized default
+    @default("")
+    def _default(self):
+        pass
+    #rasterized validate
+    #rasterized observer
+
+    #agg_filter default
+    @default("")
+    def _default(self):
+        pass
+    #agg_filter validate
+    #agg_filter observer
+
+    #mouseover default
+    @default("")
+    def _default(self):
+        pass
+    #mouseover validate
+    #mouseover observer
+
+    #eventson default
+    @default("")
+    def _default(self):
+        pass
+    #eventson validate
+    #eventson observer
+
+    #oid default
+    @default("")
+    def _default(self):
+        pass
+    #oid validate
+    #oid observer
+
+    #propobservers default
+    @default("")
+    def _default(self):
+        pass
+    #propobservers validate
+    #propobservers observer
+
+    #url default
+    @default("")
+    def _default(self):
+        pass
+    #url validate
+    #url observer
+
+    #gid default
+    @default("")
+    def _default(self):
+        pass
+    #gid validate
+    #gid observer
+
+    #snap default
+    @default("")
+    def _default(self):
+        pass
+    #snap validate
+    #snap observer
+
+    #sketch default
+    @default("")
+    def _default(self):
+        pass
+    #sketch validate
+    #sketch observer
+
+    #path_effects default
+    @default("")
+    def _default(self):
+        pass
+    #path_effects validate
+    #path_effects observer
+
+    #sticky_edges default
+    @default("")
+    def _default(self):
+        pass
+    #sticky_edges validate
+    #sticky_edges observer
+
+    #default
+    #validate
+    #observer
+
+    #default
+    #validate
+    #observer
+
+    #default
+    #validate
+    #observer
+
+    #default
+    #validate
+    #observer
+
+    #default
+    #validate
+    #observer
+
+    #default
+    #validate
+    #observer
+
+    #default
+    #validate
+    #observer
