@@ -29,6 +29,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
+# from matplotlib.artist.artist import *
 import matplotlib.artist.artist as martist
 import matplotlib.cbook as cbook
 import matplotlib.collections as collections
