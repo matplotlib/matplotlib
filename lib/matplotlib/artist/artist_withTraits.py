@@ -23,53 +23,6 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-class Artist(HasTraits):
-
-    stale = Bool(default_value = True)
-    #the axes bounding box in display space
-    #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
-
-    axes = Axes('matplotlib.axes.Axes', allow_none = True)
-    figure = Figure('matplotlib.figure.Figure', allow_none = True)
-    transform = Transform('matplotlib.transform.Transform', allow_none = True)
-    transformSet = Bool(default_value = False )
-    children = List()
-    #TO DO: create  PICKER trait that takes in a None, float, boolean, callable
-    #TO DO: not sure to create snap ?
-
-    alpha = Int(default_value = None ,allow_none = True)
-    visible = Bool(default_value = True)
-    animated = Bool(default_value = False)
-    url = Unicode(default_value = None)
-    #group id
-    gid = Unicode(default_value = None)
-
-    zorder = Int(default_value = 0)
-
-    """3-tuple (scale, length or 128.0, randomness or 16.0):
-    scale: amplitude of the wiggle perpendicular to the
-      source line
-    length: length of the wiggle along the line
-    randomness: scale factor by which the length is
-      shrunken or expanded
-    """
-    # sketch_Params = Tuple()
-
-    clip_on = Bool(default_value = True)
-    label = Unicode()
-    # propobservers = {}  # a dict from oids to funcs
-    propobservers = Dict()
-    #observer id
-    oid = Int()
-
-    #Bbox as own TraitType and clip box is an instance of BBpx
-
-
-    # clip path is anattribute
-    #that will take in either a Trait
-    #matplotlib.patches.Patch
-    #matplotlib.path.Path
-    #matplotlib.transforms.Transform
 from traits import TraitProxy, Perishable
 
 class Artist(HasTraits):
@@ -157,16 +110,16 @@ _______________________________________________________________________________
 """
 
     #figure default
-    @default("")
-    def _default(self):
+    @default("figure")
+    def figure_default(self):
         pass
     #figure validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("figure")
+    def figure_validate(self, proposal):
         pass
     #figure observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("figure", type = change)
+    def figure_observe(self, change):
         pass
 
 """
@@ -174,16 +127,16 @@ _______________________________________________________________________________
 """
 
     #transform default
-    @default("")
-    def _default(self):
+    @default("transform")
+    def transform_default(self):
         pass
     #transform validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("transform")
+    def transform_validate(self, proposal):
         pass
     #transform observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("transform", type = change)
+    def transform_observe(self, change):
         pass
 
 """
@@ -191,16 +144,16 @@ _______________________________________________________________________________
 """
 
     #transformSet default
-    @default("")
-    def _default(self):
+    @default("transformSet")
+    def transformSet_default(self):
         pass
     #transformSet validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("transformSet")
+    def transformSet_validate(self, proposal):
         pass
     #transformSet observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("transformSet", type = change)
+    def transformSet_observe(self, change):
         pass
 
 """
@@ -208,16 +161,16 @@ _______________________________________________________________________________
 """
 
     #visible default
-    @default("")
-    def _default(self):
+    @default("visible")
+    def visible_default(self):
         pass
     #visible validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("visible")
+    def visible_validate(self, proposal):
         pass
     #visible observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("visible", type = change)
+    def visible_observe(self, change):
         pass
 
 """
@@ -225,16 +178,16 @@ _______________________________________________________________________________
 """
 
     #animated default
-    @default("")
-    def _default(self):
+    @default("animated")
+    def animated_default(self):
         pass
     #animated validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("animated")
+    def animated_validate(self, proposal):
         pass
     #animated observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("animated", type = change)
+    def animated_observe(self, change):
         pass
 
 """
@@ -242,16 +195,16 @@ _______________________________________________________________________________
 """
 
     #alpha default
-    @default("")
-    def _default(self):
+    @default("alpha")
+    def alpha_default(self):
         pass
     #alpha validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("alpha")
+    def alpha_validate(self, proposal):
         pass
     #alpha observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("alpha", type = change)
+    def alpha_observe(self, change):
         pass
 
 """
@@ -259,16 +212,16 @@ _______________________________________________________________________________
 """
 
     #clipbox default
-    @default("")
-    def _default(self):
+    @default("clipbox")
+    def clipbox_default(self):
         pass
     #clipbox validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("clipbox")
+    def clipbox_validate(self, proposal):
         pass
     #clipbox observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("clipbox", type = change)
+    def clipbox_observe(self, change):
         pass
 
 """
@@ -278,16 +231,16 @@ _______________________________________________________________________________
     #To do: create either a clippath trait or modify the get and set functions
     #for now i have comments down for default, validate and observer decortors
     #clippath default
-    @default("")
-    def _default(self):
+    @default("clippath")
+    def clippath_default(self):
         pass
     #clippath validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("clippath")
+    def clippath_validate(self, proposal):
         pass
     #clippath observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("clippath", type = change)
+    def clippath_observe(self, change):
         pass
 
 """
@@ -295,16 +248,16 @@ _______________________________________________________________________________
 """
 
     #clipon default
-    @default("")
-    def _default(self):
+    @default("clipon")
+    def clipon_default(self):
         pass
     #clipon validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("clipon")
+    def clipon_validate(self, proposal):
         pass
     #clipon observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("clipon", type = change)
+    def clipon_observe(self, change):
         pass
 
 """
@@ -312,16 +265,16 @@ _______________________________________________________________________________
 """
 
     #label default
-    @default("")
-    def _default(self):
+    @default("label")
+    def label_default(self):
         pass
     #label validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("label")
+    def label_validate(self, proposal):
         pass
     #label observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("label", type = change)
+    def label_observe(self, change):
         pass
 
 """
@@ -329,16 +282,16 @@ _______________________________________________________________________________
 """
 
     #picker default
-    @default("")
-    def _default(self):
+    @default("picker")
+    def picker_default(self):
         pass
     #picker validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("picker")
+    def picker_validate(self, proposal):
         pass
     #picker observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("picker", type = change)
+    def picker_observe(self, change):
         pass
 
 """
@@ -346,16 +299,16 @@ _______________________________________________________________________________
 """
 
     #contains default
-    @default("")
-    def _default(self):
+    @default("contains")
+    def contains_default(self):
         pass
     #contains validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("contains")
+    def contains_validate(self, proposal):
         pass
     #contains observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("contains", type = change)
+    def contains_observe(self, change):
         pass
 
 """
@@ -363,16 +316,16 @@ _______________________________________________________________________________
 """
 
     #rasterized default
-    @default("")
-    def _default(self):
+    @default("rasterized")
+    def rasterized_default(self):
         pass
     #rasterized validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("rasterized")
+    def rasterized_validate(self, proposal):
         pass
     #rasterized observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("rasterized", type = change)
+    def rasterized_observe(self, change):
         pass
 
 """
@@ -380,16 +333,16 @@ _______________________________________________________________________________
 """
 
     #agg_filter default
-    @default("")
-    def _default(self):
+    @default("agg_filter")
+    def agg_filter_default(self):
         pass
     #agg_filter validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("agg_filter")
+    def agg_filter_validate(self, proposal):
         pass
     #agg_filter observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("agg_filter", type = change)
+    def agg_filter_observe(self, change):
         pass
 
 """
@@ -397,16 +350,16 @@ _______________________________________________________________________________
 """
 
     #mouseover default
-    @default("")
-    def _default(self):
+    @default("mouseover")
+    def mouseover_default(self):
         pass
     #mouseover validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("mouseover")
+    def mouseover_validate(self, proposal):
         pass
     #mouseover observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("mouseover", type = change)
+    def mouseover_observe(self, change):
         pass
 
 """
@@ -414,16 +367,16 @@ _______________________________________________________________________________
 """
 
     #eventson default
-    @default("")
-    def _default(self):
+    @default("eventson")
+    def eventson_default(self):
         pass
     #eventson validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("eventson")
+    def eventson_validate(self, proposal):
         pass
     #eventson observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("eventson", type = change)
+    def eventson_observe(self, change):
         pass
 
 """
@@ -431,16 +384,16 @@ _______________________________________________________________________________
 """
 
     #oid default
-    @default("")
-    def _default(self):
+    @default("oid")
+    def oid_default(self):
         pass
     #oid validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("oid")
+    def oid_validate(self, proposal):
         pass
     #oid observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("oid", type = change)
+    def oid_observe(self, change):
         pass
 
 """
@@ -448,16 +401,16 @@ _______________________________________________________________________________
 """
 
     #propobservers default
-    @default("")
-    def _default(self):
+    @default("propobservers")
+    def propobservers_default(self):
         pass
     #propobservers validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("propobservers")
+    def propobservers_validate(self, proposal):
         pass
     #propobservers observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("propobservers", type = change)
+    def propobservers_observe(self, change):
         pass
 
 """
@@ -465,16 +418,16 @@ _______________________________________________________________________________
 """
 
     #url default
-    @default("")
-    def _default(self):
+    @default("url")
+    def url_default(self):
         pass
     #url validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("url")
+    def url_validate(self, proposal):
         pass
     #url observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("url", type = change)
+    def url_observe(self, change):
         pass
 
 """
@@ -482,16 +435,16 @@ _______________________________________________________________________________
 """
 
     #gid default
-    @default("")
-    def _default(self):
+    @default("gid")
+    def gid_default(self):
         pass
     #gid validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("gid")
+    def gid_validate(self, proposal):
         pass
     #gid observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("gid", type = change)
+    def gid_observe(self, change):
         pass
 
 """
@@ -499,16 +452,16 @@ _______________________________________________________________________________
 """
 
     #snap default
-    @default("")
-    def _default(self):
+    @default("snap")
+    def snap_default(self):
         pass
     #snap validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("snap")
+    def snap_validate(self, proposal):
         pass
     #snap observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("snap", type = change)
+    def snap_observe(self, change):
         pass
 
 """
@@ -516,16 +469,16 @@ _______________________________________________________________________________
 """
 
     #sketch default
-    @default("")
-    def _default(self):
+    @default("sketch")
+    def sketch_default(self):
         pass
     #sketch validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("sketch")
+    def sketch_validate(self, proposal):
         pass
     #sketch observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("sketch", type = change)
+    def sketch_observe(self, change):
         pass
 
 """
@@ -533,16 +486,16 @@ _______________________________________________________________________________
 """
 
     #path_effects default
-    @default("")
-    def _default(self):
+    @default("path_effects")
+    def path_effects_default(self):
         pass
     #path_effects validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("path_effects")
+    def path_effects_validate(self, proposal):
         pass
     #path_effects observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("path_effects", type = change)
+    def path_effects_observe(self, change):
         pass
 
 """
@@ -550,16 +503,16 @@ _______________________________________________________________________________
 """
 
     #sticky_edges default
-    @default("")
-    def _default(self):
+    @default("sticky_edges")
+    def sticky_edges_default(self):
         pass
     #sticky_edges validate
-    @validate("")
-    def _validate(self, proposal):
+    @validate("sticky_edges")
+    def sticky_edges_validate(self, proposal):
         pass
     #sticky_edges observer
-    @observe("", type = change)
-    def _observe(self, change):
+    @observe("sticky_edges", type = change)
+    def sticky_edges_observe(self, change):
         pass
 
 """
