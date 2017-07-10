@@ -85,7 +85,12 @@ _______________________________________________________________________________
         pass
     #stale observer
     @observe("stale", type = change)
-    def stale_observer(self, change):
+    def stale_observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #axes default
     @default("axes")
@@ -96,9 +101,13 @@ _______________________________________________________________________________
     def axes_validate(self, proposal):
         pass
     #axes observer
-    @observer("axes", type = change)
-    def axes_observer(self, change):
+    @observe("axes", type = change)
+    def axes_observe(self, change):
         pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #figure default
     @default("")
@@ -109,6 +118,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #figure observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #transform default
     @default("")
@@ -119,6 +135,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #transform observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #transformSet default
     @default("")
@@ -129,6 +152,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #transformSet observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #visible default
     @default("")
@@ -139,6 +169,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #visible observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #animated default
     @default("")
@@ -149,6 +186,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #animated observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #alpha default
     @default("")
@@ -159,6 +203,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #alpha observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #clipbox default
     @default("")
@@ -169,6 +220,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #clipbox observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #To do: create either a clippath trait or modify the get and set functions
     #for now i have comments down for default, validate and observer decortors
@@ -181,6 +239,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #clippath observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #clipon default
     @default("")
@@ -191,6 +256,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #clipon observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #label default
     @default("")
@@ -201,6 +273,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #label observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #picker default
     @default("")
@@ -211,6 +290,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #picker observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #contains default
     @default("")
@@ -221,6 +307,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #contains observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #rasterized default
     @default("")
@@ -231,6 +324,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #rasterized observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #agg_filter default
     @default("")
@@ -241,6 +341,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #agg_filter observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #mouseover default
     @default("")
@@ -251,6 +358,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #mouseover observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #eventson default
     @default("")
@@ -261,6 +375,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #eventson observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #oid default
     @default("")
@@ -271,6 +392,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #oid observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #propobservers default
     @default("")
@@ -281,6 +409,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #propobservers observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #url default
     @default("")
@@ -291,6 +426,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #url observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #gid default
     @default("")
@@ -301,6 +443,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #gid observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #snap default
     @default("")
@@ -311,6 +460,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #snap observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #sketch default
     @default("")
@@ -321,6 +477,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #sketch observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #path_effects default
     @default("")
@@ -331,6 +494,13 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #path_effects observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
+
+"""
+_______________________________________________________________________________
+"""
 
     #sticky_edges default
     @default("")
@@ -341,31 +511,10 @@ _______________________________________________________________________________
     def _validate(self, proposal):
         pass
     #sticky_edges observer
+    @observe("", type = change)
+    def _observe(self, change):
+        pass
 
-    #default
-    #validate
-    #observer
-
-    #default
-    #validate
-    #observer
-
-    #default
-    #validate
-    #observer
-
-    #default
-    #validate
-    #observer
-
-    #default
-    #validate
-    #observer
-
-    #default
-    #validate
-    #observer
-
-    #default
-    #validate
-    #observer
+"""
+_______________________________________________________________________________
+"""
