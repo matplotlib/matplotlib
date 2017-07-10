@@ -115,6 +115,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #transform validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #transform observer
 
     #transformSet default
@@ -122,6 +125,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #transformSet validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #transformSet observer
 
     #visible default
@@ -129,6 +135,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #visible validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #visible observer
 
     #animated default
@@ -136,6 +145,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #animated validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #animated observer
 
     #alpha default
@@ -143,6 +155,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #alpha validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #alpha observer
 
     #clipbox default
@@ -150,6 +165,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #clipbox validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #clipbox observer
 
     #To do: create either a clippath trait or modify the get and set functions
@@ -159,6 +177,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #clippath validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #clippath observer
 
     #clipon default
@@ -166,6 +187,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #clipon validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #clipon observer
 
     #label default
@@ -173,6 +197,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #label validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #label observer
 
     #picker default
@@ -180,6 +207,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #picker validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #picker observer
 
     #contains default
@@ -187,6 +217,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #contains validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #contains observer
 
     #rasterized default
@@ -194,6 +227,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #rasterized validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #rasterized observer
 
     #agg_filter default
@@ -201,6 +237,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #agg_filter validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #agg_filter observer
 
     #mouseover default
@@ -208,6 +247,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #mouseover validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #mouseover observer
 
     #eventson default
@@ -215,6 +257,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #eventson validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #eventson observer
 
     #oid default
@@ -222,6 +267,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #oid validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #oid observer
 
     #propobservers default
@@ -229,6 +277,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #propobservers validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #propobservers observer
 
     #url default
@@ -236,6 +287,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #url validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #url observer
 
     #gid default
@@ -243,6 +297,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #gid validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #gid observer
 
     #snap default
@@ -250,6 +307,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #snap validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #snap observer
 
     #sketch default
@@ -257,6 +317,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #sketch validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #sketch observer
 
     #path_effects default
@@ -264,6 +327,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #path_effects validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #path_effects observer
 
     #sticky_edges default
@@ -271,6 +337,9 @@ _______________________________________________________________________________
     def _default(self):
         pass
     #sticky_edges validate
+    @validate("")
+    def _validate(self, proposal):
+        pass
     #sticky_edges observer
 
     #default
