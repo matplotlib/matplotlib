@@ -36,15 +36,15 @@ environment:
       PYTHON_VERSION: "3.5"
       TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "36"
-      PYTHON_VERSION: "3.6"
-      # this variable influence pdf/svg and most importantly the latex related tests
-      # which triples the runtime of the tests (7-8min vs 30min).
-      # pick the one which seems to make the most problems and run it last, so that
-      # the rest of the tests can give feedback earlier
       TEST_ALL: "yes"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
+    #    - TARGET_ARCH: "x64"
+    #      CONDA_PY: "36"
+    #      PYTHON_VERSION: "3.6"
+    #      # this variable influence pdf/svg and most importantly the latex related tests
+    #      # which triples the runtime of the tests (7-8min vs 30min).
+    #      # pick the one which seems to make the most problems and run it last, so that
+    #      # the rest of the tests can give feedback earlier
+    #      CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
