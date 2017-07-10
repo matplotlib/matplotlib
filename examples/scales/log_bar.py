@@ -23,4 +23,7 @@ for i in range(len(data[0])):
 ax.set_xticks(x + dimw / 2, map(str, x))
 ax.set_yscale('log')
 
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+
 plt.show()
