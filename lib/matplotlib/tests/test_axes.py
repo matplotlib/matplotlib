@@ -919,7 +919,7 @@ def test_symlog():
     ax = fig.add_subplot(111)
     ax.plot(x, y)
     ax.set_yscale('symlog')
-    ax.set_xscale = ('linear')
+    ax.set_xscale('linear')
     ax.set_ylim(-1, 10000000)
 
 
