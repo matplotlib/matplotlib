@@ -39,6 +39,7 @@ environment:
     - TARGET_ARCH: "x64"
       CONDA_PY: "36"
       PYTHON_VERSION: "3.6"
+      CONDA_NPY: "112"
       # this variable influence pdf/svg and most importantly the latex related tests
       # which triples the runtime of the tests (7-8min vs 30min).
       # pick the one which seems to make the most problems and run it last, so that
