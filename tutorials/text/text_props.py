@@ -144,7 +144,7 @@ plt.show()
 # ==============
 #
 # The base default font is controlled by a set of rcParams. To set the font
-# for mathematical expressions, use the rcParams begining with ``mathtext``
+# for mathematical expressions, use the rcParams beginning with ``mathtext``
 # (see :ref:`mathtext <mathtext-fonts>`).
 #
 # +---------------------+----------------------------------------------------+
