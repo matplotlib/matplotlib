@@ -1083,14 +1083,13 @@ or tuple of floats
                   linelengths=1, linewidths=None, colors=None,
                   linestyles='solid', **kwargs):
         """
-        Plot identical parallel lines at specific positions.
+        Plot identical parallel lines at the given positions.
 
-        Plot parallel lines at the given positions.  positions should be a 1D
-        or 2D array-like object, with each row corresponding to a row or column
-        of lines.
+        *positions* should be a 1D or 2D array-like object, with each row
+        corresponding to a row or column of lines.
 
         This type of plot is commonly used in neuroscience for representing
-        neural events, where it is commonly called a spike raster, dot raster,
+        neural events, where it is usually called a spike raster, dot raster,
         or raster plot.
 
         However, it is useful in any situation where you wish to show the
@@ -1098,38 +1097,70 @@ or tuple of floats
         arrival times of people to a business on each day of the month or the
         date of hurricanes each year of the last century.
 
-        *orientation* : [ 'horizontal' | 'vertical' ]
-          'horizontal' : the lines will be vertical and arranged in rows
-          'vertical' : lines will be horizontal and arranged in columns
+        Parameters
+        ----------
+        positions : 1D or 2D array-like object
+            Each value is an event. If *positions* is a 2D array-like, each
+            row corresponds to a row or a column of lines (depending on the
+            *orientation* parameter).
 
-        *lineoffsets* :
-          A float or array-like containing floats.
+        orientation : {'horizontal', 'vertical'}, optional
+            Controls the direction of the event collections:
 
-        *linelengths* :
-          A float or array-like containing floats.
+                - 'horizontal' : the lines are arranged horizontally in rows,
+                  and are vertical.
+                - 'vertical' : the lines are arranged vertically in columns,
+                  and are horizontal.
 
-        *linewidths* :
-          A float or array-like containing floats.
+        lineoffsets : scalar or sequence of scalars, optional, default: 1
+            The offset of the center of the lines from the origin, in the
+            direction orthogonal to *orientation*.
 
-        *colors*
-          must be a sequence of RGBA tuples (e.g., arbitrary color
-          strings, etc, not allowed) or a list of such sequences
+        linelengths : scalar or sequence of scalars, optional, default: 1
+            The total height of the lines (i.e. the lines stretches from
+            ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        *linestyles* :
-          [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ] or an array of these
-          values
+        linewidths : scalar, scalar sequence or None, optional, default: None
+            The line width(s) of the event lines, in points. If it is None,
+            defaults to its rcParams setting.
 
-        For linelengths, linewidths, colors, and linestyles, if only a single
-        value is given, that value is applied to all lines.  If an array-like
-        is given, it must have the same length as positions, and each value
-        will be applied to the corresponding row or column in positions.
+        colors : color, sequence of colors or None, optional, default: None
+            The color(s) of the event lines. If it is None, defaults to its
+            rcParams setting.
 
-        Returns a list of :class:`matplotlib.collections.EventCollection`
-        objects that were added.
+        linestyles : str or tuple or a sequence of such values, optional
+            Default is 'solid'. Valid strings are ['solid', 'dashed',
+            'dashdot', 'dotted', '-', '--', '-.', ':']. Dash tuples
+            should be of the form::
 
-        kwargs are :class:`~matplotlib.collections.LineCollection` properties:
+                (offset, onoffseq),
 
-        %(LineCollection)s
+            where *onoffseq* is an even length tuple of on and off ink
+            in points.
+
+        **kwargs : optional
+            Other keyword arguments are line collection properties.  See
+            :class:`~matplotlib.collections.LineCollection` for a list of
+            the valid properties.
+
+        Returns
+        -------
+
+        A list of :class:`matplotlib.collections.EventCollection` objects that
+        were added.
+
+        Notes
+        -----
+
+        For *linelengths*, *linewidths*, *colors*, and *linestyles*, if only
+        a single value is given, that value is applied to all lines.  If an
+        array-like is given, it must have the same length as *positions*, and
+        each value will be applied to the corresponding row of the array.
+
+        Example
+        -------
+
+        .. plot:: mpl_examples/pylab_examples/eventplot_demo.py
         """
         self._process_unit_info(xdata=positions,
                                 ydata=[lineoffsets, linelengths],
@@ -1181,6 +1212,15 @@ or tuple of floats
             lineoffsets = [None]
         if len(colors) == 0:
             colors = [None]
+        try:
+            # Early conversion of the colors into RGBA values to take care
+            # of cases like colors='0.5' or colors='C1'.  (Issue #8193)
+            colors = mcolors.to_rgba_array(colors)
+        except ValueError:
+            # Will fail if any element of *colors* is None. But as long
+            # as len(colors) == 1 or len(positions), the rest of the
+            # code should process *colors* properly.
+            pass
 
         if len(lineoffsets) == 1 and len(positions) != 1:
             lineoffsets = np.tile(lineoffsets, len(positions))
