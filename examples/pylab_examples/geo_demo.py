@@ -4,7 +4,7 @@ Geographic Projections
 ======================
 
 This shows 4 possible projections using subplot.  Matplotlib also
-supports `Basemaps Toolkit <http://matplotlib.org/basemap>`_ and
+supports `Basemaps Toolkit <https://matplotlib.org/basemap>`_ and
 `Cartopy <http://scitools.org.uk/cartopy>`_ for geographic projections.
 
 """

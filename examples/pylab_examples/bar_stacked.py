@@ -10,7 +10,6 @@ bars.
 
 """
 
-# a stacked bar plot with errorbars
 import numpy as np
 import matplotlib.pyplot as plt
 

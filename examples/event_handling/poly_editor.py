@@ -4,7 +4,7 @@ Poly Editor
 ===========
 
 This is an example to show how to build cross-GUI applications using
-matplotlib event handling to interact with objects on the canvas.
+Matplotlib event handling to interact with objects on the canvas.
 """
 import numpy as np
 from matplotlib.lines import Line2D
@@ -33,17 +33,19 @@ class PolygonInteractor(object):
 
     def __init__(self, ax, poly):
         if poly.figure is None:
-            raise RuntimeError('You must first add the polygon to a figure or canvas before defining the interactor')
+            raise RuntimeError('You must first add the polygon to a figure '
+                               'or canvas before defining the interactor')
         self.ax = ax
         canvas = poly.figure.canvas
         self.poly = poly
 
         x, y = zip(*self.poly.xy)
-        self.line = Line2D(x, y, marker='o', markerfacecolor='r', animated=True)
+        self.line = Line2D(x, y,
+                           marker='o', markerfacecolor='r',
+                           animated=True)
         self.ax.add_line(self.line)
-        #self._update_line(poly)
 
-        cid = self.poly.add_callback(self.poly_changed)
+        self.cid = self.poly.add_callback(self.poly_changed)
         self._ind = None  # the active vert
 
         canvas.mpl_connect('draw_event', self.draw_callback)
@@ -112,7 +114,9 @@ class PolygonInteractor(object):
         elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.xy = [tup for i, tup in enumerate(self.poly.xy) if i != ind]
+                self.poly.xy = [tup
+                                for i, tup in enumerate(self.poly.xy)
+                                if i != ind]
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key == 'i':
             xys = self.poly.get_transform().transform(self.poly.xy)
@@ -172,7 +176,6 @@ if __name__ == '__main__':
     ax.add_patch(poly)
     p = PolygonInteractor(ax, poly)
 
-    #ax.add_line(p.line)
     ax.set_title('Click and drag a point to move it')
     ax.set_xlim((-2, 2))
     ax.set_ylim((-2, 2))

@@ -1,7 +1,7 @@
 """
-============================================
-Demonstrate the mixing of 2D and 3D subplots
-============================================
+=================================
+2D and 3D *Axes* in same *Figure*
+=================================
 
 This example shows a how to plot a 2D and 3D plot on the same figure.
 """
