@@ -3,10 +3,10 @@
 Lorenz Attractor
 ================
 
-This is an example of plotting Edward Lorenz's 1963 "Deterministic
-Nonperiodic Flow" in a 3-dimensional space using mplot3d.
-
-http://journals.ametsoc.org/doi/abs/10.1175/1520-0469%281963%29020%3C0130%3ADNF%3E2.0.CO%3B2
+This is an example of plotting Edward Lorenz's 1963 `"Deterministic
+Nonperiodic Flow"
+<http://journals.ametsoc.org/doi/abs/10.1175/1520-0469%281963%29020%3C0130%3ADNF%3E2.0.CO%3B2>`_
+in a 3-dimensional space using mplot3d.
 
 Note: Because this is a simple non-linear ODE, it would be more easily
       done using SciPy's ode solver, but this approach depends only
