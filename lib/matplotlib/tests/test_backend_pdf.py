@@ -19,7 +19,9 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import dviread
+from matplotlib.testing.compare import compare_images
 
+import matplotlib as mpl
 
 needs_usetex = pytest.mark.xfail(
     not checkdep_usetex(True),
@@ -193,3 +195,16 @@ def test_missing_psfont(monkeypatch):
     ax.text(0.5, 0.5, 'hello')
     with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='pdf')
+
+
+@pytest.mark.style('default')
+def test_pdf_savefig_when_color_is_none(tmpdir):
+    fig, ax = plt.subplots()
+    plt.axis('off')
+    ax.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
+    actual_image = tmpdir.join('figure.pdf')
+    expected_image = tmpdir.join('figure.eps')
+    fig.savefig(str(actual_image), format='pdf')
+    fig.savefig(str(expected_image), format='eps')
+    result = compare_images(str(actual_image), str(expected_image), 0)
+    assert result is None
