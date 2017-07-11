@@ -1431,7 +1431,8 @@ class BivariateNorm:
         -------
         A list of two unnormalized values
         """
-        return [self.norm1.inverse(values[0]), self.norm.inverse(values[1])]
+        return np.asarray([self.norm1.inverse(values[0]),
+                self.norm2.inverse(values[1])])
 
 
 def rgb_to_hsv(arr):
