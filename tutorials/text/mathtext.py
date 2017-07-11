@@ -15,6 +15,7 @@ provides a ``usetex`` option for those who do want to call out to TeX
 to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 """
 
+###############################################################################
 # Any text element can use math text.  You should use raw strings (precede the
 # quotes with an ``'r'``), and surround the math text with dollar signs ($), as in
 # TeX. Regular text and mathtext can be interleaved within the same string.
@@ -32,7 +33,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #    <http://thread.gmane.org/gmane.comp.python.matplotlib.general/19963/focus=19978>`_.
 #
 # Here is a simple example::
-
+#
 #     # plain text
 #     plt.title('alpha > beta')
 #
@@ -150,6 +151,8 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 # .. math ::
 #
 #     \sqrt[3]{x}
+#
+# .. _mathtext-fonts:
 #
 # Fonts
 # -----
