@@ -1456,15 +1456,15 @@ or tuple of floats
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
-        to meth:`plot_date` since meth:`plot_date` will set the
+        to :meth:`plot_date` since :meth:`plot_date` will set the
         default tick locator to
-        class:`matplotlib.dates.AutoDateLocator` (if the tick
+        :class:`matplotlib.dates.AutoDateLocator` (if the tick
         locator is not already set to a
-        class:`matplotlib.dates.DateLocator` instance) and the
+        :class:`matplotlib.dates.DateLocator` instance) and the
         default tick formatter to
-        class:`matplotlib.dates.AutoDateFormatter` (if the tick
+        :class:`matplotlib.dates.AutoDateFormatter` (if the tick
         formatter is not already set to a
-        class:`matplotlib.dates.DateFormatter` instance).
+        :class:`matplotlib.dates.DateFormatter` instance).
 
 
         Parameters
