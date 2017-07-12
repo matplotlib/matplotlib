@@ -406,6 +406,38 @@ def num2date(x, tz=None):
         return _from_ordinalf_np_vectorized(x, tz).tolist()
 
 
+def _ordinalf_to_timedelta(x):
+    return datetime.timedelta(days=x)
+
+
+_ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
+
+
+def num2timedelta(x):
+    """
+    Converts number of days to a :class:`timdelta` object.
+    If *x* is a sequence, a sequence of :class:`timedelta` objects will
+    be returned.
+
+    Parameters
+    ----------
+    x : float, sequence of floats
+        Number of days (fraction part represents hours, minutes, seconds)
+
+    Returns
+    -------
+    :class:`timedelta`
+
+    """
+    if not cbook.iterable(x):
+        return _ordinalf_to_timedelta(x)
+    else:
+        x = np.asarray(x)
+        if not x.size:
+            return x
+        return _ordinalf_to_timedelta_np_vectorized(x).tolist()
+
+
 def drange(dstart, dend, delta):
     """
     Return a date range as float Gregorian ordinals.  *dstart* and
