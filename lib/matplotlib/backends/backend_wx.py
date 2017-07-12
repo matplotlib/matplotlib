@@ -1181,7 +1181,7 @@ def _create_wx_app():
 
 def draw_if_interactive():
     """
-    This should be overriden in a windowing environment if drawing
+    This should be overridden in a windowing environment if drawing
     should be done in interactive python mode
     """
     DEBUG_MSG("draw_if_interactive()", 1, None)
