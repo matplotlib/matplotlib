@@ -2479,7 +2479,7 @@ def key_press_handler(event, canvas, toolbar=None):
         except AttributeError:
             pass
 
-    # quit the figure (defaut key 'ctrl+w')
+    # quit the figure (default key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
 

@@ -1972,7 +1972,7 @@ class BoxStyle(_Style):
         def transmute(self, x0, y0, width, height, mutation_size):
             """
             The transmute method is a very core of the
-            :class:`BboxTransmuter` class and must be overriden in the
+            :class:`BboxTransmuter` class and must be overridden in the
             subclasses. It receives the location and size of the
             rectangle, and the mutation_size, with which the amount of
             padding and etc. will be scaled. It returns a
@@ -3210,7 +3210,7 @@ class ArrowStyle(_Style):
         def transmute(self, path, mutation_size, linewidth):
             """
             The transmute method is the very core of the ArrowStyle
-            class and must be overriden in the subclasses. It receives
+            class and must be overridden in the subclasses. It receives
             the path object along which the arrow will be drawn, and
             the mutation_size, with which the arrow head etc.
             will be scaled. The linewidth may be used to adjust

@@ -1848,7 +1848,7 @@ class Figure(Artist):
         coordinates of each click in a list.
 
         The buttons used for the various actions (adding points, removing
-        points, terminating the inputs) can be overriden via the
+        points, terminating the inputs) can be overridden via the
         arguments *mouse_add*, *mouse_pop* and *mouse_stop*, that give
         the associated mouse button: 1 for left, 2 for middle, 3 for
         right.
