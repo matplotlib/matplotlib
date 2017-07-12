@@ -75,8 +75,7 @@ def _backend_selection():
         loop, and if not switches to a compatible one.
     """
     backend = rcParams['backend']
-    if not rcParams['backend_fallback'] or \
-                     backend not in _interactive_bk:
+    if not rcParams['backend_fallback'] or backend not in _interactive_bk:
         return
     is_agg_backend = rcParams['backend'].endswith('Agg')
     if 'wx' in sys.modules and not backend in ('WX', 'WXAgg'):
@@ -275,33 +274,24 @@ def pause(interval):
     """
     Pause for *interval* seconds.
 
-    If there is an active figure it will be updated and displayed,
-    and the GUI event loop will run during the pause.
+    If there is an active figure, it will be updated and displayed before the
+    pause, and the GUI event loop (if any) will run during the pause.
 
-    If there is no active figure, or if a non-interactive backend
-    is in use, this executes time.sleep(interval).
+    This can be used for crude animation.  For more complex animation, see
+    :mod:`matplotlib.animation`.
 
-    This can be used for crude animation. For more complex
-    animation, see :mod:`matplotlib.animation`.
-
-    This function is experimental; its behavior may be changed
-    or extended in a future release.
-
+    This function is experimental; its behavior may be changed or extended in a
+    future release.
     """
-    backend = rcParams['backend']
-    if backend in _interactive_bk:
-        figManager = _pylab_helpers.Gcf.get_active()
-        if figManager is not None:
-            canvas = figManager.canvas
-            if canvas.figure.stale:
-                canvas.draw_idle()
-            show(block=False)
-            canvas.start_event_loop(interval)
-            return
-
-    # No on-screen figure is active, so sleep() is all we need.
-    import time
-    time.sleep(interval)
+    manager = _pylab_helpers.Gcf.get_active()
+    if manager is not None:
+        canvas = manager.canvas
+        if canvas.figure.stale:
+            canvas.draw_idle()
+        show(block=False)
+        canvas.start_event_loop(interval)
+    else:
+        time.sleep(interval)
 
 
 @docstring.copy_dedent(matplotlib.rc)
