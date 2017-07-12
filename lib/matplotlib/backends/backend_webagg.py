@@ -59,17 +59,6 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     def new_timer(self, *args, **kwargs):
         return TimerTornado(*args, **kwargs)
 
-    def start_event_loop(self, timeout):
-        backend_bases.FigureCanvasBase.start_event_loop_default(
-            self, timeout)
-    start_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        backend_bases.FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
-
 
 class WebAggApplication(tornado.web.Application):
     initialized = False

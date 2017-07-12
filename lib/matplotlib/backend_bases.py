@@ -2426,55 +2426,24 @@ class FigureCanvasBase(object):
         return TimerBase(*args, **kwargs)
 
     def flush_events(self):
-        """
-        Flush the GUI events for the figure. Implemented only for
-        backends with GUIs.
-        """
-        raise NotImplementedError
+        """Flush the GUI events for the figure.
 
-    def start_event_loop(self, timeout):
+        GUI backends likely need to reimplement this method.
         """
-        Start an event loop.  This is used to start a blocking event
-        loop so that interactive functions, such as ginput and
-        waitforbuttonpress, can wait for events.  This should not be
-        confused with the main GUI event loop, which is always running
-        and has nothing to do with this.
 
-        This is implemented only for backends with GUIs.
+    def start_event_loop(self, timeout=0):
+        """Start a blocking event loop.
+
+        Such an event loop is used by interactive functions, such as ginput and
+        waitforbuttonpress, to wait for events.  This should not be confused
+        with the main GUI event loop, which is independent and always running.
+
+        The event loop blocks until a callback function triggers
+        `stop_event_loop`, or *timeout* is reached.  If *timeout* is negative,
+        never timeout.
+
+        Only GUI backends need to reimplement this method.
         """
-        raise NotImplementedError
-
-    def stop_event_loop(self):
-        """
-        Stop an event loop.  This is used to stop a blocking event
-        loop so that interactive functions, such as ginput and
-        waitforbuttonpress, can wait for events.
-
-        This is implemented only for backends with GUIs.
-        """
-        raise NotImplementedError
-
-    def start_event_loop_default(self, timeout=0):
-        """
-        Start an event loop.  This is used to start a blocking event
-        loop so that interactive functions, such as ginput and
-        waitforbuttonpress, can wait for events.  This should not be
-        confused with the main GUI event loop, which is always running
-        and has nothing to do with this.
-
-        This function provides default event loop functionality based
-        on time.sleep that is meant to be used until event loop
-        functions for each of the GUI backends can be written.  As
-        such, it throws a deprecated warning.
-
-        This call blocks until a callback function triggers
-        stop_event_loop() or *timeout* is reached.  If *timeout* is
-        <=0, never timeout.
-        """
-        str = "Using default event loop until function specific"
-        str += " to this GUI is implemented"
-        warnings.warn(str, mplDeprecation)
-
         if timeout <= 0:
             timeout = np.inf
         timestep = 0.01
@@ -2485,14 +2454,17 @@ class FigureCanvasBase(object):
             time.sleep(timestep)
             counter += 1
 
-    def stop_event_loop_default(self):
-        """
-        Stop an event loop.  This is used to stop a blocking event
-        loop so that interactive functions, such as ginput and
-        waitforbuttonpress, can wait for events.
+    def stop_event_loop(self):
+        """Stop the current blocking event loop.
 
+        Only GUI backends need to reimplement this method.
         """
         self._looping = False
+
+    start_event_loop_default = cbook.deprecated(
+        "2.1", name="start_event_loop_default")(start_event_loop)
+    stop_event_loop_default = cbook.deprecated(
+        "2.1", name="stop_event_loop_default")(stop_event_loop)
 
 
 def key_press_handler(event, canvas, toolbar=None):
