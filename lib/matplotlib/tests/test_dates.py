@@ -466,3 +466,18 @@ def test_tz_utc():
 def test_num2timedelta(x, tdelta):
     dt = mdates.num2timedelta(x)
     assert dt == tdelta
+
+
+@pytest.mark.parametrize('dt, fmt, out',
+                         [(datetime.timedelta(days=8, hours=1, minutes=2,
+                                              seconds=3, microseconds=4),
+                           '{D}d {H:02}:{M:02}:{S:02}.{f:06}',
+                           '8d 01:02:03.000004'),
+                          (datetime.timedelta(seconds=1), '{f}', '1000000'),
+                          (datetime.timedelta(microseconds=1e5), '{S}', '0.1'),
+                          ])
+def test_TimedeltaFormatter(dt, fmt, out):
+    formatter = mdates.TimedeltaFormatter(fmt)
+    x = mdates.date2num(dt)
+    formatted = formatter(x)
+    assert formatted == out

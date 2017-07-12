@@ -118,9 +118,9 @@ import re
 import time
 import math
 import datetime
+import string
 
 import warnings
-
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -216,6 +216,9 @@ def _to_ordinalf(dt):
     if tzi is not None:
         dt = dt.astimezone(UTC)
         tzi = UTC
+
+    if isinstance(dt, datetime.timedelta):
+        return dt.total_seconds() / SEC_PER_DAY
 
     base = float(dt.toordinal())
 
@@ -603,6 +606,82 @@ class DateFormatter(ticker.Formatter):
             return cbook.unicode_safe(dt.strftime(fmt))
 
         return self.strftime_pre_1900(dt, fmt)
+
+
+class TimedeltaFormatter(ticker.Formatter):
+
+    def __init__(self, fmt):
+        r"""
+        *fmt* is a format string, with accepted format arguments given in the
+        table below. For more information on format strings see
+        https://docs.python.org/3/library/string.html#format-string-syntax
+
+        .. table:: Accepted format arguments
+           :widths: auto
+
+           ========    =======
+           Argument    Meaning
+           ========    =======
+           {D}         Days
+           {H}         Hours
+           {M}         Minutes
+           {S}         Seconds
+           {f}         Microseconds
+           =========   =======
+
+        Examples
+        --------
+        >>> from datetime import timedelta
+        >>> from matplotlib.dates import TimedeltaFormatter
+        >>>
+        >>> dt = timedelta(hours=1, minutes=0, seconds=3)
+        >>> fmt = '{H:02}:{M:02}:{S:02}'
+        >>> formatter = TimedeltaFormatter(fmt)
+        >>> formatter(dt)
+        01:00:03
+        >>>
+        >>> fmt = '{S}'
+        >>> formatter = TimedeltaFormatter(fmt)
+        >>> formatter(dt)
+        3603
+        >>>
+        >>> fmt = '{S}'
+        >>> dt = timedelta(microseconds=1e5)
+        >>> formatter(dt)
+        0.1
+        """
+        self.fmt = fmt
+
+    def __call__(self, x):
+        dt = num2timedelta(x)
+        return self._strfdelta(dt)
+
+    def _strfdelta(self, dt):
+        # A custom method to format timedelta objects. See above for examples
+        formatter = string.Formatter()
+        d = {}
+        allkeys = ['D', 'H', 'M', 'S', 'f']
+        secs = [SEC_PER_DAY, SEC_PER_HOUR, SEC_PER_MIN, 1, 1 / 1e6]
+        # Get list of all keys in the format string
+        keys = list(map(lambda x: x[1], list(formatter.parse(self.fmt))))
+
+        rem = dt.total_seconds()
+        # Cycle through all keys, and if key present in format calculate value
+        # of that key
+        for key, seconds in zip(allkeys, secs):
+            if key in keys:
+                d[key] = rem / seconds
+                _, rem = divmod(rem, seconds)
+
+        # Cycle through and round every entry down to an int APART from the
+        # smallest unit present in format
+        foundlast = False
+        for key in allkeys[::-1]:
+            if key in keys:
+                if foundlast or key == 'f':
+                    d[key] = int(np.floor(d[key]))
+                foundlast = True
+        return formatter.format(self.fmt, **d)
 
 
 class IndexDateFormatter(ticker.Formatter):
