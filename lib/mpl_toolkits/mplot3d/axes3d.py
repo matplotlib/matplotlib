@@ -2831,7 +2831,7 @@ class Axes3D(Axes):
                         boundary_found(p0 + square_rot, color[i0])
 
                     # draw middle faces
-                    for r1, r2 in zip(rinds, rinds[1:]):
+                    for r1, r2 in zip(rinds[:-1], rinds[1:]):
                         p1 = permute.dot([p, q, r1])
                         p2 = permute.dot([p, q, r2])
 
