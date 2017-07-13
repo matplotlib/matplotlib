@@ -1417,7 +1417,7 @@ class BivariateNorm:
         if clip is None:
             clip = [self.norm1.clip, self.norm2.clip]
 
-        return np.array([self.norm1(values[0], clip=clip[0]),
+        return np.asarray([self.norm1(values[0], clip=clip[0]),
                 self.norm2(values[1], clip=clip[1])])
 
     def inverse(self, values):
@@ -1433,6 +1433,22 @@ class BivariateNorm:
         """
         return np.asarray([self.norm1.inverse(values[0]),
                 self.norm2.inverse(values[1])])
+
+    def autoscale(self, A):
+        """
+        Set *vmin*, *vmax* to min, max of *A*.
+        """
+        self.norm1.autoscale(A[0])
+        self.norm2.autoscale(A[1])
+
+    def autoscale_None(self, A):
+        'autoscale only None-valued vmin or vmax'
+        self.norm1.autoscale_None(A[0])
+        self.norm2.autoscale_None(A[1])
+
+    def scaled(self):
+        'return true if vmin and vmax set for both normalizers'
+        return self.norm1.scaled() and self.norm2.scaled()
 
 
 def rgb_to_hsv(arr):
