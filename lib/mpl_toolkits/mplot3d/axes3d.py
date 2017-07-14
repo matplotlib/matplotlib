@@ -2749,7 +2749,10 @@ class Axes3D(Axes):
         Plot a set of filled voxels
 
         All voxels are plotted as 1x1x1 cubes on the axis, with filled[0,0,0]
-        placed with its lower corner at the origin. Occluded faces are not plotted
+        placed with its lower corner at the origin. Occluded faces are not
+        plotted.
+
+        .. versionadded:: 2.1
 
         Parameters
         ----------
@@ -2813,6 +2816,7 @@ class Axes3D(Axes):
                 yield mat
                 mat = np.roll(mat, 1, axis=0)
 
+        # iterate over each of the YZ, ZX, and XY orientations
         for permute in permutation_matrices(3):
             # find the set of ranges to iterate over
             pc, qc, rc = permute.T.dot(filled.shape[:3])
@@ -2822,8 +2826,13 @@ class Axes3D(Axes):
 
             square_rot = square.dot(permute.T)
 
+            # iterate within the current plane
             for p in pinds:
                 for q in qinds:
+                    # iterate perpendicularly to the current plane, handling
+                    # boundaries. We only draw faces between a voxel and an
+                    # empty space, to avoid drawing internal faces.
+
                     # draw lower faces
                     p0 = permute.dot([p, q, 0])
                     i0 = tuple(p0)
