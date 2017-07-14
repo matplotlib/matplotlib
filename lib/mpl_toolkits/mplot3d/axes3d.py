@@ -2811,7 +2811,7 @@ class Axes3D(Axes):
 
         def permutation_matrices(n):
             """ Generator of cyclic permutation matices """
-            mat = np.eye(n)
+            mat = np.eye(n, dtype=int)
             for i in range(n):
                 yield mat
                 mat = np.roll(mat, 1, axis=0)
