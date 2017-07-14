@@ -569,6 +569,73 @@ def test_invalid_axes_limits(setter, side, value):
         getattr(obj, setter)(**limit)
 
 
+@image_comparison(
+    baseline_images=['voxels-simple'],
+    extensions=['png'],
+    remove_text=True
+)
+def test_voxels():
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    x, y, z = np.indices((10, 10, 10))
+    voxels = (x == y) | (y == z)
+    ax.voxels(voxels)
+
+
+@image_comparison(
+    baseline_images=['voxels-named-colors'],
+    extensions=['png'],
+    remove_text=True
+)
+def test_voxels_named_colors():
+    """ test with colors set to a 3d object array of strings """
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    x, y, z = np.indices((10, 10, 10))
+    voxels = (x == y) | (y == z)
+    voxels = voxels & ~(x * y * z < 1)
+    colors = np.zeros((10, 10, 10), dtype=np.object_)
+    colors.fill('C0')
+    colors[(x<5) & (y < 5)] =  '0.25'
+    colors[(x + z) < 10] =  'cyan'
+    ax.voxels(voxels, colors)
+
+
+@image_comparison(
+    baseline_images=['voxels-rgb-data'],
+    extensions=['png'],
+    remove_text=True
+)
+def test_voxels_rgb_data():
+    """ test with colors set to a 4d float array of rgb data """
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    x, y, z = np.indices((10, 10, 10))
+    voxels = (x == y) | (y == z)
+    colors = np.zeros((10, 10, 10, 3))
+    colors[...,0] = x/9.0
+    colors[...,1] = y/9.0
+    colors[...,2] = z/9.0
+    ax.voxels(voxels, colors)
+
+
+@image_comparison(
+    baseline_images=['voxels-alpha'],
+    extensions=['png'],
+    remove_text=True
+)
+def test_voxels_alpha():
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    x, y, z = np.indices((10, 10, 10))
+    v1 = x == y
+    v2 = np.abs(x - y) < 2
+    colors = np.zeros((10, 10, 10, 4))
+    colors[v2] = [1, 0, 0, 0.5]
+    colors[v1] = [0, 1, 0, 0.5]
+    ax.voxels(v1 | v2, colors)
+
+
 def test_inverted_cla():
     # Github PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
