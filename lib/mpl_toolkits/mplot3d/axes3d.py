@@ -2745,7 +2745,7 @@ class Axes3D(Axes):
 
     quiver3D = quiver
 
-    def voxels(self, filled, color=None):
+    def voxels(self, filled, color=None, **kwargs):
         """
         Plot a set of filled voxels
 
@@ -2765,6 +2765,9 @@ class Axes3D(Axes):
             Either a single value or an array the same shape as filled,
             indicating what color to draw the faces of the voxels. If None,
             plot all voxels in the same color, the next in the color sequence.
+
+        Any additional keyword arguments are passed onto
+        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Returns
         -------
@@ -2863,7 +2866,10 @@ class Axes3D(Axes):
         # iterate over the faces, and generate a Poly3DCollection for each voxel
         polygons = {}
         for coord, faces in voxel_faces.items():
-            poly = art3d.Poly3DCollection(faces, facecolors=color[coord])
+            poly = art3d.Poly3DCollection(faces,
+                facecolors=color[coord],
+                **kwargs
+            )
             self.add_collection3d(poly)
             polygons[coord] = poly
 

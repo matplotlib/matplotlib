@@ -582,6 +582,22 @@ class TestVoxels(object):
         voxels = (x == y) | (y == z)
         ax.voxels(voxels)
 
+    @image_comparison(
+        baseline_images=['voxels-edge-style'],
+        extensions=['png'],
+        remove_text=True,
+        style='default'
+    )
+    def test_edge_style(self):
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        x, y, z = np.indices((5, 5, 4))
+        voxels = ((x - 2)**2 + (y - 2)**2 + (z-1.5)**2) < 2.2**2
+        v = ax.voxels(voxels, linewidths=3, edgecolor='C1')
+
+        # change the edge color of one voxel
+        v[max(v.keys())].set_edgecolor('C2')
+
 
     @image_comparison(
         baseline_images=['voxels-named-colors'],
