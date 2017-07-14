@@ -31,6 +31,7 @@ import matplotlib.scale as mscale
 from matplotlib.tri.triangulation import Triangulation
 from matplotlib import colors as mcolors
 from matplotlib.colors import Normalize, LightSource
+from matplotlib.cbook._backports import broadcast_to
 
 from . import art3d
 from . import proj3d
@@ -2762,9 +2763,16 @@ class Axes3D(Axes):
             to fill
 
         color : array_like
-            Either a single value or an array the same shape as filled,
-            indicating what color to draw the faces of the voxels. If None,
-            plot all voxels in the same color, the next in the color sequence.
+            The color to draw the faces of the voxels. This parameter can be:
+
+              - A single color value, to color all voxels the same color. This
+                can be either a string, or a 1D rgb/rgba array
+              - ``None``, indicating the above with the next color in the
+                sequence
+              - A 3D ndarray of color names, with each item the color for the
+                corresponding voxel. The size must match the voxels.
+              - A 4D ndarray of rgb/rgba data, with the components along the
+                last axis.
 
         Any additional keyword arguments are passed onto
         :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
@@ -2785,15 +2793,18 @@ class Axes3D(Axes):
         # handle the color argument
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
-        if np.ndim(color) <= 1:
-            color, _ = np.broadcast_arrays(
-                color,
-                filled[np.index_exp[...] + np.index_exp[np.newaxis] * np.ndim(color)]
-            )
-        elif np.ndim(color) < 3:
-            raise ValueError("Argument color must be at least 3-dimensional")
-        elif np.shape(color)[:3] != filled.shape:
-            raise ValueError("Argument color must match the shape of filled, if multidimensional")
+        if np.ndim(color) in (0, 1):
+            # single color, like "red" or [1, 0, 0]
+            color = broadcast_to(color, filled.shape + np.shape(color))
+        elif np.ndim(color) in (3, 4):
+            # 3D array of strings, or 4D array with last axis rgb
+            if np.shape(color)[:3] != filled.shape:
+                raise ValueError(
+                    "When multidimensional, color must match the shape of "
+                    "filled")
+        else:
+            raise ValueError("Invalid color argument")
+
 
         # always scale to the full array, even if the data is only in the center
         self.auto_scale_xyz(
