@@ -598,7 +598,6 @@ class TestVoxels(object):
         # change the edge color of one voxel
         v[max(v.keys())].set_edgecolor('C2')
 
-
     @image_comparison(
         baseline_images=['voxels-named-colors'],
         extensions=['png'],
@@ -613,10 +612,9 @@ class TestVoxels(object):
         voxels = voxels & ~(x * y * z < 1)
         colors = np.zeros((10, 10, 10), dtype=np.object_)
         colors.fill('C0')
-        colors[(x<5) & (y < 5)] = '0.25'
+        colors[(x < 5) & (y < 5)] = '0.25'
         colors[(x + z) < 10] = 'cyan'
         ax.voxels(voxels, colors)
-
 
     @image_comparison(
         baseline_images=['voxels-rgb-data'],
@@ -634,7 +632,6 @@ class TestVoxels(object):
         colors[...,1] = y/9.0
         colors[...,2] = z/9.0
         ax.voxels(voxels, colors)
-
 
     @image_comparison(
         baseline_images=['voxels-alpha'],
