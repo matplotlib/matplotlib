@@ -2775,7 +2775,7 @@ class Axes3D(Axes):
             raise ValueError("Argument filled must be 3-dimensional")
 
         if color is None:
-            color = next(self._get_patches_for_fill.prop_cycler)['color']
+            color = self._get_patches_for_fill.get_next_color()
         if np.ndim(color) <= 1:
             color, _ = np.broadcast_arrays(
                 color,
