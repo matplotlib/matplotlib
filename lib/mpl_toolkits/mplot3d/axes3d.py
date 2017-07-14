@@ -17,6 +17,7 @@ import six
 from six.moves import map, xrange, zip, reduce
 
 import warnings
+from collections import defaultdict
 
 import numpy as np
 import matplotlib.axes as maxes
@@ -2763,17 +2764,22 @@ class Axes3D(Axes):
         color : array_like
             Either a single value or an array the same shape as filled,
             indicating what color to draw the faces of the voxels. If None,
-            plot all voxels in the same color, the next in the color sequence
+            plot all voxels in the same color, the next in the color sequence.
 
         Returns
         -------
-        list of `Poly3DCollection`
-            The square faces which were plotted, in an arbitrary order
+        faces : dict
+            A dictionary indexed by coordinate, where ``faces[i,j,k]`` is a
+            `Poly3DCollection` of the faces drawn for the voxel
+            ``filled[i,j,k]``. If no faces were drawn for a given voxel, either
+            because it was not asked to be drawn, or it is fully occluded, then
+            ``(i,j,k) not in faces``.
         """
-        # check dimensions, and deal with a single color
+        # check dimensions
         if filled.ndim != 3:
             raise ValueError("Argument filled must be 3-dimensional")
 
+        # handle the color argument
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
         if np.ndim(color) <= 1:
@@ -2786,13 +2792,12 @@ class Axes3D(Axes):
         elif np.shape(color)[:3] != filled.shape:
             raise ValueError("Argument color must match the shape of filled, if multidimensional")
 
+        # always scale to the full array, even if the data is only in the center
         self.auto_scale_xyz(
             [0, filled.shape[0]],
             [0, filled.shape[1]],
             [0, filled.shape[2]]
         )
-
-        polygons = []
 
         # points lying on corners of a square
         square = np.array([
@@ -2802,12 +2807,7 @@ class Axes3D(Axes):
             [1, 0, 0]
         ])
 
-        def boundary_found(corners, color):
-            """ Plot a square at corners, with the specificed color """
-            poly = art3d.Poly3DCollection([corners])
-            poly.set_facecolor(color)
-            self.add_collection3d(poly)
-            polygons.append(poly)
+        voxel_faces = defaultdict(list)
 
         def permutation_matrices(n):
             """ Generator of cyclic permutation matices """
@@ -2816,7 +2816,8 @@ class Axes3D(Axes):
                 yield mat
                 mat = np.roll(mat, 1, axis=0)
 
-        # iterate over each of the YZ, ZX, and XY orientations
+        # iterate over each of the YZ, ZX, and XY orientations, finding faces to
+        # render
         for permute in permutation_matrices(3):
             # find the set of ranges to iterate over
             pc, qc, rc = permute.T.dot(filled.shape[:3])
@@ -2837,7 +2838,7 @@ class Axes3D(Axes):
                     p0 = permute.dot([p, q, 0])
                     i0 = tuple(p0)
                     if filled[i0]:
-                        boundary_found(p0 + square_rot, color[i0])
+                        voxel_faces[i0].append(p0 + square_rot)
 
                     # draw middle faces
                     for r1, r2 in zip(rinds[:-1], rinds[1:]):
@@ -2848,16 +2849,23 @@ class Axes3D(Axes):
                         i2 = tuple(p2)
 
                         if filled[i1] and not filled[i2]:
-                            boundary_found(p2 + square_rot, color[i1])
+                            voxel_faces[i1].append(p2 + square_rot)
                         elif not filled[i1] and filled[i2]:
-                            boundary_found(p2 + square_rot, color[i2])
+                            voxel_faces[i2].append(p2 + square_rot)
 
                     # draw upper faces
                     pk = permute.dot([p, q, rc-1])
                     pk2 = permute.dot([p, q, rc])
                     ik = tuple(pk)
                     if filled[ik]:
-                        boundary_found(pk2 + square_rot, color[ik])
+                        voxel_faces[ik].append(pk2 + square_rot)
+
+        # iterate over the faces, and generate a Poly3DCollection for each voxel
+        polygons = {}
+        for coord, faces in voxel_faces.items():
+            poly = art3d.Poly3DCollection(faces, facecolors=color[coord])
+            self.add_collection3d(poly)
+            polygons[coord] = poly
 
         return polygons
 

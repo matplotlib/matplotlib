@@ -578,7 +578,7 @@ class TestVoxels(object):
     def test_simple(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
-        x, y, z = np.indices((10, 10, 10))
+        x, y, z = np.indices((5, 4, 3))
         voxels = (x == y) | (y == z)
         ax.voxels(voxels)
 
@@ -631,10 +631,16 @@ class TestVoxels(object):
         x, y, z = np.indices((10, 10, 10))
         v1 = x == y
         v2 = np.abs(x - y) < 2
+        voxels = v1 | v2
         colors = np.zeros((10, 10, 10, 4))
         colors[v2] = [1, 0, 0, 0.5]
         colors[v1] = [0, 1, 0, 0.5]
-        ax.voxels(v1 | v2, colors)
+        v = ax.voxels(voxels, colors)
+
+        assert type(v) is dict
+        for coord, poly in v.items():
+            assert voxels[coord], "faces returned for absent voxel"
+            assert isinstance(poly, art3d.Poly3DCollection)
 
 
 def test_inverted_cla():
