@@ -3,6 +3,7 @@
 Agg Buffer To Array
 ===================
 
+Convert a rendered figure to its image (NumPy array) representation.
 """
 import matplotlib.pyplot as plt
 import numpy as np

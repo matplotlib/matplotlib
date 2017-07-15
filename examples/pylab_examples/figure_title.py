@@ -3,6 +3,7 @@
 Figure Title
 ============
 
+Example use of `title` and `suptitle` to create subplot titles and a centered figure title, respectively.
 """
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt

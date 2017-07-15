@@ -3,6 +3,7 @@
 Axes Demo
 =========
 
+Example use of `plt.axes` to create inset axes within the main plot axes.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -3,6 +3,7 @@
 Image Slices Viewer
 ===================
 
+This example demonstrates how to scroll through 2D image slices of a 3D array.
 """
 from __future__ import print_function
 

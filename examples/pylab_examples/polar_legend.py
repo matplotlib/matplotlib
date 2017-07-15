@@ -3,6 +3,7 @@
 Polar Legend
 ============
 
+Demo of a legend on a polar-axis plot.
 """
 import numpy as np
 from matplotlib.pyplot import figure, show, rc

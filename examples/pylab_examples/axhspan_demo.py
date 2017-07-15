@@ -3,6 +3,7 @@
 Axhspan Demo
 ============
 
+The example shows how to create lines or rectangles that span the axes in either the horizontal or vertical direction.
 """
 import numpy as np
 import matplotlib.pyplot as plt
