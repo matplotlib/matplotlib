@@ -1,11 +1,10 @@
 """
-==================
-2D and 3D subplots
-==================
+=================================
+2D and 3D *Axes* in same *Figure*
+=================================
 
-Demonstrate the mixing of 2d and 3d subplots.
+This example shows a how to plot a 2D and 3D plot on the same figure.
 """
-
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
