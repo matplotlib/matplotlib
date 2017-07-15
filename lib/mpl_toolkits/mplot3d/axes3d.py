@@ -2785,6 +2785,12 @@ class Axes3D(Axes):
             ``filled[i,j,k]``. If no faces were drawn for a given voxel, either
             because it was not asked to be drawn, or it is fully occluded, then
             ``(i,j,k) not in faces``.
+
+        Examples
+        --------
+
+        .. plot:: gallery/mplot3d/voxels.py
+        .. plot:: gallery/mplot3d/voxels_rgb.py
         """
         # check dimensions
         if filled.ndim != 3:
