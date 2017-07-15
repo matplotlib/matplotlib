@@ -1503,7 +1503,7 @@ def _vector_magnitude(arr):
 
     sum_sq = 0
     for i in range(arr.shape[-1]):
-        sum_sq += np.square(arr[...,i,np.newaxis])
+        sum_sq += np.square(arr[..., i, np.newaxis])
     return np.sqrt(sum_sq)
 
 
@@ -1514,7 +1514,7 @@ def _vector_dot(a, b):
     #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
     dot = 0
     for i in range(a.shape[-1]):
-        dot += a[...,i] * b[...,i]
+        dot += a[..., i] * b[..., i]
     return dot
 
 
@@ -1621,9 +1621,9 @@ class LightSource(object):
 
         # .view is to keep subclasses
         normal = np.empty(elevation.shape + (3,)).view(type(elevation))
-        normal[...,0] = -e_dx
-        normal[...,1] = -e_dy
-        normal[...,2] = 1
+        normal[..., 0] = -e_dx
+        normal[..., 1] = -e_dy
+        normal[..., 2] = 1
         normal /= _vector_magnitude(normal)
 
         return self.shade_normals(normal, fraction)
