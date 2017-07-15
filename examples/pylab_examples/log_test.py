@@ -19,4 +19,3 @@ ax.semilogx(t, np.exp(-t / 5.0))
 ax.grid()
 
 plt.show()
-
