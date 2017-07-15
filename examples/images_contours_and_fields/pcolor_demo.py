@@ -28,6 +28,7 @@ ax0.set_title('default: no edges')
 c = ax1.pcolor(Z, edgecolors='k', linewidths=4)
 ax1.set_title('thick edges')
 
+fig.tight_layout()
 plt.show()
 
 ###############################################################################
@@ -94,7 +95,8 @@ X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 # A low hump with a spike coming out of the top right.
 # Needs to have z/colour axis on a log scale so we see both hump and spike.
 # linear scale only shows the spike.
-Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+Z1 = (bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) +
+      0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0))
 
 fig, (ax0, ax1) = plt.subplots(2, 1)
 

@@ -34,7 +34,7 @@ vmin = 1e40
 vmax = -1e40
 for i in range(Nr):
     for j in range(Nc):
-        pos = [0.075 + j*1.1*w, 0.18 + i*1.2*h, w, h]
+        pos = [0.075 + j * 1.1 * w, 0.18 + i * 1.2 * h, w, h]
         a = fig.add_axes(pos)
         if i > 0:
             a.set_xticklabels([])
@@ -63,6 +63,7 @@ class ImageFollower(object):
     def __call__(self, leader):
         self.follower.set_cmap(leader.get_cmap())
         self.follower.set_clim(leader.get_clim())
+
 
 norm = colors.Normalize(vmin=vmin, vmax=vmax)
 for i, im in enumerate(images):

@@ -22,10 +22,10 @@ def function_z(x, y):
     theta1 = np.arctan2(0.5 - x, 0.5 - y)
     r2 = np.sqrt((-x - 0.2)**2 + (-y - 0.2)**2)
     theta2 = np.arctan2(-x - 0.2, -y - 0.2)
-    z = -(2*(np.exp((r1/10)**2) - 1)*30. * np.cos(7.*theta1) +
-          (np.exp((r2/10)**2) - 1)*30. * np.cos(11.*theta2) +
-          0.7*(x**2 + y**2))
-    return (np.max(z) - z)/(np.max(z) - np.min(z))
+    z = -(2 * (np.exp((r1 / 10)**2) - 1) * 30. * np.cos(7. * theta1) +
+          (np.exp((r2 / 10)**2) - 1) * 30. * np.cos(11. * theta2) +
+          0.7 * (x**2 + y**2))
+    return (np.max(z) - z) / (np.max(z) - np.min(z))
 
 #-----------------------------------------------------------------------------
 # Creating a Triangulation
@@ -36,12 +36,12 @@ n_radii = 10
 min_radius = 0.15
 radii = np.linspace(min_radius, 0.95, n_radii)
 
-angles = np.linspace(0, 2*math.pi, n_angles, endpoint=False)
+angles = np.linspace(0, 2 * math.pi, n_angles, endpoint=False)
 angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-angles[:, 1::2] += math.pi/n_angles
+angles[:, 1::2] += math.pi / n_angles
 
-x = (radii*np.cos(angles)).flatten()
-y = (radii*np.sin(angles)).flatten()
+x = (radii * np.cos(angles)).flatten()
+y = (radii * np.sin(angles)).flatten()
 z = function_z(x, y)
 
 # Now create the Triangulation.
@@ -52,7 +52,7 @@ triang = tri.Triangulation(x, y)
 # Mask off unwanted triangles.
 xmid = x[triang.triangles].mean(axis=1)
 ymid = y[triang.triangles].mean(axis=1)
-mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
+mask = np.where(xmid * xmid + ymid * ymid < min_radius * min_radius, 1, 0)
 triang.set_mask(mask)
 
 #-----------------------------------------------------------------------------

@@ -141,8 +141,8 @@ perform mesh refinement and smooth contouring was also added
 implementing some basic tools for triangular mesh improvement was
 added (:class:`~matplotlib.tri.TriAnalyzer`).
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_tricontour_smooth_user_001.png
-   :target: ../../gallery/pylab_examples/tricontour_smooth_user.html
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_tricontour_smooth_user_001.png
+   :target: ../../gallery/images_contours_and_fields/tricontour_smooth_user.html
    :align: center
    :scale: 50
 
@@ -400,9 +400,3 @@ matplotlib will now display a `RuntimeWarning` when too many figures
 have been opened at once.  By default, this is displayed for 20 or
 more figures, but the exact number may be controlled using the
 ``figure.max_open_warning`` rcParam.
-
-
-
-
-
-

@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 origin = 'lower'
-#origin = 'upper'
 
 delta = 0.025
 
@@ -21,13 +20,13 @@ Z = 10 * (Z1 - Z2)
 nr, nc = Z.shape
 
 # put NaNs in one corner:
-Z[-nr//6:, -nc//6:] = np.nan
+Z[-nr // 6:, -nc // 6:] = np.nan
 # contourf will convert these to masked
 
 
 Z = np.ma.array(Z)
 # mask another corner:
-Z[:nr//6, :nc//6] = np.ma.masked
+Z[:nr // 6, :nc // 6] = np.ma.masked
 
 # mask a circle in the middle:
 interior = np.sqrt((X**2) + (Y**2)) < 0.5
@@ -37,20 +36,14 @@ Z[interior] = np.ma.masked
 # this is usually not such a good idea, because they don't
 # occur on nice boundaries, but we do it here for purposes
 # of illustration.
-CS = plt.contourf(X, Y, Z, 10,
-                  #[-1, -0.1, 0, 0.1],
-                  #alpha=0.5,
-                  cmap=plt.cm.bone,
-                  origin=origin)
+CS = plt.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
 # Note that in the following, we explicitly pass in a subset of
 # the contour levels used for the filled contours.  Alternatively,
 # We could pass in additional levels to provide extra resolution,
 # or leave out the levels kwarg to use all of the original levels.
 
-CS2 = plt.contour(CS, levels=CS.levels[::2],
-                  colors='r',
-                  origin=origin)
+CS2 = plt.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
 
 plt.title('Nonsense (3 masked regions)')
 plt.xlabel('word length anomaly')
