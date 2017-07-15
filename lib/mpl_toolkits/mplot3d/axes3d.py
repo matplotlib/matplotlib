@@ -1648,10 +1648,6 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
 
-        # Shade the data
-        if shade and cmap is not None and fcolors is not None:
-            fcolors = self._shade_colors_lightsource(Z, cmap, lightsource)
-
         # evenly spaced, and including both endpoints
         row_inds = list(range(0, rows-1, rstride)) + [rows-1]
         col_inds = list(range(0, cols-1, cstride)) + [cols-1]
@@ -1757,11 +1753,6 @@ class Axes3D(Axes):
             colors = np.asanyarray(color).copy()
 
         return colors
-
-    def _shade_colors_lightsource(self, data, cmap, lightsource):
-        if lightsource is None:
-            lightsource = LightSource(azdeg=135, altdeg=55)
-        return lightsource.shade(data, cmap)
 
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
         """
