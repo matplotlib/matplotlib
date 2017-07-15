@@ -1618,7 +1618,6 @@ or tuple of floats
             self.cla()
         d = {'basex': kwargs.pop('basex', 10),
              'subsx': kwargs.pop('subsx', None),
-             'nonposx': kwargs.pop('nonposx', 'mask'),
              }
 
         self.set_xscale('log', **d)
@@ -1669,7 +1668,6 @@ or tuple of floats
             self.cla()
         d = {'basey': kwargs.pop('basey', 10),
              'subsy': kwargs.pop('subsy', None),
-             'nonposy': kwargs.pop('nonposy', 'mask'),
              }
         self.set_yscale('log', **d)
         b = self._hold
@@ -2793,6 +2791,10 @@ or tuple of floats
 
             %(Line2D)s
 
+        Notes
+        -----
+        Error bars with negative values will not be shown when plotted on a
+        logarithmic axis.
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
