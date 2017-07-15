@@ -1593,7 +1593,11 @@ class Axes3D(Axes):
             Bounds for the normalization.
 
         shade : bool
-            Whether to shade the face colors.
+            Whether to shade the facecolors. Defaults to True. Shading is
+            always disabled when `cmap` is specified.
+
+        lightsource : LightSource
+            The lightsource to use when `shade` is True.
 
         **kwargs :
             Other arguments are forwarded to `.Poly3DCollection`.
@@ -1882,17 +1886,24 @@ class Axes3D(Axes):
     def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
                      lightsource=None, **kwargs):
         """
-        ============= ================================================
-        Argument      Description
-        ============= ================================================
-        *X*, *Y*, *Z* Data values as 1D arrays
-        *color*       Color of the surface patches
-        *cmap*        A colormap for the surface patches.
-        *norm*        An instance of Normalize to map values to colors
-        *vmin*        Minimum value to map
-        *vmax*        Maximum value to map
-        *shade*       Whether to shade the facecolors
-        ============= ================================================
+
+        Parameters
+        ----------
+        X, Y, Z : array-like
+            Data values as 1D arrays
+        color
+            Color of the surface patches
+        cmap
+            A colormap for the surface patches.
+        norm : Normalize
+            An instance of Normalize to map values to colors.
+        vmin, vmax : scalar, optional, default: None
+            Minimum and maximum value to map.
+        shade : bool
+            Whether to shade the facecolors. Defaults to True. Shading is
+            always disabled when `cmap` is specified.
+        lightsource : LightSource
+            The lightsource to use when `shade` is True.
 
         The (optional) triangulation can be specified in one of two ways;
         either::
@@ -1920,7 +1931,8 @@ class Axes3D(Axes):
         Other arguments are passed on to
         :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
-        **Examples:**
+        Examples
+        --------
 
         .. plot:: gallery/mplot3d/trisurf3d.py
         .. plot:: gallery/mplot3d/trisurf3d_2.py
