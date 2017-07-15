@@ -87,4 +87,4 @@ ax.set_xlim(left[0], right[-1])
 ax.set_ylim(bottom.min(), top.max())
 
 ani = animation.FuncAnimation(fig, animate, 100, repeat=False, blit=True)
-# plt.show()
+plt.show()
