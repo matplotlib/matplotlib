@@ -73,6 +73,7 @@ ax1.set_prop_cycle(custom_cycler)
 ax1.plot(yy)
 ax1.set_title('Set axes color cycle to cmyk')
 fig.subplots_adjust(hspace=0.3)
+plt.show()
 
 ###############################################################################
 # Setting `prop_cycler` in the `matplotlibrc` file or style files
