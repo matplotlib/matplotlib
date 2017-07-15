@@ -30,6 +30,6 @@ colors[cube2] = 'green'
 # and plot everything
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-ax.voxels(voxels, color=colors, edgecolor='k')
+ax.voxels(voxels, facecolors=colors, edgecolor='k')
 
 plt.show()

@@ -2746,7 +2746,7 @@ class Axes3D(Axes):
 
     quiver3D = quiver
 
-    def voxels(self, filled, color=None, **kwargs):
+    def voxels(self, filled, **kwargs):
         """
         Plot a set of filled voxels
 
@@ -2762,13 +2762,13 @@ class Axes3D(Axes):
             A 3d array of values, with truthy values indicating which voxels
             to fill
 
-        color : array_like
-            The color to draw the faces of the voxels. This parameter can be:
+        facecolors, edgecolors : array_like
+            The color to draw the faces and edges of the voxels. This parameter
+            can be:
 
               - A single color value, to color all voxels the same color. This
                 can be either a string, or a 1D rgb/rgba array
-              - ``None``, indicating the above with the next color in the
-                sequence
+              - ``None``, indicating to use the default
               - A 3D ndarray of color names, with each item the color for the
                 corresponding voxel. The size must match the voxels.
               - A 4D ndarray of rgb/rgba data, with the components along the
@@ -2796,21 +2796,29 @@ class Axes3D(Axes):
         if filled.ndim != 3:
             raise ValueError("Argument filled must be 3-dimensional")
 
-        # handle the color argument
-        if color is None:
-            color = self._get_patches_for_fill.get_next_color()
-        if np.ndim(color) in (0, 1):
-            # single color, like "red" or [1, 0, 0]
-            color = broadcast_to(color, filled.shape + np.shape(color))
-        elif np.ndim(color) in (3, 4):
-            # 3D array of strings, or 4D array with last axis rgb
-            if np.shape(color)[:3] != filled.shape:
-                raise ValueError(
-                    "When multidimensional, color must match the shape of "
-                    "filled")
-        else:
-            raise ValueError("Invalid color argument")
+        def _broadcast_color_arg(color, name):
+            if np.ndim(color) in (0, 1):
+                # single color, like "red" or [1, 0, 0]
+                return broadcast_to(color, filled.shape + np.shape(color))
+            elif np.ndim(color) in (3, 4):
+                # 3D array of strings, or 4D array with last axis rgb
+                if np.shape(color)[:3] != filled.shape:
+                    raise ValueError(
+                        "When multidimensional, {} must match the shape of "
+                        "filled".format(name))
+                return color
+            else:
+                raise ValueError("Invalid {} argument".format(name))
 
+        # intercept the facecolors, handling defaults and broacasting
+        facecolors = kwargs.pop('facecolors', None)
+        if facecolors is None:
+            facecolors = self._get_patches_for_fill.get_next_color()
+        facecolors = _broadcast_color_arg(facecolors, 'facecolors')
+
+        # broadcast but no default on edgecolors
+        edgecolors = kwargs.pop('edgecolors', None)
+        edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
 
         # always scale to the full array, even if the data is only in the center
         self.auto_scale_xyz(
@@ -2884,7 +2892,8 @@ class Axes3D(Axes):
         polygons = {}
         for coord, faces in voxel_faces.items():
             poly = art3d.Poly3DCollection(faces,
-                facecolors=color[coord],
+                facecolors=facecolors[coord],
+                edgecolors=edgecolors[coord],
                 **kwargs
             )
             self.add_collection3d(poly)

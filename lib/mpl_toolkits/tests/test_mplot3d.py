@@ -614,7 +614,7 @@ class TestVoxels(object):
         colors.fill('C0')
         colors[(x < 5) & (y < 5)] = '0.25'
         colors[(x + z) < 10] = 'cyan'
-        ax.voxels(voxels, colors)
+        ax.voxels(voxels, facecolors=colors)
 
     @image_comparison(
         baseline_images=['voxels-rgb-data'],
@@ -631,7 +631,7 @@ class TestVoxels(object):
         colors[...,0] = x/9.0
         colors[...,1] = y/9.0
         colors[...,2] = z/9.0
-        ax.voxels(voxels, colors)
+        ax.voxels(voxels, facecolors=colors)
 
     @image_comparison(
         baseline_images=['voxels-alpha'],
@@ -648,7 +648,7 @@ class TestVoxels(object):
         colors = np.zeros((10, 10, 10, 4))
         colors[v2] = [1, 0, 0, 0.5]
         colors[v1] = [0, 1, 0, 0.5]
-        v = ax.voxels(voxels, colors)
+        v = ax.voxels(voxels, facecolors=colors)
 
         assert type(v) is dict
         for coord, poly in v.items():

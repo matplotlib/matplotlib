@@ -28,6 +28,9 @@ colors[..., 2] = b
 # and plot everything
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-ax.voxels(sphere, color=colors, edgecolor='gray', linewidth=0.5)
+ax.voxels(sphere,
+          facecolors=colors,
+          edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter
+          linewidth=0.5)
 
 plt.show()
