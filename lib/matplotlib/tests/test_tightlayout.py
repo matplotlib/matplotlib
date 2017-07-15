@@ -265,6 +265,7 @@ def test_tight_layout_offsetboxes():
 
     plt.tight_layout()
 
+
 def test_empty_layout():
     """Tests that tight layout doesn't cause an error when there are
     no axes.
