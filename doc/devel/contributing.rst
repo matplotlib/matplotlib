@@ -48,18 +48,28 @@ Thank you for your help in keeping bug reports complete, targeted and descriptiv
 Retrieving and installing the latest version of the code
 ========================================================
 
-When working on the Matplotlib source, setting up a `virtual
-environment
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a
-`conda environment <http://conda.pydata.org/docs/using/envs.html>`_ is
-recommended.
+When developing Matplotlib, sources must be downloaded, built, and installed into
+a local environment on your machine.
+
+Follow the instructions detailed :ref:`here <install_from_source>` to set up your
+environment to build Matplotlib from source.
 
 .. warning::
 
-   If you already have a version of Matplotlib installed, use an
-   virtual environment or uninstall using the same method you used
-   to install it.  Installing multiple versions of Matplotlib via different
-   methods into the same environment may not always work as expected.
+   When working on Matplotlib sources, having multiple versions installed by
+   different methods into the same environment may not always work as expected.
+
+To work on Matplotlib sources, it is strongly recommended to set up an alternative
+development environment, using the something like `virtual environments in python
+<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_, or a
+`conda environment <http://conda.pydata.org/docs/using/envs.html>`_.
+
+If you choose to use an already existing environment, and not a clean virtual or
+conda environment, uninstall the current version of Matplotlib in that enviroment
+using the same method used to install it.
+
+If working on Matplotlib documentation only, the above steps are *not* absolutely
+necessary.
 
 We use `Git <https://git-scm.com/>`_ for version control and
 `GitHub <https://github.com/>`_ for hosting our main repository.
@@ -70,6 +80,7 @@ You can check out the latest sources with the command (see
     git clone git@github.com:matplotlib/matplotlib.git
 
 and navigate to the :file:`matplotlib` directory.
+
 
 To make sure the tests run locally you must build against the correct version
 of freetype.  To configure the build system to fetch and build it either export
