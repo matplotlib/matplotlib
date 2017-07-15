@@ -6,8 +6,8 @@ Styling with cycler
 Demo of custom property-cycle settings to control colors and other style
 properties for multi-line plots.
 
-More complete documentation of the `cycler` API can be found
-`here <http://matplotlib.org/cycler/>`_.
+.. note:: More complete documentation of the `cycler` API can be found
+          `here <http://matplotlib.org/cycler/>`_.
 
 This example demonstrates two different APIs:
 
