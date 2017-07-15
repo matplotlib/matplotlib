@@ -1973,6 +1973,8 @@ class Figure(Artist):
                                          renderer,
                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
                                          rect=rect)
+        if kwargs is None:
+            return
 
         self.subplots_adjust(**kwargs)
 
