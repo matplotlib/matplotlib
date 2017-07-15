@@ -1688,7 +1688,7 @@ class Axes3D(Axes):
 
         if fcolors is not None:
             if shade:
-                colset = self._shade_colors(colset, get_normals(polys))
+                colset = self._shade_colors(colset, get_normals(polys), lightsource)
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
@@ -1701,7 +1701,7 @@ class Axes3D(Axes):
                 polyc.set_norm(norm)
         else:
             if shade:
-                colset = self._shade_colors(color, get_normals(polys))
+                colset = self._shade_colors(color, get_normals(polys), lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
@@ -1725,13 +1725,16 @@ class Axes3D(Axes):
             normals.append(np.cross(v1, v2))
         return normals
 
-    def _shade_colors(self, color, normals):
+    def _shade_colors(self, color, normals, lightsource=None):
         '''
         Shade *color* using normal vectors given by *normals*.
         *color* can also be an array of the same length as *normals*.
         '''
+        if lightsource is None:
+            # chosen for backwards-compatibility
+            lightsource = LightSource(azdeg=225, altdeg=19.4712)
 
-        shade = np.array([np.dot(n / proj3d.mod(n), [-1, -1, 0.5])
+        shade = np.array([np.dot(n / proj3d.mod(n), lightsource.direction)
                           if proj3d.mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
@@ -1965,7 +1968,7 @@ class Axes3D(Axes):
                 v1 = verts[:, 0, :] - verts[:, 1, :]
                 v2 = verts[:, 1, :] - verts[:, 2, :]
                 normals = np.cross(v1, v2)
-                colset = self._shade_colors(color, normals)
+                colset = self._shade_colors(color, normals, lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
