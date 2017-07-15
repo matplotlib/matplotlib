@@ -3,7 +3,7 @@
 Plotfile Demo
 =============
 
-Example use of `plotfile` to plot data directly from a file.
+Example use of ``plotfile`` to plot data directly from a file.
 """
 import matplotlib.pyplot as plt
 import numpy as np

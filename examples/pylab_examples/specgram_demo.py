@@ -1,7 +1,7 @@
 """
-=============
-Specgram Demo
-=============
+================
+Spectrogram Demo
+================
 
 Demo of a spectrogram plot.
 """
