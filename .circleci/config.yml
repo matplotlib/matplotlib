@@ -98,6 +98,10 @@ jobs:
           name: "Built documentation is available at:"
           command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
 
+      - deploy:
+          name: "Deploy new docs"
+          command: ./.circleci/deploy-docs.sh
+
   docs-python27:
     docker:
       - image: circleci/python:2.7
