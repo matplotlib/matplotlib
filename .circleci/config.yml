@@ -128,7 +128,7 @@ jobs:
       # Linkchecker only works with python 2.7 for the time being
       - run:
           name: linkchecker
-          command: linkchecker build/html/index.html
+          command: ~/.local/bin/linkchecker build/html/index.html
           working_directory: doc
 
 
