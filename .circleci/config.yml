@@ -94,6 +94,10 @@ jobs:
       - store_artifacts:
           path: doc/build/html
 
+      - run:
+          name: "Built documentation is available at:"
+          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
+
   docs-python27:
     docker:
       - image: circleci/python:2.7
@@ -126,6 +130,10 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+
+      - run:
+          name: "Built documentation is available at:"
+          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
 
 
 #########################################
