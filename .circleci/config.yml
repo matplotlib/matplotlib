@@ -44,17 +44,17 @@ jobs:
       - run: fc-cache -f -v
 
       # Upgrade pip and setuptools and wheel to get as clean an install as possible
-      - run: pip install --upgrade pip
-      - run: pip install --upgrade wheel
-      - run: pip install --upgrade setuptools
+      - run: pip install --upgrade --user pip
+      - run: pip install --upgrade --user wheel
+      - run: pip install --upgrade --user setuptools
 
       # Install dependencies from pypi
-      - run: pip install python-dateutil numpy pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
-      - run: pip install -r doc-requirements.txt
+      - run: pip install --user python-dateutil numpy pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+      - run: pip install --user -r doc-requirements.txt
 
       - run:
           name: Install matplotlib
-          command: pip install -ve .
+          command: pip install --user -ve .
 
       - run:
           name: Build documentation
@@ -102,20 +102,20 @@ jobs:
       - run: fc-cache -f -v
 
       # Upgrade pip and setuptools and wheel to get as clean an install as possible
-      - run: pip install --upgrade pip
-      - run: pip install --upgrade wheel
-      - run: pip install --upgrade setuptools
+      - run: pip install --upgrade --user pip
+      - run: pip install --upgrade --user wheel
+      - run: pip install --upgrade --user setuptools
 
       # Install dependencies from pypi
-      - run: pip install python-dateutil numpy==1.7.1 pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
-      - run: pip install -r doc-requirements.txt
+      - run: pip install --user python-dateutil numpy==1.7.1 pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+      - run: pip install --user -r doc-requirements.txt
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
-      - run: pip install $PRE requests==2.9.2 linkchecker
+      - run: pip install --user $PRE requests==2.9.2 linkchecker
 
       - run:
           name: Install matplotlib
-          command: pip install -ve .
+          command: pip install --user -ve .
 
       - run:
           name: Build documentation
