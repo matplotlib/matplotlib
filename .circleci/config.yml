@@ -91,6 +91,9 @@ jobs:
 
       - run: *doc
 
+      - store_artifacts:
+          path: doc/build/html
+
   "python-2.7":
     docker:
       - image: circleci/python:2.7
@@ -120,6 +123,9 @@ jobs:
           name: linkchecker
           command: ~/.local/bin/linkchecker build/html/index.html
           working_directory: doc
+
+      - store_artifacts:
+          path: doc/build/html
 
 
 #########################################
