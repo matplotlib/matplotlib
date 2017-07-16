@@ -13,7 +13,6 @@ jobs:
           sudo apt-get install \
             inkscape \
             libav-tools \
-            mencoder \
             dvipng \
             pgf \
             lmodern \
@@ -72,7 +71,6 @@ jobs:
           sudo apt-get install \
             inkscape \
             libav-tools \
-            mencoder \
             dvipng \
             pgf \
             lmodern \
