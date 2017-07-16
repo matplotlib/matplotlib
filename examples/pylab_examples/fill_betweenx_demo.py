@@ -3,6 +3,7 @@
 Fill Betweenx Demo
 ==================
 
+Using ``fill_betweenx`` to color between two horizontal curves.
 """
 import matplotlib.mlab as mlab
 from matplotlib.pyplot import figure, show

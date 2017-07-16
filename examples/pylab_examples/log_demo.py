@@ -3,6 +3,7 @@
 Log Demo
 ========
 
+Examples of plots with logarithmic axes.
 """
 
 import numpy as np

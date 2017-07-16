@@ -3,6 +3,7 @@
 Contourf Demo
 =============
 
+How to use the ``contourf`` function to create filled contour plots.
 """
 import numpy as np
 import matplotlib.pyplot as plt

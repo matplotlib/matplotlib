@@ -3,6 +3,7 @@
 Stem Plot
 =========
 
+Example stem plot.
 """
 import matplotlib.pyplot as plt
 import numpy as np

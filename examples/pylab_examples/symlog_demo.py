@@ -3,6 +3,7 @@
 Symlog Demo
 ===========
 
+Example use of symlog (symmetric log) axis scaling.
 """
 import matplotlib.pyplot as plt
 import numpy as np
