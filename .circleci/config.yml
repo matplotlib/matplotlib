@@ -3,124 +3,114 @@
 
 version: 2
 
+
+###########################################
+# Define some common steps as YAML anchors.
+#
+
+apt-run:  &apt
+  name: Install apt packages
+  command: |
+    sudo apt-get install \
+      inkscape \
+      libav-tools \
+      dvipng \
+      pgf \
+      lmodern \
+      cm-super \
+      texlive-latex-base \
+      texlive-latex-extra \
+      texlive-fonts-recommended \
+      texlive-latex-recommended \
+      texlive-xetex \
+      graphviz \
+      libgeos-dev \
+      otf-freefont
+
+humor-sans-run:  &humor-sans
+  name: Install Humor Sans
+  # We manually install Humor-Sans using the package from Ubuntu 14.10.
+  # Unfortunately humor sans is not available in the Ubuntu version used by
+  # CircleCI but we can manually install the deb from a later version since
+  # it is basically just a .ttf file.
+  command: |
+    mkdir -p ~/.local/share/fonts
+    wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+    if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
+      wget https://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
+      mkdir tmp
+      dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
+      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
+      rm -rf tmp
+    else
+      echo "Not downloading Humor-Sans; file already exists."
+    fi
+    fc-cache -f -v
+
+pip-run:  &pip
+  # Upgrade pip and setuptools and wheel to get as clean an install as possible
+  name: Upgrade pip, setuptools, wheel
+  command: |
+    pip install --upgrade --user pip
+    pip install --upgrade --user wheel
+    pip install --upgrade --user setuptools
+
+deps-install: &deps
+  name: Install Python dependencies
+  command: |
+    pip install --user python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+    pip install --user -r doc-requirements.txt
+
+mpl-install: &mpl
+  name: Install matplotlib
+  command: pip install --user -ve .
+
+build-doc: &doc
+  name: Build documentation
+  command: python make.py html
+  working_directory: doc
+
+
+##########################################
+# Here is where the real jobs are defined.
+#
+
 jobs:
   "python-3.5":
     docker:
       - image: circleci/python:3.5
     steps:
       - checkout
-      - run: |
-          sudo apt-get install \
-            inkscape \
-            libav-tools \
-            dvipng \
-            pgf \
-            lmodern \
-            cm-super \
-            texlive-latex-base \
-            texlive-latex-extra \
-            texlive-fonts-recommended \
-            texlive-latex-recommended \
-            texlive-xetex \
-            graphviz \
-            libgeos-dev \
-            otf-freefont
-      # We manually install Humor-Sans using the package from Ubuntu 14.10.
-      # Unfortunately humor sans is not available in the Ubuntu version used by
-      # CircleCI but we can manually install the deb from a later version since
-      # it is basically just a .ttf file.
-      - run: mkdir -p ~/.local/share/fonts
-      - run: wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
-      - run: |
-          if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
-            wget https://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
-            mkdir tmp
-            dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
-            cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
-            rm -rf tmp
-          else
-            echo "Not downloading Humor-Sans; file already exists."
-          fi
-      - run: fc-cache -f -v
 
-      # Upgrade pip and setuptools and wheel to get as clean an install as possible
-      - run: pip install --upgrade --user pip
-      - run: pip install --upgrade --user wheel
-      - run: pip install --upgrade --user setuptools
+      - run: *apt
+      - run: *humor-sans
+      - run: *pip
 
-      # Install dependencies from pypi
-      - run: pip install --user python-dateutil numpy pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
-      - run: pip install --user -r doc-requirements.txt
+      - run: *deps
+      - run: *mpl
 
-      - run:
-          name: Install matplotlib
-          command: pip install --user -ve .
-
-      - run:
-          name: Build documentation
-          command: python make.py html
-          working_directory: doc
-
+      - run: *doc
 
   "python-2.7":
     docker:
       - image: circleci/python:2.7
     steps:
       - checkout
-      - run: |
-          sudo apt-get install \
-            inkscape \
-            libav-tools \
-            dvipng \
-            pgf \
-            lmodern \
-            cm-super \
-            texlive-latex-base \
-            texlive-latex-extra \
-            texlive-fonts-recommended \
-            texlive-latex-recommended \
-            texlive-xetex \
-            graphviz \
-            libgeos-dev \
-            otf-freefont
-      # We manually install Humor-Sans using the package from Ubuntu 14.10.
-      # Unfortunately humor sans is not available in the Ubuntu version used by
-      # CircleCI but we can manually install the deb from a later version since
-      # it is basically just a .ttf file.
-      - run: mkdir -p ~/.local/share/fonts
-      - run: wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
-      - run: |
-          if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
-            wget https://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
-            mkdir tmp
-            dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
-            cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
-            rm -rf tmp
-          else
-            echo "Not downloading Humor-Sans; file already exists."
-          fi
-      - run: fc-cache -f -v
 
-      # Upgrade pip and setuptools and wheel to get as clean an install as possible
-      - run: pip install --upgrade --user pip
-      - run: pip install --upgrade --user wheel
-      - run: pip install --upgrade --user setuptools
+      - run: *apt
+      - run: *humor-sans
+      - run: *pip
 
-      # Install dependencies from pypi
-      - run: pip install --user python-dateutil numpy==1.7.1 pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
-      - run: pip install --user -r doc-requirements.txt
+      - run:
+          <<: *deps
+          environment:
+            NUMPY_VERSION: "==1.7.1"
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
       - run: pip install --user $PRE requests==2.9.2 linkchecker
+      - run: *mpl
 
-      - run:
-          name: Install matplotlib
-          command: pip install --user -ve .
-
-      - run:
-          name: Build documentation
-          command: python make.py html
-          working_directory: doc
+      - run: *doc
 
       # We don't build the LaTeX docs here, so linkchecker will complain
       - run: touch doc/build/html/Matplotlib.pdf
@@ -131,6 +121,10 @@ jobs:
           command: ~/.local/bin/linkchecker build/html/index.html
           working_directory: doc
 
+
+#########################################
+# Defining workflows gets us parallelism.
+#
 
 workflows:
   version: 2
