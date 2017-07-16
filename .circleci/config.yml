@@ -8,7 +8,7 @@ version: 2
 # Define some common steps as YAML anchors.
 #
 
-apt-run:  &apt
+apt-run:  &apt-install
   name: Install apt packages
   command: |
     sudo apt-get install \
@@ -27,8 +27,8 @@ apt-run:  &apt
       libgeos-dev \
       otf-freefont
 
-humor-sans-run:  &humor-sans
-  name: Install Humor Sans
+fonts-run:  &fonts-install
+  name: Install custom fonts
   # We manually install Humor-Sans using the package from Ubuntu 14.10.
   # Unfortunately humor sans is not available in the Ubuntu version used by
   # CircleCI but we can manually install the deb from a later version since
@@ -47,7 +47,7 @@ humor-sans-run:  &humor-sans
     fi
     fc-cache -f -v
 
-pip-run:  &pip
+pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
   name: Upgrade pip, setuptools, wheel
   command: |
@@ -55,17 +55,17 @@ pip-run:  &pip
     pip install --upgrade --user wheel
     pip install --upgrade --user setuptools
 
-deps-install: &deps
+deps-run: &deps-install
   name: Install Python dependencies
   command: |
     pip install --user python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
     pip install --user -r doc-requirements.txt
 
-mpl-install: &mpl
-  name: Install matplotlib
+mpl-run: &mpl-install
+  name: Install Matplotlib
   command: pip install --user -ve .
 
-build-doc: &doc
+doc-run: &doc-build
   name: Build documentation
   command: python make.py html
   working_directory: doc
@@ -76,44 +76,44 @@ build-doc: &doc
 #
 
 jobs:
-  "python-3.5":
+  docs-python35:
     docker:
       - image: circleci/python:3.5
     steps:
       - checkout
 
-      - run: *apt
-      - run: *humor-sans
-      - run: *pip
+      - run: *apt-install
+      - run: *fonts-install
+      - run: *pip-install
 
-      - run: *deps
-      - run: *mpl
+      - run: *deps-install
+      - run: *mpl-install
 
-      - run: *doc
+      - run: *doc-build
 
       - store_artifacts:
           path: doc/build/html
 
-  "python-2.7":
+  docs-python27:
     docker:
       - image: circleci/python:2.7
     steps:
       - checkout
 
-      - run: *apt
-      - run: *humor-sans
-      - run: *pip
+      - run: *apt-install
+      - run: *fonts-install
+      - run: *pip-install
 
       - run:
-          <<: *deps
+          <<: *deps-install
           environment:
             NUMPY_VERSION: "==1.7.1"
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
       - run: pip install --user $PRE requests==2.9.2 linkchecker
-      - run: *mpl
+      - run: *mpl-install
 
-      - run: *doc
+      - run: *doc-build
 
       # We don't build the LaTeX docs here, so linkchecker will complain
       - run: touch doc/build/html/Matplotlib.pdf
@@ -136,5 +136,5 @@ workflows:
   version: 2
   build:
     jobs:
-      - "python-3.5"
-      - "python-2.7"
+      - docs-python35
+      - docs-python27
