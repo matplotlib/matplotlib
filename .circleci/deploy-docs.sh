@@ -14,7 +14,8 @@ cd devdocs
 git checkout --orphan gh-pages || true
 git reset --hard first_commit
 
-cp -R ../doc/build/html/* .
+git rm -rf .
+cp -R ../doc/build/html/. .
 touch .nojekyll
 
 git config user.email "MatplotlibCircleBot@nomail"
