@@ -3011,9 +3011,9 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        minor : bool
+        minor : bool, optional
            If True return the minor ticklabels,
-           else return the major ticklabels
+           else return the major ticklabels.
 
         which : None, ('minor', 'major', 'both')
            Overrides `minor`.
@@ -3037,6 +3037,19 @@ class _AxesBase(martist.Artist):
         ----------
         labels : list of str
             list of string labels
+
+        fontdict : dict, optional
+            A dictionary controlling the appearance of the ticklabels,
+            the default `fontdict` is:
+
+               {'fontsize': rcParams['axes.titlesize'],
+                'fontweight' : rcParams['axes.titleweight'],
+                'verticalalignment': 'baseline',
+                'horizontalalignment': loc}
+
+        minor : bool, optional
+            If True select the minor ticklabels,
+            else select the minor ticklabels
 
         Returns
         -------
@@ -3334,6 +3347,19 @@ class _AxesBase(martist.Artist):
         ----------
         labels : list of str
             list of string labels
+
+        fontdict : dict, optional
+            A dictionary controlling the appearance of the ticklabels,
+            the default `fontdict` is::
+
+               {'fontsize': rcParams['axes.titlesize'],
+                'fontweight' : rcParams['axes.titleweight'],
+                'verticalalignment': 'baseline',
+                'horizontalalignment': loc}
+
+        minor : bool, optional
+            If True select the minor ticklabels,
+            else select the minor ticklabels
 
         Returns
         -------
