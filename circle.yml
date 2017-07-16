@@ -66,6 +66,10 @@ dependencies:
     # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
     - if [ $CIRCLE_NODE_INDEX == "1" ]; then pip install $PRE requests==2.9.2 linkchecker; fi
 
+checkout:
+  post:
+    - git fetch --tags --unshallow
+
 compile:
   override:
     # Install matplotlib
