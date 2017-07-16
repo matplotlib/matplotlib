@@ -2746,8 +2746,10 @@ class Axes3D(Axes):
 
     quiver3D = quiver
 
-    def voxels(self, filled, **kwargs):
+    def voxels(self, *args, **kwargs):
         """
+        ax.voxels([x, y, z,] /, filled, **kwargs)
+
         Plot a set of filled voxels
 
         All voxels are plotted as 1x1x1 cubes on the axis, with filled[0,0,0]
@@ -2758,9 +2760,15 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        filled : np.array
+        filled : 3D np.array of bool
             A 3d array of values, with truthy values indicating which voxels
             to fill
+
+        x, y, z : 3D np.array, optional
+            The coordinates of the corners of the voxels. This should broadcast
+            to a shape one larger in every dimension than the shape of `filled`.
+            These arguments can be used to plot non-cubic voxels.
+            If not specified, defaults to increasing integers along each axis.
 
         facecolors, edgecolors : array_like
             The color to draw the faces and edges of the voxels. This parameter
@@ -2791,10 +2799,33 @@ class Axes3D(Axes):
 
         .. plot:: gallery/mplot3d/voxels.py
         .. plot:: gallery/mplot3d/voxels_rgb.py
+        .. plot:: gallery/mplot3d/voxels_torus.py
+        .. plot:: gallery/mplot3d/voxels_numpy_logo.py
         """
+
+        # work out which signature we should be using, and use it to parse
+        # the arguments. Name must be voxels for the correct error message
+        if len(args) >= 3:
+            # underscores indicate position only
+            def voxels(__x, __y, __z, filled, **kwargs):
+                return (__x, __y, __z), filled, kwargs
+        else:
+            def voxels(filled, **kwargs):
+                return None, filled, kwargs
+
+        xyz, filled, kwargs = voxels(*args, **kwargs)
+
         # check dimensions
         if filled.ndim != 3:
             raise ValueError("Argument filled must be 3-dimensional")
+        size = np.array(filled.shape, dtype=np.intp)
+
+        # check xyz coordinates, which are one larger than the filled shape
+        coord_shape = tuple(size + 1)
+        if xyz is None:
+            x, y, z = np.indices(coord_shape)
+        else:
+            x, y, z = (broadcast_to(c, coord_shape) for c in xyz)
 
         def _broadcast_color_arg(color, name):
             if np.ndim(color) in (0, 1):
@@ -2821,11 +2852,7 @@ class Axes3D(Axes):
         edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
 
         # always scale to the full array, even if the data is only in the center
-        self.auto_scale_xyz(
-            [0, filled.shape[0]],
-            [0, filled.shape[1]],
-            [0, filled.shape[2]]
-        )
+        self.auto_scale_xyz(x, y, z)
 
         # points lying on corners of a square
         square = np.array([
@@ -2833,13 +2860,13 @@ class Axes3D(Axes):
             [0, 1, 0],
             [1, 1, 0],
             [1, 0, 0]
-        ])
+        ], dtype=np.intp)
 
         voxel_faces = defaultdict(list)
 
         def permutation_matrices(n):
             """ Generator of cyclic permutation matices """
-            mat = np.eye(n, dtype=int)
+            mat = np.eye(n, dtype=np.intp)
             for i in range(n):
                 yield mat
                 mat = np.roll(mat, 1, axis=0)
@@ -2848,7 +2875,7 @@ class Axes3D(Axes):
         # render
         for permute in permutation_matrices(3):
             # find the set of ranges to iterate over
-            pc, qc, rc = permute.T.dot(filled.shape[:3])
+            pc, qc, rc = permute.T.dot(size)
             pinds = np.arange(pc)
             qinds = np.arange(qc)
             rinds = np.arange(rc)
@@ -2890,7 +2917,20 @@ class Axes3D(Axes):
 
         # iterate over the faces, and generate a Poly3DCollection for each voxel
         polygons = {}
-        for coord, faces in voxel_faces.items():
+        for coord, faces_inds in voxel_faces.items():
+            # convert indices into 3D positions
+            if xyz is None:
+                faces = faces_inds
+            else:
+                faces = []
+                for face_inds in faces_inds:
+                    ind = face_inds[:, 0], face_inds[:, 1], face_inds[:, 2]
+                    face = np.empty(face_inds.shape)
+                    face[:, 0] = x[ind]
+                    face[:, 1] = y[ind]
+                    face[:, 2] = z[ind]
+                    faces.append(face)
+
             poly = art3d.Poly3DCollection(faces,
                 facecolors=facecolors[coord],
                 edgecolors=edgecolors[coord],
