@@ -1,7 +1,7 @@
 """
-======================
-Cross-correlation Demo
-======================
+============================
+Cross-/Auto-correlation Demo
+============================
 
 Example use of cross-correlation (``xcorr``) and auto-correlation (``acorr``) plots.
 """
