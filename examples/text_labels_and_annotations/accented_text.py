@@ -16,7 +16,9 @@ e.g., to make an overbar you do \bar{o} or to make an o umlaut you do
 from __future__ import unicode_literals
 import matplotlib.pyplot as plt
 
+###############################################################################
 # Mathtext demo
+
 fig, ax = plt.subplots()
 ax.plot(range(10))
 ax.set_title(r'$\ddot{o}\acute{e}\grave{e}\hat{O}'
@@ -27,7 +29,9 @@ ax.set_xlabel(r"""$\"o\ddot o \'e\`e\~n\.x\^y$""", fontsize=20)
 ax.text(4, 0.5, r"$F=m\ddot{x}$")
 fig.tight_layout()
 
+###############################################################################
 # Unicode demo
+
 fig, ax = plt.subplots()
 ax.set_title("GISCARD CHAHUTÉ À L'ASSEMBLÉE")
 ax.set_xlabel("LE COUP DE DÉ DE DE GAULLE")

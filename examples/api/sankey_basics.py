@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.sankey import Sankey
 
 
+###############################################################################
 # Example 1 -- Mostly defaults
 # This demonstrates how to create a simple diagram by implicitly calling the
 # Sankey.add() method and by appending finish() to the call to the class.
@@ -18,6 +19,7 @@ Sankey(flows=[0.25, 0.15, 0.60, -0.20, -0.15, -0.05, -0.50, -0.10],
        labels=['', '', '', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
        orientations=[-1, 1, 0, 1, 1, 1, 0, -1]).finish()
 plt.title("The default settings produce a diagram like this.")
+###############################################################################
 # Notice:
 #   1. Axes weren't provided when Sankey() was instantiated, so they were
 #      created automatically.
@@ -25,6 +27,7 @@ plt.title("The default settings produce a diagram like this.")
 #      normalized.
 #   3. By default, the lengths of the paths are justified.
 
+###############################################################################
 # Example 2
 # This demonstrates:
 #   1. Setting one path longer than the others
@@ -51,6 +54,7 @@ sankey.add(flows=[25, 0, 60, -10, -20, -5, -15, -10, -40],
 diagrams = sankey.finish()
 diagrams[0].texts[-1].set_color('r')
 diagrams[0].text.set_fontweight('bold')
+###############################################################################
 # Notice:
 #   1. Since the sum of the flows is nonzero, the width of the trunk isn't
 #      uniform.  If verbose.level is helpful (in matplotlibrc), a message is
@@ -58,6 +62,7 @@ diagrams[0].text.set_fontweight('bold')
 #   2. The second flow doesn't appear because its value is zero.  Again, if
 #      verbose.level is helpful, a message is given in the terminal window.
 
+###############################################################################
 # Example 3
 # This demonstrates:
 #   1. Connecting two systems
@@ -74,6 +79,7 @@ sankey.add(flows=[-0.25, 0.15, 0.1], label='two',
 diagrams = sankey.finish()
 diagrams[-1].patch.set_hatch('/')
 plt.legend(loc='best')
+###############################################################################
 # Notice that only one connection is specified, but the systems form a
 # circuit since: (1) the lengths of the paths are justified and (2) the
 # orientation and ordering of the flows is mirrored.

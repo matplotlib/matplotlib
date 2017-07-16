@@ -10,6 +10,7 @@ import matplotlib.tri as tri
 import numpy as np
 import math
 
+###############################################################################
 # Creating a Triangulation without specifying the triangles results in the
 # Delaunay triangulation of the points.
 
@@ -36,6 +37,7 @@ ymid = y[triang.triangles].mean(axis=1)
 mask = np.where(xmid * xmid + ymid * ymid < min_radius * min_radius, 1, 0)
 triang.set_mask(mask)
 
+###############################################################################
 # tripcolor plot.
 plt.figure()
 plt.gca().set_aspect('equal')
@@ -43,6 +45,7 @@ plt.tripcolor(triang, z, shading='flat')
 plt.colorbar()
 plt.title('tripcolor of Delaunay triangulation, flat shading')
 
+###############################################################################
 # Illustrate Gouraud shading.
 plt.figure()
 plt.gca().set_aspect('equal')
@@ -51,6 +54,7 @@ plt.colorbar()
 plt.title('tripcolor of Delaunay triangulation, gouraud shading')
 
 
+###############################################################################
 # You can specify your own triangulation rather than perform a Delaunay
 # triangulation of the points, where each triangle is given by the indices of
 # the three points that make up the triangle, ordered in either a clockwise or
@@ -103,6 +107,7 @@ y0 = 52
 zfaces = np.exp(-0.01 * ((xmid - x0) * (xmid - x0) +
                          (ymid - y0) * (ymid - y0)))
 
+###############################################################################
 # Rather than create a Triangulation object, can simply pass x, y and triangles
 # arrays to tripcolor directly.  It would be better to use a Triangulation
 # object if the same triangulation was to be used more than once to save

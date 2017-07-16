@@ -11,16 +11,17 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from matplotlib.mlab import bivariate_normal
 
-'''
-Lognorm: Instead of pcolor log10(Z1) you can have colorbars that have
-the exponential labels using a norm.
-'''
+###############################################################################
+# Lognorm: Instead of pcolor log10(Z1) you can have colorbars that have
+# the exponential labels using a norm.
+
 N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 
 # A low hump with a spike coming out of the top right.  Needs to have
 # z/colour axis on a log scale so we see both hump and spike.  linear
 # scale only shows the spike.
+
 Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) +  \
     0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 
@@ -35,10 +36,10 @@ pcm = ax[1].pcolor(X, Y, Z1, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 
 
-'''
-PowerNorm: Here a power-law trend in X partially obscures a rectified
-sine wave in Y. We can remove the power law using a PowerNorm.
-'''
+###############################################################################
+# PowerNorm: Here a power-law trend in X partially obscures a rectified
+# sine wave in Y. We can remove the power law using a PowerNorm.
+
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
 Z1 = (1 + np.sin(Y * 10.)) * X**(2.)
 
@@ -51,14 +52,13 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 
-'''
-SymLogNorm: two humps, one negative and one positive, The positive
-with 5-times the amplitude. Linearly, you cannot see detail in the
-negative hump.  Here we logarithmically scale the positive and
-negative data separately.
-
-Note that colorbar labels do not come out looking very good.
-'''
+###############################################################################
+# SymLogNorm: two humps, one negative and one positive, The positive
+# with 5-times the amplitude. Linearly, you cannot see detail in the
+# negative hump.  Here we logarithmically scale the positive and
+# negative data separately.
+# 
+# Note that colorbar labels do not come out looking very good.
 
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 Z1 = (bivariate_normal(X, Y, 1., 1., 1.0, 1.0))**2  \
@@ -77,11 +77,11 @@ pcm = ax[1].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[1], extend='both')
 
 
-'''
-Custom Norm: An example with a customized normalization.  This one
-uses the example above, and normalizes the negative data differently
-from the positive.
-'''
+###############################################################################
+# Custom Norm: An example with a customized normalization.  This one
+# uses the example above, and normalizes the negative data differently
+# from the positive.
+
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 Z1 = (bivariate_normal(X, Y, 1., 1., 1.0, 1.0))**2  \
     - 0.4 * (bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0))**2
@@ -112,11 +112,10 @@ fig.colorbar(pcm, ax=ax[0], extend='both')
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1))
 fig.colorbar(pcm, ax=ax[1], extend='both')
 
-'''
-BoundaryNorm: For this one you provide the boundaries for your colors,
-and the Norm puts the first color in between the first pair, the
-second color between the second pair, etc.
-'''
+###############################################################################
+# BoundaryNorm: For this one you provide the boundaries for your colors,
+# and the Norm puts the first color in between the first pair, the
+# second color between the second pair, etc.
 
 fig, ax = plt.subplots(3, 1, figsize=(8, 8))
 ax = ax.flatten()

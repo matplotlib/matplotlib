@@ -26,7 +26,7 @@ Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 # difference of Gaussians
 Z = 10.0 * (Z2 - Z1)
 
-
+###############################################################################
 # Create a simple contour plot with labels using default colors.  The
 # inline argument to clabel will control whether the labels are draw
 # over the line segments of the contour, removing the lines beneath
@@ -37,6 +37,7 @@ plt.clabel(CS, inline=1, fontsize=10)
 plt.title('Simplest default with labels')
 
 
+###############################################################################
 # contour labels can be placed manually by providing list of positions
 # (in data coordinate). See ginput_manual_clabel.py for interactive
 # placement.
@@ -47,6 +48,7 @@ plt.clabel(CS, inline=1, fontsize=10, manual=manual_locations)
 plt.title('labels at selected locations')
 
 
+###############################################################################
 # You can force all the contours to be the same color.
 plt.figure()
 CS = plt.contour(X, Y, Z, 6,
@@ -55,6 +57,7 @@ CS = plt.contour(X, Y, Z, 6,
 plt.clabel(CS, fontsize=9, inline=1)
 plt.title('Single color - negative contours dashed')
 
+###############################################################################
 # You can set negative contours to be solid instead of dashed:
 matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 plt.figure()
@@ -65,6 +68,7 @@ plt.clabel(CS, fontsize=9, inline=1)
 plt.title('Single color - negative contours solid')
 
 
+###############################################################################
 # And you can manually specify the colors of the contour
 plt.figure()
 CS = plt.contour(X, Y, Z, 6,
@@ -75,6 +79,7 @@ plt.clabel(CS, fontsize=9, inline=1)
 plt.title('Crazy lines')
 
 
+###############################################################################
 # Or you can use a colormap to specify the colors; the default
 # colormap will be used for the contour lines
 plt.figure()

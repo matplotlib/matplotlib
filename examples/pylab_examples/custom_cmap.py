@@ -77,6 +77,7 @@ X, Y = np.meshgrid(x, y)
 Z = np.cos(X) * np.sin(Y) * 10
 
 
+###############################################################################
 # --- Colormaps from a list ---
 
 colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]  # R -> G -> B
@@ -94,6 +95,7 @@ for n_bin, ax in zip(n_bins, axs.ravel()):
     fig.colorbar(im, ax=ax)
 
 
+###############################################################################
 # --- Custom colormaps ---
 
 cdict1 = {'red':   ((0.0, 0.0, 0.0),
@@ -149,12 +151,14 @@ cdict4['alpha'] = ((0.0, 1.0, 1.0),
                    (1.0, 1.0, 1.0))
 
 
+###############################################################################
 # Now we will use this example to illustrate 3 ways of
 # handling custom colormaps.
 # First, the most direct and explicit:
 
 blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
 
+###############################################################################
 # Second, create the map explicitly and register it.
 # Like the first method, this method works with any kind
 # of Colormap, not just
@@ -163,12 +167,14 @@ blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
 blue_red2 = LinearSegmentedColormap('BlueRed2', cdict2)
 plt.register_cmap(cmap=blue_red2)
 
+###############################################################################
 # Third, for LinearSegmentedColormap only,
 # leave everything to register_cmap:
 
 plt.register_cmap(name='BlueRed3', data=cdict3)  # optional lut kwarg
 plt.register_cmap(name='BlueRedAlpha', data=cdict4)
 
+###############################################################################
 # Make the figure:
 
 fig, axs = plt.subplots(2, 2, figsize=(6, 9))

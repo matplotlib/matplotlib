@@ -14,6 +14,8 @@ x = np.arange(0.0, 2, 0.01)
 y1 = np.sin(2*np.pi*x)
 y2 = 1.2*np.sin(4*np.pi*x)
 
+###############################################################################
+
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
 
 ax1.fill_between(x, 0, y1)
@@ -26,10 +28,12 @@ ax3.fill_between(x, y1, y2)
 ax3.set_ylabel('between y1 and y2')
 ax3.set_xlabel('x')
 
-# now fill between y1 and y2 where a logical condition is met.  Note
+###############################################################################
+# Now fill between y1 and y2 where a logical condition is met.  Note
 # this is different than calling
-#   fill_between(x[where], y1[where],y2[where]
+#   ``fill_between(x[where], y1[where],y2[where] ...)``
 # because of edge effects over multiple contiguous regions.
+
 fig, (ax, ax1) = plt.subplots(2, 1, sharex=True)
 ax.plot(x, y1, x, y2, color='black')
 ax.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green', interpolate=True)
@@ -43,12 +47,15 @@ ax1.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green', interpolate=True)
 ax1.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red', interpolate=True)
 ax1.set_title('Now regions with y2>1 are masked')
 
+###############################################################################
 # This example illustrates a problem; because of the data
 # gridding, there are undesired unfilled triangles at the crossover
 # points.  A brute-force solution would be to interpolate all
 # arrays to a very fine grid before plotting.
 
-# show how to use transforms to create axes spans where a certain condition is satisfied
+###############################################################################
+# Use transforms to create axes spans where a certain condition is satisfied:
+
 fig, ax = plt.subplots()
 y = np.sin(4*np.pi*x)
 ax.plot(x, y, color='black')

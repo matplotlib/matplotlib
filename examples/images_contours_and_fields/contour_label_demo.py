@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 matplotlib.rcParams['xtick.direction'] = 'out'
 matplotlib.rcParams['ytick.direction'] = 'out'
 
-##################################################
+###############################################################################
 # Define our surface
 delta = 0.025
 x = np.arange(-3.0, 3.0, delta)
@@ -29,7 +29,7 @@ Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 # difference of Gaussians
 Z = 10.0 * (Z2 - Z1)
 
-##################################################
+###############################################################################
 # Make contour labels using creative float classes
 # Follows suggestion of Manuel Metz
 plt.figure()
@@ -59,7 +59,7 @@ else:
     fmt = '%r %%'
 plt.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 
-##################################################
+###############################################################################
 # Label contours with arbitrary strings using a
 # dictionary
 plt.figure()
@@ -75,6 +75,7 @@ for l, s in zip(CS.levels, strs):
 # Label every other level using strings
 plt.clabel(CS, CS.levels[::2], inline=True, fmt=fmt, fontsize=10)
 
+###############################################################################
 # Use a Formatter
 
 plt.figure()

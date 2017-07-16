@@ -30,9 +30,8 @@ def split_list(a_list):
     i_half = len(a_list) // 2
     return (a_list[:i_half], a_list[i_half:])
 
-
+###############################################################################
 # Plot all un-filled markers
-# --------------------------
 
 fig, axes = plt.subplots(ncols=2)
 
@@ -53,8 +52,8 @@ for ax, markers in zip(axes, split_list(unfilled_markers)):
 fig.suptitle('un-filled markers', fontsize=14)
 
 
+###############################################################################
 # Plot all filled markers.
-# ------------------------
 
 fig, axes = plt.subplots(ncols=2)
 for ax, markers in zip(axes, split_list(Line2D.filled_markers)):
