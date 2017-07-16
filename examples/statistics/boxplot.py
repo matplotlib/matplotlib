@@ -27,6 +27,7 @@ fs = 10  # fontsize
 
 ###############################################################################
 # Demonstrate how to toggle the display of different elements:
+
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
 axes[0, 0].boxplot(data, labels=labels)
 axes[0, 0].set_title('Default', fontsize=fs)
@@ -57,6 +58,7 @@ plt.show()
 
 ###############################################################################
 # Demonstrate how to customize the display different elements:
+
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
 flierprops = dict(marker='o', markerfacecolor='green', markersize=12,
                   linestyle='none')

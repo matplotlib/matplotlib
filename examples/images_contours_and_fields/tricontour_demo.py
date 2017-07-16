@@ -39,6 +39,7 @@ triang.set_mask(mask)
 
 ###############################################################################
 # pcolor plot.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tricontourf(triang, z)
@@ -101,6 +102,7 @@ triangles = np.asarray([
 # arrays to tripcolor directly.  It would be better to use a Triangulation
 # object if the same triangulation was to be used more than once to save
 # duplicated calculations.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tricontourf(x, y, triangles, z)

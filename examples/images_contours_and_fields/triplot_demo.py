@@ -38,6 +38,7 @@ triang.set_mask(mask)
 
 ###############################################################################
 # Plot the triangulation.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.triplot(triang, 'bo-', lw=1)
@@ -96,6 +97,7 @@ triangles = np.asarray([
 # arrays to triplot directly.  It would be better to use a Triangulation object
 # if the same triangulation was to be used more than once to save duplicated
 # calculations.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.triplot(x, y, triangles, 'go-', lw=1.0)

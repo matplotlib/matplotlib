@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 
 ###############################################################################
+
 fig = plt.figure()
 x = np.linspace(-np.pi, np.pi, 100)
 y = 2*np.sin(x)

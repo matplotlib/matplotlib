@@ -18,10 +18,8 @@ z = np.cos(x) + np.sin(y)
 x, y = x.flatten(), y.flatten()
 
 ###############################################################################
-# ---------------------------------------------
-# |                 Plot #1                   |
-# ---------------------------------------------
-# the simplest hatched plot with a colorbar
+# Plot 1: the simplest hatched plot with a colorbar
+
 fig = plt.figure()
 cs = plt.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
                   cmap=plt.get_cmap('gray'),
@@ -30,10 +28,8 @@ cs = plt.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
 plt.colorbar()
 
 ###############################################################################
-# ---------------------------------------------
-# |                 Plot #2                   |
-# ---------------------------------------------
-# a plot of hatches without color with a legend
+# Plot 2: a plot of hatches without color with a legend
+
 plt.figure()
 n_levels = 6
 plt.contour(x, y, z, n_levels, colors='black', linestyles='-')

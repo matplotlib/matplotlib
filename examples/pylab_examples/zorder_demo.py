@@ -38,6 +38,7 @@ y = np.random.random(20)
 
 ###############################################################################
 # Lines on top of scatter
+
 plt.figure()
 plt.subplot(211)
 plt.plot(x, y, 'r', lw=3)
@@ -52,6 +53,7 @@ plt.title('Dots on top of lines')
 
 ###############################################################################
 # A new figure, with individually ordered items
+
 x = np.linspace(0, 2*np.pi, 100)
 plt.figure()
 plt.plot(x, np.sin(x), linewidth=10, color='black', label='zorder=10', zorder=10)  # on top

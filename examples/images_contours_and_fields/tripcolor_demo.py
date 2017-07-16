@@ -39,6 +39,7 @@ triang.set_mask(mask)
 
 ###############################################################################
 # tripcolor plot.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tripcolor(triang, z, shading='flat')
@@ -47,6 +48,7 @@ plt.title('tripcolor of Delaunay triangulation, flat shading')
 
 ###############################################################################
 # Illustrate Gouraud shading.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tripcolor(triang, z, shading='gouraud')
@@ -114,6 +116,7 @@ zfaces = np.exp(-0.01 * ((xmid - x0) * (xmid - x0) +
 # duplicated calculations.
 # Can specify one color value per face rather than one per point by using the
 # facecolors kwarg.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tripcolor(x, y, triangles, facecolors=zfaces, edgecolors='k')

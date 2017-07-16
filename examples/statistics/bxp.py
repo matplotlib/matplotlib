@@ -30,6 +30,7 @@ stats = cbook.boxplot_stats(data, labels=labels, bootstrap=10000)
 # After we've computed the stats, we can go through and change anything.
 # Just to prove it, I'll set the median of each set to the median of all
 # the data, and double the means
+
 for n in range(len(stats)):
     stats[n]['med'] = np.median(data)
     stats[n]['mean'] *= 2
@@ -40,6 +41,7 @@ fs = 10  # fontsize
 
 ###############################################################################
 # Demonstrate how to toggle the display of different elements:
+
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
 axes[0, 0].bxp(stats)
 axes[0, 0].set_title('Default', fontsize=fs)
@@ -69,6 +71,7 @@ plt.show()
 
 ###############################################################################
 # Demonstrate how to customize the display different elements:
+
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
 flierprops = dict(marker='o', markerfacecolor='green', markersize=12,
                   linestyle='none')

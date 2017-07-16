@@ -15,10 +15,12 @@ from matplotlib.sankey import Sankey
 # Example 1 -- Mostly defaults
 # This demonstrates how to create a simple diagram by implicitly calling the
 # Sankey.add() method and by appending finish() to the call to the class.
+
 Sankey(flows=[0.25, 0.15, 0.60, -0.20, -0.15, -0.05, -0.50, -0.10],
        labels=['', '', '', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
        orientations=[-1, 1, 0, 1, 1, 1, 0, -1]).finish()
 plt.title("The default settings produce a diagram like this.")
+
 ###############################################################################
 # Notice:
 #   1. Axes weren't provided when Sankey() was instantiated, so they were
@@ -39,6 +41,7 @@ plt.title("The default settings produce a diagram like this.")
 #   7. Formatting the numbers in the path labels and the associated unit
 #   8. Changing the appearance of the patch and the labels after the figure is
 #      created
+
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
                      title="Flow Diagram of a Widget")
@@ -54,6 +57,7 @@ sankey.add(flows=[25, 0, 60, -10, -20, -5, -15, -10, -40],
 diagrams = sankey.finish()
 diagrams[0].texts[-1].set_color('r')
 diagrams[0].text.set_fontweight('bold')
+
 ###############################################################################
 # Notice:
 #   1. Since the sum of the flows is nonzero, the width of the trunk isn't
@@ -68,6 +72,7 @@ diagrams[0].text.set_fontweight('bold')
 #   1. Connecting two systems
 #   2. Turning off the labels of the quantities
 #   3. Adding a legend
+
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[], title="Two Systems")
 flows = [0.25, 0.15, 0.60, -0.10, -0.05, -0.25, -0.15, -0.10, -0.35]
@@ -79,6 +84,7 @@ sankey.add(flows=[-0.25, 0.15, 0.1], label='two',
 diagrams = sankey.finish()
 diagrams[-1].patch.set_hatch('/')
 plt.legend(loc='best')
+
 ###############################################################################
 # Notice that only one connection is specified, but the systems form a
 # circuit since: (1) the lengths of the paths are justified and (2) the

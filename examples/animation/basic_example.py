@@ -17,6 +17,7 @@ def update_line(num, data, line):
     return line,
 
 ###############################################################################
+
 fig1 = plt.figure()
 
 # Fixing random state for reproducibility
@@ -34,6 +35,7 @@ line_ani = animation.FuncAnimation(fig1, update_line, 25, fargs=(data, l),
 # To save the animation, use the command: line_ani.save('lines.mp4')
 
 ###############################################################################
+
 fig2 = plt.figure()
 
 x = np.arange(-9, 10)
