@@ -5,7 +5,7 @@ Basic Subplot Demo
 
 Demo with two subplots.
 For more options, see
-:ref:`sphx_glr_examples_subplots_axes_and_figures_subplots_demo.py`
+:ref:`sphx_glr_gallery_subplots_axes_and_figures_subplots_demo.py`
 """
 import numpy as np
 import matplotlib.pyplot as plt
