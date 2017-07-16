@@ -3,7 +3,7 @@
 Contourf Hatching
 =================
 
-Demo filled contour plots with of hatched patterns.
+Demo filled contour plots with hatched patterns.
 """
 import matplotlib.pyplot as plt
 import numpy as np
