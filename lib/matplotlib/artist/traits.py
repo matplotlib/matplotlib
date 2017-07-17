@@ -19,7 +19,6 @@ from .path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-<<<<<<< HEAD
 
 class TraitProxy(TraitType):
 
@@ -89,43 +88,43 @@ class Perishable(TraitProxy):
 #             self.pchanged()
 #         self.stale = True
 #         return value
-=======
-"""matplotlib.axes.Axes
-"""
-class AxesTrait(TypeCast):
 
-    allow_none = True
-    default_value = None
-    klass = matplotlib.axes.Axes
+# """matplotlib.axes.Axes
+# """
+# class AxesTrait(TypeCast):
+#
+#     allow_none = True
+#     default_value = None
+#     klass = matplotlib.axes.Axes
+#
+#     def validate(self, obj, value):
+#         value = super(Axes, self).validate(obj, value)
+#         if value not in (getattr(obj, self.name), None):
+#             raise ValueError("Can not reset the axes. You are "
+#                 "probably trying to re-use an artist in more "
+#                 "than one Axes which is not supported.")
+#         if value is not None and value is not self:
+#             obj.stale_callback = _stale_axes_callback
+#         return value
+#
+# """matplotlib.figure.Figure
+# """
+# class FigureTrait(TypeCast):
+#
+#     allow_none = True
+#     default_value = None
+#     klass = matplotlib.figure.Figure
+#
+#     def validate(self, obj, value):
+#         value(Figure, self).validate(obj, value)
+#         if value not in (getattr(obj, self.name), None):
+#             raise RuntimeError("Can not put single artist in "
+#                                "more than one figure")
+#         if value is not None and value is not self:
+#             self.pchanged()
+#         self.stale = True
+#         return value
 
-    def validate(self, obj, value):
-        value = super(Axes, self).validate(obj, value)
-        if value not in (getattr(obj, self.name), None):
-            raise ValueError("Can not reset the axes. You are "
-                "probably trying to re-use an artist in more "
-                "than one Axes which is not supported.")
-        if value is not None and value is not self:
-            obj.stale_callback = _stale_axes_callback
-        return value
-
-"""matplotlib.figure.Figure
-"""
-class FigureTrait(TypeCast):
-
-    allow_none = True
-    default_value = None
-    klass = matplotlib.figure.Figure
-
-    def validate(self, obj, value):
-        value(Figure, self).validate(obj, value)
-        if value not in (getattr(obj, self.name), None):
-            raise RuntimeError("Can not put single artist in "
-                               "more than one figure")
-        if value is not None and value is not self:
-            self.pchanged()
-        self.stale = True
-        return value
->>>>>>> b89765fa6377d97a59b848a4796c23f907360981
 
 #
 # class TransformTrait(TypeCast):
@@ -153,7 +152,7 @@ class FigureTrait(TypeCast):
 
 # class PathTrait(TypeCast):
 
-<<<<<<< HEAD
+
 # class PatchTrait(TypeCast):
 #
 #     allow_none = True
@@ -161,12 +160,3 @@ class FigureTrait(TypeCast):
 #     klass = matplotlib.path.Path
 #
 #     def validate(self, obj, value)
-=======
-class PatchTrait(TypeCast):
-
-    allow_none = True
-    default_value = None
-    klass = matplotlib.path.Path
-
-    def validate(self, obj, value)
->>>>>>> b89765fa6377d97a59b848a4796c23f907360981
