@@ -36,7 +36,7 @@ class Artist(HasTraits):
     prop_order = Dict()
 
     stale = Bool(default_value = True)
-    # stale_callback = Callable(allow_none = True, default_value = True)
+    stale_callback = Callable(allow_none = True, default_value = True)
     axes = Instance('matplotlib.axes.Axes', allow_none = True, default_value = None)
     figure = Instance('matplotlib.figure.Figure', allow_none = True, default_value = None)
     transform = Instance('matplotlib.transform.Transform', allow_none = True, default_value = None)
@@ -93,6 +93,25 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 """
 
+    #stale default
+    @default("stale_callback")
+    def stale_callback_default(self):
+        print("generating default stale_callback value")
+        return None
+    #stale validate
+    @validate("stale_callback")
+    def stale_callback_validate(self, proposal):
+        print("cross validating %r" % proposal.value")
+        return proposal.value
+    #stale observer
+    @observe("stale_callback", type = change)
+    def stale_callback_observe(self, change):
+        print("observed a change from %r to %r" % (change.old, change.new))
+
+"""
+_______________________________________________________________________________
+"""
+
     #axes default
     @default("axes")
     def axes_default(self):
@@ -103,7 +122,6 @@ _______________________________________________________________________________
     def axes_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-
     #axes observer
     @observe("axes", type = change)
     def axes_observe(self, change):
@@ -128,7 +146,6 @@ _______________________________________________________________________________
     def figure_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -143,12 +160,10 @@ _______________________________________________________________________________
     def transform_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-
     #transform observer
     @observe("transform", type = change)
     def transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -169,7 +184,6 @@ _______________________________________________________________________________
     def transformSet_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -188,7 +202,6 @@ _______________________________________________________________________________
     @observe("visible", type = change)
     def visible_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -209,7 +222,6 @@ _______________________________________________________________________________
     def animated_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -229,7 +241,6 @@ _______________________________________________________________________________
     def alpha_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -248,7 +259,6 @@ _______________________________________________________________________________
     @observe("clipbox", type = change)
     def clipbox_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -271,7 +281,6 @@ _______________________________________________________________________________
     def clippath_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -290,7 +299,6 @@ _______________________________________________________________________________
     @observe("clipon", type = change)
     def clipon_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -311,7 +319,6 @@ _______________________________________________________________________________
     def label_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -330,7 +337,6 @@ _______________________________________________________________________________
     @observe("picker", type = change)
     def picker_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -351,7 +357,6 @@ _______________________________________________________________________________
     def contains_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -370,7 +375,6 @@ _______________________________________________________________________________
     @observe("rasterized", type = change)
     def rasterized_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -391,7 +395,6 @@ _______________________________________________________________________________
     def agg_filter_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -410,7 +413,6 @@ _______________________________________________________________________________
     @observe("mouseover", type = change)
     def mouseover_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -431,7 +433,6 @@ _______________________________________________________________________________
     def eventson_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -450,7 +451,6 @@ _______________________________________________________________________________
     @observe("oid", type = change)
     def oid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -471,7 +471,6 @@ _______________________________________________________________________________
     def propobservers_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -490,7 +489,6 @@ _______________________________________________________________________________
     @observe("url", type = change)
     def url_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -530,7 +528,6 @@ _______________________________________________________________________________
     def snap_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-
 """
 _______________________________________________________________________________
 """
@@ -554,7 +551,6 @@ _______________________________________________________________________________
     @observe("sketch", type = change)
     def sketch_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
@@ -580,7 +576,6 @@ _______________________________________________________________________________
     @observe("path_effects", type = change)
     def path_effects_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
 
 """
 _______________________________________________________________________________
