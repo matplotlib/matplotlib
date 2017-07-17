@@ -872,8 +872,8 @@ class Figure(Artist):
             A 4-length sequence of [left, bottom, width, height] quantities.
 
         projection :
-            [‘aitoff’ | ‘hammer’ | ‘lambert’ | ‘mollweide’ | \
-‘polar’ | ‘rectilinear’], optional
+            ['aitoff' | 'hammer' | 'lambert' | 'mollweide' | \
+'polar' | 'rectilinear'], optional
             The projection type of the axes.
 
         polar : boolean, optional
@@ -972,8 +972,8 @@ class Figure(Artist):
             integers are I, J, and K, the subplot is the Ith plot on a
             grid with J rows and K columns.
 
-        projection : [‘aitoff’ | ‘hammer’ | ‘lambert’ | \
-‘mollweide’, ‘polar’ | ‘rectilinear’], optional
+        projection : ['aitoff' | 'hammer' | 'lambert' | \
+'mollweide', 'polar' | 'rectilinear'], optional
             The projection type of the axes.
 
         polar : boolean, optional
