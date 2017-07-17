@@ -93,17 +93,17 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 """
 
-    #stale default
+    #stale_callback default
     @default("stale_callback")
     def stale_callback_default(self):
         print("generating default stale_callback value")
         return None
-    #stale validate
+    #stale_callback validate
     @validate("stale_callback")
     def stale_callback_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-    #stale observer
+    #stale_callback observer
     @observe("stale_callback", type = change)
     def stale_callback_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
