@@ -972,7 +972,8 @@ class Colorsquare(ColorbarBase):
         self._process_values()
         self._find_range()
         X, Y = self._mesh()
-        C = self._values[:, np.newaxis]
+        C = np.array(X * 256 * 256  + Y * 256, dtype='int64')
+        # C = self._values[:, np.newaxis]
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
@@ -1100,21 +1101,6 @@ class Colorsquare(ColorbarBase):
         self._ylabel = '%s' % (ylabel, )
         self._labelkw = kw
         self._set_label()
-
-    def _outline(self, X, Y):
-        '''
-        Return *x*, *y* arrays of colorbar bounding polygon,
-        taking orientation into account.
-        '''
-        N = X.shape[0]
-        ii = [0, 1, N - 2, N - 1, 2 * N - 1, 2 * N - 2, N + 1, N, 0]
-        x = np.take(np.ravel(np.transpose(X)), ii)
-        y = np.take(np.ravel(np.transpose(Y)), ii)
-        x = x.reshape((len(x), 1))
-        y = y.reshape((len(y), 1))
-        # if self.orientation == 'horizontal':
-        #    return np.hstack((y, x))
-        return np.hstack((x, y))
 
     def _edges(self, X, Y):
         '''
@@ -1414,11 +1400,11 @@ class Colorsquare(ColorbarBase):
         transposition for a horizontal colorbar are done outside
         this function.
         '''
-        x = np.array([0.0, 1.0])
         if self.spacing == 'uniform':
-            y = self._uniform_y(self._central_N())
+            x = y = self._uniform_y(self._central_N())
         else:
-            y = self._proportional_y()
+            x = y = self._proportional_y()
+        self._x = x
         self._y = y
         X, Y = np.meshgrid(x, y)
         if self._extend_lower() and not self.extendrect:
