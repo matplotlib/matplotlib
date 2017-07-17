@@ -860,20 +860,35 @@ class Figure(Artist):
         key = fixlist(args), fixitems(six.iteritems(kwargs))
         return key
 
-    @docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an axes at position *rect* [*left*, *bottom*, *width*,
         *height*] where all quantities are in fractions of figure
-        width and height.  kwargs are legal
-        :class:`~matplotlib.axes.Axes` kwargs plus *projection* which
-        sets the projection type of the axes.  (For backward
-        compatibility, ``polar=True`` may also be provided, which is
-        equivalent to ``projection='polar'``).  Valid values for
-        *projection* are: %(projection_names)s.  Some of these
-        projections support  additional kwargs, which may be provided
-        to :meth:`add_axes`. Typical usage::
+        width and height.
 
+        Parameters
+        ----------
+        rect : sequence of float
+            A 4-length sequence of [left, bottom, width, height] quantities.
+
+        projection :
+            ['aitoff' | 'hammer' | 'lambert' | 'mollweide' | \
+'polar' | 'rectilinear'], optional
+            The projection type of the axes.
+
+        polar : boolean, optional
+            If True, equivalent to projection='polar'.
+
+        This method also takes the keyword arguments for
+        :class:`~matplotlib.axes.Axes`.
+
+        Returns
+        ------
+        axes : Axes
+            The added axes.
+
+        Examples
+        --------
             rect = l,b,w,h
             fig.add_axes(rect)
             fig.add_axes(rect, frameon=False, facecolor='g')
@@ -903,10 +918,6 @@ class Figure(Artist):
 
         In all cases, the :class:`~matplotlib.axes.Axes` instance
         will be returned.
-
-        In addition to *projection*, the following kwargs are supported:
-
-        %(Axes)s
         """
         if not len(args):
             return
@@ -949,11 +960,41 @@ class Figure(Artist):
         a.stale_callback = _stale_figure_callback
         return a
 
-    @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
         """
-        Add a subplot.  Examples::
+        Add a subplot.
 
+        Parameters
+        ----------
+        *args
+            Either a 3-digit integer or three separate integers
+            describing the position of the subplot. If the three
+            integers are I, J, and K, the subplot is the Ith plot on a
+            grid with J rows and K columns.
+
+        projection : ['aitoff' | 'hammer' | 'lambert' | \
+'mollweide', 'polar' | 'rectilinear'], optional
+            The projection type of the axes.
+
+        polar : boolean, optional
+            If True, equivalent to projection='polar'.
+
+        This method also takes the keyword arguments for
+        :class:`~matplotlib.axes.Axes`.
+
+        Returns
+        -------
+        axes : Axes
+            The axes of the subplot.
+
+        Notes
+        -----
+        If the figure already has a subplot with key (*args*,
+        *kwargs*) then it will simply make that subplot current and
+        return it.
+
+        Examples
+        --------
             fig.add_subplot(111)
 
             # equivalent but more general
@@ -968,27 +1009,9 @@ class Figure(Artist):
             # add Subplot instance sub
             fig.add_subplot(sub)
 
-        *kwargs* are legal :class:`~matplotlib.axes.Axes` kwargs plus
-        *projection*, which chooses a projection type for the axes.
-        (For backward compatibility, *polar=True* may also be
-        provided, which is equivalent to *projection='polar'*). Valid
-        values for *projection* are: %(projection_names)s.  Some of
-        these projections
-        support additional *kwargs*, which may be provided to
-        :meth:`add_axes`.
-
-        The :class:`~matplotlib.axes.Axes` instance will be returned.
-
-        If the figure already has a subplot with key (*args*,
-        *kwargs*) then it will simply make that subplot current and
-        return it.
-
-        .. seealso:: :meth:`~matplotlib.pyplot.subplot` for an
-           explanation of the args.
-
-        The following kwargs are supported:
-
-        %(Axes)s
+        See Also
+        --------
+        matplotlib.pyplot.subplot : for an explanation of the args.
         """
         if not len(args):
             return
