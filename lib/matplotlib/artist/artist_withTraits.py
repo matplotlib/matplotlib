@@ -23,7 +23,7 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-from traits import TraitProxy, Perishable
+from traits import TraitProxy, Perishable, ClipPathTrait
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
 _XYPair = namedtuple("_XYPair", "x y")
@@ -34,7 +34,7 @@ class Artist(HasTraits):
     zorder = Int(default_value = 0)
     #_prop_order = dict(color=-1)
     prop_order = Dict()
-
+    pchanged = Bool(default_value = False)
     stale = Bool(default_value = True)
     stale_callback = Callable(allow_none = True, default_value = True)
     axes = Instance('matplotlib.axes.Axes', allow_none = True, default_value = None)
@@ -69,6 +69,25 @@ class Artist(HasTraits):
 
     #the axes bounding box in display space
     #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
+
+"""
+_______________________________________________________________________________
+"""
+
+    #pchanged default
+    @default("pchanged")
+    def pchanged_default(self):
+        print("generating default stale value")
+        return True
+    #pchanged validate
+    @validate("pchanged")
+    def pchanged_validate(self, proposal):
+        print("cross validating %r" % proposal.value")
+        return proposal.value
+    #pchanged observer
+    @observe("pchanged", type = change)
+    def pchanged_observe(self, change):
+        print("observed a change from %r to %r" % (change.old, change.new))
 
 """
 _______________________________________________________________________________

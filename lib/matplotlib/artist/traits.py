@@ -45,3 +45,25 @@ class Perishable(TraitProxy):
     def set(self, obj, val):
         super(Perishable, self).set(obj, val)
         obj.stale = True
+
+
+class ClipPathTrait(TraitType):
+
+    def __init__(self, trait):
+
+        pass
+
+    # def instance_init(self, obj):
+    #     pass
+    #
+    # def class_init(self, cls, name):
+    #     pass
+
+    def set(self, obj, val):
+        pass
+
+    def get(self, obj, cls):
+        pass
+
+    def __getattr__(self, name):
+        return getattr(self.__trait, name)
