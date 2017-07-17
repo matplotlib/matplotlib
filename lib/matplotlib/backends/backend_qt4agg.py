@@ -6,41 +6,20 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os  # not used
-import sys
-import ctypes
-import warnings
-
 import matplotlib
 from matplotlib.figure import Figure
 
-
-from .backend_qt5agg import FigureCanvasQTAggBase as _FigureCanvasQTAggBase
-
 from .backend_agg import FigureCanvasAgg
-from .backend_qt4 import QtCore
-from .backend_qt4 import FigureManagerQT
-from .backend_qt4 import FigureCanvasQT
-from .backend_qt4 import NavigationToolbar2QT
-##### not used
-from .backend_qt4 import show
-from .backend_qt4 import draw_if_interactive
-from .backend_qt4 import backend_version
-######
-
-DEBUG = False
-
-_decref = ctypes.pythonapi.Py_DecRef
-_decref.argtypes = [ctypes.py_object]
-_decref.restype = None
+from .backend_qt4 import (
+    QtCore, FigureCanvasQT, FigureManagerQT, NavigationToolbar2QT,
+    backend_version, draw_if_interactive, show)
+from .backend_qt5agg import FigureCanvasQTAggBase
 
 
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if DEBUG:
-        print('backend_qt4agg.new_figure_manager')
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
@@ -54,13 +33,7 @@ def new_figure_manager_given_figure(num, figure):
     return FigureManagerQT(canvas, num)
 
 
-class FigureCanvasQTAggBase(_FigureCanvasQTAggBase):
-    def __init__(self, figure):
-        self._agg_draw_pending = False
-
-
-class FigureCanvasQTAgg(FigureCanvasQTAggBase,
-                        FigureCanvasQT, FigureCanvasAgg):
+class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
     """
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
@@ -71,16 +44,6 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         A high-level Figure instance
 
     """
-
-    def __init__(self, figure):
-        if DEBUG:
-            print('FigureCanvasQtAgg: ', figure)
-        FigureCanvasQT.__init__(self, figure)
-        FigureCanvasQTAggBase.__init__(self, figure)
-        FigureCanvasAgg.__init__(self, figure)
-        self._drawRect = None
-        self.blitbox = []
-        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
 
 FigureCanvas = FigureCanvasQTAgg

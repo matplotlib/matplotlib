@@ -13,7 +13,7 @@ Overview
 
 ::
 
-   git clone git@github.com:your-user-name/matplotlib.git
+   git clone https://github.com:your-user-name/matplotlib.git
    cd matplotlib
    git remote add upstream git://github.com/matplotlib/matplotlib.git
 
@@ -24,7 +24,7 @@ Clone your fork
 ---------------
 
 #. Clone your fork to the local computer with ``git clone
-   git@github.com:your-user-name/matplotlib.git``
+   https://github.com:your-user-name/matplotlib.git``
 #. Investigate.  Change directory to your new repo: ``cd matplotlib``. Then
    ``git branch -a`` to show you all branches.  You'll get something
    like:
@@ -55,7 +55,7 @@ Linking your repository to the upstream repo
 ``upstream`` here is just the arbitrary name we're using to refer to the
 main `Matplotlib`_ repository at `Matplotlib github`_.
 
-Note that we've used ``git://`` for the URL rather than ``git@``.  The
+Note that we've used ``git://`` for the URL rather than ``https://`` or ``git@``.  The
 ``git://`` URL is read only.  This means we that we can't accidentally
 (or deliberately) write to the upstream repo, and we are only going to
 use it to merge into our own code.
@@ -67,7 +67,7 @@ Just for your own satisfaction, show yourself that you now have a new
 
    upstream	git://github.com/matplotlib/matplotlib.git (fetch)
    upstream	git://github.com/matplotlib/matplotlib.git (push)
-   origin	git@github.com:your-user-name/matplotlib.git (fetch)
-   origin	git@github.com:your-user-name/matplotlib.git (push)
+   origin	https://github.com:your-user-name/matplotlib.git (fetch)
+   origin	https://github.com:your-user-name/matplotlib.git (push)
 
 .. include:: links.inc

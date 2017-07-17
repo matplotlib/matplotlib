@@ -28,7 +28,8 @@ Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = (Z1 - Z2) * 10
 
-levels = np.arange(-2.0, 1.601, 0.4)  # Boost the upper limit to avoid truncation errors.
+# Boost the upper limit to avoid truncation errors.
+levels = np.arange(-2.0, 1.601, 0.4)
 
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 cmap = cm.PRGn
@@ -40,9 +41,7 @@ fig.subplots_adjust(hspace=0.3)
 plt.subplot(2, 2, 1)
 
 cset1 = plt.contourf(X, Y, Z, levels,
-                 cmap=cm.get_cmap(cmap, len(levels) - 1),
-                 norm=norm,
-                 )
+                     cmap=cm.get_cmap(cmap, len(levels) - 1), norm=norm)
 # It is not necessary, but for the colormap, we need only the
 # number of levels minus 1.  To avoid discretization error, use
 # either this number or a large number such as the default (256).
@@ -94,7 +93,8 @@ plt.subplot(2, 2, 4)
 # This is intentional. The Z values are defined at the center of each
 # image pixel (each color block on the following subplot), so the
 # domain that is contoured does not extend beyond these pixel centers.
-im = plt.imshow(Z, interpolation='nearest', extent=extent, cmap=cmap, norm=norm)
+im = plt.imshow(Z, interpolation='nearest', extent=extent,
+                cmap=cmap, norm=norm)
 v = plt.axis()
 plt.contour(Z, levels, colors='k', origin='image', extent=extent)
 plt.axis(v)

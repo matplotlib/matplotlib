@@ -3,6 +3,7 @@
 Spine Placement Demo
 ====================
 
+Adjusting the location and appearance of axis spines.
 """
 import numpy as np
 import matplotlib.pyplot as plt

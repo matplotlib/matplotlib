@@ -48,6 +48,7 @@ class nf(float):
         else:
             return '%.1f' % self.__float__()
 
+
 # Recast levels to new class
 CS.levels = [nf(val) for val in CS.levels]
 

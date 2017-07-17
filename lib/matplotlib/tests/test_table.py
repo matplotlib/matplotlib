@@ -133,7 +133,7 @@ def test_customcell():
 def test_auto_column():
     fig = plt.figure()
 
-    #iteratble list input
+    # iterable list input
     ax1 = fig.add_subplot(4, 1, 1)
     ax1.axis('off')
     tb1 = ax1.table(cellText=[['Fit Text', 2],
@@ -145,7 +145,7 @@ def test_auto_column():
     tb1.set_fontsize(12)
     tb1.auto_set_column_width([-1, 0, 1])
 
-    #iteratble tuple input
+    # iterable tuple input
     ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
     tb2 = ax2.table(cellText=[['Fit Text', 2],

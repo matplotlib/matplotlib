@@ -143,7 +143,9 @@ plt.show()
 #  Default Font
 # ==============
 #
-# The base default font is controlled by a set of rcParams:
+# The base default font is controlled by a set of rcParams. To set the font
+# for mathematical expressions, use the rcParams beginning with ``mathtext``
+# (see :ref:`mathtext <mathtext-fonts>`).
 #
 # +---------------------+----------------------------------------------------+
 # | rcParam             | usage                                              |
@@ -212,7 +214,7 @@ plt.show()
 #
 # or set it in your :file:`.matplotlibrc` file::
 #
-#    font.sans-serif: Source Han Sans TW, Ariel, sans-serif
+#    font.sans-serif: Source Han Sans TW, Arial, sans-serif
 #
 # To control the font used on per-artist basis use the ``'name'``,
 # ``'fontname'`` or ``'fontproperties'`` kwargs documented :ref:`above

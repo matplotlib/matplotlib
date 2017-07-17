@@ -3,6 +3,7 @@
 Step Demo
 =========
 
+Example step plots.
 """
 import numpy as np
 from numpy import ma

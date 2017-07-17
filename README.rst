@@ -19,6 +19,10 @@
 .. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
 .. _Depsy: http://depsy.org/package/python/matplotlib
 
+.. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+.. _NUMFocus: http://www.numfocus.org
+
+
 ##########
 Matplotlib
 ##########

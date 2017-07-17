@@ -3,6 +3,7 @@
 Axis Equal Demo
 ===============
 
+How to set and adjust plots with equal axis ratios.
 """
 
 import matplotlib.pyplot as plt

@@ -3,6 +3,7 @@
 Contourf Hatching
 =================
 
+Demo filled contour plots with hatched patterns.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,7 +29,6 @@ cs = plt.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
                   extend='both', alpha=0.5
                   )
 plt.colorbar()
-
 
 # ---------------------------------------------
 # |                 Plot #2                   |

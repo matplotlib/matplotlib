@@ -16,12 +16,12 @@ from numpy import ma
 
 n = 12
 x = np.linspace(-1.5, 1.5, n)
-y = np.linspace(-1.5, 1.5, n*2)
+y = np.linspace(-1.5, 1.5, n * 2)
 X, Y = np.meshgrid(x, y)
 Qx = np.cos(Y) - np.cos(X)
 Qz = np.sin(Y) + np.sin(X)
 Qx = (Qx + 1.1)
-Z = np.sqrt(X**2 + Y**2)/5
+Z = np.sqrt(X**2 + Y**2) / 5
 Z = (Z - Z.min()) / (Z.max() - Z.min())
 
 # The color array can include masked values:

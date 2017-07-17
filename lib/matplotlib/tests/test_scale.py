@@ -52,3 +52,16 @@ def test_logscale_subs():
     ax.set_yscale('log', subsy=np.array([2, 3, 4]))
     # force draw
     fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['logscale_mask'], remove_text=True,
+                  extensions=['png'])
+def test_logscale_mask():
+    # Check that zero values are masked correctly on log scales.
+    # See github issue 8045
+    xs = np.linspace(0, 50, 1001)
+
+    fig, ax = plt.subplots()
+    ax.plot(np.exp(-xs**2))
+    fig.canvas.draw()
+    ax.set(yscale="log")

@@ -3,6 +3,7 @@
 Simple Plot
 ===========
 
+Create a simple plot.
 """
 import matplotlib.pyplot as plt
 import numpy as np

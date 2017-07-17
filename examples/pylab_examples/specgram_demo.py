@@ -1,8 +1,9 @@
 """
-=============
-Specgram Demo
-=============
+================
+Spectrogram Demo
+================
 
+Demo of a spectrogram plot.
 """
 import matplotlib.pyplot as plt
 import numpy as np

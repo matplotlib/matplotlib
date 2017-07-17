@@ -694,17 +694,17 @@ class RendererBase(object):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
-        get the width and height, and the offset from the bottom to the
-        baseline (descent), in display coords of the string s with
-        :class:`~matplotlib.font_manager.FontProperties` prop
+        Get the width, height, and descent (offset from the bottom
+        to the baseline), in display coords, of the string *s* with
+        :class:`~matplotlib.font_manager.FontProperties` *prop*
         """
         if ismath == 'TeX':
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self._text2path.get_texmanager()
             fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
+            w, h, d = texmanager.get_text_width_height_descent(
+                s, fontsize, renderer=self)
             return w, h, d
 
         dpi = self.points_to_pixels(72)
@@ -1120,9 +1120,10 @@ class GraphicsContextBase(object):
         """
         Returns a Path for the current hatch.
         """
-        if self._hatch is None:
+        hatch = self.get_hatch()
+        if hatch is None:
             return None
-        return Path.hatch(self._hatch, density)
+        return Path.hatch(hatch, density)
 
     def get_hatch_color(self):
         """
@@ -1178,16 +1179,15 @@ class GraphicsContextBase(object):
 
         length : float, optional
              The length of the wiggle along the line, in pixels
-             (default 128.0)
+             (default 128)
 
         randomness : float, optional
             The scale factor by which the length is shrunken or
-            expanded (default 16.0)
+            expanded (default 16)
         """
-        if scale is None:
-            self._sketch = None
-        else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0)
+        self._sketch = (
+            None if scale is None
+            else (scale, length or 128., randomness or 16.))
 
 
 class TimerBase(object):
@@ -2151,7 +2151,6 @@ class FigureCanvasBase(object):
                 # the backend to support file-like object, i'm going
                 # to leave it as it is. However, a better solution
                 # than stringIO seems to be needed. -JJL
-                #result = getattr(self, method_name)
                 result = print_method(
                     io.BytesIO(),
                     dpi=dpi,
@@ -2203,7 +2202,6 @@ class FigureCanvasBase(object):
             _bbox_inches_restore = None
 
         try:
-            #result = getattr(self, method_name)(
             result = print_method(
                 filename,
                 dpi=dpi,
@@ -2481,7 +2479,7 @@ def key_press_handler(event, canvas, toolbar=None):
         except AttributeError:
             pass
 
-    # quit the figure (defaut key 'ctrl+w')
+    # quit the figure (default key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
 

@@ -112,6 +112,8 @@ class AxesStack(Stack):
         """
         Add Axes *a*, with key *key*, to the stack, and return the stack.
 
+        If *key* is unhashable, replace it by a unique, arbitrary object.
+
         If *a* is already on the stack, don't add it again, but
         return *None*.
         """
@@ -122,8 +124,7 @@ class AxesStack(Stack):
         try:
             hash(key)
         except TypeError:
-            raise ValueError(
-                "first argument, {!r}, is not a valid key".format(key))
+            key = object()
 
         a_existing = self.get(key)
         if a_existing is not None:
@@ -1847,7 +1848,7 @@ class Figure(Artist):
         coordinates of each click in a list.
 
         The buttons used for the various actions (adding points, removing
-        points, terminating the inputs) can be overriden via the
+        points, terminating the inputs) can be overridden via the
         arguments *mouse_add*, *mouse_pop* and *mouse_stop*, that give
         the associated mouse button: 1 for left, 2 for middle, 3 for
         right.

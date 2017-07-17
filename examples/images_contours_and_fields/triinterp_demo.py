@@ -17,7 +17,7 @@ triangles = [[0, 1, 4], [1, 2, 5], [2, 3, 6], [1, 5, 4], [2, 6, 5], [4, 5, 7],
 triang = mtri.Triangulation(x, y, triangles)
 
 # Interpolate to regularly-spaced quad grid.
-z = np.cos(1.5*x)*np.cos(1.5*y)
+z = np.cos(1.5 * x) * np.cos(1.5 * y)
 xi, yi = np.meshgrid(np.linspace(0, 3, 20), np.linspace(0, 3, 20))
 
 interp_lin = mtri.LinearTriInterpolator(triang, z)

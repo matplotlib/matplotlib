@@ -59,5 +59,6 @@ def compare(z, cmap, ve=1):
 
     return fig
 
+
 if __name__ == '__main__':
     main()

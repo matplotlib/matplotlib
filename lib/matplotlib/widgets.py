@@ -81,7 +81,7 @@ class Widget(object):
         """
         return self._active
 
-    # set_active is overriden by SelectorWidgets.
+    # set_active is overridden by SelectorWidgets.
     active = property(get_active, lambda self, active: self.set_active(active),
                       doc="Is the widget active?")
 

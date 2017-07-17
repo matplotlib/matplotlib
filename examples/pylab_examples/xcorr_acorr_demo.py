@@ -1,8 +1,9 @@
 """
-==========
-Xcorr Demo
-==========
+================================
+Cross- and Auto-Correlation Demo
+================================
 
+Example use of cross-correlation (``xcorr``) and auto-correlation (``acorr``) plots.
 """
 import matplotlib.pyplot as plt
 import numpy as np
