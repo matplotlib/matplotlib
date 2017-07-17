@@ -590,7 +590,9 @@ _______________________________________________________________________________
     @default("sticky_edges")
     def sticky_edges_default(self):
         print("generating default sticky_edges value")
-        return _XYPair([], [])
+        #(x,y) where x & yare both List(trait=Float())
+        #Tuple(List(trait=Float()), List(trait=Float()))
+        return ([], [])
     #sticky_edges validate
     @validate("sticky_edges")
     def sticky_edges_validate(self, proposal):
