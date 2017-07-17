@@ -376,6 +376,7 @@ def test_polygon_selector():
                          ('on_key_release', dict(key='control'))]
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(75, 50))
+
     check_polygon_selector(event_sequence, expected_result, 1)
 
     # Move first two vertices at once before completing the polygon.
@@ -449,3 +450,103 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
+
+
+def test_ruler():
+    ax = get_ax()
+
+    x0 = 10
+    y0 = 10
+    x1 = 50
+    y1 = 40
+
+    ruler = widgets.Ruler(ax)
+
+    # Draw rule from x=10, y=10 to x=50, y=40
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=1)
+    do_event(ruler, '_on_move', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_release', xdata=x1, ydata=y1, button=1)
+
+    assert ruler.ruler_length == 50
+    assert ruler.ruler_dx == 40
+    assert ruler.ruler_dy == 30
+
+    # Lock ruler to to vertical axes with shift key press
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=1)
+    do_event(ruler, '_on_key_press', key='shift')
+    do_event(ruler, '_on_move', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_release', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_key_release', key='shift')
+
+    assert ruler.ruler_length == 40
+    assert ruler.ruler_dx == 40
+    assert ruler.ruler_dy == 0
+
+    # Lock ruler to to horizontal axes with control key press
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=1)
+    do_event(ruler, '_on_key_press', key='control')
+    do_event(ruler, '_on_move', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_release', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_key_release', key='control')
+
+    assert ruler.ruler_length == 30
+    assert ruler.ruler_dx == 0
+    assert ruler.ruler_dy == 30
+
+    # Draw ruler and then shift end a by right clicking and dragging end node
+    x2 = 50
+    y2 = -20
+
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=1)
+    do_event(ruler, '_on_move', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_release', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_press', xdata=x1, ydata=y1, button=3)
+    do_event(ruler, '_on_move', xdata=x2, ydata=y2, button=3)
+    do_event(ruler, '_on_release', xdata=x2, ydata=y2, button=3)
+
+    assert ruler.ruler_length == 50
+    assert ruler.ruler_dx == 40
+    assert ruler.ruler_dy == -30
+
+    # Draw ruler and then shift end b by right clicking and dragging end node
+    x3 = -30
+    y3 = -20
+
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=1)
+    do_event(ruler, '_on_move', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_release', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=3)
+    do_event(ruler, '_on_move', xdata=x3, ydata=y3, button=3)
+    do_event(ruler, '_on_release', xdata=x3, ydata=y3, button=3)
+
+    assert ruler.ruler_length == 100
+    assert ruler.ruler_dx == 80
+    assert ruler.ruler_dy == 60
+
+    x0 = -10
+    y0 = -10
+    x1 = 10
+    y1 = 10
+
+    xmid = 0
+    ymid = 0
+
+    xnew = 10
+    ynew = 10
+
+    # Draw ruler and then shift the whole ruler by right clicking center node
+    do_event(ruler, '_on_press', xdata=x0, ydata=y0, button=1)
+    do_event(ruler, '_on_move', xdata=x1, ydata=y1, button=1)
+    do_event(ruler, '_on_release', xdata=x1, ydata=y1, button=1)
+
+    assert ruler.midline_coords == (0, 0)
+    assert ruler.ruler_dx == 20
+    assert ruler.ruler_dy == 20
+
+    do_event(ruler, '_on_press', xdata=xmid, ydata=ymid, button=3)
+    do_event(ruler, '_on_move', xdata=xnew, ydata=ynew, button=3)
+    do_event(ruler, '_on_release', xdata=xnew, ydata=ynew, button=3)
+
+    assert ruler.midline_coords == (10, 10)
+    assert ruler.ruler_dx == 20
+    assert ruler.ruler_dy == 20
