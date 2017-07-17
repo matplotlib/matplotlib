@@ -1020,12 +1020,12 @@ class Colorsquare(ColorbarBase):
 
         """
         if cbook.iterable(xticks):
-            self.xlocator = ticker.FixedLocator(xticks, nbins=len(ticks))
+            self.xlocator = ticker.FixedLocator(xticks, nbins=len(xticks))
         else:
             self.xlocator = xticks
 
         if cbook.iterable(yticks):
-            self.ylocator = ticker.FixedLocator(yticks, nbins=len(ticks))
+            self.ylocator = ticker.FixedLocator(yticks, nbins=len(yticks))
         else:
             self.ylocator = yticks
 
@@ -1037,14 +1037,15 @@ class Colorsquare(ColorbarBase):
         """Return the x ticks as a list of locations"""
         return self._tick_data_values
 
-    def set_ticklabels(self, ticklabels, update_ticks=True):
+    def set_ticklabels(self, xticklabels, yticklabels, update_ticks=True):
         """
         set tick labels. Tick labels are updated immediately unless
         update_ticks is *False*. To manually update the ticks, call
         *update_ticks* method explicitly.
         """
         if isinstance(self.locator, ticker.FixedLocator):
-            self.formatter = ticker.FixedFormatter(ticklabels)
+            self.xformatter = ticker.FixedFormatter(xticklabels)
+            self.yformatter = ticker.FixedFormatter(yticklabels)
             if update_ticks:
                 self.update_ticks()
         else:
@@ -1056,14 +1057,15 @@ class Colorsquare(ColorbarBase):
         Make an axes patch and outline.
         '''
         ax = self.ax
-        ax.set_frame_on(False)
+        # ax.set_frame_on(False)
         ax.set_navigate(False)
-        xy = self._outline(X, Y)
-        ax.update_datalim(xy)
-        ax.set_xlim(*ax.dataLim.intervalx)
-        ax.set_ylim(*ax.dataLim.intervaly)
-        if self.outline is not None:
-            self.outline.remove()
+        # xy = self._outline(X, Y)
+        # ax.update_datalim(xy)
+        # ax.set_xlim(*ax.dataLim.intervalx)
+        # ax.set_ylim(*ax.dataLim.intervaly)
+        # if self.outline is not None:
+        #    self.outline.remove()
+        """
         self.outline = mpatches.Polygon(
             xy, edgecolor=mpl.rcParams['axes.edgecolor'],
             facecolor='none',
@@ -1073,6 +1075,7 @@ class Colorsquare(ColorbarBase):
         ax.add_artist(self.outline)
         self.outline.set_clip_box(None)
         self.outline.set_clip_path(None)
+
         c = mpl.rcParams['axes.facecolor']
         if self.patch is not None:
             self.patch.remove()
@@ -1081,7 +1084,7 @@ class Colorsquare(ColorbarBase):
                                       linewidth=0.01,
                                       zorder=-1)
         ax.add_artist(self.patch)
-
+        """
         self.update_ticks()
 
     def _set_label(self):
@@ -1768,9 +1771,9 @@ def make_axes_gridspec(parent, **kw):
     orientation = kw.setdefault('orientation', 'vertical')
     kw['ticklocation'] = 'auto'
 
-    fraction = kw.pop('fraction', 0.15)
+    fraction = kw.pop('fraction', 0.35)
     shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
+    aspect = kw.pop('aspect', 1)
 
     x1 = 1.0 - fraction
 
