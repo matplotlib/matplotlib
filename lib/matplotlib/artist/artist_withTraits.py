@@ -25,6 +25,9 @@ from contextlib import contextmanager
 
 from traits import TraitProxy, Perishable
 
+#this is for sticky_edges but im thinking we can just use a tuple trait...?
+_XYPair = namedtuple("_XYPair", "x y")
+
 class Artist(HasTraits):
 
     aname = Unicode('Artist')
@@ -59,17 +62,13 @@ class Artist(HasTraits):
     sketch = Tuple(Float(), Float(), Float(), default_value = rcParams['path.sketch'])
     path_effects = List(Instance('matplotlib.patheffect._Base'), default_value = rcParams['path.effects'])
     #_XYPair = namedtuple("_XYPair", "x y")
-    #sticky_edges
+    #sticky_edges is a tuple with lists of floats
+    #the first element of this tuple represents x
+    #and the second element of sticky_edges represents y
+    sticky_edges = Tuple(List(trait=Float()), List(trait=Float()))
 
     #the axes bounding box in display space
     #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
-
-    # axes = Axes('matplotlib.axes.Axes', allow_none = True)
-    # figure = Figure('matplotlib.figure.Figure', allow_none = True)
-    # transform = Transform('matplotlib.transform.Transform', allow_none = True)
-    #TO DO: create  PICKER trait that takes in a None, float, boolean, callable
-    #TO DO: not sure to create snap ?
-    #group id
 
 """
 _______________________________________________________________________________
