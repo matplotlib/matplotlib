@@ -670,9 +670,182 @@ _______________________________________________________________________________
     def __getstate__(self):
         pass
 
+"""
+These following functions are copied and pasted from the original Artist class.
+This is because I feel as if they can be altered to their respective traits.
+"""
 
-    #def have_units(self):
+    def have_units(self):
+        ax = self.axes
+        if ax is None or ax.xaxis is None:
+            return False
+        return ax.xaxis.have_units() or ax.yaxis.have_units()
 
-    #def convert_xunits(self, x):
+    def convert_xunits(self, x):
+        """For artists in an axes, if the xaxis has units support,
+        convert *x* using xaxis unit type
+        """
+        ax = getattr(self, 'axes', None)
+        if ax is None or ax.xaxis is None:
+            return x
+        return ax.xaxis.convert_units(x)
 
-    #def convert_yunits(self, y):
+    def convert_yunits(self, y):
+        """For artists in an axes, if the yaxis has units support,
+        convert *y* using yaxis unit type
+        """
+        ax = getattr(self, 'axes', None)
+        if ax is None or ax.yaxis is None:
+            return y
+        return ax.yaxis.convert_units(y)
+
+    def get_window_extent(self,renderer):
+        """
+        Get the axes bounding box in display space.
+        Subclasses should override for inclusion in the bounding box
+        "tight" calculation. Default is to return an empty bounding
+        box at 0, 0.
+
+        Be careful when using this function, the results will not update
+        if the artist window extent of the artist changes.  The extent
+        can change due to any changes in the transform stack, such as
+        changing the axes limits, the figure size, or the canvas used
+        (as is done when saving a figure).  This can lead to unexpected
+        behavior where interactive figures will look fine on the screen,
+        but will save incorrectly.
+        """
+        return Bbox([[0, 0], [0, 0]])
+
+    def add_callback(self,func):
+        """
+        Adds a callback function that will be called whenever one of
+        the :class:`Artist`'s properties changes.
+
+        Returns an *id* that is useful for removing the callback with
+        :meth:`remove_callback` later.
+        """
+        oid = self._oid
+        self._propobservers[oid] = func
+        self._oid += 1
+        return oid
+
+    def remove_callback(self,oid):
+        """
+        Remove a callback based on its *id*.
+
+        .. seealso::
+
+            :meth:`add_callback`
+               For adding callbacks
+
+        """
+        try:
+            del self._propobservers[oid]
+        except KeyError:
+            pass
+
+    # I am not sure if I need this? I feel as if migrating to traitlets and using
+    #observers will be able to help eliminate pchanged() without losing integrity
+    #of the following callbacks when a property is changed
+    #Note: For now we will keep this function
+    def pchanged(self):
+        """
+        Fire an event when property changed, calling all of the
+        registered callbacks.
+        """
+        for oid, func in six.iteritems(self._propobservers):
+            func(self)
+
+    def is_transform_set(self):
+        """
+        Returns *True* if :class:`Artist` has a transform explicitly
+        set.
+        """
+        return self._transformSet
+
+    def hitlist(self, event):
+        """
+        List the children of the artist which contain the mouse event *event*.
+        """
+        L = []
+        try:
+            hascursor, info = self.contains(event)
+            if hascursor:
+                L.append(self)
+        except:
+            import traceback
+            traceback.print_exc()
+            print("while checking", self.__class__)
+
+        for a in self.get_children():
+            L.extend(a.hitlist(event))
+        return L
+
+    # Note sure if this is how to go about a contains mouseevent function
+    def contains(self, mouseevent):
+        """Test whether the artist contains the mouse event.
+
+        Returns the truth value and a dictionary of artist specific details of
+        selection, such as which points are contained in the pick radius.  See
+        individual artists for details.
+        """
+        if callable(self._contains):
+            return self._contains(self, mouseevent)
+        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
+        return False, {}
+
+    def pickable(self):
+        'Return *True* if :class:`Artist` is pickable.'
+        return (self.figure is not None and
+                self.figure.canvas is not None and
+                self._picker is not None)
+
+    def pick(self, mouseevent):
+        """
+        Process pick event
+
+        each child artist will fire a pick event if *mouseevent* is over
+        the artist and the artist has picker set
+        """
+        # Pick self
+        if self.pickable():
+            picker = self.get_picker()
+            if callable(picker):
+                inside, prop = picker(self, mouseevent)
+            else:
+                inside, prop = self.contains(mouseevent)
+            if inside:
+                self.figure.canvas.pick_event(mouseevent, self, **prop)
+
+        # Pick children
+        for a in self.get_children():
+            # make sure the event happened in the same axes
+            ax = getattr(a, 'axes', None)
+            if (mouseevent.inaxes is None or ax is None
+                    or mouseevent.inaxes == ax):
+                # we need to check if mouseevent.inaxes is None
+                # because some objects associated with an axes (e.g., a
+                # tick label) can be outside the bounding box of the
+                # axes and inaxes will be None
+                # also check that ax is None so that it traverse objects
+                # which do no have an axes property but children might
+                a.pick(mouseevent)
+
+    # I think this function can be rid of with the movement to traitlets
+    def is_figure_set(self):
+        """
+        Returns True if the artist is assigned to a
+        :class:`~matplotlib.figure.Figure`.
+        """
+        return self.figure is not None
+
+    # need to look into this
+    def get_transformed_clip_path_and_affine(self):
+        '''
+        Return the clip path with the non-affine part of its
+        transformation applied, and the remaining affine part of its
+        transformation.
+        '''
+        if self._clippath is not None:
+            return self._clippath.get_transformed_path_and_affine()
+        return None, None
