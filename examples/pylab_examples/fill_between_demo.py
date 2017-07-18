@@ -3,7 +3,7 @@
 Filling the area between lines
 ==============================
 
-This example shows how to use `fill_between` to color between lines based on
+This example shows how to use ``fill_between`` to color between lines based on
 user-defined logic.
 """
 
@@ -31,7 +31,7 @@ ax3.set_xlabel('x')
 ###############################################################################
 # Now fill between y1 and y2 where a logical condition is met.  Note
 # this is different than calling
-#   ``fill_between(x[where], y1[where],y2[where] ...)``
+# ``fill_between(x[where], y1[where], y2[where] ...)``
 # because of edge effects over multiple contiguous regions.
 
 fig, (ax, ax1) = plt.subplots(2, 1, sharex=True)
@@ -53,6 +53,7 @@ ax1.set_title('Now regions with y2>1 are masked')
 # points.  A brute-force solution would be to interpolate all
 # arrays to a very fine grid before plotting.
 
+
 ###############################################################################
 # Use transforms to create axes spans where a certain condition is satisfied:
 
@@ -60,7 +61,7 @@ fig, ax = plt.subplots()
 y = np.sin(4*np.pi*x)
 ax.plot(x, y, color='black')
 
-# use the data coordinates for the x-axis and the axes coordinates for the y-axis
+# use data coordinates for the x-axis and the axes coordinates for the y-axis
 import matplotlib.transforms as mtransforms
 trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
 theta = 0.9

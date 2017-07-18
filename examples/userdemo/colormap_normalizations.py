@@ -57,7 +57,7 @@ fig.colorbar(pcm, ax=ax[1], extend='max')
 # with 5-times the amplitude. Linearly, you cannot see detail in the
 # negative hump.  Here we logarithmically scale the positive and
 # negative data separately.
-# 
+#
 # Note that colorbar labels do not come out looking very good.
 
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
