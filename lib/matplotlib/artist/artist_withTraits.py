@@ -69,7 +69,7 @@ class Artist(HasTraits):
     aname = Unicode('Artist')
     zorder = Int(default_value = 0)
     #_prop_order = dict(color=-1)
-    prop_order = Dict()
+    prop_order = Dict() #asked thomas question about this asstribute
     # pchanged = Bool(default_value = False)
     stale = Bool(default_value = True)
     stale_callback = Callable(allow_none = True, default_value = True)
@@ -661,3 +661,18 @@ _______________________________________________________________________________
 """
 _______________________________________________________________________________
 """
+
+    #ARTIST FUNCTIONS
+
+    def __init__(self):
+        pass
+
+    def __getstate__(self):
+        pass
+
+
+    #def have_units(self):
+
+    #def convert_xunits(self, x):
+
+    #def convert_yunits(self, y):
