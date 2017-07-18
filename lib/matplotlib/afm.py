@@ -192,7 +192,7 @@ def _parse_char_metrics(fh):
         line = line.rstrip().decode('ascii')  # Convert from byte-literal
         if line.startswith('EndCharMetrics'):
             return ascii_d, name_d
-        # Split the metric line into a dictonary, keyed by metric identifiers
+        # Split the metric line into a dictionary, keyed by metric identifiers
         vals = dict(s.strip().split(' ', 1) for s in line.split(';') if s)
         # There may be other metrics present, but only these are needed
         if not {'C', 'WX', 'N', 'B'}.issubset(vals):
