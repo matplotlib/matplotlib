@@ -66,6 +66,7 @@ ax.yaxis.set_ticks_position('left')
 ###############################################################################
 # Define a method that adjusts the location of the axis spines
 
+
 def adjust_spines(ax, spines):
     for loc, spine in ax.spines.items():
         if loc in spines:
