@@ -28,13 +28,49 @@ from traits import TraitProxy, Perishable, ClipPathTrait
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
 _XYPair = namedtuple("_XYPair", "x y")
 
+def allow_rasterization(draw):
+    """
+    Decorator for Artist.draw method. Provides routines
+    that run before and after the draw call. The before and after functions
+    are useful for changing artist-dependent renderer attributes or making
+    other setup function calls, such as starting and flushing a mixed-mode
+    renderer.
+    """
+    @contextmanager
+    def with_rasterized(artist, renderer):
+
+        if artist.get_rasterized():
+            renderer.start_rasterizing()
+
+        if artist.get_agg_filter() is not None:
+            renderer.start_filter()
+
+        try:
+            yield
+        finally:
+            if artist.get_agg_filter() is not None:
+                renderer.stop_filter(artist.get_agg_filter())
+
+            if artist.get_rasterized():
+                renderer.stop_rasterizing()
+
+    # the axes class has a second argument inframe for its draw method.
+    @wraps(draw)
+    def draw_wrapper(artist, renderer, *args, **kwargs):
+        with with_rasterized(artist, renderer):
+            return draw(artist, renderer, *args, **kwargs)
+
+    draw_wrapper._supports_rasterization = True
+    return draw_wrapper
+
+
 class Artist(HasTraits):
 
     aname = Unicode('Artist')
     zorder = Int(default_value = 0)
     #_prop_order = dict(color=-1)
     prop_order = Dict()
-    pchanged = Bool(default_value = False)
+    # pchanged = Bool(default_value = False)
     stale = Bool(default_value = True)
     stale_callback = Callable(allow_none = True, default_value = True)
     axes = Instance('matplotlib.axes.Axes', allow_none = True, default_value = None)
@@ -73,21 +109,21 @@ class Artist(HasTraits):
 """
 _______________________________________________________________________________
 """
-
-    #pchanged default
-    @default("pchanged")
-    def pchanged_default(self):
-        print("generating default stale value")
-        return True
-    #pchanged validate
-    @validate("pchanged")
-    def pchanged_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
-        return proposal.value
-    #pchanged observer
-    @observe("pchanged", type = change)
-    def pchanged_observe(self, change):
-        print("observed a change from %r to %r" % (change.old, change.new))
+    #
+    # #pchanged default
+    # @default("pchanged")
+    # def pchanged_default(self):
+    #     print("generating default stale value")
+    #     return True
+    # #pchanged validate
+    # @validate("pchanged")
+    # def pchanged_validate(self, proposal):
+    #     print("cross validating %r" % proposal.value")
+    #     return proposal.value
+    # #pchanged observer
+    # @observe("pchanged", type = change)
+    # def pchanged_observe(self, change):
+    #     print("observed a change from %r to %r" % (change.old, change.new))
 
 """
 _______________________________________________________________________________

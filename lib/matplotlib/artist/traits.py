@@ -47,32 +47,32 @@ class Perishable(TraitProxy):
         obj.stale = True
 
 
-class ClipPathTrait(TraitType):
-
-    def __init__(self, trait):
-        #not sure if this going to work: needs testing
-        self.__trait = trait
-        pass
-
-    # def instance_init(self, obj):
-    #     pass
-    #
-    # def class_init(self, cls, name):
-    #     pass
-
-    def set(self, obj, val):
-
-        pass
-
-    def get(self, obj, cls):
-        pass
-
-    def __getattr__(self, name):
-        return getattr(self.__trait, name)
+# class ClipPathTrait(TraitType):
+#
+#     def __init__(self, trait):
+#         #not sure if this going to work: needs testing
+#         self.__trait = trait
+#         pass
+#
+#     # def instance_init(self, obj):
+#     #     pass
+#     #
+#     # def class_init(self, cls, name):
+#     #     pass
+#
+#     def set(self, obj, val):
+#
+#         pass
+#
+#     def get(self, obj, cls):
+#         return self.__trait.get(obj, cls)
+#         pass
+#
+#     def __getattr__(self, name):
+#         return getattr(self.__trait, name)
 
 """
 def set_clip_path(self, path, transform=None):
-
 
     Set the artist's clip path, which may be:
 
@@ -92,7 +92,7 @@ def set_clip_path(self, path, transform=None):
     ACCEPTS: [ (:class:`~matplotlib.path.Path`,
     :class:`~matplotlib.transforms.Transform`) |
     :class:`~matplotlib.patches.Patch` | None ]
-    
+
     from matplotlib.patches import Patch, Rectangle
 
     success = False
