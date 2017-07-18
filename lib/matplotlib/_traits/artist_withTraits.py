@@ -141,7 +141,7 @@ _______________________________________________________________________________
     def _stale_default(self):
         print("generating default stale value")
         return True
-    #stale validate
+    #stale validate: reference @axes.setter
     @validate("stale")
     def _stale_validate(self, proposal):
         print("cross validating %r" % proposal.value)
@@ -189,6 +189,16 @@ _______________________________________________________________________________
     @validate("axes")
     def _axes_validate(self, proposal):
         print("cross validating %r" % proposal.value")
+        if (proposal.value is not None and
+                (self._axes is not None and proposal.value != self._axes)):
+            raise ValueError("Can not reset the axes.  You are "
+                             "probably trying to re-use an artist "
+                             "in more than one Axes which is not "
+                             "supported")
+
+        self._axes = proposal.value
+        if proposal.value is not None and proposal.value is not self:
+            self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
     #axes observer
     @observe("axes", type = change)
@@ -208,7 +218,22 @@ _______________________________________________________________________________
     @validate("figure")
     def _figure_validate(self, proposal):
         print("cross validating %r" % proposal.value")
-        return proposal.value
+        # if this is a no-op just return
+        if self.figure is fig:
+            return
+        # if we currently have a figure (the case of both `self.figure`
+        # and `fig` being none is taken care of above) we then user is
+        # trying to change the figure an artist is associated with which
+        # is not allowed for the same reason as adding the same instance
+        # to more than one Axes
+        if self.figure is not None:
+            raise RuntimeError("Can not put single artist in "
+                               "more than one figure")
+        self.figure = fig
+        if self.figure and self.figure is not self:
+            self.pchanged()
+        self.stale = True
+        # return proposal.value
     #figure observer
     @observe("figure", type = change)
     def _figure_observe(self, change):
@@ -232,6 +257,10 @@ _______________________________________________________________________________
     @observe("transform", type = change)
     def _transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self._transformSet = True
+        print("set _transformSet: %r" self._transformSet)
+        self.stale = True
+        print("set stale: %r" self.stale)
 
 """
 _______________________________________________________________________________
@@ -595,7 +624,8 @@ _______________________________________________________________________________
     @observe("snap", type = change)
     def _snap_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
