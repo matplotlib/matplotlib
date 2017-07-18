@@ -206,7 +206,7 @@ after_success:
       codecov -e TRAVIS_PYTHON_VERSION
     fi
   - |
-    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
+    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_PYTHON_VERSION == "3.5" && $TRAVIS_BRANCH == 'master' ]]; then
       cd $TRAVIS_BUILD_DIR
       echo "Uploading documentation"
       openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in ci/travis/matplotlibDeployKey.enc -out ci/travis/matplotlibDeployKey -d
