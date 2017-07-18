@@ -91,6 +91,11 @@ class Axes3D(Axes):
         self.zz_viewLim = Bbox.unit()
         self.xy_dataLim = Bbox.unit()
         self.zz_dataLim = Bbox.unit()
+        if 'pb_aspect' in kwargs:
+            self.pb_aspect = np.asarray(kwargs['pb_aspect'])
+        else:
+            # chosen for similarity with the previous initial view
+            self.pb_aspect = np.array([4, 4, 3]) / 3.5
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
@@ -341,6 +346,9 @@ class Axes3D(Axes):
         for ax in axes:
             ax._anchor = anchor
             ax.stale = True
+
+    def set_pb_aspect(self, pb_aspect, zoom=1):
+        self.pb_aspect = pb_aspect * 1.8 * zoom / proj3d.mod(pb_aspect)
 
     def apply_aspect(self, position=None):
         if position is None:
@@ -966,7 +974,12 @@ class Axes3D(Axes):
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
         # chosen for similarity with the initial view before gh-8896
-        pb_aspect = np.array([4, 4, 3]) / 3.5
+
+        # elev stores the elevation angle in the z plane
+        # azim stores the azimuth angle in the x,y plane
+        #
+        # dist is the distance of the eye viewing point from the object
+        # point.
 
         relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
 
@@ -977,10 +990,10 @@ class Axes3D(Axes):
         # transform to uniform world coordinates 0-1, 0-1, 0-1
         worldM = proj3d.world_transformation(xmin, xmax,
                                              ymin, ymax,
-                                             zmin, zmax, pb_aspect=pb_aspect)
+                                             zmin, zmax, pb_aspect=self.pb_aspect)
 
         # look into the middle of the new coordinates
-        R = pb_aspect / 2
+        R = self.pb_aspect / 2
 
         xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
         yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
