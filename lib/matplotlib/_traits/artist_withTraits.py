@@ -23,6 +23,7 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
+from traitlets import HasTraits, Unicode, Int, Dict, Callable, Bool, Instance, Tuple, List, default, validate, observe
 from traits import TraitProxy, Perishable, ClipPathTrait
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
@@ -81,7 +82,12 @@ class Artist(HasTraits):
     animated = Bool(default_value = False)
     alpha = Float(default_value = None ,allow_none = True)
     clipbox = Instance('matplotlib.transforms.Bbox', allow_none = True, default_value = None)
-    #clippath
+    """
+    Notes from Documentation:
+    Union([Float(), Bool(), Int()]) attempts to
+    validate the provided values with the validation function of Float, then Bool, and finally Int.
+    """
+    clippath = Perishable(Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none = True, default_value = None))
     clipon = Boolean(default_value = True)
     label = Unicode(allow_none = True, default_value = '')
     picker = Union(Float, Boolean, Callable, allow_none = True, default_value = None)
@@ -131,17 +137,18 @@ _______________________________________________________________________________
 
     #stale default
     @default("stale")
-    def stale_default(self):
+    def _stale_default(self):
         print("generating default stale value")
         return True
     #stale validate
     @validate("stale")
-    def stale_validate(self, proposal):
+    def _stale_validate(self, proposal):
         print("cross validating %r" % proposal.value")
+        self._stale
         return proposal.value
     #stale observer
     @observe("stale", type = change)
-    def stale_observe(self, change):
+    def _stale_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -150,17 +157,17 @@ _______________________________________________________________________________
 
     #stale_callback default
     @default("stale_callback")
-    def stale_callback_default(self):
+    def _stale_callback_default(self):
         print("generating default stale_callback value")
         return None
     #stale_callback validate
     @validate("stale_callback")
-    def stale_callback_validate(self, proposal):
+    def _stale_callback_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #stale_callback observer
     @observe("stale_callback", type = change)
-    def stale_callback_observe(self, change):
+    def _stale_callback_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -169,17 +176,17 @@ _______________________________________________________________________________
 
     #axes default
     @default("axes")
-    def axes_default(self):
+    def _axes_default(self):
         print("generating default axes value")
         return None
     #axes validate
     @validate("axes")
-    def axes_validate(self, proposal):
+    def _axes_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #axes observer
     @observe("axes", type = change)
-    def axes_observe(self, change):
+    def _axes_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -188,17 +195,17 @@ _______________________________________________________________________________
 
     #figure default
     @default("figure")
-    def figure_default(self):
+    def _figure_default(self):
         print("generating default figure value")
         return None
     #figure validate
     @validate("figure")
-    def figure_validate(self, proposal):
+    def _figure_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #figure observer
     @observe("figure", type = change)
-    def figure_observe(self, change):
+    def _figure_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -207,17 +214,17 @@ _______________________________________________________________________________
 
     #transform default
     @default("transform")
-    def transform_default(self):
+    def _transform_default(self):
         print("generating default transform value")
         return None
     #transform validate
     @validate("transform")
-    def transform_validate(self, proposal):
+    def _transform_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #transform observer
     @observe("transform", type = change)
-    def transform_observe(self, change):
+    def _transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -226,17 +233,17 @@ _______________________________________________________________________________
 
     #transformSet default
     @default("transformSet")
-    def transformSet_default(self):
+    def _transformSet_default(self):
         print("generating default transformSet value")
         return False
     #transformSet validate
     @validate("transformSet")
-    def transformSet_validate(self, proposal):
+    def _transformSet_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #transformSet observer
     @observe("transformSet", type = change)
-    def transformSet_observe(self, change):
+    def _transformSet_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -245,17 +252,17 @@ _______________________________________________________________________________
 
     #visible default
     @default("visible")
-    def visible_default(self):
+    def _visible_default(self):
         print("generating default visible value")
         return True
     #visible validate
     @validate("visible")
-    def visible_validate(self, proposal):
+    def _visible_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #visible observer
     @observe("visible", type = change)
-    def visible_observe(self, change):
+    def _visible_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -264,17 +271,17 @@ _______________________________________________________________________________
 
     #animated default
     @default("animated")
-    def animated_default(self):
+    def _animated_default(self):
         print("generating default animated value")
         return False
     #animated validate
     @validate("animated")
-    def animated_validate(self, proposal):
+    def _animated_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #animated observer
     @observe("animated", type = change)
-    def animated_observe(self, change):
+    def _animated_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -283,17 +290,17 @@ _______________________________________________________________________________
 
     #alpha default
     @default("alpha")
-    def alpha_default(self):
+    def _alpha_default(self):
         print("generating default alpha value")
         return None
     #alpha validate
     @validate("alpha")
-    def alpha_validate(self, proposal):
+    def _alpha_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #alpha observer
     @observe("alpha", type = change)
-    def alpha_observe(self, change):
+    def _alpha_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -302,17 +309,17 @@ _______________________________________________________________________________
 
     #clipbox default
     @default("clipbox")
-    def clipbox_default(self):
+    def _clipbox_default(self):
         print("generating default clipbox value")
         return None
     #clipbox validate
     @validate("clipbox")
-    def clipbox_validate(self, proposal):
+    def _clipbox_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #clipbox observer
     @observe("clipbox", type = change)
-    def clipbox_observe(self, change):
+    def _clipbox_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -323,17 +330,17 @@ _______________________________________________________________________________
     #for now i have comments down for default, validate and observer decortors
     #clippath default
     @default("clippath")
-    def clippath_default(self):
+    def _clippath_default(self):
         print("generating default clippath value")
         return None
     #clippath validate
     @validate("clippath")
-    def clippath_validate(self, proposal):
+    def _clippath_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #clippath observer
     @observe("clippath", type = change)
-    def clippath_observe(self, change):
+    def _clippath_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -342,17 +349,17 @@ _______________________________________________________________________________
 
     #clipon default
     @default("clipon")
-    def clipon_default(self):
+    def _clipon_default(self):
         print("generating default clipon value")
         return True
     #clipon validate
     @validate("clipon")
-    def clipon_validate(self, proposal):
+    def _clipon_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #clipon observer
     @observe("clipon", type = change)
-    def clipon_observe(self, change):
+    def _clipon_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -361,17 +368,17 @@ _______________________________________________________________________________
 
     #label default
     @default("label")
-    def label_default(self):
+    def _label_default(self):
         print("generating default label value")
         return None
     #label validate
     @validate("label")
-    def label_validate(self, proposal):
+    def _label_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #label observer
     @observe("label", type = change)
-    def label_observe(self, change):
+    def _label_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -380,17 +387,17 @@ _______________________________________________________________________________
 
     #picker default
     @default("picker")
-    def picker_default(self):
+    def _picker_default(self):
         print("generating default picker value")
         return None
     #picker validate
     @validate("picker")
-    def picker_validate(self, proposal):
+    def _picker_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #picker observer
     @observe("picker", type = change)
-    def picker_observe(self, change):
+    def _picker_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -399,17 +406,17 @@ _______________________________________________________________________________
 
     #contains default
     @default("contains")
-    def contains_default(self):
+    def _contains_default(self):
         print("generating default contains value")
         return None
     #contains validate
     @validate("contains")
-    def contains_validate(self, proposal):
+    def _contains_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #contains observer
     @observe("contains", type = change)
-    def contains_observe(self, change):
+    def _contains_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -418,17 +425,17 @@ _______________________________________________________________________________
 
     #rasterized default
     @default("rasterized")
-    def rasterized_default(self):
+    def _rasterized_default(self):
         print("generating default rasterized value")
         return None
     #rasterized validate
     @validate("rasterized")
-    def rasterized_validate(self, proposal):
+    def _rasterized_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #rasterized observer
     @observe("rasterized", type = change)
-    def rasterized_observe(self, change):
+    def _rasterized_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -437,17 +444,17 @@ _______________________________________________________________________________
 
     #agg_filter default
     @default("agg_filter")
-    def agg_filter_default(self):
+    def _agg_filter_default(self):
         print("generating default agg_filter value")
         return None
     #agg_filter validate
     @validate("agg_filter")
-    def agg_filter_validate(self, proposal):
+    def _agg_filter_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #agg_filter observer
     @observe("agg_filter", type = change)
-    def agg_filter_observe(self, change):
+    def _agg_filter_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -456,17 +463,17 @@ _______________________________________________________________________________
 
     #mouseover default
     @default("mouseover")
-    def mouseover_default(self):
+    def _mouseover_default(self):
         print("generating default mouseover value")
         return False
     #mouseover validate
     @validate("mouseover")
-    def mouseover_validate(self, proposal):
+    def _mouseover_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #mouseover observer
     @observe("mouseover", type = change)
-    def mouseover_observe(self, change):
+    def _mouseover_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -475,17 +482,17 @@ _______________________________________________________________________________
 
     #eventson default
     @default("eventson")
-    def eventson_default(self):
+    def _eventson_default(self):
         print("generating default eventson value")
         return False
     #eventson validate
     @validate("eventson")
-    def eventson_validate(self, proposal):
+    def _eventson_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #eventson observer
     @observe("eventson", type = change)
-    def eventson_observe(self, change):
+    def _eventson_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -494,17 +501,17 @@ _______________________________________________________________________________
 
     #oid default
     @default("oid")
-    def oid_default(self):
+    def _oid_default(self):
         print("generating default oid (observer id) value")
         return 0
     #oid validate
     @validate("oid")
-    def oid_validate(self, proposal):
+    def _oid_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #oid observer
     @observe("oid", type = change)
-    def oid_observe(self, change):
+    def _oid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -513,17 +520,17 @@ _______________________________________________________________________________
 
     #propobservers default
     @default("propobservers")
-    def propobservers_default(self):
+    def _propobservers_default(self):
         print("generating default propobservers value")
         return {}
     #propobservers validate
     @validate("propobservers")
-    def propobservers_validate(self, proposal):
+    def _propobservers_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #propobservers observer
     @observe("propobservers", type = change)
-    def propobservers_observe(self, change):
+    def _propobservers_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -532,17 +539,17 @@ _______________________________________________________________________________
 
     #url default
     @default("url")
-    def url_default(self):
+    def _url_default(self):
         print("generating default url value")
         return None
     #url validate
     @validate("url")
-    def url_validate(self, proposal):
+    def _url_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #url observer
     @observe("url", type = change)
-    def url_observe(self, change):
+    def _url_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -551,17 +558,17 @@ _______________________________________________________________________________
 
     #gid default
     @default("gid")
-    def gid_default(self):
+    def _gid_default(self):
         print("generating default gid (group id) value")
         return None
     #gid validate
     @validate("gid")
-    def gid_validate(self, proposal):
+    def _gid_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #gid observer
     @observe("gid", type = change)
-    def gid_observe(self, change):
+    def _gid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -570,17 +577,17 @@ _______________________________________________________________________________
 
     #snap default
     @default("snap")
-    def snap_default(self):
+    def _snap_default(self):
         print("generating default snap value")
         return None
     #snap validate
     @validate("snap")
-    def snap_validate(self, proposal):
+    def _snap_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #snap observer
     @observe("snap", type = change)
-    def snap_observe(self, change):
+    def _snap_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -594,17 +601,17 @@ _______________________________________________________________________________
 
     #sketch default
     @default("sketch")
-    def sketch_default(self):
+    def _sketch_default(self):
         print("generating default sketch value")
         return rcParams['path.sketch']
     #sketch validate
     @validate("sketch")
-    def sketch_validate(self, proposal):
+    def _sketch_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #sketch observer
     @observe("sketch", type = change)
-    def sketch_observe(self, change):
+    def _sketch_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -619,17 +626,17 @@ _______________________________________________________________________________
 
     #path_effects default
     @default("path_effects")
-    def path_effects_default(self):
+    def _path_effects_default(self):
         print("generating default path_effects value")
         return rcParams['path.effects']
     #path_effects validate
     @validate("path_effects")
-    def path_effects_validate(self, proposal):
+    def _path_effects_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #path_effects observer
     @observe("path_effects", type = change)
-    def path_effects_observe(self, change):
+    def _path_effects_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
@@ -643,19 +650,19 @@ _______________________________________________________________________________
 
     #sticky_edges default
     @default("sticky_edges")
-    def sticky_edges_default(self):
+    def _sticky_edges_default(self):
         print("generating default sticky_edges value")
         #(x,y) where x & yare both List(trait=Float())
         #Tuple(List(trait=Float()), List(trait=Float()))
         return ([], [])
     #sticky_edges validate
     @validate("sticky_edges")
-    def sticky_edges_validate(self, proposal):
+    def _sticky_edges_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
     #sticky_edges observer
     @observe("sticky_edges", type = change)
-    def sticky_edges_observe(self, change):
+    def _sticky_edges_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
 """
