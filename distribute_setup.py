@@ -285,7 +285,7 @@ def _rename_path(path):
 
 def _remove_flat_installation(placeholder):
     if not os.path.isdir(placeholder):
-        log.warn('Unkown installation at %s', placeholder)
+        log.warn('Unknown installation at %s', placeholder)
         return False
     found = False
     for file in os.listdir(placeholder):
