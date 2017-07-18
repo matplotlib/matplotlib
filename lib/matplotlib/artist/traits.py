@@ -19,7 +19,6 @@ from .path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-<<<<<<< HEAD
 
 class TraitProxy(TraitType):
 
@@ -48,125 +47,91 @@ class Perishable(TraitProxy):
         obj.stale = True
 
 
+# class ClipPathTrait(TraitType):
+#
+#     def __init__(self, trait):
+#         #not sure if this going to work: needs testing
+#         self.__trait = trait
+#         pass
+#
+#     # def instance_init(self, obj):
+#     #     pass
+#     #
+#     # def class_init(self, cls, name):
+#     #     pass
+#
+#     def set(self, obj, val):
+#
+#         pass
+#
+#     def get(self, obj, cls):
+#         return self.__trait.get(obj, cls)
+#         pass
+#
+#     def __getattr__(self, name):
+#         return getattr(self.__trait, name)
 
-
-
-
-
-
-"""matplotlib.axes.Axes
 """
-# class AxesTrait(TypeCast):
-#
-#     allow_none = True
-#     default_value = None
-#     klass = matplotlib.axes.Axes
-#
-#     def validate(self, obj, value):
-#         value = super(Axes, self).validate(obj, value)
-#         if value not in (getattr(obj, self.name), None):
-#             raise ValueError("Can not reset the axes. You are "
-#                 "probably trying to re-use an artist in more "
-#                 "than one Axes which is not supported.")
-#         if value is not None and value is not self:
-#             obj.stale_callback = _stale_axes_callback
-#         return value
+def set_clip_path(self, path, transform=None):
 
-"""matplotlib.figure.Figure
+    Set the artist's clip path, which may be:
+
+      * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+
+      * a :class:`~matplotlib.path.Path` instance, in which case
+         an optional :class:`~matplotlib.transforms.Transform`
+         instance may be provided, which will be applied to the
+         path before using it for clipping.
+
+      * *None*, to remove the clipping path
+
+    For efficiency, if the path happens to be an axis-aligned
+    rectangle, this method will set the clipping box to the
+    corresponding rectangle and set the clipping path to *None*.
+
+    ACCEPTS: [ (:class:`~matplotlib.path.Path`,
+    :class:`~matplotlib.transforms.Transform`) |
+    :class:`~matplotlib.patches.Patch` | None ]
+
+    from matplotlib.patches import Patch, Rectangle
+
+    success = False
+    if transform is None:
+        if isinstance(path, Rectangle):
+            self.clipbox = TransformedBbox(Bbox.unit(),
+                                           path.get_transform())
+            self._clippath = None
+            success = True
+        elif isinstance(path, Patch):
+            self._clippath = TransformedPatchPath(path)
+            success = True
+        elif isinstance(path, tuple):
+            path, transform = path
+
+    if path is None:
+        self._clippath = None
+        success = True
+    elif isinstance(path, Path):
+        self._clippath = TransformedPath(path, transform)
+        success = True
+    elif isinstance(path, TransformedPatchPath):
+        self._clippath = path
+        success = True
+    elif isinstance(path, TransformedPath):
+        self._clippath = path
+        success = True
+
+    if not success:
+        print(type(path), type(transform))
+        raise TypeError("Invalid arguments to set_clip_path")
+    # this may result in the callbacks being hit twice, but grantees they
+    # will be hit at least once
+    self.pchanged()
+    self.stale = True
 """
-# class FigureTrait(TypeCast):
-#
-#     allow_none = True
-#     default_value = None
-#     klass = matplotlib.figure.Figure
-#
-#     def validate(self, obj, value):
-#         value(Figure, self).validate(obj, value)
-#         if value not in (getattr(obj, self.name), None):
-#             raise RuntimeError("Can not put single artist in "
-#                                "more than one figure")
-#         if value is not None and value is not self:
-#             self.pchanged()
-#         self.stale = True
-#         return value
-=======
-"""matplotlib.axes.Axes
+
 """
-class AxesTrait(TypeCast):
-
-    allow_none = True
-    default_value = None
-    klass = matplotlib.axes.Axes
-
-    def validate(self, obj, value):
-        value = super(Axes, self).validate(obj, value)
-        if value not in (getattr(obj, self.name), None):
-            raise ValueError("Can not reset the axes. You are "
-                "probably trying to re-use an artist in more "
-                "than one Axes which is not supported.")
-        if value is not None and value is not self:
-            obj.stale_callback = _stale_axes_callback
-        return value
-
-"""matplotlib.figure.Figure
+    def get_clip_path(self):
+        'Return artist clip path'
+        return self._clippath
 """
-class FigureTrait(TypeCast):
-
-    allow_none = True
-    default_value = None
-    klass = matplotlib.figure.Figure
-
-    def validate(self, obj, value):
-        value(Figure, self).validate(obj, value)
-        if value not in (getattr(obj, self.name), None):
-            raise RuntimeError("Can not put single artist in "
-                               "more than one figure")
-        if value is not None and value is not self:
-            self.pchanged()
-        self.stale = True
-        return value
->>>>>>> b89765fa6377d97a59b848a4796c23f907360981
-
-#
-# class TransformTrait(TypeCast):
-#
-#     allow_none = True
-#     default_value = None
-#     klass = matplotlib.transforms.Transform
-#
-#     def validate(self, obj, value):
-#         value(Transform, self).validate(obj, value)
-#         if value
-
-"""BboxTrait -> will be used to create
-    1. window_extent
-    2. clip box
-"""
-# class BboxTrait(TypeCast):
-#
-#     allow_none = True
-#     default_value = None
-#     klass = matplotlib.transforms.Bbox
-#
-#     def validate(self, obj, value):
-#         value.(Bbox, self).validate(obj, value)
-
-# class PathTrait(TypeCast):
-
-<<<<<<< HEAD
-# class PatchTrait(TypeCast):
-#
-#     allow_none = True
-#     default_value = None
-#     klass = matplotlib.path.Path
-#
-#     def validate(self, obj, value)
-=======
-class PatchTrait(TypeCast):
-
-    allow_none = True
-    default_value = None
-    klass = matplotlib.path.Path
-
-    def validate(self, obj, value)
->>>>>>> b89765fa6377d97a59b848a4796c23f907360981
