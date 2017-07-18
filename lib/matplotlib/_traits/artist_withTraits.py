@@ -849,3 +849,93 @@ This is because I feel as if they can be altered to their respective traits.
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
         return None, None
+
+    def _set_gc_clip(self, gc):
+        'Set the clip properly for the gc'
+        if self._clipon:
+            if self.clipbox is not None:
+                gc.set_clip_rectangle(self.clipbox)
+            gc.set_clip_path(self._clippath)
+        else:
+            gc.set_clip_rectangle(None)
+            gc.set_clip_path(None)
+
+    def draw(self, renderer, *args, **kwargs):
+        'Derived classes drawing method'
+        if not self.get_visible():
+            return
+        self.stale = False
+
+    #note there is a def update function in artist and I do not think I need
+    #to implement it due to the migration to traitlets
+
+    #note there is a def update_from function and I do think I need to implement
+    #and observer for Artist; The update_from function is frivolous
+    #I need to look into observe Artist, but I am not sure
+
+    # In order for this to work I need to implement ArtistInspector with respect
+    #to traitlets
+    def properties(self):
+        """
+        return a dictionary mapping property name -> value for all Artist props
+        """
+        return ArtistInspector(self).properties()
+
+    #there is a set function but I do not think I need it
+
+    #for now just bringing this over from Artist, but need to inspect it
+    def findobj(self, match=None, include_self=True):
+        """
+        Find artist objects.
+
+        Recursively find all :class:`~matplotlib.artist.Artist` instances
+        contained in self.
+
+        *match* can be
+
+          - None: return all objects contained in artist.
+
+          - function with signature ``boolean = match(artist)``
+            used to filter matches
+
+          - class instance: e.g., Line2D.  Only return artists of class type.
+
+        If *include_self* is True (default), include self in the list to be
+        checked for a match.
+
+        """
+        if match is None:  # always return True
+            def matchfunc(x):
+                return True
+        elif isinstance(match, type) and issubclass(match, Artist):
+            def matchfunc(x):
+                return isinstance(x, match)
+        elif callable(match):
+            matchfunc = match
+        else:
+            raise ValueError('match must be None, a matplotlib.artist.Artist '
+                             'subclass, or a callable')
+
+        artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
+        if include_self and matchfunc(self):
+            artists.append(self)
+        return artists
+
+    #what is the purpose of this function if it returns None?
+    def get_cursor_data(self, event):
+        """
+        Get the cursor data for a given event.
+        """
+        return None
+
+    #why return None in get_cursor_data if we are setting cursor data here?
+    def format_cursor_data(self, data):
+        """
+        Return *cursor data* string formatted.
+        """
+        try:
+            data[0]
+        except (TypeError, IndexError):
+            data = [data]
+        return ', '.join('{:0.3g}'.format(item) for item in data if
+                isinstance(item, (np.floating, np.integer, int, float)))
