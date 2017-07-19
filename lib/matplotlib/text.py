@@ -16,8 +16,8 @@ import numpy as np
 
 from matplotlib import cbook
 from matplotlib import rcParams
-import matplotlib.artist as artist
-from matplotlib.artist import Artist
+import matplotlib.artist.artist as artist
+from matplotlib.artist.artist import Artist
 from matplotlib.cbook import maxdict
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties

@@ -7,8 +7,8 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from matplotlib import rcParams
-import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
+import matplotlib.artist.artist as artist
+from matplotlib.artist.artist import allow_rasterization
 import matplotlib.cbook as cbook
 from matplotlib.cbook import _string_to_bool
 import matplotlib.font_manager as font_manager

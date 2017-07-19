@@ -27,8 +27,8 @@ from six.moves import xrange
 
 import warnings
 
-from . import artist
-from .artist import Artist, allow_rasterization
+from . import artist #i dont know if this line will give me any trouble
+from .artist.artist import Artist, allow_rasterization
 from .patches import Rectangle
 from matplotlib import docstring
 from .text import Text

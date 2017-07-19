@@ -12,9 +12,9 @@ import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
-from .transforms import (Bbox, IdentityTransform, TransformedBbox,
+from matplotlib.transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
-from .path import Path
+from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 # Note, matplotlib artists use the doc strings for set and get

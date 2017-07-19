@@ -29,7 +29,11 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-import matplotlib.artist as martist
+<<<<<<< HEAD
+# from matplotlib.artist.artist import *
+=======
+>>>>>>> b89765fa6377d97a59b848a4796c23f907360981
+import matplotlib.artist.artist as martist
 import matplotlib.cbook as cbook
 import matplotlib.collections as collections
 import matplotlib.colors as colors
