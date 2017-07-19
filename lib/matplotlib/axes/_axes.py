@@ -1157,8 +1157,8 @@ or tuple of floats
         array-like is given, it must have the same length as *positions*, and
         each value will be applied to the corresponding row of the array.
 
-        Example
-        -------
+        Examples
+        --------
 
         .. plot:: mpl_examples/pylab_examples/eventplot_demo.py
         """

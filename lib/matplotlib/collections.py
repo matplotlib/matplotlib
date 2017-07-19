@@ -1300,8 +1300,8 @@ class EventCollection(LineCollection):
             :class:`~matplotlib.collections.LineCollection` for a list of
             the valid properties.
 
-        Example
-        -------
+        Examples
+        --------
 
         .. plot:: mpl_examples/pylab_examples/eventcollection_demo.py
         """

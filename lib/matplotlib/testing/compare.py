@@ -398,8 +398,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         If called from image_comparison decorator, this should be
         True. (default=False)
 
-    Example
-    -------
+    Examples
+    --------
     img1 = "./baseline/plot.png"
     img2 = "./output/plot.png"
     compare_images( img1, img2, 0.001 ):
