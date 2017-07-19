@@ -795,10 +795,7 @@ This is because I feel as if they can be altered to their respective traits.
         except KeyError:
             pass
 
-    # I am not sure if I need this? I feel as if migrating to traitlets and using
-    #observers will be able to help eliminate pchanged() without losing integrity
-    #of the following callbacks when a property is changed
-    #Note: For now we will keep this function
+    #this will stay for now to say the least bit because gives access to registered callbacks
     def pchanged(self):
         """
         Fire an event when property changed, calling all of the
@@ -882,7 +879,10 @@ This is because I feel as if they can be altered to their respective traits.
                 # which do no have an axes property but children might
                 a.pick(mouseevent)
 
-    # I think this function can be rid of with the movement to traitlets
+    #leave for backwards compatability
+    """
+    use
+    """
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a
