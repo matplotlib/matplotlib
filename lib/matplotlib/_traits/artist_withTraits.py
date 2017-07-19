@@ -141,7 +141,7 @@ _______________________________________________________________________________
     def _stale_default(self):
         print("generating default stale value")
         return True
-    #stale validate: reference @axes.setter
+    #stale validate: reference @stale.setter
     @validate("stale")
     def _stale_validate(self, proposal):
         print("cross validating %r" % proposal.value)
@@ -185,7 +185,7 @@ _______________________________________________________________________________
     def _axes_default(self):
         print("generating default axes value")
         return None
-    #axes validate
+    #axes validate: reference @axes.setter
     @validate("axes")
     def _axes_validate(self, proposal):
         print("cross validating %r" % proposal.value")
@@ -214,12 +214,12 @@ _______________________________________________________________________________
     def _figure_default(self):
         print("generating default figure value")
         return None
-    #figure validate
+    #figure validate: reference set_figure
     @validate("figure")
     def _figure_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         # if this is a no-op just return
-        if self.figure is fig:
+        if self.figure is proposal.value:
             return
         # if we currently have a figure (the case of both `self.figure`
         # and `fig` being none is taken care of above) we then user is
@@ -229,7 +229,8 @@ _______________________________________________________________________________
         if self.figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        self.figure = fig
+        self.figure = proposal.value
+        #what does this line even mean?
         if self.figure and self.figure is not self:
             self.pchanged()
         self.stale = True
@@ -253,7 +254,7 @@ _______________________________________________________________________________
     def _transform_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-    #transform observer
+    #transform observer: reference set_transform
     @observe("transform", type = change)
     def _transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
@@ -295,11 +296,12 @@ _______________________________________________________________________________
     def _visible_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-    #visible observer
+    #visible observer: reference set_visible
     @observe("visible", type = change)
     def _visible_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
@@ -309,11 +311,13 @@ _______________________________________________________________________________
     def _animated_default(self):
         print("generating default animated value")
         return False
-    #animated validate
+    #animated validate: reference set_animated
     @validate("animated")
     def _animated_validate(self, proposal):
         print("cross validating %r" % proposal.value")
-        return proposal.value
+        if self._animated is not proposal.value:
+            return proposal.value
+        return self._animated
     #animated observer
     @observe("animated", type = change)
     def _animated_observe(self, change):
@@ -333,11 +337,12 @@ _______________________________________________________________________________
     def _alpha_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-    #alpha observer
+    #alpha observer: reference set_alpha
     @observe("alpha", type = change)
     def _alpha_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
@@ -352,10 +357,13 @@ _______________________________________________________________________________
     def _clipbox_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         return proposal.value
-    #clipbox observer
+    #clipbox observer: reference set_clip_box
     @observe("clipbox", type = change)
     def _clipbox_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" self.stale)
+
 
 """
 _______________________________________________________________________________
