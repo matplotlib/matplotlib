@@ -70,6 +70,11 @@ doc-run: &doc-build
   command: python make.py html
   working_directory: doc
 
+doc-bundle-run: &doc-bundle
+  name: Bundle sphinx-gallery documentation artifacts
+  command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
+  when: always
+
 
 ##########################################
 # Here is where the real jobs are defined.
@@ -90,6 +95,10 @@ jobs:
       - run: *mpl-install
 
       - run: *doc-build
+
+      - run: *doc-bundle
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
 
       - store_artifacts:
           path: doc/build/html
@@ -131,6 +140,10 @@ jobs:
           name: linkchecker
           command: ~/.local/bin/linkchecker build/html/index.html
           working_directory: doc
+
+      - run: *doc-bundle
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
 
       - store_artifacts:
           path: doc/build/html
