@@ -38,7 +38,7 @@ cases = [None,
 figsize = (10, 8)
 cols = 3
 gs = gridspec.GridSpec(len(cases) // cols + 1, cols)
-
+gs.update(hspace=0.4)
 # define the data for cartesian plots
 delta = 0.11
 x = np.linspace(0, 10 - 2 * delta, 200) + delta
