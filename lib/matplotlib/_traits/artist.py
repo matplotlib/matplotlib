@@ -14,6 +14,7 @@ import warnings
 import inspect
 import numpy as np
 import matplotlib
+import matplotlib.artist as _artist #original artist base class
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
@@ -64,51 +65,51 @@ def allow_rasterization(draw):
     draw_wrapper._supports_rasterization = True
     return draw_wrapper
 
-
+#class Artist(_artist.Artist)
 class Artist(HasTraits):
 
-    aname = Unicode('Artist')
-    zorder = Int(default_value = 0)
+    aname=Unicode('Artist')
+    zorder=Int(default_value=0)
     #_prop_order = dict(color=-1)
-    prop_order = Dict() #asked thomas question about this asstribute
+    prop_order=Dict() #asked thomas question about this asstribute
     # pchanged = Bool(default_value = False)
-    stale = Bool(default_value = True)
-    stale_callback = Callable(allow_none = True, default_value = True)
-    axes = Instance('matplotlib.axes.Axes', allow_none = True, default_value = None)
-    figure = Instance('matplotlib.figure.Figure', allow_none = True, default_value = None)
-    transform = Instance('matplotlib.transform.Transform', allow_none = True, default_value = None)
-    transformSet = Bool(default_value = False )
-    visible = Bool(default_value = True)
-    animated = Bool(default_value = False)
-    alpha = Float(default_value = None ,allow_none = True)
-    clipbox = Instance('matplotlib.transforms.Bbox', allow_none = True, default_value = None)
+    stale=Bool(default_value=True)
+    stale_callback=Callable(allow_none=True, default_value=True)
+    axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
+    figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
+    transform=Instance('matplotlib.transform.Transform', allow_none=True, default_value=None)
+    transformSet=Bool(default_value=False)
+    visible=Bool(default_value=True)
+    animated=Bool(default_value=False)
+    alpha=Float(default_value=None, allow_none=True)
+    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
     """
     Notes from Documentation:
     Union([Float(), Bool(), Int()]) attempts to
     validate the provided values with the validation function of Float, then Bool, and finally Int.
     """
-    clippath = Perishable(Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none = True, default_value = None))
-    clipon = Boolean(default_value = True)
-    label = Unicode(allow_none = True, default_value = '')
-    picker = Union(Float, Boolean, Callable, allow_none = True, default_value = None)
-    contains = List(default_value=None)
-    rasterized = Perishable(Boolean(allow_none = True, default_value = None))
-    agg_filter = Unicode(allow_none = True, default_value = None) #set agg_filter function
-    mouseover = Boolean(default_value = False)
-    eventson = Boolean(default_value = False)
-    oid = Int(allow_none = True, default_value = 0)
-    propobservers = Dict(default_value = {}) #this may or may not work o/w leave alone and see what happens
+    clippath=Perishable(Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None))
+    clipon=Boolean(default_value=True)
+    label=Unicode(allow_none=True, default_value='')
+    picker=Union(Float,Boolean,Callable, allow_none=True, default_value=None)
+    contains=List(default_value=None)
+    rasterized=Perishable(Boolean(allow_none=True, default_value=None))
+    agg_filter=Unicode(allow_none=True, default_value=None) #set agg_filter function
+    mouseover=Boolean(default_value=False)
+    eventson=Boolean(default_value=False)
+    oid=Int(allow_none=True, default_value=0)
+    propobservers=Dict(default_value={}) #this may or may not work o/w leave alone and see what happens
     # _remove_method =  #have to look into this
-    url = Unicode(allow_none = True,default_value = None)
-    gid = Unicode(allow_none = True, default_value = None)
-    snap = Perishable(Boolean(allow_none = True, default_value = None))
-    sketch = Tuple(Float(), Float(), Float(), default_value = rcParams['path.sketch'])
-    path_effects = List(Instance('matplotlib.patheffect._Base'), default_value = rcParams['path.effects'])
+    url=Unicode(allow_none=True, default_value=None)
+    gid=Unicode(allow_none=True, default_value=None)
+    snap=Perishable(Boolean(allow_none=True, default_value=None))
+    sketch=Tuple(Float(),Float(),Float(),default_value=rcParams['path.sketch'])
+    path_effects=List(Instance('matplotlib.patheffect._Base'), default_value=rcParams['path.effects'])
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
     #the first element of this tuple represents x
     #and the second element of sticky_edges represents y
-    sticky_edges = Tuple(List(trait=Float()), List(trait=Float()))
+    sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
 
     #the axes bounding box in display space
     #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
@@ -145,15 +146,15 @@ _______________________________________________________________________________
     @validate("stale")
     def _stale_validate(self, proposal):
         print("cross validating %r" % proposal.value)
-        self._stale = proposal.value
-        if self._animated is True:
+        self.stale=proposal.value
+        if self.animated is True:
             return proposal.value
         if proposal.value and self.stale_callback is not None:
             self.stale_callback(self, proposal.value)
             #not sure if I should return anything here
         # return proposal.value
     #stale observer
-    @observe("stale", type = change)
+    @observe("stale", type=change)
     def _stale_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -172,7 +173,7 @@ _______________________________________________________________________________
         print("cross validating %r" % proposal.value")
         return proposal.value
     #stale_callback observer
-    @observe("stale_callback", type = change)
+    @observe("stale_callback", type=change)
     def _stale_callback_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -190,13 +191,13 @@ _______________________________________________________________________________
     def _axes_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         if (proposal.value is not None and
-                (self._axes is not None and proposal.value != self._axes)):
+                (self.axes is not None and proposal.value != self.axes)):
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
                              "supported")
 
-        self._axes = proposal.value
+        self.axes = proposal.value
         if proposal.value is not None and proposal.value is not self:
             self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
@@ -243,7 +244,7 @@ _______________________________________________________________________________
 """
 _______________________________________________________________________________
 """
-
+    #TO DO: make a transform trait with the proper validation logic
     #transform default
     @default("transform")
     def _transform_default(self):
@@ -258,7 +259,7 @@ _______________________________________________________________________________
     @observe("transform", type = change)
     def _transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-        self._transformSet = True
+        self.transformSet = True
         print("set _transformSet: %r" self._transformSet)
         self.stale = True
         print("set stale: %r" self.stale)
@@ -990,3 +991,6 @@ This is because I feel as if they can be altered to their respective traits.
             data = [data]
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
+
+
+#_artist.Artist = Artist
