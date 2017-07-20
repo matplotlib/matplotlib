@@ -26,6 +26,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_bool,
                                 validate_nseq_int,
                                 validate_nseq_float,
+                                validate_markevery,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins,
@@ -260,6 +261,13 @@ def generate_validator_testcases(valid):
                   for _ in ('aardvark', ('a', 1),
                             (1, 2, 3)
                             ))
+        },
+        {'validator': validate_markevery,
+         'success': ((1,1), (0.2, 0.2),((0.1,0.2),(0.1,0.2)),
+                     ([1,2,3], [1,2,3]), (None, None)),
+         'fail': (((1,2,3), ValueError),
+                  ((1.5,1), ValueError),
+                  ('zyzzyx', ValueError), ([1.4, 2.2], ValueError))
         },
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',

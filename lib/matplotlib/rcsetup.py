@@ -19,6 +19,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from collections import Iterable, Mapping
+from numbers import Number
 from functools import reduce
 import operator
 import os
@@ -330,6 +331,57 @@ class validate_nseq_int(object):
             return [int(val) for val in s]
         except ValueError:
             raise ValueError('Could not convert all entries to ints')
+
+def validate_markevery(s):
+    """validate a markevery specification.
+    A markevery specification can be any of the following:
+    None, int, float, slice,
+    length==2 tuple of ints, length==2 tuple of floats,
+    list of ints, array of ints
+    
+    """
+    if isinstance(s, slice):
+        return s
+    if isinstance(s, Iterable):
+        if isinstance(s, tuple):
+            if len(s) != 2:
+                raise ValueError('`markevery` element is a tuple but its '
+                    'len is not 2; '
+                    'illegal value=%s' % (s,))
+            start, step = s
+            if not isinstance(start, Number):
+                raise ValueError('`markevery` is a tuple with '
+                    'len 2 and second element is a float, but '
+                    'the first element is not a float or an '
+                    'int; '
+                    'markevery=%s' % (s,))
+            # if step is an int, old behavior
+            if isinstance(step, int):
+                #tuple of 2 int is for backwards compatibility,
+                if not(isinstance(start, int)):
+                    raise ValueError('`markevery` element is a tuple with '
+                        'len 2 and second element is an int, but '
+                        'the first element is not an int; '
+                        'markevery=%s' % (s,))
+            elif isinstance(step, float):
+                if not (isinstance(start, int) or
+                        isinstance(start, float)):
+                    raise ValueError('`markevery` is a tuple with '
+                        'len 2 and second element is a float, but '
+                        'the first element is not a float or an '
+                        'int; '
+                        'markevery=%s' % (s,))
+        else:
+            for markpoint in s:
+                if not isinstance(markpoint, int):
+                    raise ValueError('list and array `markevery` elements can '
+                    'only consist of integers')
+    elif not isinstance(s, Number):
+        if s is not None:
+            raise TypeError('illegal `markevery` element type: '
+            '%s' % repr(s.__class__))
+    return s
+validate_markeverylist = _listify_validator(validate_markevery)
 
 
 def validate_color_or_inherit(s):
@@ -702,6 +754,7 @@ _prop_validators = {
         'markersize': validate_floatlist,
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
+        'markevery': validate_markeverylist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
         'hatch': validate_hatchlist,
