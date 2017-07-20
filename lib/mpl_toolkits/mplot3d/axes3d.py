@@ -2756,6 +2756,11 @@ class Axes3D(Axes):
         placed with its lower corner at the origin. Occluded faces are not
         plotted.
 
+        Call signatures::
+
+            voxels(filled, facecolors=fc, edgecolors=ec, **kwargs)
+            voxels(x, y, z, filled, facecolors=fc, edgecolors=ec, **kwargs)
+
         .. versionadded:: 2.1
 
         Parameters
@@ -2767,23 +2772,30 @@ class Axes3D(Axes):
         x, y, z : 3D np.array, optional
             The coordinates of the corners of the voxels. This should broadcast
             to a shape one larger in every dimension than the shape of `filled`.
-            These arguments can be used to plot non-cubic voxels.
-            If not specified, defaults to increasing integers along each axis.
+            These can be used to plot non-cubic voxels.
 
-        facecolors, edgecolors : array_like
-            The color to draw the faces and edges of the voxels. This parameter
-            can be:
+            If not specified, defaults to increasing integers along each axis,
+            like those returned by :func:`~numpy.indices`.
+            As indicated by the ``/`` in the function signature, these arguments
+            can only be passed positionally.
+
+        facecolors, edgecolors : array_like, optional
+            The color to draw the faces and edges of the voxels. Can only be
+            passed as keyword arguments.
+            This parameter can be:
 
               - A single color value, to color all voxels the same color. This
                 can be either a string, or a 1D rgb/rgba array
-              - ``None``, indicating to use the default
+              - ``None``, the default, to use a single color for the faces, and
+                the style default for the edges.
               - A 3D ndarray of color names, with each item the color for the
                 corresponding voxel. The size must match the voxels.
               - A 4D ndarray of rgb/rgba data, with the components along the
                 last axis.
 
-        Any additional keyword arguments are passed onto
-        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        **kwargs
+            Additional keyword arguments to pass onto
+            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Returns
         -------
@@ -2796,7 +2808,6 @@ class Axes3D(Axes):
 
         Examples
         --------
-
         .. plot:: gallery/mplot3d/voxels.py
         .. plot:: gallery/mplot3d/voxels_rgb.py
         .. plot:: gallery/mplot3d/voxels_torus.py
