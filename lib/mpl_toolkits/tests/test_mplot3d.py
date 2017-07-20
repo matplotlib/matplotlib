@@ -692,6 +692,32 @@ class TestVoxels(object):
                   edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter
                   linewidth=0.5)
 
+    def test_calling_conventions(self):
+        x, y, z = np.indices((3, 4, 5))
+        filled = np.ones((2, 3, 4))
+
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        # all the valid calling conventions
+        for kw in (dict(), dict(edgecolor='k')):
+            ax.voxels(filled, **kw)
+            ax.voxels(filled=filled, **kw)
+            ax.voxels(x, y, z, filled, **kw)
+            ax.voxels(x, y, z, filled=filled, **kw)
+
+        # duplicate argument
+        with pytest.raises(TypeError) as exc:
+            ax.voxels(x, y, z, filled, filled=filled)
+        exc.match(".*voxels.*")
+        # missing arguments
+        with pytest.raises(TypeError) as exc:
+            ax.voxels(x, y)
+        exc.match(".*voxels.*")
+        # x,y,z are positional only - this passes them on as attributes of
+        # Poly3DCollection
+        with pytest.raises(AttributeError):
+            ax.voxels(filled=filled, x=x, y=y, z=z)
+
 
 def test_inverted_cla():
     # Github PR #5450. Setting autoscale should reset
