@@ -70,45 +70,45 @@ class Artist(HasTraits):
     aname = Unicode('Artist')
     zorder = Int(default_value = 0)
     #_prop_order = dict(color=-1)
-    _prop_order = Dict() #asked thomas question about this asstribute
+    prop_order = Dict() #asked thomas question about this asstribute
     # pchanged = Bool(default_value = False)
-    _stale = Bool(default_value = True)
+    stale = Bool(default_value = True)
     stale_callback = Callable(allow_none = True, default_value = True)
-    _axes = Instance('matplotlib.axes.Axes', allow_none = True, default_value = None)
+    axes = Instance('matplotlib.axes.Axes', allow_none = True, default_value = None)
     figure = Instance('matplotlib.figure.Figure', allow_none = True, default_value = None)
-    _transform = Instance('matplotlib.transform.Transform', allow_none = True, default_value = None)
-    _transformSet = Bool(default_value = False )
-    _visible = Bool(default_value = True)
-    _animated = Bool(default_value = False)
-    _alpha = Float(default_value = None ,allow_none = True)
+    transform = Instance('matplotlib.transform.Transform', allow_none = True, default_value = None)
+    transformSet = Bool(default_value = False )
+    visible = Bool(default_value = True)
+    animated = Bool(default_value = False)
+    alpha = Float(default_value = None ,allow_none = True)
     clipbox = Instance('matplotlib.transforms.Bbox', allow_none = True, default_value = None)
     """
     Notes from Documentation:
     Union([Float(), Bool(), Int()]) attempts to
     validate the provided values with the validation function of Float, then Bool, and finally Int.
     """
-    _clippath = Perishable(Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none = True, default_value = None))
-    _clipon = Boolean(default_value = True)
-    _label = Unicode(allow_none = True, default_value = '')
-    _picker = Union(Float, Boolean, Callable, allow_none = True, default_value = None)
-    _contains = List(default_value=None)
-    _rasterized = Perishable(Boolean(allow_none = True, default_value = None))
-    _agg_filter = Unicode(allow_none = True, default_value = None) #set agg_filter function
-    _mouseover = Boolean(default_value = False)
+    clippath = Perishable(Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none = True, default_value = None))
+    clipon = Boolean(default_value = True)
+    label = Unicode(allow_none = True, default_value = '')
+    picker = Union(Float, Boolean, Callable, allow_none = True, default_value = None)
+    contains = List(default_value=None)
+    rasterized = Perishable(Boolean(allow_none = True, default_value = None))
+    agg_filter = Unicode(allow_none = True, default_value = None) #set agg_filter function
+    mouseover = Boolean(default_value = False)
     eventson = Boolean(default_value = False)
-    _oid = Int(allow_none = True, default_value = 0)
-    _propobservers = Dict(default_value = {}) #this may or may not work o/w leave alone and see what happens
+    oid = Int(allow_none = True, default_value = 0)
+    propobservers = Dict(default_value = {}) #this may or may not work o/w leave alone and see what happens
     # _remove_method =  #have to look into this
-    _url = Unicode(allow_none = True,default_value = None)
-    _gid = Unicode(allow_none = True, default_value = None)
-    _snap = Perishable(Boolean(allow_none = True, default_value = None))
-    _sketch = Tuple(Float(), Float(), Float(), default_value = rcParams['path.sketch'])
-    _path_effects = List(Instance('matplotlib.patheffect._Base'), default_value = rcParams['path.effects'])
+    url = Unicode(allow_none = True,default_value = None)
+    gid = Unicode(allow_none = True, default_value = None)
+    snap = Perishable(Boolean(allow_none = True, default_value = None))
+    sketch = Tuple(Float(), Float(), Float(), default_value = rcParams['path.sketch'])
+    path_effects = List(Instance('matplotlib.patheffect._Base'), default_value = rcParams['path.effects'])
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
     #the first element of this tuple represents x
     #and the second element of sticky_edges represents y
-    _sticky_edges = Tuple(List(trait=Float()), List(trait=Float()))
+    sticky_edges = Tuple(List(trait=Float()), List(trait=Float()))
 
     #the axes bounding box in display space
     #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
