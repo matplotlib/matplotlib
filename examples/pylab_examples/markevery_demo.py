@@ -44,7 +44,9 @@ delta = 0.11
 x = np.linspace(0, 10 - 2 * delta, 200) + delta
 y = np.sin(x) + 1.0 + delta
 
-# plot each markevery case for linear x and y scales
+###############################################################################
+# Plot each markevery case for linear x and y scales
+
 fig1 = plt.figure(num=1, figsize=figsize)
 ax = []
 for i, case in enumerate(cases):
@@ -55,7 +57,9 @@ for i, case in enumerate(cases):
     ax[-1].plot(x, y, 'o', ls='-', ms=4, markevery=case)
 #fig1.tight_layout()
 
-# plot each markevery case for log x and y scales
+###############################################################################
+# Plot each markevery case for log x and y scales
+
 fig2 = plt.figure(num=2, figsize=figsize)
 axlog = []
 for i, case in enumerate(cases):
@@ -68,10 +72,12 @@ for i, case in enumerate(cases):
     axlog[-1].plot(x, y, 'o', ls='-', ms=4, markevery=case)
 fig2.tight_layout()
 
-# plot each markevery case for linear x and y scales but zoomed in
+###############################################################################
+# Plot each markevery case for linear x and y scales but zoomed in
 # note the behaviour when zoomed in.  When a start marker offset is specified
 # it is always interpreted with respect to the first data point which might be
 # different to the first visible data point.
+
 fig3 = plt.figure(num=3, figsize=figsize)
 axzoom = []
 for i, case in enumerate(cases):
@@ -88,7 +94,9 @@ fig3.tight_layout()
 r = np.linspace(0, 3.0, 200)
 theta = 2 * np.pi * r
 
-# plot each markevery case for polar plots
+###############################################################################
+# Plot each markevery case for polar plots
+
 fig4 = plt.figure(num=4, figsize=figsize)
 axpolar = []
 for i, case in enumerate(cases):

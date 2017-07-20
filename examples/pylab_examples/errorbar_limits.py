@@ -9,6 +9,8 @@ Illustration of upper and lower limit symbols on errorbars
 import numpy as np
 import matplotlib.pyplot as plt
 
+###############################################################################
+
 fig = plt.figure(0)
 x = np.arange(10.0)
 y = np.sin(np.arange(10.0)/20.0*np.pi)
@@ -24,6 +26,8 @@ lowerlimits = np.array([0, 1]*5)
 plt.errorbar(x, y, yerr=0.1, uplims=upperlimits, lolims=lowerlimits)
 
 plt.xlim(-1, 10)
+
+###############################################################################
 
 fig = plt.figure(1)
 x = np.arange(10.0)/10.0

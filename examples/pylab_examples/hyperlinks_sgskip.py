@@ -15,10 +15,14 @@ import matplotlib.cm as cm
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
+###############################################################################
+
 f = plt.figure()
 s = plt.scatter([1, 2, 3], [4, 5, 6])
 s.set_urls(['http://www.bbc.co.uk/news', 'http://www.google.com', None])
 f.canvas.print_figure('scatter.svg')
+
+###############################################################################
 
 f = plt.figure()
 delta = 0.025

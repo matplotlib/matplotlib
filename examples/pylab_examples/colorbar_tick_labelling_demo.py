@@ -13,7 +13,9 @@ import numpy as np
 from matplotlib import cm
 from numpy.random import randn
 
+###############################################################################
 # Make plot with vertical (default) colorbar
+
 fig, ax = plt.subplots()
 
 data = np.clip(randn(250, 250), -1, 1)
@@ -25,7 +27,9 @@ ax.set_title('Gaussian noise with vertical colorbar')
 cbar = fig.colorbar(cax, ticks=[-1, 0, 1])
 cbar.ax.set_yticklabels(['< -1', '0', '> 1'])  # vertically oriented colorbar
 
+###############################################################################
 # Make plot with horizontal colorbar
+
 fig, ax = plt.subplots()
 
 data = np.clip(randn(250, 250), -1, 1)

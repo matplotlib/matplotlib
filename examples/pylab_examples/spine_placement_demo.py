@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+###############################################################################
+
 fig = plt.figure()
 x = np.linspace(-np.pi, np.pi, 100)
 y = 2*np.sin(x)
@@ -60,7 +62,9 @@ ax.spines['left'].set_smart_bounds(True)
 ax.spines['bottom'].set_smart_bounds(True)
 ax.xaxis.set_ticks_position('bottom')
 ax.yaxis.set_ticks_position('left')
-# ----------------------------------------------------
+
+###############################################################################
+# Define a method that adjusts the location of the axis spines
 
 
 def adjust_spines(ax, spines):
@@ -83,6 +87,9 @@ def adjust_spines(ax, spines):
     else:
         # no xaxis ticks
         ax.xaxis.set_ticks([])
+
+###############################################################################
+# Create another figure using our new ``adjust_spines`` method
 
 fig = plt.figure()
 

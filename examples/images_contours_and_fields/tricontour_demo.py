@@ -10,6 +10,7 @@ import matplotlib.tri as tri
 import numpy as np
 import math
 
+###############################################################################
 # Creating a Triangulation without specifying the triangles results in the
 # Delaunay triangulation of the points.
 
@@ -36,7 +37,9 @@ ymid = y[triang.triangles].mean(axis=1)
 mask = np.where(xmid * xmid + ymid * ymid < min_radius * min_radius, 1, 0)
 triang.set_mask(mask)
 
+###############################################################################
 # pcolor plot.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tricontourf(triang, z)
@@ -44,6 +47,7 @@ plt.colorbar()
 plt.tricontour(triang, z, colors='k')
 plt.title('Contour plot of Delaunay triangulation')
 
+###############################################################################
 # You can specify your own triangulation rather than perform a Delaunay
 # triangulation of the points, where each triangle is given by the indices of
 # the three points that make up the triangle, ordered in either a clockwise or
@@ -93,10 +97,12 @@ triangles = np.asarray([
     [42, 41, 40], [72, 33, 31], [32, 31, 33], [39, 38, 72], [33, 72, 38],
     [33, 38, 34], [37, 35, 38], [34, 38, 35], [35, 37, 36]])
 
+###############################################################################
 # Rather than create a Triangulation object, can simply pass x, y and triangles
 # arrays to tripcolor directly.  It would be better to use a Triangulation
 # object if the same triangulation was to be used more than once to save
 # duplicated calculations.
+
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tricontourf(x, y, triangles, z)

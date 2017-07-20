@@ -25,7 +25,9 @@ data = np.random.lognormal(size=(37, 4), mean=1.5, sigma=1.75)
 labels = list('ABCD')
 fs = 10  # fontsize
 
-# demonstrate how to toggle the display of different elements:
+###############################################################################
+# Demonstrate how to toggle the display of different elements:
+
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
 axes[0, 0].boxplot(data, labels=labels)
 axes[0, 0].set_title('Default', fontsize=fs)
@@ -54,7 +56,9 @@ fig.subplots_adjust(hspace=0.4)
 plt.show()
 
 
-# demonstrate how to customize the display different elements:
+###############################################################################
+# Demonstrate how to customize the display different elements:
+
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
 flierprops = dict(marker='o', markerfacecolor='green', markersize=12,
                   linestyle='none')

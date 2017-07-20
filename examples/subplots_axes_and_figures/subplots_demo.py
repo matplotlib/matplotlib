@@ -20,24 +20,32 @@ y = np.sin(x ** 2)
 
 plt.close('all')
 
+###############################################################################
 # Just a figure and one subplot
+
 f, ax = plt.subplots()
 ax.plot(x, y)
 ax.set_title('Simple plot')
 
+###############################################################################
 # Two subplots, the axes array is 1-d
+
 f, axarr = plt.subplots(2, sharex=True)
 f.suptitle('Sharing X axis')
 axarr[0].plot(x, y)
 axarr[1].scatter(x, y)
 
+###############################################################################
 # Two subplots, unpack the axes array immediately
+
 f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
 f.suptitle('Sharing Y axis')
 ax1.plot(x, y)
 ax2.scatter(x, y)
 
+###############################################################################
 # Three subplots sharing both x/y axes
+
 f, axarr = plt.subplots(3, sharex=True, sharey=True)
 f.suptitle('Sharing both axes')
 axarr[0].plot(x, y)
@@ -49,7 +57,9 @@ f.subplots_adjust(hspace=0)
 for ax in axarr:
     ax.label_outer()
 
-# row and column sharing
+###############################################################################
+# Row and column sharing
+
 f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
 f.suptitle('Sharing x per column, y per row')
 ax1.plot(x, y)
@@ -57,7 +67,9 @@ ax2.scatter(x, y)
 ax3.scatter(x, 2 * y ** 2 - 1, color='r')
 ax4.plot(x, 2 * y ** 2 - 1, color='r')
 
+###############################################################################
 # Four axes, returned as a 2-d array
+
 f, axarr = plt.subplots(2, 2)
 axarr[0, 0].plot(x, y)
 axarr[0, 0].set_title('Axis [0,0]')
@@ -73,7 +85,9 @@ for ax in axarr.flat:
 for ax in axarr.flat:
     ax.label_outer()
 
+###############################################################################
 # Four polar axes
+
 f, axarr = plt.subplots(2, 2, subplot_kw=dict(projection='polar'))
 axarr[0, 0].plot(x, y)
 axarr[0, 0].set_title('Axis [0,0]')

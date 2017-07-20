@@ -20,9 +20,13 @@ def example_plot(ax):
     ax.set_title('Title', fontsize=next(fontsizes))
 
 
+###############################################################################
+
 fig, ax = plt.subplots()
 example_plot(ax)
 plt.tight_layout()
+
+###############################################################################
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
 example_plot(ax1)
@@ -31,15 +35,21 @@ example_plot(ax3)
 example_plot(ax4)
 plt.tight_layout()
 
+###############################################################################
+
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1)
 example_plot(ax1)
 example_plot(ax2)
 plt.tight_layout()
 
+###############################################################################
+
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
 example_plot(ax1)
 example_plot(ax2)
 plt.tight_layout()
+
+###############################################################################
 
 fig, axes = plt.subplots(nrows=3, ncols=3)
 for row in axes:
@@ -47,6 +57,7 @@ for row in axes:
         example_plot(ax)
 plt.tight_layout()
 
+###############################################################################
 
 fig = plt.figure()
 
@@ -60,6 +71,7 @@ example_plot(ax3)
 
 plt.tight_layout()
 
+###############################################################################
 
 fig = plt.figure()
 
@@ -77,6 +89,7 @@ plt.tight_layout()
 
 plt.show()
 
+###############################################################################
 
 fig = plt.figure()
 
