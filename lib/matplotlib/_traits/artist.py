@@ -282,6 +282,8 @@ _______________________________________________________________________________
     @observe("visible", type = change)
     def _visible_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self.pchanged()
+        print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
 """
@@ -298,6 +300,8 @@ _______________________________________________________________________________
     def _animated_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         if self._animated is not proposal.value:
+            self.pchanged()
+            print("called self.pchanged()")
             return proposal.value
         return self._animated
     #animated observer
@@ -323,6 +327,8 @@ _______________________________________________________________________________
     @observe("alpha", type = change)
     def _alpha_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self.pchanged()
+        print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
 """
@@ -343,6 +349,8 @@ _______________________________________________________________________________
     @observe("clipbox", type = change)
     def _clipbox_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self.pchanged()
+        print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
 
@@ -386,7 +394,10 @@ _______________________________________________________________________________
     @observe("clipon", type = change)
     def _clipon_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.pchanged()
+        print("called self.pchanged()")
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
@@ -400,12 +411,17 @@ _______________________________________________________________________________
     @validate("label")
     def _label_validate(self, proposal):
         print("cross validating %r" % proposal.value")
+        if proposal.value is not None:
+            return proposal.value
         return proposal.value
     #label observer
     @observe("label", type = change)
     def _label_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.pchanged()
+        print("called self.pchanged()")
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
