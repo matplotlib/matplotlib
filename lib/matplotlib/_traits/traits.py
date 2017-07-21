@@ -46,6 +46,19 @@ class Perishable(TraitProxy):
         super(Perishable, self).set(obj, val)
         obj.stale = True
 
+class TransformTrait(TraitType):
+
+    default_value = None
+    info_text = "TransformTrait"
+
+    #Question: why use the get_transform function as the validate?
+    # I understand that there is a logic involving how to handle None and
+    #returning IdentityTransform() if there is None, but at the time,
+    #how does that validate it?
+    def validate(self, obj, value):
+
+
+
 
 # class ClipPathTrait(TraitType):
 #

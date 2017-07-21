@@ -103,7 +103,7 @@ class Artist(HasTraits):
     url=Unicode(allow_none=True, default_value=None)
     gid=Unicode(allow_none=True, default_value=None)
     snap=Perishable(Boolean(allow_none=True, default_value=None))
-    sketch=Tuple(Float(),Float(),Float(),default_value=rcParams['path.sketch'])
+    sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     path_effects=List(Instance('matplotlib.patheffect._Base'), default_value=rcParams['path.effects'])
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
@@ -113,25 +113,6 @@ class Artist(HasTraits):
 
     #the axes bounding box in display space
     #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
-
-"""
-_______________________________________________________________________________
-"""
-    #
-    # #pchanged default
-    # @default("pchanged")
-    # def pchanged_default(self):
-    #     print("generating default stale value")
-    #     return True
-    # #pchanged validate
-    # @validate("pchanged")
-    # def pchanged_validate(self, proposal):
-    #     print("cross validating %r" % proposal.value")
-    #     return proposal.value
-    # #pchanged observer
-    # @observe("pchanged", type = change)
-    # def pchanged_observe(self, change):
-    #     print("observed a change from %r to %r" % (change.old, change.new))
 
 """
 _______________________________________________________________________________
@@ -881,9 +862,6 @@ This is because I feel as if they can be altered to their respective traits.
                 a.pick(mouseevent)
 
     #leave for backwards compatability
-    """
-    use
-    """
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a

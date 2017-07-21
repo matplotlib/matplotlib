@@ -130,7 +130,7 @@ import numpy
 from six.moves.urllib.request import urlopen
 from six.moves import reload_module as reload
 
-from _traits import artist
+from _traits.artist import artist
 
 # Get the version from the _version.py versioneer file. For a git checkout,
 # this is computed based on the number of commits since the last tag.
