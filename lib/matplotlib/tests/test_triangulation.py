@@ -745,7 +745,7 @@ def test_triinterp_transformations():
 
 
 @image_comparison(baseline_images=['tri_smooth_contouring'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, tol=0.07)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20
