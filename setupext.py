@@ -717,7 +717,8 @@ class Matplotlib(SetupPackage):
             'matplotlib.testing._nose.plugins',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
-            'matplotlib.cbook'
+            'matplotlib.cbook',
+            'matplotlib._traits'
             ]
 
     def get_py_modules(self):
