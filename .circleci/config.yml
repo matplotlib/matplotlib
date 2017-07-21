@@ -11,7 +11,8 @@ version: 2
 apt-run:  &apt-install
   name: Install apt packages
   command: |
-    sudo apt-get install \
+    sudo apt-get -qq update
+    sudo apt-get install -y \
       inkscape \
       libav-tools \
       dvipng \
