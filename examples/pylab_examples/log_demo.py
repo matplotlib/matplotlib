@@ -9,37 +9,41 @@ Examples of plots with logarithmic axes.
 import numpy as np
 import matplotlib.pyplot as plt
 
-plt.subplots_adjust(hspace=0.4)
+# Data for plotting
 t = np.arange(0.01, 20.0, 0.01)
 
+# Create figure
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+
+# Note hspace is the amount of height reserved for white space between subplots
+# expressed as a fraction of the average axis height
+fig.subplots_adjust(hspace=0.5)
+
 # log y axis
-plt.subplot(221)
-plt.semilogy(t, np.exp(-t/5.0))
-plt.title('semilogy')
-plt.grid(True)
+ax1.semilogy(t, np.exp(-t/5.0))
+ax1.set(title='semilogy')
+ax1.grid()
 
 # log x axis
-plt.subplot(222)
-plt.semilogx(t, np.sin(2*np.pi*t))
-plt.title('semilogx')
-plt.grid(True)
+ax2.semilogx(t, np.sin(2*np.pi*t))
+ax2.set(title='semilogx')
+ax2.grid()
 
 # log x and y axis
-plt.subplot(223)
-plt.loglog(t, 20*np.exp(-t/10.0), basex=2)
-plt.grid(True)
-plt.title('loglog base 2 on x')
+ax3.loglog(t, 20*np.exp(-t/10.0), basex=2)
+ax3.set(title='loglog base 2 on x')
+ax3.grid()
 
-# with errorbars: clip non-positive values
-ax = plt.subplot(224)
-ax.set_xscale("log", nonposx='clip')
-ax.set_yscale("log", nonposy='clip')
-
+# With errorbars: clip non-positive values
+# Use new data for plotting
 x = 10.0**np.linspace(0.0, 2.0, 20)
 y = x**2.0
-plt.errorbar(x, y, xerr=0.1*x, yerr=5.0 + 0.75*y)
-ax.set_ylim(ymin=0.1)
-ax.set_title('Errorbars go negative')
 
+ax4.set_xscale("log", nonposx='clip')
+ax4.set_yscale("log", nonposy='clip')
+ax4.set(title='Errorbars go negative')
+ax4.errorbar(x, y, xerr=0.1*x, yerr=5.0 + 0.75*y)
+# ylim must be set after errorbar to allow errorbar to autoscale limits
+ax4.set_ylim(ymin=0.1)
 
 plt.show()
