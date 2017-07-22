@@ -1081,7 +1081,7 @@ class ColorsquareBase(cm.ScalarMappable):
         '''
         Return the separator line segments; helper for _add_solids.
         '''
-        N = X.shape[0].
+        N = X.shape[0]
         return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
         + [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
 
@@ -1159,7 +1159,8 @@ class ColorsquareBase(cm.ScalarMappable):
                     if mpl.rcParams['_internal.classic_mode']:
                         locator = ticker.MaxNLocator()
                     else:
-                        locator = ticker.AutoLocator()
+                        # locator = ticker.AutoLocator()
+                        locator = ticker.MaxNLocator(nbins=5)
             else:
                 b = _boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)

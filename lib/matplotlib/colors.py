@@ -1417,22 +1417,13 @@ class BivariateNorm:
         if clip is None:
             clip = [self.norm1.clip, self.norm2.clip]
 
-        return np.asarray([self.norm1(values[0], clip=clip[0]),
-                self.norm2(values[1], clip=clip[1])])
+        temp = np.asarray([self.norm1(values[0], clip=clip[0]),
+                          self.norm2(values[1], clip=clip[1])])
 
-    def inverse(self, values):
-        """
-        Parameters
-        ----------
-        values : array-like
-            A list of two values to be inverted
-
-        Returns
-        -------
-        A list of two unnormalized values
-        """
-        return np.asarray([self.norm1.inverse(values[0]),
-                self.norm2.inverse(values[1])])
+        temp[0] = temp[0] * (256)
+        temp[1] = temp[1] * (256)
+        temp = temp.astype(int)
+        return temp[0] + temp[1] * 256
 
     def autoscale(self, A):
         """

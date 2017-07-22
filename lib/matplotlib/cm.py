@@ -201,8 +201,7 @@ class ScalarMappable(object):
         #: The Normalization instance of this ScalarMappable.
         self.norm = norm
         #: The Colormap instance of this ScalarMappable.
-        # self.cmap = get_cmap(cmap)
-        self.cmap = cmap
+        self.cmap = get_cmap(cmap)
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.update_dict = {'array': False}

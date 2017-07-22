@@ -3979,17 +3979,6 @@ or tuple of floats
         else:
             try:
                 c_array = np.asanyarray(c, dtype=float)
-                if c_array.ndim > 1:
-                    if cmap is None:
-                        cmap = mcolors.BivariateColormap()
-                    if norm is None:
-                        norm = mcolors.BivariateNorm()
-                    c_array = norm(c_array)
-                    c_array[0] = c_array[0] * (cmap.N-1)
-                    c_array[1] = c_array[1] * (cmap.N-1)
-                    c_array = c_array.astype(int)
-                    c_array = c_array[0] + cmap.N * c_array[1]
-                    norm = mcolors.NoNorm()
                 if c_array.shape in xy_shape:
                     c = np.ma.ravel(c_array)
                 else:
@@ -4054,10 +4043,8 @@ or tuple of floats
         collection.update(kwargs)
 
         if colors is None:
-            isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
-            if norm is not None and not isNorm:
-                msg = "'norm' must be an instance of 'mcolors.Normalize' " \
-                      "or 'mcolors.BivariateNorm'"
+            if norm is not None and not isinstance(norm, mcolors.Normalize):
+                msg = "'norm' must be an instance of 'mcolors.Normalize'"
                 raise ValueError(msg)
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
@@ -5151,6 +5138,11 @@ or tuple of floats
 
         """
 
+        temp = np.asarray(X)
+        if temp.ndim == 3 and isinstance(norm, mcolors.BivariateNorm):
+                    temp = norm(temp)
+                    X = cmap(temp, alpha=self.get_alpha(), bytes=True)
+
         if not self._hold:
             self.cla()
 
@@ -5163,21 +5155,6 @@ or tuple of floats
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
-
-        temp = np.asarray(X)
-        isBivari = (isinstance(norm, mcolors.BivariateNorm) or
-                    isinstance(cmap, mcolors.BivariateColormap))
-        if (temp.ndim == 3 and isBivari):
-            if cmap is None:
-                cmap = mcolors.BivariateColormap()
-            if norm is None:
-                norm = mcolors.BivariateNorm()
-            temp = norm(temp)
-            temp[0] = temp[0] * (cmap.N-1)
-            temp[1] = temp[1] * (cmap.N-1)
-            temp = temp.astype(int)
-            X = temp[0] + cmap.N * temp[1]
-            norm = mcolors.NoNorm()
 
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
                               filternorm=filternorm, filterrad=filterrad,
@@ -5219,10 +5196,10 @@ or tuple of floats
         allmatch = kw.pop("allmatch", False)
         norm = kw.pop("norm", None)
         cmap = kw.pop("cmap", None)
+        alpha = kw.pop("alpha", 1)
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-
             isBivari = (isinstance(norm, mcolors.BivariateNorm) or
                         isinstance(cmap, mcolors.BivariateColormap))
             if (C.ndim == 3 and isBivari):
@@ -5231,12 +5208,6 @@ or tuple of floats
                 if norm is None:
                     norm = mcolors.BivariateNorm()
                 C = norm(C)
-                C[0] = C[0] * (cmap.N-1)
-                C[1] = C[1] * (cmap.N-1)
-                C = C.astype(int)
-                C = C[0] + cmap.N * C[1]
-                C = np.array(C)
-
             numRows, numCols = C.shape
             if allmatch:
                 X, Y = np.meshgrid(np.arange(numCols), np.arange(numRows))
@@ -5256,11 +5227,6 @@ or tuple of floats
                 if norm is None:
                     norm = mcolors.BivariateNorm()
                 C = norm(C)
-                C[0] = C[0] * (cmap.N-1)
-                C[1] = C[1] * (cmap.N-1)
-                C = C.astype(int)
-                C = C[0] + cmap.N * C[1]
-                C = np.array(C)
             numRows, numCols = C.shape
         else:
             raise TypeError(
@@ -5809,19 +5775,11 @@ or tuple of floats
         isBivari = (isinstance(norm, mcolors.BivariateNorm) or
                     isinstance(cmap, mcolors.BivariateColormap))
         if (C.ndim == 3 and isBivari):
-            if cmap is None:
-                cmap = mcolors.BivariateColormap()
-            if norm is None:
-                norm = mcolors.BivariateNorm()
             C = norm(C)
-            C[0] = C[0] * (cmap.N-1)
-            C[1] = C[1] * (cmap.N-1)
-            C = C.astype(int)
-            C = C[0] + cmap.N * C[1]
-            C = np.array(C)
-            norm = mcolors.NoNorm()
-
-        nr, nc = C.shape
+            nr, nc = C.shape
+            C = cmap(C, alpha=alpha, bytes=True)
+        else:
+            nr, nc = C.shape
         if len(args) == 1:
             style = "image"
             x = [0, nc]
