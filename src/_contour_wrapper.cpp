@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     QuadContourGenerator* ptr;
 } PyQuadContourGenerator;
 

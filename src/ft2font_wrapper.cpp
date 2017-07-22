@@ -26,7 +26,7 @@ static PyObject *convert_xys_to_array(std::vector<double> &xys)
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     FT2Image *x;
     Py_ssize_t shape[2];
     Py_ssize_t strides[2];
@@ -229,7 +229,7 @@ static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     size_t glyphInd;
     long width;
     long height;
@@ -323,7 +323,8 @@ static PyTypeObject *PyGlyph_init_type(PyObject *m, PyTypeObject *type)
 
 typedef struct
 {
-    PyObject_HEAD FT2Font *x;
+    PyObject_HEAD
+    FT2Font *x;
     PyObject *fname;
     PyObject *py_file;
     FILE *fp;

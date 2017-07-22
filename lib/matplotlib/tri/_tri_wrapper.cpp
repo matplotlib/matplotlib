@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     Triangulation* ptr;
 } PyTriangulation;
 
@@ -216,7 +216,7 @@ static PyTypeObject* PyTriangulation_init_type(PyObject* m, PyTypeObject* type)
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     TriContourGenerator* ptr;
     PyTriangulation* py_triangulation;
 } PyTriContourGenerator;
@@ -351,7 +351,7 @@ static PyTypeObject* PyTriContourGenerator_init_type(PyObject* m, PyTypeObject* 
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     TrapezoidMapTriFinder* ptr;
     PyTriangulation* py_triangulation;
 } PyTrapezoidMapTriFinder;

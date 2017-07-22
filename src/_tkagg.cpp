@@ -26,7 +26,7 @@
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     Tcl_Interp *interp;
 } TkappObject;
 
