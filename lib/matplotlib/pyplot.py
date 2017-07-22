@@ -361,7 +361,7 @@ def setp(*args, **kwargs):
 
 def xkcd(scale=1, length=100, randomness=2):
     """
-    Turns on `xkcd <http://xkcd.com/>`_ sketch-style drawing mode.
+    Turns on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
     This will only have effect on things drawn after this function is
     called.
 
@@ -2023,7 +2023,7 @@ def colormaps():
       =========   =======================================================
 
     A set of palettes from the `Yorick scientific visualisation
-    package <http://dhmunro.github.io/yorick-doc/>`_, an evolution of
+    package <https://dhmunro.github.io/yorick-doc/>`_, an evolution of
     the GIST package, both by David H. Munro are included:
 
       ============  =======================================================
@@ -2103,14 +2103,14 @@ def colormaps():
 
     .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
       Language. See `Color Table Gallery
-      <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
+      <https://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
 
     .. [#] See `Diverging Color Maps for Scientific Visualization
       <http://www.kennethmoreland.com/color-maps/>`_ by Kenneth Moreland.
 
     .. [#] See `A Color Map for Effective Black-and-White Rendering of
       Color-Scale Images
-      <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
+      <https://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
 
     .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
