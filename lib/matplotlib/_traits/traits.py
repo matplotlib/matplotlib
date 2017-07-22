@@ -56,95 +56,16 @@ class TransformTrait(TraitType):
     #returning IdentityTransform() if there is None, but at the time,
     #how does that validate it?
     def validate(self, obj, value):
+        if value is None:
+            return IdentityTransform()
+    elif (not isinstance(value, Transform)
+          and hasattr(value, '_as_mpl_transform')):
+
+        # self._transform = self._transform._as_mpl_transform(self.axes)
+    return value
 
 
-
-
-# class ClipPathTrait(TraitType):
-#
-#     def __init__(self, trait):
-#         #not sure if this going to work: needs testing
-#         self.__trait = trait
-#         pass
-#
-#     # def instance_init(self, obj):
-#     #     pass
-#     #
-#     # def class_init(self, cls, name):
-#     #     pass
-#
-#     def set(self, obj, val):
-#
-#         pass
-#
-#     def get(self, obj, cls):
-#         return self.__trait.get(obj, cls)
-#         pass
-#
-#     def __getattr__(self, name):
-#         return getattr(self.__trait, name)
-
-"""
-def set_clip_path(self, path, transform=None):
-
-    Set the artist's clip path, which may be:
-
-      * a :class:`~matplotlib.patches.Patch` (or subclass) instance
-
-      * a :class:`~matplotlib.path.Path` instance, in which case
-         an optional :class:`~matplotlib.transforms.Transform`
-         instance may be provided, which will be applied to the
-         path before using it for clipping.
-
-      * *None*, to remove the clipping path
-
-    For efficiency, if the path happens to be an axis-aligned
-    rectangle, this method will set the clipping box to the
-    corresponding rectangle and set the clipping path to *None*.
-
-    ACCEPTS: [ (:class:`~matplotlib.path.Path`,
-    :class:`~matplotlib.transforms.Transform`) |
-    :class:`~matplotlib.patches.Patch` | None ]
-
-    from matplotlib.patches import Patch, Rectangle
-
-    success = False
-    if transform is None:
-        if isinstance(path, Rectangle):
-            self.clipbox = TransformedBbox(Bbox.unit(),
-                                           path.get_transform())
-            self._clippath = None
-            success = True
-        elif isinstance(path, Patch):
-            self._clippath = TransformedPatchPath(path)
-            success = True
-        elif isinstance(path, tuple):
-            path, transform = path
-
-    if path is None:
-        self._clippath = None
-        success = True
-    elif isinstance(path, Path):
-        self._clippath = TransformedPath(path, transform)
-        success = True
-    elif isinstance(path, TransformedPatchPath):
-        self._clippath = path
-        success = True
-    elif isinstance(path, TransformedPath):
-        self._clippath = path
-        success = True
-
-    if not success:
-        print(type(path), type(transform))
-        raise TypeError("Invalid arguments to set_clip_path")
-    # this may result in the callbacks being hit twice, but grantees they
-    # will be hit at least once
-    self.pchanged()
-    self.stale = True
-"""
-
-"""
-    def get_clip_path(self):
-        'Return artist clip path'
-        return self._clippath
-"""
+#start of the install_traits() function
+# def install_traits():
+#     import matplotlib.lines
+#     matplotlib.lines.Line2D  = Line2DWithTraits

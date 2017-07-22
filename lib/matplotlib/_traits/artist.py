@@ -66,7 +66,7 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 #class Artist(_artist.Artist)
-class Artist(HasTraits):
+class Artist(HasTraits, _artist.Artist):
 
     aname=Unicode('Artist')
     zorder=Int(default_value=0)
@@ -77,7 +77,9 @@ class Artist(HasTraits):
     stale_callback=Callable(allow_none=True, default_value=True)
     axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
     figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
-    transform=Instance('matplotlib.transform.Transform', allow_none=True, default_value=None)
+    #not sure if this would be the correct way to call TransformTrait
+    transform = TransformTrait(allow_none=True, default_value=None)
+    # transform=Instance('matplotlib.transform.Transform', allow_none=True, default_value=None)
     transformSet=Bool(default_value=False)
     visible=Bool(default_value=True)
     animated=Bool(default_value=False)
@@ -88,7 +90,7 @@ class Artist(HasTraits):
     Union([Float(), Bool(), Int()]) attempts to
     validate the provided values with the validation function of Float, then Bool, and finally Int.
     """
-    clippath=Perishable(Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None))
+    clippath=Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
     clipon=Boolean(default_value=True)
     label=Unicode(allow_none=True, default_value='')
     picker=Union(Float,Boolean,Callable, allow_none=True, default_value=None)
@@ -643,14 +645,15 @@ _______________________________________________________________________________
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
         print("set stale: %r" self.stale)
+
 """
 _______________________________________________________________________________
 """
 
-    """
-    This may not work, I may or may not have to work around rcParams['path.sketch']
-    but I am not sure yet
-    """
+
+    # This may not work, I may or may not have to work around rcParams['path.sketch']
+    # but I am not sure yet
+    # this may also have to be a trait?
 
     #sketch default
     @default("sketch")
@@ -661,12 +664,19 @@ _______________________________________________________________________________
     @validate("sketch")
     def _sketch_validate(self, proposal):
         print("cross validating %r" % proposal.value")
-        return proposal.value
+        if proposal.scale is None:
+            return None
+        else:
+            #(scale, length or 128.0, randomness or 16.0)
+            #not sure if this is how to go about this?
+            return (proposal.scale, proposal.length or 128.0, proposal.randomness or 16.0)
+        # return proposal.value
     #sketch observer
     @observe("sketch", type = change)
     def _sketch_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
@@ -691,6 +701,8 @@ _______________________________________________________________________________
     @observe("path_effects", type = change)
     def _path_effects_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" self.stale)
 
 """
 _______________________________________________________________________________
@@ -723,12 +735,12 @@ _______________________________________________________________________________
 """
 
     #ARTIST FUNCTIONS
-
-    def __init__(self):
-        pass
-
-    def __getstate__(self):
-        pass
+    #
+    # def __init__(self):
+    #     pass
+    #
+    # def __getstate__(self):
+    #     pass
 
 """
 These following functions are copied and pasted from the original Artist class.
@@ -998,4 +1010,145 @@ This is because I feel as if they can be altered to their respective traits.
                 isinstance(item, (np.floating, np.integer, int, float)))
 
 
-#_artist.Artist = Artist
+# outside of the artist/artist inspector
+def getp(obj, property=None):
+    """
+    Return the value of object's property.  *property* is an optional string
+    for the property you want to return
+
+    Example usage::
+
+        getp(obj)  # get all the object properties
+        getp(obj, 'linestyle')  # get the linestyle property
+
+    *obj* is a :class:`Artist` instance, e.g.,
+    :class:`~matplotllib.lines.Line2D` or an instance of a
+    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
+    If the *property* is 'somename', this function returns
+
+      obj.get_somename()
+
+    :func:`getp` can be used to query all the gettable properties with
+    ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
+    'lw' is an alias for 'linewidth'.  In the output, aliases and full
+    property names will be listed as:
+
+      property or alias = value
+
+    e.g.:
+
+      linewidth or lw = 2
+    """
+    if property is None:
+        insp = ArtistInspector(obj)
+        ret = insp.pprint_getters()
+        print('\n'.join(ret))
+        return
+
+    func = getattr(obj, 'get_' + property)
+    return func()
+
+# alias
+get = getp
+
+
+def setp(obj, *args, **kwargs):
+    """
+    Set a property on an artist object.
+
+    matplotlib supports the use of :func:`setp` ("set property") and
+    :func:`getp` to set and get object properties, as well as to do
+    introspection on the object.  For example, to set the linestyle of a
+    line to be dashed, you can do::
+
+      >>> line, = plot([1,2,3])
+      >>> setp(line, linestyle='--')
+
+    If you want to know the valid types of arguments, you can provide
+    the name of the property you want to set without a value::
+
+      >>> setp(line, 'linestyle')
+          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+
+    If you want to see all the properties that can be set, and their
+    possible values, you can do::
+
+      >>> setp(line)
+          ... long output listing omitted
+
+    You may specify another output file to `setp` if `sys.stdout` is not
+    acceptable for some reason using the `file` keyword-only argument::
+
+      >>> with fopen('output.log') as f:
+      >>>     setp(line, file=f)
+
+    :func:`setp` operates on a single instance or a iterable of
+    instances. If you are in query mode introspecting the possible
+    values, only the first instance in the sequence is used. When
+    actually setting values, all the instances will be set.  e.g.,
+    suppose you have a list of two lines, the following will make both
+    lines thicker and red::
+
+      >>> x = arange(0,1.0,0.01)
+      >>> y1 = sin(2*pi*x)
+      >>> y2 = sin(4*pi*x)
+      >>> lines = plot(x, y1, x, y2)
+      >>> setp(lines, linewidth=2, color='r')
+
+    :func:`setp` works with the MATLAB style string/value pairs or
+    with python kwargs.  For example, the following are equivalent::
+
+      >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style
+      >>> setp(lines, linewidth=2, color='r')        # python style
+    """
+
+    if not cbook.iterable(obj):
+        objs = [obj]
+    else:
+        objs = list(cbook.flatten(obj))
+
+    if not objs:
+        return
+
+    insp = ArtistInspector(objs[0])
+
+    # file has to be popped before checking if kwargs is empty
+    printArgs = {}
+    if 'file' in kwargs:
+        printArgs['file'] = kwargs.pop('file')
+
+    if not kwargs and len(args) < 2:
+        if args:
+            print(insp.pprint_setters(prop=args[0]), **printArgs)
+        else:
+            print('\n'.join(insp.pprint_setters()), **printArgs)
+        return
+
+    if len(args) % 2:
+        raise ValueError('The set args must be string, value pairs')
+
+    # put args into ordereddict to maintain order
+    funcvals = OrderedDict()
+    for i in range(0, len(args) - 1, 2):
+        funcvals[args[i]] = args[i + 1]
+
+    ret = [o.update(funcvals) for o in objs]
+    ret.extend([o.set(**kwargs) for o in objs])
+    return [x for x in cbook.flatten(ret)]
+
+
+def kwdoc(a):
+    hardcopy = matplotlib.rcParams['docstring.hardcopy']
+    if hardcopy:
+        return '\n'.join(ArtistInspector(a).pprint_setters_rest(
+                         leadingspace=2))
+    else:
+        return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
+
+docstring.interpd.update(Artist=kwdoc(Artist))
+
+_get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
+axes property.  A removal date has not been set."""
+
+#monkey patching
+_artist.Artist = Artist
