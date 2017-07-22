@@ -107,14 +107,12 @@ class Artist(HasTraits, _artist.Artist):
     snap=Perishable(Boolean(allow_none=True, default_value=None))
     sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     path_effects=List(Instance('matplotlib.patheffect._Base'), default_value=rcParams['path.effects'])
+
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
     #the first element of this tuple represents x
     #and the second element of sticky_edges represents y
     sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
-
-    #the axes bounding box in display space
-    #TO DO: window_extent -> Bbox([[0, 0], [0, 0]])
 
 """
 _______________________________________________________________________________
