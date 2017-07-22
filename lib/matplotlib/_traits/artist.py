@@ -473,6 +473,8 @@ _______________________________________________________________________________
     @validate("rasterized")
     def _rasterized_validate(self, proposal):
         print("cross validating %r" % proposal.value")
+                if proposal.value and not hasattr(self.draw, "_supports_rasterization"):
+                    warnings.warn("Rasterization of '%s' will be ignored" % self)
         return proposal.value
     #rasterized observer
     @observe("rasterized", type = change)
@@ -497,7 +499,8 @@ _______________________________________________________________________________
     @observe("agg_filter", type = change)
     def _agg_filter_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        self.stale = True
+        print("set stale: %r" self.stale)
 """
 _______________________________________________________________________________
 """
@@ -507,16 +510,24 @@ _______________________________________________________________________________
     def _mouseover_default(self):
         print("generating default mouseover value")
         return False
-    #mouseover validate
+    #mouseover validate: reference @mouseover.setter
     @validate("mouseover")
     def _mouseover_validate(self, proposal):
         print("cross validating %r" % proposal.value")
-        return proposal.value
+        val = bool(proposal.value)
+        #val is the returned value
+        return val
     #mouseover observer
     @observe("mouseover", type = change)
     def _mouseover_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
-
+        print("adding or discarding from axes.mouseover_set")
+        ax = self.axes
+        if ax:
+            if val:
+                ax.mouseover_set.add(self)
+            else:
+                ax.mouseover_set.discard(self)
 """
 _______________________________________________________________________________
 """
