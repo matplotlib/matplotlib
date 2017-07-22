@@ -551,7 +551,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     ax.plot([3.1, 2.2])
 #
 # If you are using certain backends (like `macosx`), or an older version
-# of matplotlib, you may not see the new line added to the plot immediately. 
+# of matplotlib, you may not see the new line added to the plot immediately.
 # In this case, you need to explicitly call :func:`~matplotlib.pyplot.draw`
 # in order to update the plot::
 #
