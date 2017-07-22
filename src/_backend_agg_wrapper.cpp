@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     RendererAgg *x;
     Py_ssize_t shape[3];
     Py_ssize_t strides[3];
@@ -13,7 +13,7 @@ typedef struct
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     BufferRegion *x;
     Py_ssize_t shape[3];
     Py_ssize_t strides[3];
