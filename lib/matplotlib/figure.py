@@ -35,6 +35,7 @@ from matplotlib import image as mimage
 from matplotlib.image import FigureImage
 
 import matplotlib.colorbar as cbar
+import matplotlib.colors as mcolors
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
@@ -1834,6 +1835,9 @@ class Figure(Artist):
         # Store the value of gca so that we can set it back later on.
         current_ax = self.gca()
 
+        if isinstance(mappable.norm, mcolors.BivariateNorm):
+            kw['fraction'] = 0.30
+            kw['aspect'] = 1
         if cax is None:
             if use_gridspec and isinstance(ax, SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
