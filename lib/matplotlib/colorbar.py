@@ -900,21 +900,21 @@ class ColorbarBase(cm.ScalarMappable):
         fig.delaxes(self.ax)
 
 
-class Colorsquare(ColorbarBase):
+class ColorsquareBase(cm.ScalarMappable):
+    n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
     def __init__(self, ax, cmap=None,
                  norm=None,
                  alpha=None,
-                 values=None,
-                 boundaries=None,
-                 ticklocation='auto',
-                 extend='neither',
-                 spacing='uniform',  # uniform or proportional
-                 ticks=None,
-                 format=None,
+                 xvalues=None,
+                 yvalues=None,
+                 xboundaries=None,
+                 yboundaries=None,
+                 xticks=None,
+                 yticks=None,
+                 xformat=None,
+                 yformat=None,
                  drawedges=False,
                  filled=True,
-                 extendfrac=None,
-                 extendrect=False,
                  xlabel='',
                  ylabel='',
                  ):
@@ -927,59 +927,78 @@ class Colorsquare(ColorbarBase):
             norm = colors.BivariateNorm()
         self.alpha = alpha
         cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
-        self.values = values
-        self.boundaries = boundaries
-        self.extend = extend
-        self._inside = self._slice_dict[extend]
-        self.spacing = spacing
+        self.xvalues = xvalues
+        self.yvalues = yvalues
+        self.xboundaries = xboundaries
+        self.yboundaries = yboundaries
+        self._inside = slice(0, None)
         self.drawedges = drawedges
         self.filled = filled
-        self.extendfrac = extendfrac
-        self.extendrect = extendrect
         self.solids = None
         self.lines = list()
-        self.outline = None
-        self.patch = None
         self.dividers = None
-
         self.set_label(xlabel, ylabel)
-        if cbook.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+
+        if cbook.iterable(xticks):
+            self.xlocator = ticker.FixedLocator(xticks, nbins=len(xticks))
         else:
-            self.locator = ticks    # Handle default in _ticker()
-        if format is None:
-            if isinstance(self.norm, colors.LogNorm):
-                self.formatter = ticker.LogFormatterSciNotation()
-            elif isinstance(self.norm, colors.SymLogNorm):
-                self.formatter = ticker.LogFormatterSciNotation(
-                                        linthresh=self.norm.linthresh)
+            self.xlocator = xticks    # Handle default in _ticker()
+
+        if cbook.iterable(yticks):
+            self.ylocator = ticker.FixedLocator(yticks, nbins=len(yticks))
+        else:
+            self.ylocator = yticks
+
+        if xformat is None:
+            if isinstance(self.norm.norm1, colors.LogNorm):
+                self.xformatter = ticker.LogFormatterSciNotation()
+            elif isinstance(self.norm.norm1, colors.SymLogNorm):
+                self.xformatter = ticker.LogFormatterSciNotation(
+                                        linthresh=self.norm.norm1.linthresh)
             else:
-                self.formatter = ticker.ScalarFormatter()
-        elif isinstance(format, six.string_types):
-            self.formatter = ticker.FormatStrFormatter(format)
+                self.xformatter = ticker.ScalarFormatter()
+        elif isinstance(xformat, six.string_types):
+            self.xformatter = ticker.FormatStrFormatter(xformat)
         else:
-            self.formatter = format  # Assume it is a Formatter
+            self.xformatter = xformat  # Assume it is a Formatter
+
+        if yformat is None:
+            if isinstance(self.norm.norm2, colors.LogNorm):
+                self.yformatter = ticker.LogFormatterSciNotation()
+            elif isinstance(self.norm.norm2, colors.SymLogNorm):
+                self.yformatter = ticker.LogFormatterSciNotation(
+                                        linthresh=self.norm.norm2.linthresh)
+            else:
+                self.yformatter = ticker.ScalarFormatter()
+        elif isinstance(yformat, six.string_types):
+            self.yformatter = ticker.FormatStrFormatter(yformat)
+        else:
+            self.yformatter = yformat  # Assume it is a Formatter
+
         # The rest is in a method so we can recalculate when clim changes.
         self.config_axis()
         self.draw_all()
 
-    def draw_all(self):
-        '''
-        Calculate any free parameters based on the current cmap and norm,
-        and do all the drawing.
-        '''
+    def _patch_ax(self):
+        # bind some methods to the axes to warn users
+        # against using those methods.
+        self.ax.set_xticks = _set_ticks_on_axis_warn
+        self.ax.set_yticks = _set_ticks_on_axis_warn
 
-        self._process_values()
-        self._find_range()
+    def draw_all(self):
+        normx = self.norm.norm1
+        normy = self.norm.norm2
+        self._xvalues, self._xboundaries = self._process_values(norm=normx)
+        self._yvalues, self._yboundaries = self._process_values(norm=normy)
         X, Y = self._mesh()
-        C = np.array(X * 256 * 256  + Y * 256, dtype='int64')
-        # C = self._values[:, np.newaxis]
-        self._config_axes(X, Y)
+        CX, CY = np.meshgrid(self._xvalues, self._yvalues)
+        self.update_ticks()
         if self.filled:
-            self._add_solids(X, Y, C)
+            self._add_solids(X, Y, [CX, CY])
 
     def config_axis(self):
         ax = self.ax
+        ax.set_navigate(False)
 
         ax.yaxis.set_label_position('right')
         ax.yaxis.set_ticks_position('right')
@@ -995,31 +1014,18 @@ class Colorsquare(ColorbarBase):
         called whenever the tick locator and/or tick formatter changes.
         """
         ax = self.ax
-        # xticks, yticks, xticklabels, yticklabels, offset_string = self._ticker()
-        yticks, yticklabels, offset_string = self._ticker()
-        xticks = []
-        xticklabels = ''
-        ax.yaxis.set_ticks(yticks)
-        ax.set_yticklabels(yticklabels)
-        ax.yaxis.get_major_formatter().set_offset_string(offset_string)
+        xticks, xticklabels, xoffset_string = self._ticker(self.norm.norm1)
+        yticks, yticklabels, yoffset_string = self._ticker(self.norm.norm2)
+
         ax.xaxis.set_ticks(xticks)
         ax.set_xticklabels(xticklabels)
-        ax.xaxis.get_major_formatter().set_offset_string(offset_string)
+        ax.xaxis.get_major_formatter().set_offset_string(xoffset_string)
+
+        ax.yaxis.set_ticks(yticks)
+        ax.set_yticklabels(yticklabels)
+        ax.yaxis.get_major_formatter().set_offset_string(yoffset_string)
 
     def set_ticks(self, xticks, yticks, update_ticks=True):
-        """
-        Set tick locations.
-
-        Parameters
-        ----------
-        ticks : {None, sequence, :class:`~matplotlib.ticker.Locator` instance}
-            If None, a default Locator will be used.
-
-        update_ticks : {True, False}, optional
-            If True, tick locations are updated immediately.  If False,
-            use :meth:`update_ticks` to manually update the ticks.
-
-        """
         if cbook.iterable(xticks):
             self.xlocator = ticker.FixedLocator(xticks, nbins=len(xticks))
         else:
@@ -1034,59 +1040,28 @@ class Colorsquare(ColorbarBase):
             self.update_ticks()
         self.stale = True
 
-    def get_ticks(self, minor=False):
-        """Return the x ticks as a list of locations"""
-        return self._tick_data_values
-
-    def set_ticklabels(self, xticklabels, yticklabels, update_ticks=True):
+    def set_ticklabels(self, xticklabels=None, yticklabels=None,
+                       update_ticks=True):
         """
         set tick labels. Tick labels are updated immediately unless
         update_ticks is *False*. To manually update the ticks, call
         *update_ticks* method explicitly.
         """
-        if isinstance(self.locator, ticker.FixedLocator):
-            self.xformatter = ticker.FixedFormatter(xticklabels)
-            self.yformatter = ticker.FixedFormatter(yticklabels)
+        if xticklabels is not None or yticklabels is not None:
+            if isinstance(self.xlocator, ticker.FixedLocator):
+                self.xformatter = ticker.FixedFormatter(xticklabels)
+
+            if isinstance(self.ylocator, ticker.FixedLocator):
+                self.yformatter = ticker.FixedFormatter(yticklabels)
+
             if update_ticks:
                 self.update_ticks()
-        else:
-            warnings.warn("set_ticks() must have been called.")
+
+            self.stale = True
+            return
+
+        warnings.warn("set_ticks() must have been called.")
         self.stale = True
-
-    def _config_axes(self, X, Y):
-        '''
-        Make an axes patch and outline.
-        '''
-        ax = self.ax
-        # ax.set_frame_on(False)
-        ax.set_navigate(False)
-        # xy = self._outline(X, Y)
-        # ax.update_datalim(xy)
-        # ax.set_xlim(*ax.dataLim.intervalx)
-        # ax.set_ylim(*ax.dataLim.intervaly)
-        # if self.outline is not None:
-        #    self.outline.remove()
-        """
-        self.outline = mpatches.Polygon(
-            xy, edgecolor=mpl.rcParams['axes.edgecolor'],
-            facecolor='none',
-            linewidth=mpl.rcParams['axes.linewidth'],
-            closed=True,
-            zorder=2)
-        ax.add_artist(self.outline)
-        self.outline.set_clip_box(None)
-        self.outline.set_clip_path(None)
-
-        c = mpl.rcParams['axes.facecolor']
-        if self.patch is not None:
-            self.patch.remove()
-        self.patch = mpatches.Polygon(xy, edgecolor=c,
-                                      facecolor=c,
-                                      linewidth=0.01,
-                                      zorder=-1)
-        ax.add_artist(self.patch)
-        """
-        self.update_ticks()
 
     def _set_label(self):
         self.ax.set_ylabel(self._ylabel, **self._labelkw)
@@ -1095,7 +1070,7 @@ class Colorsquare(ColorbarBase):
 
     def set_label(self, xlabel, ylabel, **kw):
         '''
-        Label the long axis of the colorbar
+        Label the axes of the colorbar
         '''
         self._xlabel = '%s' % (xlabel, )
         self._ylabel = '%s' % (ylabel, )
@@ -1106,17 +1081,16 @@ class Colorsquare(ColorbarBase):
         '''
         Return the separator line segments; helper for _add_solids.
         '''
-        pass
+        N = X.shape[0].
+        return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
+        + [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
 
     def _add_solids(self, X, Y, C):
         '''
         Draw the colors using :meth:`~matplotlib.axes.Axes.pcolormesh`;
         optionally add separators.
         '''
-        # if self.orientation == 'vertical':
         args = (X, Y, C)
-        # else:
-        #    args = (np.transpose(Y), np.transpose(X), np.transpose(C))
         kw = dict(cmap=self.cmap,
                   norm=self.norm,
                   alpha=self.alpha,
@@ -1128,7 +1102,6 @@ class Colorsquare(ColorbarBase):
         self.ax._hold = True
         col = self.ax.pcolormesh(*args, **kw)
         self.ax._hold = _hold
-        #self.add_observer(col) # We should observe, not be observed...
 
         if self.solids is not None:
             self.solids.remove()
@@ -1138,74 +1111,49 @@ class Colorsquare(ColorbarBase):
             self.dividers = None
         if self.drawedges:
             linewidths = (0.5 * mpl.rcParams['axes.linewidth'],)
-            """
             self.dividers = collections.LineCollection(self._edges(X, Y),
                                     colors=(mpl.rcParams['axes.edgecolor'],),
                                     linewidths=linewidths)
             self.ax.add_collection(self.dividers)
-            """
-        elif len(self._y) >= self.n_rasterize:
+        elif(len(self._y) >= self.n_rasterize
+             or len(self._x) >= self.n_rasterize):
             self.solids.set_rasterized(True)
 
-    def add_lines(self, levels, colors, linewidths, erase=True):
-        '''
-        Draw lines on the colorbar.
-
-        *colors* and *linewidths* must be scalars or
-        sequences the same length as *levels*.
-
-        Set *erase* to False to add lines without first
-        removing any previously added lines.
-        '''
-        y = self._locate(levels)
-        igood = (y < 1.001) & (y > -0.001)
-        y = y[igood]
-        if cbook.iterable(colors):
-            colors = np.asarray(colors)[igood]
-        if cbook.iterable(linewidths):
-            linewidths = np.asarray(linewidths)[igood]
-        N = len(y)
-        x = np.array([0.0, 1.0])
-        X, Y = np.meshgrid(x, y)
-        if self.orientation == 'vertical':
-            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
-        else:
-            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
-        col = collections.LineCollection(xy, linewidths=linewidths)
-
-        if erase and self.lines:
-            for lc in self.lines:
-                lc.remove()
-            self.lines = []
-        self.lines.append(col)
-        col.set_color(colors)
-        self.ax.add_collection(col)
-        self.stale = True
-
-    def _ticker(self):
+    def _ticker(self, norm):
         '''
         Return the sequence of ticks (colorbar data locations),
         ticklabels (strings), and the corresponding offset string.
         '''
-        locator = self.locator
-        formatter = self.formatter
+        if norm is self.norm.norm1:
+            _values = self._xvalues
+            _boundaries = self._xboundaries
+            boundaries = self.xboundaries
+            locator = self.xlocator
+            formatter = self.xformatter
+        else:
+            _values = self._yvalues
+            _boundaries = self._yboundaries
+            boundaries = self.yboundaries
+            locator = self.ylocator
+            formatter = self.yformatter
+
         if locator is None:
-            if self.boundaries is None:
-                if isinstance(self.norm, colors.NoNorm):
-                    nv = len(self._values)
+            if boundaries is None:
+                if isinstance(norm, colors.NoNorm):
+                    nv = len(_values)
                     base = 1 + int(nv / 10)
                     locator = ticker.IndexLocator(base=base, offset=0)
-                elif isinstance(self.norm, colors.BoundaryNorm):
-                    b = self.norm.boundaries
+                elif isinstance(norm, colors.BoundaryNorm):
+                    b = norm.boundaries
                     locator = ticker.FixedLocator(b, nbins=10)
-                elif isinstance(self.norm, colors.LogNorm):
+                elif isinstance(norm, colors.LogNorm):
                     locator = ticker.LogLocator(subs='all')
-                elif isinstance(self.norm, colors.SymLogNorm):
+                elif isinstance(norm, colors.SymLogNorm):
                     # The subs setting here should be replaced
                     # by logic in the locator.
                     locator = ticker.SymmetricalLogLocator(
                                       subs=np.arange(1, 10),
-                                      linthresh=self.norm.linthresh,
+                                      linthresh=norm.linthresh,
                                       base=10)
                 else:
                     if mpl.rcParams['_internal.classic_mode']:
@@ -1213,12 +1161,13 @@ class Colorsquare(ColorbarBase):
                     else:
                         locator = ticker.AutoLocator()
             else:
-                b = self._boundaries[self._inside]
+                b = _boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
-        if isinstance(self.norm, colors.NoNorm) and self.boundaries is None:
-            intv = self._values[0], self._values[-1]
+        if isinstance(norm, colors.NoNorm) and boundaries is None:
+            intv = _values[0], _values[-1]
         else:
-            intv = self.vmin, self.vmax
+            b = _boundaries[self._inside]
+            intv = b[0], b[-1]
         locator.create_dummy_axis(minpos=intv[0])
         formatter.create_dummy_axis(minpos=intv[0])
         locator.set_view_interval(*intv)
@@ -1233,199 +1182,96 @@ class Colorsquare(ColorbarBase):
         else:
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        self._tick_data_values = b
-        ticks = self._locate(b)
+        # self._tick_data_values = b
+        ticks = self._locate(b, norm)
         formatter.set_locs(b)
         ticklabels = [formatter(t, i) for i, t in enumerate(b)]
         offset_string = formatter.get_offset()
         return ticks, ticklabels, offset_string
 
-    def _process_values(self, b=None):
-        '''
-        Set the :attr:`_boundaries` and :attr:`_values` attributes
-        based on the input boundaries and values.  Input boundaries
-        can be *self.boundaries* or the argument *b*.
-        '''
+    def _process_values(self, b=None, norm=None):
+        if norm is self.norm.norm1:
+            boundaries = self.xboundaries
+            values = self.xvalues
+        else:
+            boundaries = self.yboundaries
+            values = self.yvalues
         if b is None:
-            b = self.boundaries
+            b = boundaries
         if b is not None:
-            self._boundaries = np.asarray(b, dtype=float)
-            if self.values is None:
-                self._values = 0.5 * (self._boundaries[:-1]
-                                      + self._boundaries[1:])
-                if isinstance(self.norm, colors.NoNorm):
-                    self._values = (self._values + 0.00001).astype(np.int16)
-                return
-            self._values = np.array(self.values)
-            return
-        if self.values is not None:
-            self._values = np.array(self.values)
-            if self.boundaries is None:
-                b = np.zeros(len(self.values) + 1, 'd')
-                b[1:-1] = 0.5 * (self._values[:-1] - self._values[1:])
+            b = np.asarray(b, dtype=float)
+            if values is None:
+                v = 0.5 * (b[:-1] + b[1:])
+                if isinstance(norm, colors.NoNorm):
+                    v = (v + 0.00001).astype(np.int16)
+                return v, b
+            v = np.array(self.values)
+            return v, b
+        if values is not None:
+            v = np.array(values)
+            if boundaries is None:
+                b = np.zeros(len(values) + 1, 'd')
+                b[1:-1] = 0.5 * (v[:-1] - v[1:])
                 b[0] = 2.0 * b[1] - b[2]
                 b[-1] = 2.0 * b[-2] - b[-3]
-                self._boundaries = b
-                return
-            self._boundaries = np.array(self.boundaries)
-            return
+                return v, b
+            b = np.array(boundaries)
+            return v, b
         # Neither boundaries nor values are specified;
         # make reasonable ones based on cmap and norm.
-        if isinstance(self.norm, colors.NoNorm):
-            b = self._uniform_y(self.cmap.N + 1) * self.cmap.N - 0.5
+        N = self.cmap.N
+        if isinstance(norm, colors.NoNorm):
+            b = np.linspace(0, 1, np.sqrt(N) + 1) * np.sqrt(N) - 0.5
             v = np.zeros((len(b) - 1,), dtype=np.int16)
-            v[self._inside] = np.arange(self.cmap.N, dtype=np.int16)
-            if self._extend_lower():
-                v[0] = -1
-            if self._extend_upper():
-                v[-1] = self.cmap.N
-            self._boundaries = b
-            self._values = v
-            return
-        elif isinstance(self.norm, colors.BoundaryNorm):
-            b = list(self.norm.boundaries)
-            if self._extend_lower():
-                b = [b[0] - 1] + b
-            if self._extend_upper():
-                b = b + [b[-1] + 1]
+            v[self._inside] = np.arange(np.sqrt(N), dtype=np.int16)
+            return v, b
+        elif isinstance(norm, colors.BoundaryNorm):
+            b = list(norm.boundaries)
             b = np.array(b)
             v = np.zeros((len(b) - 1,), dtype=float)
-            bi = self.norm.boundaries
+            bi = norm.boundaries
             v[self._inside] = 0.5 * (bi[:-1] + bi[1:])
-            if self._extend_lower():
-                v[0] = b[0] - 1
-            if self._extend_upper():
-                v[-1] = b[-1] + 1
-            self._boundaries = b
-            self._values = v
-            return
+            return v, b
         else:
-            if not self.norm.scaled():
-                self.norm.vmin = 0
-                self.norm.vmax = 1
+            if not norm.scaled():
+                norm.vmin = 0
+                norm.norm1.vmax = 1
 
-            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
-                self.norm.vmin,
-                self.norm.vmax,
-                expander=0.1)
+            norm.vmin, norm.vmax = mtransforms.nonsingular(
+                norm.vmin, norm.vmax, expander=0.1)
 
-            b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
+            b = norm.inverse(np.linspace(0, 1, np.sqrt(N) + 1))
 
-            if isinstance(self.norm, colors.LogNorm):
-                # If using a lognorm, ensure extensions don't go negative
-                if self._extend_lower():
-                    b[0] = 0.9 * b[0]
-                if self._extend_upper():
-                    b[-1] = 1.1 * b[-1]
-            else:
-                if self._extend_lower():
-                    b[0] = b[0] - 1
-                if self._extend_upper():
-                    b[-1] = b[-1] + 1
-        self._process_values(b)
-
-    def _find_range(self):
-        '''
-        Set :attr:`vmin` and :attr:`vmax` attributes to the first and
-        last boundary excluding extended end boundaries.
-        '''
-        b = self._boundaries[self._inside]
-        self.vmin = b[0]
-        self.vmax = b[-1]
-
-    def _central_N(self):
-        '''number of boundaries **before** extension of ends'''
-        nb = len(self._boundaries)
-        if self.extend == 'both':
-            nb -= 2
-        elif self.extend in ('min', 'max'):
-            nb -= 1
-        return nb
-
-    def _extended_N(self):
-        '''
-        Based on the colormap and extend variable, return the
-        number of boundaries.
-        '''
-        N = self.cmap.N + 1
-        if self.extend == 'both':
-            N += 2
-        elif self.extend in ('min', 'max'):
-            N += 1
-        return N
-
-    def _proportional_y(self):
-        '''
-        Return colorbar data coordinates for the boundaries of
-        a proportional colorbar.
-        '''
-        if isinstance(self.norm, colors.BoundaryNorm):
-            y = (self._boundaries - self._boundaries[0])
-            y = y / (self._boundaries[-1] - self._boundaries[0])
-        else:
-            y = self.norm(self._boundaries.copy())
-            y = np.ma.filled(y, np.nan)
-        if self.extend == 'min':
-            # Exclude leftmost interval of y.
-            clen = y[-1] - y[1]
-            automin = (y[2] - y[1]) / clen
-            automax = (y[-1] - y[-2]) / clen
-        elif self.extend == 'max':
-            # Exclude rightmost interval in y.
-            clen = y[-2] - y[0]
-            automin = (y[1] - y[0]) / clen
-            automax = (y[-2] - y[-3]) / clen
-        elif self.extend == 'both':
-            # Exclude leftmost and rightmost intervals in y.
-            clen = y[-2] - y[1]
-            automin = (y[2] - y[1]) / clen
-            automax = (y[-2] - y[-3]) / clen
-        if self.extend in ('both', 'min', 'max'):
-            extendlength = self._get_extension_lengths(self.extendfrac,
-                                                       automin, automax,
-                                                       default=0.05)
-        if self.extend in ('both', 'min'):
-            y[0] = 0. - extendlength[0]
-        if self.extend in ('both', 'max'):
-            y[-1] = 1. + extendlength[1]
-        yi = y[self._inside]
-        norm = colors.Normalize(yi[0], yi[-1])
-        y[self._inside] = np.ma.filled(norm(yi), np.nan)
-        return y
+        return self._process_values(b=b, norm=norm)
 
     def _mesh(self):
         '''
         Return X,Y, the coordinate arrays for the colorbar pcolormesh.
-        These are suitable for a vertical colorbar; swapping and
-        transposition for a horizontal colorbar are done outside
-        this function.
         '''
-        if self.spacing == 'uniform':
-            x = y = self._uniform_y(self._central_N())
-        else:
-            x = y = self._proportional_y()
+        x = np.linspace(0, 1, len(self._xboundaries))
+        y = np.linspace(0, 1, len(self._yboundaries))
         self._x = x
         self._y = y
         X, Y = np.meshgrid(x, y)
-        if self._extend_lower() and not self.extendrect:
-            X[0, :] = 0.5
-        if self._extend_upper() and not self.extendrect:
-            X[-1, :] = 0.5
         return X, Y
 
-    def _locate(self, x):
+    def _locate(self, x, norm):
         '''
         Given a set of color data values, return their
         corresponding colorbar data coordinates.
         '''
-        if isinstance(self.norm, (colors.NoNorm, colors.BoundaryNorm)):
-            b = self._boundaries
+        if norm is self.norm.norm1:
+            boundaries = self._xboundaries
+        else:
+            boundaries = self._yboundaries
+        if isinstance(norm, (colors.NoNorm, colors.BoundaryNorm)):
+            b = boundaries
             xn = x
         else:
             # Do calculations using normalized coordinates so
             # as to make the interpolation more accurate.
-            b = self.norm(self._boundaries, clip=False).filled()
-            xn = self.norm(x, clip=False).filled()
+            b = norm(boundaries, clip=False).filled()
+            xn = norm(x, clip=False).filled()
 
         # The rest is linear interpolation with extrapolation at ends.
         ii = np.searchsorted(b, xn)
@@ -1443,8 +1289,17 @@ class Colorsquare(ColorbarBase):
         z = np.take(y, i0) + (xn - np.take(b, i0)) * dy / db
         return z
 
+    def set_alpha(self, alpha):
+        self.alpha = alpha
 
-class Colorbar(Colorsquare):
+    def remove(self):
+        """
+        Remove this colorsquare from the figure
+        """
+        fig = self.ax.figure
+        fig.delaxes(self.ax)
+
+class Colorbar(ColorbarBase):
     """
     This class connects a :class:`ColorbarBase` to a
     :class:`~matplotlib.cm.ScalarMappable` such as a
@@ -1484,7 +1339,7 @@ class Colorbar(Colorsquare):
             if isinstance(mappable, martist.Artist):
                 kw['alpha'] = mappable.get_alpha()
 
-            Colorsquare.__init__(self, ax, **kw)
+            ColorbarBase.__init__(self, ax, **kw)
 
     def on_mappable_changed(self, mappable):
         """
@@ -1578,6 +1433,81 @@ class Colorbar(Colorsquare):
         """
 
         ColorbarBase.remove(self)
+        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
+        self.mappable.colorbar = None
+        self.mappable.colorbar_cid = None
+
+        try:
+            ax = self.mappable.axes
+        except AttributeError:
+            return
+
+        try:
+            gs = ax.get_subplotspec().get_gridspec()
+            subplotspec = gs.get_topmost_subplotspec()
+        except AttributeError:
+            # use_gridspec was False
+            pos = ax.get_position(original=True)
+            ax.set_position(pos)
+        else:
+            # use_gridspec was True
+            ax.set_subplotspec(subplotspec)
+
+
+class Colorsquare(ColorsquareBase):
+    """
+    This class connects a :class:`Colorbarsquare` to a
+    :class:`~matplotlib.cm.ScalarMappable` such as a
+    :class:`~matplotlib.image.AxesImage` generated via
+    :meth:`~matplotlib.axes.Axes.imshow`.
+
+    It is not intended to be instantiated directly; instead,
+    use :meth:`~matplotlib.figure.Figure.colorbar` or
+    :func:`~matplotlib.pyplot.colorbar` to make your colorsquare.
+
+    """
+    def __init__(self, ax, mappable, **kw):
+        # Ensure the given mappable's norm has appropriate vmin and vmax set
+        # even if mappable.draw has not yet been called.
+        mappable.autoscale_None()
+
+        self.mappable = mappable
+        kw['cmap'] = cmap = mappable.cmap
+        kw['norm'] = norm = mappable.norm
+
+        if isinstance(mappable, martist.Artist):
+            kw['alpha'] = mappable.get_alpha()
+
+        ColorsquareBase.__init__(self, ax, **kw)
+
+    def on_mappable_changed(self, mappable):
+        """
+        Updates this colorsquare to match the mappable's properties.
+
+        Typically this is automatically registered as an event handler
+        by :func:`colorbar_factory` and should not be called manually.
+
+        """
+        self.set_cmap(mappable.get_cmap())
+        self.set_clim(mappable.get_clim())
+        self.update_normal(mappable)
+
+    def update_normal(self, mappable):
+        '''
+        update solid, lines, etc. Unlike update_bruteforce, it does
+        not clear the axes.  This is meant to be called when the image
+        or contour plot to which this colorsquare belongs is changed.
+        '''
+        self.draw_all()
+        self.stale = True
+
+    def remove(self):
+        """
+        Remove this colorsquare from the figure.  If the colorsquare was
+        created with ``use_gridspec=True`` then restore the gridspec to its
+        previous value.
+        """
+        Colorbarsquare.remove(self)
         self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
@@ -1757,9 +1687,9 @@ def make_axes_gridspec(parent, **kw):
     orientation = kw.setdefault('orientation', 'vertical')
     kw['ticklocation'] = 'auto'
 
-    fraction = kw.pop('fraction', 0.35)
+    fraction = kw.pop('fraction', 0.15)
     shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 1)
+    aspect = kw.pop('aspect', 20)
 
     x1 = 1.0 - fraction
 
@@ -1905,8 +1835,11 @@ def colorbar_factory(cax, mappable, **kwargs):
     if (isinstance(mappable, contour.ContourSet)
             and any([hatch is not None for hatch in mappable.hatches])):
         cb = ColorbarPatch(cax, mappable, **kwargs)
+    elif (isinstance(mappable.norm, colors.BivariateNorm)):
+        kwargs.pop('orientation', None)
+        kwargs.pop('ticklocation', None)
+        cb = Colorsquare(cax, mappable, **kwargs)
     else:
-        temp = kwargs.pop('orientation', 'vert')
         cb = Colorbar(cax, mappable, **kwargs)
 
     cid = mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
