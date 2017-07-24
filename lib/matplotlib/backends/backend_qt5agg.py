@@ -43,7 +43,8 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # accordingly. We could watch for screenChanged events from Qt, but
         # the issue is that we can't guarantee this will be emitted *before*
         # the first paintEvent for the canvas, so instead we keep track of the
-        # dpi_ratio value here and in paintEvent we resize the canvas if needed.
+        # dpi_ratio value here and in paintEvent we resize the canvas if
+        # needed.
         self._dpi_ratio_prev = None
 
     def drawRectangle(self, rect):
@@ -68,9 +69,10 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # As described in __init__ above, we need to be careful in cases with
         # mixed resolution displays if dpi_ratio is changing between painting
         # events.
-        if self._dpi_ratio_prev is None:
-            self._dpi_ratio_prev = self._dpi_ratio
-        elif self._dpi_ratio != self._dpi_ratio_prev:
+        if (self._dpi_ratio_prev is None or
+            self._dpi_ratio != self._dpi_ratio_prev):
+            # We need to update the figure DPI
+            self._update_figure_dpi()
             # The easiest way to resize the canvas is to emit a resizeEvent
             # since we implement all the logic for resizing the canvas for
             # that event.
@@ -195,6 +197,10 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
         if not hasattr(self.figure, '_original_dpi'):
             self.figure._original_dpi = self.figure.dpi
         self.figure.dpi = self._dpi_ratio * self.figure._original_dpi
+
+    def _update_figure_dpi(self):
+        dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
 
 
 @_BackendQT5.export
