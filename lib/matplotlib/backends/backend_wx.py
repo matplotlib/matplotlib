@@ -28,11 +28,9 @@ import warnings
 import numpy as np
 
 import matplotlib
-from matplotlib import cbook
-from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
-    FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    cursors, TimerBase)
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    NavigationToolbar2, RendererBase, TimerBase, cursors)
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
@@ -1166,72 +1164,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 ########################################################################
 
 
-def _create_wx_app():
-    """
-    Creates a wx.App instance if it has not been created sofar.
-    """
-    wxapp = wx.GetApp()
-    if wxapp is None:
-        wxapp = wx.App(False)
-        wxapp.SetExitOnFrameDelete(True)
-        # retain a reference to the app object so it does not get garbage
-        # collected and cause segmentation faults
-        _create_wx_app.theWxApp = wxapp
-
-
-def draw_if_interactive():
-    """
-    This should be overridden in a windowing environment if drawing
-    should be done in interactive python mode
-    """
-    DEBUG_MSG("draw_if_interactive()", 1, None)
-
-    if matplotlib.is_interactive():
-
-        figManager = Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
-
-class Show(ShowBase):
-    def mainloop(self):
-        needmain = not wx.App.IsMainLoopRunning()
-        if needmain:
-            wxapp = wx.GetApp()
-            if wxapp is not None:
-                wxapp.MainLoop()
-
-show = Show()
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # in order to expose the Figure constructor to the pylab
-    # interface we need to create the figure here
-    DEBUG_MSG("new_figure_manager()", 3, None)
-    _create_wx_app()
-
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    fig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, fig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    fig = figure
-    frame = FigureFrameWx(num, fig)
-    figmgr = frame.get_figure_manager()
-    if matplotlib.is_interactive():
-        figmgr.frame.Show()
-        figure.canvas.draw_idle()
-
-    return figmgr
-
-
 class FigureFrameWx(wx.Frame):
     def __init__(self, num, fig):
         # On non-Windows platform, explicitly set the position - fix
@@ -1886,6 +1818,43 @@ class PrintoutWx(wx.Printout):
 #
 ########################################################################
 
-FigureCanvas = FigureCanvasWx
-FigureManager = FigureManagerWx
 Toolbar = NavigationToolbar2Wx
+
+
+@_Backend.export
+class _BackendWx(_Backend):
+    FigureCanvas = FigureCanvasWx
+    FigureManager = FigureManagerWx
+    _frame_class = FigureFrameWx
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @classmethod
+    def new_figure_manager(cls, num, *args, **kwargs):
+        # Create a wx.App instance if it has not been created sofar.
+        wxapp = wx.GetApp()
+        if wxapp is None:
+            wxapp = wx.App(False)
+            wxapp.SetExitOnFrameDelete(True)
+            # Retain a reference to the app object so that it does not get
+            # garbage collected.
+            _BackendWx._theWxApp = wxapp
+        return super(_BackendWx, cls).new_figure_manager(num, *args, **kwargs)
+
+    @classmethod
+    def new_figure_manager_given_figure(cls, num, figure):
+        frame = cls._frame_class(num, figure)
+        figmgr = frame.get_figure_manager()
+        if matplotlib.is_interactive():
+            figmgr.frame.Show()
+            figure.canvas.draw_idle()
+        return figmgr
+
+    @staticmethod
+    def mainloop():
+        if not wx.App.IsMainLoopRunning():
+            wxapp = wx.GetApp()
+            if wxapp is not None:
+                wxapp.MainLoop()

@@ -28,15 +28,14 @@ _new_tooltip_api =  (gtk.pygtk_version[1] >= 12)
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    TimerBase, cursors)
 
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
-from matplotlib.cbook import is_writable_file_like
+from matplotlib.cbook import is_writable_file_like, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
-from matplotlib.cbook import warn_deprecated
 
 from matplotlib import (
     cbook, colors as mcolors, lines, markers, rcParams, verbose)
@@ -61,41 +60,6 @@ cursord = {
 def GTK_WIDGET_DRAWABLE(w):
     flags = w.flags();
     return flags & gtk.VISIBLE != 0 and flags & gtk.MAPPED != 0
-
-
-def draw_if_interactive():
-    """
-    Is called after every pylab drawing command
-    """
-    if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
-
-class Show(ShowBase):
-    def mainloop(self):
-        if gtk.main_level() == 0:
-            gtk.main()
-
-show = Show()
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasGTK(figure)
-    manager = FigureManagerGTK(canvas, num)
-    return manager
 
 
 class TimerGTK(TimerBase):
@@ -521,6 +485,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
+
 class FigureManagerGTK(FigureManagerBase):
     """
     Attributes
@@ -866,6 +831,7 @@ class FileChooserDialog(gtk.FileChooserDialog):
 
         return filename, self.ext
 
+
 class DialogLineprops(object):
     """
     A GUI dialog for controlling lineprops
@@ -1056,5 +1022,16 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-FigureCanvas = FigureCanvasGTK
-FigureManager = FigureManagerGTK
+@_Backend.export
+class _BackendGTK(_Backend):
+    FigureCanvas = FigureCanvasGTK
+    FigureManager = FigureManagerGTK
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @staticmethod
+    def mainloop():
+        if gtk.main_level() == 0:
+            gtk.main()

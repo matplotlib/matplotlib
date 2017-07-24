@@ -31,8 +31,9 @@ from math import ceil, cos, floor, pi, sin
 import matplotlib
 from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
-                                      FigureManagerBase, FigureCanvasBase)
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import (Bunch, get_realpath_and_stat,
                               is_writable_file_like, maxdict)
@@ -2425,28 +2426,6 @@ class GraphicsContextPdf(GraphicsContextBase):
 ########################################################################
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # if a main-level app must be created, this is the usual place to
-    # do it -- see backend_wx, backend_wxagg and backend_tkagg for
-    # examples.  Not all GUIs require explicit instantiation of a
-    # main-level app (egg backend_gtk, backend_gtkagg) for pylab
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasPdf(figure)
-    manager = FigureManagerPdf(canvas, num)
-    return manager
-
-
 class PdfPages(object):
     """
     A multi-page PDF file.
@@ -2624,5 +2603,7 @@ class FigureManagerPdf(FigureManagerBase):
     pass
 
 
-FigureCanvas = FigureCanvasPdf
-FigureManager = FigureManagerPdf
+@_Backend.export
+class _BackendPdf(_Backend):
+    FigureCanvas = FigureCanvasPdf
+    FigureManager = FigureManagerPdf

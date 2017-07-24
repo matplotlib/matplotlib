@@ -29,8 +29,8 @@ import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
-from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
-                                      FigureCanvasBase)
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import maxdict, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
@@ -394,24 +394,6 @@ class RendererAgg(RendererBase):
                 gc, l + ox, height - b - h + oy, img)
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasAgg(figure)
-    manager = FigureManagerBase(canvas, num)
-    return manager
-
-
 class FigureCanvasAgg(FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
@@ -606,4 +588,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         print_tiff = print_tif
 
 
-FigureCanvas = FigureCanvasAgg
+@_Backend.export
+class _BackendAgg(_Backend):
+    FigureCanvas = FigureCanvasAgg
+    FigureManager = FigureManagerBase

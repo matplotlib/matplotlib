@@ -11,28 +11,13 @@ import gtk
 if gtk.pygtk_version < (2, 7, 0):
     import cairo.gtk
 
+from matplotlib import cbook
 from matplotlib.backends import backend_cairo
 from matplotlib.backends.backend_gtk import *
+from matplotlib.backends.backend_gtk import _BackendGTK
 
 backend_version = ('PyGTK(%d.%d.%d) ' % gtk.pygtk_version
                    + 'Pycairo(%s)' % backend_cairo.backend_version)
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasGTKCairo(figure)
-    return FigureManagerGTK(canvas, num)
 
 
 class RendererGTKCairo (backend_cairo.RendererCairo):
@@ -53,6 +38,8 @@ class FigureCanvasGTKCairo(backend_cairo.FigureCanvasCairo, FigureCanvasGTK):
         self._renderer = RendererGTKCairo(self.figure.dpi)
 
 
+# This class has been unused for a while at least.
+@cbook.deprecated("2.1")
 class FigureManagerGTKCairo(FigureManagerGTK):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
@@ -64,10 +51,14 @@ class FigureManagerGTKCairo(FigureManagerGTK):
         return toolbar
 
 
+# This class has been unused for a while at least.
+@cbook.deprecated("2.1")
 class NavigationToolbar2Cairo(NavigationToolbar2GTK):
     def _get_canvas(self, fig):
         return FigureCanvasGTKCairo(fig)
 
 
-FigureCanvas = FigureCanvasGTKCairo
-FigureManager = FigureManagerGTKCairo
+@_BackendGTK.export
+class _BackendGTKCairo(_BackendGTK):
+    FigureCanvas = FigureCanvasGTKCairo
+    FigureManager = FigureManagerGTK

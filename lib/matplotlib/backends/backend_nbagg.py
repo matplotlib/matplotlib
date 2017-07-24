@@ -25,51 +25,14 @@ except ImportError:
     from IPython.utils.traitlets import Unicode, Bool, Float, List, Any
     from IPython.html.nbextensions import install_nbextension
 
-from matplotlib import rcParams
+from matplotlib import rcParams, is_interactive
+from matplotlib._pylab_helpers import Gcf
+from matplotlib.backends.backend_webagg_core import (
+    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
+    TimerTornado)
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, NavigationToolbar2)
 from matplotlib.figure import Figure
-from matplotlib import is_interactive
-from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
-                                                     FigureCanvasWebAggCore,
-                                                     NavigationToolbar2WebAgg,
-                                                     TimerTornado)
-from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
-                                      FigureCanvasBase)
-
-
-class Show(ShowBase):
-
-    def __call__(self, block=None):
-        from matplotlib._pylab_helpers import Gcf
-
-        managers = Gcf.get_all_fig_managers()
-        if not managers:
-            return
-
-        interactive = is_interactive()
-
-        for manager in managers:
-            manager.show()
-
-            # plt.figure adds an event which puts the figure in focus
-            # in the activeQue. Disable this behaviour, as it results in
-            # figures being put as the active figure after they have been
-            # shown, even in non-interactive mode.
-            if hasattr(manager, '_cidgcf'):
-                manager.canvas.mpl_disconnect(manager._cidgcf)
-
-            if not interactive and manager in Gcf._activeQue:
-                Gcf._activeQue.remove(manager)
-
-show = Show()
-
-
-def draw_if_interactive():
-    import matplotlib._pylab_helpers as pylab_helpers
-
-    if is_interactive():
-        manager = pylab_helpers.Gcf.get_active()
-        if manager is not None:
-            manager.show()
 
 
 def connection_info():
@@ -79,7 +42,6 @@ def connection_info():
     use.
 
     """
-    from matplotlib._pylab_helpers import Gcf
     result = []
     for manager in Gcf.get_all_fig_managers():
         fig = manager.canvas.figure
@@ -222,38 +184,6 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         self._send_event('close')
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    from .._pylab_helpers import Gcf
-
-    def closer(event):
-        Gcf.destroy(num)
-
-    canvas = FigureCanvasNbAgg(figure)
-    if rcParams['nbagg.transparent']:
-        figure.patch.set_alpha(0)
-    manager = FigureManagerNbAgg(canvas, num)
-
-    if is_interactive():
-        manager.show()
-        figure.canvas.draw_idle()
-
-    canvas.mpl_connect('close_event', closer)
-
-    return manager
-
-
 def nbinstall(overwrite=False, user=True):
     """
     Copies javascript dependencies to the '/nbextensions' folder in
@@ -296,4 +226,47 @@ def nbinstall(overwrite=False, user=True):
         **({'user': user} if version_info >= (3, 0, 0, '') else {})
     )
 
-#nbinstall()
+
+@_Backend.export
+class _BackendNbAgg(_Backend):
+    FigureCanvas = FigureCanvasNbAgg
+    FigureManager = FigureManagerNbAgg
+
+    @staticmethod
+    def new_figure_manager_given_figure(num, figure):
+        canvas = FigureCanvasNbAgg(figure)
+        if rcParams['nbagg.transparent']:
+            figure.patch.set_alpha(0)
+        manager = FigureManagerNbAgg(canvas, num)
+        if is_interactive():
+            manager.show()
+            figure.canvas.draw_idle()
+        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(num))
+        return manager
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.show()
+
+    @staticmethod
+    def show():
+        from matplotlib._pylab_helpers import Gcf
+
+        managers = Gcf.get_all_fig_managers()
+        if not managers:
+            return
+
+        interactive = is_interactive()
+
+        for manager in managers:
+            manager.show()
+
+            # plt.figure adds an event which puts the figure in focus
+            # in the activeQue. Disable this behaviour, as it results in
+            # figures being put as the active figure after they have been
+            # shown, even in non-interactive mode.
+            if hasattr(manager, '_cidgcf'):
+                manager.canvas.mpl_disconnect(manager._cidgcf)
+
+            if not interactive and manager in Gcf._activeQue:
+                Gcf._activeQue.remove(manager)
