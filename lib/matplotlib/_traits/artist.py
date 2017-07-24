@@ -90,7 +90,11 @@ class Artist(HasTraits, _artist.Artist):
     Union([Float(), Bool(), Int()]) attempts to
     validate the provided values with the validation function of Float, then Bool, and finally Int.
     """
-    clippath=Union([Instance('matplotlib.path.Path'), Instance('matplotlib.transforms.Transform'), Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
+    #note: Transform Trait is called here and I am not sure if this is correct
+    # clippath=ClipPathTrait((Union([Instance('matplotlib.path.Path'), TransformTrait(), Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None))
+    #note: this can go either way so I am going to implement both and see what is better/approved
+    clippath=Union([Instance('matplotlib.path.Path'), TransformTrait()], allow_none=True, default_value=None)
+
     clipon=Boolean(default_value=True)
     label=Unicode(allow_none=True, default_value='')
     picker=Union(Float,Boolean,Callable, allow_none=True, default_value=None)
@@ -358,6 +362,7 @@ _______________________________________________________________________________
 """
 _______________________________________________________________________________
 """
+    # Note: this is for if Clippath is a Union Trait
 
     #To do: create either a clippath trait or modify the get and set functions
     #for now i have comments down for default, validate and observer decortors
@@ -366,15 +371,21 @@ _______________________________________________________________________________
     def _clippath_default(self):
         print("generating default clippath value")
         return None
-    #clippath validate
+    #clippath validate: reference set_clip_path
     @validate("clippath")
     def _clippath_validate(self, proposal):
         print("cross validating %r" % proposal.value")
+        from matplotlib.patches import Patch, Rectangle
+
         return proposal.value
     #clippath observer
     @observe("clippath", type = change)
     def _clippath_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
+        self.pchanged()
+        print("called self.pchanged()")
+        self.stale = True
+        print("set stale: %r" self.stale)
 
 """
 _______________________________________________________________________________
@@ -1145,8 +1156,8 @@ def kwdoc(a):
 
 docstring.interpd.update(Artist=kwdoc(Artist))
 
-_get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
-axes property.  A removal date has not been set."""
+# _get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
+# axes property.  A removal date has not been set."""
 
 #monkey patching
 _artist.Artist = Artist

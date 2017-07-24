@@ -49,6 +49,7 @@ class Perishable(TraitProxy):
 class TransformTrait(TraitType):
 
     default_value = None
+    allow_none = True
     info_text = "TransformTrait"
 
     #Question: why use the get_transform function as the validate?
@@ -63,7 +64,24 @@ class TransformTrait(TraitType):
 
         # self._transform = self._transform._as_mpl_transform(self.axes)
     return value
+#
+# class PathTrait(TraitType):
+#
+#     default_value = None
+#     allow_none = True
+#     info_text = "PathTrait"
+#
+# class PatchTrait(TraitType):
+#
 
+# 
+# class ClipPathTrait(TraitType):
+#
+#     default_value = None
+#     allow_none = True
+#     info_text = "ClipPathTrait"
+#
+#     def validate(self, obj, value):
 
 #start of the install_traits() function
 # def install_traits():
