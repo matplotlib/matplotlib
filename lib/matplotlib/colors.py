@@ -1493,6 +1493,31 @@ def hsv_to_rgb(hsv):
     return rgb
 
 
+def _vector_magnitude(arr):
+    # things that don't work here:
+    #  * np.linalg.norm
+    #    - doesn't broadcast in numpy 1.7
+    #    - drops the mask from ma.array
+    #  * using keepdims - broken on ma.array until 1.11.2
+    #  * using sum - discards mask on ma.array unless entire vector is masked
+
+    sum_sq = 0
+    for i in range(arr.shape[-1]):
+        sum_sq += np.square(arr[..., i, np.newaxis])
+    return np.sqrt(sum_sq)
+
+
+def _vector_dot(a, b):
+    # things that don't work here:
+    #   * a.dot(b) - fails on masked arrays until 1.10
+    #   * np.ma.dot(a, b) - doesn't mask enough things
+    #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
+    dot = 0
+    for i in range(a.shape[-1]):
+        dot += a[..., i] * b[..., i]
+    return dot
+
+
 class LightSource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
@@ -1535,15 +1560,28 @@ class LightSource(object):
         self.hsv_min_sat = hsv_min_sat
         self.hsv_max_sat = hsv_max_sat
 
+    @property
+    def direction(self):
+        """ The unit vector direction towards the light source """
+
+        # Azimuth is in degrees clockwise from North. Convert to radians
+        # counterclockwise from East (mathematical notation).
+        az = np.radians(90 - self.azdeg)
+        alt = np.radians(self.altdeg)
+
+        return np.array([
+            np.cos(az) * np.cos(alt),
+            np.sin(az) * np.cos(alt),
+            np.sin(alt)
+        ])
+
     def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
         """
         Calculates the illumination intensity for a surface using the defined
         azimuth and elevation for the light source.
 
-        Imagine an artificial sun placed at infinity in some azimuth and
-        elevation position illuminating our surface. The parts of the surface
-        that slope toward the sun should brighten while those sides facing away
-        should become darker.
+        This computes the normal vectors for the surface, and then passes them
+        on to `shade_normals`
 
         Parameters
         ----------
@@ -1572,23 +1610,51 @@ class LightSource(object):
             A 2d array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
-        # Azimuth is in degrees clockwise from North. Convert to radians
-        # counterclockwise from East (mathematical notation).
-        az = np.radians(90 - self.azdeg)
-        alt = np.radians(self.altdeg)
 
         # Because most image and raster GIS data has the first row in the array
         # as the "top" of the image, dy is implicitly negative.  This is
         # consistent to what `imshow` assumes, as well.
         dy = -dy
 
-        # Calculate the intensity from the illumination angle
-        dy, dx = np.gradient(vert_exag * elevation, dy, dx)
-        # The aspect is defined by the _downhill_ direction, thus the negative
-        aspect = np.arctan2(-dy, -dx)
-        slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
-        intensity = (np.sin(alt) * np.sin(slope) +
-                     np.cos(alt) * np.cos(slope) * np.cos(az - aspect))
+        # compute the normal vectors from the partial derivatives
+        e_dy, e_dx = np.gradient(vert_exag * elevation, dy, dx)
+
+        # .view is to keep subclasses
+        normal = np.empty(elevation.shape + (3,)).view(type(elevation))
+        normal[..., 0] = -e_dx
+        normal[..., 1] = -e_dy
+        normal[..., 2] = 1
+        normal /= _vector_magnitude(normal)
+
+        return self.shade_normals(normal, fraction)
+
+    def shade_normals(self, normals, fraction=1.):
+        """
+        Calculates the illumination intensity for the normal vectors of a
+        surface using the defined azimuth and elevation for the light source.
+
+        Imagine an artificial sun placed at infinity in some azimuth and
+        elevation position illuminating our surface. The parts of the surface
+        that slope toward the sun should brighten while those sides facing away
+        should become darker.
+
+        Parameters
+        ----------
+        fraction : number, optional
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
+
+        Returns
+        -------
+        intensity : ndarray
+            A 2d array of illumination values between 0-1, where 0 is
+            completely in shadow and 1 is completely illuminated.
+        """
+
+        intensity = _vector_dot(normals, self.direction)
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()
