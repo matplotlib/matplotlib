@@ -376,8 +376,42 @@ _______________________________________________________________________________
     def _clippath_validate(self, proposal):
         print("cross validating %r" % proposal.value")
         from matplotlib.patches import Patch, Rectangle
+        success = False
+        #note sure how to go about the validation yet but taking a shot
+        #referring to the set_clip_path function
 
-        return proposal.value
+        #validate the TransformTrait here: Needs to be determined if it is None here
+        #if this statement is true:
+
+        if isinstance(path, Rectangle):
+            self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+            self._clippath = None
+            success = True
+        elif isinstance(path, Patch):
+            self._clippath = TransformedPatchPath(path)
+            success = True
+        elif isinstance(path, tuple):
+            path, transform = path
+
+    if path is None:
+        self._clippath = None
+        success = True
+    elif isinstance(path, Path):
+        self._clippath = TransformedPath(path, transform)
+        success = True
+    elif isinstance(path, TransformedPatchPath):
+        self._clippath = path
+        success = True
+    elif isinstance(path, TransformedPath):
+        self._clippath = path
+        success = True
+
+    # if setting the clip path is not a success
+    if not success:
+        print(type(path), type(transform))
+        raise TypeError("Invalid arguments to set_clip_path")
+
+
     #clippath observer
     @observe("clippath", type = change)
     def _clippath_observe(self, change):
