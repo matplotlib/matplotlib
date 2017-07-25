@@ -66,6 +66,11 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         shown onscreen.
         """
 
+        # if the canvas does not have a renderer, then give up and wait for
+        # FigureCanvasAgg.draw(self) to be called
+        if not hasattr(self, 'renderer'):
+            return
+
         # As described in __init__ above, we need to be careful in cases with
         # mixed resolution displays if dpi_ratio is changing between painting
         # events.
@@ -82,11 +87,6 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             # straight away, and this causes visual delays in the changes.
             self.resizeEvent(event)
             self._dpi_ratio_prev = self._dpi_ratio
-
-        # if the canvas does not have a renderer, then give up and wait for
-        # FigureCanvasAgg.draw(self) to be called
-        if not hasattr(self, 'renderer'):
-            return
 
         painter = QtGui.QPainter(self)
 
