@@ -92,16 +92,16 @@ class ClipPathTrait(TraitType):
                     return value
 
     def __init__(self, trait):
-        pass
-        # self.__trait = trait
+        # pass
+        self.__trait = trait
 
     def instance_init(self, obj):
-        pass
-        # self.__trait.instance_init(obj)
+        # pass
+        self.__trait.instance_init(obj)
 
     def class_init(self, cls, name):
-        pass
-        # self.__trait.class_init(cls, name)
+        # pass
+        self.__trait.class_init(cls, name)
 
     # reference artist.py set_clip_path function
     def set(self, obj, value):
@@ -129,37 +129,37 @@ class ClipPathTrait(TraitType):
                 # self._clippath = TransformedPatchPath(path)
                 success = True
             elif isinstance(path, tuple):
-
                 path, transform = path
 
         if path is None:
+            self.__trait.set(obj, None)
             # self._clippath = None
             success = True
         elif isinstance(path, Path):
+            self.__trait.set(obj, TransformedPath(path, transform))
             # self._clippath = TransformedPath(path, transform)
             success = True
-        elif isinstance(path, TransformedPatchPath):
+        elif isinstance(path, TransformedPatchPath) or isinstance(path, TransformedPath):
             # self._clippath = path
+            self.__trait.set(obj, path)
             success = True
-        elif isinstance(path, TransformedPath):
-            # self._clippath = path
-            success = True
-
+        # elif isinstance(path, TransformedPath):
+        #     self.__trait.set(obj, path)
+        #     # self._clippath = path
+        #     success = True
         if not success:
             print(type(path), type(transform))
             raise self.error("Invalid arguments to set_clip_path")
-
-
         # pass
         # self.__trait.set(obj, val)
 
     def get(self, obj, cls):
-        pass
-        # return self.__trait.get(obj, cls)
+        # pass
+        return self.__trait.get(obj, cls)
 
     def __getattr__(self, name):
-        pass
-        # return getattr(self.__trait, name)
+        # pass
+        return getattr(self.__trait, name)
 
 
 
