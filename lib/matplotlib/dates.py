@@ -137,7 +137,7 @@ import matplotlib.ticker as ticker
 
 
 __all__ = ('date2num', 'num2date', 'drange', 'epoch2num',
-           'num2epoch', 'mx2num', 'DateFormatter',
+           'num2epoch', 'mx2num', 'TimedeltaFormatter', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
@@ -619,15 +619,15 @@ class TimedeltaFormatter(ticker.Formatter):
         .. table:: Accepted format arguments
            :widths: auto
 
-           ========    =======
+           ========    ============
            Argument    Meaning
-           ========    =======
+           ========    ============
            {D}         Days
            {H}         Hours
            {M}         Minutes
            {S}         Seconds
            {f}         Microseconds
-           =========   =======
+           ========    ============
 
         Examples
         --------
