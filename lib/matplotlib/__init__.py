@@ -212,28 +212,7 @@ def _is_writable_dir(p):
     p is a string pointing to a putative writable dir -- return True p
     is such a string, else False
     """
-    try:
-        p + ''  # test is string like
-    except TypeError:
-        return False
-
-    # Test whether the operating system thinks it's a writable directory.
-    # Note that this check is necessary on Google App Engine, because the
-    # subsequent check will succeed even though p may not be writable.
-    if not os.access(p, os.W_OK) or not os.path.isdir(p):
-        return False
-
-    # Also test that it is actually possible to write to a file here.
-    try:
-        t = tempfile.TemporaryFile(dir=p)
-        try:
-            t.write(b'1')
-        finally:
-            t.close()
-    except:
-        return False
-
-    return True
+    return os.access(p, os.W_OK) and os.path.isdir(p)
 
 
 class Verbose(object):
@@ -509,17 +488,12 @@ def _get_home():
     :see:
         http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
-    try:
-        if six.PY2 and sys.platform == 'win32':
-            path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
-        else:
-            path = os.path.expanduser("~")
-    except ImportError:
-        # This happens on Google App Engine (pwd module is not present).
-        pass
+    if six.PY2 and sys.platform == 'win32':
+        path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
     else:
-        if os.path.isdir(path):
-            return path
+        path = os.path.expanduser("~")
+    if os.path.isdir(path):
+        return path
     for evar in ('HOME', 'USERPROFILE', 'TMP'):
         path = os.environ.get(evar)
         if path is not None and os.path.isdir(path):
@@ -531,17 +505,9 @@ def _create_tmp_config_dir():
     """
     If the config directory can not be created, create a temporary
     directory.
-
-    Returns None if a writable temporary directory could not be created.
     """
-    try:
-        tempdir = tempfile.gettempdir()
-    except NotImplementedError:
-        # Some restricted platforms (such as Google App Engine) do not provide
-        # gettempdir.
-        return None
     configdir = os.environ['MPLCONFIGDIR'] = (
-        tempfile.mkdtemp(prefix='matplotlib-', dir=tempdir))
+        tempfile.mkdtemp(prefix='matplotlib-'))
     return configdir
 
 
