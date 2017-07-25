@@ -91,6 +91,7 @@ class RendererCairo(RendererBase):
         'light'      : cairo.FONT_WEIGHT_NORMAL,
         'normal'     : cairo.FONT_WEIGHT_NORMAL,
         'medium'     : cairo.FONT_WEIGHT_NORMAL,
+        'regular'    : cairo.FONT_WEIGHT_NORMAL,
         'semibold'   : cairo.FONT_WEIGHT_BOLD,
         'bold'       : cairo.FONT_WEIGHT_BOLD,
         'heavy'      : cairo.FONT_WEIGHT_BOLD,
