@@ -136,7 +136,7 @@ import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
 
-__all__ = ('date2num', 'num2date', 'drange', 'epoch2num',
+__all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
@@ -426,7 +426,7 @@ def num2timedelta(x):
 
     Returns
     -------
-    :class:`timedelta`
+    :class:`timedelta` or list[:class:`timedelta`]
 
     """
     if not cbook.iterable(x):
