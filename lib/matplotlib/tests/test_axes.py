@@ -4946,6 +4946,11 @@ def test_ls_ds_conflict():
         plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
 
 
+@image_comparison(baseline_images=['bar_uint8'], extensions=['png'])
+def test_bar_uint8():
+    plt.bar(np.array([0, 1, 2, 3], dtype=np.uint8), [2, 3, 4, 5])
+
+
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
 def test_date_timezone_x():
     # Tests issue 5575
