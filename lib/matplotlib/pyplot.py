@@ -361,7 +361,7 @@ def setp(*args, **kwargs):
 
 def xkcd(scale=1, length=100, randomness=2):
     """
-    Turns on `xkcd <http://xkcd.com/>`_ sketch-style drawing mode.
+    Turns on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
     This will only have effect on things drawn after this function is
     called.
 
@@ -1919,66 +1919,17 @@ def colormaps():
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    The base colormaps are derived from those of the same name provided
-    with Matlab:
+    Matplotlib ships with 4 perceptually uniform color maps which are
+    the recommended color maps for sequential data:
 
-      =========   =======================================================
+      =========   ===================================================
       Colormap    Description
-      =========   =======================================================
-      autumn      sequential linearly-increasing shades of red-orange-yellow
-      bone        sequential increasing black-white color map with
-                  a tinge of blue, to emulate X-ray film
-      cool        linearly-decreasing shades of cyan-magenta
-      copper      sequential increasing shades of black-copper
-      flag        repetitive red-white-blue-black pattern (not cyclic at
-                  endpoints)
-      gray        sequential linearly-increasing black-to-white
-                  grayscale
-      hot         sequential black-red-yellow-white, to emulate blackbody
-                  radiation from an object at increasing temperatures
-      hsv         cyclic red-yellow-green-cyan-blue-magenta-red, formed
-                  by changing the hue component in the HSV color space
+      =========   ===================================================
       inferno     perceptually uniform shades of black-red-yellow
-      jet         a spectral map with dark endpoints, blue-cyan-yellow-red;
-                  based on a fluid-jet simulation by NCSA [#]_
       magma       perceptually uniform shades of black-red-white
-      pink        sequential increasing pastel black-pink-white, meant
-                  for sepia tone colorization of photographs
       plasma      perceptually uniform shades of blue-red-yellow
-      prism       repetitive red-yellow-green-blue-purple-...-green pattern
-                  (not cyclic at endpoints)
-      spring      linearly-increasing shades of magenta-yellow
-      summer      sequential linearly-increasing shades of green-yellow
       viridis     perceptually uniform shades of blue-green-yellow
-      winter      linearly-increasing shades of blue-green
-      =========   =======================================================
-
-    For the above list only, you can also set the colormap using the
-    corresponding pylab shortcut interface function, similar to Matlab::
-
-      imshow(X)
-      hot()
-      jet()
-
-    The next set of palettes are from the `Yorick scientific visualisation
-    package <http://dhmunro.github.io/yorick-doc/>`_, an evolution of
-    the GIST package, both by David H. Munro:
-
-      ============  =======================================================
-      Colormap      Description
-      ============  =======================================================
-      gist_earth    mapmaker's colors from dark blue deep ocean to green
-                    lowlands to brown highlands to white mountains
-      gist_heat     sequential increasing black-red-orange-white, to emulate
-                    blackbody radiation from an iron bar as it grows hotter
-      gist_ncar     pseudo-spectral black-blue-green-yellow-red-purple-white
-                    colormap from National Center for Atmospheric
-                    Research [#]_
-      gist_rainbow  runs through the colors in spectral order from red to
-                    violet at full saturation (like *hsv* but not cyclic)
-      gist_stern    "Stern special" color table from Interactive Data
-                    Language software
-      ============  =======================================================
+      =========   ===================================================
 
     The following colormaps are based on the `ColorBrewer
     <http://colorbrewer2.org>`_ color specifications and designs developed by
@@ -2041,6 +1992,57 @@ def colormaps():
     * Set2
     * Set3
 
+    A set of colormaps derived from those of the same name provided
+    with Matlab are also included:
+
+      =========   =======================================================
+      Colormap    Description
+      =========   =======================================================
+      autumn      sequential linearly-increasing shades of red-orange-yellow
+      bone        sequential increasing black-white color map with
+                  a tinge of blue, to emulate X-ray film
+      cool        linearly-decreasing shades of cyan-magenta
+      copper      sequential increasing shades of black-copper
+      flag        repetitive red-white-blue-black pattern (not cyclic at
+                  endpoints)
+      gray        sequential linearly-increasing black-to-white
+                  grayscale
+      hot         sequential black-red-yellow-white, to emulate blackbody
+                  radiation from an object at increasing temperatures
+      hsv         cyclic red-yellow-green-cyan-blue-magenta-red, formed
+                  by changing the hue component in the HSV color space
+      jet         a spectral map with dark endpoints, blue-cyan-yellow-red;
+                  based on a fluid-jet simulation by NCSA [#]_
+      pink        sequential increasing pastel black-pink-white, meant
+                  for sepia tone colorization of photographs
+      prism       repetitive red-yellow-green-blue-purple-...-green pattern
+                  (not cyclic at endpoints)
+      spring      linearly-increasing shades of magenta-yellow
+      summer      sequential linearly-increasing shades of green-yellow
+      winter      linearly-increasing shades of blue-green
+      =========   =======================================================
+
+    A set of palettes from the `Yorick scientific visualisation
+    package <https://dhmunro.github.io/yorick-doc/>`_, an evolution of
+    the GIST package, both by David H. Munro are included:
+
+      ============  =======================================================
+      Colormap      Description
+      ============  =======================================================
+      gist_earth    mapmaker's colors from dark blue deep ocean to green
+                    lowlands to brown highlands to white mountains
+      gist_heat     sequential increasing black-red-orange-white, to emulate
+                    blackbody radiation from an iron bar as it grows hotter
+      gist_ncar     pseudo-spectral black-blue-green-yellow-red-purple-white
+                    colormap from National Center for Atmospheric
+                    Research [#]_
+      gist_rainbow  runs through the colors in spectral order from red to
+                    violet at full saturation (like *hsv* but not cyclic)
+      gist_stern    "Stern special" color table from Interactive Data
+                    Language software
+      ============  =======================================================
+
+
     Other miscellaneous schemes:
 
       ============= =======================================================
@@ -2101,14 +2103,14 @@ def colormaps():
 
     .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
       Language. See `Color Table Gallery
-      <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
+      <https://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
 
     .. [#] See `Diverging Color Maps for Scientific Visualization
       <http://www.kennethmoreland.com/color-maps/>`_ by Kenneth Moreland.
 
     .. [#] See `A Color Map for Effective Black-and-White Rendering of
       Color-Scale Images
-      <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
+      <https://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
 
     .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
