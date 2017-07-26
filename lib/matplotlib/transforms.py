@@ -1155,93 +1155,69 @@ class LockableBbox(BboxBase):
             self._check(points)
             return points
 
-    def set_locked_x0(self, x0):
+    @property
+    def locked_x0(self):
         """
-        Set the value to be used for the locked x0.
-
-        Parameters
-        ----------
-        x0 : float or None
-            The locked value for x0, or None to unlock.
-        """
-        self._locked_points.mask[0, 0] = x0 is None
-        self._locked_points.data[0, 0] = x0
-        self.invalidate()
-
-    def get_locked_x0(self):
-        """
-        Get the value used for the locked x0.
+        float or None: The value used for the locked x0.
         """
         if self._locked_points.mask[0, 0]:
             return None
         else:
             return self._locked_points[0, 0]
 
-    def set_locked_y0(self, y0):
-        """
-        Set the value to be used for the locked y0.
-
-        Parameters
-        ----------
-        y0 : float or None
-            The locked value for y0, or None to unlock.
-        """
-        self._locked_points.mask[0, 1] = y0 is None
-        self._locked_points.data[0, 1] = y0
+    @locked_x0.setter
+    def locked_x0(self, x0):
+        self._locked_points.mask[0, 0] = x0 is None
+        self._locked_points.data[0, 0] = x0
         self.invalidate()
 
-    def get_locked_y0(self):
+    @property
+    def locked_y0(self):
         """
-        Get the value used for the locked y0.
+        float or None: The value used for the locked y0.
         """
         if self._locked_points.mask[0, 1]:
             return None
         else:
             return self._locked_points[0, 1]
 
-    def set_locked_x1(self, x1):
-        """
-        Set the value to be used for the locked x1.
-
-        Parameters
-        ----------
-        x1 : float or None
-            The locked value for x1, or None to unlock.
-        """
-        self._locked_points.mask[1, 0] = x1 is None
-        self._locked_points.data[1, 0] = x1
+    @locked_y0.setter
+    def locked_y0(self, y0):
+        self._locked_points.mask[0, 1] = y0 is None
+        self._locked_points.data[0, 1] = y0
         self.invalidate()
 
-    def get_locked_x1(self):
+    @property
+    def locked_x1(self):
         """
-        Get the value used for the locked x1.
+        float or None: The value used for the locked x1.
         """
         if self._locked_points.mask[1, 0]:
             return None
         else:
             return self._locked_points[1, 0]
 
-    def set_locked_y1(self, y1):
-        """
-        Set the value to be used for the locked y1.
-
-        Parameters
-        ----------
-        y1 : float or None
-            The locked value for y1, or None to unlock.
-        """
-        self._locked_points.mask[1, 1] = y1 is None
-        self._locked_points.data[1, 1] = y1
+    @locked_x1.setter
+    def locked_x1(self, x1):
+        self._locked_points.mask[1, 0] = x1 is None
+        self._locked_points.data[1, 0] = x1
         self.invalidate()
 
-    def get_locked_y1(self):
+    @property
+    def locked_y1(self):
         """
-        Get the value used for the locked y1.
+        float or None: The value used for the locked y1.
         """
         if self._locked_points.mask[1, 1]:
             return None
         else:
             return self._locked_points[1, 1]
+
+    @locked_y1.setter
+    def locked_y1(self, y1):
+        self._locked_points.mask[1, 1] = y1 is None
+        self._locked_points.data[1, 1] = y1
+        self.invalidate()
 
 
 class Transform(TransformNode):
