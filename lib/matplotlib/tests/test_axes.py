@@ -4946,9 +4946,11 @@ def test_ls_ds_conflict():
         plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
 
 
-@image_comparison(baseline_images=['bar_uint8'], extensions=['png'])
 def test_bar_uint8():
-    plt.bar(np.array([0, 1, 2, 3], dtype=np.uint8), [2, 3, 4, 5])
+    xs = [0, 1, 2, 3]
+    b = plt.bar(np.array(xs, dtype=np.uint8), [2, 3, 4, 5])
+    for (patch, x) in zip(b.patches, xs):
+        assert patch.xy[0] == x
 
 
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
