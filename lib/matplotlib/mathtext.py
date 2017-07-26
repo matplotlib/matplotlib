@@ -2216,6 +2216,10 @@ class Parser(object):
     The grammar is based directly on that in TeX, though it cuts a few
     corners.
     """
+
+    _math_style_dict = dict(displaystyle=0, textstyle=1,
+                            scriptstyle=2, scriptscriptstyle=3)
+
     _binary_operators = set('''
       + * -
       \\pm             \\sqcap                   \\rhd
@@ -2301,6 +2305,7 @@ class Parser(object):
         p.float_literal    = Forward()
         p.font             = Forward()
         p.frac             = Forward()
+        p.dfrac            = Forward()
         p.function         = Forward()
         p.genfrac          = Forward()
         p.group            = Forward()
@@ -2389,6 +2394,11 @@ class Parser(object):
                            - ((p.required_group + p.required_group) | Error(r"Expected \frac{num}{den}"))
                          )
 
+        p.dfrac         <<= Group(
+                             Suppress(Literal(r"\dfrac"))
+                           - ((p.required_group + p.required_group) | Error(r"Expected \dfrac{num}{den}"))
+                         )
+
         p.stackrel      <<= Group(
                              Suppress(Literal(r"\stackrel"))
                            - ((p.required_group + p.required_group) | Error(r"Expected \stackrel{num}{den}"))
@@ -2441,6 +2451,7 @@ class Parser(object):
                          | p.function
                          | p.group
                          | p.frac
+                         | p.dfrac
                          | p.stackrel
                          | p.binom
                          | p.genfrac
@@ -3035,8 +3046,11 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
 
         rule = float(rule)
-        num.shrink()
-        den.shrink()
+
+        # If style != displaystyle == 0, shrink the num and den
+        if style != self._math_style_dict['displaystyle']:
+            num.shrink()
+            den.shrink()
         cnum = HCentered([num])
         cden = HCentered([den])
         width = max(num.width, den.width)
@@ -3069,35 +3083,50 @@ class Parser(object):
         return result
 
     def genfrac(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==6)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 6)
 
         return self._genfrac(*tuple(toks[0]))
 
     def frac(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
         num, den = toks[0]
 
-        return self._genfrac('', '', thickness, '', num, den)
+        return self._genfrac('', '', thickness,
+                             self._math_style_dict['textstyle'], num, den)
+
+    def dfrac(self, s, loc, toks):
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
+        state = self.get_state()
+
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+        num, den = toks[0]
+
+        return self._genfrac('', '', thickness,
+                             self._math_style_dict['displaystyle'], num, den)
 
     def stackrel(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         num, den = toks[0]
 
-        return self._genfrac('', '', 0.0, '', num, den)
+        return self._genfrac('', '', 0.0,
+                             self._math_style_dict['textstyle'], num, den)
 
     def binom(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         num, den = toks[0]
 
-        return self._genfrac('(', ')', 0.0, '', num, den)
+        return self._genfrac('(', ')', 0.0,
+                             self._math_style_dict['textstyle'], num, den)
 
     def sqrt(self, s, loc, toks):
         #~ print "sqrt", toks
