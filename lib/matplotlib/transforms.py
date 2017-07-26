@@ -1908,6 +1908,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
+        # Cast to float to avoid wraparound issues with uint8's
+        x, y = float(x), float(y)
         return self.translate(-x, -y).rotate_deg(degrees).translate(x, y)
 
     def translate(self, tx, ty):

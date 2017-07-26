@@ -688,10 +688,10 @@ class Rectangle(Patch):
 
         Patch.__init__(self, **kwargs)
 
-        self._x = float(xy[0])
-        self._y = float(xy[1])
-        self._width = float(width)
-        self._height = float(height)
+        self._x = xy[0]
+        self._y = xy[1]
+        self._width = width
+        self._height = height
         self.angle = float(angle)
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
