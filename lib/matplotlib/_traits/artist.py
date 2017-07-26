@@ -85,15 +85,8 @@ class Artist(HasTraits, _artist.Artist):
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
     clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
-    """
-    Notes from Documentation:
-    Union([Float(), Bool(), Int()]) attempts to
-    validate the provided values with the validation function of Float, then Bool, and finally Int.
-    """
-    #note: Transform Trait is called here and I am not sure if this is correct
+
     clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
-    #note: this can go either way so I am going to implement both and see what is better/approved
-    # clippath=Union([Instance('matplotlib.path.Path'), TransformTrait()], allow_none=True, default_value=None)
 
     clipon=Boolean(default_value=True)
     label=Unicode(allow_none=True, default_value='')
