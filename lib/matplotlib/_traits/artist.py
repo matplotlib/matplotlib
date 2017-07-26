@@ -86,7 +86,9 @@ class Artist(HasTraits, _artist.Artist):
     alpha=Float(default_value=None, allow_none=True)
     clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
 
-    clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
+    # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
+    clippath = Union([Instance(TransformedPath),Instance("matplotlib.patches.Patch")], allow_none=True, default_value=None)
+
 
     clipon=Boolean(default_value=True)
     label=Unicode(allow_none=True, default_value='')
@@ -357,17 +359,51 @@ _______________________________________________________________________________
 """
     # Note: this is for if Clippath is a Union Trait
 
+    @validate("clippath")
+    def _validate_clippath(self, proposal):
+        value = proposal.value
+        from matplotlib.patches import Patch
+        if isinstance(value, Patch):
+            value = TransformedPatchPath(value)
+        return value
+
+    def set_clip_path(self, path, transform):
+        from matplotlib.patches import Rectangle, Patch
+
+        success = False
+        if transform is None:
+            if isinstance(path, Rectangle):
+                self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                self.clippath = None
+            elif isinstance(path, Patch):
+                self.clippath = path
+            elif isinstance(path, tuple):
+                path, transform = path
+
+        if path is None:
+            self.clippath = None
+        elif isinstance(path, Path):
+            self.clippath = TransformedPath(path, transform)
+        elif isinstance(path, TransformedPath):
+            # TransformedPatchPath is a subclass of TransformedPath
+        self.clippath = path
+
+        if not success:
+            print(type(path), type(transform))
+            raise TypeError("Invalid arguments to set_clip_path")
+
+
     #To do: create either a clippath trait or modify the get and set functions
     #for now i have comments down for default, validate and observer decortors
     #clippath default
-    @default("clippath")
-    def _clippath_default(self):
-        print("generating default clippath value")
-        return None
-    #clippath validate: reference set_clip_path
-    @validate("clippath")
-    def _clippath_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+    # @default("clippath")
+    # def _clippath_default(self):
+    #     print("generating default clippath value")
+    #     return None
+    # #clippath validate: reference set_clip_path
+    # @validate("clippath")
+    # def _clippath_validate(self, proposal):
+    #     print("cross validating %r" % proposal.value")
     #     from matplotlib.patches import Patch, Rectangle
     #     success = False
     #     #note sure how to go about the validation yet but taking a shot
