@@ -59,10 +59,10 @@ class TransformTrait(TraitType):
     def validate(self, obj, value):
         if value is None:
             return IdentityTransform()
-    elif (not isinstance(value, Transform)
-          and hasattr(value, '_as_mpl_transform')):
-
-        # self._transform = self._transform._as_mpl_transform(self.axes)
+        elif (not isinstance(value, Transform) and hasattr(value, '_as_mpl_transform')):
+            # TO DO: finish this
+            # return trans
+            # self._transform = self._transform._as_mpl_transform(self.axes)
     return value
 
 
