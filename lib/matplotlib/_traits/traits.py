@@ -153,7 +153,6 @@ class TransformTrait(TraitType):
 #         return getattr(self.__trait, name)
 
 
-
 #start of the install_traits() function
 # def install_traits():
 #     import matplotlib.lines
