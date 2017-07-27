@@ -70,6 +70,9 @@ class Path(object):
     *codes* at all, but have a default one provided for them by
     :meth:`iter_segments`.
 
+    Some behavior of Path objects can be controlled by rcParams. See
+    the rcParams whose keys contain 'path.'.
+
     .. note::
 
         The vertices and codes arrays should be treated as
@@ -404,7 +407,8 @@ class Path(object):
             If True, perform simplification, to remove
              vertices that do not affect the appearance of the path.  If
              False, perform no simplification.  If None, use the
-             should_simplify member variable.
+             should_simplify member variable.  See also the rcParams
+             path.simplify and path.simplify_threshold.
         curves : {True, False}, optional
             If True, curve segments will be returned as curve
             segments.  If False, all curves will be converted to line
