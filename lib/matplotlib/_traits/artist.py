@@ -100,7 +100,7 @@ class Artist(HasTraits, _artist.Artist):
     eventson=Boolean(default_value=False)
     oid=Int(allow_none=True, default_value=0)
     propobservers=Dict(default_value={}) #this may or may not work o/w leave alone and see what happens
-    # _remove_method =  #have to look into this
+    remove_method = Any(allow_none = True, default_value = None)
     url=Unicode(allow_none=True, default_value=None)
     gid=Unicode(allow_none=True, default_value=None)
     snap=Perishable(Boolean(allow_none=True, default_value=None))
@@ -353,7 +353,6 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-
 """
 _______________________________________________________________________________
 """
@@ -575,6 +574,7 @@ _______________________________________________________________________________
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
         print("set stale: %r" self.stale)
+
 """
 _______________________________________________________________________________
 """
@@ -602,6 +602,7 @@ _______________________________________________________________________________
                 ax.mouseover_set.add(self)
             else:
                 ax.mouseover_set.discard(self)
+
 """
 _______________________________________________________________________________
 """
@@ -812,7 +813,60 @@ _______________________________________________________________________________
     #     pass
     #
     # def __getstate__(self):
+        # d = self.__dict__.copy()
+        # # remove the unpicklable remove method, this will get re-added on load
+        # # (by the axes) if the artist lives on an axes.
+        # d['_remove_method'] = None
+        # d['stale_callback'] = None
+        # return d
     #     pass
+
+    def remove(self):
+        """
+        Remove the artist from the figure if possible.  The effect
+        will not be visible until the figure is redrawn, e.g., with
+        :meth:`matplotlib.axes.Axes.draw_idle`.  Call
+        :meth:`matplotlib.axes.Axes.relim` to update the axes limits
+        if desired.
+
+        Note: :meth:`~matplotlib.axes.Axes.relim` will not see
+        collections even if the collection was added to axes with
+        *autolim* = True.
+
+        Note: there is no support for removing the artist's legend entry.
+        """
+
+        # There is no method to set the callback.  Instead the parent should
+        # set the _remove_method attribute directly.  This would be a
+        # protected attribute if Python supported that sort of thing.  The
+        # callback has one parameter, which is the child to be removed.
+        if self.remove_method is not None:
+            self.remove_method(self)
+            # clear stale callback
+            self.stale_callback = None
+            #purpose of ax_flag?
+            ax_flag = False
+            if hasattr(self, 'axes') and self.axes:
+                # remove from the mouse hit list
+                self.axes.mouseover_set.discard(self)
+                # mark the axes as stale
+                self.axes.stale = True
+                # decouple the artist from the axes
+                self.axes = None
+                ax_flag = True
+
+            if self.figure:
+                self.figure = None
+                if not ax_flag:
+                    self.figure = True
+
+        else:
+            raise NotImplementedError('cannot remove artist')
+        # TODO: the fix for the collections relim problem is to move the
+        # limits calculation into the artist itself, including the property of
+        # whether or not the artist should affect the limits.  Then there will
+        # be no distinction between axes.add_line, axes.add_patch, etc.
+        # TODO: add legend support
 
 """
 These following functions are copied and pasted from the original Artist class.
@@ -868,9 +922,9 @@ This is because I feel as if they can be altered to their respective traits.
         Returns an *id* that is useful for removing the callback with
         :meth:`remove_callback` later.
         """
-        oid = self._oid
-        self._propobservers[oid] = func
-        self._oid += 1
+        oid = self.oid
+        self.propobservers[oid] = func
+        self.oid += 1
         return oid
 
     def remove_callback(self,oid):
@@ -884,7 +938,7 @@ This is because I feel as if they can be altered to their respective traits.
 
         """
         try:
-            del self._propobservers[oid]
+            del self.propobservers[oid]
         except KeyError:
             pass
 
@@ -894,15 +948,24 @@ This is because I feel as if they can be altered to their respective traits.
         Fire an event when property changed, calling all of the
         registered callbacks.
         """
-        for oid, func in six.iteritems(self._propobservers):
+        for oid, func in six.iteritems(self.propobservers):
             func(self)
 
+    #leave for backwards compatability
     def is_transform_set(self):
         """
         Returns *True* if :class:`Artist` has a transform explicitly
         set.
         """
-        return self._transformSet
+        return self.transformSet
+
+    #leave for backwards compatability
+    def is_figure_set(self):
+        """
+        Returns True if the artist is assigned to a
+        :class:`~matplotlib.figure.Figure`.
+        """
+        return self.figure is not None
 
     def hitlist(self, event):
         """
@@ -922,7 +985,6 @@ This is because I feel as if they can be altered to their respective traits.
             L.extend(a.hitlist(event))
         return L
 
-    # Note sure if this is how to go about a contains mouseevent function
     def contains(self, mouseevent):
         """Test whether the artist contains the mouse event.
 
@@ -930,8 +992,8 @@ This is because I feel as if they can be altered to their respective traits.
         selection, such as which points are contained in the pick radius.  See
         individual artists for details.
         """
-        if callable(self._contains):
-            return self._contains(self, mouseevent)
+        if callable(self.contains):
+            return self.contains(self, mouseevent)
         warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False, {}
 
@@ -939,7 +1001,7 @@ This is because I feel as if they can be altered to their respective traits.
         'Return *True* if :class:`Artist` is pickable.'
         return (self.figure is not None and
                 self.figure.canvas is not None and
-                self._picker is not None)
+                self.picker is not None)
 
     def pick(self, mouseevent):
         """
@@ -950,7 +1012,8 @@ This is because I feel as if they can be altered to their respective traits.
         """
         # Pick self
         if self.pickable():
-            picker = self.get_picker()
+            # picker = self.get_picker()
+            picker = self.picker
             if callable(picker):
                 inside, prop = picker(self, mouseevent)
             else:
@@ -959,7 +1022,9 @@ This is because I feel as if they can be altered to their respective traits.
                 self.figure.canvas.pick_event(mouseevent, self, **prop)
 
         # Pick children
-        for a in self.get_children():
+        # for a in self.get_children():
+        #if in the case this does not work, bring over the get_children function for contains
+        for a in self.contains:
             # make sure the event happened in the same axes
             ax = getattr(a, 'axes', None)
             if (mouseevent.inaxes is None or ax is None
@@ -972,14 +1037,6 @@ This is because I feel as if they can be altered to their respective traits.
                 # which do no have an axes property but children might
                 a.pick(mouseevent)
 
-    #leave for backwards compatability
-    def is_figure_set(self):
-        """
-        Returns True if the artist is assigned to a
-        :class:`~matplotlib.figure.Figure`.
-        """
-        return self.figure is not None
-
     # need to look into this
     def get_transformed_clip_path_and_affine(self):
         '''
@@ -987,23 +1044,25 @@ This is because I feel as if they can be altered to their respective traits.
         transformation applied, and the remaining affine part of its
         transformation.
         '''
-        if self._clippath is not None:
-            return self._clippath.get_transformed_path_and_affine()
+        if self.clippath is not None:
+            return self.clippath.get_transformed_path_and_affine()
         return None, None
 
     def _set_gc_clip(self, gc):
         'Set the clip properly for the gc'
-        if self._clipon:
+        if self.clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
-            gc.set_clip_path(self._clippath)
+            gc.set_clip_path(self.clippath)
         else:
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
-        if not self.get_visible():
+        # if not self.get_visible():
+        #if this does not work, we will create a get function for visible trait
+        if not self.visible:
             return
         self.stale = False
 
@@ -1014,13 +1073,14 @@ This is because I feel as if they can be altered to their respective traits.
     #and observer for Artist; The update_from function is frivolous
     #I need to look into observe Artist, but I am not sure
 
+
     # In order for this to work I need to implement ArtistInspector with respect
     #to traitlets
-    def properties(self):
-        """
-        return a dictionary mapping property name -> value for all Artist props
-        """
-        return ArtistInspector(self).properties()
+    # def properties(self):
+    #     """
+    #     return a dictionary mapping property name -> value for all Artist props
+    #     """
+    #     return ArtistInspector(self).properties()
 
     #there is a set function but I do not think I need it
 
@@ -1057,7 +1117,9 @@ This is because I feel as if they can be altered to their respective traits.
             raise ValueError('match must be None, a matplotlib.artist.Artist '
                              'subclass, or a callable')
 
-        artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
+        # artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
+        #in theory, self.contains should get the list of children in contains list
+        artists = sum([c.findobj(matchfunc) for c in self.contains], [])
         if include_self and matchfunc(self):
             artists.append(self)
         return artists
@@ -1083,141 +1145,142 @@ This is because I feel as if they can be altered to their respective traits.
 
 
 # outside of the artist/artist inspector
-def getp(obj, property=None):
-    """
-    Return the value of object's property.  *property* is an optional string
-    for the property you want to return
-
-    Example usage::
-
-        getp(obj)  # get all the object properties
-        getp(obj, 'linestyle')  # get the linestyle property
-
-    *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotllib.lines.Line2D` or an instance of a
-    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
-    If the *property* is 'somename', this function returns
-
-      obj.get_somename()
-
-    :func:`getp` can be used to query all the gettable properties with
-    ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
-    'lw' is an alias for 'linewidth'.  In the output, aliases and full
-    property names will be listed as:
-
-      property or alias = value
-
-    e.g.:
-
-      linewidth or lw = 2
-    """
-    if property is None:
-        insp = ArtistInspector(obj)
-        ret = insp.pprint_getters()
-        print('\n'.join(ret))
-        return
-
-    func = getattr(obj, 'get_' + property)
-    return func()
+#ArtistInspector needed for the following functions below
+# def getp(obj, property=None):
+#     """
+#     Return the value of object's property.  *property* is an optional string
+#     for the property you want to return
+#
+#     Example usage::
+#
+#         getp(obj)  # get all the object properties
+#         getp(obj, 'linestyle')  # get the linestyle property
+#
+#     *obj* is a :class:`Artist` instance, e.g.,
+#     :class:`~matplotllib.lines.Line2D` or an instance of a
+#     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
+#     If the *property* is 'somename', this function returns
+#
+#       obj.get_somename()
+#
+#     :func:`getp` can be used to query all the gettable properties with
+#     ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
+#     'lw' is an alias for 'linewidth'.  In the output, aliases and full
+#     property names will be listed as:
+#
+#       property or alias = value
+#
+#     e.g.:
+#
+#       linewidth or lw = 2
+#     """
+#     if property is None:
+#         insp = ArtistInspector(obj)
+#         ret = insp.pprint_getters()
+#         print('\n'.join(ret))
+#         return
+#
+#     func = getattr(obj, 'get_' + property)
+#     return func()
 
 # alias
-get = getp
+# get = getp
 
 
-def setp(obj, *args, **kwargs):
-    """
-    Set a property on an artist object.
-
-    matplotlib supports the use of :func:`setp` ("set property") and
-    :func:`getp` to set and get object properties, as well as to do
-    introspection on the object.  For example, to set the linestyle of a
-    line to be dashed, you can do::
-
-      >>> line, = plot([1,2,3])
-      >>> setp(line, linestyle='--')
-
-    If you want to know the valid types of arguments, you can provide
-    the name of the property you want to set without a value::
-
-      >>> setp(line, 'linestyle')
-          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
-
-    If you want to see all the properties that can be set, and their
-    possible values, you can do::
-
-      >>> setp(line)
-          ... long output listing omitted
-
-    You may specify another output file to `setp` if `sys.stdout` is not
-    acceptable for some reason using the `file` keyword-only argument::
-
-      >>> with fopen('output.log') as f:
-      >>>     setp(line, file=f)
-
-    :func:`setp` operates on a single instance or a iterable of
-    instances. If you are in query mode introspecting the possible
-    values, only the first instance in the sequence is used. When
-    actually setting values, all the instances will be set.  e.g.,
-    suppose you have a list of two lines, the following will make both
-    lines thicker and red::
-
-      >>> x = arange(0,1.0,0.01)
-      >>> y1 = sin(2*pi*x)
-      >>> y2 = sin(4*pi*x)
-      >>> lines = plot(x, y1, x, y2)
-      >>> setp(lines, linewidth=2, color='r')
-
-    :func:`setp` works with the MATLAB style string/value pairs or
-    with python kwargs.  For example, the following are equivalent::
-
-      >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style
-      >>> setp(lines, linewidth=2, color='r')        # python style
-    """
-
-    if not cbook.iterable(obj):
-        objs = [obj]
-    else:
-        objs = list(cbook.flatten(obj))
-
-    if not objs:
-        return
-
-    insp = ArtistInspector(objs[0])
-
-    # file has to be popped before checking if kwargs is empty
-    printArgs = {}
-    if 'file' in kwargs:
-        printArgs['file'] = kwargs.pop('file')
-
-    if not kwargs and len(args) < 2:
-        if args:
-            print(insp.pprint_setters(prop=args[0]), **printArgs)
-        else:
-            print('\n'.join(insp.pprint_setters()), **printArgs)
-        return
-
-    if len(args) % 2:
-        raise ValueError('The set args must be string, value pairs')
-
-    # put args into ordereddict to maintain order
-    funcvals = OrderedDict()
-    for i in range(0, len(args) - 1, 2):
-        funcvals[args[i]] = args[i + 1]
-
-    ret = [o.update(funcvals) for o in objs]
-    ret.extend([o.set(**kwargs) for o in objs])
-    return [x for x in cbook.flatten(ret)]
-
-
-def kwdoc(a):
-    hardcopy = matplotlib.rcParams['docstring.hardcopy']
-    if hardcopy:
-        return '\n'.join(ArtistInspector(a).pprint_setters_rest(
-                         leadingspace=2))
-    else:
-        return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
-
-docstring.interpd.update(Artist=kwdoc(Artist))
+# def setp(obj, *args, **kwargs):
+#     """
+#     Set a property on an artist object.
+#
+#     matplotlib supports the use of :func:`setp` ("set property") and
+#     :func:`getp` to set and get object properties, as well as to do
+#     introspection on the object.  For example, to set the linestyle of a
+#     line to be dashed, you can do::
+#
+#       >>> line, = plot([1,2,3])
+#       >>> setp(line, linestyle='--')
+#
+#     If you want to know the valid types of arguments, you can provide
+#     the name of the property you want to set without a value::
+#
+#       >>> setp(line, 'linestyle')
+#           linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+#
+#     If you want to see all the properties that can be set, and their
+#     possible values, you can do::
+#
+#       >>> setp(line)
+#           ... long output listing omitted
+#
+#     You may specify another output file to `setp` if `sys.stdout` is not
+#     acceptable for some reason using the `file` keyword-only argument::
+#
+#       >>> with fopen('output.log') as f:
+#       >>>     setp(line, file=f)
+#
+#     :func:`setp` operates on a single instance or a iterable of
+#     instances. If you are in query mode introspecting the possible
+#     values, only the first instance in the sequence is used. When
+#     actually setting values, all the instances will be set.  e.g.,
+#     suppose you have a list of two lines, the following will make both
+#     lines thicker and red::
+#
+#       >>> x = arange(0,1.0,0.01)
+#       >>> y1 = sin(2*pi*x)
+#       >>> y2 = sin(4*pi*x)
+#       >>> lines = plot(x, y1, x, y2)
+#       >>> setp(lines, linewidth=2, color='r')
+#
+#     :func:`setp` works with the MATLAB style string/value pairs or
+#     with python kwargs.  For example, the following are equivalent::
+#
+#       >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style
+#       >>> setp(lines, linewidth=2, color='r')        # python style
+#     """
+#
+#     if not cbook.iterable(obj):
+#         objs = [obj]
+#     else:
+#         objs = list(cbook.flatten(obj))
+#
+#     if not objs:
+#         return
+#
+#     insp = ArtistInspector(objs[0])
+#
+#     # file has to be popped before checking if kwargs is empty
+#     printArgs = {}
+#     if 'file' in kwargs:
+#         printArgs['file'] = kwargs.pop('file')
+#
+#     if not kwargs and len(args) < 2:
+#         if args:
+#             print(insp.pprint_setters(prop=args[0]), **printArgs)
+#         else:
+#             print('\n'.join(insp.pprint_setters()), **printArgs)
+#         return
+#
+#     if len(args) % 2:
+#         raise ValueError('The set args must be string, value pairs')
+#
+#     # put args into ordereddict to maintain order
+#     funcvals = OrderedDict()
+#     for i in range(0, len(args) - 1, 2):
+#         funcvals[args[i]] = args[i + 1]
+#
+#     ret = [o.update(funcvals) for o in objs]
+#     ret.extend([o.set(**kwargs) for o in objs])
+#     return [x for x in cbook.flatten(ret)]
+#
+#
+# def kwdoc(a):
+#     hardcopy = matplotlib.rcParams['docstring.hardcopy']
+#     if hardcopy:
+#         return '\n'.join(ArtistInspector(a).pprint_setters_rest(
+#                          leadingspace=2))
+#     else:
+#         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
+#
+# docstring.interpd.update(Artist=kwdoc(Artist))
 
 # _get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
 # axes property.  A removal date has not been set."""

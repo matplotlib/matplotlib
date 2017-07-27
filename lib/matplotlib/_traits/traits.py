@@ -20,8 +20,6 @@ from functools import wraps
 from contextlib import contextmanager
 
 
-
-
 class TraitProxy(TraitType):
 
     def __init__(self, trait):
@@ -66,6 +64,7 @@ class TransformTrait(TraitType):
 
         # self._transform = self._transform._as_mpl_transform(self.axes)
     return value
+
 
 # class ClipPathTrait(TraitType):
 #
