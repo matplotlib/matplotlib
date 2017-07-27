@@ -112,8 +112,6 @@ class Artist(HasTraits, _artist.Artist):
     #and the second element of sticky_edges represents y
     sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
 
-
-
     #stale default
     @default("stale")
     def _stale_default(self):
