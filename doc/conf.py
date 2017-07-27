@@ -102,9 +102,11 @@ sphinx_gallery_conf = {
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': ['gallery', 'tutorials'],
     'doc_module': ('matplotlib', 'mpl_toolkits'),
-    'reference_url': {'matplotlib': None,
-                      'numpy': 'http://docs.scipy.org/doc/numpy/reference',
-                      'scipy': 'http://docs.scipy.org/doc/scipy/reference'},
+    'reference_url': {
+        'matplotlib': None,
+        'numpy': 'https://docs.scipy.org/doc/numpy',
+        'scipy': 'https://docs.scipy.org/doc/scipy/reference',
+    },
     'backreferences_dir': 'api/_as_gen'
 }
 
