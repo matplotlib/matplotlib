@@ -48,7 +48,10 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 Check Docs
 ----------
 
-Before tagging, make sure that the docs build cleanly ::
+Before tagging, update the what's new listing in :file:`doc/users/whats_new.rst`
+by merging all files in :file:`doc/users/next_whats_new/` coherently. Also,
+temporarily comment out the include and toctree glob; re-instate these after a
+release. Finally, make sure that the docs build cleanly ::
 
   pushd doc
   python make.py html latex -n 16
