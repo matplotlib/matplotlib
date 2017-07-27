@@ -5200,8 +5200,8 @@ or tuple of floats
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-            isBivari = (isinstance(norm, mcolors.BivariateNorm) or
-                        isinstance(cmap, mcolors.BivariateColormap))
+            isBivari = isinstance(norm, (mcolors.BivariateNorm,
+                                    mcolors.BivariateColormap))
             if (C.ndim == 3 and isBivari):
                 if cmap is None:
                     cmap = mcolors.BivariateColormap()
@@ -5219,8 +5219,8 @@ or tuple of floats
 
         if len(args) == 3:
             X, Y, C = [np.asanyarray(a) for a in args]
-            isBivari = (isinstance(norm, mcolors.BivariateNorm) or
-                        isinstance(cmap, mcolors.BivariateColormap))
+            isBivari = isinstance(norm, (mcolors.BivariateNorm,
+                                    mcolors.BivariateColormap))
             if (C.ndim == 3 and isBivari):
                 if cmap is None:
                     cmap = mcolors.BivariateColormap()
@@ -5772,8 +5772,8 @@ or tuple of floats
 
         C = np.asarray(args[-1])
 
-        isBivari = (isinstance(norm, mcolors.BivariateNorm) or
-                    isinstance(cmap, mcolors.BivariateColormap))
+        isBivari = isinstance(norm, (mcolors.BivariateNorm,
+                                mcolors.BivariateColormap))
         if (C.ndim == 3 and isBivari):
             C = norm(C)
             nr, nc = C.shape

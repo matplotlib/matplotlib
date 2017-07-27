@@ -901,7 +901,9 @@ class ColorbarBase(cm.ScalarMappable):
 
 
 class ColorsquareBase(cm.ScalarMappable):
+
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
+
     def __init__(self, ax, cmap=None,
                  norm=None,
                  alpha=None,
@@ -1069,9 +1071,9 @@ class ColorsquareBase(cm.ScalarMappable):
         self.stale = True
 
     def set_label(self, xlabel, ylabel, **kw):
-        '''
+        """
         Label the axes of the colorbar
-        '''
+        """
         self._xlabel = '%s' % (xlabel, )
         self._ylabel = '%s' % (ylabel, )
         self._labelkw = kw
@@ -1086,10 +1088,10 @@ class ColorsquareBase(cm.ScalarMappable):
         + [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
 
     def _add_solids(self, X, Y, C):
-        '''
+        """
         Draw the colors using :meth:`~matplotlib.axes.Axes.pcolormesh`;
         optionally add separators.
-        '''
+        """
         args = (X, Y, C)
         kw = dict(cmap=self.cmap,
                   norm=self.norm,
@@ -1120,10 +1122,10 @@ class ColorsquareBase(cm.ScalarMappable):
             self.solids.set_rasterized(True)
 
     def _ticker(self, norm):
-        '''
+        """
         Return the sequence of ticks (colorbar data locations),
         ticklabels (strings), and the corresponding offset string.
-        '''
+        """
         if norm is self.norm.norm1:
             _values = self._xvalues
             _boundaries = self._xboundaries
@@ -1246,9 +1248,9 @@ class ColorsquareBase(cm.ScalarMappable):
         return self._process_values(b=b, norm=norm)
 
     def _mesh(self):
-        '''
+        """
         Return X,Y, the coordinate arrays for the colorbar pcolormesh.
-        '''
+        """
         x = np.linspace(0, 1, len(self._xboundaries))
         y = np.linspace(0, 1, len(self._yboundaries))
         self._x = x
@@ -1257,10 +1259,10 @@ class ColorsquareBase(cm.ScalarMappable):
         return X, Y
 
     def _locate(self, x, norm):
-        '''
+        """
         Given a set of color data values, return their
         corresponding colorbar data coordinates.
-        '''
+        """
         if norm is self.norm.norm1:
             boundaries = self._xboundaries
         else:
@@ -1299,6 +1301,7 @@ class ColorsquareBase(cm.ScalarMappable):
         """
         fig = self.ax.figure
         fig.delaxes(self.ax)
+
 
 class Colorbar(ColorbarBase):
     """
