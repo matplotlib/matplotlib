@@ -89,7 +89,6 @@ class Artist(HasTraits, _artist.Artist):
     # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
     clippath = Union([Instance(TransformedPath),Instance("matplotlib.patches.Patch")], allow_none=True, default_value=None)
 
-
     clipon=Boolean(default_value=True)
     label=Unicode(allow_none=True, default_value='')
     picker=Union(Float,Boolean,Callable, allow_none=True, default_value=None)
@@ -113,9 +112,7 @@ class Artist(HasTraits, _artist.Artist):
     #and the second element of sticky_edges represents y
     sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #stale default
     @default("stale")
@@ -138,9 +135,7 @@ _______________________________________________________________________________
     def _stale_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #stale_callback default
     @default("stale_callback")
@@ -157,9 +152,7 @@ _______________________________________________________________________________
     def _stale_callback_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #axes default
     @default("axes")
@@ -186,9 +179,7 @@ _______________________________________________________________________________
     def _axes_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #figure default
     @default("figure")
@@ -221,9 +212,7 @@ _______________________________________________________________________________
     def _figure_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
     #TO DO: make a transform trait with the proper validation logic
     #transform default
     @default("transform")
@@ -244,9 +233,7 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #transformSet default
     @default("transformSet")
@@ -263,9 +250,7 @@ _______________________________________________________________________________
     def _transformSet_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #visible default
     @default("visible")
@@ -285,9 +270,7 @@ _______________________________________________________________________________
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
-"""
-_______________________________________________________________________________
-"""
+
 
     #animated default
     @default("animated")
@@ -308,9 +291,7 @@ _______________________________________________________________________________
     def _animated_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #alpha default
     @default("alpha")
@@ -330,9 +311,7 @@ _______________________________________________________________________________
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
-"""
-_______________________________________________________________________________
-"""
+
 
     #clipbox default
     @default("clipbox")
@@ -353,9 +332,7 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-"""
-_______________________________________________________________________________
-"""
+
     # Note: this is for if Clippath is a Union Trait
 
     @validate("clippath")
@@ -449,9 +426,7 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #clipon default
     @default("clipon")
@@ -471,9 +446,7 @@ _______________________________________________________________________________
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
-"""
-_______________________________________________________________________________
-"""
+
 
     #label default
     @default("label")
@@ -495,9 +468,7 @@ _______________________________________________________________________________
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" self.stale)
-"""
-_______________________________________________________________________________
-"""
+
 
     #picker default
     @default("picker")
@@ -514,9 +485,7 @@ _______________________________________________________________________________
     def _picker_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #contains default
     @default("contains")
@@ -533,9 +502,7 @@ _______________________________________________________________________________
     def _contains_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #rasterized default
     @default("rasterized")
@@ -554,9 +521,7 @@ _______________________________________________________________________________
     def _rasterized_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #agg_filter default
     @default("agg_filter")
@@ -575,9 +540,7 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #mouseover default
     @default("mouseover")
@@ -603,9 +566,7 @@ _______________________________________________________________________________
             else:
                 ax.mouseover_set.discard(self)
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #eventson default
     @default("eventson")
@@ -622,9 +583,7 @@ _______________________________________________________________________________
     def _eventson_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #oid default
     @default("oid")
@@ -641,9 +600,7 @@ _______________________________________________________________________________
     def _oid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #propobservers default
     @default("propobservers")
@@ -660,9 +617,7 @@ _______________________________________________________________________________
     def _propobservers_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #url default
     @default("url")
@@ -679,9 +634,7 @@ _______________________________________________________________________________
     def _url_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #gid default
     @default("gid")
@@ -698,9 +651,7 @@ _______________________________________________________________________________
     def _gid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #snap default
     @default("snap")
@@ -719,9 +670,7 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-"""
-_______________________________________________________________________________
-"""
+
 
 
     # This may not work, I may or may not have to work around rcParams['path.sketch']
@@ -750,9 +699,7 @@ _______________________________________________________________________________
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
         print("set stale: %r" self.stale)
-"""
-_______________________________________________________________________________
-"""
+
 
         """
         same note as sketch:
@@ -777,9 +724,7 @@ _______________________________________________________________________________
         self.stale = True
         print("set stale: %r" self.stale)
 
-"""
-_______________________________________________________________________________
-"""
+
 
     """
     Note: This may or may not work, I have to work around the
@@ -803,9 +748,7 @@ _______________________________________________________________________________
     def _sticky_edges_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
-"""
-_______________________________________________________________________________
-"""
+
 
     #ARTIST FUNCTIONS
     #
