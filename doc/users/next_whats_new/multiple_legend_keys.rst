@@ -6,11 +6,9 @@ A legend entry can now contain more than one legend key. The extended
 legend area in the specified number of sections; ``pad`` changes the padding
 between the legend keys.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_legend_demo6_001.png
-   :target: ../../gallery/pylab_examples/legend_demo6.html
+.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
+   :target: ../../gallery/text_labels_and_annotations/legend_demo.html
    :align: center
    :scale: 50
 
-   Legend Demo6
-
-
+   Multiple Legend Keys
