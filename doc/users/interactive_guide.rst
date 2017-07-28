@@ -1,8 +1,8 @@
 .. _plotting-guide-interactive:
 
-*******************
-Interactive Figures
-*******************
+************************************************
+Interactive Figures and Asynchronous Programming
+************************************************
 
 One of the most powerful uses of matplotlib is interactive
 figures.  At the most basic matplotlib has the ability to zoom and pan
@@ -15,9 +15,51 @@ of integrating the matplotlib with a GUI event loop.  For further
 details see `Interactive Applications using Matplotlib
 <http://www.amazon.com/Interactive-Applications-using-Matplotlib-Benjamin/dp/1783988843>`__.
 
+Fundamentally, all user interaction (and networking) is implemented as
+an infinite loop waiting for events from the OS and then doing
+something about it.  For example, a minimal Read Evaluate Print Loop
+(REPL) is ::
 
-The GUI event loop
-------------------
+  exec_count = 0
+  while True:
+      inp = input(f"[{exec_count}] > ")        # Read
+      ret = eval(inp)                          # Evaluate
+      print(ret)                               # Print
+      exec_count += 1                          # Loop
+
+
+This is missing many niceties (for example, it exits on the first
+exception!), but is representative of the event loops that underlie
+all terminals, GUIs, and servers [#f1]_.  In general the *Read* step is
+waiting on some sort of I/O, be it user input from a keyboard or mouse
+or the network while the *Evaluate* and *Print* are responsible for
+interpreting the input and then doing something about it.
+
+In practice most users do not work directly with these loops, and
+instead framework that provides a mechanism to register callbacks
+[#2]_.  This allows users to write reactive, event-driven, programs
+without having to delve into the nity-grity [#f3]_ details of I/O.
+Examples include ``observe`` and friends in `traitlets`, the
+``Signal`` / ``Slot`` framework in Qt and the analogs in Gtk / Tk /
+Wx, the request functions in web frameworks, or Matplotlib's
+native :ref:`event handling system <event-handling-tutorial>`.
+
+
+
+references to trackdown:
+ - link to cpython REPL loop
+ - curio / trio / asycio / twisted / tornado event loops
+ - Beazly talk or two on asyncio
+
+
+GUI to Matplotlib Bridge
+------------------------
+
+When using
+
+
+Command Prompt
+--------------
 
 To handle asynchronous user input every GUI framework has an event
 loop.  At the most basic this is a stack that can have events to be
@@ -27,11 +69,38 @@ run.  To manage this in python there are two basic methods:
 1. let the GUI main loop block the python process
 2. intermittently run the GUI loop for a period of time
 
-Going with option 1 is going down the route of writing a bespoke GUI
-application.  In this case, commonly refereed to as 'embedding', the
-GUI event loop is running the show and you should not use the `pyplot`
-layer.  Doing anything short of writing a full GUI application
-requires option 2.
+
+Blocking
+********
+
+
+Interactive
+***********
+
+Scripts
+-------
+
+ - if you want always reactive figures while the script runs, you have to
+   call `flush_event`
+ - if you want to have reactive figures that block the script until they are closed (ex for
+   collecting user input before continuing use
+
+
+Full embedding
+--------------
+
+ - just let the underlying GUI event loop handle eve
+
+Web
+---
+
+The Weeds
+=========
+
+
+The GUI event loop
+------------------
+
 
 The python capi provides a hook, `PyOS_InputHook`, to register a
 function to be run "The function will be called when Python's
@@ -68,7 +137,7 @@ rendering of the figure until the GUI is ready to update its
 on-screen representation.
 
 Stale Artists
--------------
+=============
 
 Artists (as of 1.5) have a ``stale`` attribute which is `True` if the
 internal state of the artist has changed since the last time it was
@@ -85,4 +154,27 @@ Interactive Mode
 
 
 Blitting
---------
+========
+
+
+.. ruberic:: Fotenotes
+
+.. [#f1] A limitation of this design is that you can only wait for one
+	 input, if there is a need to multiplex between multiple sources
+	 then the loop would look something like ::
+
+	   fds = [...]
+           while True:             # Loop
+               inp = select(fds)   # Read
+               eval(inp)           # Evaluate / Print
+
+
+.. [#f2] asyncio has a fundamentally different paradigm that uses
+         coroutines instead of callbacks as the user-facing interface,
+         however at the core there is a select loop like the above
+	 footnote the multiplexes between the running tasks.
+
+.. [#f3] These examples are agressively dropping many of the
+	 complexities that must be dealt with in the real world such as
+	 keyboard interupts [link], timeouts, bad input, resource
+	 allocation and cleanup, etc.
