@@ -624,3 +624,14 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-', '-'])
     assert_equal(col.get_linestyles(), [(None, None)] * 3)
     assert_equal(col.get_linewidths(), [1, 2, 3])
+
+
+@image_comparison(baseline_images=['scatter_post_alpha'],
+                  extensions=['png'], remove_text=True,
+                  style='default')
+def test_scatter_post_alpha():
+    fig, ax = plt.subplots()
+    sc = ax.scatter(range(5), range(5), c=range(5))
+    # this needs to be here to update internal state
+    fig.canvas.draw()
+    sc.set_alpha(.1)
