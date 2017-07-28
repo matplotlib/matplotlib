@@ -37,6 +37,10 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         self._agg_draw_pending = False
         self._bbox_queue = []
         self._drawRect = None
+        # used to keep track if there has been a whole-canvas
+        # render since the last paint event (which moves the
+        # pixels to the screen)
+        self.__full_redraw = True
 
     def drawRectangle(self, rect):
         if rect is not None:
@@ -63,13 +67,14 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
 
         painter = QtGui.QPainter(self)
 
-        if self._bbox_queue:
+        if not self.__full_redraw and self._bbox_queue:
             bbox_queue = self._bbox_queue
         else:
             painter.eraseRect(self.rect())
             bbox_queue = [
                 Bbox([[0, 0], [self.renderer.width, self.renderer.height]])]
         self._bbox_queue = []
+        self.__full_redraw = False
         for bbox in bbox_queue:
             l, b, r, t = map(int, bbox.extents)
             w = r - l
@@ -103,6 +108,9 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # The Agg draw is done here; delaying causes problems with code that
         # uses the result of the draw() to update plot elements.
         super(FigureCanvasQTAggBase, self).draw()
+        # flip this bit so in the paint event we know to ignore any
+        # blit requests
+        self.__full_redraw = True
         self.update()
 
     def draw_idle(self):
