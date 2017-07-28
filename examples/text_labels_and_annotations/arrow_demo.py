@@ -33,7 +33,8 @@ def add_dicts(d1, d2):
 def make_arrow_plot(data, size=4, display='length', shape='right',
                     max_arrow_width=0.03, arrow_sep=0.02, alpha=0.5,
                     normalize_data=False, ec=None, labelcolor=None,
-                    head_starts_at_zero=True, rate_labels=lettered_bases_to_rates,
+                    head_starts_at_zero=True,
+                    rate_labels=lettered_bases_to_rates,
                     **kwargs):
     """Makes an arrow plot.
 
@@ -56,9 +57,9 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     plt.gcf().set_size_inches(size, size)
     plt.xticks([])
     plt.yticks([])
-    max_text_size = size*12
+    max_text_size = size * 12
     min_text_size = size
-    label_text_size = size*2.5
+    label_text_size = size * 2.5
     text_params = {'ha': 'center', 'va': 'center', 'family': 'sans-serif',
                    'fontweight': 'bold'}
     r2 = np.sqrt(2)
@@ -68,15 +69,14 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         'TA': (-1, 0),
         'GA': (0, 1),
         'AG': (0, -1),
-        'CA': (-1/r2, 1/r2),
-        'AC': (1/r2, -1/r2),
-        'GT': (1/r2, 1/r2),
-        'TG': (-1/r2, -1/r2),
+        'CA': (-1 / r2, 1 / r2),
+        'AC': (1 / r2, -1 / r2),
+        'GT': (1 / r2, 1 / r2),
+        'TG': (-1 / r2, -1 / r2),
         'CT': (0, 1),
         'TC': (0, -1),
         'GC': (1, 0),
-        'CG': (-1, 0)
-        }
+        'CG': (-1, 0)}
 
     colors = {
         'AT': 'r',
@@ -90,8 +90,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         'CT': 'b',
         'TC': 'k',
         'GC': 'g',
-        'CG': 'b'
-        }
+        'CG': 'b'}
 
     label_positions = {
         'AT': 'center',
@@ -105,29 +104,32 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         'CT': 'center',
         'TC': 'center',
         'GC': 'center',
-        'CG': 'center'
-        }
+        'CG': 'center'}
 
     def do_fontsize(k):
-        return float(np.clip(max_text_size*np.sqrt(data[k]),
-                          min_text_size, max_text_size))
+        return float(np.clip(max_text_size * np.sqrt(data[k]),
+                             min_text_size, max_text_size))
 
-    A = plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'), **text_params)
-    T = plt.text(1, 1, '$T_3$', color='k', size=do_fontsize('T'), **text_params)
-    G = plt.text(0, 0, '$G_3$', color='g', size=do_fontsize('G'), **text_params)
-    C = plt.text(1, 0, '$C_3$', color='b', size=do_fontsize('C'), **text_params)
+    A = plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'),
+                 **text_params)
+    T = plt.text(1, 1, '$T_3$', color='k', size=do_fontsize('T'),
+                 **text_params)
+    G = plt.text(0, 0, '$G_3$', color='g', size=do_fontsize('G'),
+                 **text_params)
+    C = plt.text(1, 0, '$C_3$', color='b', size=do_fontsize('C'),
+                 **text_params)
 
     arrow_h_offset = 0.25  # data coordinates, empirically determined
-    max_arrow_length = 1 - 2*arrow_h_offset
-    max_head_width = 2.5*max_arrow_width
-    max_head_length = 2*max_arrow_width
+    max_arrow_length = 1 - 2 * arrow_h_offset
+    max_head_width = 2.5 * max_arrow_width
+    max_head_length = 2 * max_arrow_width
     arrow_params = {'length_includes_head': True, 'shape': shape,
                     'head_starts_at_zero': head_starts_at_zero}
     ax = plt.gca()
     sf = 0.6  # max arrow size represents this in data coords
 
-    d = (r2/2 + arrow_h_offset - 0.5)/r2  # distance for diags
-    r2v = arrow_sep/r2  # offset for diags
+    d = (r2 / 2 + arrow_h_offset - 0.5) / r2  # distance for diags
+    r2v = arrow_sep / r2  # offset for diags
 
     # tuple of x, y for start position
     positions = {
@@ -142,8 +144,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         'CT': (1 - arrow_sep, arrow_h_offset),
         'TC': (1 + arrow_sep, 1 - arrow_h_offset),
         'GC': (arrow_h_offset, arrow_sep),
-        'CG': (1 - arrow_h_offset, -arrow_sep),
-        }
+        'CG': (1 - arrow_h_offset, -arrow_sep)}
 
     if normalize_data:
         # find maximum value for rates, i.e. where keys are 2 chars long
@@ -153,25 +154,25 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
                 max_val = max(max_val, v)
         # divide rates by max val, multiply by arrow scale factor
         for k, v in data.items():
-            data[k] = v/max_val*sf
+            data[k] = v / max_val * sf
 
     def draw_arrow(pair, alpha=alpha, ec=ec, labelcolor=labelcolor):
         # set the length of the arrow
         if display == 'length':
-            length = max_head_length + data[pair]/sf*(max_arrow_length -
-                                                      max_head_length)
+            length = max_head_length + data[pair] / sf * (max_arrow_length -
+                                                          max_head_length)
         else:
             length = max_arrow_length
         # set the transparency of the arrow
         if display == 'alpha':
-            alpha = min(data[pair]/sf, alpha)
+            alpha = min(data[pair] / sf, alpha)
 
         # set the width of the arrow
         if display == 'width':
-            scale = data[pair]/sf
-            width = max_arrow_width*scale
-            head_width = max_head_width*scale
-            head_length = max_head_length*scale
+            scale = data[pair] / sf
+            width = max_arrow_width * scale
+            head_width = max_head_width * scale
+            head_length = max_head_length * scale
         else:
             width = max_arrow_width
             head_width = max_head_width
@@ -182,9 +183,10 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
 
         x_scale, y_scale = deltas[pair]
         x_pos, y_pos = positions[pair]
-        plt.arrow(x_pos, y_pos, x_scale*length, y_scale*length,
-              fc=fc, ec=ec, alpha=alpha, width=width, head_width=head_width,
-              head_length=head_length, **arrow_params)
+        plt.arrow(x_pos, y_pos, x_scale * length, y_scale * length,
+                  fc=fc, ec=ec, alpha=alpha, width=width,
+                  head_width=head_width, head_length=head_length,
+                  **arrow_params)
 
         # figure out coordinates for text
         # if drawing relative to base: x and y are same as for arrow
@@ -195,14 +197,15 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
 
         where = label_positions[pair]
         if where == 'left':
-            orig_position = 3*np.array([[max_arrow_width, max_arrow_width]])
+            orig_position = 3 * np.array([[max_arrow_width, max_arrow_width]])
         elif where == 'absolute':
-            orig_position = np.array([[max_arrow_length/2.0, 3*max_arrow_width]])
+            orig_position = np.array([[max_arrow_length / 2.0,
+                                       3 * max_arrow_width]])
         elif where == 'right':
-            orig_position = np.array([[length - 3*max_arrow_width,
-                                    3*max_arrow_width]])
+            orig_position = np.array([[length - 3 * max_arrow_width,
+                                       3 * max_arrow_width]])
         elif where == 'center':
-            orig_position = np.array([[length/2.0, 3*max_arrow_width]])
+            orig_position = np.array([[length / 2.0, 3 * max_arrow_width]])
         else:
             raise ValueError("Got unknown position parameter %s" % where)
 
@@ -213,10 +216,11 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
 
         plt.text(x, y, label, size=label_text_size, ha='center', va='center',
-             color=labelcolor or fc)
+                 color=labelcolor or fc)
 
     for p in sorted(positions):
         draw_arrow(p)
+
 
 # test data
 all_on_max = dict([(i, 1) for i in 'TCAG'] +
@@ -238,8 +242,7 @@ realistic_data = {
     'CA': 0.2,
     'GA': 0.1,
     'GT': 0.4,
-    'GC': 0.1,
-    }
+    'GC': 0.1}
 
 extreme_data = {
     'A': 0.75,
@@ -257,8 +260,7 @@ extreme_data = {
     'CA': 0.2,
     'GA': 0.1,
     'GT': 0.4,
-    'GC': 0.2,
-    }
+    'GC': 0.2}
 
 sample_data = {
     'A': 0.2137,
@@ -276,8 +278,7 @@ sample_data = {
     'CA': 0.0703,
     'GA': 0.1824,
     'GT': 0.0387,
-    'GC': 0.1106,
-    }
+    'GC': 0.1106}
 
 
 if __name__ == '__main__':
