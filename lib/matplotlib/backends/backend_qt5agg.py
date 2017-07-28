@@ -194,9 +194,8 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
         super(FigureCanvasQTAgg, self).__init__(figure=figure)
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
-        if not hasattr(self.figure, '_original_dpi'):
-            self.figure._original_dpi = self.figure.dpi
-        self.figure.dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._original_dpi = self.figure.dpi
+        self._update_figure_dpi()
 
     def _update_figure_dpi(self):
         dpi = self._dpi_ratio * self.figure._original_dpi
