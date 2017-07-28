@@ -137,7 +137,7 @@ def common_texification(text):
 
 
 def writeln(fh, line):
-    # every line of a file included with \input must be terminated with %
+    # every line of a file included with \\input must be terminated with %
     # if not, latex will create additional vertical spaces for some reason
     fh.write(line)
     fh.write("%\n")
@@ -782,7 +782,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 %% Make sure the required packages are loaded in your preamble
 %%   \\usepackage{pgf}
 %%
-%% Figures using additional raster images can only be included by \input if
+%% Figures using additional raster images can only be included by \\input if
 %% they are in the same directory as the main LaTeX file. For loading figures
 %% from other directories you can use the `import` package
 %%   \\usepackage{import}
