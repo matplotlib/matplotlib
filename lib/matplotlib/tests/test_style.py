@@ -143,3 +143,18 @@ def test_context_with_badparam():
             with x:
                 pass
         assert mpl.rcParams[PARAM] == other_value
+
+
+@pytest.mark.parametrize('equiv_styles',
+                         [('mpl20', 'default'),
+                          ('mpl15', 'classic')],
+                         ids=['mpl20', 'mpl15'])
+def test_alias(equiv_styles):
+    rc_dicts = []
+    for sty in equiv_styles:
+        with style.context(sty):
+            rc_dicts.append(dict(mpl.rcParams))
+
+    rc_base = rc_dicts[0]
+    for nm, rc in zip(equiv_styles[1:], rc_dicts[1:]):
+        assert rc_base == rc

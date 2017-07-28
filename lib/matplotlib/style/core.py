@@ -89,12 +89,18 @@ def use(style):
 
 
     """
+    style_alias = {'mpl20': 'default',
+                   'mpl15': 'classic'}
     if isinstance(style, six.string_types) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
         styles = [style]
     else:
         styles = style
 
+    styles = (style_alias.get(s, s)
+              if isinstance(s, six.string_types)
+              else s
+              for s in styles)
     for style in styles:
         if not isinstance(style, six.string_types):
             _apply_style(style)
