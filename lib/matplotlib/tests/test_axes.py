@@ -5040,6 +5040,22 @@ def test_large_offset():
     fig.canvas.draw()
 
 
+def test_barb_units():
+    fig, ax = plt.subplots()
+    dates = [datetime.datetime(2017, 7, 15, 18, i) for i in range(0, 60, 10)]
+    y = np.linspace(0, 5, len(dates))
+    u = v = np.linspace(0, 50, len(dates))
+    ax.barbs(dates, y, u, v)
+
+
+def test_quiver_units():
+    fig, ax = plt.subplots()
+    dates = [datetime.datetime(2017, 7, 15, 18, i) for i in range(0, 60, 10)]
+    y = np.linspace(0, 5, len(dates))
+    u = v = np.linspace(0, 50, len(dates))
+    ax.quiver(dates, y, u, v)
+
+
 def test_bar_color_cycle():
     ccov = mcolors.colorConverter.to_rgb
     fig, ax = plt.subplots()
