@@ -14,8 +14,8 @@ Line Plot
 Here's how to create a line plot with  text labels using
 :func:`~matplotlib.pyplot.plot`.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_simple_plot_001.png
-   :target: ../../gallery/pylab_examples/simple_plot.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_simple_plot_001.png
+   :target: ../../gallery/lines_bars_and_markers/simple_plot.html
    :align: center
    :scale: 50
 
@@ -120,8 +120,8 @@ Michael Droettboom built on work by Charlie Moad to provide an extremely
 accurate  8-spline approximation to elliptical arcs (see
 :class:`~matplotlib.patches.Arc`), which are insensitive to zoom level.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_ellipse_demo_001.png
-   :target: ../../gallery/pylab_examples/ellipse_demo.html
+.. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_ellipse_demo_001.png
+   :target: ../../gallery/shapes_and_collections/ellipse_demo.html
    :align: center
    :scale: 50
 
@@ -174,8 +174,8 @@ Table demo
 The :func:`~matplotlib.pyplot.table` command adds a text table
 to an axes.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_table_demo_001.png
-   :target: ../../gallery/pylab_examples/table_demo.html
+.. figure:: ../../gallery/misc/images/sphx_glr_table_demo_001.png
+   :target: ../../gallery/misc/table_demo.html
    :align: center
    :scale: 50
 
@@ -265,8 +265,8 @@ The :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.loglog` functions simplify the creation of
 logarithmic plots.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_log_demo_001.png
-   :target: ../../gallery/pylab_examples/log_demo.html
+.. figure:: ../../gallery/scales/images/sphx_glr_log_demo_001.png
+   :target: ../../gallery/scales/log_demo.html
    :align: center
    :scale: 50
 
@@ -282,8 +282,8 @@ Polar plots
 
 The :func:`~matplotlib.pyplot.polar` command generates polar plots.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_polar_demo_001.png
-   :target: ../../gallery/pylab_examples/polar_demo.html
+.. figure:: ../../gallery/pie_and_polar_charts/images/sphx_glr_polar_demo_001.png
+   :target: ../../gallery/pie_and_polar_charts/polar_demo.html
    :align: center
    :scale: 50
 

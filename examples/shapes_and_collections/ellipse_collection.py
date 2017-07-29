@@ -14,9 +14,9 @@ X, Y = np.meshgrid(x, y)
 
 XY = np.hstack((X.ravel()[:, np.newaxis], Y.ravel()[:, np.newaxis]))
 
-ww = X/10.0
-hh = Y/15.0
-aa = X*9
+ww = X / 10.0
+hh = Y / 15.0
+aa = X * 9
 
 
 fig, ax = plt.subplots()

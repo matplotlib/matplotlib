@@ -4,7 +4,8 @@ Pie Demo2
 =========
 
 Make a pie charts of varying size - see
-http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pie for the docstring.
+https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pie for the
+docstring.
 
 This example shows a basic pie charts with labels optional features,
 like autolabeling the percentage, offsetting a slice with "explode"
