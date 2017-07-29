@@ -868,7 +868,8 @@ class BivariateColormap(Colormap):
         red_mesh, green_mesh = np.meshgrid(red, green)
         blue_mesh = np.zeros_like(red_mesh)
         alpha_mesh = np.ones_like(red_mesh)
-        bivariate_cmap = np.dstack((red_mesh, green_mesh, blue_mesh, alpha_mesh))
+        bivariate_cmap = np.dstack((red_mesh, green_mesh, blue_mesh,
+                                    alpha_mesh))
         self._lut = np.vstack(bivariate_cmap)
         self._isinit = True
         self.N = self.N * self.N

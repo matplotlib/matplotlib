@@ -1158,9 +1158,6 @@ class ColorsquareBase(cm.ScalarMappable):
                                       linthresh=norm.linthresh,
                                       base=10)
                 else:
-                    if mpl.rcParams['_internal.classic_mode']:
-                        locator = ticker.MaxNLocator()
-                    else:
                         # locator = ticker.AutoLocator()
                         locator = ticker.MaxNLocator(nbins=5)
             else:
