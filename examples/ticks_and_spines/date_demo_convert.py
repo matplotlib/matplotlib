@@ -14,10 +14,10 @@ date2 = datetime.datetime(2000, 3, 6)
 delta = datetime.timedelta(hours=6)
 dates = drange(date1, date2, delta)
 
-y = arange(len(dates)*1.0)
+y = arange(len(dates) * 1.0)
 
 fig, ax = plt.subplots()
-ax.plot_date(dates, y*y)
+ax.plot_date(dates, y * y)
 
 # this is superfluous, since the autoscaler should get it right, but
 # use date2num and num2date to convert between dates and floats if

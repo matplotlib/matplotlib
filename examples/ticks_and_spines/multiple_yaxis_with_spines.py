@@ -13,6 +13,7 @@ def make_patch_spines_invisible(ax):
     for sp in ax.spines.values():
         sp.set_visible(False)
 
+
 fig, host = plt.subplots()
 fig.subplots_adjust(right=0.75)
 

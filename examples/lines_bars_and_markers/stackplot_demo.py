@@ -19,6 +19,7 @@ np.random.seed(19680801)
 def fnx():
     return np.random.randint(5, 50, 10)
 
+
 y = np.row_stack((fnx(), fnx(), fnx()))
 x = np.arange(10)
 
@@ -52,6 +53,7 @@ def layers(n, m):
         for j in range(5):
             bump(a[:, i])
     return a
+
 
 d = layers(3, 100)
 

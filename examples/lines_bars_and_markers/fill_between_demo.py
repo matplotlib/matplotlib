@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 x = np.arange(0.0, 2, 0.01)
-y1 = np.sin(2*np.pi*x)
-y2 = 1.2*np.sin(4*np.pi*x)
+y1 = np.sin(2 * np.pi * x)
+y2 = 1.2 * np.sin(4 * np.pi * x)
 
 ###############################################################################
 
@@ -43,8 +43,10 @@ ax.set_title('fill between where')
 # Test support for masked arrays.
 y2 = np.ma.masked_greater(y2, 1.0)
 ax1.plot(x, y1, x, y2, color='black')
-ax1.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green', interpolate=True)
-ax1.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red', interpolate=True)
+ax1.fill_between(x, y1, y2, where=y2 >= y1,
+                 facecolor='green', interpolate=True)
+ax1.fill_between(x, y1, y2, where=y2 <= y1,
+                 facecolor='red', interpolate=True)
 ax1.set_title('Now regions with y2>1 are masked')
 
 ###############################################################################
@@ -58,7 +60,7 @@ ax1.set_title('Now regions with y2>1 are masked')
 # Use transforms to create axes spans where a certain condition is satisfied:
 
 fig, ax = plt.subplots()
-y = np.sin(4*np.pi*x)
+y = np.sin(4 * np.pi * x)
 ax.plot(x, y, color='black')
 
 # use data coordinates for the x-axis and the axes coordinates for the y-axis
@@ -67,8 +69,10 @@ trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
 theta = 0.9
 ax.axhline(theta, color='green', lw=2, alpha=0.5)
 ax.axhline(-theta, color='red', lw=2, alpha=0.5)
-ax.fill_between(x, 0, 1, where=y > theta, facecolor='green', alpha=0.5, transform=trans)
-ax.fill_between(x, 0, 1, where=y < -theta, facecolor='red', alpha=0.5, transform=trans)
+ax.fill_between(x, 0, 1, where=y > theta,
+                facecolor='green', alpha=0.5, transform=trans)
+ax.fill_between(x, 0, 1, where=y < -theta,
+                facecolor='red', alpha=0.5, transform=trans)
 
 
 plt.show()

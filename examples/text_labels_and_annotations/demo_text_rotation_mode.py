@@ -13,7 +13,7 @@ def test_rotation_mode(fig, mode, subplot_location):
     grid = ImageGrid(fig, subplot_location,
                      nrows_ncols=(len(va_list), len(ha_list)),
                      share_all=True, aspect=True,
-                     #label_mode='1',
+                     # label_mode='1',
                      cbar_mode=None)
 
     for ha, ax in zip(ha_list, grid.axes_row[-1]):
@@ -40,6 +40,7 @@ def test_rotation_mode(fig, mode, subplot_location):
             ax.axvline(0.5)
             ax.axhline(0.5)
             i += 1
+
 
 if 1:
     import matplotlib.pyplot as plt

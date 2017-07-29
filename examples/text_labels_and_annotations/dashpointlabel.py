@@ -18,8 +18,7 @@ dash_style = (
     (0, 20, -15, 30, 10),
     (1, 30, 0, 15, 10),
     (0, 40, 15, 15, 10),
-    (1, 20, 30, 60, 10),
-    )
+    (1, 20, 30, 60, 10))
 
 fig, ax = plt.subplots()
 
@@ -28,7 +27,7 @@ ax.plot(x, y, marker='o')
 for i in range(len(DATA)):
     (x, y) = DATA[i]
     (dd, dl, r, dr, dp) = dash_style[i]
-    #print('dashlen call %d' % dl)
+    # print('dashlen call %d' % dl)
     t = ax.text(x, y, str((x, y)), withdash=True,
                 dashdirection=dd,
                 dashlength=dl,

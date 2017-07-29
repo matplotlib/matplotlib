@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 fig = plt.figure()
 x = np.linspace(-np.pi, np.pi, 100)
-y = 2*np.sin(x)
+y = 2 * np.sin(x)
 
 ax = fig.add_subplot(2, 2, 1)
 ax.set_title('centered spines')
@@ -88,13 +88,14 @@ def adjust_spines(ax, spines):
         # no xaxis ticks
         ax.xaxis.set_ticks([])
 
+
 ###############################################################################
 # Create another figure using our new ``adjust_spines`` method
 
 fig = plt.figure()
 
-x = np.linspace(0, 2*np.pi, 100)
-y = 2*np.sin(x)
+x = np.linspace(0, 2 * np.pi, 100)
+y = 2 * np.sin(x)
 
 ax = fig.add_subplot(2, 2, 1)
 ax.plot(x, y, clip_on=False)

@@ -9,7 +9,8 @@ we put a tick mark on every 5th easter
 See https://moin.conectiva.com.br/DateUtil for help with rrules
 """
 import matplotlib.pyplot as plt
-from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
+from matplotlib.dates import (YEARLY, DateFormatter,
+                              rrulewrapper, RRuleLocator, drange)
 import numpy as np
 import datetime
 
