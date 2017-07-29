@@ -5234,48 +5234,46 @@ or tuple of floats
             An array of color values.
 
         X, Y : array_like, optional
-            If given, specify the (x, y) coordinates of
-            the colored quadrilaterals; the quadrilateral for C[i,j] has
-            corners at::
+            If given, specify the (x, y) coordinates of the colored
+            quadrilaterals; the quadrilateral for ``C[i,j]`` has corners at::
 
                 (X[i,   j],   Y[i,   j]),
                 (X[i,   j+1], Y[i,   j+1]),
                 (X[i+1, j],   Y[i+1, j]),
                 (X[i+1, j+1], Y[i+1, j+1])
 
-            Ideally the dimensions of `X` and `Y` should be one greater
-            than those of `C`; if the dimensions are the same, then the
-            last row and column of `C` will be ignored.
+            Ideally the dimensions of ``X`` and ``Y`` should be one greater
+            than those of ``C``; if the dimensions are the same, then the last
+            row and column of ``C`` will be ignored.
 
             Note that the column index corresponds to the
             x-coordinate, and the row index corresponds to y; for
             details, see the :ref:`Grid Orientation
             <axes-pcolor-grid-orientation>` section below.
 
-            If either or both of `X` and `Y` are 1-D arrays or column vectors,
-            they will be expanded as needed into the appropriate 2-D arrays,
-            making a rectangular grid.
+            If either or both of ``X`` and ``Y`` are 1-D arrays or column
+            vectors, they will be expanded as needed into the appropriate 2-D
+            arrays, making a rectangular grid.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             If `None`, default to rc settings.
 
-        norm :`matplotlib.colors.Normalize`, optional, default: None
+        norm : `matplotlib.colors.Normalize`, optional, default: None
             An instance is used to scale luminance data to (0, 1).
             If `None`, defaults to :func:`normalize`.
 
         vmin, vmax : scalar, optional, default: None
-            `vmin` and `vmax` are used in conjunction with `norm` to
-            normalize luminance data.  If either is `None`, it
-            is autoscaled to the respective min or max
-            of the color array `C`.  If not `None`, `vmin` or
-            `vmax` passed in here override any pre-existing values
-            supplied in the `norm` instance.
+            ``vmin`` and ``vmax`` are used in conjunction with ``norm`` to
+            normalize luminance data.  If either is `None`, it is autoscaled to
+            the respective min or max of the color array ``C``.  If not `None`,
+            ``vmin`` or ``vmax`` passed in here override any pre-existing
+            values supplied in the ``norm`` instance.
 
         shading : {'flat', 'faceted'}, optional, default: 'flat'
-            This kwarg is deprecated; please use 'edgecolors' instead -
+            This kwarg is deprecated; please use ``edgecolors`` instead -
 
-            * shading='flat': edgecolors='none'
-            * shading='faceted': edgecolors='k'
+            * ``shading='flat'``: ``edgecolors='none'``
+            * ``shading='faceted'``: ``edgecolors='k'``
 
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
@@ -5299,13 +5297,12 @@ or tuple of floats
         Other Parameters
         ----------------
         antialiaseds : bool, optional, default: False
-            The default `antialiaseds` is False if the default
-            `edgecolors`="none" is used.  This eliminates artificial lines
-            at patch boundaries, and works regardless of the value of
-            alpha.  If `edgecolors` is not "none", then the default
-            `antialiaseds` is taken from
-            `rcParams['patch.antialiased']`, which defaults to True.
-            Stroking the edges may be preferred if `alpha` is 1, but
+            The default ``antialiaseds`` is False if the default
+            ``edgecolors="none"`` is used.  This eliminates artificial lines
+            at patch boundaries, and works regardless of the value of alpha.
+            If ``edgecolors`` is not "none", then the default ``antialiaseds``
+            is taken from ``rcParams['patch.antialiased']``, which defaults to
+            True. Stroking the edges may be preferred if ``alpha`` is 1, but
             will cause artifacts otherwise.
 
         kwargs : `~matplotlib.collections.PolyCollection`
@@ -5319,16 +5316,15 @@ or tuple of floats
         -----
         .. _axes-pcolor-grid-orientation:
 
-        `X`, `Y` and `C` may be masked arrays.  If either C[i, j], or one
-        of the vertices surrounding C[i,j] (`X` or `Y` at [i, j], [i+1, j],
-        [i, j+1],[i+1, j+1]) is masked, nothing is plotted.
+        ``X``, ``Y`` and ``C`` may be masked arrays. If either C[i, j], or one
+        of the vertices surrounding C[i,j] (``X`` or ``Y`` at [i, j], [i+1, j],
+        [i, j+1], [i+1, j+1]) is masked, nothing is plotted.
 
-        The grid orientation follows the MATLAB convention: an
-        array `C` with shape (nrows, ncolumns) is plotted with
-        the column number as `X` and the row number as `Y`, increasing
-        up; hence it is plotted the way the array would be printed,
-        except that the `Y` axis is reversed.  That is, `C` is taken
-        as `C` (y, x).
+        The grid orientation follows the MATLAB convention: an array ``C`` with
+        shape (nrows, ncolumns) is plotted with the column number as ``X`` and
+        the row number as ``Y``, increasing up; hence it is plotted the way the
+        array would be printed, except that the ``Y`` axis is reversed. That
+        is, ``C`` is taken as ``C`` (y, x).
 
         Similarly for :func:`meshgrid`::
 
@@ -5358,10 +5354,10 @@ or tuple of floats
 
             pcolor(C.T)
 
-        MATLAB :func:`pcolor` always discards the last row and column
-        of `C`, but matplotlib displays the last row and column if `X` and
-        `Y` are not specified, or if `X` and `Y` have one more row and
-        column than `C`.
+        MATLAB :func:`pcolor` always discards the last row and column of ``C``,
+        but Matplotlib displays the last row and column if ``X`` and ``Y`` are
+        not specified, or if ``X`` and ``Y`` have one more row and column than
+        ``C``.
         """
 
         if not self._hold:
