@@ -239,10 +239,12 @@ class Text(Artist):
         """
         Update properties from a dictionary.
         """
-        bbox = kwargs.pop('bbox', None)
+        # Update bbox last, as it depends on font properties.
+        sentinel = object()  # bbox can be None, so use another sentinel.
+        bbox = kwargs.pop("bbox", sentinel)
         super(Text, self).update(kwargs)
-        if bbox:
-            self.set_bbox(bbox)  # depends on font properties
+        if bbox is not sentinel:
+            self.set_bbox(bbox)
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
