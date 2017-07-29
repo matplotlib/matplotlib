@@ -2,8 +2,8 @@
 
 set -e
 
-if [ "$CIRCLE_BRANCH" != "master" -o "$CIRCLE_PULL_REQUEST" != "" ]; then
-    echo "Not uploading docs from non-master branch."
+if [ "$CIRCLE_PROJECT_USERNAME" != "matplotlib" -o "$CIRCLE_BRANCH" != "master" -o "$CIRCLE_PULL_REQUEST" != "" ]; then
+    echo "Not uploading docs from non-master branch or non-Matplotlib org."
     exit
 fi
 
