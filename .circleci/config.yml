@@ -108,6 +108,9 @@ jobs:
           name: "Built documentation is available at:"
           command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
 
+      - add_ssh_keys:
+          fingerprints:
+            - "78:13:59:08:61:a9:e5:09:af:df:3a:d8:89:c2:84:c0"
       - deploy:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh
