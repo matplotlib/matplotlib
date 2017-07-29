@@ -5305,7 +5305,12 @@ or tuple of floats
             True. Stroking the edges may be preferred if ``alpha`` is 1, but
             will cause artifacts otherwise.
 
-        kwargs : `~matplotlib.collections.PolyCollection`
+        **kwargs :
+
+            Any unused keyword arguments are passed along to the
+            `~matplotlib.collections.PolyCollection` constructor:
+
+        %(PolyCollection)s
 
         See Also
         --------
