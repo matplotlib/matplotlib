@@ -25,6 +25,13 @@ macOS, Windows and Linux distributions::
   python -m pip install -U pip
   python -m pip install -U matplotlib
 
+.. note::
+
+   The following backends work out of the box: Agg, TkAgg, ps, pdf and svg.
+
+   For support for other backends, LaTeX rendering, animation input/output and
+   a larger selection of file formats, you may need to install :ref:`additional
+   dependencies <install_requirements>`.
 
 Third-party distributions of Matplotlib
 =======================================
