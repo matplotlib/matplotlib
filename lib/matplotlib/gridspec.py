@@ -43,9 +43,12 @@ class GridSpecBase(object):
         """
         #self.figure = figure
         self._nrows , self._ncols = nrows, ncols
-
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
+        # setting this to None because there is no reason to let
+        # the tight rectangle be set at instantiation.
+        self.set_tight_rect(None)
+
 
     def get_geometry(self):
         'get the geometry of the grid, e.g., 2,3'
@@ -133,8 +136,18 @@ class GridSpecBase(object):
         figLefts = [left + cellWs[2*colNum] for colNum in range(ncols)]
         figRights = [left + cellWs[2*colNum+1] for colNum in range(ncols)]
 
-
         return figBottoms, figTops, figLefts, figRights
+
+    def get_tight_rect(self):
+        'get the rectangle for use with gridspec.tight_layout'
+        return self._tight_rect
+
+    def set_tight_rect(self, tight_rect):
+        'set a rectangle for use with gridspec.tight_layout'
+        if tight_rect is not None and len(tight_rect) != 4:
+            raise ValueError('Expected keyword rect to be a list or tuple'
+                'with four elements')
+        self._tight_rect =  tight_rect
 
     def __getitem__(self, key):
         """
@@ -306,6 +319,9 @@ class GridSpec(GridSpecBase):
 
         if renderer is None:
             renderer = get_renderer(fig)
+
+        if rect is None:
+            rect = self.get_tight_rect()
 
         kwargs = get_tight_layout_figure(fig, fig.axes, subplotspec_list,
                                          renderer,
