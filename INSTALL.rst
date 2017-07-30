@@ -22,7 +22,8 @@ Installing an official release
 Matplotlib and most of its dependencies are all available as wheel packages for
 macOS, Windows and Linux distributions::
 
-  pip install -U matplotlib
+  python -m pip install -U pip
+  python -m pip install -U matplotlib
 
 
 Third-party distributions of Matplotlib
