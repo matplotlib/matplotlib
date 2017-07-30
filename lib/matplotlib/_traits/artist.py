@@ -143,7 +143,7 @@ class Artist(HasTraits, _artist.Artist):
     #stale_callback validate
     @validate("stale_callback")
     def _stale_callback_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #stale_callback observer
     @observe("stale_callback", type=change)
@@ -160,7 +160,7 @@ class Artist(HasTraits, _artist.Artist):
     #axes validate: reference @axes.setter
     @validate("axes")
     def _axes_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         if (proposal.value is not None and
                 (self.axes is not None and proposal.value != self.axes)):
             raise ValueError("Can not reset the axes.  You are "
@@ -187,7 +187,7 @@ class Artist(HasTraits, _artist.Artist):
     #figure validate: reference set_figure
     @validate("figure")
     def _figure_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         # if this is a no-op just return
         if self.figure is proposal.value:
             return
@@ -220,16 +220,16 @@ class Artist(HasTraits, _artist.Artist):
     #transform validate
     @validate("transform")
     def _transform_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #transform observer: reference set_transform
     @observe("transform", type = change)
     def _transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.transformSet = True
-        print("set _transformSet: %r" self._transformSet)
+        print("set _transformSet: %r" % self.transformSet)
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
 
@@ -241,7 +241,7 @@ class Artist(HasTraits, _artist.Artist):
     #transformSet validate
     @validate("transformSet")
     def _transformSet_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #transformSet observer
     @observe("transformSet", type = change)
@@ -258,7 +258,7 @@ class Artist(HasTraits, _artist.Artist):
     #visible validate
     @validate("visible")
     def _visible_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #visible observer: reference set_visible
     @observe("visible", type = change)
@@ -267,7 +267,7 @@ class Artist(HasTraits, _artist.Artist):
         self.pchanged()
         print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
     #animated default
@@ -278,7 +278,7 @@ class Artist(HasTraits, _artist.Artist):
     #animated validate: reference set_animated
     @validate("animated")
     def _animated_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         if self._animated is not proposal.value:
             self.pchanged()
             print("called self.pchanged()")
@@ -299,7 +299,7 @@ class Artist(HasTraits, _artist.Artist):
     #alpha validate
     @validate("alpha")
     def _alpha_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #alpha observer: reference set_alpha
     @observe("alpha", type = change)
@@ -308,7 +308,7 @@ class Artist(HasTraits, _artist.Artist):
         self.pchanged()
         print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
     #clipbox default
@@ -319,7 +319,7 @@ class Artist(HasTraits, _artist.Artist):
     #clipbox validate
     @validate("clipbox")
     def _clipbox_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #clipbox observer: reference set_clip_box
     @observe("clipbox", type = change)
@@ -328,11 +328,10 @@ class Artist(HasTraits, _artist.Artist):
         self.pchanged()
         print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
     # Note: this is for if Clippath is a Union Trait
-
     @validate("clippath")
     def _validate_clippath(self, proposal):
         value = proposal.value
@@ -377,7 +376,7 @@ class Artist(HasTraits, _artist.Artist):
     # #clippath validate: reference set_clip_path
     # @validate("clippath")
     # def _clippath_validate(self, proposal):
-    #     print("cross validating %r" % proposal.value")
+    #     print("cross validating %r" % proposal.value)
     #     from matplotlib.patches import Patch, Rectangle
     #     success = False
     #     #note sure how to go about the validation yet but taking a shot
@@ -422,7 +421,7 @@ class Artist(HasTraits, _artist.Artist):
         self.pchanged()
         print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
 
@@ -434,7 +433,7 @@ class Artist(HasTraits, _artist.Artist):
     #clipon validate
     @validate("clipon")
     def _clipon_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #clipon observer
     @observe("clipon", type = change)
@@ -443,7 +442,7 @@ class Artist(HasTraits, _artist.Artist):
         self.pchanged()
         print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
     #label default
@@ -454,7 +453,7 @@ class Artist(HasTraits, _artist.Artist):
     #label validate
     @validate("label")
     def _label_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         if proposal.value is not None:
             return proposal.value
         return proposal.value
@@ -465,7 +464,7 @@ class Artist(HasTraits, _artist.Artist):
         self.pchanged()
         print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
     #picker default
@@ -476,7 +475,7 @@ class Artist(HasTraits, _artist.Artist):
     #picker validate
     @validate("picker")
     def _picker_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #picker observer
     @observe("picker", type = change)
@@ -493,7 +492,7 @@ class Artist(HasTraits, _artist.Artist):
     #contains validate
     @validate("contains")
     def _contains_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #contains observer
     @observe("contains", type = change)
@@ -510,7 +509,7 @@ class Artist(HasTraits, _artist.Artist):
     #rasterized validate
     @validate("rasterized")
     def _rasterized_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
                 if proposal.value and not hasattr(self.draw, "_supports_rasterization"):
                     warnings.warn("Rasterization of '%s' will be ignored" % self)
         return proposal.value
@@ -529,14 +528,14 @@ class Artist(HasTraits, _artist.Artist):
     #agg_filter validate
     @validate("agg_filter")
     def _agg_filter_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #agg_filter observer
     @observe("agg_filter", type = change)
     def _agg_filter_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
 
@@ -548,7 +547,7 @@ class Artist(HasTraits, _artist.Artist):
     #mouseover validate: reference @mouseover.setter
     @validate("mouseover")
     def _mouseover_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         val = bool(proposal.value)
         #val is the returned value
         return val
@@ -574,7 +573,7 @@ class Artist(HasTraits, _artist.Artist):
     #eventson validate
     @validate("eventson")
     def _eventson_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #eventson observer
     @observe("eventson", type = change)
@@ -591,7 +590,7 @@ class Artist(HasTraits, _artist.Artist):
     #oid validate
     @validate("oid")
     def _oid_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #oid observer
     @observe("oid", type = change)
@@ -608,7 +607,7 @@ class Artist(HasTraits, _artist.Artist):
     #propobservers validate
     @validate("propobservers")
     def _propobservers_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #propobservers observer
     @observe("propobservers", type = change)
@@ -625,7 +624,7 @@ class Artist(HasTraits, _artist.Artist):
     #url validate
     @validate("url")
     def _url_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #url observer
     @observe("url", type = change)
@@ -642,7 +641,7 @@ class Artist(HasTraits, _artist.Artist):
     #gid validate
     @validate("gid")
     def _gid_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #gid observer
     @observe("gid", type = change)
@@ -659,14 +658,14 @@ class Artist(HasTraits, _artist.Artist):
     #snap validate
     @validate("snap")
     def _snap_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #snap observer
     @observe("snap", type = change)
     def _snap_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
 
@@ -683,7 +682,7 @@ class Artist(HasTraits, _artist.Artist):
     #sketch validate
     @validate("sketch")
     def _sketch_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         if proposal.scale is None:
             return None
         else:
@@ -696,7 +695,7 @@ class Artist(HasTraits, _artist.Artist):
     def _sketch_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
         """
@@ -713,14 +712,14 @@ class Artist(HasTraits, _artist.Artist):
     #path_effects validate
     @validate("path_effects")
     def _path_effects_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #path_effects observer
     @observe("path_effects", type = change)
     def _path_effects_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" self.stale)
+        print("set stale: %r" % self.stale)
 
 
 
@@ -739,7 +738,7 @@ class Artist(HasTraits, _artist.Artist):
     #sticky_edges validate
     @validate("sticky_edges")
     def _sticky_edges_validate(self, proposal):
-        print("cross validating %r" % proposal.value")
+        print("cross validating %r" % proposal.value)
         return proposal.value
     #sticky_edges observer
     @observe("sticky_edges", type = change)

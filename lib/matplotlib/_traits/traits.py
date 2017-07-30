@@ -63,7 +63,7 @@ class TransformTrait(TraitType):
             # TO DO: finish this
             # return trans
             # self._transform = self._transform._as_mpl_transform(self.axes)
-    return value
+        return value
 
 
 # class ClipPathTrait(TraitType):
