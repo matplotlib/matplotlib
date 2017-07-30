@@ -359,7 +359,7 @@ class Artist(HasTraits, _artist.Artist):
             self.clippath = TransformedPath(path, transform)
         elif isinstance(path, TransformedPath):
             # TransformedPatchPath is a subclass of TransformedPath
-        self.clippath = path
+            self.clippath = path
 
         if not success:
             print(type(path), type(transform))
@@ -510,8 +510,8 @@ class Artist(HasTraits, _artist.Artist):
     @validate("rasterized")
     def _rasterized_validate(self, proposal):
         print("cross validating %r" % proposal.value)
-                if proposal.value and not hasattr(self.draw, "_supports_rasterization"):
-                    warnings.warn("Rasterization of '%s' will be ignored" % self)
+        if proposal.value and not hasattr(self.draw, "_supports_rasterization"):
+            warnings.warn("Rasterization of '%s' will be ignored" % self)
         return proposal.value
     #rasterized observer
     @observe("rasterized", type = change)
@@ -808,10 +808,10 @@ class Artist(HasTraits, _artist.Artist):
         # be no distinction between axes.add_line, axes.add_patch, etc.
         # TODO: add legend support
 
-"""
-These following functions are copied and pasted from the original Artist class.
-This is because I feel as if they can be altered to their respective traits.
-"""
+        """
+        These following functions are copied and pasted from the original Artist class.
+        This is because I feel as if they can be altered to their respective traits.
+        """
 
     def have_units(self):
         ax = self.axes
