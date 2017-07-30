@@ -103,21 +103,22 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-import sys
-import distutils.version
-from itertools import chain
 
 from collections import MutableMapping
+import contextlib
+import distutils.version
+import distutils.sysconfig
+import functools
 import io
 import inspect
+import itertools
 import locale
 import os
 import re
+import sys
 import tempfile
 import warnings
-import contextlib
-import distutils.sysconfig
-import functools
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
@@ -798,9 +799,8 @@ _obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
 # The following may use a value of None to suppress the warning.
 _deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
 
-_all_deprecated = set(chain(_deprecated_ignore_map,
-                            _deprecated_map,
-                            _obsolete_set))
+_all_deprecated = set(itertools.chain(
+    _deprecated_ignore_map, _deprecated_map, _obsolete_set))
 
 
 class RcParams(MutableMapping, dict):
