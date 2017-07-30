@@ -11,7 +11,8 @@ import numpy as np
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
-from matplotlib import docstring, rcParams
+import matplotlib.rcParams as rcParams
+# from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path

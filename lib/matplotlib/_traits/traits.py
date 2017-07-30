@@ -13,9 +13,9 @@ import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
-from .transforms import (Bbox, IdentityTransform, TransformedBbox,
+from matplotlib.transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
-from .path import Path
+from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
@@ -63,7 +63,7 @@ class TransformTrait(TraitType):
             # TO DO: finish this
             # return trans
             # self._transform = self._transform._as_mpl_transform(self.axes)
-        return value
+            return value
 
 
 # class ClipPathTrait(TraitType):
