@@ -11,13 +11,13 @@ import numpy as np
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
-import matplotlib.rcParams as rcParams
-# from matplotlib import docstring, rcParams
+from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 from functools import wraps
 from contextlib import contextmanager
+
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
