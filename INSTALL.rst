@@ -19,8 +19,8 @@ Installing
 Installing an official release
 ==============================
 
-Matplotlib and most of its dependencies are all available as wheel packages for
-macOS, Windows and Linux distributions::
+Matplotlib and most of its dependencies are all available as wheel
+packages for macOS, Windows and Linux distributions::
 
   python -m pip install -U pip
   python -m pip install -U matplotlib
@@ -33,45 +33,10 @@ macOS, Windows and Linux distributions::
    a larger selection of file formats, you may need to install :ref:`additional
    dependencies <install_requirements>`.
 
-Third-party distributions of Matplotlib
-=======================================
-
-Scientific Python distributions: Conda, Canopy...
--------------------------------------------------
-
-The first option is to use one of the pre-packaged Python distributions that
-already provide Matplotlib built-in.  Both `Anaconda
-<https://www.continuum.io/downloads/>`_ and `Canopy
-<https://www.enthought.com/products/canopy/>`_ are both excellent choices that
-"just work" out of the box for Windows, macOS and common Linux platforms.  Both
-of these distributions include Matplotlib and *lots* of other useful tools.
-
-Linux : using your package manager
-----------------------------------
-
-If you are on Linux, you might prefer to use your package manager.  Matplotlib
-is packaged for almost every major Linux distribution.
-
-* Debian / Ubuntu: ``sudo apt-get install python-matplotlib``
-* Fedora: ``sudo dnf install python-matplotlib``
-* Red Hat: ``sudo yum install python-matplotlib``
-* Arch: ``sudo pacman -S python-matplotlib``
-
 .. _installing_windows:
 
 Windows
 -------
-
-We strongly recommend using `SciPy-stack compatible Python distributions
-<https://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
-Enthought Canopy, or Continuum Anaconda, which have Matplotlib and its
-dependencies, plus other useful packages, preinstalled.
-
-For `standard Python <https://www.python.org/downloads/>`_ installations,
-install Matplotlib using pip_::
-
-    python -m pip install -U pip setuptools
-    python -m pip install matplotlib
 
 In case Python 2.7 or 3.4 are not installed for all users,
 the Microsoft Visual C++ 2008
@@ -84,8 +49,27 @@ or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
 
+OSX
+---
 
-The Windows wheels (:file:`*.whl`) on the `PyPI download page
+If you are using python 2.7 on a Mac you may need to do::
+
+  xcode-select --install
+
+so that *subprocess32*, a dependency, may be complied.
+
+Linux
+-----
+
+On extremely old versions of linux and python 2.7 you may need to
+install the master version of *subprocess32* (`see comments
+<https://github.com/google/python-subprocess32/issues/12#issuecomment-304724113>`__)
+
+
+Test Data
+---------
+
+The wheels (:file:`*.whl`) on the `PyPI download page
 <https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
 or example code.
 If you want to try the many demos that come in the Matplotlib source
@@ -101,17 +85,32 @@ To run the test suite:
    <https://inkscape.org/>`_;
  * run ``py.test path\to\tests\directory``.
 
-.. note::
 
-   The following backends work out of the box: Agg, TkAgg, ps, pdf and svg.
-   TkAgg is probably the best backend for interactive use from the standard
-   Python shell or from IPython and is enabled as default.
+Third-party distributions of Matplotlib
+=======================================
 
-   GTK3 is not supported on Windows.
+Scientific Python distributions: Conda, Canopy...
+-------------------------------------------------
 
-   For support for other backends, LaTeX rendering, animation input/output and
-   a larger selection of file formats, you may need to install :ref:`additional
-   dependencies <install_requirements>`.
+The first option is to use one of the pre-packaged Python distributions that
+already provide Matplotlib built-in.  Both `Anaconda
+<https://www.continuum.io/downloads/>`_ and `Canopy
+<https://www.enthought.com/products/canopy/>`_ are both excellent choices that
+"just work" out of the box for Windows, macOS and common Linux platforms.  Both
+of these distributions include Matplotlib and *lots* of other useful tools.
+
+
+Linux : using your package manager
+----------------------------------
+
+If you are on Linux, you might prefer to use your package manager.  Matplotlib
+is packaged for almost every major Linux distribution.
+
+* Debian / Ubuntu: ``sudo apt-get install python3-matplotlib``
+* Fedora: ``sudo dnf install python3-matplotlib``
+* Red Hat: ``sudo yum install python3-matplotlib``
+* Arch: ``sudo pacman -S python-matplotlib``
+
 
 
 .. _install_from_source:
