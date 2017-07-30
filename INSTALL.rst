@@ -89,15 +89,15 @@ To run the test suite:
 Third-party distributions of Matplotlib
 =======================================
 
-Scientific Python distributions: Conda, Canopy...
--------------------------------------------------
+Scientific Python distributions
+-------------------------------
 
-The first option is to use one of the pre-packaged Python distributions that
-already provide Matplotlib built-in.  Both `Anaconda
-<https://www.continuum.io/downloads/>`_ and `Canopy
-<https://www.enthought.com/products/canopy/>`_ are both excellent choices that
-"just work" out of the box for Windows, macOS and common Linux platforms.  Both
-of these distributions include Matplotlib and *lots* of other useful tools.
+Both `Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
+<https://www.enthought.com/products/canopy/>`_ are both excellent
+choices that "just work" out of the box for Windows, macOS and common
+Linux platforms. `WinPython <https://winpython.github.io/>`__ is an
+option for windows users.  All of these distributions include
+Matplotlib and *lots* of other useful tools.
 
 
 Linux : using your package manager
