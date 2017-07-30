@@ -1,4 +1,7 @@
-This folder is for placing new portions of `whats_new.rst`.
+What's new in unreleased Matplotlib?
+====================================
+
+Please place new portions of `whats_new.rst` in the `next_whats_new` directory.
 
 When adding an entry please look at the currently existing files to
 see if you can extend any of them.  If you create a file, name it
