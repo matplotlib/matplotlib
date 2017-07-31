@@ -12,21 +12,15 @@ The top level :mod:`matplotlib` module
 
     An instance of :class:`RcParams` for handling default matplotlib values.
 
+.. autofunction:: rc_context
+
 .. autofunction:: rc
 
-.. autofunction::rcdefaults
+.. autofunction:: rc_file
 
-.. autofunction::rc_file
+.. autofunction:: rcdefaults
 
-.. autofunction::rc_context
-
-.. autofunction:: matplotlib_fname
-
-.. autofunction::rc_file_defaults
-
-.. autofunction::interactive
-
-.. autofunction::is_interactive
+.. autofunction:: rc_file_defaults
 
 .. autoclass:: RcParams
 
@@ -34,4 +28,8 @@ The top level :mod:`matplotlib` module
 
 .. autofunction:: rc_params_from_file
 
-.. autoclass:: rc_context
+.. autofunction:: matplotlib_fname
+
+.. autofunction:: interactive
+
+.. autofunction:: is_interactive

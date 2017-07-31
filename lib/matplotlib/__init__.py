@@ -103,21 +103,22 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-import sys
-import distutils.version
-from itertools import chain
 
 from collections import MutableMapping
+import contextlib
+import distutils.version
+import distutils.sysconfig
+import functools
 import io
 import inspect
+import itertools
 import locale
 import os
 import re
+import sys
 import tempfile
 import warnings
-import contextlib
-import distutils.sysconfig
-import functools
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
@@ -798,9 +799,8 @@ _obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
 # The following may use a value of None to suppress the warning.
 _deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
 
-_all_deprecated = set(chain(_deprecated_ignore_map,
-                            _deprecated_map,
-                            _obsolete_set))
+_all_deprecated = set(itertools.chain(
+    _deprecated_ignore_map, _deprecated_map, _obsolete_set))
 
 
 class RcParams(MutableMapping, dict):
@@ -1223,7 +1223,8 @@ def rc_file(fname):
     rcParams.update(rc_params_from_file(fname))
 
 
-class rc_context(object):
+@contextlib.contextmanager
+def rc_context(rc=None, fname=None):
     """
     Return a context manager for managing rc settings.
 
@@ -1256,26 +1257,16 @@ class rc_context(object):
 
     """
 
-    def __init__(self, rc=None, fname=None):
-        self.rcdict = rc
-        self.fname = fname
-        self._rcparams = rcParams.copy()
-        try:
-            if self.fname:
-                rc_file(self.fname)
-            if self.rcdict:
-                rcParams.update(self.rcdict)
-        except:
-            # if anything goes wrong, revert rc parameters and re-raise
-            rcParams.clear()
-            rcParams.update(self._rcparams)
-            raise
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, tb):
-        rcParams.update(self._rcparams)
+    orig = rcParams.copy()
+    try:
+        if fname:
+            rc_file(fname)
+        if rc:
+            rcParams.update(rc)
+        yield
+    finally:
+        # No need to revalidate the original values.
+        dict.update(rcParams, orig)
 
 
 _use_error_msg = """
