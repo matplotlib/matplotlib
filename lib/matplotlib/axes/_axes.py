@@ -1834,8 +1834,7 @@ or tuple of floats
             that it is uniformly increasing.
 
         y : array_like
-            1-D sequence, and it is assumed, but not checked,
-            that it is uniformly increasing.
+            1-D sequence
 
         Returns
         -------
@@ -1846,9 +1845,9 @@ or tuple of floats
         ----------------
         where : [ 'pre' | 'post' | 'mid'  ]
             If 'pre' (the default), the interval from
-            x[i] to x[i+1] has level y[i+1].
+            ``x[i]`` to ``x[i+1]`` has level ``y[i+1]``.
 
-            If 'post', that interval has level y[i].
+            If 'post', that interval has level ``y[i]``.
 
             If 'mid', the jumps in *y* occur half-way between the
             *x*-values.
