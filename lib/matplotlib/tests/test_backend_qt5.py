@@ -1,10 +1,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
+
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
-import matplotlib
-import copy
+
+from numpy.testing import assert_equal
 
 import pytest
 try:
@@ -95,3 +98,60 @@ def test_correct_key(qt_key, qt_mods, answer):
 
     qt_canvas.mpl_connect('key_press_event', receive)
     qt_canvas.keyPressEvent(event)
+
+
+@pytest.mark.backend('Qt5Agg')
+def test_dpi_ratio_change():
+    """
+    Make sure that if _dpi_ratio changes, the figure dpi changes but the
+    widget remains the same physical size.
+    """
+
+    prop = 'matplotlib.backends.backend_qt5.FigureCanvasQT._dpi_ratio'
+
+    with mock.patch(prop, new_callable=mock.PropertyMock) as p:
+
+        p.return_value = 3
+
+        fig = plt.figure(figsize=(5, 2), dpi=120)
+        qt_canvas = fig.canvas
+        qt_canvas.show()
+
+        from matplotlib.backends.backend_qt5 import qApp
+
+        # Make sure the mocking worked
+        assert qt_canvas._dpi_ratio == 3
+
+        size = qt_canvas.size()
+
+        qt_canvas.manager.show()
+        qApp.processEvents()
+
+        # The DPI and the renderer width/height change
+        assert fig.dpi == 360
+        assert qt_canvas.renderer.width == 1800
+        assert qt_canvas.renderer.height == 720
+
+        # The actual widget size and figure physical size don't change
+        assert size.width() == 200
+        assert size.height() == 80
+        assert_equal(qt_canvas.get_width_height(), (600, 240))
+        assert_equal(fig.get_size_inches(), (5, 2))
+
+        p.return_value = 2
+
+        assert qt_canvas._dpi_ratio == 2
+
+        qt_canvas.draw()
+        qApp.processEvents()
+
+        # The DPI and the renderer width/height change
+        assert fig.dpi == 240
+        assert qt_canvas.renderer.width == 1200
+        assert qt_canvas.renderer.height == 480
+
+        # The actual widget size and figure physical size don't change
+        assert size.width() == 200
+        assert size.height() == 80
+        assert_equal(qt_canvas.get_width_height(), (600, 240))
+        assert_equal(fig.get_size_inches(), (5, 2))

@@ -38,6 +38,15 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         self._bbox_queue = []
         self._drawRect = None
 
+        # In cases with mixed resolution displays, we need to be careful if the
+        # dpi_ratio changes - in this case we need to resize the canvas
+        # accordingly. We could watch for screenChanged events from Qt, but
+        # the issue is that we can't guarantee this will be emitted *before*
+        # the first paintEvent for the canvas, so instead we keep track of the
+        # dpi_ratio value here and in paintEvent we resize the canvas if
+        # needed.
+        self._dpi_ratio_prev = None
+
     def drawRectangle(self, rect):
         if rect is not None:
             self._drawRect = [pt / self._dpi_ratio for pt in rect]
@@ -56,10 +65,28 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
+
         # if the canvas does not have a renderer, then give up and wait for
         # FigureCanvasAgg.draw(self) to be called
         if not hasattr(self, 'renderer'):
             return
+
+        # As described in __init__ above, we need to be careful in cases with
+        # mixed resolution displays if dpi_ratio is changing between painting
+        # events.
+        if (self._dpi_ratio_prev is None or
+            self._dpi_ratio != self._dpi_ratio_prev):
+            # We need to update the figure DPI
+            self._update_figure_dpi()
+            # The easiest way to resize the canvas is to emit a resizeEvent
+            # since we implement all the logic for resizing the canvas for
+            # that event.
+            event = QtGui.QResizeEvent(self.size(), self.size())
+            # We use self.resizeEvent here instead of QApplication.postEvent
+            # since the latter doesn't guarantee that the event will be emitted
+            # straight away, and this causes visual delays in the changes.
+            self.resizeEvent(event)
+            self._dpi_ratio_prev = self._dpi_ratio
 
         painter = QtGui.QPainter(self)
 
@@ -167,9 +194,12 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
         super(FigureCanvasQTAgg, self).__init__(figure=figure)
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
-        if not hasattr(self.figure, '_original_dpi'):
-            self.figure._original_dpi = self.figure.dpi
-        self.figure.dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._original_dpi = self.figure.dpi
+        self._update_figure_dpi()
+
+    def _update_figure_dpi(self):
+        dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
 
 
 @_BackendQT5.export

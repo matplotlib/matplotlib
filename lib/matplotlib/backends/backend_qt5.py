@@ -674,7 +674,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         fname, filter = _getSaveFileName(self.parent,
                                          "Choose a filename to save to",
-                                 start, filters, selectedFilter)
+                                         start, filters, selectedFilter)
         if fname:
             if startpath == '':
                 # explicitly missing key or empty str signals to use cwd
