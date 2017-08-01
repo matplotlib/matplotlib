@@ -35,30 +35,13 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        # if there is a pending draw, run it now as we need the updated render
-        # to paint the widget
-        if self._agg_draw_pending:
-            self.__draw_idle_agg()
-        # As described in __init__ above, we need to be careful in cases with
-        # mixed resolution displays if dpi_ratio is changing between painting
-        # events.
-        if self._dpi_ratio != self._dpi_ratio_prev:
-            # We need to update the figure DPI
-            self._update_figure_dpi()
-            self._dpi_ratio_prev = self._dpi_ratio
-            # The easiest way to resize the canvas is to emit a resizeEvent
-            # since we implement all the logic for resizing the canvas for
-            # that event.
-            event = QtGui.QResizeEvent(self.size(), self.size())
-            # We use self.resizeEvent here instead of QApplication.postEvent
-            # since the latter doesn't guarantee that the event will be emitted
-            # straight away, and this causes visual delays in the changes.
-            self.resizeEvent(event)
-            # resizeEvent triggers a paintEvent itself, so we exit this one.
+        if self._update_dpi():
+            # The dpi update triggered its own paintEvent.
             return
+        self._draw_idle()  # Only does something if a draw is pending.
 
-        # if the canvas does not have a renderer, then give up and wait for
-        # FigureCanvasAgg.draw(self) to be called
+        # If the canvas does not have a renderer, then give up and wait for
+        # FigureCanvasAgg.draw(self) to be called.
         if not hasattr(self, 'renderer'):
             return
 

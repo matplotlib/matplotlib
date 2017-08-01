@@ -9,6 +9,7 @@ class FigureCanvasQTCairo(FigureCanvasQT):
         self._renderer = backend_cairo.RendererCairo(self.figure.dpi)
 
     def paintEvent(self, event):
+        self._update_dpi()
         width = self.width()
         height = self.height()
         surface = backend_cairo.cairo.ImageSurface(
