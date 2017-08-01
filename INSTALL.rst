@@ -27,11 +27,15 @@ packages for macOS, Windows and Linux distributions::
 
 .. note::
 
-   The following backends work out of the box: Agg, TkAgg, ps, pdf and svg.
+   The following backends work out of the box: Agg, ps, pdf, svg and TkAgg.
 
-   For support for other backends, LaTeX rendering, animation input/output and
-   a larger selection of file formats, you may need to install :ref:`additional
-   dependencies <install_requirements>`.
+   For support of other GUI frameworks, LaTeX rendering, saving
+   animations and a larger selection of file formats, you may need to
+   install :ref:`additional dependencies <install_requirements>`.
+
+Although not required, we suggest also installing ``IPython`` for
+interactive use.  To easily install a complete Scientific Python
+stack, see :ref:`install_scipy_dists` below.
 
 .. _installing_windows:
 
@@ -58,12 +62,16 @@ If you are using python 2.7 on a Mac you may need to do::
 
 so that *subprocess32*, a dependency, may be complied.
 
+To use the native OSX backend you will need :ref:`a framework build
+<osxframework-faq>` build of Python.
+
+
 Linux
 -----
 
 On extremely old versions of linux and python 2.7 you may need to
 install the master version of *subprocess32* (`see comments
-<https://github.com/google/python-subprocess32/issues/12#issuecomment-304724113>`__)
+<https://github.com/google/python-subprocess32/issues/12#issuecomment-304724113>`__).
 
 
 Test Data
@@ -89,7 +97,9 @@ To run the test suite:
 Third-party distributions of Matplotlib
 =======================================
 
-Scientific Python distributions
+.. _install_scipy_dists:
+
+Scientific Python Distributions
 -------------------------------
 
 Both `Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
