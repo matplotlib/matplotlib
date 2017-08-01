@@ -86,7 +86,7 @@ group_mean = np.mean(group_data)
 #
 #    Figures can have multiple axes on them. For information on how to do this,
 #    see the :ref:`Tight Layout tutorial
-#    <sphx_glr_tutorials_02_intermediate_tight_layout_guide.py>`.
+#    <sphx_glr_tutorials_intermediate_tight_layout_guide.py>`.
 
 fig, ax = plt.subplots()
 

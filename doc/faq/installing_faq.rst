@@ -34,7 +34,7 @@ and run it with::
 
 This will give you additional information about which backends matplotlib is
 loading, version information, and more. At this point you might want to make
-sure you understand matplotlib's :ref:`configuration <sphx_glr_tutorials_01_introductory_customizing.py>`
+sure you understand matplotlib's :ref:`configuration <sphx_glr_tutorials_introductory_customizing.py>`
 process, governed by the :file:`matplotlibrc` configuration file which contains
 instructions within and the concept of the matplotlib backend.
 
