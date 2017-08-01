@@ -14,7 +14,8 @@ import warnings
 import inspect
 import numpy as np
 import matplotlib
-import matplotlib.artist as _artist #original artist base class
+#original artist base class
+import matplotlib.artist as _artist
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
