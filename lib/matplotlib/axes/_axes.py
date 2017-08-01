@@ -5268,16 +5268,6 @@ or tuple of floats
             ``vmin`` or ``vmax`` passed in here override any pre-existing
             values supplied in the ``norm`` instance.
 
-        shading : {'flat', 'faceted'}, optional, default: 'flat'
-            This kwarg is deprecated; please use ``edgecolors`` instead -
-
-            * ``shading='flat'``: ``edgecolors='none'``
-            * ``shading='faceted'``: ``edgecolors='k'``
-
-            If 'faceted', a black grid is drawn around each rectangle; if
-            'flat', edges are not drawn. Default is 'flat', contrary to
-            MATLAB.
-
         edgecolors : {None, 'none', color, color sequence}
             If None, the rc setting is used by default.
             If 'none', edges will not be visible.
