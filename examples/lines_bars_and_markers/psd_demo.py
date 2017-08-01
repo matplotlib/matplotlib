@@ -20,16 +20,16 @@ np.random.seed(19680801)
 dt = 0.01
 t = np.arange(0, 10, dt)
 nse = np.random.randn(len(t))
-r = np.exp(-t/0.05)
+r = np.exp(-t / 0.05)
 
-cnse = np.convolve(nse, r)*dt
+cnse = np.convolve(nse, r) * dt
 cnse = cnse[:len(t)]
-s = 0.1*np.sin(2*np.pi*t) + cnse
+s = 0.1 * np.sin(2 * np.pi * t) + cnse
 
 plt.subplot(211)
 plt.plot(t, s)
 plt.subplot(212)
-plt.psd(s, 512, 1/dt)
+plt.psd(s, 512, 1 / dt)
 
 plt.show()
 
@@ -68,24 +68,26 @@ ax.plot(t, y)
 # time series at once
 ax2 = fig.add_subplot(2, 3, 4)
 ax2.psd(y, NFFT=len(t), pad_to=len(t), Fs=fs)
-ax2.psd(y, NFFT=len(t), pad_to=len(t)*2, Fs=fs)
-ax2.psd(y, NFFT=len(t), pad_to=len(t)*4, Fs=fs)
+ax2.psd(y, NFFT=len(t), pad_to=len(t) * 2, Fs=fs)
+ax2.psd(y, NFFT=len(t), pad_to=len(t) * 4, Fs=fs)
 plt.title('zero padding')
 
 # Plot the PSD with different block sizes, Zero pad to the length of the
 # original data sequence.
 ax3 = fig.add_subplot(2, 3, 5, sharex=ax2, sharey=ax2)
 ax3.psd(y, NFFT=len(t), pad_to=len(t), Fs=fs)
-ax3.psd(y, NFFT=len(t)//2, pad_to=len(t), Fs=fs)
-ax3.psd(y, NFFT=len(t)//4, pad_to=len(t), Fs=fs)
+ax3.psd(y, NFFT=len(t) // 2, pad_to=len(t), Fs=fs)
+ax3.psd(y, NFFT=len(t) // 4, pad_to=len(t), Fs=fs)
 ax3.set_ylabel('')
 plt.title('block size')
 
 # Plot the PSD with different amounts of overlap between blocks
 ax4 = fig.add_subplot(2, 3, 6, sharex=ax2, sharey=ax2)
-ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=0, Fs=fs)
-ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.05*len(t)/2.), Fs=fs)
-ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.2*len(t)/2.), Fs=fs)
+ax4.psd(y, NFFT=len(t) // 2, pad_to=len(t), noverlap=0, Fs=fs)
+ax4.psd(y, NFFT=len(t) // 2, pad_to=len(t),
+        noverlap=int(0.05 * len(t) / 2.), Fs=fs)
+ax4.psd(y, NFFT=len(t) // 2, pad_to=len(t),
+        noverlap=int(0.2 * len(t) / 2.), Fs=fs)
 ax4.set_ylabel('')
 plt.title('overlap')
 

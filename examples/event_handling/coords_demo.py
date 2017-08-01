@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 t = np.arange(0.0, 1.0, 0.01)
-s = np.sin(2*np.pi*t)
+s = np.sin(2 * np.pi * t)
 fig, ax = plt.subplots()
 ax.plot(t, s)
 
@@ -32,6 +32,7 @@ def on_click(event):
     if event.button == 1:
         if event.inaxes is not None:
             print('data coords %f %f' % (event.xdata, event.ydata))
+
 
 binding_id = plt.connect('motion_notify_event', on_move)
 plt.connect('button_press_event', on_click)

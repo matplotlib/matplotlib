@@ -15,7 +15,7 @@ x = np.arange(0.1, 4, 0.1)
 y = np.exp(-x)
 
 # example variable error bar values
-yerr = 0.1 + 0.1*np.sqrt(x)
+yerr = 0.1 + 0.1 * np.sqrt(x)
 
 
 # Now switch to a more OO interface to exercise more features.

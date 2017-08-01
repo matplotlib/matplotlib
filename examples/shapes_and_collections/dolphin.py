@@ -77,8 +77,7 @@ i = 0
 code_map = {
     'M': (Path.MOVETO, 1),
     'C': (Path.CURVE4, 3),
-    'L': (Path.LINETO, 1)
-    }
+    'L': (Path.LINETO, 1)}
 
 while i < len(parts):
     code = parts[i]

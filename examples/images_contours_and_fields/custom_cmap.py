@@ -72,7 +72,7 @@ from matplotlib.colors import LinearSegmentedColormap
 # Make some illustrative fake data:
 
 x = np.arange(0, np.pi, 0.1)
-y = np.arange(0, 2*np.pi, 0.1)
+y = np.arange(0, 2 * np.pi, 0.1)
 X, Y = np.meshgrid(x, y)
 Z = np.cos(X) * np.sin(Y) * 10
 
@@ -207,7 +207,7 @@ axs[0, 1].set_title("Alpha = 1")
 #
 
 # Draw a line with low zorder so it will be behind the image.
-axs[1, 1].plot([0, 10*np.pi], [0, 20*np.pi], color='c', lw=20, zorder=-1)
+axs[1, 1].plot([0, 10 * np.pi], [0, 20 * np.pi], color='c', lw=20, zorder=-1)
 
 im4 = axs[1, 1].imshow(Z, interpolation='nearest')
 fig.colorbar(im4, ax=axs[1, 1])
@@ -219,5 +219,6 @@ axs[1, 1].set_title("Varying alpha")
 #
 
 fig.suptitle('Custom Blue-Red colormaps', fontsize=16)
+fig.subplots_adjust(top=0.9)
 
 plt.show()

@@ -65,7 +65,7 @@ that denote the data limits -- in various arbitrary locations.  No
 longer are your axis lines constrained to be a simple rectangle around
 the figure -- you can turn on or off left, bottom, right and top, as
 well as "detach" the spine to offset it away from the data.  See
-:ref:`sphx_glr_gallery_pylab_examples_spine_placement_demo.py` and
+:ref:`sphx_glr_gallery_ticks_and_spines_spine_placement_demo.py` and
 :class:`matplotlib.spines.Spine`.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_99_spines_001.png
@@ -74,7 +74,3 @@ well as "detach" the spine to offset it away from the data.  See
    :scale: 50
 
    Whats New 99 Spines
-
-
-
-
