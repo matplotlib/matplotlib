@@ -117,8 +117,12 @@ def figure_edit(axes, parent=None):
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
-        ec = mcolors.to_hex(line.get_markeredgecolor(), keep_alpha=True)
-        fc = mcolors.to_hex(line.get_markerfacecolor(), keep_alpha=True)
+        ec = mcolors.to_hex(
+            mcolors.to_rgba(line.get_markeredgecolor(), line.get_alpha()),
+            keep_alpha=True)
+        fc = mcolors.to_hex(
+            mcolors.to_rgba(line.get_markerfacecolor(), line.get_alpha()),
+            keep_alpha=True)
         curvedata = [
             ('Label', label),
             sep,
