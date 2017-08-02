@@ -1,12 +1,3 @@
 """
 Traits/MPL interface
 """
-
-
-
-
-
-
-
-
-
