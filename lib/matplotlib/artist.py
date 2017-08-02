@@ -17,6 +17,10 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
 from .path import Path
 from functools import wraps
 from contextlib import contextmanager
+
+
+# rcParams = matplotlib.rcParams()
+
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
