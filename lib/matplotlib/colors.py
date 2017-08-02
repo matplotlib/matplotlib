@@ -70,6 +70,7 @@ import matplotlib.cbook as cbook
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 from abc import ABCMeta
 
+
 class _ColorMapping(dict):
     def __init__(self, mapping):
         super(_ColorMapping, self).__init__(mapping)
@@ -891,6 +892,7 @@ class Norms:
     """
     __metaclass__ = ABCMeta
     pass
+
 
 class Normalize(Norms):
     """
