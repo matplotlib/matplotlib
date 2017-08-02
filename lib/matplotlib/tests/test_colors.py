@@ -707,3 +707,15 @@ def test_ndarray_subclass_norm():
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
                  mcolors.PowerNorm(1)]:
         assert_array_equal(norm(data.view(MyArray)), norm(data))
+
+
+@pytest.mark.parametrize('norm', [
+        mcolors.Normalize(), mcolors.LogNorm(), mcolors.BivariateNorm()
+    ]
+)
+def test_abstract_base_class_norms(norm):
+    """
+    Test that all types of normalizers subclasses Abstract Base class
+    `colors.Norms`
+    """
+    assert isinstance(norm, mcolors.Norms)

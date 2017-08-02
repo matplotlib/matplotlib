@@ -68,7 +68,7 @@ import warnings
 import numpy as np
 import matplotlib.cbook as cbook
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
-
+from abc import ABCMeta
 
 class _ColorMapping(dict):
     def __init__(self, mapping):
@@ -885,7 +885,14 @@ class BivariateColormap(Colormap):
         raise NotImplementedError()
 
 
-class Normalize(object):
+class Norms:
+    """
+    Abstract Base Class to group `Normalize` and `BivariateNorm`
+    """
+    __metaclass__ = ABCMeta
+    pass
+
+class Normalize(Norms):
     """
     A class which, when called, can normalize data into
     the ``[0.0, 1.0]`` interval.
@@ -1377,7 +1384,7 @@ class NoNorm(Normalize):
         return value
 
 
-class BivariateNorm:
+class BivariateNorm(Norms):
     """
     Normalize a list of two values corresponding to two 1D normalizers
     """

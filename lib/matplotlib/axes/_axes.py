@@ -5146,8 +5146,7 @@ or tuple of floats
         if not self._hold:
             self.cla()
 
-        isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
-        if norm is not None and not isNorm:
+        if norm is not None and not isinstance(norm, mcolors.Norms):
             msg = "'norm' must be an instance of 'mcolors.Normalize' " \
                   "or 'mcolors.BivariateNorm'"
             raise ValueError(msg)
@@ -5483,8 +5482,7 @@ or tuple of floats
         collection.set_alpha(alpha)
         collection.set_array(C)
 
-        isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
-        if norm is not None and not isNorm:
+        if norm is not None and not isinstance(norm, mcolors.Norms):
             msg = "'norm' must be an instance of 'mcolors.Normalize' " \
                   "or 'mcolors.BivariateNorm'"
             raise ValueError(msg)
@@ -5764,8 +5762,8 @@ or tuple of floats
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        isNorm = isinstance(norm, (mcolors.Normalize, mcolors.BivariateNorm))
-        if norm is not None and not isNorm:
+
+        if norm is not None and not isinstance(norm, mcolors.Norms):
             msg = "'norm' must be an instance of 'mcolors.Normalize' " \
                   "or 'mcolors.BivariateNorm'"
             raise ValueError(msg)
