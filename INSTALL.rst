@@ -53,14 +53,14 @@ or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
 
-OSX
----
+macOS
+-----
 
-If you are using python 2.7 on a Mac you may need to do::
+If you are using Python 2.7 on a Mac you may need to do::
 
   xcode-select --install
 
-so that *subprocess32*, a dependency, may be complied.
+so that *subprocess32*, a dependency, may be compiled.
 
 To use the native OSX backend you will need :ref:`a framework build
 <osxframework-faq>` build of Python.
@@ -69,7 +69,7 @@ To use the native OSX backend you will need :ref:`a framework build
 Linux
 -----
 
-On extremely old versions of linux and python 2.7 you may need to
+On extremely old versions of Linux and Python 2.7 you may need to
 install the master version of *subprocess32* (`see comments
 <https://github.com/google/python-subprocess32/issues/12#issuecomment-304724113>`__).
 
