@@ -944,7 +944,7 @@ class ColorsquareBase(cm.ScalarMappable):
         if cbook.iterable(xticks):
             self.xlocator = ticker.FixedLocator(xticks, nbins=len(xticks))
         else:
-            self.xlocator = xticks    # Handle default in _ticker()
+            self.xlocator = xticks
 
         if cbook.iterable(yticks):
             self.ylocator = ticker.FixedLocator(yticks, nbins=len(yticks))
@@ -1015,9 +1015,77 @@ class ColorsquareBase(cm.ScalarMappable):
         Force the update of the ticks and ticklabels. This must be
         called whenever the tick locator and/or tick formatter changes.
         """
+        def _make_ticker(norm):
+            """
+            Return the sequence of ticks (colorbar data locations),
+            ticklabels (strings), and the corresponding offset string.
+            """
+            if norm is self.norm.norm1:
+                _values = self._xvalues
+                _boundaries = self._xboundaries
+                boundaries = self.xboundaries
+                locator = self.xlocator
+                formatter = self.xformatter
+            else:
+                _values = self._yvalues
+                _boundaries = self._yboundaries
+                boundaries = self.yboundaries
+                locator = self.ylocator
+                formatter = self.yformatter
+
+            if locator is None:
+                if boundaries is None:
+                    if isinstance(norm, colors.NoNorm):
+                        nv = len(_values)
+                        base = 1 + int(nv / 10)
+                        locator = ticker.IndexLocator(base=base, offset=0)
+                    elif isinstance(norm, colors.BoundaryNorm):
+                        b = norm.boundaries
+                        locator = ticker.FixedLocator(b, nbins=10)
+                    elif isinstance(norm, colors.LogNorm):
+                        locator = ticker.LogLocator(subs='all')
+                    elif isinstance(norm, colors.SymLogNorm):
+                        # The subs setting here should be replaced
+                        # by logic in the locator.
+                        locator = ticker.SymmetricalLogLocator(
+                                          subs=np.arange(1, 10),
+                                          linthresh=norm.linthresh,
+                                          base=10)
+                    else:
+                            # locator = ticker.AutoLocator()
+                            locator = ticker.MaxNLocator(nbins=5)
+                else:
+                    b = _boundaries[self._inside]
+                    locator = ticker.FixedLocator(b, nbins=10)
+            if isinstance(norm, colors.NoNorm) and boundaries is None:
+                intv = _values[0], _values[-1]
+            else:
+                b = _boundaries[self._inside]
+                intv = b[0], b[-1]
+            locator.create_dummy_axis(minpos=intv[0])
+            formatter.create_dummy_axis(minpos=intv[0])
+            locator.set_view_interval(*intv)
+            locator.set_data_interval(*intv)
+            formatter.set_view_interval(*intv)
+            formatter.set_data_interval(*intv)
+
+            b = np.array(locator())
+            if isinstance(locator, ticker.LogLocator):
+                eps = 1e-10
+                b = b[(b <= intv[1] * (1 + eps)) & (b >= intv[0] * (1 - eps))]
+            else:
+                eps = (intv[1] - intv[0]) * 1e-10
+                b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
+            # self._tick_data_values = b
+            ticks = self._locate(b, norm)
+            formatter.set_locs(b)
+            ticklabels = [formatter(t, i) for i, t in enumerate(b)]
+            offset_string = formatter.get_offset()
+            return ticks, ticklabels, offset_string
+
         ax = self.ax
-        xticks, xticklabels, xoffset_string = self._ticker(self.norm.norm1)
-        yticks, yticklabels, yoffset_string = self._ticker(self.norm.norm2)
+        xticks, xticklabels, xoffset_string = _make_ticker(self.norm.norm1)
+        yticks, yticklabels, yoffset_string = _make_ticker(self.norm.norm2)
 
         ax.xaxis.set_ticks(xticks)
         ax.set_xticklabels(xticklabels)
@@ -1120,74 +1188,6 @@ class ColorsquareBase(cm.ScalarMappable):
         elif(len(self._y) >= self.n_rasterize
              or len(self._x) >= self.n_rasterize):
             self.solids.set_rasterized(True)
-
-    def _ticker(self, norm):
-        """
-        Return the sequence of ticks (colorbar data locations),
-        ticklabels (strings), and the corresponding offset string.
-        """
-        if norm is self.norm.norm1:
-            _values = self._xvalues
-            _boundaries = self._xboundaries
-            boundaries = self.xboundaries
-            locator = self.xlocator
-            formatter = self.xformatter
-        else:
-            _values = self._yvalues
-            _boundaries = self._yboundaries
-            boundaries = self.yboundaries
-            locator = self.ylocator
-            formatter = self.yformatter
-
-        if locator is None:
-            if boundaries is None:
-                if isinstance(norm, colors.NoNorm):
-                    nv = len(_values)
-                    base = 1 + int(nv / 10)
-                    locator = ticker.IndexLocator(base=base, offset=0)
-                elif isinstance(norm, colors.BoundaryNorm):
-                    b = norm.boundaries
-                    locator = ticker.FixedLocator(b, nbins=10)
-                elif isinstance(norm, colors.LogNorm):
-                    locator = ticker.LogLocator(subs='all')
-                elif isinstance(norm, colors.SymLogNorm):
-                    # The subs setting here should be replaced
-                    # by logic in the locator.
-                    locator = ticker.SymmetricalLogLocator(
-                                      subs=np.arange(1, 10),
-                                      linthresh=norm.linthresh,
-                                      base=10)
-                else:
-                        # locator = ticker.AutoLocator()
-                        locator = ticker.MaxNLocator(nbins=5)
-            else:
-                b = _boundaries[self._inside]
-                locator = ticker.FixedLocator(b, nbins=10)
-        if isinstance(norm, colors.NoNorm) and boundaries is None:
-            intv = _values[0], _values[-1]
-        else:
-            b = _boundaries[self._inside]
-            intv = b[0], b[-1]
-        locator.create_dummy_axis(minpos=intv[0])
-        formatter.create_dummy_axis(minpos=intv[0])
-        locator.set_view_interval(*intv)
-        locator.set_data_interval(*intv)
-        formatter.set_view_interval(*intv)
-        formatter.set_data_interval(*intv)
-
-        b = np.array(locator())
-        if isinstance(locator, ticker.LogLocator):
-            eps = 1e-10
-            b = b[(b <= intv[1] * (1 + eps)) & (b >= intv[0] * (1 - eps))]
-        else:
-            eps = (intv[1] - intv[0]) * 1e-10
-            b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        # self._tick_data_values = b
-        ticks = self._locate(b, norm)
-        formatter.set_locs(b)
-        ticklabels = [formatter(t, i) for i, t in enumerate(b)]
-        offset_string = formatter.get_offset()
-        return ticks, ticklabels, offset_string
 
     def _process_values(self, b=None, norm=None):
         if norm is self.norm.norm1:
