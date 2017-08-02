@@ -668,18 +668,16 @@ class Artist(object):
         """
         Set the artist's clip path, which may be:
 
-          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+        - a :class:`~matplotlib.patches.Patch` (or subclass) instance; or
+        - a :class:`~matplotlib.path.Path` instance, in which case a
+          :class:`~matplotlib.transforms.Transform` instance, which will be
+          applied to the path before using it for clipping, must be provided;
+          or
+        - ``None``, to remove a previously set clipping path.
 
-          * a :class:`~matplotlib.path.Path` instance, in which case
-             an optional :class:`~matplotlib.transforms.Transform`
-             instance may be provided, which will be applied to the
-             path before using it for clipping.
-
-          * *None*, to remove the clipping path
-
-        For efficiency, if the path happens to be an axis-aligned
-        rectangle, this method will set the clipping box to the
-        corresponding rectangle and set the clipping path to *None*.
+        For efficiency, if the path happens to be an axis-aligned rectangle,
+        this method will set the clipping box to the corresponding rectangle
+        and set the clipping path to ``None``.
 
         ACCEPTS: [ (:class:`~matplotlib.path.Path`,
         :class:`~matplotlib.transforms.Transform`) |
@@ -714,10 +712,11 @@ class Artist(object):
             success = True
 
         if not success:
-            print(type(path), type(transform))
-            raise TypeError("Invalid arguments to set_clip_path")
-        # this may result in the callbacks being hit twice, but grantees they
-        # will be hit at least once
+            raise TypeError(
+                "Invalid arguments to set_clip_path, of type {} and {}"
+                .format(type(path).__name__, type(transform).__name__))
+        # This may result in the callbacks being hit twice, but guarantees they
+        # will be hit at least once.
         self.pchanged()
         self.stale = True
 
