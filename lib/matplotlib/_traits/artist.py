@@ -24,7 +24,8 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-from traitlets import HasTraits, Unicode, Int, Dict, Callable, Bool, Instance, Tuple, List, default, validate, observe
+from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Tuple, List, default, validate, observe
+from traitlets import Callable
 from traits import TraitProxy, Perishable, ClipPathTrait
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
