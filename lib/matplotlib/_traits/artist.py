@@ -25,9 +25,13 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Tuple, List, default, validate, observe
-from traitlets import Callable
-from traits import TraitProxy, Perishable, ClipPathTrait
+from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe
+# from traitlets import Callable
+
+#for testing purposes
+from .traits import Callable
+
+from .traits import TraitProxy, Perishable, TransformTrait
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
 _XYPair = namedtuple("_XYPair", "x y")
