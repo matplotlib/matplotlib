@@ -105,7 +105,7 @@ explicit_order_folders = ['../examples/pyplots',
                           '../tutorials/introductory',
                           '../tutorials/intermediate',
                           '../tutorials/advanced']
-for folder in glob('../examples/*') + glob('../tutorials/*'):
+for folder in sorted(glob('../examples/*') + glob('../tutorials/*')):
     if not os.path.isdir(folder) or folder in explicit_order_folders:
         continue
     explicit_order_folders.append(folder)

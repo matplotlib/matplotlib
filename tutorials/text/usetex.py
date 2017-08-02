@@ -26,7 +26,7 @@ Matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
 external dependencies must all be located on your :envvar:`PATH`.
 
 There are a couple of options to mention, which can be changed using :ref:`rc
-settings <sphx_glr_tutorials_01_introductory_customizing.py>`. Here is an example matplotlibrc file::
+settings <sphx_glr_tutorials_introductory_customizing.py>`. Here is an example matplotlibrc file::
 
   font.family        : serif
   font.serif         : Times, Palatino, New Century Schoolbook, Bookman, Computer Modern Roman

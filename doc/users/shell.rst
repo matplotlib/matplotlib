@@ -92,7 +92,7 @@ are going to need to understand what a matplotlib backend is
 With the TkAgg backend, which uses the Tkinter user interface toolkit,
 you can use matplotlib from an arbitrary non-gui python shell.  Just set your
 ``backend : TkAgg`` and ``interactive : True`` in your
-:file:`matplotlibrc` file (see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`) and fire
+:file:`matplotlibrc` file (see :ref:`sphx_glr_tutorials_introductory_customizing.py`) and fire
 up python.  Then::
 
   >>> from pylab import *

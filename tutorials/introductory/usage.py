@@ -314,7 +314,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
-#    :ref:`sphx_glr_tutorials_01_introductory_customizing.py`)::
+#    :ref:`sphx_glr_tutorials_introductory_customizing.py`)::
 #
 #        backend : WXAgg   # use wxpython with antigrain (agg) rendering
 #
@@ -498,7 +498,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # that are called, and on a state variable that determines whether
 # matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
-# configuration parameter (see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`).  It
+# configuration parameter (see :ref:`sphx_glr_tutorials_introductory_customizing.py`).  It
 # may also be set via :func:`matplotlib.interactive`, and its
 # value may be queried via :func:`matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting

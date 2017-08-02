@@ -410,7 +410,7 @@ instead of ``:context:`` any time you want to reset the context.
 
 Legend and PathEffects documentation
 ------------------------------------
-The :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` and :ref:`sphx_glr_tutorials_03_advanced_patheffects_guide.py` have both been
+The :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` and :ref:`sphx_glr_tutorials_advanced_patheffects_guide.py` have both been
 updated to better reflect the full potential of each of these powerful
 features.
 
@@ -427,5 +427,3 @@ rectangle stay on the axes after you release the mouse.
 GAE integration
 ---------------
 Matplotlib will now run on google app engine.
-
-

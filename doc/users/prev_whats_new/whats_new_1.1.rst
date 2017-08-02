@@ -87,7 +87,7 @@ The usage of this functionality can be as simple as ::
 
 and it will adjust the spacing between subplots
 so that the axis labels do not overlap with neighboring subplots. A
-:ref:`sphx_glr_tutorials_02_intermediate_tight_layout_guide.py` has been created to show how to use
+:ref:`sphx_glr_tutorials_intermediate_tight_layout_guide.py` has been created to show how to use
 this new tool.
 
 PyQT4, PySide, and IPython
@@ -116,7 +116,7 @@ legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
-See the :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for more detailed explanation and
+See the :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for more detailed explanation and
 examples.
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
@@ -228,7 +228,3 @@ Other improvements
   other colormaps :ref:`here <color-colormaps_reference>`.
 
 * Many bug fixes and documentation improvements.
-
-
-
-

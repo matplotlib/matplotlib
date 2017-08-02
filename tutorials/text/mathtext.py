@@ -23,7 +23,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 # (from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (with are designed
 # to blend well with Times), or a Unicode font that you provide.  The mathtext
 # font can be selected with the customization variable ``mathtext.fontset`` (see
-# :ref:`sphx_glr_tutorials_01_introductory_customizing.py`)
+# :ref:`sphx_glr_tutorials_introductory_customizing.py`)
 #
 # .. note::
 #    On `"narrow" <http://wordaligned.org/articles/narrow-python>`_ builds
