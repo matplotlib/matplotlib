@@ -720,10 +720,10 @@ namespace agg
             m_ptr = m_data;
             if(m_ptr < m_end)
             {
-                m_min_x = read_int32() + m_dx; 
-                m_min_y = read_int32() + m_dy;
-                m_max_x = read_int32() + m_dx;
-                m_max_y = read_int32() + m_dy;
+                m_min_x = read_int32u() + m_dx;
+                m_min_y = read_int32u() + m_dy;
+                m_max_x = read_int32u() + m_dx;
+                m_max_y = read_int32u() + m_dy;
             }
             return m_ptr < m_end;
         }
