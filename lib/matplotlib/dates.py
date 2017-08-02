@@ -291,7 +291,7 @@ class bytespdate2num(strpdate2num):
     """
     Use this class to parse date strings to matplotlib datenums when
     you know the date format string of the date you are parsing.  See
-    :file:`examples/pylab_examples/load_converter.py`.
+    :file:`examples/misc/load_converter.py`.
     """
     def __init__(self, fmt, encoding='utf-8'):
         """
