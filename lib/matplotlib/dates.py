@@ -75,7 +75,7 @@ Here are all the date tickers:
 
     * :class:`HourLocator`: locate hours
 
-    * :class:`DayLocator`: locate specifed days of the month
+    * :class:`DayLocator`: locate specified days of the month
 
     * :class:`WeekdayLocator`: Locate days of the week, e.g., MO, TU
 

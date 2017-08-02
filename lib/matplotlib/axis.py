@@ -1641,7 +1641,7 @@ class Axis(artist.Artist):
         """
         raise NotImplementedError('Derived must override')
 
-    def _update_offset_text_postion(self, bboxes, bboxes2):
+    def _update_offset_text_position(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels
