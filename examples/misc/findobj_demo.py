@@ -29,6 +29,7 @@ plt.title('Minimum Message Length')
 def myfunc(x):
     return hasattr(x, 'set_color') and not hasattr(x, 'set_facecolor')
 
+
 for o in fig.findobj(myfunc):
     o.set_color('blue')
 

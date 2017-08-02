@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
+import matplotlib.transforms as mtransforms
+from matplotlib.colors import LightSource
+from matplotlib.artist import Artist
 
 
 def smooth1d(x, window_len):
@@ -34,7 +37,7 @@ def smooth2d(A, sigma=3):
 class BaseFilter(object):
     def prepare_image(self, src_image, dpi, pad):
         ny, nx, depth = src_image.shape
-        #tgt_image = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
+        # tgt_image = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
         padded_src = np.zeros([pad*2 + ny, pad*2 + nx, depth], dtype="d")
         padded_src[pad:-pad, pad:-pad, :] = src_image[:, :, :]
 
@@ -82,7 +85,7 @@ class GaussianFilter(BaseFilter):
         return int(self.sigma*3/72.*dpi)
 
     def process_image(self, padded_src, dpi):
-        #offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
+        # offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
         tgt_image = np.zeros_like(padded_src)
         aa = smooth2d(padded_src[:, :, -1]*self.alpha,
                       self.sigma/72.*dpi)
@@ -104,9 +107,6 @@ class DropShadowFilter(BaseFilter):
         t1 = self.gauss_filter.process_image(padded_src, dpi)
         t2 = self.offset_filter.process_image(t1, dpi)
         return t2
-
-
-from matplotlib.colors import LightSource
 
 
 class LightFilter(BaseFilter):
@@ -160,9 +160,6 @@ class GrowFilter(BaseFilter):
         return new_im, offsetx, offsety
 
 
-from matplotlib.artist import Artist
-
-
 class FilteredArtistList(Artist):
     """
     A simple container to draw filtered artist.
@@ -180,9 +177,6 @@ class FilteredArtistList(Artist):
             a.draw(renderer)
         renderer.stop_filter(self._filter)
         renderer.stop_rasterizing()
-
-
-import matplotlib.transforms as mtransforms
 
 
 def filtered_text(ax):
@@ -281,9 +275,10 @@ def drop_shadow_patches(ax):
     rects1 = ax.bar(ind, menMeans, width, color='r', ec="w", lw=2)
 
     womenMeans = (25, 32, 34, 20, 25)
-    rects2 = ax.bar(ind + width + 0.1, womenMeans, width, color='y', ec="w", lw=2)
+    rects2 = ax.bar(ind + width + 0.1, womenMeans, width,
+                    color='y', ec="w", lw=2)
 
-    #gauss = GaussianFilter(1.5, offsets=(1,1), )
+    # gauss = GaussianFilter(1.5, offsets=(1,1), )
     gauss = DropShadowFilter(5, offsets=(1, 1), )
     shadow = FilteredArtistList(rects1 + rects2, gauss)
     ax.add_artist(shadow)

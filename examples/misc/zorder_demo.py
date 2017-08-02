@@ -56,10 +56,14 @@ plt.title('Dots on top of lines')
 
 x = np.linspace(0, 2*np.pi, 100)
 plt.figure()
-plt.plot(x, np.sin(x), linewidth=10, color='black', label='zorder=10', zorder=10)  # on top
-plt.plot(x, np.cos(1.3*x), linewidth=10, color='red', label='zorder=1', zorder=1)  # bottom
-plt.plot(x, np.sin(2.1*x), linewidth=10, color='green', label='zorder=3', zorder=3)
-plt.axhline(0, linewidth=10, color='blue', label='zorder=2', zorder=2)
+plt.plot(x, np.sin(x), linewidth=10, color='black', label='zorder=10',
+         zorder=10)  # on top
+plt.plot(x, np.cos(1.3*x), linewidth=10, color='red', label='zorder=1',
+         zorder=1)  # bottom
+plt.plot(x, np.sin(2.1*x), linewidth=10, color='green', label='zorder=3',
+         zorder=3)
+plt.axhline(0, linewidth=10, color='blue', label='zorder=2',
+            zorder=2)
 plt.title('Custom order of elements')
 l = plt.legend()
 l.set_zorder(20)  # put the legend on top

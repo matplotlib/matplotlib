@@ -74,7 +74,7 @@ if 1:
     p = PathClippedImagePatch(text_path, arr, ec="k",
                               transform=IdentityTransform())
 
-    #p.set_clip_on(False)
+    # p.set_clip_on(False)
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -122,15 +122,18 @@ if 1:
     arr = np.arange(256).reshape(1, 256)/256.
 
     if usetex:
-        s = r"$\displaystyle\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
+        s = (r"$\displaystyle\left[\sum_{n=1}^\infty"
+             r"\frac{-e^{i\pi}}{2^n}\right]$!")
     else:
         s = r"$\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
     text_path = TextPath((0, 0), s, size=40, usetex=usetex)
     text_patch = PathClippedImagePatch(text_path, arr, ec="none",
                                        transform=IdentityTransform())
 
-    shadow1 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="none", ec="0.6", lw=3))
-    shadow2 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="0.3", ec="none"))
+    shadow1 = mpatches.Shadow(text_patch, 1, -1,
+                              props=dict(fc="none", ec="0.6", lw=3))
+    shadow2 = mpatches.Shadow(text_patch, 1, -1,
+                              props=dict(fc="0.3", ec="none"))
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -144,7 +147,7 @@ if 1:
                         boxcoords="offset points",
                         box_alignment=(0.5, 0.5),
                         )
-    #text_path.set_size(10)
+    # text_path.set_size(10)
 
     ax.add_artist(ab)
 

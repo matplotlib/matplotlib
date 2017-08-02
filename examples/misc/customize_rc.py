@@ -14,7 +14,7 @@ functions in a custom module that set the defaults, e.g.,::
     def set_pub():
         rc('font', weight='bold')    # bold fonts are easier to see
         rc('tick', labelsize=15)     # tick labels bigger
-        rc('lines', lw=1, color='k') # thicker black lines (no budget for color!)
+        rc('lines', lw=1, color='k') # thicker black lines
         rc('grid', c='0.5', ls='-', lw=0.5)  # solid gray grid lines
         rc('savefig', dpi=300)       # higher res outputs
 

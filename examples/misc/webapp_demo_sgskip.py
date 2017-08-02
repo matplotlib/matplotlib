@@ -60,4 +60,5 @@ def make_fig():
 
     FigureCanvasAgg(fig).print_png('webapp.png', dpi=150)
 
+
 make_fig()

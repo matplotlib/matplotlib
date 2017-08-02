@@ -46,7 +46,8 @@ for x, y in zip(xs, ys):
 # offset_copy works for polar plots also.
 ax = plt.subplot(2, 1, 2, projection='polar')
 
-trans_offset = mtransforms.offset_copy(ax.transData, fig=fig, y=6, units='dots')
+trans_offset = mtransforms.offset_copy(ax.transData, fig=fig,
+                                       y=6, units='dots')
 
 for x, y in zip(xs, ys):
     plt.polar((x,), (y,), 'ro')
