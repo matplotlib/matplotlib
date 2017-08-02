@@ -95,20 +95,20 @@ class Artist(HasTraits, _artist.Artist):
     # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
     clippath = Union([Instance(TransformedPath),Instance("matplotlib.patches.Patch")], allow_none=True, default_value=None)
 
-    clipon=Boolean(default_value=True)
+    clipon=Bool(default_value=True)
     label=Unicode(allow_none=True, default_value='')
-    picker=Union(Float,Boolean,Callable, allow_none=True, default_value=None)
+    picker=Union(Float,Bool,Callable, allow_none=True, default_value=None)
     contains=List(default_value=None)
-    rasterized=Perishable(Boolean(allow_none=True, default_value=None))
+    rasterized=Perishable(Bool(allow_none=True, default_value=None))
     agg_filter=Unicode(allow_none=True, default_value=None) #set agg_filter function
-    mouseover=Boolean(default_value=False)
-    eventson=Boolean(default_value=False)
+    mouseover=Bool(default_value=False)
+    eventson=Bool(default_value=False)
     oid=Int(allow_none=True, default_value=0)
     propobservers=Dict(default_value={}) #this may or may not work o/w leave alone and see what happens
     remove_method = Any(allow_none = True, default_value = None)
     url=Unicode(allow_none=True, default_value=None)
     gid=Unicode(allow_none=True, default_value=None)
-    snap=Perishable(Boolean(allow_none=True, default_value=None))
+    snap=Perishable(Bool(allow_none=True, default_value=None))
     sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     path_effects=List(Instance('matplotlib.patheffect._Base'), default_value=rcParams['path.effects'])
 
@@ -1042,7 +1042,7 @@ class Artist(HasTraits, _artist.Artist):
 
           - None: return all objects contained in artist.
 
-          - function with signature ``boolean = match(artist)``
+          - function with signature ``Bool = match(artist)``
             used to filter matches
 
           - class instance: e.g., Line2D.  Only return artists of class type.
