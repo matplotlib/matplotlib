@@ -1585,6 +1585,10 @@ class FuncAnimation(TimedAnimation):
         # Generate an iterator for the sequence of saved data. If there are
         # no saved frames, generate a new frame sequence and take the first
         # save_count entries in it.
+        # itertools.islice can return an error when passed a numpy int instead
+        # of a native python int. This is a known issue:http://bugs.python.org/issue30537
+        # As a workaround, enforce conversion to native python int
+        self.save_count = int(self.save_count)
         if self._save_seq:
             # While iterating we are going to update _save_seq
             # so make a copy to safely iterate over
