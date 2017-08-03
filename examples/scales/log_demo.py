@@ -15,10 +15,6 @@ t = np.arange(0.01, 20.0, 0.01)
 # Create figure
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
-# Note hspace is the amount of height reserved for white space between subplots
-# expressed as a fraction of the average axis height
-fig.subplots_adjust(hspace=0.5)
-
 # log y axis
 ax1.semilogy(t, np.exp(-t / 5.0))
 ax1.set(title='semilogy')
@@ -46,4 +42,5 @@ ax4.errorbar(x, y, xerr=0.1 * x, yerr=5.0 + 0.75 * y)
 # ylim must be set after errorbar to allow errorbar to autoscale limits
 ax4.set_ylim(ymin=0.1)
 
+fig.tight_layout()
 plt.show()
