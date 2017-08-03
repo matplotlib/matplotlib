@@ -12,12 +12,14 @@ from matplotlib.patches import Ellipse, Polygon
 fig = plt.figure()
 ax1 = fig.add_subplot(131)
 ax1.bar(range(1, 5), range(1, 5), color='red', edgecolor='black', hatch="/")
-ax1.bar(range(1, 5), [6] * 4, bottom=range(1, 5), color='blue', edgecolor='black', hatch='//')
+ax1.bar(range(1, 5), [6] * 4, bottom=range(1, 5),
+        color='blue', edgecolor='black', hatch='//')
 ax1.set_xticks([1.5, 2.5, 3.5, 4.5])
 
 ax2 = fig.add_subplot(132)
 bars = ax2.bar(range(1, 5), range(1, 5), color='yellow', ecolor='black') + \
-    ax2.bar(range(1, 5), [6] * 4, bottom=range(1, 5), color='green', ecolor='black')
+    ax2.bar(range(1, 5), [6] * 4, bottom=range(1, 5),
+            color='green', ecolor='black')
 ax2.set_xticks([1.5, 2.5, 3.5, 4.5])
 
 patterns = ('-', '+', 'x', '\\', '*', 'o', 'O', '.')

@@ -37,7 +37,7 @@ if __name__ == "__main__":
         not m.startswith(('spectral', 'Vega'))  # Skip deprecated colormaps.
     )
 
-    #fig.subplots_adjust(top=0.99, bottom=0.01, left=0.2, right=0.99)
+    # fig.subplots_adjust(top=0.99, bottom=0.01, left=0.2, right=0.99)
 
     ncol = 2
     nrow = len(maps)//ncol + 1
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     for i, m in enumerate(maps):
         ix, iy = divmod(i, nrow)
-        #plt.figimage(a, 10, i*10, cmap=plt.get_cmap(m), origin='lower')
+        # plt.figimage(a, 10, i*10, cmap=plt.get_cmap(m), origin='lower')
         bbox0 = Bbox.from_bounds(ix*dx*(1 + xpad_fraction),
                                  1. - iy*dy*(1 + ypad_fraction) - dy,
                                  dx, dy)

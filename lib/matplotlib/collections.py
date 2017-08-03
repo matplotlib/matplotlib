@@ -1303,7 +1303,7 @@ class EventCollection(LineCollection):
         Examples
         --------
 
-        .. plot:: mpl_examples/pylab_examples/eventcollection_demo.py
+        .. plot:: mpl_examples/lines_bars_and_markers/eventcollection_demo.py
         """
 
         segment = (lineoffset + linelength / 2.,

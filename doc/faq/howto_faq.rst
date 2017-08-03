@@ -340,7 +340,7 @@ and patches, respectively::
 
 .. htmlonly::
 
-    See :ref:`sphx_glr_gallery_pylab_examples_zorder_demo.py` for a complete example.
+    See :ref:`sphx_glr_gallery_misc_zorder_demo.py` for a complete example.
 
 You can also use the Axes property
 :meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid

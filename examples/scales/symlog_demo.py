@@ -31,6 +31,5 @@ plt.yscale('symlog', linthreshy=0.015)
 plt.grid(True)
 plt.ylabel('symlog both')
 
-plt.subplots_adjust(hspace=0.5, left=0.2)
-
+plt.tight_layout()
 plt.show()

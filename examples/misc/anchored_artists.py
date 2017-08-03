@@ -11,7 +11,8 @@ from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox, VPacker,\
 
 
 class AnchoredText(AnchoredOffsetbox):
-    def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, frameon=True):
+    def __init__(self, s, loc, pad=0.4, borderpad=0.5,
+                 prop=None, frameon=True):
 
         self.txt = TextArea(s,
                             minimumdescent=False)
@@ -26,8 +27,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2, prop=None, frameon=True):
         """
-        Draw a horizontal bar with the size in data coordinate of the give axes.
-        A label will be drawn underneath (center-aligned).
+        Draw a horizontal bar with the size in data coordinate of the given
+        axes. A label will be drawn underneath (center-aligned).
 
         pad, borderpad in fraction of the legend font size (or prop)
         sep in points.
@@ -71,7 +72,8 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
         self.da = DrawingArea(width, height, xdescent, ydescent)
 
-        super(AnchoredDrawingArea, self).__init__(loc, pad=pad, borderpad=borderpad,
+        super(AnchoredDrawingArea, self).__init__(loc, pad=pad,
+                                                  borderpad=borderpad,
                                                   child=self.da,
                                                   prop=None,
                                                   frameon=frameon)

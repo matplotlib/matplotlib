@@ -117,8 +117,8 @@ New eventplot plot type
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
 create multiple rows or columns of identical line segments
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_eventplot_demo_001.png
-   :target: ../../gallery/pylab_examples/eventplot_demo.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_eventplot_demo_001.png
+   :target: ../../gallery/lines_bars_and_markers/eventplot_demo.html
    :align: center
    :scale: 50
 
@@ -199,8 +199,8 @@ Path effects on lines
 `````````````````````
 Thanks to Jae-Joon Lee, path effects now also work on plot lines.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_patheffect_demo_001.png
-   :target: ../../gallery/pylab_examples/patheffect_demo.html
+.. figure:: ../../gallery/misc/images/sphx_glr_patheffect_demo_001.png
+   :target: ../../gallery/misc/patheffect_demo.html
    :align: center
    :scale: 50
 

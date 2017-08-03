@@ -32,6 +32,7 @@ def tellme(s):
 ##################################################
 # Define a triangle by clicking three points
 
+
 plt.clf()
 plt.axis([-1., 1., -1., 1.])
 plt.setp(plt.gca(), autoscale_on=False)
@@ -72,6 +73,7 @@ def f(x, y, pts):
     for p in pts:
         z = z + 1/(np.sqrt((x - p[0])**2 + (y - p[1])**2))
     return 1/z
+
 
 X, Y = np.meshgrid(np.linspace(-1, 1, 51), np.linspace(-1, 1, 51))
 Z = f(X, Y, pts)
