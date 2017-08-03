@@ -15,6 +15,7 @@ class FigureCanvasQTCairo(FigureCanvasQT):
         surface = backend_cairo.cairo.ImageSurface(
             backend_cairo.cairo.FORMAT_ARGB32, width, height)
         self._renderer.set_ctx_from_surface(surface)
+        self._renderer.set_width_height(width, height)
         self.figure.draw(self._renderer)
         buf = surface.get_data()
         qimage = QtGui.QImage(buf, width, height,

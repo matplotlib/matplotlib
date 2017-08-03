@@ -106,7 +106,10 @@ class RendererCairo(RendererBase):
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
-        self.set_width_height(surface.get_width(), surface.get_height())
+        # Although it may appear natural to automatically call
+        # `self.set_width_height(surface.get_width(), surface.get_height())`
+        # here (instead of having the caller do so separately), this would fail
+        # for PDF/PS/SVG surfaces, which have no way to report their extents.
 
     def set_width_height(self, width, height):
         self.width  = width
@@ -441,9 +444,9 @@ class FigureCanvasCairo(FigureCanvasBase):
         width, height = self.get_width_height()
 
         renderer = RendererCairo(self.figure.dpi)
-        renderer.set_width_height(width, height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         renderer.set_ctx_from_surface(surface)
+        renderer.set_width_height(width, height)
 
         self.figure.draw(renderer)
         surface.write_to_png(fobj)
@@ -500,6 +503,7 @@ class FigureCanvasCairo(FigureCanvasBase):
         # surface.set_dpi() can be used
         renderer = RendererCairo(self.figure.dpi)
         renderer.set_ctx_from_surface(surface)
+        renderer.set_width_height(width_in_points, height_in_points)
         ctx = renderer.gc.ctx
 
         if orientation == 'landscape':
