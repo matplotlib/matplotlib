@@ -1543,7 +1543,6 @@ class FuncAnimation(TimedAnimation):
         # Amount of framedata to keep around for saving movies. This is only
         # used if we don't know how many frames there will be: in the case
         # of no generator or in the case of a callable.
-        self.save_count = save_count
 
         # Set up a function that creates a new iterable when needed. If nothing
         # is passed in for frames, just use itertools.count, which will just
@@ -1565,6 +1564,11 @@ class FuncAnimation(TimedAnimation):
         # If we're passed in and using the default, set it to 100.
         if self.save_count is None:
             self.save_count = 100
+        # itertools.islice can return an error when passed a numpy int instead
+        # of a native python int. This is a known issue:
+        # http://bugs.python.org/issue30537
+        # As a workaround, enforce conversion to native python int.
+        self.save_count = int(save_count)
 
         self._init_func = init_func
 
@@ -1585,10 +1589,6 @@ class FuncAnimation(TimedAnimation):
         # Generate an iterator for the sequence of saved data. If there are
         # no saved frames, generate a new frame sequence and take the first
         # save_count entries in it.
-        # itertools.islice can return an error when passed a numpy int instead
-        # of a native python int. This is a known issue:http://bugs.python.org/issue30537
-        # As a workaround, enforce conversion to native python int
-        self.save_count = int(self.save_count)
         if self._save_seq:
             # While iterating we are going to update _save_seq
             # so make a copy to safely iterate over
