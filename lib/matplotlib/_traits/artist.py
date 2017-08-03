@@ -97,7 +97,7 @@ class Artist(HasTraits, _artist.Artist):
 
     clipon=Bool(default_value=True)
     label=Unicode(allow_none=True, default_value='')
-    picker=Union(Float,Bool,Callable, allow_none=True, default_value=None)
+    picker=Union([Float(),Bool(),Callable()], allow_none=True, default_value=None)
     contains=List(default_value=None)
     rasterized=Perishable(Bool(allow_none=True, default_value=None))
     agg_filter=Unicode(allow_none=True, default_value=None) #set agg_filter function
