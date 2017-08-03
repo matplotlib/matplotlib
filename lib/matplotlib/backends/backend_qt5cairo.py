@@ -1,19 +1,18 @@
-from . import backend_cairo  # Keep the RendererCairo class swappable.
+from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_qt5 import QtCore, QtGui, _BackendQT5, FigureCanvasQT
 from .qt_compat import QT_API
 
 
-class FigureCanvasQTCairo(FigureCanvasQT):
+class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
     def __init__(self, figure):
         super(FigureCanvasQTCairo, self).__init__(figure=figure)
-        self._renderer = backend_cairo.RendererCairo(self.figure.dpi)
+        self._renderer = RendererCairo(self.figure.dpi)
 
     def paintEvent(self, event):
         self._update_dpi()
         width = self.width()
         height = self.height()
-        surface = backend_cairo.cairo.ImageSurface(
-            backend_cairo.cairo.FORMAT_ARGB32, width, height)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         self._renderer.set_ctx_from_surface(surface)
         self._renderer.set_width_height(width, height)
         self.figure.draw(self._renderer)
