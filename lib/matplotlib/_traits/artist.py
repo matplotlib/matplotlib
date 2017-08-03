@@ -109,7 +109,8 @@ class Artist(HasTraits, _artist.Artist):
     url=Unicode(allow_none=True, default_value=None)
     gid=Unicode(allow_none=True, default_value=None)
     snap=Perishable(Bool(allow_none=True, default_value=None))
-    sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
+    # sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
+    sketch=Tuple(Float(),Float(),Float())
     path_effects=List(Instance('matplotlib.patheffect._Base'), default_value=rcParams['path.effects'])
 
     #_XYPair = namedtuple("_XYPair", "x y")
