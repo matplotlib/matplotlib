@@ -136,7 +136,7 @@ class Artist(HasTraits, _artist.Artist):
             #not sure if I should return anything here
         # return proposal.value
     #stale observer
-    @observe("stale", type=change)
+    @observe("stale", type="change")
     def _stale_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -153,7 +153,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #stale_callback observer
-    @observe("stale_callback", type=change)
+    @observe("stale_callback", type="change")
     def _stale_callback_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -180,7 +180,7 @@ class Artist(HasTraits, _artist.Artist):
             self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
     #axes observer
-    @observe("axes", type = change)
+    @observe("axes", type="change")
     def _axes_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -213,7 +213,7 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         # return proposal.value
     #figure observer
-    @observe("figure", type = change)
+    @observe("figure", type="change")
     def _figure_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -230,7 +230,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #transform observer: reference set_transform
-    @observe("transform", type = change)
+    @observe("transform", type="change")
     def _transform_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.transformSet = True
@@ -251,7 +251,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #transformSet observer
-    @observe("transformSet", type = change)
+    @observe("transformSet", type="change")
     def _transformSet_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -268,7 +268,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #visible observer: reference set_visible
-    @observe("visible", type = change)
+    @observe("visible", type="change")
     def _visible_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
@@ -292,7 +292,7 @@ class Artist(HasTraits, _artist.Artist):
             return proposal.value
         return self._animated
     #animated observer
-    @observe("animated", type = change)
+    @observe("animated", type="change")
     def _animated_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -309,7 +309,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #alpha observer: reference set_alpha
-    @observe("alpha", type = change)
+    @observe("alpha", type="change")
     def _alpha_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
@@ -329,7 +329,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #clipbox observer: reference set_clip_box
-    @observe("clipbox", type = change)
+    @observe("clipbox", type="change")
     def _clipbox_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
@@ -422,7 +422,7 @@ class Artist(HasTraits, _artist.Artist):
 
 
     #clippath observer
-    @observe("clippath", type = change)
+    @observe("clippath", type="change")
     def _clippath_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
@@ -443,7 +443,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #clipon observer
-    @observe("clipon", type = change)
+    @observe("clipon", type="change")
     def _clipon_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
@@ -465,7 +465,7 @@ class Artist(HasTraits, _artist.Artist):
             return proposal.value
         return proposal.value
     #label observer
-    @observe("label", type = change)
+    @observe("label", type="change")
     def _label_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
@@ -485,7 +485,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #picker observer
-    @observe("picker", type = change)
+    @observe("picker", type="change")
     def _picker_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -502,7 +502,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #contains observer
-    @observe("contains", type = change)
+    @observe("contains", type="change")
     def _contains_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -521,7 +521,7 @@ class Artist(HasTraits, _artist.Artist):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
         return proposal.value
     #rasterized observer
-    @observe("rasterized", type = change)
+    @observe("rasterized", type="change")
     def _rasterized_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -538,7 +538,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #agg_filter observer
-    @observe("agg_filter", type = change)
+    @observe("agg_filter", type="change")
     def _agg_filter_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
@@ -559,7 +559,7 @@ class Artist(HasTraits, _artist.Artist):
         #val is the returned value
         return val
     #mouseover observer
-    @observe("mouseover", type = change)
+    @observe("mouseover", type="change")
     def _mouseover_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         print("adding or discarding from axes.mouseover_set")
@@ -583,7 +583,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #eventson observer
-    @observe("eventson", type = change)
+    @observe("eventson", type="change")
     def _eventson_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -600,7 +600,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #oid observer
-    @observe("oid", type = change)
+    @observe("oid", type="change")
     def _oid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -617,7 +617,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #propobservers observer
-    @observe("propobservers", type = change)
+    @observe("propobservers", type="change")
     def _propobservers_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -634,7 +634,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #url observer
-    @observe("url", type = change)
+    @observe("url", type="change")
     def _url_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -651,7 +651,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #gid observer
-    @observe("gid", type = change)
+    @observe("gid", type="change")
     def _gid_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
@@ -668,7 +668,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #snap observer
-    @observe("snap", type = change)
+    @observe("snap", type="change")
     def _snap_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
@@ -698,7 +698,7 @@ class Artist(HasTraits, _artist.Artist):
             return (proposal.scale, proposal.length or 128.0, proposal.randomness or 16.0)
         # return proposal.value
     #sketch observer
-    @observe("sketch", type = change)
+    @observe("sketch", type="change")
     def _sketch_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
@@ -722,7 +722,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #path_effects observer
-    @observe("path_effects", type = change)
+    @observe("path_effects", type="change")
     def _path_effects_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
@@ -748,7 +748,7 @@ class Artist(HasTraits, _artist.Artist):
         print("cross validating %r" % proposal.value)
         return proposal.value
     #sticky_edges observer
-    @observe("sticky_edges", type = change)
+    @observe("sticky_edges", type="change")
     def _sticky_edges_observe(self, change):
         print("observed a change from %r to %r" % (change.old, change.new))
 
