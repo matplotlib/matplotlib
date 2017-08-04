@@ -715,5 +715,5 @@ for i in range(3):
 #
 # The markevery argument allows for naive subsampling, or an
 # attempt at evenly spaced (along the *x* axis) sampling. See the
-# :ref:`sphx_glr_gallery_pylab_examples_markevery_demo.py`
+# :ref:`sphx_glr_gallery_lines_bars_and_markers_markevery_demo.py`
 # for more information.
