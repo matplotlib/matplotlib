@@ -206,9 +206,10 @@ class Artist(HasTraits, _artist.Artist):
         if self.figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        self.figure = proposal.value
+        # self.figure = proposal.value
+        return proposal.value
         #what does this line even mean?
-        if self.figure and self.figure is not self:
+        # if self.figure and self.figure is not self:
         # return proposal.value
     #figure observer
     @observe("figure", type="change")
