@@ -612,7 +612,7 @@ class ScalarFormatter(Formatter):
         """
         Format *arg* with *fmt*, applying unicode minus and locale if desired.
         """
-        return self.fix_minus(locale.format_string(fmt, (arg,))
+        return self.fix_minus(locale.format_string(fmt, (arg,), True)
                               if self._useLocale else fmt % arg)
 
     def get_useMathText(self):
