@@ -625,3 +625,95 @@ for i in range(3):
 # or generating a new set of figures.  In that case, use
 # :func:`~matplotlib.pyplot.show` to display the figure(s) and
 # to block execution until you have manually destroyed them.
+#
+# .. _performance:
+#
+# Performance
+# ===========
+#
+# Whether exploring data in interactive mode or programatically
+# saving lots of plots, rendering performance can be a painful
+# bottleneck in your pipeline. Matplotlib provides a couple
+# ways to greatly reduce rendering time at the cost of a slight
+# change (to a settable tolerance) in your plot's appearance.
+# The methods available to reduce rendering time depend on the
+# type of plot that is being created.
+#
+# Line segment simplification
+# ---------------------------
+#
+# For plots that have line segments (e.g. typical line plots,
+# outlines of polygons, etc.), rendering performance can be
+# controlled by the ``path.simplify`` and
+# ``path.simplify_threshold`` parameters in your
+# ``matplotlibrc`` file (see
+# :ref:`sphx_glr_tutorials_01_introductory_customizing.py` for
+# more information about the ``matplotlibrc`` file).
+# The ``path.simplify`` parameter is a boolean indicating whether
+# or not line segments are simplified at all. The
+# ``path.simplify_threshold`` parameter controls how much line
+# segments are simplified; higher thresholds result in quicker
+# rendering.
+#
+# The following script will first display the data without any
+# simplification, and then display the same data with simplification.
+# Try interacting with both of them::
+#
+#   import numpy as np
+#   import matplotlib.pyplot as plt
+#   import matplotlib as mpl
+#
+#   # Setup, and create the data to plot
+#   y = np.random.rand(100000)
+#   y[50000:] *= 2
+#   y[np.logspace(1, np.log10(50000), 400).astype(int)] = -1
+#   mpl.rcParams['path.simplify'] = True
+#
+#   mpl.rcParams['path.simplify_threshold'] = 0.0
+#   plt.plot(y)
+#   plt.show()
+#
+#   mpl.rcParams['path.simplify_threshold'] = 1.0
+#   plt.plot(y)
+#   plt.show()
+#
+# Matplotlib currently defaults to a conservative simplification
+# threshold of ``1/9``. If you want to change your default settings
+# to use a different value, you can change your ``matplotlibrc``
+# file.  Alternatively, you could create a new style for
+# interactive plotting (with maximal simplification) and another
+# style for publication quality plotting (with minimal
+# simplification) and activate them as necessary. See
+# :ref:`sphx_glr_tutorials_01_introductory_customizing.py` for
+# instructions on how to perform these actions.
+#
+# The simplification works by iteratively merging line segments
+# into a single vector until the next line segment's perpendicular
+# distance to the vector (measured in display-coordinate space)
+# is greater than the ``path.simplify_threshold`` parameter.
+#
+# .. note::
+#   Changes related to how line segments are simplified were made
+#   in version 2.1. Rendering time will still be improved by these
+#   parameters prior to 2.1, but rendering time for some kinds of
+#   data will be vastly improved in versions 2.1 and greater.
+#
+# Marker simplification
+# ---------------------
+#
+# Markers can also be simplified, albeit less robustly than
+# line segments. Marker simplification is only available
+# to :class:`~matplotlib.lines.Line2D` objects (through the
+# ``markevery`` property). Wherever
+# :class:`~matplotlib.lines.Line2D` construction parameter
+# are passed through, such as
+# :func:`matplotlib.pyplot.plot` and
+# :meth:`matplotlib.axes.Axes.plot`, the ``markevery``
+# parameter can be used::
+#
+#   plt.plot(x, y, markevery=10)
+#
+# The markevery argument allows for naive subsampling, or an
+# attempt at evenly spaced (along the *x* axis) sampling. See the
+# :ref:`sphx_glr_gallery_lines_bars_and_markers_markevery_demo.py`
+# for more information.
