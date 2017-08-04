@@ -187,7 +187,7 @@ class OffsetBox(martist.Artist):
         for c in self.get_children():
             c.set_figure(fig)
 
-    @martist.Artist.axes.setter
+    # @martist.Artist.axes.setter
     def axes(self, ax):
         # TODO deal with this better
         martist.Artist.axes.fset(self, ax)

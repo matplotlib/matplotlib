@@ -111,7 +111,7 @@ class Artist(HasTraits, _artist.Artist):
     snap=Perishable(Bool(allow_none=True, default_value=None))
     # sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     sketch=Tuple(Float(),Float(),Float())
-    path_effects=List(Instance('matplotlib.patheffect._Base'), default_value=rcParams['path.effects'])
+    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects'])
 
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
