@@ -97,10 +97,19 @@ intersphinx_mapping = {
   'pandas': ('http://pandas.pydata.org/pandas-docs/stable', None)
   }
 
-explicit_order_folders = ['../examples/pyplots',
-                          '../examples/statistics',
+explicit_order_folders = [
+                          '../examples/api',
+                          '../examples/pyplots',
+                          '../examples/subplots_axes_and_figures',
                           '../examples/color',
-                          '../examples/pylab_examples',
+                          '../examples/statistics',
+                          '../examples/lines_bars_and_markers',
+                          '../examples/images_contours_and_fields',
+                          '../examples/shapes_and_collections',
+                          '../examples/text_labels_and_annotations',
+                          '../examples/pie_and_polar_charts',
+                          '../examples/style_sheets',
+                          '../examples/axes_grid',
                           '../examples/showcase',
                           '../tutorials/introductory',
                           '../tutorials/intermediate',
