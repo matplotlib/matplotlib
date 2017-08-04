@@ -209,13 +209,15 @@ class Artist(HasTraits, _artist.Artist):
         self.figure = proposal.value
         #what does this line even mean?
         if self.figure and self.figure is not self:
-            self.pchanged()
-        self.stale = True
         # return proposal.value
     #figure observer
     @observe("figure", type="change")
     def _figure_observe(self, change):
         print("figure: observed a change from %r to %r" % (change.old, change.new))
+        self.pchanged()
+        print("called self.pchanged()")
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
 
     #TO DO: make a transform trait with the proper validation logic
