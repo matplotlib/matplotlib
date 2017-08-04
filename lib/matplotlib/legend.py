@@ -387,8 +387,8 @@ class Legend(Artist):
         # If shadow is activated use framealpha if not
         # explicitly passed. See Issue 8943
         if framealpha is None:
-            if shadow is True:
-                self.framealpha = 1
+            if shadow:
+                self.get_frame().set_alpha(1)
             else:
                 self.get_frame().set_alpha(rcParams["legend.framealpha"])
         else:

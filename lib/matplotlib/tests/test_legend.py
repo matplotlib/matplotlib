@@ -367,4 +367,4 @@ def test_shadow_framealpha():
     fig, ax = plt.subplots()
     ax.plot(range(100), label="test")
     leg = ax.legend(shadow=True, facecolor='w')
-    assert leg.framealpha == 1
+    assert leg.get_frame().get_alpha() == 1
