@@ -1568,7 +1568,7 @@ class FuncAnimation(TimedAnimation):
         # of a native python int. This is a known issue:
         # http://bugs.python.org/issue30537
         # As a workaround, enforce conversion to native python int.
-        self.save_count = int(save_count)
+        self.save_count = int(self.save_count)
 
         self._init_func = init_func
 
