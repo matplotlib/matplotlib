@@ -9,6 +9,7 @@ from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
 from matplotlib import docstring
+import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 from matplotlib import rcParams
@@ -240,6 +241,58 @@ class ThetaLocator(mticker.Locator):
         return self.base.zoom(direction)
 
 
+class ThetaTick(maxis.XTick):
+    """
+    A theta-axis tick.
+
+    This subclass of `XTick` provides angular ticks with some small
+    modification to their re-positioning such that ticks are rotated based on
+    tick location. This results in ticks that are correctly perpendicular to
+    the arc spine. Labels are also rotated to be parallel to the spine.
+    """
+    def _get_text1(self):
+        t = maxis.XTick._get_text1(self)
+        t.set_rotation_mode('anchor')
+        return t
+
+    def _get_text2(self):
+        t = maxis.XTick._get_text2(self)
+        t.set_rotation_mode('anchor')
+        return t
+
+    def update_position(self, loc):
+        maxis.XTick.update_position(self, loc)
+        axes = self.axes
+        angle = (loc * axes.get_theta_direction() +
+                 axes.get_theta_offset() - np.pi / 2)
+
+        if self.tick1On:
+            marker = self.tick1line.get_marker()
+            if marker in (mmarkers.TICKUP, '|'):
+                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
+            elif marker == mmarkers.TICKDOWN:
+                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
+            else:
+                # Don't modify custom tick line markers.
+                trans = self.tick1line._marker._transform
+            self.tick1line._marker._transform = trans
+        if self.tick2On:
+            marker = self.tick2line.get_marker()
+            if marker in (mmarkers.TICKUP, '|'):
+                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
+            elif marker == mmarkers.TICKDOWN:
+                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
+            else:
+                # Don't modify custom tick line markers.
+                trans = self.tick2line._marker._transform
+            self.tick2line._marker._transform = trans
+
+        if self.label1On:
+            self.label1.set_rotation(np.rad2deg(angle) + self._labelrotation)
+        if self.label2On:
+            self.label2.set_rotation(np.rad2deg(angle) + self._labelrotation)
+
+
 class ThetaAxis(maxis.XAxis):
     """
     A theta Axis.
@@ -255,7 +308,7 @@ class ThetaAxis(maxis.XAxis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return maxis.XTick(self.axes, 0, '', major=major, **tick_kw)
+        return ThetaTick(self.axes, 0, '', major=major, **tick_kw)
 
     def _wrap_locator_formatter(self):
         self.set_major_locator(ThetaLocator(self.get_major_locator()))
@@ -587,10 +640,10 @@ class PolarAxes(Axes):
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        return self._xaxis_text1_transform, 'center', 'center'
+        return self._xaxis_text1_transform, 'bottom', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        return self._xaxis_text2_transform, 'center', 'center'
+        return self._xaxis_text2_transform, 'top', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
