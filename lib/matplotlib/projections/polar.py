@@ -240,6 +240,39 @@ class ThetaLocator(mticker.Locator):
         return self.base.zoom(direction)
 
 
+class ThetaAxis(maxis.XAxis):
+    """
+    A theta Axis.
+
+    This overrides certain properties of an `XAxis` to provide special-casing
+    for an angular axis.
+    """
+    __name__ = 'thetaaxis'
+    axis_name = 'theta'
+
+    def _get_tick(self, major):
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return maxis.XTick(self.axes, 0, '', major=major, **tick_kw)
+
+    def _wrap_locator_formatter(self):
+        self.set_major_locator(ThetaLocator(self.get_major_locator()))
+        self.set_major_formatter(ThetaFormatter())
+        self.isDefault_majloc = True
+        self.isDefault_majfmt = True
+
+    def cla(self):
+        maxis.XAxis.cla(self)
+        self.set_ticks_position('none')
+        self._wrap_locator_formatter()
+
+    def _set_scale(self, value, **kwargs):
+        maxis.XAxis._set_scale(self, value, **kwargs)
+        self._wrap_locator_formatter()
+
+
 class RadialLocator(mticker.Locator):
     """
     Used to locate radius ticks.
@@ -282,6 +315,38 @@ class RadialLocator(mticker.Locator):
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
         return mtransforms.nonsingular(min(0, vmin), vmax)
+
+
+class RadialAxis(maxis.YAxis):
+    """
+    A radial Axis.
+
+    This overrides certain properties of a `YAxis` to provide special-casing
+    for a radial axis.
+    """
+    __name__ = 'radialaxis'
+    axis_name = 'radius'
+
+    def _get_tick(self, major):
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return maxis.YTick(self.axes, 0, '', major=major, **tick_kw)
+
+    def _wrap_locator_formatter(self):
+        self.set_major_locator(RadialLocator(self.get_major_locator(),
+                                             self.axes))
+        self.isDefault_majloc = True
+
+    def cla(self):
+        maxis.YAxis.cla(self)
+        self.set_ticks_position('none')
+        self._wrap_locator_formatter()
+
+    def _set_scale(self, value, **kwargs):
+        maxis.YAxis._set_scale(self, value, **kwargs)
+        self._wrap_locator_formatter()
 
 
 def _is_full_circle_deg(thetamin, thetamax):
@@ -397,8 +462,6 @@ class PolarAxes(Axes):
 
         self.title.set_y(1.05)
 
-        self.xaxis.set_major_formatter(self.ThetaFormatter())
-        self.xaxis.isDefault_majfmt = True
         start = self.spines.get('start', None)
         if start:
             start.set_visible(False)
@@ -406,20 +469,11 @@ class PolarAxes(Axes):
         if end:
             end.set_visible(False)
         self.set_xlim(0.0, 2 * np.pi)
-        self.xaxis.set_major_locator(
-            self.ThetaLocator(self.xaxis.get_major_locator()))
 
         self.grid(rcParams['polaraxes.grid'])
-        self.xaxis.set_ticks_position('none')
         inner = self.spines.get('inner', None)
         if inner:
             inner.set_visible(False)
-        self.yaxis.set_ticks_position('none')
-        # Why do we need to turn on yaxis tick labels, but
-        # xaxis tick labels are already on?
-        self.yaxis.set_tick_params(label1On=True)
-        self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator(), self))
 
         self.set_rorigin(None)
         self.set_theta_offset(self._default_theta_offset)
@@ -427,8 +481,8 @@ class PolarAxes(Axes):
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
-        self.xaxis = maxis.XAxis(self)
-        self.yaxis = maxis.YAxis(self)
+        self.xaxis = ThetaAxis(self)
+        self.yaxis = RadialAxis(self)
         # Calling polar_axes.xaxis.cla() or polar_axes.xaxis.cla()
         # results in weird artifacts. Therefore we disable this for
         # now.
