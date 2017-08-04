@@ -78,8 +78,7 @@ c = ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
 ax.set_title('pcolorfast')
 fig.colorbar(c, ax=ax)
 
-fig.subplots_adjust(wspace=0.5, hspace=0.5)
-
+fig.tight_layout()
 plt.show()
 
 
