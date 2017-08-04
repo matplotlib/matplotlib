@@ -314,7 +314,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
-#    :ref:`sphx_glr_tutorials_01_introductory_customizing.py`)::
+#    :ref:`sphx_glr_tutorials_introductory_customizing.py`)::
 #
 #        backend : WXAgg   # use wxpython with antigrain (agg) rendering
 #
@@ -498,7 +498,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # that are called, and on a state variable that determines whether
 # matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
-# configuration parameter (see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`).  It
+# configuration parameter (see :ref:`sphx_glr_tutorials_introductory_customizing.py`).  It
 # may also be set via :func:`matplotlib.interactive`, and its
 # value may be queried via :func:`matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting
@@ -647,7 +647,7 @@ for i in range(3):
 # controlled by the ``path.simplify`` and
 # ``path.simplify_threshold`` parameters in your
 # ``matplotlibrc`` file (see
-# :ref:`sphx_glr_tutorials_01_introductory_customizing.py` for
+# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
 # more information about the ``matplotlibrc`` file).
 # The ``path.simplify`` parameter is a boolean indicating whether
 # or not line segments are simplified at all. The
@@ -684,7 +684,7 @@ for i in range(3):
 # interactive plotting (with maximal simplification) and another
 # style for publication quality plotting (with minimal
 # simplification) and activate them as necessary. See
-# :ref:`sphx_glr_tutorials_01_introductory_customizing.py` for
+# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
 # instructions on how to perform these actions.
 #
 # The simplification works by iteratively merging line segments

@@ -821,7 +821,7 @@ original location:
 * The legend handler interface has changed from a callable, to any object
   which implements the ``legend_artists`` method (a deprecation phase will
   see this interface be maintained for v1.4). See
-  :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py` for further details. Further legend changes
+  :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for further details. Further legend changes
   include:
 
    * :func:`matplotlib.axes.Axes._get_legend_handles` now returns a generator

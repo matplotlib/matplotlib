@@ -15,6 +15,8 @@ import os
 import sys
 import sphinx
 import six
+from glob import glob
+from sphinx_gallery.sorting import ExplicitOrder
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -95,6 +97,27 @@ intersphinx_mapping = {
   'pandas': ('http://pandas.pydata.org/pandas-docs/stable', None)
   }
 
+explicit_order_folders = [
+                          '../examples/api',
+                          '../examples/pyplots',
+                          '../examples/subplots_axes_and_figures',
+                          '../examples/color',
+                          '../examples/statistics',
+                          '../examples/lines_bars_and_markers',
+                          '../examples/images_contours_and_fields',
+                          '../examples/shapes_and_collections',
+                          '../examples/text_labels_and_annotations',
+                          '../examples/pie_and_polar_charts',
+                          '../examples/style_sheets',
+                          '../examples/axes_grid',
+                          '../examples/showcase',
+                          '../tutorials/introductory',
+                          '../tutorials/intermediate',
+                          '../tutorials/advanced']
+for folder in sorted(glob('../examples/*') + glob('../tutorials/*')):
+    if not os.path.isdir(folder) or folder in explicit_order_folders:
+        continue
+    explicit_order_folders.append(folder)
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
@@ -107,7 +130,8 @@ sphinx_gallery_conf = {
         'numpy': 'https://docs.scipy.org/doc/numpy',
         'scipy': 'https://docs.scipy.org/doc/scipy/reference',
     },
-    'backreferences_dir': 'api/_as_gen'
+    'backreferences_dir': 'api/_as_gen',
+    'subsection_order': ExplicitOrder(explicit_order_folders)
 }
 
 plot_gallery = True

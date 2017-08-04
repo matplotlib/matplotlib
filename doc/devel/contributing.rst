@@ -14,7 +14,7 @@ Submitting a bug report
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
-`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also 
+`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also
 welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
@@ -23,7 +23,7 @@ If you are reporting a bug, please do your best to include the following:
     sentences.
 
  2. A short, self-contained code snippet to reproduce the bug, ideally allowing
-    a simple copy and paste to reproduce. Please do your best to reduce the code 
+    a simple copy and paste to reproduce. Please do your best to reduce the code
     snippet to the minimum required.
 
  3. The actual outcome of the code snippet
@@ -42,7 +42,7 @@ If you are reporting a bug, please do your best to include the following:
 
 We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
-        
+
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
 
 Retrieving and installing the latest version of the code
@@ -79,8 +79,8 @@ You can check out the latest sources with the command (see
 
     git clone https://github.com:matplotlib/matplotlib.git
 
-and navigate to the :file:`matplotlib` directory. If you have the proper privileges, 
-you can use ``git@`` instead of  ``https://``, which works through the ssh protocol 
+and navigate to the :file:`matplotlib` directory. If you have the proper privileges,
+you can use ``git@`` instead of  ``https://``, which works through the ssh protocol
 and might be easier to use if you are using 2-factor authentication.
 
 
@@ -427,7 +427,7 @@ Developing a new backend
 ------------------------
 
 If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:ref:`sphx_glr_tutorials_01_introductory_customizing.py`) supports an
+:file:`matplotlibrc` (:ref:`sphx_glr_tutorials_introductory_customizing.py`) supports an
 external backend via the ``module`` directive.  If
 :file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways

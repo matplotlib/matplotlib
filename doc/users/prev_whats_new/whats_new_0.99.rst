@@ -11,11 +11,11 @@ New in matplotlib 0.99
 New documentation
 -----------------
 
-Jae-Joon Lee has written two new guides :ref:`sphx_glr_tutorials_02_intermediate_legend_guide.py`
+Jae-Joon Lee has written two new guides :ref:`sphx_glr_tutorials_intermediate_legend_guide.py`
 and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
-:ref:`sphx_glr_tutorials_01_introductory_images.py`.  John Hunter has written two new tutorials on
-working with paths and transformations: :ref:`sphx_glr_tutorials_03_advanced_path_tutorial.py` and
-:ref:`sphx_glr_tutorials_03_advanced_transforms_tutorial.py`.
+:ref:`sphx_glr_tutorials_introductory_images.py`.  John Hunter has written two new tutorials on
+working with paths and transformations: :ref:`sphx_glr_tutorials_advanced_path_tutorial.py` and
+:ref:`sphx_glr_tutorials_advanced_transforms_tutorial.py`.
 
 .. _whats-new-mplot3d:
 

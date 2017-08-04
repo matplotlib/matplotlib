@@ -26,7 +26,7 @@ in order to render visualizations on an instance of :class:`figure.Figure`.
 The second is based on MATLAB and uses
 a state-based interface. This is encapsulated in the :mod:`pyplot`
 module. See the :ref:`pyplot tutorials
-<sphx_glr_tutorials_01_introductory_pyplot.py>`
+<sphx_glr_tutorials_introductory_pyplot.py>`
 for a more in-depth look at the pyplot interface.
 
 Most of the terms are straightforward but the main thing to remember
@@ -86,7 +86,7 @@ group_mean = np.mean(group_data)
 #
 #    Figures can have multiple axes on them. For information on how to do this,
 #    see the :ref:`Tight Layout tutorial
-#    <sphx_glr_tutorials_02_intermediate_tight_layout_guide.py>`.
+#    <sphx_glr_tutorials_intermediate_tight_layout_guide.py>`.
 
 fig, ax = plt.subplots()
 
@@ -149,7 +149,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 # that we create. To do this we'll set the ``autolayout`` value of our
 # rcParams. For more information on controlling the style, layout, and
 # other features of plots with rcParams, see
-# :ref:`sphx_glr_tutorials_01_introductory_customizing.py`.
+# :ref:`sphx_glr_tutorials_introductory_customizing.py`.
 
 plt.rcParams.update({'figure.autolayout': True})
 

@@ -108,7 +108,7 @@ plt.tight_layout()
 ###############################################################################
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
-# from the gridspec (:ref:`sphx_glr_tutorials_02_intermediate_gridspec.py`) will work.
+# from the gridspec (:ref:`sphx_glr_tutorials_intermediate_gridspec.py`) will work.
 
 plt.close('all')
 fig = plt.figure()

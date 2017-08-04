@@ -48,7 +48,7 @@ If you only want to use the `pandas` converter for `datetime64` values ::
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every Matplotlib artist (see :ref:`sphx_glr_tutorials_02_intermediate_artists.py`) has a method
+Every Matplotlib artist (see :ref:`sphx_glr_tutorials_intermediate_artists.py`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
@@ -160,7 +160,7 @@ labels::
     ax = fig.add_subplot(111)
 
 You can control the defaults for these parameters in your
-:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`.  For
+:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_introductory_customizing.py`.  For
 example, to make the above setting permanent, you would set::
 
     figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
@@ -201,7 +201,7 @@ Automatically make room for tick labels
 .. note::
    This is now easier to handle than ever before.
    Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :ref:`sphx_glr_tutorials_02_intermediate_tight_layout_guide.py`.
+   layout issues. See the :ref:`sphx_glr_tutorials_intermediate_tight_layout_guide.py`.
 
    The information below is kept here in case it is useful for other
    purposes.
