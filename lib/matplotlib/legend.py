@@ -259,7 +259,6 @@ class Legend(Artist):
         else:
             self.prop = prop
 
-
         self._fontsize = self.prop.get_size_in_points()
 
         self.texts = []
@@ -385,9 +384,8 @@ class Legend(Artist):
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
 
-        # If shadow is activated also use framealpha if not
+        # If shadow is activated use framealpha if not
         # explicitly passed. See Issue 8943
-
         if framealpha is None:
             if shadow is True:
                 self.framealpha = 1
