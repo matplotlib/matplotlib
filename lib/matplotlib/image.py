@@ -363,7 +363,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 raise ValueError("Invalid dimensions, got {}".format(A.shape))
 
             if A.ndim == 2:
-                A = self.norm(A)
+                if not isinstance(self.norm, mcolors.BivariateNorm):
+                    A = self.norm(A)
                 if A.dtype.kind == 'f':
                     # If the image is greyscale, convert to RGBA and
                     # use the extra channels for resizing the over,

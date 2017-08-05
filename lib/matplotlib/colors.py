@@ -862,10 +862,11 @@ class ListedColormap(Colormap):
 class BivariateColormap(Colormap):
     def __init__(self, name='bivariate', N=256):
         Colormap.__init__(self, name, N)
+        self.N = self.N * self.N
 
     def _init(self):
-        red = np.linspace(0, 1, self.N)
-        green = np.linspace(0, 1, self.N)
+        red = np.linspace(0, 1, np.sqrt(self.N))
+        green = np.linspace(0, 1, np.sqrt(self.N))
         red_mesh, green_mesh = np.meshgrid(red, green)
         blue_mesh = np.zeros_like(red_mesh)
         alpha_mesh = np.ones_like(red_mesh)
@@ -873,7 +874,6 @@ class BivariateColormap(Colormap):
                                     alpha_mesh))
         self._lut = np.vstack(bivariate_cmap)
         self._isinit = True
-        self.N = self.N * self.N
         self._set_extremes()
 
     def _resample(self, lutsize):

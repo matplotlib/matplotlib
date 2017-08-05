@@ -5140,8 +5140,7 @@ or tuple of floats
 
         temp = np.asarray(X)
         if temp.ndim == 3 and isinstance(norm, mcolors.BivariateNorm):
-                    temp = norm(temp)
-                    X = cmap(temp, alpha=self.get_alpha(), bytes=True)
+                    X = norm(temp)
 
         if not self._hold:
             self.cla()
@@ -5775,7 +5774,6 @@ or tuple of floats
         if (C.ndim == 3 and isBivari):
             C = norm(C)
             nr, nc = C.shape
-            C = cmap(C, alpha=alpha, bytes=True)
         else:
             nr, nc = C.shape
         if len(args) == 1:
