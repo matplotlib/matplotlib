@@ -470,7 +470,7 @@ class Axes3D(Axes):
                                          scalez=scalez)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
-        x, y, z = list(map(np.asarray, (X, Y, Z)))
+        x, y, z = map(np.asarray, (X, Y, Z))
         try:
             x, y = x.flatten(), y.flatten()
             if Z is not None:

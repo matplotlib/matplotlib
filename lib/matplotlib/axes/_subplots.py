@@ -43,7 +43,7 @@ class SubplotBase(object):
             else:
                 try:
                     s = str(int(args[0]))
-                    rows, cols, num = list(map(int, s))
+                    rows, cols, num = map(int, s)
                 except ValueError:
                     raise ValueError(
                         'Single argument to subplot must be a 3-digit '

@@ -2236,8 +2236,8 @@ def binary_repr(number, max_length=1025):
     """
 
 #   assert number < 2L << max_length
-    shifts = list(map(operator.rshift, max_length * [number],
-                  range(max_length - 1, -1, -1)))
+    shifts = map(operator.rshift, max_length * [number],
+                 range(max_length - 1, -1, -1))
     digits = list(map(operator.mod, shifts, max_length * [2]))
     if not digits.count(1):
         return 0
