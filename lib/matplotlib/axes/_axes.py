@@ -5878,11 +5878,11 @@ or tuple of floats
             arrays which are not required to be of the same length
 
         bins : integer or array_like or 'auto', optional
-            If an integer is given, `bins + 1` bin edges are returned,
+            If an integer is given, ``bins + 1`` bin edges are returned,
             consistently with :func:`numpy.histogram` for numpy version >=
             1.3.
 
-            Unequally spaced bins are supported if `bins` is a sequence.
+            Unequally spaced bins are supported if *bins* is a sequence.
 
             If Numpy 1.11 is installed, may also be ``'auto'``.
 
@@ -5890,53 +5890,48 @@ or tuple of floats
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
-            are ignored. If not provided, `range` is (x.min(), x.max()). Range
-            has no effect if `bins` is a sequence.
+            are ignored. If not provided, *range* is ``(x.min(), x.max())``.
+            Range has no effect if *bins* is a sequence.
 
-            If `bins` is a sequence or `range` is specified, autoscaling
+            If *bins* is a sequence or *range* is specified, autoscaling
             is based on the specified bin range instead of the
             range of x.
 
             Default is ``None``
 
-        normed, density : boolean, optional
-            Either the 'normed' or the 'density' arg can be set to
-            accomplish this behavior:
-
-            If `True`, the first element of the return tuple will
+        density : boolean, optional
+            If ``True``, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
             This is achieved dividing the count by the number of observations
-            times the bin width and *not* dividing by the total number
-            of observations. If `stacked` is also `True`, the sum of the
+            times the bin width and not dividing by the total number
+            of observations. If *stacked* is also ``True``, the sum of the
             histograms is normalized to 1.
 
-            Default is ``None`` for both 'normed' and 'density.' If either is
-            set, then that value will be used. If neither are set, then the args
-            will be treated as 'False.'
+            Default is ``None`` for both *normed* and *density*. If either is
+            set, then that value will be used. If neither are set, then the
+            args will be treated as ``False``.
 
-            If both are set to different things, the hist function raises an
-            error.
+            If both *density* and *normed* are set an error is raised.
 
         weights : (n, ) array_like or None, optional
-            An array of weights, of the same shape as `x`.  Each value in `x`
+            An array of weights, of the same shape as *x*.  Each value in *x*
             only contributes its associated weight towards the bin count
-            (instead of 1).  If `normed` or 'density' is True,
+            (instead of 1).  If *normed* or *density* is ``True``,
             the weights are normalized, so that the integral of the density
             over the range remains 1.
 
             Default is ``None``
 
         cumulative : boolean, optional
-            If `True`, then a histogram is computed where each bin gives the
+            If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints. If `normed` or 'density'
-            is also `True` then the histogram is normalized such that the last
-            bin equals 1. If `cumulative` evaluates to less than 0 (e.g., -1),
-            the direction of accumulation is reversed.  In this case, if
-            `normed` and/or 'density' is also `True`, then the histogram is
-            normalized such that the first bin
-            equals 1.
+            gives the total number of datapoints. If *normed* or *density*
+            is also ``True`` then the histogram is normalized such that the
+            last bin equals 1. If *cumulative* evaluates to less than 0
+            (e.g., -1), the direction of accumulation is reversed.
+            In this case, if *normed* and/or *density* is also ``True``, then
+            the histogram is normalized such that the first bin equals 1.
 
             Default is ``False``
 
@@ -5982,22 +5977,23 @@ or tuple of floats
 
         rwidth : scalar or None, optional
             The relative width of the bars as a fraction of the bin width.  If
-            `None`, automatically compute the width.
+            ``None``, automatically compute the width.
 
-            Ignored if `histtype` is 'step' or 'stepfilled'.
+            Ignored if *histtype* is 'step' or 'stepfilled'.
 
             Default is ``None``
 
         log : boolean, optional
-            If `True`, the histogram axis will be set to a log scale. If `log`
-            is `True` and `x` is a 1D array, empty bins will be filtered out
-            and only the non-empty (`n`, `bins`, `patches`) will be returned.
+            If ``True``, the histogram axis will be set to a log scale. If
+            *log* is ``True`` and *x* is a 1D array, empty bins will be
+            filtered out and only the non-empty ``(n, bins, patches)``
+            will be returned.
 
             Default is ``False``
 
         color : color or array_like of colors or None, optional
             Color spec or sequence of color specs, one per dataset.  Default
-            (`None`) uses the standard line color sequence.
+            (``None``) uses the standard line color sequence.
 
             Default is ``None``
 
@@ -6009,8 +6005,8 @@ or tuple of floats
             default is ``None``
 
         stacked : boolean, optional
-            If `True`, multiple data are stacked on top of each other If
-            `False` multiple data are aranged side by side if histtype is
+            If ``True``, multiple data are stacked on top of each other If
+            ``False`` multiple data are aranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
 
             Default is ``False``
@@ -6018,10 +6014,10 @@ or tuple of floats
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram bins. See **normed or density**
-            and **weights** for a description of the possible semantics.
-            If input **x** is an array, then this is an array of length
-            **nbins**. If input is a sequence arrays
+            The values of the histogram bins. See *normed* or *density*
+            and *weights* for a description of the possible semantics.
+            If input *x* is an array, then this is an array of length
+            *nbins*. If input is a sequence arrays
             ``[data1, data2,..]``, then this is a list of arrays with
             the values of the histograms for each of the arrays in the
             same order.
@@ -6046,58 +6042,14 @@ or tuple of floats
         Notes
         -----
         Until numpy release 1.5, the underlying numpy histogram function was
-        incorrect with `normed`=`True` if bin sizes were unequal.  MPL
-        inherited that error.  It is now corrected within MPL when using
+        incorrect with ``normed=True`` if bin sizes were unequal.  MPL
+        inherited that error. It is now corrected within MPL when using
         earlier numpy versions.
 
         """
         # Avoid shadowing the builtin.
         bin_range = range
         del range
-
-        # Sets the density variable, if necessary, to its predecessor, 'normed.'
-        if density is not None and normed is not None:
-            raise ValueError('The density and normed arguments represent the '
-                             'same concept. Please set only one of them.')
-        elif normed is not None and density is None:
-            density = normed
-        elif normed is None and density is None:
-            density = False
-
-        def _normalize_input(inp, ename='input'):
-            """Normalize 1 or 2d input into list of np.ndarray or
-            a single 2D np.ndarray.
-
-            Parameters
-            ----------
-            inp : iterable
-            ename : str, optional
-                Name to use in ValueError if `inp` can not be normalized
-
-            """
-            if (isinstance(x, np.ndarray) or
-                    not iterable(cbook.safe_first_element(inp))):
-                # TODO: support masked arrays;
-                inp = np.asarray(inp)
-                if inp.ndim == 2:
-                    # 2-D input with columns as datasets; switch to rows
-                    inp = inp.T
-                elif inp.ndim == 1:
-                    # new view, single row
-                    inp = inp.reshape(1, inp.shape[0])
-                else:
-                    raise ValueError(
-                        "{ename} must be 1D or 2D".format(ename=ename))
-                if inp.shape[1] < inp.shape[0]:
-                    warnings.warn(
-                        '2D hist input should be nsamples x nvariables;\n '
-                        'this looks transposed '
-                        '(shape is %d x %d)' % inp.shape[::-1])
-            else:
-                # multiple hist with data of different length
-                inp = [np.asarray(xi) for xi in inp]
-
-            return inp
 
         if not self._hold:
             self.cla()
@@ -6124,9 +6076,10 @@ or tuple of floats
             stacked = True
 
         if density is not None and normed is not None:
-            raise ValueError("kwargs 'density' and 'normed' cannot be used"
-                            "simultaneously. Please only use 'density', since "
-                            "'normed' will be deprecated. ")
+            raise ValueError("kwargs 'density' and 'normed' cannot be used "
+                             "simultaneously. "
+                             "Please only use 'density', since 'normed'"
+                             "will be deprecated.")
 
         # process the unit information
         self._process_unit_info(xdata=x, kwargs=kwargs)
