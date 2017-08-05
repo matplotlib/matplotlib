@@ -1376,7 +1376,7 @@ class YAArrow(Patch):
         line and intersects (*x2*, *y2*) and the distance from (*x2*,
         *y2*) of the returned points is *k*.
         """
-        x1, y1, x2, y2, k = list(map(float, (x1, y1, x2, y2, k)))
+        x1, y1, x2, y2, k = map(float, (x1, y1, x2, y2, k))
 
         if y2 - y1 == 0:
             return x2, y2 + k, x2, y2 - k
