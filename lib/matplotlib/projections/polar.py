@@ -537,10 +537,13 @@ class PolarAxes(Axes):
         return self._xaxis_text2_transform, 'center', 'center'
 
     def get_yaxis_transform(self, which='grid'):
-        if which not in ['tick1', 'tick2', 'grid']:
+        if which in ('tick1', 'tick2'):
+            return self._yaxis_text_transform
+        elif which == 'grid':
+            return self._yaxis_transform
+        else:
             msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
             raise ValueError(msg)
-        return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
