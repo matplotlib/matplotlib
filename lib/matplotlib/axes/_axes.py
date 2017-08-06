@@ -4573,11 +4573,25 @@ or tuple of floats
         return qk
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
+    # Handle units for x and y, if they've been passed
+    def _quiver_units(self, args, kw):
+        if len(args) > 3:
+            x, y = args[0:2]
+            self._process_unit_info(xdata=x, ydata=y, kwargs=kw)
+            x = self.convert_xunits(x)
+            y = self.convert_yunits(y)
+            return (x, y) + args[2:]
+        return args
+
     # args can by a combination if X, Y, U, V, C and all should be replaced
     @_preprocess_data(replace_all_args=True, label_namer=None)
     def quiver(self, *args, **kw):
         if not self._hold:
             self.cla()
+
+        # Make sure units are handled for x and y values
+        args = self._quiver_units(args, kw)
+
         q = mquiver.Quiver(self, *args, **kw)
 
         self.add_collection(q, autolim=True)
@@ -4627,6 +4641,10 @@ or tuple of floats
         """
         if not self._hold:
             self.cla()
+
+        # Make sure units are handled for x and y values
+        args = self._quiver_units(args, kw)
+
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b, autolim=True)
         self.autoscale_view()
