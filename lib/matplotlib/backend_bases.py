@@ -2428,21 +2428,24 @@ class FigureCanvasBase(object):
     def flush_events(self):
         """Flush the GUI events for the figure.
 
-        GUI backends likely need to reimplement this method.
+        Interactive backends need to reimplement this method.
         """
 
     def start_event_loop(self, timeout=0):
         """Start a blocking event loop.
 
-        Such an event loop is used by interactive functions, such as ginput and
-        waitforbuttonpress, to wait for events.  This should not be confused
-        with the main GUI event loop, which is independent and always running.
+        Such an event loop is used by interactive functions, such as `ginput`
+        and `waitforbuttonpress`, to wait for events.
 
         The event loop blocks until a callback function triggers
-        `stop_event_loop`, or *timeout* is reached.  If *timeout* is negative,
-        never timeout.
+        `stop_event_loop`, or *timeout* is reached.
 
-        Only GUI backends need to reimplement this method.
+        If *timeout* is negative, never timeout.
+
+        Only interactive backends need to reimplement this method and it relies
+        on `flush_events` being properly implemented.
+
+        Interactive backends should implement this in a more native way.
         """
         if timeout <= 0:
             timeout = np.inf
@@ -2457,7 +2460,8 @@ class FigureCanvasBase(object):
     def stop_event_loop(self):
         """Stop the current blocking event loop.
 
-        Only GUI backends need to reimplement this method.
+        Interactive backends need to reimplement this to match
+        `start_event_loop`
         """
         self._looping = False
 
