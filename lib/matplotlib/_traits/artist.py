@@ -354,7 +354,7 @@ class Artist(HasTraits, _artist.Artist):
     def _clippath_validate(self, proposal):
         print("clippath: cross validating %r" % proposal.value)
         value = proposal.value
-        from matplotlib.patches import Patch
+        # from matplotlib.patches import Patch
         if isinstance(value, Patch):
             value = TransformedPatchPath(value)
         return value
