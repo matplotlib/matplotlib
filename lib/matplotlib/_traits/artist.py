@@ -26,6 +26,7 @@ from functools import wraps
 from contextlib import contextmanager
 
 from matplotlib.patches import Rectangle, Patch
+print("imported Ractangle successfully")
 
 from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe, Any
 # from traitlets import Callable
@@ -280,11 +281,12 @@ class Artist(HasTraits, _artist.Artist):
     @validate("animated")
     def _animated_validate(self, proposal):
         print("animated: cross validating %r" % proposal.value)
-        if self._animated is not proposal.value:
-            self.pchanged()
-            print("called self.pchanged()")
-            return proposal.value
-        return self._animated
+        # if self.animated is not proposal.value:
+        #     self.pchanged()
+        #     print("called self.pchanged()")
+        #     return proposal.value
+        return proposal.value
+        # return self._animated
     #animated observer
     @observe("animated", type="change")
     def _animated_observe(self, change):
@@ -351,6 +353,7 @@ class Artist(HasTraits, _artist.Artist):
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" % self.stale)
+
     def set_clip_path(self, path, transform):
         success = False
         if transform is None:
@@ -663,36 +666,36 @@ class Artist(HasTraits, _artist.Artist):
 
     #ARTIST FUNCTIONS
     #
-    def __init__(self):
-        print("__init__ Artist function")
-        self.stale = True
-        self.stale_callback = None
-        self.axes = None
-        self.figure = None
-        self.transform = None
-        self.transformSet = False
-        self.visible = True
-        self.animated = False
-        self.alpha = None
-        self.clipbox = None
-        self.clippath = None
-        self.clipon = True
-        self.label = ''
-        self.picker = None
-        self.contains = None
-        self.rasterized = None
-        self.agg_filter = None
-        self.mouseover = False
-        self.eventson = False
-        self.oid = 0
-        self.remove_method = None
-        self.url = None
-        self.gid = None
-        self.snap = None
-        self.sketch = rcParams['path.sketch']
-        self.path_effects = rcParams['path.effects']
-        self.sticky_edges = ([],[])
-
+    # def __init__(self):
+    #     print("__init__ Artist function")
+    #     self.stale = True
+    #     self.stale_callback = None
+    #     self.axes = None
+    #     self.figure = None
+    #     self.transform = None
+    #     self.transformSet = False
+    #     self.visible = True
+    #     self.animated = False
+    #     self.alpha = None
+    #     self.clipbox = None
+    #     self.clippath = None
+    #     self.clipon = True
+    #     self.label = ''
+    #     self.picker = None
+    #     self.contains = None
+    #     self.rasterized = None
+    #     self.agg_filter = None
+    #     self.mouseover = False
+    #     self.eventson = False
+    #     self.oid = 0
+    #     self.remove_method = None
+    #     self.url = None
+    #     self.gid = None
+    #     self.snap = None
+    #     self.sketch = rcParams['path.sketch']
+    #     self.path_effects = rcParams['path.effects']
+    #     self.sticky_edges = ([],[])
+    #
 
     #
     # def __getstate__(self):
@@ -751,10 +754,10 @@ class Artist(HasTraits, _artist.Artist):
         # be no distinction between axes.add_line, axes.add_patch, etc.
         # TODO: add legend support
 
-        """
-        These following functions are copied and pasted from the original Artist class.
-        This is because I feel as if they can be altered to their respective traits.
-        """
+    """
+    These following functions are copied and pasted from the original Artist class.
+    This is because I feel as if they can be altered to their respective traits.
+    """
 
     def have_units(self):
         ax = self.axes
