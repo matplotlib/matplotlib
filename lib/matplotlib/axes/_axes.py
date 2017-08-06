@@ -5903,10 +5903,10 @@ or tuple of floats
             If ``True``, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
-            This is achieved dividing the count by the number of observations
-            times the bin width and not dividing by the total number
-            of observations. If *stacked* is also ``True``, the sum of the
-            histograms is normalized to 1.
+            This is achieved by dividing the count by the number of
+            observations times the bin width and not dividing by the total
+            number of observations. If *stacked* is also ``True``, the sum of
+            the histograms is normalized to 1.
 
             Default is ``None`` for both *normed* and *density*. If either is
             set, then that value will be used. If neither are set, then the
