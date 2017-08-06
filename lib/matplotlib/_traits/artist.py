@@ -25,6 +25,10 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+
+
 from matplotlib.patches import Rectangle, Patch
 print("imported Ractangle successfully")
 
@@ -35,7 +39,7 @@ from .traits import TraitProxy, Perishable, TransformTrait, Callable
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
 # _XYPair = namedtuple("_XYPair", "x y")
-class _XYPair(HasTraits):
+class _XYPair(Tuple):
     x = List(trait=Float())
     y = List(trait=Float())
 
@@ -84,21 +88,28 @@ class Artist(HasTraits, _artist.Artist):
 
     aname=Unicode('Artist')
     zorder=Int(default_value=0)
-    #_prop_order = dict(color=-1)
+    # _prop_order = dict(color=-1)
     prop_order=Dict() #asked thomas question about this asstribute
     # pchanged = Bool(default_value = False)
     stale=Bool(default_value=True)
     stale_callback=Callable(allow_none=True, default_value=True)
-    axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
-    figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
+    # axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
+    axes=Instance(Axes, allow_none=True, default_value=None)
+
+    # figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
+    figure=Instance(Figure, allow_none=True, default_value=None)
+
     #not sure if this would be the correct way to call TransformTrait
     transform = TransformTrait(allow_none=True, default_value=None)
     # transform=Instance('matplotlib.transform.Transform', allow_none=True, default_value=None)
+
     transformSet=Bool(default_value=False)
     visible=Bool(default_value=True)
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
-    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
+
+    # clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
+    clipbox=Instance(Bbox, allow_none=True, default_value=None)
 
     # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
     clippath = Union([Instance(TransformedPath),Instance("matplotlib.patches.Patch")], allow_none=True, default_value=None)
@@ -126,6 +137,8 @@ class Artist(HasTraits, _artist.Artist):
     #the first element of this tuple represents x
     #and the second element of sticky_edges represents y
     sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
+    # sticky_edges = _XYPair()
+    # print("sticky_edges class _XYPair tester: ", sticky_edges)
 
     #stale default
     @default("stale")

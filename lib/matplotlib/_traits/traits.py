@@ -52,6 +52,7 @@ class TransformTrait(TraitType):
     default_value = None
     allow_none = True
     info_text = 'matplotlib.transforms.Transform'
+    
 
     #Question: why use the get_transform function as the validate?
     # I understand that there is a logic involving how to handle None and
