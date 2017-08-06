@@ -48,9 +48,10 @@ class Perishable(TraitProxy):
 
 class TransformTrait(TraitType):
 
+    #TO DO: pass in a transform instance & set default value
     default_value = None
     allow_none = True
-    info_text = "TransformTrait"
+    info_text = "matplotlib.transforms.Transform"
 
     #Question: why use the get_transform function as the validate?
     # I understand that there is a logic involving how to handle None and
@@ -81,6 +82,18 @@ class Callable(TraitType):
             return value
         else:
             self.error(obj, value)
+
+# class RectangleTrait(TraitType):
+#
+#     default_value = None
+#     allow_none = True
+#     info_text = "matplotlib.patches.Rectangle"
+#
+#     def validate(self, obj, value):
+#
+
+
+
 
 
 

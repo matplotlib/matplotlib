@@ -25,16 +25,22 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
+from matplotlib.patches import Rectangle, Patch
+
 from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe, Any
 # from traitlets import Callable
 
-#for testing purposes
-from .traits import Callable
-
-from .traits import TraitProxy, Perishable, TransformTrait
+from .traits import TraitProxy, Perishable, TransformTrait, Callable
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
-_XYPair = namedtuple("_XYPair", "x y")
+# _XYPair = namedtuple("_XYPair", "x y")
+class _XYPair(HasTraits):
+    x = List(trait=Float())
+    y = List(trait=Float())
+
+    def __init__(self):
+        self.x = []
+        self.y = []
 
 def allow_rasterization(draw):
     """
@@ -70,6 +76,7 @@ def allow_rasterization(draw):
 
     draw_wrapper._supports_rasterization = True
     return draw_wrapper
+
 
 #class Artist(_artist.Artist)
 class Artist(HasTraits, _artist.Artist):
@@ -128,19 +135,15 @@ class Artist(HasTraits, _artist.Artist):
     @validate("stale")
     def _stale_validate(self, proposal):
         print("stale: cross validating %r" % proposal.value)
-        self.stale=proposal.value
         if self.animated is True:
             return proposal.value
         if proposal.value and self.stale_callback is not None:
             self.stale_callback(self, proposal.value)
-            #not sure if I should return anything here
-        # return proposal.value
+        return proposal.value
     #stale observer
     @observe("stale", type="change")
     def _stale_observe(self, change):
         print("stale: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #stale_callback default
     @default("stale_callback")
@@ -156,8 +159,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("stale_callback", type="change")
     def _stale_callback_observe(self, change):
         print("stale_callback: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #axes default
     @default("axes")
@@ -183,8 +184,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("axes", type="change")
     def _axes_observe(self, change):
         print("axes: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #figure default
     @default("figure")
@@ -220,9 +219,6 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
-    #TO DO: make a transform trait with the proper validation logic
-    #transform default
     @default("transform")
     def _transform_default(self):
         print("generating default transform value")
@@ -241,8 +237,6 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
-
     #transformSet default
     @default("transformSet")
     def _transformSet_default(self):
@@ -257,8 +251,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("transformSet", type="change")
     def _transformSet_observe(self, change):
         print("transformSet: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #visible default
     @default("visible")
@@ -279,7 +271,6 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
     #animated default
     @default("animated")
     def _animated_default(self):
@@ -298,8 +289,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("animated", type="change")
     def _animated_observe(self, change):
         print("animated: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #alpha default
     @default("alpha")
@@ -340,22 +329,29 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
-    # clippath default value here?
-
-    # Note: this is for if Clippath is a Union Trait
+    #clipbox default
+    @default("clippath")
+    def _clippath_default(self):
+        print("generating default clippath value")
+        return None
+    #clippath validate
     @validate("clippath")
-    def _validate_clippath(self, proposal):
+    def _clippath_validate(self, proposal):
         print("clippath: cross validating %r" % proposal.value)
         value = proposal.value
         from matplotlib.patches import Patch
         if isinstance(value, Patch):
             value = TransformedPatchPath(value)
         return value
-
+    #clippath observer
+    @observe("clippath", type="change")
+    def _clippath_observe(self, change):
+        print("clippath: observed a change from %r to %r" % (change.old, change.new))
+        self.pchanged()
+        print("called self.pchanged()")
+        self.stale = True
+        print("set stale: %r" % self.stale)
     def set_clip_path(self, path, transform):
-        from matplotlib.patches import Rectangle, Patch
-
         success = False
         if transform is None:
             if isinstance(path, Rectangle):
@@ -378,17 +374,6 @@ class Artist(HasTraits, _artist.Artist):
             print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
 
-    #clippath observer
-    @observe("clippath", type="change")
-    def _clippath_observe(self, change):
-        print("clippath: observed a change from %r to %r" % (change.old, change.new))
-        self.pchanged()
-        print("called self.pchanged()")
-        self.stale = True
-        print("set stale: %r" % self.stale)
-
-
-
     #clipon default
     @default("clipon")
     def _clipon_default(self):
@@ -407,7 +392,6 @@ class Artist(HasTraits, _artist.Artist):
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" % self.stale)
-
 
     #label default
     @default("label")
@@ -430,7 +414,6 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
     #picker default
     @default("picker")
     def _picker_default(self):
@@ -446,8 +429,6 @@ class Artist(HasTraits, _artist.Artist):
     def _picker_observe(self, change):
         print("picker: observed a change from %r to %r" % (change.old, change.new))
 
-
-
     #contains default
     @default("contains")
     def _contains_default(self):
@@ -462,8 +443,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("contains", type="change")
     def _contains_observe(self, change):
         print("contains: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #rasterized default
     @default("rasterized")
@@ -482,8 +461,6 @@ class Artist(HasTraits, _artist.Artist):
     def _rasterized_observe(self, change):
         print("rasterized: observed a change from %r to %r" % (change.old, change.new))
 
-
-
     #agg_filter default
     @default("agg_filter")
     def _agg_filter_default(self):
@@ -500,8 +477,6 @@ class Artist(HasTraits, _artist.Artist):
         print("agg_filter: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
         print("set stale: %r" % self.stale)
-
-
 
     #mouseover default
     @default("mouseover")
@@ -527,8 +502,6 @@ class Artist(HasTraits, _artist.Artist):
             else:
                 ax.mouseover_set.discard(self)
 
-
-
     #eventson default
     @default("eventson")
     def _eventson_default(self):
@@ -543,8 +516,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("eventson", type="change")
     def _eventson_observe(self, change):
         print("eventson: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #oid default
     @default("oid")
@@ -561,8 +532,6 @@ class Artist(HasTraits, _artist.Artist):
     def _oid_observe(self, change):
         print("oid: observed a change from %r to %r" % (change.old, change.new))
 
-
-
     #propobservers default
     @default("propobservers")
     def _propobservers_default(self):
@@ -577,8 +546,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("propobservers", type="change")
     def _propobservers_observe(self, change):
         print("propobservers: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #url default
     @default("url")
@@ -595,8 +562,6 @@ class Artist(HasTraits, _artist.Artist):
     def _url_observe(self, change):
         print("url: observed a change from %r to %r" % (change.old, change.new))
 
-
-
     #gid default
     @default("gid")
     def _gid_default(self):
@@ -611,8 +576,6 @@ class Artist(HasTraits, _artist.Artist):
     @observe("gid", type="change")
     def _gid_observe(self, change):
         print("gid: observed a change from %r to %r" % (change.old, change.new))
-
-
 
     #snap default
     @default("snap")
@@ -631,13 +594,9 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
-
-
     # This may not work, I may or may not have to work around rcParams['path.sketch']
     # but I am not sure yet
     # this may also have to be a trait?
-
     #sketch default
     @default("sketch")
     def _sketch_default(self):
@@ -685,13 +644,6 @@ class Artist(HasTraits, _artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-
-
-    """
-    Note: This may or may not work, I have to work around the
-    _XYPair([], [])
-    """
-
     #sticky_edges default
     @default("sticky_edges")
     def _sticky_edges_default(self):
@@ -709,12 +661,39 @@ class Artist(HasTraits, _artist.Artist):
     def _sticky_edges_observe(self, change):
         print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
 
-
-
     #ARTIST FUNCTIONS
     #
-    # def __init__(self):
-    #     pass
+    def __init__(self):
+        print("__init__ Artist function")
+        self.stale = True
+        self.stale_callback = None
+        self.axes = None
+        self.figure = None
+        self.transform = None
+        self.transformSet = False
+        self.visible = True
+        self.animated = False
+        self.alpha = None
+        self.clipbox = None
+        self.clippath = None
+        self.clipon = True
+        self.label = ''
+        self.picker = None
+        self.contains = None
+        self.rasterized = None
+        self.agg_filter = None
+        self.mouseover = False
+        self.eventson = False
+        self.oid = 0
+        self.remove_method = None
+        self.url = None
+        self.gid = None
+        self.snap = None
+        self.sketch = rcParams['path.sketch']
+        self.path_effects = rcParams['path.effects']
+        self.sticky_edges = ([],[])
+
+
     #
     # def __getstate__(self):
         # d = self.__dict__.copy()
