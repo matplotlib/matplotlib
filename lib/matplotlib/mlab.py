@@ -3136,17 +3136,17 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     def get_justify(colname, column, precision):
         ntype = column.dtype
 
-        if np.issubdtype(ntype, str) or np.issubdtype(ntype, bytes):
+        if np.issubdtype(ntype, np.character):
             fixed_width = int(ntype.str[2:])
             length = max(len(colname), fixed_width)
             return 0, length+padding, "%s"  # left justify
 
-        if np.issubdtype(ntype, np.int):
+        if np.issubdtype(ntype, np.integer):
             length = max(len(colname),
                          np.max(list(map(len, list(map(str, column))))))
             return 1, length+padding, "%d"  # right justify
 
-        if np.issubdtype(ntype, np.float):
+        if np.issubdtype(ntype, np.floating):
             fmt = "%." + str(precision) + "f"
             length = max(
                 len(colname),

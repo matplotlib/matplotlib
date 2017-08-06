@@ -36,8 +36,8 @@ class MandelbrotDisplay(object):
         self.y = np.linspace(ystart, yend, self.height).reshape(-1, 1)
         c = self.x + 1.0j * self.y
         threshold_time = np.zeros((self.height, self.width))
-        z = np.zeros(threshold_time.shape, dtype=np.complex)
-        mask = np.ones(threshold_time.shape, dtype=np.bool)
+        z = np.zeros(threshold_time.shape, dtype=complex)
+        mask = np.ones(threshold_time.shape, dtype=bool)
         for i in range(self.niter):
             z[mask] = z[mask]**self.power + c[mask]
             mask = (np.abs(z) < self.radius)

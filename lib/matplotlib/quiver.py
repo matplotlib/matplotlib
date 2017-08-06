@@ -982,12 +982,12 @@ class Barbs(mcollections.PolyCollection):
         # If rounding, round to the nearest multiple of half, the smallest
         # increment
         if rounding:
-            mag = half * (mag / half + 0.5).astype(np.int)
+            mag = half * (mag / half + 0.5).astype(int)
 
-        num_flags = np.floor(mag / flag).astype(np.int)
+        num_flags = np.floor(mag / flag).astype(int)
         mag = np.mod(mag, flag)
 
-        num_barb = np.floor(mag / full).astype(np.int)
+        num_barb = np.floor(mag / full).astype(int)
         mag = np.mod(mag, full)
 
         half_flag = mag >= half

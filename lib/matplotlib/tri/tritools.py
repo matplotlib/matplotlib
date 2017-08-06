@@ -177,7 +177,7 @@ class TriAnalyzer(object):
 
         current_mask = self._triangulation.mask
         if current_mask is None:
-            current_mask = np.zeros(ntri, dtype=np.bool)
+            current_mask = np.zeros(ntri, dtype=bool)
         valid_neighbors = np.copy(self._triangulation.neighbors)
         renum_neighbors = np.arange(ntri, dtype=np.int32)
         nadd = -1

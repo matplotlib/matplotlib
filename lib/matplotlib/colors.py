@@ -1443,7 +1443,7 @@ def hsv_to_rgb(hsv):
     g = np.empty_like(h)
     b = np.empty_like(h)
 
-    i = (h * 6.0).astype(np.int)
+    i = (h * 6.0).astype(int)
     f = (h * 6.0) - i
     p = v * (1.0 - s)
     q = v * (1.0 - s * f)

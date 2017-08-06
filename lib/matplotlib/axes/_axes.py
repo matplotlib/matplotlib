@@ -4769,9 +4769,9 @@ or tuple of floats
             y2 = np.ones_like(x) * y2
 
         if where is None:
-            where = np.ones(len(x), np.bool)
+            where = np.ones(len(x), bool)
         else:
-            where = np.asarray(where, np.bool)
+            where = np.asarray(where, bool)
 
         if not (x.shape == y1.shape == y2.shape == where.shape):
             raise ValueError("Argument dimensions are incompatible")
@@ -4930,9 +4930,9 @@ or tuple of floats
             x2 = np.ones_like(y) * x2
 
         if where is None:
-            where = np.ones(len(y), np.bool)
+            where = np.ones(len(y), bool)
         else:
-            where = np.asarray(where, np.bool)
+            where = np.asarray(where, bool)
 
         if not (y.shape == x1.shape == x2.shape == where.shape):
             raise ValueError("Argument dimensions are incompatible")
@@ -4954,7 +4954,7 @@ or tuple of floats
                 continue
 
             N = len(yslice)
-            Y = np.zeros((2 * N + 2, 2), np.float)
+            Y = np.zeros((2 * N + 2, 2), float)
             if interpolate:
                 def get_interp_point(ind):
                     im1 = max(ind - 1, 0)
