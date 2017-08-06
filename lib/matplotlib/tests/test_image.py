@@ -705,7 +705,7 @@ def test_mask_image():
 
     ax1.imshow(A, interpolation='nearest')
 
-    A = np.zeros((5, 5), dtype=np.bool)
+    A = np.zeros((5, 5), dtype=bool)
     A[1:2, 1:2] = True
     A = np.ma.masked_array(np.ones((5, 5), dtype=np.uint16), A)
 

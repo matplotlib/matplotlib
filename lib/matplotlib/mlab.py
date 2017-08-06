@@ -3141,12 +3141,12 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
             length = max(len(colname), fixed_width)
             return 0, length+padding, "%s"  # left justify
 
-        if np.issubdtype(ntype, np.int):
+        if np.issubdtype(ntype, int):
             length = max(len(colname),
                          np.max(list(map(len, list(map(str, column))))))
             return 1, length+padding, "%d"  # right justify
 
-        if np.issubdtype(ntype, np.float):
+        if np.issubdtype(ntype, float):
             fmt = "%." + str(precision) + "f"
             length = max(
                 len(colname),

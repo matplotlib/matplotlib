@@ -58,13 +58,13 @@ stock_dt_ohlc = np.dtype([
     (str('year'), np.int16),
     (str('month'), np.int8),
     (str('day'), np.int8),
-    (str('d'), np.float),     # mpl datenum
-    (str('open'), np.float),
-    (str('high'), np.float),
-    (str('low'), np.float),
-    (str('close'), np.float),
-    (str('volume'), np.float),
-    (str('aclose'), np.float)])
+    (str('d'), float),     # mpl datenum
+    (str('open'), float),
+    (str('high'), float),
+    (str('low'), float),
+    (str('close'), float),
+    (str('volume'), float),
+    (str('aclose'), float)])
 
 
 stock_dt_ochl = np.dtype(
@@ -72,13 +72,13 @@ stock_dt_ochl = np.dtype(
      (str('year'), np.int16),
      (str('month'), np.int8),
      (str('day'), np.int8),
-     (str('d'), np.float),     # mpl datenum
-     (str('open'), np.float),
-     (str('close'), np.float),
-     (str('high'), np.float),
-     (str('low'), np.float),
-     (str('volume'), np.float),
-     (str('aclose'), np.float)])
+     (str('d'), float),     # mpl datenum
+     (str('open'), float),
+     (str('close'), float),
+     (str('high'), float),
+     (str('low'), float),
+     (str('volume'), float),
+     (str('aclose'), float)])
 
 
 def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):

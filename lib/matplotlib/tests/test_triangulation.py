@@ -847,7 +847,7 @@ def test_tritools():
     x = np.array([0., 1., 0.5, 0., 2.])
     y = np.array([0., 0., 0.5*np.sqrt(3.), -1., 1.])
     triangles = np.array([[0, 1, 2], [0, 1, 3], [1, 2, 4]], dtype=np.int32)
-    mask = np.array([False, False, True], dtype=np.bool)
+    mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
     assert_array_almost_equal(analyser.scale_factors,
@@ -881,7 +881,7 @@ def test_tritools():
     triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1))
     analyser = mtri.TriAnalyzer(triang)
     mask_flat = analyser.get_flat_tri_mask(0.2)
-    verif_mask = np.zeros(162, dtype=np.bool)
+    verif_mask = np.zeros(162, dtype=bool)
     corners_index = [0, 1, 2, 3, 14, 15, 16, 17, 18, 19, 34, 35, 126, 127,
                      142, 143, 144, 145, 146, 147, 158, 159, 160, 161]
     verif_mask[corners_index] = True
@@ -889,7 +889,7 @@ def test_tritools():
 
     # Now including a hole (masked triangle) at the center. The center also
     # shall be eliminated by get_flat_tri_mask.
-    mask = np.zeros(162, dtype=np.bool)
+    mask = np.zeros(162, dtype=bool)
     mask[80] = True
     triang.set_mask(mask)
     mask_flat = analyser.get_flat_tri_mask(0.2)
@@ -906,7 +906,7 @@ def test_trirefine():
     x, y = np.meshgrid(x, x)
     x = x.ravel()
     y = y.ravel()
-    mask = np.zeros(2*n**2, dtype=np.bool)
+    mask = np.zeros(2*n**2, dtype=bool)
     mask[n**2:] = True
     triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1),
                                 mask=mask)
@@ -1032,7 +1032,7 @@ def test_trianalyzer_mismatched_indices():
     x = np.array([0., 1., 0.5, 0., 2.])
     y = np.array([0., 0., 0.5*np.sqrt(3.), -1., 1.])
     triangles = np.array([[0, 1, 2], [0, 1, 3], [1, 2, 4]], dtype=np.int32)
-    mask = np.array([False, False, True], dtype=np.bool)
+    mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
     # numpy >= 1.10 raises a VisibleDeprecationWarning in the following line
