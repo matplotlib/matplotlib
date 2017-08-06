@@ -864,14 +864,11 @@ class Path(object):
            polylines, quadratic or cubic Bezier curves
            <http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
-        theta1, theta2 = np.deg2rad([theta1, theta2])
-
-        twopi = np.pi * 2.0
         halfpi = np.pi * 0.5
 
-        eta1 = np.arctan2(np.sin(theta1), np.cos(theta1))
-        eta2 = np.arctan2(np.sin(theta2), np.cos(theta2))
-        eta2 -= twopi * np.floor((eta2 - eta1) / twopi)
+        eta1 = theta1
+        eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
+        eta1, eta2 = np.deg2rad([eta1, eta2])
 
         # number of curve segments to make
         if n is None:
