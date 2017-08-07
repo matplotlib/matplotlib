@@ -543,7 +543,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     plt.xlabel("index")
 #
 # and you will see the plot being updated after each line.  Since version 1.5,
-# modyfing the plot by other means *should* also automatically
+# modifying the plot by other means *should* also automatically
 # update the display on most backends. Get a reference to the :class:`~matplotlib.axes.Axes` instance,
 # and call a method of that instance::
 #
