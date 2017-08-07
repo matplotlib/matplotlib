@@ -1614,10 +1614,12 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if not self.retinaFix:
                 self.wxoverlay = wx.Overlay()
             else:
-                self.savedRetinaImage = self.canvas.copy_from_bbox(
-                    self.canvas.figure.gca().bbox)
-                self.zoomStartX = event.xdata
-                self.zoomStartY = event.ydata
+                if event.inaxes is not None:
+                    self.savedRetinaImage = self.canvas.copy_from_bbox(
+                        event.inaxes.bbox)
+                    self.zoomStartX = event.xdata
+                    self.zoomStartY = event.ydata
+                    self.zoomAxes = event.inaxes
 
     def release(self, event):
         if self._active == 'ZOOM':
@@ -1643,10 +1645,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             Y0, Y1 = self.zoomStartY, event.ydata
             lineX = (X0, X0, X1, X1, X0)
             lineY = (Y0, Y1, Y1, Y0, Y0)
-            self.prevZoomRect = self.canvas.figure.gca().plot(
+            self.prevZoomRect = self.zoomAxes.plot(
                 lineX, lineY, '-', color=rubberBandColor)
-            self.canvas.figure.gca().draw_artist(self.prevZoomRect[0])
-            self.canvas.blit(self.canvas.figure.gca().bbox)
+            self.zoomAxes.draw_artist(self.prevZoomRect[0])
+            self.canvas.blit(self.zoomAxes.bbox)
             return
 
         # Use an Overlay to draw a rubberband-like bounding box.
