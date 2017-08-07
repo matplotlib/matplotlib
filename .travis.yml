@@ -43,7 +43,7 @@ env:
     - INSTALL_PEP8=
     - RUN_PEP8=
     - NOSE=
-    - PYTEST_ARGS="-rawR --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ARGS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
 
