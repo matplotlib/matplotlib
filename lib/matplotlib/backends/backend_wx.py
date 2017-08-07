@@ -1633,6 +1633,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 if self.prevZoomRect:
                     self.prevZoomRect.pop(0).remove()
                     self.prevZoomRect = None
+                if self.zoomAxes:
                     self.zoomAxes = None
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
