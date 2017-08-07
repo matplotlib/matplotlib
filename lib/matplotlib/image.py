@@ -253,7 +253,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        return self._A.shape[:2]
+        if isinstance(self.norm, mcolors.BivariateNorm):
+            imshape = self._A.shape[1:]
+        else:
+            imshape = self._A.shape[:2]
+        return imshape
 
     def set_alpha(self, alpha):
         """
@@ -300,6 +304,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         `trans` is the affine transformation from the image to pixel
         space.
         """
+        if isinstance(self.norm, mcolors.BivariateNorm):
+            imwidth = A.shape[1]
+            imheight = A.shape[2]
+        else:
+            imwidth = A.shape[0]
+            imheight = A.shape[1]
         if A is None:
             raise RuntimeError('You must first set the image '
                                'array or the image attribute')
@@ -323,15 +333,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             # Flip the input image using a transform.  This avoids the
             # problem with flipping the array, which results in a copy
             # when it is converted to contiguous in the C wrapper
-            t0 = Affine2D().translate(0, -A.shape[0]).scale(1, -1)
+            t0 = Affine2D().translate(0, -imwidth).scale(1, -1)
         else:
             t0 = IdentityTransform()
 
         t0 += (
             Affine2D()
             .scale(
-                in_bbox.width / A.shape[1],
-                in_bbox.height / A.shape[0])
+                in_bbox.width / imheight,
+                in_bbox.height / imwidth)
             .translate(in_bbox.x0, in_bbox.y0)
             + self.get_transform())
 
@@ -362,9 +372,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if A.ndim not in (2, 3):
                 raise ValueError("Invalid dimensions, got {}".format(A.shape))
 
-            if A.ndim == 2:
-                if not isinstance(self.norm, mcolors.BivariateNorm):
-                    A = self.norm(A)
+            if A.ndim == 2 or (A.ndim == 3 and
+                               isinstance(self.norm, mcolors.BivariateNorm)):
+                A = self.norm(A)
                 if A.dtype.kind == 'f':
                     # If the image is greyscale, convert to RGBA and
                     # use the extra channels for resizing the over,
@@ -372,7 +382,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # Agg's resampler is very aggressive about
                     # clipping to [0, 1] and we use out-of-bounds
                     # values to carry the over/under/bad information
-                    rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
+                    rgba = np.empty((imwidth, imheight, 4), dtype=A.dtype)
                     rgba[..., 0] = A  # normalized data
                     # this is to work around spurious warnings coming
                     # out of masked arrays.
@@ -411,9 +421,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
             if not created_rgba_mask:
                 # Always convert to RGBA, even if only RGB input
+                isBivari = (A.ndim == 2 and A.shape[0] == 2)
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
-                elif A.shape[2] != 4:
+                elif A.shape[2] != 4 and not isBivari:
                     raise ValueError("Invalid dimensions, got %s" % (A.shape,))
 
                 output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
@@ -596,8 +607,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 not np.can_cast(self._A.dtype, float, "same_kind")):
             raise TypeError("Image data cannot be converted to float")
 
-        if not (self._A.ndim == 2
-                or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
+        isRGB = (self._A.ndim == 3 and self._A.shape[-1] in [3, 4])
+        isBivari = (self._A.ndim == 3 and self._A.shape[0] == 2)
+        if not (self._A.ndim == 2 or isRGB or isBivari):
             raise TypeError("Invalid dimensions for image data")
 
         self._imcache = None

@@ -177,7 +177,6 @@ def subplot_class_factory(axes_class=None):
                          (SubplotBase, axes_class),
                          {'_axes_class': axes_class})
         _subplot_classes[axes_class] = new_class
-
     return new_class
 
 # This is provided for backward compatibility
