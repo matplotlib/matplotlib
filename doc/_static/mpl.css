@@ -710,6 +710,30 @@ figcaption {
   text-align: center;
 }
 
+/* "Go to released version" message. */
+#unreleased-message {
+  background: #d62728;
+  box-sizing: border-box;
+  color: #fff;
+  font-weight: bold;
+  left: 0;
+  min-height: 3em;
+  padding: 0.5em;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+}
+
+#unreleased-message + div {
+  margin-top: 3em;
+}
+
+#unreleased-message a {
+  color: #fff;
+  text-decoration:underline;
+}
+
 /* Fork me on GitHub "button" */
 #forkongithub a{
   background:#FF7F0E;
