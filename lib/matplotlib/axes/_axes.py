@@ -5870,10 +5870,10 @@ or tuple of floats
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    def hist(self, x, bins=None, range=None, normed=False, weights=None,
+    def hist(self, x, bins=None, range=None, density=None, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False,
+             color=None, label=None, stacked=False, normed=None,
              **kwargs):
         """
         Plot a histogram.
@@ -5918,7 +5918,10 @@ or tuple of floats
 
             Default is ``None``
 
-        normed : boolean, optional
+        normed, density : boolean, optional
+            Either the 'normed' or the 'density' arg can be set to
+            accomplish this behavior:
+
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
@@ -5927,24 +5930,31 @@ or tuple of floats
             of observations. If `stacked` is also `True`, the sum of the
             histograms is normalized to 1.
 
-            Default is ``False``
+            Default is ``None`` for both 'normed' and 'density.' If either is
+            set, then that value will be used. If neither are set, then the args
+            will be treated as 'False.'
+
+            If both are set to different things, the hist function raises an
+            error.
 
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
             only contributes its associated weight towards the bin count
-            (instead of 1).  If `normed` is True, the weights are normalized,
-            so that the integral of the density over the range remains 1.
+            (instead of 1).  If `normed` or 'density' is True,
+            the weights are normalized, so that the integral of the density
+            over the range remains 1.
 
             Default is ``None``
 
         cumulative : boolean, optional
             If `True`, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints.  If `normed` is also `True`
-            then the histogram is normalized such that the last bin equals 1.
-            If `cumulative` evaluates to less than 0 (e.g., -1), the direction
-            of accumulation is reversed.  In this case, if `normed` is also
-            `True`, then the histogram is normalized such that the first bin
+            gives the total number of datapoints. If `normed` or 'density'
+            is also `True` then the histogram is normalized such that the last
+            bin equals 1. If `cumulative` evaluates to less than 0 (e.g., -1),
+            the direction of accumulation is reversed.  In this case, if
+            `normed` and/or 'density' is also `True`, then the histogram is
+            normalized such that the first bin
             equals 1.
 
             Default is ``False``
@@ -6027,12 +6037,13 @@ or tuple of floats
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram bins. See **normed** and **weights**
-            for a description of the possible semantics. If input **x** is an
-            array, then this is an array of length **nbins**. If input is a
-            sequence arrays ``[data1, data2,..]``, then this is a list of
-            arrays with the values of the histograms for each of the arrays
-            in the same order.
+            The values of the histogram bins. See **normed or density**
+            and **weights** for a description of the possible semantics.
+            If input **x** is an array, then this is an array of length
+            **nbins**. If input is a sequence arrays
+            ``[data1, data2,..]``, then this is a list of arrays with
+            the values of the histograms for each of the arrays in the
+            same order.
 
         bins : array
             The edges of the bins. Length nbins + 1 (nbins left edges and right
@@ -6059,6 +6070,51 @@ or tuple of floats
         earlier numpy versions.
 
         """
+        
+        # Sets the density variable, if necessary, to its predecessor, 'normed.'
+        if density is not None and normed is not None:
+            raise ValueError('The density and normed arguments represent the '
+                             'same concept. Please set only one of them.')
+        elif normed is not None and density is None:
+            density = normed
+        elif normed is None and density is None:
+            density = False
+
+        def _normalize_input(inp, ename='input'):
+            """Normalize 1 or 2d input into list of np.ndarray or
+            a single 2D np.ndarray.
+
+            Parameters
+            ----------
+            inp : iterable
+            ename : str, optional
+                Name to use in ValueError if `inp` can not be normalized
+
+            """
+            if (isinstance(x, np.ndarray) or
+                    not iterable(cbook.safe_first_element(inp))):
+                # TODO: support masked arrays;
+                inp = np.asarray(inp)
+                if inp.ndim == 2:
+                    # 2-D input with columns as datasets; switch to rows
+                    inp = inp.T
+                elif inp.ndim == 1:
+                    # new view, single row
+                    inp = inp.reshape(1, inp.shape[0])
+                else:
+                    raise ValueError(
+                        "{ename} must be 1D or 2D".format(ename=ename))
+                if inp.shape[1] < inp.shape[0]:
+                    warnings.warn(
+                        '2D hist input should be nsamples x nvariables;\n '
+                        'this looks transposed '
+                        '(shape is %d x %d)' % inp.shape[::-1])
+            else:
+                # multiple hist with data of different length
+                inp = [np.asarray(xi) for xi in inp]
+
+            return inp
+
         # Avoid shadowing the builtin.
         bin_range = range
         del range
@@ -6153,7 +6209,7 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if normed and not stacked:
+            if density and not stacked:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
             if stacked:
@@ -6163,7 +6219,7 @@ or tuple of floats
                 mlast[:] = m
             n.append(m)
 
-        if stacked and normed:
+        if stacked and density:
             db = np.diff(bins)
             for m in n:
                 m[:] = (m.astype(float) / db) / n[-1].sum()
@@ -6172,7 +6228,7 @@ or tuple of floats
             if cbook.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
-            if normed:
+            if density:
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
@@ -6259,8 +6315,9 @@ or tuple of floats
                 # Setting a minimum of 0 results in problems for log plots
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
-                elif normed or weights is not None:
-                    # For normed data, set to minimum data value / logbase
+                elif density or weights is not None:
+                    # For data that is normed to form a probability density,
+                    # set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase

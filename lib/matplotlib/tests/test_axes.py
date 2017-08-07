@@ -2776,6 +2776,17 @@ def test_hist_stacked_normed():
     ax.hist((d1, d2), stacked=True, normed=True)
 
 
+def test_hist_stacked_density():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig, ax = plt.subplots()
+    ax.hist((d1, d2), stacked=True, density=True)
+
+    with pytest.raises(ValueError):
+        ax.hist((d1, d2), stacked=True, density=True, normed=False)
+
+
 @image_comparison(baseline_images=['hist_step_bottom'], extensions=['png'],
                   remove_text=True)
 def test_hist_step_bottom():
