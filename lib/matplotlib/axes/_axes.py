@@ -91,7 +91,6 @@ def _plot_args_replacer(args, data):
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
 
-
 class Axes(_AxesBase):
     """
     The :class:`Axes` contains most of the figure elements:
@@ -5870,10 +5869,10 @@ or tuple of floats
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    def hist(self, x, bins=None, range=None, normed=False, weights=None,
+    def hist(self, x, bins=None, range=None, density=None, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False,
+             color=None, label=None, stacked=False, normed=None,
              **kwargs):
         """
         Plot a histogram.
@@ -5897,11 +5896,11 @@ or tuple of floats
             arrays which are not required to be of the same length
 
         bins : integer or array_like or 'auto', optional
-            If an integer is given, `bins + 1` bin edges are returned,
+            If an integer is given, ``bins + 1`` bin edges are returned,
             consistently with :func:`numpy.histogram` for numpy version >=
             1.3.
 
-            Unequally spaced bins are supported if `bins` is a sequence.
+            Unequally spaced bins are supported if *bins* is a sequence.
 
             If Numpy 1.11 is installed, may also be ``'auto'``.
 
@@ -5909,43 +5908,48 @@ or tuple of floats
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
-            are ignored. If not provided, `range` is (x.min(), x.max()). Range
-            has no effect if `bins` is a sequence.
+            are ignored. If not provided, *range* is ``(x.min(), x.max())``.
+            Range has no effect if *bins* is a sequence.
 
-            If `bins` is a sequence or `range` is specified, autoscaling
+            If *bins* is a sequence or *range* is specified, autoscaling
             is based on the specified bin range instead of the
             range of x.
 
             Default is ``None``
 
-        normed : boolean, optional
-            If `True`, the first element of the return tuple will
+        density : boolean, optional
+            If ``True``, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
-            This is achieved dividing the count by the number of observations
-            times the bin width and *not* dividing by the total number
-            of observations. If `stacked` is also `True`, the sum of the
-            histograms is normalized to 1.
+            This is achieved by dividing the count by the number of
+            observations times the bin width and not dividing by the total
+            number of observations. If *stacked* is also ``True``, the sum of
+            the histograms is normalized to 1.
 
-            Default is ``False``
+            Default is ``None`` for both *normed* and *density*. If either is
+            set, then that value will be used. If neither are set, then the
+            args will be treated as ``False``.
+
+            If both *density* and *normed* are set an error is raised.
 
         weights : (n, ) array_like or None, optional
-            An array of weights, of the same shape as `x`.  Each value in `x`
+            An array of weights, of the same shape as *x*.  Each value in *x*
             only contributes its associated weight towards the bin count
-            (instead of 1).  If `normed` is True, the weights are normalized,
-            so that the integral of the density over the range remains 1.
+            (instead of 1).  If *normed* or *density* is ``True``,
+            the weights are normalized, so that the integral of the density
+            over the range remains 1.
 
             Default is ``None``
 
         cumulative : boolean, optional
-            If `True`, then a histogram is computed where each bin gives the
+            If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints.  If `normed` is also `True`
-            then the histogram is normalized such that the last bin equals 1.
-            If `cumulative` evaluates to less than 0 (e.g., -1), the direction
-            of accumulation is reversed.  In this case, if `normed` is also
-            `True`, then the histogram is normalized such that the first bin
-            equals 1.
+            gives the total number of datapoints. If *normed* or *density*
+            is also ``True`` then the histogram is normalized such that the
+            last bin equals 1. If *cumulative* evaluates to less than 0
+            (e.g., -1), the direction of accumulation is reversed.
+            In this case, if *normed* and/or *density* is also ``True``, then
+            the histogram is normalized such that the first bin equals 1.
 
             Default is ``False``
 
@@ -5991,22 +5995,23 @@ or tuple of floats
 
         rwidth : scalar or None, optional
             The relative width of the bars as a fraction of the bin width.  If
-            `None`, automatically compute the width.
+            ``None``, automatically compute the width.
 
-            Ignored if `histtype` is 'step' or 'stepfilled'.
+            Ignored if *histtype* is 'step' or 'stepfilled'.
 
             Default is ``None``
 
         log : boolean, optional
-            If `True`, the histogram axis will be set to a log scale. If `log`
-            is `True` and `x` is a 1D array, empty bins will be filtered out
-            and only the non-empty (`n`, `bins`, `patches`) will be returned.
+            If ``True``, the histogram axis will be set to a log scale. If
+            *log* is ``True`` and *x* is a 1D array, empty bins will be
+            filtered out and only the non-empty ``(n, bins, patches)``
+            will be returned.
 
             Default is ``False``
 
         color : color or array_like of colors or None, optional
             Color spec or sequence of color specs, one per dataset.  Default
-            (`None`) uses the standard line color sequence.
+            (``None``) uses the standard line color sequence.
 
             Default is ``None``
 
@@ -6018,8 +6023,8 @@ or tuple of floats
             default is ``None``
 
         stacked : boolean, optional
-            If `True`, multiple data are stacked on top of each other If
-            `False` multiple data are aranged side by side if histtype is
+            If ``True``, multiple data are stacked on top of each other If
+            ``False`` multiple data are aranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
 
             Default is ``False``
@@ -6027,12 +6032,13 @@ or tuple of floats
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram bins. See **normed** and **weights**
-            for a description of the possible semantics. If input **x** is an
-            array, then this is an array of length **nbins**. If input is a
-            sequence arrays ``[data1, data2,..]``, then this is a list of
-            arrays with the values of the histograms for each of the arrays
-            in the same order.
+            The values of the histogram bins. See *normed* or *density*
+            and *weights* for a description of the possible semantics.
+            If input *x* is an array, then this is an array of length
+            *nbins*. If input is a sequence arrays
+            ``[data1, data2,..]``, then this is a list of arrays with
+            the values of the histograms for each of the arrays in the
+            same order.
 
         bins : array
             The edges of the bins. Length nbins + 1 (nbins left edges and right
@@ -6054,8 +6060,8 @@ or tuple of floats
         Notes
         -----
         Until numpy release 1.5, the underlying numpy histogram function was
-        incorrect with `normed`=`True` if bin sizes were unequal.  MPL
-        inherited that error.  It is now corrected within MPL when using
+        incorrect with ``normed=True`` if bin sizes were unequal.  MPL
+        inherited that error. It is now corrected within MPL when using
         earlier numpy versions.
 
         """
@@ -6086,6 +6092,12 @@ or tuple of floats
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
+
+        if density is not None and normed is not None:
+            raise ValueError("kwargs 'density' and 'normed' cannot be used "
+                             "simultaneously. "
+                             "Please only use 'density', since 'normed'"
+                             "will be deprecated.")
 
         # process the unit information
         self._process_unit_info(xdata=x, kwargs=kwargs)
@@ -6138,11 +6150,11 @@ or tuple of floats
                     xmin = min(xmin, xi.min())
                     xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
-
-        # hist_kwargs = dict(range=range, normed=bool(normed))
-        # We will handle the normed kwarg within mpl until we
-        # get to the point of requiring numpy >= 1.5.
-        hist_kwargs = dict(range=bin_range)
+        density = bool(density) or bool(normed)
+        if density and not stacked:
+            hist_kwargs = dict(range=bin_range, density=density)
+        else:
+            hist_kwargs = dict(range=bin_range)
 
         n = []
         mlast = None
@@ -6153,7 +6165,7 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if normed and not stacked:
+            if density and not stacked:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
             if stacked:
@@ -6163,7 +6175,7 @@ or tuple of floats
                 mlast[:] = m
             n.append(m)
 
-        if stacked and normed:
+        if stacked and density:
             db = np.diff(bins)
             for m in n:
                 m[:] = (m.astype(float) / db) / n[-1].sum()
@@ -6172,7 +6184,7 @@ or tuple of floats
             if cbook.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
-            if normed:
+            if density:
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
@@ -6259,13 +6271,15 @@ or tuple of floats
                 # Setting a minimum of 0 results in problems for log plots
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
-                elif normed or weights is not None:
-                    # For normed data, set to minimum data value / logbase
+                elif density or weights is not None:
+                    # For data that is normed to form a probability density,
+                    # set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
-                    # For non-normed data, set the min to 1 / log base,
+                    # For non-normed (density = False) data,
+                    # set the min to 1 / log base,
                     # again so that there is 1 full tick-label unit
                     # for the lowest bin
                     minimum = 1.0 / logbase
