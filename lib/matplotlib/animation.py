@@ -1562,13 +1562,14 @@ class FuncAnimation(TimedAnimation):
             self.save_count = frames
 
         # If we're passed in and using the default, set it to 100.
-        if self.save_count is None:
-            self.save_count = 100
         # itertools.islice can return an error when passed a numpy int instead
         # of a native python int. This is a known issue:
         # http://bugs.python.org/issue30537
         # As a workaround, enforce conversion to native python int.
-        self.save_count = int(self.save_count)
+        if self.save_count is None:
+            self.save_count = 100
+        else:
+            self.save_count = int(self.save_count)
 
         self._init_func = init_func
 
