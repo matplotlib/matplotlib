@@ -12,29 +12,26 @@ show some examples to accomplish this with Matplotlib.
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
+x = [1, 2, 3, 4, 5]
+y1 = [1, 1, 2, 3, 5]
+y2 = [0, 4, 2, 6, 8]
+y3 = [1, 3, 5, 7, 9]
 
+y = np.vstack([y1, y2, y3])
 
-def fnx():
-    return np.random.randint(5, 50, 10)
+labels = ["Fibonacci ", "Evens", "Odds"]
 
-
-y = np.row_stack((fnx(), fnx(), fnx()))
-x = np.arange(10)
-
-y1, y2, y3 = fnx(), fnx(), fnx()
+fig, ax = plt.subplots()
+ax.stackplot(x, y1, y2, y3, labels=labels)
+ax.legend(loc=2)
+plt.show()
 
 fig, ax = plt.subplots()
 ax.stackplot(x, y)
 plt.show()
 
-fig, ax = plt.subplots()
-ax.stackplot(x, y1, y2, y3)
-plt.show()
-
 ###############################################################################
-# Here we'll show a slightly more complex example.
+# Here we show an example of making a streamgraph using stackplot
 
 
 def layers(n, m):
