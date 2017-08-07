@@ -19,7 +19,7 @@ y3 = [1, 3, 5, 7, 9]
 
 y = np.vstack([y1, y2, y3])
 
-labels = ["fib", "evens", "odds"]
+labels = ["Fibonacci ", "Evens", "Odds"]
 
 fig, ax = plt.subplots()
 ax.stackplot(x, y1, y2, y3, labels=labels)
