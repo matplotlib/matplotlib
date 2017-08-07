@@ -136,7 +136,7 @@ import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
 
-__all__ = ('date2num', 'num2date', 'drange', 'epoch2num',
+__all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
@@ -404,6 +404,38 @@ def num2date(x, tz=None):
         if not x.size:
             return x
         return _from_ordinalf_np_vectorized(x, tz).tolist()
+
+
+def _ordinalf_to_timedelta(x):
+    return datetime.timedelta(days=x)
+
+
+_ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
+
+
+def num2timedelta(x):
+    """
+    Converts number of days to a :class:`timdelta` object.
+    If *x* is a sequence, a sequence of :class:`timedelta` objects will
+    be returned.
+
+    Parameters
+    ----------
+    x : float, sequence of floats
+        Number of days (fraction part represents hours, minutes, seconds)
+
+    Returns
+    -------
+    :class:`timedelta` or list[:class:`timedelta`]
+
+    """
+    if not cbook.iterable(x):
+        return _ordinalf_to_timedelta(x)
+    else:
+        x = np.asarray(x)
+        if not x.size:
+            return x
+        return _ordinalf_to_timedelta_np_vectorized(x).tolist()
 
 
 def drange(dstart, dend, delta):
