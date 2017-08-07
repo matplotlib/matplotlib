@@ -26,6 +26,8 @@ from matplotlib import __version__ as _mpl_version
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
+# import matplotlib._traits.artist as martist
+# from matplotlib._traits.artist import Artist, allow_rasterization
 
 import matplotlib.cbook as cbook
 

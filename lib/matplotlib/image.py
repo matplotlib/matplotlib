@@ -19,6 +19,10 @@ import numpy as np
 from matplotlib import rcParams
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
+
+# import matplotlib._traits.artist as artist
+# from matplotlib._traits.artist import allow_rasterization
+
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook

@@ -23,6 +23,9 @@ from six.moves import xrange, zip
 import warnings
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
+# import matplotlib._traits.artist as martist
+# from matplotlib._traits.artist import allow_rasterization
+
 import matplotlib.text as mtext
 import matplotlib.path as mpath
 import numpy as np

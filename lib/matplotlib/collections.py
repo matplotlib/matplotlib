@@ -26,8 +26,12 @@ import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 from matplotlib import docstring
 import matplotlib.transforms as transforms
+
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
+# import matplotlib._traits.artist as artist
+# from matplotlib._traits.artist import allow_rasterization
+
 import matplotlib.path as mpath
 from matplotlib import _path
 import matplotlib.mlab as mlab

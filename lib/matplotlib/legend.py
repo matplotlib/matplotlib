@@ -34,6 +34,9 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
+# import matplotlib._traits.artist as artist
+# from matplotlib._traits.artist import Artist, allow_rasterization
+
 from matplotlib.cbook import silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D

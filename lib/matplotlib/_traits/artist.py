@@ -140,22 +140,22 @@ class Artist(HasTraits, _artist.Artist):
     # sticky_edges = _XYPair()
     # print("sticky_edges class _XYPair tester: ", sticky_edges)
 
-    #rectangle instance for testing purposes
-    rectangle = Instance(Rectangle, allow_none=True, default_value=None)
-    #stale default
-    @default("rectangle")
-    def _rectangle_default(self):
-        print("generating default stale value")
-        return None
-    #stale validate: reference @stale.setter
-    @validate("rectangle")
-    def _rectangle_validate(self, proposal):
-        print("rectangle: cross validating %r" % proposal.value)
-        return proposal.value
-    #stale observer
-    @observe("rectangle", type="change")
-    def _rectangle_observe(self, change):
-        print("rectangle: observed a change from %r to %r" % (change.old, change.new))
+    # #rectangle instance for testing purposes
+    # rectangle = Instance(Rectangle, allow_none=True, default_value=None)
+    # #stale default
+    # @default("rectangle")
+    # def _rectangle_default(self):
+    #     print("generating default rectangle value")
+    #     return None
+    # #stale validate: reference @stale.setter
+    # @validate("rectangle")
+    # def _rectangle_validate(self, proposal):
+    #     print("rectangle: cross validating %r" % proposal.value)
+    #     return proposal.value
+    # #stale observer
+    # @observe("rectangle", type="change")
+    # def _rectangle_observe(self, change):
+    #     print("rectangle: observed a change from %r to %r" % (change.old, change.new))
 
     #stale default
     @default("stale")

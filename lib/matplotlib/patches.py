@@ -14,6 +14,10 @@ import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
+
+# import matplotlib._traits.artist as artist
+# from matplotlib._traits.artist import allow_rasterization
+
 import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms

@@ -18,6 +18,10 @@ from matplotlib import cbook
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import Artist
+
+# import matplotlib._traits.artist as artist
+# from matplotlib._traits.artist import Artist
+
 from matplotlib.cbook import maxdict
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties

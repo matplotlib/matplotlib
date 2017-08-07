@@ -25,8 +25,13 @@ from numpy import ma
 import matplotlib.collections as mcollections
 import matplotlib.transforms as transforms
 import matplotlib.text as mtext
+
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
+
+# import matplotlib._traits.artist as martist
+# from matplotlib._traits.artist import allow_rasterization
+
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook

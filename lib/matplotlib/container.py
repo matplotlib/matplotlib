@@ -5,6 +5,8 @@ import six
 
 import matplotlib.cbook as cbook
 import matplotlib.artist as martist
+# import matplotlib._traits.artist as martist
+
 
 
 class Container(tuple):

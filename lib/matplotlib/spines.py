@@ -7,6 +7,10 @@ import matplotlib
 
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
+
+# import matplotlib._traits.artist as martist
+# from matplotlib._traits.artist import allow_rasterization
+
 from matplotlib import docstring
 import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines

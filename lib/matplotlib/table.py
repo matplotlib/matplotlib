@@ -29,6 +29,10 @@ import warnings
 
 from . import artist
 from .artist import Artist, allow_rasterization
+
+# from matplotlib._traits.artist import artist
+# from matplotlib._traits.artist import Artist, allow_rasterization
+
 from .patches import Rectangle
 from matplotlib import docstring
 from .text import Text
