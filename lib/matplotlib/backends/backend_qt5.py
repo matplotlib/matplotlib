@@ -182,8 +182,13 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                # QtCore.Qt.XButton2: None,
                }
 
+    def _update_figure_dpi(self):
+        dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
+
     def __init__(self, figure):
         _create_qApp()
+        figure._original_dpi = figure.dpi
 
         # NB: Using super for this call to avoid a TypeError:
         # __init__() takes exactly 2 arguments (1 given) on QWidget
@@ -192,6 +197,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # http://pyqt.sourceforge.net/Docs/PyQt5/pyqt4_differences.html#cooperative-multi-inheritance
         super(FigureCanvasQT, self).__init__(figure=figure)
         self.figure = figure
+        self._update_figure_dpi()
+
         self.setMouseTracking(True)
         w, h = self.get_width_height()
         self.resize(w, h)
