@@ -1543,7 +1543,7 @@ class FuncAnimation(TimedAnimation):
         # Amount of framedata to keep around for saving movies. This is only
         # used if we don't know how many frames there will be: in the case
         # of no generator or in the case of a callable.
-
+        self.save_count = save_count
         # Set up a function that creates a new iterable when needed. If nothing
         # is passed in for frames, just use itertools.count, which will just
         # keep counting from 0. A callable passed in for frames is assumed to
@@ -1561,11 +1561,11 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = lambda: iter(xrange(frames))
             self.save_count = frames
 
-        # If we're passed in and using the default, set it to 100.
+        # If we're passed in and using the default, set save_count to 100.
         # itertools.islice can return an error when passed a numpy int instead
         # of a native python int. This is a known issue:
         # http://bugs.python.org/issue30537
-        # As a workaround, enforce conversion to native python int.
+        # As a workaround, enforce conversion of save_count to native python int.
         if self.save_count is None:
             self.save_count = 100
         else:
