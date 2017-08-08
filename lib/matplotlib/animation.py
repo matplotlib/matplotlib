@@ -1565,7 +1565,7 @@ class FuncAnimation(TimedAnimation):
         # itertools.islice can return an error when passed a numpy int instead
         # of a native python int. This is a known issue:
         # http://bugs.python.org/issue30537
-        # As a workaround, enforce conversion of save_count to native python int.
+        # As a workaround, enforce conversion of save_count to native python int
         if self.save_count is None:
             self.save_count = 100
         else:
