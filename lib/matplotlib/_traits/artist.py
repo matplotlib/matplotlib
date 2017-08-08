@@ -625,13 +625,13 @@ class Artist(HasTraits, b_artist.Artist):
     #sketch validate
     @validate("sketch")
     def _sketch_validate(self, proposal):
-        print("sketch: cross validating %r" % proposal.value)
-        if proposal.scale is None:
+        print("sketch: cross validating %r, %r, %r" % (proposal.value[0], proposal.value[1], proposal.value[2]))
+        if proposal.value[0] is None:
             return None
         else:
             #(scale, length or 128.0, randomness or 16.0)
             #not sure if this is how to go about this?
-            return (proposal.scale, proposal.length or 128.0, proposal.randomness or 16.0)
+            return (proposal.value[0], proposal.value[1] or 128.0, proposal.value[2] or 16.0)
         # return proposal.value
     #sketch observer
     @observe("sketch", type="change")
@@ -674,7 +674,7 @@ class Artist(HasTraits, b_artist.Artist):
     #sticky_edges validate
     @validate("sticky_edges")
     def _sticky_edges_validate(self, proposal):
-        print("sticky_edges: cross validating %r" % proposal.value)
+        print("sticky_edges: cross validating %r, %r" % (proposal.value[0], proposal.value[1]))
         return proposal.value
     #sticky_edges observer
     @observe("sticky_edges", type="change")
