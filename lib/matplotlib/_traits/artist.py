@@ -15,7 +15,9 @@ import inspect
 import numpy as np
 import matplotlib
 #original artist base class
-import matplotlib.artist as _artist
+import matplotlib.artist as b_artist
+print('matplotlib.artist b_artist: ', b_artist)
+
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
@@ -30,7 +32,7 @@ from matplotlib.figure import Figure
 
 
 from matplotlib.patches import Rectangle, Patch
-print("imported Ractangle successfully")
+print("imported Ractangle & Patch successfully")
 
 from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe, Any
 # from traitlets import Callable
@@ -84,7 +86,7 @@ def allow_rasterization(draw):
 
 
 #class Artist(_artist.Artist)
-class Artist(HasTraits, _artist.Artist):
+class Artist(HasTraits, b_artist.Artist):
 
     aname=Unicode('Artist')
     zorder=Int(default_value=0)
@@ -139,23 +141,6 @@ class Artist(HasTraits, _artist.Artist):
     sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
     # sticky_edges = _XYPair()
     # print("sticky_edges class _XYPair tester: ", sticky_edges)
-
-    # #rectangle instance for testing purposes
-    # rectangle = Instance(Rectangle, allow_none=True, default_value=None)
-    # #stale default
-    # @default("rectangle")
-    # def _rectangle_default(self):
-    #     print("generating default rectangle value")
-    #     return None
-    # #stale validate: reference @stale.setter
-    # @validate("rectangle")
-    # def _rectangle_validate(self, proposal):
-    #     print("rectangle: cross validating %r" % proposal.value)
-    #     return proposal.value
-    # #stale observer
-    # @observe("rectangle", type="change")
-    # def _rectangle_observe(self, change):
-    #     print("rectangle: observed a change from %r to %r" % (change.old, change.new))
 
     #stale default
     @default("stale")
@@ -340,7 +325,6 @@ class Artist(HasTraits, _artist.Artist):
         print("called self.pchanged()")
         self.stale = True
         print("set stale: %r" % self.stale)
-
 
     #clipbox default
     @default("clipbox")
@@ -634,7 +618,10 @@ class Artist(HasTraits, _artist.Artist):
     @default("sketch")
     def _sketch_default(self):
         print("generating default sketch value")
-        return rcParams['path.sketch']
+        # print('rcParams[path.sketch]: ', rcParams['path.sketch'])
+        # return rcParams['path.sketch']
+        # return None
+        return (0.0, 0.0, 0.0)
     #sketch validate
     @validate("sketch")
     def _sketch_validate(self, proposal):
@@ -695,39 +682,40 @@ class Artist(HasTraits, _artist.Artist):
         print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
 
     #ARTIST FUNCTIONS
-    #
-    # def __init__(self):
-    #     print("__init__ Artist function")
-    #     self.stale = True
-    #     self.stale_callback = None
-    #     self.axes = None
-    #     self.figure = None
-    #     self.transform = None
-    #     self.transformSet = False
-    #     self.visible = True
-    #     self.animated = False
-    #     self.alpha = None
-    #     self.clipbox = None
-    #     self.clippath = None
-    #     self.clipon = True
-    #     self.label = ''
-    #     self.picker = None
-    #     self.contains = None
-    #     self.rasterized = None
-    #     self.agg_filter = None
-    #     self.mouseover = False
-    #     self.eventson = False
-    #     self.oid = 0
-    #     self.remove_method = None
-    #     self.url = None
-    #     self.gid = None
-    #     self.snap = None
-    #     self.sketch = rcParams['path.sketch']
-    #     self.path_effects = rcParams['path.effects']
-    #     self.sticky_edges = ([],[])
-    #
 
-    #
+    def __init__(self):
+        self.aname
+        self.zorder
+        self.prop_order
+        self.stale
+        self.stale_callback
+        self.axes
+        self.figure
+        self.transform
+        self.transformSet
+        self.visible
+        self.animated
+        self.alpha
+        self.clipbox
+        self.clippath
+        self.clipon
+        self.label
+        self.picker
+        self.contains
+        self.rasterized
+        self.agg_filter
+        self.mouseover
+        self.eventson
+        self.oid
+        self.propobservers
+        self.remove_method
+        self.url
+        self.gid
+        self.snap
+        self.sketch
+        self.path_effects
+        self.sticky_edges
+
     # def __getstate__(self):
         # d = self.__dict__.copy()
         # # remove the unpicklable remove method, this will get re-added on load
@@ -1059,8 +1047,7 @@ class Artist(HasTraits, _artist.Artist):
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
 
-
-
-
+print('b_artist.Artist: ', b_artist.Artist)
 #monkey patching
-_artist.Artist = Artist
+b_artist.Artist = Artist
+print('traits: b_artist.Artist: ', b_artist.Artist)

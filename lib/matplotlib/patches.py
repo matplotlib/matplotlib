@@ -12,11 +12,15 @@ import math
 import matplotlib as mpl
 import numpy as np
 import matplotlib.cbook as cbook
+
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 
-# import matplotlib._traits.artist as artist
+# import matplotlib._traits
+# import matplotlib._traits.artist as t_artist
+# import matplotlib._traits.artist
 # from matplotlib._traits.artist import allow_rasterization
+# from matplotlib._traits.artist import *
 
 import matplotlib.colors as colors
 from matplotlib import docstring
@@ -106,6 +110,10 @@ class Patch(artist.Artist):
         %(Patch)s
         """
         artist.Artist.__init__(self)
+        print('matplotlib.patches.Patch artist.Artist: ', artist.Artist)
+
+        # t_artist.Artist.__init__(self)
+        # print('matplotlib._traits.artist: ', t_artist.Artist)
 
         if linewidth is None:
             linewidth = mpl.rcParams['patch.linewidth']

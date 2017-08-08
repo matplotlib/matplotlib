@@ -18,8 +18,12 @@ from .path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-
-# rcParams = matplotlib.rcParams()
+# import matplotlib._traits
+# import matplotlib._traits.artist as artist
+# print('_traits.artist: ', artist)
+# import matplotlib._traits.artist
+# from matplotlib._traits.artist import allow_rasterization
+# from matplotlib._traits.artist import *
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every

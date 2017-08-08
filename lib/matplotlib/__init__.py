@@ -131,6 +131,7 @@ from six.moves.urllib.request import urlopen
 from six.moves import reload_module as reload
 
 import matplotlib._traits
+# import matplotlib.traits
 
 # Get the version from the _version.py versioneer file. For a git checkout,
 # this is computed based on the number of commits since the last tag.
