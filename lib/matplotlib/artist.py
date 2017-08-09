@@ -1477,3 +1477,8 @@ docstring.interpd.update(Artist=kwdoc(Artist))
 
 _get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
 axes property.  A removal date has not been set."""
+
+
+a = Artist()
+print('a: ', a)
+# print('isinstance(a,matplotlib._traits.artist.Artist): ', isinstance(a,matplotlib._traits.artist.Artist))

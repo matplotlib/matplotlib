@@ -17,10 +17,11 @@ import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 
 # import matplotlib._traits
+# print('_traits.artist', traits.artist)
 # import matplotlib._traits.artist as t_artist
-# import matplotlib._traits.artist
-# from matplotlib._traits.artist import allow_rasterization
 # from matplotlib._traits.artist import *
+# from matplotlib._traits.artist import Artist
+# print('matplotlib._traits.artist.Artist: ', Artist)
 
 import matplotlib.colors as colors
 from matplotlib import docstring

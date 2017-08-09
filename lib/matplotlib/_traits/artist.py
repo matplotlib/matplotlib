@@ -31,8 +31,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 
-from matplotlib.patches import Rectangle, Patch
-print("imported Ractangle & Patch successfully")
+
 
 from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe, Any
 # from traitlets import Callable
@@ -141,6 +140,42 @@ class Artist(HasTraits, b_artist.Artist):
     sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
     # sticky_edges = _XYPair()
     # print("sticky_edges class _XYPair tester: ", sticky_edges)
+
+
+    def __init__(self):
+        # self.aname
+        # self.zorder
+        # self.prop_order
+        self.stale
+        self.stale_callback
+        self.axes
+        self.figure
+        self.transform
+        self.transformSet
+        self.visible
+        self.animated
+        self.alpha
+        self.clipbox
+        self.clippath
+        self.clipon
+        self.label
+        self.picker
+        self.contains
+        self.rasterized
+        self.agg_filter
+        self.mouseover
+        self.eventson
+        self.oid
+        self.propobservers
+        self.remove_method
+        self.url
+        self.gid
+        self.snap
+        self.sketch
+        self.path_effects
+        self.sticky_edges
+
+
 
     #stale default
     @default("stale")
@@ -369,6 +404,9 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     def set_clip_path(self, path, transform):
+        from matplotlib.patches import Rectangle, Patch
+        print("imported Ractangle & Patch successfully")
+
         success = False
         if transform is None:
             if isinstance(path, Rectangle):
@@ -682,39 +720,39 @@ class Artist(HasTraits, b_artist.Artist):
         print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
 
     #ARTIST FUNCTIONS
-
-    def __init__(self):
-        self.aname
-        self.zorder
-        self.prop_order
-        self.stale
-        self.stale_callback
-        self.axes
-        self.figure
-        self.transform
-        self.transformSet
-        self.visible
-        self.animated
-        self.alpha
-        self.clipbox
-        self.clippath
-        self.clipon
-        self.label
-        self.picker
-        self.contains
-        self.rasterized
-        self.agg_filter
-        self.mouseover
-        self.eventson
-        self.oid
-        self.propobservers
-        self.remove_method
-        self.url
-        self.gid
-        self.snap
-        self.sketch
-        self.path_effects
-        self.sticky_edges
+    #
+    # def __init__(self):
+    #     self.aname
+    #     self.zorder
+    #     self.prop_order
+    #     self.stale
+    #     self.stale_callback
+    #     self.axes
+    #     self.figure
+    #     self.transform
+    #     self.transformSet
+    #     self.visible
+    #     self.animated
+    #     self.alpha
+    #     self.clipbox
+    #     self.clippath
+    #     self.clipon
+    #     self.label
+    #     self.picker
+    #     self.contains
+    #     self.rasterized
+    #     self.agg_filter
+    #     self.mouseover
+    #     self.eventson
+    #     self.oid
+    #     self.propobservers
+    #     self.remove_method
+    #     self.url
+    #     self.gid
+    #     self.snap
+    #     self.sketch
+    #     self.path_effects
+    #     self.sticky_edges
 
     # def __getstate__(self):
         # d = self.__dict__.copy()
@@ -953,7 +991,10 @@ class Artist(HasTraits, b_artist.Artist):
         return None, None
 
     def _set_gc_clip(self, gc):
-        'Set the clip properly for the gc'
+        print('Set the clip properly for the gc')
+        from matplotlib.patches import Rectangle, Patch
+        print('imported Ractangle & Patch successfully')
+
         if self.clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
@@ -976,15 +1017,6 @@ class Artist(HasTraits, b_artist.Artist):
     #note there is a def update_from function and I do think I need to implement
     #and observer for Artist; The update_from function is frivolous
     #I need to look into observe Artist, but I am not sure
-
-
-    # In order for this to work I need to implement ArtistInspector with respect
-    #to traitlets
-    # def properties(self):
-    #     """
-    #     return a dictionary mapping property name -> value for all Artist props
-    #     """
-    #     return ArtistInspector(self).properties()
 
     #there is a set function but I do not think I need it
 
@@ -1047,7 +1079,7 @@ class Artist(HasTraits, b_artist.Artist):
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
 
-print('b_artist.Artist: ', b_artist.Artist)
+print('b_artist.Artist: ', b_artist.Artist) #matplotlib.artist.Artist
 #monkey patching
 b_artist.Artist = Artist
-print('traits: b_artist.Artist: ', b_artist.Artist)
+print('traits: b_artist.Artist: ', b_artist.Artist) #matplotlib._traits.artist.Artist
