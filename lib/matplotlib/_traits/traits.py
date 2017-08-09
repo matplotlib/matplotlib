@@ -48,7 +48,7 @@ class Perishable(TraitProxy):
 
 class TransformTrait(TraitType):
 
-    #TO DO: pass in a transform instance & set default value
+    #TODO: pass in a transform instance & set default value
     default_value = None
     allow_none = True
     info_text = 'matplotlib.transforms.Transform'

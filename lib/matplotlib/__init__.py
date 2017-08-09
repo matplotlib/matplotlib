@@ -131,7 +131,7 @@ from six.moves.urllib.request import urlopen
 from six.moves import reload_module as reload
 
 import matplotlib._traits
-from matplotlib._traits.artist import Artist
+# from matplotlib._traits.artist import Artist
 
 
 
