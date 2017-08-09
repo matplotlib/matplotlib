@@ -429,6 +429,8 @@ or tuple of floats
             Control the alpha transparency of the legend's background.
             Default is ``None`` which will take the value from the
             ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+            If shadow is activated and framealpha is ``None`` the
+            default value is being ignored.
 
         facecolor : None or "inherit" or a color spec
             Control the legend's background color.
