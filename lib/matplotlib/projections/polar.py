@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 import numpy as np
 
+import matplotlib.artist as martist
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
@@ -248,17 +249,51 @@ class ThetaTick(maxis.XTick):
     This subclass of `XTick` provides angular ticks with some small
     modification to their re-positioning such that ticks are rotated based on
     tick location. This results in ticks that are correctly perpendicular to
-    the arc spine. Labels are also rotated to be parallel to the spine.
+    the arc spine.
+
+    Labels are also rotated to be parallel to the spine. The label padding is
+    also applied here since it's not possible to use a generic axes transform
+    to produce tick-specific padding.
     """
+    def __init__(self, axes, *args, **kwargs):
+        self._text1_translate = mtransforms.ScaledTranslation(
+            0, 0,
+            axes.figure.dpi_scale_trans)
+        self._text2_translate = mtransforms.ScaledTranslation(
+            0, 0,
+            axes.figure.dpi_scale_trans)
+        maxis.XTick.__init__(self, axes, *args, **kwargs)
+
     def _get_text1(self):
         t = maxis.XTick._get_text1(self)
         t.set_rotation_mode('anchor')
+        t.set_transform(t.get_transform() + self._text1_translate)
         return t
 
     def _get_text2(self):
         t = maxis.XTick._get_text2(self)
         t.set_rotation_mode('anchor')
+        t.set_transform(t.get_transform() + self._text2_translate)
         return t
+
+    def _apply_params(self, **kw):
+        maxis.XTick._apply_params(self, **kw)
+
+        # Ensure transform is correct; sometimes this gets reset.
+        trans = self.label1.get_transform()
+        if not trans.contains_branch(self._text1_translate):
+            self.label1.set_transform(trans + self._text1_translate)
+        trans = self.label2.get_transform()
+        if not trans.contains_branch(self._text2_translate):
+            self.label2.set_transform(trans + self._text2_translate)
+
+    def _update_padding(self, angle):
+        padx = self._pad * np.cos(angle) / 72
+        pady = self._pad * np.sin(angle) / 72
+        self._text1_translate._t = (padx, pady)
+        self._text1_translate.invalidate()
+        self._text2_translate._t = (-padx, -pady)
+        self._text2_translate.invalidate()
 
     def update_position(self, loc):
         maxis.XTick.update_position(self, loc)
@@ -292,6 +327,9 @@ class ThetaTick(maxis.XTick):
         if self.label2On:
             self.label2.set_rotation(np.rad2deg(angle) + self._labelrotation)
 
+        self._update_padding(self._loc * axes.get_theta_direction() +
+                             axes.get_theta_offset())
+
 
 class ThetaAxis(maxis.XAxis):
     """
@@ -324,6 +362,18 @@ class ThetaAxis(maxis.XAxis):
     def _set_scale(self, value, **kwargs):
         maxis.XAxis._set_scale(self, value, **kwargs)
         self._wrap_locator_formatter()
+
+    def _copy_tick_props(self, src, dest):
+        'Copy the props from src tick to dest tick'
+        if src is None or dest is None:
+            return
+        maxis.XAxis._copy_tick_props(self, src, dest)
+
+        # Ensure that tick transforms are independent so that padding works.
+        trans = dest._get_text1_transform()[0]
+        dest.label1.set_transform(trans + dest._text1_translate)
+        trans = dest._get_text2_transform()[0]
+        dest.label2.set_transform(trans + dest._text2_translate)
 
 
 class RadialLocator(mticker.Locator):
@@ -752,14 +802,7 @@ class PolarAxes(Axes):
             .translate(0.0, -0.5) \
             .scale(1.0, -1.0) \
             .translate(0.0, 0.5)
-        self._xaxis_text1_transform = (
-            flipr_transform +
-            mtransforms.Affine2D().translate(0.0, 0.1) +
-            self._xaxis_transform)
-        self._xaxis_text2_transform = (
-            flipr_transform +
-            mtransforms.Affine2D().translate(0.0, -0.1) +
-            self._xaxis_transform)
+        self._xaxis_text_transform = flipr_transform + self._xaxis_transform
 
         # This is the transform for r-axis ticks.  It scales the theta
         # axis so the gridlines from 0.0 to 1.0, now go from thetamin to
@@ -782,10 +825,10 @@ class PolarAxes(Axes):
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        return self._xaxis_text1_transform, 'bottom', 'center'
+        return self._xaxis_text_transform, 'bottom', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        return self._xaxis_text2_transform, 'top', 'center'
+        return self._xaxis_text_transform, 'top', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
