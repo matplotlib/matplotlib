@@ -655,7 +655,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
     and Recipe 1.12 in cookbook
     """
     for item in seq:
-        if scalarp(item):
+        if scalarp(item) or item is None:
             yield item
         else:
             for subitem in flatten(item, scalarp):
