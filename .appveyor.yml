@@ -24,12 +24,12 @@ environment:
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
     # one for 64bit because we construct envs anyway. But using one for the
     # right python version is hopefully making it fast due to package caching.
-    #    - TARGET_ARCH: "x64"
-    #      CONDA_PY: "27"
-    #      CONDA_NPY: "18"
-    #      PYTHON_VERSION: "2.7"
-    #      TEST_ALL: "no"
-    #      CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
+    - TARGET_ARCH: "x64"
+      CONDA_PY: "27"
+      CONDA_NPY: "18"
+      PYTHON_VERSION: "2.7"
+      TEST_ALL: "no"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
       CONDA_NPY: "110"
