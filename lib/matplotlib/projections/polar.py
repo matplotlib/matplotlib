@@ -370,6 +370,58 @@ class RadialLocator(mticker.Locator):
         return mtransforms.nonsingular(min(0, vmin), vmax)
 
 
+class _ThetaShift(mtransforms.ScaledTranslation):
+    """
+    Apply a padding shift based on axes theta limits.
+
+    This is used to create padding for radial ticks.
+
+    Parameters
+    ----------
+    axes : matplotlib.axes.Axes
+        The owning axes; used to determine limits.
+    pad : float
+        The padding to apply, in points.
+    start : str, {'min', 'max', 'rlabel'}
+        Whether to shift away from the start (``'min'``) or the end (``'max'``)
+        of the axes, or using the rlabel position (``'rlabel'``).
+    """
+    def __init__(self, axes, pad, mode):
+        mtransforms.ScaledTranslation.__init__(self, pad, pad,
+                                               axes.figure.dpi_scale_trans)
+        self.set_children(axes._realViewLim)
+        self.axes = axes
+        self.mode = mode
+        self.pad = pad
+
+    def get_matrix(self):
+        if self._invalid:
+            if self.mode == 'rlabel':
+                angle = (
+                    np.deg2rad(self.axes.get_rlabel_position()) *
+                    self.axes.get_theta_direction() +
+                    self.axes.get_theta_offset()
+                )
+            else:
+                if self.mode == 'min':
+                    angle = self.axes._realViewLim.xmin
+                elif self.mode == 'max':
+                    angle = self.axes._realViewLim.xmax
+            angle %= 2 * np.pi
+            if angle < 0:
+                angle += 2 * np.pi
+
+            if self.mode in ('rlabel', 'min'):
+                padx = np.cos(angle - np.pi / 2)
+                pady = np.sin(angle - np.pi / 2)
+            else:
+                padx = np.cos(angle + np.pi / 2)
+                pady = np.sin(angle + np.pi / 2)
+
+            self._t = (self.pad * padx / 72, self.pad * pady / 72)
+        return mtransforms.ScaledTranslation.get_matrix(self)
+
+
 class RadialTick(maxis.YTick):
     """
     A radial-axis tick.
@@ -746,17 +798,25 @@ class PolarAxes(Axes):
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
-        full = _is_full_circle_rad(thetamin, thetamax)
-        if self.get_theta_direction() > 0 or full:
-            return self._yaxis_text_transform, 'center', 'left'
+        if _is_full_circle_rad(thetamin, thetamax):
+            halign = 'left'
+            pad_shift = _ThetaShift(self, pad, 'rlabel')
+        elif self.get_theta_direction() > 0:
+            halign = 'left'
+            pad_shift = _ThetaShift(self, pad, 'min')
         else:
-            return self._yaxis_text_transform, 'center', 'right'
+            halign = 'right'
+            pad_shift = _ThetaShift(self, pad, 'max')
+        return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def get_yaxis_text2_transform(self, pad):
         if self.get_theta_direction() > 0:
-            return self._yaxis_text_transform, 'center', 'right'
+            halign = 'right'
+            pad_shift = _ThetaShift(self, pad, 'max')
         else:
-            return self._yaxis_text_transform, 'center', 'left'
+            halign = 'left'
+            pad_shift = _ThetaShift(self, pad, 'min')
+        return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def draw(self, *args, **kwargs):
         thetamin, thetamax = self._realViewLim.intervalx
