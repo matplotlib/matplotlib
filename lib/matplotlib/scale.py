@@ -358,8 +358,9 @@ class SymmetricalLogScale(ScaleBase):
            The base of the logarithm
 
         *linthreshx*/*linthreshy*:
-          The range (-*x*, *x*) within which the plot is linear (to
-          avoid having the plot go to infinity around zero).
+          A single float which defines the range (-*x*, *x*), within
+          which the plot is linear. This avoids having the plot go to
+          infinity around zero.
 
         *subsx*/*subsy*:
            Where to place the subticks between each major tick.
