@@ -3751,7 +3751,7 @@ def inside_poly(points, verts):
     # Make a closed polygon path
     poly = Path(verts)
 
-    # Check to see which points are contained withing the Path
+    # Check to see which points are contained within the Path
     return [idx for idx, p in enumerate(points) if poly.contains_point(p)]
 
 
