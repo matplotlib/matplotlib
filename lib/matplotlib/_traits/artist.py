@@ -28,7 +28,7 @@ from functools import wraps
 from contextlib import contextmanager
 
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
+
 
 
 
@@ -113,7 +113,7 @@ class Artist(HasTraits, b_artist.Artist):
     clipbox=Instance(Bbox, allow_none=True, default_value=None)
 
     # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
-    clippath = Union([Instance(TransformedPath),Instance("matplotlib.patches.Patch")], allow_none=True, default_value=None)
+    clippath = Union([Instance(TransformedPath),Instance(Patch)], allow_none=True, default_value=None)
 
     clipon=Bool(default_value=True)
     label=Unicode(allow_none=True, default_value='')
@@ -131,7 +131,7 @@ class Artist(HasTraits, b_artist.Artist):
     snap=Perishable(Bool(allow_none=True, default_value=None))
     # sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     sketch=Tuple(Float(),Float(),Float())
-    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects'])
+    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects']) #ask abotu this attribute
 
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
@@ -174,7 +174,6 @@ class Artist(HasTraits, b_artist.Artist):
         self.sketch
         self.path_effects
         self.sticky_edges
-
 
 
     #stale default
@@ -239,6 +238,9 @@ class Artist(HasTraits, b_artist.Artist):
     #figure default
     @default("figure")
     def _figure_default(self):
+        print("importing Figure here")
+        from matplotlib.figure import Figure
+        print("successfully imported Figure")
         print("generating default figure value")
         return None
     #figure validate: reference set_figure
@@ -719,49 +721,6 @@ class Artist(HasTraits, b_artist.Artist):
     def _sticky_edges_observe(self, change):
         print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
 
-    #ARTIST FUNCTIONS
-    #
-    # def __init__(self):
-    #     self.aname
-    #     self.zorder
-    #     self.prop_order
-    #     self.stale
-    #     self.stale_callback
-    #     self.axes
-    #     self.figure
-    #     self.transform
-    #     self.transformSet
-    #     self.visible
-    #     self.animated
-    #     self.alpha
-    #     self.clipbox
-    #     self.clippath
-    #     self.clipon
-    #     self.label
-    #     self.picker
-    #     self.contains
-    #     self.rasterized
-    #     self.agg_filter
-    #     self.mouseover
-    #     self.eventson
-    #     self.oid
-    #     self.propobservers
-    #     self.remove_method
-    #     self.url
-    #     self.gid
-    #     self.snap
-    #     self.sketch
-    #     self.path_effects
-    #     self.sticky_edges
-
-    # def __getstate__(self):
-        # d = self.__dict__.copy()
-        # # remove the unpicklable remove method, this will get re-added on load
-        # # (by the axes) if the artist lives on an axes.
-        # d['_remove_method'] = None
-        # d['stale_callback'] = None
-        # return d
-    #     pass
 
     def remove(self):
         """
