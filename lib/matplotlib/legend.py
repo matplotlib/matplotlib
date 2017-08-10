@@ -948,7 +948,7 @@ class Legend(Artist):
         draggable is on.
 
         The update parameter control which parameter of the legend changes
-        when dragged. If update is "loc", the *loc* paramter of the legend
+        when dragged. If update is "loc", the *loc* parameter of the legend
         is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
         is_draggable = self._draggable is not None
