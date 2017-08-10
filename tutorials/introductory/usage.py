@@ -542,24 +542,21 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     plt.title("interactive test")
 #     plt.xlabel("index")
 #
-# and you will see the plot being updated after each line.  This is
-# because you are in interactive mode *and* you are using pyplot
-# functions. Now try an alternative method of modifying the
-# plot.  Get a reference to the :class:`~matplotlib.axes.Axes` instance, and
-# call a method of that instance::
+# and you will see the plot being updated after each line.  Since version 1.5,
+# modifying the plot by other means *should* also automatically
+# update the display on most backends. Get a reference to the :class:`~matplotlib.axes.Axes` instance,
+# and call a method of that instance::
 #
 #     ax = plt.gca()
 #     ax.plot([3.1, 2.2])
 #
-# Nothing changed, because the Axes methods do not include an
-# automatic call to :func:`~matplotlib.pyplot.draw_if_interactive`;
-# that call is added by the pyplot functions.  If you are using
-# methods, then when you want to update the plot on the screen,
-# you need to call :func:`~matplotlib.pyplot.draw`::
+# If you are using certain backends (like `macosx`), or an older version
+# of matplotlib, you may not see the new line added to the plot immediately.
+# In this case, you need to explicitly call :func:`~matplotlib.pyplot.draw`
+# in order to update the plot::
 #
 #     plt.draw()
 #
-# Now you should see the new line added to the plot.
 #
 # Non-interactive example
 # -----------------------
