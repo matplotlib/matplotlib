@@ -634,3 +634,29 @@ def test_lockable_bbox(locked_element):
     assert getattr(locked, 'locked_' + locked_element) == 3
     for elem in other_elements:
         assert getattr(locked, elem) == getattr(orig, elem)
+
+
+class TestScaledTranslation(object):
+    def test_basic(self):
+        st = mtransforms.ScaledTranslation(0.5, 0.5, 3)
+        assert np.allclose(st.transform_point((0, 1)), [1.5, 2.5])
+
+    def test_with_transform(self):
+        trans = mtransforms.Affine2D()
+        st = mtransforms.ScaledTranslation(0.5, 0.5, trans)
+        assert np.allclose(st.transform_point((0, 1)), [0.5, 1.5])
+
+        # Changes to the transform should propagate.
+        trans.scale(3)
+        assert np.allclose(st.transform_point((0, 1)), [1.5, 2.5])
+
+    def test_with_bbox(self):
+        bbox = mtransforms.Bbox([[0, 0], [1, 1]])
+        st = mtransforms.ScaledTranslation((bbox, 'x0'), (bbox, 'y0'), 3)
+        assert np.allclose(st.transform_point((0, 1)), [0, 1])
+
+        # Changes to the bbox should propagate.
+        bbox.x0 = 2
+        assert np.allclose(st.transform_point((0, 1)), [6, 1])
+        bbox.y0 = 3
+        assert np.allclose(st.transform_point((0, 1)), [6, 10])

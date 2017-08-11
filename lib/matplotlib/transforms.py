@@ -2724,22 +2724,67 @@ class BboxTransformFrom(Affine2DBase):
 class ScaledTranslation(Affine2DBase):
     """
     A transformation that translates by *xt* and *yt*, after *xt* and *yt*
-    have been transformad by the given transform *scale_trans*.
+    have been transformed by the given transform *scale_trans*.
+
+    Parameters
+    ----------
+    xt, yt : number or tuple
+        If a single number, then the value of the translation *before* scaling.
+        If a tuple, then the first element is a `BboxBase` and the second
+        element is a string indicating which attribute, such as 'x0', to use as
+        the translation.
+    scale_trans : `Transform` or number or tuple
+        The transformation to be applied to the translations.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
         Affine2DBase.__init__(self, **kwargs)
-        self._t = (xt, yt)
+        if isinstance(xt, (list, tuple)):
+            if isinstance(xt[0], BboxBase) and hasattr(xt[0], xt[1]):
+                self.set_children(xt[0])
+                xt = tuple(xt)
+            else:
+                raise ValueError(
+                    "xt must be either float or (BboxBase, 'attr') tuple.")
+        if isinstance(yt, (list, tuple)):
+            if isinstance(yt[0], BboxBase) and hasattr(yt[0], yt[1]):
+                self.set_children(yt[0])
+                yt = tuple(yt)
+            else:
+                raise ValueError(
+                    "yt must be either float or (BboxBase, 'attr') tuple.")
+        self._xt = xt
+        self._yt = yt
+
+        if isinstance(scale_trans, Transform):
+            self.set_children(scale_trans)
+        elif isinstance(scale_trans, list):
+            scale_trans = tuple(scale_trans)
         self._scale_trans = scale_trans
-        self.set_children(scale_trans)
+
         self._mtx = None
         self._inverted = None
 
     def __repr__(self):
-        return "ScaledTranslation(%r)" % (self._t,)
+        return "ScaledTranslation(%r, %r)" % (self._xt, self._yt)
 
     def get_matrix(self):
         if self._invalid:
-            xt, yt = self._scale_trans.transform_point(self._t)
+            xt = self._xt
+            yt = self._yt
+            if isinstance(xt, tuple):
+                xt = getattr(xt[0], xt[1])
+            if isinstance(yt, tuple):
+                yt = getattr(yt[0], yt[1])
+
+            if isinstance(self._scale_trans, Transform):
+                xt, yt = self._scale_trans.transform_point((xt, yt))
+            elif isinstance(self._scale_trans, tuple):
+                xt *= self._scale_trans[0]
+                yt *= self._scale_trans[1]
+            else:
+                xt *= self._scale_trans
+                yt *= self._scale_trans
+
             self._mtx = np.array([[1.0, 0.0, xt],
                                   [0.0, 1.0, yt],
                                   [0.0, 0.0, 1.0]],

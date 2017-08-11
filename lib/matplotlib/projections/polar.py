@@ -467,7 +467,7 @@ class PolarAxes(Axes):
         value : number
             The angular position of the radius labels in degrees.
         """
-        self._r_label_position._t = (value, 0.0)
+        self._r_label_position._xt = value
         self._r_label_position.invalidate()
 
     def set_yscale(self, *args, **kwargs):
