@@ -19,6 +19,8 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.table import Table
+import textwrap
 import matplotlib.cbook as cbook
 
 
@@ -1020,6 +1022,68 @@ class ToolPan(ZoomPanBase):
         self.toolmanager.canvas.draw_idle()
 
 
+class HelpTool(ToolToggleBase):
+    description = 'Print tool list, shortcuts and description'
+    default_keymap = rcParams['keymap.help']
+    image = 'help.png'
+
+    def __init__(self, *args):
+        ToolToggleBase.__init__(self, *args)
+        self.text_axes = None
+
+    def enable(self, *args):
+        self.text_axes = self.figure.add_axes((0, 0, 1, 1))
+        table = Table(self.text_axes, bbox=[0, 0, 1, 1])
+        table.edges = 'B'
+        self.text_axes.add_table(table)
+        chars_in_width = self._find_chars_in_width(table.FONTSIZE)
+
+        table.auto_set_font_size(False)
+        col_chars_width = int(chars_in_width / 4) - 2
+        content = self._get_content(col_chars_width, col_chars_width,
+                                    2 * col_chars_width)
+        for i, v in enumerate(content):
+            h = v[0]
+            table.add_cell(i, 0, text=v[1], width=1, height=h, loc='left',
+                           fontproperties='monospace')
+            table.add_cell(i, 1, text=v[2], width=1, height=h, loc='left',
+                           fontproperties='monospace')
+            table.add_cell(i, 2, text=v[3], width=2, height=h, loc='left',
+                           fontproperties='monospace')
+        self.figure.canvas.draw_idle()
+
+    def _find_chars_in_width(self, fontsize):
+        """Number of characters in figure width approx"""
+        # https://web.archive.org/web/20010717031241/plainlanguagenetwork.org/type/utbo211.htmhttps://web.archive.org/web/20010717031241/plainlanguagenetwork.org/type/utbo211.htm
+        # Approximately width = 60% of height for monospace fonts
+        charwidth = 0.6 * fontsize / 72.0 * self.figure.dpi
+        figwidth = self.figure.get_figwidth() * self.figure.dpi
+        return figwidth / charwidth
+
+    def disable(self, *args):
+        self.text_axes.remove()
+        self.figure.canvas.draw_idle()
+
+    def _get_content(self, w0, w1, w2):
+        rows = [(1, 'NAME', 'KEYS', 'DESCRIPTION')]
+        tools = self.toolmanager.tools
+        for name in sorted(tools):
+            if not tools[name].description:
+                continue
+
+            keys = ', '.join(sorted(self.toolmanager.get_tool_keymap(name)))
+            name_lines = textwrap.wrap(name, w0)
+            keys_lines = textwrap.wrap(keys, w1)
+            desc_lines = textwrap.wrap(tools[name].description, w2)
+            # Height of the row is the maximum number of lines
+            height = max(len(name_lines), len(keys_lines), len(desc_lines))
+            rows.append((height,
+                         '\n'.join(name_lines),
+                         '\n'.join(keys_lines),
+                         '\n'.join(desc_lines)))
+        return rows
+
+
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': 'ToolConfigureSubplots',
@@ -1037,12 +1101,13 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  _views_positions: ToolViewsPositions,
                  'cursor': 'ToolSetCursor',
                  'rubberband': 'ToolRubberband',
+                 'help': HelpTool
                  }
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
-                         ['io', ['save']]]
+                         ['io', ['save', 'help']]]
 """Default tools in the toolbar"""
 
 
