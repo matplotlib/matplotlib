@@ -19,6 +19,7 @@ from weakref import WeakKeyDictionary
 import six
 import time
 import warnings
+import numpy as np
 
 
 class Cursors(object):
