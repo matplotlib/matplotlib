@@ -129,20 +129,11 @@ def test_RRuleLocator():
 
 
 def test_RRuleLocator_dayrange():
-    ret = 0
-
-    try:
-        loc = mdates.DayLocator()
-        x1 = datetime.datetime(year=1, month=1, day=1)
-        y1 = datetime.datetime(year=1, month=1, day=16)
-        loc.tick_values(x1, y1)
-    except OverflowError:
-       # On success, no overflow error shall be thrown
-       ret = 1
-    except:
-        pass
-    
-    assert ret == 0
+    loc = mdates.DayLocator()
+    x1 = datetime.datetime(year=1, month=1, day=1)
+    y1 = datetime.datetime(year=1, month=1, day=16)
+    loc.tick_values(x1, y1)
+    # On success, no overflow error shall be thrown
 
 
 @image_comparison(baseline_images=['DateFormatter_fractionalSeconds'],
