@@ -845,7 +845,7 @@ class RRuleLocator(DateLocator):
 
         try:
             stop = vmax + delta
-        except ValueError:
+        except (ValueError, OverflowError):
             # The magic number!
             stop = _from_ordinalf(3652059.9999999)
 
