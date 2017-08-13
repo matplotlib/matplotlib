@@ -22,12 +22,9 @@ if 1:
         PathEffects.Stroke(linewidth=5, foreground="w"),
         PathEffects.Normal()])
 
-    ax1.grid(True, linestyle="-")
-
     pe = [PathEffects.withStroke(linewidth=3,
                                  foreground="w")]
-    for l in ax1.get_xgridlines() + ax1.get_ygridlines():
-        l.set_path_effects(pe)
+    ax1.grid(True, linestyle="-", path_effects=pe)
 
     ax2 = plt.subplot(132)
     arr = np.arange(25).reshape((5, 5))

@@ -71,14 +71,10 @@ def add_polar_bar():
         bar.set_facecolor(cm.jet(r/10.))
         bar.set_alpha(0.6)
 
-    for label in ax.get_xticklabels() + ax.get_yticklabels():
-        label.set_visible(False)
+    ax.tick_params(labelbottom=False, labeltop=False,
+                   labelleft=False, labelright=False)
 
-    for line in ax.get_ygridlines() + ax.get_xgridlines():
-        line.set_lw(0.8)
-        line.set_alpha(0.9)
-        line.set_ls('-')
-        line.set_color('0.5')
+    ax.grid(lw=0.8, alpha=0.9, ls='-', color='0.5')
 
     ax.set_yticks(np.arange(1, 9, 2))
     ax.set_rmax(9)

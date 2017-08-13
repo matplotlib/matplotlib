@@ -77,9 +77,7 @@ def demo_locatable_axes_easy(ax):
 
     plt.colorbar(im, cax=ax_cb)
     ax_cb.yaxis.tick_right()
-    for tl in ax_cb.get_yticklabels():
-        tl.set_visible(False)
-    ax_cb.yaxis.tick_right()
+    ax_cb.yaxis.set_tick_params(labelright=False)
 
 
 def demo_images_side_by_side(ax):
@@ -94,8 +92,7 @@ def demo_images_side_by_side(ax):
 
     ax.imshow(Z, extent=extent, interpolation="nearest")
     ax2.imshow(Z, extent=extent, interpolation="nearest")
-    for tl in ax2.get_yticklabels():
-        tl.set_visible(False)
+    ax2.yaxis.set_tick_params(labelleft=False)
 
 
 def demo():

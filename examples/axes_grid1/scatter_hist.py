@@ -31,8 +31,8 @@ axHistx = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
 axHisty = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
 
 # make some labels invisible
-plt.setp(axHistx.get_xticklabels() + axHisty.get_yticklabels(),
-         visible=False)
+axHistx.xaxis.set_tick_params(labelbottom=False)
+axHisty.yaxis.set_tick_params(labelleft=False)
 
 # now determine nice limits by hand:
 binwidth = 0.25
@@ -47,14 +47,8 @@ axHisty.hist(y, bins=bins, orientation='horizontal')
 # thus there is no need to manually adjust the xlim and ylim of these
 # axis.
 
-#axHistx.axis["bottom"].major_ticklabels.set_visible(False)
-for tl in axHistx.get_xticklabels():
-    tl.set_visible(False)
 axHistx.set_yticks([0, 50, 100])
 
-#axHisty.axis["left"].major_ticklabels.set_visible(False)
-for tl in axHisty.get_yticklabels():
-    tl.set_visible(False)
 axHisty.set_xticks([0, 50, 100])
 
 plt.draw()

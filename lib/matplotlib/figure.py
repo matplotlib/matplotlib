@@ -1173,14 +1173,14 @@ class Figure(Artist):
         if sharex in ["col", "all"]:
             # turn off all but the bottom row
             for ax in axarr[:-1, :].flat:
-                for label in ax.get_xticklabels():
-                    label.set_visible(False)
+                ax.xaxis.set_tick_params(which='both',
+                                         labelbottom=False, labeltop=False)
                 ax.xaxis.offsetText.set_visible(False)
         if sharey in ["row", "all"]:
             # turn off all but the first column
             for ax in axarr[:, 1:].flat:
-                for label in ax.get_yticklabels():
-                    label.set_visible(False)
+                ax.yaxis.set_tick_params(which='both',
+                                         labelleft=False, labelright=False)
                 ax.yaxis.offsetText.set_visible(False)
 
         if squeeze:
