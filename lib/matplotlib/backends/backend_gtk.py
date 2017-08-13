@@ -163,6 +163,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                65406 : 'alt',
                65289 : 'tab',
                }
+    modifier_keys = [[gdk.MOD4_MASK, 'super'],
+                     [gdk.MOD1_MASK, 'alt'],
+                     [gdk.CONTROL_MASK, 'ctrl'],
+                     [gdk.SHIFT_MASK, 'shift']]
 
     # Setting this as a static constant prevents
     # this resulting expression from leaking
@@ -250,7 +254,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 del self.last_downclick[event.button] # we do not want to eat more than one event.
                 return False                          # eat.
             self.last_downclick[event.button] = current_time
-        FigureCanvasBase.button_press_event(self, x, y, event.button, dblclick=dblclick, guiEvent=event)
+        modifiers = {prefix for key_mask, prefix in modifier_keys if event.state & key_mask}
+        FigureCanvasBase.button_press_event(self, x, y, event.button,
+                                            dblclick=dblclick, guiEvent=event, modifiers=modifiers)
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):

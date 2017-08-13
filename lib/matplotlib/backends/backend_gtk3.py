@@ -151,6 +151,10 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                65439 : 'dec',
                65421 : 'enter',
                }
+    modifier_keys = [[gdk.MOD4_MASK, 'super'],
+                     [gdk.MOD1_MASK, 'alt'],
+                     [gdk.CONTROL_MASK, 'ctrl'],
+                     [gdk.SHIFT_MASK, 'shift']]
 
     # Setting this as a static constant prevents
     # this resulting expression from leaking
@@ -212,7 +216,8 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        FigureCanvasBase.button_press_event(self, x, y, event.button, guiEvent=event)
+        modifiers = {prefix for key_mask, prefix in modifier_keys if event.state & key_mask}
+        FigureCanvasBase.button_press_event(self, x, y, event.button, guiEvent=event, modifiers=modifiers)
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):

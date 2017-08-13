@@ -2332,21 +2332,23 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     location = [self convertPoint: location fromView: nil];
     x = location.x * device_scale;
     y = location.y * device_scale;
+
+    unsigned int modifier = [event modifierFlags];
+    PyObject* modifiers = PySet_New(NULL);
+    if (modifier & NSControlKeyMask)
+        PySet_Add(modifiers, PyString_FromString("ctrl"));
+    if (modifier & NSAlternateKeyMask)
+        PySet_Add(modifiers, PyString_FromString("alt"));
+    if (modifier & NSShiftKeyMask)
+        PySet_Add(modifiers, PyString_FromString("shift"));
+    if (modifier & NSCommandKeyMask)
+        PySet_Add(modifiers, PyString_FromString("cmd"));
+
     switch ([event type])
     {    case NSLeftMouseDown:
-         {   unsigned int modifier = [event modifierFlags];
-             if (modifier & NSControlKeyMask)
-                 /* emulate a right-button click */
-                 num = 3;
-             else if (modifier & NSAlternateKeyMask)
-                 /* emulate a middle-button click */
-                 num = 2;
-             else
-             {
-                 num = 1;
-                 if ([NSCursor currentCursor]==[NSCursor openHandCursor])
+         {   if ([NSCursor currentCursor]==[NSCursor openHandCursor])
                      [[NSCursor closedHandCursor] set];
-             }
+             num = 1;
              break;
          }
          case NSOtherMouseDown: num = 2; break;
@@ -2357,7 +2359,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
       dblclick = 1;
     }
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
+    result = PyObject_CallMethod(canvas, "button_press_event", "iiii",
+                                 x, y, num, dblclick, Py_None, modifiers);
     if(result)
         Py_DECREF(result);
     else
@@ -2445,7 +2448,18 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     if ([event clickCount] == 2) {
       dblclick = 1;
     }
-    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
+    unsigned int modifier = [event modifierFlags];
+    PyObject* modifiers = PySet_New(NULL);
+    if (modifier & NSControlKeyMask)
+        PySet_Add(modifiers, PyString_FromString("ctrl"));
+    if (modifier & NSAlternateKeyMask)
+        PySet_Add(modifiers, PyString_FromString("alt"));
+    if (modifier & NSShiftKeyMask)
+        PySet_Add(modifiers, PyString_FromString("shift"));
+    if (modifier & NSCommandKeyMask)
+        PySet_Add(modifiers, PyString_FromString("cmd"));
+    result = PyObject_CallMethod(canvas, "button_press_event", "iiii",
+                                 x, y, num, dblclick, Py_None, modifiers);
     if(result)
         Py_DECREF(result);
     else

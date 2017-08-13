@@ -1606,9 +1606,14 @@ class MouseEvent(LocationEvent):
     key : None, or str
         the key depressed when the mouse event triggered (see
         :class:`KeyEvent`)
+        Note: .key is only processed if the FigureCanvas received keyboard
+        focus. For safer retrieval of modifier keys use .modifiers instead
 
     step : scalar
         number of scroll steps (positive for 'up', negative for 'down')
+
+    modifiers : set
+        modifier keys depressed when mouse event is triggered
 
     Examples
     --------
@@ -1620,17 +1625,18 @@ class MouseEvent(LocationEvent):
         cid = fig.canvas.mpl_connect('button_press_event', on_press)
 
     """
-    x = None         # x position - pixels from left of canvas
-    y = None         # y position - pixels from right of canvas
-    button = None    # button pressed None, 1, 2, 3
-    dblclick = None  # whether or not the event is the result of a double click
-    inaxes = None    # the Axes instance if mouse us over axes
-    xdata = None     # x coord of mouse in data coords
-    ydata = None     # y coord of mouse in data coords
-    step = None      # scroll steps for scroll events
+    x = None          # x position - pixels from left of canvas
+    y = None          # y position - pixels from right of canvas
+    button = None     # button pressed None, 1, 2, 3
+    dblclick = None   # whether or not the event is the result of a double click
+    inaxes = None     # the Axes instance if mouse us over axes
+    xdata = None      # x coord of mouse in data coords
+    ydata = None      # y coord of mouse in data coords
+    step = None       # scroll steps for scroll events
+    modifiers = None  # depressed modifier keys
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
-                 step=0, dblclick=False, guiEvent=None):
+                 step=0, dblclick=False, guiEvent=None, modifiers=None):
         """
         x, y in figure coords, 0,0 = bottom, left
         button pressed None, 1, 2, 3, 'up', 'down'
@@ -1640,6 +1646,7 @@ class MouseEvent(LocationEvent):
         self.key = key
         self.step = step
         self.dblclick = dblclick
+        self.modifiers = modifiers
 
     def __str__(self):
         return ("MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%s " +
@@ -1921,7 +1928,7 @@ class FigureCanvasBase(object):
                                 step=step, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
-    def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
+    def button_press_event(self, x, y, button, dblclick=False, guiEvent=None, modifiers=None):
         """
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
@@ -1932,8 +1939,9 @@ class FigureCanvasBase(object):
         """
         self._button = button
         s = 'button_press_event'
+
         mouseevent = MouseEvent(s, self, x, y, button, self._key,
-                                dblclick=dblclick, guiEvent=guiEvent)
+                                dblclick=dblclick, guiEvent=guiEvent, modifiers=modifiers)
         self.callbacks.process(s, mouseevent)
 
     def button_release_event(self, x, y, button, guiEvent=None):

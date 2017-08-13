@@ -209,6 +209,30 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
 
+        # Dictionary for adding modifier keys to the key string.
+        # Bit details originate from
+        # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
+        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
+        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080;
+        # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
+        # In general, the modifier key is excluded from the modifier flag,
+        # however this is not the case on "darwin", so double check that
+        # we aren't adding repeat modifier flags to a modifier key.
+        if sys.platform == 'win32':
+            self.MOD_KEYS = [(17, 'alt', 'alt'),
+                             (2, 'ctrl', 'control'),
+                            ]
+        elif sys.platform == 'darwin':
+            self.MOD_KEYS = [(3, 'super', 'super'),
+                             (4, 'alt', 'alt'),
+                             (2, 'ctrl', 'control'),
+                            ]
+        else:
+            self.MOD_KEYS = [(6, 'super', 'super'),
+                             (3, 'alt', 'alt'),
+                             (2, 'ctrl', 'control'),
+                            ]
+
         self._master = master
         self._tkcanvas.focus_set()
 
@@ -344,6 +368,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
+        modifiers = self._get_modifiers(event)
 
         if sys.platform=='darwin':
             # 2 and 3 were reversed on the OSX platform I
@@ -351,9 +376,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             if   num==2: num=3
             elif num==3: num=2
 
-        FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick, guiEvent=event)
+        FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick,
+                                            guiEvent=event, modifiers=modifiers)
 
-    def button_dblclick_event(self,event):
+    def button_dblclick_event(self, event):
         self.button_press_event(event,dblclick=True)
 
     def button_release_event(self, event):
@@ -404,36 +430,18 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         else:
             key = None
 
-        # add modifier keys to the key string. Bit details originate from
-        # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
-        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
-        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080;
-        # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
-        # In general, the modifier key is excluded from the modifier flag,
-        # however this is not the case on "darwin", so double check that
-        # we aren't adding repeat modifier flags to a modifier key.
-        if sys.platform == 'win32':
-            modifiers = [(17, 'alt', 'alt'),
-                         (2, 'ctrl', 'control'),
-                         ]
-        elif sys.platform == 'darwin':
-            modifiers = [(3, 'super', 'super'),
-                         (4, 'alt', 'alt'),
-                         (2, 'ctrl', 'control'),
-                         ]
-        else:
-            modifiers = [(6, 'super', 'super'),
-                         (3, 'alt', 'alt'),
-                         (2, 'ctrl', 'control'),
-                         ]
-
         if key is not None:
             # note, shift is not added to the keys as this is already accounted for
-            for bitmask, prefix, key_name in modifiers:
+            for bitmask, prefix, key_name in self.MOD_KEYS:
                 if event.state & (1 << bitmask) and key_name not in key:
                     key = '{0}+{1}'.format(prefix, key)
 
         return key
+
+    def _get_modifiers(self, event):
+        modifiers = {prefix for bitmask, prefix, key_name in self.MOD_KEYS
+                        if event.state & (1 << bitmask)}
+        return modifiers
 
     def key_press(self, event):
         key = self._get_key(event)

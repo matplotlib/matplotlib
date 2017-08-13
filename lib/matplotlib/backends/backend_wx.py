@@ -1004,6 +1004,19 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         return key
 
+    def _get_modifiers(self, evt):
+        """
+        Extracts modifier keys from a wx MouseEvent
+        """
+        MOD_KEYS = {"AltDown": "alt",
+                    "CmdDown": "ctrl",
+                    "ControlDown": "ctrl",
+                    "ShiftDown": "shift"
+                    }
+        modifiers = {prefix for attr, prefix in MOD_KEYS
+                     if getattr(evt, attr)()}
+        return modifiers
+
     def _onKeyDown(self, evt):
         """Capture key press."""
         key = self._get_key(evt)
@@ -1034,7 +1047,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
+        modifiers = self._get_modifiers(evt)
+        FigureCanvasBase.button_press_event(self, x, y, 3,
+                                            guiEvent=evt,
+                                            modifiers=modifiers)
 
     def _onRightButtonDClick(self, evt):
         """Start measuring on an axis."""
@@ -1042,8 +1058,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self._set_capture(True)
+        modifiers = self._get_modifiers(evt)
         FigureCanvasBase.button_press_event(self, x, y, 3,
-                                            dblclick=True, guiEvent=evt)
+                                            dblclick=True, guiEvent=evt,
+                                            modifiers=modifiers)
 
     def _onRightButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1059,7 +1077,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
+        modifiers = self._get_modifiers(evt)
+        FigureCanvasBase.button_press_event(self, x, y, 1,
+                                            guiEvent=evt,
+                                            modifiers=modifiers)
 
     def _onLeftButtonDClick(self, evt):
         """Start measuring on an axis."""
@@ -1067,8 +1088,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self._set_capture(True)
+        modifiers = self._get_modifiers(evt)
         FigureCanvasBase.button_press_event(self, x, y, 1,
-                                            dblclick=True, guiEvent=evt)
+                                            dblclick=True, guiEvent=evt,
+                                            modifiers=modifiers)
 
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1086,7 +1109,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
+        modifiers = self._get_modifiers(evt)
+        FigureCanvasBase.button_press_event(self, x, y, 2,
+                                            guiEvent=evt,
+                                            modifiers=modifiers)
 
     def _onMiddleButtonDClick(self, evt):
         """Start measuring on an axis."""
@@ -1094,8 +1120,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self._set_capture(True)
+        modifiers = self._get_modifiers(evt)
         FigureCanvasBase.button_press_event(self, x, y, 2,
-                                            dblclick=True, guiEvent=evt)
+                                            dblclick=True, guiEvent=evt,
+                                            modifiers=modifiers)
 
     def _onMiddleButtonUp(self, evt):
         """End measuring on an axis."""
