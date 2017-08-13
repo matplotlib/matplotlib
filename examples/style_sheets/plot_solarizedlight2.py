@@ -1,13 +1,18 @@
 """
-Version 0.1
-This shows an example of "Solarized_Light2" styling, which
-tries to replicate the styles of:
-    - http://ethanschoonover.com/solarized
-    - https://github.com/jrnold/ggthemes
-    - http://pygal.org/builtin_styles/#idlight-solarized
+==========================
+Solarized Light stylesheet
+==========================
 
-    and work of:
-    - https://github.com/tonysyu/mpltools
+This shows an example of "Solarized_Light" styling, which
+tries to replicate the styles of:
+
+ - `<http://ethanschoonover.com/solarized>`__
+ - `<https://github.com/jrnold/ggthemes>`__
+ - `<http://pygal.org/builtin_styles/#idlight-solarized>`__
+
+and work of:
+
+ - `<https://github.com/tonysyu/mpltools>`__
 
 using all 8 accents of the color palette - starting with blue
 
@@ -27,8 +32,9 @@ with plt.style.context('Solarize_Light2'):
     plt.plot(x, np.sin(x) + 6 * x + np.random.randn(50))
     plt.plot(x, np.sin(x) + 7 * x + np.random.randn(50))
     plt.plot(x, np.sin(x) + 8 * x + np.random.randn(50))
-    #Number of accent colors in the color scheme
+    # Number of accent colors in the color scheme
     plt.title('8 Random Lines - Line')
     plt.xlabel('x label', fontsize=14)
     plt.ylabel('y label', fontsize=14)
-plt.show( )
+
+plt.show()
