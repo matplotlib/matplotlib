@@ -322,8 +322,8 @@ def test_subplots_shareax_loglabels():
 
 
 def test_axes_add_np_behavior():
-    ax1 = plt.axes(plt.axes(np.array([.1, .1, .8, .8])))
-    ax2 = plt.axes(plt.axes(np.array([.1, .1, .8, .8])))
+    ax1 = plt.axes(np.array([.1, .1, .8, .8]))
+    ax2 = plt.axes(np.array([.1, .1, .8, .8]))
     # in the future this test will need to be changed to not assert
     # that the axes are equal, but still check that this does not blowup.
     assert ax1 is ax2
