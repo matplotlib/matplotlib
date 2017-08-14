@@ -20,7 +20,6 @@
 
 figure.facecolor    : FDF6E3
 
-patch.facecolor     : eee8d5    # Not sure what this does
 patch.antialiased   : True
 
 lines.linewidth     : 2.0
