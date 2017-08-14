@@ -8,7 +8,7 @@ tries to replicate the styles of:
 
  - `<http://ethanschoonover.com/solarized>`__
  - `<https://github.com/jrnold/ggthemes>`__
- - `<http://pygal.org/builtin_styles/#idlight-solarized>`__
+ - `<http://pygal.org/en/stable/documentation/builtin_styles.html#light-solarized>`__
 
 and work of:
 
