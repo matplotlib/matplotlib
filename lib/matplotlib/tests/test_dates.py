@@ -442,6 +442,24 @@ def test_date2num_dst_pandas():
     _test_date2num_dst(pd.date_range, tz_convert)
 
 
+@pytest.mark.parametrize("attach_tz, get_tz", [
+    (lambda dt, zi: zi.localize(dt), lambda n: pytz.timezone(n)),
+    (lambda dt, zi: dt.replace(tzinfo=zi), lambda n: dateutil.tz.gettz(n))])
+def test_rrulewrapper(attach_tz, get_tz):
+    SYD = get_tz('Australia/Sydney')
+
+    dtstart = attach_tz(datetime.datetime(2017, 4, 1, 0), SYD)
+    dtend = attach_tz(datetime.datetime(2017, 4, 4, 0), SYD)
+
+    rule = mdates.rrulewrapper(freq=dateutil.rrule.DAILY, dtstart=dtstart)
+
+    act = rule.between(dtstart, dtend)
+    exp = [datetime.datetime(2017, 4, 1, 13, tzinfo=dateutil.tz.tzutc()),
+           datetime.datetime(2017, 4, 2, 14, tzinfo=dateutil.tz.tzutc())]
+
+    assert act == exp
+
+
 def test_DayLocator():
     with pytest.raises(ValueError):
         mdates.DayLocator(interval=-1)
