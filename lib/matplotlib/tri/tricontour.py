@@ -54,6 +54,7 @@ class TriContourSet(ContourSet):
             self._maxs = [tri.x.max(), tri.y.max()]
 
         self.cppContourGenerator = C
+        return kwargs
 
     def _get_allsegs_and_allkinds(self):
         """
