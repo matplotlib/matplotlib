@@ -96,7 +96,11 @@ def process_projection_requirements(figure, *args, **kwargs):
         raise TypeError('projection must be a string, None or implement a '
                             '_as_mpl_axes method. Got %r' % projection)
 
-    return projection_class, kwargs, (args, kwargs)
+    # Make the key without projection kwargs, this is used as a unique
+    # lookup for axes instances
+    key = figure._make_key(*args, **kwargs)
+
+    return projection_class, kwargs, key
 
 
 def get_projection_names():
