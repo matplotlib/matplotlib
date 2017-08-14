@@ -3,27 +3,23 @@
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
 
+import datetime
 from base64 import b64encode
 import json
 import io
-from tempfile import mkdtemp
-import shutil
 import os
 import six
 from uuid import uuid4 as uuid
 
-from IPython.display import display, HTML
-from IPython import version_info
+import tornado.ioloop
+
+from IPython.display import display, Javascript, HTML
 try:
     # Jupyter/IPython 4.x or later
-    from ipywidgets import DOMWidget
-    from traitlets import Unicode, Bool, Float, List, Any
-    from notebook.nbextensions import install_nbextension, check_nbextension
+    from ipykernel.comm import Comm
 except ImportError:
     # Jupyter/IPython 3.x or earlier
-    from IPython.html.widgets import DOMWidget
-    from IPython.utils.traitlets import Unicode, Bool, Float, List, Any
-    from IPython.html.nbextensions import install_nbextension
+    from IPython.kernel.comm import Comm
 
 from matplotlib import rcParams, is_interactive
 from matplotlib._pylab_helpers import Gcf
@@ -33,6 +29,13 @@ from matplotlib.backends.backend_webagg_core import (
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, NavigationToolbar2)
 from matplotlib.figure import Figure
+from matplotlib import is_interactive
+from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
+                                                     FigureCanvasWebAggCore,
+                                                     NavigationToolbar2WebAgg,
+                                                     TimerTornado)
+from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
+                                      FigureCanvasBase)
 
 
 def connection_info():
@@ -65,7 +68,6 @@ _FONT_AWESOME_CLASSES = {
     'zoom_to_rect': 'fa fa-square-o icon-check-empty',
     'move': 'fa fa-arrows icon-move',
     'download': 'fa fa-floppy-o icon-save',
-    'export': 'fa fa-file-picture-o icon-picture',
     None: None
 }
 
@@ -77,68 +79,137 @@ class NavigationIPy(NavigationToolbar2WebAgg):
                   _FONT_AWESOME_CLASSES[image_file], name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in (NavigationToolbar2.toolitems +
-                     (('Download', 'Download plot', 'download', 'download'),
-                      ('Export', 'Export plot', 'export', 'export')))
+                     (('Download', 'Download plot', 'download', 'download'),))
                  if image_file in _FONT_AWESOME_CLASSES]
 
-    def export(self):
-        buf = io.BytesIO()
-        self.canvas.figure.savefig(buf, format='png', dpi='figure')
-        # Figure width in pixels
-        pwidth = self.canvas.figure.get_figwidth()*self.canvas.figure.get_dpi()
-        # Scale size to match widget on HiPD monitors
-        width = pwidth/self.canvas._dpi_ratio
-        data = "<img src='data:image/png;base64,{0}' width={1}/>"
-        data = data.format(b64encode(buf.getvalue()).decode('utf-8'), width)
-        display(HTML(data))
 
+class FigureManagerNbAgg(FigureManagerWebAgg):
+    ToolbarCls = NavigationIPy
 
-class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
-    _view_module = Unicode("matplotlib", sync=True)
-    _view_name = Unicode('MPLCanvasView', sync=True)
-    _toolbar_items = List(sync=True)
-    _closed = Bool(True)
-    _id = Unicode('', sync=True)
+    def __init__(self, canvas, num):
+        self._shown = False
+        FigureManagerWebAgg.__init__(self, canvas, num)
 
-    # Must declare the superclass private members.
-    _png_is_old = Bool()
-    _force_full = Bool()
-    _current_image_mode = Unicode()
-    _dpi_ratio = Float(1.0)
-    _is_idle_drawing = Bool()
-    _is_saving = Bool()
-    _button = Any()
-    _key = Any()
-    _lastx = Any()
-    _lasty = Any()
-    _is_idle_drawing = Bool()
+    def display_js(self):
+        # XXX How to do this just once? It has to deal with multiple
+        # browser instances using the same kernel (require.js - but the
+        # file isn't static?).
+        display(Javascript(FigureManagerNbAgg.get_javascript()))
 
-    def __init__(self, figure, *args, **kwargs):
-        super(FigureCanvasWebAggCore, self).__init__(figure, *args, **kwargs)
-        super(DOMWidget, self).__init__(*args, **kwargs)
-        self._uid = uuid().hex
-        self.on_msg(self._handle_message)
-
-    def _handle_message(self, object, message, buffers):
-        # The 'supports_binary' message is relevant to the
-        # websocket itself.  The other messages get passed along
-        # to matplotlib as-is.
-
-        # Every message has a "type" and a "figure_id".
-        message = json.loads(message)
-        if message['type'] == 'closing':
-            self._closed = True
-        elif message['type'] == 'supports_binary':
-            self.supports_binary = message['value']
-        elif message['type'] == 'initialized':
-            _, _, w, h = self.figure.bbox.bounds
-            self.manager.resize(w, h)
-            self.send_json('refresh')
+    def show(self):
+        if not self._shown:
+            self.display_js()
+            self._create_comm()
         else:
-            self.manager.handle_json(message)
+            self.canvas.draw_idle()
+        self._shown = True
+
+    def reshow(self):
+        """
+        A special method to re-show the figure in the notebook.
+
+        """
+        self._shown = False
+        self.show()
+
+    @property
+    def connected(self):
+        return bool(self.web_sockets)
+
+    @classmethod
+    def get_javascript(cls, stream=None):
+        if stream is None:
+            output = io.StringIO()
+        else:
+            output = stream
+        super(FigureManagerNbAgg, cls).get_javascript(stream=output)
+        with io.open(os.path.join(
+                os.path.dirname(__file__),
+                "web_backend",
+                "nbagg_mpl.js"), encoding='utf8') as fd:
+            output.write(fd.read())
+        if stream is None:
+            return output.getvalue()
+
+    def _create_comm(self):
+        comm = CommSocket(self)
+        self.add_web_socket(comm)
+        return comm
+
+    def destroy(self):
+        self._send_event('close')
+        # need to copy comms as callbacks will modify this list
+        for comm in list(self.web_sockets):
+            comm.on_close()
+        self.clearup_closed()
+
+    def clearup_closed(self):
+        """Clear up any closed Comms."""
+        self.web_sockets = set([socket for socket in self.web_sockets
+                                if socket.is_open()])
+
+        if len(self.web_sockets) == 0:
+            self.canvas.close_event()
+
+    def remove_comm(self, comm_id):
+        self.web_sockets = set([socket for socket in self.web_sockets
+                                if not socket.comm.comm_id == comm_id])
+
+
+class FigureCanvasNbAgg(FigureCanvasWebAggCore):
+    def new_timer(self, *args, **kwargs):
+        return TimerTornado(*args, **kwargs)
+
+
+class CommSocket(object):
+    """
+    Manages the Comm connection between IPython and the browser (client).
+
+    Comms are 2 way, with the CommSocket being able to publish a message
+    via the send_json method, and handle a message with on_message. On the
+    JS side figure.send_message and figure.ws.onmessage do the sending and
+    receiving respectively.
+
+    """
+    def __init__(self, manager):
+        self.supports_binary = None
+        self.manager = manager
+        self.uuid = str(uuid())
+        # Publish an output area with a unique ID. The javascript can then
+        # hook into this area.
+        display(HTML("<div id=%r></div>" % self.uuid))
+        try:
+            self.comm = Comm('matplotlib', data={'id': self.uuid})
+        except AttributeError:
+            raise RuntimeError('Unable to create an IPython notebook Comm '
+                               'instance. Are you in the IPython notebook?')
+        self.comm.on_msg(self.on_message)
+
+        manager = self.manager
+        self._ext_close = False
+
+        def _on_close(close_message):
+            self._ext_close = True
+            manager.remove_comm(close_message['content']['comm_id'])
+            manager.clearup_closed()
+
+        self.comm.on_close(_on_close)
+
+    def is_open(self):
+        return not (self._ext_close or self.comm._closed)
+
+    def on_close(self):
+        # When the socket is closed, deregister the websocket with
+        # the FigureManager.
+        if self.is_open():
+            try:
+                self.comm.close()
+            except KeyError:
+                # apparently already cleaned it up?
+                pass
 
     def send_json(self, content):
-        self.send({'data': json.dumps(content)})
+        self.comm.send({'data': json.dumps(content)})
 
     def send_binary(self, blob):
         # The comm is ascii, so we always send the image in base64
@@ -147,84 +218,22 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
         if six.PY3:
             data = data.decode('ascii')
         data_uri = "data:image/png;base64,{0}".format(data)
-        self.send({'data': data_uri})
+        self.comm.send({'data': data_uri})
 
-    def new_timer(self, *args, **kwargs):
-        return TimerTornado(*args, **kwargs)
+    def on_message(self, message):
+        # The 'supports_binary' message is relevant to the
+        # websocket itself.  The other messages get passed along
+        # to matplotlib as-is.
 
-    def start_event_loop(self, timeout):
-        FigureCanvasBase.start_event_loop_default(self, timeout)
-
-    def stop_event_loop(self):
-        FigureCanvasBase.stop_event_loop_default(self)
-
-
-class FigureManagerNbAgg(FigureManagerWebAgg):
-    ToolbarCls = NavigationIPy
-
-    def __init__(self, canvas, num):
-        FigureManagerWebAgg.__init__(self, canvas, num)
-        toolitems = []
-        for name, tooltip, image, method in self.ToolbarCls.toolitems:
-            if name is None:
-                toolitems.append(['', '', '', ''])
-            else:
-                toolitems.append([name, tooltip, image, method])
-        canvas._toolbar_items = toolitems
-        self.web_sockets = [self.canvas]
-
-    def show(self):
-        if self.canvas._closed:
-            self.canvas._closed = False
-            display(self.canvas)
+        # Every message has a "type" and a "figure_id".
+        message = json.loads(message['content']['data'])
+        if message['type'] == 'closing':
+            self.on_close()
+            self.manager.clearup_closed()
+        elif message['type'] == 'supports_binary':
+            self.supports_binary = message['value']
         else:
-            self.canvas.draw_idle()
-
-    def destroy(self):
-        self._send_event('close')
-
-
-def nbinstall(overwrite=False, user=True):
-    """
-    Copies javascript dependencies to the '/nbextensions' folder in
-    your IPython directory.
-
-    Parameters
-    ----------
-
-    overwrite : bool
-        If True, always install the files, regardless of what may already be
-        installed.  Defaults to False.
-    user : bool
-        Whether to install to the user's .ipython/nbextensions directory.
-        Otherwise do a system-wide install
-        (e.g. /usr/local/share/jupyter/nbextensions).  Defaults to False.
-    """
-    if (check_nbextension('matplotlib') or
-            check_nbextension('matplotlib', True)):
-        return
-
-    # Make a temporary directory so we can wrap mpl.js in a requirejs define().
-    tempdir = mkdtemp()
-    path = os.path.join(os.path.dirname(__file__), "web_backend")
-    shutil.copy2(os.path.join(path, "nbagg_mpl.js"), tempdir)
-
-    with open(os.path.join(path, 'mpl.js')) as fid:
-        contents = fid.read()
-
-    with open(os.path.join(tempdir, 'mpl.js'), 'w') as fid:
-        fid.write('define(["jquery"], function($) {\n')
-        fid.write(contents)
-        fid.write('\nreturn mpl;\n});')
-
-    install_nbextension(
-        tempdir,
-        overwrite=overwrite,
-        symlink=False,
-        destination='matplotlib',
-        verbose=0,
-        **({'user': user} if version_info >= (3, 0, 0, '') else {})
-    )
+            self.manager.handle_json(message)
 
 
 @_Backend.export
