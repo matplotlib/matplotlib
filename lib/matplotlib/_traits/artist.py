@@ -146,8 +146,8 @@ class Artist(HasTraits, b_artist.Artist):
     #sticky_edges is a tuple with lists of floats
     #the first element of this tuple represents x
     #and the second element of sticky_edges represents y
-    sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
-    # sticky_edges = _XYPair()
+    # sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
+    sticky_edges = _XYPair()
     # print("sticky_edges class _XYPair tester: ", sticky_edges)
 
 
@@ -379,7 +379,7 @@ class Artist(HasTraits, b_artist.Artist):
     @default("clipbox")
     def _clipbox_default(self):
         print("importing BBox here")
-        from matplotlib.transforms import BBox
+        from matplotlib.transforms import Bbox
         print("successfully imported BBox")
         print("generating default clipbox value")
         return None
@@ -420,17 +420,30 @@ class Artist(HasTraits, b_artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-    def set_clip_path(self, path, transform):
+    def set_clip_path(self, path, transform=None):
         from matplotlib.transforms import TransformedPath
         print("imported TransformedPath successfully")
         from matplotlib.patches import Rectangle, Patch
         print("imported Ractangle & Patch successfully")
 
+        print("transform: ", transform)
+        print("path:", path)
+
         success = False
         if transform is None:
             if isinstance(path, Rectangle):
-                self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                print("setting clippbox to TransformedBbox")
+                # print("clippbox before setting TransformedBbox", self.clippbox)
+                print("Bbox.unit()", Bbox.unit())
+                print("path.get_transform()",path.get_transform())
+                transformedBbox_clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                print("transformedBbox_clipbox: ", transformedBbox_clipbox)
+                Bbox_clipbox = Bbox(transformedBbox_clipbox)
+                print("Bbox_clipbox: ", Bbox_clipbox)
+                # self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                self.clipbox = Bbox_clipbox
                 self.clippath = None
+                return
             elif isinstance(path, Patch):
                 self.clippath = path
             elif isinstance(path, tuple):
