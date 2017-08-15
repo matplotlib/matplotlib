@@ -312,7 +312,7 @@ class Patch(artist.Artist):
                 color = 'none'
                 set_hatch_color = False
 
-        self._edgecolor = colors.to_rgba(color, self._alpha)
+        self._edgecolor = colors.to_rgba(color, self.alpha)
         if set_hatch_color:
             self._hatch_color = self._edgecolor
         self.stale = True
@@ -333,7 +333,7 @@ class Patch(artist.Artist):
     def _set_facecolor(self, color):
         if color is None:
             color = mpl.rcParams['patch.facecolor']
-        alpha = self._alpha if self._fill else 0
+        alpha = self.alpha if self._fill else 0
         self._facecolor = colors.to_rgba(color, alpha)
         self.stale = True
 
