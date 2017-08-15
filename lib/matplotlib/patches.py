@@ -113,9 +113,6 @@ class Patch(artist.Artist):
         artist.Artist.__init__(self)
         print('matplotlib.patches.Patch artist.Artist: ', artist.Artist)
 
-        # t_artist.Artist.__init__(self)
-        # print('matplotlib._traits.artist: ', t_artist.Artist)
-
         if linewidth is None:
             linewidth = mpl.rcParams['patch.linewidth']
         if linestyle is None:
