@@ -72,7 +72,6 @@ class AxesStack(Stack):
 
     """
     def __init__(self):
-        cbook.warn_deprecated("2.1")
         Stack.__init__(self)
         self._ind = 0
 
@@ -92,6 +91,13 @@ class AxesStack(Stack):
         item = dict(self._elements).get(key)
         if item is None:
             return None
+        cbook.warn_deprecated(
+            "2.1",
+            "Adding an axes using the same arguments as a previous axes "
+            "currently reuses the earlier instance.  In a future version, "
+            "a new instance will always be created and returned.  Meanwhile, "
+            "this warning can be suppressed, and the future behavior ensured, "
+            "by passing a unique label to each axes instance.")
         return item[1]
 
     def _entry_from_axes(self, e):
@@ -157,62 +163,6 @@ class AxesStack(Stack):
 
     def __contains__(self, a):
         return a in self.as_list()
-
-
-class _AxesStack(object):
-    """Lightweight stack that tracks Axes in a Figure.
-    """
-
-    def __init__(self):
-        # We maintain a list of (creation_index, key, axes) tuples.
-        # We do not use an OrderedDict because 1. the keys may not be hashable
-        # and 2. we need to directly find a pair corresponding to an axes (i.e.
-        # we'd really need a two-way dict).
-        self._items = []
-        self._created = 0
-
-    def as_list(self):
-        """Copy of the list of axes, in the order of insertion.
-        """
-        return [ax for _, _, ax in sorted(self._items)]
-
-    def get(self, key):
-        """Find the axes corresponding to a key; defaults to `None`.
-        """
-        return next((ax for _, k, ax in self._items if k == key), None)
-
-    def current_key_axes(self):
-        """Return the topmost `(key, axes)` pair, or `(None, None)` if empty.
-        """
-        _, key, ax = (self._items or [(None, None, None)])[-1]
-        return key, ax
-
-    def add(self, key, ax):
-        """Append a `(key, axes)` pair, unless the axes are already present.
-        """
-        # Skipping existing Axes is needed to support calling `add_axes` with
-        # an already existing Axes.
-        if not any(a == ax for _, _, a in self._items):
-            self._items.append((self._created, key, ax))
-            self._created += 1
-
-    def bubble(self, ax):
-        """Move an axes and its corresponding key to the top.
-        """
-        idx, = (idx for idx, (_, _, a) in enumerate(self._items) if a == ax)
-        self._items.append(self._items[idx])
-        del self._items[idx]
-
-    def remove(self, ax):
-        """Remove an axes and its corresponding key.
-        """
-        idx, = (idx for idx, (_, _, a) in enumerate(self._items) if a == ax)
-        del self._items[idx]
-
-    def clear(self):
-        """Clear the stack.
-        """
-        del self._items[:]
 
 
 class SubplotParams(object):
@@ -415,7 +365,7 @@ class Figure(Artist):
         self.subplotpars = subplotpars
         self.set_tight_layout(tight_layout)
 
-        self._axstack = _AxesStack()  # track all figure axes and current axes
+        self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
 
@@ -467,8 +417,10 @@ class Figure(Artist):
                 "matplotlib is currently using a non-GUI backend, "
                 "so cannot show the figure")
 
-    axes = property(lambda self: self._axstack.as_list(),
-                    doc="Read-only: list of axes in Figure")
+    def _get_axes(self):
+        return self._axstack.as_list()
+
+    axes = property(fget=_get_axes, doc="Read-only: list of axes in Figure")
 
     def _get_dpi(self):
         return self._dpi
@@ -890,6 +842,36 @@ class Figure(Artist):
             func(self)
         self.stale = True
 
+    def _make_key(self, *args, **kwargs):
+        'make a hashable key out of args and kwargs'
+
+        def fixitems(items):
+            #items may have arrays and lists in them, so convert them
+            # to tuples for the key
+            ret = []
+            for k, v in items:
+                # some objects can define __getitem__ without being
+                # iterable and in those cases the conversion to tuples
+                # will fail. So instead of using the iterable(v) function
+                # we simply try and convert to a tuple, and proceed if not.
+                try:
+                    v = tuple(v)
+                except Exception:
+                    pass
+                ret.append((k, v))
+            return tuple(ret)
+
+        def fixlist(args):
+            ret = []
+            for a in args:
+                if iterable(a):
+                    a = tuple(a)
+                ret.append(a)
+            return tuple(ret)
+
+        key = fixlist(args), fixitems(six.iteritems(kwargs))
+        return key
+
     def add_axes(self, *args, **kwargs):
         """
         Add an axes at position *rect* [*left*, *bottom*, *width*,
@@ -926,14 +908,14 @@ class Figure(Artist):
             fig.add_axes(rect, projection='polar')
             fig.add_axes(ax)
 
-        If the figure already has an axes with the same parameters,
-        then it will simply make that axes current and return it.  If
-        you do not want this behavior, e.g., you want to force the
-        creation of a new Axes, you must use a unique set of args and
-        kwargs.  The axes :attr:`~matplotlib.axes.Axes.label`
-        attribute has been exposed for this purpose.  e.g., if you want
-        two axes that are otherwise identical to be added to the
-        figure, make sure you give them unique labels::
+        If the figure already has an axes with the same parameters, then it
+        will simply make that axes current and return it.  This behavior
+        has been deprecated as of Matplotlib 2.1.  Meanwhile, if you do
+        not want this behavior (i.e., you want to force the creation of a
+        new Axes), you must use a unique set of args and kwargs.  The axes
+        :attr:`~matplotlib.axes.Axes.label` attribute has been exposed for this
+        purpose: if you want two axes that are otherwise identical to be added
+        to the figure, make sure you give them unique labels::
 
             fig.add_axes(rect, label='axes1')
             fig.add_axes(rect, label='axes2')
@@ -954,9 +936,9 @@ class Figure(Artist):
 
         # shortcut the projection "key" modifications later on, if an axes
         # with the exact args/kwargs exists, return it immediately.
-        key = (args, kwargs)
+        key = self._make_key(*args, **kwargs)
         ax = self._axstack.get(key)
-        if ax:
+        if ax is not None:
             self.sca(ax)
             return ax
 
@@ -976,7 +958,7 @@ class Figure(Artist):
             # check that an axes of this type doesn't already exist, if it
             # does, set it as active and return it
             ax = self._axstack.get(key)
-            if isinstance(ax, projection_class):
+            if ax is not None and isinstance(ax, projection_class):
                 self.sca(ax)
                 return ax
 
@@ -1021,14 +1003,14 @@ class Figure(Artist):
         -----
         If the figure already has a subplot with key (*args*,
         *kwargs*) then it will simply make that subplot current and
-        return it.
+        return it.  This behavior is deprecated.
 
         Examples
         --------
             fig.add_subplot(111)
 
             # equivalent but more general
-            fig.add_subplot(1,1,1)
+            fig.add_subplot(1, 1, 1)
 
             # add subplot with red background
             fig.add_subplot(212, facecolor='r')
@@ -1047,29 +1029,29 @@ class Figure(Artist):
             return
 
         if len(args) == 1 and isinstance(args[0], int):
-            args = tuple([int(c) for c in str(args[0])])
-            if len(args) != 3:
-                raise ValueError("Integer subplot specification must " +
-                                 "be a three digit number.  " +
-                                 "Not {n:d}".format(n=len(args)))
+            if not 100 <= args[0] <= 999:
+                raise ValueError("Integer subplot specification must be a "
+                                 "three-digit number, not {}".format(args[0]))
+            args = tuple(map(int, str(args[0])))
 
         if isinstance(args[0], SubplotBase):
 
             a = args[0]
             if a.get_figure() is not self:
-                msg = ("The Subplot must have been created in the present"
-                       " figure")
+                msg = ("The Subplot must have been created in the present "
+                       "figure")
                 raise ValueError(msg)
             # make a key for the subplot (which includes the axes object id
             # in the hash)
-            key = (args, kwargs)
+            key = self._make_key(*args, **kwargs)
         else:
             projection_class, kwargs, key = process_projection_requirements(
                 self, *args, **kwargs)
 
             # try to find the axes with this key in the stack
             ax = self._axstack.get(key)
-            if ax:
+
+            if ax is not None:
                 if isinstance(ax, projection_class):
                     # the axes already existed, so set it as active & return
                     self.sca(ax)
@@ -1638,7 +1620,7 @@ class Figure(Artist):
         do not use elsewhere.
         """
         # Look first for an image in the current Axes:
-        ckey, cax = self._axstack.current_key_axes()
+        cax = self._axstack.current_key_axes()[1]
         if cax is None:
             return None
         im = cax._gci()
