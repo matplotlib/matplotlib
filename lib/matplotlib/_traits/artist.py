@@ -27,7 +27,7 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-from matplotlib.axes import Axes
+
 
 
 
@@ -213,6 +213,9 @@ class Artist(HasTraits, b_artist.Artist):
     #axes default
     @default("axes")
     def _axes_default(self):
+        print("importing Axes here")
+        from matplotlib.axes import Axes
+        print("successfully imported Axes")
         print("generating default axes value")
         return None
     #axes validate: reference @axes.setter
