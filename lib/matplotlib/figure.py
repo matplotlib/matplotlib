@@ -91,6 +91,13 @@ class AxesStack(Stack):
         item = dict(self._elements).get(key)
         if item is None:
             return None
+        cbook.warn_deprecated(
+            "2.1",
+            "Adding an axes using the same arguments as a previous axes "
+            "currently reuses the earlier instance.  In a future version, "
+            "a new instance will always be created and returned.  Meanwhile, "
+            "this warning can be suppressed, and the future behavior ensured, "
+            "by passing a unique label to each axes instance.")
         return item[1]
 
     def _entry_from_axes(self, e):
@@ -901,14 +908,14 @@ class Figure(Artist):
             fig.add_axes(rect, projection='polar')
             fig.add_axes(ax)
 
-        If the figure already has an axes with the same parameters,
-        then it will simply make that axes current and return it.  If
-        you do not want this behavior, e.g., you want to force the
-        creation of a new Axes, you must use a unique set of args and
-        kwargs.  The axes :attr:`~matplotlib.axes.Axes.label`
-        attribute has been exposed for this purpose.  e.g., if you want
-        two axes that are otherwise identical to be added to the
-        figure, make sure you give them unique labels::
+        If the figure already has an axes with the same parameters, then it
+        will simply make that axes current and return it.  This behavior
+        has been deprecated as of Matplotlib 2.1.  Meanwhile, if you do
+        not want this behavior (i.e., you want to force the creation of a
+        new Axes), you must use a unique set of args and kwargs.  The axes
+        :attr:`~matplotlib.axes.Axes.label` attribute has been exposed for this
+        purpose: if you want two axes that are otherwise identical to be added
+        to the figure, make sure you give them unique labels::
 
             fig.add_axes(rect, label='axes1')
             fig.add_axes(rect, label='axes2')
@@ -996,14 +1003,14 @@ class Figure(Artist):
         -----
         If the figure already has a subplot with key (*args*,
         *kwargs*) then it will simply make that subplot current and
-        return it.
+        return it.  This behavior is deprecated.
 
         Examples
         --------
             fig.add_subplot(111)
 
             # equivalent but more general
-            fig.add_subplot(1,1,1)
+            fig.add_subplot(1, 1, 1)
 
             # add subplot with red background
             fig.add_subplot(212, facecolor='r')
@@ -1022,18 +1029,17 @@ class Figure(Artist):
             return
 
         if len(args) == 1 and isinstance(args[0], int):
-            args = tuple([int(c) for c in str(args[0])])
-            if len(args) != 3:
-                raise ValueError("Integer subplot specification must " +
-                                 "be a three digit number.  " +
-                                 "Not {n:d}".format(n=len(args)))
+            if not 100 <= args[0] <= 999:
+                raise ValueError("Integer subplot specification must be a "
+                                 "three-digit number, not {}".format(args[0]))
+            args = tuple(map(int, str(args[0])))
 
         if isinstance(args[0], SubplotBase):
 
             a = args[0]
             if a.get_figure() is not self:
-                msg = ("The Subplot must have been created in the present"
-                       " figure")
+                msg = ("The Subplot must have been created in the present "
+                       "figure")
                 raise ValueError(msg)
             # make a key for the subplot (which includes the axes object id
             # in the hash)
