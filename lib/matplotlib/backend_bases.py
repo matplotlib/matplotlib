@@ -2685,12 +2685,7 @@ class FigureManagerBase(object):
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        if rcParams['toolbar'] != 'toolmanager':
-            self.key_press_handler_id = self.canvas.mpl_connect(
-                                                'key_press_event',
-                                                self.key_press)
-        else:
-            self.key_press_handler_id = None
+        self.key_press_handler_id = None
         """
         The returned id from connecting the default key handler via
         :meth:`FigureCanvasBase.mpl_connect`.
@@ -2701,6 +2696,10 @@ class FigureManagerBase(object):
             canvas.mpl_disconnect(manager.key_press_handler_id)
 
         """
+        if rcParams['toolbar'] != 'toolmanager':
+            self.key_press_handler_id = self.canvas.mpl_connect(
+                'key_press_event',
+                self.key_press)
 
     def show(self):
         """
