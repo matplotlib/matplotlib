@@ -84,6 +84,10 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
+def _stale_axes_callback(self, val):
+    if self.axes:
+        self.axes.stale = val
+
 #class Artist(_artist.Artist)
 class Artist(HasTraits, b_artist.Artist):
 
@@ -109,8 +113,8 @@ class Artist(HasTraits, b_artist.Artist):
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
 
-    # clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
-    clipbox=Instance(Bbox, allow_none=True, default_value=None)
+    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
+    # clipbox=Instance(Bbox, allow_none=True, default_value=None)
 
     # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
     # clippath = Union([Instance(TransformedPath),Instance(Patch)], allow_none=True, default_value=None)
@@ -118,7 +122,10 @@ class Artist(HasTraits, b_artist.Artist):
 
 
     clipon=Bool(default_value=True)
-    label=Unicode(allow_none=True, default_value='')
+
+    # label=Unicode(allow_none=True, default_value='')
+    label = Instance('matplotlib.text.Text', allow_none=True,default_value='')
+
     picker=Union([Float(),Bool(),Callable()], allow_none=True, default_value=None)
     contains=List(default_value=None)
     rasterized=Perishable(Bool(allow_none=True, default_value=None))
@@ -144,38 +151,38 @@ class Artist(HasTraits, b_artist.Artist):
     # print("sticky_edges class _XYPair tester: ", sticky_edges)
 
 
-    def __init__(self):
-        # self.aname
-        # self.zorder
-        # self.prop_order
-        self.stale
-        self.stale_callback
-        self.axes
-        self.figure
-        self.transform
-        self.transformSet
-        self.visible
-        self.animated
-        self.alpha
-        self.clipbox
-        self.clippath
-        self.clipon
-        self.label
-        self.picker
-        self.contains
-        self.rasterized
-        self.agg_filter
-        self.mouseover
-        self.eventson
-        self.oid
-        self.propobservers
-        self.remove_method
-        self.url
-        self.gid
-        self.snap
-        self.sketch
-        self.path_effects
-        self.sticky_edges
+    # def __init__(self):
+    #     # self.aname
+    #     # self.zorder
+    #     # self.prop_order
+    #     self.stale
+    #     self.stale_callback
+    #     self.axes
+    #     self.figure
+    #     self.transform
+    #     self.transformSet
+    #     self.visible
+    #     self.animated
+    #     self.alpha
+    #     self.clipbox
+    #     self.clippath
+    #     self.clipon
+    #     self.label
+    #     self.picker
+    #     self.contains
+    #     self.rasterized
+    #     self.agg_filter
+    #     self.mouseover
+    #     self.eventson
+    #     self.oid
+    #     self.propobservers
+    #     self.remove_method
+    #     self.url
+    #     self.gid
+    #     self.snap
+    #     self.sketch
+    #     self.path_effects
+    #     self.sticky_edges
 
 
     #stale default
@@ -231,7 +238,7 @@ class Artist(HasTraits, b_artist.Artist):
                              "in more than one Axes which is not "
                              "supported")
 
-        self.axes = proposal.value
+        # self.axes = proposal.value
         if proposal.value is not None and proposal.value is not self:
             self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
@@ -371,6 +378,9 @@ class Artist(HasTraits, b_artist.Artist):
     #clipbox default
     @default("clipbox")
     def _clipbox_default(self):
+        print("importing BBox here")
+        from matplotlib.transforms import BBox
+        print("successfully imported BBox")
         print("generating default clipbox value")
         return None
     #clipbox validate
@@ -460,6 +470,9 @@ class Artist(HasTraits, b_artist.Artist):
     #label default
     @default("label")
     def _label_default(self):
+        print("importing Text here")
+        from matplotlib.text import Text
+        print("successfully imported Text")
         print("generating default label value")
         return None
     #label validate
