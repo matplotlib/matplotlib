@@ -731,7 +731,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if self._A is None:
             return
-        if self._A.ndim > 1:
+        if (self._A.ndim > 1 and
+                not isinstance(self.norm, mcolors.BivariateNorm)):
             raise ValueError('Collections can only map rank 1 arrays')
         if not self.check_update("array"):
             return

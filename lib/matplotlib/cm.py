@@ -238,7 +238,7 @@ class ScalarMappable(object):
         """
         # First check for special case, image input:
         try:
-            if x.ndim == 3:
+            if x.ndim == 3 and (x.shape[-1] == 3 or x.shape[-1] == 4):
                 if x.shape[2] == 3:
                     if alpha is None:
                         alpha = 1
