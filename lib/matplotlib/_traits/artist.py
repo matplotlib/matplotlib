@@ -94,11 +94,11 @@ class Artist(HasTraits, b_artist.Artist):
     # pchanged = Bool(default_value = False)
     stale=Bool(default_value=True)
     stale_callback=Callable(allow_none=True, default_value=True)
-    # axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
-    axes=Instance(Axes, allow_none=True, default_value=None)
+    axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
+    # axes=Instance(Axes, allow_none=True, default_value=None)
 
-    # figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
-    figure=Instance(Figure, allow_none=True, default_value=None)
+    figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
+    # figure=Instance(Figure, allow_none=True, default_value=None)
 
     #not sure if this would be the correct way to call TransformTrait
     transform = TransformTrait(allow_none=True, default_value=None)
@@ -113,7 +113,9 @@ class Artist(HasTraits, b_artist.Artist):
     clipbox=Instance(Bbox, allow_none=True, default_value=None)
 
     # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
-    clippath = Union([Instance(TransformedPath),Instance(Patch)], allow_none=True, default_value=None)
+    # clippath = Union([Instance(TransformedPath),Instance(Patch)], allow_none=True, default_value=None)
+    clippath = Union([Instance('matplotlib.transforms.TransformedPath'),Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
+
 
     clipon=Bool(default_value=True)
     label=Unicode(allow_none=True, default_value='')
@@ -409,6 +411,8 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     def set_clip_path(self, path, transform):
+        from matplotlib.transforms import TransformedPath
+        print("imported TransformedPath successfully")
         from matplotlib.patches import Rectangle, Patch
         print("imported Ractangle & Patch successfully")
 
