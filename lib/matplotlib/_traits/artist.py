@@ -40,13 +40,14 @@ from .traits import TraitProxy, Perishable, TransformTrait, Callable
 
 #this is for sticky_edges but im thinking we can just use a tuple trait...?
 # _XYPair = namedtuple("_XYPair", "x y")
-class _XYPair(Tuple):
-    x = List(trait=Float())
-    y = List(trait=Float())
-
-    def __init__(self):
-        self.x = []
-        self.y = []
+# class _XYPair(Tuple):
+#     x = List(trait=Float())
+#     y = List(trait=Float())
+#
+#     def __init__(self):
+#         Tuple.__init__(self)
+#         self.x = []
+#         self.y = []
 
 def allow_rasterization(draw):
     """
@@ -88,13 +89,19 @@ def _stale_axes_callback(self, val):
     if self.axes:
         self.axes.stale = val
 
+_XYPair = namedtuple("_XYPair", "x y")
+
+
 #class Artist(_artist.Artist)
 class Artist(HasTraits, b_artist.Artist):
 
-    aname=Unicode('Artist')
-    zorder=Int(default_value=0)
+    aname = 'Artist'
+    zorder = 0
+    _prop_order = dict(color=-1)
+    # aname=Unicode('Artist')
+    # zorder=Int(default_value=0)
     # _prop_order = dict(color=-1)
-    prop_order=Dict() #asked thomas question about this asstribute
+    # prop_order=Dict() #asked thomas question about this asstribute
     # pchanged = Bool(default_value = False)
     stale=Bool(default_value=True)
     stale_callback=Callable(allow_none=True, default_value=True)
@@ -142,12 +149,13 @@ class Artist(HasTraits, b_artist.Artist):
     sketch=Tuple(Float(),Float(),Float())
     path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects']) #ask abotu this attribute
 
+
     #_XYPair = namedtuple("_XYPair", "x y")
     #sticky_edges is a tuple with lists of floats
     #the first element of this tuple represents x
     #and the second element of sticky_edges represents y
     # sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
-    sticky_edges = _XYPair()
+    sticky_edges = _XYPair([],[])
     # print("sticky_edges class _XYPair tester: ", sticky_edges)
 
 
@@ -737,22 +745,22 @@ class Artist(HasTraits, b_artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-    #sticky_edges default
-    @default("sticky_edges")
-    def _sticky_edges_default(self):
-        print("generating default sticky_edges value")
-        #(x,y) where x & yare both List(trait=Float())
-        #Tuple(List(trait=Float()), List(trait=Float()))
-        return ([], [])
-    #sticky_edges validate
-    @validate("sticky_edges")
-    def _sticky_edges_validate(self, proposal):
-        print("sticky_edges: cross validating %r, %r" % (proposal.value[0], proposal.value[1]))
-        return proposal.value
-    #sticky_edges observer
-    @observe("sticky_edges", type="change")
-    def _sticky_edges_observe(self, change):
-        print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
+    # #sticky_edges default
+    # @default("sticky_edges")
+    # def _sticky_edges_default(self):
+    #     print("generating default sticky_edges value")
+    #     #(x,y) where x & yare both List(trait=Float())
+    #     #Tuple(List(trait=Float()), List(trait=Float()))
+    #     return ([], [])
+    # #sticky_edges validate
+    # @validate("sticky_edges")
+    # def _sticky_edges_validate(self, proposal):
+    #     print("sticky_edges: cross validating %r, %r" % (proposal.value[0], proposal.value[1]))
+    #     return proposal.value
+    # #sticky_edges observer
+    # @observe("sticky_edges", type="change")
+    # def _sticky_edges_observe(self, change):
+    #     print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
 
 
     def remove(self):
