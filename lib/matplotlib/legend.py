@@ -384,8 +384,13 @@ class Legend(Artist):
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
 
+        # If shadow is activated use framealpha if not
+        # explicitly passed. See Issue 8943
         if framealpha is None:
-            self.get_frame().set_alpha(rcParams["legend.framealpha"])
+            if shadow:
+                self.get_frame().set_alpha(1)
+            else:
+                self.get_frame().set_alpha(rcParams["legend.framealpha"])
         else:
             self.get_frame().set_alpha(framealpha)
 

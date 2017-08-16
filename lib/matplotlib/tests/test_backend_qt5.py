@@ -125,6 +125,7 @@ def test_dpi_ratio_change():
         size = qt_canvas.size()
 
         qt_canvas.manager.show()
+        qt_canvas.draw()
         qApp.processEvents()
 
         # The DPI and the renderer width/height change
@@ -133,8 +134,8 @@ def test_dpi_ratio_change():
         assert qt_canvas.renderer.height == 720
 
         # The actual widget size and figure physical size don't change
-        assert size.width() == 200
-        assert size.height() == 80
+        assert size.width() == 600
+        assert size.height() == 240
         assert_equal(qt_canvas.get_width_height(), (600, 240))
         assert_equal(fig.get_size_inches(), (5, 2))
 
@@ -151,7 +152,7 @@ def test_dpi_ratio_change():
         assert qt_canvas.renderer.height == 480
 
         # The actual widget size and figure physical size don't change
-        assert size.width() == 200
-        assert size.height() == 80
+        assert size.width() == 600
+        assert size.height() == 240
         assert_equal(qt_canvas.get_width_height(), (600, 240))
         assert_equal(fig.get_size_inches(), (5, 2))

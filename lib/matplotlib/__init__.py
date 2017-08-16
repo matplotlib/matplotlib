@@ -1373,16 +1373,6 @@ def tk_window_focus():
     return rcParams['tk.window_focus']
 
 
-# Jupyter extension paths
-def _jupyter_nbextension_paths():
-    return [{
-        'section': 'notebook',
-        'src': 'backends/web_backend/js',
-        'dest': 'matplotlib',
-        'require': 'matplotlib/extension'
-    }]
-
-
 default_test_modules = [
     'matplotlib.tests',
     'matplotlib.sphinxext.tests',

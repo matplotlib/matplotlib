@@ -70,8 +70,7 @@ ax1.set_ylim((-2, 2))
 ax1.set_ylabel('1 Hz')
 ax1.set_title('A sine wave or two')
 
-for label in ax1.get_xticklabels():
-    label.set_color('r')
+ax1.xaxis.set_tick_params(labelcolor='r')
 
 
 ax2 = fig.add_subplot(212)

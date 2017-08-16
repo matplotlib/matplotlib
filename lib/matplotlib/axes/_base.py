@@ -1986,6 +1986,7 @@ class _AxesBase(martist.Artist):
                 # we need to update.
                 if ydata is not None:
                     self.yaxis.update_units(ydata)
+        return kwargs
 
     def in_axes(self, mouseevent):
         """

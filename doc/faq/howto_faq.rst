@@ -241,21 +241,34 @@ over so that the tick labels fit in the figure:
 
 .. _howto-ticks:
 
-Configure the tick linewidths
------------------------------
+Configure the tick widths
+-------------------------
 
-In Matplotlib, the ticks are *markers*.  All
-:class:`~matplotlib.lines.Line2D` objects support a line (solid,
-dashed, etc) and a marker (circle, square, tick).  The tick linewidth
-is controlled by the "markeredgewidth" property::
+Wherever possible, it is recommended to use the :meth:`~Axes.tick_params` or
+:meth:`~Axis.set_tick_params` methods to modify tick properties::
 
     import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+
+    fig, ax = plt.subplots()
+    ax.plot(range(10))
+
+    ax.tick_params(width=10)
+
+    plt.show()
+
+For more control of tick properties that are not provided by the above methods,
+it is important to know that in Matplotlib, the ticks are *markers*.  All
+:class:`~matplotlib.lines.Line2D` objects support a line (solid, dashed, etc)
+and a marker (circle, square, tick).  The tick width is controlled by the
+``"markeredgewidth"`` property, so the above effect can also be achieved by::
+
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
     ax.plot(range(10))
 
     for line in ax.get_xticklines() + ax.get_yticklines():
-        line.set_markersize(10)
+        line.set_markeredgewidth(10)
 
     plt.show()
 

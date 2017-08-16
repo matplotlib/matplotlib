@@ -50,15 +50,14 @@ def _colorbar_extension_shape(spacing):
         boundaries = values = norm.boundaries
         # Create a subplot.
         cax = fig.add_subplot(4, 1, i + 1)
-        # Turn off text and ticks.
-        for item in cax.get_xticklabels() + cax.get_yticklabels() +\
-                cax.get_xticklines() + cax.get_yticklines():
-            item.set_visible(False)
         # Generate the colorbar.
         cb = ColorbarBase(cax, cmap=cmap, norm=norm,
                 boundaries=boundaries, values=values,
                 extend=extension_type, extendrect=True,
                 orientation='horizontal', spacing=spacing)
+        # Turn off text and ticks.
+        cax.tick_params(left=False, labelleft=False,
+                        bottom=False, labelbottom=False)
     # Return the figure to the caller.
     return fig
 
@@ -82,15 +81,14 @@ def _colorbar_extension_length(spacing):
         for j, extendfrac in enumerate((None, 'auto', 0.1)):
             # Create a subplot.
             cax = fig.add_subplot(12, 1, i*3 + j + 1)
-            # Turn off text and ticks.
-            for item in cax.get_xticklabels() + cax.get_yticklabels() +\
-                    cax.get_xticklines() + cax.get_yticklines():
-                item.set_visible(False)
             # Generate the colorbar.
             ColorbarBase(cax, cmap=cmap, norm=norm,
                          boundaries=boundaries, values=values,
                          extend=extension_type, extendfrac=extendfrac,
                          orientation='horizontal', spacing=spacing)
+            # Turn off text and ticks.
+            cax.tick_params(left=False, labelleft=False,
+                            bottom=False, labelbottom=False)
     # Return the figure to the caller.
     return fig
 

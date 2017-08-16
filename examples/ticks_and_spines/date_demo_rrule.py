@@ -34,7 +34,6 @@ fig, ax = plt.subplots()
 plt.plot_date(dates, s)
 ax.xaxis.set_major_locator(loc)
 ax.xaxis.set_major_formatter(formatter)
-labels = ax.get_xticklabels()
-plt.setp(labels, rotation=30, fontsize=10)
+ax.xaxis.set_tick_params(rotation=30, labelsize=10)
 
 plt.show()
