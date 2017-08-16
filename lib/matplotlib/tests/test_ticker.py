@@ -570,6 +570,9 @@ class TestEngFormatter(object):
         fmt = mticker.EngFormatter(unit)
         assert fmt(input) == expected
 
+    def test_separator(self):
+        assert mticker.EngFormatter(separator="")(0.1) == u"100m"
+        assert mticker.EngFormatter(unit="g", separator="")(1001) == u"1.001kg"
 
 class TestPercentFormatter(object):
     percent_data = [
