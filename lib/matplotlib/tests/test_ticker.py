@@ -574,6 +574,7 @@ class TestEngFormatter(object):
         assert mticker.EngFormatter(separator="")(0.1) == u"100m"
         assert mticker.EngFormatter(unit="g", separator="")(1001) == u"1.001kg"
 
+
 class TestPercentFormatter(object):
     percent_data = [
         # Check explicitly set decimals over different intervals and values
