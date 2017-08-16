@@ -1183,11 +1183,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
 
-        if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
-            if hasattr(self, '_corner_mask') and self._corner_mask == 'legacy':
-                warnings.warn("Contour levels are not increasing")
-            else:
-                raise ValueError("Contour levels must be increasing")
+        # Sort the contour levels.
+        if len(self.levels) > 1:
+            self.levels = list(sorted(set(self.levels)))
 
     @property
     def vmin(self):
