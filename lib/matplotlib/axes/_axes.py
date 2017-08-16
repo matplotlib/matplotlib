@@ -5408,10 +5408,6 @@ or tuple of floats
         X, Y, C = self._pcolorargs('pcolor', *args, **kw)
         Ny, Nx = X.shape
 
-        if (isinstance(norm, mcolors.BivariateNorm) or
-                isinstance(cmap, mcolors.BivariateColormap)):
-            norm = mcolors.NoNorm()
-
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
         X = self.convert_xunits(X)
@@ -5426,7 +5422,10 @@ or tuple of floats
         xymask = (mask[0:-1, 0:-1] + mask[1:, 1:] +
                   mask[0:-1, 1:] + mask[1:, 0:-1])
         # don't plot if C or any of the surrounding vertices are masked.
-        mask = ma.getmaskarray(C) + xymask
+        if isinstance(norm, mcolors.BivariateNorm):
+            mask = ma.getmaskarray(C[0]) + ma.getmaskarray(C[1]) + xymask
+        else:
+            mask = ma.getmaskarray(C) + xymask
 
         newaxis = np.newaxis
         compress = np.compress
@@ -5450,7 +5449,14 @@ or tuple of floats
                             axis=1)
         verts = xy.reshape((npoly, 5, 2))
 
-        C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
+        if isinstance(norm, mcolors.BivariateNorm):
+            C0 = C[0]
+            C1 = C[1]
+            C0 = compress(ravelmask, ma.filled(C0[0:Ny - 1, 0:Nx - 1]).ravel())
+            C1 = compress(ravelmask, ma.filled(C1[0:Ny - 1, 0:Nx - 1]).ravel())
+            C = np.array([C0, C1])
+        else:
+            C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
 
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
@@ -5769,8 +5775,7 @@ or tuple of floats
         isBivari = (isinstance(norm, mcolors.BivariateNorm)
                     or isinstance(cmap, mcolors.BivariateColormap))
         if (C.ndim == 3 and isBivari):
-            C = norm(C)
-            nr, nc = C.shape
+            nr, nc = C.shape[1:]
         else:
             nr, nc = C.shape
         if len(args) == 1:
