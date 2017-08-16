@@ -1214,7 +1214,7 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", separator=" ", places=None):
+    def __init__(self, unit="", places=None, separator=" "):
         self.unit = unit
         self.separator = separator
         self.places = places
