@@ -349,7 +349,7 @@ def test_annotate_default_arrow():
     assert ann.arrow_patch is not None
 
 
-@image_comparison(baseline_images=['polar_axes'])
+@image_comparison(baseline_images=['polar_axes'], style='default')
 def test_polar_annotations():
     # you can specify the xypoint and the xytext in different
     # positions and coordinate systems, and optionally turn on a
@@ -383,7 +383,7 @@ def test_polar_annotations():
                 )
 
 
-@image_comparison(baseline_images=['polar_coords'],
+@image_comparison(baseline_images=['polar_coords'], style='default',
                   remove_text=True)
 def test_polar_coord_annotations():
     # You can also use polar notation on a catesian axes.  Here the
@@ -558,9 +558,8 @@ def test_const_xy():
     plt.plot(np.ones((10,)), np.ones((10,)), 'o')
 
 
-@image_comparison(baseline_images=['polar_wrap_180',
-                                   'polar_wrap_360',
-                                   ])
+@image_comparison(baseline_images=['polar_wrap_180', 'polar_wrap_360'],
+                  style='default')
 def test_polar_wrap():
     D2R = np.pi / 180.0
 
@@ -581,7 +580,8 @@ def test_polar_wrap():
     plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
 
 
-@image_comparison(baseline_images=['polar_units', 'polar_units_2'])
+@image_comparison(baseline_images=['polar_units', 'polar_units_2'],
+                  style='default')
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -612,7 +612,7 @@ def test_polar_units():
                       units.UnitDblFormatter)
 
 
-@image_comparison(baseline_images=['polar_rmin'])
+@image_comparison(baseline_images=['polar_rmin'], style='default')
 def test_polar_rmin():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -661,14 +661,15 @@ def test_polar_theta_position():
     ax.set_theta_direction('clockwise')
 
 
-@image_comparison(baseline_images=['polar_rlabel_position'])
+@image_comparison(baseline_images=['polar_rlabel_position'], style='default')
 def test_polar_rlabel_position():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='polar')
     ax.set_rlabel_position(315)
 
 
-@image_comparison(baseline_images=['polar_theta_wedge'], style='default')
+@image_comparison(baseline_images=['polar_theta_wedge'], style='default',
+                  tol=0.01 if six.PY2 else 0)
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -1307,7 +1308,7 @@ def test_markevery_log_scales():
         plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 
 
-@image_comparison(baseline_images=['markevery_polar'],
+@image_comparison(baseline_images=['markevery_polar'], style='default',
                   remove_text=True)
 def test_markevery_polar():
     cases = [None,
