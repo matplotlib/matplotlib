@@ -1285,16 +1285,15 @@ class EngFormatter(Formatter):
 
         mant = sign * dnum / (10 ** pow10)
 
-        if self.places is None:
-            fmt = "g"
-        elif self.places == 0:
-            fmt = "d"
-        else:
-            fmt = ".{}f".format(self.places)
-
+        # NB: one has to cast *mant* to a float because it is actually
+        # an instance of decimal.Decimal. Combined for `str.format`, this
+        # may produce strings with more than 6 digits in the case of the
+        # "%g" format, which breaks the former behavior that one got with
+        # C-style formatting.  Another option would be to rely on the
+        # `decimal.localcontext()` context manager.
         formatted = "{mant:{fmt}}{sep}{prefix}".format(
-            mant=mant, fmt=fmt, sep=self.sep, prefix=prefix)
-
+            mant=float(mant), sep=self.sep, prefix=prefix,
+            fmt="g" if self.places is None else ".{:d}f".format(self.places))
 
         return formatted
 
