@@ -28,23 +28,6 @@ DEBUG = False
 
 class FigureCanvasQT(FigureCanvasQT5):
 
-    def __init__(self, figure):
-        if DEBUG:
-            print('FigureCanvasQt qt4: ', figure)
-        _create_qApp()
-
-        # Note different super-calling style to backend_qt5
-        QtWidgets.QWidget.__init__(self)
-        FigureCanvasBase.__init__(self, figure)
-        self.figure = figure
-        self.setMouseTracking(True)
-        self._idle = True
-        w, h = self.get_width_height()
-        self.resize(w, h)
-
-        # Key auto-repeat enabled by default
-        self._keyautorepeat = True
-
     def wheelEvent(self, event):
         x = event.x()
         # flipy so y=0 is bottom of canvas
