@@ -172,6 +172,8 @@ class TimerQT(TimerBase):
         self._timer.stop()
 
 
+# FigureCanvasBase is not cooperative so it most go last here
+# or the super-chain will be truncated early.
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     # map Qt button codes to MouseEvent's ones:
@@ -190,12 +192,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         _create_qApp()
         figure._original_dpi = figure.dpi
 
-        # NB: Using super for this call to avoid a TypeError:
-        # __init__() takes exactly 2 arguments (1 given) on QWidget
-        # PyQt5
-        # The need for this change is documented here
+        # PyQt5 does cooperative MI so we can just use `super`, PyQt4
+        # and PySide do not so we have to fake it.
         # http://pyqt.sourceforge.net/Docs/PyQt5/pyqt4_differences.html#cooperative-multi-inheritance
-        super(FigureCanvasQT, self).__init__(figure=figure)
+        self._fake_super_fcq(figure)
         self.figure = figure
         self._update_figure_dpi()
 
@@ -205,6 +205,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
+
+    def _fake_super_fcq(self, figure):
+        super(FigureCanvasQT, self).__init__(figure=figure)
 
     @property
     def _dpi_ratio(self):

@@ -32,7 +32,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
     """
 
     def __init__(self, figure):
-        super(FigureCanvasQTAggBase, self).__init__(figure=figure)
+        self._fake_super_fcqab(figure)
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         self._agg_draw_pending = False
         self._bbox_queue = []
@@ -46,6 +46,9 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # dpi_ratio value here and in paintEvent we resize the canvas if
         # needed.
         self._dpi_ratio_prev = None
+
+    def _fake_super_fcqab(self, figure):
+        super(FigureCanvasQTAggBase, self).__init__(figure=figure)
 
     def drawRectangle(self, rect):
         if rect is not None:
