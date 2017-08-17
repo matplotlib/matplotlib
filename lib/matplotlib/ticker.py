@@ -1214,8 +1214,9 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None):
+    def __init__(self, unit="", places=None, separator=" "):
         self.unit = unit
+        self.separator = separator
         self.places = places
 
     def __call__(self, x, pos=None):
@@ -1261,11 +1262,12 @@ class EngFormatter(Formatter):
         mant = sign * dnum / (10 ** pow10)
 
         if self.places is None:
-            format_str = "%g %s"
+            format_str = "%g"
         elif self.places == 0:
-            format_str = "%i %s"
+            format_str = "%i"
         elif self.places > 0:
-            format_str = ("%%.%if %%s" % self.places)
+            format_str = "%%.%if" % self.places
+        format_str += self.separator + "%s"
 
         formatted = format_str % (mant, prefix)
 
