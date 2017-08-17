@@ -51,7 +51,7 @@ plt.show()
 #
 # :func:`~matplotlib.pyplot.plot` is a versatile command, and will take
 # an arbitrary number of arguments.  For example, to plot x versus y,
-# you can issue the command::
+# you can issue the command:
 
 plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
 
