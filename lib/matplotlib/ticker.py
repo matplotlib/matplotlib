@@ -1285,16 +1285,16 @@ class EngFormatter(Formatter):
 
         mant = sign * dnum / (10 ** pow10)
 
-        # TODO: shouldn't we raise a warning if self.places < 0?
         if self.places is None:
-            format_str = "%g{sep:s}%s".format(sep=self.sep)
+            fmt = "g"
         elif self.places == 0:
-            format_str = "%d{sep:s}%s".format(sep=self.sep)
-        elif self.places > 0:
-            format_str = "%.{p:d}f{sep:s}%s".format(p=self.places,
-                                                    sep=self.sep)
+            fmt = "d"
+        else:
+            fmt = ".{}f".format(self.places)
 
-        formatted = format_str % (mant, prefix)
+        formatted = "{mant:{fmt}}{sep}{prefix}".format(
+            mant=mant, fmt=fmt, sep=self.sep, prefix=prefix)
+
 
         return formatted
 
