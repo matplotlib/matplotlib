@@ -20,7 +20,7 @@ xs = np.logspace(1, 9, 100)
 ys = (0.8 + 0.4 * prng.uniform(size=100)) * np.log10(xs)**2
 
 # Figure width is doubled (2*6.4) to display nicely 2 subplots side by side.
-fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(12.8, 4.8))
+fig, (ax0, ax1) = plt.subplots(nrows=2, figsize=(7, 9.6))
 for ax in (ax0, ax1):
     ax.set_xscale('log')
 
@@ -40,4 +40,5 @@ ax1.xaxis.set_major_formatter(formatter1)
 ax1.plot(xs, ys)
 ax1.set_xlabel('Frequency [Hz]')
 
+plt.tight_layout()
 plt.show()
