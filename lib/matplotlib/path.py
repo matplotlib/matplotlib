@@ -23,7 +23,8 @@ from weakref import WeakValueDictionary
 import numpy as np
 
 from . import _path, rcParams
-from .cbook import simple_linear_interpolation, maxdict
+from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
+                    maxdict)
 
 
 class Path(object):
@@ -129,11 +130,7 @@ class Path(object):
             Makes the path behave in an immutable way and sets the vertices
             and codes as read-only arrays.
         """
-        if isinstance(vertices, np.ma.MaskedArray):
-            vertices = vertices.astype(float).filled(np.nan)
-        else:
-            vertices = np.asarray(vertices, float)
-
+        vertices = _to_unmasked_float_array(vertices)
         if (vertices.ndim != 2) or (vertices.shape[1] != 2):
             msg = "'vertices' must be a 2D list or array with shape Nx2"
             raise ValueError(msg)
@@ -185,11 +182,7 @@ class Path(object):
         """
         internals = internals or {}
         pth = cls.__new__(cls)
-        if isinstance(verts, np.ma.MaskedArray):
-            verts = verts.astype(float).filled(np.nan)
-        else:
-            verts = np.asarray(verts, float)
-        pth._vertices = verts
+        pth._vertices = _to_unmasked_float_array(verts)
         pth._codes = codes
         pth._readonly = internals.pop('readonly', False)
         pth.should_simplify = internals.pop('should_simplify', True)

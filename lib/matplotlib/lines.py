@@ -16,7 +16,8 @@ import numpy as np
 from . import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
+    _to_unmasked_float_array, iterable, is_numlike, ls_mapper, ls_mapper_r,
+    STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -648,20 +649,12 @@ class Line2D(Artist):
     def recache(self, always=False):
         if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
-            if isinstance(self._xorig, np.ma.MaskedArray):
-                x = np.ma.asarray(xconv, float).filled(np.nan)
-            else:
-                x = np.asarray(xconv, float)
-            x = x.ravel()
+            x = _to_unmasked_float_array(xconv).ravel()
         else:
             x = self._x
         if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
-            if isinstance(self._yorig, np.ma.MaskedArray):
-                y = np.ma.asarray(yconv, float).filled(np.nan)
-            else:
-                y = np.asarray(yconv, float)
-            y = y.ravel()
+            y = _to_unmasked_float_array(yconv).ravel()
         else:
             y = self._y
 
