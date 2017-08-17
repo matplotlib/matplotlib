@@ -34,8 +34,8 @@ ax0.set_xlabel('Frequency')
 # Demo of the options `places` (number of digit after decimal point) and
 # `sep` (separator between the number and the prefix/unit).
 ax1.set_title('SI-prefix only ticklabels, 1-digit precision & ' +
-              'hair space separator')
-formatter1 = EngFormatter(places=1, sep=u"\u200a")  # U+200A is hair space
+              'thin space separator')
+formatter1 = EngFormatter(places=1, sep=u"\N{THIN SPACE}")  # U+2009
 ax1.xaxis.set_major_formatter(formatter1)
 ax1.plot(xs, ys)
 ax1.set_xlabel('Frequency [Hz]')

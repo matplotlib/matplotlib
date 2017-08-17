@@ -1228,9 +1228,9 @@ class EngFormatter(Formatter):
             other useful options may be:
 
             * ``sep=""`` to append directly the prefix/unit to the value;
-            * ``sep="\\u2009"`` to use a thin space;
-            * ``sep="\\u202f"`` to use a narrow no-break space;
-            * ``sep="\\u00a0"`` to use a no-break space.
+            * ``sep="\\N{THIN SPACE}"`` (``U+2009``);
+            * ``sep="\\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
+            * ``sep="\\N{NO-BREAK SPACE}"`` (``U+00A0``).
         """
         self.unit = unit
         self.places = places
