@@ -2334,12 +2334,13 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def geometry(self):
-      """
-      Returns numpy.ndarray of shape (2,5) containing x 
-      (RectangleSelector.geometry[1,:]) and y (RectangleSelector.geometry[0,:])
-      coordinates of the four corners of the rectangle starting
-      and ending in the top left corner.
-      """ 
+        """
+        Returns numpy.ndarray of shape (2,5) containing 
+        x (RectangleSelector.geometry[1,:]) and
+        y (RectangleSelector.geometry[0,:])
+        coordinates of the four corners of the rectangle starting
+        and ending in the top left corner.
+        """ 
         if hasattr(self.to_draw, 'get_verts'):
             xfm = self.ax.transData.inverted()
             y, x = xfm.transform(self.to_draw.get_verts()).T
