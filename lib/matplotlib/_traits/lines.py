@@ -44,6 +44,7 @@ class Line2D(Artist):
         can create "stepped" lines in various styles.
         """
 
+        # remain the same throughout
         lineStyles = _lineStyles = {  # hidden names deprecated
             '-':    '_draw_solid',
             '--':   '_draw_dashed',
@@ -54,6 +55,7 @@ class Line2D(Artist):
             '':     '_draw_nothing',
         }
 
+        #remain the same
         _drawStyles_l = {
             'default':    '_draw_lines',
             'steps-mid':  '_draw_steps_mid',
@@ -61,6 +63,7 @@ class Line2D(Artist):
             'steps-post': '_draw_steps_post',
         }
 
+        #remain the same 
         _drawStyles_s = {
             'steps': '_draw_steps_pre',
         }
@@ -96,7 +99,7 @@ class Line2D(Artist):
                 return "Line2D(%s)"\
                     % (",".join(["(%g,%g)" % (x, y) for x, y
                                  in zip(self._x, self._y)]))
-                                 
+
         #this will have to be edited according to the traits
         def __init__(self, xdata, ydata,
                      linewidth=None,  # all Nones default to rc
