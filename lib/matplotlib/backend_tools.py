@@ -732,7 +732,7 @@ class ToolHome(ViewsPositionsBase):
 class ToolBack(ViewsPositionsBase):
     """Move back up the view lim stack"""
 
-    description = 'Back to  previous view'
+    description = 'Back to previous view'
     image = 'back.png'
     default_keymap = rcParams['keymap.back']
     _on_trigger = 'back'

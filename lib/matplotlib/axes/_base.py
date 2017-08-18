@@ -414,7 +414,8 @@ class _AxesBase(martist.Artist):
     _shared_y_axes = cbook.Grouper()
 
     def __str__(self):
-        return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
+        return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
+            type(self).__name__, self._position.bounds)
 
     def __init__(self, fig, rect,
                  facecolor=None,  # defaults to rc axes.facecolor
