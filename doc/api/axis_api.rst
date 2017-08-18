@@ -8,6 +8,8 @@
    :backlinks: entry
 
 .. automodule:: matplotlib.axis
+   :no-members:
+   :no-undoc-members:
 
 Inheritance
 ===========
@@ -20,9 +22,17 @@ Inheritance
 ================
 
 .. autoclass:: Axis
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: XAxis
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: YAxis
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: Ticker
+   :no-members:
+   :no-undoc-members:
 
 
 .. autosummary::
@@ -235,8 +245,14 @@ not used together may de-couple your tick labels from your data.
 ================
 
 .. autoclass:: Tick
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: XTick
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: YTick
+   :no-members:
+   :no-undoc-members:
 
 
 .. autosummary::

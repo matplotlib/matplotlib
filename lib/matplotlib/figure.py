@@ -901,6 +901,8 @@ class Figure(Artist):
 
         Examples
         --------
+        A simple example::
+
             rect = l,b,w,h
             fig.add_axes(rect)
             fig.add_axes(rect, frameon=False, facecolor='g')

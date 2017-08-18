@@ -3,6 +3,8 @@
 ======================
 
 .. automodule:: matplotlib.animation
+   :no-members:
+   :no-undoc-members:
 
 .. contents:: Table of Contents
    :depth: 1
@@ -30,16 +32,10 @@ to.  If you do not hold a reference to the `Animation` object, it (and
 hence the timers), will be garbage collected which will stop the
 animation.
 
-To save an animation to disk use
+To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
 
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-   Animation.save
-   Animation.to_html5_video
-
-See :ref:`ani_writer_classes` below for details about what movie formats are supported.
+See :ref:`ani_writer_classes` below for details about what movie formats are
+supported.
 
 
 ``FuncAnimation``
@@ -205,18 +201,6 @@ from the same underlying `~matplotlib.figure.Figure` object.  The base
 class `MovieWriter` implements 3 methods and a context manager.  The
 only difference between the pipe-based and file-based writers is in the
 arguments to their respective ``setup`` methods.
-
-
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-   MovieWriter.setup
-   FileMovieWriter.setup
-   MovieWriter.grab_frame
-   MovieWriter.finish
-   MovieWriter.saving
-
 
 The ``setup()`` method is used to prepare the writer (possibly opening
 a pipe), successive calls to ``grab_frame()`` capture a single frame
