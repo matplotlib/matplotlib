@@ -1278,7 +1278,7 @@ class EngFormatter(Formatter):
 
         pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
 
-        mant = sign * dnum / (10 ** pow10)
+        mant = sign * dnum / (10.0 ** pow10)
         # Taking care of the cases like 999.9..., which
         # may be rounded to 1000 instead of 1 k.
         if (self.places is not None and
