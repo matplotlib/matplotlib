@@ -23,6 +23,7 @@ import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
                                 validate_colorlist,
+                                validate_color,
                                 validate_bool,
                                 validate_nseq_int,
                                 validate_nseq_float,
@@ -322,6 +323,27 @@ def generate_validator_testcases(valid):
                          np.array([[1, 0, 0], [0, 1, 0]])),
                     ),
          'fail': (('fish', ValueError),
+                 ),
+        },
+        {'validator': validate_color,
+         'success': (('None', 'none'),
+                     ('none', 'none'),
+                     ('AABBCC', '#AABBCC'),  # RGB hex code
+                     ('AABBCC00', '#AABBCC00'),  # RGBA hex code
+                     ('tab:blue', 'tab:blue'),  # named color
+                     ('C0', 'C0'),  # color from cycle
+                     ('(0, 1, 0)', [0.0, 1.0, 0.0]),  # RGB tuple
+                     ((0, 1, 0), (0, 1, 0)),  # non-string version
+                     ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
+                     ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
+                     ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
+                     
+                    ),
+         'fail': (('tab:veryblue', ValueError),  # invalid name
+                  ('C123', ValueError),  # invalid RGB(A) code and cycle index
+                  ('(0, 1)', ValueError),  # tuple with length < 3
+                  ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
+                  ('(0, 1, none)', ValueError),  # cannot cast none to float
                  ),
         },
         {'validator': validate_hist_bins,
