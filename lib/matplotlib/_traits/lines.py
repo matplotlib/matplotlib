@@ -63,7 +63,7 @@ class Line2D(Artist):
             'steps-post': '_draw_steps_post',
         }
 
-        #remain the same 
+        #remain the same
         _drawStyles_s = {
             'steps': '_draw_steps_pre',
         }
@@ -122,6 +122,9 @@ class Line2D(Artist):
                      markevery=None,
                      **kwargs
                      ):
+
+
+
             """
             Create a :class:`~matplotlib.lines.Line2D` instance with *x*
             and *y* data in sequences *xdata*, *ydata*.
@@ -133,8 +136,9 @@ class Line2D(Artist):
             See :meth:`set_linestyle` for a decription of the line styles,
             :meth:`set_marker` for a description of the markers, and
             :meth:`set_drawstyle` for a description of the draw styles.
-
             """
+
+            #initialize Artist in Line2D
             Artist.__init__(self)
 
             #convert sequences to numpy arrays
@@ -251,6 +255,18 @@ class Line2D(Artist):
             self._x_filled = None  # used in subslicing; only x is needed
 
             self.set_data(xdata, ydata)
+"""
+________________________________________________________________________________
+END OF INIT FUNCTION
+"""
+
+
+
+
+
+
+
+
 
         def contains(self, mouseevent):
             """
