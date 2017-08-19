@@ -173,7 +173,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import decimal
 import itertools
 import locale
 import math
@@ -1259,10 +1258,9 @@ class EngFormatter(Formatter):
         u'-1.00 \N{GREEK SMALL LETTER MU}'
 
         `num` may be a numeric value or a string that can be converted
-        to a numeric value with the `decimal.Decimal` constructor.
+        to a numeric value with `float(num)`.
         """
-        dnum = decimal.Decimal(str(num))
-
+        dnum = float(num)
         sign = 1
 
         if dnum < 0:
@@ -1270,29 +1268,28 @@ class EngFormatter(Formatter):
             dnum = -dnum
 
         if dnum != 0:
-            pow10 = decimal.Decimal(int(math.floor(dnum.log10() / 3) * 3))
+            pow10 = int(math.floor(math.log10(dnum) / 3) * 3)
         else:
-            pow10 = decimal.Decimal(0)
+            pow10 = 0
             # Force dnum to zero, to avoid inconsistencies like
             # format_eng(-0) = "0" and format_eng(0.0) = "0"
             # but format_eng(-0.0) = "-0.0"
-            dnum = decimal.Decimal(0)
+            dnum = 0.0
 
-        pow10 = pow10.min(max(self.ENG_PREFIXES))
-        pow10 = pow10.max(min(self.ENG_PREFIXES))
+        pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
+
+        mant = sign * dnum / (10 ** pow10)
+        # Taking care of the cases like 999.9..., which
+        # may be rounded to 1000 instead of 1 k.
+        if (self.places is not None and
+                round(mant, self.places) >= 1000):
+            mant /= 1000
+            pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
 
-        mant = sign * dnum / (10 ** pow10)
-
-        # NB: one has to cast *mant* to a float because it is actually
-        # an instance of decimal.Decimal. Combined for `str.format`, this
-        # may produce strings with more than 6 digits in the case of the
-        # "%g" format, which breaks the former behavior that one got with
-        # C-style formatting.  Another option would be to rely on the
-        # `decimal.localcontext()` context manager.
         formatted = "{mant:{fmt}}{sep}{prefix}".format(
-            mant=float(mant), sep=self.sep, prefix=prefix,
+            mant=mant, sep=self.sep, prefix=prefix,
             fmt="g" if self.places is None else ".{:d}f".format(self.places))
 
         return formatted
