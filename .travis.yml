@@ -102,7 +102,7 @@ install:
     pip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from pypi
-    pip install -v $PRE \
+    pip install --upgrade $PRE \
         $MOCK \
         $NOSE \
         $NUMPY \
