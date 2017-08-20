@@ -1218,7 +1218,10 @@ class EngFormatter(Formatter):
             Precision with which to display the number, specified in
             digits after the decimal point (there will be between one
             and three digits before the decimal point). If it is None,
-            falls back to the floating point format '%g'.
+            the formatting falls back to the floating point format '%g',
+            which displays up to 6 *significant* digits (i.e. the
+            equivalent value for *places* varies between 0 and 5, both
+            values included).
 
         sep : str (default: " ")
             Separator used between the value and the prefix/unit. For
@@ -1258,7 +1261,7 @@ class EngFormatter(Formatter):
         u'-1.00 \N{GREEK SMALL LETTER MU}'
 
         `num` may be a numeric value or a string that can be converted
-        to a numeric value with `float(num)`.
+        to a numeric value with ``float(num)``.
         """
         dnum = float(num)
         sign = 1

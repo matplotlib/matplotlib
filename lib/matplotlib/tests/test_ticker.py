@@ -612,7 +612,7 @@ class TestEngFormatter(object):
 
         # Test several non default separators: no separator, a narrow
         # no-break space (unicode character) and an extravagant string.
-        for _sep in ("", "\u202f", "@_@"):
+        for _sep in ("", "\N{NARROW NO-BREAK SPACE}", "@_@"):
             # Case 2: unit=UNIT and sep=_sep.
             # Replace the default space separator from the reference case
             # with the tested one `_sep` and append a unit symbol to it.
