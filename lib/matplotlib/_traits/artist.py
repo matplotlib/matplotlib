@@ -82,100 +82,37 @@ class Artist(HasTraits, b_artist.Artist):
     aname = 'Artist'
     zorder = 0
     _prop_order = dict(color=-1)
-    # aname=Unicode('Artist')
-    # zorder=Int(default_value=0)
-    # _prop_order = dict(color=-1)
-    # prop_order=Dict() #asked thomas question about this asstribute
+
     # pchanged = Bool(default_value = False)
     stale=Bool(default_value=True)
     stale_callback=Callable(allow_none=True, default_value=True)
     axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
-    # axes=Instance(Axes, allow_none=True, default_value=None)
-
     figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
-    # figure=Instance(Figure, allow_none=True, default_value=None)
-
     #not sure if this would be the correct way to call TransformTrait
     transform = TransformTrait(allow_none=True, default_value=None)
-    # transform=Instance('matplotlib.transform.Transform', allow_none=True, default_value=None)
-
     transformSet=Bool(default_value=False)
     visible=Bool(default_value=True)
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
-
     clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
-    # clipbox=Instance(Bbox, allow_none=True, default_value=None)
-
-    # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
-    # clippath = Union([Instance(TransformedPath),Instance(Patch)], allow_none=True, default_value=None)
     clippath = Union([Instance('matplotlib.transforms.TransformedPath'),Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
-
-
     clipon=Bool(default_value=True)
-
-    # label=Unicode(allow_none=True, default_value='')
     label = Instance('matplotlib.text.Text', allow_none=True,default_value='')
-
     picker=Union([Float(),Bool(),Callable()], allow_none=True, default_value=None)
     contains=List(default_value=None)
     rasterized=Perishable(Bool(allow_none=True, default_value=None))
-    agg_filter=Unicode(allow_none=True, default_value=None) #set agg_filter function
+    agg_filter=Unicode(allow_none=True, default_value=None)
     mouseover=Bool(default_value=False)
     eventson=Bool(default_value=False)
     oid=Int(allow_none=True, default_value=0)
-    propobservers=Dict(default_value={}) #this may or may not work o/w leave alone and see what happens
+    propobservers=Dict(default_value={})
     remove_method = Any(allow_none = True, default_value = None)
     url=Unicode(allow_none=True, default_value=None)
     gid=Unicode(allow_none=True, default_value=None)
     snap=Perishable(Bool(allow_none=True, default_value=None))
-    # sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     sketch=Tuple(Float(),Float(),Float())
-    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects']) #ask abotu this attribute
-
-
-    #_XYPair = namedtuple("_XYPair", "x y")
-    #sticky_edges is a tuple with lists of floats
-    #the first element of this tuple represents x
-    #and the second element of sticky_edges represents y
-    # sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
+    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects'])
     sticky_edges = _XYPair([],[])
-    # print("sticky_edges class _XYPair tester: ", sticky_edges)
-
-
-    # def __init__(self):
-    #     # self.aname
-    #     # self.zorder
-    #     # self.prop_order
-    #     self.stale
-    #     self.stale_callback
-    #     self.axes
-    #     self.figure
-    #     self.transform
-    #     self.transformSet
-    #     self.visible
-    #     self.animated
-    #     self.alpha
-    #     self.clipbox
-    #     self.clippath
-    #     self.clipon
-    #     self.label
-    #     self.picker
-    #     self.contains
-    #     self.rasterized
-    #     self.agg_filter
-    #     self.mouseover
-    #     self.eventson
-    #     self.oid
-    #     self.propobservers
-    #     self.remove_method
-    #     self.url
-    #     self.gid
-    #     self.snap
-    #     self.sketch
-    #     self.path_effects
-    #     self.sticky_edges
-
 
     #stale default
     @default("stale")
@@ -262,11 +199,7 @@ class Artist(HasTraits, b_artist.Artist):
         if self.figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        # self.figure = proposal.value
         return proposal.value
-        #what does this line even mean?
-        # if self.figure and self.figure is not self:
-        # return proposal.value
     #figure observer
     @observe("figure", type="change")
     def _figure_observe(self, change):
@@ -425,14 +358,12 @@ class Artist(HasTraits, b_artist.Artist):
         if transform is None:
             if isinstance(path, Rectangle):
                 print("setting clippbox to TransformedBbox")
-                # print("clippbox before setting TransformedBbox", self.clippbox)
                 print("Bbox.unit()", Bbox.unit())
                 print("path.get_transform()",path.get_transform())
                 transformedBbox_clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
                 print("transformedBbox_clipbox: ", transformedBbox_clipbox)
                 Bbox_clipbox = Bbox(transformedBbox_clipbox)
                 print("Bbox_clipbox: ", Bbox_clipbox)
-                # self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
                 self.clipbox = Bbox_clipbox
                 self.clippath = None
                 return
@@ -676,16 +607,10 @@ class Artist(HasTraits, b_artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-    # This may not work, I may or may not have to work around rcParams['path.sketch']
-    # but I am not sure yet
-    # this may also have to be a trait?
     #sketch default
     @default("sketch")
     def _sketch_default(self):
         print("generating default sketch value")
-        # print('rcParams[path.sketch]: ', rcParams['path.sketch'])
-        # return rcParams['path.sketch']
-        # return None
         return (0.0, 0.0, 0.0)
     #sketch validate
     @validate("sketch")
@@ -695,9 +620,7 @@ class Artist(HasTraits, b_artist.Artist):
             return None
         else:
             #(scale, length or 128.0, randomness or 16.0)
-            #not sure if this is how to go about this?
             return (proposal.value[0], proposal.value[1] or 128.0, proposal.value[2] or 16.0)
-        # return proposal.value
     #sketch observer
     @observe("sketch", type="change")
     def _sketch_observe(self, change):
@@ -728,24 +651,6 @@ class Artist(HasTraits, b_artist.Artist):
         print("path_effects: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
         print("set stale: %r" % self.stale)
-
-    # #sticky_edges default
-    # @default("sticky_edges")
-    # def _sticky_edges_default(self):
-    #     print("generating default sticky_edges value")
-    #     #(x,y) where x & yare both List(trait=Float())
-    #     #Tuple(List(trait=Float()), List(trait=Float()))
-    #     return ([], [])
-    # #sticky_edges validate
-    # @validate("sticky_edges")
-    # def _sticky_edges_validate(self, proposal):
-    #     print("sticky_edges: cross validating %r, %r" % (proposal.value[0], proposal.value[1]))
-    #     return proposal.value
-    # #sticky_edges observer
-    # @observe("sticky_edges", type="change")
-    # def _sticky_edges_observe(self, change):
-    #     print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
-
 
     def remove(self):
         """
