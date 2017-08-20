@@ -8,29 +8,34 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import warnings
 import numpy as np
-from .artist import Artist
+
+
+# from .artist import Artist
 from matplotlib import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
+import matplotlib.artist as b_artist
+print('matplotlib.artist b_artist: ', b_artist)
+
+
 # import matplotlib._traits.artist as artist
 # from matplotlib._traits.artist import Artist, allow_rasterization
 from .cbook import (
     iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
-from .markers import MarkerStyle
-from .path import Path
-from .transforms import Bbox, TransformedPath, IdentityTransform
+from matplotlib.markers import MarkerStyle
+from matplotlib.path import Path
+from matplotlib.transforms import Bbox, TransformedPath, IdentityTransform
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from numpy import ma
 from . import _path
-from .markers import (
+from matplotlib.markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
 #for monkey patching into base lines
 import matplotlib.lines.Line2D as b_Line2D
-import matplotlib.artist as b_artist
-print('matplotlib.artist b_artist: ', b_artist)
+
 
 class Line2D(HasTraits, b_artist.Artist):
     """
@@ -274,6 +279,262 @@ class Line2D(HasTraits, b_artist.Artist):
 ________________________________________________________________________________
 END OF INIT FUNCTION
 """
+
+    #xdata default
+    @default("xdata")
+    def _xdata_default(self):
+        print("xdata: generating default value")
+        return False
+    #xdata validate
+    @validate("xdata")
+    def _xdata_validate(self, proposal):
+        print("xdata: cross validating %r" % proposal.value)
+        return proposal.value
+    #xdata observer
+    @observe("xdata", type="change")
+    def _xdata_observe(self, change):
+        print("xdata: observed a change from %r to %r" % (change.old, change.new))
+
+#ydata default
+    @default("ydata")
+    def _ydata_default(self):
+        print("ydata: generating default value")
+        return False
+    #ydata validate
+    @validate("ydata")
+    def _ydata_validate(self, proposal):
+        print("ydata: cross validating %r" % proposal.value)
+        return proposal.value
+    #ydata observer
+    @observe("ydata", type="change")
+    def _ydata_observe(self, change):
+        print("ydata: observed a change from %r to %r" % (change.old, change.new))
+
+    #linewidth default
+    @default("linewidth")
+    def _linewidth_default(self):
+        print("linewidth: generating default value")
+        return False
+    #linewidth validate
+    @validate("linewidth")
+    def _linewidth_validate(self, proposal):
+        print("linewidth: cross validating %r" % proposal.value)
+        return proposal.value
+    #linewidth observer
+    @observe("linewidth", type="change")
+    def _linewidth_observe(self, change):
+        print("linewidth: observed a change from %r to %r" % (change.old, change.new))
+
+    #linestyle default
+    @default("linestyle")
+    def _linestyle_default(self):
+        print("linestyle: generating default value")
+        return False
+    #linestyle validate
+    @validate("linestyle")
+    def _linestyle_validate(self, proposal):
+        print("linestyle: cross validating %r" % proposal.value)
+        return proposal.value
+    #linestyle observer
+    @observe("linestyle", type="change")
+    def _linestyle_observe(self, change):
+        print("linestyle: observed a change from %r to %r" % (change.old, change.new))
+
+    #color default
+    @default("color")
+    def _color_default(self):
+        print("color: generating default value")
+        return False
+    #color validate
+    @validate("color")
+    def _color_validate(self, proposal):
+        print("color: cross validating %r" % proposal.value)
+        return proposal.value
+    #color observer
+    @observe("color", type="change")
+    def _color_observe(self, change):
+        print("color: observed a change from %r to %r" % (change.old, change.new))
+
+    #marker default
+    @default("marker")
+    def _marker_default(self):
+        print("marker : generating default value")
+        return False
+    #marker validate
+    @validate("marker")
+    def _marker_validate(self, proposal):
+        print("marker: cross validating %r" % proposal.value)
+        return proposal.value
+    #marker observer
+    @observe("marker", type="change")
+    def _marker_observe(self, change):
+        print("marker: observed a change from %r to %r" % (change.old, change.new))
+
+    #markersize default
+    @default("markersize")
+    def _markersize_default(self):
+        print("markersize : generating default value")
+        return False
+    #markersize validate
+    @validate("markersize")
+    def _markersize_validate(self, proposal):
+        print("markersize: cross validating %r" % proposal.value)
+        return proposal.value
+    #markersize observer
+    @observe("markersize", type="change")
+    def _markersize_observe(self, change):
+        print("markersize: observed a change from %r to %r" % (change.old, change.new))
+
+    #markeredgewidth default
+    @default("markeredgewidth")
+    def _markeredgewidth_default(self):
+        print("markeredgewidth : generating default value")
+        return False
+    #markeredgewidth validate
+    @validate("markeredgewidth")
+    def _markeredgewidth_validate(self, proposal):
+        print("markeredgewidth: cross validating %r" % proposal.value)
+        return proposal.value
+    #markeredgewidth observer
+    @observe("markeredgewidth", type="change")
+    def _markeredgewidth_observe(self, change):
+        print("markeredgewidth: observed a change from %r to %r" % (change.old, change.new))
+
+    #fillstyle default
+    @default("fillstyle")
+    def _fillstyle_default(self):
+        print("fillstyle : generating default value")
+        return False
+    #fillstyle validate
+    @validate("fillstyle")
+    def _fillstyle_validate(self, proposal):
+        print("fillstyle: cross validating %r" % proposal.value)
+        return proposal.value
+    #fillstyle observer
+    @observe("fillstyle", type="change")
+    def _fillstyle_observe(self, change):
+        print("fillstyle: observed a change from %r to %r" % (change.old, change.new))
+
+    #antialiased default
+    @default("antialiased")
+    def _antialiased_default(self):
+        print("antialiased : generating default value")
+        return False
+    #antialiased validate
+    @validate("antialiased")
+    def _antialiased_validate(self, proposal):
+        print("antialiased: cross validating %r" % proposal.value)
+        return proposal.value
+    #antialiased observer
+    @observe("antialiased", type="change")
+    def _antialiased_observe(self, change):
+        print("antialiased: observed a change from %r to %r" % (change.old, change.new))
+
+    #dash_capstyle default
+    @default("dash_capstyle")
+    def _dash_capstyle_default(self):
+        print("dash_capstyle : generating default value")
+        return False
+    #dash_capstyle validate
+    @validate("dash_capstyle")
+    def _dash_capstyle_validate(self, proposal):
+        print("dash_capstyle: cross validating %r" % proposal.value)
+        return proposal.value
+    #dash_capstyle observer
+    @observe("dash_capstyle", type="change")
+    def _dash_capstyle_observe(self, change):
+        print("dash_capstyle: observed a change from %r to %r" % (change.old, change.new))
+
+    #solid_capstyle default
+    @default("solid_capstyle")
+    def _solid_capstyle_default(self):
+        print("solid_capstyle : generating default value")
+        return False
+    #solid_capstyle validate
+    @validate("solid_capstyle")
+    def _solid_capstyle_validate(self, proposal):
+        print("solid_capstyle: cross validating %r" % proposal.value)
+        return proposal.value
+    #solid_capstyle observer
+    @observe("solid_capstyle", type="change")
+    def _solid_capstyle_observe(self, change):
+        print("solid_capstyle: observed a change from %r to %r" % (change.old, change.new))
+
+    #dash_joinstyle default
+    @default("dash_joinstyle")
+    def _dash_joinstyle_default(self):
+        print("dash_joinstyle : generating default value")
+        return False
+    #dash_joinstyle validate
+    @validate("dash_joinstyle")
+    def _dash_joinstyle_validate(self, proposal):
+        print("dash_joinstyle: cross validating %r" % proposal.value)
+        return proposal.value
+    # observer
+    @observe("dash_joinstyle", type="change")
+    def __dash_joinstyleobserve(self, change):
+        print(": observed a change from %r to %r" % (change.old, change.new))
+
+    #solid_joinstyle default
+    @default("solid_joinstyle")
+    def _solid_joinstyle_default(self):
+        print("solid_joinstyle : generating default value")
+        return False
+    #solid_joinstyle validate
+    @validate("solid_joinstyle")
+    def _solid_joinstyle_validate(self, proposal):
+        print("solid_joinstyle: cross validating %r" % proposal.value)
+        return proposal.value
+    #solid_joinstyle observer
+    @observe("solid_joinstyle", type="change")
+    def _solid_joinstyle_observe(self, change):
+        print("solid_joinstyle: observed a change from %r to %r" % (change.old, change.new))
+
+    #pickradius default
+    @default("pickradius")
+    def _pickradius_default(self):
+        print("pickradius : generating default value")
+        return False
+    #pickradius validate
+    @validate("pickradius")
+    def _pickradius_validate(self, proposal):
+        print("pickradius: cross validating %r" % proposal.value)
+        return proposal.value
+    #pickradius observer
+    @observe("pickradius", type="change")
+    def _pickradius_observe(self, change):
+        print("pickradius: observed a change from %r to %r" % (change.old, change.new))
+
+    #drawstyle default
+    @default("drawstyle")
+    def _drawstyle_default(self):
+        print("drawstyle : generating default value")
+        return False
+    #drawstyle validate
+    @validate("drawstyle")
+    def _drawstyle_validate(self, proposal):
+        print("drawstyle: cross validating %r" % proposal.value)
+        return proposal.value
+    #drawstyle observer
+    @observe("drawstyle", type="change")
+    def _drawstyle_observe(self, change):
+        print("drawstyle: observed a change from %r to %r" % (change.old, change.new))
+
+    #markevery default
+    @default("markevery")
+    def _markevery_default(self):
+        print("markevery : generating default value")
+        return False
+    #markevery validate
+    @validate("markevery")
+    def _markevery_validate(self, proposal):
+        print("markevery: cross validating %r" % proposal.value)
+        return proposal.value
+    #markevery observer
+    @observe("markevery", type="change")
+    def _markevery_observe(self, change):
+        print("markevery: observed a change from %r to %r" % (change.old, change.new))
+
 
 
 #for monkey patching
