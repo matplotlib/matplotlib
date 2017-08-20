@@ -27,27 +27,11 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-
-
-
-
-
-
 from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe, Any
 # from traitlets import Callable
 
 from .traits import TraitProxy, Perishable, TransformTrait, Callable
 
-#this is for sticky_edges but im thinking we can just use a tuple trait...?
-# _XYPair = namedtuple("_XYPair", "x y")
-# class _XYPair(Tuple):
-#     x = List(trait=Float())
-#     y = List(trait=Float())
-#
-#     def __init__(self):
-#         Tuple.__init__(self)
-#         self.x = []
-#         self.y = []
 
 def allow_rasterization(draw):
     """
