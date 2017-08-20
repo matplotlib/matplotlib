@@ -337,7 +337,7 @@ def generate_validator_testcases(valid):
                      ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
                      ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
                      ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
-                     
+
                     ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
                   ('C123', ValueError),  # invalid RGB(A) code and cycle index
