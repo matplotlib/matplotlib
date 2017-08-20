@@ -1265,6 +1265,7 @@ class EngFormatter(Formatter):
         """
         dnum = float(num)
         sign = 1
+        fmt = "g" if self.places is None else ".{:d}f".format(self.places)
 
         if dnum < 0:
             sign = -1
@@ -1283,17 +1284,18 @@ class EngFormatter(Formatter):
 
         mant = sign * dnum / (10.0 ** pow10)
         # Taking care of the cases like 999.9..., which
-        # may be rounded to 1000 instead of 1 k.
-        if (self.places is not None and
-                round(mant, self.places) >= 1000):
+        # may be rounded to 1000 instead of 1 k.  Beware
+        # of the corner case of values that are beyond
+        # the range of SI prefixes (i.e. > 'Y').
+        _fmant = float("{mant:{fmt}}".format(mant=mant, fmt=fmt))
+        if _fmant >= 1000 and pow10 != max(self.ENG_PREFIXES):
             mant /= 1000
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
 
         formatted = "{mant:{fmt}}{sep}{prefix}".format(
-            mant=mant, sep=self.sep, prefix=prefix,
-            fmt="g" if self.places is None else ".{:d}f".format(self.places))
+            mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
 
         return formatted
 
