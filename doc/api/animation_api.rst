@@ -50,12 +50,13 @@ The inner workings of `FuncAnimation` is more-or-less::
   for d in frames:
      artists = func(d, *fargs)
      fig.canvas.draw_idle()
-     plt.pause(interval)
+     fig.canvas.start_event_loop(interval)
 
 
 with details to handle 'blitting' (to dramatically improve the live
-performance), to be non-blocking, handle repeats, multiple animated
-axes, and easily save the animation to a movie file.
+performance), to be non-blocking, not repeatedly start/stop the GUI
+event loop, handle repeats, multiple animated axes, and easily save
+the animation to a movie file.
 
 'Blitting' is a `old technique
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in computer graphics.  The
@@ -86,7 +87,7 @@ time.  When using blitting (by passing ``blit=True``) the core loop of
    for f in frames:
        artists = func(f, *fargs)
        update_blit(artists)
-       plt.pause(interval)
+       fig.canvas.start_event_loop(interval)
 
 This is of course leaving out many details (such as updating the
 background when the figure is resized or fully re-drawn).  However,
