@@ -375,7 +375,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if A.ndim == 2 or (A.ndim == 3 and
                                isinstance(self.norm, mcolors.BivariateNorm)):
                 A = self.norm(A)
-                if A.dtype.kind == 'f':
+                if (A.dtype.kind == 'f' and
+                        not isinstance(self.norm, mcolors.BivariateNorm)):
                     # If the image is greyscale, convert to RGBA and
                     # use the extra channels for resizing the over,
                     # under, and bad pixels.  This is needed because
@@ -421,7 +422,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
             if not created_rgba_mask:
                 # Always convert to RGBA, even if only RGB input
-                isBivari = (A.ndim == 2 and A.shape[0] == 2)
+                isBivari = (A.ndim == 3 and A.shape[0] == 2)
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
                 elif A.shape[2] != 4 and not isBivari:

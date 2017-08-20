@@ -473,6 +473,11 @@ class Colormap(object):
             xa = np.array([X])
         else:
             vtype = 'array'
+            if isinstance(self, BivariateColormap):
+                X[0] = X[0] * 256
+                X[1] = X[1] * 256
+                X = X.astype(int)
+                X = X[0] + X[1] * 256
             xma = np.ma.array(X, copy=True)  # Copy here to avoid side effects.
             mask_bad = xma.mask              # Mask will be used below.
             xa = xma.filled()                # Fill to avoid infs, etc.
@@ -1427,13 +1432,8 @@ class BivariateNorm(Norms):
         if clip is None:
             clip = [self.norm1.clip, self.norm2.clip]
 
-        temp = np.asarray([self.norm1(values[0], clip=clip[0]),
+        return np.asarray([self.norm1(values[0], clip=clip[0]),
                           self.norm2(values[1], clip=clip[1])])
-
-        temp[0] = temp[0] * (256)
-        temp[1] = temp[1] * (256)
-        temp = temp.astype(int)
-        return temp[0] + temp[1] * 256
 
     def autoscale(self, A):
         """
