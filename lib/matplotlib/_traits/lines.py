@@ -6,23 +6,18 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
 import warnings
-
 import numpy as np
-
-from . import artist, colors as mcolors, docstring, rcParams
+from .artist import Artist
+from matplotlib import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
-
 # import matplotlib._traits.artist as artist
 # from matplotlib._traits.artist import Artist, allow_rasterization
-
 from .cbook import (
     iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
-
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from numpy import ma
@@ -32,11 +27,12 @@ from .markers import (
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
+#for monkey patching into base lines
 import matplotlib.lines.Line2D as b_Line2D
-from .artist import Artist
+import matplotlib.artist as b_artist
+print('matplotlib.artist b_artist: ', b_artist)
 
-
-class Line2D(Artist):
+class Line2D(HasTraits, b_artist.Artist):
         """
         A line - the line can have both a solid linestyle connecting all
         the vertices, and a marker at each vertex.  Additionally, the
@@ -259,14 +255,6 @@ class Line2D(Artist):
 ________________________________________________________________________________
 END OF INIT FUNCTION
 """
-
-
-
-
-
-
-
-
 
         def contains(self, mouseevent):
             """
