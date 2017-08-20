@@ -33,23 +33,23 @@ import matplotlib.artist as b_artist
 print('matplotlib.artist b_artist: ', b_artist)
 
 class Line2D(HasTraits, b_artist.Artist):
-        """
-        A line - the line can have both a solid linestyle connecting all
-        the vertices, and a marker at each vertex.  Additionally, the
-        drawing of the solid line is influenced by the drawstyle, e.g., one
-        can create "stepped" lines in various styles.
-        """
+    """
+    A line - the line can have both a solid linestyle connecting all
+    the vertices, and a marker at each vertex.  Additionally, the
+    drawing of the solid line is influenced by the drawstyle, e.g., one
+    can create "stepped" lines in various styles.
+    """
 
-        # remain the same throughout
-        lineStyles = _lineStyles = {  # hidden names deprecated
-            '-':    '_draw_solid',
-            '--':   '_draw_dashed',
-            '-.':   '_draw_dash_dot',
-            ':':    '_draw_dotted',
-            'None': '_draw_nothing',
-            ' ':    '_draw_nothing',
-            '':     '_draw_nothing',
-        }
+    # remain the same throughout
+    lineStyles = _lineStyles = {  # hidden names deprecated
+        '-':    '_draw_solid',
+        '--':   '_draw_dashed',
+        '-.':   '_draw_dash_dot',
+        ':':    '_draw_dotted',
+        'None': '_draw_nothing',
+        ' ':    '_draw_nothing',
+        '':     '_draw_nothing',
+    }
 
         #remain the same
         _drawStyles_l = {
@@ -80,6 +80,25 @@ class Line2D(HasTraits, b_artist.Artist):
         zorder = 2
         validCap = ('butt', 'round', 'projecting')
         validJoin = ('miter', 'round', 'bevel')
+
+        xdata=Instance('numpy.array', allow_none=True,default_value=True) # not sure about this line
+        ydata=Instance('numpy.array', allow_none=True,default_value=True) # not sure about this line
+        linewidth=Float(allow_none=True, default_value=None)
+        # linestyle=
+        # color=
+        marker=Instance('matplotlib.markers',allow_none=True, default_value=None)
+        markersize=Float(allow_none=True,default_value=True)
+        # markeredgewidth=
+        # fillstyle=
+        antialiased=Bool(default_value=False)
+        # dash_capstyle=
+        # solid_capstyle=
+        # dash_joinstyle=
+        # solid_joinstyle=
+        pickradius=Int(allow_none=True, default_value=5)
+        # drawstyle=
+        # markevery=
+
 
         # not sure how much this will have to be refactored
         def __str__(self):
@@ -255,6 +274,11 @@ class Line2D(HasTraits, b_artist.Artist):
 ________________________________________________________________________________
 END OF INIT FUNCTION
 """
+
+
+
+
+
 
         def contains(self, mouseevent):
             """
@@ -1253,4 +1277,4 @@ END OF INIT FUNCTION
 
 
 #for monkey patching
-# b_Line2D = Line2D()
+b_Line2D = Line2D()
