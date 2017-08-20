@@ -5450,11 +5450,12 @@ or tuple of floats
         verts = xy.reshape((npoly, 5, 2))
 
         if isinstance(norm, mcolors.BivariateNorm):
-            C0 = C[0]
-            C1 = C[1]
-            C0 = compress(ravelmask, ma.filled(C0[0:Ny - 1, 0:Nx - 1]).ravel())
-            C1 = compress(ravelmask, ma.filled(C1[0:Ny - 1, 0:Nx - 1]).ravel())
-            C = np.array([C0, C1])
+            C = np.array([
+                            compress(
+                                ravelmask,
+                                ma.filled(c[0:Ny - 1, 0:Nx - 1]).ravel()
+                            ) for c in C
+                        ])
         else:
             C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
 
@@ -5629,7 +5630,7 @@ or tuple of floats
 
         # convert to one dimensional arrays if univariate
         if isinstance(norm, mcolors.BivariateNorm):
-            C = np.asarray([C[0].ravel(), C[1].ravel()])
+            C = np.asarray([c.ravel() for c in C])
         else:
             C = C.ravel()
 
