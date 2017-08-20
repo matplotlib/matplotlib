@@ -90,6 +90,7 @@ class Line2D(HasTraits, b_artist.Artist):
     ydata=Instance('numpy.array', allow_none=True,default_value=True) # not sure about this line
     linewidth=Float(allow_none=True, default_value=None)
     # linestyle=
+
     # color=
     marker=Instance('matplotlib.markers',allow_none=True, default_value=None)
     markersize=Float(allow_none=True,default_value=True)
