@@ -4044,7 +4044,8 @@ or tuple of floats
 
         if colors is None:
             if norm is not None and not isinstance(norm, mcolors.Normalize):
-                msg = "'norm' must be an instance of 'mcolors.Normalize'"
+                msg = ("'norm' must be an instance of 'mcolors.Normalize' or "
+                       "'mcolors.BivariateNorm'")
                 raise ValueError(msg)
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
@@ -4403,7 +4404,8 @@ or tuple of floats
             accum = bins.searchsorted(accum)
 
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            msg = ("'norm' must be an instance of 'mcolors.Normalize' or "
+                   "'mcolors.BivariateNorm'")
             raise ValueError(msg)
         collection.set_array(accum)
         collection.set_cmap(cmap)
@@ -5141,8 +5143,8 @@ or tuple of floats
             self.cla()
 
         if norm is not None and not isinstance(norm, mcolors.Norms):
-            msg = "'norm' must be an instance of 'mcolors.Normalize' " \
-                  "or 'mcolors.BivariateNorm'"
+            msg = ("'norm' must be an instance of 'mcolors.Normalize' or "
+                   "'mcolors.BivariateNorm'")
             raise ValueError(msg)
 
         if aspect is None:
@@ -5193,9 +5195,9 @@ or tuple of floats
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-            isBivari = (isinstance(norm, mcolors.BivariateNorm)
-                        or isinstance(cmap, mcolors.BivariateColormap))
-            if (C.ndim == 3 and isBivari):
+            is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                         isinstance(cmap, mcolors.BivariateColormap))
+            if (C.ndim == 3 and is_bivari):
                 if cmap is None:
                     cmap = mcolors.BivariateColormap()
                 if norm is None:
@@ -5213,9 +5215,9 @@ or tuple of floats
 
         if len(args) == 3:
             X, Y, C = [np.asanyarray(a) for a in args]
-            isBivari = (isinstance(norm, mcolors.BivariateNorm)
-                        or isinstance(cmap, mcolors.BivariateColormap))
-            if (C.ndim == 3 and isBivari):
+            is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                         isinstance(cmap, mcolors.BivariateColormap))
+            if (C.ndim == 3 and is_bivari):
                 if cmap is None:
                     cmap = mcolors.BivariateColormap()
                 if norm is None:
@@ -5486,8 +5488,8 @@ or tuple of floats
         collection.set_array(C)
 
         if norm is not None and not isinstance(norm, mcolors.Norms):
-            msg = "'norm' must be an instance of 'mcolors.Normalize' " \
-                  "or 'mcolors.BivariateNorm'"
+            msg = ("'norm' must be an instance of 'mcolors.Normalize' or "
+                   "'mcolors.BivariateNorm'")
             raise ValueError(msg)
 
         collection.set_cmap(cmap)
@@ -5642,7 +5644,8 @@ or tuple of floats
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Norms):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            msg = ("'norm' must be an instance of 'mcolors.Normalize' or "
+                   "'mcolors.BivariateNorm'")
             raise ValueError(msg)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -5767,15 +5770,15 @@ or tuple of floats
         vmax = kwargs.pop('vmax', None)
 
         if norm is not None and not isinstance(norm, mcolors.Norms):
-            msg = "'norm' must be an instance of 'mcolors.Normalize' " \
-                  "or 'mcolors.BivariateNorm'"
+            msg = ("'norm' must be an instance of 'mcolors.Normalize' or "
+                   "'mcolors.BivariateNorm'")
             raise ValueError(msg)
 
         C = np.asarray(args[-1])
 
-        isBivari = (isinstance(norm, mcolors.BivariateNorm)
-                    or isinstance(cmap, mcolors.BivariateColormap))
-        if (C.ndim == 3 and isBivari):
+        is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                     isinstance(cmap, mcolors.BivariateColormap))
+        if (C.ndim == 3 and is_bivari):
             nr, nc = C.shape[1:]
         else:
             nr, nc = C.shape

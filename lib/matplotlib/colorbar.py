@@ -1152,8 +1152,8 @@ class ColorsquareBase(cm.ScalarMappable):
         Return the separator line segments; helper for _add_solids.
         '''
         N = X.shape[0]
-        return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
-        + [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
+        return ([list(zip(X[i], Y[i])) for i in xrange(1, N - 1)] +
+                [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)])
 
     def _add_solids(self, X, Y, C):
         """

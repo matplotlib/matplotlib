@@ -888,14 +888,14 @@ class BivariateColormap(Colormap):
         return BivariateColormap(self.name, lutsize)
 
     def reversed(self, name=None):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
+@six.add_metaclass(ABCMeta)
 class Norms:
     """
     Abstract Base Class to group `Normalize` and `BivariateNorm`
     """
-    __metaclass__ = ABCMeta
     pass
 
 
