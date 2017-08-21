@@ -568,9 +568,13 @@ class FigureCanvasAgg(FigureCanvasBase):
             background = Image.new('RGB', size, color)
             background.paste(image, image)
             options = {k: kwargs[k]
-                       for k in ['quality', 'optimize', 'progressive']
+                       for k in ['quality', 'optimize', 'progressive', 'dpi']
                        if k in kwargs}
             options.setdefault('quality', rcParams['savefig.jpeg_quality'])
+            if 'dpi' in options:
+                # Set the same dpi in both x and y directions
+                options['dpi'] = (options['dpi'], options['dpi'])
+
             return background.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
