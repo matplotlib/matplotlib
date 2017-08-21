@@ -1219,9 +1219,8 @@ class EngFormatter(Formatter):
             digits after the decimal point (there will be between one
             and three digits before the decimal point). If it is None,
             the formatting falls back to the floating point format '%g',
-            which displays up to 6 *significant* digits (i.e. the
-            equivalent value for *places* varies between 0 and 5, both
-            values included).
+            which displays up to 6 *significant* digits, i.e. the equivalent
+            value for *places* varies between 0 and 5 (inclusive).
 
         sep : str (default: " ")
             Separator used between the value and the prefix/unit. For
