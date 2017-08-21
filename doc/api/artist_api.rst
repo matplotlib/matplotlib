@@ -11,12 +11,16 @@
 
 
 .. automodule:: matplotlib.artist
+   :no-members:
+   :no-undoc-members:
 
 
 ``Artist`` class
 ================
 
 .. autoclass:: Artist
+   :no-members:
+   :no-undoc-members:
 
 Interactive
 -----------

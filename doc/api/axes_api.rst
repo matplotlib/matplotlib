@@ -4,6 +4,8 @@
 .. currentmodule:: matplotlib.axes
 
 .. autoclass:: Axes
+   :no-members:
+   :no-undoc-members:
 
 .. contents:: Table of Contents
    :depth: 2

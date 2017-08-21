@@ -89,6 +89,7 @@ if not has_dot:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
+autodoc_default_flags = ['members', 'undoc-members']
 
 intersphinx_mapping = {
   'python': ('https://docs.python.org/', None),
