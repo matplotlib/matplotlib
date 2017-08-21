@@ -12,6 +12,11 @@ from .backend_qt4 import (
 from .backend_qt5agg import FigureCanvasQTAggBase
 
 
+class FigureCanvasQTAggBase(FigureCanvasQTAggBase):
+    def _fake_super_fcqab(self, figure):
+        FigureCanvasAgg.__init__(self, figure)
+
+
 class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
     """
     The canvas the figure renders into.  Calls the draw and print fig
@@ -23,6 +28,9 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT):
         A high-level Figure instance
 
     """
+    def __init__(self, figure):
+        FigureCanvasQT.__init__(self, figure)
+        FigureCanvasQTAggBase.__init__(self, figure)
 
 
 @_BackendQT4.export
