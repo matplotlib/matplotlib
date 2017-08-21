@@ -76,11 +76,7 @@ matrix:
 
 before_install:
   - |
-    # Install into our own pristine virtualenv
     if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      pip install --upgrade virtualenv
-      python -m virtualenv venv
-      source venv/bin/activate
       # test with non-ascii in path
       mkdir /tmp/λ
       export PATH=$PATH:/tmp/λ
@@ -106,7 +102,7 @@ install:
     pip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from pypi
-    pip install $PRE \
+    pip install --upgrade $PRE \
         $MOCK \
         $NOSE \
         $NUMPY \
