@@ -349,7 +349,7 @@ def test_annotate_default_arrow():
     assert ann.arrow_patch is not None
 
 
-@image_comparison(baseline_images=['polar_axes'])
+@image_comparison(baseline_images=['polar_axes'], style='default')
 def test_polar_annotations():
     # you can specify the xypoint and the xytext in different
     # positions and coordinate systems, and optionally turn on a
@@ -383,7 +383,7 @@ def test_polar_annotations():
                 )
 
 
-@image_comparison(baseline_images=['polar_coords'],
+@image_comparison(baseline_images=['polar_coords'], style='default',
                   remove_text=True)
 def test_polar_coord_annotations():
     # You can also use polar notation on a catesian axes.  Here the
@@ -558,9 +558,8 @@ def test_const_xy():
     plt.plot(np.ones((10,)), np.ones((10,)), 'o')
 
 
-@image_comparison(baseline_images=['polar_wrap_180',
-                                   'polar_wrap_360',
-                                   ])
+@image_comparison(baseline_images=['polar_wrap_180', 'polar_wrap_360'],
+                  style='default')
 def test_polar_wrap():
     D2R = np.pi / 180.0
 
@@ -581,7 +580,8 @@ def test_polar_wrap():
     plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
 
 
-@image_comparison(baseline_images=['polar_units', 'polar_units_2'])
+@image_comparison(baseline_images=['polar_units', 'polar_units_2'],
+                  style='default')
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -612,7 +612,7 @@ def test_polar_units():
                       units.UnitDblFormatter)
 
 
-@image_comparison(baseline_images=['polar_rmin'])
+@image_comparison(baseline_images=['polar_rmin'], style='default')
 def test_polar_rmin():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -624,7 +624,32 @@ def test_polar_rmin():
     ax.set_rmin(0.5)
 
 
-@image_comparison(baseline_images=['polar_theta_position'])
+@image_comparison(baseline_images=['polar_negative_rmin'], style='default')
+def test_polar_negative_rmin():
+    r = np.arange(-3.0, 0.0, 0.01)
+    theta = 2*np.pi*r
+
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax.plot(theta, r)
+    ax.set_rmax(0.0)
+    ax.set_rmin(-3.0)
+
+
+@image_comparison(baseline_images=['polar_rorigin'], style='default')
+def test_polar_rorigin():
+    r = np.arange(0, 3.0, 0.01)
+    theta = 2*np.pi*r
+
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax.plot(theta, r)
+    ax.set_rmax(2.0)
+    ax.set_rmin(0.5)
+    ax.set_rorigin(0.0)
+
+
+@image_comparison(baseline_images=['polar_theta_position'], style='default')
 def test_polar_theta_position():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -632,15 +657,40 @@ def test_polar_theta_position():
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
     ax.plot(theta, r)
-    ax.set_theta_zero_location("NW")
+    ax.set_theta_zero_location("NW", 30)
     ax.set_theta_direction('clockwise')
 
 
-@image_comparison(baseline_images=['polar_rlabel_position'])
+@image_comparison(baseline_images=['polar_rlabel_position'], style='default')
 def test_polar_rlabel_position():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='polar')
     ax.set_rlabel_position(315)
+
+
+@image_comparison(baseline_images=['polar_theta_wedge'], style='default',
+                  tol=0.01 if six.PY2 else 0)
+def test_polar_theta_limits():
+    r = np.arange(0, 3.0, 0.01)
+    theta = 2*np.pi*r
+
+    theta_mins = np.arange(15.0, 361.0, 90.0)
+    theta_maxs = np.arange(50.0, 361.0, 90.0)
+
+    fig, axes = plt.subplots(len(theta_mins), len(theta_maxs),
+                             subplot_kw={'polar': True},
+                             figsize=(8, 6))
+
+    for i, start in enumerate(theta_mins):
+        for j, end in enumerate(theta_maxs):
+            ax = axes[i, j]
+            if start < end:
+                ax.plot(theta, r)
+                ax.yaxis.set_tick_params(label2On=True)
+                ax.set_thetamin(start)
+                ax.set_thetamax(end)
+            else:
+                ax.set_visible(False)
 
 
 @image_comparison(baseline_images=['axvspan_epoch'])
@@ -1258,7 +1308,7 @@ def test_markevery_log_scales():
         plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 
 
-@image_comparison(baseline_images=['markevery_polar'],
+@image_comparison(baseline_images=['markevery_polar'], style='default',
                   remove_text=True)
 def test_markevery_polar():
     cases = [None,

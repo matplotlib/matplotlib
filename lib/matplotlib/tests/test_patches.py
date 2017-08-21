@@ -339,7 +339,8 @@ def test_multi_color_hatch():
         ax.add_patch(r)
 
 
-@image_comparison(baseline_images=['polar_proj'], extensions=['png'])
+@image_comparison(baseline_images=['polar_proj'], extensions=['png'],
+                  style='default')
 def test_adding_rectangle_patch_with_polar_projection():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='polar')
