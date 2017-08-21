@@ -1055,7 +1055,9 @@ void ttfont_CharStrings(TTStreamWriter& stream, struct TTFONT *font, std::vector
     post_format = getFixed( font->post_table );
 
     /* Emmit the start of the PostScript code to define the dictionary. */
-    stream.printf("/CharStrings %d dict dup begin\n", glyph_ids.size());
+    stream.printf("/CharStrings %d dict dup begin\n", glyph_ids.size()+1);
+    /* Section 5.8.2 table 5.7 of the PS Language Ref says a CharStrings dictionary must contain an entry for .notdef */
+    stream.printf("/.notdef 0 def\n");
 
     /* Emmit one key-value pair for each glyph. */
     for (std::vector<int>::const_iterator i = glyph_ids.begin();
