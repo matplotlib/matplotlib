@@ -5,7 +5,6 @@ import numpy as np
 
 import six
 
-import matplotlib.backend_bases
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing
 
@@ -49,9 +48,6 @@ class MixedModeRenderer(object):
         """
         if raster_renderer_class is None:
             raster_renderer_class = RendererAgg
-
-        # See matplotlib.backend_bases.RendererBase._uid.
-        self._uid = next(matplotlib.backend_bases._unique_renderer_id)
 
         self._raster_renderer_class = raster_renderer_class
         self._width = width
