@@ -342,7 +342,7 @@ class Line2D(HasTraits, b_artist.Artist):
     markevery=Any(allow_none=True, default_value=None)
 
     #only found once in the original lines code so not sure what to do with this
-    verticalOffset = None
+    # verticalOffset = None
 
     ind_offset = Int(allow_none=True,default_value=0)
 
@@ -364,9 +364,6 @@ class Line2D(HasTraits, b_artist.Artist):
 
     #this will have to be edited according to the traits
     def __init__(self, **kwargs):
-
-
-
         """
         Create a :class:`~matplotlib.lines.Line2D` instance with *x*
         and *y* data in sequences *xdata*, *ydata*.
@@ -374,58 +371,55 @@ class Line2D(HasTraits, b_artist.Artist):
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
-
-        See :meth:`set_linestyle` for a decription of the line styles,
-        :meth:`set_marker` for a description of the markers, and
-        :meth:`set_drawstyle` for a description of the draw styles.
         """
 
         #initialize Artist in Line2D
         Artist.__init__(self)
 
-        #convert sequences to numpy arrays
-        if not iterable(xdata):
-            raise RuntimeError('xdata must be a sequence')
-        if not iterable(ydata):
-            raise RuntimeError('ydata must be a sequence')
-
-        if linewidth is None:
-            linewidth = rcParams['lines.linewidth']
-
-        if linestyle is None:
-            linestyle = rcParams['lines.linestyle']
-        if marker is None:
-            marker = rcParams['lines.marker']
-        if color is None:
-            color = rcParams['lines.color']
-
-        if markersize is None:
-            markersize = rcParams['lines.markersize']
-        if antialiased is None:
-            antialiased = rcParams['lines.antialiased']
-        if dash_capstyle is None:
-            dash_capstyle = rcParams['lines.dash_capstyle']
-        if dash_joinstyle is None:
-            dash_joinstyle = rcParams['lines.dash_joinstyle']
-        if solid_capstyle is None:
-            solid_capstyle = rcParams['lines.solid_capstyle']
-        if solid_joinstyle is None:
-            solid_joinstyle = rcParams['lines.solid_joinstyle']
-
-        if isinstance(linestyle, six.string_types):
-            ds, ls = self._split_drawstyle_linestyle(linestyle)
-            if ds is not None and drawstyle is not None and ds != drawstyle:
-                raise ValueError("Inconsistent drawstyle ({0!r}) and "
-                                 "linestyle ({1!r})".format(drawstyle,
-                                                            linestyle)
-                                 )
-            linestyle = ls
-
-            if ds is not None:
-                drawstyle = ds
-
-        if drawstyle is None:
-            drawstyle = 'default'
+        #THESE LINES WILL BECOME USEFUL WHEN CREATING THE VALIDATION FUNCTIONS
+        # #convert sequences to numpy arrays
+        # if not iterable(xdata):
+        #     raise RuntimeError('xdata must be a sequence')
+        # if not iterable(ydata):
+        #     raise RuntimeError('ydata must be a sequence')
+        #
+        # if linewidth is None:
+        #     linewidth = rcParams['lines.linewidth']
+        #
+        # if linestyle is None:
+        #     linestyle = rcParams['lines.linestyle']
+        # if marker is None:
+        #     marker = rcParams['lines.marker']
+        # if color is None:
+        #     color = rcParams['lines.color']
+        #
+        # if markersize is None:
+        #     markersize = rcParams['lines.markersize']
+        # if antialiased is None:
+        #     antialiased = rcParams['lines.antialiased']
+        # if dash_capstyle is None:
+        #     dash_capstyle = rcParams['lines.dash_capstyle']
+        # if dash_joinstyle is None:
+        #     dash_joinstyle = rcParams['lines.dash_joinstyle']
+        # if solid_capstyle is None:
+        #     solid_capstyle = rcParams['lines.solid_capstyle']
+        # if solid_joinstyle is None:
+        #     solid_joinstyle = rcParams['lines.solid_joinstyle']
+        #
+        # if isinstance(linestyle, six.string_types):
+        #     ds, ls = self._split_drawstyle_linestyle(linestyle)
+        #     if ds is not None and drawstyle is not None and ds != drawstyle:
+        #         raise ValueError("Inconsistent drawstyle ({0!r}) and "
+        #                          "linestyle ({1!r})".format(drawstyle,
+        #                                                     linestyle)
+        #                          )
+        #     linestyle = ls
+        #
+        #     if ds is not None:
+        #         drawstyle = ds
+        #
+        # if drawstyle is None:
+        #     drawstyle = 'default'
 
 """
 ________________________________________________________________________________
@@ -447,7 +441,7 @@ END OF INIT FUNCTION
     def _xdata_observe(self, change):
         print("xdata: observed a change from %r to %r" % (change.old, change.new))
 
-#ydata default
+    #ydata default
     @default("ydata")
     def _ydata_default(self):
         print("ydata: generating default value")
@@ -551,6 +545,36 @@ END OF INIT FUNCTION
     @observe("markeredgewidth", type="change")
     def _markeredgewidth_observe(self, change):
         print("markeredgewidth: observed a change from %r to %r" % (change.old, change.new))
+
+    #markerfacecolor default
+    @default("markerfacecolor")
+    def _markerfacecolor_default(self):
+        print("markerfacecolor: generating default value")
+        return False
+    #markerfacecolor validate
+    @validate("markerfacecolor")
+    def _markerfacecolor_validate(self, proposal):
+        print("markerfacecolor: cross validating %r" % proposal.value)
+        return proposal.value
+    #markerfacecolor observer
+    @observe("markerfacecolor", type="change")
+    def _markerfacecolor_observe(self, change):
+        print("markerfacecolor: observed a change from %r to %r" % (change.old, change.new))
+
+    #markerfacecoloralt default
+    @default("markerfacecoloralt")
+    def _markerfacecoloralt_default(self):
+        print("markerfacecoloralt: generating default value")
+        return False
+    #markerfacecoloralt validate
+    @validate("markerfacecoloralt")
+    def _markerfacecoloralt_validate(self, proposal):
+        print("markerfacecoloralt: cross validating %r" % proposal.value)
+        return proposal.value
+    #markerfacecoloralt observer
+    @observe("markerfacecoloralt", type="change")
+    def _markerfacecoloralt_observe(self, change):
+        print("markerfacecoloralt: observed a change from %r to %r" % (change.old, change.new))
 
     #fillstyle default
     @default("fillstyle")
@@ -686,6 +710,37 @@ END OF INIT FUNCTION
     @observe("markevery", type="change")
     def _markevery_observe(self, change):
         print("markevery: observed a change from %r to %r" % (change.old, change.new))
+
+    #verticalOffset default
+    @default("verticalOffset")
+    def _verticalOffset_default(self):
+        print("verticalOffset: generating default value")
+        return False
+    #verticalOffset validate
+    @validate("verticalOffset")
+    def _verticalOffset_validate(self, proposal):
+        print("verticalOffset: cross validating %r" % proposal.value)
+        return proposal.value
+    #verticalOffset observer
+    @observe("verticalOffset", type="change")
+    def _verticalOffset_observe(self, change):
+        print("verticalOffset: observed a change from %r to %r" % (change.old, change.new))
+
+    #ind_offset default
+    @default("ind_offset")
+    def _ind_offset_default(self):
+        print("ind_offset: generating default value")
+        return False
+    #ind_offset validate
+    @validate("ind_offset")
+    def _ind_offset_validate(self, proposal):
+        print("ind_offset: cross validating %r" % proposal.value)
+        return proposal.value
+    #ind_offset observer
+    @observe("ind_offset", type="change")
+    def _ind_offset_observe(self, change):
+        print("ind_offset: observed a change from %r to %r" % (change.old, change.new))
+
 
 
 
