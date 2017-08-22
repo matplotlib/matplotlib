@@ -37,6 +37,206 @@ from matplotlib.markers import (
 import matplotlib.lines.Line2D as b_Line2D
 
 
+
+def _get_dash_pattern(style):
+    """Convert linestyle -> dash pattern
+    """
+    # go from short hand -> full strings
+    if isinstance(style, six.string_types):
+        style = ls_mapper.get(style, style)
+    # un-dashed styles
+    if style in ['solid', 'None']:
+        offset, dashes = None, None
+    # dashed styles
+    elif style in ['dashed', 'dashdot', 'dotted']:
+        offset = 0
+        dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
+    #
+    elif isinstance(style, tuple):
+        offset, dashes = style
+    else:
+        raise ValueError('Unrecognized linestyle: %s' % str(style))
+
+    # normalize offset to be positive and shorter than the dash cycle
+    if dashes is not None and offset is not None:
+        dsum = sum(dashes)
+        if dsum:
+            offset %= dsum
+
+    return offset, dashes
+
+def _scale_dashes(offset, dashes, lw):
+    if not rcParams['lines.scale_dashes']:
+        return offset, dashes
+
+    scaled_offset = scaled_dashes = None
+    if offset is not None:
+        scaled_offset = offset * lw
+    if dashes is not None:
+        scaled_dashes = [x * lw if x is not None else None
+                         for x in dashes]
+
+    return scaled_offset, scaled_dashes
+
+def segment_hits(cx, cy, x, y, radius):
+    """
+    Determine if any line segments are within radius of a
+    point. Returns the list of line segments that are within that
+    radius.
+    """
+    # Process single points specially
+    if len(x) < 2:
+        res, = np.nonzero((cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2)
+        return res
+
+    # We need to lop the last element off a lot.
+    xr, yr = x[:-1], y[:-1]
+
+    # Only look at line segments whose nearest point to C on the line
+    # lies within the segment.
+    dx, dy = x[1:] - xr, y[1:] - yr
+    Lnorm_sq = dx ** 2 + dy ** 2  # Possibly want to eliminate Lnorm==0
+    u = ((cx - xr) * dx + (cy - yr) * dy) / Lnorm_sq
+    candidates = (u >= 0) & (u <= 1)
+    #if any(candidates): print "candidates",xr[candidates]
+
+    # Note that there is a little area near one side of each point
+    # which will be near neither segment, and another which will
+    # be near both, depending on the angle of the lines.  The
+    # following radius test eliminates these ambiguities.
+    point_hits = (cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2
+    #if any(point_hits): print "points",xr[candidates]
+    candidates = candidates & ~(point_hits[:-1] | point_hits[1:])
+
+    # For those candidates which remain, determine how far they lie away
+    # from the line.
+    px, py = xr + u * dx, yr + u * dy
+    line_hits = (cx - px) ** 2 + (cy - py) ** 2 <= radius ** 2
+    #if any(line_hits): print "lines",xr[candidates]
+    line_hits = line_hits & candidates
+    points, = point_hits.ravel().nonzero()
+    lines, = line_hits.ravel().nonzero()
+    #print points,lines
+    return np.concatenate((points, lines))
+
+def _mark_every_path(markevery, tpath, affine, ax_transform):
+    """
+    Helper function that sorts out how to deal the input
+    `markevery` and returns the points where markers should be drawn.
+
+    Takes in the `markevery` value and the line path and returns the
+    sub-sampled path.
+    """
+    # pull out the two bits of data we want from the path
+    codes, verts = tpath.codes, tpath.vertices
+
+    def _slice_or_none(in_v, slc):
+        '''
+        Helper function to cope with `codes` being an
+        ndarray or `None`
+        '''
+        if in_v is None:
+            return None
+        return in_v[slc]
+
+    # if just a float, assume starting at 0.0 and make a tuple
+    if isinstance(markevery, float):
+        markevery = (0.0, markevery)
+    # if just an int, assume starting at 0 and make a tuple
+    elif isinstance(markevery, int):
+        markevery = (0, markevery)
+    # if just an numpy int, assume starting at 0 and make a tuple
+    elif isinstance(markevery, np.integer):
+        markevery = (0, markevery.item())
+
+    if isinstance(markevery, tuple):
+        if len(markevery) != 2:
+            raise ValueError('`markevery` is a tuple but its '
+                'len is not 2; '
+                'markevery=%s' % (markevery,))
+        start, step = markevery
+        # if step is an int, old behavior
+        if isinstance(step, int):
+            #tuple of 2 int is for backwards compatibility,
+            if not(isinstance(start, int)):
+                raise ValueError('`markevery` is a tuple with '
+                    'len 2 and second element is an int, but '
+                    'the first element is not an int; '
+                    'markevery=%s' % (markevery,))
+            # just return, we are done here
+
+            return Path(verts[slice(start, None, step)],
+                        _slice_or_none(codes, slice(start, None, step)))
+
+        elif isinstance(step, float):
+            if not (isinstance(start, int) or
+                    isinstance(start, float)):
+                raise ValueError('`markevery` is a tuple with '
+                    'len 2 and second element is a float, but '
+                    'the first element is not a float or an '
+                    'int; '
+                    'markevery=%s' % (markevery,))
+            #calc cumulative distance along path (in display
+            # coords):
+            disp_coords = affine.transform(tpath.vertices)
+            delta = np.empty((len(disp_coords), 2),
+                             dtype=float)
+            delta[0, :] = 0.0
+            delta[1:, :] = (disp_coords[1:, :] -
+                                disp_coords[:-1, :])
+            delta = np.sum(delta**2, axis=1)
+            delta = np.sqrt(delta)
+            delta = np.cumsum(delta)
+            #calc distance between markers along path based on
+            # the axes bounding box diagonal being a distance
+            # of unity:
+            scale = ax_transform.transform(
+                np.array([[0, 0], [1, 1]]))
+            scale = np.diff(scale, axis=0)
+            scale = np.sum(scale**2)
+            scale = np.sqrt(scale)
+            marker_delta = np.arange(start * scale,
+                                     delta[-1],
+                                     step * scale)
+            #find closest actual data point that is closest to
+            # the theoretical distance along the path:
+            inds = np.abs(delta[np.newaxis, :] -
+                            marker_delta[:, np.newaxis])
+            inds = inds.argmin(axis=1)
+            inds = np.unique(inds)
+            # return, we are done here
+            return Path(verts[inds],
+                        _slice_or_none(codes, inds))
+        else:
+            raise ValueError('`markevery` is a tuple with '
+                'len 2, but its second element is not an int '
+                'or a float; '
+                'markevery=%s' % (markevery,))
+
+    elif isinstance(markevery, slice):
+        # mazol tov, it's already a slice, just return
+        return Path(verts[markevery],
+                    _slice_or_none(codes, markevery))
+
+    elif iterable(markevery):
+        #fancy indexing
+        try:
+            return Path(verts[markevery],
+                    _slice_or_none(codes, markevery))
+
+        except (ValueError, IndexError):
+            raise ValueError('`markevery` is iterable but '
+                'not a valid form of numpy fancy indexing; '
+                'markevery=%s' % (markevery,))
+    else:
+        raise ValueError('Value of `markevery` is not '
+            'recognized; '
+            'markevery=%s' % (markevery,))
+
+
+
+
+
 class Line2D(HasTraits, b_artist.Artist):
     """
     A line - the line can have both a solid linestyle connecting all
@@ -95,6 +295,8 @@ class Line2D(HasTraits, b_artist.Artist):
     marker=Instance('matplotlib.markers',allow_none=True, default_value=None)
     markersize=Float(allow_none=True,default_value=True)
     # markeredgewidth=
+    # markerfacecolor = None
+    # markerfacecoloralt = None
     # fillstyle=
     antialiased=Bool(default_value=False)
     # dash_capstyle=
@@ -104,7 +306,32 @@ class Line2D(HasTraits, b_artist.Artist):
     pickradius=Int(allow_none=True, default_value=5)
     # drawstyle=
     # markevery=
+    # verticalOffset = None
+    # ind_offset = 0
 
+    # if is_numlike(self._picker):
+        # self.pickradius = self._picker
+
+    # xorig = np.asarray([])
+    # yorig = np.asarray([])
+    # invalidx = True
+    # invalidy = True
+    # x = None
+    # y = None
+    # xy = None
+    # path = None
+    # transformed_path = None
+    # subslice = False
+    # x_filled = None  # used in subslicing; only x is needed
+    # set_data(xdata, ydata)
+
+    # scaled dash + offset
+    # dashSeq = None
+    # dashOffset = 0
+    # unscaled dash + offset
+    # this is needed scaling the dash pattern by linewidth
+    # us_dashSeq = None
+    # us_dashOffset = 0
 
     # not sure how much this will have to be refactored
     def __str__(self):
@@ -122,27 +349,7 @@ class Line2D(HasTraits, b_artist.Artist):
                              in zip(self._x, self._y)]))
 
     #this will have to be edited according to the traits
-    def __init__(self, xdata, ydata,
-                 linewidth=None,  # all Nones default to rc
-                 linestyle=None,
-                 color=None,
-                 marker=None,
-                 markersize=None,
-                 markeredgewidth=None,
-                 markeredgecolor=None,
-                 markerfacecolor=None,
-                 markerfacecoloralt='none',
-                 fillstyle=None,
-                 antialiased=None,
-                 dash_capstyle=None,
-                 solid_capstyle=None,
-                 dash_joinstyle=None,
-                 solid_joinstyle=None,
-                 pickradius=5,
-                 drawstyle=None,
-                 markevery=None,
-                 **kwargs
-                 ):
+    def __init__(self, **kwargs):
 
 
 
@@ -206,76 +413,6 @@ class Line2D(HasTraits, b_artist.Artist):
         if drawstyle is None:
             drawstyle = 'default'
 
-        self._dashcapstyle = None
-        self._dashjoinstyle = None
-        self._solidjoinstyle = None
-        self._solidcapstyle = None
-        self.set_dash_capstyle(dash_capstyle)
-        self.set_dash_joinstyle(dash_joinstyle)
-        self.set_solid_capstyle(solid_capstyle)
-        self.set_solid_joinstyle(solid_joinstyle)
-
-        self._linestyles = None
-        self._drawstyle = None
-        self._linewidth = linewidth
-
-        # scaled dash + offset
-        self._dashSeq = None
-        self._dashOffset = 0
-        # unscaled dash + offset
-        # this is needed scaling the dash pattern by linewidth
-        self._us_dashSeq = None
-        self._us_dashOffset = 0
-
-        self.set_linestyle(linestyle)
-        self.set_drawstyle(drawstyle)
-        self.set_linewidth(linewidth)
-
-        self._color = None
-        self.set_color(color)
-        self._marker = MarkerStyle(marker, fillstyle)
-
-        self._markevery = None
-        self._markersize = None
-        self._antialiased = None
-
-        self.set_markevery(markevery)
-        self.set_antialiased(antialiased)
-        self.set_markersize(markersize)
-
-        self._markeredgecolor = None
-        self._markeredgewidth = None
-        self._markerfacecolor = None
-        self._markerfacecoloralt = None
-
-        self.set_markerfacecolor(markerfacecolor)
-        self.set_markerfacecoloralt(markerfacecoloralt)
-        self.set_markeredgecolor(markeredgecolor)
-        self.set_markeredgewidth(markeredgewidth)
-
-        self.verticalOffset = None
-
-        # update kwargs before updating data to give the caller a
-        # chance to init axes (and hence unit support)
-        self.update(kwargs)
-        self.pickradius = pickradius
-        self.ind_offset = 0
-        if is_numlike(self._picker):
-            self.pickradius = self._picker
-
-        self._xorig = np.asarray([])
-        self._yorig = np.asarray([])
-        self._invalidx = True
-        self._invalidy = True
-        self._x = None
-        self._y = None
-        self._xy = None
-        self._path = None
-        self._transformed_path = None
-        self._subslice = False
-        self._x_filled = None  # used in subslicing; only x is needed
-
-        self.set_data(xdata, ydata)
 """
 ________________________________________________________________________________
 END OF INIT FUNCTION
