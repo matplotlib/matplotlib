@@ -10,6 +10,293 @@ out what caused the breakage and how to fix it by updating your code.
 For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
+API Changes in 2.1.0
+====================
+
+`mpl_toolkits.axes_grid` has been deprecated
+--------------------------------------------
+
+All functionallity from `mpl_toolkits.axes_grid` can be found in either
+`mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes classes from
+`mpl_toolkits.axes_grid` based on `Axis` from `mpl_toolkits.axisartist` can be
+found in `mpl_toolkits.axisartist`
+
+
+Improved toggling of the axes grids
+-----------------------------------
+
+The `g` key binding now switches the states of the `x` and `y` grids
+independently (by cycling through all four on/off combinations).
+
+The new `G` key binding switches the states of the minor grids.
+
+Both bindings are disabled if only a subset of the grid lines (in either
+direction) is visible, to avoid making irreversible changes to the figure.
+
+
+Removal of warning on empty legends
+-----------------------------------
+
+``plt.legend`` used to issue a warning when no labeled artist could be
+found.  This warning has been removed.
+
+
+More accurate legend autopositioning
+------------------------------------
+
+Automatic positioning of legends now prefers using the area surrounded
+by a `Line2D` rather than placing the legend over the line itself.
+
+
+Cleanup of stock sample data
+----------------------------
+
+The sample data of stocks has been cleaned up to remove redundancies and
+increase portability. The ``AAPL.dat.gz``, ``INTC.dat.gz`` and ``aapl.csv``
+files have been removed entirely and will also no longer be available from
+`matplotlib.cbook.get_sample_data`. If a CSV file is required, we suggest using
+the ``msft.csv`` that continues to be shipped in the sample data. If a NumPy
+binary file is acceptable, we suggest using one of the following two new files.
+The ``aapl.npy.gz`` and ``goog.npy`` files have been replaced by ``aapl.npz``
+and ``goog.npz``, wherein the first column's type has changed from
+`datetime.date` to `np.datetime64` for better portability across Python
+versions. Note that matplotlib does not fully support `np.datetime64` as yet.
+
+
+Updated qhull to 2015.2
+-----------------------
+
+The version of qhull shipped with Matplotlib, which is used for
+Delaunay triangulation, has been updated from version 2012.1 to
+2015.2.
+
+
+Use backports.functools_lru_cache instead of functools32
+--------------------------------------------------------
+
+It's better maintained and more widely used (by pylint, jaraco, etc).
+
+
+`cbook.is_numlike` only performs an instance check, `cbook.is_string_like` is deprecated
+----------------------------------------------------------------------------------------
+
+`cbook.is_numlike` now only checks that its argument is an instance of
+``(numbers.Number, np.Number)``.  In particular, this means that arrays are now
+not num-like.
+
+`cbook.is_string_like` and `cbook.is_sequence_of_strings` have been
+deprecated.  Use ``isinstance(obj, six.string_types)`` and ``iterable(obj) and
+all(isinstance(o, six.string_types) for o in obj)`` instead.
+
+
+Elliptical arcs now drawn between correct angles
+------------------------------------------------
+
+The `matplotlib.patches.Arc` patch is now correctly drawn between the given
+angles.
+
+Previously a circular arc was drawn and then stretched into an ellipse,
+so the resulting arc did not lie between *theta1* and *theta2*.
+
+
+Changes to PDF backend methods
+------------------------------
+
+The methods `embedTeXFont` and `tex_font_mapping` of
+`matplotlib.backend_pdf.PdfFile` have been removed.
+It is unlikely that external users would have called
+these methods, which are related to the font system
+internal to the PDF backend.
+
+
+``-d$backend`` no longer sets the backend
+-----------------------------------------
+
+It is no longer possible to set the backend by passing ``-d$backend`` at the command line.  Use the ``MPLBACKEND`` environment variable instead.
+
+
+Path.intersects_bbox always treats the bounding box as filled
+-------------------------------------------------------------
+
+Previously, when ``Path.intersects_bbox`` was called with ``filled`` set to
+``False``, it would treat both the path and the bounding box as unfilled. This
+behavior was not well documented and it is usually not the desired behavior,
+since bounding boxes are used to represent more complex shapes located inside
+the bounding box. This behavior has now been changed: when ``filled`` is
+``False``, the path will be treated as unfilled, but the bounding box is still
+treated as filled. The old behavior was arguably an implementation bug.
+
+When ``Path.intersects_bbox`` is called with ``filled`` set to ``True``
+(the default value), there is no change in behavior. For those rare cases where
+``Path.intersects_bbox`` was called with ``filled`` set to ``False`` and where
+the old behavior is actually desired, the suggested workaround is to call
+``Path.intersects_path`` with a rectangle as the path::
+
+    from matplotlib.path import Path
+    from matplotlib.transforms import Bbox, BboxTransformTo
+    rect = Path.unit_rectangle().transformed(BboxTransformTo(bbox))
+    result = path.intersects_path(rect, filled=False)
+
+
+Removed resolution kwarg from PolarAxes
+---------------------------------------
+
+The kwarg `resolution` of `matplotlib.projections.polar.PolarAxes` has been
+removed. It has triggered a deprecation warning of being with no effect
+beyond version `0.98.x`.
+
+
+Deprecation of `GraphicsContextBase`\'s ``linestyle`` property.
+---------------------------------------------------------------
+
+The ``GraphicsContextBase.get_linestyle`` and
+``GraphicsContextBase.set_linestyle`` methods, which effectively had no effect,
+have been deprecated.
+
+
+NavigationToolbar2.dynamic_update is deprecated
+-----------------------------------------------
+
+Use `FigureCanvas.draw_idle` instead.
+
+
+Unique identifier added to `RendererBase` classes
+-------------------------------------------------
+
+Since ``id()`` is not guaranteed to be unique between objects that exist at
+different times, a new private property ``_uid`` has been added to
+`RendererBase` which is used along with the renderer's ``id()`` to cache
+certain expensive operations.
+
+If a custom renderer does not subclass `RendererBase` or `MixedModeRenderer`,
+it is not required to implement this ``_uid`` property, but this may produce
+incorrect behavior when the renderers' ``id()`` clashes.
+
+
+WX no longer calls generates ``IdleEvent`` events or calls ``idle_event``
+-------------------------------------------------------------------------
+
+Removed unused private method ``_onIdle`` from ``FigureCanvasWx``.
+
+The ``IdleEvent`` class and ``FigureCanvasBase.idle_event`` method
+will be removed in 2.2
+
+
+Correct scaling of :func:`magnitude_spectrum()`
+-----------------------------------------------
+
+The functions :func:`matplotlib.mlab.magnitude_spectrum()` and :func:`matplotlib.pyplot.magnitude_spectrum()` implicitly assumed the sum
+of windowing function values to be one. In Matplotlib and Numpy the
+standard windowing functions are scaled to have maximum value of one,
+which usually results in a sum of the order of n/2 for a n-point
+signal. Thus the amplitude scaling :func:`magnitude_spectrum()` was
+off by that amount when using standard windowing functions (`Bug 8417
+<https://github.com/matplotlib/matplotlib/issues/8417>`_ ). Now the
+behavior is consistent with :func:`matplotlib.pyplot.psd()` and
+:func:`scipy.signal.welch()`. The following example demonstrates the
+new and old scaling::
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    tau, n = 10, 1024  # 10 second signal with 1024 points
+    T = tau/n  # sampling interval
+    t = np.arange(n)*T
+
+    a = 4  # amplitude
+    x = a*np.sin(40*np.pi*t)  # 20 Hz sine with amplitude a
+
+    # New correct behavior: Amplitude at 20 Hz is a/2
+    plt.magnitude_spectrum(x, Fs=1/T, sides='onesided', scale='linear')
+
+    # Original behavior: Amplitude at 20 Hz is (a/2)*(n/2) for a Hanning window
+    w = np.hanning(n)  # default window is a Hanning window
+    plt.magnitude_spectrum(x*np.sum(w), Fs=1/T, sides='onesided', scale='linear')
+
+
+
+Default behavior of log scales changed to mask <= 0 values
+----------------------------------------------------------
+
+Calling `matplotlib.axes.Axes.set_xscale` or `matplotlib.axes.Axes.set_yscale`
+now uses 'mask' as the default method to handle invalid values (as opposed to
+'clip'). This means that any values <= 0 on a log scale will not be shown.
+
+Previously they were clipped to a very small number and shown.
+
+
+Code Removal
+------------
+
+matplotlib.delaunay
+~~~~~~~~~~~~~~~~~~~
+Remove the delaunay triangulation code which is now handled by Qhull
+via ``matplotlib.tri``
+
+
+qt4_compat.py
+~~~~~~~~~~~~~
+Moved to ``qt_compat.py``.  Renamed because it now handles Qt5 as well.
+
+
+Deprecated methods
+~~~~~~~~~~~~~~~~~~
+
+The ``GraphicsContextBase.set_graylevel``, ``FigureCanvasBase.onHilite`` and
+``mpl_toolkits.axes_grid1.mpl_axes.Axes.toggle_axisline`` methods have been
+removed.
+
+The ``ArtistInspector.findobj`` method, which was never working due to the lack
+of a ``get_children`` method, has been removed.
+
+The deprecated ``point_in_path``, ``get_path_extents``,
+``point_in_path_collection``, ``path_intersects_path``,
+``convert_path_to_polygons``, ``cleanup_path`` and ``clip_path_to_rect``
+functions in the ``matplotlib.path`` module have been removed.  Their
+functionality remains exposed as methods on the ``Path`` class.
+
+
+`Axes.set_aspect("normal")`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for setting an ``Axes``' aspect to ``"normal"`` has been removed, in
+favor of the synonym ``"auto"``.
+
+
+``shading`` kwarg to ``pcolor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``shading`` kwarg to ``pcolor`` has been removed.  Set ``edgecolors``
+appropriately instead.
+
+
+Removed internal functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``matplotlib.backends.backend_ps.seq_allequal`` function has been removed.
+Use ``np.array_equal`` instead.
+
+The deprecated ``matplotlib.rcsetup.validate_maskedarray``,
+``matplotlib.rcsetup.deprecate_savefig_extension`` and
+``matplotlib.rcsetup.validate_tkpythoninspect`` functions, and associated
+``savefig.extension`` and ``tk.pythoninspect`` rcparams entries have been
+removed.
+
+
+Deprecations
+------------
+
+- `matplotlib.testing.noseclasses` is deprecated and will be removed in 2.3
+
+
+Functions removed from the `lines` module
+-----------------------------------------
+
+The `matplotlib.lines` module no longer imports the `pts_to_prestep`,
+`pts_to_midstep` and `pts_to_poststep` functions from the `matplotlib.cbook`
+module.
+
+
 API Changes in 2.0.1
 ====================
 
