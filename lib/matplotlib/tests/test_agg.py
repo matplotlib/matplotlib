@@ -7,7 +7,6 @@ from distutils.version import LooseVersion
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
-from PIL import Image
 
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -239,6 +238,10 @@ def test_chunksize():
 
 @pytest.mark.backend('Agg')
 def test_jpeg_dpi():
+    try:
+        from PIL import Image
+    except Exception:
+        pytest.skip("Could not import PIL")
     # Check that dpi is set correctly in jpg files
     plt.plot([0, 1, 2], [0, 1, 0])
     plt.savefig('test.jpg', dpi=200)
