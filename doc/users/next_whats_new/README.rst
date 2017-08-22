@@ -16,4 +16,4 @@ existing features.  Include contents of the form: ::
     to use it.
 
     A sub-section
-    `````````````
+    ~~~~~~~~~~~~~
