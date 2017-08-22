@@ -16,6 +16,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
 from six.moves import xrange
 
 import sys
@@ -903,6 +904,8 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
                                       rcParams['savefig.jpeg_quality'])
             image = self.bitmap.ConvertToImage()
             image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
+            image.SetOption(wx.IMAGE_OPTION_RESOLUTIONUNIT, 'inches')
+            image.SetOption(wx.IMAGE_OPTION_RESOLUTION, str(kwargs['dpi']))
 
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
