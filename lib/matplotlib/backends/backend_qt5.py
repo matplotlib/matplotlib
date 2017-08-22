@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import six
 
+import functools
 import os
 import re
 import signal
@@ -18,8 +19,8 @@ import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.figure import Figure
 
-from .qt_compat import (QtCore, QtGui, QtWidgets, _getSaveFileName,
-                        __version__, is_pyqt5)
+from .qt_compat import (
+    QtCore, QtGui, QtWidgets, _getSaveFileName, is_pyqt5, __version__, QT_API)
 
 backend_version = __version__
 
@@ -132,6 +133,51 @@ def _create_qApp():
             pass
 
 
+def _allow_super_init(__init__):
+    """
+    Decorator for ``__init__`` to allow ``super().__init__`` on PyQt4/PySide2.
+    """
+
+    if QT_API == "PyQt5":
+
+        return __init__
+
+    else:
+        # To work around lack of cooperative inheritance in PyQt4, PySide,
+        # and PySide2, when calling FigureCanvasQT.__init__, we temporarily
+        # patch QWidget.__init__ by a cooperative version, that first calls
+        # QWidget.__init__ with no additional arguments, and then finds the
+        # next class in the MRO with an __init__ that does support cooperative
+        # inheritance (i.e., not defined by the PyQt4, PySide, PySide2, sip
+        # or Shiboken packages), and manually call its `__init__`, once again
+        # passing the additional arguments.
+
+        qwidget_init = QtWidgets.QWidget.__init__
+
+        def cooperative_qwidget_init(self, *args, **kwargs):
+            qwidget_init(self)
+            mro = type(self).__mro__
+            next_coop_init = next(
+                cls for cls in mro[mro.index(QtWidgets.QWidget) + 1:]
+                if cls.__module__.split(".")[0] not in [
+                    "PyQt4", "sip", "PySide", "PySide2", "Shiboken"])
+            next_coop_init.__init__(self, *args, **kwargs)
+
+        @functools.wraps(__init__)
+        def wrapper(self, **kwargs):
+            try:
+                QtWidgets.QWidget.__init__ = cooperative_qwidget_init
+                __init__(self, **kwargs)
+            finally:
+                try:
+                    # Restore __init__ to sip.simplewrapper.__init__.
+                    del QtWidgets.QWidget.__init__
+                except AttributeError:
+                    pass
+
+        return wrapper
+
+
 class TimerQT(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses Qt timer events.
@@ -186,23 +232,20 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         dpi = self._dpi_ratio * self.figure._original_dpi
         self.figure._set_dpi(dpi, forward=False)
 
+    @_allow_super_init
     def __init__(self, figure):
         _create_qApp()
         figure._original_dpi = figure.dpi
 
-        # NB: Using super for this call to avoid a TypeError:
-        # __init__() takes exactly 2 arguments (1 given) on QWidget
-        # PyQt5
-        # The need for this change is documented here
-        # http://pyqt.sourceforge.net/Docs/PyQt5/pyqt4_differences.html#cooperative-multi-inheritance
         super(FigureCanvasQT, self).__init__(figure=figure)
+
         self.figure = figure
         self._update_figure_dpi()
 
-        self.setMouseTracking(True)
         w, h = self.get_width_height()
         self.resize(w, h)
 
+        self.setMouseTracking(True)
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
 
