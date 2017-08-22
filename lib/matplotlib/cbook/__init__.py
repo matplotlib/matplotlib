@@ -889,6 +889,7 @@ class RingBuffer(object):
         return self.data[i % len(self.data)]
 
 
+@deprecated('2.1')
 def get_split_ind(seq, N):
     """
     *seq* is a list of words.  Return the index into seq such that::
@@ -1005,6 +1006,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     return results
 
 
+@deprecated('2.1')
 def get_recursive_filelist(args):
     """
     Recurse all the files and dirs in *args* ignoring symbolic links
@@ -1236,6 +1238,7 @@ def reverse_dict(d):
     return {v: k for k, v in six.iteritems(d)}
 
 
+@deprecated('2.1')
 def restrict_dict(d, keys):
     """
     Return a dictionary that contains those keys that appear in both
