@@ -31,7 +31,7 @@ from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
-from matplotlib.cbook import maxdict, restrict_dict
+from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
@@ -567,12 +567,10 @@ class FigureCanvasAgg(FigureCanvasBase):
             color = tuple([int(x * 255.0) for x in rgba[:3]])
             background = Image.new('RGB', size, color)
             background.paste(image, image)
-            options = restrict_dict(kwargs, ['quality', 'optimize',
-                                             'progressive'])
-
-            if 'quality' not in options:
-                options['quality'] = rcParams['savefig.jpeg_quality']
-
+            options = {k: kwargs[k]
+                       for k in ['quality', 'optimize', 'progressive']
+                       if k in kwargs}
+            options.setdefault('quality', rcParams['savefig.jpeg_quality'])
             return background.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 

@@ -429,11 +429,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
         # set the default quality, if we are writing a JPEG.
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
-        options = cbook.restrict_dict(kwargs, ['quality'])
-        if format in ['jpg','jpeg']:
-            if 'quality' not in options:
-                options['quality'] = rcParams['savefig.jpeg_quality']
-
+        options = {k: kwargs[k] for k in ['quality'] if k in kwargs}
+        if format in ['jpg', 'jpeg']:
+            options.setdefault('quality', rcParams['savefig.jpeg_quality'])
             options['quality'] = str(options['quality'])
 
         if isinstance(filename, six.string_types):
