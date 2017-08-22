@@ -385,8 +385,8 @@ def validate_color(s):
         # get rid of grouping symbols
         stmp = ''.join([c for c in s if c.isdigit() or c == '.' or c == ','])
         vals = stmp.split(',')
-        if len(vals) != 3:
-            msg = '\nColor tuples must be length 3'
+        if len(vals) not in [3, 4]:
+            msg = '\nColor tuples must be of length 3 or 4'
         else:
             try:
                 colorarg = [float(val) for val in vals]
