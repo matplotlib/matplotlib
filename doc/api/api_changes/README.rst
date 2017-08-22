@@ -9,4 +9,4 @@ a file in this folder with the name :file:`YYYY-MM-DD-[initials].rst`
     maintain old behavior (if any).
 
 
-If you need more heading levels, please ``~~~~`` and ``++++``.
+If you need more heading levels, please use ``~~~~`` and ``++++``.
