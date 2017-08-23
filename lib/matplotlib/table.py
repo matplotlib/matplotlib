@@ -286,6 +286,7 @@ class Table(Artist):
         cell.set_clip_on(False)
         self._cells[row, col] = cell
         self.stale = True
+        return cell
 
     @property
     def edges(self):
