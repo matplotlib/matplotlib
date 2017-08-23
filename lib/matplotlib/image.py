@@ -130,9 +130,8 @@ def _draw_list_compositing_images(
     has_images = any(isinstance(x, _ImageBase) for x in artists)
 
     # override the renderer default if suppressComposite is not None
-    not_composite = renderer.option_image_nocomposite()
-    if suppress_composite is not None:
-        not_composite = suppress_composite
+    not_composite = (suppress_composite if suppress_composite is not None
+                     else renderer.option_image_nocomposite())
 
     if not_composite or not has_images:
         for a in artists:
@@ -146,8 +145,7 @@ def _draw_list_compositing_images(
             if len(image_group) == 1:
                 image_group[0].draw(renderer)
             elif len(image_group) > 1:
-                data, l, b = composite_images(
-                    image_group, renderer, mag)
+                data, l, b = composite_images(image_group, renderer, mag)
                 if data.size != 0:
                     gc = renderer.new_gc()
                     gc.set_clip_rectangle(parent.bbox)
@@ -182,13 +180,17 @@ def _rgb_to_rgba(A):
 class _ImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
 
-    # the 3 following keys seem to be unused now, keep it for
-    # backward compatibility just in case.
-    _interpd = _interpd_
-    # reverse interp dict
-    _interpdr = {v: k for k, v in six.iteritems(_interpd_)}
-    iterpnames = interpolations_names
-    # <end unused keys>
+    @cbook.deprecated("2.1")
+    def _interpd(self):
+        return _interpd_
+
+    @cbook.deprecated("2.1")
+    def _interpdr(self):
+        return {v: k for k, v in six.iteritems(_interpd_)}
+
+    @cbook.deprecated("2.1")
+    def iterpnames(self):
+        return interpolations_names
 
     def set_cmap(self, cmap):
         super(_ImageBase, self).set_cmap(cmap)
@@ -349,8 +351,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             out_height = int(ceil(out_height_base))
             extra_width = (out_width - out_width_base) / out_width_base
             extra_height = (out_height - out_height_base) / out_height_base
-            t += Affine2D().scale(
-                1.0 + extra_width, 1.0 + extra_height)
+            t += Affine2D().scale(1.0 + extra_width, 1.0 + extra_height)
         else:
             out_width = int(out_width_base)
             out_height = int(out_height_base)
@@ -659,7 +660,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_resample(self, v):
         """
-        Set whether or not image resampling is used
+        Set whether or not image resampling is used.
 
         ACCEPTS: True|False
         """
@@ -669,7 +670,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def get_resample(self):
-        """Return the image resample boolean"""
+        """Return the image resample boolean."""
         return self._resample
 
     def set_filternorm(self, filternorm):
@@ -687,7 +688,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def get_filternorm(self):
-        """Return the filternorm setting"""
+        """Return the filternorm setting."""
         return self._filternorm
 
     def set_filterrad(self, filterrad):
@@ -704,7 +705,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def get_filterrad(self):
-        """return the filterrad setting"""
+        """Return the filterrad setting."""
         return self._filterrad
 
 
@@ -770,13 +771,10 @@ class AxesImage(_ImageBase):
 
     def _check_unsampled_image(self, renderer):
         """
-        return True if the image is better to be drawn unsampled.
+        Return whether the image would be better drawn unsampled.
         """
-        if (self.get_interpolation() == "none" and
-                renderer.option_scale_image()):
-            return True
-
-        return False
+        return (self.get_interpolation() == "none"
+                and renderer.option_scale_image())
 
     def set_extent(self, extent):
         """
@@ -786,11 +784,8 @@ class AxesImage(_ImageBase):
         to tightly fit the image, regardless of dataLim.  Autoscaling
         state is not changed, so following this with ax.autoscale_view
         will redo the autoscaling in accord with dataLim.
-
         """
-        self._extent = extent
-
-        xmin, xmax, ymin, ymax = extent
+        self._extent = xmin, xmax, ymin, ymax = extent
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
         self.sticky_edges.x[:] = [xmin, xmax]
@@ -821,8 +816,7 @@ class AxesImage(_ImageBase):
         arr = self.get_array()
         data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
         array_extent = Bbox([[0, 0], arr.shape[:2]])
-        trans = BboxTransform(boxin=data_extent,
-                              boxout=array_extent)
+        trans = BboxTransform(boxin=data_extent, boxout=array_extent)
         y, x = event.ydata, event.xdata
         i, j = trans.transform_point([y, x]).astype(int)
         # Clip the coordinates at array bounds
@@ -971,7 +965,6 @@ class PcolorImage(AxesImage):
         norm is a colors.Normalize instance to map luminance to 0-1
 
         Additional kwargs are matplotlib.artist properties
-
         """
         super(PcolorImage, self).__init__(ax, norm=norm, cmap=cmap)
         self.update(kwargs)
@@ -1095,7 +1088,6 @@ class FigureImage(_ImageBase):
                  origin=None,
                  **kwargs
                  ):
-
         """
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
@@ -1148,7 +1140,6 @@ class BboxImage(_ImageBase):
                  interp_at_native=True,
                  **kwargs
                  ):
-
         """
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
@@ -1305,30 +1296,30 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
     The output formats available depend on the backend being used.
 
-    Arguments:
-      *fname*:
-        A string containing a path to a filename, or a Python file-like object.
+    Parameters
+    ----------
+    fname : str or file-like
+        Path string to a filename, or a Python file-like object.
         If *format* is *None* and *fname* is a string, the output
         format is deduced from the extension of the filename.
-      *arr*:
+    arr : array-like
         An MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA) array.
-    Keyword arguments:
-      *vmin*/*vmax*: [ None | scalar ]
+    vmin, vmax: [ None | scalar ]
         *vmin* and *vmax* set the color scaling for the image by fixing the
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
-      *cmap*:
-        cmap is a colors.Colormap instance, e.g., cm.jet.
-        If None, default to the rc image.cmap value.
-      *format*:
-        One of the file extensions supported by the active
-        backend.  Most backends support png, pdf, ps, eps and svg.
-      *origin*
-        [ 'upper' | 'lower' ] Indicates where the [0,0] index of
-        the array is in the upper left or lower left corner of
-        the axes. Defaults to the rc image.origin value.
-      *dpi*
+    cmap : matplotlib.colors.Colormap, optional
+        For example, ``cm.viridis``.  If ``None``, defaults to the
+        ``image.cmap`` rcParam.
+    format : str
+        One of the file extensions supported by the active backend.  Most
+        backends support png, pdf, ps, eps and svg.
+    origin : [ 'upper' | 'lower' ]
+        Indicates whether the ``(0, 0)`` index of the array is in the
+        upper left or lower left corner of the axes.  Defaults to the
+        ``image.origin`` rcParam.
+    dpi : int
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.
     """
@@ -1352,54 +1343,29 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 
 def pil_to_array(pilImage):
-    """
-    Load a PIL image and return it as a numpy array.  For grayscale
-    images, the return array is MxN.  For RGB images, the return value
-    is MxNx3.  For RGBA images the return value is MxNx4
-    """
-    def toarray(im, dtype=np.uint8):
-        """Return a 1D array of dtype."""
-        # Pillow wants us to use "tobytes"
-        if hasattr(im, 'tobytes'):
-            x_str = im.tobytes('raw', im.mode)
-        else:
-            x_str = im.tostring('raw', im.mode)
-        x = np.fromstring(x_str, dtype)
-        return x
+    """Load a PIL image and return it as a numpy array.
 
-    if pilImage.mode in ('RGBA', 'RGBX'):
-        im = pilImage  # no need to convert images
-    elif pilImage.mode == 'L':
-        im = pilImage  # no need to luminance images
-        # return MxN luminance array
-        x = toarray(im)
-        x.shape = im.size[1], im.size[0]
-        return x
-    elif pilImage.mode == 'RGB':
-        # return MxNx3 RGB array
-        im = pilImage  # no need to RGB images
-        x = toarray(im)
-        x.shape = im.size[1], im.size[0], 3
-        return x
+    Grayscale images are returned as ``(M, N)`` arrays.  RGB images are
+    returned as ``(M, N, 3)`` arrays.  RGBA images are returned as ``(M, N,
+    4)`` arrays.
+    """
+    if pilImage.mode in ['RGBA', 'RGBX', 'RGB', 'L']:
+        # return MxNx4 RGBA, MxNx3 RBA, or MxN luminance array
+        return np.asarray(pilImage)
     elif pilImage.mode.startswith('I;16'):
         # return MxN luminance array of uint16
-        im = pilImage
-        if im.mode.endswith('B'):
-            x = toarray(im, '>u2')
+        raw = pilImage.tobytes('raw', pilImage.mode)
+        if pilImage.mode.endswith('B'):
+            x = np.fromstring(raw, '>u2')
         else:
-            x = toarray(im, '<u2')
-        x.shape = im.size[1], im.size[0]
-        return x.astype('=u2')
+            x = np.fromstring(raw, '<u2')
+        return x.reshape(pilImage.size[::-1]).astype('=u2')
     else:  # try to convert to an rgba image
         try:
-            im = pilImage.convert('RGBA')
+            pilImage = pilImage.convert('RGBA')
         except ValueError:
             raise RuntimeError('Unknown image mode')
-
-    # return MxNx4 RGBA array
-    x = toarray(im)
-    x.shape = im.size[1], im.size[0], 4
-    return x
+        return np.asarray(pilImage)  # return MxNx4 RGBA array
 
 
 def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',

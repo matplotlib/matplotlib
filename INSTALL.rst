@@ -206,15 +206,14 @@ optional Matplotlib backends and the capabilities they provide.
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
 
-  * `ffmpeg <https://www.ffmpeg.org/>`__/`avconv
-    <https://libav.org/avconv.html>`__ or `mencoder
-    <https://mplayerhq.hu/design7/news.html>`__ (for saving movies);
-  * `ImageMagick <https://www.imagemagick.org/script/index.php>`__ (for saving
-    animated gifs);
-  * `Pillow <https://python-pillow.org/>`__ (for a larger selection of image
-    file formats: JPEG, BMP, and TIFF image files);
-  * `LaTeX <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_
-    (for rendering text with LaTeX);
+  * `ffmpeg <https://www.ffmpeg.org/>`_/`avconv
+    <https://libav.org/avconv.html>`_: for saving movies;
+  * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
+    animated gifs;
+  * `Pillow <https://python-pillow.org/>`_ (>=2.0): for a larger selection of
+    image file formats: JPEG, BMP, and TIFF image files;
+  * `LaTeX <https://miktex.org/>`_ and `GhostScript
+    <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).
 
 .. note::
 
