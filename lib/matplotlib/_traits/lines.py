@@ -346,6 +346,36 @@ class Line2D(HasTraits, b_artist.Artist):
 
     ind_offset = Int(allow_none=True,default_value=0)
 
+    # xorig = np.asarray([])
+    xorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
+
+    # yorig = np.asarray([])
+    yorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
+
+    # invalidx = True
+    invalidx=Bool(default_value=True)
+    # invalidy = True
+    invalidy=Bool(default_value=True)
+
+
+    # for x, y, & xy I am not sure if these following lines of code are correct, I may just leave them alone come testing time
+    # x = None
+    x=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
+    # y = None
+    y=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
+    # xy = None
+
+
+    # path = None
+    path=Instance('matplotlib.path.Path', allow_none=True, default_value=None)
+    # transformed_path = None
+    transformed_path=Instance('matplotlib.transforms.TransformedPath', allow_none=True, default_value=None)
+    # subslice = False
+    subslice=Bool(default_value=False)
+    # x_filled = None # used in subslicing; only x is needed
+    x_filled=Instance('np.array', allow_none=True, default_value=None)
+
+    set_data(xdata, ydata)
 
     # not sure how much this will have to be refactored
     def __str__(self):
@@ -743,6 +773,25 @@ END OF INIT FUNCTION
 
 
 
+
+
+    def set_data(self, *args):
+        """
+        Set the x and y data
+
+        ACCEPTS: 2D array (rows are x, y) or two 1D arrays
+        """
+        if len(args) == 1:
+            x, y = args[0]
+        else:
+            x, y = args
+
+        self.set_xdata(x)
+        self.set_ydata(y)
+
+"""
+________________________________________________________________________________
+"""
 
 #for monkey patching
 b_Line2D = Line2D()
