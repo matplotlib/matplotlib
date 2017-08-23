@@ -1811,6 +1811,8 @@ class Figure(Artist):
             original_frameon = self.get_frameon()
             self.set_frameon(frameon)
 
+        if "fname" in kwargs:
+            kwargs["filename"] = kwargs.pop("fname")
         self.canvas.print_figure(*args, **kwargs)
 
         if frameon:
