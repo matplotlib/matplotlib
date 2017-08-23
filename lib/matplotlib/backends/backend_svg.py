@@ -30,21 +30,12 @@ from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
 
-from xml.sax.saxutils import escape as escape_xml_text
+from xml.etree import ElementTree as etree
 
 backend_version = __version__
 
 # ----------------------------------------------------------------------
-# SimpleXMLWriter class
-#
-# Based on an original by Fredrik Lundh, but modified here to:
-#   1. Support modern Python idioms
-#   2. Remove encoding support (it's handled by the file writer instead)
-#   3. Support proper indentation
-#   4. Minify things a little bit
-
-# --------------------------------------------------------------------
-# The SimpleXMLWriter module is
+# Contains code from the SimpleXMLWriter module.
 #
 # Copyright (c) 2001-2004 by Fredrik Lundh
 #
@@ -71,25 +62,6 @@ backend_version = __version__
 # OF THIS SOFTWARE.
 # --------------------------------------------------------------------
 
-def escape_cdata(s):
-    s = s.replace("&", "&amp;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    return s
-
-_escape_xml_comment = re.compile(r'-(?=-)')
-def escape_comment(s):
-    s = escape_cdata(s)
-    return _escape_xml_comment.sub('- ', s)
-
-def escape_attrib(s):
-    s = s.replace("&", "&amp;")
-    s = s.replace("'", "&apos;")
-    s = s.replace("\"", "&quot;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    return s
-
 def short_float_fmt(x):
     """
     Create a short string representation of a float, which is %f
@@ -97,133 +69,116 @@ def short_float_fmt(x):
     """
     return '{0:f}'.format(x).rstrip('0').rstrip('.')
 
-##
-# XML writer class.
-#
-# @param file A file or file-like object.  This object must implement
-#    a <b>write</b> method that takes an 8-bit string.
+# ----------------------------------------------------------------------
 
-class XMLWriter(object):
-    def __init__(self, file):
-        self.__write = file.write
-        if hasattr(file, "flush"):
-            self.flush = file.flush
-        self.__open = 0 # true if start tag is open
-        self.__tags = []
-        self.__data = []
-        self.__indentation = " " * 64
+def xml_write(xml, out, indent=0, _indent=0):
+    """Write XML tree to a file-type object.
 
-    def __flush(self, indent=True):
-        # flush internal buffers
-        if self.__open:
-            if indent:
-                self.__write(">\n")
-            else:
-                self.__write(">")
-            self.__open = 0
-        if self.__data:
-            data = ''.join(self.__data)
-            self.__write(escape_cdata(data))
-            self.__data = []
+    Parameters
+    ----------
+    xml : etree.Element
+        An XML element tree.
 
-    ## Opens a new element.  Attributes can be given as keyword
-    # arguments, or as a string/string dictionary. The method returns
-    # an opaque identifier that can be passed to the <b>close</b>
-    # method, to close all open elements up to and including this one.
-    #
-    # @param tag Element tag.
-    # @param attrib Attribute dictionary.  Alternatively, attributes
-    #    can be given as keyword arguments.
-    # @return An element identifier.
+    out : object to write to
+        An object with a *write* method that accepts a string and encodes the
+        data.
+
+    indent : int
+        Amount of space to indent each tag.  Default is 0.
+    """
+    ind = ' ' * _indent
+
+    # write out comments
+    if xml.tag == etree.Comment:
+        lines = xml.text.split('\n')
+        lines = [ind + '<!-- ' + i + ' -->\n' for i in lines]
+        string = ''.join(lines)
+        out.write(string)
+        return
+
+    tag = xml.tag
+    text = xml.text or ''
+    children = list(xml)
+
+    # compile attributes (wrap long lines)
+    attr = ['']
+    indent_length = len(ind) + 1 + len(tag)
+    max_len = 80
+    for key in sorted(xml.attrib.keys()):
+        value = xml.attrib[key]
+        if value:
+            assert is_string_like(value), ('Invalid XML attribute pair ' +
+                                           str(key) + ',' + str(value))
+            newattr = ' {0:s}="{1:s}"'.format(key, value)
+            last_line_length = len(attr[-1]) + indent_length
+            if last_line_length >= 80:
+                attr.append('')
+            attr[-1] += newattr
+    attr = ('\n' + ind + ' '*(indent_length - len(ind))).join(attr)
+
+    # write out element
+    out.write(ind)
+    out.write('<{0:s}{1:s}'.format(tag, attr))
+    if not (children or text):
+        out.write('/')
+    out.write('>')
+    out.write(text)
+    if children:
+        out.write('\n')
+        for child in children:
+            xml_write(child, out, indent, _indent + indent)
+    if children or text:
+        out.write(ind + '</{0:s}>\n'.format(tag))
+    else:
+        out.write('\n')
+
+
+class XMLBuilder(etree.TreeBuilder):
+    def __init__(self):
+        etree.TreeBuilder.__init__(self)
+        self._tree = []
 
     def start(self, tag, attrib={}, **extra):
-        self.__flush()
-        tag = escape_cdata(tag)
-        self.__data = []
-        self.__tags.append(tag)
-        self.__write(self.__indentation[:len(self.__tags) - 1])
-        self.__write("<%s" % tag)
-        if attrib or extra:
-            attrib = attrib.copy()
-            attrib.update(extra)
-            attrib = sorted(six.iteritems(attrib))
-            for k, v in attrib:
-                if not v == '':
-                    k = escape_cdata(k)
-                    v = escape_attrib(v)
-                    self.__write(" %s=\"%s\"" % (k, v))
-        self.__open = 1
-        return len(self.__tags)-1
-
-    ##
-    # Adds a comment to the output stream.
-    #
-    # @param comment Comment text, as a Unicode string.
-
-    def comment(self, comment):
-        self.__flush()
-        self.__write(self.__indentation[:len(self.__tags)])
-        self.__write("<!-- %s -->\n" % escape_comment(comment))
-
-    ##
-    # Adds character data to the output stream.
-    #
-    # @param text Character data, as a Unicode string.
-
-    def data(self, text):
-        self.__data.append(text)
-
-    ##
-    # Closes the current element (opened by the most recent call to
-    # <b>start</b>).
-    #
-    # @param tag Element tag.  If given, the tag must match the start
-    #    tag.  If omitted, the current element is closed.
-
-    def end(self, tag=None, indent=True):
-        if tag:
-            assert self.__tags, "unbalanced end(%s)" % tag
-            assert escape_cdata(tag) == self.__tags[-1],\
-                   "expected end(%s), got %s" % (self.__tags[-1], tag)
-        else:
-            assert self.__tags, "unbalanced end()"
-        tag = self.__tags.pop()
-        if self.__data:
-            self.__flush(indent)
-        elif self.__open:
-            self.__open = 0
-            self.__write("/>\n")
-            return
-        if indent:
-            self.__write(self.__indentation[:len(self.__tags)])
-        self.__write("</%s>\n" % tag)
-
-    ##
-    # Closes open elements, up to (and including) the element identified
-    # by the given identifier.
-    #
-    # @param id Element identifier, as returned by the <b>start</b> method.
-
-    def close(self, id):
-        while len(self.__tags) > id:
-            self.end()
-
-    ##
-    # Adds an entire element.  This is the same as calling <b>start</b>,
-    # <b>data</b>, and <b>end</b> in sequence. The <b>text</b> argument
-    # can be omitted.
+        attrib = attrib.copy()
+        attrib.update(extra)
+        element = etree.TreeBuilder.start(self, tag, attrib)
+        self._tree.append(element)
+        return element
 
     def element(self, tag, text=None, attrib={}, **extra):
         self.start(*(tag, attrib), **extra)
         if text:
             self.data(text)
-        self.end(indent=False)
+        return self.end(tag)
 
-    ##
-    # Flushes the output stream.
+    def end(self, tag):
+        element = etree.TreeBuilder.end(self, tag)
+        self._tree.pop()
+        return element
+
+    def comment(self, text):
+        element = etree.Comment(text)
+        self._tree[-1].append(element)
+        return element
+
+
+class XMLWriter(XMLBuilder):
+    def __init__(self, writer):
+        XMLBuilder.__init__(self)
+        self._writer = writer
+
+    def close(self):
+        tree = XMLBuilder.close(self)
+        self._writer.write(svgProlog)
+        ret = xml_write(tree, self._writer, indent=1)
+        self.flush()
+        return ret
 
     def flush(self):
-        pass # replaced by the constructor
+        try:
+            self._writer.flush()
+        except AttributeError:
+            pass
 
 # ----------------------------------------------------------------------
 
@@ -250,21 +205,21 @@ def generate_css(attrib={}):
         output = io.StringIO()
         attrib = sorted(six.iteritems(attrib))
         for k, v in attrib:
-            k = escape_attrib(k)
-            v = escape_attrib(v)
             output.write("%s:%s;" % (k, v))
         return output.getvalue()
     return ''
 
-_capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    FONT_SCALE = 100.0
-    fontd = maxdict(50)
+    _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
+        if not isinstance(svgwriter, XMLBuilder):
+            self.writer = XMLWriter(svgwriter)
+        else:
+            self.writer = svgwriter
         self.image_dpi = image_dpi  # the actual dpi we want to rasterize stuff with
 
         self._groupd = {}
@@ -286,8 +241,7 @@ class RendererSVG(RendererBase):
         RendererBase.__init__(self)
         self._glyph_map = dict()
 
-        svgwriter.write(svgProlog)
-        self._start_id = self.writer.start(
+        self.writer.start(
             'svg',
             width='%ipt' % width, height='%ipt' % height,
             viewBox='0 0 %i %i' % (width, height),
@@ -300,8 +254,8 @@ class RendererSVG(RendererBase):
         self._write_clips()
         self._write_hatches()
         self._write_svgfonts()
-        self.writer.close(self._start_id)
-        self.writer.flush()
+        self.writer.end('svg')
+        return self.writer.close()
 
     def _write_default_style(self):
         writer = self.writer
@@ -441,7 +395,7 @@ class RendererSVG(RendererBase):
             if gc.get_joinstyle() != 'round':
                 attrib['stroke-linejoin'] = gc.get_joinstyle()
             if gc.get_capstyle() != 'butt':
-                attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
+                attrib['stroke-linecap'] = self._capstyle_d[gc.get_capstyle()]
 
         return attrib
 
@@ -1192,7 +1146,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             with io.open(filename, 'w', encoding='utf-8') as svgwriter:
                 return self._print_svg(filename, svgwriter, **kwargs)
 
-        if not is_writable_file_like(filename):
+        if not (is_writable_file_like(filename) or isinstance(filename, XMLBuilder)):
             raise ValueError("filename must be a path or a file-like object")
 
         svgwriter = filename
@@ -1200,7 +1154,9 @@ class FigureCanvasSVG(FigureCanvasBase):
         if not isinstance(filename, six.string_types):
             filename = ''
 
-        if not isinstance(svgwriter, io.TextIOBase):
+        if isinstance(svgwriter, XMLBuilder):
+            detach = False
+        elif not isinstance(svgwriter, io.TextIOBase):
             if six.PY3:
                 svgwriter = io.TextIOWrapper(svgwriter, 'utf-8')
             else:
@@ -1246,7 +1202,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
-        renderer.finalize()
+        return renderer.finalize()
 
     def get_default_filetype(self):
         return 'svg'
