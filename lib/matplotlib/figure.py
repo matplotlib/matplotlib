@@ -1996,7 +1996,8 @@ class Figure(Artist):
         from .tight_layout import (get_renderer, get_tight_layout_figure,
                                    get_subplotspec_list)
 
-        subplotspec_list = get_subplotspec_list(self.axes)
+        axes = [ax for ax in self.axes if ax.get_visible()]
+        subplotspec_list = get_subplotspec_list(axes)
         if None in subplotspec_list:
             warnings.warn("This figure includes Axes that are not "
                           "compatible with tight_layout, so its "
@@ -2005,7 +2006,7 @@ class Figure(Artist):
         if renderer is None:
             renderer = get_renderer(self)
 
-        kwargs = get_tight_layout_figure(self, self.axes, subplotspec_list,
+        kwargs = get_tight_layout_figure(self, axes, subplotspec_list,
                                          renderer,
                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
                                          rect=rect)
