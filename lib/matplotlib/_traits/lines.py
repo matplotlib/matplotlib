@@ -372,7 +372,9 @@ class Line2D(HasTraits, b_artist.Artist):
     transformed_path=Instance('matplotlib.transforms.TransformedPath', allow_none=True, default_value=None)
     # subslice = False
     subslice=Bool(default_value=False)
+
     # x_filled = None # used in subslicing; only x is needed
+    #not sure if this line below will work or not
     x_filled=Instance('np.array', allow_none=True, default_value=None)
 
     set_data(xdata, ydata)
@@ -771,10 +773,159 @@ END OF INIT FUNCTION
     def _ind_offset_observe(self, change):
         print("ind_offset: observed a change from %r to %r" % (change.old, change.new))
 
+    #xorig default
+    @default("xorig")
+    def _xorig_default(self):
+        print("xorig: generating default value")
+        return False
+    #xorig validate
+    @validate("xorig")
+    def _xorig_validate(self, proposal):
+        print("xorig: cross validating %r" % proposal.value)
+        return proposal.value
+    #xorig observer
+    @observe("xorig", type="change")
+    def _xorig_observe(self, change):
+        print("xorig: observed a change from %r to %r" % (change.old, change.new))
 
+    #yorig default
+    @default("yorig")
+    def _yorig_default(self):
+        print("yorig: generating default value")
+        return False
+    #yorig validate
+    @validate("yorig")
+    def _yorig_validate(self, proposal):
+        print("yorig: cross validating %r" % proposal.value)
+        return proposal.value
+    #yorig observer
+    @observe("yorig", type="change")
+    def _yorig_observe(self, change):
+        print("yorig: observed a change from %r to %r" % (change.old, change.new))
 
+    #invalidx default
+    @default("invalidx")
+    def _invalidx_default(self):
+        print("invalidx: generating default value")
+        return True
+    #invalidx validate
+    @validate("invalidx")
+    def _invalidx_validate(self, proposal):
+        print("invalidx: cross validating %r" % proposal.value)
+        return proposal.value
+    #invalidx observer
+    @observe("invalidx", type="change")
+    def _invalidx_observe(self, change):
+        print(": observed a change from %r to %r" % (change.old, change.new))
 
+    #invalidy default
+    @default("invalidy")
+    def _invalidy_default(self):
+        print("invalidy: generating default value")
+        return False
+    #invalidy validate
+    @validate("invalidy")
+    def _invalidy_validate(self, proposal):
+        print("invalidy: cross validating %r" % proposal.value)
+        return proposal.value
+    #invalidy observer
+    @observe("invalidy", type="change")
+    def _invalidy_observe(self, change):
+        print("invalidy: observed a change from %r to %r" % (change.old, change.new))
 
+    #x default
+    @default("x")
+    def _x_default(self):
+        print("x: generating default value")
+        return False
+    #x validate
+    @validate("x")
+    def _x_validate(self, proposal):
+        print("x: cross validating %r" % proposal.value)
+        return proposal.value
+    #x observer
+    @observe("x", type="change")
+    def _x_observe(self, change):
+        print("x: observed a change from %r to %r" % (change.old, change.new))
+
+    #y default
+    @default("y")
+    def _y_default(self):
+        print("y: generating default value")
+        return False
+    #y validate
+    @validate("y")
+    def _y_validate(self, proposal):
+        print("y: cross validating %r" % proposal.value)
+        return proposal.value
+    #y observer
+    @observe("y", type="change")
+    def _y_observe(self, change):
+        print("y: observed a change from %r to %r" % (change.old, change.new))
+
+    #path default
+    @default("path")
+    def _path_default(self):
+        print("path: generating default value")
+        return False
+    #path validate
+    @validate("path")
+    def _path_validate(self, proposal):
+        print("path: cross validating %r" % proposal.value)
+        return proposal.value
+    #path observer
+    @observe("path", type="change")
+    def _path_observe(self, change):
+        print("path: observed a change from %r to %r" % (change.old, change.new))
+
+    #transformed_path default
+    @default("transformed_path")
+    def _transformed_path_default(self):
+        print("transformed_path: generating default value")
+        return False
+    #transformed_path validate
+    @validate("transformed_path")
+    def _transformed_path_validate(self, proposal):
+        print("transformed_path: cross validating %r" % proposal.value)
+        return proposal.value
+    #transformed_path observer
+    @observe("transformed_path", type="change")
+    def _transformed_path_observe(self, change):
+        print("transformed_path: observed a change from %r to %r" % (change.old, change.new))
+
+    #subslice default
+    @default("subslice")
+    def _subslice_default(self):
+        print("subslice: generating default value")
+        return False
+    #subslice validate
+    @validate("subslice")
+    def _subslice_validate(self, proposal):
+        print("subslice: cross validating %r" % proposal.value)
+        return proposal.value
+    #subslice observer
+    @observe("subslice", type="change")
+    def _subslice_observe(self, change):
+        print("subslice: observed a change from %r to %r" % (change.old, change.new))
+
+    #x_filled default
+    @default("x_filled")
+    def _x_filled_default(self):
+        print("x_filled: generating default value")
+        return False
+    #x_filled validate
+    @validate("x_filled")
+    def _x_filled_validate(self, proposal):
+        print("x_filled: cross validating %r" % proposal.value)
+        return proposal.value
+    #x_filled observer
+    @observe("x_filled", type="change")
+    def _x_filled_observe(self, change):
+        print("x_filled: observed a change from %r to %r" % (change.old, change.new))
+
+"""
+________________________________________________________________________________
+"""
     def set_data(self, *args):
         """
         Set the x and y data
