@@ -110,13 +110,13 @@ class Axes3D(Axes):
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
 
-        if zscale is not None :
+        if zscale is not None:
             self.set_zscale(zscale)
 
-        if self.zaxis is not None :
-            self._zcid = self.zaxis.callbacks.connect('units finalize',
-                                                      self.relim)
-        else :
+        if self.zaxis is not None:
+            self._zcid = self.zaxis.callbacks.connect(
+                'units finalize', lambda: self._on_units_changed(scalez=True))
+        else:
             self._zcid = None
 
         self._ready = 1
@@ -306,6 +306,15 @@ class Axes3D(Axes):
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
         return xhigh, yhigh, zhigh
+
+    def _on_units_changed(self, scalex=False, scaley=False, scalez=False):
+        """
+        Callback for processing changes to axis units.
+
+        Currently forces updates of data limits and view limits.
+        """
+        self.relim()
+        self.autoscale_view(scalex=scalex, scaley=scaley, scalez=scalez)
 
     def update_datalim(self, xys, **kwargs):
         pass

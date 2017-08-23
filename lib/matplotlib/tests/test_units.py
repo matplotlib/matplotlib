@@ -76,7 +76,6 @@ def test_numpy_facade():
     ax.axvline(Quantity(120, 'minutes'), color='tab:green')
     ax.yaxis.set_units('inches')
     ax.xaxis.set_units('seconds')
-    ax.autoscale_view()
 
     assert qc.convert.called
     assert qc.axisinfo.called
