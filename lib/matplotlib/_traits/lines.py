@@ -416,30 +416,7 @@ class Line2D(HasTraits, b_artist.Artist):
         #     raise RuntimeError('xdata must be a sequence')
         # if not iterable(ydata):
         #     raise RuntimeError('ydata must be a sequence')
-        #
-        # if linewidth is None:
-        #     linewidth = rcParams['lines.linewidth']
-        #
-        # if linestyle is None:
-        #     linestyle = rcParams['lines.linestyle']
-        # if marker is None:
-        #     marker = rcParams['lines.marker']
-        # if color is None:
-        #     color = rcParams['lines.color']
-        #
-        # if markersize is None:
-        #     markersize = rcParams['lines.markersize']
-        # if antialiased is None:
-        #     antialiased = rcParams['lines.antialiased']
-        # if dash_capstyle is None:
-        #     dash_capstyle = rcParams['lines.dash_capstyle']
-        # if dash_joinstyle is None:
-        #     dash_joinstyle = rcParams['lines.dash_joinstyle']
-        # if solid_capstyle is None:
-        #     solid_capstyle = rcParams['lines.solid_capstyle']
-        # if solid_joinstyle is None:
-        #     solid_joinstyle = rcParams['lines.solid_joinstyle']
-        #
+
         # if isinstance(linestyle, six.string_types):
         #     ds, ls = self._split_drawstyle_linestyle(linestyle)
         #     if ds is not None and drawstyle is not None and ds != drawstyle:
@@ -500,6 +477,8 @@ END OF INIT FUNCTION
     @validate("linewidth")
     def _linewidth_validate(self, proposal):
         print("linewidth: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.linewidth']
         #to assure we are dealing with a FLOAT
         proposal.value=float(proposal.value) #watch out for recursion on this line
         return proposal.value
@@ -517,6 +496,8 @@ END OF INIT FUNCTION
     @validate("linestyle")
     def _linestyle_validate(self, proposal):
         print("linestyle: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.linestyle']
         return proposal.value
     #linestyle observer
     @observe("linestyle", type="change")
@@ -532,6 +513,8 @@ END OF INIT FUNCTION
     @validate("color")
     def _color_validate(self, proposal):
         print("color: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.color']
         return proposal.value
     #color observer
     @observe("color", type="change")
@@ -547,6 +530,8 @@ END OF INIT FUNCTION
     @validate("marker")
     def _marker_validate(self, proposal):
         print("marker: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.marker']
         return proposal.value
     #marker observer
     @observe("marker", type="change")
@@ -562,6 +547,8 @@ END OF INIT FUNCTION
     @validate("markersize")
     def _markersize_validate(self, proposal):
         print("markersize: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.markersize']
         return proposal.value
     #markersize observer
     @observe("markersize", type="change")
@@ -637,6 +624,8 @@ END OF INIT FUNCTION
     @validate("antialiased")
     def _antialiased_validate(self, proposal):
         print("antialiased: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.antialiased']
         return proposal.value
     #antialiased observer
     @observe("antialiased", type="change")
@@ -652,6 +641,8 @@ END OF INIT FUNCTION
     @validate("dash_capstyle")
     def _dash_capstyle_validate(self, proposal):
         print("dash_capstyle: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.dash_capstyle']
         return proposal.value
     #dash_capstyle observer
     @observe("dash_capstyle", type="change")
@@ -667,6 +658,8 @@ END OF INIT FUNCTION
     @validate("solid_capstyle")
     def _solid_capstyle_validate(self, proposal):
         print("solid_capstyle: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.solid_capstyle']
         return proposal.value
     #solid_capstyle observer
     @observe("solid_capstyle", type="change")
@@ -682,6 +675,8 @@ END OF INIT FUNCTION
     @validate("dash_joinstyle")
     def _dash_joinstyle_validate(self, proposal):
         print("dash_joinstyle: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.dash_joinstyle']
         return proposal.value
     # observer
     @observe("dash_joinstyle", type="change")
@@ -697,6 +692,8 @@ END OF INIT FUNCTION
     @validate("solid_joinstyle")
     def _solid_joinstyle_validate(self, proposal):
         print("solid_joinstyle: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return rcParams['lines.solid_joinstyle']
         return proposal.value
     #solid_joinstyle observer
     @observe("solid_joinstyle", type="change")
@@ -727,6 +724,8 @@ END OF INIT FUNCTION
     @validate("drawstyle")
     def _drawstyle_validate(self, proposal):
         print("drawstyle: cross validating %r" % proposal.value)
+        if proposal.value is None:
+            return 'default'
         return proposal.value
     #drawstyle observer
     @observe("drawstyle", type="change")
