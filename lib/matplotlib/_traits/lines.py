@@ -33,6 +33,8 @@ from matplotlib.markers import (
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
+from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool
+
 #for monkey patching into base lines
 import matplotlib.lines.Line2D as b_Line2D
 
@@ -286,9 +288,9 @@ class Line2D(HasTraits, b_artist.Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
-    xdata=Instance('numpy.array', allow_none=True,default_value=True) #not sure about this line
+    xdata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
 
-    ydata=Instance('numpy.array', allow_none=True,default_value=True) #not sure about this line
+    ydata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
 
     linewidth=Float(allow_none=True, default_value=None)
 
@@ -458,11 +460,12 @@ ________________________________________________________________________________
 END OF INIT FUNCTION
 """
 
+    # NOTE: NOT SURE IF xdata & ydata are needed
     #xdata default
     @default("xdata")
     def _xdata_default(self):
         print("xdata: generating default value")
-        return False
+        return None
     #xdata validate
     @validate("xdata")
     def _xdata_validate(self, proposal):
@@ -497,6 +500,8 @@ END OF INIT FUNCTION
     @validate("linewidth")
     def _linewidth_validate(self, proposal):
         print("linewidth: cross validating %r" % proposal.value)
+        #to assure we are dealing with a FLOAT
+        proposal.value=float(proposal.value) #watch out for recursion on this line
         return proposal.value
     #linewidth observer
     @observe("linewidth", type="change")
