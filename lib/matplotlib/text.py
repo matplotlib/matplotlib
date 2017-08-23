@@ -30,7 +30,6 @@ from matplotlib.lines import Line2D
 from matplotlib.path import Path
 from matplotlib.artist import allow_rasterization
 
-from matplotlib.backend_bases import RendererBase
 from matplotlib.textpath import TextPath
 
 
