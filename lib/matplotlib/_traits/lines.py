@@ -412,11 +412,8 @@ class Line2D(HasTraits, b_artist.Artist):
 
         #THESE LINES WILL BECOME USEFUL WHEN CREATING THE VALIDATION FUNCTIONS
         # #convert sequences to numpy arrays
-        # if not iterable(xdata):
-        #     raise RuntimeError('xdata must be a sequence')
-        # if not iterable(ydata):
-        #     raise RuntimeError('ydata must be a sequence')
 
+        # this may have to go in the linestyle validation function
         # if isinstance(linestyle, six.string_types):
         #     ds, ls = self._split_drawstyle_linestyle(linestyle)
         #     if ds is not None and drawstyle is not None and ds != drawstyle:
@@ -447,6 +444,8 @@ END OF INIT FUNCTION
     @validate("xdata")
     def _xdata_validate(self, proposal):
         print("xdata: cross validating %r" % proposal.value)
+        if not iterable(proposal.value):
+            raise RuntimeError('xdata must be a sequence')
         return proposal.value
     #xdata observer
     @observe("xdata", type="change")
@@ -462,6 +461,8 @@ END OF INIT FUNCTION
     @validate("ydata")
     def _ydata_validate(self, proposal):
         print("ydata: cross validating %r" % proposal.value)
+        if not iterable(proposal.value):
+            raise RuntimeError('ydata must be a sequence')
         return proposal.value
     #ydata observer
     @observe("ydata", type="change")
