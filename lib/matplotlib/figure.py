@@ -2047,8 +2047,6 @@ def figaspect(arg):
     # could become rc parameters, for now they're hardwired.
     figsize_min = np.array((4.0, 2.0))  # min length for width/height
     figsize_max = np.array((16.0, 16.0))  # max length for width/height
-    #figsize_min = rcParams['figure.figsize_min']
-    #figsize_max = rcParams['figure.figsize_max']
 
     # Extract the aspect ratio of the array
     if isarray:
