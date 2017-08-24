@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 
-from matplotlib.table import CustomCell
+from matplotlib.table import CustomCell, Table
 from matplotlib.path import Path
 
 
@@ -181,3 +181,14 @@ def test_auto_column():
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
     tb4.auto_set_column_width("-101")
+
+
+def test_table_cells():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    table = Table(ax)
+
+    cell = table.add_cell(1, 2, 1, 1)
+    assert isinstance(cell, CustomCell)
+    table[2, 1] = cell
+    assert table[2, 1] is cell
