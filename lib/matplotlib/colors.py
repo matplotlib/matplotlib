@@ -212,13 +212,6 @@ def to_rgba_array(c, alpha=None):
     If `alpha` is not `None`, it forces the alpha value.  If `c` is "none"
     (case-insensitive) or an empty list, an empty array is returned.
     """
-    # Single value?
-    if isinstance(c, six.string_types) and c.lower() == "none":
-        return np.zeros((0, 4), float)
-    try:
-        return np.array([to_rgba(c, alpha)], float)
-    except (ValueError, TypeError):
-        pass
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
@@ -234,6 +227,16 @@ def to_rgba_array(c, alpha=None):
         if np.any((result < 0) | (result > 1)):
             raise ValueError("RGBA values should be within 0-1 range")
         return result
+    # Handle single values.
+    # Note that this occurs *after* handling inputs that are already arrays, as
+    # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
+    # to format the array in the ValueError message(!).
+    if isinstance(c, six.string_types) and c.lower() == "none":
+        return np.zeros((0, 4), float)
+    try:
+        return np.array([to_rgba(c, alpha)], float)
+    except (ValueError, TypeError):
+        pass
     # Convert one at a time.
     result = np.empty((len(c), 4), float)
     for i, cc in enumerate(c):
