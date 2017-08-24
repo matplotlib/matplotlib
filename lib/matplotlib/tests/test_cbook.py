@@ -262,6 +262,45 @@ class Test_callback_registry(object):
                        "callbacks")
 
 
+def raising_cb_reg(func):
+    class TestException(Exception):
+        pass
+
+    def raising_function():
+        raise RuntimeError
+
+    def transformer(excp):
+        if isinstance(excp, RuntimeError):
+            raise TestException
+        raise excp
+
+    # default behavior
+    cb = cbook.CallbackRegistry()
+    cb.connect('foo', raising_function)
+
+    # old default
+    cb_old = cbook.CallbackRegistry(exception_handler=None)
+    cb_old.connect('foo', raising_function)
+
+    # filter
+    cb_filt = cbook.CallbackRegistry(exception_handler=transformer)
+    cb_filt.connect('foo', raising_function)
+
+    return pytest.mark.parametrize('cb, excp',
+                                   [[cb, None],
+                                    [cb_old, RuntimeError],
+                                    [cb_filt, TestException]])(func)
+
+
+@raising_cb_reg
+def test_callbackregistry_process_exception(cb, excp):
+    if excp is not None:
+        with pytest.raises(excp):
+            cb.process('foo')
+    else:
+        cb.process('foo')
+
+
 def test_sanitize_sequence():
     d = {'a': 1, 'b': 2, 'c': 3}
     k = ['a', 'b', 'c']

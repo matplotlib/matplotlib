@@ -249,9 +249,12 @@ class _BoundMethodProxy(object):
         return self._hash
 
 
+def _exception_printer(exc):
+    traceback.print_exc()
+
+
 class CallbackRegistry(object):
-    """
-    Handle registering and disconnecting for a set of signals and
+    """Handle registering and disconnecting for a set of signals and
     callbacks:
 
         >>> def oneat(x):
@@ -286,8 +289,29 @@ class CallbackRegistry(object):
     functions).  This technique was shared by Peter Parente on his
     `"Mindtrove" blog
     <http://mindtrove.info/python-weak-references/>`_.
+
+
+    Parameters
+    ----------
+    exception_handler : callable, optional
+       If provided must have signature ::
+
+          def handler(exc: Exception) -> None:
+
+       If not None this function will be called with any `Exception`
+       subclass raised by the callbacks in `CallbackRegistry.process`.
+       The handler may either consume the exception or re-raise.
+
+       The callable must be pickle-able.
+
+       The default handler is ::
+
+          def h(exc):
+              traceback.print_exc()
+
     """
-    def __init__(self):
+    def __init__(self, exception_handler=_exception_printer):
+        self.exception_handler = exception_handler
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
@@ -301,10 +325,10 @@ class CallbackRegistry(object):
     # http://bugs.python.org/issue12290).
 
     def __getstate__(self):
-        return True
+        return {'exception_handler': self.exception_handler}
 
     def __setstate__(self, state):
-        self.__init__()
+        self.__init__(**state)
 
     def connect(self, s, func):
         """
@@ -365,6 +389,13 @@ class CallbackRegistry(object):
                     proxy(*args, **kwargs)
                 except ReferenceError:
                     self._remove_proxy(proxy)
+                # this does not capture KeyboardInterrupt, SystemExit,
+                # and GeneratorExit
+                except Exception as exc:
+                    if self.exception_handler is not None:
+                        self.exception_handler(exc)
+                    else:
+                        raise
 
 
 class silent_list(list):
