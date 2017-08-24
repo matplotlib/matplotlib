@@ -447,6 +447,8 @@ END OF INIT FUNCTION
     @observe("xdata", type="change")
     def _xdata_observe(self, change):
         print("xdata: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #ydata default
     # @default("ydata")
@@ -465,7 +467,8 @@ END OF INIT FUNCTION
     @observe("ydata", type="change")
     def _ydata_observe(self, change):
         print("ydata: observed a change from %r to %r" % (change.old, change.new))
-
+        self.stale = True
+        print("set stale: %r" % self.stale)
     #linewidth default
     # @default("linewidth")
     # def _linewidth_default(self):
@@ -568,6 +571,8 @@ END OF INIT FUNCTION
     @observe("marker", type="change")
     def _marker_observe(self, change):
         print("marker: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #markersize default
     # @default("markersize")
@@ -597,11 +602,18 @@ END OF INIT FUNCTION
     @validate("markeredgewidth")
     def _markeredgewidth_validate(self, proposal):
         print("markeredgewidth: cross validating %r" % proposal.value)
+        # if ew is None:
+            # ew = rcParams['lines.markeredgewidth']
+        # if self._markeredgewidth != ew:
+            # self.stale = True
+        # self._markeredgewidth = ew
         return proposal.value
     #markeredgewidth observer
     @observe("markeredgewidth", type="change")
     def _markeredgewidth_observe(self, change):
         print("markeredgewidth: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #markerfacecolor default
     # @default("markerfacecolor")
@@ -718,11 +730,20 @@ END OF INIT FUNCTION
         print("dash_joinstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.dash_joinstyle']
+        # s = s.lower()
+        # if s not in self.validJoin:
+            # raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
+                            #  + 'valid joinstyles are %s' % (self.validJoin,))
+        # if self._dashjoinstyle != s:
+            # self.stale = True
+        # self._dashjoinstyle = s
         return proposal.value
     # observer
     @observe("dash_joinstyle", type="change")
     def __dash_joinstyleobserve(self, change):
         print(": observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #solid_joinstyle default
     # @default("solid_joinstyle")
@@ -735,11 +756,21 @@ END OF INIT FUNCTION
         print("solid_joinstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.solid_joinstyle']
+        # s = s.lower()
+        # if s not in self.validJoin:
+            # raise ValueError('set_solid_joinstyle passed "%s";\n' % (s,)
+                            #  + 'valid joinstyles are %s' % (self.validJoin,))
+#
+        # if self._solidjoinstyle != s:
+            # self.stale = True
+        # self._solidjoinstyle = s
         return proposal.value
     #solid_joinstyle observer
     @observe("solid_joinstyle", type="change")
     def _solid_joinstyle_observe(self, change):
         print("solid_joinstyle: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #pickradius default
     # @default("pickradius")
@@ -1331,6 +1362,19 @@ ________________________________________________________________________________
                 break
 
         return ret_ds, ls
+
+    def set_dashes(self, seq):
+        """
+        Set the dash sequence, sequence of dashes with on off ink in
+        points.  If seq is empty or if seq = (None, None), the
+        linestyle will be set to solid.
+
+        ACCEPTS: sequence of on/off ink in points
+        """
+        if seq == (None, None) or len(seq) == 0:
+            self.set_linestyle('-')
+        else:
+            self.set_linestyle((0, seq))
 
     #TODO: this should be in the validate function
     # @docstring.dedent_interpd
