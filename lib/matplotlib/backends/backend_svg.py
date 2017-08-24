@@ -19,7 +19,7 @@ from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
+from matplotlib.cbook import is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -107,7 +107,7 @@ def xml_write(xml, out, indent=0, _indent=0):
     for key in sorted(xml.attrib.keys()):
         value = xml.attrib[key]
         if value:
-            assert is_string_like(value), ('Invalid XML attribute pair ' +
+            assert isinstance(value, six.string_types), ('Invalid XML attribute pair ' +
                                            str(key) + ',' + str(value))
             newattr = ' {0:s}="{1:s}"'.format(key, value)
             last_line_length = len(attr[-1]) + indent_length
