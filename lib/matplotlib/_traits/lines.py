@@ -411,19 +411,6 @@ class Line2D(HasTraits, b_artist.Artist):
         Artist.__init__(self)
         print("Artist: ", Artist)
 
-        # this may have to go in the linestyle validation function
-        # if isinstance(linestyle, six.string_types):
-        #     ds, ls = self._split_drawstyle_linestyle(linestyle)
-        #     if ds is not None and drawstyle is not None and ds != drawstyle:
-        #         raise ValueError("Inconsistent drawstyle ({0!r}) and "
-        #                          "linestyle ({1!r})".format(drawstyle,
-        #                                                     linestyle)
-        #                          )
-        #     linestyle = ls
-        #
-        #     if ds is not None:
-        #         drawstyle = ds
-
 """
 ________________________________________________________________________________
 END OF INIT FUNCTION
@@ -496,7 +483,27 @@ END OF INIT FUNCTION
         print("linestyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.linestyle']
-        return proposal.value
+
+        if isinstance(proposal.value, six.string_types):
+            # ds, ls = self._split_drawstyle_linestyle(linestyle)
+            # if ds is not None and drawstyle is not None and ds != drawstyle:
+            #     raise ValueError("Inconsistent drawstyle ({0!r}) and "
+            #                      "linestyle ({1!r})".format(drawstyle,
+            #                                                 linestyle)
+            #                      )
+            ds, ls = self._split_drawstyle_linestyle(proposal.value)
+            if ds is not None and self.drawstyle is not None and ds != drawstyle:
+                raise ValueError("Inconsistent drawstyle ({0!r}) and "
+                                 "linestyle ({1!r})".format(self.drawstyle,
+                                                            proposal.value)
+                                 )
+            # linestyle = ls
+
+            if ds is not None:
+                # drawstyle = ds
+                self.drawstyle = ds
+                return proposal.value
+        # return proposal.value
     #linestyle observer
     @observe("linestyle", type="change")
     def _linestyle_observe(self, change):
@@ -941,6 +948,40 @@ ________________________________________________________________________________
 
         self.set_xdata(x)
         self.set_ydata(y)
+
+    def _split_drawstyle_linestyle(self, ls):
+        '''Split drawstyle from linestyle string
+
+        If `ls` is only a drawstyle default to returning a linestyle
+        of '-'.
+
+        Parameters
+        ----------
+        ls : str
+            The linestyle to be processed
+
+        Returns
+        -------
+        ret_ds : str or None
+            If the linestyle string does not contain a drawstyle prefix
+            return None, otherwise return it.
+
+        ls : str
+            The linestyle with the drawstyle (if any) stripped.
+        '''
+        ret_ds = None
+        for ds in self.drawStyleKeys:  # long names are first in the list
+            if ls.startswith(ds):
+                ret_ds = ds
+                if len(ls) > len(ds):
+                    ls = ls[len(ds):]
+                else:
+                    ls = '-'
+                break
+
+        return ret_ds, ls
+
+
 
 """
 ________________________________________________________________________________
