@@ -21,10 +21,10 @@ restore the previous behavior pass ``None`` ::
 
 A function which take and ``Exception`` as its only argument may also be passed ::
 
-  def maybe_reraise(excp):
-      if isinstance(excp, RuntimeError):
+  def maybe_reraise(exc):
+      if isinstance(exc, RuntimeError):
           pass
       else:
-          raise excp
+          raise exc
 
   cb = CallbackRegistry(exception_handler=maybe_reraise)

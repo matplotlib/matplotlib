@@ -296,7 +296,7 @@ class CallbackRegistry(object):
     exception_handler : callable, optional
        If provided must have signature ::
 
-          def handler(exception: Exception) -> None:
+          def handler(exc: Exception) -> None:
 
        If not None this function will be called with any `Exception`
        subclass raised by the callbacks in `CallbackRegistry.process`.
@@ -391,9 +391,9 @@ class CallbackRegistry(object):
                     self._remove_proxy(proxy)
                 # this does not capture KeyboardInterrupt, SystemExit,
                 # and GeneratorExit
-                except Exception as e:
+                except Exception as exc:
                     if self.exception_handler is not None:
-                        self.exception_handler(e)
+                        self.exception_handler(exc)
                     else:
                         raise
 
