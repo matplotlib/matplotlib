@@ -379,6 +379,9 @@ class Line2D(HasTraits, b_artist.Artist):
     #not sure if this line below will work or not
     x_filled=Instance('np.array', allow_none=True, default_value=None)
 
+
+
+
     set_data(xdata, ydata)
 
     # not sure how much this will have to be refactored
@@ -418,10 +421,10 @@ END OF INIT FUNCTION
 
     # NOTE: NOT SURE IF xdata & ydata are needed
     #xdata default
-    @default("xdata")
-    def _xdata_default(self):
-        print("xdata: generating default value")
-        return None
+    # @default("xdata")
+    # def _xdata_default(self):
+    #     print("xdata: generating default value")
+    #     return None
     #xdata validate
     @validate("xdata")
     def _xdata_validate(self, proposal):
@@ -436,10 +439,10 @@ END OF INIT FUNCTION
         print("xdata: observed a change from %r to %r" % (change.old, change.new))
 
     #ydata default
-    @default("ydata")
-    def _ydata_default(self):
-        print("ydata: generating default value")
-        return False
+    # @default("ydata")
+    # def _ydata_default(self):
+    #     print("ydata: generating default value")
+    #     return None
     #ydata validate
     @validate("ydata")
     def _ydata_validate(self, proposal):
@@ -454,10 +457,10 @@ END OF INIT FUNCTION
         print("ydata: observed a change from %r to %r" % (change.old, change.new))
 
     #linewidth default
-    @default("linewidth")
-    def _linewidth_default(self):
-        print("linewidth: generating default value")
-        return False
+    # @default("linewidth")
+    # def _linewidth_default(self):
+    #     print("linewidth: generating default value")
+    #     return None
     #linewidth validate
     @validate("linewidth")
     def _linewidth_validate(self, proposal):
@@ -473,10 +476,10 @@ END OF INIT FUNCTION
         print("linewidth: observed a change from %r to %r" % (change.old, change.new))
 
     #linestyle default
-    @default("linestyle")
-    def _linestyle_default(self):
-        print("linestyle: generating default value")
-        return False
+    # @default("linestyle")
+    # def _linestyle_default(self):
+    #     print("linestyle: generating default value")
+    #     return None
     #linestyle validate
     @validate("linestyle")
     def _linestyle_validate(self, proposal):
@@ -510,10 +513,10 @@ END OF INIT FUNCTION
         print("linestyle: observed a change from %r to %r" % (change.old, change.new))
 
     #color default
-    @default("color")
-    def _color_default(self):
-        print("color: generating default value")
-        return False
+    # @default("color")
+    # def _color_default(self):
+    #     print("color: generating default value")
+    #     return None
     #color validate
     @validate("color")
     def _color_validate(self, proposal):
@@ -527,10 +530,10 @@ END OF INIT FUNCTION
         print("color: observed a change from %r to %r" % (change.old, change.new))
 
     #marker default
-    @default("marker")
-    def _marker_default(self):
-        print("marker : generating default value")
-        return False
+    # @default("marker")
+    # def _marker_default(self):
+    #     print("marker : generating default value")
+    #     return None
     #marker validate
     @validate("marker")
     def _marker_validate(self, proposal):
@@ -544,10 +547,10 @@ END OF INIT FUNCTION
         print("marker: observed a change from %r to %r" % (change.old, change.new))
 
     #markersize default
-    @default("markersize")
-    def _markersize_default(self):
-        print("markersize : generating default value")
-        return False
+    # @default("markersize")
+    # def _markersize_default(self):
+    #     print("markersize : generating default value")
+    #     return None
     #markersize validate
     @validate("markersize")
     def _markersize_validate(self, proposal):
@@ -561,10 +564,10 @@ END OF INIT FUNCTION
         print("markersize: observed a change from %r to %r" % (change.old, change.new))
 
     #markeredgewidth default
-    @default("markeredgewidth")
-    def _markeredgewidth_default(self):
-        print("markeredgewidth : generating default value")
-        return False
+    # @default("markeredgewidth")
+    # def _markeredgewidth_default(self):
+        # print("markeredgewidth : generating default value")
+        # return None
     #markeredgewidth validate
     @validate("markeredgewidth")
     def _markeredgewidth_validate(self, proposal):
@@ -576,10 +579,10 @@ END OF INIT FUNCTION
         print("markeredgewidth: observed a change from %r to %r" % (change.old, change.new))
 
     #markerfacecolor default
-    @default("markerfacecolor")
-    def _markerfacecolor_default(self):
-        print("markerfacecolor: generating default value")
-        return False
+    # @default("markerfacecolor")
+    # def _markerfacecolor_default(self):
+        # print("markerfacecolor: generating default value")
+        # return None
     #markerfacecolor validate
     @validate("markerfacecolor")
     def _markerfacecolor_validate(self, proposal):
@@ -591,10 +594,10 @@ END OF INIT FUNCTION
         print("markerfacecolor: observed a change from %r to %r" % (change.old, change.new))
 
     #markerfacecoloralt default
-    @default("markerfacecoloralt")
-    def _markerfacecoloralt_default(self):
-        print("markerfacecoloralt: generating default value")
-        return False
+    # @default("markerfacecoloralt")
+    # def _markerfacecoloralt_default(self):
+        # print("markerfacecoloralt: generating default value")
+        # return None
     #markerfacecoloralt validate
     @validate("markerfacecoloralt")
     def _markerfacecoloralt_validate(self, proposal):
@@ -606,10 +609,10 @@ END OF INIT FUNCTION
         print("markerfacecoloralt: observed a change from %r to %r" % (change.old, change.new))
 
     #fillstyle default
-    @default("fillstyle")
-    def _fillstyle_default(self):
-        print("fillstyle : generating default value")
-        return False
+    # @default("fillstyle")
+    # def _fillstyle_default(self):
+        # print("fillstyle : generating default value")
+        # return None
     #fillstyle validate
     @validate("fillstyle")
     def _fillstyle_validate(self, proposal):
@@ -621,10 +624,10 @@ END OF INIT FUNCTION
         print("fillstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #antialiased default
-    @default("antialiased")
-    def _antialiased_default(self):
-        print("antialiased : generating default value")
-        return False
+    # @default("antialiased")
+    # def _antialiased_default(self):
+        # print("antialiased : generating default value")
+        # return False
     #antialiased validate
     @validate("antialiased")
     def _antialiased_validate(self, proposal):
@@ -638,10 +641,10 @@ END OF INIT FUNCTION
         print("antialiased: observed a change from %r to %r" % (change.old, change.new))
 
     #dash_capstyle default
-    @default("dash_capstyle")
-    def _dash_capstyle_default(self):
-        print("dash_capstyle : generating default value")
-        return False
+    # @default("dash_capstyle")
+    # def _dash_capstyle_default(self):
+        # print("dash_capstyle : generating default value")
+        # return None
     #dash_capstyle validate
     @validate("dash_capstyle")
     def _dash_capstyle_validate(self, proposal):
@@ -655,10 +658,10 @@ END OF INIT FUNCTION
         print("dash_capstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #solid_capstyle default
-    @default("solid_capstyle")
-    def _solid_capstyle_default(self):
-        print("solid_capstyle : generating default value")
-        return False
+    # @default("solid_capstyle")
+    # def _solid_capstyle_default(self):
+        # print("solid_capstyle : generating default value")
+        # return None
     #solid_capstyle validate
     @validate("solid_capstyle")
     def _solid_capstyle_validate(self, proposal):
@@ -672,10 +675,10 @@ END OF INIT FUNCTION
         print("solid_capstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #dash_joinstyle default
-    @default("dash_joinstyle")
-    def _dash_joinstyle_default(self):
-        print("dash_joinstyle : generating default value")
-        return False
+    # @default("dash_joinstyle")
+    # def _dash_joinstyle_default(self):
+        # print("dash_joinstyle : generating default value")
+        # return None
     #dash_joinstyle validate
     @validate("dash_joinstyle")
     def _dash_joinstyle_validate(self, proposal):
@@ -689,10 +692,10 @@ END OF INIT FUNCTION
         print(": observed a change from %r to %r" % (change.old, change.new))
 
     #solid_joinstyle default
-    @default("solid_joinstyle")
-    def _solid_joinstyle_default(self):
-        print("solid_joinstyle : generating default value")
-        return False
+    # @default("solid_joinstyle")
+    # def _solid_joinstyle_default(self):
+        # print("solid_joinstyle : generating default value")
+        # return None
     #solid_joinstyle validate
     @validate("solid_joinstyle")
     def _solid_joinstyle_validate(self, proposal):
@@ -706,10 +709,10 @@ END OF INIT FUNCTION
         print("solid_joinstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #pickradius default
-    @default("pickradius")
-    def _pickradius_default(self):
-        print("pickradius : generating default value")
-        return False
+    # @default("pickradius")
+    # def _pickradius_default(self):
+        # print("pickradius : generating default value")
+        # return 5
     #pickradius validate
     @validate("pickradius")
     def _pickradius_validate(self, proposal):
@@ -721,10 +724,10 @@ END OF INIT FUNCTION
         print("pickradius: observed a change from %r to %r" % (change.old, change.new))
 
     #drawstyle default
-    @default("drawstyle")
-    def _drawstyle_default(self):
-        print("drawstyle : generating default value")
-        return False
+    # @default("drawstyle")
+    # def _drawstyle_default(self):
+        # print("drawstyle : generating default value")
+        # return None
     #drawstyle validate
     @validate("drawstyle")
     def _drawstyle_validate(self, proposal):
@@ -738,10 +741,10 @@ END OF INIT FUNCTION
         print("drawstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #markevery default
-    @default("markevery")
-    def _markevery_default(self):
-        print("markevery : generating default value")
-        return False
+    # @default("markevery")
+    # def _markevery_default(self):
+        # print("markevery : generating default value")
+        # return None
     #markevery validate
     @validate("markevery")
     def _markevery_validate(self, proposal):
@@ -752,26 +755,27 @@ END OF INIT FUNCTION
     def _markevery_observe(self, change):
         print("markevery: observed a change from %r to %r" % (change.old, change.new))
 
+    # TODO: figure out what to do with this!!!!!
     #verticalOffset default
-    @default("verticalOffset")
-    def _verticalOffset_default(self):
-        print("verticalOffset: generating default value")
-        return False
+    # @default("verticalOffset")
+    # def _verticalOffset_default(self):
+        # print("verticalOffset: generating default value")
+        # return False
     #verticalOffset validate
-    @validate("verticalOffset")
-    def _verticalOffset_validate(self, proposal):
-        print("verticalOffset: cross validating %r" % proposal.value)
-        return proposal.value
+    # @validate("verticalOffset")
+    # def _verticalOffset_validate(self, proposal):
+        # print("verticalOffset: cross validating %r" % proposal.value)
+        # return proposal.value
     #verticalOffset observer
-    @observe("verticalOffset", type="change")
-    def _verticalOffset_observe(self, change):
-        print("verticalOffset: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("verticalOffset", type="change")
+    # def _verticalOffset_observe(self, change):
+        # print("verticalOffset: observed a change from %r to %r" % (change.old, change.new))
 
     #ind_offset default
-    @default("ind_offset")
-    def _ind_offset_default(self):
-        print("ind_offset: generating default value")
-        return False
+    # @default("ind_offset")
+    # def _ind_offset_default(self):
+        # print("ind_offset: generating default value")
+        # return 0
     #ind_offset validate
     @validate("ind_offset")
     def _ind_offset_validate(self, proposal):
@@ -783,10 +787,10 @@ END OF INIT FUNCTION
         print("ind_offset: observed a change from %r to %r" % (change.old, change.new))
 
     #xorig default
-    @default("xorig")
-    def _xorig_default(self):
-        print("xorig: generating default value")
-        return False
+    # @default("xorig")
+    # def _xorig_default(self):
+        # print("xorig: generating default value")
+        # return None
     #xorig validate
     @validate("xorig")
     def _xorig_validate(self, proposal):
@@ -798,10 +802,10 @@ END OF INIT FUNCTION
         print("xorig: observed a change from %r to %r" % (change.old, change.new))
 
     #yorig default
-    @default("yorig")
-    def _yorig_default(self):
-        print("yorig: generating default value")
-        return False
+    # @default("yorig")
+    # def _yorig_default(self):
+        # print("yorig: generating default value")
+        # return None
     #yorig validate
     @validate("yorig")
     def _yorig_validate(self, proposal):
@@ -813,10 +817,10 @@ END OF INIT FUNCTION
         print("yorig: observed a change from %r to %r" % (change.old, change.new))
 
     #invalidx default
-    @default("invalidx")
-    def _invalidx_default(self):
-        print("invalidx: generating default value")
-        return True
+    # @default("invalidx")
+    # def _invalidx_default(self):
+    #     print("invalidx: generating default value")
+    #     return True
     #invalidx validate
     @validate("invalidx")
     def _invalidx_validate(self, proposal):
@@ -828,10 +832,10 @@ END OF INIT FUNCTION
         print(": observed a change from %r to %r" % (change.old, change.new))
 
     #invalidy default
-    @default("invalidy")
-    def _invalidy_default(self):
-        print("invalidy: generating default value")
-        return False
+    # @default("invalidy")
+    # def _invalidy_default(self):
+        # print("invalidy: generating default value")
+        # return True
     #invalidy validate
     @validate("invalidy")
     def _invalidy_validate(self, proposal):
@@ -843,10 +847,10 @@ END OF INIT FUNCTION
         print("invalidy: observed a change from %r to %r" % (change.old, change.new))
 
     #x default
-    @default("x")
-    def _x_default(self):
-        print("x: generating default value")
-        return False
+    # @default("x")
+    # def _x_default(self):
+        # print("x: generating default value")
+        # return None
     #x validate
     @validate("x")
     def _x_validate(self, proposal):
@@ -858,10 +862,10 @@ END OF INIT FUNCTION
         print("x: observed a change from %r to %r" % (change.old, change.new))
 
     #y default
-    @default("y")
-    def _y_default(self):
-        print("y: generating default value")
-        return False
+    # @default("y")
+    # def _y_default(self):
+        # print("y: generating default value")
+        # return None
     #y validate
     @validate("y")
     def _y_validate(self, proposal):
@@ -873,10 +877,10 @@ END OF INIT FUNCTION
         print("y: observed a change from %r to %r" % (change.old, change.new))
 
     #path default
-    @default("path")
-    def _path_default(self):
-        print("path: generating default value")
-        return False
+    # @default("path")
+    # def _path_default(self):
+        # print("path: generating default value")
+        # return None
     #path validate
     @validate("path")
     def _path_validate(self, proposal):
@@ -888,10 +892,10 @@ END OF INIT FUNCTION
         print("path: observed a change from %r to %r" % (change.old, change.new))
 
     #transformed_path default
-    @default("transformed_path")
-    def _transformed_path_default(self):
-        print("transformed_path: generating default value")
-        return False
+    # @default("transformed_path")
+    # def _transformed_path_default(self):
+        # print("transformed_path: generating default value")
+        # return None
     #transformed_path validate
     @validate("transformed_path")
     def _transformed_path_validate(self, proposal):
@@ -903,10 +907,10 @@ END OF INIT FUNCTION
         print("transformed_path: observed a change from %r to %r" % (change.old, change.new))
 
     #subslice default
-    @default("subslice")
-    def _subslice_default(self):
-        print("subslice: generating default value")
-        return False
+    # @default("subslice")
+    # def _subslice_default(self):
+        # print("subslice: generating default value")
+        # return None
     #subslice validate
     @validate("subslice")
     def _subslice_validate(self, proposal):
@@ -918,10 +922,10 @@ END OF INIT FUNCTION
         print("subslice: observed a change from %r to %r" % (change.old, change.new))
 
     #x_filled default
-    @default("x_filled")
-    def _x_filled_default(self):
-        print("x_filled: generating default value")
-        return False
+    # @default("x_filled")
+    # def _x_filled_default(self):
+        # print("x_filled: generating default value")
+        # return None
     #x_filled validate
     @validate("x_filled")
     def _x_filled_validate(self, proposal):
@@ -931,6 +935,11 @@ END OF INIT FUNCTION
     @observe("x_filled", type="change")
     def _x_filled_observe(self, change):
         print("x_filled: observed a change from %r to %r" % (change.old, change.new))
+
+
+
+
+
 
 """
 ________________________________________________________________________________
