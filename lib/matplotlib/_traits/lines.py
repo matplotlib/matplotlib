@@ -379,6 +379,16 @@ class Line2D(HasTraits, b_artist.Artist):
     #not sure if this line below will work or not
     x_filled=Instance('np.array', allow_none=True, default_value=None)
 
+    # TODO: Not sure how to handle these, I am going to try Unicode & Text Instance
+    # scaled dash + offset
+    # dashSeq = None
+    # dashOffset = 0
+    dashOffset=Int(allow_none=True, default_value=None)
+    # unscaled dash + offset
+    # this is needed scaling the dash pattern by linewidth
+    # us_dashSeq = None
+    # us_dashOffset = 0
+    us_dashOffset=Int(allow_none=True, default_value=None)
 
 
 
