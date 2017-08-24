@@ -1262,6 +1262,12 @@ class EngFormatter(Formatter):
         `num` may be a numeric value or a string that can be converted
         to a numeric value with ``float(num)``.
         """
+        if isinstance(num, six.string_types):
+            warnings.warn(
+                "Passing a string as *num* argument is deprecated since"
+                "Matplotlib 2.1, and is expected to be removed in 2.3.",
+                mplDeprecation)
+
         dnum = float(num)
         sign = 1
         fmt = "g" if self.places is None else ".{:d}f".format(self.places)
