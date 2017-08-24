@@ -26,7 +26,8 @@ import time
 import traceback
 import types
 import warnings
-from weakref import ref, WeakKeyDictionary
+import weakref
+from weakref import WeakMethod
 
 import numpy as np
 
@@ -61,100 +62,26 @@ def unicode_safe(s):
     return s
 
 
-class _BoundMethodProxy(object):
-    """
-    Our own proxy object which enables weak references to bound and unbound
-    methods and arbitrary callables. Pulls information about the function,
-    class, and instance out of a bound method. Stores a weak reference to the
-    instance to support garbage collection.
-
-    @organization: IBM Corporation
-    @copyright: Copyright (c) 2005, 2006 IBM Corporation
-    @license: The BSD License
-
-    Minor bugfixes by Michael Droettboom
-    """
-    def __init__(self, cb):
-        self._hash = hash(cb)
-        self._destroy_callbacks = []
-        try:
-            try:
-                self.inst = ref(cb.__self__, self._destroy)
-            except TypeError:
-                self.inst = None
-            self.func = cb.__func__
-            self.klass = cb.__self__.__class__
-        except AttributeError:
-            self.inst = None
-            self.func = cb
-            self.klass = None
-
-    def add_destroy_callback(self, callback):
-        self._destroy_callbacks.append(_BoundMethodProxy(callback))
-
-    def _destroy(self, wk):
-        for callback in self._destroy_callbacks:
-            try:
-                callback(self)
-            except ReferenceError:
-                pass
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # de-weak reference inst
-        inst = d['inst']
-        if inst is not None:
-            d['inst'] = inst()
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        inst = statedict['inst']
-        # turn inst back into a weakref
-        if inst is not None:
-            self.inst = ref(inst)
-
-    def __call__(self, *args, **kwargs):
-        """
-        Proxy for a call to the weak referenced object. Take
-        arbitrary params to pass to the callable.
-
-        Raises `ReferenceError`: When the weak reference refers to
-        a dead object
-        """
-        if self.inst is not None and self.inst() is None:
-            raise ReferenceError
-        elif self.inst is not None:
-            # build a new instance method with a strong reference to the
-            # instance
-
-            mtd = types.MethodType(self.func, self.inst())
-
-        else:
-            # not a bound method, just return the func
-            mtd = self.func
-        # invoke the callable and return the result
-        return mtd(*args, **kwargs)
-
-    def __eq__(self, other):
-        """
-        Compare the held function and instance with that held by
-        another proxy.
-        """
-        try:
-            if self.inst is None:
-                return self.func == other.func and other.inst is None
-            else:
-                return self.func == other.func and self.inst() == other.inst()
-        except Exception:
-            return False
-
-    def __hash__(self):
-        return self._hash
-
-
 def _exception_printer(exc):
     traceback.print_exc()
+
+
+class _StrongRef:
+    """
+    Wrapper similar to a weakref, but keeping a strong reference to the object.
+    """
+
+    def __init__(self, obj):
+        self._obj = obj
+
+    def __call__(self):
+        return self._obj
+
+    def __eq__(self, other):
+        return isinstance(other, _StrongRef) and self._obj == other._obj
+
+    def __hash__(self):
+        return hash(self._obj)
 
 
 class CallbackRegistry(object):
@@ -179,20 +106,13 @@ class CallbackRegistry(object):
         >>> callbacks.disconnect(id_eat)
         >>> callbacks.process('eat', 456)      # nothing will be called
 
-    In practice, one should always disconnect all callbacks when they
-    are no longer needed to avoid dangling references (and thus memory
-    leaks).  However, real code in matplotlib rarely does so, and due
-    to its design, it is rather difficult to place this kind of code.
-    To get around this, and prevent this class of memory leaks, we
-    instead store weak references to bound methods only, so when the
-    destination object needs to die, the CallbackRegistry won't keep
-    it alive.  The Python stdlib weakref module can not create weak
-    references to bound methods directly, so we need to create a proxy
-    object to handle weak references to bound methods (or regular free
-    functions).  This technique was shared by Peter Parente on his
-    `"Mindtrove" blog
-    <http://mindtrove.info/python-weak-references/>`_.
-
+    In practice, one should always disconnect all callbacks when they are
+    no longer needed to avoid dangling references (and thus memory leaks).
+    However, real code in Matplotlib rarely does so, and due to its design,
+    it is rather difficult to place this kind of code.  To get around this,
+    and prevent this class of memory leaks, we instead store weak references
+    to bound methods only, so when the destination object needs to die, the
+    CallbackRegistry won't keep it alive.
 
     Parameters
     ----------
@@ -211,12 +131,17 @@ class CallbackRegistry(object):
 
           def h(exc):
               traceback.print_exc()
-
     """
+
+    # We maintain two mappings:
+    #   callbacks: signal -> {cid -> callback}
+    #   _func_cid_map: signal -> {callback -> cid}
+    # (actually, callbacks are weakrefs to the actual callbacks).
+
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
-        self.callbacks = dict()
-        self._cid = 0
+        self.callbacks = {}
+        self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
     # In general, callbacks may not be pickled; thus, we simply recreate an
@@ -236,18 +161,17 @@ class CallbackRegistry(object):
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
         """
-        self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        # Note proxy not needed in python 3.
-        # TODO rewrite this when support for python2.x gets dropped.
-        proxy = _BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, {})
+        try:
+            proxy = WeakMethod(func, self._remove_proxy)
+        except TypeError:
+            proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_destroy_callback(self._remove_proxy)
-        self._cid += 1
-        cid = self._cid
+        cid = next(self._cid_gen)
         self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, dict())
+        self.callbacks.setdefault(s, {})
         self.callbacks[s][cid] = proxy
         return cid
 
@@ -257,7 +181,6 @@ class CallbackRegistry(object):
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
                 pass
-
             if len(self.callbacks[signal]) == 0:
                 del self.callbacks[signal]
                 del self._func_cid_map[signal]
@@ -284,12 +207,11 @@ class CallbackRegistry(object):
         All of the functions registered to receive callbacks on *s* will be
         called with ``*args`` and ``**kwargs``.
         """
-        if s in self.callbacks:
-            for cid, proxy in list(self.callbacks[s].items()):
+        for cid, ref in list(self.callbacks.get(s, {}).items()):
+            func = ref()
+            if func is not None:
                 try:
-                    proxy(*args, **kwargs)
-                except ReferenceError:
-                    self._remove_proxy(proxy)
+                    func(*args, **kwargs)
                 # this does not capture KeyboardInterrupt, SystemExit,
                 # and GeneratorExit
                 except Exception as exc:
@@ -978,10 +900,10 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        self._mapping = {ref(x): [ref(x)] for x in init}
+        self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
     def __contains__(self, item):
-        return ref(item) in self._mapping
+        return weakref.ref(item) in self._mapping
 
     def clean(self):
         """Clean dead weak references from the dictionary."""
@@ -996,10 +918,10 @@ class Grouper(object):
         Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(ref(a), [ref(a)])
+        set_a = mapping.setdefault(weakref.ref(a), [weakref.ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg), [ref(arg)])
+            set_b = mapping.get(weakref.ref(arg), [weakref.ref(arg)])
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
@@ -1012,13 +934,14 @@ class Grouper(object):
     def joined(self, a, b):
         """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-        return self._mapping.get(ref(a), object()) is self._mapping.get(ref(b))
+        return (self._mapping.get(weakref.ref(a), object())
+                is self._mapping.get(weakref.ref(b)))
 
     def remove(self, a):
         self.clean()
-        set_a = self._mapping.pop(ref(a), None)
+        set_a = self._mapping.pop(weakref.ref(a), None)
         if set_a:
-            set_a.remove(ref(a))
+            set_a.remove(weakref.ref(a))
 
     def __iter__(self):
         """
@@ -1034,7 +957,7 @@ class Grouper(object):
     def get_siblings(self, a):
         """Returns all of the items joined with *a*, including itself."""
         self.clean()
-        siblings = self._mapping.get(ref(a), [ref(a)])
+        siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
 
 
