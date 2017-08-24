@@ -477,6 +477,12 @@ END OF INIT FUNCTION
         print("linewidth: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.linewidth']
+        # if self._linewidth != w:
+            # self.stale = True
+        # self._linewidth = w
+        # rescale the dashes + offset
+        # self._dashOffset, self._dashSeq = _scale_dashes(
+        # self._us_dashOffset, self._us_dashSeq, self._linewidth)
         #to assure we are dealing with a FLOAT
         proposal.value=float(proposal.value) #watch out for recursion on this line
         return proposal.value
@@ -484,6 +490,8 @@ END OF INIT FUNCTION
     @observe("linewidth", type="change")
     def _linewidth_observe(self, change):
         print("linewidth: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #linestyle default
     # @default("linestyle")
@@ -538,6 +546,8 @@ END OF INIT FUNCTION
     @observe("color", type="change")
     def _color_observe(self, change):
         print("color: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #marker default
     # @default("marker")
@@ -545,11 +555,14 @@ END OF INIT FUNCTION
     #     print("marker : generating default value")
     #     return None
     #marker validate
+    #@docstring.dedent_interpd
     @validate("marker")
     def _marker_validate(self, proposal):
         print("marker: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.marker']
+        # TODO: find a method to make the line below work
+        #self._marker.set_marker(marker)
         return proposal.value
     #marker observer
     @observe("marker", type="change")
@@ -572,6 +585,8 @@ END OF INIT FUNCTION
     @observe("markersize", type="change")
     def _markersize_observe(self, change):
         print("markersize: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #markeredgewidth default
     # @default("markeredgewidth")
@@ -627,11 +642,14 @@ END OF INIT FUNCTION
     @validate("fillstyle")
     def _fillstyle_validate(self, proposal):
         print("fillstyle: cross validating %r" % proposal.value)
+        # return self._marker.set_fillstyle(proposal.value)
         return proposal.value
     #fillstyle observer
     @observe("fillstyle", type="change")
     def _fillstyle_observe(self, change):
         print("fillstyle: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #antialiased default
     # @default("antialiased")
@@ -644,11 +662,16 @@ END OF INIT FUNCTION
         print("antialiased: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.antialiased']
+        # if self._antialiased != b:
+            # self.stale = True
+        # self._antialiased = b
         return proposal.value
     #antialiased observer
     @observe("antialiased", type="change")
     def _antialiased_observe(self, change):
         print("antialiased: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #dash_capstyle default
     # @default("dash_capstyle")
@@ -744,11 +767,18 @@ END OF INIT FUNCTION
         print("drawstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return 'default'
+        if drawstyle not in self.drawStyles:
+            raise ValueError('Unrecognized drawstyle {!r}'.format(drawstyle))
+        # if self._drawstyle != drawstyle:
+            # self.stale = True
+        # self._drawstyle = drawstyle
         return proposal.value
     #drawstyle observer
     @observe("drawstyle", type="change")
     def _drawstyle_observe(self, change):
         print("drawstyle: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     #markevery default
     # @default("markevery")
@@ -759,11 +789,16 @@ END OF INIT FUNCTION
     @validate("markevery")
     def _markevery_validate(self, proposal):
         print("markevery: cross validating %r" % proposal.value)
+        # if self._markevery != every:
+            # self.stale = True
+        # self._markevery = every
         return proposal.value
     #markevery observer
     @observe("markevery", type="change")
     def _markevery_observe(self, change):
         print("markevery: observed a change from %r to %r" % (change.old, change.new))
+        self.stale = True
+        print("set stale: %r" % self.stale)
 
     # TODO: figure out what to do with this!!!!!
     #verticalOffset default
@@ -954,6 +989,94 @@ END OF INIT FUNCTION
 """
 ________________________________________________________________________________
 """
+
+    def contains(self, mouseevent):
+        """
+        Test whether the mouse event occurred on the line.  The pick
+        radius determines the precision of the location test (usually
+        within five points of the value).  Use
+        :meth:`~matplotlib.lines.Line2D.get_pickradius` or
+        :meth:`~matplotlib.lines.Line2D.set_pickradius` to view or
+        modify it.
+
+        Returns *True* if any values are within the radius along with
+        ``{'ind': pointlist}``, where *pointlist* is the set of points
+        within the radius.
+
+        TODO: sort returned indices by distance
+        """
+        if callable(self._contains):
+            return self._contains(self, mouseevent)
+
+        if not is_numlike(self.pickradius):
+            raise ValueError("pick radius should be a distance")
+
+        # Make sure we have data to plot
+        if self._invalidy or self._invalidx:
+            self.recache()
+        if len(self._xy) == 0:
+            return False, {}
+
+        # Convert points to pixels
+        transformed_path = self._get_transformed_path()
+        path, affine = transformed_path.get_transformed_path_and_affine()
+        path = affine.transform_path(path)
+        xy = path.vertices
+        xt = xy[:, 0]
+        yt = xy[:, 1]
+
+        # Convert pick radius from points to pixels
+        if self.figure is None:
+            warnings.warn('no figure set when check if mouse is on line')
+            pixels = self.pickradius
+        else:
+            pixels = self.figure.dpi / 72. * self.pickradius
+
+        # the math involved in checking for containment (here and inside of
+        # segment_hits) assumes that it is OK to overflow.  In case the
+        # application has set the error flags such that an exception is raised
+        # on overflow, we temporarily set the appropriate error flags here and
+        # set them back when we are finished.
+        with np.errstate(all='ignore'):
+            # Check for collision
+            if self._linestyle in ['None', None]:
+                # If no line, return the nearby point(s)
+                d = (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
+                ind, = np.nonzero(np.less_equal(d, pixels ** 2))
+            else:
+                # If line, return the nearby segment(s)
+                ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
+                if self._drawstyle.startswith("steps"):
+                    ind //= 2
+
+        ind += self.ind_offset
+
+        # Return the point(s) within radius
+        return len(ind) > 0, dict(ind=ind)
+
+    def get_window_extent(self, renderer):
+        bbox = Bbox([[0, 0], [0, 0]])
+        trans_data_to_xy = self.get_transform().transform
+        bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
+                                 ignore=True)
+        # correct for marker size, if any
+        if self._marker:
+            ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
+            bbox = bbox.padded(ms)
+        return bbox
+
+    @Artist.axes.setter
+    def axes(self, ax):
+        # call the set method from the base-class property
+        Artist.axes.fset(self, ax)
+        if ax is not None:
+            # connect unit-related callbacks
+            if ax.xaxis is not None:
+                self._xcid = ax.xaxis.callbacks.connect('units',
+                                                        self.recache_always)
+            if ax.yaxis is not None:
+                self._ycid = ax.yaxis.callbacks.connect('units',
+
     def set_data(self, *args):
         """
         Set the x and y data
@@ -967,6 +1090,215 @@ ________________________________________________________________________________
 
         self.set_xdata(x)
         self.set_ydata(y)
+
+    def recache_always(self):
+        self.recache(always=True)
+
+    def recache(self, always=False):
+        if always or self._invalidx:
+            xconv = self.convert_xunits(self._xorig)
+            if isinstance(self._xorig, np.ma.MaskedArray):
+                x = np.ma.asarray(xconv, float).filled(np.nan)
+            else:
+                x = np.asarray(xconv, float)
+            x = x.ravel()
+        else:
+            x = self._x
+        if always or self._invalidy:
+            yconv = self.convert_yunits(self._yorig)
+            if isinstance(self._yorig, np.ma.MaskedArray):
+                y = np.ma.asarray(yconv, float).filled(np.nan)
+            else:
+                y = np.asarray(yconv, float)
+            y = y.ravel()
+        else:
+            y = self._y
+
+        if len(x) == 1 and len(y) > 1:
+            x = x * np.ones(y.shape, float)
+        if len(y) == 1 and len(x) > 1:
+            y = y * np.ones(x.shape, float)
+
+        if len(x) != len(y):
+            raise RuntimeError('xdata and ydata must be the same length')
+
+        self._xy = np.empty((len(x), 2), dtype=float)
+        self._xy[:, 0] = x
+        self._xy[:, 1] = y
+
+        self._x = self._xy[:, 0]  # just a view
+        self._y = self._xy[:, 1]  # just a view
+
+        self._subslice = False
+        if (self.axes and len(x) > 1000 and self._is_sorted(x) and
+                self.axes.name == 'rectilinear' and
+                self.axes.get_xscale() == 'linear' and
+                self._markevery is None and
+                self.get_clip_on() is True):
+            self._subslice = True
+            nanmask = np.isnan(x)
+            if nanmask.any():
+                self._x_filled = self._x.copy()
+                indices = np.arange(len(x))
+                self._x_filled[nanmask] = np.interp(indices[nanmask],
+                        indices[~nanmask], self._x[~nanmask])
+            else:
+                self._x_filled = self._x
+
+        if self._path is not None:
+            interpolation_steps = self._path._interpolation_steps
+        else:
+            interpolation_steps = 1
+        xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
+        self._path = Path(np.asarray(xy).T,
+                          _interpolation_steps=interpolation_steps)
+        self._transformed_path = None
+        self._invalidx = False
+        self._invalidy = False
+
+    def _transform_path(self, subslice=None):
+        """
+        Puts a TransformedPath instance at self._transformed_path;
+        all invalidation of the transform is then handled by the
+        TransformedPath instance.
+        """
+        # Masked arrays are now handled by the Path class itself
+        if subslice is not None:
+            xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy[subslice, :].T)
+            _path = Path(np.asarray(xy).T,
+                         _interpolation_steps=self._path._interpolation_steps)
+        else:
+            _path = self._path
+        self._transformed_path = TransformedPath(_path, self.get_transform())
+
+    def _is_sorted(self, x):
+        """return True if x is sorted in ascending order"""
+        # We don't handle the monotonically decreasing case.
+        return _path.is_sorted(x)
+
+    @allow_rasterization
+    def draw(self, renderer):
+        """draw the Line with `renderer` unless visibility is False"""
+        if not self.get_visible():
+            return
+
+        if self._invalidy or self._invalidx:
+            self.recache()
+        self.ind_offset = 0  # Needed for contains() method.
+        if self._subslice and self.axes:
+            x0, x1 = self.axes.get_xbound()
+            i0, = self._x_filled.searchsorted([x0], 'left')
+            i1, = self._x_filled.searchsorted([x1], 'right')
+            subslice = slice(max(i0 - 1, 0), i1 + 1)
+            self.ind_offset = subslice.start
+            self._transform_path(subslice)
+
+        transf_path = self._get_transformed_path()
+
+        if self.get_path_effects():
+            from matplotlib.patheffects import PathEffectRenderer
+            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+
+        renderer.open_group('line2d', self.get_gid())
+        if self._lineStyles[self._linestyle] != '_draw_nothing':
+            tpath, affine = transf_path.get_transformed_path_and_affine()
+            if len(tpath.vertices):
+                gc = renderer.new_gc()
+                self._set_gc_clip(gc)
+
+                ln_color_rgba = self._get_rgba_ln_color()
+                gc.set_foreground(ln_color_rgba, isRGBA=True)
+                gc.set_alpha(ln_color_rgba[3])
+
+                gc.set_antialiased(self._antialiased)
+                gc.set_linewidth(self._linewidth)
+
+                if self.is_dashed():
+                    cap = self._dashcapstyle
+                    join = self._dashjoinstyle
+                else:
+                    cap = self._solidcapstyle
+                    join = self._solidjoinstyle
+                gc.set_joinstyle(join)
+                gc.set_capstyle(cap)
+                gc.set_snap(self.get_snap())
+                if self.get_sketch_params() is not None:
+                    gc.set_sketch_params(*self.get_sketch_params())
+
+                gc.set_dashes(self._dashOffset, self._dashSeq)
+                renderer.draw_path(gc, tpath, affine.frozen())
+                gc.restore()
+
+        if self._marker and self._markersize > 0:
+            gc = renderer.new_gc()
+            self._set_gc_clip(gc)
+            rgbaFace = self._get_rgba_face()
+            rgbaFaceAlt = self._get_rgba_face(alt=True)
+            edgecolor = self.get_markeredgecolor()
+            if (isinstance(edgecolor, six.string_types)
+                    and edgecolor.lower() == 'none'):
+                gc.set_linewidth(0)
+                gc.set_foreground(rgbaFace, isRGBA=True)
+            else:
+                gc.set_foreground(edgecolor)
+                gc.set_linewidth(self._markeredgewidth)
+                mec = self._markeredgecolor
+                if (isinstance(mec, six.string_types) and mec == 'auto' and
+                        rgbaFace is not None):
+                    gc.set_alpha(rgbaFace[3])
+                else:
+                    gc.set_alpha(self.get_alpha())
+
+            marker = self._marker
+            tpath, affine = transf_path.get_transformed_points_and_affine()
+            if len(tpath.vertices):
+                # subsample the markers if markevery is not None
+                markevery = self.get_markevery()
+                if markevery is not None:
+                    subsampled = _mark_every_path(markevery, tpath,
+                                                  affine, self.axes.transAxes)
+                else:
+                    subsampled = tpath
+
+                snap = marker.get_snap_threshold()
+                if type(snap) == float:
+                    snap = renderer.points_to_pixels(self._markersize) >= snap
+                gc.set_snap(snap)
+                gc.set_joinstyle(marker.get_joinstyle())
+                gc.set_capstyle(marker.get_capstyle())
+                marker_path = marker.get_path()
+                marker_trans = marker.get_transform()
+                w = renderer.points_to_pixels(self._markersize)
+
+                if (isinstance(marker.get_marker(), six.string_types) and
+                        marker.get_marker() == ','):
+                    gc.set_linewidth(0)
+                else:
+                    # Don't scale for pixels, and don't stroke them
+                    marker_trans = marker_trans.scale(w)
+
+                renderer.draw_markers(gc, marker_path, marker_trans,
+                                      subsampled, affine.frozen(),
+                                      rgbaFace)
+
+                alt_marker_path = marker.get_alt_path()
+                if alt_marker_path:
+                    alt_marker_trans = marker.get_alt_transform()
+                    alt_marker_trans = alt_marker_trans.scale(w)
+                    if (isinstance(mec, six.string_types) and mec == 'auto' and
+                            rgbaFaceAlt is not None):
+                        gc.set_alpha(rgbaFaceAlt[3])
+                    else:
+                        gc.set_alpha(self.get_alpha())
+
+                    renderer.draw_markers(
+                            gc, alt_marker_path, alt_marker_trans, subsampled,
+                            affine.frozen(), rgbaFaceAlt)
+
+            gc.restore()
+
+        renderer.close_group('line2d')
+        self.stale = False
 
     def _split_drawstyle_linestyle(self, ls):
         '''Split drawstyle from linestyle string
@@ -1000,6 +1332,47 @@ ________________________________________________________________________________
 
         return ret_ds, ls
 
+    #TODO: this should be in the validate function
+    # @docstring.dedent_interpd
+    # def set_marker(self, marker):
+    #     """
+    #     Set the line marker
+    #
+    #     ACCEPTS: :mod:`A valid marker style <matplotlib.markers>`
+    #
+    #     Parameters
+    #     ----------
+    #
+    #     marker: marker style
+    #         See `~matplotlib.markers` for full description of possible
+    #         argument
+    #
+    #     """
+    #     self._marker.set_marker(marker)
+    #     self.stale = True
+
+    def set_transform(self, t):
+        """
+        set the Transformation instance used by this artist
+
+        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        """
+        Artist.set_transform(self, t)
+        self._invalidx = True
+        self._invalidy = True
+        self.stale = True
+
+    def _get_rgba_face(self, alt=False):
+        facecolor = self._get_markerfacecolor(alt=alt)
+        if (isinstance(facecolor, six.string_types)
+                and facecolor.lower() == 'none'):
+            rgbaFace = None
+        else:
+            rgbaFace = mcolors.to_rgba(facecolor, self._alpha)
+        return rgbaFace
+
+    def _get_rgba_ln_color(self, alt=False):
+        return mcolors.to_rgba(self._color, self._alpha)
 
 
 """
