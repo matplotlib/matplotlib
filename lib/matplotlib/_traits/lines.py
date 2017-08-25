@@ -732,13 +732,6 @@ END OF INIT FUNCTION
         if proposal.value not in self.validJoin:
             raise ValueError('dash_joinstyle validate passed "%s";\n' % (proposal.value,)
                              + 'valid joinstyles are %s' % (self.validJoin,))
-        # s = s.lower()
-        # if s not in self.validJoin:
-            # raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
-                            #  + 'valid joinstyles are %s' % (self.validJoin,))
-        # if self._dashjoinstyle != s:
-            # self.stale = True
-        # self._dashjoinstyle = s
         return proposal.value
     # observer
     @observe("dash_joinstyle", type="change")
