@@ -5039,23 +5039,25 @@ or tuple of floats
 
         Parameters
         ----------
-        X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
+        X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4) or (2, n, m)
             Display the image in `X` to current axes.  `X` may be an
             array or a PIL image. If `X` is an array, it
             can have the following shapes and types:
 
-            - MxN -- values to be mapped (float or int)
+            - MxN -- univariate values to be mapped (float or int)
             - MxNx3 -- RGB (float or uint8)
             - MxNx4 -- RGBA (float or uint8)
+            - 2xMxN -- bivariate values to be mapped (float or int)
 
             The value for each component of MxNx3 and MxNx4 float arrays
-            should be in the range 0.0 to 1.0. MxN arrays are mapped
+            should be in the range 0.0 to 1.0. MxN and 2xMxN arrays are mapped
             to colors based on the `norm` (mapping scalar to scalar)
             and the `cmap` (mapping the normed scalar to a color).
 
-        cmap : `~matplotlib.colors.Colormap`, optional, default: None
+        cmap : `~matplotlib.colors.Colormap`,
+            `~matplotlib.colors.BivariateColormap`optional, default: None
             If None, default to rc `image.cmap` value. `cmap` is ignored
-            if `X` is 3-D, directly specifying RGB(A) values.
+            if `X` is 3-D but not bivariate, directly specifying RGB(A) values.
 
         aspect : ['auto' | 'equal' | scalar], optional, default: None
             If 'auto', changes the image aspect ratio to match that of the
@@ -5079,7 +5081,8 @@ or tuple of floats
             on the Agg, ps and pdf backends. Other backends will fall back to
             'nearest'.
 
-        norm : `~matplotlib.colors.Normalize`, optional, default: None
+        norm : `~matplotlib.colors.Normalize`, `matplotlib.colors.BivariateNorm`
+            optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
             a 2-D float `X` input to the (0, 1) range for input to the
             `cmap`. If `norm` is None, use the default func:`normalize`.
@@ -5259,7 +5262,7 @@ or tuple of floats
     @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
         """
-        Create a pseudocolor plot of a 2-D array.
+        Create a pseudocolor plot of a 2-D univariate or 3-D bivariate array.
 
         Call signatures::
 
@@ -5557,11 +5560,13 @@ or tuple of floats
         Keyword arguments:
 
           *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance. If *None*, use
-            rc settings.
+            A :class:`matplotlib.colors.Colormap` or
+            :class:`matplotlib.colors.BivariateColormap`instance. If *None*,
+            use rc settings.
 
           *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance is used to
+            A :class:`matplotlib.colors.Normalize` or
+            :class:`matplotlib.colors.BivariateNorm` instance is used to
             scale luminance data to 0,1. If *None*, defaults to
             :func:`normalize`.
 
@@ -5679,7 +5684,7 @@ or tuple of floats
     @docstring.dedent_interpd
     def pcolorfast(self, *args, **kwargs):
         """
-        pseudocolor plot of a 2-D array
+        pseudocolor plot of a 2-D univariate or 3-D bivariate array
 
         Experimental; this is a pcolor-type method that
         provides the fastest possible rendering with the Agg
@@ -5738,11 +5743,13 @@ or tuple of floats
         Optional keyword arguments:
 
           *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance from cm. If *None*,
+            A :class:`matplotlib.colors.Colormap` or
+            :class:`matplotlib.colors.BivariateColormap` instance from cm. If *None*,
             use rc settings.
 
           *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance is used to scale
+            A :class:`matplotlib.colors.Normalize` or
+            :class:`matplotlib.colors.BivariateNorm` instance is used to scale
             luminance data to 0,1. If *None*, defaults to normalize()
 
           *vmin*/*vmax*: [ *None* | scalar ]
