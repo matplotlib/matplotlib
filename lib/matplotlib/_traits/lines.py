@@ -674,9 +674,6 @@ END OF INIT FUNCTION
         print("antialiased: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.antialiased']
-        # if self._antialiased != b:
-            # self.stale = True
-        # self._antialiased = b
         return proposal.value
     #antialiased observer
     @observe("antialiased", type="change")
