@@ -381,12 +381,13 @@ class Line2D(HasTraits, b_artist.Artist):
 
     # TODO: Not sure how to handle these, I am going to try Unicode & Text Instance
     # scaled dash + offset
-    # dashSeq = None
+    dashSeq = None
+    # dashSeq = Instance('')
     # dashOffset = 0
     dashOffset=Int(allow_none=True, default_value=None)
     # unscaled dash + offset
     # this is needed scaling the dash pattern by linewidth
-    # us_dashSeq = None
+    us_dashSeq = None
     # us_dashOffset = 0
     us_dashOffset=Int(allow_none=True, default_value=None)
 
@@ -474,6 +475,7 @@ END OF INIT FUNCTION
     # def _linewidth_default(self):
     #     print("linewidth: generating default value")
     #     return None
+
     #linewidth validate
     @validate("linewidth")
     def _linewidth_validate(self, proposal):
