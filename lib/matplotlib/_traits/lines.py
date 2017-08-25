@@ -379,8 +379,6 @@ class Line2D(HasTraits, b_artist.Artist):
     #not sure if this line below will work or not
     x_filled=Instance('np.array', allow_none=True, default_value=None)
 
-    # TODO: Not sure how to handle these, I am going to try Unicode & Text Instance
-    # scaled dash + offset
     dashSeq = None
     # dashSeq = Instance('')
     # dashOffset = 0
@@ -497,6 +495,10 @@ END OF INIT FUNCTION
         print("linewidth: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
         print("set stale: %r" % self.stale)
+        #NOTE: this line may cause recursion error
+        self.dashOffset, self.dashSeq = _scale_dashes(self.us_dashOffset, self.us_dashSeq, self.linewidth)
+        print("set self.dashOffset: ", self.dashOffset)
+        print("set self.dashSeq: ", self.dashSeq)
 
     #linestyle default
     # @default("linestyle")
