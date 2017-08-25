@@ -727,6 +727,11 @@ END OF INIT FUNCTION
         print("dash_joinstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.dash_joinstyle']
+        proposal.value = proposal.value.lower() #not sure on this line
+        #NOTE: validJoin = ('miter', 'round', 'bevel')
+        if proposal.value not in self.validJoin:
+            raise ValueError('dash_joinstyle validate passed "%s";\n' % (proposal.value,)
+                             + 'valid joinstyles are %s' % (self.validJoin,))
         # s = s.lower()
         # if s not in self.validJoin:
             # raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
