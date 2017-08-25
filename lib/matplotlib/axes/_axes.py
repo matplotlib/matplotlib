@@ -5081,8 +5081,8 @@ or tuple of floats
             on the Agg, ps and pdf backends. Other backends will fall back to
             'nearest'.
 
-        norm : `~matplotlib.colors.Normalize`, `matplotlib.colors.BivariateNorm`
-            optional, default: None
+        norm : `~matplotlib.colors.Normalize`,
+            `matplotlib.colors.BivariateNorm` optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
             a 2-D float `X` input to the (0, 1) range for input to the
             `cmap`. If `norm` is None, use the default func:`normalize`.
@@ -5744,8 +5744,8 @@ or tuple of floats
 
           *cmap*: [ *None* | Colormap ]
             A :class:`matplotlib.colors.Colormap` or
-            :class:`matplotlib.colors.BivariateColormap` instance from cm. If *None*,
-            use rc settings.
+            :class:`matplotlib.colors.BivariateColormap` instance from cm.
+            If *None*, use rc settings.
 
           *norm*: [ *None* | Normalize ]
             A :class:`matplotlib.colors.Normalize` or
