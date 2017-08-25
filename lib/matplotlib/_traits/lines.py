@@ -751,14 +751,11 @@ END OF INIT FUNCTION
         print("solid_joinstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.solid_joinstyle']
-        # s = s.lower()
-        # if s not in self.validJoin:
-            # raise ValueError('set_solid_joinstyle passed "%s";\n' % (s,)
-                            #  + 'valid joinstyles are %s' % (self.validJoin,))
-#
-        # if self._solidjoinstyle != s:
-            # self.stale = True
-        # self._solidjoinstyle = s
+        proposal.value = proposal.value.lower() #not sure on this line
+        #NOTE: validJoin = ('miter', 'round', 'bevel')
+        if proposal.value not in self.validJoin:
+            raise ValueError('solid_joinstyle validate passed "%s";\n' % (proposal.value,)
+                     + 'valid joinstyles are %s' % (self.validJoin,))
         return proposal.value
     #solid_joinstyle observer
     @observe("solid_joinstyle", type="change")
