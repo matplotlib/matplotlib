@@ -790,11 +790,8 @@ END OF INIT FUNCTION
         print("drawstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return 'default'
-        if drawstyle not in self.drawStyles:
+        if proposal.value not in self.drawStyles:
             raise ValueError('Unrecognized drawstyle {!r}'.format(drawstyle))
-        # if self._drawstyle != drawstyle:
-            # self.stale = True
-        # self._drawstyle = drawstyle
         return proposal.value
     #drawstyle observer
     @observe("drawstyle", type="change")
