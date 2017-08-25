@@ -527,6 +527,7 @@ END OF INIT FUNCTION
                                  )
             # linestyle = ls
 
+            #NOTE: this line may cause error
             if ds is not None:
                 # drawstyle = ds
                 self.drawstyle = ds
