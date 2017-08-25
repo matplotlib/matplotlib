@@ -344,7 +344,7 @@ class Line2D(HasTraits, b_artist.Artist):
     markevery=Any(allow_none=True, default_value=None)
 
     #only found once in the original lines code so not sure what to do with this
-    # verticalOffset = None
+    verticalOffset = None
 
     ind_offset = Int(allow_none=True,default_value=0)
 
