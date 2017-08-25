@@ -650,12 +650,21 @@ class Rectangle(Patch):
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
+        Parameters
+        ----------
+        xy: length-2 tuple
+            The bottom and left rectangle coordinates
+        width:
+            Rectangle width
+        height:
+            Rectangle height
+        angle: float, optional
+          rotation in degrees anti-clockwise about *xy* (default is 0.0)
+        fill: bool, optional
+            Whether to fill the rectangle (default is ``True``)
 
-        *angle*
-          rotation in degrees (anti-clockwise)
-
-        *fill* is a boolean indicating whether to fill the rectangle
-
+        Notes
+        -----
         Valid kwargs are:
         %(Patch)s
         """
@@ -735,21 +744,13 @@ class Rectangle(Patch):
         return self._height
 
     def set_x(self, x):
-        """
-        Set the left coord of the rectangle
-
-        ACCEPTS: float
-        """
+        "Set the left coord of the rectangle"
         self._x0 = x
         self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        """
-        Set the bottom coord of the rectangle
-
-        ACCEPTS: float
-        """
+        "Set the bottom coord of the rectangle"
         self._y0 = y
         self._update_y1()
         self.stale = True
@@ -766,21 +767,13 @@ class Rectangle(Patch):
         self.stale = True
 
     def set_width(self, w):
-        """
-        Set the width rectangle
-
-        ACCEPTS: float
-        """
+        "Set the width of the rectangle"
         self._width = w
         self._update_x1()
         self.stale = True
 
     def set_height(self, h):
-        """
-        Set the width rectangle
-
-        ACCEPTS: float
-        """
+        "Set the height of the rectangle"
         self._height = h
         self._update_y1()
         self.stale = True
