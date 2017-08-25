@@ -5150,6 +5150,13 @@ or tuple of floats
                    "'mcolors.BivariateNorm'")
             raise ValueError(msg)
 
+        is_bivari = (X.ndim == 3 or X.shape[0] == 2)
+        if is_bivari:
+            if cmap is None:
+                cmap = mcolors.BivariateColormap()
+            if norm is None:
+                norm = mcolors.BivariateNorm()
+
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
@@ -5194,17 +5201,11 @@ or tuple of floats
         allmatch = kw.pop("allmatch", False)
         norm = kw.pop("norm", None)
         cmap = kw.pop("cmap", None)
-        alpha = kw.pop("alpha", 1)
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-            is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
-                         isinstance(cmap, mcolors.BivariateColormap))
-            if (C.ndim == 3 and is_bivari):
-                if cmap is None:
-                    cmap = mcolors.BivariateColormap()
-                if norm is None:
-                    norm = mcolors.BivariateNorm()
+            is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+            if is_bivari:
                 numRows, numCols = C.shape[1:]
             else:
                 numRows, numCols = C.shape
@@ -5218,9 +5219,8 @@ or tuple of floats
 
         if len(args) == 3:
             X, Y, C = [np.asanyarray(a) for a in args]
-            is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
-                         isinstance(cmap, mcolors.BivariateColormap))
-            if (C.ndim == 3 and is_bivari):
+            is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+            if is_bivari:
                 if cmap is None:
                     cmap = mcolors.BivariateColormap()
                 if norm is None:
@@ -5412,6 +5412,13 @@ or tuple of floats
         kw = {'norm': norm, 'cmap': cmap, 'allmatch': False}
         X, Y, C = self._pcolorargs('pcolor', *args, **kw)
         Ny, Nx = X.shape
+
+        is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+        if is_bivari:
+            if cmap is None:
+                cmap = mcolors.BivariateColormap()
+            if norm is None:
+                norm = mcolors.BivariateNorm()
 
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
@@ -5630,6 +5637,13 @@ or tuple of floats
         X, Y, C = self._pcolorargs('pcolormesh', *args, **kw)
         Ny, Nx = X.shape
 
+        is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+        if is_bivari:
+            if cmap is None:
+                cmap = mcolors.BivariateColormap()
+            if norm is None:
+                norm = mcolors.BivariateNorm()
+
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
         X = self.convert_xunits(X)
@@ -5783,9 +5797,12 @@ or tuple of floats
 
         C = np.asarray(args[-1])
 
-        is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
-                     isinstance(cmap, mcolors.BivariateColormap))
-        if (C.ndim == 3 and is_bivari):
+        is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+        if is_bivari:
+            if cmap is None:
+                cmap = mcolors.BivariateColormap()
+            if norm is None:
+                norm = mcolors.BivariateNorm()
             nr, nc = C.shape[1:]
         else:
             nr, nc = C.shape
