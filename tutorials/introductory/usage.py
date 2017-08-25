@@ -714,3 +714,58 @@ for i in range(3):
 # attempt at evenly spaced (along the *x* axis) sampling. See the
 # :ref:`sphx_glr_gallery_lines_bars_and_markers_markevery_demo.py`
 # for more information.
+#
+# Splitting lines into smaller chunks
+# -----------------------------------
+#
+# If you are using the Agg backend (see :ref:`what-is-a-backend`),
+# then you can make use of the ``agg.path.chunksize`` rc parameter.
+# This allows you to specify a chunk size, and any lines with
+# greater than that many vertices will be split into multiple
+# lines, each of which have no more than ``agg.path.chunksize``
+# many vertices. (Unless ``agg.path.chunksize`` is zero, in
+# which case there is no chunking.) For some kind of data,
+# chunking the line up into reasonable sizes can greatly
+# decrease rendering time.
+#
+# The following script will first display the data without any
+# chunk size restriction, and then display the same data with
+# a chunk size of 10,000. The difference can best be seen when
+# the figures are large, try maximizing the GUI and then
+# interacting with them::
+#
+#   import numpy as np
+#   import matplotlib.pyplot as plt
+#   import matplotlib as mpl
+#   mpl.rcParams['path.simplify_threshold'] = 1.0
+#
+#   # Setup, and create the data to plot
+#   y = np.random.rand(100000)
+#   y[50000:] *= 2
+#   y[np.logspace(1,np.log10(50000), 400).astype(int)] = -1
+#   mpl.rcParams['path.simplify'] = True
+#
+#   mpl.rcParams['agg.path.chunksize'] = 0
+#   plt.plot(y)
+#   plt.show()
+#
+#   mpl.rcParams['agg.path.chunksize'] = 10000
+#   plt.plot(y)
+#   plt.show()
+#
+# Using the *fast* style
+# ----------------------
+#
+# The *fast* style can be used to automatically set
+# simplification and chunking parameters to reasonable
+# settings to speed up plotting large amounts of data.
+# It can be used simply by running::
+#
+#   import matplotlib.style as mplstyle
+#   mplstyle.use('fast')
+#
+# It is very light weight, so it plays nicely with other
+# styles, just make sure the fast style is applied last
+# so that other styles do not overwrite the settings::
+#
+#   mplstyle.use(['dark_background', 'ggplot', 'fast'])
