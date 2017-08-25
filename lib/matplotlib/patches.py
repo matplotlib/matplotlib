@@ -687,10 +687,7 @@ class Rectangle(Patch):
                  makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
-        x0 = self.convert_xunits(self._x0)
-        y0 = self.convert_yunits(self._y0)
-        x1 = self.convert_xunits(self._x1)
-        y1 = self.convert_yunits(self._y1)
+        x0, y0, x1, y1 = self._convert_units()
         bbox = transforms.Bbox.from_extents(x0, y0, x1, y1)
         rot_trans = transforms.Affine2D()
         rot_trans.rotate_deg_around(x0, y0, self.angle)
@@ -702,6 +699,16 @@ class Rectangle(Patch):
 
     def _update_y1(self):
         self._y1 = self._y0 + self._height
+
+    def _convert_units(self):
+        '''
+        Convert bounds of the rectangle
+        '''
+        x0 = self.convert_xunits(self._x0)
+        y0 = self.convert_yunits(self._y0)
+        x1 = self.convert_xunits(self._x1)
+        y1 = self.convert_yunits(self._y1)
+        return x0, y0, x1, y1
 
     def get_patch_transform(self):
         self._update_patch_transform()
@@ -720,7 +727,7 @@ class Rectangle(Patch):
         return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the  rectangle"
+        "Return the width of the rectangle"
         return self._width
 
     def get_height(self):
@@ -797,6 +804,7 @@ class Rectangle(Patch):
         self.stale = True
 
     def get_bbox(self):
+        x0, y0, x1, y1 = self._convert_units()
         return transforms.Bbox.from_extents(self._x0, self._y0,
                                             self._x1, self._y1)
 
