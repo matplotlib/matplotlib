@@ -840,12 +840,12 @@ class RRuleLocator(DateLocator):
         # We need to cap at the endpoints of valid datetime
         try:
             start = vmin - delta
-        except ValueError:
+        except (ValueError, OverflowError):
             start = _from_ordinalf(1.0)
 
         try:
             stop = vmax + delta
-        except ValueError:
+        except (ValueError, OverflowError):
             # The magic number!
             stop = _from_ordinalf(3652059.9999999)
 
