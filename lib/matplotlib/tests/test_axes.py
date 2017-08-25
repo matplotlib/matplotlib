@@ -28,6 +28,7 @@ import matplotlib.colors as mcolors
 from numpy.testing import assert_allclose, assert_array_equal
 from matplotlib.cbook import IgnoredKeywordWarning
 from matplotlib.cbook._backports import broadcast_to
+from matplotlib.cbook import get_sample_data
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -5271,3 +5272,30 @@ def test_twinx_knows_limits():
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
+
+
+@image_comparison(
+    baseline_images=['bivar_imshow', 'bivar_pcolor', 'bivar_pcolormesh',
+                     'bivar_pcolorfast'],
+    extensions=['png']
+)
+def test_bivariates():
+    air_temp = np.load(get_sample_data('air_temperature.npy'))
+    surf_pres = np.load(get_sample_data('surface_pressure.npy'))
+    bivariate = [air_temp, surf_pres]
+
+    fig1, ax1 = plt.subplots()
+    cax1 = ax1.imshow(bivariate)
+    cbar = fig1.colorbar(cax1, xlabel='air_temp', ylabel='surf_pres')
+
+    fig2, ax2 = plt.subplots()
+    cax2 = ax2.pcolor(bivariate)
+    cbar = fig2.colorbar(cax2, xlabel='air_temp', ylabel='surf_pres')
+
+    fig3, ax3 = plt.subplots()
+    cax3 = ax3.pcolormesh(bivariate)
+    cbar = fig3.colorbar(cax3, xlabel='air_temp', ylabel='surf_pres')
+
+    fig4, ax4 = plt.subplots()
+    cax4 = ax4.pcolorfast(bivariate)
+    cbar = fig4.colorbar(cax4, xlabel='air_temp', ylabel='surf_pres')

@@ -5150,7 +5150,8 @@ or tuple of floats
                    "'mcolors.BivariateNorm'")
             raise ValueError(msg)
 
-        is_bivari = (X.ndim == 3 or X.shape[0] == 2)
+        temp = np.asarray(X)
+        is_bivari = (temp.ndim == 3 or temp.shape[0] == 2)
         if is_bivari:
             if cmap is None:
                 cmap = mcolors.BivariateColormap()
