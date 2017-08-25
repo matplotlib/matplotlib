@@ -745,7 +745,7 @@ def test_triinterp_transformations():
 
 
 @image_comparison(baseline_images=['tri_smooth_contouring'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, tol=0.07)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20
@@ -786,8 +786,7 @@ def test_tri_smooth_contouring():
 
 
 @image_comparison(baseline_images=['tri_smooth_gradient'],
-                  extensions=['png'], remove_text=True,
-                  tol=0.03 if on_win else 0)
+                  extensions=['png'], remove_text=True, tol=0.035)
 def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
@@ -1123,3 +1122,14 @@ def test_internal_cpp_api():
     with pytest.raises(ValueError) as excinfo:
         trifinder.find_many([0], [0, 1])
     excinfo.match(r'x and y must be array_like with same shape')
+
+
+def test_qhull_large_offset():
+    # github issue 8682.
+    x = np.asarray([0, 1, 0, 1, 0.5])
+    y = np.asarray([0, 0, 1, 1, 0.5])
+
+    offset = 1e10
+    triang = mtri.Triangulation(x, y)
+    triang_offset = mtri.Triangulation(x + offset, y + offset)
+    assert len(triang.triangles) == len(triang_offset.triangles)
