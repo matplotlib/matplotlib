@@ -480,12 +480,6 @@ END OF INIT FUNCTION
         print("linewidth: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.linewidth']
-        # if self._linewidth != w:
-            # self.stale = True
-        # self._linewidth = w
-        # rescale the dashes + offset
-        # self._dashOffset, self._dashSeq = _scale_dashes(
-        # self._us_dashOffset, self._us_dashSeq, self._linewidth)
         #to assure we are dealing with a FLOAT
         proposal.value=float(proposal.value) #watch out for recursion on this line
         return proposal.value
@@ -557,6 +551,10 @@ END OF INIT FUNCTION
         self.stale = True
         print("set stale: %r" % self.stale)
 
+    """
+    NOTE: I may have to create a marker trait but I think
+    an instance of the module will suffice
+    """
     #marker default
     # @default("marker")
     # def _marker_default(self):
@@ -570,7 +568,7 @@ END OF INIT FUNCTION
         if proposal.value is None:
             return rcParams['lines.marker']
         # TODO: find a method to make the line below work
-        #self._marker.set_marker(marker)
+        # self._marker.set_marker(marker)
         return proposal.value
     #marker observer
     @observe("marker", type="change")
@@ -607,11 +605,8 @@ END OF INIT FUNCTION
     @validate("markeredgewidth")
     def _markeredgewidth_validate(self, proposal):
         print("markeredgewidth: cross validating %r" % proposal.value)
-        # if ew is None:
-            # ew = rcParams['lines.markeredgewidth']
-        # if self._markeredgewidth != ew:
-            # self.stale = True
-        # self._markeredgewidth = ew
+        if proposal.value is None:
+            return rcParams['lines.markeredgewidth']
         return proposal.value
     #markeredgewidth observer
     @observe("markeredgewidth", type="change")
