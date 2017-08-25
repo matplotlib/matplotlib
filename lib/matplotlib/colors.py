@@ -474,6 +474,9 @@ class Colormap(object):
         else:
             vtype = 'array'
             if isinstance(self, BivariateColormap):
+                vals = np.array([1, 0], dtype=X.dtype)
+                almost_one = np.nextafter(*vals)
+                np.copyto(X, almost_one, where=X == 1.0)
                 X[0] = X[0] * 256
                 X[1] = X[1] * 256
                 X = X.astype(int)
@@ -482,7 +485,6 @@ class Colormap(object):
             mask_bad = xma.mask              # Mask will be used below.
             xa = xma.filled()                # Fill to avoid infs, etc.
             del xma
-
         # Calculations with native byteorder are faster, and avoid a
         # bug that otherwise can occur with putmask when the last
         # argument is a numpy scalar.
