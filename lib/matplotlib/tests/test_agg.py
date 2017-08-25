@@ -234,3 +234,16 @@ def test_chunksize():
     rcParams['agg.path.chunksize'] = 105
     ax.plot(x, np.sin(x))
     fig.canvas.draw()
+
+
+@pytest.mark.backend('Agg')
+def test_jpeg_dpi():
+    try:
+        from PIL import Image
+    except Exception:
+        pytest.skip("Could not import PIL")
+    # Check that dpi is set correctly in jpg files
+    plt.plot([0, 1, 2], [0, 1, 0])
+    plt.savefig('test.jpg', dpi=200)
+    im = Image.open("test.jpg")
+    assert im.info['dpi'] == (200, 200)
