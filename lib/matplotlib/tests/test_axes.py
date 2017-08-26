@@ -5285,17 +5285,17 @@ def test_bivariates():
     bivariate = [air_temp, surf_pres]
 
     fig1, ax1 = plt.subplots()
-    cax1 = ax1.imshow(bivariate)
+    cax1 = ax1.imshow(bivariate, norm=mcolors.BivariateNorm())
     cbar = fig1.colorbar(cax1, xlabel='air_temp', ylabel='surf_pres')
 
     fig2, ax2 = plt.subplots()
-    cax2 = ax2.pcolor(bivariate)
+    cax2 = ax2.pcolor(bivariate, norm=mcolors.BivariateNorm())
     cbar = fig2.colorbar(cax2, xlabel='air_temp', ylabel='surf_pres')
 
     fig3, ax3 = plt.subplots()
-    cax3 = ax3.pcolormesh(bivariate)
+    cax3 = ax3.pcolormesh(bivariate, norm=mcolors.BivariateNorm())
     cbar = fig3.colorbar(cax3, xlabel='air_temp', ylabel='surf_pres')
 
     fig4, ax4 = plt.subplots()
-    cax4 = ax4.pcolorfast(bivariate)
+    cax4 = ax4.pcolorfast(bivariate, norm=mcolors.BivariateNorm())
     cbar = fig4.colorbar(cax4, xlabel='air_temp', ylabel='surf_pres')

@@ -28,6 +28,8 @@ fig, ax = plt.subplots()
 
 bivariate = [air_temp, surf_pres]
 
+# to distinguish bivariate data either BivariateNorm or BivariateColormap must
+# be passed in as argument
 cax = ax.imshow(bivariate, norm=colors.BivariateNorm(),
                 cmap=colors.BivariateColormap())
 

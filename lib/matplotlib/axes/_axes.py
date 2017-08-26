@@ -5151,8 +5151,11 @@ or tuple of floats
             raise ValueError(msg)
 
         temp = np.asarray(X)
-        is_bivari = (temp.ndim == 3 or temp.shape[0] == 2)
+        is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                     isinstance(cmap, mcolors.BivariateColormap))
         if is_bivari:
+            if temp.ndim != 3 and temp.shape[0] != 2:
+                raise TypeError("Expected shape like (2, n, m)")
             if cmap is None:
                 cmap = mcolors.BivariateColormap()
             if norm is None:
@@ -5205,7 +5208,8 @@ or tuple of floats
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-            is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+            is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                         isinstance(cmap, mcolors.BivariateColormap))
             if is_bivari:
                 numRows, numCols = C.shape[1:]
             else:
@@ -5220,12 +5224,9 @@ or tuple of floats
 
         if len(args) == 3:
             X, Y, C = [np.asanyarray(a) for a in args]
-            is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+            is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                         isinstance(cmap, mcolors.BivariateColormap))
             if is_bivari:
-                if cmap is None:
-                    cmap = mcolors.BivariateColormap()
-                if norm is None:
-                    norm = mcolors.BivariateNorm()
                 numRows, numCols = C.shape[1:]
             else:
                 numRows, numCols = C.shape
@@ -5414,8 +5415,11 @@ or tuple of floats
         X, Y, C = self._pcolorargs('pcolor', *args, **kw)
         Ny, Nx = X.shape
 
-        is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+        is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                     isinstance(cmap, mcolors.BivariateColormap))
         if is_bivari:
+            if C.ndim != 3 and C.shape[0] != 2:
+                raise TypeError("Expected shape like (2, n, m)")
             if cmap is None:
                 cmap = mcolors.BivariateColormap()
             if norm is None:
@@ -5638,8 +5642,11 @@ or tuple of floats
         X, Y, C = self._pcolorargs('pcolormesh', *args, **kw)
         Ny, Nx = X.shape
 
-        is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+        is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                     isinstance(cmap, mcolors.BivariateColormap))
         if is_bivari:
+            if C.ndim != 3 and C.shape[0] != 2:
+                raise TypeError("Expected shape like (2, n, m)")
             if cmap is None:
                 cmap = mcolors.BivariateColormap()
             if norm is None:
@@ -5798,8 +5805,11 @@ or tuple of floats
 
         C = np.asarray(args[-1])
 
-        is_bivari = (C.ndim == 3 or C.shape[0] == 2)
+        is_bivari = (isinstance(norm, mcolors.BivariateNorm) or
+                     isinstance(cmap, mcolors.BivariateColormap))
         if is_bivari:
+            if C.ndim != 3 and C.shape[0] != 2:
+                raise TypeError("Expected shape like (2, n, m)")
             if cmap is None:
                 cmap = mcolors.BivariateColormap()
             if norm is None:
