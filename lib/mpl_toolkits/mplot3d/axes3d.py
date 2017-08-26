@@ -272,28 +272,28 @@ class Axes3D(Axes):
         renderer.eye = self.eye
         renderer.get_axis_position = self.get_axis_position
 
-        # Calculate projection of collections and zorder them
+        # Calculate projection of collections and patches and zorder them.
+        # Make sure they are drawn above the grids.
+        zorder_offset = max(axis.get_zorder()
+                            for axis in self._get_axis_list()) + 1
         for i, col in enumerate(
                 sorted(self.collections,
                        key=lambda col: col.do_3d_projection(renderer),
                        reverse=True)):
-            col.zorder = i
-
-        # Calculate projection of patches and zorder them
+            col.zorder = zorder_offset + i
         for i, patch in enumerate(
                 sorted(self.patches,
                        key=lambda patch: patch.do_3d_projection(renderer),
                        reverse=True)):
-            patch.zorder = i
+            patch.zorder = zorder_offset + i
 
         if self._axis3don:
-            axes = (self.xaxis, self.yaxis, self.zaxis)
             # Draw panes first
-            for ax in axes:
-                ax.draw_pane(renderer)
+            for axis in self._get_axis_list():
+                axis.draw_pane(renderer)
             # Then axes
-            for ax in axes:
-                ax.draw(renderer)
+            for axis in self._get_axis_list():
+                axis.draw(renderer)
 
         # Then rest
         super().draw(renderer)
@@ -1281,33 +1281,6 @@ class Axes3D(Axes):
         b : bool
         """
         self._frameon = bool(b)
-        self.stale = True
-
-    def get_axisbelow(self):
-        """
-        Get whether axis below is true or not.
-
-        For axes3d objects, this will always be *True*
-
-        .. versionadded :: 1.1.0
-            This function was added for completeness.
-        """
-        return True
-
-    def set_axisbelow(self, b):
-        """
-        Set whether axis ticks and gridlines are above or below most artists.
-
-        For axes3d objects, this will ignore any settings and just use *True*
-
-        .. versionadded :: 1.1.0
-            This function was added for completeness.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self._axisbelow = True
         self.stale = True
 
     def grid(self, b=True, **kwargs):

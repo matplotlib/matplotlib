@@ -786,7 +786,6 @@ def test_imshow_masked_interpolation():
     N = 20
     n = colors.Normalize(vmin=0, vmax=N*N-1)
 
-    # data = np.random.random((N, N))*N*N
     data = np.arange(N*N, dtype='float').reshape(N, N)
 
     data[5, 5] = -1
