@@ -353,7 +353,7 @@ def validate_color_for_prop_cycle(s):
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
                              'prop_cycler'.format(cn=s))
-    elif isinstance(s, six.text_type):
+    elif isinstance(s, six.string_types):
         match = re.match('^C[0-9]$', s)
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
@@ -855,7 +855,7 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    if isinstance(s, six.text_type) and s == 'auto':
+    if isinstance(s, six.string_types) and s == 'auto':
         return s
     try:
         return int(s)
@@ -874,7 +874,7 @@ def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
     # the path on next call)
-    if not isinstance(p, six.text_type):
+    if not isinstance(p, six.string_types):
         raise ValueError("path must be a (unicode) string")
     from sys import modules
     # set dirty, so that the next call to the registry will re-evaluate
