@@ -13,6 +13,72 @@ For new features that were added to Matplotlib, please see
 API Changes in 2.1.0
 ====================
 
+cbook deprecations
+------------------
+
+Many unused or near-unused cbook functions and classes have been deprecated:
+``converter``, ``tostr``, ``todatetime``, ``todate``, ``tofloat``, ``toint``,
+``unique``, ``is_string_like``, ``is_sequence_of_strings``, ``is_scalar``,
+``Sorter``, ``Xlator``, ``soundex``, ``Null``, ``dict_delall``, ``RingBuffer``,
+``get_split_ind``, ``wrap``, ``get_recursive_filelist``, ``pieces``,
+``exception_to_str``, ``allequal``, ``alltrue``, ``onetrue``, ``allpairs``,
+``finddir``, ``reverse_dict``, ``restrict_dict``, ``issubclass_safe``,
+``recursive_remove``, ``unmasked_index_ranges``.
+
+
+Improved Delaunay triangulations with large offsets
+---------------------------------------------------
+
+Delaunay triangulations now deal with large x,y offsets in a better
+way. This can cause minor changes to any triangulations calculated
+using Matplotlib, i.e. any use of `matplotlib.tri.Triangulation` that
+requests that a Delaunay triangulation is calculated, which includes
+`matplotlib.pyplot.tricontour`, `matplotlib.pyplot.tricontourf`,
+`matplotlib.pyplot.tripcolor`, `matplotlib.pyplot.triplot`,
+`mlab.griddata` and `mpl_toolkits.mplot3d.plot_trisurf`.
+
+
+Deprecation in EngFormatter
+---------------------------
+
+Passing a string as *num* argument when calling an instance of
+`matplotlib.ticker.EngFormatter` is deprecated and will be removed in 2.3.
+
+
+:meth:`matpltolib.cbook.CallbackRegistry.process` suppresses exceptions by default
+----------------------------------------------------------------------------------
+
+Matplotlib uses instances of :obj:`~matplotlib.cbook.CallbackRegistry`
+as a bridge between user input event from the GUI and user callbacks.
+Previously, any exceptions raised in a user call back would bubble out
+of of the ``process`` method, which is typically in the GUI event
+loop.  Most GUI frameworks simple print the traceback to the screen
+and continue as there is not always a clear method of getting the
+exception back to the user.  However PyQt5 now exits the process when
+it receives and un-handled python exception in the event loop.  Thus,
+:meth:`~matplotlib.cbook.CallbackRegistry.process` now suppresses and
+prints tracebacks to stderr by default.
+
+What :meth:`~matplotlib.cbook.CallbackRegistry.process` does with exceptions
+is now user configurable via the ``exception_handler`` attribute and kwarg.  To
+restore the previous behavior pass ``None`` ::
+
+  cb = CallbackRegistry(exception_handler=None)
+
+
+A function which take and ``Exception`` as its only argument may also be passed ::
+
+  def maybe_reraise(exc):
+      if isinstance(exc, RuntimeError):
+          pass
+      else:
+          raise exc
+
+  cb = CallbackRegistry(exception_handler=maybe_reraise)
+
+
+
+
 `mpl_toolkits.axes_grid` has been deprecated
 --------------------------------------------
 
