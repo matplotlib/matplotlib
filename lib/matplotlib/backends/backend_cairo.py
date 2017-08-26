@@ -19,8 +19,7 @@ import warnings
 import numpy as np
 
 # In order to make it possible to pick the binding, use whichever has already
-# been imported, if any.  (The intermediate call to iter is just to placate
-# Python2.)
+# been imported, if any.
 cairo = next(
     (mod for mod in (
         sys.modules.get(name) for name in ["cairocffi", "cairo"]) if mod),

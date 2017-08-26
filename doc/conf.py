@@ -335,17 +335,8 @@ texinfo_documents = [
 ]
 
 
-class MyWX(MagicMock):
-    class Panel(object):
-        pass
-
-    class ToolBar(object):
-        pass
-
-    class Frame(object):
-        pass
-
-    VERSION_STRING = '2.9'
+class MyCairo(MagicMock):
+    version_info = (1, 2, 0)
 
 
 class MyPyQt4(MagicMock):
@@ -450,14 +441,25 @@ class MySip(MagicMock):
         return 1
 
 
-mockwxversion = MagicMock()
-mockwx = MyWX()
-mocksip = MySip()
-mockpyqt4 = MyPyQt4()
-sys.modules['wxversion'] = mockwxversion
-sys.modules['wx'] = mockwx
-sys.modules['sip'] = mocksip
-sys.modules['PyQt4'] = mockpyqt4
+class MyWX(MagicMock):
+    class Panel(object):
+        pass
+
+    class ToolBar(object):
+        pass
+
+    class Frame(object):
+        pass
+
+    VERSION_STRING = '2.9'
+
+
+sys.modules['cairo'] = MyCairo()
+sys.modules['cairo'].__name__ = 'cairocffi'
+sys.modules['PyQt4'] = MyPyQt4()
+sys.modules['sip'] = MySip()
+sys.modules['wx'] = MyWX()
+sys.modules['wxversion'] = MagicMock()
 
 # numpydoc config
 
