@@ -178,7 +178,7 @@ Matplotlib requires a large number of dependencies:
   * `Python <https://www.python.org/downloads/>`_ (>= 2.7 or >= 3.4)
   * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
   * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
-  * dateutil (>= 1.1)
+  * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.0)
   * `pyparsing <https://pyparsing.wikispaces.com/>`__
   * `libpng <http://www.libpng.org>`__ (>= 1.2)
   * `pytz <http://pytz.sourceforge.net/>`__
@@ -189,6 +189,7 @@ Matplotlib requires a large number of dependencies:
     (for Python 2.7 only)
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
     2.7 only, on Linux and macOS only)
+
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
