@@ -178,6 +178,7 @@ def _get_rc_timezone():
     import pytz
     return pytz.timezone(s)
 
+
 """
 Time-related constants.
 """
@@ -349,7 +350,7 @@ def date2num(d):
 
     Parameters
     ----------
-    d: :class:`datetime` or sequence of :class:`datetime`
+    d : :class:`datetime` or sequence of :class:`datetime`
 
     Returns
     -------
@@ -378,7 +379,7 @@ def julian2num(j):
 
     Parameters
     ----------
-    k: float or sequence of floats
+    k : float or sequence of floats
         Julian date(s)
 
     Returns
@@ -397,7 +398,7 @@ def num2julian(n):
 
     Parameters
     ----------
-    n: float or sequence of floats
+    n : float or sequence of floats
         Matplotlib date(s)
 
     Returns
@@ -414,10 +415,10 @@ def num2date(x, tz=None):
     """
     Parameters
     ----------
-    x: float
+    x : float or sequence of floats
         Number of days (fraction part represents hours, minutes, seconds)
         since 0001-01-01 00:00:00 UTC, plus one.
-    tz: string, optional
+    tz : string, optional
         Timezone of *x* (defaults to rcparams TZ value).
 
     Returns
