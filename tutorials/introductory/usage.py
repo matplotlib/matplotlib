@@ -284,10 +284,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Again, for these simple examples this style seems like overkill, however
 # once the graphs get slightly more complex it pays off.
 #
+# Backends
+# ========
+#
 # .. _what-is-a-backend:
 #
 # What is a backend?
-# ==================
+# ------------------
 #
 # A lot of documentation on the website and in the mailing lists refers
 # to the "backend" and many new users are confused by this term.
@@ -462,7 +465,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 #
 # WX backends
-# ===========
+# -----------
 #
 # At present the release version of `wxPython` (also known as wxPython classic)
 # does not support python3. A work in progress redesigned version known as
@@ -472,7 +475,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _wxPython-Phoenix: https://wxpython.org/Phoenix/docs/html/main.html
 #
 # GTK and Cairo
-# =============
+# -------------
 #
 # Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
 # specific Matplotlib backend used. Unfortunatly the latest release of PyCairo
@@ -481,7 +484,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # wrapper.
 #
 # How do I select PyQt4 or PySide?
-# ========================================
+# --------------------------------
 #
 # You can choose either PyQt4 or PySide when using the `qt4` backend by setting
 # the appropriate value for `backend.qt4` in your :file:`matplotlibrc` file. The
