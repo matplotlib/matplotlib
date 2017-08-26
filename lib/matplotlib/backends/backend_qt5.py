@@ -249,6 +249,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
 
+        # In cases with mixed resolution displays, we need to be careful if the
+        # dpi_ratio changes - in this case we need to resize the canvas
+        # accordingly. We could watch for screenChanged events from Qt, but
+        # the issue is that we can't guarantee this will be emitted *before*
+        # the first paintEvent for the canvas, so instead we keep track of the
+        # dpi_ratio value here and in paintEvent we resize the canvas if
+        # needed.
+        self._dpi_ratio_prev = None
+
     @property
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
@@ -342,6 +351,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._keyautorepeat = bool(val)
 
     def resizeEvent(self, event):
+        # _dpi_ratio_prev will be set the first time the canvas is painted, and
+        # the rendered buffer is useless before anyways.
+        if self._dpi_ratio_prev is None:
+            return
         w = event.size().width() * self._dpi_ratio
         h = event.size().height() * self._dpi_ratio
         dpival = self.figure.dpi
