@@ -51,6 +51,11 @@ example_plot(ax, fontsize=24)
 plt.tight_layout()
 
 ###############################################################################
+# Note that :func:`matplotlib.pyplot.tight_layout` will only adjust the
+# subplot params when it is called.  In order to perform this adjustment each
+# time the figure is redrawn, you can call ``fig.set_tight_layout(True)``, or,
+# equivalently, set the ``figure.autolayout`` rcParam to ``True``.
+#
 # When you have multiple subplots, often you see labels of different
 # axes overlapping each other.
 
@@ -141,7 +146,7 @@ plt.tight_layout()
 
 ###############################################################################
 # Caveats
-# -------
+# =======
 #
 #  * :func:`~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
 #    labels, and titles. Thus, other artists may be clipped and also may
@@ -157,7 +162,7 @@ plt.tight_layout()
 #    recommended.
 #
 # Use with GridSpec
-# -----------------
+# =================
 #
 # GridSpec has its own :func:`~matplotlib.gridspec.GridSpec.tight_layout` method
 # (the pyplot api :func:`~matplotlib.pyplot.tight_layout` also works).
@@ -275,7 +280,7 @@ gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
 
 ###############################################################################
 # Use with AxesGrid1
-# ------------------
+# ==================
 #
 # While limited, the axes_grid1 toolkit is also supported.
 
@@ -295,7 +300,7 @@ plt.tight_layout()
 
 ###############################################################################
 # Colorbar
-# --------
+# ========
 #
 # If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
 # command, the created colorbar is an instance of Axes, *not* Subplot, so
