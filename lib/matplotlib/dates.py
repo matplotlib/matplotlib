@@ -384,7 +384,7 @@ def julian2num(j):
 
     Returns
     -------
-    float or sequency of floats
+    float or sequence of floats
         Matplotlib date(s)
     """
     if cbook.iterable(j):
@@ -403,7 +403,7 @@ def num2julian(n):
 
     Returns
     -------
-    float or sequency of floats
+    float or sequence of floats
         Julian date(s)
     """
     if cbook.iterable(n):
