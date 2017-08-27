@@ -164,6 +164,7 @@ class _UTC(datetime.tzinfo):
     def dst(self, dt):
         return datetime.timedelta(0)
 
+
 UTC = _UTC()
 
 
@@ -176,6 +177,7 @@ def _get_rc_timezone():
         return UTC
     import pytz
     return pytz.timezone(s)
+
 
 """
 Time-related constants.
@@ -327,8 +329,8 @@ def datestr2num(d, default=None):
     d : string or sequence of strings
         The dates to convert.
 
-    default : datetime instance
-        The default date to use when fields are missing in `d`.
+    default : datetime instance, optional
+        The default date to use when fields are missing in *d*.
     """
     if isinstance(d, six.string_types):
         dt = dateutil.parser.parse(d, default=default)
@@ -344,14 +346,23 @@ def datestr2num(d, default=None):
 
 def date2num(d):
     """
-    *d* is either a :class:`datetime` instance or a sequence of datetimes.
+    Converts datetime objects to Matplotlib dates.
 
-    Return value is a floating point number (or sequence of floats)
-    which gives the number of days (fraction part represents hours,
-    minutes, seconds) since 0001-01-01 00:00:00 UTC, *plus* *one*.
-    The addition of one here is a historical artifact.  Also, note
-    that the Gregorian calendar is assumed; this is not universal
-    practice.  For details, see the module docstring.
+    Parameters
+    ----------
+    d : :class:`datetime` or sequence of :class:`datetime`
+
+    Returns
+    -------
+    float or sequence of floats
+        Number of days (fraction part represents hours, minutes, seconds)
+        since 0001-01-01 00:00:00 UTC, plus one.
+
+    Notes
+    -----
+    The addition of one here is a historical artifact. Also, note that the
+    Gregorian calendar is assumed; this is not universal practice.
+    For details see the module docstring.
     """
     if not cbook.iterable(d):
         return _to_ordinalf(d)
@@ -365,6 +376,16 @@ def date2num(d):
 def julian2num(j):
     """
     Convert a Julian date (or sequence) to a matplotlib date (or sequence).
+
+    Parameters
+    ----------
+    k : float or sequence of floats
+        Julian date(s)
+
+    Returns
+    -------
+    float or sequence of floats
+        Matplotlib date(s)
     """
     if cbook.iterable(j):
         j = np.asarray(j)
@@ -373,7 +394,17 @@ def julian2num(j):
 
 def num2julian(n):
     """
-    Convert a matplotlib date (or sequence) to a Julian date (or sequence).
+    Convert a Matplotlib date (or sequence) to a Julian date (or sequence).
+
+    Parameters
+    ----------
+    n : float or sequence of floats
+        Matplotlib date(s)
+
+    Returns
+    -------
+    float or sequence of floats
+        Julian date(s)
     """
     if cbook.iterable(n):
         n = np.asarray(n)
@@ -382,18 +413,27 @@ def num2julian(n):
 
 def num2date(x, tz=None):
     """
-    *x* is a float value which gives the number of days
-    (fraction part represents hours, minutes, seconds) since
-    0001-01-01 00:00:00 UTC *plus* *one*.
-    The addition of one here is a historical artifact.  Also, note
-    that the Gregorian calendar is assumed; this is not universal
-    practice.  For details, see the module docstring.
+    Parameters
+    ----------
+    x : float or sequence of floats
+        Number of days (fraction part represents hours, minutes, seconds)
+        since 0001-01-01 00:00:00 UTC, plus one.
+    tz : string, optional
+        Timezone of *x* (defaults to rcparams TZ value).
 
-    Return value is a :class:`datetime` instance in timezone *tz* (default to
-    rcparams TZ value).
+    Returns
+    -------
+    :class:`datetime` or sequence of :class:`datetime`
+        Dates are returned in timezone *tz*
 
     If *x* is a sequence, a sequence of :class:`datetime` objects will
     be returned.
+
+    Notes
+    -----
+    The addition of one here is a historical artifact. Also, note that the
+    Gregorian calendar is assumed; this is not universal practice.
+    For details, see the module docstring.
     """
     if tz is None:
         tz = _get_rc_timezone()
