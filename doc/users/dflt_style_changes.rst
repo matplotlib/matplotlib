@@ -599,6 +599,8 @@ The default value of the ``linecolor`` kwarg for `~matplotlib.Axes.hexbin` has
 changed from ``'none'`` to ``'face'``. If 'none' is now supplied, no line edges
 are drawn around the hexagons.
 
+.. _barbarh_align:
+
 ``bar`` and ``barh``
 --------------------
 
