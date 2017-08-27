@@ -1833,6 +1833,7 @@ def get_plot_commands():
     return sorted(commands)
 
 
+@deprecated('2.1')
 def colors():
     """
     This is a do-nothing function to provide you with help on how
