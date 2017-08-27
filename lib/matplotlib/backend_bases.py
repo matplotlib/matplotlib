@@ -2299,8 +2299,8 @@ class FigureCanvasBase(object):
         default_basename = self.get_window_title() or "image"
         # Characters to be avoided in a NT path:
         # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
-        removed_chars = \
-            {"posix": " /\0", "nt": r'<>:"/\|?*\0'}.get(os.name, "_")
+        # plus ' '
+        removed_chars = r'<>:"/\|?*\0 '
         default_basename = default_basename.translate(
             {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
