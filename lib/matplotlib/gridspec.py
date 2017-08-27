@@ -98,28 +98,24 @@ class GridSpecBase(object):
         # calculate accumulated heights of columns
         cellH = totHeight / (nrows + hspace*(nrows-1))
         sepH = hspace * cellH
-
         if self._row_height_ratios is not None:
             netHeight = cellH * nrows
             tr = float(sum(self._row_height_ratios))
             cellHeights = [netHeight * r / tr for r in self._row_height_ratios]
         else:
             cellHeights = [cellH] * nrows
-
         sepHeights = [0] + ([sepH] * (nrows-1))
         cellHs = np.cumsum(np.column_stack([sepHeights, cellHeights]).flat)
 
         # calculate accumulated widths of rows
         cellW = totWidth/(ncols + wspace*(ncols-1))
         sepW = wspace*cellW
-
         if self._col_width_ratios is not None:
             netWidth = cellW * ncols
             tr = float(sum(self._col_width_ratios))
             cellWidths = [netWidth*r/tr for r in self._col_width_ratios]
         else:
             cellWidths = [cellW] * ncols
-
         sepWidths = [0] + ([sepW] * (ncols-1))
         cellWs = np.cumsum(np.column_stack([sepWidths, cellWidths]).flat)
 

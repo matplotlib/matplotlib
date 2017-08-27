@@ -71,22 +71,19 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     # d_list is currently not used.
 
     if mode == "fixed":
-        offsets_ = np.add.accumulate([0] + [w + sep for w in w_list])
+        offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
-
         if total is None:
             total = offsets_[-1] - sep
-
         return total, offsets
 
     elif mode == "expand":
         if len(w_list) > 1:
             sep = (total - sum(w_list)) / (len(w_list) - 1.)
         else:
-            sep = 0.
-        offsets_ = np.add.accumulate([0] + [w + sep for w in w_list])
+            sep = 0
+        offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
-
         return total, offsets
 
     elif mode == "equal":
@@ -94,10 +91,8 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         if total is None:
             total = (maxh + sep) * len(w_list)
         else:
-            sep = float(total) / (len(w_list)) - maxh
-
-        offsets = np.array([(maxh + sep) * i for i in range(len(w_list))])
-
+            sep = total / len(w_list) - maxh
+        offsets = (maxh + sep) * np.arange(len(w_list))
         return total, offsets
 
     else:

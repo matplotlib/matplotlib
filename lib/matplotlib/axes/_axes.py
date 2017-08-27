@@ -2,9 +2,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import reduce, xrange, zip, zip_longest
+from six.moves import xrange, zip, zip_longest
 
 from collections import Sized
+import functools
 import itertools
 import math
 import warnings
@@ -16,14 +17,12 @@ import matplotlib
 from matplotlib import _preprocess_data
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import (
-    mplDeprecation, STEP_LOOKUP_MAP, iterable, safe_first_element)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
 import matplotlib.category as _  # <-registers a category unit converter
 import matplotlib.dates as _  # <-registers a date unit converter
-from matplotlib import docstring
+import matplotlib.docstring as docstring
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -39,9 +38,10 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
+from matplotlib.cbook import (
+    _backports, mplDeprecation, STEP_LOOKUP_MAP, iterable, safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
-from matplotlib.axes._base import _AxesBase
-from matplotlib.axes._base import _process_plot_format
+from matplotlib.axes._base import _AxesBase, _process_plot_format
 
 
 rcParams = matplotlib.rcParams
@@ -2002,20 +2002,11 @@ or tuple of floats
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
 
-        def make_iterable(x):
-            if not iterable(x):
-                return [x]
-            else:
-                return x
-
-        # make them safe to take len() of
         _left = left
-        left = make_iterable(left)
-        height = make_iterable(height)
-        width = make_iterable(width)
         _bottom = bottom
-        bottom = make_iterable(bottom)
-        linewidth = make_iterable(linewidth)
+        left, height, width, bottom = np.broadcast_arrays(
+            # Make args iterable too.
+            np.atleast_1d(left), height, width, bottom)
 
         adjust_ylim = False
         adjust_xlim = False
@@ -2027,11 +2018,7 @@ or tuple of floats
             if _bottom is None:
                 if self.get_yscale() == 'log':
                     adjust_ylim = True
-                bottom = [0]
-
-            nbars = len(left)
-            if len(bottom) == 1:
-                bottom *= nbars
+                bottom = np.zeros_like(bottom)
 
             tick_label_axis = self.xaxis
             tick_label_position = left
@@ -2043,54 +2030,23 @@ or tuple of floats
             if _left is None:
                 if self.get_xscale() == 'log':
                     adjust_xlim = True
-                left = [0]
-
-            nbars = len(bottom)
-            if len(left) == 1:
-                left *= nbars
+                left = np.zeros_like(left)
 
             tick_label_axis = self.yaxis
             tick_label_position = bottom
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
-        if len(height) == 1:
-            height *= nbars
-        if len(width) == 1:
-            width *= nbars
-        if len(linewidth) < nbars:
-            linewidth *= nbars
-
-        color = list(mcolors.to_rgba_array(color))
-        if len(color) == 0:  # until to_rgba_array is changed
-            color = [[0, 0, 0, 0]]
-        if len(color) < nbars:
-            color *= nbars
-
+        linewidth = itertools.cycle(np.atleast_1d(linewidth))
+        color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
+                                # Fallback if color == "none".
+                                itertools.repeat([0, 0, 0, 0]))
         if edgecolor is None:
-            edgecolor = [None] * nbars
+            edgecolor = itertools.repeat(None)
         else:
-            edgecolor = list(mcolors.to_rgba_array(edgecolor))
-            if len(edgecolor) == 0:     # until to_rgba_array is changed
-                edgecolor = [[0, 0, 0, 0]]
-            if len(edgecolor) < nbars:
-                edgecolor *= nbars
-
-        # input validation
-        if len(left) != nbars:
-            raise ValueError("incompatible sizes: argument 'left' must "
-                             "be length %d or scalar" % nbars)
-        if len(height) != nbars:
-            raise ValueError("incompatible sizes: argument 'height' "
-                             "must be length %d or scalar" % nbars)
-        if len(width) != nbars:
-            raise ValueError("incompatible sizes: argument 'width' "
-                             "must be length %d or scalar" % nbars)
-        if len(bottom) != nbars:
-            raise ValueError("incompatible sizes: argument 'bottom' "
-                             "must be length %d or scalar" % nbars)
-
-        patches = []
+            edgecolor = itertools.chain(mcolors.to_rgba_array(edgecolor),
+                                        # Fallback if edgecolor == "none".
+                                        itertools.repeat([0, 0, 0, 0]))
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
@@ -2108,13 +2064,14 @@ or tuple of floats
 
         if align == 'center':
             if orientation == 'vertical':
-                left = [l - w / 2. for l, w in zip(left, width)]
+                left = left - width / 2
             elif orientation == 'horizontal':
-                bottom = [b - h / 2. for b, h in zip(bottom, height)]
+                bottom = bottom - height / 2
 
         elif align != 'edge':
             raise ValueError('invalid alignment: %s' % align)
 
+        patches = []
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
         for l, b, w, h, c, e, lw in args:
             r = mpatches.Rectangle(
@@ -2179,15 +2136,7 @@ or tuple of floats
         self.add_container(bar_container)
 
         if tick_labels is not None:
-            tick_labels = make_iterable(tick_labels)
-            if isinstance(tick_labels, six.string_types):
-                tick_labels = [tick_labels]
-            if len(tick_labels) == 1:
-                tick_labels *= nbars
-            if len(tick_labels) != nbars:
-                raise ValueError("incompatible sizes: argument 'tick_label' "
-                                 "must be length %d or string" % nbars)
-
+            tick_labels = _backports.broadcast_to(tick_labels, len(patches))
             tick_label_axis.set_ticks(tick_label_position)
             tick_label_axis.set_ticklabels(tick_labels)
 
@@ -2613,7 +2562,7 @@ or tuple of floats
         for frac, label, expl in zip(x, labels, explode):
             x, y = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
-            thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
+            thetam = 2 * np.pi * 0.5 * (theta1 + theta2)
             x += expl * math.cos(thetam)
             y += expl * math.sin(thetam)
 
@@ -4782,22 +4731,12 @@ or tuple of floats
                 raise ValueError('Input passed into argument "%r"' % name +
                                  'is not 1-dimensional.')
 
-        if y1.ndim == 0:
-            y1 = np.ones_like(x) * y1
-        if y2.ndim == 0:
-            y2 = np.ones_like(x) * y2
-
         if where is None:
-            where = np.ones(len(x), bool)
-        else:
-            where = np.asarray(where, bool)
+            where = True
+        where = where & ~functools.reduce(np.logical_or,
+                                          map(np.ma.getmask, [x, y1, y2]))
 
-        if not (x.shape == y1.shape == y2.shape == where.shape):
-            raise ValueError("Argument dimensions are incompatible")
-
-        mask = reduce(ma.mask_or, [ma.getmask(a) for a in (x, y1, y2)])
-        if mask is not ma.nomask:
-            where &= ~mask
+        x, y1, y2 = np.broadcast_arrays(np.atleast_1d(x), y1, y2)
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
@@ -4943,22 +4882,12 @@ or tuple of floats
                 raise ValueError('Input passed into argument "%r"' % name +
                                  'is not 1-dimensional.')
 
-        if x1.ndim == 0:
-            x1 = np.ones_like(y) * x1
-        if x2.ndim == 0:
-            x2 = np.ones_like(y) * x2
-
         if where is None:
-            where = np.ones(len(y), bool)
-        else:
-            where = np.asarray(where, bool)
+            where = True
+        where = where & ~functools.reduce(np.logical_or,
+                                          map(np.ma.getmask, [y, x1, x2]))
 
-        if not (y.shape == x1.shape == x2.shape == where.shape):
-            raise ValueError("Argument dimensions are incompatible")
-
-        mask = reduce(ma.mask_or, [ma.getmask(a) for a in (y, x1, x2)])
-        if mask is not ma.nomask:
-            where &= ~mask
+        y, x1, x2 = np.broadcast_arrays(np.atleast_1d(y), x1, x2)
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
@@ -6584,7 +6513,6 @@ or tuple of floats
         if logi == 0:
             logi = .1
         step = 10 * logi
-        #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 

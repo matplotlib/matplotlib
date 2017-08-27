@@ -109,8 +109,8 @@ Ticks, tick labels and Offset text
    Axis.axis_date
 
 
-Data and view internvals
-------------------------
+Data and view intervals
+-----------------------
 
 .. autosummary::
    :toctree: _as_gen

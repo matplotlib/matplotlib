@@ -10,7 +10,6 @@ import matplotlib.tri as tri
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-import math
 
 
 #-----------------------------------------------------------------------------
@@ -36,9 +35,9 @@ n_radii = 10
 min_radius = 0.15
 radii = np.linspace(min_radius, 0.95, n_radii)
 
-angles = np.linspace(0, 2 * math.pi, n_angles, endpoint=False)
+angles = np.linspace(0, 2 * np.pi, n_angles, endpoint=False)
 angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-angles[:, 1::2] += math.pi / n_angles
+angles[:, 1::2] += np.pi / n_angles
 
 x = (radii * np.cos(angles)).flatten()
 y = (radii * np.sin(angles)).flatten()
@@ -50,10 +49,9 @@ z = function_z(x, y)
 triang = tri.Triangulation(x, y)
 
 # Mask off unwanted triangles.
-xmid = x[triang.triangles].mean(axis=1)
-ymid = y[triang.triangles].mean(axis=1)
-mask = np.where(xmid * xmid + ymid * ymid < min_radius * min_radius, 1, 0)
-triang.set_mask(mask)
+triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                         y[triang.triangles].mean(axis=1))
+                < min_radius)
 
 #-----------------------------------------------------------------------------
 # Refine data

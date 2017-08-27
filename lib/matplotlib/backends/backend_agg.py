@@ -190,7 +190,8 @@ class RendererAgg(RendererBase):
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
 
-        if font is None: return None
+        if font is None:
+            return None
         if len(s) == 1 and ord(s) > 127:
             font.load_char(ord(s), flags=flags)
         else:

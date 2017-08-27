@@ -294,7 +294,7 @@ class Legend(Artist):
             self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
         else:
             self._scatteryoffsets = np.asarray(scatteryoffsets)
-        reps = int(self.scatterpoints / len(self._scatteryoffsets)) + 1
+        reps = self.scatterpoints // len(self._scatteryoffsets) + 1
         self._scatteryoffsets = np.tile(self._scatteryoffsets,
                                         reps)[:self.scatterpoints]
 

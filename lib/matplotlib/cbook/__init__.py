@@ -11,7 +11,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange, zip
-from itertools import repeat
 import collections
 import datetime
 import errno
@@ -19,6 +18,7 @@ import functools
 import glob
 import gzip
 import io
+from itertools import repeat
 import locale
 import numbers
 import os
@@ -1659,7 +1659,7 @@ def delete_masked_points(*args):
             except:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
-        mask = functools.reduce(np.logical_and, masks)
+        mask = np.logical_and.reduce(masks)
         igood = mask.nonzero()[0]
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
@@ -2024,7 +2024,7 @@ def _reshape_2D(X, name):
     *name* is used to generate the error message for invalid inputs.
     """
     # Iterate over columns for ndarrays, over rows otherwise.
-    X = X.T if isinstance(X, np.ndarray) else np.asarray(X)
+    X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
     if X.ndim == 1 and X.dtype.type != np.object_:
         # 1D array of scalars: directly return it.
         return [X]

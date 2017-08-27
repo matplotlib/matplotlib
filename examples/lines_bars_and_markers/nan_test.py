@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 t = np.arange(0.0, 1.0 + 0.01, 0.01)
-s = np.cos(2 * 2 * np.pi * t)
+s = np.cos(2 * 2*np.pi * t)
 t[41:60] = np.nan
 
 plt.subplot(2, 1, 1)

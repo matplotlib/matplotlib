@@ -26,16 +26,15 @@ angles[:, 1::2] += np.pi/n_angles
 
 x = (radii*np.cos(angles)).flatten()
 y = (radii*np.sin(angles)).flatten()
-z = (np.cos(radii)*np.cos(angles*3.0)).flatten()
+z = (np.cos(radii)*np.cos(3*angles)).flatten()
 
 # Create a custom triangulation.
 triang = tri.Triangulation(x, y)
 
 # Mask off unwanted triangles.
-xmid = x[triang.triangles].mean(axis=1)
-ymid = y[triang.triangles].mean(axis=1)
-mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
-triang.set_mask(mask)
+triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                         y[triang.triangles].mean(axis=1))
+                < min_radius)
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')

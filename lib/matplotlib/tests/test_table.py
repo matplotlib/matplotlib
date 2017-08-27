@@ -28,7 +28,7 @@ def test_zorder():
     rowLabels = ['%d year' % x for x in (100, 50)]
 
     cellText = []
-    yoff = np.array([0.0] * len(colLabels))
+    yoff = np.zeros(len(colLabels))
     for row in reversed(data):
         yoff += row
         cellText.append(['%1.1f' % (x/1000.0) for x in yoff])

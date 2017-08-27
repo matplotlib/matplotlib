@@ -1718,9 +1718,7 @@ def test_stackplot_baseline():
             x = 1 / (.1 + np.random.random())
             y = 2 * np.random.random() - .5
             z = 10 / (.1 + np.random.random())
-            for i in range(m):
-                w = (i / float(m) - y) * z
-                a[i] += x * np.exp(-w * w)
+            a += x * np.exp(-((np.arange(m) / m - y) * z) ** 2)
         a = np.zeros((m, n))
         for i in range(n):
             for j in range(5):

@@ -665,20 +665,8 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        if len(x) == 1 and len(y) > 1:
-            x = x * np.ones(y.shape, float)
-        if len(y) == 1 and len(x) > 1:
-            y = y * np.ones(x.shape, float)
-
-        if len(x) != len(y):
-            raise RuntimeError('xdata and ydata must be the same length')
-
-        self._xy = np.empty((len(x), 2), dtype=float)
-        self._xy[:, 0] = x
-        self._xy[:, 1] = y
-
-        self._x = self._xy[:, 0]  # just a view
-        self._y = self._xy[:, 1]  # just a view
+        self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
+        self._x, self._y = self._xy.T  # views
 
         self._subslice = False
         if (self.axes and len(x) > 1000 and self._is_sorted(x) and
