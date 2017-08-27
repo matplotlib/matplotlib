@@ -1463,7 +1463,7 @@ _DATA_DOC_APPENDIX = """
 
 
 def _preprocess_data(replace_names=None, replace_all_args=False,
-                        label_namer=None, positional_parameter_names=None):
+                     label_namer=None, positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
     of the input function must include the ax argument at the first position ::

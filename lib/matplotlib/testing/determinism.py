@@ -43,8 +43,8 @@ def _determinism_save(objects='mhi', format="pdf", usetex=False):
     if 'h' in objects:
         # also use different hatch patterns
         ax2 = fig.add_subplot(1, 6, 2)
-        bars = ax2.bar(range(1, 5), range(1, 5)) + \
-            ax2.bar(range(1, 5), [6] * 4, bottom=range(1, 5))
+        bars = (ax2.bar(range(1, 5), range(1, 5)) +
+                ax2.bar(range(1, 5), [6] * 4, bottom=range(1, 5)))
         ax2.set_xticks([1.5, 2.5, 3.5, 4.5])
 
         patterns = ('-', '+', 'x', '\\', '*', 'o', 'O', '.')
