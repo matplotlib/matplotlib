@@ -21,39 +21,27 @@ to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
 `#rrggbb` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
 RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
 
-Commands which take color arguments can use several formats to specify
-the colors.  For the basic built-in colors, you can use a single letter
+Matplotlib recognizes the following formats to specify a color:
 
-    - `b`: blue
-    - `g`: green
-    - `r`: red
-    - `c`: cyan
-    - `m`: magenta
-    - `y`: yellow
-    - `k`: black
-    - `w`: white
+* an RGB or RGBA tuple of float values in ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)``
+  or  ``(0.1, 0.2, 0.5, 0.3)``);
+* a hex RGB or RGBA string (e.g., ``'#0F0F0F'`` or ``'#0F0F0F0F'``);
+* a string representation of a float value in ``[0, 1]`` inclusive for gray
+  level (e.g., ``'0.5'``);
+* one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``;
+* a X11/CSS4 color name;
+* a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__;
+  prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
+* one of ``{'tab:blue', 'tab:orange', 'tab:green',
+  'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
+  'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
+  'T10' categorical palette (which is the default color cycle);
+* a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
+  into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
+  the indexing occurs at artist creation time and defaults to black if the
+  cycle does not include color.
 
-To use the colors that are part of the active color cycle in the current style,
-use `C` followed by a digit.  For example:
-
-    - `C0`: The first color in the cycle
-    - `C1`: The second color in the cycle
-
-Gray shades can be given as a string encoding a float in the 0-1 range, e.g.::
-
-    color = '0.75'
-
-For a greater range of colors, you have two options.  You can specify the
-color using an html hex string, as in::
-
-    color = '#eeefff'
-
-(possibly specifying an alpha value as well), or you can pass an `(r, g, b)`
-or `(r, g, b, a)` tuple, where each of `r`, `g`, `b` and `a` are in the range
-[0,1].
-
-Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
-are supported.
+All string specifications of color, other than "CN", are case-insensitive.
 """
 
 from __future__ import (absolute_import, division, print_function,
