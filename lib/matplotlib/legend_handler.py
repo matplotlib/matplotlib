@@ -488,10 +488,10 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_right)
 
         artists = []
+        artists.append(legline_marker)
         artists.extend(handle_barlinecols)
         artists.extend(handle_caplines)
         artists.append(legline)
-        artists.append(legline_marker)
 
         for artist in artists:
             artist.set_transform(trans)
