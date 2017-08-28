@@ -1,7 +1,7 @@
 """
-===========
+==============
 Bivariate Demo
-===========
+==============
 
 Plotting bivariate data.
 
@@ -28,13 +28,17 @@ fig, ax = plt.subplots()
 
 bivariate = [air_temp, surf_pres]
 
-# to distinguish bivariate data either BivariateNorm or BivariateColormap must
+###############################################################################
+# To distinguish bivariate data either BivariateNorm or BivariateColormap must
 # be passed in as argument
+
 cax = ax.imshow(bivariate, norm=colors.BivariateNorm(),
                 cmap=colors.BivariateColormap())
 
-# if input data is bivariate then colorbar automatically draws colorsquare
+###############################################################################
+# If input data is bivariate then colorbar automatically draws colorsquare
 # instead of colorbar
+
 cbar = fig.colorbar(cax, xlabel='air_temp', ylabel='surf_pres')
 
 plt.show()

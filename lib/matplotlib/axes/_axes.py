@@ -5302,11 +5302,11 @@ or tuple of floats
             vectors, they will be expanded as needed into the appropriate 2-D
             arrays, making a rectangular grid.
 
-        cmap : `~matplotlib.colors.Colormap` or
+        cmap : `~matplotlib.colors.Colormap` or \
             `matplotlib.colors.BivariateColormap`, optional, default: None
             If `None`, default to rc settings.
 
-        norm : `matplotlib.colors.Normalize` or
+        norm : `matplotlib.colors.Normalize` or \
             `matplotlib.colors.BivariateNorm`, optional, default: None
             An instance is used to scale luminance data to (0, 1).
             If `None`, defaults to :func:`normalize`.
@@ -5575,7 +5575,7 @@ or tuple of floats
 
           *cmap*: [ *None* | Colormap ]
             A :class:`matplotlib.colors.Colormap` or
-            :class:`matplotlib.colors.BivariateColormap`instance. If *None*,
+            :class:`matplotlib.colors.BivariateColormap` instance. If *None*,
             use rc settings.
 
           *norm*: [ *None* | Normalize ]
