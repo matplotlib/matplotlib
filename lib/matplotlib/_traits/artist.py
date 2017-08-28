@@ -27,12 +27,6 @@ from matplotlib.path import Path
 from functools import wraps
 from contextlib import contextmanager
 
-
-
-
-
-
-
 from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Union, Tuple, List, default, validate, observe, Any
 # from traitlets import Callable
 

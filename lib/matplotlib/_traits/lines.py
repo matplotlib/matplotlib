@@ -37,6 +37,7 @@ from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool
 
 #for monkey patching into base lines
 import matplotlib.lines.Line2D as b_Line2D
+print('matplotlib.lines.Line2D', b_Line2D)
 
 
 
@@ -422,11 +423,6 @@ class Line2D(HasTraits, b_artist.Artist):
         #initialize Artist in Line2D
         Artist.__init__(self)
         print("Artist: ", Artist)
-
-"""
-________________________________________________________________________________
-END OF INIT FUNCTION
-"""
 
     # NOTE: NOT SURE IF xdata & ydata are needed
     #xdata default
@@ -1050,10 +1046,6 @@ END OF INIT FUNCTION
     def _x_filled_observe(self, change):
         print("x_filled: observed a change from %r to %r" % (change.old, change.new))
 
-"""
-________________________________________________________________________________
-"""
-
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the line.  The pick
@@ -1129,7 +1121,7 @@ ________________________________________________________________________________
             bbox = bbox.padded(ms)
         return bbox
 
-    @Artist.axes.setter
+    # @Artist.axes.setter
     def axes(self, ax):
         # call the set method from the base-class property
         Artist.axes.fset(self, ax)
@@ -1457,4 +1449,7 @@ ________________________________________________________________________________
 """
 
 #for monkey patching
-b_Line2D = Line2D()
+print('before b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib.artist.Artist
+#monkey patching
+b_Line2D.Line2D = Line2D
+print('after b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib._traits.artist.Artist

@@ -619,7 +619,7 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    @Artist.axes.setter
+    # @Artist.axes.setter
     def axes(self, ax):
         # call the set method from the base-class property
         Artist.axes.fset(self, ax)
