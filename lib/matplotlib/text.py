@@ -9,6 +9,7 @@ from six.moves import zip
 
 import math
 import warnings
+import weakref
 
 import contextlib
 
@@ -179,7 +180,6 @@ class Text(Artist):
     Handle storing and drawing of text in window or data coordinates.
     """
     zorder = 3
-
     _cached = maxdict(50)
 
     def __repr__(self):
@@ -913,7 +913,7 @@ class Text(Artist):
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
-                self.figure.dpi, id(renderer), getattr(renderer, '_uid', 0),
+                self.figure.dpi, weakref.ref(renderer),
                 self._linespacing
                 )
 
