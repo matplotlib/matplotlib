@@ -2061,23 +2061,29 @@ or tuple of floats
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
 
-        _x = x
-        _y = y
+        adjust_ylim = False
+        adjust_xlim = False
+
+        if orientation == 'vertical':
+            if y is None:
+                if self.get_yscale() == 'log':
+                    adjust_ylim = True
+                y = 0
+
+        elif orientation == 'horizontal':
+            if x is None:
+                if self.get_xscale() == 'log':
+                    adjust_xlim = True
+                x = 0
+
         x, height, width, y, linewidth = np.broadcast_arrays(
             # Make args iterable too.
             np.atleast_1d(x), height, width, y, linewidth)
 
-        adjust_ylim = False
-        adjust_xlim = False
         if orientation == 'vertical':
             self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
             if log:
                 self.set_yscale('log', nonposy='clip')
-            # size width and y according to length of x
-            if _y is None:
-                if self.get_yscale() == 'log':
-                    adjust_ylim = True
-                y = np.zeros_like(y)
 
             tick_label_axis = self.xaxis
             tick_label_position = x
@@ -2085,11 +2091,6 @@ or tuple of floats
             self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
             if log:
                 self.set_xscale('log', nonposx='clip')
-            # size x and height according to length of y
-            if _x is None:
-                if self.get_xscale() == 'log':
-                    adjust_xlim = True
-                x = np.zeros_like(x)
 
             tick_label_axis = self.yaxis
             tick_label_position = y
