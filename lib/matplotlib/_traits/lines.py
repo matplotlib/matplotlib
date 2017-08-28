@@ -19,7 +19,7 @@ print('matplotlib.artist b_artist: ', b_artist)
 
 # import matplotlib._traits.artist as artist
 # from matplotlib._traits.artist import Artist, allow_rasterization
-from .cbook import (
+from matplotlib.cbook import (
     iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
@@ -27,16 +27,17 @@ from matplotlib.transforms import Bbox, TransformedPath, IdentityTransform
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from numpy import ma
-from . import _path
+# from . import _path
+from matplotlib import _path
 from matplotlib.markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
-from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool
+from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool, Int
 
 #for monkey patching into base lines
-import matplotlib.lines.Line2D as b_Line2D
+import matplotlib.lines as b_Line2D
 print('matplotlib.lines.Line2D', b_Line2D)
 
 
@@ -390,9 +391,7 @@ class Line2D(HasTraits, b_artist.Artist):
     # us_dashOffset = 0
     us_dashOffset=Int(allow_none=True, default_value=None)
 
-
-
-    set_data(xdata, ydata)
+    # set_data(xdata, ydata)
 
     # not sure how much this will have to be refactored
     def __str__(self):
@@ -1124,14 +1123,14 @@ class Line2D(HasTraits, b_artist.Artist):
     # @Artist.axes.setter
     def axes(self, ax):
         # call the set method from the base-class property
-        Artist.axes.fset(self, ax)
+        # Artist.axes.fset(self, ax)
+        Artist.axes = ax # in reference to Artist with traitlets
         if ax is not None:
             # connect unit-related callbacks
             if ax.xaxis is not None:
-                self._xcid = ax.xaxis.callbacks.connect('units',
-                                                        self.recache_always)
+                self._xcid = ax.xaxis.callbacks.connect('units', self.recache_always)
             if ax.yaxis is not None:
-                self._ycid = ax.yaxis.callbacks.connect('units',
+                self._ycid = ax.yaxis.callbacks.connect('units', self.recache_always)
 
     def set_data(self, *args):
         """
@@ -1442,11 +1441,6 @@ class Line2D(HasTraits, b_artist.Artist):
 
     def _get_rgba_ln_color(self, alt=False):
         return mcolors.to_rgba(self._color, self._alpha)
-
-
-"""
-________________________________________________________________________________
-"""
 
 #for monkey patching
 print('before b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib.artist.Artist
