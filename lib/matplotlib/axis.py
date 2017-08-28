@@ -455,6 +455,8 @@ class XTick(Tick):
                           markersize=0)
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
+        # l.path._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
+
         self._set_artist_props(l)
 
         return l

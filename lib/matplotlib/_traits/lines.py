@@ -34,7 +34,7 @@ from matplotlib.markers import (
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
-from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool, Int
+from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool, Int, validate, observe
 
 #for monkey patching into base lines
 import matplotlib.lines as b_Line2D
@@ -237,11 +237,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'recognized; '
             'markevery=%s' % (markevery,))
 
-
-
-
-
-class Line2D(HasTraits, b_artist.Artist):
+class Line2D(b_artist.Artist, HasTraits):
     """
     A line - the line can have both a solid linestyle connecting all
     the vertices, and a marker at each vertex.  Additionally, the
@@ -372,6 +368,8 @@ class Line2D(HasTraits, b_artist.Artist):
 
     # path = None
     path=Instance('matplotlib.path.Path', allow_none=True, default_value=None)
+    # path=Instance('matplotlib.path.Path')
+
     # transformed_path = None
     transformed_path=Instance('matplotlib.transforms.TransformedPath', allow_none=True, default_value=None)
     # subslice = False
@@ -379,7 +377,7 @@ class Line2D(HasTraits, b_artist.Artist):
 
     # x_filled = None # used in subslicing; only x is needed
     #not sure if this line below will work or not
-    x_filled=Instance('np.array', allow_none=True, default_value=None)
+    x_filled=Instance('numpy.array', allow_none=True, default_value=None)
 
     dashSeq = None
     # dashSeq = Instance('')
@@ -1150,9 +1148,9 @@ class Line2D(HasTraits, b_artist.Artist):
         self.recache(always=True)
 
     def recache(self, always=False):
-        if always or self._invalidx:
-            xconv = self.convert_xunits(self._xorig)
-            if isinstance(self._xorig, np.ma.MaskedArray):
+        if always or self.invalidx:
+            xconv = self.convert_xunits(self.xorig)
+            if isinstance(self.xorig, np.ma.MaskedArray):
                 x = np.ma.asarray(xconv, float).filled(np.nan)
             else:
                 x = np.asarray(xconv, float)
@@ -1426,8 +1424,8 @@ class Line2D(HasTraits, b_artist.Artist):
         ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
         """
         Artist.set_transform(self, t)
-        self._invalidx = True
-        self._invalidy = True
+        self.invalidx = True
+        self.invalidy = True
         self.stale = True
 
     def _get_rgba_face(self, alt=False):
@@ -1436,11 +1434,22 @@ class Line2D(HasTraits, b_artist.Artist):
                 and facecolor.lower() == 'none'):
             rgbaFace = None
         else:
-            rgbaFace = mcolors.to_rgba(facecolor, self._alpha)
+            rgbaFace = mcolors.to_rgba(facecolor, self.alpha)
         return rgbaFace
 
     def _get_rgba_ln_color(self, alt=False):
-        return mcolors.to_rgba(self._color, self._alpha)
+        return mcolors.to_rgba(self.color, self.alpha)
+
+    # for testing
+    def get_path(self):
+        """
+        Return the :class:`~matplotlib.path.Path` object associated
+        with this line.
+        """
+        if self.invalidy or self.invalidx:
+            self.recache()
+        return self.path
+
 
 #for monkey patching
 print('before b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib.artist.Artist
