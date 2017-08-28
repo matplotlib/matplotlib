@@ -1991,11 +1991,11 @@ or tuple of floats
 
         Notes
         -----
-        The optional arguments `color`, `edgecolor`, `linewidth`,
-        `xerr`, and `yerr` can be either scalars or sequences of
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: `xerr` and `yerr` are passed directly to
+        Detail: *xerr* and *yerr* are passed directly to
         :meth:`errorbar`, so they can also have shape 2xN for
         independent specification of lower and upper errors.
 
@@ -2300,11 +2300,11 @@ or tuple of floats
 
         Notes
         -----
-        The optional arguments `color`, `edgecolor`, `linewidth`,
-        `xerr`, and `yerr` can be either scalars or sequences of
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: `xerr` and `yerr` are passed directly to
+        Detail: *xerr* and *yerr* are passed directly to
         :meth:`errorbar`, so they can also have shape 2xN for
         independent specification of lower and upper errors.
 
