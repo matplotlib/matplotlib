@@ -2005,7 +2005,8 @@ or tuple of floats
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
-
+        # this is using the lambdas to do the arg/kwarg unpacking rather
+        # than trying to re-implement all of that logic our selves.
         matchers = [
             (lambda x, height, width=0.8, bottom=None, **kwargs:
              (False, x, height, width, bottom, kwargs)),
@@ -2313,6 +2314,8 @@ or tuple of floats
         %(Rectangle)s
 
         """
+        # this is using the lambdas to do the arg/kwarg unpacking rather
+        # than trying to re-implement all of that logic our selves.
         matchers = [
             (lambda y, width, height=0.8, left=None, **kwargs:
              (False, y, width, height, left, kwargs)),
