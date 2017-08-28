@@ -456,3 +456,11 @@ def test_figure_hook():
         fig = plt.figure()
 
     assert fig._test_was_here
+
+
+def test_explicit_ax():
+    fig, (ax1, ax2) = plt.subplots(2)
+    plt.plot(range(5))
+    plt.plot(range(5)[::-1], ax=ax1)
+    assert len(ax1.lines) == 1
+    assert len(ax2.lines) == 1
