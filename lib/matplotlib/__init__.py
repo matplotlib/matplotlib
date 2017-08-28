@@ -1720,7 +1720,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
             if len(replace_names) != 0:
                 _repl = "* All arguments with the following names: '{names}'."
             if replace_all_args:
-                _repl += "\n* All positional arguments."
+                _repl += "\n    * All positional arguments."
             _repl = _repl.format(names="', '".join(sorted(replace_names)))
         inner.__doc__ = (pre_doc +
                          _DATA_DOC_APPENDIX.format(replaced=_repl))
