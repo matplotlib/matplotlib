@@ -2523,18 +2523,21 @@ class PdfPages(object):
             instance is provided, this figure is saved. If an int is specified,
             the figure instance to save is looked up by number.
         """
-        if isinstance(figure, Figure):
-            figure.savefig(self, format='pdf', **kwargs)
-        else:
+        if not isinstance(figure, Figure):
             if figure is None:
-                figureManager = Gcf.get_active()
+                manager = Gcf.get_active()
             else:
-                figureManager = Gcf.get_fig_manager(figure)
-            if figureManager is None:
-                raise ValueError("No such figure: " + repr(figure))
-            else:
-                figureManager.canvas.figure.savefig(self, format='pdf',
-                                                    **kwargs)
+                manager = Gcf.get_fig_manager(figure)
+            if manager is None:
+                raise ValueError("No figure {}".format(figure))
+            figure = manager.canvas.figure
+        # Force use of pdf backend, as PdfPages is tightly coupled with it.
+        try:
+            orig_canvas = figure.canvas
+            figure.canvas = FigureCanvasPdf(figure)
+            figure.savefig(self, format="pdf", **kwargs)
+        finally:
+            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """
