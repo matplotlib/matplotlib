@@ -1997,6 +1997,17 @@ def is_math_text(s):
     return even_dollars
 
 
+def _to_unmasked_float_array(x):
+    """
+    Convert a sequence to a float array; if input was a masked array, masked
+    values are converted to nans.
+    """
+    if hasattr(x, 'mask'):
+        return np.ma.asarray(x, float).filled(np.nan)
+    else:
+        return np.asarray(x, float)
+
+
 def _check_1d(x):
     '''
     Converts a sequence of less than 1 dimension, to an array of 1
@@ -2283,7 +2294,7 @@ def index_of(y):
     try:
         return y.index.values, y.values
     except AttributeError:
-        y = np.atleast_1d(y)
+        y = _check_1d(y)
         return np.arange(y.shape[0], dtype=float), y
 
 

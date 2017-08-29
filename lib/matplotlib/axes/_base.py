@@ -556,12 +556,12 @@ class _AxesBase(martist.Artist):
             self.update(kwargs)
 
         if self.xaxis is not None:
-            self._xcid = self.xaxis.callbacks.connect('units finalize',
-                                                      self.relim)
+            self._xcid = self.xaxis.callbacks.connect(
+                'units finalize', lambda: self._on_units_changed(scalex=True))
 
         if self.yaxis is not None:
-            self._ycid = self.yaxis.callbacks.connect('units finalize',
-                                                      self.relim)
+            self._ycid = self.yaxis.callbacks.connect(
+                'units finalize', lambda: self._on_units_changed(scaley=True))
 
         self.tick_params(
             top=rcParams['xtick.top'] and rcParams['xtick.minor.top'],
@@ -1890,6 +1890,15 @@ class _AxesBase(martist.Artist):
         self.containers.append(container)
         container.set_remove_method(lambda h: self.containers.remove(h))
         return container
+
+    def _on_units_changed(self, scalex=False, scaley=False):
+        """
+        Callback for processing changes to axis units.
+
+        Currently forces updates of data limits and view limits.
+        """
+        self.relim()
+        self.autoscale_view(scalex=scalex, scaley=scaley)
 
     def relim(self, visible_only=False):
         """
