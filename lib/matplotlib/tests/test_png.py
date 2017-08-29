@@ -17,7 +17,7 @@ on_win = (sys.platform == 'win32')
 
 
 @image_comparison(baseline_images=['pngsuite'], extensions=['png'],
-                  tol=0.02 if on_win else 0)
+                  tol=0.03)
 def test_pngsuite():
     dirname = os.path.join(
         os.path.dirname(__file__),
