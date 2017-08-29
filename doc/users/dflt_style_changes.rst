@@ -13,6 +13,8 @@ values is a single line of python
 
 .. code::
 
+  import matplotlib.style
+  import matplotlib as mpl
   mpl.style.use('classic')
 
 See :ref:`customizing-with-matplotlibrc-files` for details about how to
