@@ -6091,12 +6091,7 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if density and not stacked:
-                db = np.diff(bins)
-                m = (m.astype(float) / db) / m.sum()
             if stacked:
-                if mlast is None:
-                    mlast = np.zeros(len(bins)-1, m.dtype)
                 m += mlast
                 mlast[:] = m
             tops.append(m)
