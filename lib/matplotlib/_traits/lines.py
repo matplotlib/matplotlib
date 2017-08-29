@@ -290,6 +290,19 @@ class Line2D(b_artist.Artist, HasTraits):
 
     ydata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
 
+    xorig = np.asarray([])
+    # xorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
+
+    yorig = np.asarray([])
+    # yorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
+
+    # for x, y, & xy I am not sure if these following lines of code are correct, I may just leave them alone come testing time
+    x = None
+    # x=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
+    y = None
+    # y=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
+    xy = None
+
     linewidth=Float(allow_none=True, default_value=None)
 
     linestyle=Instance('matplotlib.text.Text', allow_none=True, default_value=None)
@@ -335,8 +348,9 @@ class Line2D(b_artist.Artist, HasTraits):
     pickradius=Int(allow_none=True, default_value=5)
 
     # accepts: ['default' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post']
-    drawstyle=Unicode(allow_none=True, default_value=None)
+    # drawstyle=Unicode(allow_none=True, default_value=None)
     # drawstyle=Instance('matplotlib.text.Text', allow_none=True,default_value=None)
+    drawstyle=Instance('matplotlib.text.Text', allow_none=True,default_value=None)
 
     # for this one I want to attempt at using the ANY trait
     markevery=Any(allow_none=True, default_value=None)
@@ -346,25 +360,10 @@ class Line2D(b_artist.Artist, HasTraits):
 
     ind_offset = Int(allow_none=True,default_value=0)
 
-    # xorig = np.asarray([])
-    xorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
-
-    # yorig = np.asarray([])
-    yorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
-
     # invalidx = True
     invalidx=Bool(default_value=True)
     # invalidy = True
     invalidy=Bool(default_value=True)
-
-
-    # for x, y, & xy I am not sure if these following lines of code are correct, I may just leave them alone come testing time
-    # x = None
-    x=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
-    # y = None
-    y=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
-    # xy = None
-
 
     # path = None
     path=Instance('matplotlib.path.Path', allow_none=True, default_value=None)
@@ -899,14 +898,14 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("xorig: generating default value")
         # return None
     #xorig validate
-    @validate("xorig")
-    def _xorig_validate(self, proposal):
-        print("xorig: cross validating %r" % proposal.value)
-        return proposal.value
+    # @validate("xorig")
+    # def _xorig_validate(self, proposal):
+        # print("xorig: cross validating %r" % proposal.value)
+        # return proposal.value
     #xorig observer
-    @observe("xorig", type="change")
-    def _xorig_observe(self, change):
-        print("xorig: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("xorig", type="change")
+    # def _xorig_observe(self, change):
+        # print("xorig: observed a change from %r to %r" % (change.old, change.new))
 
     #yorig default
     # @default("yorig")
@@ -914,14 +913,14 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("yorig: generating default value")
         # return None
     #yorig validate
-    @validate("yorig")
-    def _yorig_validate(self, proposal):
-        print("yorig: cross validating %r" % proposal.value)
-        return proposal.value
+    # @validate("yorig")
+    # def _yorig_validate(self, proposal):
+        # print("yorig: cross validating %r" % proposal.value)
+        # return proposal.value
     #yorig observer
-    @observe("yorig", type="change")
-    def _yorig_observe(self, change):
-        print("yorig: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("yorig", type="change")
+    # def _yorig_observe(self, change):
+        # print("yorig: observed a change from %r to %r" % (change.old, change.new))
 
     #invalidx default
     # @default("invalidx")
@@ -959,14 +958,14 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("x: generating default value")
         # return None
     #x validate
-    @validate("x")
-    def _x_validate(self, proposal):
-        print("x: cross validating %r" % proposal.value)
-        return proposal.value
+    # @validate("x")
+    # def _x_validate(self, proposal):
+        # print("x: cross validating %r" % proposal.value)
+        # return proposal.value
     #x observer
-    @observe("x", type="change")
-    def _x_observe(self, change):
-        print("x: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("x", type="change")
+    # def _x_observe(self, change):
+        # print("x: observed a change from %r to %r" % (change.old, change.new))
 
     #y default
     # @default("y")
@@ -974,14 +973,14 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("y: generating default value")
         # return None
     #y validate
-    @validate("y")
-    def _y_validate(self, proposal):
-        print("y: cross validating %r" % proposal.value)
-        return proposal.value
-    #y observer
-    @observe("y", type="change")
-    def _y_observe(self, change):
-        print("y: observed a change from %r to %r" % (change.old, change.new))
+    # @validate("y")
+    # def _y_validate(self, proposal):
+        # print("y: cross validating %r" % proposal.value)
+        # return proposal.value
+    # y observer
+    # @observe("y", type="change")
+    # def _y_observe(self, change):
+        # print("y: observed a change from %r to %r" % (change.old, change.new))
 
     #path default
     # @default("path")
@@ -1099,7 +1098,7 @@ class Line2D(b_artist.Artist, HasTraits):
             else:
                 # If line, return the nearby segment(s)
                 ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
-                if self._drawstyle.startswith("steps"):
+                if self.drawstyle.startswith("steps"):
                     ind //= 2
 
         ind += self.ind_offset
@@ -1156,10 +1155,10 @@ class Line2D(b_artist.Artist, HasTraits):
                 x = np.asarray(xconv, float)
             x = x.ravel()
         else:
-            x = self._x
-        if always or self._invalidy:
-            yconv = self.convert_yunits(self._yorig)
-            if isinstance(self._yorig, np.ma.MaskedArray):
+            x = self.x
+        if always or self.invalidy:
+            yconv = self.convert_yunits(self.yorig)
+            if isinstance(self.yorig, np.ma.MaskedArray):
                 y = np.ma.asarray(yconv, float).filled(np.nan)
             else:
                 y = np.asarray(yconv, float)
@@ -1175,39 +1174,39 @@ class Line2D(b_artist.Artist, HasTraits):
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
 
-        self._xy = np.empty((len(x), 2), dtype=float)
-        self._xy[:, 0] = x
-        self._xy[:, 1] = y
+        self.xy = np.empty((len(x), 2), dtype=float)
+        self.xy[:, 0] = x
+        self.xy[:, 1] = y
 
-        self._x = self._xy[:, 0]  # just a view
-        self._y = self._xy[:, 1]  # just a view
+        self.x = self.xy[:, 0]  # just a view
+        self.y = self.xy[:, 1]  # just a view
 
-        self._subslice = False
-        if (self.axes and len(x) > 1000 and self._is_sorted(x) and
+        self.subslice = False
+        if (self.axes and len(x) > 1000 and self.is_sorted(x) and
                 self.axes.name == 'rectilinear' and
                 self.axes.get_xscale() == 'linear' and
-                self._markevery is None and
+                self.markevery is None and
                 self.get_clip_on() is True):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
-                self._x_filled = self._x.copy()
+                self.x_filled = self.x.copy()
                 indices = np.arange(len(x))
-                self._x_filled[nanmask] = np.interp(indices[nanmask],
+                self.x_filled[nanmask] = np.interp(indices[nanmask],
                         indices[~nanmask], self._x[~nanmask])
             else:
-                self._x_filled = self._x
+                self.x_filled = self.x
 
-        if self._path is not None:
-            interpolation_steps = self._path._interpolation_steps
+        if self.path is not None:
+            interpolation_steps = self.path._interpolation_steps
         else:
             interpolation_steps = 1
-        xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
-        self._path = Path(np.asarray(xy).T,
+        xy = STEP_LOOKUP_MAP[self.drawstyle](*self.xy.T)
+        self.path = Path(np.asarray(xy).T,
                           _interpolation_steps=interpolation_steps)
-        self._transformed_path = None
-        self._invalidx = False
-        self._invalidy = False
+        self.transformed_path = None
+        self.invalidx = False
+        self.invalidy = False
 
     def _transform_path(self, subslice=None):
         """
