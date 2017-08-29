@@ -271,6 +271,17 @@ def _dt64_to_ordinalf(d):
     return dt
 
 
+def _tdelta_to_ordinalf(tdelta):
+    """
+    Convert :mod:`timedelta` to total days. Return value is a :func:`float`
+    """
+    return tdelta.total_seconds() / SEC_PER_DAY
+
+
+# a version of _tdelta_to_ordinalf that can operate on numpy arrays
+_tdelta_to_ordinalf_np_vectorized = np.vectorize(_tdelta_to_ordinalf)
+
+
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
