@@ -1507,7 +1507,7 @@ class Cycler(SetupPackage):
 class Dateutil(SetupPackage):
     name = "dateutil"
 
-    def __init__(self, version=None):
+    def __init__(self, version='>=2.0'):
         self.version = version
 
     def check(self):
