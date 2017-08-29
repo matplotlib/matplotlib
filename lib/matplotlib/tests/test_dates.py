@@ -474,3 +474,10 @@ def test_tz_utc():
 def test_num2timedelta(x, tdelta):
     dt = mdates.num2timedelta(x)
     assert dt == tdelta
+
+
+def test_timedelta_ordinalf():
+    # Check that timedeltas can be converted to ordinalfs
+    dt = datetime.timedelta(seconds=60)
+    ordinalf = mdates._to_ordinalf(dt)
+    assert ordinalf == 1 / (24 * 60)
