@@ -5988,13 +5988,6 @@ or tuple of floats
         --------
         hist2d : 2D histograms
 
-        Notes
-        -----
-        Until numpy release 1.5, the underlying numpy histogram function was
-        incorrect with ``normed=True`` if bin sizes were unequal.  MPL
-        inherited that error. It is now corrected within MPL when using
-        earlier numpy versions.
-
         """
         # Avoid shadowing the builtin.
         bin_range = range
