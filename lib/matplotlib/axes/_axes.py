@@ -6080,8 +6080,10 @@ or tuple of floats
         else:
             hist_kwargs = dict(range=bin_range)
 
-        n = []
+        # List to store all the top coordinates of the histograms
+        tops = []
         mlast = None
+        # Loop through datasets
         for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
@@ -6097,21 +6099,23 @@ or tuple of floats
                     mlast = np.zeros(len(bins)-1, m.dtype)
                 m += mlast
                 mlast[:] = m
-            n.append(m)
+            tops.append(m)
 
+        # If a stacked density plot, normalize so the area of all the stacked
+        # histograms together is 1
         if stacked and density:
             db = np.diff(bins)
-            for m in n:
-                m[:] = (m.astype(float) / db) / n[-1].sum()
+            for m in tops:
+                m[:] = (m.astype(float) / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
             if density:
-                n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
+                tops = [(m * np.diff(bins))[slc].cumsum()[slc] for m in tops]
             else:
-                n = [m[slc].cumsum()[slc] for m in n]
+                tops = [m[slc].cumsum()[slc] for m in tops]
 
         patches = []
 
@@ -6129,7 +6133,7 @@ or tuple of floats
 
             if rwidth is not None:
                 dr = np.clip(rwidth, 0, 1)
-            elif (len(n) > 1 and
+            elif (len(tops) > 1 and
                   ((not stacked) or rcParams['_internal.classic_mode'])):
                 dr = 0.8
             else:
@@ -6155,7 +6159,7 @@ or tuple of floats
                 _barfunc = self.bar
                 bottom_kwarg = 'bottom'
 
-            for m, c in zip(n, color):
+            for m, c in zip(tops, color):
                 if bottom is None:
                     bottom = np.zeros(len(m))
                 if stacked:
@@ -6199,7 +6203,7 @@ or tuple of floats
                     # For data that is normed to form a probability density,
                     # set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
-                    ndata = np.array(n)
+                    ndata = np.array(tops)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
                     # For non-normed (density = False) data,
@@ -6222,7 +6226,7 @@ or tuple of floats
             fill = (histtype == 'stepfilled')
 
             xvals, yvals = [], []
-            for m in n:
+            for m in tops:
                 if stacked:
                     # starting point for drawing polygon
                     y[0] = y[1]
@@ -6285,9 +6289,9 @@ or tuple of floats
                     p.set_label('_nolegend_')
 
         if nx == 1:
-            return n[0], bins, cbook.silent_list('Patch', patches[0])
+            return tops[0], bins, cbook.silent_list('Patch', patches[0])
         else:
-            return n, bins, cbook.silent_list('Lists of Patches', patches)
+            return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"], label_namer=None)
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
