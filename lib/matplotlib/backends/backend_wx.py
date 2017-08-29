@@ -1474,6 +1474,7 @@ cursord = {
     cursors.HAND: wx.CURSOR_HAND,
     cursors.POINTER: wx.CURSOR_ARROW,
     cursors.SELECT_REGION: wx.CURSOR_CROSS,
+    cursors.WAIT: wx.CURSOR_WAIT,
 }
 
 
@@ -1594,6 +1595,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def set_cursor(self, cursor):
         cursor = wxc.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
+        self.canvas.Update()
 
     def release(self, event):
         try:

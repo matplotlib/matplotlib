@@ -24,7 +24,7 @@ import numpy as np
 
 class Cursors(object):
     """Simple namespace for cursor reference"""
-    HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
+    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
 cursors = Cursors()
 
 # Views positions tool

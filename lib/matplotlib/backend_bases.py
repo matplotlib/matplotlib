@@ -2806,7 +2806,8 @@ class NavigationToolbar2(object):
         self._idPress = None
         self._idRelease = None
         self._active = None
-        self._lastCursor = None
+        # This cursor will be set after the initial draw.
+        self._lastCursor = cursors.POINTER
         self._init_toolbar()
         self._idDrag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
@@ -2892,14 +2893,13 @@ class NavigationToolbar2(object):
                 self.set_cursor(cursors.POINTER)
                 self._lastCursor = cursors.POINTER
         else:
-            if self._active == 'ZOOM':
-                if self._lastCursor != cursors.SELECT_REGION:
-                    self.set_cursor(cursors.SELECT_REGION)
-                    self._lastCursor = cursors.SELECT_REGION
+            if (self._active == 'ZOOM'
+                    and self._lastCursor != cursors.SELECT_REGION):
+                self.set_cursor(cursors.SELECT_REGION)
+                self._lastCursor = cursors.SELECT_REGION
             elif (self._active == 'PAN' and
                   self._lastCursor != cursors.MOVE):
                 self.set_cursor(cursors.MOVE)
-
                 self._lastCursor = cursors.MOVE
 
     def mouse_move(self, event):
@@ -3189,6 +3189,11 @@ class NavigationToolbar2(object):
 
     def set_cursor(self, cursor):
         """Set the current cursor to one of the :class:`Cursors` enums values.
+
+        If required by the backend, this method should trigger an update in
+        the backend event loop after the cursor is set, as this method may be
+        called e.g. before a long-running task during which the GUI is not
+        updated.
         """
 
     def update(self):

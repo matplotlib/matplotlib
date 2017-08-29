@@ -90,6 +90,7 @@ cursord = {
     cursors.HAND: QtCore.Qt.PointingHandCursor,
     cursors.POINTER: QtCore.Qt.ArrowCursor,
     cursors.SELECT_REGION: QtCore.Qt.CrossCursor,
+    cursors.WAIT: QtCore.Qt.WaitCursor,
     }
 
 

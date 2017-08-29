@@ -51,6 +51,7 @@ cursord = {
     cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
     cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
     cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+    cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
 
 
@@ -499,7 +500,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
-        #self.canvas.set_cursor(cursord[cursor])
+        Gtk.main_iteration()
 
     def release(self, event):
         try: del self._pixmapBack
