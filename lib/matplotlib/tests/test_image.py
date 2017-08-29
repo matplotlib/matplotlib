@@ -752,7 +752,8 @@ def test_imshow_masked_interpolation():
     data = np.arange(N*N, dtype='float').reshape(N, N)
 
     data[5, 5] = -1
-
+    # This will cause crazy ringing for the higher-order
+    # interpolations
     data[15, 5] = 1e5
 
     # data[3, 3] = np.nan
@@ -765,6 +766,7 @@ def test_imshow_masked_interpolation():
     data = np.ma.masked_array(data, mask)
 
     fig, ax_grid = plt.subplots(3, 6)
+
     for interp, ax in zip(sorted(mimage._interpd_), ax_grid.ravel()):
         ax.set_title(interp)
         ax.imshow(data, norm=n, cmap=cm, interpolation=interp)
