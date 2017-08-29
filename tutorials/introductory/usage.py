@@ -284,10 +284,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Again, for these simple examples this style seems like overkill, however
 # once the graphs get slightly more complex it pays off.
 #
+# Backends
+# ========
+#
 # .. _what-is-a-backend:
 #
 # What is a backend?
-# ==================
+# ------------------
 #
 # A lot of documentation on the website and in the mailing lists refers
 # to the "backend" and many new users are confused by this term.
@@ -399,10 +402,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #                 :term:`pdf`
 #                 :term:`svg`
 #                 ...
-# :term:`GDK`     :term:`png`    :term:`raster graphics` --
-#                 :term:`jpg`    the `Gimp Drawing Kit`_ Deprecated in 2.0
-#                 :term:`tiff`
-#                 ...
 # =============   ============   ================================================
 #
 # And here are the user interfaces and renderer combinations supported;
@@ -413,27 +412,42 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ============   ================================================================
 # Backend        Description
 # ============   ================================================================
-# GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_ and
-#                pycairo_ or cairocffi_; Python2 only)
+# Qt5Agg         Agg rendering in a :term:`Qt5` canvas (requires PyQt5_).  This
+#                backend can be activated in IPython with ``%matplotlib qt5``.
+# ipympl         Agg rendering embedded in a Jupyter widget.  This can be enabled
+#                in a Jupyter notebook with ``%matplotlib ipympl``
 # GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
 #                and pycairo_ or cairocffi_)
-# GTK            GDK rendering to a :term:`GTK` 2.x canvas (not recommended and d
-#                eprecated in 2.0) (requires PyGTK_ and pycairo_ or cairocffi_;
-#                Python2 only)
-# GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
-#                and pycairo_ or cairocffi_; Python2 only)
+#                This backend can be activated in IPython with
+#                ``%matplotlib gtk3``.
+# macosx         Agg rendering into a Cocoa canvas in OSX.
+#                This backend can be activated in IPython with
+#                ``%matplotlib osx``.
+# TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_).
+#                This backend can be activated in IPython with
+#                ``%matplotlib tk``.
+# nbAgg          Embed an interactive figure in a Jupyter classic notebook.  This
+#                backend can be enabled in Jupyter notebooks via
+#                ``%matplotlib notebook``.
+# WebAgg         On ``show()`` will start a tornado server with an interactive
+#                figure.
 # GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
 #                and pycairo_ or cairocffi_)
+# Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_
+#                or ``pyside``).
+#                This backend can be activated in IPython with
+#                ``%matplotlib qt4``.
+# GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_ and
+#                pycairo_ or cairocffi_; Python2 only)
+#                This backend can be activated in IPython with
+#                ``%matplotlib gtk``.
+# GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
+#                and pycairo_ or cairocffi_; Python2 only)
 # WXAgg          Agg rendering to a :term:`wxWidgets` canvas
-#                (requires wxPython_)
-# WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
-#                (not recommended and deprecated in 2.0) (requires wxPython_)
-# TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
-# Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or ``pyside``)
-# Qt5Agg         Agg rendering in a :term:`Qt5` canvas (requires PyQt5_)
-# macosx         Cocoa rendering in OSX windows
-#                (presently lacks blocking show() behavior when matplotlib
-#                is in non-interactive mode)
+#                (requires wxPython_.  v4.0 (in beta) is
+#                required for python3).
+#                This backend can be activated in IPython with
+#                ``%matplotlib wx``.
 # ============   ================================================================
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
@@ -451,18 +465,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 #
-# WX backends
-# ===========
-#
-# At present the release version of `wxPython` (also known as wxPython classic)
-# does not support python3. A work in progress redesigned version known as
-# wxPython-Phoenix_ does support python3.
-# Matplotlib should work with both versions.
-#
-# .. _wxPython-Phoenix: https://wxpython.org/Phoenix/docs/html/main.html
-#
 # GTK and Cairo
-# =============
+# -------------
 #
 # Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
 # specific Matplotlib backend used. Unfortunatly the latest release of PyCairo
@@ -471,7 +475,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # wrapper.
 #
 # How do I select PyQt4 or PySide?
-# ========================================
+# --------------------------------
 #
 # You can choose either PyQt4 or PySide when using the `qt4` backend by setting
 # the appropriate value for `backend.qt4` in your :file:`matplotlibrc` file. The
