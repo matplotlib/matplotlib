@@ -444,7 +444,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
 #                and pycairo_ or cairocffi_; Python2 only)
 # WXAgg          Agg rendering to a :term:`wxWidgets` canvas
-#                (requires wxPython_).
+#                (requires wxPython_.  v4.0 (in beta) is
+#                required for python3).
 #                This backend can be activated in IPython with
 #                ``%matplotlib wx``.
 # ============   ================================================================
@@ -463,16 +464,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _TkInter: https://wiki.python.org/moin/TkInter
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
-#
-# WX backends
-# -----------
-#
-# At present the release version of `wxPython` (also known as wxPython classic)
-# does not support python3. A work in progress redesigned version known as
-# wxPython-Phoenix_ does support python3.
-# Matplotlib should work with both versions.
-#
-# .. _wxPython-Phoenix: https://wxpython.org/Phoenix/docs/html/main.html
 #
 # GTK and Cairo
 # -------------
