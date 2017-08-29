@@ -1007,6 +1007,7 @@ class PolarAxes(Axes):
         # FIXME: Why is this needed? Even though the tick label gets
         # re-created, the alignment is not correctly updated without a reset.
         self.yaxis.reset_ticks()
+        self.yaxis.set_clip_path(self.patch)
 
     def get_theta_direction(self):
         """
@@ -1064,6 +1065,7 @@ class PolarAxes(Axes):
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
         self.yaxis.reset_ticks()
+        self.yaxis.set_clip_path(self.patch)
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
