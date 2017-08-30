@@ -322,10 +322,12 @@ class ThetaTick(maxis.XTick):
                 trans = self.tick2line._marker._transform
             self.tick2line._marker._transform = trans
 
-        if self.label1On:
-            self.label1.set_rotation(np.rad2deg(angle) + self._labelrotation)
-        if self.label2On:
-            self.label2.set_rotation(np.rad2deg(angle) + self._labelrotation)
+        if not _is_full_circle_deg(axes.get_thetamin(), axes.get_thetamax()):
+            angle = np.rad2deg(angle) + self._labelrotation
+            if self.label1On:
+                self.label1.set_rotation(angle)
+            if self.label2On:
+                self.label2.set_rotation(angle)
 
         self._update_padding(self._loc * axes.get_theta_direction() +
                              axes.get_theta_offset())
@@ -479,7 +481,8 @@ class RadialTick(maxis.YTick):
     This subclass of `YTick` provides radial ticks with some small modification
     to their re-positioning such that ticks are rotated based on axes limits.
     This results in ticks that are correctly perpendicular to the spine. Labels
-    are also rotated to be perpendicular to the spine.
+    are also rotated to be perpendicular to the spine, but only for wedges, to
+    preserve backwards compatibility.
     """
     def _get_text1(self):
         t = maxis.YTick._get_text1(self)
@@ -502,7 +505,7 @@ class RadialTick(maxis.YTick):
         full = _is_full_circle_deg(thetamin, thetamax)
 
         if full:
-            angle = axes.get_rlabel_position() * direction + offset - 90
+            angle = 0
             tick_angle = np.deg2rad(angle)
         else:
             angle = thetamin * direction + offset - 90
@@ -825,10 +828,16 @@ class PolarAxes(Axes):
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        return self._xaxis_text_transform, 'bottom', 'center'
+        if _is_full_circle_rad(*self._realViewLim.intervalx):
+            return self._xaxis_text_transform, 'center', 'center'
+        else:
+            return self._xaxis_text_transform, 'bottom', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        return self._xaxis_text_transform, 'top', 'center'
+        if _is_full_circle_rad(*self._realViewLim.intervalx):
+            return self._xaxis_text_transform, 'center', 'center'
+        else:
+            return self._xaxis_text_transform, 'top', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
@@ -842,8 +851,7 @@ class PolarAxes(Axes):
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
         if _is_full_circle_rad(thetamin, thetamax):
-            halign = 'left'
-            pad_shift = _ThetaShift(self, pad, 'rlabel')
+            return self._yaxis_text_transform, 'bottom', 'left'
         elif self.get_theta_direction() > 0:
             halign = 'left'
             pad_shift = _ThetaShift(self, pad, 'min')
