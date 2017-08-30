@@ -2303,7 +2303,7 @@ class FigureCanvasBase(object):
         default_filetype = self.get_default_filetype()
         default_filename = default_basename + '.' + default_filetype
 
-        save_dir = os.path.expanduser(rcParams.get('savefig.directory', ''))
+        save_dir = os.path.expanduser(rcParams['savefig.directory'])
 
         # ensure non-existing filename in save dir
         i = 1
