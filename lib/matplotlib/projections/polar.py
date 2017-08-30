@@ -287,9 +287,9 @@ class ThetaTick(maxis.XTick):
         if not trans.contains_branch(self._text2_translate):
             self.label2.set_transform(trans + self._text2_translate)
 
-    def _update_padding(self, angle):
-        padx = self._pad * np.cos(angle) / 72
-        pady = self._pad * np.sin(angle) / 72
+    def _update_padding(self, pad, angle):
+        padx = pad * np.cos(angle) / 72
+        pady = pad * np.sin(angle) / 72
         self._text1_translate._t = (padx, pady)
         self._text1_translate.invalidate()
         self._text2_translate._t = (-padx, -pady)
@@ -329,7 +329,11 @@ class ThetaTick(maxis.XTick):
             if self.label2On:
                 self.label2.set_rotation(angle)
 
-        self._update_padding(self._loc * axes.get_theta_direction() +
+        # This extra padding helps preserve the look from previous releases but
+        # is also needed because labels are anchored to their center.
+        pad = self._pad + 7
+        self._update_padding(pad,
+                             self._loc * axes.get_theta_direction() +
                              axes.get_theta_offset())
 
 
