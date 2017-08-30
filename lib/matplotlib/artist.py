@@ -2,20 +2,21 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from collections import OrderedDict, namedtuple
 
+from collections import OrderedDict, namedtuple
+from contextlib import contextmanager
+from functools import wraps
+import inspect
 import re
 import warnings
-import inspect
+
 import numpy as np
+
 import matplotlib
-import matplotlib.cbook as cbook
-from matplotlib import docstring, rcParams
-from .transforms import (Bbox, IdentityTransform, TransformedBbox,
-                         TransformedPatchPath, TransformedPath, Transform)
+from . import cbook, docstring, rcParams
 from .path import Path
-from functools import wraps
-from contextlib import contextmanager
+from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+                         TransformedPatchPath, TransformedPath)
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
