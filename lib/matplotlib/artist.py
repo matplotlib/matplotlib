@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from collections import OrderedDict, namedtuple
-from contextlib import contextmanager
 from functools import wraps
 import inspect
 import re
@@ -43,29 +42,22 @@ def allow_rasterization(draw):
     other setup function calls, such as starting and flushing a mixed-mode
     renderer.
     """
-    @contextmanager
-    def with_rasterized(artist, renderer):
-
-        if artist.get_rasterized():
-            renderer.start_rasterizing()
-
-        if artist.get_agg_filter() is not None:
-            renderer.start_filter()
-
-        try:
-            yield
-        finally:
-            if artist.get_agg_filter() is not None:
-                renderer.stop_filter(artist.get_agg_filter())
-
-            if artist.get_rasterized():
-                renderer.stop_rasterizing()
 
     # the axes class has a second argument inframe for its draw method.
     @wraps(draw)
     def draw_wrapper(artist, renderer, *args, **kwargs):
-        with with_rasterized(artist, renderer):
+        try:
+            if artist.get_rasterized():
+                renderer.start_rasterizing()
+            if artist.get_agg_filter() is not None:
+                renderer.start_filter()
+
             return draw(artist, renderer, *args, **kwargs)
+        finally:
+            if artist.get_agg_filter() is not None:
+                renderer.stop_filter(artist.get_agg_filter())
+            if artist.get_rasterized():
+                renderer.stop_rasterizing()
 
     draw_wrapper._supports_rasterization = True
     return draw_wrapper
