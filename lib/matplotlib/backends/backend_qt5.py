@@ -750,7 +750,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 savefig_dir = os.path.dirname(six.text_type(fname))
                 matplotlib.rcParams['savefig.directory'] = savefig_dir
             try:
-                self.canvas.print_figure(six.text_type(fname))
+                self.canvas.figure.savefig(six.text_type(fname))
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", six.text_type(e),

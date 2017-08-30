@@ -791,7 +791,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
                 rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
             try:
                 # This method will handle the delegation to the correct type
-                self.canvas.print_figure(fname)
+                self.canvas.figure.savefig(fname)
             except Exception as e:
                 tkinter_messagebox.showerror("Error saving file", str(e))
 
@@ -1008,7 +1008,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
                     six.text_type(fname))
             try:
                 # This method will handle the delegation to the correct type
-                self.figure.canvas.print_figure(fname)
+                self.figure.savefig(fname)
             except Exception as e:
                 tkinter_messagebox.showerror("Error saving file", str(e))
 

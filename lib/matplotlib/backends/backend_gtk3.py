@@ -580,7 +580,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
                 # save dir for next time
                 rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
             try:
-                self.canvas.print_figure(fname, format=format)
+                self.canvas.figure.savefig(fname, format=format)
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 

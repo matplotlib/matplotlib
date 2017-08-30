@@ -1587,7 +1587,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     (ext, format, ext), stacklevel=0)
                 format = ext
             try:
-                self.canvas.print_figure(
+                self.canvas.figure.savefig(
                     os.path.join(dirname, filename), format=format)
             except Exception as e:
                 error_msg_wx(str(e))
