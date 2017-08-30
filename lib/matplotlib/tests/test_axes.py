@@ -1464,6 +1464,14 @@ def test_hist_step_filled():
     assert all([p.get_facecolor() == p.get_edgecolor() for p in patches])
 
 
+@image_comparison(baseline_images=['hist_density'], extensions=['png'])
+def test_hist_density():
+    np.random.seed(19680801)
+    data = np.random.standard_normal(2000)
+    fig, ax = plt.subplots()
+    ax.hist(data, density=True)
+
+
 @image_comparison(baseline_images=['hist_step_log_bottom'],
                   remove_text=True, extensions=['png'])
 def test_hist_step_log_bottom():
