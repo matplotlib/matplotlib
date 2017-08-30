@@ -10,7 +10,6 @@ import inspect
 import numpy as np
 import matplotlib
 import matplotlib.cbook as cbook
-from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
@@ -207,32 +206,6 @@ class Artist(object):
             return y
         return ax.yaxis.convert_units(y)
 
-    def set_axes(self, axes):
-        """
-        Set the :class:`~matplotlib.axes.Axes` instance in which the
-        artist resides, if any.
-
-        This has been deprecated in mpl 1.5, please use the
-        axes property.  Will be removed in 1.7 or 2.0.
-
-        ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
-        """
-        warnings.warn(_get_axes_msg.format('set_axes'), mplDeprecation,
-                      stacklevel=1)
-        self.axes = axes
-
-    def get_axes(self):
-        """
-        Return the :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*.
-
-        This has been deprecated in mpl 1.5, please use the
-        axes property.  Will be removed in 1.7 or 2.0.
-        """
-        warnings.warn(_get_axes_msg.format('get_axes'), mplDeprecation,
-                      stacklevel=1)
-        return self.axes
-
     @property
     def axes(self):
         """
@@ -243,18 +216,14 @@ class Artist(object):
 
     @axes.setter
     def axes(self, new_axes):
-
-        if (new_axes is not None and
-                (self._axes is not None and new_axes != self._axes)):
-            raise ValueError("Can not reset the axes.  You are "
-                             "probably trying to re-use an artist "
-                             "in more than one Axes which is not "
-                             "supported")
-
+        if (new_axes is not None and self._axes is not None
+                and new_axes != self._axes):
+            raise ValueError("Can not reset the axes.  You are probably "
+                             "trying to re-use an artist in more than one "
+                             "Axes which is not supported")
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
-
         return new_axes
 
     @property

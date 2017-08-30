@@ -126,8 +126,6 @@ Figure and Axes
    Artist.remove
 
    Artist.axes
-   Artist.get_axes
-   Artist.set_axes
 
    Artist.set_figure
    Artist.get_figure
