@@ -139,6 +139,23 @@ execution (such as created figures or modified rc params). The pytest fixture
 :func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
 these up; there is no need to do anything further.
 
+Random data in tests
+--------------------
+
+Random data can is a very convenient way to generate data for examples,
+however the randomness is problematic for testing (as the tests
+must be deterministic!).  To work around this set the seed in each test.
+For numpy use::
+
+  import numpy as np
+  np.random.seed(19680801)
+
+and Python's random number generator::
+
+  import random
+  random.seed(19680801)
+
+The seed is John Hunter's birthday.
 
 Writing an image comparison test
 --------------------------------
