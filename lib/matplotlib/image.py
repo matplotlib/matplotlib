@@ -192,14 +192,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     def iterpnames(self):
         return interpolations_names
 
-    def set_cmap(self, cmap):
-        super(_ImageBase, self).set_cmap(cmap)
-        self.stale = True
-
-    def set_norm(self, norm):
-        super(_ImageBase, self).set_norm(norm)
-        self.stale = True
-
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
