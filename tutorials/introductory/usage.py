@@ -414,8 +414,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ============   ================================================================
 # Qt5Agg         Agg rendering in a :term:`Qt5` canvas (requires PyQt5_).  This
 #                backend can be activated in IPython with ``%matplotlib qt5``.
-# ipympl         Agg rendering embedded in a Jupyter widget.  This can be enabled
-#                in a Jupyter notebook with ``%matplotlib ipympl``
+# ipympl         Agg rendering embedded in a Jupyter widget.  (requires ipympl)
+#                This can be enabled in a Jupyter notebook with
+#                ``%matplotlib ipympl``
 # GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
 #                and pycairo_ or cairocffi_)
 #                This backend can be activated in IPython with
@@ -464,6 +465,26 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _TkInter: https://wiki.python.org/moin/TkInter
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
+#
+# ipympl
+# ------
+#
+# The Jupyter widget ecosystem is moving too fast to support directly in
+# Matplotlib.  To install ipympl
+#
+# .. code-block:: bash
+#
+#    pip install ipympl
+#    jupyter nbextension enable --py --sys-prefix ipympl
+#
+# or
+#
+# .. code-block:: bash
+#
+#    conda install ipympl -c conda-forge
+#
+# See `jupyter-matplotlib <https://github.com/matplotlib/jupyter-matplotlib>`__
+# for more details.
 #
 # GTK and Cairo
 # -------------
