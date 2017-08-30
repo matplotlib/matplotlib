@@ -387,7 +387,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 A_scaled = np.empty(A.shape, dtype=scaled_dtype)
                 A_scaled[:] = A
                 A_scaled -= a_min
-                A_scaled /= ((a_max - a_min) / 0.8)
+                if a_min != a_max:
+                    A_scaled /= ((a_max - a_min) / 0.8)
                 A_scaled += 0.1
                 A_resampled = np.zeros((out_height, out_width),
                                        dtype=A_scaled.dtype)
@@ -408,7 +409,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # below, but possibly clipped in the case of higher order
                 # interpolation + drastically changing data.
                 A_resampled -= 0.1
-                A_resampled *= ((a_max - a_min) / 0.8)
+                if a_min != a_max:
+                    A_resampled *= ((a_max - a_min) / 0.8)
                 A_resampled += a_min
                 # if using NoNorm, cast back to the original datatype
                 if isinstance(self.norm, mcolors.NoNorm):
