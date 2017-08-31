@@ -27,7 +27,8 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(baseline_images=['patheffect2'], remove_text=True)
+@image_comparison(baseline_images=['patheffect2'], remove_text=True,
+                  style='mpl20')
 def test_patheffect2():
 
     ax2 = plt.subplot(111)

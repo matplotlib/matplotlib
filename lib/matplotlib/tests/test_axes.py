@@ -833,7 +833,7 @@ def test_nonfinite_limits():
 
 
 @image_comparison(baseline_images=['imshow', 'imshow'],
-                  remove_text=True)
+                  remove_text=True, style='mpl20')
 def test_imshow():
     # Create a NxN image
     N = 100
@@ -855,7 +855,7 @@ def test_imshow():
     ax.imshow("r", data=data)
 
 
-@image_comparison(baseline_images=['imshow_clip'])
+@image_comparison(baseline_images=['imshow_clip'], style='mpl20')
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
 

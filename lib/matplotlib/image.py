@@ -192,14 +192,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     def iterpnames(self):
         return interpolations_names
 
-    def set_cmap(self, cmap):
-        super(_ImageBase, self).set_cmap(cmap)
-        self.stale = True
-
-    def set_norm(self, norm):
-        super(_ImageBase, self).set_norm(norm)
-        self.stale = True
-
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
@@ -357,58 +349,100 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             out_height = int(out_height_base)
 
         if not unsampled:
-            created_rgba_mask = False
-
             if A.ndim not in (2, 3):
                 raise ValueError("Invalid dimensions, got {}".format(A.shape))
 
             if A.ndim == 2:
-                A = self.norm(A)
-                if A.dtype.kind == 'f':
-                    # If the image is greyscale, convert to RGBA and
-                    # use the extra channels for resizing the over,
-                    # under, and bad pixels.  This is needed because
-                    # Agg's resampler is very aggressive about
-                    # clipping to [0, 1] and we use out-of-bounds
-                    # values to carry the over/under/bad information
-                    rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
-                    rgba[..., 0] = A  # normalized data
-                    # this is to work around spurious warnings coming
-                    # out of masked arrays.
-                    with np.errstate(invalid='ignore'):
-                        rgba[..., 1] = np.where(A < 0, np.nan, 1)  # under data
-                        rgba[..., 2] = np.where(A > 1, np.nan, 1)  # over data
-                    # Have to invert mask, Agg knows what alpha means
-                    # so if you put this in as 0 for 'good' points, they
-                    # all get zeroed out
-                    rgba[..., 3] = 1
-                    if A.mask.shape == A.shape:
-                        # this is the case of a nontrivial mask
-                        mask = np.where(A.mask, np.nan, 1)
-                    else:
-                        # this is the case that the mask is a
-                        # numpy.bool_ of False
-                        mask = A.mask
-                    # ~A.mask  # masked data
-                    A = rgba
-                    output = np.zeros((out_height, out_width, 4),
-                                      dtype=A.dtype)
-                    alpha = 1.0
-                    created_rgba_mask = True
-                else:
-                    # colormap norms that output integers (ex NoNorm
-                    # and BoundaryNorm) to RGBA space before
-                    # interpolating.  This is needed due to the
-                    # Agg resampler only working on floats in the
-                    # range [0, 1] and because interpolating indexes
-                    # into an arbitrary LUT may be problematic.
-                    #
-                    # This falls back to interpolating in RGBA space which
-                    # can produce it's own artifacts of colors not in the map
-                    # showing up in the final image.
-                    A = self.cmap(A, alpha=self.get_alpha(), bytes=True)
+                # if we are a 2D array, then we are running through the
+                # norm + colormap transformation.  However, in general the
+                # input data is not going to match the size on the screen so we
+                # have to resample to the correct number of pixels
+                # need to
 
-            if not created_rgba_mask:
+                # TODO slice input array first
+                inp_dtype = A.dtype
+                if inp_dtype.kind == 'f':
+                    scaled_dtype = A.dtype
+                else:
+                    scaled_dtype = np.float32
+                # old versions of numpy do not work with `np.nammin`
+                # and `np.nanmax` as inputs
+                a_min = np.ma.min(A)
+                a_max = np.ma.max(A)
+                # scale the input data to [.1, .9].  The Agg
+                # interpolators clip to [0, 1] internally, use a
+                # smaller input scale to identify which of the
+                # interpolated points need to be should be flagged as
+                # over / under.
+                # This may introduce numeric instabilities in very broadly
+                # scaled data
+                A_scaled = np.empty(A.shape, dtype=scaled_dtype)
+                A_scaled[:] = A
+                A_scaled -= a_min
+                if a_min != a_max:
+                    A_scaled /= ((a_max - a_min) / 0.8)
+                A_scaled += 0.1
+                A_resampled = np.zeros((out_height, out_width),
+                                       dtype=A_scaled.dtype)
+                # resample the input data to the correct resolution and shape
+                _image.resample(A_scaled, A_resampled,
+                                t,
+                                _interpd_[self.get_interpolation()],
+                                self.get_resample(), 1.0,
+                                self.get_filternorm() or 0.0,
+                                self.get_filterrad() or 0.0)
+
+                # we are done with A_scaled now, remove from namespace
+                # to be sure!
+                del A_scaled
+                # un-scale the resampled data to approximately the
+                # original range things that interpolated to above /
+                # below the original min/max will still be above /
+                # below, but possibly clipped in the case of higher order
+                # interpolation + drastically changing data.
+                A_resampled -= 0.1
+                if a_min != a_max:
+                    A_resampled *= ((a_max - a_min) / 0.8)
+                A_resampled += a_min
+                # if using NoNorm, cast back to the original datatype
+                if isinstance(self.norm, mcolors.NoNorm):
+                    A_resampled = A_resampled.astype(A.dtype)
+
+                mask = np.empty(A.shape, dtype=np.float32)
+                if A.mask.shape == A.shape:
+                    # this is the case of a nontrivial mask
+                    mask[:] = np.where(A.mask, np.float32(np.nan),
+                                       np.float32(1))
+                else:
+                    mask[:] = 1
+
+                # we always have to interpolate the mask to account for
+                # non-affine transformations
+                out_mask = np.zeros((out_height, out_width),
+                                    dtype=mask.dtype)
+                _image.resample(mask, out_mask,
+                                t,
+                                _interpd_[self.get_interpolation()],
+                                True, 1,
+                                self.get_filternorm() or 0.0,
+                                self.get_filterrad() or 0.0)
+                # we are done with the mask, delete from namespace to be sure!
+                del mask
+                # Agg updates the out_mask in place.  If the pixel has
+                # no image data it will not be updated (and still be 0
+                # as we initialized it), if input data that would go
+                # into that output pixel than it will be `nan`, if all
+                # the input data for a pixel is good it will be 1, and
+                # if there is _some_ good data in that output pixel it
+                # will be between [0, 1] (such as a rotated image).
+
+                out_alpha = np.array(out_mask)
+                out_mask = np.isnan(out_mask)
+                out_alpha[out_mask] = 1
+
+                # mask and run through the norm
+                output = self.norm(np.ma.masked_array(A_resampled, out_mask))
+            else:
                 # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
@@ -421,57 +455,27 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if alpha is None:
                     alpha = 1.0
 
-            _image.resample(
-                A, output, t, _interpd_[self.get_interpolation()],
-                self.get_resample(), alpha,
-                self.get_filternorm() or 0.0, self.get_filterrad() or 0.0)
+                _image.resample(
+                    A, output, t, _interpd_[self.get_interpolation()],
+                    self.get_resample(), alpha,
+                    self.get_filternorm() or 0.0, self.get_filterrad() or 0.0)
 
-            if created_rgba_mask:
-                # Convert back to a masked greyscale array so
-                # colormapping works correctly
-                hid_output = output
-                # any pixel where the a masked pixel is included
-                # in the kernel (pulling this down from 1) needs to
-                # be masked in the output
-                if len(mask.shape) == 2:
-                    out_mask = np.empty((out_height, out_width),
-                                        dtype=mask.dtype)
-                    _image.resample(mask, out_mask, t,
-                                    _interpd_[self.get_interpolation()],
-                                    True, 1,
-                                    self.get_filternorm() or 0.0,
-                                    self.get_filterrad() or 0.0)
-                    out_mask = np.isnan(out_mask)
-                else:
-                    out_mask = mask
-                # we need to mask both pixels which came in as masked
-                # and the pixels that Agg is telling us to ignore (relavent
-                # to non-affine transforms)
-                # Use half alpha as the threshold for pixels to mask.
-                out_mask = out_mask | (hid_output[..., 3] < .5)
-                output = np.ma.masked_array(
-                    hid_output[..., 0],
-                    out_mask)
-                # 'unshare' the mask array to
-                # needed to suppress numpy warning
-                del out_mask
-                invalid_mask = ~output.mask * ~np.isnan(output.data)
-                # relabel under data.  If any of the input data for
-                # the pixel has input out of the norm bounds,
-                output[np.isnan(hid_output[..., 1]) * invalid_mask] = -1
-                # relabel over data
-                output[np.isnan(hid_output[..., 2]) * invalid_mask] = 2
-
+            # at this point output is either a 2D array of normed data
+            # (of int or float)
+            # or an RGBA array of re-sampled input
             output = self.to_rgba(output, bytes=True, norm=False)
+            # output is now a correctly sized RGBA array of uint8
 
             # Apply alpha *after* if the input was greyscale without a mask
-            if A.ndim == 2 or created_rgba_mask:
+            if A.ndim == 2:
                 alpha = self.get_alpha()
-                if alpha is not None and alpha != 1.0:
-                    alpha_channel = output[:, :, 3]
-                    alpha_channel[:] = np.asarray(
-                        np.asarray(alpha_channel, np.float32) * alpha,
-                        np.uint8)
+                if alpha is None:
+                    alpha = 1
+                alpha_channel = output[:, :, 3]
+                alpha_channel[:] = np.asarray(
+                    np.asarray(alpha_channel, np.float32) * out_alpha * alpha,
+                    np.uint8)
+
         else:
             if self._imcache is None:
                 self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))

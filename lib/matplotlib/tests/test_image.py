@@ -34,7 +34,7 @@ except ImportError:
 needs_pillow = pytest.mark.xfail(not HAS_PIL, reason='Test requires Pillow')
 
 
-@image_comparison(baseline_images=['image_interps'])
+@image_comparison(baseline_images=['image_interps'], style='mpl20')
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
     X = np.arange(100)
@@ -248,7 +248,7 @@ def test_cursor_data():
     assert z is None, "Did not get None, got %d" % z
 
 
-@image_comparison(baseline_images=['image_clip'])
+@image_comparison(baseline_images=['image_clip'], style='mpl20')
 def test_image_clip():
     d = [[1, 2], [3, 4]]
 
@@ -258,7 +258,7 @@ def test_image_clip():
     im.set_clip_path(patch)
 
 
-@image_comparison(baseline_images=['image_cliprect'])
+@image_comparison(baseline_images=['image_cliprect'], style='mpl20')
 def test_image_cliprect():
     import matplotlib.patches as patches
 
@@ -271,7 +271,8 @@ def test_image_cliprect():
     rect = patches.Rectangle(xy=(1,1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
 
-@image_comparison(baseline_images=['imshow'], remove_text=True)
+
+@image_comparison(baseline_images=['imshow'], remove_text=True, style='mpl20')
 def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt
@@ -334,7 +335,10 @@ def test_image_edges():
 
     assert g != 100, 'Expected a non-green edge - but sadly, it was.'
 
-@image_comparison(baseline_images=['image_composite_background'], remove_text=True)
+
+@image_comparison(baseline_images=['image_composite_background'],
+                  remove_text=True,
+                  style='mpl20')
 def test_image_composite_background():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -344,7 +348,9 @@ def test_image_composite_background():
     ax.set_facecolor((1, 0, 0, 0.5))
     ax.set_xlim([0, 12])
 
-@image_comparison(baseline_images=['image_composite_alpha'], remove_text=True)
+
+@image_comparison(baseline_images=['image_composite_alpha'],
+                  remove_text=True)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -370,7 +376,9 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
-@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], remove_text=True)
+@image_comparison(baseline_images=['rasterize_10dpi'],
+                  extensions=['pdf', 'svg'],
+                  remove_text=True, style='mpl20')
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
     # It plots a rasterized line and a normal image with implot. So it will catch
@@ -403,7 +411,8 @@ def test_rasterize_dpi():
     rcParams['savefig.dpi'] = 10
 
 
-@image_comparison(baseline_images=['bbox_image_inverted'], remove_text=True)
+@image_comparison(baseline_images=['bbox_image_inverted'], remove_text=True,
+                  style='mpl20')
 def test_bbox_image_inverted():
     # This is just used to produce an image to feed to BboxImage
     image = np.arange(100).reshape((10, 10))
@@ -449,7 +458,8 @@ def test_get_window_extent_for_AxisImage():
 
 @image_comparison(baseline_images=['zoom_and_clip_upper_origin'],
                   remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'],
+                  style='mpl20')
 def test_zoom_and_clip_upper_origin():
     image = np.arange(100)
     image = image.reshape((10, 10))
@@ -727,7 +737,7 @@ def test_imshow_endianess():
 
 
 @image_comparison(baseline_images=['imshow_masked_interpolation'],
-                  remove_text=True, style='default')
+                  remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
     cm = copy(plt.get_cmap('viridis'))
@@ -742,7 +752,8 @@ def test_imshow_masked_interpolation():
     data = np.arange(N*N, dtype='float').reshape(N, N)
 
     data[5, 5] = -1
-
+    # This will cause crazy ringing for the higher-order
+    # interpolations
     data[15, 5] = 1e5
 
     # data[3, 3] = np.nan
@@ -755,6 +766,7 @@ def test_imshow_masked_interpolation():
     data = np.ma.masked_array(data, mask)
 
     fig, ax_grid = plt.subplots(3, 6)
+
     for interp, ax in zip(sorted(mimage._interpd_), ax_grid.ravel()):
         ax.set_title(interp)
         ax.imshow(data, norm=n, cmap=cm, interpolation=interp)
@@ -766,6 +778,15 @@ def test_imshow_no_warn_invalid():
         warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
+
+
+@image_comparison(baseline_images=['imshow_flatfield'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_flatfield():
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.ones((5, 5)))
+    im.set_clim(.5, 1.5)
 
 
 def test_empty_imshow():
