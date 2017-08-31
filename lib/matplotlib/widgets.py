@@ -289,6 +289,9 @@ class Slider(AxesWidget):
         valmax : float
             The maximum value of the slider.
 
+        valstep : float, optional, default: None
+            If given, the slider will snap to multiples of `valstep`.
+
         valinit : float, optional, default: 0.5
             The slider initial position.
 
