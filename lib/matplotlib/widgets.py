@@ -271,9 +271,9 @@ class Slider(AxesWidget):
 
     Call :meth:`on_changed` to connect to the slider event
     """
-    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
-                 closedmin=True, closedmax=True, slidermin=None,
-                 slidermax=None, dragging=True, **kwargs):
+    def __init__(self, ax, label, valmin, valmax, valstep=None, valinit=0.5,
+                 valfmt='%1.2f', closedmin=True, closedmax=True,
+                 slidermin=None, slidermax=None, dragging=True, **kwargs):
         """
         Parameters
         ----------
@@ -334,6 +334,7 @@ class Slider(AxesWidget):
         self.drag_active = False
         self.valmin = valmin
         self.valmax = valmax
+        self.valstep = valstep
         valinit = self._value_in_bounds(valinit)
         if valinit is None:
             valinit = valmin
@@ -368,6 +369,8 @@ class Slider(AxesWidget):
 
     def _value_in_bounds(self, val):
         """ Makes sure self.val is with given bounds."""
+        if self.valstep:
+            val = round(val/self.valstep)*self.valstep
         if val <= self.valmin:
             if not self.closedmin:
                 return
