@@ -3189,6 +3189,8 @@ Transformations
   transformations.
 
 
+.. highlight:: none
+
 Changes for 0.50
 ================
 
