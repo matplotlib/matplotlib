@@ -420,6 +420,8 @@ class Slider(AxesWidget):
             self.set_val(val)
 
     def set_val(self, val):
+        if self.val == val:
+            return
         xy = self.poly.xy
         xy[2] = val, 1
         xy[3] = val, 0
