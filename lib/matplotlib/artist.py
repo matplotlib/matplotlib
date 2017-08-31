@@ -2,21 +2,20 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from collections import OrderedDict, namedtuple
 
+from collections import OrderedDict, namedtuple
+from functools import wraps
+import inspect
 import re
 import warnings
-import inspect
+
 import numpy as np
+
 import matplotlib
-import matplotlib.cbook as cbook
-from matplotlib.cbook import mplDeprecation
-from matplotlib import docstring, rcParams
-from .transforms import (Bbox, IdentityTransform, TransformedBbox,
-                         TransformedPatchPath, TransformedPath, Transform)
+from . import cbook, docstring, rcParams
 from .path import Path
-from functools import wraps
-from contextlib import contextmanager
+from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+                         TransformedPatchPath, TransformedPath)
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
@@ -43,29 +42,22 @@ def allow_rasterization(draw):
     other setup function calls, such as starting and flushing a mixed-mode
     renderer.
     """
-    @contextmanager
-    def with_rasterized(artist, renderer):
-
-        if artist.get_rasterized():
-            renderer.start_rasterizing()
-
-        if artist.get_agg_filter() is not None:
-            renderer.start_filter()
-
-        try:
-            yield
-        finally:
-            if artist.get_agg_filter() is not None:
-                renderer.stop_filter(artist.get_agg_filter())
-
-            if artist.get_rasterized():
-                renderer.stop_rasterizing()
 
     # the axes class has a second argument inframe for its draw method.
     @wraps(draw)
     def draw_wrapper(artist, renderer, *args, **kwargs):
-        with with_rasterized(artist, renderer):
+        try:
+            if artist.get_rasterized():
+                renderer.start_rasterizing()
+            if artist.get_agg_filter() is not None:
+                renderer.start_filter()
+
             return draw(artist, renderer, *args, **kwargs)
+        finally:
+            if artist.get_agg_filter() is not None:
+                renderer.stop_filter(artist.get_agg_filter())
+            if artist.get_rasterized():
+                renderer.stop_rasterizing()
 
     draw_wrapper._supports_rasterization = True
     return draw_wrapper
@@ -207,32 +199,6 @@ class Artist(object):
             return y
         return ax.yaxis.convert_units(y)
 
-    def set_axes(self, axes):
-        """
-        Set the :class:`~matplotlib.axes.Axes` instance in which the
-        artist resides, if any.
-
-        This has been deprecated in mpl 1.5, please use the
-        axes property.  Will be removed in 1.7 or 2.0.
-
-        ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
-        """
-        warnings.warn(_get_axes_msg.format('set_axes'), mplDeprecation,
-                      stacklevel=1)
-        self.axes = axes
-
-    def get_axes(self):
-        """
-        Return the :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*.
-
-        This has been deprecated in mpl 1.5, please use the
-        axes property.  Will be removed in 1.7 or 2.0.
-        """
-        warnings.warn(_get_axes_msg.format('get_axes'), mplDeprecation,
-                      stacklevel=1)
-        return self.axes
-
     @property
     def axes(self):
         """
@@ -243,18 +209,14 @@ class Artist(object):
 
     @axes.setter
     def axes(self, new_axes):
-
-        if (new_axes is not None and
-                (self._axes is not None and new_axes != self._axes)):
-            raise ValueError("Can not reset the axes.  You are "
-                             "probably trying to re-use an artist "
-                             "in more than one Axes which is not "
-                             "supported")
-
+        if (new_axes is not None and self._axes is not None
+                and new_axes != self._axes):
+            raise ValueError("Can not reset the axes.  You are probably "
+                             "trying to re-use an artist in more than one "
+                             "Axes which is not supported")
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
-
         return new_axes
 
     @property
