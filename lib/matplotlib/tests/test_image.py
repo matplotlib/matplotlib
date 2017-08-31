@@ -780,6 +780,15 @@ def test_imshow_no_warn_invalid():
     assert len(warns) == 0
 
 
+@image_comparison(baseline_images=['imshow_flatfield'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_flatfield():
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.ones((5, 5)))
+    im.set_clim(.5, 1.5)
+
+
 def test_empty_imshow():
     fig, ax = plt.subplots()
     im = ax.imshow([[]])
