@@ -272,8 +272,8 @@ class Slider(AxesWidget):
     Call :meth:`on_changed` to connect to the slider event
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
-                 closedmin=True, closedmax=True, slidermin=None, slidermax=None,
-                 dragging=True, valstep=None, **kwargs):
+                 closedmin=True, closedmax=True, slidermin=None,
+                 slidermax=None, dragging=True, valstep=None, **kwargs):
         """
         Parameters
         ----------
@@ -419,7 +419,6 @@ class Slider(AxesWidget):
         if (val is not None) and (val != self.val):
             self.set_val(val)
 
-    
     def set_val(self, val):
         xy = self.poly.xy
         xy[2] = val, 1
