@@ -271,9 +271,9 @@ class Slider(AxesWidget):
 
     Call :meth:`on_changed` to connect to the slider event
     """
-    def __init__(self, ax, label, valmin, valmax, valstep=None, valinit=0.5,
-                 valfmt='%1.2f', closedmin=True, closedmax=True,
-                 slidermin=None, slidermax=None, dragging=True, **kwargs):
+    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
+                 closedmin=True, closedmax=True, slidermin=None, slidermax=None,
+                 dragging=True, valstep=None, **kwargs):
         """
         Parameters
         ----------
@@ -288,9 +288,6 @@ class Slider(AxesWidget):
 
         valmax : float
             The maximum value of the slider.
-
-        valstep : float, optional, default: None
-            If given, the slider will snap to multiples of `valstep`.
 
         valinit : float, optional, default: 0.5
             The slider initial position.
@@ -314,6 +311,9 @@ class Slider(AxesWidget):
 
         dragging : bool, optional, default: True
             If True the slider can be dragged by the mouse.
+
+        valstep : float, optional, default: None
+            If given, the slider will snap to multiples of `valstep`.
 
         Notes
         -----
@@ -419,6 +419,7 @@ class Slider(AxesWidget):
         if (val is not None) and (val != self.val):
             self.set_val(val)
 
+    
     def set_val(self, val):
         xy = self.poly.xy
         xy[2] = val, 1
