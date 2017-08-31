@@ -455,7 +455,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # 'unshare' the mask array to
                 # needed to suppress numpy warning
                 del out_mask
-                invalid_mask = ~output.mask * ~np.isnan(output.data)
+                invalid_mask = ~output.mask & ~np.isnan(output.data)
                 # relabel under data.  If any of the input data for
                 # the pixel has input out of the norm bounds,
                 output[np.isnan(hid_output[..., 1]) * invalid_mask] = -1
