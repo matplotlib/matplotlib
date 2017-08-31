@@ -416,12 +416,10 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
         val = self._value_in_bounds(event.xdata)
-        if val is not None:
+        if (val is not None) and (val != self.val):
             self.set_val(val)
 
     def set_val(self, val):
-        if self.val == val:
-            return
         xy = self.poly.xy
         xy[2] = val, 1
         xy[3] = val, 0
