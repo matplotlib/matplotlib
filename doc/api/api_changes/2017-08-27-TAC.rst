@@ -1,0 +1,22 @@
+Change to signatures of :meth:`~matplotlib.axes.Axes.bar` & :meth:`~matplotlib.axes.Axes.barh`
+----------------------------------------------------------------------------------------------
+
+For 2.0 the :ref:`default value of *align* <barbarh_align>` changed to
+``'center'``.  However this caused the signature of
+:meth:`~matplotlib.axes.Axes.bar` and
+:meth:`~matplotlib.axes.Axes.barh` to be misleading as the first parameters were
+still *left* and *bottom* respectively::
+
+  bar(left, height, *, align='center', **kwargs)
+  barh(bottom, width, *, align='center', **kwargs)
+
+despite behaving as the center in both cases. The methods now take ``*args, **kwargs``
+is input and are documented to have the primary signatures of::
+
+  bar(x, height, *, align='center', **kwargs)
+  barh(y, width, *, align='center', **kwargs)
+
+Passing *left* and *bottom* as keyword arguments to
+:meth:`~matplotlib.axes.Axes.bar` and
+:meth:`~matplotlib.axes.Axes.barh` respectively will warn.
+Support will be removed in Matplotlib 3.0.

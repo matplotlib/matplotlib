@@ -1868,25 +1868,49 @@ or tuple of floats
 
         return self.plot(x, y, *args, **kwargs)
 
-    @_preprocess_data(replace_names=["left", "height", "width", "bottom",
+    @_preprocess_data(replace_names=["x", "left",
+                                     "height", "width",
+                                     "y", "bottom",
                                      "color", "edgecolor", "linewidth",
                                      "tick_label", "xerr", "yerr",
                                      "ecolor"],
-                      label_namer=None)
+                      label_namer=None,
+                      replace_all_args=True
+                      )
     @docstring.dedent_interpd
-    def bar(self, left, height, width=0.8, bottom=None, **kwargs):
+    def bar(self, *args, **kwargs):
         """
         Make a bar plot.
 
-        Make a bar plot with rectangles bounded by:
+        Call signatures::
 
-          `left`, `left` + `width`, `bottom`, `bottom` + `height`
-                (left, right, bottom and top edges)
+           bar(x, height, *, align='center', **kwargs)
+           bar(x, height, width, *, align='center', **kwargs)
+           bar(x, height, width, bottom, *, align='center', **kwargs)
+
+        Make a bar plot with rectangles bounded by
+
+        .. math::
+
+           (x - width/2, x + width/2, bottom, bottom + height)
+
+        (left, right, bottom and top edges) by default.  *x*,
+        *height*, *width*, and *bottom* can be either scalars or
+        sequences.
+
+        The *align* and *orientation* kwargs control the interpretation of *x*
+        and *bottom*
+
+        The *align* keyword-only argument controls if *x* is interpreted
+        as the center or the left edge of the rectangle.
 
         Parameters
         ----------
-        left : sequence of scalars
-            the x coordinates of the left sides of the bars
+        x : sequence of scalars
+            the x coordinates of the bars.
+
+            *align* controls if *x* is the bar center (default) or
+            left edge.
 
         height : scalar or sequence of scalars
             the height(s) of the bars
@@ -1899,6 +1923,21 @@ or tuple of floats
             the y coordinate(s) of the bars
             default: None
 
+        align : {'center', 'edge'}, optional, default: 'center'
+            If 'center', interpret the *x* argument as the coordinates
+            of the centers of the bars.  If 'edge', aligns bars by
+            their left edges
+
+            To align the bars on the right edge pass a negative
+            *width* and ``align='edge'``
+
+        Returns
+        -------
+        bars : matplotlib.container.BarContainer
+            Container with all of the bars + errorbars
+
+        Other Parameters
+        ----------------
         color : scalar or array-like, optional
             the colors of the bar faces
 
@@ -1935,32 +1974,28 @@ or tuple of floats
             dictionary of kwargs to be passed to errorbar method. *ecolor* and
             *capsize* may be specified here rather than as independent kwargs.
 
-        align : {'center', 'edge'}, optional, default: 'center'
-            If 'edge', aligns bars by their left edges (for vertical bars) and
-            by their bottom edges (for horizontal bars). If 'center', interpret
-            the `left` argument as the coordinates of the centers of the bars.
-            To align on the align bars on the right edge pass a negative
-            `width`.
-
-        orientation : {'vertical',  'horizontal'}, optional
-            The orientation of the bars.
-
         log : boolean, optional
             If true, sets the axis to be log scale.
             default: False
 
-        Returns
-        -------
-        bars : matplotlib.container.BarContainer
-            Container with all of the bars + errorbars
+        orientation : {'vertical',  'horizontal'}, optional
+
+            This is for internal use, please do not directly use this,
+            call `barh` instead.
+
+            The orientation of the bars.
+
+        See also
+        --------
+        barh: Plot a horizontal bar plot.
 
         Notes
         -----
-        The optional arguments `color`, `edgecolor`, `linewidth`,
-        `xerr`, and `yerr` can be either scalars or sequences of
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: `xerr` and `yerr` are passed directly to
+        Detail: *xerr* and *yerr* are passed directly to
         :meth:`errorbar`, so they can also have shape 2xN for
         independent specification of lower and upper errors.
 
@@ -1968,11 +2003,35 @@ or tuple of floats
 
         %(Rectangle)s
 
-        See also
-        --------
-        barh: Plot a horizontal bar plot.
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
+        # this is using the lambdas to do the arg/kwarg unpacking rather
+        # than trying to re-implement all of that logic our selves.
+        matchers = [
+            (lambda x, height, width=0.8, bottom=None, **kwargs:
+             (False, x, height, width, bottom, kwargs)),
+            (lambda left, height, width=0.8, bottom=None, **kwargs:
+             (True, left, height, width, bottom, kwargs)),
+        ]
+        exps = []
+        for matcher in matchers:
+            try:
+                dp, x, height, width, y, kwargs = matcher(*args, **kwargs)
+            except TypeError as e:
+                # This can only come from a no-match as there is
+                # no other logic in the matchers.
+                exps.append(e)
+            else:
+                break
+        else:
+            raise exps[0]
+        # if we matched the second-case, then the user passed in
+        # left=val as a kwarg which we want to deprecate
+        if dp:
+            warnings.warn(
+                "The *left* kwarg to `bar` is deprecated use *x* instead. "
+                "Support for *left* will be removed in Matplotlib 3.0",
+                mplDeprecation, stacklevel=2)
         if not self._hold:
             self.cla()
         color = kwargs.pop('color', None)
@@ -2002,38 +2061,39 @@ or tuple of floats
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
 
-        _left = left
-        _bottom = bottom
-        left, height, width, bottom = np.broadcast_arrays(
-            # Make args iterable too.
-            np.atleast_1d(left), height, width, bottom)
-
         adjust_ylim = False
         adjust_xlim = False
+
         if orientation == 'vertical':
-            self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
-            if log:
-                self.set_yscale('log', nonposy='clip')
-            # size width and bottom according to length of left
-            if _bottom is None:
+            if y is None:
                 if self.get_yscale() == 'log':
                     adjust_ylim = True
-                bottom = np.zeros_like(bottom)
+                y = 0
 
-            tick_label_axis = self.xaxis
-            tick_label_position = left
         elif orientation == 'horizontal':
-            self._process_unit_info(xdata=width, ydata=bottom, kwargs=kwargs)
-            if log:
-                self.set_xscale('log', nonposx='clip')
-            # size left and height according to length of bottom
-            if _left is None:
+            if x is None:
                 if self.get_xscale() == 'log':
                     adjust_xlim = True
-                left = np.zeros_like(left)
+                x = 0
+
+        x, height, width, y, linewidth = np.broadcast_arrays(
+            # Make args iterable too.
+            np.atleast_1d(x), height, width, y, linewidth)
+
+        if orientation == 'vertical':
+            self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
+            if log:
+                self.set_yscale('log', nonposy='clip')
+
+            tick_label_axis = self.xaxis
+            tick_label_position = x
+        elif orientation == 'horizontal':
+            self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
+            if log:
+                self.set_xscale('log', nonposx='clip')
 
             tick_label_axis = self.yaxis
-            tick_label_position = bottom
+            tick_label_position = y
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
@@ -2051,24 +2111,30 @@ or tuple of floats
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
         if self.xaxis is not None:
-            left = self.convert_xunits(left)
+            x = self.convert_xunits(x)
             width = self.convert_xunits(width)
             if xerr is not None:
                 xerr = self.convert_xunits(xerr)
 
         if self.yaxis is not None:
-            bottom = self.convert_yunits(bottom)
+            y = self.convert_yunits(y)
             height = self.convert_yunits(height)
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
 
+        # We will now resolve the alignment and really have
+        # left, bottom, width, height vectors
         if align == 'center':
             if orientation == 'vertical':
-                left = left - width / 2
+                left = x - width / 2
+                bottom = y
             elif orientation == 'horizontal':
-                bottom = bottom - height / 2
-
-        elif align != 'edge':
+                bottom = y - height / 2
+                left = x
+        elif align == 'edge':
+            left = x
+            bottom = y
+        else:
             raise ValueError('invalid alignment: %s' % align)
 
         patches = []
@@ -2096,18 +2162,17 @@ or tuple of floats
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
                 # using list comps rather than arrays to preserve unit info
-                x = [l + 0.5 * w for l, w in zip(left, width)]
-                y = [b + h for b, h in zip(bottom, height)]
+                ex = [l + 0.5 * w for l, w in zip(left, width)]
+                ey = [b + h for b, h in zip(bottom, height)]
 
             elif orientation == 'horizontal':
                 # using list comps rather than arrays to preserve unit info
-                x = [l + w for l, w in zip(left, width)]
-                y = [b + 0.5 * h for b, h in zip(bottom, height)]
+                ex = [l + w for l, w in zip(left, width)]
+                ey = [b + 0.5 * h for b, h in zip(bottom, height)]
 
-            if "label" not in error_kw:
-                error_kw["label"] = '_nolegend_'
+            error_kw.setdefault("label", '_nolegend_')
 
-            errorbar = self.errorbar(x, y,
+            errorbar = self.errorbar(ex, ey,
                                      yerr=yerr, xerr=xerr,
                                      fmt='none', **error_kw)
         else:
@@ -2143,22 +2208,36 @@ or tuple of floats
         return bar_container
 
     @docstring.dedent_interpd
-    def barh(self, bottom, width, height=0.8, left=None, **kwargs):
+    def barh(self, *args, **kwargs):
         """
         Make a horizontal bar plot.
 
-        Make a horizontal bar plot with rectangles bounded by:
+        Call signatures::
 
-          `left`, `left` + `width`, `bottom`, `bottom` + `height`
-                (left, right, bottom and top edges)
+           bar(y, width, *, align='center', **kwargs)
+           bar(y, width, height, *, align='center', **kwargs)
+           bar(y, width, height, left, *, align='center', **kwargs)
 
-        `bottom`, `width`, `height`, and `left` can be either scalars
-        or sequences
+        Make a horizontal bar plot with rectangles by default bounded by
+
+        .. math::
+
+           (left, left + width, y - height/2, y + height/2)
+
+        (left, right, bottom and top edges) by default.  *y*, *width*,
+        *height*, and *left* can be either scalars or sequences.
+
+        The *align* keyword-only argument controls if *y* is interpreted
+        as the center or the bottom edge of the rectangle.
+
 
         Parameters
         ----------
-        bottom : scalar or array-like
+        y : scalar or array-like
             the y coordinate(s) of the bars
+
+            *align* controls if *y* is the bar center (default)
+            or bottom edge.
 
         width : scalar or array-like
             the width(s) of the bars
@@ -2168,6 +2247,14 @@ or tuple of floats
 
         left : sequence of scalars
             the x coordinates of the left sides of the bars
+
+        align : {'center', 'edge'}, optional, default: 'center'
+            If 'center', interpret the *y* argument as the coordinates
+            of the centers of the bars.  If 'edge', aligns bars by
+            their bottom edges
+
+            To align the bars on the top edge pass a negative
+            *height* and ``align='edge'``
 
         Returns
         -------
@@ -2206,23 +2293,20 @@ or tuple of floats
             dictionary of kwargs to be passed to errorbar method. `ecolor` and
             `capsize` may be specified here rather than as independent kwargs.
 
-        align : {'center', 'edge'}, optional, default: 'center'
-            If 'edge', aligns bars by their left edges (for vertical
-            bars) and by their bottom edges (for horizontal bars). If
-            'center', interpret the `bottom` argument as the
-            coordinates of the centers of the bars.  To align on the
-            align bars on the top edge pass a negative 'height'.
-
         log : boolean, optional, default: False
             If true, sets the axis to be log scale
 
+        See also
+        --------
+        bar: Plot a vertical bar plot.
+
         Notes
         -----
-        The optional arguments `color`, `edgecolor`, `linewidth`,
-        `xerr`, and `yerr` can be either scalars or sequences of
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: `xerr` and `yerr` are passed directly to
+        Detail: *xerr* and *yerr* are passed directly to
         :meth:`errorbar`, so they can also have shape 2xN for
         independent specification of lower and upper errors.
 
@@ -2230,13 +2314,36 @@ or tuple of floats
 
         %(Rectangle)s
 
-        See also
-        --------
-        bar: Plot a vertical bar plot.
         """
+        # this is using the lambdas to do the arg/kwarg unpacking rather
+        # than trying to re-implement all of that logic our selves.
+        matchers = [
+            (lambda y, width, height=0.8, left=None, **kwargs:
+             (False, y, width, height, left, kwargs)),
+            (lambda bottom, width, height=0.8, left=None, **kwargs:
+             (True, bottom, width, height, left, kwargs)),
+        ]
+        excs = []
+        for matcher in matchers:
+            try:
+                dp, y, width, height, left, kwargs = matcher(*args, **kwargs)
+            except TypeError as e:
+                # This can only come from a no-match as there is
+                # no other logic in the matchers.
+                excs.append(e)
+            else:
+                break
+        else:
+            raise excs[0]
 
-        patches = self.bar(left=left, height=height, width=width,
-                           bottom=bottom, orientation='horizontal', **kwargs)
+        if dp:
+            warnings.warn(
+                "The *bottom* kwarg to `barh` is deprecated use *y* instead. "
+                "Support for *bottom* will be removed in Matplotlib 3.0",
+                mplDeprecation, stacklevel=2)
+        kwargs.setdefault('orientation', 'horizontal')
+        patches = self.bar(x=left, height=height, width=width,
+                           bottom=y, **kwargs)
         return patches
 
     @_preprocess_data(label_namer=None)

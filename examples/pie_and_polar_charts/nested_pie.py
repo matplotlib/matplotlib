@@ -44,17 +44,17 @@ left_inner = np.arange(0.0, 2 * np.pi, 2 * np.pi / 6)
 left_middle = np.arange(0.0, 2 * np.pi, 2 * np.pi / 12)
 left_outer = np.arange(0.0, 2 * np.pi, 2 * np.pi / 9)
 
-ax.bar(left=left_inner,
+ax.bar(x=left_inner,
        width=2 * np.pi / 6, bottom=0, color='C0',
        linewidth=2, edgecolor='w',
        height=np.zeros_like(left_inner) + 5)
 
-ax.bar(left=left_middle,
+ax.bar(x=left_middle,
        width=2 * np.pi / 12, bottom=5, color='C1',
        linewidth=2, edgecolor='w',
        height=np.zeros_like(left_middle) + 2)
 
-ax.bar(left=left_outer,
+ax.bar(x=left_outer,
        width=2 * np.pi / 9, bottom=7, color='C2',
        linewidth=2, edgecolor='w',
        height=np.zeros_like(left_outer) + 3)
