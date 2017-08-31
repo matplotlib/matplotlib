@@ -509,8 +509,7 @@ class FigureManagerQT(FigureManagerBase):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height + sbs.height()
-        height = cs.height() + self._status_and_tool_height
+        height = cs.height() + tbs_height + sbs.height()
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -554,8 +553,11 @@ class FigureManagerQT(FigureManagerBase):
         return toolbar
 
     def resize(self, width, height):
-        'set the canvas size in pixels'
-        self.window.resize(width, height + self._status_and_tool_height)
+        # these are Qt methods so they return sizes in 'virtual' pixels
+        # so we do not need to worry about dpi scaling here.
+        extra_width = self.window.width() - self.canvas.width()
+        extra_height = self.window.height() - self.canvas.height()
+        self.window.resize(width+extra_width, height+extra_height)
 
     def show(self):
         self.window.show()
