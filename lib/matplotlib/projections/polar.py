@@ -262,22 +262,22 @@ class ThetaTick(maxis.XTick):
         self._text2_translate = mtransforms.ScaledTranslation(
             0, 0,
             axes.figure.dpi_scale_trans)
-        maxis.XTick.__init__(self, axes, *args, **kwargs)
+        super(ThetaTick, self).__init__(axes, *args, **kwargs)
 
     def _get_text1(self):
-        t = maxis.XTick._get_text1(self)
+        t = super(ThetaTick, self)._get_text1()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text1_translate)
         return t
 
     def _get_text2(self):
-        t = maxis.XTick._get_text2(self)
+        t = super(ThetaTick, self)._get_text2()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text2_translate)
         return t
 
     def _apply_params(self, **kw):
-        maxis.XTick._apply_params(self, **kw)
+        super(ThetaTick, self)._apply_params(**kw)
 
         # Ensure transform is correct; sometimes this gets reset.
         trans = self.label1.get_transform()
@@ -296,7 +296,7 @@ class ThetaTick(maxis.XTick):
         self._text2_translate.invalidate()
 
     def update_position(self, loc):
-        maxis.XTick.update_position(self, loc)
+        super(ThetaTick, self).update_position(loc)
         axes = self.axes
         angle = (loc * axes.get_theta_direction() +
                  axes.get_theta_offset() - np.pi / 2)
@@ -361,19 +361,19 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majfmt = True
 
     def cla(self):
-        maxis.XAxis.cla(self)
+        super(ThetaAxis, self).cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        maxis.XAxis._set_scale(self, value, **kwargs)
+        super(ThetaAxis, self)._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
         'Copy the props from src tick to dest tick'
         if src is None or dest is None:
             return
-        maxis.XAxis._copy_tick_props(self, src, dest)
+        super(ThetaAxis, self)._copy_tick_props(src, dest)
 
         # Ensure that tick transforms are independent so that padding works.
         trans = dest._get_text1_transform()[0]
@@ -463,9 +463,6 @@ class _ThetaShift(mtransforms.ScaledTranslation):
                     angle = self.axes._realViewLim.xmin
                 elif self.mode == 'max':
                     angle = self.axes._realViewLim.xmax
-            angle %= 2 * np.pi
-            if angle < 0:
-                angle += 2 * np.pi
 
             if self.mode in ('rlabel', 'min'):
                 padx = np.cos(angle - np.pi / 2)
@@ -489,17 +486,17 @@ class RadialTick(maxis.YTick):
     preserve backwards compatibility.
     """
     def _get_text1(self):
-        t = maxis.YTick._get_text1(self)
+        t = super(RadialTick, self)._get_text1()
         t.set_rotation_mode('anchor')
         return t
 
     def _get_text2(self):
-        t = maxis.YTick._get_text2(self)
+        t = super(RadialTick, self)._get_text2()
         t.set_rotation_mode('anchor')
         return t
 
     def update_position(self, loc):
-        maxis.YTick.update_position(self, loc)
+        super(RadialTick, self).update_position(loc)
         axes = self.axes
         thetamin = axes.get_thetamin()
         thetamax = axes.get_thetamax()
@@ -592,12 +589,12 @@ class RadialAxis(maxis.YAxis):
         self.isDefault_majloc = True
 
     def cla(self):
-        maxis.YAxis.cla(self)
+        super(RadialAxis, self).cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        maxis.YAxis._set_scale(self, value, **kwargs)
+        super(RadialAxis, self)._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
 
