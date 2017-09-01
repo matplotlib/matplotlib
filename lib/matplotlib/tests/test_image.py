@@ -802,3 +802,8 @@ def test_empty_imshow():
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
+
+
+def test_imshow_bool():
+    fig, ax = plt.subplots()
+    ax.imshow(np.array([[True, False], [False, True]], dtype=bool))
