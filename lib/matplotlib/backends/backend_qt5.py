@@ -725,8 +725,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         sorted_filetypes = sorted(six.iteritems(filetypes))
         default_filetype = self.canvas.get_default_filetype()
 
-        startpath = matplotlib.rcParams.get('savefig.directory', '')
-        startpath = os.path.expanduser(startpath)
+        startpath = os.path.expanduser(
+            matplotlib.rcParams['savefig.directory'])
         start = os.path.join(startpath, self.canvas.get_default_filename())
         filters = []
         selectedFilter = None
@@ -742,15 +742,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                                          "Choose a filename to save to",
                                          start, filters, selectedFilter)
         if fname:
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                matplotlib.rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                savefig_dir = os.path.dirname(six.text_type(fname))
-                matplotlib.rcParams['savefig.directory'] = savefig_dir
+            # Save dir for next time, unless empty str (i.e., use cwd).
+            if startpath != "":
+                matplotlib.rcParams['savefig.directory'] = (
+                    os.path.dirname(six.text_type(fname)))
             try:
-                self.canvas.print_figure(six.text_type(fname))
+                self.canvas.figure.savefig(six.text_type(fname))
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", six.text_type(e),
