@@ -159,7 +159,14 @@ class PathEffectRenderer(RendererBase):
         self.draw_path(gc, path, transform, rgbFace=color)
 
     def __getattribute__(self, name):
-        if name in ['_text2path', 'flipy', 'height', 'width']:
+        _renderer_attributes = ['_text2path',
+                                'flipy',
+                                'height',
+                                'width',
+                                'open_group',
+                                'close_group',
+                                ]
+        if name in _renderer_attributes:
             return getattr(self._renderer, name)
         else:
             return object.__getattribute__(self, name)

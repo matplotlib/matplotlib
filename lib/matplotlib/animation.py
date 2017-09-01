@@ -36,12 +36,16 @@ except ImportError:
     from base64 import encodestring as encodebytes
 import abc
 import contextlib
+import operator
+import re
 import tempfile
 import warnings
+import matplotlib.backends.backend_svg as backend_svg
 from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams, rcParamsDefault, rc_context
+from xml.etree import ElementTree as etree
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
@@ -874,6 +878,481 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
         return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
                  '%s*.%s' % (self.temp_prefix, self.frame_format)]
                 + self.output_args)
+
+
+SVG_ANIMATION_ATTRIBUTE = "_anim"
+
+
+class SvgBase(object):
+    """Base class of SVG information."""
+    supported_formats = ['svg']
+
+
+class SvgAnimationError(Exception):
+    pass
+
+
+class _SvgAnimate(object):
+    """An object to carry svg animation information.
+
+    Store the element's attributes for each frame of the animation.
+    Call *add_to_element* to parse through these attributes and add the
+    appropriate SVG animation elements to an XML element.
+
+    To create the SVG animation, an object of this type is added to each
+    element of the SVG.  This object tracks the XML attributes of the parent
+    element for each frame of the animation.  Finally, the XML attributes
+    are parsed for each frame and the appropriate SVG animation elements are
+    added.
+
+    Attributes
+    ----------
+    under_defs : bool
+        this element appears as a child of a <defs> element
+    """
+    def __init__(self):
+        # store xml attributes per frame as dict
+        self._xml = {}
+        # below, define CSS values to show/hide element
+        self._css_value = 'opacity'
+        self._css_show = '1'
+        self._css_hide = '0'
+        self._css_value = ('CSS', 'visibility')
+        self._css_show = 'visible'
+        self._css_hide = 'hidden'
+        self.under_defs = False
+
+    def is_active(self, frame):
+        return frame in self._xml
+
+    def set_frame_attributes(self, frame, attrib):
+        """Animate an xml attribute
+
+        Parameters
+        ----------
+        frame : int
+            frame number at which this applies
+        attrib : dict
+            element attributes
+        """
+        self._xml[frame] = attrib
+
+    @classmethod
+    def populate(cls, element, frame, under_defs=False):
+        """Add an _SvgAnimate object to an XML *element*'s attributes.
+
+        Given an *element*, walk through all children elements and add an
+        _SvgAnimate object to each element's attributes.  This method should
+        be used before attempting to call *add_to_element* so that an
+        _SvgAnimate object exists in the element.  The current *frame* is
+        set as active on all touched elements.
+
+        Parameters
+        ----------
+        element : ElementTree.Element object
+            element to which to add animation
+        frame : int
+            frame id at which this element begins to be active
+        under_defs : bool
+            initialize new _SvgAnimate.under_defs value to *under_defs*
+        """
+        attribute = SVG_ANIMATION_ATTRIBUTE
+        elements = [element]
+        while len(elements):
+            element = elements.pop()
+            animation = element.attrib[attribute] = cls()
+            animation.set_frame_attributes(frame, element.attrib)
+            animation.under_defs = under_defs
+            elements.extend(element.getchildren())
+
+    def _get_visibility_animation(self, show, start, event):
+        """Get SVG 'set' animation element
+
+        Parameters
+        ----------
+        show : bool
+            whether to show or hide parent
+        start : float
+            start of show or hide
+        event : str
+            XML event from which to offset animation
+        """
+        ret = etree.Element('set')
+        to = {True: self._css_show,
+              False: self._css_hide}[show]
+        begin = event + str(start) + 's'
+        if event:
+            begin += ';' + str(start) + 's'
+        ret.attrib = {'attributeType': self._css_value[0],
+                      'attributeName': self._css_value[1],
+                      'to': to,
+                      'begin': begin,
+                      'fill': 'freeze',
+                      }
+        return ret
+
+    def _get_anim(self, tag, event, **kwargs):
+        """Get an SVG animation element
+
+        Parameters
+        ----------
+        tag : str
+            tag for SVG element to be made
+        event : str
+            event from which to offset animation
+        begin : float
+            start of animation
+        dur : float
+            duration of animation (can be None)
+
+        additional keyword arguments are passed to etree.Element
+        """
+        begin = str(kwargs['begin']) + 's'
+        if event:
+            kwargs['begin'] = event + begin + ';' + begin
+        else:
+            kwargs['begin'] = begin
+        if kwargs['dur'] is None:
+            kwargs.pop('dur')
+            kwargs['end'] = event + '0s'
+        else:
+            kwargs['dur'] = str(kwargs['dur']) + 's'
+        element = etree.Element(tag, **kwargs)
+        return element
+
+    def add_to_element(self, element, fps, total_frames, event=None):
+        """Add animation to element.
+
+        This will create the appropriate animation elements, extending
+        *element* with them.
+
+        Parameters
+        ----------
+        element : ElementTree.Element object
+            element to which to add animation
+        fps : int
+            frames per second
+        total_frames : int
+            total frames in animation
+        event : string
+            optional XML event from which to offset animation
+        """
+        anim = self._xml
+        frames = sorted(anim.keys())
+        key = operator.itemgetter(0)
+        attrib = [sorted(anim[i].items(), key=key) for i in frames]
+
+        # determine the indeces when attributes change
+        changes = []
+        for i in range(1, len(attrib)):
+            if not attrib[i] == attrib[i-1]:
+                changes.append(i)
+
+        # if all attributes are identical and cover all frames,
+        # no need to add anything to this element
+        covers_all_frames = frames == list(range(total_frames))
+        if covers_all_frames and not changes:
+            return
+
+        # check if/when I need to hide this element
+        # once hidden, it does not come back (because I check for this
+        # in _svg_append)
+        _min = min(frames)
+        _max = max(frames)
+        assert list(range(_min, _max+1)) == frames
+
+        dt = 1.0/fps
+        start = _min * dt
+        end = (_max+1) * dt
+        if event is None:
+            event = ''
+        else:
+            event += '+'
+
+        if self.under_defs:
+            pass
+        elif _min == 0 and _max == total_frames - 1:
+            pass
+        elif _min == 0:
+            # start out visible, then hide
+            element.append(self._get_visibility_animation(True, start, event))
+            element.append(self._get_visibility_animation(False, end, event))
+        elif _max == total_frames - 1:
+            # start out hidden, then show
+            element.append(self._get_visibility_animation(False, 0, event))
+            element.append(self._get_visibility_animation(True, start, event))
+        else:
+            # start out hidden, then show, then hide
+            element.append(self._get_visibility_animation(False, 0, event))
+            element.append(self._get_visibility_animation(True, start, event))
+            element.append(self._get_visibility_animation(False, end, event))
+
+        # xml attribute animation
+        changes.insert(0, 0)
+        for i in range(len(changes)):
+            if i == 0:
+                prev_frame = None
+                prev_attrib = []
+            else:
+                prev_index = changes[i-1]
+                prev_frame = frames[prev_index]
+                prev_attrib = attrib[prev_index]
+            if i == len(changes) - 1:
+                next_frame = None
+                next_attrib = []
+                end = None
+            else:
+                next_index = changes[i+1]
+                next_frame = frames[next_index]
+                next_attrib = attrib[next_index]
+                end = next_frame * dt
+            curr_index = changes[i]
+            curr_frame = frames[curr_index]
+            curr_attrib = attrib[curr_index]
+            start = curr_frame * dt
+            try:
+                dur = end - start
+            except TypeError:
+                dur = None
+
+            for pair in curr_attrib:
+                if pair in prev_attrib:
+                    continue
+                k, v = pair
+                # handle transforms (for the first frame too!)
+                if k == 'transform':
+                    try:
+                        element.attrib.pop(k)
+                    except KeyError:
+                        pass
+                    finditer = re.compile('(\w+)\((.*?)\)').finditer
+                    for match in finditer(v):
+                        t_type, value = match.groups()
+                        assert t_type.lower() in ['translate', 'scale',
+                                                  'rotate', 'skewx', 'skewy']
+                        fill = {None: 'remove'}.get(end, 'remove')
+                        kwargs = {'attributeType': 'XML',
+                                  'attributeName': 'transform',
+                                  'values': value,
+                                  'begin': start,
+                                  'dur': dur,
+                                  'additive': 'sum',
+                                  'accumulate': 'none',
+                                  'fill': fill,
+                                  'type': t_type,
+                                  }
+                        args = ('animateTransform', event)
+                        animation = self._get_anim(*args, **kwargs)
+                        if curr_index == 0:
+                            count = range(len(value.split(' ')))
+                            null = {'scale': '1'}.get(t_type, '0')
+                            null_value = ' '.join([null for i in count])
+                            kwargs['value'] = null_value
+                            kwargs['dur'] = 0
+                            #element.append(self._get_anim(*args, **kwargs))
+                        element.append(animation)
+                # handle CSS style
+                elif k == 'style':
+                    if prev_attrib and v:
+                        for style in v.strip(';').split(';'):
+                            k, v = style.split(':')
+                            element.append(self._get_anim(
+                                'set',
+                                event,
+                                **{'attributeType': 'CSS',
+                                   'attributeName': k,
+                                   'to': v,
+                                   'begin': start,
+                                   'dur': dur,
+                                   }))
+                    else:
+                        pass
+                elif k == 'id':
+                    # should not have changing id's!
+                    pass
+                else:
+                    element.append(self._get_anim(
+                        'set',
+                        event,
+                        **{'attributeType': 'XML',
+                           'attributeName': k,
+                           'to': v,
+                           'begin': start,
+                           'dur': dur,
+                           'fill': 'freeze',
+                           }))
+
+
+def _svg_append(base, new, frame):
+    """Add *new* xml element to *base* element via svg animation.
+
+    The tag of *base* and *new* must be the same (an exception will be
+    raised).  the text of *base* and *new* must be the same (an
+    exception will be raised).
+
+    All elements of *base* must have an *_anim* property which is an
+    _SvgAnimate object.
+    """
+
+    # enforce tags/text to be identical
+    try:
+        assert base.tag == new.tag
+        assert base.text == new.text
+    except AssertionError:
+        raise SvgAnimationError('new element does not match base element')
+
+    # set elements frame attributes
+    new_items = new.attrib.copy()
+    base_anim = base.attrib[SVG_ANIMATION_ATTRIBUTE]
+    base_anim.set_frame_attributes(frame, new_items)
+
+    new_children = list(new.getchildren())
+    for child in list(base.getchildren()):
+        # skip child if it was not active on the last frame
+        child_animation = child.attrib[SVG_ANIMATION_ATTRIBUTE]
+        if base.tag == 'defs' or base_anim.under_defs:
+            child_animation.under_defs = True
+        if not child_animation.is_active(frame-1):
+            continue
+        # to consider to elements a match, the must have:
+        #  * the same tag
+        #  * the same text
+        #  * the same id (if they have id's)
+        # OK to pop the child during the for loop because I break immediately
+        for i in range(len(new_children)):
+            new_child = new_children[i]
+            if (child.tag == new_child.tag and
+                    child.text == new_child.text and
+                    child.attrib.get('id') == new_child.attrib.get('id')):
+                new_children.pop(i)
+                _svg_append(child, new_child, frame)
+                break
+        # no suitable new_child found
+        pass
+    # new_children now contains only leftover elements
+    for new_child in new_children:
+        under_defs = base.tag == 'defs' or base_anim.under_defs
+        _SvgAnimate.populate(new_child, frame, under_defs=under_defs)
+        base.append(new_child)
+
+
+# The SVG writer does not use file based frames but instead
+# the root tree of each frame is stitched together with
+# animation elements.
+
+@writers.register('svg')
+class SVGWriter(MovieWriter, SvgBase):
+    def __init__(self, *args, **kwargs):
+        '''Construct a new SVGWriter object.
+
+        fps: int
+            Framerate for movie
+        metadata: dict of string:string or None
+            A dictionary of keys and values for metadata to include in the
+            output file. Some keys that may be of use include:
+            title, artist, genre, subject, copyright, srcform, comment.
+        '''
+        # TODO allow user to define how to embed the animation (click on
+        #      the image; loop continuously; etc.)
+
+        # these keyword arguments are required for MovieWriter
+        # but do not apply here
+        for key in ['codec', 'bitrate', 'extra_args']:
+            kwargs[key] = False
+
+        MovieWriter.__init__(self, *args, **kwargs)
+        self.frame_format = 'svg'
+        self.__reset()
+
+    def __reset(self):
+        self.__base = None
+        self._frame_count = 0
+
+    def setup(self, fig, outfile, dpi=None, *args):
+        MovieWriter.setup(self, fig, outfile, dpi, *args)
+
+    @classmethod
+    def isAvailable(cls):
+        return True
+
+    def _run(self):
+        pass
+
+    def _args(self):
+        return ()
+
+    def grab_frame(self, **savefig_kwargs):
+        '''
+        Grab the image information from the figure and save as a movie frame.
+        All keyword arguments in savefig_kwargs are passed on to the 'savefig'
+        command that saves the figure.
+
+        The xml element is modified by:
+         * grouping all elements within a single group
+         * every element is given an "_anim" attribute set to an
+           _SvgAnimate object.  This will be stripped when written to XML
+           during *cleanup*.
+        '''
+        verbose.report('SVGWriter.grab_frame: Grabbing frame.',
+                       level='debug')
+        frame = self._frame_count
+
+        # grab xml
+        builder = backend_svg.XMLBuilder()
+        self.fig.savefig(builder, format='svg', **savefig_kwargs)
+        xml = builder.close()
+
+        # if any of this fails, cleanup and write out what we have
+        # then raise the exception
+        try:
+            # add group which encapsulates all other groups
+            assert xml.tag == 'svg', ("SVG frame must have an 'svg' element" +
+                                      " as its first element")
+            group = etree.Element('g', {'id': 'svg_animate_encapsulation'})
+            group.extend(xml)
+            for i in list(xml):
+                xml.remove(i)
+            xml.append(group)
+            if self.__base is None:
+                self.__base = xml
+                _SvgAnimate.populate(xml, frame)
+            else:
+                new_items = xml.attrib
+                old_items = self.__base.attrib.copy()
+                old_items.pop(SVG_ANIMATION_ATTRIBUTE)
+                fmt = ("new SVG frame must match dimensions of base frame: " +
+                       "(height={0[height]:s}, width={0[width]:s}, " +
+                       "viewBox=({0[viewBox]:s}))")
+                msg = fmt.format(self.__base.attrib)
+                assert new_items == old_items, msg
+                _svg_append(self.__base, xml, frame)
+        except Exception as e:
+            fmt = 'Error during SVG animation on frame {0:d}.'
+            msg = fmt.format(frame)
+            verbose.report(msg, level='silent')
+            self.cleanup()
+            raise
+        self._frame_count += 1
+
+    def cleanup(self):
+        """Process the animation and write to file."""
+        fps = self.fps
+        total_frames = self._frame_count
+        xml = self.__base
+        xml_id = 'svg_animation_' + hex(id(xml))[2:]
+        event = xml_id + '.click'
+        elements = [xml]
+        while len(elements):
+            element = elements.pop()
+            elements.extend(element.getchildren())
+            anim = element.attrib.pop(SVG_ANIMATION_ATTRIBUTE)
+            anim.add_to_element(element, fps, total_frames, event=event)
+        xml.attrib['id'] = xml_id
+        outfile = self.outfile
+        with open(outfile, 'w', encoding='utf-8') as f:
+            f.write(backend_svg.svgProlog)
+            backend_svg.xml_write(xml, f, indent=1)
+        self.__reset()
 
 
 class Animation(object):
