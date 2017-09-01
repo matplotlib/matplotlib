@@ -928,10 +928,9 @@ class HTMLWriter(FileMovieWriter):
 
         if self.default_mode not in ['loop', 'once', 'reflect']:
             self.default_mode = 'loop'
-            import warnings
             warnings.warn("unrecognized default_mode: using 'loop'")
 
-        self._saved_frames = list()
+        self._saved_frames = []
         self._total_bytes = 0
         self._hit_limit = False
         super(HTMLWriter, self).__init__(fps, codec, bitrate,
@@ -962,8 +961,7 @@ class HTMLWriter(FileMovieWriter):
             f = InMemory()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
-            f.seek(0)
-            imgdata64 = encodebytes(f.read()).decode('ascii')
+            imgdata64 = encodebytes(f.getvalue()).decode('ascii')
             self._total_bytes += len(imgdata64)
             if self._total_bytes >= self._bytes_limit:
                 warnings.warn("Animation size has reached {0._total_bytes} "
@@ -1004,7 +1002,7 @@ class HTMLWriter(FileMovieWriter):
                          reflect_checked='')
         mode_dict[self.default_mode + '_checked'] = 'checked'
 
-        interval = int(1000. / self.fps)
+        interval = 1000 // self.fps
 
         with open(self.outfile, 'w') as of:
             of.write(JS_INCLUDE)
@@ -1452,7 +1450,7 @@ class Animation(object):
         """Generate HTML representation of the animation"""
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
-            fps = 1000. / self._interval
+            fps = 1000 / self._interval
 
         # If we're not given a default mode, choose one base on the value of
         # the repeat attribute
