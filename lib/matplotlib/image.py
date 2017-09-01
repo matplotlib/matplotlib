@@ -367,8 +367,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     scaled_dtype = np.float32
                 # old versions of numpy do not work with `np.nammin`
                 # and `np.nanmax` as inputs
-                a_min = np.ma.min(A)
-                a_max = np.ma.max(A)
+                a_min = np.ma.min(A).astype(scaled_dtype)
+                a_max = np.ma.max(A).astype(scaled_dtype)
                 # scale the input data to [.1, .9].  The Agg
                 # interpolators clip to [0, 1] internally, use a
                 # smaller input scale to identify which of the
