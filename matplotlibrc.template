@@ -53,6 +53,9 @@ backend      : $TEMPLATE_BACKEND
 # The port to use for the web server in the WebAgg backend.
 # webagg.port : 8888
 
+# The address on which the WebAgg web server should be reachable
+# webagg.address : 127.0.0.1
+
 # If webagg.port is unavailable, a number of other random ports will
 # be tried until one that is available is found.
 # webagg.port_retries : 50

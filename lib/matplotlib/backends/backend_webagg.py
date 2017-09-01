@@ -229,7 +229,7 @@ class WebAggApplication(tornado.web.Application):
             template_path=core.FigureManagerWebAgg.get_static_file_path())
 
     @classmethod
-    def initialize(cls, url_prefix='', port=None):
+    def initialize(cls, url_prefix='', port=None, address=None):
         if cls.initialized:
             return
 
@@ -253,10 +253,15 @@ class WebAggApplication(tornado.web.Application):
                 yield port + random.randint(-2 * n, 2 * n)
 
         success = None
+
+        if address is None:
+            cls.address = rcParams['webagg.address']
+        else:
+            cls.address = address
         cls.port = rcParams['webagg.port']
         for port in random_ports(cls.port, rcParams['webagg.port_retries']):
             try:
-                app.listen(port)
+                app.listen(port, cls.address)
             except socket.error as e:
                 if e.errno != errno.EADDRINUSE:
                     raise

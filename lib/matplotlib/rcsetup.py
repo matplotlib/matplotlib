@@ -885,6 +885,15 @@ def validate_animation_writer_path(p):
         modules["matplotlib.animation"].writers.set_dirty()
     return p
 
+def validate_webagg_address(s):
+    if s is not None:
+        import socket
+        try:
+            socket.inet_aton(s)
+        except socket.error as e:
+            raise ValueError("'webagg.address' is not a valid IP address")
+    return s
+
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
 _validate_named_linestyle = ValidateInStrings('linestyle',
@@ -943,6 +952,7 @@ defaultParams = {
     'backend.qt4':       ['PyQt4', validate_qt4],
     'backend.qt5':       ['PyQt5', validate_qt5],
     'webagg.port':       [8988, validate_int],
+    'webagg.address':    ['127.0.0.1', validate_webagg_address],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
     'nbagg.transparent':       [True, validate_bool],
