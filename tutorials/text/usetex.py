@@ -161,5 +161,5 @@ Troubleshooting
 .. _Ghostscript: https://ghostscript.com/
 .. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
 .. _Poppler: https://poppler.freedesktop.org/
-.. _Xpdf: http://www.foolabs.com/xpdf
+.. _Xpdf: http://www.xpdfreader.com/
 """
