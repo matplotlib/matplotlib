@@ -602,7 +602,8 @@ validate_movie_writer = ValidateInStrings('animation.writer',
     ['ffmpeg', 'ffmpeg_file',
      'avconv', 'avconv_file',
      'mencoder', 'mencoder_file',
-     'imagemagick', 'imagemagick_file'])
+     'imagemagick', 'imagemagick_file',
+     'html'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -610,7 +611,7 @@ validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
 validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
 
 validate_movie_html_fmt = ValidateInStrings('animation.html',
-    ['html5', 'none'])
+    ['html5', 'jshtml', 'none'])
 
 def validate_bbox(s):
     if isinstance(s, six.string_types):
@@ -1379,11 +1380,16 @@ defaultParams = {
 
     # Animation settings
     'animation.html':         ['none', validate_movie_html_fmt],
+    # Limit, in MB, of size of base64 encoded animation in HTML
+    # (i.e. IPython notebook)
+    'animation.embed_limit':  [20, validate_float],
     'animation.writer':       ['ffmpeg', validate_movie_writer],
     'animation.codec':        ['h264', six.text_type],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],
+    # Additional arguments for HTML writer
+    'animation.html_args':    [[], validate_stringlist],
     # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_path':  ['ffmpeg', validate_animation_writer_path],
 

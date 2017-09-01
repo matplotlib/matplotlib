@@ -37,11 +37,18 @@ except ImportError:
 import abc
 import contextlib
 import tempfile
+import uuid
 import warnings
+from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
+                                        JS_INCLUDE)
 from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams, rcParamsDefault, rc_context
+if sys.version_info < (3, 0):
+    from cStringIO import StringIO as InMemory
+else:
+    from io import BytesIO as InMemory
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
@@ -876,6 +883,136 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
                 + self.output_args)
 
 
+# Taken directly from jakevdp's JSAnimation package at
+# http://github.com/jakevdp/JSAnimation
+def _included_frames(frame_list, frame_format):
+    """frame_list should be a list of filenames"""
+    return INCLUDED_FRAMES.format(Nframes=len(frame_list),
+                                  frame_dir=os.path.dirname(frame_list[0]),
+                                  frame_format=frame_format)
+
+
+def _embedded_frames(frame_list, frame_format):
+    """frame_list should be a list of base64-encoded png files"""
+    template = '  frames[{0}] = "data:image/{1};base64,{2}"\n'
+    embedded = "\n"
+    for i, frame_data in enumerate(frame_list):
+        embedded += template.format(i, frame_format,
+                                    frame_data.replace('\n', '\\\n'))
+    return embedded
+
+
+@writers.register('html')
+class HTMLWriter(FileMovieWriter):
+    supported_formats = ['png', 'jpeg', 'tiff', 'svg']
+    args_key = 'animation.html_args'
+
+    @classmethod
+    def isAvailable(cls):
+        return True
+
+    def __init__(self, fps=30, codec=None, bitrate=None, extra_args=None,
+                 metadata=None, embed_frames=False, default_mode='loop',
+                 embed_limit=None):
+        self.embed_frames = embed_frames
+        self.default_mode = default_mode.lower()
+
+        # Save embed limit, which is given in MB
+        if embed_limit is None:
+            self._bytes_limit = rcParams['animation.embed_limit']
+        else:
+            self._bytes_limit = embed_limit
+
+        # Convert from MB to bytes
+        self._bytes_limit *= 1024 * 1024
+
+        if self.default_mode not in ['loop', 'once', 'reflect']:
+            self.default_mode = 'loop'
+            warnings.warn("unrecognized default_mode: using 'loop'")
+
+        self._saved_frames = []
+        self._total_bytes = 0
+        self._hit_limit = False
+        super(HTMLWriter, self).__init__(fps, codec, bitrate,
+                                         extra_args, metadata)
+
+    def setup(self, fig, outfile, dpi, frame_dir=None):
+        if os.path.splitext(outfile)[-1] not in ['.html', '.htm']:
+            raise ValueError("outfile must be *.htm or *.html")
+
+        if not self.embed_frames:
+            if frame_dir is None:
+                frame_dir = outfile.rstrip('.html') + '_frames'
+            if not os.path.exists(frame_dir):
+                os.makedirs(frame_dir)
+            frame_prefix = os.path.join(frame_dir, 'frame')
+        else:
+            frame_prefix = None
+
+        super(HTMLWriter, self).setup(fig, outfile, dpi,
+                                      frame_prefix, clear_temp=False)
+
+    def grab_frame(self, **savefig_kwargs):
+        if self.embed_frames:
+            # Just stop processing if we hit the limit
+            if self._hit_limit:
+                return
+            suffix = '.' + self.frame_format
+            f = InMemory()
+            self.fig.savefig(f, format=self.frame_format,
+                             dpi=self.dpi, **savefig_kwargs)
+            imgdata64 = encodebytes(f.getvalue()).decode('ascii')
+            self._total_bytes += len(imgdata64)
+            if self._total_bytes >= self._bytes_limit:
+                warnings.warn("Animation size has reached {0._total_bytes} "
+                              "bytes, exceeding the limit of "
+                              "{0._bytes_limit}. If you're sure you want "
+                              "a larger animation embedded, set the "
+                              "animation.embed_limit rc parameter to a "
+                              "larger value (in MB). This and further frames"
+                              " will be dropped.".format(self))
+                self._hit_limit = True
+            else:
+                self._saved_frames.append(imgdata64)
+        else:
+            return super(HTMLWriter, self).grab_frame(**savefig_kwargs)
+
+    def _run(self):
+        # make a duck-typed subprocess stand in
+        # this is called by the MovieWriter base class, but not used here.
+        class ProcessStandin(object):
+            returncode = 0
+
+            def communicate(self):
+                return '', ''
+
+        self._proc = ProcessStandin()
+
+        # save the frames to an html file
+        if self.embed_frames:
+            fill_frames = _embedded_frames(self._saved_frames,
+                                           self.frame_format)
+        else:
+            # temp names is filled by FileMovieWriter
+            fill_frames = _included_frames(self._temp_names,
+                                           self.frame_format)
+
+        mode_dict = dict(once_checked='',
+                         loop_checked='',
+                         reflect_checked='')
+        mode_dict[self.default_mode + '_checked'] = 'checked'
+
+        interval = 1000 // self.fps
+
+        with open(self.outfile, 'w') as of:
+            of.write(JS_INCLUDE)
+            of.write(DISPLAY_TEMPLATE.format(id=uuid.uuid4().hex,
+                                             Nframes=len(self._temp_names),
+                                             fill_frames=fill_frames,
+                                             interval=interval,
+                                             **mode_dict))
+
+
 class Animation(object):
     '''This class wraps the creation of an animation using matplotlib.
 
@@ -1241,7 +1378,7 @@ class Animation(object):
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._handle_resize)
 
-    def to_html5_video(self):
+    def to_html5_video(self, embed_limit=None):
         '''Returns animation as an HTML5 video tag.
 
         This saves the animation as an h264 video, encoded in base64
@@ -1256,6 +1393,13 @@ class Animation(object):
 </video>'''
         # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
+            # Save embed limit, which is given in MB
+            if embed_limit is None:
+                embed_limit = rcParams['animation.embed_limit']
+
+            # Convert from MB to bytes
+            embed_limit *= 1024 * 1024
+
             # First write the video to a tempfile. Set delete to False
             # so we can re-open to read binary data.
             with tempfile.NamedTemporaryFile(suffix='.m4v',
@@ -1271,28 +1415,75 @@ class Animation(object):
             # Now open and base64 encode
             with open(f.name, 'rb') as video:
                 vid64 = encodebytes(video.read())
-                self._base64_video = vid64.decode('ascii')
-                self._video_size = 'width="{0}" height="{1}"'.format(
-                        *writer.frame_size)
+                vid_len = len(vid64)
+                if vid_len >= embed_limit:
+                    warnings.warn("Animation movie is {} bytes, exceeding "
+                                  "the limit of {}. If you're sure you want a "
+                                  "large animation embedded, set the "
+                                  "animation.embed_limit rc parameter to a "
+                                  "larger value (in MB).".format(vid_len,
+                                                                 embed_limit))
+                else:
+                    self._base64_video = vid64.decode('ascii')
+                    self._video_size = 'width="{}" height="{}"'.format(
+                            *writer.frame_size)
 
             # Now we can remove
             os.remove(f.name)
 
-        # Default HTML5 options are to autoplay and to display video controls
-        options = ['controls', 'autoplay']
+        # If we exceeded the size, this attribute won't exist
+        if hasattr(self, '_base64_video'):
+            # Default HTML5 options are to autoplay and display video controls
+            options = ['controls', 'autoplay']
 
-        # If we're set to repeat, make it loop
-        if self.repeat:
-            options.append('loop')
-        return VIDEO_TAG.format(video=self._base64_video,
-                                size=self._video_size,
-                                options=' '.join(options))
+            # If we're set to repeat, make it loop
+            if hasattr(self, 'repeat') and self.repeat:
+                options.append('loop')
+
+            return VIDEO_TAG.format(video=self._base64_video,
+                                    size=self._video_size,
+                                    options=' '.join(options))
+        else:
+            return 'Video too large to embed.'
+
+    def to_jshtml(self, fps=None, embed_frames=True, default_mode=None):
+        """Generate HTML representation of the animation"""
+        if fps is None and hasattr(self, '_interval'):
+            # Convert interval in ms to frames per second
+            fps = 1000 / self._interval
+
+        # If we're not given a default mode, choose one base on the value of
+        # the repeat attribute
+        if default_mode is None:
+            default_mode = 'loop' if self.repeat else 'once'
+
+        if hasattr(self, "_html_representation"):
+            return self._html_representation
+        else:
+            # Can't open a second time while opened on windows. So we avoid
+            # deleting when closed, and delete manually later.
+            with tempfile.NamedTemporaryFile(suffix='.html',
+                                             delete=False) as f:
+                self.save(f.name, writer=HTMLWriter(fps=fps,
+                                                    embed_frames=embed_frames,
+                                                    default_mode=default_mode))
+            # Re-open and get content
+            with open(f.name) as fobj:
+                html = fobj.read()
+
+            # Now we can delete
+            os.remove(f.name)
+
+            self._html_representation = html
+            return html
 
     def _repr_html_(self):
         '''IPython display hook for rendering.'''
         fmt = rcParams['animation.html']
         if fmt == 'html5':
             return self.to_html5_video()
+        elif fmt == 'jshtml':
+            return self.to_jshtml()
 
 
 class TimedAnimation(Animation):

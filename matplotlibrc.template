@@ -609,6 +609,7 @@ backend      : $TEMPLATE_BACKEND
 #animation.bitrate: -1             # Controls size/quality tradeoff for movie.
                                    # -1 implies let utility auto-determine
 #animation.frame_format: 'png'     # Controls frame format used by temp files
+#animation.html_args: ''           # Additional arguments to pass to html writer
 #animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
 #animation.ffmpeg_args: ''         # Additional arguments to pass to ffmpeg
