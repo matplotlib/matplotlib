@@ -77,6 +77,7 @@ def run_memleak_test(bench, iterations, report):
 
     if not report.endswith('.pdf'):
         report = report + '.pdf'
+    fig.tight_layout()
     fig.savefig(report, format='pdf')
 
 
