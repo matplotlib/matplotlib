@@ -56,7 +56,7 @@ else:
 def get_texcommand():
     """Get chosen TeX system from rc."""
     texsystem_options = ["xelatex", "lualatex", "pdflatex"]
-    texsystem = rcParams.get("pgf.texsystem", "xelatex")
+    texsystem = rcParams["pgf.texsystem"]
     return texsystem if texsystem in texsystem_options else "xelatex"
 
 
@@ -68,7 +68,7 @@ def get_fontspec():
     if texcommand != "pdflatex":
         latex_fontspec.append("\\usepackage{fontspec}")
 
-    if texcommand != "pdflatex" and rcParams.get("pgf.rcfonts", True):
+    if texcommand != "pdflatex" and rcParams["pgf.rcfonts"]:
         # try to find fonts from rc parameters
         families = ["serif", "sans-serif", "monospace"]
         fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}",
@@ -86,10 +86,7 @@ def get_fontspec():
 
 def get_preamble():
     """Get LaTeX preamble from rc."""
-    latex_preamble = rcParams.get("pgf.preamble", "")
-    if type(latex_preamble) == list:
-        latex_preamble = "\n".join(latex_preamble)
-    return latex_preamble
+    return "\n".join(rcParams["pgf.preamble"])
 
 ###############################################################################
 
@@ -223,13 +220,14 @@ class LatexManagerFactory(object):
         latex_header = LatexManager._build_latex_header()
         prev = LatexManagerFactory.previous_instance
 
-        # check if the previous instance of LatexManager can be reused
-        if prev and prev.latex_header == latex_header and prev.texcommand == texcommand:
-            if rcParams.get("pgf.debug", False):
+        # Check if the previous instance of LatexManager can be reused.
+        if (prev and prev.latex_header == latex_header
+                and prev.texcommand == texcommand):
+            if rcParams["pgf.debug"]:
                 print("reusing LatexManager")
             return prev
         else:
-            if rcParams.get("pgf.debug", False):
+            if rcParams["pgf.debug"]:
                 print("creating LatexManager")
             new_inst = LatexManager()
             LatexManagerFactory.previous_instance = new_inst
@@ -289,7 +287,7 @@ class LatexManager(object):
         # store references for __del__
         self._os_path = os.path
         self._shutil = shutil
-        self._debug = rcParams.get("pgf.debug", False)
+        self._debug = rcParams["pgf.debug"]
 
         # create a tmp directory for running latex, remember to cleanup
         self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_lm_")
