@@ -370,7 +370,7 @@ Cairo backends
 The Cairo backends are now able to use the `cairocffi bindings
 <https://github.com/SimonSapin/cairocffi>`__ which are more actively
 maintained than the `pycairo bindings
-<http://cairographics.org/pycairo/>`__.
+<https://www.cairographics.org/pycairo/>`__.
 
 Gtk3Agg backend
 ```````````````

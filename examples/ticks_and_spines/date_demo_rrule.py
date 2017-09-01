@@ -6,7 +6,7 @@ Date Demo Rrule
 Show how to use an rrule instance to make a custom date ticker - here
 we put a tick mark on every 5th easter
 
-See https://moin.conectiva.com.br/DateUtil for help with rrules
+See https://dateutil.readthedocs.io/en/stable/ for help with rrules
 """
 import matplotlib.pyplot as plt
 from matplotlib.dates import (YEARLY, DateFormatter,
