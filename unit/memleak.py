@@ -20,7 +20,7 @@ import numpy as np
 def run_memleak_test(bench, iterations, report):
     tracemalloc.start()
 
-    starti = min(50, iterations / 2)
+    starti = int(min(50, iterations / 2))
     endi = iterations
 
     malloc_arr = np.empty((endi,), dtype=np.int64)
