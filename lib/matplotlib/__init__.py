@@ -1205,7 +1205,11 @@ def rc(group, **kwargs):
 
 
 def rcdefaults():
-    """Restore the rc params from Matplotlib's internal defaults.
+    """
+    Restore the rc params from Matplotlib's internal default style.
+
+    Style-blacklisted rc params (defined in
+    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
 
     See Also
     --------
@@ -1219,29 +1223,42 @@ def rcdefaults():
     # no need to reemit them here.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
+        from .style.core import STYLE_BLACKLIST
         rcParams.clear()
-        rcParams.update(rcParamsDefault)
+        rcParams.update({k: v for k, v in rcParamsDefault.items()
+                         if k not in STYLE_BLACKLIST})
 
 
 def rc_file_defaults():
-    """Restore the rc params from the original rc file loaded by Matplotlib.
+    """
+    Restore the rc params from the original rc file loaded by Matplotlib.
+
+    Style-blacklisted rc params (defined in
+    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
-        rcParams.update(rcParamsOrig)
+        from .style.core import STYLE_BLACKLIST
+        rcParams.update({k: v for k, v in rcParamsOrig.items()
+                         if k not in STYLE_BLACKLIST})
 
 
 def rc_file(fname):
     """
     Update rc params from file.
+
+    Style-blacklisted rc params (defined in
+    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
     """
     # Deprecation warnings were already handled in rc_params_from_file, no need
     # to reemit them here.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
-        rcParams.update(rc_params_from_file(fname))
+        from .style.core import STYLE_BLACKLIST
+        rcParams.update({k: v for k, v in rc_params_from_file(fname).items()
+                         if k not in STYLE_BLACKLIST})
 
 
 class rc_context:
