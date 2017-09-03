@@ -7071,10 +7071,10 @@ or tuple of floats
 
     @_preprocess_data(replace_names=["x"], label_namer=None)
     @docstring.dedent_interpd
-    def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
-                 window=None, noverlap=None,
-                 cmap=None, xextent=None, pad_to=None, sides=None,
-                 scale_by_freq=None, mode=None, scale=None,
+    def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
+                 window=mlab.window_hanning, noverlap=128,
+                 cmap=None, xextent=None, pad_to=None, sides='default',
+                 scale_by_freq=None, mode='default', scale='default',
                  vmin=None, vmax=None, **kwargs):
         """
         Plot a spectrogram.
