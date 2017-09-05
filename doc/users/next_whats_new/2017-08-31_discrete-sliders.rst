@@ -1,5 +1,5 @@
 Slider UI widget can snap to discrete values
---------------------------
+--------------------------------------------
 
 The slider UI widget can take the optional argument *valstep*.  Doing so
 forces the slider to take on only discrete values, starting from *valmin* and
