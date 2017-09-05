@@ -1902,6 +1902,7 @@ set_cursor(PyObject* unused, PyObject* args)
       case 1: [[NSCursor arrowCursor] set]; break;
       case 2: [[NSCursor crosshairCursor] set]; break;
       case 3: [[NSCursor openHandCursor] set]; break;
+      case 4: break;
       default: return NULL;
     }
     Py_INCREF(Py_None);
