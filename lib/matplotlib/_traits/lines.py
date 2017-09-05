@@ -299,7 +299,9 @@ class Line2D(b_artist.Artist, HasTraits):
     # for x, y, & xy I am not sure if these following lines of code are correct, I may just leave them alone come testing time
     x = None
     # x=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
+    # x = np.asarray([]) #for testing
     y = None
+    # y = np.asarray([]) # for testing
     # y=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
     xy = None
 
