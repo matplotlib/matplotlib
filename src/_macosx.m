@@ -1902,6 +1902,7 @@ set_cursor(PyObject* unused, PyObject* args)
       case 1: [[NSCursor arrowCursor] set]; break;
       case 2: [[NSCursor crosshairCursor] set]; break;
       case 3: [[NSCursor openHandCursor] set]; break;
+      /* OSX handles busy state itself so no need to set a cursor here */
       case 4: break;
       default: return NULL;
     }
