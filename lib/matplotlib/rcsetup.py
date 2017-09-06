@@ -892,7 +892,8 @@ def validate_webagg_address(s):
             socket.inet_aton(s)
         except socket.error as e:
             raise ValueError("'webagg.address' is not a valid IP address")
-    return s
+        return s
+    raise ValueError("'webagg.address' is not a valid IP address")
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
