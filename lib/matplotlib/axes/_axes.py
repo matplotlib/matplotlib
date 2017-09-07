@@ -6802,7 +6802,7 @@ or tuple of floats
         See Also
         --------
         psd
-            `psd` plots the power spectral density.`.
+            `psd` plots the power spectral density.
 
         angle_spectrum
             `angle_spectrum` plots the angles of the corresponding frequencies.

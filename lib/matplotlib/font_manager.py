@@ -480,10 +480,12 @@ def ttfFontProperty(font):
 
 def afmFontProperty(fontpath, font):
     """
-    A function for populating a `FontKey` instance by
-    extracting information from the AFM font file.
+    Populate a `FontKey` instance with information from the AFM font file.
 
-    *font* is a class:`AFM` instance.
+    Parameters
+    ----------
+    fontpath : str
+    font : AFM
     """
 
     name = font.get_familyname()

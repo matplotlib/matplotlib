@@ -1637,13 +1637,14 @@ class TransformWrapper(Transform):
 
     def __init__(self, child):
         """
-        *child*: A class:`Transform` instance.  This child may later
-        be replaced with `set`.
+        Parameters
+        ----------
+        child : Transform
+            This child may later be replaced with `set`.
         """
         if not isinstance(child, Transform):
-            msg = ("'child' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'child' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         self._init(child)
         self.set_children(child)
 

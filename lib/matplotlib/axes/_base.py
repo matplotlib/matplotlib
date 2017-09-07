@@ -429,24 +429,23 @@ class _AxesBase(martist.Artist):
                  **kwargs
                  ):
         """
-        Build an `Axes` instance in
-        `~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* in
-        `~matplotlib.figure.Figure` coordinates
+        Build an `Axes` instance in `~matplotlib.figure.Figure` *fig* with
+        *rect=[left, bottom, width, height]* in `~matplotlib.figure.Figure`
+        coordinates
 
         Optional keyword arguments:
 
           ================   =========================================
           Keyword            Description
           ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' | 'box-forced']
+          *adjustable*       [ 'box' | 'datalim' | 'box-forced' ]
           *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
           *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
           *autoscale_on*     [ *True* | *False* ] whether or not to
                              autoscale the *viewlim*
-          *axisbelow*        [ *True* | *False* | 'line'] draw the grids
+          *axisbelow*        [ *True* | *False* | 'line' ] draw the grids
                              and ticks below or above most other artists,
                              or below lines but above patches
           *cursor_props*     a (*float*, *color*) tuple
@@ -458,11 +457,11 @@ class _AxesBase(martist.Artist):
           *navigate_mode*    [ 'PAN' | 'ZOOM' | None ] the navigation
                              toolbar button status
           *position*         [left, bottom, width, height] in
-                             class:`~matplotlib.figure.Figure` coords
-          *sharex*           an class:`~matplotlib.axes.Axes` instance
-                             to share the x-axis with
-          *sharey*           an class:`~matplotlib.axes.Axes` instance
-                             to share the y-axis with
+                             `~matplotlib.figure.Figure` coords
+          *sharex*           an `~matplotlib.axes.Axes` instance to share the
+                             x-axis with
+          *sharey*           an `~matplotlib.axes.Axes` instance to share the
+                             y-axis with
           *title*            the title string
           *visible*          [ *True* | *False* ] whether the axes is
                              visible
@@ -617,9 +616,11 @@ class _AxesBase(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the class:`~matplotlib.axes.Axes` figure
+        Set the `~matplotlib.axes.Axes` figure.
 
-        accepts a class:`~matplotlib.figure.Figure` instance
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure
         """
         martist.Artist.set_figure(self, fig)
 

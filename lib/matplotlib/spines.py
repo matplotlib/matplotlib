@@ -23,20 +23,19 @@ class Spine(mpatches.Patch):
     """an axis spine -- the line noting the data area boundaries
 
     Spines are the lines connecting the axis tick marks and noting the
-    boundaries of the data area. They can be placed at arbitrary
-    positions. See function:`~matplotlib.spines.Spine.set_position`
-    for more information.
+    boundaries of the data area. They can be placed at arbitrary positions. See
+    `~matplotlib.spines.Spine.set_position` for more information.
 
     The default position is ``('outward',0)``.
 
-    Spines are subclasses of class:`~matplotlib.patches.Patch`, and
-    inherit much of their behavior.
+    Spines are subclasses of `~matplotlib.patches.Patch`, and inherit much of
+    their behavior.
 
-    Spines draw a line, a circle, or an arc depending if
-    function:`~matplotlib.spines.Spine.set_patch_line`,
-    function:`~matplotlib.spines.Spine.set_patch_circle`, or
-    function:`~matplotlib.spines.Spine.set_patch_arc` has been called.
-    Line-like is the default.
+    Spines draw a line, a circle, or an arc depending
+    if `~matplotlib.spines.Spine.set_patch_line`,
+    `~matplotlib.spines.Spine.set_patch_circle`, or
+    `~matplotlib.spines.Spine.set_patch_arc` has been called.  Line-like is the
+    default.
 
     """
     def __str__(self):

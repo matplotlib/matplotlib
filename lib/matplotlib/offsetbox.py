@@ -174,9 +174,11 @@ class OffsetBox(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the figure
+        Set the figure.
 
-        accepts a class:`~matplotlib.figure.Figure` instance
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure
         """
         martist.Artist.set_figure(self, fig)
         for c in self.get_children():
