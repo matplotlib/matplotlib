@@ -405,7 +405,7 @@ class ToolQuitAll(ToolBase):
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
-    description = 'Enables all axes toolmanager'
+    description = 'Enable all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
@@ -421,7 +421,7 @@ class ToolEnableAllNavigation(ToolBase):
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for toolmanager interaction"""
 
-    description = 'Enables one axes toolmanager'
+    description = 'Enable one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
@@ -472,7 +472,7 @@ class _ToolGridBase(ToolBase):
 class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
-    description = 'Toogle major grids'
+    description = 'Toggle major grids'
     default_keymap = rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
@@ -493,7 +493,7 @@ class ToolGrid(_ToolGridBase):
 class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
-    description = 'Toogle major and minor grids'
+    description = 'Toggle major and minor grids'
     default_keymap = rcParams['keymap.grid_minor']
 
     def _get_next_grid_states(self, ax):
@@ -513,7 +513,7 @@ class ToolMinorGrid(_ToolGridBase):
 class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
-    description = 'Toogle Fullscreen mode'
+    description = 'Toggle fullscreen mode'
     default_keymap = rcParams['keymap.fullscreen']
 
     def enable(self, event):
@@ -543,7 +543,7 @@ class AxisScaleBase(ToolToggleBase):
 class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
-    description = 'Toogle Scale Y axis'
+    description = 'Toggle scale Y axis'
     default_keymap = rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
@@ -553,7 +553,7 @@ class ToolYScale(AxisScaleBase):
 class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
-    description = 'Toogle Scale X axis'
+    description = 'Toggle scale X axis'
     default_keymap = rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
