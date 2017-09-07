@@ -14,13 +14,12 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 import time
 import warnings
 from weakref import WeakKeyDictionary
-
+import textwrap
 import numpy as np
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.table import Table
-import textwrap
 import matplotlib.cbook as cbook
 
 
@@ -1032,7 +1031,10 @@ class HelpTool(ToolToggleBase):
         self.text_axes = None
 
     def enable(self, *args):
-        self.text_axes = self.figure.add_axes((0, 0, 1, 1))
+        # Using custom axes label to prevent reuse of old axes
+        # https://github.com/matplotlib/matplotlib/issues/9024
+        self.text_axes = self.figure.add_axes((0, 0, 1, 1),
+                                              label='help_tool_axes')
         table = Table(self.text_axes, bbox=[0, 0, 1, 1])
         table.edges = 'B'
         self.text_axes.add_table(table)
