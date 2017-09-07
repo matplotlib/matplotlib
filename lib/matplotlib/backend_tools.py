@@ -1037,19 +1037,19 @@ class HelpTool(ToolToggleBase):
         table.edges = 'B'
         self.text_axes.add_table(table)
         chars_in_width = self._find_chars_in_width(table.FONTSIZE)
-
-        table.auto_set_font_size(False)
-        col_chars_width = int(chars_in_width / 4) - 2
-        content = self._get_content(col_chars_width, col_chars_width,
-                                    2 * col_chars_width)
+        col_chars_width = int(chars_in_width / 6)
+        content = self._get_content(1 * col_chars_width - 2,
+                                    2 * col_chars_width - 2,
+                                    3 * col_chars_width - 2)
         for i, v in enumerate(content):
             h = v[0]
             table.add_cell(i, 0, text=v[1], width=1, height=h, loc='left',
                            fontproperties='monospace')
-            table.add_cell(i, 1, text=v[2], width=1, height=h, loc='left',
+            table.add_cell(i, 1, text=v[2], width=2, height=h, loc='left',
                            fontproperties='monospace')
-            table.add_cell(i, 2, text=v[3], width=2, height=h, loc='left',
+            table.add_cell(i, 2, text=v[3], width=3, height=h, loc='left',
                            fontproperties='monospace')
+        table.auto_set_font_size(True)
         self.figure.canvas.draw_idle()
 
     def _find_chars_in_width(self, fontsize):
