@@ -590,7 +590,7 @@ def test_triinterpcubic_geom_weights():
 
 def test_triinterp_colinear():
     # Tests interpolating inside a triangulation with horizontal colinear
-    # points (refer also to the tests :func:`test_trifinder` ).
+    # points (refer also to the tests `test_trifinder` ).
     #
     # These are not valid triangulations, but we try to deal with the
     # simplest violations (i. e. those handled by default TriFinder).
@@ -598,7 +598,7 @@ def test_triinterp_colinear():
     # Note that the LinearTriInterpolator and the CubicTriInterpolator with
     # kind='min_E' or 'geom' still pass a linear patch test.
     # We also test interpolation inside a  flat triangle, by forcing
-    # *tri_index* in a call to :meth:`_interpolate_multikeys`.
+    # *tri_index* in a call to `_interpolate_multikeys`.
 
     # If +ve, triangulation is OK, if -ve triangulation invalid,
     # if zero have colinear points but should pass tests anyway.
@@ -637,7 +637,7 @@ def test_triinterp_colinear():
             assert_array_almost_equal(zs_target, zs)
 
         # Testing interpolation inside the flat triangle number 4: [2, 3, 5]
-        # by imposing *tri_index* in a call to :meth:`_interpolate_multikeys`
+        # by imposing *tri_index* in a call to `_interpolate_multikeys`
         itri = 4
         pt1 = triang.triangles[itri, 0]
         pt2 = triang.triangles[itri, 1]
@@ -655,8 +655,8 @@ def test_triinterp_transformations():
     # whole figure.
     # Note: This test is non-trivial for a CubicTriInterpolator with
     # kind='min_E'. It does fail for a non-isotropic stiffness matrix E of
-    # :class:`_ReducedHCT_Element` (tested with E=np.diag([1., 1., 1.])), and
-    # provides a good test for :meth:`get_Kff_and_Ff`of the same class.
+    # `_ReducedHCT_Element` (tested with E=np.diag([1., 1., 1.])), and
+    # provides a good test for `get_Kff_and_Ff`of the same class.
     #
     # 2) Also testing that the interpolation scheme is invariant by expansion
     # of the whole figure along one axis.

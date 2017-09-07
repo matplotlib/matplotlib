@@ -37,47 +37,47 @@ axis limits and ticks that are multiples of that base.
 
 The Locator subclasses defined here are
 
-:class:`NullLocator`
+`NullLocator`
     No ticks
 
-:class:`FixedLocator`
+`FixedLocator`
     Tick locations are fixed
 
-:class:`IndexLocator`
+`IndexLocator`
     locator for index plots (e.g., where x = range(len(y)))
 
-:class:`LinearLocator`
+`LinearLocator`
     evenly spaced ticks from min to max
 
-:class:`LogLocator`
+`LogLocator`
     logarithmically ticks from min to max
 
-:class:`SymmetricalLogLocator`
+`SymmetricalLogLocator`
     locator for use with with the symlog norm, works like the
     `LogLocator` for the part outside of the threshold and add 0 if
     inside the limits
 
-:class:`MultipleLocator`
+`MultipleLocator`
     ticks and range are a multiple of base; either integer or float
 
-:class:`OldAutoLocator`
+`OldAutoLocator`
     choose a MultipleLocator and dyamically reassign it for
     intelligent ticking during navigation
 
-:class:`MaxNLocator`
+`MaxNLocator`
     finds up to a max number of ticks at nice locations
 
-:class:`AutoLocator`
-    :class:`MaxNLocator` with simple defaults. This is the default
+`AutoLocator`
+    `MaxNLocator` with simple defaults. This is the default
     tick locator for most plotting.
 
-:class:`AutoMinorLocator`
+`AutoMinorLocator`
     locator for minor ticks when the axis is linear and the
     major ticks are uniformly spaced. It subdivides the major
     tick interval into a specified number of minor intervals,
     defaulting to 4 or 5 depending on the major interval.
 
-:class:`LogitLocator`
+`LogitLocator`
     Locator for logit scaling.
 
 
@@ -108,47 +108,47 @@ Tick formatting is controlled by classes derived from Formatter. The
 formatter operates on a single tick value and returns a string to the
 axis.
 
-:class:`NullFormatter`
+`NullFormatter`
     No labels on the ticks
 
-:class:`IndexFormatter`
+`IndexFormatter`
     Set the strings from a list of labels
 
-:class:`FixedFormatter`
+`FixedFormatter`
     Set the strings manually for the labels
 
-:class:`FuncFormatter`
+`FuncFormatter`
     User defined function sets the labels
 
-:class:`StrMethodFormatter`
+`StrMethodFormatter`
     Use string `format` method
 
-:class:`FormatStrFormatter`
+`FormatStrFormatter`
     Use an old-style sprintf format string
 
-:class:`ScalarFormatter`
+`ScalarFormatter`
     Default formatter for scalars: autopick the format string
 
-:class:`LogFormatter`
+`LogFormatter`
     Formatter for log axes
 
-:class:`LogFormatterExponent`
+`LogFormatterExponent`
     Format values for log axis using ``exponent = log_base(value)``.
 
-:class:`LogFormatterMathtext`
+`LogFormatterMathtext`
     Format values for log axis using ``exponent = log_base(value)``
     using Math text.
 
-:class:`LogFormatterSciNotation`
+`LogFormatterSciNotation`
     Format values for log axis using scientific notation.
 
-:class:`LogitFormatter`
+`LogitFormatter`
     Probability formatter.
 
-:class:`EngFormatter`
+`EngFormatter`
     Format labels in engineering notation
 
-:class:`PercentFormatter`
+`PercentFormatter`
     Format labels as a percentage
 
 You can derive your own formatter from the Formatter base class by
@@ -164,7 +164,7 @@ following methods::
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
 See :ref:`sphx_glr_gallery_ticks_and_spines_major_minor_demo.py` for an
-example of setting major and minor ticks. See the :mod:`matplotlib.dates`
+example of setting major and minor ticks. See the `matplotlib.dates`
 module for more information and examples of using date locators and formatters.
 """
 
@@ -303,13 +303,13 @@ class Formatter(TickHelper):
         proper unicode symbol (U+2212) for typographical correctness.
         The default is to not replace it.
 
-        Note, if you use this method, e.g., in :meth:`format_data` or
+        Note, if you use this method, e.g., in `format_data` or
         call, you probably don't want to use it for
-        :meth:`format_data_short` since the toolbar uses this for
+        `format_data_short` since the toolbar uses this for
         interactive coord reporting and I doubt we can expect GUIs
         across platforms will handle the unicode correctly.  So for
-        now the classes that override :meth:`fix_minus` should have an
-        explicit :meth:`format_data_short` method
+        now the classes that override `fix_minus` should have an
+        explicit `format_data_short` method
         """
         return s
 
@@ -582,7 +582,7 @@ class ScalarFormatter(Formatter):
         """
         Turn scientific notation on or off.
 
-        .. seealso:: Method :meth:`set_powerlimits`
+        .. seealso:: Method `set_powerlimits`
         """
         self._scientific = bool(b)
 
@@ -599,7 +599,7 @@ class ScalarFormatter(Formatter):
         pre-2007 default in which scientific notation is used for
         numbers less than 1e-3 or greater than 1e4.
 
-        .. seealso:: Method :meth:`set_scientific`
+        .. seealso:: Method `set_scientific`
         """
         if len(lims) != 2:
             raise ValueError("'lims' must be a sequence of length 2")
@@ -890,7 +890,7 @@ class LogFormatter(Formatter):
         change the `base` for labeling.
 
         .. warning::
-           Should always match the base used for :class:`LogLocator`
+           Should always match the base used for `LogLocator`
 
         """
         self._base = base
@@ -1419,7 +1419,7 @@ class Locator(TickHelper):
     Determine the tick locations;
 
     Note, you should not use the same locator between different
-    :class:`~matplotlib.axis.Axis` because the locator stores references to
+    `~matplotlib.axis.Axis` because the locator stores references to
     the Axis data and view limits
     """
 

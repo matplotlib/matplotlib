@@ -330,11 +330,11 @@ coordinate.
 InsetLocator
 ------------
 
-:mod:`mpl_toolkits.axes_grid1.inset_locator` provides helper classes
+`mpl_toolkits.axes_grid1.inset_locator` provides helper classes
 and functions to place your (inset) axes at the anchored position of
 the parent axes, similarly to AnchoredArtist.
 
-Using :func:`mpl_toolkits.axes_grid1.inset_locator.inset_axes`, you
+Using `mpl_toolkits.axes_grid1.inset_locator.inset_axes`, you
 can have inset axes whose size is either fixed, or a fixed proportion
 of the parent axes. For example,::
 
@@ -364,10 +364,10 @@ Here is complete examples.
 
    Inset Locator Demo
 
-For example, :func:`zoomed_inset_axes` can be used when you want the
+For example, `zoomed_inset_axes` can be used when you want the
 inset represents the zoom-up of the small portion in the parent axes.
-And :mod:`~mpl_toolkits/axes_grid/inset_locator` provides a helper
-function :func:`mark_inset` to mark the location of the area
+And `~mpl_toolkits/axes_grid/inset_locator` provides a helper
+function `mark_inset` to mark the location of the area
 represented by the inset axes.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
@@ -410,16 +410,16 @@ AxesDivider
 The axes_divider module provides helper classes to adjust the axes
 positions of a set of images at drawing time.
 
-* :mod:`~mpl_toolkits.axes_grid1.axes_size` provides a class of
+* `~mpl_toolkits.axes_grid1.axes_size` provides a class of
   units that are used to determine the size of each axes. For example,
   you can specify a fixed size.
 
-* :class:`~mpl_toolkits.axes_grid1.axes_size.Divider` is the class
+* `~mpl_toolkits.axes_grid1.axes_size.Divider` is the class
   that calculates the axes position. It divides the given
   rectangular area into several areas. The divider is initialized by
   setting the lists of horizontal and vertical sizes on which the division
   will be based. Then use
-  :meth:`~mpl_toolkits.axes_grid1.axes_size.Divider.new_locator`,
+  `~mpl_toolkits.axes_grid1.axes_size.Divider.new_locator`,
   which returns a callable object that can be used to set the
   axes_locator of the axes.
 
@@ -436,7 +436,7 @@ for example,::
 
 where, rect is a bounds of the box that will be divided and h0,..h3,
 v0,..v2 need to be an instance of classes in the
-:mod:`~mpl_toolkits.axes_grid1.axes_size`.  They have *get_size* method
+`~mpl_toolkits.axes_grid1.axes_size`.  They have *get_size* method
 that returns a tuple of two floats. The first float is the relative
 size, and the second float is the absolute size. Consider a following
 grid.
@@ -463,7 +463,7 @@ determined. When the aspect ratio is set, the total height (or width) will
 be adjusted accordingly.
 
 
-The :mod:`mpl_toolkits.axes_grid1.axes_size` contains several classes
+The `mpl_toolkits.axes_grid1.axes_size` contains several classes
 that can be used to set the horizontal and vertical configurations. For
 example, for vertical configuration one could use::
 

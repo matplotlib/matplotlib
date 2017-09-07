@@ -12,10 +12,10 @@ Annotating text with Matplotlib.
 Basic annotation
 ================
 
-The uses of the basic :func:`~matplotlib.pyplot.text` will place text
+The uses of the basic `~matplotlib.pyplot.text` will place text
 at an arbitrary position on the Axes.  A common use case of text is to
 annotate some feature of the plot, and the
-:func:`~matplotlib.Axes.annotate` method provides helper functionality
+`~matplotlib.Axes.annotate` method provides helper functionality
 to make annotations easy.  In an annotation, there are two points to
 consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
@@ -72,7 +72,7 @@ headwidth            the width of the base of the arrow head in points
 shrink               move the tip and base some percent away from
                      the annotated point and text
 
-\*\*kwargs           any key for :class:`matplotlib.patches.Polygon`,
+\*\*kwargs           any key for `matplotlib.patches.Polygon`,
                      e.g., ``facecolor``
 ==================== =====================================================
 
@@ -80,7 +80,7 @@ shrink               move the tip and base some percent away from
 In the example below, the ``xy`` point is in native coordinates
 (``xycoords`` defaults to 'data').  For a polar axes, this is in
 (theta, radius) space.  The text in this example is placed in the
-fractional figure coordinate system. :class:`matplotlib.text.Text`
+fractional figure coordinate system. `matplotlib.text.Text`
 keyword args like ``horizontalalignment``, ``verticalalignment`` and
 ``fontsize`` are passed from `~matplotlib.Axes.annotate` to the
 ``Text`` instance.
@@ -98,7 +98,7 @@ and :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
 
 
 Do not proceed unless you have already read :ref:`annotations-tutorial`,
-:func:`~matplotlib.pyplot.text` and :func:`~matplotlib.pyplot.annotate`!
+`~matplotlib.pyplot.text` and `~matplotlib.pyplot.annotate`!
 
 
 .. _plotting-guide-annotation:
@@ -120,7 +120,7 @@ Let's start with a simple example.
    Annotate Text Arrow
 
 
-The :func:`~matplotlib.pyplot.text` function in the pyplot module (or
+The `~matplotlib.pyplot.text` function in the pyplot module (or
 text method of the Axes class) takes bbox keyword argument, and when
 given, a box around the text is drawn. ::
 
@@ -178,7 +178,7 @@ of bbox argument when initializing the text instance) ::
 Annotating with Arrow
 ---------------------
 
-The :func:`~matplotlib.pyplot.annotate` function in the pyplot module
+The `~matplotlib.pyplot.annotate` function in the pyplot module
 (or annotate method of the Axes class) is used to draw an arrow
 connecting two points on the plot. ::
 
@@ -191,7 +191,7 @@ This annotates a point at ``xy`` in the given coordinate (``xycoords``)
 with the text at ``xytext`` given in ``textcoords``. Often, the
 annotated point is specified in the *data* coordinate and the annotating
 text in *offset points*.
-See :func:`~matplotlib.pyplot.annotate` for available coordinate systems.
+See `~matplotlib.pyplot.annotate` for available coordinate systems.
 
 An arrow connecting two points (xy & xytext) can be optionally drawn by
 specifying the ``arrowprops`` argument. To draw only an arrow, use
@@ -432,7 +432,7 @@ The Annotation in matplotlib supports several types of coordinates as
 described in :ref:`annotations-tutorial`. For an advanced user who wants
 more control, it supports a few other options.
 
- 1. :class:`~matplotlib.transforms.Transform` instance. For example, ::
+ 1. `~matplotlib.transforms.Transform` instance. For example, ::
 
       ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
 
@@ -447,7 +447,7 @@ more control, it supports a few other options.
                    xytext=(0.5, 0.5), textcoords=ax2.transData,
                    arrowprops=dict(arrowstyle="->"))
 
- 2. :class:`~matplotlib.artist.Artist` instance. The xy value (or
+ 2. `~matplotlib.artist.Artist` instance. The xy value (or
     xytext) is interpreted as a fractional coordinate of the bbox
     (return value of *get_window_extent*) of the artist. ::
 
@@ -474,8 +474,8 @@ more control, it supports a few other options.
 
 
  3. A callable object that returns an instance of either
-    :class:`~matplotlib.transforms.BboxBase` or
-    :class:`~matplotlib.transforms.Transform`. If a transform is
+    `~matplotlib.transforms.BboxBase` or
+    `~matplotlib.transforms.Transform`. If a transform is
     returned, it is the same as 1 and if a bbox is returned, it is the same
     as 2.  The callable object should take a single argument of the
     renderer instance. For example, the following two commands give
@@ -504,7 +504,7 @@ more control, it supports a few other options.
 
  5. Sometimes, you want your annotation with some "offset points", not from the
     annotated point but from some other point.
-    :class:`~matplotlib.text.OffsetFrom` is a helper class for such cases.
+    `~matplotlib.text.OffsetFrom` is a helper class for such cases.
 
     .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
        :target: ../../gallery/userdemo/annotate_simple_coord03.html

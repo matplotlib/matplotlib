@@ -2,7 +2,7 @@
 Fill Between and Alpha
 ======================
 
-The :meth:`~matplotlib.axes.Axes.fill_between` function generates a
+The `~matplotlib.axes.Axes.fill_between` function generates a
 shaded region between a min and max boundary that is useful for
 illustrating ranges.  It has a very handy ``where`` argument to
 combine filling with logical ranges, e.g., to just fill in a curve over
@@ -131,6 +131,6 @@ ax.grid()
 ###############################################################################
 # Another handy use of filled regions is to highlight horizontal or
 # vertical spans of an axes -- for that matplotlib has some helper
-# functions :meth:`~matplotlib.axes.Axes.axhspan` and
-# :meth:`~matplotlib.axes.Axes.axvspan` and example
+# functions `~matplotlib.axes.Axes.axhspan` and
+# `~matplotlib.axes.Axes.axvspan` and example
 # :ref:`sphx_glr_gallery_subplots_axes_and_figures_axhspan_demo.py`.

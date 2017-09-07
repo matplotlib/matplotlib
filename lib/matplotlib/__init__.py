@@ -20,73 +20,73 @@ at the ipython shell prompt.
 For the most part, direct use of the object-oriented library is
 encouraged when programming; pyplot is primarily for working
 interactively.  The
-exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
-:func:`~matplotlib.pyplot.subplot`,
-:func:`~matplotlib.pyplot.subplots`, and
-:func:`~pyplot.savefig`, which can greatly simplify scripting.
+exceptions are the pyplot commands `~matplotlib.pyplot.figure`,
+`~matplotlib.pyplot.subplot`,
+`~matplotlib.pyplot.subplots`, and
+`~pyplot.savefig`, which can greatly simplify scripting.
 
 Modules include:
 
-    :mod:`matplotlib.axes`
-        defines the :class:`~matplotlib.axes.Axes` class.  Most pylab
-        commands are wrappers for :class:`~matplotlib.axes.Axes`
+    `matplotlib.axes`
+        defines the `~matplotlib.axes.Axes` class.  Most pylab
+        commands are wrappers for `~matplotlib.axes.Axes`
         methods.  The axes module is the highest level of OO access to
         the library.
 
-    :mod:`matplotlib.figure`
-        defines the :class:`~matplotlib.figure.Figure` class.
+    `matplotlib.figure`
+        defines the `~matplotlib.figure.Figure` class.
 
-    :mod:`matplotlib.artist`
-        defines the :class:`~matplotlib.artist.Artist` base class for
+    `matplotlib.artist`
+        defines the `~matplotlib.artist.Artist` base class for
         all classes that draw things.
 
-    :mod:`matplotlib.lines`
-        defines the :class:`~matplotlib.lines.Line2D` class for
+    `matplotlib.lines`
+        defines the `~matplotlib.lines.Line2D` class for
         drawing lines and markers
 
-    :mod:`matplotlib.patches`
+    `matplotlib.patches`
         defines classes for drawing polygons
 
-    :mod:`matplotlib.text`
-        defines the :class:`~matplotlib.text.Text`,
-        :class:`~matplotlib.text.TextWithDash`, and
-        :class:`~matplotlib.text.Annotate` classes
+    `matplotlib.text`
+        defines the `~matplotlib.text.Text`,
+        `~matplotlib.text.TextWithDash`, and
+        `~matplotlib.text.Annotate` classes
 
-    :mod:`matplotlib.image`
-        defines the :class:`~matplotlib.image.AxesImage` and
-        :class:`~matplotlib.image.FigureImage` classes
+    `matplotlib.image`
+        defines the `~matplotlib.image.AxesImage` and
+        `~matplotlib.image.FigureImage` classes
 
-    :mod:`matplotlib.collections`
+    `matplotlib.collections`
         classes for efficient drawing of groups of lines or polygons
 
-    :mod:`matplotlib.colors`
+    `matplotlib.colors`
         classes for interpreting color specifications and for making
         colormaps
 
-    :mod:`matplotlib.cm`
-        colormaps and the :class:`~matplotlib.image.ScalarMappable`
+    `matplotlib.cm`
+        colormaps and the `~matplotlib.image.ScalarMappable`
         mixin class for providing color mapping functionality to other
         classes
 
-    :mod:`matplotlib.ticker`
+    `matplotlib.ticker`
         classes for calculating tick mark locations and for formatting
         tick labels
 
-    :mod:`matplotlib.backends`
+    `matplotlib.backends`
         a subpackage with modules for various gui libraries and output
         formats
 
 The base matplotlib namespace includes:
 
-    :data:`~matplotlib.rcParams`
+    `~matplotlib.rcParams`
         a global dictionary of default configuration settings.  It is
         initialized by code which may be overridded by a matplotlibrc
         file.
 
-    :func:`~matplotlib.rc`
+    `~matplotlib.rc`
         a function for setting groups of rcParams values
 
-    :func:`~matplotlib.use`
+    `~matplotlib.use`
         a function for setting the matplotlib backend.  If used, this
         function must be called immediately after importing matplotlib
         for the first time.  In particular, it must be called
@@ -775,7 +775,7 @@ class RcParams(MutableMapping, dict):
     A dictionary object including validation
 
     validating functions are defined and associated with rc parameters in
-    :mod:`matplotlib.rcsetup`
+    `matplotlib.rcsetup`
     """
 
     validate = dict((key, converter) for key, (default, converter) in
@@ -870,7 +870,7 @@ class RcParams(MutableMapping, dict):
     def find_all(self, pattern):
         """
         Return the subset of this RcParams dictionary whose keys match,
-        using :func:`re.search`, the given ``pattern``.
+        using `re.search`, the given ``pattern``.
 
         .. note::
 
@@ -886,7 +886,7 @@ class RcParams(MutableMapping, dict):
 
 
 def rc_params(fail_on_error=False):
-    """Return a :class:`matplotlib.RcParams` instance from the
+    """Return a `matplotlib.RcParams` instance from the
     default matplotlib rc file.
     """
     fname = matplotlib_fname()
@@ -935,7 +935,7 @@ _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
 
 
 def _rc_params_in_file(fname, fail_on_error=False):
-    """Return :class:`matplotlib.RcParams` from the contents of the given file.
+    """Return `matplotlib.RcParams` from the contents of the given file.
 
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
@@ -1013,7 +1013,7 @@ or from the matplotlib source distribution""" % (key, cnt, fname),
 
 
 def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
-    """Return :class:`matplotlib.RcParams` from the contents of the given file.
+    """Return `matplotlib.RcParams` from the contents of the given file.
 
     Parameters
     ----------
@@ -1134,7 +1134,7 @@ def rc(group, **kwargs):
       rc('font', **font)  # pass in the font dict as kwargs
 
     This enables you to easily switch between several configurations.  Use
-    ``matplotlib.style.use('default')`` or :func:`~matplotlib.rcdefaults` to
+    ``matplotlib.style.use('default')`` or `~matplotlib.rcdefaults` to
     restore the default rc params after changes.
     """
 
@@ -1262,12 +1262,12 @@ def use(arg, warn=True, force=False):
         before importing matplotlib.backends.  If warn is True, a warning
         is issued if you try and call this after pylab or pyplot have been
         loaded.  In certain black magic use cases, e.g.
-        :func:`pyplot.switch_backend`, we are doing the reloading necessary to
+        `pyplot.switch_backend`, we are doing the reloading necessary to
         make the backend switch work (in some cases, e.g., pure image
         backends) so one can set warn=False to suppress the warnings.
 
     To find out which backend is currently set, see
-    :func:`matplotlib.get_backend`.
+    `matplotlib.get_backend`.
 
     """
     # Lets determine the proper backend name first

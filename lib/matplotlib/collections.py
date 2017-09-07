@@ -60,9 +60,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         * *transOffset*: transforms.IdentityTransform()
         * *offset_position*: 'screen' (default) or 'data'
         * *norm*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
+          `matplotlib.cm.ScalarMappable`)
         * *cmap*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
+          `matplotlib.cm.ScalarMappable`)
         * *hatch*: None
         * *zorder*: 1
 
@@ -75,11 +75,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
     transform, i.e., the offsets are in data coordinates.
 
     If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
-    are None, they default to their :data:`matplotlib.rcParams` patch
+    are None, they default to their `matplotlib.rcParams` patch
     setting, in sequence form.
 
-    The use of :class:`~matplotlib.cm.ScalarMappable` is optional.  If
-    the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not None
+    The use of `~matplotlib.cm.ScalarMappable` is optional.  If
+    the `~matplotlib.cm.ScalarMappable` matrix _A is not None
     (i.e., a call to set_array has been made), at draw time a call to
     scalar mappable will be made to set the face colors.
     """
@@ -87,9 +87,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _transOffset = transforms.IdentityTransform()
     #: Either a list of 3x3 arrays or an Nx3x3 array of transforms, suitable
     #: for the `all_transforms` argument to
-    #: :meth:`~matplotlib.backend_bases.RendererBase.draw_path_collection`;
+    #: `~matplotlib.backend_bases.RendererBase.draw_path_collection`;
     #: each 3x3 array is used to initialize an
-    #: :class:`~matplotlib.transforms.Affine2D` object.
+    #: `~matplotlib.transforms.Affine2D` object.
     #: Each kind of collection defines this based on its arguments.
     _transforms = np.empty((0, 3, 3))
 
@@ -602,7 +602,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         .. seealso::
 
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
+            `set_facecolor`, `set_edgecolor`
                For setting the edge or face color individually.
         """
         self.set_facecolor(c)
@@ -780,15 +780,15 @@ docstring.interpd.update(Collection="""\
         * *offsets*: None
         * *transOffset*: transforms.IdentityTransform()
         * *norm*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
+          `matplotlib.cm.ScalarMappable`)
         * *cmap*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
+          `matplotlib.cm.ScalarMappable`)
 
     *offsets* and *transOffset* are used to translate the patch after
     rendering (default no offsets)
 
     If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
-    are None, they default to their :data:`matplotlib.rcParams` patch
+    are None, they default to their `matplotlib.rcParams` patch
     setting, in sequence form.
 """)
 
@@ -844,12 +844,12 @@ class _CollectionWithSizes(Collection):
 
 class PathCollection(_CollectionWithSizes):
     """
-    This is the most basic :class:`Collection` subclass.
+    This is the most basic `Collection` subclass.
     """
     @docstring.dedent_interpd
     def __init__(self, paths, sizes=None, **kwargs):
         """
-        *paths* is a sequence of :class:`matplotlib.path.Path`
+        *paths* is a sequence of `matplotlib.path.Path`
         instances.
 
         %(Collection)s
@@ -874,7 +874,7 @@ class PolyCollection(_CollectionWithSizes):
         """
         *verts* is a sequence of ( *verts0*, *verts1*, ...) where
         *verts_i* is a sequence of *xy* tuples of vertices, or an
-        equivalent :mod:`numpy` array of shape (*nv*, 2).
+        equivalent `numpy` array of shape (*nv*, 2).
 
         *sizes* is *None* (default) or a sequence of floats that
         scale the corresponding *verts_i*.  The scaling is applied
@@ -967,7 +967,7 @@ class BrokenBarHCollection(PolyCollection):
         over the regions in *x* where *where* is True.  The bars range
         on the y-axis from *ymin* to *ymax*
 
-        A :class:`BrokenBarHCollection` is returned.  *kwargs* are
+        A `BrokenBarHCollection` is returned.  *kwargs* are
         passed on to the collection.
         """
         xranges = []
@@ -1130,9 +1130,9 @@ class LineCollection(Collection):
         segment, so as to produce a set of successively offset curves.
 
         *norm*
-            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+            None (optional for `matplotlib.cm.ScalarMappable`)
         *cmap*
-            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+            None (optional for `matplotlib.cm.ScalarMappable`)
 
         *pickradius* is the tolerance for mouse clicks picking a line.
         The default is 5 pt.
@@ -1145,10 +1145,10 @@ class LineCollection(Collection):
            Setting to a value other than 'none' will lead to a filled
            polygon being drawn between points on each line.
 
-        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
-        If the :class:`~matplotlib.cm.ScalarMappable` array
+        The use of `~matplotlib.cm.ScalarMappable` is optional.
+        If the `~matplotlib.cm.ScalarMappable` array
         :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
-        :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
+        `~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
         """
         if colors is None:
@@ -1298,7 +1298,7 @@ class EventCollection(LineCollection):
 
         **kwargs : optional
             Other keyword arguments are line collection properties.  See
-            :class:`~matplotlib.collections.LineCollection` for a list of
+            `~matplotlib.collections.LineCollection` for a list of
             the valid properties.
 
         Examples
@@ -1535,10 +1535,10 @@ class EllipseCollection(Collection):
             from all others in that the angle as plotted varies with
             the aspect ratio, and equals the specified angle only when
             the aspect ratio is unity.  Hence it behaves the same as
-            the :class:`~matplotlib.patches.Ellipse` with
+            the `~matplotlib.patches.Ellipse` with
             axes.transData as its transform.
 
-        Additional kwargs inherited from the base :class:`Collection`:
+        Additional kwargs inherited from the base `Collection`:
 
         %(Collection)s
         """
@@ -1625,10 +1625,10 @@ class PatchCollection(Collection):
 
         If any of *edgecolors*, *facecolors*, *linewidths*,
         *antialiaseds* are None, they default to their
-        :data:`matplotlib.rcParams` patch setting, in sequence form.
+        `matplotlib.rcParams` patch setting, in sequence form.
 
-        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
-        If the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not
+        The use of `~matplotlib.cm.ScalarMappable` is optional.
+        If the `~matplotlib.cm.ScalarMappable` matrix _A is not
         None (i.e., a call to set_array has been made), at draw time a
         call to scalar mappable will be made to set the face colors.
         """
@@ -1660,7 +1660,7 @@ class TriMesh(Collection):
     Class for the efficient drawing of a triangular mesh using
     Gouraud shading.
 
-    A triangular mesh is a :class:`~matplotlib.tri.Triangulation`
+    A triangular mesh is a `~matplotlib.tri.Triangulation`
     object.
     """
     def __init__(self, triangulation, **kwargs):
@@ -1689,7 +1689,7 @@ class TriMesh(Collection):
     def convert_mesh_to_paths(tri):
         """
         Converts a given mesh into a sequence of
-        :class:`matplotlib.path.Path` objects for easier rendering by
+        `matplotlib.path.Path` objects for easier rendering by
         backends that do not directly support meshes.
 
         This function is primarily of use to backend implementers.
@@ -1744,7 +1744,7 @@ class QuadMesh(Collection):
     (*meshHeight* + 1))) numpy array *coordinates*, where each row is
     the *x* and *y* coordinates of one of the vertices.  To define the
     function that maps from a data point to its corresponding color,
-    use the :meth:`set_cmap` method.  Each of these arrays is indexed in
+    use the `set_cmap` method.  Each of these arrays is indexed in
     row-major order by the mesh coordinates of the vertex (or the mesh
     coordinates of the lower left vertex, in the case of the
     colors).
@@ -1788,7 +1788,7 @@ class QuadMesh(Collection):
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         """
         Converts a given mesh into a sequence of
-        :class:`matplotlib.path.Path` objects for easier rendering by
+        `matplotlib.path.Path` objects for easier rendering by
         backends that do not directly support quadmeshes.
 
         This function is primarily of use to backend implementers.

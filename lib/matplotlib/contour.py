@@ -66,7 +66,7 @@ class ContourLabeler(object):
           clabel(cs, **kwargs)
 
         Adds labels to line contours in *cs*, where *cs* is a
-        :class:`~matplotlib.contour.ContourSet` object returned by
+        `~matplotlib.contour.ContourSet` object returned by
         contour.
 
         ::
@@ -106,7 +106,7 @@ class ContourLabeler(object):
             Alternatively, this can be a dictionary matching contour
             levels with arbitrary strings to use for each contour level
             (i.e., fmt[level]=string), or it can be any callable, such
-            as a :class:`~matplotlib.ticker.Formatter` instance, that
+            as a `~matplotlib.ticker.Formatter` instance, that
             returns a string when called with a numeric contour level.
 
           *manual*:
@@ -512,7 +512,7 @@ class ContourLabeler(object):
 
     def add_label(self, x, y, rotation, lev, cvalue):
         """
-        Add contour label using :class:`~matplotlib.text.Text` class.
+        Add contour label using `~matplotlib.text.Text` class.
         """
 
         t = self._get_label_text(x, y, rotation)
@@ -520,7 +520,7 @@ class ContourLabeler(object):
 
     def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
         """
-        Add contour label using :class:`ClabelText` class.
+        Add contour label using `ClabelText` class.
         """
         # x, y, rotation is given in pixel coordinate. Convert them to
         # the data coordinate and create a label using ClabelText
@@ -756,7 +756,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
       layers:
         same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors`.
+        levels for filled contours.  See `_process_colors`.
     """
 
     def __init__(self, ax, *args, **kwargs):
@@ -968,7 +968,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform`
+        Return the `~matplotlib.transforms.Transform`
         instance used by this ContourSet.
         """
         if self._transform is None:
@@ -989,7 +989,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     def legend_elements(self, variable_name='x', str_format=str):
         """
         Return a list of artist and labels suitable for passing through
-        to :func:`plt.legend` which represent this ContourSet.
+        to `plt.legend` which represent this ContourSet.
 
         Args:
 
@@ -1405,7 +1405,7 @@ class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: :meth:`clabel`
+    User-callable method: `clabel`
 
     Useful attributes:
       ax:
@@ -1419,7 +1419,7 @@ class QuadContourSet(ContourSet):
 
       layers:
         Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors` method.
+        levels for filled contours.  See `_process_colors` method.
     """
 
     def _process_args(self, *args, **kwargs):
@@ -1637,15 +1637,15 @@ class QuadContourSet(ContourSet):
     contour_doc = """
         Plot contours.
 
-        :func:`~matplotlib.pyplot.contour` and
-        :func:`~matplotlib.pyplot.contourf` draw contour lines and
+        `~matplotlib.pyplot.contour` and
+        `~matplotlib.pyplot.contourf` draw contour lines and
         filled contours, respectively.  Except as noted, function
         signatures and return values are the same for both versions.
 
-        :func:`~matplotlib.pyplot.contourf` differs from the MATLAB
+        `~matplotlib.pyplot.contourf` differs from the MATLAB
         version in that it does not draw the polygon edges.
         To draw edges, add line contours with
-        calls to :func:`~matplotlib.pyplot.contour`.
+        calls to `~matplotlib.pyplot.contour`.
 
 
         Call signatures::
@@ -1695,7 +1695,7 @@ class QuadContourSet(ContourSet):
         *Z* and ``len(Y)`` is the number of rows in *Z*.
 
         ``C = contour(...)`` returns a
-        :class:`~matplotlib.contour.QuadContourSet` object.
+        `~matplotlib.contour.QuadContourSet` object.
 
         Optional keyword arguments:
 
@@ -1727,18 +1727,18 @@ class QuadContourSet(ContourSet):
             The alpha blending value
 
           *cmap*: [ *None* | Colormap ]
-            A cm :class:`~matplotlib.colors.Colormap` instance or
+            A cm `~matplotlib.colors.Colormap` instance or
             *None*. If *cmap* is *None* and *colors* is *None*, a
             default Colormap is used.
 
           *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance for
+            A `matplotlib.colors.Normalize` instance for
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
 
           *vmin*, *vmax*: [ *None* | scalar ]
             If not *None*, either or both of these values will be
-            supplied to the :class:`matplotlib.colors.Normalize`
+            supplied to the `matplotlib.colors.Normalize`
             instance, overriding the default color scaling based on
             *levels*.
 
@@ -1758,7 +1758,7 @@ class QuadContourSet(ContourSet):
           *extent*: [ *None* | (x0,x1,y0,y1) ]
 
             If *origin* is not *None*, then *extent* is interpreted as
-            in :func:`matplotlib.pyplot.imshow`: it gives the outer
+            in `matplotlib.pyplot.imshow`: it gives the outer
             pixel boundaries. In this case, the position of Z[0,0]
             is the center of the pixel, not a corner. If *origin* is
             *None*, then (*x0*, *y0*) is the position of Z[0,0], and
@@ -1769,7 +1769,7 @@ class QuadContourSet(ContourSet):
 
           *locator*: [ *None* | ticker.Locator subclass ]
             If *locator* is *None*, the default
-            :class:`~matplotlib.ticker.MaxNLocator` is used. The
+            `~matplotlib.ticker.MaxNLocator` is used. The
             locator is used to determine the contour levels if they
             are not given explicitly via the *V* argument.
 
@@ -1779,12 +1779,12 @@ class QuadContourSet(ContourSet):
             are included. These added ranges are then mapped to the
             special colormap values which default to the ends of the
             colormap range, but can be set via
-            :meth:`matplotlib.colors.Colormap.set_under` and
-            :meth:`matplotlib.colors.Colormap.set_over` methods.
+            `matplotlib.colors.Colormap.set_under` and
+            `matplotlib.colors.Colormap.set_over` methods.
 
           *xunits*, *yunits*: [ *None* | registered units ]
             Override axis units by specifying an instance of a
-            :class:`matplotlib.units.ConversionInterface`.
+            `matplotlib.units.ConversionInterface`.
 
           *antialiased*: [ *True* | *False* ]
             enable antialiasing, overriding the defaults.  For

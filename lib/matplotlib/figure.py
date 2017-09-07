@@ -1,12 +1,12 @@
 """
 The figure module provides the top-level
-:class:`~matplotlib.artist.Artist`, the :class:`Figure`, which
+`~matplotlib.artist.Artist`, the `Figure`, which
 contains all the plot elements.  The following classes are defined
 
-:class:`SubplotParams`
+`SubplotParams`
     control the default spacing of the subplots
 
-:class:`Figure`
+`Figure`
     top level container for all plot elements
 
 """
@@ -67,7 +67,7 @@ class AxesStack(Stack):
           in which axes were added.
 
     The AxesStack is a callable, where ``ax_stack()`` returns
-    the current axes. Alternatively the :meth:`current_key_axes` will
+    the current axes. Alternatively the `current_key_axes` will
     return the current key and associated axes.
 
     """
@@ -254,14 +254,14 @@ class Figure(Artist):
 
     """
     The Figure instance supports callbacks through a *callbacks*
-    attribute which is a :class:`matplotlib.cbook.CallbackRegistry`
+    attribute which is a `matplotlib.cbook.CallbackRegistry`
     instance.  The events you can connect to are 'dpi_changed', and
     the callback will be called with ``func(fig)`` where fig is the
-    :class:`Figure` instance.
+    `Figure` instance.
 
     *patch*
        The figure patch is drawn by a
-       :class:`matplotlib.patches.Rectangle` instance
+       `matplotlib.patches.Rectangle` instance
 
     *suppressComposite*
        For multiple figure images, the figure will make composite
@@ -303,13 +303,13 @@ class Figure(Artist):
             If *False*, suppress drawing the figure frame
 
         *subplotpars*
-            A :class:`SubplotParams` instance, defaults to rc
+            A `SubplotParams` instance, defaults to rc
 
         *tight_layout*
             If *False* use *subplotpars*; if *True* adjust subplot
-            parameters using :meth:`tight_layout` with default padding.
+            parameters using `tight_layout` with default padding.
             When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
-            and `rect`, the default :meth:`tight_layout` paddings will be
+            and `rect`, the default `tight_layout` paddings will be
             overridden.
             Defaults to rc ``figure.autolayout``.
         """
@@ -390,8 +390,8 @@ class Figure(Artist):
         If using a GUI backend with pyplot, display the figure window.
 
         If the figure was not created using
-        :func:`~matplotlib.pyplot.figure`, it will lack a
-        :class:`~matplotlib.backend_bases.FigureManagerBase`, and
+        `~matplotlib.pyplot.figure`, it will lack a
+        `~matplotlib.backend_bases.FigureManagerBase`, and
         will raise an AttributeError.
 
         For non-GUI backends, this does nothing, in which case
@@ -439,17 +439,17 @@ class Figure(Artist):
 
     def get_tight_layout(self):
         """
-        Return the Boolean flag, True to use :meth:`tight_layout` when drawing.
+        Return the Boolean flag, True to use `tight_layout` when drawing.
         """
         return self._tight
 
     def set_tight_layout(self, tight):
         """
-        Set whether :meth:`tight_layout` is used upon drawing.
+        Set whether `tight_layout` is used upon drawing.
         If None, the rcParams['figure.autolayout'] value will be set.
 
         When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
-        and `rect`, the default :meth:`tight_layout` paddings will be
+        and `rect`, the default `tight_layout` paddings will be
         overridden.
 
         ACCEPTS: [True | False | dict | None ]
@@ -473,7 +473,7 @@ class Figure(Artist):
         ----------
 
         bottom : scalar
-            The bottom of the subplots for :meth:`subplots_adjust`
+            The bottom of the subplots for `subplots_adjust`
 
         rotation : angle in degrees
             The rotation of the xtick labels
@@ -537,7 +537,7 @@ class Figure(Artist):
         """
         Add a centered title to the figure.
 
-        kwargs are :class:`matplotlib.text.Text` properties.  Using figure
+        kwargs are `matplotlib.text.Text` properties.  Using figure
         coordinates, the defaults are:
 
           x : 0.5
@@ -557,7 +557,7 @@ class Figure(Artist):
         `fontweight` (`figure.titleweight`) will be ignored in favour
         of the `FontProperties` defaults.
 
-        A :class:`matplotlib.text.Text` instance is returned.
+        A `matplotlib.text.Text` instance is returned.
 
         Example::
 
@@ -656,10 +656,10 @@ class Figure(Artist):
           resize      a boolean, True or False. If "True", then re-size the
                       Figure to match the given image size.
           xo or yo    An integer, the *x* and *y* image offset in pixels
-          cmap        a :class:`matplotlib.colors.Colormap` instance, e.g.,
+          cmap        a `matplotlib.colors.Colormap` instance, e.g.,
                       cm.jet. If *None*, default to the rc ``image.cmap``
                       value
-          norm        a :class:`matplotlib.colors.Normalize` instance. The
+          norm        a `matplotlib.colors.Normalize` instance. The
                       default is normalization().  This scales luminance -> 0-1
           vmin|vmax   are used to scale a luminance image to 0-1.  If either
                       is *None*, the min and max of the luminance values will
@@ -672,15 +672,15 @@ class Figure(Artist):
           =========   =========================================================
 
         figimage complements the axes image
-        (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
+        (`~matplotlib.axes.Axes.imshow`) which will be resampled
         to fit the current axes.  If you want a resampled image to
         fill the entire figure, you can define an
-        :class:`~matplotlib.axes.Axes` with extent [0,0,1,1].
+        `~matplotlib.axes.Axes` with extent [0,0,1,1].
 
-        An :class:`matplotlib.image.FigureImage` instance is returned.
+        An `matplotlib.image.FigureImage` instance is returned.
 
         Additional kwargs are Artist kwargs passed on to
-        :class:`~matplotlib.image.FigureImage`
+        `~matplotlib.image.FigureImage`
         """
 
         if not self._hold:
@@ -892,7 +892,7 @@ class Figure(Artist):
             If True, equivalent to projection='polar'.
 
         This method also takes the keyword arguments for
-        :class:`~matplotlib.axes.Axes`.
+        `~matplotlib.axes.Axes`.
 
         Returns
         ------
@@ -925,12 +925,12 @@ class Figure(Artist):
         In rare circumstances, add_axes may be called with a single
         argument, an Axes instance already created in the present
         figure but not in the figure's list of axes.  For example,
-        if an axes has been removed with :meth:`delaxes`, it can
+        if an axes has been removed with `delaxes`, it can
         be restored with::
 
             fig.add_axes(ax)
 
-        In all cases, the :class:`~matplotlib.axes.Axes` instance
+        In all cases, the `~matplotlib.axes.Axes` instance
         will be returned.
         """
         if not len(args):
@@ -994,7 +994,7 @@ class Figure(Artist):
             If True, equivalent to projection='polar'.
 
         This method also takes the keyword arguments for
-        :class:`~matplotlib.axes.Axes`.
+        `~matplotlib.axes.Axes`.
 
         Returns
         -------
@@ -1119,12 +1119,12 @@ class Figure(Artist):
 
         subplot_kw : dict, default: {}
             Dict with keywords passed to the
-            :meth:`~matplotlib.figure.Figure.add_subplot` call used to create
+            `~matplotlib.figure.Figure.add_subplot` call used to create
             each subplots.
 
         gridspec_kw : dict, default: {}
             Dict with keywords passed to the
-            :class:`~matplotlib.gridspec.GridSpec` constructor used to create
+            `~matplotlib.gridspec.GridSpec` constructor used to create
             the grid the subplots are placed on.
 
         Returns
@@ -1256,14 +1256,14 @@ class Figure(Artist):
 
     def clear(self, keep_observers=False):
         """
-        Clear the figure -- synonym for :meth:`clf`.
+        Clear the figure -- synonym for `clf`.
         """
         self.clf(keep_observers=keep_observers)
 
     @allow_rasterization
     def draw(self, renderer):
         """
-        Render the figure using :class:`matplotlib.backend_bases.RendererBase`
+        Render the figure using `matplotlib.backend_bases.RendererBase`
         instance *renderer*.
         """
 
@@ -1302,7 +1302,7 @@ class Figure(Artist):
 
     def draw_artist(self, a):
         """
-        draw :class:`matplotlib.artist.Artist` instance *a* only --
+        draw `matplotlib.artist.Artist` instance *a* only --
         this is available only after the figure is drawn
         """
         if self._cachedRenderer is None:
@@ -1353,7 +1353,7 @@ class Figure(Artist):
             bottom left of the figure, and (1,1) is the top right.
 
         prop : None or FontProperties or dict
-            A :class:`matplotlib.font_manager.FontProperties` instance. If
+            A `matplotlib.font_manager.FontProperties` instance. If
             *prop* is a dictionary, a new instance will be created with *prop*.
             If *None*, use rc settings.
 
@@ -1379,7 +1379,7 @@ class Figure(Artist):
         frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
             Default is *None* which will take the value from the
-            ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.frameon`` `rcParam<matplotlib.rcParams>`.
 
         fancybox : None or bool
             If *True*, draw a frame with a round fancybox. If *None*, use rc
@@ -1391,21 +1391,21 @@ class Figure(Artist):
         framealpha : None or float
             Control the alpha transparency of the legend's background.
             Default is *None* which will take the value from the
-            ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.framealpha`` `rcParam<matplotlib.rcParams>`.
 
         facecolor : None or "inherit" or a color spec
             Control the legend's background color.
             Default is *None* which will take the value from the
-            ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.facecolor`` `rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.facecolor``
-            :data:`rcParam<matplotlib.rcParams>`.
+            `rcParam<matplotlib.rcParams>`.
 
         edgecolor : None or "inherit" or a color spec
             Control the legend's background patch edge color.
             Default is *None* which will take the value from the
-            ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.edgecolor`` `rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.edgecolor``
-            :data:`rcParam<matplotlib.rcParams>`.
+            `rcParam<matplotlib.rcParams>`.
 
         ncol : integer
             Number of columns. Default is 1.
@@ -1421,39 +1421,39 @@ class Figure(Artist):
             The fractional whitespace inside the legend border, measured in
             font-size units.
             Default is *None* which will take the value from the
-            ``legend.borderpad`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.borderpad`` `rcParam<matplotlib.rcParams>`.
 
         labelspacing : float or None
             The vertical space between the legend entries, measured in
             font-size units.
             Default is *None* which will take the value from the
-            ``legend.labelspacing`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.labelspacing`` `rcParam<matplotlib.rcParams>`.
 
         handlelength : float or None
             The length of the legend handles, measured in font-size units.
             Default is *None* which will take the value from the
-            ``legend.handlelength`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.handlelength`` `rcParam<matplotlib.rcParams>`.
 
         handletextpad : float or None
             The padding between the legend handle and text, measured in
             font-size units.
             Default is *None* which will take the value from the
-            ``legend.handletextpad`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.handletextpad`` `rcParam<matplotlib.rcParams>`.
 
         borderaxespad : float or None
             The padding between the axes and legend border, measured in
             font-size units.
             Default is *None* which will take the value from the
-            ``legend.borderaxespad`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.borderaxespad`` `rcParam<matplotlib.rcParams>`.
 
         columnspacing : float or None
             The spacing between columns, measured in font-size units.
             Default is *None* which will take the value from the
-            ``legend.columnspacing`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.columnspacing`` `rcParam<matplotlib.rcParams>`.
 
         Returns
         -------
-        :class:`matplotlib.legend.Legend` instance
+        `matplotlib.legend.Legend` instance
 
         Notes
         -----
@@ -1537,10 +1537,10 @@ class Figure(Artist):
           text(x, y, s, fontdict=None, **kwargs)
 
         Add text to figure at location *x*, *y* (relative 0-1
-        coords). See :func:`~matplotlib.pyplot.text` for the meaning
+        coords). See `~matplotlib.pyplot.text` for the meaning
         of the other arguments.
 
-        kwargs control the :class:`~matplotlib.text.Text` properties:
+        kwargs control the `~matplotlib.text.Text` properties:
 
         %(Text)s
         """
@@ -1618,7 +1618,7 @@ class Figure(Artist):
 
     def _gci(self):
         """
-        helper for :func:`~matplotlib.pyplot.gci`;
+        helper for `~matplotlib.pyplot.gci`;
         do not use elsewhere.
         """
         # Look first for an image in the current Axes:
@@ -1727,7 +1727,7 @@ class Figure(Artist):
           *fname*:
             A string containing a path to a filename, or a Python
             file-like object, or possibly some backend-dependent object
-            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`.
+            such as `~matplotlib.backends.backend_pdf.PdfPages`.
 
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename. If
@@ -1853,7 +1853,7 @@ class Figure(Artist):
           subplots_adjust(left=None, bottom=None, right=None, top=None,
                               wspace=None, hspace=None)
 
-        Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
+        Update the `SubplotParams` with *kwargs* (defaulting to rc when
         *None*) and update the subplot locations
 
         """

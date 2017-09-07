@@ -489,7 +489,7 @@ class Spine(mpatches.Patch):
     @classmethod
     def linear_spine(cls, axes, spine_type, **kwargs):
         """
-        (staticmethod) Returns a linear :class:`Spine`.
+        (staticmethod) Returns a linear `Spine`.
         """
         # all values of 13 get replaced upon call to set_bounds()
         if spine_type == 'left':
@@ -511,7 +511,7 @@ class Spine(mpatches.Patch):
     def arc_spine(cls, axes, spine_type, center, radius, theta1, theta2,
                   **kwargs):
         """
-        (classmethod) Returns an arc :class:`Spine`.
+        (classmethod) Returns an arc `Spine`.
         """
         path = mpath.Path.arc(theta1, theta2)
         result = cls(axes, spine_type, path, **kwargs)
@@ -521,7 +521,7 @@ class Spine(mpatches.Patch):
     @classmethod
     def circular_spine(cls, axes, center, radius, **kwargs):
         """
-        (staticmethod) Returns a circular :class:`Spine`.
+        (staticmethod) Returns a circular `Spine`.
         """
         path = mpath.Path.unit_circle()
         spine_type = 'circle'
@@ -537,7 +537,7 @@ class Spine(mpatches.Patch):
 
         .. seealso::
 
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
+            `set_facecolor`, `set_edgecolor`
                For setting the edge or face color individually.
         """
         # The facecolor of a spine is always 'none' by default -- let

@@ -21,10 +21,10 @@ for k in sorted(d):
     if mod is not None:
         if mod.startswith('matplotlib'):
             if k[0].isupper():
-                k = ':class:`~%s.%s`'%(mod, k)
+                k = '`~%s.%s`'%(mod, k)
             else:
-                k = ':func:`~%s.%s`'%(mod, k)
-            mod = ':mod:`%s`'%mod
+                k = '`~%s.%s`'%(mod, k)
+            mod = '`%s`'%mod
         elif mod.startswith('numpy'):
             #k = '`%s <%s>`_'%(k, 'http://scipy.org/Numpy_Example_List_With_Doc#%s'%k)
             k = '`%s <%s>`_'%(k, 'http://sd-2116.dedibox.fr/pydocweb/doc/%s.%s'%(mod, k))

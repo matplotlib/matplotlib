@@ -65,7 +65,7 @@ def GTK_WIDGET_DRAWABLE(w):
 
 class TimerGTK(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` using GTK for timer events.
+    Subclass of `backend_bases.TimerBase` using GTK for timer events.
 
     Attributes
     ----------
@@ -459,7 +459,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        Creates a new backend-specific subclass of `backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 

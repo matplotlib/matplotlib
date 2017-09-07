@@ -1,7 +1,7 @@
 """
 Defines classes for path effects. The path effects are supported in
-:class:`~matplotlib.text.Text`, :class:`~matplotlib.lines.Line2D`
-and :class:`~matplotlib.patches.Patch`.
+`~matplotlib.text.Text`, `~matplotlib.lines.Line2D`
+and `~matplotlib.patches.Patch`.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -63,7 +63,7 @@ class AbstractPathEffect(object):
     def draw_path(self, renderer, gc, tpath, affine, rgbFace=None):
         """
         Derived should override this method. The arguments are the same
-        as :meth:`matplotlib.backend_bases.RendererBase.draw_path`
+        as `matplotlib.backend_bases.RendererBase.draw_path`
         except the first argument is a renderer.
 
         """
@@ -78,7 +78,7 @@ class PathEffectRenderer(RendererBase):
     Implements a Renderer which contains another renderer.
 
     This proxy then intercepts draw calls, calling the appropriate
-    :class:`AbstractPathEffect` draw method.
+    `AbstractPathEffect` draw method.
 
     .. note::
         Not all methods have been overridden on this RendererBase subclass.
@@ -90,9 +90,9 @@ class PathEffectRenderer(RendererBase):
         """
         Parameters
         ----------
-        path_effects : iterable of :class:`AbstractPathEffect`
+        path_effects : iterable of `AbstractPathEffect`
             The path effects which this renderer represents.
-        renderer : :class:`matplotlib.backend_bases.RendererBase` instance
+        renderer : `matplotlib.backend_bases.RendererBase` instance
 
         """
         self._path_effects = path_effects
@@ -203,8 +203,8 @@ class Stroke(AbstractPathEffect):
 
 class withStroke(Stroke):
     """
-    Adds a simple :class:`Stroke` and then draws the
-    original Artist to avoid needing to call :class:`Normal`.
+    Adds a simple `Stroke` and then draws the
+    original Artist to avoid needing to call `Normal`.
 
     """
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
@@ -233,7 +233,7 @@ class SimplePatchShadow(AbstractPathEffect):
             is not specified. Default is 0.3.
         **kwargs
             Extra keywords are stored and passed through to
-            :meth:`AbstractPathEffect._update_gc`.
+            `AbstractPathEffect._update_gc`.
 
         """
         super(SimplePatchShadow, self).__init__(offset)
@@ -285,8 +285,8 @@ class SimplePatchShadow(AbstractPathEffect):
 
 class withSimplePatchShadow(SimplePatchShadow):
     """
-    Adds a simple :class:`SimplePatchShadow` and then draws the
-    original Artist to avoid needing to call :class:`Normal`.
+    Adds a simple `SimplePatchShadow` and then draws the
+    original Artist to avoid needing to call `Normal`.
 
     """
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
@@ -315,7 +315,7 @@ class SimpleLineShadow(AbstractPathEffect):
             is ``None``. Default is 0.3.
         **kwargs
             Extra keywords are stored and passed through to
-            :meth:`AbstractPathEffect._update_gc`.
+            `AbstractPathEffect._update_gc`.
 
         """
         super(SimpleLineShadow, self).__init__(offset)
@@ -363,7 +363,7 @@ class SimpleLineShadow(AbstractPathEffect):
 
 class PathPatchEffect(AbstractPathEffect):
     """
-    Draws a :class:`~matplotlib.patches.PathPatch` instance whose Path
+    Draws a `~matplotlib.patches.PathPatch` instance whose Path
     comes from the original PathEffect artist.
 
     """
@@ -375,7 +375,7 @@ class PathPatchEffect(AbstractPathEffect):
             The offset to apply to the path, in points.
         **kwargs :
             All keyword arguments are passed through to the
-            :class:`~matplotlib.patches.PathPatch` constructor. The
+            `~matplotlib.patches.PathPatch` constructor. The
             properties which cannot be overridden are "path", "clip_box"
             "transform" and "clip_path".
         """

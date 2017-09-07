@@ -14,7 +14,7 @@ or PDF, what you see on the screen is what you get in the hardcopy.
 `FreeType <https://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
 raster sizes.  matplotlib includes its own
-:mod:`matplotlib.font_manager` (thanks to Paul Barrett), which
+`matplotlib.font_manager` (thanks to Paul Barrett), which
 implements a cross platform, `W3C <http://www.w3.org/>`
 compliant font finding algorithm.
 
@@ -33,30 +33,30 @@ Basic text commands
 The following commands are used to create text in the pyplot
 interface
 
-* :func:`~matplotlib.pyplot.text` - add text at an arbitrary location to the ``Axes``;
-  :meth:`matplotlib.axes.Axes.text` in the API.
+* `~matplotlib.pyplot.text` - add text at an arbitrary location to the ``Axes``;
+  `matplotlib.axes.Axes.text` in the API.
 
-* :func:`~matplotlib.pyplot.xlabel` - add a label to the x-axis;
-  :meth:`matplotlib.axes.Axes.set_xlabel` in the API.
+* `~matplotlib.pyplot.xlabel` - add a label to the x-axis;
+  `matplotlib.axes.Axes.set_xlabel` in the API.
 
-* :func:`~matplotlib.pyplot.ylabel` - add a label to the y-axis;
-  :meth:`matplotlib.axes.Axes.set_ylabel` in the API.
+* `~matplotlib.pyplot.ylabel` - add a label to the y-axis;
+  `matplotlib.axes.Axes.set_ylabel` in the API.
 
-* :func:`~matplotlib.pyplot.title` - add a title to the ``Axes``;
-  :meth:`matplotlib.axes.Axes.set_title` in the API.
+* `~matplotlib.pyplot.title` - add a title to the ``Axes``;
+  `matplotlib.axes.Axes.set_title` in the API.
 
-* :func:`~matplotlib.pyplot.figtext` - add text at an arbitrary location to the ``Figure``;
-  :meth:`matplotlib.figure.Figure.text` in the API.
+* `~matplotlib.pyplot.figtext` - add text at an arbitrary location to the ``Figure``;
+  `matplotlib.figure.Figure.text` in the API.
 
-* :func:`~matplotlib.pyplot.suptitle` - add a title to the ``Figure``;
-  :meth:`matplotlib.figure.Figure.suptitle` in the API.
+* `~matplotlib.pyplot.suptitle` - add a title to the ``Figure``;
+  `matplotlib.figure.Figure.suptitle` in the API.
 
-* :func:`~matplotlib.pyplot.annotate` - add an annotation, with
-   optional arrow, to the ``Axes`` ; :meth:`matplotlib.axes.Axes.annotate`
+* `~matplotlib.pyplot.annotate` - add an annotation, with
+   optional arrow, to the ``Axes`` ; `matplotlib.axes.Axes.annotate`
    in the API.
 
 All of these functions create and return a
-:func:`matplotlib.text.Text` instance, which can be configured with a
+`matplotlib.text.Text` instance, which can be configured with a
 variety of font and other properties.  The example below shows all of
 these commands in action.
 """

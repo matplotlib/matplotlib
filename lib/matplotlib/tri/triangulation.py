@@ -166,7 +166,7 @@ class Triangulation(object):
 
     def get_trifinder(self):
         """
-        Return the default :class:`matplotlib.tri.TriFinder` of this
+        Return the default `matplotlib.tri.TriFinder` of this
         triangulation, creating it if necessary.  This allows the same
         TriFinder object to be easily shared.
         """

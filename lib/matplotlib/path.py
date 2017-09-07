@@ -1,15 +1,15 @@
 """
 A module for dealing with the polylines used throughout matplotlib.
 
-The primary class for polyline handling in matplotlib is :class:`Path`.
+The primary class for polyline handling in matplotlib is `Path`.
 Almost all vector drawing makes use of Paths somewhere in the drawing
 pipeline.
 
-Whilst a :class:`Path` instance itself cannot be drawn, there exists
-:class:`~matplotlib.artist.Artist` subclasses which can be used for
+Whilst a `Path` instance itself cannot be drawn, there exists
+`~matplotlib.artist.Artist` subclasses which can be used for
 convenient Path visualisation - the two most frequently used of these are
-:class:`~matplotlib.patches.PathPatch` and
-:class:`~matplotlib.collections.PathCollection`.
+`~matplotlib.patches.PathPatch` and
+`~matplotlib.collections.PathCollection`.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -29,7 +29,7 @@ from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
 
 class Path(object):
     """
-    :class:`Path` represents a series of possibly disconnected,
+    `Path` represents a series of possibly disconnected,
     possibly closed, line and curve segments.
 
     The underlying storage is made up of two parallel numpy arrays:
@@ -65,11 +65,11 @@ class Path(object):
           polyline.
 
     Users of Path objects should not access the vertices and codes
-    arrays directly.  Instead, they should use :meth:`iter_segments`
-    or :meth:`cleaned` to get the vertex/code pairs.  This is important,
-    since many :class:`Path` objects, as an optimization, do not store a
+    arrays directly.  Instead, they should use `iter_segments`
+    or `cleaned` to get the vertex/code pairs.  This is important,
+    since many `Path` objects, as an optimization, do not store a
     *codes* at all, but have a default one provided for them by
-    :meth:`iter_segments`.
+    `iter_segments`.
 
     Some behavior of Path objects can be controlled by rcParams. See
     the rcParams whose keys contain 'path.'.
@@ -116,7 +116,7 @@ class Path(object):
             If *vertices* contains masked values, they will be converted
             to NaNs which are then handled correctly by the Agg
             PathIterator and other consumers of path data, such as
-            :meth:`iter_segments`.
+            `iter_segments`.
         codes : {None, array_like}, optional
             n-length array integers representing the codes of the path.
             If not None, codes must be the same length as vertices.
@@ -312,7 +312,7 @@ class Path(object):
         Make a compound path object to draw a number
         of polygons with equal numbers of sides XY is a (numpolys x
         numsides x 2) numpy array of vertices.  Return object is a
-        :class:`Path`
+        `Path`
 
         .. plot:: gallery/api/histogram_path.py
 
@@ -373,14 +373,14 @@ class Path(object):
         Iterates over all of the curve segments in the path.  Each
         iteration returns a 2-tuple (*vertices*, *code*), where
         *vertices* is a sequence of 1 - 3 coordinate pairs, and *code* is
-        one of the :class:`Path` codes.
+        one of the `Path` codes.
 
         Additionally, this method can provide a number of standard
         cleanups and conversions to the path.
 
         Parameters
         ----------
-        transform : None or :class:`~matplotlib.transforms.Transform` instance
+        transform : None or `~matplotlib.transforms.Transform` instance
             If not None, the given affine transformation will
             be applied to the path.
         remove_nans : {False, True}, optional
@@ -447,7 +447,7 @@ class Path(object):
 
         .. seealso::
 
-            See :meth:`iter_segments` for details of the keyword arguments.
+            See `iter_segments` for details of the keyword arguments.
 
         Returns
         -------
@@ -470,7 +470,7 @@ class Path(object):
 
         .. seealso::
 
-            :class:`matplotlib.transforms.TransformedPath`
+            `matplotlib.transforms.TransformedPath`
                 A specialized path class that will cache the
                 transformed result and automatically update when the
                 transform changes.
@@ -548,18 +548,18 @@ class Path(object):
 
         *filled*, when True, treats the paths as if they were filled.
         That is, if one path completely encloses the other,
-        :meth:`intersects_path` will return True.
+        `intersects_path` will return True.
         """
         return _path.path_intersects_path(self, other, filled)
 
     def intersects_bbox(self, bbox, filled=True):
         """
         Returns *True* if this path intersects a given
-        :class:`~matplotlib.transforms.Bbox`.
+        `~matplotlib.transforms.Bbox`.
 
         *filled*, when True, treats the path as if it was filled.
         That is, if the path completely encloses the bounding box,
-        :meth:`intersects_bbox` will return True.
+        `intersects_bbox` will return True.
 
         The bounding box is always considered filled.
         """
@@ -632,7 +632,7 @@ class Path(object):
     @classmethod
     def unit_rectangle(cls):
         """
-        Return a :class:`Path` instance of the unit rectangle
+        Return a `Path` instance of the unit rectangle
         from (0, 0) to (1, 1).
         """
         if cls._unit_rectangle is None:
@@ -649,7 +649,7 @@ class Path(object):
     @classmethod
     def unit_regular_polygon(cls, numVertices):
         """
-        Return a :class:`Path` instance for a unit regular
+        Return a `Path` instance for a unit regular
         polygon with the given *numVertices* and radius of 1.0,
         centered at (0, 0).
         """
@@ -678,7 +678,7 @@ class Path(object):
     @classmethod
     def unit_regular_star(cls, numVertices, innerCircle=0.5):
         """
-        Return a :class:`Path` for a unit regular star
+        Return a `Path` for a unit regular star
         with the given numVertices and radius of 1.0, centered at (0,
         0).
         """
@@ -707,7 +707,7 @@ class Path(object):
     @classmethod
     def unit_regular_asterisk(cls, numVertices):
         """
-        Return a :class:`Path` for a unit regular
+        Return a `Path` for a unit regular
         asterisk with the given numVertices and radius of 1.0,
         centered at (0, 0).
         """
@@ -718,9 +718,9 @@ class Path(object):
     @classmethod
     def unit_circle(cls):
         """
-        Return the readonly :class:`Path` of the unit circle.
+        Return the readonly `Path` of the unit circle.
 
-        For most cases, :func:`Path.circle` will be what you want.
+        For most cases, `Path.circle` will be what you want.
 
         """
         if cls._unit_circle is None:
@@ -804,7 +804,7 @@ class Path(object):
     @classmethod
     def unit_circle_righthalf(cls):
         """
-        Return a :class:`Path` of the right half
+        Return a `Path` of the right half
         of a unit circle. The circle is approximated using cubic Bezier
         curves.  This uses 4 splines around the circle using the approach
         presented here:
@@ -983,21 +983,21 @@ class Path(object):
 def get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform):
     """
-    Given a sequence of :class:`Path` objects,
-    :class:`~matplotlib.transforms.Transform` objects and offsets, as
-    found in a :class:`~matplotlib.collections.PathCollection`,
+    Given a sequence of `Path` objects,
+    `~matplotlib.transforms.Transform` objects and offsets, as
+    found in a `~matplotlib.collections.PathCollection`,
     returns the bounding box that encapsulates all of them.
 
     *master_transform* is a global transformation to apply to all paths
 
-    *paths* is a sequence of :class:`Path` instances.
+    *paths* is a sequence of `Path` instances.
 
     *transforms* is a sequence of
-    :class:`~matplotlib.transforms.Affine2D` instances.
+    `~matplotlib.transforms.Affine2D` instances.
 
     *offsets* is a sequence of (x, y) offsets (or an Nx2 array)
 
-    *offset_transform* is a :class:`~matplotlib.transforms.Affine2D`
+    *offset_transform* is a `~matplotlib.transforms.Affine2D`
     to apply to the offsets before applying the offset to the path.
 
     The way that *paths*, *transforms* and *offsets* are combined
@@ -1017,14 +1017,14 @@ def get_path_collection_extents(
 
 def get_paths_extents(paths, transforms=[]):
     """
-    Given a sequence of :class:`Path` objects and optional
-    :class:`~matplotlib.transforms.Transform` objects, returns the
+    Given a sequence of `Path` objects and optional
+    `~matplotlib.transforms.Transform` objects, returns the
     bounding box that encapsulates all of them.
 
-    *paths* is a sequence of :class:`Path` instances.
+    *paths* is a sequence of `Path` instances.
 
     *transforms* is an optional sequence of
-    :class:`~matplotlib.transforms.Affine2D` instances to apply to
+    `~matplotlib.transforms.Affine2D` instances to apply to
     each path.
     """
     from .transforms import Bbox, Affine2D

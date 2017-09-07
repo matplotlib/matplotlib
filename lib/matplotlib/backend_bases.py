@@ -2,33 +2,33 @@
 Abstract base classes define the primitives that renderers and
 graphics contexts must implement to serve as a matplotlib backend
 
-:class:`RendererBase`
+`RendererBase`
     An abstract base class to handle drawing/rendering operations.
 
-:class:`FigureCanvasBase`
+`FigureCanvasBase`
     The abstraction layer that separates the
-    :class:`matplotlib.figure.Figure` from the backend specific
+    `matplotlib.figure.Figure` from the backend specific
     details like a user interface drawing area
 
-:class:`GraphicsContextBase`
+`GraphicsContextBase`
     An abstract base class that provides color, line styles, etc...
 
-:class:`Event`
+`Event`
     The base class for all of the matplotlib event
-    handling.  Derived classes such as :class:`KeyEvent` and
-    :class:`MouseEvent` store the meta data like keys and buttons
+    handling.  Derived classes such as `KeyEvent` and
+    `MouseEvent` store the meta data like keys and buttons
     pressed, x and y locations in pixel and
-    :class:`~matplotlib.axes.Axes` coordinates.
+    `~matplotlib.axes.Axes` coordinates.
 
-:class:`ShowBase`
+`ShowBase`
     The base class for the Show class of each interactive backend;
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
-:class:`ToolContainerBase`
+`ToolContainerBase`
      The base class for the Toolbar class of each interactive backend.
 
-:class:`StatusbarBase`
+`StatusbarBase`
     The base class for the messaging area.
 """
 
@@ -253,20 +253,20 @@ class RendererBase(object):
     """An abstract base class to handle drawing/rendering operations.
 
     The following methods must be implemented in the backend for full
-    functionality (though just implementing :meth:`draw_path` alone would
+    functionality (though just implementing `draw_path` alone would
     give a highly capable backend):
 
-    * :meth:`draw_path`
-    * :meth:`draw_image`
-    * :meth:`draw_gouraud_triangle`
+    * `draw_path`
+    * `draw_image`
+    * `draw_gouraud_triangle`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
 
-    * :meth:`draw_text`
-    * :meth:`draw_markers`
-    * :meth:`draw_path_collection`
-    * :meth:`draw_quad_mesh`
+    * `draw_text`
+    * `draw_markers`
+    * `draw_path_collection`
+    * `draw_quad_mesh`
 
     """
     def __init__(self):
@@ -277,18 +277,18 @@ class RendererBase(object):
         """
         Open a grouping element with label *s*. If *gid* is given, use
         *gid* as the id of the group. Is only currently used by
-        :mod:`~matplotlib.backends.backend_svg`.
+        `~matplotlib.backends.backend_svg`.
         """
 
     def close_group(self, s):
         """
         Close a grouping element with label *s*
-        Is only currently used by :mod:`~matplotlib.backends.backend_svg`
+        Is only currently used by `~matplotlib.backends.backend_svg`
         """
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         """
-        Draws a :class:`~matplotlib.path.Path` instance using the
+        Draws a `~matplotlib.path.Path` instance using the
         given affine transform.
         """
         raise NotImplementedError
@@ -302,7 +302,7 @@ class RendererBase(object):
         this function.
 
         This provides a fallback implementation of draw_markers that
-        makes multiple calls to :meth:`draw_path`.  Some backends may
+        makes multiple calls to `draw_path`.  Some backends may
         want to override this method in order to draw the marker only
         once and reuse it multiple times.
 
@@ -340,16 +340,16 @@ class RendererBase(object):
         depending on the space that the offsets are in.
 
         This provides a fallback implementation of
-        :meth:`draw_path_collection` that makes multiple calls to
-        :meth:`draw_path`.  Some backends may want to override this in
+        `draw_path_collection` that makes multiple calls to
+        `draw_path`.  Some backends may want to override this in
         order to render each set of path data only once, and then
         reference that path multiple times with the different offsets,
         colors, styles etc.  The generator methods
-        :meth:`_iter_collection_raw_paths` and
-        :meth:`_iter_collection` are provided to help with (and
+        `_iter_collection_raw_paths` and
+        `_iter_collection` are provided to help with (and
         standardize) the implementation across backends.  It is highly
         recommended to use those generators, so that changes to the
-        behavior of :meth:`draw_path_collection` can be made globally.
+        behavior of `draw_path_collection` can be made globally.
         """
         path_ids = []
         for path, transform in self._iter_collection_raw_paths(
@@ -370,8 +370,8 @@ class RendererBase(object):
                        antialiased, edgecolors):
         """
         This provides a fallback implementation of
-        :meth:`draw_quad_mesh` that generates paths and then calls
-        :meth:`draw_path_collection`.
+        `draw_quad_mesh` that generates paths and then calls
+        `draw_path_collection`.
         """
 
         from matplotlib.collections import QuadMesh
@@ -427,8 +427,8 @@ class RendererBase(object):
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
         """
-        This is a helper method (along with :meth:`_iter_collection`) to make
-        it easier to write a space-efficient :meth:`draw_path_collection`
+        This is a helper method (along with `_iter_collection`) to make
+        it easier to write a space-efficient `draw_path_collection`
         implementation in a backend.
 
         This method yields all of the base path/transform
@@ -436,7 +436,7 @@ class RendererBase(object):
         list of transforms.
 
         The arguments should be exactly what is passed in to
-        :meth:`draw_path_collection`.
+        `draw_path_collection`.
 
         The backend should take each yielded path and transform and
         create an object that can be referenced (reused) later.
@@ -478,20 +478,20 @@ class RendererBase(object):
                          antialiaseds, urls, offset_position):
         """
         This is a helper method (along with
-        :meth:`_iter_collection_raw_paths`) to make it easier to write
-        a space-efficient :meth:`draw_path_collection` implementation in a
+        `_iter_collection_raw_paths`) to make it easier to write
+        a space-efficient `draw_path_collection` implementation in a
         backend.
 
         This method yields all of the path, offset and graphics
         context combinations to draw the path collection.  The caller
         should already have looped over the results of
-        :meth:`_iter_collection_raw_paths` to draw this collection.
+        `_iter_collection_raw_paths` to draw this collection.
 
         The arguments should be the same as that passed into
-        :meth:`draw_path_collection`, with the exception of
+        `draw_path_collection`, with the exception of
         *path_ids*, which is a list of arbitrary objects that the
         backend will use to reference one of the paths created in the
-        :meth:`_iter_collection_raw_paths` stage.
+        `_iter_collection_raw_paths` stage.
 
         Each yielded result is of the form::
 
@@ -571,7 +571,7 @@ class RendererBase(object):
 
     def get_image_magnification(self):
         """
-        Get the factor by which to magnify images passed to :meth:`draw_image`.
+        Get the factor by which to magnify images passed to `draw_image`.
         Allows a backend to have images at a different resolution to other
         artists.
         """
@@ -599,9 +599,9 @@ class RendererBase(object):
 
         transform : `matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
-            :meth:`option_scale_image` returns ``True``, an affine
-            transformation *may* be passed to :meth:`draw_image`. It takes the
-            form of a :class:`~matplotlib.transforms.Affine2DBase` instance.
+            `option_scale_image` returns ``True``, an affine
+            transformation *may* be passed to `draw_image`. It takes the
+            form of a `~matplotlib.transforms.Affine2DBase` instance.
             The translation vector of the transformation is given in physical
             units (i.e., dots or pixels). Note that the transformation does not
             override `x` and `y`, and has to be applied *before* translating
@@ -620,7 +620,7 @@ class RendererBase(object):
     def option_scale_image(self):
         """
         override this method for renderers that support arbitrary affine
-        transformations in :meth:`draw_image` (most vector backends).
+        transformations in `draw_image` (most vector backends).
         """
         return False
 
@@ -743,7 +743,7 @@ class RendererBase(object):
         """
         Get the width, height, and descent (offset from the bottom
         to the baseline), in display coords, of the string *s* with
-        :class:`~matplotlib.font_manager.FontProperties` *prop*
+        `~matplotlib.font_manager.FontProperties` *prop*
         """
         if ismath == 'TeX':
             # todo: handle props
@@ -775,8 +775,8 @@ class RendererBase(object):
     def flipy(self):
         """
         Return true if y small numbers are top for renderer Is used
-        for drawing text (:mod:`matplotlib.text`) and images
-        (:mod:`matplotlib.image`) only
+        for drawing text (`matplotlib.text`) and images
+        (`matplotlib.image`) only
         """
         return True
 
@@ -786,7 +786,7 @@ class RendererBase(object):
 
     def get_texmanager(self):
         """
-        return the :class:`matplotlib.texmanager.TexManager` instance
+        return the `matplotlib.texmanager.TexManager` instance
         """
         if self._texmanager is None:
             from matplotlib.texmanager import TexManager
@@ -795,7 +795,7 @@ class RendererBase(object):
 
     def new_gc(self):
         """
-        Return an instance of a :class:`GraphicsContextBase`
+        Return an instance of a `GraphicsContextBase`
         """
         return GraphicsContextBase()
 
@@ -921,7 +921,7 @@ class GraphicsContextBase(object):
 
     def get_clip_rectangle(self):
         """
-        Return the clip rectangle as a :class:`~matplotlib.transforms.Bbox`
+        Return the clip rectangle as a `~matplotlib.transforms.Bbox`
         instance
         """
         return self._cliprect
@@ -929,7 +929,7 @@ class GraphicsContextBase(object):
     def get_clip_path(self):
         """
         Return the clip path in the form (path, transform), where path
-        is a :class:`~matplotlib.path.Path` instance, and transform is
+        is a `~matplotlib.path.Path` instance, and transform is
         an affine transform to apply to the path before clipping.
         """
         if self._clippath is not None:
@@ -1054,7 +1054,7 @@ class GraphicsContextBase(object):
     def set_clip_path(self, path):
         """
         Set the clip path and transformation.  Path should be a
-        :class:`~matplotlib.transforms.TransformedPath` instance.
+        `~matplotlib.transforms.TransformedPath` instance.
         """
         if path is not None and not isinstance(path,
                 transforms.TransformedPath):
@@ -1392,7 +1392,7 @@ class TimerBase(object):
 class Event(object):
     """
     A matplotlib event.  Attach additional attributes as defined in
-    :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
+    `FigureCanvasBase.mpl_connect`.  The following attributes
     are defined and shown with their default values
 
     Attributes
@@ -1425,7 +1425,7 @@ class DrawEvent(Event):
     """
     An event triggered by a draw operation on the canvas
 
-    In addition to the :class:`Event` attributes, the following event
+    In addition to the `Event` attributes, the following event
     attributes are defined:
 
     Attributes
@@ -1443,7 +1443,7 @@ class ResizeEvent(Event):
     """
     An event triggered by a canvas resize
 
-    In addition to the :class:`Event` attributes, the following event
+    In addition to the `Event` attributes, the following event
     attributes are defined:
 
     Attributes
@@ -1476,7 +1476,7 @@ class LocationEvent(Event):
     The following additional attributes are defined and shown with
     their default values.
 
-    In addition to the :class:`Event` attributes, the following
+    In addition to the `Event` attributes, the following
     event attributes are defined:
 
     Attributes
@@ -1488,7 +1488,7 @@ class LocationEvent(Event):
         y position - pixels from bottom of canvas
 
     inaxes : bool
-        the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
+        the `~matplotlib.axes.Axes` instance if mouse is over axes
 
     xdata : scalar
         x coord of mouse in data coords
@@ -1580,7 +1580,7 @@ class MouseEvent(LocationEvent):
                    'scroll_event',
                    'motion_notify_event').
 
-    In addition to the :class:`Event` and :class:`LocationEvent`
+    In addition to the `Event` and `LocationEvent`
     attributes, the following attributes are defined:
 
     Attributes
@@ -1593,7 +1593,7 @@ class MouseEvent(LocationEvent):
 
     key : None, or str
         the key depressed when the mouse event triggered (see
-        :class:`KeyEvent`)
+        `KeyEvent`)
 
     step : scalar
         number of scroll steps (positive for 'up', negative for 'down')
@@ -1641,7 +1641,7 @@ class PickEvent(Event):
     a pick event, fired when the user picks a location on the canvas
     sufficiently close to an artist.
 
-    Attrs: all the :class:`Event` attributes plus
+    Attrs: all the `Event` attributes plus
 
     Attributes
     ----------
@@ -1653,9 +1653,9 @@ class PickEvent(Event):
 
     other
         extra class dependent attrs -- e.g., a
-        :class:`~matplotlib.lines.Line2D` pick may define different
+        `~matplotlib.lines.Line2D` pick may define different
         extra attributes than a
-        :class:`~matplotlib.collections.PatchCollection` pick event
+        `~matplotlib.collections.PatchCollection` pick event
 
     Examples
     --------
@@ -1685,9 +1685,9 @@ class KeyEvent(LocationEvent):
     A key event (key press, key release).
 
     Attach additional attributes as defined in
-    :meth:`FigureCanvasBase.mpl_connect`.
+    `FigureCanvasBase.mpl_connect`.
 
-    In addition to the :class:`Event` and :class:`LocationEvent`
+    In addition to the `Event` and `LocationEvent`
     attributes, the following attributes are defined:
 
     Attributes
@@ -1883,7 +1883,7 @@ class FigureCanvasBase(object):
     def pick_event(self, mouseevent, artist, **kwargs):
         """
         This method will be called by artists who are picked and will
-        fire off :class:`PickEvent` callbacks registered listeners
+        fire off `PickEvent` callbacks registered listeners
         """
         s = 'pick_event'
         event = PickEvent(s, self, mouseevent, artist,
@@ -1898,7 +1898,7 @@ class FigureCanvasBase(object):
         left.  button and key are as defined in MouseEvent.
 
         This method will be call all functions connected to the
-        'scroll_event' with a :class:`MouseEvent` instance.
+        'scroll_event' with a `MouseEvent` instance.
         """
         if step >= 0:
             self._button = 'up'
@@ -1913,10 +1913,10 @@ class FigureCanvasBase(object):
         """
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
-        button and key are as defined in :class:`MouseEvent`.
+        button and key are as defined in `MouseEvent`.
 
         This method will be call all functions connected to the
-        'button_press_event' with a :class:`MouseEvent` instance.
+        'button_press_event' with a `MouseEvent` instance.
         """
         self._button = button
         s = 'button_press_event'
@@ -1930,7 +1930,7 @@ class FigureCanvasBase(object):
         button release.
 
         This method will call all functions connected to the
-        'button_release_event' with a :class:`MouseEvent` instance.
+        'button_release_event' with a `MouseEvent` instance.
 
         Parameters
         ----------
@@ -1955,7 +1955,7 @@ class FigureCanvasBase(object):
         motion-notify-event.
 
         This method will call all functions connected to the
-        'motion_notify_event' with a :class:`MouseEvent` instance.
+        'motion_notify_event' with a `MouseEvent` instance.
 
         Parameters
         ----------
@@ -2041,11 +2041,11 @@ class FigureCanvasBase(object):
             self.mouse_grabber = None
 
     def draw(self, *args, **kwargs):
-        """Render the :class:`~matplotlib.figure.Figure`."""
+        """Render the `~matplotlib.figure.Figure`."""
 
     def draw_idle(self, *args, **kwargs):
         """
-        :meth:`draw` only if idle; defaults to draw but backends can override
+        `draw` only if idle; defaults to draw but backends can override
         """
         if not self._is_idle_drawing:
             with self._idle_draw_cntx():
@@ -2333,7 +2333,7 @@ class FigureCanvasBase(object):
 
           def func(event)
 
-        where event is a :class:`matplotlib.backend_bases.Event`.  The
+        where event is a `matplotlib.backend_bases.Event`.  The
         following events are recognized
 
         - 'button_press_event'
@@ -2353,15 +2353,15 @@ class FigureCanvasBase(object):
 
         For the location events (button and key press/release), if the
         mouse is over the axes, the variable ``event.inaxes`` will be
-        set to the :class:`~matplotlib.axes.Axes` the event occurs is
+        set to the `~matplotlib.axes.Axes` the event occurs is
         over, and additionally, the variables ``event.xdata`` and
         ``event.ydata`` will be defined.  This is the mouse location
         in data coords.  See
-        :class:`~matplotlib.backend_bases.KeyEvent` and
-        :class:`~matplotlib.backend_bases.MouseEvent` for more info.
+        `~matplotlib.backend_bases.KeyEvent` and
+        `~matplotlib.backend_bases.MouseEvent` for more info.
 
         Return value is a connection id that can be used with
-        :meth:`~matplotlib.backend_bases.Event.mpl_disconnect`.
+        `~matplotlib.backend_bases.Event.mpl_disconnect`.
 
         Examples
         --------
@@ -2398,7 +2398,7 @@ class FigureCanvasBase(object):
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`. This is useful for getting periodic
+        `backend_bases.Timer`. This is useful for getting periodic
         events through the backend's native event loop. Implemented only for
         backends with GUIs.
 
@@ -2490,11 +2490,11 @@ def key_press_handler(event, canvas, toolbar=None):
 
     Parameters
     ----------
-    event : :class:`KeyEvent`
+    event : `KeyEvent`
         a key press/release event
-    canvas : :class:`FigureCanvasBase`
+    canvas : `FigureCanvasBase`
         the backend-specific canvas instance
-    toolbar : :class:`NavigationToolbar2`
+    toolbar : `NavigationToolbar2`
         the navigation cursor toolbar
 
     """
@@ -2661,7 +2661,7 @@ class FigureManagerBase(object):
 
     Attributes
     ----------
-    canvas : :class:`FigureCanvasBase`
+    canvas : `FigureCanvasBase`
         The backend-specific canvas instance
 
     num : int or str
@@ -2676,7 +2676,7 @@ class FigureManagerBase(object):
         self.key_press_handler_id = None
         """
         The returned id from connecting the default key handler via
-        :meth:`FigureCanvasBase.mpl_connect`.
+        `FigureCanvasBase.mpl_connect`.
 
         To disable default key press handling::
 
@@ -2693,7 +2693,7 @@ class FigureManagerBase(object):
         """
         For GUI backends, show the figure window and redraw.
         For non-GUI backends, raise an exception to be caught
-        by :meth:`~matplotlib.figure.Figure.show`, for an
+        by `~matplotlib.figure.Figure.show`, for an
         optional warning.
         """
         raise NonGuiException()
@@ -2741,35 +2741,35 @@ class NavigationToolbar2(object):
 
     backends must implement a canvas that handles connections for
     'button_press_event' and 'button_release_event'.  See
-    :meth:`FigureCanvasBase.mpl_connect` for more information
+    `FigureCanvasBase.mpl_connect` for more information
 
 
     They must also define
 
-      :meth:`save_figure`
+      `save_figure`
          save the current figure
 
-      :meth:`set_cursor`
+      `set_cursor`
          if you want the pointer icon to change
 
-      :meth:`_init_toolbar`
+      `_init_toolbar`
          create your toolbar widget
 
-      :meth:`draw_rubberband` (optional)
+      `draw_rubberband` (optional)
          draw the zoom to rect "rubberband" rectangle
 
-      :meth:`press`  (optional)
+      `press`  (optional)
          whenever a mouse button is pressed, you'll be notified with
          the event
 
-      :meth:`release` (optional)
+      `release` (optional)
          whenever a mouse button is released, you'll be notified with
          the event
 
-      :meth:`set_message` (optional)
+      `set_message` (optional)
          display message
 
-      :meth:`set_history_buttons` (optional)
+      `set_history_buttons` (optional)
          you can change the history back / forward buttons to
          indicate disabled / enabled state.
 
@@ -3188,7 +3188,7 @@ class NavigationToolbar2(object):
         raise NotImplementedError
 
     def set_cursor(self, cursor):
-        """Set the current cursor to one of the :class:`Cursors` enums values.
+        """Set the current cursor to one of the `Cursors` enums values.
 
         If required by the backend, this method should trigger an update in
         the backend event loop after the cursor is set, as this method may be

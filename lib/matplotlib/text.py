@@ -35,7 +35,7 @@ from matplotlib.textpath import TextPath
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
-    "Return an override dict.  See :func:`~pyplot.text' docstring for info"
+    "Return an override dict.  See `~pyplot.text' docstring for info"
 
     if fontdict is not None:
         override.update(fontdict)
@@ -143,7 +143,7 @@ docstring.interpd.update(Text="""
 def _get_textbox(text, renderer):
     """
     Calculate the bounding box of the text. Unlike
-    :meth:`matplotlib.text.Text.get_extents` method, The bbox size of
+    `matplotlib.text.Text.get_extents` method, The bbox size of
     the text before the rotation is calculated.
     """
 
@@ -200,7 +200,7 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a :class:`~matplotlib.text.Text` instance at *x*, *y*
+        Create a `~matplotlib.text.Text` instance at *x*, *y*
         with string *text*.
 
         Valid kwargs are
@@ -585,9 +585,9 @@ class Text(Artist):
 
     def set_clip_box(self, clipbox):
         """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+        Set the artist's clip `~matplotlib.transforms.Bbox`.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        ACCEPTS: a `matplotlib.transforms.Bbox` instance
         """
         super(Text, self).set_clip_box(clipbox)
         self._update_clip_properties()
@@ -596,10 +596,10 @@ class Text(Artist):
         """
         Set the artist's clip path, which may be:
 
-          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+          * a `~matplotlib.patches.Patch` (or subclass) instance
 
-          * a :class:`~matplotlib.path.Path` instance, in which case
-             an optional :class:`~matplotlib.transforms.Transform`
+          * a `~matplotlib.path.Path` instance, in which case
+             an optional `~matplotlib.transforms.Transform`
              instance may be provided, which will be applied to the
              path before using it for clipping.
 
@@ -609,9 +609,9 @@ class Text(Artist):
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to *None*.
 
-        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
-        :class:`~matplotlib.transforms.Transform`) |
-        :class:`~matplotlib.patches.Patch` | None ]
+        ACCEPTS: [ (`~matplotlib.path.Path`,
+        `~matplotlib.transforms.Transform`) |
+        `~matplotlib.patches.Patch` | None ]
         """
         super(Text, self).set_clip_path(path, transform)
         self._update_clip_properties()
@@ -740,7 +740,7 @@ class Text(Artist):
     @allow_rasterization
     def draw(self, renderer):
         """
-        Draws the :class:`Text` object to the given *renderer*.
+        Draws the `Text` object to the given *renderer*.
         """
         if renderer is not None:
             self._renderer = renderer
@@ -811,7 +811,7 @@ class Text(Artist):
         return self._color
 
     def get_fontproperties(self):
-        "Return the :class:`~font_manager.FontProperties` object"
+        "Return the `~font_manager.FontProperties` object"
         return self._fontproperties
 
     def get_font_properties(self):
@@ -922,7 +922,7 @@ class Text(Artist):
         return self._text
 
     def get_va(self):
-        'alias for :meth:`getverticalalignment`'
+        'alias for `getverticalalignment`'
         return self.get_verticalalignment()
 
     def get_verticalalignment(self):
@@ -934,7 +934,7 @@ class Text(Artist):
 
     def get_window_extent(self, renderer=None, dpi=None):
         '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
+        Return a `~matplotlib.transforms.Bbox` object bounding
         the text, in display units.
 
         In addition to being used internally, this is useful for
@@ -942,9 +942,9 @@ class Text(Artist):
 
         *renderer* defaults to the _renderer attribute of the text
         object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
+        `draw`, so you must use this kwarg if you want
+        to call `get_window_extent` prior to the first
+        `draw`.  For getting web page regions, it is
         simpler to call the method after saving the figure.
 
         *dpi* defaults to self.figure.dpi; the renderer dpi is
@@ -981,7 +981,7 @@ class Text(Artist):
 
         .. seealso::
 
-            :meth:`set_bbox`
+            `set_bbox`
                To change the position of the bounding box.
 
         ACCEPTS: any matplotlib color
@@ -1241,9 +1241,9 @@ class Text(Artist):
     def set_fontproperties(self, fp):
         """
         Set the font properties that control the text.  *fp* must be a
-        :class:`matplotlib.font_manager.FontProperties` object.
+        `matplotlib.font_manager.FontProperties` object.
 
-        ACCEPTS: a :class:`matplotlib.font_manager.FontProperties` instance
+        ACCEPTS: a `matplotlib.font_manager.FontProperties` instance
         """
         if isinstance(fp, six.string_types):
             fp = FontProperties(fp)
@@ -1285,14 +1285,14 @@ docstring.dedent_interpd(Text.__init__)
 
 class TextWithDash(Text):
     """
-    This is basically a :class:`~matplotlib.text.Text` with a dash
-    (drawn with a :class:`~matplotlib.lines.Line2D`) before/after
+    This is basically a `~matplotlib.text.Text` with a dash
+    (drawn with a `~matplotlib.lines.Line2D`) before/after
     it. It is intended to be a drop-in replacement for
-    :class:`~matplotlib.text.Text`, and should behave identically to
+    `~matplotlib.text.Text`, and should behave identically to
     it when *dashlength* = 0.0.
 
     The dash always comes between the point specified by
-    :meth:`~matplotlib.text.Text.set_position` and the text. When a
+    `~matplotlib.text.Text.set_position` and the text. When a
     dash exists, the text alignment arguments (*horizontalalignment*,
     *verticalalignment*) are ignored.
 
@@ -1304,8 +1304,8 @@ class TextWithDash(Text):
 
     *dashrotation* specifies the rotation of the dash, and should
     generally stay *None*. In this case
-    :meth:`~matplotlib.text.TextWithDash.get_dashrotation` returns
-    :meth:`~matplotlib.text.Text.get_rotation`.  (i.e., the dash takes
+    `~matplotlib.text.TextWithDash.get_dashrotation` returns
+    `~matplotlib.text.Text.get_rotation`.  (i.e., the dash takes
     its rotation from the text's rotation). Because the text center is
     projected onto the dash, major deviations in the rotation cause
     what may be considered visually unappealing results.
@@ -1316,14 +1316,14 @@ class TextWithDash(Text):
     (default = 3)
 
     *dashpush* "pushes" the dash and text away from the point
-    specified by :meth:`~matplotlib.text.Text.set_position` by the
+    specified by `~matplotlib.text.Text.set_position` by the
     amount in canvas units.  (default = 0)
 
     .. note::
 
         The alignment of the two objects is based on the bounding box
-        of the :class:`~matplotlib.text.Text`, as obtained by
-        :meth:`~matplotlib.artist.Artist.get_window_extent`.  This, in
+        of the `~matplotlib.text.Text`, as obtained by
+        `~matplotlib.artist.Artist.get_window_extent`.  This, in
         turn, appears to depend on the font metrics as given by the
         rendering backend. Hence the quality of the "centering" of the
         label text with respect to the dash varies depending on the
@@ -1332,7 +1332,7 @@ class TextWithDash(Text):
     .. note::
 
         I'm not sure that I got the
-        :meth:`~matplotlib.text.TextWithDash.get_window_extent` right,
+        `~matplotlib.text.TextWithDash.get_window_extent` right,
         or whether that's sufficient for providing the object bounding
         box.
 
@@ -1415,7 +1415,7 @@ class TextWithDash(Text):
 
     def draw(self, renderer):
         """
-        Draw the :class:`TextWithDash` object to the given *renderer*.
+        Draw the `TextWithDash` object to the given *renderer*.
         """
         self.update_coords(renderer)
         Text.draw(self, renderer)
@@ -1509,7 +1509,7 @@ class TextWithDash(Text):
 
     def get_window_extent(self, renderer=None):
         '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
+        Return a `~matplotlib.transforms.Bbox` object bounding
         the text, in display units.
 
         In addition to being used internally, this is useful for
@@ -1517,9 +1517,9 @@ class TextWithDash(Text):
 
         *renderer* defaults to the _renderer attribute of the text
         object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
+        `draw`, so you must use this kwarg if you want
+        to call `get_window_extent` prior to the first
+        `draw`.  For getting web page regions, it is
         simpler to call the method after saving the figure.
         '''
         self.update_coords(renderer)
@@ -1615,7 +1615,7 @@ class TextWithDash(Text):
 
     def set_position(self, xy):
         """
-        Set the (*x*, *y*) position of the :class:`TextWithDash`.
+        Set the (*x*, *y*) position of the `TextWithDash`.
 
         ACCEPTS: (x, y)
         """
@@ -1624,7 +1624,7 @@ class TextWithDash(Text):
 
     def set_x(self, x):
         """
-        Set the *x* position of the :class:`TextWithDash`.
+        Set the *x* position of the `TextWithDash`.
 
         ACCEPTS: float
         """
@@ -1633,7 +1633,7 @@ class TextWithDash(Text):
 
     def set_y(self, y):
         """
-        Set the *y* position of the :class:`TextWithDash`.
+        Set the *y* position of the `TextWithDash`.
 
         ACCEPTS: float
         """
@@ -1642,10 +1642,10 @@ class TextWithDash(Text):
 
     def set_transform(self, t):
         """
-        Set the :class:`matplotlib.transforms.Transform` instance used
+        Set the `matplotlib.transforms.Transform` instance used
         by this artist.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        ACCEPTS: a `matplotlib.transforms.Transform` instance
         """
         Text.set_transform(self, t)
         self.dashline.set_transform(t)
@@ -1659,7 +1659,7 @@ class TextWithDash(Text):
         """
         Set the figure instance the artist belong to.
 
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        ACCEPTS: a `matplotlib.figure.Figure` instance
         """
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)
@@ -1911,7 +1911,7 @@ class _AnnotationBase(object):
     def get_annotation_clip(self):
         """
         Return *annotation_clip* attribute.
-        See :meth:`set_annotation_clip` for the meaning of return values.
+        See `set_annotation_clip` for the meaning of return values.
         """
         return self._annotation_clip
 
@@ -2070,7 +2070,7 @@ class Annotation(Text, _AnnotationBase):
             headwidth    the width of the base of the arrow head in points
             headlength   the length of the arrow head in points
             shrink       fraction of total length to 'shrink' from both ends
-            ?            any key to :class:`matplotlib.patches.FancyArrowPatch`
+            ?            any key to `matplotlib.patches.FancyArrowPatch`
             ==========   ======================================================
 
             If the `arrowprops` contains the key ``'arrowstyle'`` the
@@ -2108,7 +2108,7 @@ class Annotation(Text, _AnnotationBase):
             shrinkB          default is 2 points
             mutation_scale   default is text size (in points)
             mutation_aspect  default is 1.
-            ?                any key for :class:`matplotlib.patches.PathPatch`
+            ?                any key for `matplotlib.patches.PathPatch`
             ===============  ==================================================
 
             Defaults to None
@@ -2321,7 +2321,7 @@ class Annotation(Text, _AnnotationBase):
     @allow_rasterization
     def draw(self, renderer):
         """
-        Draw the :class:`Annotation` object to the given *renderer*.
+        Draw the `Annotation` object to the given *renderer*.
         """
 
         if renderer is not None:
@@ -2347,14 +2347,14 @@ class Annotation(Text, _AnnotationBase):
 
     def get_window_extent(self, renderer=None):
         '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
+        Return a `~matplotlib.transforms.Bbox` object bounding
         the text and arrow annotation, in display units.
 
         *renderer* defaults to the _renderer attribute of the text
         object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
+        `draw`, so you must use this kwarg if you want
+        to call `get_window_extent` prior to the first
+        `draw`.  For getting web page regions, it is
         simpler to call the method after saving the figure. The
         *dpi* used defaults to self.figure.dpi; the renderer dpi is
         irrelevant.

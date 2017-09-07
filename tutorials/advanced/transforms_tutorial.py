@@ -13,25 +13,25 @@ In 95% of your plotting, you won't need to think about this, as it
 happens under the hood, but as you push the limits of custom figure
 generation, it helps to have an understanding of these objects so you
 can reuse the existing transformations matplotlib makes available to
-you, or create your own (see :mod:`matplotlib.transforms`).  The table
+you, or create your own (see `matplotlib.transforms`).  The table
 below summarizes the existing coordinate systems, the transformation
 object you should use to work in that coordinate system, and the
 description of that system. In the `Transformation Object` column,
-``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
-:class:`~matplotlib.figure.Figure` instance.
+``ax`` is a `~matplotlib.axes.Axes` instance, and ``fig`` is a
+`~matplotlib.figure.Figure` instance.
 
 ==========  =====================  ====================================================================================
 Coordinate  Transformation Object  Description
 ==========  =====================  ====================================================================================
 `data`      ``ax.transData``       The userland data coordinate system, controlled by the xlim and ylim
-`axes`      ``ax.transAxes``       The coordinate system of the :class:`~matplotlib.axes.Axes`; (0, 0) is
+`axes`      ``ax.transAxes``       The coordinate system of the `~matplotlib.axes.Axes`; (0, 0) is
                                    bottom left of the axes, and (1, 1) is top right of the axes.
-`figure`    ``fig.transFigure``    The coordinate system of the :class:`~matplotlib.figure.Figure`; (0, 0)
+`figure`    ``fig.transFigure``    The coordinate system of the `~matplotlib.figure.Figure`; (0, 0)
                                    is bottom left of the figure, and (1, 1) is top right of the figure.
 `display`   `None`                 This is the pixel coordinate system of the display; (0, 0) is the bottom
                                    left of the display, and (width, height) is the top right of the display in pixels.
                                    Alternatively, the identity transform
-                                   (:class:`matplotlib.transforms.IdentityTransform()`) may be used instead of None.
+                                   (`matplotlib.transforms.IdentityTransform()`) may be used instead of None.
 ==========  =====================  ====================================================================================
 
 
@@ -54,8 +54,8 @@ Data coordinates
 Let's start with the most commonly used coordinate, the `data`
 coordinate system.  Whenever you add data to the axes, matplotlib
 updates the datalimits, most commonly updated with the
-:meth:`~matplotlib.axes.Axes.set_xlim` and
-:meth:`~matplotlib.axes.Axes.set_ylim` methods.  For example, in the
+`~matplotlib.axes.Axes.set_xlim` and
+`~matplotlib.axes.Axes.set_ylim` methods.  For example, in the
 figure below, the data limits stretch from 0 to 10 on the x-axis, and
 -1 to 1 on the y-axis.
 """
@@ -92,7 +92,7 @@ plt.show()
 #     array([[ 335.175,  247.   ],
 #            [ 132.435,  642.2  ]])
 #
-# You can use the :meth:`~matplotlib.transforms.Transform.inverted`
+# You can use the `~matplotlib.transforms.Transform.inverted`
 # method to create a transform which will take you from display to data
 # coordinates:
 #
@@ -155,7 +155,7 @@ plt.show()
 #   The effect is more pronounced if you resize the figure yourself.
 #   This is one good reason why you rarely want to work in display
 #   space, but you can connect to the ``'on_draw'``
-#   :class:`~matplotlib.backend_bases.Event` to update figure
+#   `~matplotlib.backend_bases.Event` to update figure
 #   coordinates on figure draws; see :ref:`event-handling-tutorial`.
 #
 # When you change the x or y limits of your axes, the data limits are
@@ -163,7 +163,7 @@ plt.show()
 # when we just change the ylim, only the y-display coordinate is
 # altered, and when we change the xlim too, both are altered.  More on
 # this later when we talk about the
-# :class:`~matplotlib.transforms.Bbox`.
+# `~matplotlib.transforms.Bbox`.
 #
 # .. sourcecode:: ipython
 #
@@ -212,9 +212,9 @@ plt.show()
 # this is less useful in my experience than using ``ax.transAxes`` for
 # placing text.  Nonetheless, here is a silly example which plots some
 # random dots in `data` space, and overlays a semi-transparent
-# :class:`~matplotlib.patches.Circle` centered in the middle of the axes
+# `~matplotlib.patches.Circle` centered in the middle of the axes
 # with a radius one quarter of the axes -- if your axes does not
-# preserve aspect ratio (see :meth:`~matplotlib.axes.Axes.set_aspect`),
+# preserve aspect ratio (see `~matplotlib.axes.Axes.set_aspect`),
 # this will look like an ellipse.  Use the pan/zoom tool to move around,
 # or manually change the data xlim and ylim, and you will see the data
 # move, but the circle will remain fixed because it is not in `data`
@@ -244,15 +244,15 @@ plt.show()
 # x-axis regardless of the data limits, pan or zoom level, etc.  In fact
 # these blended lines and spans are so useful, we have built in
 # functions to make them easy to plot (see
-# :meth:`~matplotlib.axes.Axes.axhline`,
-# :meth:`~matplotlib.axes.Axes.axvline`,
-# :meth:`~matplotlib.axes.Axes.axhspan`,
-# :meth:`~matplotlib.axes.Axes.axvspan`) but for didactic purposes we
+# `~matplotlib.axes.Axes.axhline`,
+# `~matplotlib.axes.Axes.axvline`,
+# `~matplotlib.axes.Axes.axhspan`,
+# `~matplotlib.axes.Axes.axvspan`) but for didactic purposes we
 # will implement the horizontal span here using a blended
 # transformation.  This trick only works for separable transformations,
 # like you see in normal Cartesian coordinate systems, but not on
 # inseparable transformations like the
-# :class:`~matplotlib.projections.polar.PolarAxes.PolarTransform`.
+# `~matplotlib.projections.polar.PolarAxes.PolarTransform`.
 
 import matplotlib.transforms as transforms
 
@@ -286,10 +286,10 @@ plt.show()
 #   The blended transformations where x is in data coords and y in axes
 #   coordinates is so useful that we have helper methods to return the
 #   versions mpl uses internally for drawing ticks, ticklabels, etc.
-#   The methods are :meth:`matplotlib.axes.Axes.get_xaxis_transform` and
-#   :meth:`matplotlib.axes.Axes.get_yaxis_transform`.  So in the example
+#   The methods are `matplotlib.axes.Axes.get_xaxis_transform` and
+#   `matplotlib.axes.Axes.get_yaxis_transform`.  So in the example
 #   above, the call to
-#   :meth:`~matplotlib.transforms.blended_transform_factory` can be
+#   `~matplotlib.transforms.blended_transform_factory` can be
 #   replaced by ``get_xaxis_transform``::
 #
 #     trans = ax.get_xaxis_transform()
@@ -311,7 +311,7 @@ plt.show()
 # it, adjusting the zorder to make sure the shadow is drawn first and
 # then the object it is shadowing above it.  The transforms module has a
 # helper transformation
-# :class:`~matplotlib.transforms.ScaledTranslation`.  It is
+# `~matplotlib.transforms.ScaledTranslation`.  It is
 # instantiated with::
 #
 #   trans = ScaledTranslation(xt, yt, scale_trans)
@@ -323,7 +323,7 @@ plt.show()
 # to first scale `xt` and `yt` specified in points to `display` space
 # before doing the final offset.  The dpi and inches offset is a
 # common-enough use case that we have a special helper function to
-# create it in :func:`matplotlib.transforms.offset_copy`, which returns
+# create it in `matplotlib.transforms.offset_copy`, which returns
 # a new transform with an added offset.  But in the example below, we'll
 # create the offset transform ourselves.  Note the use of the plus
 # operator in::
@@ -384,7 +384,7 @@ plt.show()
 #
 #
 # Here is how the ``ax.transData`` instance is defined in the basic
-# separable axis :class:`~matplotlib.axes.Axes` class::
+# separable axis `~matplotlib.axes.Axes` class::
 #
 #   self.transData = self.transScale + (self.transLimits + self.transAxes)
 #
@@ -433,17 +433,17 @@ plt.show()
 # logarithmic axes.  When an Axes is initially setup, this is just set to
 # the identity transform, since the basic matplotlib axes has linear
 # scale, but when you call a logarithmic scaling function like
-# :meth:`~matplotlib.axes.Axes.semilogx` or explicitly set the scale to
-# logarithmic with :meth:`~matplotlib.axes.Axes.set_xscale`, then the
+# `~matplotlib.axes.Axes.semilogx` or explicitly set the scale to
+# logarithmic with `~matplotlib.axes.Axes.set_xscale`, then the
 # ``ax.transScale`` attribute is set to handle the nonlinear projection.
 # The scales transforms are properties of the respective ``xaxis`` and
-# ``yaxis`` :class:`~matplotlib.axis.Axis` instances.  For example, when
+# ``yaxis`` `~matplotlib.axis.Axis` instances.  For example, when
 # you call ``ax.set_xscale('log')``, the xaxis updates its scale to a
-# :class:`matplotlib.scale.LogScale` instance.
+# `matplotlib.scale.LogScale` instance.
 #
 # For non-separable axes the PolarAxes, there is one more piece to
 # consider, the projection transformation.  The ``transData``
-# :class:`matplotlib.projections.polar.PolarAxes` is similar to that for
+# `matplotlib.projections.polar.PolarAxes` is similar to that for
 # the typical separable matplotlib Axes, with one additional piece
 # ``transProjection``::
 #

@@ -613,7 +613,7 @@ class DrawingArea(OffsetBox):
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` applied
+        Return the `~matplotlib.transforms.Transform` applied
         to the children
         """
         return self.dpi_transform + self.offset_transform
@@ -661,7 +661,7 @@ class DrawingArea(OffsetBox):
                self.xdescent * dpi_cor, self.ydescent * dpi_cor
 
     def add_artist(self, a):
-        'Add any :class:`~matplotlib.artist.Artist` to the container box'
+        'Add any `~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
         if not a.is_transform_set():
             a.set_transform(self.get_transform())
@@ -893,14 +893,14 @@ class AuxTransformBox(OffsetBox):
         self.ref_offset_transform.clear()
 
     def add_artist(self, a):
-        'Add any :class:`~matplotlib.artist.Artist` to the container box'
+        'Add any `~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
         a.set_transform(self.get_transform())
         self.stale = True
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` applied
+        Return the `~matplotlib.transforms.Transform` applied
         to the children
         """
         return self.aux_transform + \
@@ -1581,7 +1581,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
     def draw(self, renderer):
         """
-        Draw the :class:`Annotation` object to the given *renderer*.
+        Draw the `Annotation` object to the given *renderer*.
         """
 
         if renderer is not None:

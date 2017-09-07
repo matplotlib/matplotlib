@@ -31,7 +31,7 @@ from .backend_agg import RendererAgg, FigureCanvasAgg
 
 class TimerMac(_macosx.Timer, TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
+    Subclass of `backend_bases.TimerBase` that uses CoreFoundation
     run loops for timer events.
 
     Attributes
@@ -126,7 +126,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        Creates a new backend-specific subclass of `backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 

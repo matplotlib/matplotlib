@@ -52,14 +52,14 @@ class TriInterpolator(object):
         # Default scaling factors : 1.0 (= no scaling)
         # Scaling may be used for interpolations for which the order of
         # magnitude of x, y has an impact on the interpolant definition.
-        # Please refer to :meth:`_interpolate_multikeys` for details.
+        # Please refer to `_interpolate_multikeys` for details.
         self._unit_x = 1.0
         self._unit_y = 1.0
 
         # Default triangle renumbering: None (= no renumbering)
         # Renumbering may be used to avoid unnecessary computations
         # if complex calculations are done inside the Interpolator.
-        # Please refer to :meth:`_interpolate_multikeys` for details.
+        # Please refer to `_interpolate_multikeys` for details.
         self._tri_renum = None
 
     # __call__ and gradient docstrings are shared by all subclasses
@@ -112,14 +112,14 @@ class TriInterpolator(object):
         """
         Versatile (private) method defined for all TriInterpolators.
 
-        :meth:`_interpolate_multikeys` is a wrapper around method
-        :meth:`_interpolate_single_key` (to be defined in the child
+        `_interpolate_multikeys` is a wrapper around method
+        `_interpolate_single_key` (to be defined in the child
         subclasses).
-        :meth:`_interpolate_single_key actually performs the interpolation,
+        `_interpolate_single_key actually performs the interpolation,
         but only for 1-dimensional inputs and at valid locations (inside
         unmasked triangles of the triangulation).
 
-        The purpose of :meth:`_interpolate_multikeys` is to implement the
+        The purpose of `_interpolate_multikeys` is to implement the
         following common tasks needed in all subclasses implementations:
 
             - calculation of containing triangles
@@ -129,16 +129,16 @@ class TriInterpolator(object):
             - scaling according to self._unit_x, self._unit_y
             - dealing with points outside of the grid (with fill value np.nan)
             - dealing with multi-dimensionnal *x*, *y* arrays: flattening for
-              :meth:`_interpolate_params` call and final reshaping.
+              `_interpolate_params` call and final reshaping.
 
         (Note that np.vectorize could do most of those things very well for
         you, but it does it by function evaluations over successive tuples of
         the input arrays. Therefore, this tends to be more time consuming than
         using optimized numpy functions - e.g., np.dot - which can be used
         easily on the flattened inputs, in the child-subclass methods
-        :meth:`_interpolate_single_key`.)
+        `_interpolate_single_key`.)
 
-        It is guaranteed that the calls to :meth:`_interpolate_single_key`
+        It is guaranteed that the calls to `_interpolate_single_key`
         will be done with flattened (1-d) array_like input parameters `x`, `y`
         and with flattened, valid `tri_index` arrays (no -1 index allowed).
 
@@ -249,14 +249,14 @@ class LinearTriInterpolator(TriInterpolator):
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation` object
+    triangulation : `~matplotlib.tri.Triangulation` object
         The triangulation to interpolate over.
     z : array_like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
-    trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
+    trifinder : `~matplotlib.tri.TriFinder` object, optional
           If this is not specified, the Triangulation's default TriFinder will
           be used by calling
-          :func:`matplotlib.tri.Triangulation.get_trifinder`.
+          `matplotlib.tri.Triangulation.get_trifinder`.
 
     Methods
     -------
@@ -313,7 +313,7 @@ class CubicTriInterpolator(TriInterpolator):
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation` object
+    triangulation : `~matplotlib.tri.Triangulation` object
         The triangulation to interpolate over.
     z : array_like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
@@ -329,10 +329,10 @@ class CubicTriInterpolator(TriInterpolator):
             - if 'user': The user provides the argument `dz`, no computation
               is hence needed.
 
-    trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
+    trifinder : `~matplotlib.tri.TriFinder` object, optional
         If not specified, the Triangulation's default TriFinder will
         be used by calling
-        :func:`matplotlib.tri.Triangulation.get_trifinder`.
+        `matplotlib.tri.Triangulation.get_trifinder`.
     dz : tuple of array_likes (dzdx, dzdy), optional
         Used only if  *kind* ='user'. In this case *dz* must be provided as
         (dzdx, dzdy) where dzdx, dzdy are arrays of the same shape as *z* and
@@ -346,7 +346,7 @@ class CubicTriInterpolator(TriInterpolator):
     Notes
     -----
     This note is a bit technical and details the way a
-    :class:`~matplotlib.tri.CubicTriInterpolator` computes a cubic
+    `~matplotlib.tri.CubicTriInterpolator` computes a cubic
     interpolation.
 
     The interpolation is based on a Clough-Tocher subdivision scheme of
@@ -470,7 +470,7 @@ class CubicTriInterpolator(TriInterpolator):
             estimation.
         dz: tuple of array_likes (dzdx, dzdy), optional
             Used only if *kind=user ; in this case passed to the
-            :class:`_DOF_estimator_user`.
+            `_DOF_estimator_user`.
 
         Returns
         -------
@@ -1382,15 +1382,15 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 
 
 # The following private functions:
-#     :func:`_inv22_vectorized`
-#     :func:`_safe_inv22_vectorized`
-#     :func:`_pseudo_inv22sym_vectorized`
-#     :func:`_prod_vectorized`
-#     :func:`_scalar_vectorized`
-#     :func:`_transpose_vectorized`
-#     :func:`_roll_vectorized`
-#     :func:`_to_matrix_vectorized`
-#     :func:`_extract_submatrices`
+#     `_inv22_vectorized`
+#     `_safe_inv22_vectorized`
+#     `_pseudo_inv22sym_vectorized`
+#     `_prod_vectorized`
+#     `_scalar_vectorized`
+#     `_transpose_vectorized`
+#     `_roll_vectorized`
+#     `_to_matrix_vectorized`
+#     `_extract_submatrices`
 # provide fast numpy implementation of some standard operations on arrays of
 # matrices - stored as (:, n_rows, n_cols)-shaped np.arrays.
 def _inv22_vectorized(M):
@@ -1410,7 +1410,7 @@ def _inv22_vectorized(M):
 
 # Development note: Dealing with pathologic 'flat' triangles in the
 # CubicTriInterpolator code and impact on (2,2)-matrix inversion functions
-# :func:`_safe_inv22_vectorized` and :func:`_pseudo_inv22sym_vectorized`.
+# `_safe_inv22_vectorized` and `_pseudo_inv22sym_vectorized`.
 #
 # Goals:
 # 1) The CubicTriInterpolator should be able to handle flat or almost flat
@@ -1419,8 +1419,8 @@ def _inv22_vectorized(M):
 #    calculation (associated with null weight for the _DOF_estimator_geom and
 #    with null energy for the _DOF_estimator_min_E),
 # 3) Linear patch test should be passed exactly on degenerated meshes,
-# 4) Interpolation (with :meth:`_interpolate_single_key` or
-#    :meth:`_interpolate_multi_key`) shall be correctly handled even *inside*
+# 4) Interpolation (with `_interpolate_single_key` or
+#    `_interpolate_multi_key`) shall be correctly handled even *inside*
 #    the pathologic triangles, to interact correctly with a TriRefiner class.
 #
 # Difficulties:
@@ -1431,18 +1431,18 @@ def _inv22_vectorized(M):
 # Implementation:
 # Most of the time, when computing the inverse of a rank-deficient matrix it
 # is safe to simply return the null matrix (which is the implementation in
-# :func:`_safe_inv22_vectorized`). This is because of point 2), itself
+# `_safe_inv22_vectorized`). This is because of point 2), itself
 # enforced by:
-#    - null area hence null energy in :class:`_DOF_estimator_min_E`
+#    - null area hence null energy in `_DOF_estimator_min_E`
 #    - angles close or equal to 0 or np.pi hence null weight in
-#      :class:`_DOF_estimator_geom`.
+#      `_DOF_estimator_geom`.
 #      Note that the function angle -> weight is continuous and maximum for an
-#      angle np.pi/2 (refer to :meth:`compute_geom_weights`)
+#      angle np.pi/2 (refer to `compute_geom_weights`)
 # The exception is the computation of barycentric coordinates, which is done
 # by inversion of the *metric* matrix. In this case, we need to compute a set
 # of valid coordinates (1 among numerous possibilities), to ensure point 4).
 # We benefit here from the symmetry of metric = J x J.T, which makes it easier
-# to compute a pseudo-inverse in :func:`_pseudo_inv22sym_vectorized`
+# to compute a pseudo-inverse in `_pseudo_inv22sym_vectorized`
 def _safe_inv22_vectorized(M):
     """
     Inversion of arrays of (2,2) matrices, returns 0 for rank-deficient

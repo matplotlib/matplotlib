@@ -284,8 +284,8 @@ def _parse_optional(fh):
     Parse the optional fields for kern pair data and composites
 
     return value is a (*kernDict*, *compositeDict*) which are the
-    return values from :func:`_parse_kern_pairs`, and
-    :func:`_parse_composites` if the data exists, or empty dicts
+    return values from `_parse_kern_pairs`, and
+    `_parse_composites` if the data exists, or empty dicts
     otherwise
     """
     optional = {
@@ -311,10 +311,10 @@ def parse_afm(fh):
     """
     Parse the Adobe Font Metics file in file handle *fh*. Return value
     is a (*dhead*, *dcmetrics*, *dkernpairs*, *dcomposite*) tuple where
-    *dhead* is a :func:`_parse_header` dict, *dcmetrics* is a
-    :func:`_parse_composites` dict, *dkernpairs* is a
-    :func:`_parse_kern_pairs` dict (possibly {}), and *dcomposite* is a
-    :func:`_parse_composites` dict (possibly {})
+    *dhead* is a `_parse_header` dict, *dcmetrics* is a
+    `_parse_composites` dict, *dkernpairs* is a
+    `_parse_kern_pairs` dict (possibly {}), and *dcomposite* is a
+    `_parse_composites` dict (possibly {})
     """
     _sanity_check(fh)
     dhead = _parse_header(fh)

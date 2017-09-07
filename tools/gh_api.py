@@ -226,7 +226,7 @@ def encode_multipart_formdata(fields, boundary=None):
 
     :param boundary:
         If not specified, then a random boundary will be generated using
-        :func:`mimetools.choose_boundary`.
+        `mimetools.choose_boundary`.
     """
     # copy requests imports in here:
     from io import BytesIO

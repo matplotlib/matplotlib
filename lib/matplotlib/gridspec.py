@@ -1,5 +1,5 @@
 """
-:mod:`~matplotlib.gridspec` is a module which specifies the location
+`~matplotlib.gridspec` is a module which specifies the location
 of the subplot in the figure.
 
     ``GridSpec``

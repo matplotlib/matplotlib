@@ -42,7 +42,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
         y position - pixels from bottom of canvas
 
     *inaxes*
-        the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
+        the `~matplotlib.axes.Axes` instance if mouse is over axes
 
     *xdata*
         x coord of mouse in data coords
@@ -56,7 +56,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
 
     *key*
         the key depressed when the mouse event triggered (see
-        :class:`KeyEvent`)
+        `KeyEvent`)
 
     *step*
         number of scroll steps (positive for 'up', negative for 'down')

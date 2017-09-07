@@ -11,14 +11,14 @@ An introduction to the pyplot interface.
 # Intro to pyplot
 # ===============
 #
-# :mod:`matplotlib.pyplot` is a collection of command style functions
+# `matplotlib.pyplot` is a collection of command style functions
 # that make matplotlib  work like MATLAB.
 # Each ``pyplot`` function makes
 # some change to a figure: e.g., creates a figure, creates a plotting area
 # in a figure, plots some lines in a plotting area, decorates the plot
 # with labels, etc.
 #
-# In :mod:`matplotlib.pyplot` various states are preserved
+# In `matplotlib.pyplot` various states are preserved
 # across function calls, so that it keeps track of things like
 # the current figure and plotting area, and the plotting
 # functions are directed to the current axes (please note that "axes" here
@@ -43,13 +43,13 @@ plt.show()
 ###############################################################################
 # You may be wondering why the x-axis ranges from 0-3 and the y-axis
 # from 1-4.  If you provide a single list or array to the
-# :func:`~matplotlib.pyplot.plot` command, matplotlib assumes it is a
+# `~matplotlib.pyplot.plot` command, matplotlib assumes it is a
 # sequence of y values, and automatically generates the x values for
 # you.  Since python ranges start with 0, the default x vector has the
 # same length as y but starts with 0.  Hence the x data are
 # ``[0,1,2,3]``.
 #
-# :func:`~matplotlib.pyplot.plot` is a versatile command, and will take
+# `~matplotlib.pyplot.plot` is a versatile command, and will take
 # an arbitrary number of arguments.  For example, to plot x versus y,
 # you can issue the command:
 
@@ -71,9 +71,9 @@ plt.axis([0, 6, 0, 20])
 plt.show()
 
 ###############################################################################
-# See the :func:`~matplotlib.pyplot.plot` documentation for a complete
+# See the `~matplotlib.pyplot.plot` documentation for a complete
 # list of line styles and format strings.  The
-# :func:`~matplotlib.pyplot.axis` command in the example above takes a
+# `~matplotlib.pyplot.axis` command in the example above takes a
 # list of ``[xmin, xmax, ymin, ymax]`` and specifies the viewport of the
 # axes.
 #
@@ -101,7 +101,7 @@ plt.show()
 #
 # There are some instances where you have data in a format that lets you
 # access particular variables with strings. For example, with
-# :class:`numpy.recarray` or :class:`pandas.DataFrame`.
+# `numpy.recarray` or `pandas.DataFrame`.
 #
 # Matplotlib allows you provide such an object with
 # the ``data`` keyword argument. If provided, then you may generate plots with
@@ -149,7 +149,7 @@ plt.show()
 # ===========================
 #
 # Lines have many attributes that you can set: linewidth, dash style,
-# antialiased, etc; see :class:`matplotlib.lines.Line2D`.  There are
+# antialiased, etc; see `matplotlib.lines.Line2D`.  There are
 # several ways to set line properties
 #
 # * Use keyword args::
@@ -166,7 +166,7 @@ plt.show()
 #       line, = plt.plot(x, y, '-')
 #       line.set_antialiased(False) # turn off antialising
 #
-# * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
+# * Use the `~matplotlib.pyplot.setp` command.  The example below
 #   uses a MATLAB-style command to set multiple properties
 #   on a list of lines.  ``setp`` works transparently with a list of objects
 #   or a single object.  You can either use python keyword arguments or
@@ -179,7 +179,7 @@ plt.show()
 #       plt.setp(lines, 'color', 'r', 'linewidth', 2.0)
 #
 #
-# Here are the available :class:`~matplotlib.lines.Line2D` properties.
+# Here are the available `~matplotlib.lines.Line2D` properties.
 #
 # ======================  ==================================================
 # Property                Value Type
@@ -219,7 +219,7 @@ plt.show()
 # ======================  ==================================================
 #
 # To get a list of settable line properties, call the
-# :func:`~matplotlib.pyplot.setp` function with a line or lines
+# `~matplotlib.pyplot.setp` function with a line or lines
 # as argument
 #
 # .. sourcecode:: ipython
@@ -238,12 +238,12 @@ plt.show()
 # Working with multiple figures and axes
 # ======================================
 #
-# MATLAB, and :mod:`~matplotlib.pyplot`, have the concept of the current
+# MATLAB, and `~matplotlib.pyplot`, have the concept of the current
 # figure and the current axes.  All plotting commands apply to the
-# current axes.  The function :func:`~matplotlib.pyplot.gca` returns the
-# current axes (a :class:`matplotlib.axes.Axes` instance), and
-# :func:`~matplotlib.pyplot.gcf` returns the current figure
-# (:class:`matplotlib.figure.Figure` instance). Normally, you don't have
+# current axes.  The function `~matplotlib.pyplot.gca` returns the
+# current axes (a `matplotlib.axes.Axes` instance), and
+# `~matplotlib.pyplot.gcf` returns the current figure
+# (`matplotlib.figure.Figure` instance). Normally, you don't have
 # to worry about this, because it is all taken care of behind the
 # scenes.  Below is a script to create two subplots.
 
@@ -263,10 +263,10 @@ plt.plot(t2, np.cos(2*np.pi*t2), 'r--')
 plt.show()
 
 ###############################################################################
-# The :func:`~matplotlib.pyplot.figure` command here is optional because
+# The `~matplotlib.pyplot.figure` command here is optional because
 # ``figure(1)`` will be created by default, just as a ``subplot(111)``
 # will be created by default if you don't manually specify any axes.  The
-# :func:`~matplotlib.pyplot.subplot` command specifies ``numrows,
+# `~matplotlib.pyplot.subplot` command specifies ``numrows,
 # numcols, fignum`` where ``fignum`` ranges from 1 to
 # ``numrows*numcols``.  The commas in the ``subplot`` command are
 # optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
@@ -274,7 +274,7 @@ plt.show()
 #
 # You can create an arbitrary number of subplots
 # and axes.  If you want to place an axes manually, i.e., not on a
-# rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
+# rectangular grid, use the `~matplotlib.pyplot.axes` command,
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
 # coordinates.  See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axes_demo.py` for an example of
@@ -283,7 +283,7 @@ plt.show()
 #
 #
 # You can create multiple figures by using multiple
-# :func:`~matplotlib.pyplot.figure` calls with an increasing figure
+# `~matplotlib.pyplot.figure` calls with an increasing figure
 # number.  Of course, each figure can contain as many axes and subplots
 # as your heart desires::
 #
@@ -302,8 +302,8 @@ plt.show()
 #     plt.subplot(211)             # make subplot(211) in figure1 current
 #     plt.title('Easy as 1, 2, 3') # subplot 211 title
 #
-# You can clear the current figure with :func:`~matplotlib.pyplot.clf`
-# and the current axes with :func:`~matplotlib.pyplot.cla`.  If you find
+# You can clear the current figure with `~matplotlib.pyplot.clf`
+# and the current axes with `~matplotlib.pyplot.cla`.  If you find
 # it annoying that states (specifically the current image, figure and axes)
 # are being maintained for you behind the scenes, don't despair: this is just a thin
 # stateful wrapper around an object oriented API, which you can use
@@ -312,10 +312,10 @@ plt.show()
 # If you are making lots of figures, you need to be aware of one
 # more thing: the memory required for a figure is not completely
 # released until the figure is explicitly closed with
-# :func:`~matplotlib.pyplot.close`.  Deleting all references to the
+# `~matplotlib.pyplot.close`.  Deleting all references to the
 # figure, and/or using the window manager to kill the window in which
 # the figure appears on the screen, is not enough, because pyplot
-# maintains internal references until :func:`~matplotlib.pyplot.close`
+# maintains internal references until `~matplotlib.pyplot.close`
 # is called.
 #
 # .. _working-with-text:
@@ -323,9 +323,9 @@ plt.show()
 # Working with text
 # =================
 #
-# The :func:`~matplotlib.pyplot.text` command can be used to add text in
-# an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
-# :func:`~matplotlib.pyplot.ylabel` and :func:`~matplotlib.pyplot.title`
+# The `~matplotlib.pyplot.text` command can be used to add text in
+# an arbitrary location, and the `~matplotlib.pyplot.xlabel`,
+# `~matplotlib.pyplot.ylabel` and `~matplotlib.pyplot.title`
 # are used to add text in the indicated locations (see :ref:`sphx_glr_tutorials_text_text_intro.py`
 # for a more detailed example)
 
@@ -345,10 +345,10 @@ plt.grid(True)
 plt.show()
 
 ###############################################################################
-# All of the :func:`~matplotlib.pyplot.text` commands return an
-# :class:`matplotlib.text.Text` instance.  Just as with with lines
+# All of the `~matplotlib.pyplot.text` commands return an
+# `matplotlib.text.Text` instance.  Just as with with lines
 # above, you can customize the properties by passing keyword arguments
-# into the text functions or using :func:`~matplotlib.pyplot.setp`::
+# into the text functions or using `~matplotlib.pyplot.setp`::
 #
 #   t = plt.xlabel('my data', fontsize=14, color='red')
 #
@@ -378,10 +378,10 @@ plt.show()
 # Annotating text
 # ---------------
 #
-# The uses of the basic :func:`~matplotlib.pyplot.text` command above
+# The uses of the basic `~matplotlib.pyplot.text` command above
 # place text at an arbitrary position on the Axes.  A common use for
 # text is to annotate some feature of the plot, and the
-# :func:`~matplotlib.pyplot.annotate` method provides helper
+# `~matplotlib.pyplot.annotate` method provides helper
 # functionality to make annotations easy.  In an annotation, there are
 # two points to consider: the location being annotated represented by
 # the argument ``xy`` and the location of the text ``xytext``.  Both of
@@ -412,7 +412,7 @@ plt.show()
 # Logarithmic and other nonlinear axes
 # ====================================
 #
-# :mod:`matplotlib.pyplot` supports not only linear axis scales, but also
+# `matplotlib.pyplot` supports not only linear axis scales, but also
 # logarithmic and logit scales. This is commonly used if data spans many orders
 # of magnitude. Changing the scale of an axis is easy:
 #

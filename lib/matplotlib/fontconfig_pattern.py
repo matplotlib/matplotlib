@@ -126,7 +126,7 @@ class FontconfigPatternParser(object):
         """
         Parse the given fontconfig *pattern* and return a dictionary
         of key/value pairs useful for initializing a
-        :class:`font_manager.FontProperties` object.
+        `font_manager.FontProperties` object.
         """
         props = self._properties = {}
         try:

@@ -6,36 +6,36 @@ commands with the same names.
 MATLAB compatible functions
 ---------------------------
 
-:func:`cohere`
+`cohere`
     Coherence (normalized cross spectral density)
 
-:func:`csd`
+`csd`
     Cross spectral density using Welch's average periodogram
 
-:func:`detrend`
+`detrend`
     Remove the mean or best fit line from an array
 
-:func:`find`
+`find`
     Return the indices where some condition is true;
     numpy.nonzero is similar but more general.
 
-:func:`griddata`
+`griddata`
     Interpolate irregularly distributed data to a
     regular grid.
 
-:func:`prctile`
+`prctile`
     Find the percentiles of a sequence
 
-:func:`prepca`
+`prepca`
     Principal Component Analysis
 
-:func:`psd`
+`psd`
     Power spectral density using Welch's average periodogram
 
-:func:`rk4`
+`rk4`
     A 4th order runge kutta integrator for 1D or ND systems
 
-:func:`specgram`
+`specgram`
     Spectrogram (spectrum over segments of time)
 
 Miscellaneous functions
@@ -43,58 +43,58 @@ Miscellaneous functions
 
 Functions that don't exist in MATLAB, but are useful anyway:
 
-:func:`cohere_pairs`
+`cohere_pairs`
     Coherence over all pairs.  This is not a MATLAB function, but we
     compute coherence a lot in my lab, and we compute it for a lot of
     pairs.  This function is optimized to do this efficiently by
     caching the direct FFTs.
 
-:func:`rk4`
+`rk4`
     A 4th order Runge-Kutta ODE integrator in case you ever find
     yourself stranded without scipy (and the far superior
     scipy.integrate tools)
 
-:func:`contiguous_regions`
+`contiguous_regions`
     Return the indices of the regions spanned by some logical mask
 
-:func:`cross_from_below`
+`cross_from_below`
     Return the indices where a 1D array crosses a threshold from below
 
-:func:`cross_from_above`
+`cross_from_above`
     Return the indices where a 1D array crosses a threshold from above
 
-:func:`complex_spectrum`
+`complex_spectrum`
     Return the complex-valued frequency spectrum of a signal
 
-:func:`magnitude_spectrum`
+`magnitude_spectrum`
     Return the magnitude of the frequency spectrum of a signal
 
-:func:`angle_spectrum`
+`angle_spectrum`
     Return the angle (wrapped phase) of the frequency spectrum of a signal
 
-:func:`phase_spectrum`
+`phase_spectrum`
     Return the phase (unwrapped angle) of the frequency spectrum of a signal
 
-:func:`detrend_mean`
+`detrend_mean`
     Remove the mean from a line.
 
-:func:`demean`
+`demean`
     Remove the mean from a line. This function is the same as
-    :func:`detrend_mean` except for the default *axis*.
+    `detrend_mean` except for the default *axis*.
 
-:func:`detrend_linear`
+`detrend_linear`
     Remove the best fit line from a line.
 
-:func:`detrend_none`
+`detrend_none`
     Return the original line.
 
-:func:`stride_windows`
+`stride_windows`
     Get all windows in an array in a memory-efficient manner
 
-:func:`stride_repeat`
+`stride_repeat`
     Repeat an array in a memory-efficient manner
 
-:func:`apply_window`
+`apply_window`
     Apply a window along a given axis
 
 
@@ -107,31 +107,31 @@ A collection of helper methods for numpyrecord arrays
 
     See :ref:`misc-examples-index`
 
-:func:`rec2txt`
+`rec2txt`
     Pretty print a record array
 
-:func:`rec2csv`
+`rec2csv`
     Store record array in CSV file
 
-:func:`csv2rec`
+`csv2rec`
     Import record array from CSV file with type inspection
 
-:func:`rec_append_fields`
+`rec_append_fields`
     Adds  field(s)/array(s) to record array
 
-:func:`rec_drop_fields`
+`rec_drop_fields`
     Drop fields from record array
 
-:func:`rec_join`
+`rec_join`
     Join two record arrays on sequence of fields
 
-:func:`recs_join`
+`recs_join`
     A simple join of multiple recarrays using a single column as a key
 
-:func:`rec_groupby`
+`rec_groupby`
     Summarize data by groups (similar to SQL GROUP BY)
 
-:func:`rec_summarize`
+`rec_summarize`
     Helper code to filter rec array fields into new fields
 
 For the rec viewer functions(e rec2csv), there are a bunch of Format
@@ -208,8 +208,8 @@ def window_hanning(x):
 
     See Also
     --------
-    :func:`window_none`
-        :func:`window_none` is another window algorithm.
+    `window_none`
+        `window_none` is another window algorithm.
     '''
     return np.hanning(len(x))*x
 
@@ -220,8 +220,8 @@ def window_none(x):
 
     See Also
     --------
-    :func:`window_hanning`
-        :func:`window_hanning` is another window algorithm.
+    `window_hanning`
+        `window_hanning` is another window algorithm.
     '''
     return x
 
@@ -293,9 +293,9 @@ def detrend(x, key=None, axis=None):
 
     key : [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
         Specifies the detrend algorithm to use. 'default' is 'mean', which is
-        the same as :func:`detrend_mean`. 'constant' is the same. 'linear' is
-        the same as :func:`detrend_linear`. 'none' is the same as
-        :func:`detrend_none`. The default is 'mean'. See the corresponding
+        the same as `detrend_mean`. 'constant' is the same. 'linear' is
+        the same as `detrend_linear`. 'none' is the same as
+        `detrend_none`. The default is 'mean'. See the corresponding
         functions for more details regarding the algorithms. Can also be a
         function that carries out the detrend operation.
 
@@ -304,14 +304,14 @@ def detrend(x, key=None, axis=None):
 
     See Also
     --------
-    :func:`detrend_mean`
-        :func:`detrend_mean` implements the 'mean' algorithm.
+    `detrend_mean`
+        `detrend_mean` implements the 'mean' algorithm.
 
-    :func:`detrend_linear`
-        :func:`detrend_linear` implements the 'linear' algorithm.
+    `detrend_linear`
+        `detrend_linear` implements the 'linear' algorithm.
 
-    :func:`detrend_none`
-        :func:`detrend_none` implements the 'none' algorithm.
+    `detrend_none`
+        `detrend_none` implements the 'none' algorithm.
     '''
     if key is None or key in ['constant', 'mean', 'default']:
         return detrend(x, key=detrend_mean, axis=axis)
@@ -361,13 +361,13 @@ def demean(x, axis=0):
 
     See Also
     --------
-    :func:`delinear`
+    `delinear`
 
-    :func:`denone`
-        :func:`delinear` and :func:`denone` are other detrend algorithms.
+    `denone`
+        `delinear` and `denone` are other detrend algorithms.
 
-    :func:`detrend_mean`
-        This function is the same as :func:`detrend_mean` except for the
+    `detrend_mean`
+        This function is the same as `detrend_mean` except for the
         default *axis*.
     '''
     return detrend_mean(x, axis=axis)
@@ -389,18 +389,18 @@ def detrend_mean(x, axis=None):
 
     See Also
     --------
-    :func:`demean`
-        This function is the same as :func:`demean` except for the default
+    `demean`
+        This function is the same as `demean` except for the default
         *axis*.
 
-    :func:`detrend_linear`
+    `detrend_linear`
 
-    :func:`detrend_none`
-        :func:`detrend_linear` and :func:`detrend_none` are other detrend
+    `detrend_none`
+        `detrend_linear` and `detrend_none` are other detrend
         algorithms.
 
-    :func:`detrend`
-        :func:`detrend` is a wrapper around all the detrend algorithms.
+    `detrend`
+        `detrend` is a wrapper around all the detrend algorithms.
     '''
     x = np.asarray(x)
 
@@ -435,18 +435,18 @@ def detrend_none(x, axis=None):
 
     See Also
     --------
-    :func:`denone`
-        This function is the same as :func:`denone` except for the default
+    `denone`
+        This function is the same as `denone` except for the default
         *axis*, which has no effect.
 
-    :func:`detrend_mean`
+    `detrend_mean`
 
-    :func:`detrend_linear`
-        :func:`detrend_mean` and :func:`detrend_linear` are other detrend
+    `detrend_linear`
+        `detrend_mean` and `detrend_linear` are other detrend
         algorithms.
 
-    :func:`detrend`
-        :func:`detrend` is a wrapper around all the detrend algorithms.
+    `detrend`
+        `detrend` is a wrapper around all the detrend algorithms.
     '''
     return x
 
@@ -466,18 +466,18 @@ def detrend_linear(y):
 
     See Also
     --------
-    :func:`delinear`
-        This function is the same as :func:`delinear` except for the default
+    `delinear`
+        This function is the same as `delinear` except for the default
         *axis*.
 
-    :func:`detrend_mean`
+    `detrend_mean`
 
-    :func:`detrend_none`
-        :func:`detrend_mean` and :func:`detrend_none` are other detrend
+    `detrend_none`
+        `detrend_mean` and `detrend_none` are other detrend
         algorithms.
 
-    :func:`detrend`
-        :func:`detrend` is a wrapper around all the detrend algorithms.
+    `detrend`
+        `detrend` is a wrapper around all the detrend algorithms.
     '''
     # This is faster than an algorithm based on linalg.lstsq.
     y = np.asarray(y)
@@ -817,11 +817,11 @@ docstring.interpd.update(Spectral=cbook.dedent("""
 
     window : callable or ndarray
         A function or a vector of length *NFFT*. To create window
-        vectors see :func:`window_hanning`, :func:`window_none`,
-        :func:`numpy.blackman`, :func:`numpy.hamming`,
-        :func:`numpy.bartlett`, :func:`scipy.signal`,
-        :func:`scipy.signal.get_window`, etc. The default is
-        :func:`window_hanning`.  If a function is passed as the
+        vectors see `window_hanning`, `window_none`,
+        `numpy.blackman`, `numpy.hamming`,
+        `numpy.bartlett`, `scipy.signal`,
+        `scipy.signal.get_window`, etc. The default is
+        `window_hanning`.  If a function is passed as the
         argument, it must take a data segment as an argument and
         return the windowed version of the segment.
 
@@ -866,15 +866,15 @@ docstring.interpd.update(PSD=cbook.dedent("""
         The function applied to each segment before fft-ing,
         designed to remove the mean or linear trend.  Unlike in
         MATLAB, where the *detrend* parameter is a vector, in
-        matplotlib is it a function.  The :mod:`~matplotlib.pylab`
-        module defines :func:`~matplotlib.pylab.detrend_none`,
-        :func:`~matplotlib.pylab.detrend_mean`, and
-        :func:`~matplotlib.pylab.detrend_linear`, but you can use
+        matplotlib is it a function.  The `~matplotlib.pylab`
+        module defines `~matplotlib.pylab.detrend_none`,
+        `~matplotlib.pylab.detrend_mean`, and
+        `~matplotlib.pylab.detrend_linear`, but you can use
         a custom function as well.  You can also use a string to choose
         one of the functions.  'default', 'constant', and 'mean' call
-        :func:`~matplotlib.pylab.detrend_mean`.  'linear' calls
-        :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
-        :func:`~matplotlib.pylab.detrend_none`.
+        `~matplotlib.pylab.detrend_mean`.  'linear' calls
+        `~matplotlib.pylab.detrend_linear`.  'none' calls
+        `~matplotlib.pylab.detrend_none`.
 
     scale_by_freq : boolean, optional
         Specifies whether the resulting density values should be scaled
@@ -933,16 +933,16 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     See Also
     --------
-    :func:`specgram`
-        :func:`specgram` differs in the default overlap; in not returning the
+    `specgram`
+        `specgram` differs in the default overlap; in not returning the
         mean of the segment periodograms; and in returning the times of the
         segments.
 
-    :func:`magnitude_spectrum`
-        :func:`magnitude_spectrum` returns the magnitude spectrum.
+    `magnitude_spectrum`
+        `magnitude_spectrum` returns the magnitude spectrum.
 
-    :func:`csd`
-        :func:`csd` returns the spectral density between two signals.
+    `csd`
+        `csd` returns the spectral density between two signals.
     """
     Pxx, freqs = csd(x=x, y=None, NFFT=NFFT, Fs=Fs, detrend=detrend,
                      window=window, noverlap=noverlap, pad_to=pad_to,
@@ -1002,8 +1002,8 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     See Also
     --------
-    :func:`psd`
-        :func:`psd` is the equivalent to setting y=x.
+    `psd`
+        `psd` is the equivalent to setting y=x.
     """
     if NFFT is None:
         NFFT = 256
@@ -1048,18 +1048,18 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`magnitude_spectrum`
-        :func:`magnitude_spectrum` returns the absolute value of this function.
+    `magnitude_spectrum`
+        `magnitude_spectrum` returns the absolute value of this function.
 
-    :func:`angle_spectrum`
-        :func:`angle_spectrum` returns the angle of this function.
+    `angle_spectrum`
+        `angle_spectrum` returns the angle of this function.
 
-    :func:`phase_spectrum`
-        :func:`phase_spectrum` returns the phase (unwrapped angle) of this
+    `phase_spectrum`
+        `phase_spectrum` returns the phase (unwrapped angle) of this
         function.
 
-    :func:`specgram`
-        :func:`specgram` can return the complex spectrum of segments within the
+    `specgram`
+        `specgram` can return the complex spectrum of segments within the
         signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
@@ -1093,22 +1093,22 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`psd`
-        :func:`psd` returns the power spectral density.
+    `psd`
+        `psd` returns the power spectral density.
 
-    :func:`complex_spectrum`
-        This function returns the absolute value of :func:`complex_spectrum`.
+    `complex_spectrum`
+        This function returns the absolute value of `complex_spectrum`.
 
-    :func:`angle_spectrum`
-        :func:`angle_spectrum` returns the angles of the corresponding
+    `angle_spectrum`
+        `angle_spectrum` returns the angles of the corresponding
         frequencies.
 
-    :func:`phase_spectrum`
-        :func:`phase_spectrum` returns the phase (unwrapped angle) of the
+    `phase_spectrum`
+        `phase_spectrum` returns the phase (unwrapped angle) of the
         corresponding frequencies.
 
-    :func:`specgram`
-        :func:`specgram` can return the magnitude spectrum of segments within
+    `specgram`
+        `specgram` can return the magnitude spectrum of segments within
         the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
@@ -1142,18 +1142,18 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`complex_spectrum`
-        This function returns the angle value of :func:`complex_spectrum`.
+    `complex_spectrum`
+        This function returns the angle value of `complex_spectrum`.
 
-    :func:`magnitude_spectrum`
-        :func:`angle_spectrum` returns the magnitudes of the corresponding
+    `magnitude_spectrum`
+        `angle_spectrum` returns the magnitudes of the corresponding
         frequencies.
 
-    :func:`phase_spectrum`
-        :func:`phase_spectrum` returns the unwrapped version of this function.
+    `phase_spectrum`
+        `phase_spectrum` returns the unwrapped version of this function.
 
-    :func:`specgram`
-        :func:`specgram` can return the angle spectrum of segments within the
+    `specgram`
+        `specgram` can return the angle spectrum of segments within the
         signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
@@ -1187,18 +1187,18 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`complex_spectrum`
-        This function returns the angle value of :func:`complex_spectrum`.
+    `complex_spectrum`
+        This function returns the angle value of `complex_spectrum`.
 
-    :func:`magnitude_spectrum`
-        :func:`magnitude_spectrum` returns the magnitudes of the corresponding
+    `magnitude_spectrum`
+        `magnitude_spectrum` returns the magnitudes of the corresponding
         frequencies.
 
-    :func:`angle_spectrum`
-        :func:`angle_spectrum` returns the wrapped version of this function.
+    `angle_spectrum`
+        `angle_spectrum` returns the wrapped version of this function.
 
-    :func:`specgram`
-        :func:`specgram` can return the phase spectrum of segments within the
+    `specgram`
+        `specgram` can return the phase spectrum of segments within the
         signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
@@ -1331,7 +1331,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     See Also
     --------
-    :func:`psd`, :func:`csd` :
+    `psd`, `csd` :
         For information about the methods used to compute :math:`P_{xy}`,
         :math:`P_{xx}` and :math:`P_{yy}`.
     """
@@ -1376,16 +1376,16 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     *preferSpeedOverMemory* is an optional bool. Defaults to true. If
     False, limits the caching by only making one, rather than two,
     complex cache arrays. This is useful if memory becomes critical.
-    Even when *preferSpeedOverMemory* is False, :func:`cohere_pairs`
+    Even when *preferSpeedOverMemory* is False, `cohere_pairs`
     will still give significant performace gains over calling
-    :func:`cohere` for each pair, and will use subtantially less
+    `cohere` for each pair, and will use subtantially less
     memory than if *preferSpeedOverMemory* is True.  In my tests with
     a 43000,64 array over all nonredundant pairs,
     *preferSpeedOverMemory* = True delivered a 33% performance boost
     on a 1.7GHZ Athlon with 512MB RAM compared with
     *preferSpeedOverMemory* = False.  But both solutions were more
     than 10x faster than naively crunching all possible pairs through
-    :func:`cohere`.
+    `cohere`.
 
     Returns
     -------
@@ -1406,8 +1406,8 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
           subplot(212)
           plot( freqs, Phase[(12,19)])
 
-    For a large number of pairs, :func:`cohere_pairs` can be much more
-    efficient than just calling :func:`cohere` for each pair, because
+    For a large number of pairs, `cohere_pairs` can be much more
+    efficient than just calling `cohere` for each pair, because
     it caches most of the intensive computations.  If :math:`N` is the
     number of pairs, this function is :math:`O(N)` for most of the
     heavy lifting, whereas calling cohere for each pair is
@@ -1416,12 +1416,12 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     approximately the same number of elements as *X*.
 
     See :file:`test/cohere_pairs_test.py` in the src tree for an
-    example script that shows that this :func:`cohere_pairs` and
-    :func:`cohere` give the same results for a given pair.
+    example script that shows that this `cohere_pairs` and
+    `cohere` give the same results for a given pair.
 
     See Also
     --------
-    :func:`psd`
+    `psd`
         For information about the methods used to compute :math:`P_{xy}`,
         :math:`P_{xx}` and :math:`P_{yy}`.
     """
@@ -1519,7 +1519,7 @@ def entropy(y, bins):
 
     where :math:`p_i` is the probability of observing *y* in the
     :math:`i^{th}` bin of *bins*.  *bins* can be a number of bins or a
-    range of bins; see :func:`numpy.histogram`.
+    range of bins; see `numpy.histogram`.
 
     Compare *S* with analytic calculation for a Gaussian::
 
@@ -1802,7 +1802,7 @@ def rk4(derivs, y0, t):
     Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.
     This is a toy implementation which may be useful if you find
     yourself stranded on a system w/o scipy.  Otherwise use
-    :func:`scipy.integrate`.
+    `scipy.integrate`.
 
     Parameters
     ----------
@@ -2067,7 +2067,7 @@ def amap(fn, *args):
     """
     amap(function, sequence[, sequence, ...]) -> array.
 
-    Works like :func:`map`, but it returns an array.  This is just a
+    Works like `map`, but it returns an array.  This is just a
     convenient shorthand for ``numpy.array(map(...))``.
     """
     return np.array(list(map(fn, *args)))
@@ -2084,7 +2084,7 @@ def l1norm(a):
     """
     Return the *l1* norm of *a*, flattened out.
 
-    Implemented as a separate function (not a call to :func:`norm` for speed).
+    Implemented as a separate function (not a call to `norm` for speed).
     """
     return np.sum(np.abs(a))
 
@@ -2093,7 +2093,7 @@ def l2norm(a):
     """
     Return the *l2* norm of *a*, flattened out.
 
-    Implemented as a separate function (not a call to :func:`norm` for speed).
+    Implemented as a separate function (not a call to `norm` for speed).
     """
     return np.sqrt(np.sum(np.abs(a) ** 2))
 
@@ -2120,16 +2120,16 @@ def frange(xini, xfin=None, delta=None, **kw):
     frange([start,] stop[, step, keywords]) -> array of floats
 
     Return a numpy ndarray containing a progression of floats. Similar to
-    :func:`numpy.arange`, but defaults to a closed interval.
+    `numpy.arange`, but defaults to a closed interval.
 
     ``frange(x0, x1)`` returns ``[x0, x0+1, x0+2, ..., x1]``; *start*
     defaults to 0, and the endpoint *is included*. This behavior is
-    different from that of :func:`range` and
-    :func:`numpy.arange`. This is deliberate, since :func:`frange`
+    different from that of `range` and
+    `numpy.arange`. This is deliberate, since `frange`
     will probably be more useful for generating lists of points for
     function evaluation, and endpoints are often desired in this
-    use. The usual behavior of :func:`range` can be obtained by
-    setting the keyword *closed* = 0, in this case, :func:`frange`
+    use. The usual behavior of `range` can be obtained by
+    setting the keyword *closed* = 0, in this case, `frange`
     basically becomes :func:numpy.arange`.
 
     When *step* is given, it specifies the increment (or
@@ -2138,9 +2138,9 @@ def frange(xini, xfin=None, delta=None, **kw):
     ``frange(x0,x1,d)`` returns ``[x0,x0+d,x0+2d,...,xfin]`` where
     *xfin* <= *x1*.
 
-    :func:`frange` can also be called with the keyword *npts*. This
+    `frange` can also be called with the keyword *npts*. This
     sets the number of points the list should contain (and overrides
-    the value *step* might have been given). :func:`numpy.arange`
+    the value *step* might have been given). `numpy.arange`
     doesn't offer this option.
 
     Examples::
@@ -2228,7 +2228,7 @@ def binary_repr(number, max_length=1025):
     Return the binary representation of the input *number* as a
     string.
 
-    This is more efficient than using :func:`base_repr` with base 2.
+    This is more efficient than using `base_repr` with base 2.
 
     Increase the value of max_length for very large numbers. Note that
     on 32-bit machines, 2**1023 is the largest integer power of 2
@@ -2295,7 +2295,7 @@ def isvector(X):
 # helpers for loading, saving, manipulating and viewing numpy record arrays
 
 def safe_isnan(x):
-    ':func:`numpy.isnan` for arbitrary types'
+    '`numpy.isnan` for arbitrary types'
     if isinstance(x, six.string_types):
         return False
     try:
@@ -2309,7 +2309,7 @@ def safe_isnan(x):
 
 
 def safe_isinf(x):
-    ':func:`numpy.isinf` for arbitrary types'
+    '`numpy.isinf` for arbitrary types'
     if isinstance(x, six.string_types):
         return False
     try:
@@ -3223,7 +3223,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
 
     See Also
     --------
-    :func:`csv2rec`
+    `csv2rec`
         For information about *missing* and *missingd*, which can be used to
         fill in masked values into your CSV file.
     """
@@ -3407,8 +3407,8 @@ def griddata(x, y, z, xi, yi, interp='nn'):
 def less_simple_linear_interpolation(x, y, xi, extrap=False):
     """
     This function provides simple (but somewhat less so than
-    :func:`cbook.simple_linear_interpolation`) linear interpolation.
-    :func:`simple_linear_interpolation` will give a list of point
+    `cbook.simple_linear_interpolation`) linear interpolation.
+    `simple_linear_interpolation` will give a list of point
     between a start and an end, while this does true linear
     interpolation at an arbitrary set of points.
 
@@ -3446,7 +3446,7 @@ def less_simple_linear_interpolation(x, y, xi, extrap=False):
 
 def slopes(x, y):
     """
-    :func:`slopes` calculates the slope *y*'(*x*)
+    `slopes` calculates the slope *y*'(*x*)
 
     The slope is estimated using the slope obtained from that of a
     parabola through any three consecutive points.
@@ -3488,7 +3488,7 @@ def slopes(x, y):
 def stineman_interp(xi, x, y, yp=None):
     """
     Given data vectors *x* and *y*, the slope vector *yp* and a new
-    abscissa vector *xi*, the function :func:`stineman_interp` uses
+    abscissa vector *xi*, the function `stineman_interp` uses
     Stineman interpolation to calculate a vector *yi* corresponding to
     *xi*.
 
@@ -3511,7 +3511,7 @@ def stineman_interp(xi, x, y, yp=None):
       "apparently a real solution" to a well known problem.
 
     For *yp* = *None*, the routine automatically determines the slopes
-    using the :func:`slopes` routine.
+    using the `slopes` routine.
 
     *x* is assumed to be sorted in increasing order.
 
@@ -3761,7 +3761,7 @@ def poly_below(xmin, xs, ys):
     polygon that has a horizontal base at *xmin* and an upper bound at
     the *ys*.  *xmin* is a scalar.
 
-    Intended for use with :meth:`matplotlib.axes.Axes.fill`, e.g.,::
+    Intended for use with `matplotlib.axes.Axes.fill`, e.g.,::
 
       xv, yv = poly_below(0, x, y)
       ax.fill(xv, yv)
@@ -3793,7 +3793,7 @@ def poly_between(x, ylower, yupper):
     length to *x*.
 
     Return value is *x*, *y* arrays for use with
-    :meth:`matplotlib.axes.Axes.fill`.
+    `matplotlib.axes.Axes.fill`.
     """
     if any(isinstance(var, np.ma.MaskedArray) for var in [ylower, yupper, x]):
         numpy = np.ma
@@ -3877,7 +3877,7 @@ def cross_from_below(x, threshold):
 
     See Also
     --------
-    :func:`cross_from_above` and :func:`contiguous_regions`
+    `cross_from_above` and `contiguous_regions`
 
     """
     x = np.asarray(x)
@@ -3897,7 +3897,7 @@ def cross_from_above(x, threshold):
 
     See Also
     --------
-    :func:`cross_from_below` and :func:`contiguous_regions`
+    `cross_from_below` and `contiguous_regions`
 
     """
     x = np.asarray(x)
@@ -3914,7 +3914,7 @@ def cross_from_above(x, threshold):
 def vector_lengths(X, P=2., axis=None):
     """
     Finds the length of a set of vectors in *n* dimensions.  This is
-    like the :func:`numpy.norm` function for vectors, but has the ability to
+    like the `numpy.norm` function for vectors, but has the ability to
     work over a particular axis of the supplied array or matrix.
 
     Computes ``(sum((x_i)^P))^(1/P)`` for each ``{x_i}`` being the

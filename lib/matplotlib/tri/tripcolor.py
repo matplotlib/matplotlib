@@ -17,7 +17,7 @@ def tripcolor(ax, *args, **kwargs):
 
       tripcolor(triangulation, ...)
 
-    where triangulation is a :class:`matplotlib.tri.Triangulation`
+    where triangulation is a `matplotlib.tri.Triangulation`
     object, or
 
     ::
@@ -29,7 +29,7 @@ def tripcolor(ax, *args, **kwargs):
       tripcolor(x, y, triangles, mask=mask, ...)
 
     in which case a Triangulation object will be created.  See
-    :class:`~matplotlib.tri.Triangulation` for a explanation of these
+    `~matplotlib.tri.Triangulation` for a explanation of these
     possibilities.
 
     The next argument must be *C*, the array of color values, either
@@ -47,7 +47,7 @@ def tripcolor(ax, *args, **kwargs):
     defined at points.
 
     The remaining kwargs are the same as for
-    :meth:`~matplotlib.axes.Axes.pcolor`.
+    `~matplotlib.axes.Axes.pcolor`.
     """
     if not ax._hold:
         ax.cla()

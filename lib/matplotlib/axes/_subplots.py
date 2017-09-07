@@ -15,14 +15,14 @@ from matplotlib.cbook import mplDeprecation
 
 class SubplotBase(object):
     """
-    Base class for subplots, which are :class:`Axes` instances with
+    Base class for subplots, which are `Axes` instances with
     additional methods to facilitate generating and manipulating a set
-    of :class:`Axes` within a figure.
+    of `Axes` within a figure.
     """
 
     def __init__(self, fig, *args, **kwargs):
         """
-        *fig* is a :class:`matplotlib.figure.Figure` instance.
+        *fig* is a `matplotlib.figure.Figure` instance.
 
         *args* is the tuple (*numRows*, *numCols*, *plotNum*), where
         the array of subplots in the figure has dimensions *numRows*,

@@ -20,11 +20,11 @@ A note on the Object-Oriented API vs Pyplot
 ===========================================
 
 Matplotlib has two interfaces. The first is an object-oriented (OO)
-interface. In this case, we utilize an instance of :class:`axes.Axes`
-in order to render visualizations on an instance of :class:`figure.Figure`.
+interface. In this case, we utilize an instance of `axes.Axes`
+in order to render visualizations on an instance of `figure.Figure`.
 
 The second is based on MATLAB and uses
-a state-based interface. This is encapsulated in the :mod:`pyplot`
+a state-based interface. This is encapsulated in the `pyplot`
 module. See the :ref:`pyplot tutorials
 <sphx_glr_tutorials_introductory_pyplot.py>`
 for a more in-depth look at the pyplot interface.
@@ -78,8 +78,8 @@ group_mean = np.mean(group_data)
 #
 # This data is naturally visualized as a barplot, with one bar per
 # group. To do this with the object-oriented approach, we'll first generate
-# an instance of :class:`figure.Figure` and
-# :class:`axes.Axes`. The Figure is like a canvas, and the Axes
+# an instance of `figure.Figure` and
+# `axes.Axes`. The Figure is like a canvas, and the Axes
 # is a part of that canvas on which we will make a particular visualization.
 #
 # .. note::
@@ -102,7 +102,7 @@ ax.barh(group_names, group_data)
 #
 # There are many styles available in Matplotlib in order to let you tailor
 # your visualization to your needs. To see a list of styles, we can use
-# :mod:`pyplot.style`.
+# `pyplot.style`.
 
 print(plt.style.available)
 
@@ -127,7 +127,7 @@ ax.barh(group_names, group_data)
 # Now we've got a plot with the general look that we want, so let's fine-tune
 # it so that it's ready for print. First let's rotate the labels on the x-axis
 # so that they show up more clearly. We can gain access to these labels
-# with the :meth:`axes.Axes.get_xticklabels` method:
+# with the `axes.Axes.get_xticklabels` method:
 
 fig, ax = plt.subplots()
 ax.barh(group_names, group_data)
@@ -135,7 +135,7 @@ labels = ax.get_xticklabels()
 
 ###############################################################################
 # If we'd like to set the property of many items at once, it's useful to use
-# the :func:`pyplot.setp` function. This will take a list (or many lists) of
+# the `pyplot.setp` function. This will take a list (or many lists) of
 # Matplotlib objects, and attempt to set some style element of each one.
 
 fig, ax = plt.subplots()
@@ -160,7 +160,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 
 ###############################################################################
 # Next, we'll add labels to the plot. To do this with the OO interface,
-# we can use the :meth:`axes.Axes.set` method to set properties of this
+# we can use the `axes.Axes.set` method to set properties of this
 # Axes object.
 
 fig, ax = plt.subplots()
@@ -171,7 +171,7 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 
 ###############################################################################
-# We can also adjust the size of this plot using the :func:`pyplot.subplots`
+# We can also adjust the size of this plot using the `pyplot.subplots`
 # function. We can do this with the ``figsize`` kwarg.
 #
 # .. note::
@@ -190,7 +190,7 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 
 ###############################################################################
 # For labels, we can specify custom formatting guidelines in the form of
-# functions by using the :class:`ticker.FuncFormatter` class. Below we'll
+# functions by using the `ticker.FuncFormatter` class. Below we'll
 # define a function that takes an integer as input, and returns a string
 # as an output.
 
@@ -224,7 +224,7 @@ ax.xaxis.set_major_formatter(formatter)
 # =================================
 #
 # It is possible to draw multiple plot elements on the same instance of
-# :class:`axes.Axes`. To do this we simply need to call another one of
+# `axes.Axes`. To do this we simply need to call another one of
 # the plot methods on that axes object.
 
 fig, ax = plt.subplots(figsize=(8, 8))
@@ -262,7 +262,7 @@ plt.show()
 print(fig.canvas.get_supported_filetypes())
 
 ###############################################################################
-# We can then use the :meth:`figure.Figure.savefig` in order to save the figure
+# We can then use the `figure.Figure.savefig` in order to save the figure
 # to disk. Note that there are several useful flags we'll show below:
 #
 # * ``transparent=True`` makes the background of the saved figure transparent

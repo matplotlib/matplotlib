@@ -314,16 +314,16 @@ class Line2D(Artist):
                  **kwargs
                  ):
         """
-        Create a :class:`~matplotlib.lines.Line2D` instance with *x*
+        Create a `~matplotlib.lines.Line2D` instance with *x*
         and *y* data in sequences *xdata*, *ydata*.
 
-        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        The kwargs are `~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
-        See :meth:`set_linestyle` for a decription of the line styles,
-        :meth:`set_marker` for a description of the markers, and
-        :meth:`set_drawstyle` for a description of the draw styles.
+        See `set_linestyle` for a decription of the line styles,
+        `set_marker` for a description of the markers, and
+        `set_drawstyle` for a description of the draw styles.
 
         """
         Artist.__init__(self)
@@ -448,8 +448,8 @@ class Line2D(Artist):
         Test whether the mouse event occurred on the line.  The pick
         radius determines the precision of the location test (usually
         within five points of the value).  Use
-        :meth:`~matplotlib.lines.Line2D.get_pickradius` or
-        :meth:`~matplotlib.lines.Line2D.set_pickradius` to view or
+        `~matplotlib.lines.Line2D.get_pickradius` or
+        `~matplotlib.lines.Line2D.set_pickradius` to view or
         modify it.
 
         Returns *True* if any values are within the radius along with
@@ -705,7 +705,7 @@ class Line2D(Artist):
 
     def _get_transformed_path(self):
         """
-        Return the :class:`~matplotlib.transforms.TransformedPath` instance
+        Return the `~matplotlib.transforms.TransformedPath` instance
         of this line.
         """
         if self._transformed_path is None:
@@ -716,7 +716,7 @@ class Line2D(Artist):
         """
         set the Transformation instance used by this artist
 
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        ACCEPTS: a `matplotlib.transforms.Transform` instance
         """
         Artist.set_transform(self, t)
         self._invalidx = True
@@ -944,7 +944,7 @@ class Line2D(Artist):
 
     def get_path(self):
         """
-        Return the :class:`~matplotlib.path.Path` object associated
+        Return the `~matplotlib.path.Path` object associated
         with this line.
         """
         if self._invalidy or self._invalidx:
@@ -1080,7 +1080,7 @@ class Line2D(Artist):
 
         .. seealso::
 
-            :meth:`set_drawstyle`
+            `set_drawstyle`
                To set the drawing style (stepping) of the plot.
 
         Parameters
@@ -1119,7 +1119,7 @@ class Line2D(Artist):
         """
         Set the line marker
 
-        ACCEPTS: :mod:`A valid marker style <matplotlib.markers>`
+        ACCEPTS: `A valid marker style <matplotlib.markers>`
 
         Parameters
         ----------
@@ -1422,8 +1422,8 @@ class Line2D(Artist):
 class VertexSelector(object):
     """
     Manage the callbacks to maintain a list of selected vertices for
-    :class:`matplotlib.lines.Line2D`. Derived classes should override
-    :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
+    `matplotlib.lines.Line2D`. Derived classes should override
+    `~matplotlib.lines.VertexSelector.process_selected` to do
     something with the picks.
 
     Here is an example which highlights the selected verts with red
@@ -1453,9 +1453,9 @@ class VertexSelector(object):
     """
     def __init__(self, line):
         """
-        Initialize the class with a :class:`matplotlib.lines.Line2D`
+        Initialize the class with a `matplotlib.lines.Line2D`
         instance.  The line should already be added to some
-        :class:`matplotlib.axes.Axes` instance and should have the
+        `matplotlib.axes.Axes` instance and should have the
         picker property set.
         """
         if line.axes is None:
@@ -1475,7 +1475,7 @@ class VertexSelector(object):
     def process_selected(self, ind, xs, ys):
         """
         Default "do nothing" implementation of the
-        :meth:`process_selected` method.
+        `process_selected` method.
 
         *ind* are the indices of the selected vertices.  *xs* and *ys*
         are the coordinates of the selected vertices.

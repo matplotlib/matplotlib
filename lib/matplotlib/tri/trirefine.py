@@ -34,7 +34,7 @@ class TriRefiner(object):
               - *z* array of field values (to refine) defined at the base
                 triangulation nodes
               - *triinterpolator* is a
-                :class:`~matplotlib.tri.TriInterpolator` (optional)
+                `~matplotlib.tri.TriInterpolator` (optional)
               - the other optional keyword arguments *kwargs* are defined in
                 each TriRefiner concrete implementation
 
@@ -54,13 +54,13 @@ class UniformTriRefiner(TriRefiner):
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation`
+    triangulation : `~matplotlib.tri.Triangulation`
                      The encapsulated triangulation (to be refined)
     """
 #    See Also
 #    --------
-#    :class:`~matplotlib.tri.CubicTriInterpolator` and
-#    :class:`~matplotlib.tri.TriAnalyzer`.
+#    `~matplotlib.tri.CubicTriInterpolator` and
+#    `~matplotlib.tri.TriAnalyzer`.
 #    """
     def __init__(self, triangulation):
         TriRefiner.__init__(self, triangulation)
@@ -90,7 +90,7 @@ class UniformTriRefiner(TriRefiner):
 
         Returns
         -------
-        refi_triangulation : :class:`~matplotlib.tri.Triangulation`
+        refi_triangulation : `~matplotlib.tri.Triangulation`
             The returned refined triangulation
         found_index : array-like of integers
             Index of the initial triangulation containing triangle, for each
@@ -150,9 +150,9 @@ class UniformTriRefiner(TriRefiner):
             Values of the field to refine, defined at the nodes of the
             encapsulated triangulation. (``n_points`` is the number of points
             in the initial triangulation)
-        triinterpolator : :class:`~matplotlib.tri.TriInterpolator`, optional
+        triinterpolator : `~matplotlib.tri.TriInterpolator`, optional
             Interpolator used for field interpolation. If not specified,
-            a :class:`~matplotlib.tri.CubicTriInterpolator` will
+            a `~matplotlib.tri.CubicTriInterpolator` will
             be used.
         subdiv : integer, optional
             Recursion level for the subdivision. Defaults to 3.
@@ -160,7 +160,7 @@ class UniformTriRefiner(TriRefiner):
 
         Returns
         -------
-        refi_tri : :class:`~matplotlib.tri.Triangulation` object
+        refi_tri : `~matplotlib.tri.Triangulation` object
                      The returned refined triangulation
         refi_z : 1d array of length: *refi_tri* node count.
                    The returned interpolated field (at *refi_tri* nodes)

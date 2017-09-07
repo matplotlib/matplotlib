@@ -146,7 +146,7 @@ class Patch(artist.Artist):
 
         If the patch contains Bezier curves, the curves will be
         interpolated by line segments.  To access the curves as
-        curves, use :meth:`get_path`.
+        curves, use `get_path`.
         """
         trans = self.get_transform()
         path = self.get_path()
@@ -191,7 +191,7 @@ class Patch(artist.Artist):
 
     def update_from(self, other):
         """
-        Updates this :class:`Patch` from the properties of *other*.
+        Updates this `Patch` from the properties of *other*.
         """
         artist.Artist.update_from(self, other)
         # For some properties we don't need or don't want to go through the
@@ -208,28 +208,28 @@ class Patch(artist.Artist):
 
     def get_extents(self):
         """
-        Return a :class:`~matplotlib.transforms.Bbox` object defining
-        the axis-aligned extents of the :class:`Patch`.
+        Return a `~matplotlib.transforms.Bbox` object defining
+        the axis-aligned extents of the `Patch`.
         """
         return self.get_path().get_extents(self.get_transform())
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the :class:`Patch`.
+        Return the `~matplotlib.transforms.Transform` applied
+        to the `Patch`.
         """
         return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` instance which
+        Return the `~matplotlib.transforms.Transform` instance which
         maps data coordinates to physical coordinates.
         """
         return artist.Artist.get_transform(self)
 
     def get_patch_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` instance which
+        Return the `~matplotlib.transforms.Transform` instance which
         takes patch coordinates to data coordinates.
 
         For example, one may define a patch of a circle which represents a
@@ -240,21 +240,21 @@ class Patch(artist.Artist):
 
     def get_antialiased(self):
         """
-        Returns True if the :class:`Patch` is to be drawn with antialiasing.
+        Returns True if the `Patch` is to be drawn with antialiasing.
         """
         return self._antialiased
     get_aa = get_antialiased
 
     def get_edgecolor(self):
         """
-        Return the edge color of the :class:`Patch`.
+        Return the edge color of the `Patch`.
         """
         return self._edgecolor
     get_ec = get_edgecolor
 
     def get_facecolor(self):
         """
-        Return the face color of the :class:`Patch`.
+        Return the face color of the `Patch`.
         """
         return self._facecolor
     get_fc = get_facecolor
@@ -345,7 +345,7 @@ class Patch(artist.Artist):
 
         .. seealso::
 
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
+            `set_facecolor`, `set_edgecolor`
                For setting the edge or face color individually.
         """
         self.set_facecolor(c)
@@ -522,7 +522,7 @@ class Patch(artist.Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        'Draw the :class:`Patch` to the given *renderer*.'
+        'Draw the `Patch` to the given *renderer*.'
         if not self.get_visible():
             return
 
@@ -906,14 +906,14 @@ class PathPatch(Patch):
     @docstring.dedent_interpd
     def __init__(self, path, **kwargs):
         """
-        *path* is a :class:`matplotlib.path.Path` object.
+        *path* is a `matplotlib.path.Path` object.
 
         Valid kwargs are:
         %(Patch)s
 
         .. seealso::
 
-            :class:`Patch`
+            `Patch`
                 For additional kwargs
 
         """
@@ -944,7 +944,7 @@ class Polygon(Patch):
 
         .. seealso::
 
-            :class:`Patch`
+            `Patch`
                 For additional kwargs
 
         """
@@ -959,7 +959,7 @@ class Polygon(Patch):
         Returns
         -------
         path : Path
-           The :class:`~matplotlib.path.Path` object for
+           The `~matplotlib.path.Path` object for
            the polygon
         """
         return self._path
@@ -1029,8 +1029,8 @@ class Polygon(Patch):
         """Set/get the vertices of the polygon.  This property is
            provided for backward compatibility with matplotlib 0.91.x
            only.  New code should use
-           :meth:`~matplotlib.patches.Polygon.get_xy` and
-           :meth:`~matplotlib.patches.Polygon.set_xy` instead.""")
+           `~matplotlib.patches.Polygon.get_xy` and
+           `~matplotlib.patches.Polygon.set_xy` instead.""")
 
 
 class Wedge(Patch):
@@ -1157,14 +1157,14 @@ class Arrow(Patch):
             Scale factor for the width of the arrow. With a default value of
             1, the tail width is 0.2 and head width is 0.6.
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.patches.Patch`
+            Keyword arguments control the `~matplotlib.patches.Patch`
             properties:
 
             %(Patch)s
 
         See Also
         --------
-        :class:`FancyArrow` :
+        `FancyArrow` :
             Patch that allows independent control of the head and tail
             properties
         """
@@ -1230,7 +1230,7 @@ class FancyArrow(Polygon):
             if True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 
-        Other valid kwargs (inherited from :class:`Patch`) are:
+        Other valid kwargs (inherited from `Patch`) are:
         %(Patch)s
 
         """
@@ -1316,7 +1316,7 @@ class YAArrow(Patch):
           (*x*, *y*) location the arrow base mid point
 
         *figure*
-          The :class:`~matplotlib.figure.Figure` instance
+          The `~matplotlib.figure.Figure` instance
           (fig.dpi)
 
         *width*
@@ -1412,7 +1412,7 @@ class CirclePolygon(RegularPolygon):
         Create a circle at *xy* = (*x*, *y*) with given *radius*.
         This circle is approximated by a regular polygon with
         *resolution* sides.  For a smoother circle drawn with splines,
-        see :class:`~matplotlib.patches.Circle`.
+        see `~matplotlib.patches.Circle`.
 
         Valid kwargs are:
         %(Patch)s
@@ -1501,7 +1501,7 @@ class Circle(Ellipse):
     def __init__(self, xy, radius=5, **kwargs):
         """
         Create true circle at center *xy* = (*x*, *y*) with given
-        *radius*.  Unlike :class:`~matplotlib.patches.CirclePolygon`
+        *radius*.  Unlike `~matplotlib.patches.CirclePolygon`
         which is a polygonal approximation, this uses Bézier splines
         and is much closer to a scale-free circle.
 
@@ -1533,9 +1533,9 @@ class Arc(Ellipse):
     An elliptical arc.  Because it performs various optimizations, it
     can not be filled.
 
-    The arc must be used in an :class:`~matplotlib.axes.Axes`
+    The arc must be used in an `~matplotlib.axes.Axes`
     instance---it can not be added directly to a
-    :class:`~matplotlib.figure.Figure`---because it is optimized to
+    `~matplotlib.figure.Figure`---because it is optimized to
     only render the segments that are inside the axes bounding box
     with high resolution.
     """
@@ -1630,7 +1630,7 @@ class Arc(Ellipse):
              x-direction, each of the visible arc-segments between the
              pairs of vertices are drawn using the bezier arc
              approximation technique implemented in
-             :meth:`matplotlib.path.Path.arc`.
+             `matplotlib.path.Path.arc`.
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
@@ -1748,7 +1748,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     """
     This is a debug function to draw a rectangle around the bounding
     box returned by
-    :meth:`~matplotlib.artist.Artist.get_window_extent` of an artist,
+    `~matplotlib.artist.Artist.get_window_extent` of an artist,
     to test whether the artist is returning the correct bbox.
 
     *props* is a dict of rectangle props with the additional property
@@ -1780,7 +1780,7 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     """
     This is a debug function to draw a rectangle around the bounding
     box returned by
-    :meth:`~matplotlib.artist.Artist.get_window_extent` of an artist,
+    `~matplotlib.artist.Artist.get_window_extent` of an artist,
     to test whether the artist is returning the correct bbox.
     """
 
@@ -1936,8 +1936,8 @@ class _Style(object):
 
 class BoxStyle(_Style):
     """
-    :class:`BoxStyle` is a container class which defines several
-    boxstyle classes, which are used for :class:`FancyBboxPatch`.
+    `BoxStyle` is a container class which defines several
+    boxstyle classes, which are used for `FancyBboxPatch`.
 
     A style object can be created as::
 
@@ -1960,7 +1960,7 @@ class BoxStyle(_Style):
 
        __call__(self, x0, y0, width, height, mutation_size, aspect_ratio=1.)
 
-    and returns a :class:`Path` instance. *x0*, *y0*, *width* and
+    and returns a `Path` instance. *x0*, *y0*, *width* and
     *height* specify the location and size of the box to be
     drawn. *mutation_scale* determines the overall size of the
     mutation (by which I mean the transformation of the rectangle to
@@ -1972,11 +1972,11 @@ class BoxStyle(_Style):
 
     class _Base(object):
         """
-        :class:`BBoxTransmuterBase` and its derivatives are used to make a
-        fancy box around a given rectangle. The :meth:`__call__` method
-        returns the :class:`~matplotlib.path.Path` of the fancy box. This
+        `BBoxTransmuterBase` and its derivatives are used to make a
+        fancy box around a given rectangle. The `__call__` method
+        returns the `~matplotlib.path.Path` of the fancy box. This
         class is not an artist and actual drawing of the fancy box is done
-        by the :class:`FancyBboxPatch` class.
+        by the `FancyBboxPatch` class.
         """
 
         # The derived classes are required to be able to be initialized
@@ -1992,11 +1992,11 @@ class BoxStyle(_Style):
         def transmute(self, x0, y0, width, height, mutation_size):
             """
             The transmute method is a very core of the
-            :class:`BboxTransmuter` class and must be overridden in the
+            `BboxTransmuter` class and must be overridden in the
             subclasses. It receives the location and size of the
             rectangle, and the mutation_size, with which the amount of
             padding and etc. will be scaled. It returns a
-            :class:`~matplotlib.path.Path` instance.
+            `~matplotlib.path.Path` instance.
             """
             raise NotImplementedError('Derived must override')
 
@@ -2462,10 +2462,10 @@ class FancyBboxPatch(Patch):
     Draw a fancy box around a rectangle with lower left at *xy*=(*x*,
     *y*) with specified width and height.
 
-    :class:`FancyBboxPatch` class is similar to :class:`Rectangle`
+    `FancyBboxPatch` class is similar to `Rectangle`
     class, but it draws a fancy box around the rectangle. The
     transformation of the rectangle box to the fancy box is delegated
-    to the :class:`BoxTransmuterBase` and its derived classes.
+    to the `BoxTransmuterBase` and its derived classes.
 
     """
 
@@ -2490,7 +2490,7 @@ class FancyBboxPatch(Patch):
 
         *boxstyle* determines what kind of fancy box will be drawn. It
         can be a string of the style name with a comma separated
-        attribute, or an instance of :class:`BoxStyle`. Following box
+        attribute, or an instance of `BoxStyle`. Following box
         styles are available.
 
         %(AvailableBoxstyles)s
@@ -2680,10 +2680,10 @@ class FancyBboxPatch(Patch):
 
 class ConnectionStyle(_Style):
     """
-    :class:`ConnectionStyle` is a container class which defines
+    `ConnectionStyle` is a container class which defines
     several connectionstyle classes, which is used to create a path
     between two points. These are mainly used with
-    :class:`FancyArrowPatch`.
+    `FancyArrowPatch`.
 
     A connectionstyle object can be either created as::
 
@@ -2709,7 +2709,7 @@ class ConnectionStyle(_Style):
                  patchA=None, patchB=None,
                  shrinkA=2., shrinkB=2.)
 
-    and it returns a :class:`Path` instance. *posA* and *posB* are
+    and it returns a `Path` instance. *posA* and *posB* are
     tuples of x,y coordinates of the two points to be
     connected. *patchA* (or *patchB*) is given, the returned path is
     clipped so that it start (or end) from the boundary of the
@@ -3151,9 +3151,9 @@ def _point_along_a_line(x0, y0, x1, y1, d):
 
 class ArrowStyle(_Style):
     """
-    :class:`ArrowStyle` is a container class which defines several
+    `ArrowStyle` is a container class which defines several
     arrowstyle classes, which is used to create an arrow path along a
-    given path. These are mainly used with :class:`FancyArrowPatch`.
+    given path. These are mainly used with `FancyArrowPatch`.
 
     A arrowstyle object can be either created as::
 
@@ -3177,10 +3177,10 @@ class ArrowStyle(_Style):
 
         __call__(self, path, mutation_size, linewidth, aspect_ratio=1.)
 
-    and it returns a tuple of a :class:`Path` instance and a boolean
-    value. *path* is a :class:`Path` instance along which the arrow
+    and it returns a tuple of a `Path` instance and a boolean
+    value. *path* is a `Path` instance along which the arrow
     will be drawn. *mutation_size* and *aspect_ratio* have the same
-    meaning as in :class:`BoxStyle`. *linewidth* is a line width to be
+    meaning as in `BoxStyle`. *linewidth* is a line width to be
     stroked. This is meant to be used to correct the location of the
     head so that it does not overshoot the destination point, but not all
     classes support it.
@@ -4008,7 +4008,7 @@ docstring.interpd.update(
 
 class FancyArrowPatch(Patch):
     """
-    A fancy arrow patch. It draws an arrow using the :class:`ArrowStyle`.
+    A fancy arrow patch. It draws an arrow using the `ArrowStyle`.
 
     The head and tail positions are fixed at the specified start and end points
     of the arrow, but the size and shape (in display coordinates) of the arrow
@@ -4058,7 +4058,7 @@ class FancyArrowPatch(Patch):
             (x,y) coordinates of arrow tail and arrow head respectively.
 
         path : None, Path (default: None)
-            :class:`matplotlib.path.Path` instance. If provided, an arrow is
+            `matplotlib.path.Path` instance. If provided, an arrow is
             drawn along this path and *patchA*, *patchB*, *shrinkA*, and
             *shrinkB* are ignored.
 
@@ -4066,7 +4066,7 @@ class FancyArrowPatch(Patch):
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
-            :class:`ArrowStyle` instance. The optional attributes are meant to
+            `ArrowStyle` instance. The optional attributes are meant to
             be scaled with the *mutation_scale*. The following arrow styles are
             available:
 
@@ -4078,7 +4078,7 @@ class FancyArrowPatch(Patch):
         connectionstyle : str, ConnectionStyle, or None, optional
         (default: 'arc3')
             Describes how *posA* and *posB* are connected. It can be an
-            instance of the :class:`ConnectionStyle` class or a string of the
+            instance of the `ConnectionStyle` class or a string of the
             connectionstyle name, with optional comma-separated attributes. The
             following connection styles are available:
 
@@ -4088,7 +4088,7 @@ class FancyArrowPatch(Patch):
             Ignored
 
         patchA, patchB : None, Patch, optional (default: None)
-            Head and tail patch respectively. :class:`matplotlib.patch.Patch`
+            Head and tail patch respectively. `matplotlib.patch.Patch`
             instance.
 
         shrinkA, shrinkB : scalar, optional (default: 2)
@@ -4187,7 +4187,7 @@ class FancyArrowPatch(Patch):
         Parameters
         ----------
         patchA : Patch
-            :class:`matplotlib.patch.Patch` instance.
+            `matplotlib.patch.Patch` instance.
         """
         self.patchA = patchA
         self.stale = True
@@ -4199,7 +4199,7 @@ class FancyArrowPatch(Patch):
         Parameters
         ----------
         patchB : Patch
-            :class:`matplotlib.patch.Patch` instance.
+            `matplotlib.patch.Patch` instance.
         """
         self.patchB = patchB
         self.stale = True
@@ -4236,7 +4236,7 @@ class FancyArrowPatch(Patch):
 
     def get_connectionstyle(self):
         """
-        Return the :class:`ConnectionStyle` instance.
+        Return the `ConnectionStyle` instance.
         """
         return self._connector
 
@@ -4425,7 +4425,7 @@ class FancyArrowPatch(Patch):
 
 class ConnectionPatch(FancyArrowPatch):
     """
-    A :class:`~matplotlib.patches.ConnectionPatch` class is to make
+    A `~matplotlib.patches.ConnectionPatch` class is to make
     connecting lines between two points (possibly in different axes).
     """
     def __str__(self):
@@ -4467,7 +4467,7 @@ class ConnectionPatch(FancyArrowPatch):
         shrinkB          default is 2 points
         mutation_scale   default is text size (in points)
         mutation_aspect  default is 1.
-        ?                any key for :class:`matplotlib.patches.PathPatch`
+        ?                any key for `matplotlib.patches.PathPatch`
         ===============  ======================================================
 
 
@@ -4644,7 +4644,7 @@ class ConnectionPatch(FancyArrowPatch):
     def get_annotation_clip(self):
         """
         Return *annotation_clip* attribute.
-        See :meth:`set_annotation_clip` for the meaning of return values.
+        See `set_annotation_clip` for the meaning of return values.
         """
         return self._annotation_clip
 

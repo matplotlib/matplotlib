@@ -8,8 +8,8 @@ This tutorial shows how to build colorbars without an attached plot.
 Customized Colorbars
 ====================
 
-:class:`~matplotlib.colorbar.ColorbarBase` derives from
-:mod:`~matplotlib.cm.ScalarMappable` and puts a colorbar in a specified axes,
+`~matplotlib.colorbar.ColorbarBase` derives from
+`~matplotlib.cm.ScalarMappable` and puts a colorbar in a specified axes,
 so it has everything needed for a standalone colorbar. It can be used as is to
 make a colorbar for a given colormap and does not need a mappable object like
 an image. In this tutorial we will explore what can be done with standalone
@@ -20,7 +20,7 @@ Basic continuous colorbar
 
 Set the colormap and norm to correspond to the data for which the colorbar
 will be used. Then create the colorbar by calling
-:class:`~matplotlib.colorbar.ColorbarBase` and specify axis, colormap, norm
+`~matplotlib.colorbar.ColorbarBase` and specify axis, colormap, norm
 and orientation as parameters. Here we create a basic continuous colorbar
 with ticks and labels. More information on colorbar api can be found
 `here <https://matplotlib.org/api/colorbar_api.html>`.
@@ -45,19 +45,19 @@ fig.show()
 # ---------------------------
 #
 # The second example illustrates the use of a
-# :class:`~matplotlib.colors.ListedColormap` which generates a colormap from a
-# set of listed colors, :func:`colors.BoundaryNorm` which generates a colormap
+# `~matplotlib.colors.ListedColormap` which generates a colormap from a
+# set of listed colors, `colors.BoundaryNorm` which generates a colormap
 # index based on discrete intervals and extended ends to show the "over" and
 # "under" value colors. Over and under are used to display data outside of the
 # normalized [0,1] range. Here we pass colors as gray shades as a string
 # encoding a float in the 0-1 range.
 #
-# If a :class:`~matplotlib.colors.ListedColormap` is used, the length of the
+# If a `~matplotlib.colors.ListedColormap` is used, the length of the
 # bounds array must be one greater than the length of the color list. The
 # bounds must be monotonically increasing.
 #
 # This time we pass some more arguments in addition to previous arguments to
-# :class:`~matplotlib.colorbar.ColorbarBase`. For the out-of-range values to
+# `~matplotlib.colorbar.ColorbarBase`. For the out-of-range values to
 # display on the colorbar, we have to use the *extend* keyword argument. To use
 # *extend*, you must specify two extra boundaries. Finally spacing argument
 # ensures that intervals are shown on colorbar proportionally.

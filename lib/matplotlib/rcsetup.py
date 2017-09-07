@@ -723,7 +723,7 @@ _prop_aliases = {
 
 def cycler(*args, **kwargs):
     """
-    Creates a :class:`cycler.Cycler` object much like :func:`cycler.cycler`,
+    Creates a `cycler.Cycler` object much like `cycler.cycler`,
     but includes input validation.
 
     cycler(arg)
@@ -755,7 +755,7 @@ def cycler(*args, **kwargs):
     Returns
     -------
     cycler : Cycler
-        New :class:`cycler.Cycler` for the given properties
+        New `cycler.Cycler` for the given properties
 
     """
     if args and kwargs:

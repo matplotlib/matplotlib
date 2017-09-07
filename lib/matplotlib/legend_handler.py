@@ -97,14 +97,14 @@ class HandlerBase(object):
 
         Parameters
         ----------
-        legend : :class:`matplotlib.legend.Legend` instance
+        legend : `matplotlib.legend.Legend` instance
             The legend for which these legend artists are being created.
-        orig_handle : :class:`matplotlib.artist.Artist` or similar
+        orig_handle : `matplotlib.artist.Artist` or similar
             The object for which these legend artists are being created.
         fontsize : float or int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
-        handlebox : :class:`matplotlib.offsetbox.OffsetBox` instance
+        handlebox : `matplotlib.offsetbox.OffsetBox` instance
             The box which has been created to hold this legend entry's
             artists. Artists created in the `legend_artist` method must
             be added to this handlebox inside this method.

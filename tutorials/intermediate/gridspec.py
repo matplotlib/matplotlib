@@ -5,17 +5,17 @@ Customizing Location of Subplot Using GridSpec
 
 How to create grid-shaped combinations of axes.
 
-    :class:`~matplotlib.gridspec.GridSpec`
+    `~matplotlib.gridspec.GridSpec`
         specifies the geometry of the grid that a subplot will be
         placed in. The number of rows and number of columns of the grid
         need to be set. Optionally, the subplot layout parameters
         (e.g., left, right, etc.) can be tuned.
 
-    :class:`~matplotlib.gridspec.SubplotSpec`
+    `~matplotlib.gridspec.SubplotSpec`
         specifies the location of the subplot in the given *GridSpec*.
 
-    :func:`~matplotlib.pyplot.subplot2grid`
-        a helper function that is similar to :func:`~matplotlib.pyplot.subplot`
+    `~matplotlib.pyplot.subplot2grid`
+        a helper function that is similar to `~matplotlib.pyplot.subplot`
         but uses 0-based indexing and let subplot to occupy multiple cells.
 """
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ import matplotlib.gridspec as gridspec
 # Basic Example of using subplot2grid
 # ===================================
 
-# To use :func:`~matplotlib.pyplot.subplot2grid`, you provide geometry of
+# To use `~matplotlib.pyplot.subplot2grid`, you provide geometry of
 # the grid and the location of the subplot in the grid. For a simple
 # single-cell subplot
 
@@ -59,7 +59,7 @@ ax5 = plt.subplot2grid((3, 3), (2, 1))
 # GridSpec and SubplotSpec
 # ========================
 #
-# You can create :class:`~matplotlib.gridspec.GridSpec` explicitly and use
+# You can create `~matplotlib.gridspec.GridSpec` explicitly and use
 # them to create a subplot.
 #
 # For example:
@@ -103,7 +103,7 @@ gs1 = gridspec.GridSpec(3, 3)
 gs1.update(left=0.05, right=0.48, wspace=0.05)
 
 ###############################################################################
-# This is similar to :func:`~matplotlib.pyplot.subplots_adjust`, but it only
+# This is similar to `~matplotlib.pyplot.subplots_adjust`, but it only
 # affects the subplots that are created from the given GridSpec.
 #
 # For example, see this code and the resulting figure:
@@ -126,7 +126,7 @@ ax6 = plt.subplot(gs2[-1, -1])
 # GridSpec using SubplotSpec
 # ==========================
 #
-# You can create GridSpec from the :class:`~matplotlib.gridspec.SubplotSpec`,
+# You can create GridSpec from the `~matplotlib.gridspec.SubplotSpec`,
 # in which case its layout parameters are set to that of the location of
 # the given SubplotSpec.
 

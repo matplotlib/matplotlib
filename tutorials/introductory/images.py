@@ -109,7 +109,7 @@ print(img)
 #
 # So, you have your data in a numpy array (either by importing it, or by
 # generating it).  Let's render it.  In Matplotlib, this is performed
-# using the :func:`~matplotlib.pyplot.imshow` function.  Here we'll grab
+# using the `~matplotlib.pyplot.imshow` function.  Here we'll grab
 # the plot object.  This object gives you an easy way to manipulate the
 # plot from the prompt.
 
@@ -149,7 +149,7 @@ plt.imshow(lum_img, cmap="hot")
 
 ###############################################################################
 # Note that you can also change colormaps on existing plot objects using the
-# :meth:`~matplotlib.image.Image.set_cmap` method:
+# `~matplotlib.image.Image.set_cmap` method:
 
 imgplot = plt.imshow(lum_img)
 imgplot.set_cmap('nipy_spectral')
@@ -195,7 +195,7 @@ plt.colorbar()
 # the contrast in a particular region while sacrificing the detail in
 # colors that don't vary much, or don't matter.  A good tool to find
 # interesting regions is the histogram.  To create a histogram of our
-# image data, we use the :func:`~matplotlib.pyplot.hist` function.
+# image data, we use the `~matplotlib.pyplot.hist` function.
 
 plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 
@@ -207,7 +207,7 @@ plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 # image).  Let's adjust the upper limit, so that we effectively "zoom in
 # on" part of the histogram.  We do this by passing the clim argument to
 # imshow.  You could also do this by calling the
-# :meth:`~matplotlib.image.Image.set_clim` method of the image plot
+# `~matplotlib.image.Image.set_clim` method of the image plot
 # object, but make sure that you do so in the same cell as your plot
 # command when working with the IPython Notebook - it will not change
 # plots from earlier cells.
@@ -259,7 +259,7 @@ imgplot = plt.imshow(img)
 
 ###############################################################################
 # Here we have the default interpolation, bilinear, since we did not
-# give :func:`~matplotlib.pyplot.imshow` any interpolation argument.
+# give `~matplotlib.pyplot.imshow` any interpolation argument.
 #
 # Let's try some others. Here's "nearest", which does no interpolation.
 

@@ -1,21 +1,21 @@
 '''
 Colorbar toolkit with two classes and a function:
 
-    :class:`ColorbarBase`
+    `ColorbarBase`
         the base class with full colorbar drawing functionality.
         It can be used as-is to make a colorbar for a given colormap;
         a mappable object (e.g., image) is not needed.
 
-    :class:`Colorbar`
+    `Colorbar`
         the derived class for use with images or contour plots.
 
-    :func:`make_axes`
+    `make_axes`
         a function for resizing an axes and adding a second axes
         suitable for a colorbar
 
-The :meth:`~matplotlib.figure.Figure.colorbar` method uses :func:`make_axes`
-and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
-is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
+The `~matplotlib.figure.Figure.colorbar` method uses `make_axes`
+and `Colorbar`; the `~matplotlib.pyplot.colorbar` function
+is a thin wrapper over `~matplotlib.figure.Figure.colorbar`.
 
 '''
 from __future__ import (absolute_import, division, print_function,
@@ -101,10 +101,10 @@ colormap_kw_doc = '''
                   input.
     *format*      [ None | format string | Formatter object ]
                   If None, the
-                  :class:`~matplotlib.ticker.ScalarFormatter` is used.
+                  `~matplotlib.ticker.ScalarFormatter` is used.
                   If a format string is given, e.g., '%.3f', that is
                   used. An alternative
-                  :class:`~matplotlib.ticker.Formatter` object may be
+                  `~matplotlib.ticker.Formatter` object may be
                   given instead.
     *drawedges*   [ False | True ] If true, draw lines at color
                   boundaries.
@@ -131,9 +131,9 @@ colorbar_doc = '''
 
 Add a colorbar to a plot.
 
-Function signatures for the :mod:`~matplotlib.pyplot` interface; all
+Function signatures for the `~matplotlib.pyplot` interface; all
 but the first are also method signatures for the
-:meth:`~matplotlib.figure.Figure.colorbar` method::
+`~matplotlib.figure.Figure.colorbar` method::
 
   colorbar(**kwargs)
   colorbar(mappable, **kwargs)
@@ -143,11 +143,11 @@ but the first are also method signatures for the
 arguments:
 
   *mappable*
-    the :class:`~matplotlib.image.Image`,
-    :class:`~matplotlib.contour.ContourSet`, etc. to
+    the `~matplotlib.image.Image`,
+    `~matplotlib.contour.ContourSet`, etc. to
     which the colorbar applies; this argument is mandatory for the
-    :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
-    :func:`~matplotlib.pyplot.colorbar` function, which sets the
+    `~matplotlib.figure.Figure.colorbar` method but optional for the
+    `~matplotlib.pyplot.colorbar` function, which sets the
     default to the current image.
 
 keyword arguments:
@@ -172,7 +172,7 @@ Additional keyword arguments are of two kinds:
   colorbar properties:
 %s
 
-If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
+If *mappable* is a `~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
 
 Note that the *shrink* kwarg provides a simple way to keep a vertical
@@ -199,9 +199,9 @@ with semi transparent images (alpha < 1) and colorbar extensions and is not
 enabled by default see (issue #1188).
 
 returns:
-    :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
-    :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
-    :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+    `~matplotlib.colorbar.Colorbar` instance; see also its base class,
+    `~matplotlib.colorbar.ColorbarBase`.  Call the
+    `~matplotlib.colorbar.ColorbarBase.set_label` method
     to label the colorbar.
 
 ''' % (make_axes_kw_doc, colormap_kw_doc)
@@ -219,9 +219,9 @@ class ColorbarBase(cm.ScalarMappable):
     '''
     Draw a colorbar in an existing axes.
 
-    This is a base class for the :class:`Colorbar` class, which is the
-    basis for the :func:`~matplotlib.pyplot.colorbar` function and the
-    :meth:`~matplotlib.figure.Figure.colorbar` method, which are the
+    This is a base class for the `Colorbar` class, which is the
+    basis for the `~matplotlib.pyplot.colorbar` function and the
+    `~matplotlib.figure.Figure.colorbar` method, which are the
     usual ways of creating a colorbar.
 
     It is also useful by itself for showing a colormap.  If the *cmap*
@@ -248,7 +248,7 @@ class ColorbarBase(cm.ScalarMappable):
         :attr:`dividers`
             a LineCollection if *drawedges* is True, otherwise None
 
-    Useful public methods are :meth:`set_label` and :meth:`add_lines`.
+    Useful public methods are `set_label` and `add_lines`.
 
     '''
     _slice_dict = {'neither': slice(0, None),
@@ -391,12 +391,12 @@ class ColorbarBase(cm.ScalarMappable):
 
         Parameters
         ----------
-        ticks : {None, sequence, :class:`~matplotlib.ticker.Locator` instance}
+        ticks : {None, sequence, `~matplotlib.ticker.Locator` instance}
             If None, a default Locator will be used.
 
         update_ticks : {True, False}, optional
             If True, tick locations are updated immediately.  If False,
-            use :meth:`update_ticks` to manually update the ticks.
+            use `update_ticks` to manually update the ticks.
 
         """
         if cbook.iterable(ticks):
@@ -503,7 +503,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _add_solids(self, X, Y, C):
         '''
-        Draw the colors using :meth:`~matplotlib.axes.Axes.pcolormesh`;
+        Draw the colors using `~matplotlib.axes.Axes.pcolormesh`;
         optionally add separators.
         '''
         if self.orientation == 'vertical':
@@ -902,14 +902,14 @@ class ColorbarBase(cm.ScalarMappable):
 
 class Colorbar(ColorbarBase):
     """
-    This class connects a :class:`ColorbarBase` to a
-    :class:`~matplotlib.cm.ScalarMappable` such as a
-    :class:`~matplotlib.image.AxesImage` generated via
-    :meth:`~matplotlib.axes.Axes.imshow`.
+    This class connects a `ColorbarBase` to a
+    `~matplotlib.cm.ScalarMappable` such as a
+    `~matplotlib.image.AxesImage` generated via
+    `~matplotlib.axes.Axes.imshow`.
 
     It is not intended to be instantiated directly; instead,
-    use :meth:`~matplotlib.figure.Figure.colorbar` or
-    :func:`~matplotlib.pyplot.colorbar` to make your colorbar.
+    use `~matplotlib.figure.Figure.colorbar` or
+    `~matplotlib.pyplot.colorbar` to make your colorbar.
 
     """
     def __init__(self, ax, mappable, **kw):
@@ -947,7 +947,7 @@ class Colorbar(ColorbarBase):
         Updates this colorbar to match the mappable's properties.
 
         Typically this is automatically registered as an event handler
-        by :func:`colorbar_factory` and should not be called manually.
+        by `colorbar_factory` and should not be called manually.
 
         """
         self.set_cmap(mappable.get_cmap())
@@ -957,7 +957,7 @@ class Colorbar(ColorbarBase):
     def add_lines(self, CS, erase=True):
         '''
         Add the lines from a non-filled
-        :class:`~matplotlib.contour.ContourSet` to the colorbar.
+        `~matplotlib.contour.ContourSet` to the colorbar.
 
         Set *erase* to False if these lines should be added to
         any pre-existing lines.
@@ -1275,11 +1275,11 @@ def make_axes_gridspec(parent, **kw):
 
 class ColorbarPatch(Colorbar):
     """
-    A Colorbar which is created using :class:`~matplotlib.patches.Patch`
-    rather than the default :func:`~matplotlib.axes.pcolor`.
+    A Colorbar which is created using `~matplotlib.patches.Patch`
+    rather than the default `~matplotlib.axes.pcolor`.
 
     It uses a list of Patch instances instead of a
-    :class:`~matplotlib.collections.PatchCollection` because the
+    `~matplotlib.collections.PatchCollection` because the
     latter does not allow the hatch pattern to vary among the
     members of the collection.
     """
@@ -1292,7 +1292,7 @@ class ColorbarPatch(Colorbar):
 
     def _add_solids(self, X, Y, C):
         """
-        Draw the colors using :class:`~matplotlib.patches.Patch`;
+        Draw the colors using `~matplotlib.patches.Patch`;
         optionally add separators.
         """
         # Save, set, and restore hold state to keep pcolor from
@@ -1353,7 +1353,7 @@ def colorbar_factory(cax, mappable, **kwargs):
     Creates a colorbar on the given axes for the given mappable.
 
     Typically, for automatic colorbar placement given only a mappable use
-    :meth:`~matplotlib.figure.Figure.colorbar`.
+    `~matplotlib.figure.Figure.colorbar`.
 
     """
     # if the given mappable is a contourset with any hatching, use

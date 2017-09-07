@@ -11,7 +11,7 @@ help you get started with Matplotlib.
 General Concepts
 ================
 
-:mod:`matplotlib` has an extensive codebase that can be daunting to many
+`matplotlib` has an extensive codebase that can be daunting to many
 new users. However, most of matplotlib can be understood with a fairly
 simple conceptual framework and knowledge of a few important points.
 
@@ -25,7 +25,7 @@ needed.
 
 Therefore, everything in matplotlib is organized in a hierarchy. At the top
 of the hierarchy is the matplotlib "state-machine environment" which is
-provided by the :mod:`matplotlib.pyplot` module. At this level, simple
+provided by the `matplotlib.pyplot` module. At this level, simple
 functions are used to add plot elements (lines, images, text, etc.) to
 the current axes in the current figure.
 
@@ -59,16 +59,16 @@ import numpy as np
 # .. image:: ../../_static/anatomy.png
 #
 #
-# :class:`~matplotlib.figure.Figure`
+# `~matplotlib.figure.Figure`
 # ----------------------------------
 #
 # The **whole** figure.  The figure keeps
-# track of all the child :class:`~matplotlib.axes.Axes`, a smattering of
+# track of all the child `~matplotlib.axes.Axes`, a smattering of
 # 'special' artists (titles, figure legends, etc), and the **canvas**.
 # (Don't worry too much about the canvas, it is crucial as it is the
 # object that actually does the drawing to get you your plot, but as the
 # user it is more-or-less invisible to you).  A figure can have any
-# number of :class:`~matplotlib.axes.Axes`, but to be useful should have
+# number of `~matplotlib.axes.Axes`, but to be useful should have
 # at least one.
 #
 # The easiest way to create a new figure is with pyplot:
@@ -80,46 +80,46 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 
 
 ###############################################################################
-# :class:`~matplotlib.axes.Axes`
+# `~matplotlib.axes.Axes`
 # ------------------------------
 #
 # This is what you think of as 'a plot', it is the region of the image
 # with the data space (marked as the inner blue box).  A given figure
-# can contain many Axes, but a given :class:`~matplotlib.axes.Axes`
-# object can only be in one :class:`~matplotlib.figure.Figure`.  The
+# can contain many Axes, but a given `~matplotlib.axes.Axes`
+# object can only be in one `~matplotlib.figure.Figure`.  The
 # Axes contains two (or three in the case of 3D)
-# :class:`~matplotlib.axis.Axis` objects (be aware of the difference
+# `~matplotlib.axis.Axis` objects (be aware of the difference
 # between **Axes** and **Axis**) which take care of the data limits (the
 # data limits can also be controlled via set via the
-# :meth:`~matplotlib.axes.Axes.set_xlim` and
-# :meth:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
-# :class:`Axes` has a title (set via
-# :meth:`~matplotlib.axes.Axes.set_title`), an x-label (set via
-# :meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
-# :meth:`~matplotlib.axes.Axes.set_ylabel`).
+# `~matplotlib.axes.Axes.set_xlim` and
+# `~matplotlib.axes.Axes.set_ylim` `Axes` methods).  Each
+# `Axes` has a title (set via
+# `~matplotlib.axes.Axes.set_title`), an x-label (set via
+# `~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
+# `~matplotlib.axes.Axes.set_ylabel`).
 #
-# The :class:`Axes` class and it's member functions are the primary entry
+# The `Axes` class and it's member functions are the primary entry
 # point to working with the OO interface.
 #
-# :class:`~matplotlib.axis.Axis`
+# `~matplotlib.axis.Axis`
 # ------------------------------
 #
 # These are the number-line-like objects (circled in green).  They take
 # care of setting the graph limits and generating the ticks (the marks
 # on the axis) and ticklabels (strings labeling the ticks).  The
 # location of the ticks is determined by a
-# :class:`~matplotlib.ticker.Locator` object and the ticklabel strings
-# are formatted by a :class:`~matplotlib.ticker.Formatter`.  The
-# combination of the correct :class:`Locator` and :class:`Formatter` gives
+# `~matplotlib.ticker.Locator` object and the ticklabel strings
+# are formatted by a `~matplotlib.ticker.Formatter`.  The
+# combination of the correct `Locator` and `Formatter` gives
 # very fine control over the tick locations and labels.
 #
-# :class:`~matplotlib.artist.Artist`
+# `~matplotlib.artist.Artist`
 # ----------------------------------
 #
 # Basically everything you can see on the figure is an artist (even the
-# :class:`Figure`, :class:`Axes`, and :class:`Axis` objects).  This
-# includes :class:`Text` objects, :class:`Line2D` objects,
-# :class:`collection` objects, :class:`Patch` objects ... (you get the
+# `Figure`, `Axes`, and `Axis` objects).  This
+# includes `Text` objects, `Line2D` objects,
+# `collection` objects, `Patch` objects ... (you get the
 # idea).  When the figure is rendered, all of the artists are drawn to
 # the **canvas**.  Most Artists are tied to an Axes; such an Artist
 # cannot be shared by multiple Axes, or moved from one to another.
@@ -149,9 +149,9 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # Matplotlib, pyplot and pylab: how are they related?
 # ====================================================
 #
-# Matplotlib is the whole package; :mod:`matplotlib.pyplot`
-# is a module in matplotlib; and :mod:`pylab` is a module
-# that gets installed alongside :mod:`matplotlib`.
+# Matplotlib is the whole package; `matplotlib.pyplot`
+# is a module in matplotlib; and `pylab` is a module
+# that gets installed alongside `matplotlib`.
 #
 # Pyplot provides the state-machine interface to the underlying
 # object-oriented plotting library.  The state-machine implicitly and
@@ -181,10 +181,10 @@ plt.show()
 # current axes and set the title, create the legend, and label the axis
 # respectively.
 #
-# :mod:`pylab` is a convenience module that bulk imports
-# :mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
+# `pylab` is a convenience module that bulk imports
+# `matplotlib.pyplot` (for plotting) and `numpy`
 # (for mathematics and working with arrays) in a single name space.
-# Although many examples use :mod:`pylab`, it is no longer recommended.
+# Although many examples use `pylab`, it is no longer recommended.
 #
 # For non-interactive plotting it is suggested
 # to use pyplot to create the figures and then the OO interface for
@@ -313,7 +313,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # There are four ways to configure your backend. If they conflict each other,
 # the method mentioned last in the following list will be used, e.g. calling
-# :func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
+# `~matplotlib.use()` will override the setting in your ``matplotlibrc``.
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
@@ -336,17 +336,17 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    might lead to counter-intuitive behavior.
 #
 # #. If your script depends on a specific backend you can use the
-#    :func:`~matplotlib.use` function::
+#    `~matplotlib.use` function::
 #
 #       import matplotlib
 #       matplotlib.use('PS')   # generate postscript output by default
 #
-#    If you use the :func:`~matplotlib.use` function, this must be done before
-#    importing :mod:`matplotlib.pyplot`. Calling :func:`~matplotlib.use` after
+#    If you use the `~matplotlib.use` function, this must be done before
+#    importing `matplotlib.pyplot`. Calling `~matplotlib.use` after
 #    pyplot has been imported will have no effect.  Using
-#    :func:`~matplotlib.use` will require changes in your code if users want to
+#    `~matplotlib.use` will require changes in your code if users want to
 #    use a different backend.  Therefore, you should avoid explicitly calling
-#    :func:`~matplotlib.use` unless absolutely necessary.
+#    `~matplotlib.use` unless absolutely necessary.
 #
 # .. note::
 #    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
@@ -507,7 +507,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # `PySide`, respectively.
 #
 # Since the default value for the bindings to be used is `PyQt4`,
-# :mod:`matplotlib` first tries to import it, if the import fails, it tries to
+# `matplotlib` first tries to import it, if the import fails, it tries to
 # import `PySide`.
 #
 # .. _interactive-mode:
@@ -524,8 +524,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
 # configuration parameter (see :ref:`sphx_glr_tutorials_introductory_customizing.py`).  It
-# may also be set via :func:`matplotlib.interactive`, and its
-# value may be queried via :func:`matplotlib.is_interactive`.  Turning
+# may also be set via `matplotlib.interactive`, and its
+# value may be queried via `matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting
 # commands, whether in a script or in a shell, is rarely needed
 # and potentially confusing, so in the following we will assume all
@@ -533,14 +533,14 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # .. note::
 #    Major changes related to interactivity, and in particular the
-#    role and behavior of :func:`~matplotlib.pyplot.show`, were made in the
+#    role and behavior of `~matplotlib.pyplot.show`, were made in the
 #    transition to matplotlib version 1.0, and bugs were fixed in
 #    1.0.1.  Here we describe the version 1.0.1 behavior for the
 #    primary interactive backends, with the partial exception of
 #    *macosx*.
 #
-# Interactive mode may also be turned on via :func:`matplotlib.pyplot.ion`,
-# and turned off via :func:`matplotlib.pyplot.ioff`.
+# Interactive mode may also be turned on via `matplotlib.pyplot.ion`,
+# and turned off via `matplotlib.pyplot.ioff`.
 #
 # .. note::
 #    Interactive mode works with suitable backends in ipython and in
@@ -569,7 +569,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # and you will see the plot being updated after each line.  Since version 1.5,
 # modifying the plot by other means *should* also automatically
-# update the display on most backends. Get a reference to the :class:`~matplotlib.axes.Axes` instance,
+# update the display on most backends. Get a reference to the `~matplotlib.axes.Axes` instance,
 # and call a method of that instance::
 #
 #     ax = plt.gca()
@@ -577,7 +577,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # If you are using certain backends (like `macosx`), or an older version
 # of matplotlib, you may not see the new line added to the plot immediately.
-# In this case, you need to explicitly call :func:`~matplotlib.pyplot.draw`
+# In this case, you need to explicitly call `~matplotlib.pyplot.draw`
 # in order to update the plot::
 #
 #     plt.draw()
@@ -600,7 +600,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     plt.show()
 #
 # Now you see the plot, but your terminal command line is
-# unresponsive; the :func:`show()` command *blocks* the input
+# unresponsive; the `show()` command *blocks* the input
 # of additional commands until you manually kill the plot
 # window.
 #
@@ -639,13 +639,13 @@ for i in range(3):
 #
 # When plotting interactively, if using
 # object method calls in addition to pyplot functions, then
-# call :func:`~matplotlib.pyplot.draw` whenever you want to
+# call `~matplotlib.pyplot.draw` whenever you want to
 # refresh the plot.
 #
 # Use non-interactive mode in scripts in which you want to
 # generate one or more figures and display them before ending
 # or generating a new set of figures.  In that case, use
-# :func:`~matplotlib.pyplot.show` to display the figure(s) and
+# `~matplotlib.pyplot.show` to display the figure(s) and
 # to block execution until you have manually destroyed them.
 #
 # .. _performance:
@@ -725,12 +725,12 @@ for i in range(3):
 #
 # Markers can also be simplified, albeit less robustly than
 # line segments. Marker simplification is only available
-# to :class:`~matplotlib.lines.Line2D` objects (through the
+# to `~matplotlib.lines.Line2D` objects (through the
 # ``markevery`` property). Wherever
-# :class:`~matplotlib.lines.Line2D` construction parameter
+# `~matplotlib.lines.Line2D` construction parameter
 # are passed through, such as
-# :func:`matplotlib.pyplot.plot` and
-# :meth:`matplotlib.axes.Axes.plot`, the ``markevery``
+# `matplotlib.pyplot.plot` and
+# `matplotlib.axes.Axes.plot`, the ``markevery``
 # parameter can be used::
 #
 #   plt.plot(x, y, markevery=10)

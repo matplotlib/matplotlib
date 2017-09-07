@@ -3,7 +3,7 @@
 """
 Provides a MATLAB-like plotting framework.
 
-:mod:`~matplotlib.pylab` combines pyplot with numpy into a single namespace.
+`~matplotlib.pylab` combines pyplot with numpy into a single namespace.
 This is convenient for interactive work, but for programming it
 is recommended that the namespaces be kept separate, e.g.::
 
@@ -282,7 +282,7 @@ def pause(interval):
     is in use, this executes time.sleep(interval).
 
     This can be used for crude animation. For more complex
-    animation, see :mod:`matplotlib.animation`.
+    animation, see `matplotlib.animation`.
 
     This function is experimental; its behavior may be changed
     or extended in a future release.
@@ -327,14 +327,14 @@ def rcdefaults():
 def gci():
     """
     Get the current colorable artist.  Specifically, returns the
-    current :class:`~matplotlib.cm.ScalarMappable` instance (image or
+    current `~matplotlib.cm.ScalarMappable` instance (image or
     patch collection), or *None* if no images or patch collections
-    have been defined.  The commands :func:`~matplotlib.pyplot.imshow`
-    and :func:`~matplotlib.pyplot.figimage` create
-    :class:`~matplotlib.image.Image` instances, and the commands
-    :func:`~matplotlib.pyplot.pcolor` and
-    :func:`~matplotlib.pyplot.scatter` create
-    :class:`~matplotlib.collections.Collection` instances.  The
+    have been defined.  The commands `~matplotlib.pyplot.imshow`
+    and `~matplotlib.pyplot.figimage` create
+    `~matplotlib.image.Image` instances, and the commands
+    `~matplotlib.pyplot.pcolor` and
+    `~matplotlib.pyplot.scatter` create
+    `~matplotlib.collections.Collection` instances.  The
     current image is an attribute of the current axes, or the nearest
     earlier axes in the current figure that contains an image.
     """
@@ -344,9 +344,9 @@ def gci():
 def sci(im):
     """
     Set the current image.  This image will be the target of colormap
-    commands like :func:`~matplotlib.pyplot.jet`,
-    :func:`~matplotlib.pyplot.hot` or
-    :func:`~matplotlib.pyplot.clim`).  The current image is an
+    commands like `~matplotlib.pyplot.jet`,
+    `~matplotlib.pyplot.hot` or
+    `~matplotlib.pyplot.clim`).  The current image is an
     attribute of the current axes.
     """
     gca()._sci(im)
@@ -638,7 +638,7 @@ def close(*args):
 
     ``close()`` by itself closes the current figure
 
-    ``close(h)`` where *h* is a :class:`Figure` instance, closes that figure
+    ``close(h)`` where *h* is a `Figure` instance, closes that figure
 
     ``close(num)`` closes figure number *num*
 
@@ -687,14 +687,14 @@ def draw():
     """Redraw the current figure.
 
     This is used to update a figure that has been altered, but not
-    automatically re-drawn.  If interactive mode is on (:func:`.ion()`), this
+    automatically re-drawn.  If interactive mode is on (`.ion()`), this
     should be only rarely needed, but there may be ways to modify the state of
     a figure without marking it as `stale`.  Please report these cases as
     bugs.
 
     A more object-oriented alternative, given any
-    :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
-    was created using a :mod:`~matplotlib.pyplot` function, is::
+    `~matplotlib.figure.Figure` instance, :attr:`fig`, that
+    was created using a `~matplotlib.pyplot` function, is::
 
         fig.canvas.draw_idle()
     """
@@ -761,14 +761,14 @@ def figlegend(*args, **kwargs):
       a sequence of strings
 
     *handles*
-      a sequence of :class:`~matplotlib.lines.Line2D` or
-      :class:`~matplotlib.patches.Patch` instances
+      a sequence of `~matplotlib.lines.Line2D` or
+      `~matplotlib.patches.Patch` instances
 
     *loc*
       can be a string or an integer specifying the legend
       location
 
-    A :class:`matplotlib.legend.Legend` instance is returned.
+    A `matplotlib.legend.Legend` instance is returned.
 
     Examples
     --------
@@ -785,7 +785,7 @@ def figlegend(*args, **kwargs):
 
     .. seealso::
 
-       :func:`~matplotlib.pyplot.legend`
+       `~matplotlib.pyplot.legend`
 
     """
     return gcf().legend(*args, **kwargs)
@@ -876,7 +876,7 @@ def axes(*args, **kwargs):
 
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
       axis and the parent of *h* the current figure.
-      An :class:`~matplotlib.axes.Axes` instance is returned.
+      An `~matplotlib.axes.Axes` instance is returned.
 
     =========   ==============   ==============================================
     kwarg       Accepts          Description
@@ -891,7 +891,7 @@ def axes(*args, **kwargs):
     aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
                                  the ratio of x-unit/y-unit in screen-space.
                                  Also see
-                                 :meth:`~matplotlib.axes.Axes.set_aspect`.
+                                 `~matplotlib.axes.Axes.set_aspect`.
     =========   ==============   ==============================================
 
     Examples:
@@ -950,7 +950,7 @@ def sca(ax):
 
 def gca(**kwargs):
     """
-    Get the current :class:`~matplotlib.axes.Axes` instance on the
+    Get the current `~matplotlib.axes.Axes` instance on the
     current figure matching the given keyword args, or create one.
 
     Examples
@@ -1012,14 +1012,14 @@ def subplot(*args, **kwargs):
           plt.subplot(212, facecolor='y') # creates 2nd subplot with yellow background
 
        If you do not want this behavior, use the
-       :meth:`~matplotlib.figure.Figure.add_subplot` method or the
-       :func:`~matplotlib.pyplot.axes` function instead.
+       `~matplotlib.figure.Figure.add_subplot` method or the
+       `~matplotlib.pyplot.axes` function instead.
 
     Keyword arguments:
 
       *facecolor*:
         The background color of the subplot, which can be any valid
-        color specifier.  See :mod:`matplotlib.colors` for more
+        color specifier.  See `matplotlib.colors` for more
         information.
 
       *polar*:
@@ -1029,13 +1029,13 @@ def subplot(*args, **kwargs):
       *projection*:
         A string giving the name of a custom projection to be used
         for the subplot. This projection must have been previously
-        registered. See :mod:`matplotlib.projections`.
+        registered. See `matplotlib.projections`.
 
     .. seealso::
 
-        :func:`~matplotlib.pyplot.axes`
-            For additional information on :func:`axes` and
-            :func:`subplot` keyword arguments.
+        `~matplotlib.pyplot.axes`
+            For additional information on `axes` and
+            `subplot` keyword arguments.
 
         :file:`gallery/pie_and_polar_charts/polar_scatter.py`
             For an example
@@ -1117,24 +1117,24 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     subplot_kw : dict, optional
         Dict with keywords passed to the
-        :meth:`~matplotlib.figure.Figure.add_subplot` call used to create each
+        `~matplotlib.figure.Figure.add_subplot` call used to create each
         subplot.
 
     gridspec_kw : dict, optional
         Dict with keywords passed to the
-        :class:`~matplotlib.gridspec.GridSpec` constructor used to create the
+        `~matplotlib.gridspec.GridSpec` constructor used to create the
         grid the subplots are placed on.
 
     **fig_kw :
-        All additional keyword arguments are passed to the :func:`figure` call.
+        All additional keyword arguments are passed to the `figure` call.
 
     Returns
     -------
-    fig : :class:`matplotlib.figure.Figure` object
+    fig : `matplotlib.figure.Figure` object
 
     ax : Axes object or array of Axes objects.
 
-        ax can be either a single :class:`matplotlib.axes.Axes` object or an
+        ax can be either a single `matplotlib.axes.Axes` object or an
         array of Axes objects if more than one subplot was created.  The
         dimensions of the resulting array can be controlled with the squeeze
         keyword, see above.
@@ -1291,7 +1291,7 @@ def subplot_tool(targetfig=None):
     """
     Launch a subplot tool window for a figure.
 
-    A :class:`matplotlib.widgets.SubplotTool` instance is returned.
+    A `matplotlib.widgets.SubplotTool` instance is returned.
     """
     tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
     rcParams['toolbar'] = 'None'
@@ -1356,7 +1356,7 @@ def title(s, *args, **kwargs):
     and flush with the right edge.
 
     .. seealso::
-        See :func:`~matplotlib.pyplot.text` for adding text
+        See `~matplotlib.pyplot.text` for adding text
         to the current axes
 
     Parameters
@@ -1378,14 +1378,14 @@ def title(s, *args, **kwargs):
 
     Returns
     -------
-    text : :class:`~matplotlib.text.Text`
+    text : `~matplotlib.text.Text`
         The matplotlib text instance representing the title
 
     Other parameters
     ----------------
     kwargs : text properties
         Other keyword arguments are text properties, see
-        :class:`~matplotlib.text.Text` for a list of valid text
+        `~matplotlib.text.Text` for a list of valid text
         properties.
 
     """
@@ -1457,7 +1457,7 @@ def axis(*v, **kwargs):
 
     .. seealso::
 
-        :func:`xlim`, :func:`ylim`
+        `xlim`, `ylim`
            For setting the x- and y-limits individually.
     """
     return gca().axis(*v, **kwargs)
@@ -1477,7 +1477,7 @@ def xlabel(s, *args, **kwargs):
 
     .. seealso::
 
-        :func:`~matplotlib.pyplot.text`
+        `~matplotlib.pyplot.text`
             For information on how override and the optional args work
     """
     return gca().set_xlabel(s, *args, **kwargs)
@@ -1497,7 +1497,7 @@ def ylabel(s, *args, **kwargs):
 
     .. seealso::
 
-        :func:`~matplotlib.pyplot.text`
+        `~matplotlib.pyplot.text`
             For information on how override and the optional args
             work.
     """
@@ -1611,7 +1611,7 @@ def xticks(*args, **kwargs):
       # set the locations and labels of the xticks
       xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
+    The keyword args, if any, are `~matplotlib.text.Text`
     properties. For example, to rotate long labels::
 
       xticks( arange(12), calendar.month_name[1:13], rotation=17 )
@@ -1651,7 +1651,7 @@ def yticks(*args, **kwargs):
       # set the locations and labels of the yticks
       yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
+    The keyword args, if any, are `~matplotlib.text.Text`
     properties. For example, to rotate long labels::
 
       yticks( arange(12), calendar.month_name[1:13], rotation=45 )
@@ -1704,11 +1704,11 @@ def rgrids(*args, **kwargs):
       lines, labels = rgrids()
       lines, labels = rgrids(radii, labels=None, angle=22.5, **kwargs)
 
-    When called with no arguments, :func:`rgrid` simply returns the
+    When called with no arguments, `rgrid` simply returns the
     tuple (*lines*, *labels*), where *lines* is an array of radial
-    gridlines (:class:`~matplotlib.lines.Line2D` instances) and
+    gridlines (`~matplotlib.lines.Line2D` instances) and
     *labels* is an array of tick labels
-    (:class:`~matplotlib.text.Text` instances). When called with
+    (`~matplotlib.text.Text` instances). When called with
     arguments, the labels will appear at the specified radial
     distances and angles.
 
@@ -1745,8 +1745,8 @@ def thetagrids(*args, **kwargs):
 
     If no arguments are passed, return a tuple (*lines*, *labels*)
     where *lines* is an array of radial gridlines
-    (:class:`~matplotlib.lines.Line2D` instances) and *labels* is an
-    array of tick labels (:class:`~matplotlib.text.Text` instances)::
+    (`~matplotlib.lines.Line2D` instances) and *labels* is an
+    array of tick labels (`~matplotlib.text.Text` instances)::
 
       lines, labels = thetagrids()
 
@@ -1770,12 +1770,12 @@ def thetagrids(*args, **kwargs):
 
     Return value is a list of tuples (*lines*, *labels*):
 
-      - *lines* are :class:`~matplotlib.lines.Line2D` instances
+      - *lines* are `~matplotlib.lines.Line2D` instances
 
-      - *labels* are :class:`~matplotlib.text.Text` instances.
+      - *labels* are `~matplotlib.text.Text` instances.
 
     Note that on input, the *labels* argument is a list of strings,
-    and on output it is a list of :class:`~matplotlib.text.Text`
+    and on output it is a list of `~matplotlib.text.Text`
     instances.
 
     Examples::
@@ -1886,7 +1886,7 @@ def colors():
 def colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using
-    :func:`~matplotlib.cm.register_cmap`.  This function documents the built-in
+    `~matplotlib.cm.register_cmap`.  This function documents the built-in
     colormaps, and will also return a list of all registered colormaps if called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
@@ -1894,13 +1894,13 @@ def colormaps():
 
       imshow(X, cmap=cm.hot)
 
-    or using the :func:`set_cmap` function::
+    or using the `set_cmap` function::
 
       imshow(X)
       pyplot.set_cmap('hot')
       pyplot.set_cmap('jet')
 
-    In interactive mode, :func:`set_cmap` will update the colormap post-hoc,
+    In interactive mode, `set_cmap` will update the colormap post-hoc,
     allowing you to see which one works best for your data.
 
     All built-in colormaps can be reversed by appending ``_r``: For instance,
@@ -1980,8 +1980,8 @@ def colormaps():
 
     ColorBrewer Qualitative:
 
-    (For plotting nominal data, :class:`ListedColormap` is used,
-    not :class:`LinearSegmentedColormap`.  Different sets of colors are
+    (For plotting nominal data, `ListedColormap` is used,
+    not `LinearSegmentedColormap`.  Different sets of colors are
     recommended for different numbers of categories.)
 
     * Accent
@@ -2115,7 +2115,7 @@ def colormaps():
       by Carey Rappaport
 
     .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
-      :func:`spectral` still works, but
+      `spectral` still works, but
       ``set_cmap('nipy_spectral')`` is recommended for clarity.
 
 
@@ -2222,11 +2222,11 @@ def set_cmap(cmap):
     Set the default colormap.  Applies to the current image if any.
     See help(colormaps) for more information.
 
-    *cmap* must be a :class:`~matplotlib.colors.Colormap` instance, or
+    *cmap* must be a `~matplotlib.colors.Colormap` instance, or
     the name of a registered colormap.
 
-    See :func:`matplotlib.cm.register_cmap` and
-    :func:`matplotlib.cm.get_cmap`.
+    See `matplotlib.cm.register_cmap` and
+    `matplotlib.cm.get_cmap`.
     """
     cmap = cm.get_cmap(cmap)
 
@@ -2260,16 +2260,16 @@ def matshow(A, fignum=None, **kw):
     Tick labels for the xaxis are placed on top.
 
     With the exception of *fignum*, keyword arguments are passed to
-    :func:`~matplotlib.pyplot.imshow`.  You may set the *origin*
+    `~matplotlib.pyplot.imshow`.  You may set the *origin*
     kwarg to "lower" if you want the first row in the array to be
     at the bottom instead of the top.
 
 
     *fignum*: [ None | integer | False ]
-      By default, :func:`matshow` creates a new figure window with
+      By default, `matshow` creates a new figure window with
       automatic numbering.  If *fignum* is given as an integer, the
       created figure will use this figure number.  Because of how
-      :func:`matshow` tries to set the figure aspect ratio to be the
+      `matshow` tries to set the figure aspect ratio to be the
       one of the array, if you provide the number of an already
       existing figure, strange things may happen.
 
@@ -2298,7 +2298,7 @@ def polar(*args, **kwargs):
       polar(theta, r, **kwargs)
 
     Multiple *theta*, *r* arguments are supported, with format
-    strings, as in :func:`~matplotlib.pyplot.plot`.
+    strings, as in `~matplotlib.pyplot.plot`.
 
     """
     # If an axis already exists, check if it has a polar projection
@@ -2333,7 +2333,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
       is *False*.
 
     *plotfuncs*, if not *None*, is a dictionary mapping identifier to
-    an :class:`~matplotlib.axes.Axes` plotting function as a string.
+    an `~matplotlib.axes.Axes` plotting function as a string.
     Default is 'plot', other choices are 'semilogy', 'fill', 'bar',
     etc.  You must use the same type of identifier in the *cols*
     vector as you use in the *plotfuncs* dictionary, e.g., integer
@@ -2343,7 +2343,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     columns.
 
     *comments*, *skiprows*, *checkrows*, *delimiter*, and *names*
-    are all passed on to :func:`matplotlib.pylab.csv2rec` to
+    are all passed on to `matplotlib.pylab.csv2rec` to
     load the data into a record array.
 
     If *newfig* is *True*, the plot always will be made in a new figure;

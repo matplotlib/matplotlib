@@ -12,7 +12,7 @@ Line Plot
 =========
 
 Here's how to create a line plot with  text labels using
-:func:`~matplotlib.pyplot.plot`.
+`~matplotlib.pyplot.plot`.
 
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_simple_plot_001.png
    :target: ../../gallery/lines_bars_and_markers/simple_plot.html
@@ -27,7 +27,7 @@ Subplot demo
 ============
 
 Multiple axes (i.e. subplots) are created with the
-:func:`~matplotlib.pyplot.subplot` command:
+`~matplotlib.pyplot.subplot` command:
 
 .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_subplot_001.png
    :target: ../../gallery/subplots_axes_and_figures/subplot.html
@@ -41,7 +41,7 @@ Multiple axes (i.e. subplots) are created with the
 Histograms
 ==========
 
-The :func:`~matplotlib.pyplot.hist` command automatically generates
+The `~matplotlib.pyplot.hist` command automatically generates
 histograms and returns the bin counts or probabilities:
 
 .. figure:: ../../gallery/statistics/images/sphx_glr_histogram_features_001.png
@@ -58,7 +58,7 @@ Path demo
 =========
 
 You can add arbitrary paths in Matplotlib using the
-:mod:`matplotlib.path` module:
+`matplotlib.path` module:
 
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_path_patch_001.png
    :target: ../../gallery/shapes_and_collections/path_patch.html
@@ -93,7 +93,7 @@ installs.
 Streamplot
 ==========
 
-The :meth:`~matplotlib.pyplot.streamplot` function plots the streamlines of
+The `~matplotlib.pyplot.streamplot` function plots the streamlines of
 a vector field. In addition to simply plotting the streamlines, it allows you
 to map the colors and/or line widths of streamlines to a separate parameter,
 such as the speed or local intensity of the vector field.
@@ -105,7 +105,7 @@ such as the speed or local intensity of the vector field.
 
    Plot Streamplot
 
-This feature complements the :meth:`~matplotlib.pyplot.quiver` function for
+This feature complements the `~matplotlib.pyplot.quiver` function for
 plotting vector fields. Thanks to Tom Flannaghan and Tony Yu for adding the
 streamplot function.
 
@@ -118,7 +118,7 @@ In support of the
 Mars (which used Matplotlib to display ground tracking of spacecraft),
 Michael Droettboom built on work by Charlie Moad to provide an extremely
 accurate  8-spline approximation to elliptical arcs (see
-:class:`~matplotlib.patches.Arc`), which are insensitive to zoom level.
+`~matplotlib.patches.Arc`), which are insensitive to zoom level.
 
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_ellipse_demo_001.png
    :target: ../../gallery/shapes_and_collections/ellipse_demo.html
@@ -132,7 +132,7 @@ accurate  8-spline approximation to elliptical arcs (see
 Bar charts
 ==========
 
-Use the :func:`~matplotlib.pyplot.bar` command to make bar charts, which
+Use the `~matplotlib.pyplot.bar` command to make bar charts, which
 includes customizations such as error bars:
 
 .. figure:: ../../gallery/statistics/images/sphx_glr_barchart_demo_001.png
@@ -153,7 +153,7 @@ or horizontal bar charts
 Pie charts
 ==========
 
-The :func:`~matplotlib.pyplot.pie` command allows you to create pie
+The `~matplotlib.pyplot.pie` command allows you to create pie
 charts.  Optional features include auto-labeling the percentage of area,
 exploding one or more wedges from the center of the pie, and a shadow effect.
 Take a close look at the attached code, which generates this figure in just
@@ -171,7 +171,7 @@ a few lines of code.
 Table demo
 ==========
 
-The :func:`~matplotlib.pyplot.table` command adds a text table
+The `~matplotlib.pyplot.table` command adds a text table
 to an axes.
 
 .. figure:: ../../gallery/misc/images/sphx_glr_table_demo_001.png
@@ -188,7 +188,7 @@ to an axes.
 Scatter demo
 ============
 
-The :func:`~matplotlib.pyplot.scatter` command makes a scatter plot
+The `~matplotlib.pyplot.scatter` command makes a scatter plot
 with (optional) size and color arguments. This example plots changes
 in Google's stock price, with marker sizes reflecting the
 trading volume and colors varying with time. Here, the
@@ -209,7 +209,7 @@ Slider demo
 
 Matplotlib has basic GUI widgets that are independent of the graphical
 user interface you are using, allowing you to write cross GUI figures
-and widgets.  See :mod:`matplotlib.widgets` and the
+and widgets.  See `matplotlib.widgets` and the
 `widget examples <../../gallery/index.html>`_.
 
 .. figure:: ../../gallery/widgets/images/sphx_glr_slider_demo_001.png
@@ -225,7 +225,7 @@ and widgets.  See :mod:`matplotlib.widgets` and the
 Fill demo
 =========
 
-The :func:`~matplotlib.pyplot.fill` command lets you
+The `~matplotlib.pyplot.fill` command lets you
 plot filled curves and polygons:
 
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_fill_001.png
@@ -252,7 +252,7 @@ tick formatters for both.
 
    Date
 
-See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
+See `matplotlib.ticker` and `matplotlib.dates` for details and usage.
 
 
 .. _screenshots_log_demo:
@@ -260,9 +260,9 @@ See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 Log plots
 =========
 
-The :func:`~matplotlib.pyplot.semilogx`,
-:func:`~matplotlib.pyplot.semilogy` and
-:func:`~matplotlib.pyplot.loglog` functions simplify the creation of
+The `~matplotlib.pyplot.semilogx`,
+`~matplotlib.pyplot.semilogy` and
+`~matplotlib.pyplot.loglog` functions simplify the creation of
 logarithmic plots.
 
 .. figure:: ../../gallery/scales/images/sphx_glr_log_demo_001.png
@@ -280,7 +280,7 @@ log-scaling infrastructure.
 Polar plots
 ===========
 
-The :func:`~matplotlib.pyplot.polar` command generates polar plots.
+The `~matplotlib.pyplot.polar` command generates polar plots.
 
 .. figure:: ../../gallery/pie_and_polar_charts/images/sphx_glr_polar_demo_001.png
    :target: ../../gallery/pie_and_polar_charts/polar_demo.html
@@ -295,7 +295,7 @@ The :func:`~matplotlib.pyplot.polar` command generates polar plots.
 Legends
 =======
 
-The :func:`~matplotlib.pyplot.legend` command automatically
+The `~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
@@ -317,7 +317,7 @@ Below is a sampling of the many TeX expressions now supported by Matplotlib's
 internal mathtext engine.  The mathtext module provides TeX style mathematical
 expressions using `FreeType <https://www.freetype.org/>`_
 and the DejaVu, BaKoMa computer modern, or `STIX <http://www.stixfonts.org>`_
-fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
+fonts.  See the `matplotlib.mathtext` module for additional details.
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_mathtext_examples_001.png
    :target: ../../gallery/text_labels_and_annotations/mathtext_examples.html
@@ -358,7 +358,7 @@ Here is a screenshot of an EEG viewer called `pbrain
 
 .. image:: ../../_static/eeg_small.png
 
-The lower axes uses :func:`~matplotlib.pyplot.specgram`
+The lower axes uses `~matplotlib.pyplot.specgram`
 to plot the spectrogram of one of the EEG channels.
 
 For examples of how to embed Matplotlib in different toolkits, see:

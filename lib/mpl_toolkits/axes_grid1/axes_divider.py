@@ -29,7 +29,7 @@ class Divider(object):
     divides the given rectangular area into several
     sub-rectangles. You initialize the divider by setting the
     horizontal and vertical lists of sizes
-    (:mod:`mpl_toolkits.axes_grid.axes_size`) that the division will
+    (`mpl_toolkits.axes_grid.axes_size`) that the division will
     be based on. You then use the new_locator method to create a
     callable object that can be used as the axes_locator of the
     axes.
@@ -43,9 +43,9 @@ class Divider(object):
         fig : Figure
         pos : tuple of 4 floats
             position of the rectangle that will be divided
-        horizontal : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        horizontal : list of `~mpl_toolkits.axes_grid.axes_size`
             sizes for horizontal division
-        vertical : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        vertical : list of `~mpl_toolkits.axes_grid.axes_size`
             sizes for vertical division
         aspect : bool
             if True, the overall rectangular area is reduced
@@ -158,7 +158,7 @@ class Divider(object):
         """
         Parameters
         ----------
-        h : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        h : list of `~mpl_toolkits.axes_grid.axes_size`
             sizes for horizontal division
         """
         self._horizontal = h
@@ -171,7 +171,7 @@ class Divider(object):
         """
         Parameters
         ----------
-        v : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        v : list of `~mpl_toolkits.axes_grid.axes_size`
             sizes for vertical division
         """
         self._vertical = v
@@ -257,7 +257,7 @@ class Divider(object):
     def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
         Returns a new locator
-        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
+        (`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
         specified cell.
 
         Parameters
@@ -366,7 +366,7 @@ class SubplotDivider(Divider):
         """
         Parameters
         ----------
-        fig : :class:`matplotlib.figure.Figure`
+        fig : `matplotlib.figure.Figure`
         args : tuple (*numRows*, *numCols*, *plotNum*)
             The array of subplots in the figure has dimensions *numRows*,
             *numCols*, and *plotNum* is the number of the subplot
@@ -503,7 +503,7 @@ class AxesDivider(Divider):
         """
         Parameters
         ----------
-        axes : :class:`~matplotlib.axes.Axes`
+        axes : `~matplotlib.axes.Axes`
         xref
         yref
         """
@@ -543,11 +543,11 @@ class AxesDivider(Divider):
 
         Parameters
         ----------
-        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        size : `~mpl_toolkits.axes_grid.axes_size` or float or string
             A width of the axes. If float or string is given, *from_any*
             function is used to create the size, with *ref_size* set to AxesX
             instance of the current axes.
-        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        pad : `~mpl_toolkits.axes_grid.axes_size` or float or string
             Pad between the axes. It takes same argument as *size*.
         pack_start : bool
             If False, the new axes is appended at the end
@@ -593,11 +593,11 @@ class AxesDivider(Divider):
 
         Parameters
         ----------
-        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        size : `~mpl_toolkits.axes_grid.axes_size` or float or string
             A height of the axes. If float or string is given, *from_any*
             function is used to create the size, with *ref_size* set to AxesX
             instance of the current axes.
-        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        pad : `~mpl_toolkits.axes_grid.axes_size` or float or string
             Pad between the axes. It takes same argument as *size*.
         pack_start : bool
             If False, the new axes is appended at the end
@@ -742,7 +742,7 @@ class HBoxDivider(SubplotDivider):
     def new_locator(self, nx, nx1=None):
         """
         returns a new locator
-        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
+        (`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
         specified cell.
 
         Parameters
@@ -835,7 +835,7 @@ class VBoxDivider(HBoxDivider):
     def new_locator(self, ny, ny1=None):
         """
         returns a new locator
-        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
+        (`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
         specified cell.
 
         Parameters

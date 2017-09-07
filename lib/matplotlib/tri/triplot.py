@@ -16,7 +16,7 @@ def triplot(ax, *args, **kwargs):
 
       triplot(triangulation, ...)
 
-    where triangulation is a :class:`matplotlib.tri.Triangulation`
+    where triangulation is a `matplotlib.tri.Triangulation`
     object, or
 
     ::
@@ -28,13 +28,13 @@ def triplot(ax, *args, **kwargs):
       triplot(x, y, triangles, mask=mask, ...)
 
     in which case a Triangulation object will be created.  See
-    :class:`~matplotlib.tri.Triangulation` for a explanation of these
+    `~matplotlib.tri.Triangulation` for a explanation of these
     possibilities.
 
     The remaining args and kwargs are the same as for
-    :meth:`~matplotlib.axes.Axes.plot`.
+    `~matplotlib.axes.Axes.plot`.
 
-    Return a list of 2 :class:`~matplotlib.lines.Line2D` containing
+    Return a list of 2 `~matplotlib.lines.Line2D` containing
     respectively:
 
         - the lines plotted for triangles edges

@@ -74,7 +74,7 @@ _XYPair = namedtuple("_XYPair", "x y")
 class Artist(object):
     """
     Abstract base class for someone who renders into a
-    :class:`FigureCanvas`.
+    `FigureCanvas`.
     """
 
     aname = 'Artist'
@@ -132,11 +132,11 @@ class Artist(object):
         """
         Remove the artist from the figure if possible.  The effect
         will not be visible until the figure is redrawn, e.g., with
-        :meth:`matplotlib.axes.Axes.draw_idle`.  Call
-        :meth:`matplotlib.axes.Axes.relim` to update the axes limits
+        `matplotlib.axes.Axes.draw_idle`.  Call
+        `matplotlib.axes.Axes.relim` to update the axes limits
         if desired.
 
-        Note: :meth:`~matplotlib.axes.Axes.relim` will not see
+        Note: `~matplotlib.axes.Axes.relim` will not see
         collections even if the collection was added to axes with
         *autolim* = True.
 
@@ -202,7 +202,7 @@ class Artist(object):
     @property
     def axes(self):
         """
-        The :class:`~matplotlib.axes.Axes` instance the artist
+        The `~matplotlib.axes.Axes` instance the artist
         resides in, or *None*.
         """
         return self._axes
@@ -260,10 +260,10 @@ class Artist(object):
     def add_callback(self, func):
         """
         Adds a callback function that will be called whenever one of
-        the :class:`Artist`'s properties changes.
+        the `Artist`'s properties changes.
 
         Returns an *id* that is useful for removing the callback with
-        :meth:`remove_callback` later.
+        `remove_callback` later.
         """
         oid = self._oid
         self._propobservers[oid] = func
@@ -276,7 +276,7 @@ class Artist(object):
 
         .. seealso::
 
-            :meth:`add_callback`
+            `add_callback`
                For adding callbacks
 
         """
@@ -295,17 +295,17 @@ class Artist(object):
 
     def is_transform_set(self):
         """
-        Returns *True* if :class:`Artist` has a transform explicitly
+        Returns *True* if `Artist` has a transform explicitly
         set.
         """
         return self._transformSet
 
     def set_transform(self, t):
         """
-        Set the :class:`~matplotlib.transforms.Transform` instance
+        Set the `~matplotlib.transforms.Transform` instance
         used by this artist.
 
-        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
+        ACCEPTS: `~matplotlib.transforms.Transform` instance
         """
         self._transform = t
         self._transformSet = True
@@ -314,7 +314,7 @@ class Artist(object):
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform`
+        Return the `~matplotlib.transforms.Transform`
         instance used by this artist.
         """
         if self._transform is None:
@@ -344,8 +344,8 @@ class Artist(object):
 
     def get_children(self):
         """
-        Return a list of the child :class:`Artist`s this
-        :class:`Artist` contains.
+        Return a list of the child `Artist`s this
+        `Artist` contains.
         """
         return []
 
@@ -384,7 +384,7 @@ class Artist(object):
         return self._contains
 
     def pickable(self):
-        'Return *True* if :class:`Artist` is pickable.'
+        'Return *True* if `Artist` is pickable.'
         return (self.figure is not None and
                 self.figure.canvas is not None and
                 self._picker is not None)
@@ -461,7 +461,7 @@ class Artist(object):
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a
-        :class:`~matplotlib.figure.Figure`.
+        `~matplotlib.figure.Figure`.
         """
         return self.figure is not None
 
@@ -588,17 +588,17 @@ class Artist(object):
 
     def get_figure(self):
         """
-        Return the :class:`~matplotlib.figure.Figure` instance the
+        Return the `~matplotlib.figure.Figure` instance the
         artist belongs to.
         """
         return self.figure
 
     def set_figure(self, fig):
         """
-        Set the :class:`~matplotlib.figure.Figure` instance the artist
+        Set the `~matplotlib.figure.Figure` instance the artist
         belongs to.
 
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        ACCEPTS: a `matplotlib.figure.Figure` instance
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -618,9 +618,9 @@ class Artist(object):
 
     def set_clip_box(self, clipbox):
         """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+        Set the artist's clip `~matplotlib.transforms.Bbox`.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        ACCEPTS: a `matplotlib.transforms.Bbox` instance
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -630,9 +630,9 @@ class Artist(object):
         """
         Set the artist's clip path, which may be:
 
-        - a :class:`~matplotlib.patches.Patch` (or subclass) instance; or
-        - a :class:`~matplotlib.path.Path` instance, in which case a
-          :class:`~matplotlib.transforms.Transform` instance, which will be
+        - a `~matplotlib.patches.Patch` (or subclass) instance; or
+        - a `~matplotlib.path.Path` instance, in which case a
+          `~matplotlib.transforms.Transform` instance, which will be
           applied to the path before using it for clipping, must be provided;
           or
         - ``None``, to remove a previously set clipping path.
@@ -641,9 +641,9 @@ class Artist(object):
         this method will set the clipping box to the corresponding rectangle
         and set the clipping path to ``None``.
 
-        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
-        :class:`~matplotlib.transforms.Transform`) |
-        :class:`~matplotlib.patches.Patch` | None ]
+        ACCEPTS: [ (`~matplotlib.path.Path`,
+        `~matplotlib.transforms.Transform`) |
+        `~matplotlib.patches.Patch` | None ]
         """
         from matplotlib.patches import Patch, Rectangle
 
@@ -812,7 +812,7 @@ class Artist(object):
 
     def update(self, props):
         """
-        Update the properties of this :class:`Artist` from the
+        Update the properties of this `Artist` from the
         dictionary *prop*.
         """
         def _update_property(self, k, v):
@@ -874,7 +874,7 @@ class Artist(object):
 
     def get_zorder(self):
         """
-        Return the :class:`Artist`'s zorder.
+        Return the `Artist`'s zorder.
         """
         return self.zorder
 
@@ -948,7 +948,7 @@ class Artist(object):
         """
         Find artist objects.
 
-        Recursively find all :class:`~matplotlib.artist.Artist` instances
+        Recursively find all `~matplotlib.artist.Artist` instances
         contained in self.
 
         *match* can be
@@ -1016,16 +1016,16 @@ class Artist(object):
 
 class ArtistInspector(object):
     """
-    A helper class to inspect an :class:`~matplotlib.artist.Artist`
+    A helper class to inspect an `~matplotlib.artist.Artist`
     and return information about it's settable properties and their
     current values.
     """
     def __init__(self, o):
         """
         Initialize the artist inspector with an
-        :class:`~matplotlib.artist.Artist` or iterable of :class:`Artists`.
+        `~matplotlib.artist.Artist` or iterable of `Artists`.
         If an iterable is used, we assume it is a homogeneous sequence (all
-        :class:`Artists` are of the same type) and it is your responsibility
+        `Artists` are of the same type) and it is your responsibility
         to make sure this is so.
         """
         if cbook.iterable(o):
@@ -1044,7 +1044,7 @@ class ArtistInspector(object):
     def get_aliases(self):
         """
         Get a dict mapping *fullname* -> *alias* for each *alias* in
-        the :class:`~matplotlib.artist.ArtistInspector`.
+        the `~matplotlib.artist.ArtistInspector`.
 
         e.g., for lines::
 
@@ -1175,7 +1175,7 @@ class ArtistInspector(object):
                                for x in sorted(self.aliasd[s])])
         else:
             aliases = ''
-        return ':meth:`%s <%s>`%s' % (s, target, aliases)
+        return '`%s <%s>`%s' % (s, target, aliases)
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
@@ -1302,14 +1302,14 @@ def getp(obj, property=None):
         getp(obj)  # get all the object properties
         getp(obj, 'linestyle')  # get the linestyle property
 
-    *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotllib.lines.Line2D` or an instance of a
-    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
+    *obj* is a `Artist` instance, e.g.,
+    `~matplotllib.lines.Line2D` or an instance of a
+    `~matplotlib.axes.Axes` or `matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 
       obj.get_somename()
 
-    :func:`getp` can be used to query all the gettable properties with
+    `getp` can be used to query all the gettable properties with
     ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
     'lw' is an alias for 'linewidth'.  In the output, aliases and full
     property names will be listed as:
@@ -1337,8 +1337,8 @@ def setp(obj, *args, **kwargs):
     """
     Set a property on an artist object.
 
-    matplotlib supports the use of :func:`setp` ("set property") and
-    :func:`getp` to set and get object properties, as well as to do
+    matplotlib supports the use of `setp` ("set property") and
+    `getp` to set and get object properties, as well as to do
     introspection on the object.  For example, to set the linestyle of a
     line to be dashed, you can do::
 
@@ -1363,7 +1363,7 @@ def setp(obj, *args, **kwargs):
       >>> with fopen('output.log') as f:
       >>>     setp(line, file=f)
 
-    :func:`setp` operates on a single instance or a iterable of
+    `setp` operates on a single instance or a iterable of
     instances. If you are in query mode introspecting the possible
     values, only the first instance in the sequence is used. When
     actually setting values, all the instances will be set.  e.g.,
@@ -1376,7 +1376,7 @@ def setp(obj, *args, **kwargs):
       >>> lines = plot(x, y1, x, y2)
       >>> setp(lines, linewidth=2, color='r')
 
-    :func:`setp` works with the MATLAB style string/value pairs or
+    `setp` works with the MATLAB style string/value pairs or
     with python kwargs.  For example, the following are equivalent::
 
       >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style

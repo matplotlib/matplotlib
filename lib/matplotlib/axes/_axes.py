@@ -93,17 +93,17 @@ def _plot_args_replacer(args, data):
 
 class Axes(_AxesBase):
     """
-    The :class:`Axes` contains most of the figure elements:
-    :class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axis.Tick`,
-    :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.text.Text`,
-    :class:`~matplotlib.patches.Polygon`, etc., and sets the
+    The `Axes` contains most of the figure elements:
+    `~matplotlib.axis.Axis`, `~matplotlib.axis.Tick`,
+    `~matplotlib.lines.Line2D`, `~matplotlib.text.Text`,
+    `~matplotlib.patches.Polygon`, etc., and sets the
     coordinate system.
 
-    The :class:`Axes` instance supports callbacks through a callbacks
-    attribute which is a :class:`~matplotlib.cbook.CallbackRegistry`
+    The `Axes` instance supports callbacks through a callbacks
+    attribute which is a `~matplotlib.cbook.CallbackRegistry`
     instance.  The events you can connect to are 'xlim_changed' and
     'ylim_changed' and the callback will be called with func(*ax*)
-    where *ax* is the :class:`Axes` instance.
+    where *ax* is the `Axes` instance.
     """
     ### Labelling, legend and texts
 
@@ -162,14 +162,14 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : :class:`~matplotlib.text.Text`
+        text : `~matplotlib.text.Text`
             The matplotlib text instance representing the title
 
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.text.Text` properties
             Other keyword arguments are text properties, see
-            :class:`~matplotlib.text.Text` for a list of valid text
+            `~matplotlib.text.Text` for a list of valid text
             properties.
         """
         try:
@@ -308,7 +308,7 @@ class Axes(_AxesBase):
         However, in order to keep the "label" and the legend element
         instance together, it is preferable to specify the label either at
         artist creation, or by calling the
-        :meth:`~matplotlib.artist.Artist.set_label` method on the artist::
+        `~matplotlib.artist.Artist.set_label` method on the artist::
 
             line, = ax.plot([1, 2, 3], label='Inline label')
             # Overwrite the label by calling the method.
@@ -317,7 +317,7 @@ class Axes(_AxesBase):
 
         Specific lines can be excluded from the automatic legend element
         selection by defining a label starting with an underscore.
-        This is default for all artists, so calling :meth:`legend` without
+        This is default for all artists, so calling `legend` without
         any arguments and without setting the labels manually will result in
         no legend being drawn.
 
@@ -353,7 +353,7 @@ class Axes(_AxesBase):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : :class:`matplotlib.transforms.BboxBase` instance \
+        bbox_to_anchor : `matplotlib.transforms.BboxBase` instance \
 or tuple of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
@@ -366,9 +366,9 @@ or tuple of floats
         ncol : integer
             The number of columns that the legend has. Default is 1.
 
-        prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
+        prop : None or `matplotlib.font_manager.FontProperties` or dict
             The font properties of the legend. If None (default), the current
-            :data:`matplotlib.rcParams` will be used.
+            `matplotlib.rcParams` will be used.
 
         fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
 'large', 'x-large', 'xx-large'}
@@ -379,16 +379,16 @@ or tuple of floats
 
         numpoints : None or int
             The number of marker points in the legend when creating a legend
-            entry for a line/:class:`matplotlib.lines.Line2D`.
+            entry for a line/`matplotlib.lines.Line2D`.
             Default is ``None`` which will take the value from the
-            ``legend.numpoints`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.numpoints`` `rcParam<matplotlib.rcParams>`.
 
         scatterpoints : None or int
             The number of marker points in the legend when creating a legend
             entry for a scatter plot/
-            :class:`matplotlib.collections.PathCollection`.
+            `matplotlib.collections.PathCollection`.
             Default is ``None`` which will take the value from the
-            ``legend.scatterpoints`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.scatterpoints`` `rcParam<matplotlib.rcParams>`.
 
         scatteryoffsets : iterable of floats
             The vertical offset (relative to the font size) for the markers
@@ -399,7 +399,7 @@ or tuple of floats
         markerscale : None or int or float
             The relative size of legend markers compared with the originally
             drawn ones. Default is ``None`` which will take the value from
-            the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
+            the ``legend.markerscale`` `rcParam <matplotlib.rcParams>`.
 
         markerfirst : bool
             If *True*, legend marker is placed to the left of the legend label.
@@ -410,50 +410,50 @@ or tuple of floats
         frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
             Default is ``None`` which will take the value from the
-            ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.frameon`` `rcParam<matplotlib.rcParams>`.
 
         fancybox : None or bool
             Control whether round edges should be enabled around
-            the :class:`~matplotlib.patches.FancyBboxPatch` which
+            the `~matplotlib.patches.FancyBboxPatch` which
             makes up the legend's background.
             Default is ``None`` which will take the value from the
-            ``legend.fancybox`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.fancybox`` `rcParam<matplotlib.rcParams>`.
 
         shadow : None or bool
             Control whether to draw a shadow behind the legend.
             Default is ``None`` which will take the value from the
-            ``legend.shadow`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.shadow`` `rcParam<matplotlib.rcParams>`.
 
         framealpha : None or float
             Control the alpha transparency of the legend's background.
             Default is ``None`` which will take the value from the
-            ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.framealpha`` `rcParam<matplotlib.rcParams>`.
             If shadow is activated and framealpha is ``None`` the
             default value is being ignored.
 
         facecolor : None or "inherit" or a color spec
             Control the legend's background color.
             Default is ``None`` which will take the value from the
-            ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.facecolor`` `rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.facecolor``
-            :data:`rcParam<matplotlib.rcParams>`.
+            `rcParam<matplotlib.rcParams>`.
 
         edgecolor : None or "inherit" or a color spec
             Control the legend's background patch edge color.
             Default is ``None`` which will take the value from the
-            ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.edgecolor`` `rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.edgecolor``
-            :data:`rcParam<matplotlib.rcParams>`.
+            `rcParam<matplotlib.rcParams>`.
 
         mode : {"expand", None}
             If `mode` is set to ``"expand"`` the legend will be horizontally
             expanded to fill the axes area (or `bbox_to_anchor` if defines
             the legend's size).
 
-        bbox_transform : None or :class:`matplotlib.transforms.Transform`
+        bbox_transform : None or `matplotlib.transforms.Transform`
             The transform for the bounding box (`bbox_to_anchor`). For a value
             of ``None`` (default) the Axes'
-            :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
+            `~matplotlib.axes.Axes.transAxes` transform will be used.
 
         title : str or None
             The legend's title. Default is no title (``None``).
@@ -462,42 +462,42 @@ or tuple of floats
             The fractional whitespace inside the legend border.
             Measured in font-size units.
             Default is ``None`` which will take the value from the
-            ``legend.borderpad`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.borderpad`` `rcParam<matplotlib.rcParams>`.
 
         labelspacing : float or None
             The vertical space between the legend entries.
             Measured in font-size units.
             Default is ``None`` which will take the value from the
-            ``legend.labelspacing`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.labelspacing`` `rcParam<matplotlib.rcParams>`.
 
         handlelength : float or None
             The length of the legend handles.
             Measured in font-size units.
             Default is ``None`` which will take the value from the
-            ``legend.handlelength`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.handlelength`` `rcParam<matplotlib.rcParams>`.
 
         handletextpad : float or None
             The pad between the legend handle and text.
             Measured in font-size units.
             Default is ``None`` which will take the value from the
-            ``legend.handletextpad`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.handletextpad`` `rcParam<matplotlib.rcParams>`.
 
         borderaxespad : float or None
             The pad between the axes and legend border.
             Measured in font-size units.
             Default is ``None`` which will take the value from the
-            ``legend.borderaxespad`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.borderaxespad`` `rcParam<matplotlib.rcParams>`.
 
         columnspacing : float or None
             The spacing between columns.
             Measured in font-size units.
             Default is ``None`` which will take the value from the
-            ``legend.columnspacing`` :data:`rcParam<matplotlib.rcParams>`.
+            ``legend.columnspacing`` `rcParam<matplotlib.rcParams>`.
 
         handler_map : dict or None
             The custom dictionary mapping instances or types to a legend
             handler. This `handler_map` updates the default handler map
-            found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
+            found at `matplotlib.legend.Legend.get_legend_handler_map`.
 
         Notes
         -----
@@ -676,19 +676,19 @@ or tuple of floats
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
         **kwargs :
-            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            Valid kwargs are `~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
             %(Line2D)s
 
         Notes
         -----
-        kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
+        kwargs are passed to `~matplotlib.lines.Line2D` and can be used
         to control the line properties.
 
         Examples
@@ -751,12 +751,12 @@ or tuple of floats
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
         **kwargs :
-            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            Valid kwargs are `~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
             %(Line2D)s
@@ -808,7 +808,7 @@ or tuple of floats
         Draw a horizontal span (rectangle) from *ymin* to *ymax*.
         With the default values of *xmin* = 0 and *xmax* = 1, this
         always spans the xrange, regardless of the xlim settings, even
-        if you change them, e.g., with the :meth:`set_xlim` command.
+        if you change them, e.g., with the `set_xlim` command.
         That is, the horizontal extent is in axes coords: 0=left,
         0.5=middle, 1.0=right but the *y* location is in data
         coordinates.
@@ -863,7 +863,7 @@ or tuple of floats
         Draw a vertical span (rectangle) from `xmin` to `xmax`.  With
         the default values of `ymin` = 0 and `ymax` = 1. This always
         spans the yrange, regardless of the ylim settings, even if you
-        change them, e.g., with the :meth:`set_ylim` command.  That is,
+        change them, e.g., with the `set_ylim` command.  That is,
         the vertical extent is in axes coords: 0=bottom, 0.5=middle,
         1.0=top but the y location is in data coordinates.
 
@@ -1141,13 +1141,13 @@ or tuple of floats
 
         **kwargs : optional
             Other keyword arguments are line collection properties.  See
-            :class:`~matplotlib.collections.LineCollection` for a list of
+            `~matplotlib.collections.LineCollection` for a list of
             the valid properties.
 
         Returns
         -------
 
-        A list of :class:`matplotlib.collections.EventCollection` objects that
+        A list of `matplotlib.collections.EventCollection` objects that
         were added.
 
         Notes
@@ -1299,7 +1299,7 @@ or tuple of floats
     def plot(self, *args, **kwargs):
         """
         Plot lines and/or markers to the
-        :class:`~matplotlib.axes.Axes`.  *args* is a variable length
+        `~matplotlib.axes.Axes`.  *args* is a variable length
         argument, allowing for multiple *x*, *y* pairs with an
         optional format string.  For example, each of the following is
         legal::
@@ -1414,14 +1414,14 @@ or tuple of floats
             plot(x, y, color='green', linestyle='dashed', marker='o',
                  markerfacecolor='blue', markersize=12).
 
-        See :class:`~matplotlib.lines.Line2D` for details.
+        See `~matplotlib.lines.Line2D` for details.
 
-        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        The kwargs are `~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
         kwargs *scalex* and *scaley*, if defined, are passed on to
-        :meth:`~matplotlib.axes.Axes.autoscale_view` to determine
+        `~matplotlib.axes.Axes.autoscale_view` to determine
         whether the *x* and *y* axes are autoscaled; the default is
         *True*.
         """
@@ -1448,7 +1448,7 @@ or tuple of floats
         """
         A plot with data that contains dates.
 
-        Similar to the :func:`~matplotlib.pyplot.plot` command, except
+        Similar to the `~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
         axis is labeled accordingly.
 
@@ -1457,15 +1457,15 @@ or tuple of floats
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
-        to :meth:`plot_date` since :meth:`plot_date` will set the
+        to `plot_date` since `plot_date` will set the
         default tick locator to
-        :class:`matplotlib.dates.AutoDateLocator` (if the tick
+        `matplotlib.dates.AutoDateLocator` (if the tick
         locator is not already set to a
-        :class:`matplotlib.dates.DateLocator` instance) and the
+        `matplotlib.dates.DateLocator` instance) and the
         default tick formatter to
-        :class:`matplotlib.dates.AutoDateFormatter` (if the tick
+        `matplotlib.dates.AutoDateFormatter` (if the tick
         formatter is not already set to a
-        :class:`matplotlib.dates.DateFormatter` instance).
+        `matplotlib.dates.DateFormatter` instance).
 
 
         Parameters
@@ -1473,7 +1473,7 @@ or tuple of floats
         fmt : string
             The plot format string.
 
-        tz : [ *None* | timezone string | :class:`tzinfo` instance]
+        tz : [ *None* | timezone string | `tzinfo` instance]
             The time zone to use in labeling dates. If *None*, defaults to rc
             value.
 
@@ -1499,7 +1499,7 @@ or tuple of floats
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
@@ -1526,10 +1526,10 @@ or tuple of floats
         """
         Make a plot with log scaling on both the *x* and *y* axis.
 
-        :func:`~matplotlib.pyplot.loglog` supports all the keyword
-        arguments of :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale` /
-        :meth:`matplotlib.axes.Axes.set_yscale`.
+        `~matplotlib.pyplot.loglog` supports all the keyword
+        arguments of `~matplotlib.pyplot.plot` and
+        `matplotlib.axes.Axes.set_xscale` /
+        `matplotlib.axes.Axes.set_yscale`.
 
         Notable keyword arguments:
 
@@ -1539,15 +1539,15 @@ or tuple of floats
           *subsx*/*subsy*: [ *None* | sequence ]
             The location of the minor *x*/*y* ticks; *None* defaults
             to autosubs, which depend on the number of decades in the
-            plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
-            :meth:`matplotlib.axes.Axes.set_yscale` for details
+            plot; see `matplotlib.axes.Axes.set_xscale` /
+            `matplotlib.axes.Axes.set_yscale` for details
 
           *nonposx*/*nonposy*: ['mask' | 'clip' ]
             Non-positive values in *x* or *y* can be masked as
             invalid, or clipped to a very small positive number
 
         The remaining valid kwargs are
-        :class:`~matplotlib.lines.Line2D` properties:
+        `~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
@@ -1589,7 +1589,7 @@ or tuple of floats
         subsx : array_like, optional
             The location of the minor xticks; *None* defaults to
             autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
+            plot; see `~matplotlib.axes.Axes.set_xscale` for
             details.
 
         nonposx : string, optional, {'mask', 'clip'}
@@ -1604,7 +1604,7 @@ or tuple of floats
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
@@ -1612,8 +1612,8 @@ or tuple of floats
         Notes
         -----
         This function supports all the keyword arguments of
-        :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale`.
+        `~matplotlib.pyplot.plot` and
+        `matplotlib.axes.Axes.set_xscale`.
         """
         if not self._hold:
             self.cla()
@@ -1641,7 +1641,7 @@ or tuple of floats
         subsy : None or iterable
             The location of the minor yticks. None defaults to
             autosubs, which depend on the number of decades in the
-            plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
+            plot. See `~matplotlib.axes.Axes.set_yscale` for
             details.
 
         nonposy : {'mask' | 'clip'} str
@@ -1657,11 +1657,11 @@ or tuple of floats
         ----------------
         **kwargs :
             This function supports all the keyword arguments of
-            :func:`~matplotlib.pyplot.plot` and
-            :meth:`matplotlib.axes.Axes.set_xscale`.
+            `~matplotlib.pyplot.plot` and
+            `matplotlib.axes.Axes.set_xscale`.
 
             Keyword arguments also control the
-            :class:`~matplotlib.lines.Line2D` properties:
+            `~matplotlib.lines.Line2D` properties:
 
             %(Line2D)s
         """
@@ -1724,7 +1724,7 @@ or tuple of floats
 
         Notes
         -----
-        The cross correlation is performed with :func:`numpy.correlate` with
+        The cross correlation is performed with `numpy.correlate` with
         `mode` = 2.
         """
         if "hold" in kwargs:
@@ -1782,7 +1782,7 @@ or tuple of floats
 
         Notes
         -----
-        The cross correlation is performed with :func:`numpy.correlate` with
+        The cross correlation is performed with `numpy.correlate` with
         `mode` = 2.
         """
         if "hold" in kwargs:
@@ -1856,7 +1856,7 @@ or tuple of floats
         Notes
         -----
         Additional parameters are the same as those for
-        :func:`~matplotlib.pyplot.plot`.
+        `~matplotlib.pyplot.plot`.
         """
 
         where = kwargs.pop('where', 'pre')
@@ -1968,7 +1968,7 @@ or tuple of floats
         capsize : scalar, optional
            determines the length in points of the error bar caps
            default: None, which will take the value from the
-           ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
+           ``errorbar.capsize`` `rcParam<matplotlib.rcParams>`.
 
         error_kw : dict, optional
             dictionary of kwargs to be passed to errorbar method. *ecolor* and
@@ -1996,7 +1996,7 @@ or tuple of floats
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
         Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
+        `errorbar`, so they can also have shape 2xN for
         independent specification of lower and upper errors.
 
         Other optional kwargs:
@@ -2287,7 +2287,7 @@ or tuple of floats
         capsize : scalar, optional
            determines the length in points of the error bar caps
            default: None, which will take the value from the
-           ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
+           ``errorbar.capsize`` `rcParam<matplotlib.rcParams>`.
 
         error_kw :
             dictionary of kwargs to be passed to errorbar method. `ecolor` and
@@ -2307,7 +2307,7 @@ or tuple of floats
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
         Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
+        `errorbar`, so they can also have shape 2xN for
         independent specification of lower and upper errors.
 
         Other optional kwargs:
@@ -2365,7 +2365,7 @@ or tuple of floats
           =========   ==============================
 
         kwargs are
-        :class:`matplotlib.collections.BrokenBarHCollection`
+        `matplotlib.collections.BrokenBarHCollection`
         properties:
 
         %(BrokenBarHCollection)s
@@ -2417,7 +2417,7 @@ or tuple of floats
         If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
         Return value is a tuple (*markerline*, *stemlines*,
-        *baseline*). See :class:`~matplotlib.container.StemContainer`
+        *baseline*). See `~matplotlib.container.StemContainer`
 
         .. seealso::
             This
@@ -2603,13 +2603,13 @@ or tuple of floats
         Returns
         -------
         patches : list
-            A sequence of :class:`matplotlib.patches.Wedge` instances
+            A sequence of `matplotlib.patches.Wedge` instances
 
         texts : list
-            A is a list of the label :class:`matplotlib.text.Text` instances.
+            A is a list of the label `matplotlib.text.Text` instances.
 
         autotexts : list
-            A is a list of :class:`~matplotlib.text.Text` instances for the
+            A is a list of `~matplotlib.text.Text` instances for the
             numeric labels. Is returned only if parameter *autopct* is
             not *None*.
 
@@ -2780,7 +2780,7 @@ or tuple of floats
             only the errorbars are plotted.  This is used for adding
             errorbars to a bar plot, for example.  Default is '',
             an empty plot format string; properties are
-            then identical to the defaults for :meth:`plot`.
+            then identical to the defaults for `plot`.
 
         ecolor : mpl color, optional, default: None
             A matplotlib color arg which gives the color the errorbar lines;
@@ -2792,7 +2792,7 @@ or tuple of floats
         capsize : scalar, optional, default: None
             The length of the error bar caps in points; if None, it will
             take the value from ``errorbar.capsize``
-            :data:`rcParam<matplotlib.rcParams>`.
+            `rcParam<matplotlib.rcParams>`.
 
         capthick : scalar, optional, default: None
             An alias kwarg to markeredgewidth (a.k.a. - mew). This
@@ -2811,8 +2811,8 @@ or tuple of floats
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
             type as *xerr* and *yerr*.  To use limits with inverted
-            axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
-            before :meth:`errorbar`.
+            axes, `set_xlim` or `set_ylim` must be called
+            before `errorbar`.
 
         errorevery : positive integer, optional, default:1
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
@@ -2821,11 +2821,11 @@ or tuple of floats
 
         Returns
         -------
-        plotline : :class:`~matplotlib.lines.Line2D` instance
+        plotline : `~matplotlib.lines.Line2D` instance
             x, y plot markers and/or line
-        caplines : list of :class:`~matplotlib.lines.Line2D` instances
+        caplines : list of `~matplotlib.lines.Line2D` instances
             error bar cap
-        barlinecols : list of :class:`~matplotlib.collections.LineCollection`
+        barlinecols : list of `~matplotlib.collections.LineCollection`
             horizontal and vertical error ranges.
 
         Other Parameters
@@ -3298,7 +3298,7 @@ or tuple of floats
         -------
         result : dict
           A dictionary mapping each component of the boxplot to a list
-          of the :class:`matplotlib.lines.Line2D` instances
+          of the `matplotlib.lines.Line2D` instances
           created. That dictionary has the following keys (assuming
           vertical boxplots):
 
@@ -3564,7 +3564,7 @@ or tuple of floats
         -------
         result : dict
           A dictionary mapping each component of the boxplot to a list
-          of the :class:`matplotlib.lines.Line2D` instances
+          of the `matplotlib.lines.Line2D` instances
           created. That dictionary has the following keys (assuming
           vertical boxplots):
 
@@ -3901,7 +3901,7 @@ or tuple of floats
         norm : `~matplotlib.colors.Normalize`, optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
             luminance data to 0, 1. `norm` is only used if `c` is an array of
-            floats. If `None`, use the default :func:`normalize`.
+            floats. If `None`, use the default `normalize`.
 
         vmin, vmax : scalar, optional, default: None
             `vmin` and `vmax` are used in conjunction with `norm` to normalize
@@ -4207,11 +4207,11 @@ or tuple of floats
         Other Parameters
         ----------------
         cmap : object, optional, default is *None*
-            a :class:`matplotlib.colors.Colormap` instance. If *None*,
+            a `matplotlib.colors.Colormap` instance. If *None*,
             defaults to rc ``image.cmap``.
 
         norm : object, optional, default is *None*
-            :class:`matplotlib.colors.Normalize` instance is used to
+            `matplotlib.colors.Normalize` instance is used to
             scale luminance data to 0,1.
 
         vmin, vmax : scalar, optional, default is *None*
@@ -4241,9 +4241,9 @@ or tuple of floats
         Returns
         -------
         object
-            a :class:`~matplotlib.collections.PolyCollection` instance; use
-            :meth:`~matplotlib.collections.PolyCollection.get_array` on
-            this :class:`~matplotlib.collections.PolyCollection` to get
+            a `~matplotlib.collections.PolyCollection` instance; use
+            `~matplotlib.collections.PolyCollection.get_array` on
+            this `~matplotlib.collections.PolyCollection` to get
             the counts in each hexagon.
 
             If *marginals* is *True*, horizontal
@@ -4253,7 +4253,7 @@ or tuple of floats
         Notes
         --------
         The standard descriptions of all the
-        :class:`~matplotlib.collections.Collection` parameters:
+        `~matplotlib.collections.Collection` parameters:
 
             %(Collection)s
 
@@ -4608,7 +4608,7 @@ or tuple of floats
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
         create an arrow whose head is square with its stem, use
-        :meth:`annotate` for example::
+        `annotate` for example::
 
             ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="->"))
@@ -4718,7 +4718,7 @@ or tuple of floats
         args : a variable length argument
             It allowing for multiple
             *x*, *y* pairs with an optional color format string; see
-            :func:`~matplotlib.pyplot.plot` for details on the argument
+            `~matplotlib.pyplot.plot` for details on the argument
             parsing.  For example, each of the following is legal::
 
                 ax.fill(x, y)
@@ -4730,19 +4730,19 @@ or tuple of floats
 
         Returns
         -------
-        a list of :class:`~matplotlib.patches.Patch`
+        a list of `~matplotlib.patches.Patch`
 
         Other Parameters
         ----------------
-        **kwargs : :class:`~matplotlib.patches.Polygon` properties
+        **kwargs : `~matplotlib.patches.Polygon` properties
 
         Notes
         -----
-        The same color strings that :func:`~matplotlib.pyplot.plot`
+        The same color strings that `~matplotlib.pyplot.plot`
         supports are supported by the fill format string.
 
         If you would like to fill below a curve, e.g., shade a region
-        between 0 and *y* along *x*, use :meth:`fill_between`
+        between 0 and *y* along *x*, use `fill_between`
 
 
         """
@@ -4768,7 +4768,7 @@ or tuple of floats
         Make filled polygons between two curves.
 
 
-        Create a :class:`~matplotlib.collections.PolyCollection`
+        Create a `~matplotlib.collections.PolyCollection`
         filling the regions between *y1* and *y2* where
         ``where==True``
 
@@ -4802,16 +4802,16 @@ or tuple of floats
         -----
 
         Additional Keyword args passed on to the
-        :class:`~matplotlib.collections.PolyCollection`.
+        `~matplotlib.collections.PolyCollection`.
 
-        kwargs control the :class:`~matplotlib.patches.Polygon` properties:
+        kwargs control the `~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
 
         See Also
         --------
 
-            :meth:`fill_betweenx`
+            `fill_betweenx`
                 for filling between two sets of x-values
 
         """
@@ -4921,7 +4921,7 @@ or tuple of floats
         Make filled polygons between two horizontal curves.
 
 
-        Create a :class:`~matplotlib.collections.PolyCollection`
+        Create a `~matplotlib.collections.PolyCollection`
         filling the regions between *x1* and *x2* where
         ``where==True``
 
@@ -4954,16 +4954,16 @@ or tuple of floats
         -----
 
         keyword args passed on to the
-            :class:`~matplotlib.collections.PolyCollection`
+            `~matplotlib.collections.PolyCollection`
 
-        kwargs control the :class:`~matplotlib.patches.Polygon` properties:
+        kwargs control the `~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
 
         See Also
         --------
 
-            :meth:`fill_between`
+            `fill_between`
                 for filling between two sets of y-values
 
         """
@@ -5280,7 +5280,7 @@ or tuple of floats
 
         pcolor can be very slow for large arrays; consider
         using the similar but much faster
-        :func:`~matplotlib.pyplot.pcolormesh` instead.
+        `~matplotlib.pyplot.pcolormesh` instead.
 
         Parameters
         ----------
@@ -5314,7 +5314,7 @@ or tuple of floats
 
         norm : `matplotlib.colors.Normalize`, optional, default: None
             An instance is used to scale luminance data to (0, 1).
-            If `None`, defaults to :func:`normalize`.
+            If `None`, defaults to `normalize`.
 
         vmin, vmax : scalar, optional, default: None
             ``vmin`` and ``vmax`` are used in conjunction with ``norm`` to
@@ -5375,7 +5375,7 @@ or tuple of floats
         array would be printed, except that the ``Y`` axis is reversed. That
         is, ``C`` is taken as ``C`` (y, x).
 
-        Similarly for :func:`meshgrid`::
+        Similarly for `meshgrid`::
 
             x = np.arange(5)
             y = np.arange(3)
@@ -5403,7 +5403,7 @@ or tuple of floats
 
             pcolor(C.T)
 
-        MATLAB :func:`pcolor` always discards the last row and column of ``C``,
+        MATLAB `pcolor` always discards the last row and column of ``C``,
         but Matplotlib displays the last row and column if ``X`` and ``Y`` are
         not specified, or if ``X`` and ``Y`` have one more row and column than
         ``C``.
@@ -5538,29 +5538,29 @@ or tuple of floats
 
         Create a pseudocolor plot of a 2-D array.
 
-        pcolormesh is similar to :func:`~matplotlib.pyplot.pcolor`,
+        pcolormesh is similar to `~matplotlib.pyplot.pcolor`,
         but uses a different mechanism and returns a different
         object; pcolor returns a
-        :class:`~matplotlib.collections.PolyCollection` but pcolormesh
+        `~matplotlib.collections.PolyCollection` but pcolormesh
         returns a
-        :class:`~matplotlib.collections.QuadMesh`.  It is much faster,
+        `~matplotlib.collections.QuadMesh`.  It is much faster,
         so it is almost always preferred for large arrays.
 
         *C* may be a masked array, but *X* and *Y* may not.  Masked
         array support is implemented via *cmap* and *norm*; in
-        contrast, :func:`~matplotlib.pyplot.pcolor` simply does not
+        contrast, `~matplotlib.pyplot.pcolor` simply does not
         draw quadrilaterals with masked colors or vertices.
 
         Keyword arguments:
 
           *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance. If *None*, use
+            A `matplotlib.colors.Colormap` instance. If *None*, use
             rc settings.
 
           *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance is used to
+            A `matplotlib.colors.Normalize` instance is used to
             scale luminance data to 0,1. If *None*, defaults to
-            :func:`normalize`.
+            `normalize`.
 
           *vmin*/*vmax*: [ *None* | scalar ]
             *vmin* and *vmax* are used in conjunction with *norm* to
@@ -5589,17 +5589,17 @@ or tuple of floats
           *alpha*: ``0 <= scalar <= 1``  or *None*
             the alpha blending value
 
-        Return value is a :class:`matplotlib.collections.QuadMesh`
+        Return value is a `matplotlib.collections.QuadMesh`
         object.
 
         kwargs can be used to control the
-        :class:`matplotlib.collections.QuadMesh` properties:
+        `matplotlib.collections.QuadMesh` properties:
 
         %(QuadMesh)s
 
         .. seealso::
 
-            :func:`~matplotlib.pyplot.pcolor`
+            `~matplotlib.pyplot.pcolor`
                 For an explanation of the grid orientation
                 (:ref:`Grid Orientation <axes-pcolor-grid-orientation>`)
                 and the expansion of 1-D *X* and/or *Y* to 2-D arrays.
@@ -5729,11 +5729,11 @@ or tuple of floats
         Optional keyword arguments:
 
           *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance from cm. If *None*,
+            A `matplotlib.colors.Colormap` instance from cm. If *None*,
             use rc settings.
 
           *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance is used to scale
+            A `matplotlib.colors.Normalize` instance is used to scale
             luminance data to 0,1. If *None*, defaults to normalize()
 
           *vmin*/*vmax*: [ *None* | scalar ]
@@ -5746,7 +5746,7 @@ or tuple of floats
             the alpha blending value
 
         Return value is an image if a regular or rectangular grid
-        is specified, and a :class:`~matplotlib.collections.QuadMesh`
+        is specified, and a `~matplotlib.collections.QuadMesh`
         collection in the general quadrilateral case.
 
         """
@@ -5890,14 +5890,14 @@ or tuple of floats
                 colLabels=None, colColours=None, colLoc='center',
                 loc='bottom', bbox=None):
 
-        Returns a :class:`matplotlib.table.Table` instance. Either `cellText`
+        Returns a `matplotlib.table.Table` instance. Either `cellText`
         or `cellColours` must be provided. For finer grained control over
-        tables, use the :class:`~matplotlib.table.Table` class and add it to
-        the axes with :meth:`~matplotlib.axes.Axes.add_table`.
+        tables, use the `~matplotlib.table.Table` class and add it to
+        the axes with `~matplotlib.axes.Axes.add_table`.
 
         Thanks to John Gill for providing the class and table.
 
-        kwargs control the :class:`~matplotlib.table.Table`
+        kwargs control the `~matplotlib.table.Table`
         properties:
 
         %(Table)s
@@ -5935,7 +5935,7 @@ or tuple of floats
 
         bins : integer or array_like or 'auto', optional
             If an integer is given, ``bins + 1`` bin edges are returned,
-            consistently with :func:`numpy.histogram` for numpy version >=
+            consistently with `numpy.histogram` for numpy version >=
             1.3.
 
             Unequally spaced bins are supported if *bins* is a sequence.
@@ -6461,11 +6461,11 @@ or tuple of floats
         Other Parameters
         ----------------
         cmap : {Colormap, string}, optional
-            A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
+            A `matplotlib.colors.Colormap` instance.  If not set, use rc
             settings.
 
         norm : Normalize, optional
-            A :class:`matplotlib.colors.Normalize` instance is used to
+            A `matplotlib.colors.Normalize` instance is used to
             scale luminance data to ``[0, 1]``. If not set, defaults to
             ``Normalize()``.
 
@@ -6482,10 +6482,10 @@ or tuple of floats
         Notes
         -----
         Rendering the histogram with a logarithmic color scale is
-        accomplished by passing a :class:`colors.LogNorm` instance to
+        accomplished by passing a `colors.LogNorm` instance to
         the *norm* keyword argument. Likewise, power-law normalization
         (similar in effect to gamma correction) can be accomplished with
-        :class:`colors.PowerNorm`.
+        `colors.PowerNorm`.
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -6558,14 +6558,14 @@ or tuple of floats
         freqs : 1-D array
             The frequencies corresponding to the elements in *Pxx*
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : a `~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
 
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
@@ -6583,16 +6583,16 @@ or tuple of floats
 
         See Also
         --------
-        :func:`specgram`
-            :func:`specgram` differs in the default overlap; in not returning
+        `specgram`
+            `specgram` differs in the default overlap; in not returning
             the mean of the segment periodograms; in returning the times of the
             segments; and in plotting a colormap instead of a line.
 
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` plots the magnitude spectrum.
+        `magnitude_spectrum`
+            `magnitude_spectrum` plots the magnitude spectrum.
 
-        :func:`csd`
-            :func:`csd` plots the spectral density between two signals.
+        `csd`
+            `csd` plots the spectral density between two signals.
         """
         if not self._hold:
             self.cla()
@@ -6686,14 +6686,14 @@ or tuple of floats
         freqs : 1-D array
             The frequencies corresponding to the elements in *Pxy*
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : a `~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
 
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
@@ -6711,8 +6711,8 @@ or tuple of floats
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` is the equivalent to setting y=x.
+        `psd`
+            `psd` is the equivalent to setting y=x.
         """
         if not self._hold:
             self.cla()
@@ -6788,32 +6788,32 @@ or tuple of floats
         freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : a `~matplotlib.lines.Line2D` instance
             The line created by this function
 
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` plots the power spectral density.`.
+        `psd`
+            `psd` plots the power spectral density.`.
 
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` plots the angles of the corresponding
+        `angle_spectrum`
+            `angle_spectrum` plots the angles of the corresponding
             frequencies.
 
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` plots the phase (unwrapped angle) of the
+        `phase_spectrum`
+            `phase_spectrum` plots the phase (unwrapped angle) of the
             corresponding frequencies.
 
-        :func:`specgram`
-            :func:`specgram` can plot the magnitude spectrum of segments within
+        `specgram`
+            `specgram` can plot the magnitude spectrum of segments within
             the signal in a colormap.
         """
         if not self._hold:
@@ -6883,29 +6883,29 @@ or tuple of floats
         freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : a `~matplotlib.lines.Line2D` instance
             The line created by this function
 
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
 
         See Also
         --------
-        :func:`magnitude_spectrum`
-            :func:`angle_spectrum` plots the magnitudes of the corresponding
+        `magnitude_spectrum`
+            `angle_spectrum` plots the magnitudes of the corresponding
             frequencies.
 
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` plots the unwrapped version of this
+        `phase_spectrum`
+            `phase_spectrum` plots the unwrapped version of this
             function.
 
-        :func:`specgram`
-            :func:`specgram` can plot the angle spectrum of segments within the
+        `specgram`
+            `specgram` can plot the angle spectrum of segments within the
             signal in a colormap.
         """
         if not self._hold:
@@ -6963,28 +6963,28 @@ or tuple of floats
         freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : a `~matplotlib.lines.Line2D` instance
             The line created by this function
 
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
 
         See Also
         --------
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` plots the magnitudes of the
+        `magnitude_spectrum`
+            `magnitude_spectrum` plots the magnitudes of the
             corresponding frequencies.
 
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` plots the wrapped version of this function.
+        `angle_spectrum`
+            `angle_spectrum` plots the wrapped version of this function.
 
-        :func:`specgram`
-            :func:`specgram` can plot the phase spectrum of segments within the
+        `specgram`
+            `specgram` can plot the phase spectrum of segments within the
             signal in a colormap.
         """
         if not self._hold:
@@ -7045,7 +7045,7 @@ or tuple of floats
         Other Parameters
         ----------------
         **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            Keyword arguments control the `~matplotlib.lines.Line2D`
             properties:
 
             %(Line2D)s
@@ -7129,7 +7129,7 @@ or tuple of floats
             baseband.
 
         cmap :
-            A :class:`matplotlib.colors.Colormap` instance; if *None*, use
+            A `matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
         xextent : [None | (xmin, xmax)]
@@ -7159,25 +7159,25 @@ or tuple of floats
             The times corresponding to midpoints of segments (i.e., the columns
             in *spectrum*).
 
-        im : instance of class :class:`~matplotlib.image.AxesImage`
+        im : instance of class `~matplotlib.image.AxesImage`
             The image created by imshow containing the spectrogram
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` differs in the default overlap; in returning the mean
+        `psd`
+            `psd` differs in the default overlap; in returning the mean
             of the segment periodograms; in not returning times; and in
             generating a line plot instead of colormap.
 
-        :func:`magnitude_spectrum`
+        `magnitude_spectrum`
             A single spectrum, similar to having a single segment when *mode*
             is 'magnitude'. Plots a line instead of a colormap.
 
-        :func:`angle_spectrum`
+        `angle_spectrum`
             A single spectrum, similar to having a single segment when *mode*
             is 'angle'. Plots a line instead of a colormap.
 
-        :func:`phase_spectrum`
+        `phase_spectrum`
             A single spectrum, similar to having a single segment when *mode*
             is 'phase'. Plots a line instead of a colormap.
         """
@@ -7251,7 +7251,7 @@ or tuple of floats
             If *precision* is 0, any non-zero value will be plotted; else,
             values of :math:`|Z| > precision` will be plotted.
 
-            For :class:`scipy.sparse.spmatrix` instances, there is a special
+            For `scipy.sparse.spmatrix` instances, there is a special
             case: if *precision* is 'present', any value present in the array
             will be plotted, even if it is identically zero.
 
@@ -7273,15 +7273,15 @@ or tuple of floats
 
         Two plotting styles are available: image or marker. Both
         are available for full arrays, but only the marker style
-        works for :class:`scipy.sparse.spmatrix` instances.
+        works for `scipy.sparse.spmatrix` instances.
 
         If *marker* and *markersize* are *None*, an image will be
         returned and any remaining kwargs are passed to
-        :func:`~matplotlib.pyplot.imshow`; else, a
-        :class:`~matplotlib.lines.Line2D` object will be returned with
+        `~matplotlib.pyplot.imshow`; else, a
+        `~matplotlib.lines.Line2D` object will be returned with
         the value of marker determining the marker type, and any
         remaining kwargs passed to the
-        :meth:`~matplotlib.axes.Axes.plot` method.
+        `~matplotlib.axes.Axes.plot` method.
 
         If *marker* and *markersize* are *None*, useful kwargs include:
 
@@ -7447,31 +7447,31 @@ or tuple of floats
           dictionary has the following keys:
 
             - ``bodies``: A list of the
-              :class:`matplotlib.collections.PolyCollection` instances
+              `matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
 
             - ``cmeans``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the mean values of each of the
               violin's distribution.
 
             - ``cmins``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the bottom of each violin's
               distribution.
 
             - ``cmaxes``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the top of each violin's
               distribution.
 
             - ``cbars``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the centers of each violin's
               distribution.
 
             - ``cmedians``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
         """
@@ -7548,31 +7548,31 @@ or tuple of floats
           dictionary has the following keys:
 
             - ``bodies``: A list of the
-              :class:`matplotlib.collections.PolyCollection` instances
+              `matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
 
             - ``cmeans``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the mean values of each of the
               violin's distribution.
 
             - ``cmins``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the bottom of each violin's
               distribution.
 
             - ``cmaxes``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the top of each violin's
               distribution.
 
             - ``cbars``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the centers of each violin's
               distribution.
 
             - ``cmedians``: A
-              :class:`matplotlib.collections.LineCollection` instance
+              `matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
 

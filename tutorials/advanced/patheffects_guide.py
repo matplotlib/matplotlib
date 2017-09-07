@@ -8,17 +8,17 @@ Defining paths that objects follow on a canvas.
 .. py:module:: matplotlib.patheffects
 
 
-Matplotlib's :mod:`~matplotlib.patheffects` module provides functionality to
+Matplotlib's `~matplotlib.patheffects` module provides functionality to
 apply a multiple draw stage to any Artist which can be rendered via a
-:class:`~matplotlib.path.Path`.
+`~matplotlib.path.Path`.
 
-Artists which can have a path effect applied to them include :class:`~matplotlib.patches.Patch`,
-:class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.collections.Collection` and even
-:class:`~matplotlib.text.Text`. Each artist's path effects can be controlled via the
-``set_path_effects`` method (:class:`~matplotlib.artist.Artist.set_path_effects`), which takes
-an iterable of :class:`AbstractPathEffect` instances.
+Artists which can have a path effect applied to them include `~matplotlib.patches.Patch`,
+`~matplotlib.lines.Line2D`, `~matplotlib.collections.Collection` and even
+`~matplotlib.text.Text`. Each artist's path effects can be controlled via the
+``set_path_effects`` method (`~matplotlib.artist.Artist.set_path_effects`), which takes
+an iterable of `AbstractPathEffect` instances.
 
-The simplest path effect is the :class:`Normal` effect, which simply
+The simplest path effect is the `Normal` effect, which simply
 draws the artist without any effect:
 """
 
@@ -40,10 +40,10 @@ plt.show()
 # Adding a shadow
 # ---------------
 #
-# A far more interesting path effect than :class:`Normal` is the
+# A far more interesting path effect than `Normal` is the
 # drop-shadow, which we can apply to any of our path based artists. The classes
-# :class:`SimplePatchShadow` and
-# :class:`SimpleLineShadow` do precisely this by drawing either a filled
+# `SimplePatchShadow` and
+# `SimpleLineShadow` do precisely this by drawing either a filled
 # patch or a line patch below the original artist:
 
 import matplotlib.patheffects as path_effects
@@ -66,7 +66,7 @@ plt.show()
 # --------------------------
 #
 # One nice way of making artists visually stand out is to draw an outline in a bold
-# color below the actual artist. The :class:`Stroke` path effect
+# color below the actual artist. The `Stroke` path effect
 # makes this a relatively simple task:
 
 fig = plt.figure(figsize=(7, 1))
@@ -82,11 +82,11 @@ plt.show()
 # path twice; once with a thick black line, and then once with the original text
 # path on top.
 #
-# You may have noticed that the keywords to :class:`Stroke` and
-# :class:`SimplePatchShadow` and :class:`SimpleLineShadow` are not the usual Artist
+# You may have noticed that the keywords to `Stroke` and
+# `SimplePatchShadow` and `SimpleLineShadow` are not the usual Artist
 # keywords (such as ``facecolor`` and ``edgecolor`` etc.). This is because with these
 # path effects we are operating at lower level of matplotlib. In fact, the keywords
-# which are accepted are those for a :class:`matplotlib.backend_bases.GraphicsContextBase`
+# which are accepted are those for a `matplotlib.backend_bases.GraphicsContextBase`
 # instance, which have been designed for making it easy to create new backends - and not
 # for its user interface.
 #
@@ -96,9 +96,9 @@ plt.show()
 #
 # As already mentioned, some of the path effects operate at a lower level than most users
 # will be used to, meaning that setting keywords such as ``facecolor`` and ``edgecolor``
-# raise an AttributeError. Luckily there is a generic :class:`PathPatchEffect` path effect
-# which creates a :class:`~matplotlib.patches.PathPatch` class with the original path.
-# The keywords to this effect are identical to those of :class:`~matplotlib.patches.PathPatch`:
+# raise an AttributeError. Luckily there is a generic `PathPatchEffect` path effect
+# which creates a `~matplotlib.patches.PathPatch` class with the original path.
+# The keywords to this effect are identical to those of `~matplotlib.patches.PathPatch`:
 
 fig = plt.figure(figsize=(8, 1))
 t = fig.text(0.02, 0.5, 'Hatch shadow', fontsize=75, weight=1000, va='center')

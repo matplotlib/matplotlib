@@ -774,7 +774,7 @@ class Axis(artist.Artist):
         Set appearance parameters for ticks and ticklabels.
 
         For documentation of keyword arguments, see
-        :meth:`matplotlib.axes.Axes.tick_params`.
+        `matplotlib.axes.Axes.tick_params`.
         """
         dicts = []
         if which == 'major' or which == 'both':
@@ -1179,7 +1179,7 @@ class Axis(artist.Artist):
 
     def get_ticklabels(self, minor=False, which=None):
         """
-        Get the x tick labels as a list of :class:`~matplotlib.text.Text`
+        Get the x tick labels as a list of `~matplotlib.text.Text`
         instances.
 
         Parameters
@@ -1196,7 +1196,7 @@ class Axis(artist.Artist):
         Returns
         -------
         ret : list
-           List of :class:`~matplotlib.text.Text` instances.
+           List of `~matplotlib.text.Text` instances.
         """
 
         if which is not None:
@@ -1512,7 +1512,7 @@ class Axis(artist.Artist):
         """
         Set the formatter of the major ticker
 
-        ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
+        ACCEPTS: A `~matplotlib.ticker.Formatter` instance
         """
         self.isDefault_majfmt = False
         self.major.formatter = formatter
@@ -1523,7 +1523,7 @@ class Axis(artist.Artist):
         """
         Set the formatter of the minor ticker
 
-        ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
+        ACCEPTS: A `~matplotlib.ticker.Formatter` instance
         """
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
@@ -1534,7 +1534,7 @@ class Axis(artist.Artist):
         """
         Set the locator of the major ticker
 
-        ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
+        ACCEPTS: a `~matplotlib.ticker.Locator` instance
         """
         self.isDefault_majloc = False
         self.major.locator = locator
@@ -1545,7 +1545,7 @@ class Axis(artist.Artist):
         """
         Set the locator of the minor ticker
 
-        ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
+        ACCEPTS: a `~matplotlib.ticker.Locator` instance
         """
         self.isDefault_minloc = False
         self.minor.locator = locator
@@ -1659,7 +1659,7 @@ class Axis(artist.Artist):
     def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
-        *tz* is a :class:`tzinfo` instance or a timezone string.
+        *tz* is a `tzinfo` instance or a timezone string.
         This timezone is used to create date labels.
         """
         # By providing a sample datetime instance with the desired
@@ -1965,7 +1965,7 @@ class XAxis(Axis):
         be preserved. In addition, the view limits can be
         expanded, but will not be reduced.  This method is
         for mpl internal use; for normal use, see
-        :meth:`~matplotlib.axes.Axes.set_xlim`.
+        `~matplotlib.axes.Axes.set_xlim`.
 
         """
         if ignore:
@@ -2301,7 +2301,7 @@ class YAxis(Axis):
         be preserved. In addition, the view limits can be
         expanded, but will not be reduced.  This method is
         for mpl internal use; for normal use, see
-        :meth:`~matplotlib.axes.Axes.set_ylim`.
+        `~matplotlib.axes.Axes.set_ylim`.
 
         """
         if ignore:
