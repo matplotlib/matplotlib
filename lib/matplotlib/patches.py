@@ -1164,7 +1164,7 @@ class Arrow(Patch):
 
         See Also
         --------
-        `FancyArrow` :
+        FancyArrow
             Patch that allows independent control of the head and tail
             properties
         """

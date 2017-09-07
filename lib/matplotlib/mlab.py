@@ -208,7 +208,7 @@ def window_hanning(x):
 
     See Also
     --------
-    `window_none`
+    window_none
         `window_none` is another window algorithm.
     '''
     return np.hanning(len(x))*x
@@ -220,7 +220,7 @@ def window_none(x):
 
     See Also
     --------
-    `window_hanning`
+    window_hanning
         `window_hanning` is another window algorithm.
     '''
     return x
@@ -304,13 +304,13 @@ def detrend(x, key=None, axis=None):
 
     See Also
     --------
-    `detrend_mean`
+    detrend_mean
         `detrend_mean` implements the 'mean' algorithm.
 
-    `detrend_linear`
+    detrend_linear
         `detrend_linear` implements the 'linear' algorithm.
 
-    `detrend_none`
+    detrend_none
         `detrend_none` implements the 'none' algorithm.
     '''
     if key is None or key in ['constant', 'mean', 'default']:
@@ -361,14 +361,14 @@ def demean(x, axis=0):
 
     See Also
     --------
-    `delinear`
+    delinear
 
-    `denone`
+    denone
         `delinear` and `denone` are other detrend algorithms.
 
-    `detrend_mean`
-        This function is the same as `detrend_mean` except for the
-        default *axis*.
+    detrend_mean
+        This function is the same as `detrend_mean` except for the default
+        *axis*.
     '''
     return detrend_mean(x, axis=axis)
 
@@ -389,17 +389,15 @@ def detrend_mean(x, axis=None):
 
     See Also
     --------
-    `demean`
-        This function is the same as `demean` except for the default
-        *axis*.
+    demean
+        This function is the same as `demean` except for the default *axis*.
 
-    `detrend_linear`
+    detrend_linear
 
-    `detrend_none`
-        `detrend_linear` and `detrend_none` are other detrend
-        algorithms.
+    detrend_none
+        `detrend_linear` and `detrend_none` are other detrend algorithms.
 
-    `detrend`
+    detrend
         `detrend` is a wrapper around all the detrend algorithms.
     '''
     x = np.asarray(x)
@@ -435,17 +433,16 @@ def detrend_none(x, axis=None):
 
     See Also
     --------
-    `denone`
-        This function is the same as `denone` except for the default
-        *axis*, which has no effect.
+    denone
+        This function is the same as `denone` except for the default *axis*,
+        which has no effect.
 
-    `detrend_mean`
+    detrend_mean
 
-    `detrend_linear`
-        `detrend_mean` and `detrend_linear` are other detrend
-        algorithms.
+    detrend_linear
+        `detrend_mean` and `detrend_linear` are other detrend algorithms.
 
-    `detrend`
+    detrend
         `detrend` is a wrapper around all the detrend algorithms.
     '''
     return x
@@ -466,17 +463,15 @@ def detrend_linear(y):
 
     See Also
     --------
-    `delinear`
-        This function is the same as `delinear` except for the default
-        *axis*.
+    delinear
+        This function is the same as `delinear` except for the default *axis*.
 
-    `detrend_mean`
+    detrend_mean
 
-    `detrend_none`
-        `detrend_mean` and `detrend_none` are other detrend
-        algorithms.
+    detrend_none
+        `detrend_mean` and `detrend_none` are other detrend algorithms.
 
-    `detrend`
+    detrend
         `detrend` is a wrapper around all the detrend algorithms.
     '''
     # This is faster than an algorithm based on linalg.lstsq.
@@ -933,15 +928,14 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     See Also
     --------
-    `specgram`
-        `specgram` differs in the default overlap; in not returning the
-        mean of the segment periodograms; and in returning the times of the
-        segments.
+    specgram
+        `specgram` differs in the default overlap; in not returning the mean of
+        the segment periodograms; and in returning the times of the segments.
 
-    `magnitude_spectrum`
+    magnitude_spectrum
         `magnitude_spectrum` returns the magnitude spectrum.
 
-    `csd`
+    csd
         `csd` returns the spectral density between two signals.
     """
     Pxx, freqs = csd(x=x, y=None, NFFT=NFFT, Fs=Fs, detrend=detrend,
@@ -1002,7 +996,7 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     See Also
     --------
-    `psd`
+    psd
         `psd` is the equivalent to setting y=x.
     """
     if NFFT is None:
@@ -1048,17 +1042,16 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    `magnitude_spectrum`
+    magnitude_spectrum
         `magnitude_spectrum` returns the absolute value of this function.
 
-    `angle_spectrum`
+    angle_spectrum
         `angle_spectrum` returns the angle of this function.
 
-    `phase_spectrum`
-        `phase_spectrum` returns the phase (unwrapped angle) of this
-        function.
+    phase_spectrum
+        `phase_spectrum` returns the phase (unwrapped angle) of this function.
 
-    `specgram`
+    specgram
         `specgram` can return the complex spectrum of segments within the
         signal.
     """
@@ -1093,23 +1086,22 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    `psd`
+    psd
         `psd` returns the power spectral density.
 
-    `complex_spectrum`
+    complex_spectrum
         This function returns the absolute value of `complex_spectrum`.
 
-    `angle_spectrum`
-        `angle_spectrum` returns the angles of the corresponding
-        frequencies.
+    angle_spectrum
+        `angle_spectrum` returns the angles of the corresponding frequencies.
 
-    `phase_spectrum`
+    phase_spectrum
         `phase_spectrum` returns the phase (unwrapped angle) of the
         corresponding frequencies.
 
-    `specgram`
-        `specgram` can return the magnitude spectrum of segments within
-        the signal.
+    specgram
+        `specgram` can return the magnitude spectrum of segments within the
+        signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='magnitude')
@@ -1142,19 +1134,18 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    `complex_spectrum`
+    complex_spectrum
         This function returns the angle value of `complex_spectrum`.
 
-    `magnitude_spectrum`
-        `angle_spectrum` returns the magnitudes of the corresponding
+    magnitude_spectrum
+        `magnitude_spectrum` returns the magnitudes of the corresponding
         frequencies.
 
-    `phase_spectrum`
+    phase_spectrum
         `phase_spectrum` returns the unwrapped version of this function.
 
-    `specgram`
-        `specgram` can return the angle spectrum of segments within the
-        signal.
+    specgram
+        `specgram` can return the angle spectrum of segments within the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='angle')
@@ -1187,19 +1178,18 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    `complex_spectrum`
+    complex_spectrum
         This function returns the angle value of `complex_spectrum`.
 
-    `magnitude_spectrum`
+    magnitude_spectrum
         `magnitude_spectrum` returns the magnitudes of the corresponding
         frequencies.
 
-    `angle_spectrum`
+    angle_spectrum
         `angle_spectrum` returns the wrapped version of this function.
 
-    `specgram`
-        `specgram` can return the phase spectrum of segments within the
-        signal.
+    specgram
+        `specgram` can return the phase spectrum of segments within the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='phase')
@@ -1331,7 +1321,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     See Also
     --------
-    `psd`, `csd` :
+    psd, csd :
         For information about the methods used to compute :math:`P_{xy}`,
         :math:`P_{xx}` and :math:`P_{yy}`.
     """
@@ -1421,7 +1411,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
     See Also
     --------
-    `psd`
+    psd
         For information about the methods used to compute :math:`P_{xy}`,
         :math:`P_{xx}` and :math:`P_{yy}`.
     """
@@ -3223,7 +3213,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
 
     See Also
     --------
-    `csv2rec`
+    csv2rec
         For information about *missing* and *missingd*, which can be used to
         fill in masked values into your CSV file.
     """
@@ -3877,7 +3867,7 @@ def cross_from_below(x, threshold):
 
     See Also
     --------
-    `cross_from_above` and `contiguous_regions`
+    cross_from_above, contiguous_regions
 
     """
     x = np.asarray(x)
@@ -3897,7 +3887,7 @@ def cross_from_above(x, threshold):
 
     See Also
     --------
-    `cross_from_below` and `contiguous_regions`
+    cross_from_below, contiguous_regions
 
     """
     x = np.asarray(x)

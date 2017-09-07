@@ -6583,15 +6583,15 @@ or tuple of floats
 
         See Also
         --------
-        `specgram`
-            `specgram` differs in the default overlap; in not returning
-            the mean of the segment periodograms; in returning the times of the
+        specgram
+            `specgram` differs in the default overlap; in not returning the
+            mean of the segment periodograms; in returning the times of the
             segments; and in plotting a colormap instead of a line.
 
-        `magnitude_spectrum`
+        magnitude_spectrum
             `magnitude_spectrum` plots the magnitude spectrum.
 
-        `csd`
+        csd
             `csd` plots the spectral density between two signals.
         """
         if not self._hold:
@@ -6711,7 +6711,7 @@ or tuple of floats
 
         See Also
         --------
-        `psd`
+        psd
             `psd` is the equivalent to setting y=x.
         """
         if not self._hold:
@@ -6801,20 +6801,19 @@ or tuple of floats
 
         See Also
         --------
-        `psd`
+        psd
             `psd` plots the power spectral density.`.
 
-        `angle_spectrum`
-            `angle_spectrum` plots the angles of the corresponding
-            frequencies.
+        angle_spectrum
+            `angle_spectrum` plots the angles of the corresponding frequencies.
 
-        `phase_spectrum`
+        phase_spectrum
             `phase_spectrum` plots the phase (unwrapped angle) of the
             corresponding frequencies.
 
-        `specgram`
-            `specgram` can plot the magnitude spectrum of segments within
-            the signal in a colormap.
+        specgram
+            `specgram` can plot the magnitude spectrum of segments within the
+            signal in a colormap.
         """
         if not self._hold:
             self.cla()
@@ -6896,15 +6895,14 @@ or tuple of floats
 
         See Also
         --------
-        `magnitude_spectrum`
-            `angle_spectrum` plots the magnitudes of the corresponding
+        magnitude_spectrum
+            `magnitude_spectrum` plots the magnitudes of the corresponding
             frequencies.
 
-        `phase_spectrum`
-            `phase_spectrum` plots the unwrapped version of this
-            function.
+        phase_spectrum
+            `phase_spectrum` plots the unwrapped version of this function.
 
-        `specgram`
+        specgram
             `specgram` can plot the angle spectrum of segments within the
             signal in a colormap.
         """
@@ -6976,14 +6974,14 @@ or tuple of floats
 
         See Also
         --------
-        `magnitude_spectrum`
-            `magnitude_spectrum` plots the magnitudes of the
-            corresponding frequencies.
+        magnitude_spectrum
+            `magnitude_spectrum` plots the magnitudes of the corresponding
+            frequencies.
 
-        `angle_spectrum`
+        angle_spectrum
             `angle_spectrum` plots the wrapped version of this function.
 
-        `specgram`
+        specgram
             `specgram` can plot the phase spectrum of segments within the
             signal in a colormap.
         """
@@ -7164,20 +7162,20 @@ or tuple of floats
 
         See Also
         --------
-        `psd`
-            `psd` differs in the default overlap; in returning the mean
-            of the segment periodograms; in not returning times; and in
-            generating a line plot instead of colormap.
+        psd
+            `psd` differs in the default overlap; in returning the mean of the
+            segment periodograms; in not returning times; and in generating a
+            line plot instead of colormap.
 
-        `magnitude_spectrum`
+        magnitude_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'magnitude'. Plots a line instead of a colormap.
 
-        `angle_spectrum`
+        angle_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'angle'. Plots a line instead of a colormap.
 
-        `phase_spectrum`
+        phase_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'phase'. Plots a line instead of a colormap.
         """
