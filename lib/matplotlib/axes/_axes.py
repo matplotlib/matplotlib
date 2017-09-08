@@ -4447,6 +4447,9 @@ or tuple of floats
             if norm.vmin is None and norm.vmax is None:
                 norm.autoscale(accum)
 
+        # save scale of accum to be used for marginals
+        accummax = accum.max()
+
         # Transform accum if needed
         if bins == 'log':
             accum = np.log10(accum + 1)
@@ -4483,18 +4486,20 @@ or tuple of floats
         if not marginals:
             return collection
 
-        if C is None:
-            C = np.ones(len(x))
-
-        def coarse_bin(x, y, coarse):
+        # compute marginal densities if necessary
+        def coarse_bin(x, C, coarse):
             ind = coarse.searchsorted(x).clip(0, len(coarse) - 1)
             mus = np.zeros(len(coarse))
             for i in range(len(coarse)):
-                yi = y[ind == i]
-                if len(yi) > 0:
-                    mu = reduce_C_function(yi)
+                if C is None:
+                    mu = (ind == i).sum()
+                    # it is probably more meaningful to keep the zeros here
                 else:
-                    mu = np.nan
+                    Ci = C[ind == i]
+                    if len(Ci) > 0:
+                        mu = reduce_C_function(Ci)
+                    else:
+                        mu = np.nan
                 mus[i] = mu
             return mus
 
@@ -4502,21 +4507,28 @@ or tuple of floats
 
         xcoarse = coarse_bin(xorig, C, coarse)
         valid = ~np.isnan(xcoarse)
+        # transform x-marginals as needed
+        if C is None:
+            # rescale marginal to match maximum of the hexbin
+            xcoarse[valid] *= accummax/xcoarse[valid].max()
+        if bins == 'log':
+            xcoarse[valid] = np.log10(xcoarse[valid] + 1)
+
         verts, values = [], []
         for i, val in enumerate(xcoarse):
+            if not valid[i]:
+                continue
+
             thismin = coarse[i]
             if i < len(coarse) - 1:
                 thismax = coarse[i + 1]
             else:
                 thismax = thismin + np.diff(coarse)[-1]
 
-            if not valid[i]:
-                continue
-
-            verts.append([(thismin, 0),
+            verts.append([(thismin, 0.0),
                           (thismin, 0.05),
                           (thismax, 0.05),
-                          (thismax, 0)])
+                          (thismax, 0.0)])
             values.append(val)
 
         values = np.array(values)
@@ -4534,16 +4546,25 @@ or tuple of floats
         coarse = np.linspace(ymin, ymax, gridsize)
         ycoarse = coarse_bin(yorig, C, coarse)
         valid = ~np.isnan(ycoarse)
+        # transform y-marginals as needed
+        if C is None:
+            # rescale marginal to match maximum of the hexbin
+            ycoarse[valid] *= accummax/ycoarse[valid].max()
+        if bins == 'log':
+            ycoarse[valid] = np.log10(ycoarse[valid] + 1)
+
         verts, values = [], []
         for i, val in enumerate(ycoarse):
+            if not valid[i]:
+                continue
+
             thismin = coarse[i]
             if i < len(coarse) - 1:
                 thismax = coarse[i + 1]
             else:
                 thismax = thismin + np.diff(coarse)[-1]
-            if not valid[i]:
-                continue
-            verts.append([(0, thismin), (0.0, thismax),
+
+            verts.append([(0.0, thismin), (0.0, thismax),
                           (0.05, thismax), (0.05, thismin)])
             values.append(val)
 
