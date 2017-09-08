@@ -24,7 +24,7 @@ except ImportError:
 import numpy as np
 import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
-               lines as mlines, mlab, path as mpath, transforms)
+               lines as mlines, path as mpath, transforms)
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 
@@ -1040,7 +1040,7 @@ class BrokenBarHCollection(PolyCollection):
         passed on to the collection.
         """
         xranges = []
-        for ind0, ind1 in mlab.contiguous_regions(where):
+        for ind0, ind1 in cbook.contiguous_regions(where):
             xslice = x[ind0:ind1]
             if not len(xslice):
                 continue

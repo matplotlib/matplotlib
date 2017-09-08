@@ -13,7 +13,7 @@ from numpy import ma
 from numpy.testing import assert_array_equal
 
 from matplotlib import (
-    colors, image as mimage, mlab, patches, pyplot as plt,
+    colors, image as mimage, patches, pyplot as plt,
     rc_context, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
@@ -644,8 +644,9 @@ def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = Z2 - Z1  # difference of Gaussians
 
     fig, ax1 = plt.subplots(1, 1)
@@ -706,8 +707,9 @@ def test_mask_image_over_under():
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
     palette = copy(plt.cm.gray)

@@ -5051,7 +5051,7 @@ class Axes(_AxesBase):
         x, y1, y2 = np.broadcast_arrays(np.atleast_1d(x), y1, y2)
 
         polys = []
-        for ind0, ind1 in mlab.contiguous_regions(where):
+        for ind0, ind1 in cbook.contiguous_regions(where):
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
@@ -5232,7 +5232,7 @@ class Axes(_AxesBase):
         y, x1, x2 = np.broadcast_arrays(np.atleast_1d(y), x1, x2)
 
         polys = []
-        for ind0, ind1 in mlab.contiguous_regions(where):
+        for ind0, ind1 in cbook.contiguous_regions(where):
             yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
