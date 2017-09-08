@@ -170,11 +170,8 @@ def _allow_super_init(__init__):
                 QtWidgets.QWidget.__init__ = cooperative_qwidget_init
                 __init__(self, **kwargs)
             finally:
-                try:
-                    # Restore __init__ to sip.simplewrapper.__init__.
-                    del QtWidgets.QWidget.__init__
-                except AttributeError:
-                    pass
+                # Restore __init__
+                QtWidgets.QWidget.__init__ = qwidget_init
 
         return wrapper
 
