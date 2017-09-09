@@ -25,30 +25,25 @@ import warnings
 
 from cycler import cycler
 import matplotlib
-import matplotlib.colorbar
-from matplotlib import style
-from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_numlike
-from matplotlib.cbook import _string_to_bool
-from matplotlib.cbook import deprecated
-from matplotlib import docstring
+from matplotlib import (
+    # submodules
+    _pylab_helpers, cm, docstring, mlab, style,
+    # functions
+    get_backend, interactive, rc, rc_context,
+    # objects
+    rcParams, rcParamsDefault)
+from matplotlib.artist import getp, get, setp, Artist
+from matplotlib.axes import Axes, Subplot
 from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.cbook import (
+    _string_to_bool, dedent, deprecated, is_numlike, silent_list)
+from matplotlib.cm import get_cmap, register_cmap
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
-from matplotlib.image import imread as _imread
-from matplotlib.image import imsave as _imsave
-from matplotlib import rcParams, rcParamsDefault, get_backend
-from matplotlib import rc_context
-from matplotlib.rcsetup import interactive_bk as _interactive_bk
-from matplotlib.artist import getp, get, Artist
-from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes, Subplot
+from matplotlib.image import imread, imsave
 from matplotlib.projections import PolarAxes
-from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
+from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.scale import get_scale_docs, get_scale_names
-
-from matplotlib import cm
-from matplotlib.cm import get_cmap, register_cmap
 
 import numpy as np
 
@@ -252,20 +247,18 @@ def show(*args, **kw):
 
 
 def isinteractive():
-    """
-    Return status of interactive mode.
-    """
+    """Return status of interactive mode."""
     return matplotlib.is_interactive()
 
 
 def ioff():
-    'Turn interactive mode off.'
+    """Turn interactive mode off."""
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
 
 
 def ion():
-    'Turn interactive mode on.'
+    """Turn interactive mode on."""
     matplotlib.interactive(True)
     install_repl_displayhook()
 
@@ -303,16 +296,6 @@ def pause(interval):
     time.sleep(interval)
 
 
-@docstring.copy_dedent(matplotlib.rc)
-def rc(*args, **kwargs):
-    matplotlib.rc(*args, **kwargs)
-
-
-@docstring.copy_dedent(matplotlib.rc_context)
-def rc_context(rc=None, fname=None):
-    return matplotlib.rc_context(rc, fname)
-
-
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
@@ -334,10 +317,6 @@ def sci(im):
 
 
 ## Any Artist ##
-# (getp is simply imported)
-@docstring.copy(_setp)
-def setp(*args, **kwargs):
-    return _setp(*args, **kwargs)
 
 
 def xkcd(scale=1, length=100, randomness=2):
@@ -1314,10 +1293,9 @@ def plotting():
     pass
 
 
+@deprecated('2.2')
 def get_plot_commands():
-    """
-    Get a sorted list of all of the plotting commands.
-    """
+    """Get a sorted list of all of the plotting commands."""
     # This works by searching for all functions in this module and
     # removing a few hard-coded exclusions, as well as all of the
     # colormap-setting functions, and anything marked as private with
@@ -1326,17 +1304,7 @@ def get_plot_commands():
     exclude = {'colormaps', 'colors', 'connect', 'disconnect',
                'get_plot_commands', 'get_current_fig_manager', 'ginput',
                'plotting', 'waitforbuttonpress'}
-    exclude |= set(colormaps())
-    this_module = inspect.getmodule(get_plot_commands)
-
-    commands = set()
-    for name, obj in list(six.iteritems(globals())):
-        if name.startswith('_') or name in exclude:
-            continue
-        if inspect.isfunction(obj) and inspect.getmodule(obj) is this_module:
-            commands.add(name)
-
-    return sorted(commands)
+    return sorted(set(__all__) - exclude - set(colormaps()))
 
 
 @deprecated('2.1')
@@ -1644,7 +1612,13 @@ def _setup_pyplot_info_docstrings():
             return s[:l]
         return s + ' ' * (l - len(s))
 
-    commands = get_plot_commands()
+    # Searching for all public functions in this module (this is done when
+    # defining __all__) and remove a few hard-coded exclusions, as well as all
+    # of the colormap-setting functions
+    exclude = {"colormaps", "colors", "connect", "disconnect",
+               "get_current_fig_manager", "ginput", "plotting",
+               "waitforbuttonpress"}
+    commands =  sorted(set(__all__) - exclude - set(colormaps()))
 
     first_sentence = re.compile(r"(?:\s*).+?\.(?:\s+|$)", flags=re.DOTALL)
 
@@ -1739,16 +1713,6 @@ def set_cmap(cmap):
 
     if im is not None:
         im.set_cmap(cmap)
-
-
-@docstring.copy_dedent(_imread)
-def imread(*args, **kwargs):
-    return _imread(*args, **kwargs)
-
-
-@docstring.copy_dedent(_imsave)
-def imsave(*args, **kwargs):
-    return _imsave(*args, **kwargs)
 
 
 def matshow(A, fignum=None, **kw):
@@ -2046,6 +2010,12 @@ _cmaps = [
 
 for _cmap in _cmaps:
     _make_cmap_wrapper(_cmap)
+
+
+__all__ = sorted([name for name, obj in globals().items()
+                  if getattr(obj, "__module__", None) == __name__
+                     and not name.startswith("_")]
+                 + ["getp", "imread", "imsave", "rc", "rc_context", "setp"])
 
 
 _setup_pyplot_info_docstrings()
