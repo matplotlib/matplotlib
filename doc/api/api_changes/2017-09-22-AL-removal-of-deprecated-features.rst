@@ -17,3 +17,6 @@ The ``spectral`` colormap has been removed.  The ``Vega*`` colormaps, which
 were aliases for the ``tab*`` colormaps, have been removed.
 
 ``mencoder`` can no longer be used to encode animations.
+
+Passing ``None`` instead of ``"none"`` as format to `~.Axes.errorbar` is no
+longer supported.
