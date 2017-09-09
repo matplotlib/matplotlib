@@ -18,6 +18,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import functools
 import inspect
 import re
 import sys
@@ -200,11 +201,11 @@ def uninstall_repl_displayhook():
 draw_all = _pylab_helpers.Gcf.draw_all
 
 
-@docstring.copy_dedent(Artist.findobj)
 def findobj(o=None, match=None, include_self=True):
     if o is None:
         o = gcf()
     return o.findobj(match, include_self=include_self)
+findobj.__doc__ = Artist.findobj.__doc__
 
 
 def switch_backend(newbackend):
@@ -296,7 +297,7 @@ def pause(interval):
     time.sleep(interval)
 
 
-@docstring.copy_dedent(matplotlib.rcdefaults)
+@functools.wraps(matplotlib.rcdefaults, ["__doc__"])
 def rcdefaults():
     matplotlib.rcdefaults()
     if matplotlib.is_interactive():
