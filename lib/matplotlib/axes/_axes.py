@@ -1882,11 +1882,9 @@ or tuple of floats
         """
         Make a bar plot.
 
-        Call signatures::
+        Call signature::
 
-           bar(x, height, *, align='center', **kwargs)
-           bar(x, height, width, *, align='center', **kwargs)
-           bar(x, height, width, bottom, *, align='center', **kwargs)
+           bar(x, height, width=0.8, bottom=None, *, align='center', **kwargs)
 
         Make a bar plot with rectangles bounded by
 
@@ -2212,11 +2210,9 @@ or tuple of floats
         """
         Make a horizontal bar plot.
 
-        Call signatures::
+        Call signature::
 
-           bar(y, width, *, align='center', **kwargs)
-           bar(y, width, height, *, align='center', **kwargs)
-           bar(y, width, height, left, *, align='center', **kwargs)
+           barh(y, width, height=0.8, left=None, *, align='center', **kwargs)
 
         Make a horizontal bar plot with rectangles by default bounded by
 

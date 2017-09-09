@@ -630,18 +630,6 @@ class Figure(Artist):
         """
         Adds a non-resampled image to the figure.
 
-        call signatures::
-
-          figimage(X, **kwargs)
-
-        adds a non-resampled array *X* to the figure.
-
-        ::
-
-          figimage(X, xo, yo)
-
-        with pixel offsets *xo*, *yo*,
-
         *X* must be a float array:
 
         * If *X* is MxN, assume luminance (grayscale)

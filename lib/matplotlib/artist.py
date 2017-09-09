@@ -287,23 +287,18 @@ class Artist(object):
 
     def pchanged(self):
         """
-        Fire an event when property changed, calling all of the
-        registered callbacks.
+        Fire an event when property changed, calling all registered callbacks.
         """
         for oid, func in six.iteritems(self._propobservers):
             func(self)
 
     def is_transform_set(self):
-        """
-        Returns *True* if `Artist` has a transform explicitly
-        set.
-        """
+        """Return whether this artist has a transform explicitly set."""
         return self._transformSet
 
     def set_transform(self, t):
         """
-        Set the `~matplotlib.transforms.Transform` instance
-        used by this artist.
+        Set the `~matplotlib.transforms.Transform` used by this artist.
 
         ACCEPTS: `~matplotlib.transforms.Transform` instance
         """
@@ -313,9 +308,7 @@ class Artist(object):
         self.stale = True
 
     def get_transform(self):
-        """
-        Return the `~matplotlib.transforms.Transform`
-        instance used by this artist.
+        """Return the `~matplotlib.transforms.Transform` used by this artist.
         """
         if self._transform is None:
             self._transform = IdentityTransform()
@@ -343,14 +336,11 @@ class Artist(object):
         return L
 
     def get_children(self):
-        """
-        Return a list of the child `Artist`s this
-        `Artist` contains.
-        """
+        """Return a list of the child `Artist`s this artist contains."""
         return []
 
     def contains(self, mouseevent):
-        """Test whether the artist contains the mouse event.
+        """Test whether this artist contains the mouse event.
 
         Returns the truth value and a dictionary of artist specific details of
         selection, such as which points are contained in the pick radius.  See
@@ -384,17 +374,17 @@ class Artist(object):
         return self._contains
 
     def pickable(self):
-        'Return *True* if `Artist` is pickable.'
+        """Return whether the artist is pickable."""
         return (self.figure is not None and
                 self.figure.canvas is not None and
                 self._picker is not None)
 
     def pick(self, mouseevent):
         """
-        Process pick event
+        Process pick event.
 
-        each child artist will fire a pick event if *mouseevent* is over
-        the artist and the artist has picker set
+        Each child artist will fire a pick event if *mouseevent* is over the
+        artist and the artist has picker set.
         """
         # Pick self
         if self.pickable():
@@ -811,9 +801,7 @@ class Artist(object):
             self.pchanged()
 
     def update(self, props):
-        """
-        Update the properties of this `Artist` from the
-        dictionary *prop*.
+        """Update the properties of this artist from the dictionary *props*.
         """
         def _update_property(self, k, v):
             """sorting out how to update property (setter or setattr)

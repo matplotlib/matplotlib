@@ -3882,18 +3882,6 @@ class _AxesBase(martist.Artist):
         """
         return self.patch.contains_point(point, radius=1.0)
 
-    def pick(self, *args):
-        """Trigger pick event
-
-        Call signature::
-
-            pick(mouseevent)
-
-        each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has picker set
-        """
-        martist.Artist.pick(self, args[0])
-
     def get_default_bbox_extra_artists(self):
         return [artist for artist in self.get_children()
                 if artist.get_visible()]
