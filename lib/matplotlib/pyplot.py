@@ -20,9 +20,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import inspect
 import sys
 import warnings
-import types
 
 from cycler import cycler
 import matplotlib
@@ -622,16 +622,6 @@ def get_current_fig_manager():
     return figManager
 
 
-@docstring.copy_dedent(FigureCanvasBase.mpl_connect)
-def connect(s, func):
-    return get_current_fig_manager().canvas.mpl_connect(s, func)
-
-
-@docstring.copy_dedent(FigureCanvasBase.mpl_disconnect)
-def disconnect(cid):
-    return get_current_fig_manager().canvas.mpl_disconnect(cid)
-
-
 def close(*args):
     """
     Close a figure window.
@@ -671,193 +661,11 @@ def close(*args):
         elif isinstance(arg, Figure):
             _pylab_helpers.Gcf.destroy_fig(arg)
         else:
-            raise TypeError('Unrecognized argument type %s to close' % type(arg))
+            raise TypeError(
+                'Unrecognized argument type %s to close' % type(arg))
     else:
         raise TypeError('close takes 0 or 1 arguments')
 
-
-def clf():
-    """
-    Clear the current figure.
-    """
-    gcf().clf()
-
-
-def draw():
-    """Redraw the current figure.
-
-    This is used to update a figure that has been altered, but not
-    automatically re-drawn.  If interactive mode is on (:func:`.ion()`), this
-    should be only rarely needed, but there may be ways to modify the state of
-    a figure without marking it as `stale`.  Please report these cases as
-    bugs.
-
-    A more object-oriented alternative, given any
-    :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
-    was created using a :mod:`~matplotlib.pyplot` function, is::
-
-        fig.canvas.draw_idle()
-    """
-    get_current_fig_manager().canvas.draw_idle()
-
-
-@docstring.copy_dedent(Figure.savefig)
-def savefig(*args, **kwargs):
-    fig = gcf()
-    res = fig.savefig(*args, **kwargs)
-    fig.canvas.draw_idle()   # need this if 'transparent=True' to reset colors
-    return res
-
-
-@docstring.copy_dedent(Figure.ginput)
-def ginput(*args, **kwargs):
-    """
-    Blocking call to interact with the figure.
-
-    This will wait for *n* clicks from the user and return a list of the
-    coordinates of each click.
-
-    If *timeout* is negative, does not timeout.
-    """
-    return gcf().ginput(*args, **kwargs)
-
-
-@docstring.copy_dedent(Figure.waitforbuttonpress)
-def waitforbuttonpress(*args, **kwargs):
-    """
-    Blocking call to interact with the figure.
-
-    This will wait for *n* key or mouse clicks from the user and
-    return a list containing True's for keyboard clicks and False's
-    for mouse clicks.
-
-    If *timeout* is negative, does not timeout.
-    """
-    return gcf().waitforbuttonpress(*args, **kwargs)
-
-
-# Putting things in figures
-
-@docstring.copy_dedent(Figure.text)
-def figtext(*args, **kwargs):
-    return gcf().text(*args, **kwargs)
-
-
-@docstring.copy_dedent(Figure.suptitle)
-def suptitle(*args, **kwargs):
-    return gcf().suptitle(*args, **kwargs)
-
-
-@docstring.copy_dedent(Figure.figimage)
-def figimage(*args, **kwargs):
-    return gcf().figimage(*args, **kwargs)
-
-
-def figlegend(*args, **kwargs):
-    """
-    Place a legend in the figure.
-
-    *labels*
-      a sequence of strings
-
-    *handles*
-      a sequence of :class:`~matplotlib.lines.Line2D` or
-      :class:`~matplotlib.patches.Patch` instances
-
-    *loc*
-      can be a string or an integer specifying the legend
-      location
-
-    A :class:`matplotlib.legend.Legend` instance is returned.
-
-    Examples
-    --------
-
-    To make a legend from existing artists on every axes::
-
-      figlegend()
-
-    To make a legend for a list of lines and labels::
-
-      figlegend( (line1, line2, line3),
-                 ('label1', 'label2', 'label3'),
-                 'upper right' )
-
-    .. seealso::
-
-       :func:`~matplotlib.pyplot.legend`
-
-    """
-    return gcf().legend(*args, **kwargs)
-
-
-## Figure and Axes hybrid ##
-
-_hold_msg = """pyplot.hold is deprecated.
-    Future behavior will be consistent with the long-time default:
-    plot commands add elements without first clearing the
-    Axes and/or Figure."""
-
-@deprecated("2.0", message=_hold_msg)
-def hold(b=None):
-    """
-    Set the hold state.  If *b* is None (default), toggle the
-    hold state, else set the hold state to boolean value *b*::
-
-      hold()      # toggle hold
-      hold(True)  # hold is on
-      hold(False) # hold is off
-
-    When *hold* is *True*, subsequent plot commands will add elements to
-    the current axes.  When *hold* is *False*, the current axes and
-    figure will be cleared on the next plot command.
-
-    """
-
-    fig = gcf()
-    ax = fig.gca()
-
-    if b is not None:
-        b = bool(b)
-    fig._hold = b
-    ax._hold = b
-
-    # b=None toggles the hold state, so let's get get the current hold
-    # state; but should pyplot hold toggle the rc setting - me thinks
-    # not
-    b = ax._hold
-
-    # The comment above looks ancient; and probably the line below,
-    # contrary to the comment, is equally ancient.  It will trigger
-    # a second warning, but "Oh, well...".
-    rc('axes', hold=b)
-
-@deprecated("2.0", message=_hold_msg)
-def ishold():
-    """
-    Return the hold status of the current axes.
-
-    """
-    return gca()._hold
-
-
-@deprecated("2.0", message=_hold_msg)
-def over(func, *args, **kwargs):
-    """
-    Call a function with hold(True).
-
-    Calls::
-
-      func(*args, **kwargs)
-
-    with ``hold(True)`` and then restores the hold state.
-
-    """
-    ax = gca()
-    h = ax._hold
-    ax._hold = True
-    func(*args, **kwargs)
-    ax._hold = h
 
 ## Axes ##
 
@@ -947,26 +755,6 @@ def sca(ax):
             return
     raise ValueError("Axes instance argument was not found in a figure.")
 
-
-def gca(**kwargs):
-    """
-    Get the current :class:`~matplotlib.axes.Axes` instance on the
-    current figure matching the given keyword args, or create one.
-
-    Examples
-    --------
-    To get the current polar axes on the current figure::
-
-        plt.gca(projection='polar')
-
-    If the current axes doesn't exist, or isn't a polar one, the appropriate
-    axes will be created and then returned.
-
-    See Also
-    --------
-    matplotlib.figure.Figure.gca : The figure's gca method.
-    """
-    return gcf().gca(**kwargs)
 
 # More ways of creating axes:
 
@@ -1243,7 +1031,7 @@ def twinx(ax=None):
           For an example
     """
     if ax is None:
-        ax=gca()
+        ax = gca()
     ax1 = ax.twinx()
     return ax1
 
@@ -1256,35 +1044,9 @@ def twiny(ax=None):
     returned.
     """
     if ax is None:
-        ax=gca()
+        ax = gca()
     ax1 = ax.twiny()
     return ax1
-
-
-def subplots_adjust(*args, **kwargs):
-    """
-    Tune the subplot layout.
-
-    call signature::
-
-      subplots_adjust(left=None, bottom=None, right=None, top=None,
-                      wspace=None, hspace=None)
-
-    The parameter meanings (and suggested defaults) are::
-
-      left  = 0.125  # the left side of the subplots of the figure
-      right = 0.9    # the right side of the subplots of the figure
-      bottom = 0.1   # the bottom of the subplots of the figure
-      top = 0.9      # the top of the subplots of the figure
-      wspace = 0.2   # the amount of width reserved for blank space between subplots,
-                     # expressed as a fraction of the average axis width
-      hspace = 0.2   # the amount of height reserved for white space between subplots,
-                     # expressed as a fraction of the average axis height
-
-    The actual defaults are controlled by the rc file
-    """
-    fig = gcf()
-    fig.subplots_adjust(*args, **kwargs)
 
 
 def subplot_tool(targetfig=None):
@@ -1312,27 +1074,6 @@ def subplot_tool(targetfig=None):
     return ret
 
 
-def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
-    """
-    Automatically adjust subplot parameters to give specified padding.
-
-    Parameters:
-
-    pad : float
-        padding between the figure edge and the edges of subplots, as a fraction of the font-size.
-    h_pad, w_pad : float
-        padding (height/width) between edges of adjacent subplots.
-        Defaults to `pad_inches`.
-    rect : if rect is given, it is interpreted as a rectangle
-        (left, bottom, right, top) in the normalized figure
-        coordinate that the whole subplots area (including
-        labels) will fit into. Default is (0, 0, 1, 1).
-    """
-
-    fig = gcf()
-    fig.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-
-
 def box(on=None):
     """
     Turn the axes box on or off.  *on* may be a boolean or a string,
@@ -1347,161 +1088,7 @@ def box(on=None):
     ax.set_frame_on(on)
 
 
-def title(s, *args, **kwargs):
-    """
-    Set a title of the current axes.
-
-    Set one of the three available axes titles. The available titles are
-    positioned above the axes in the center, flush with the left edge,
-    and flush with the right edge.
-
-    .. seealso::
-        See :func:`~matplotlib.pyplot.text` for adding text
-        to the current axes
-
-    Parameters
-    ----------
-    label : str
-        Text to use for the title
-
-    fontdict : dict
-        A dictionary controlling the appearance of the title text,
-        the default `fontdict` is:
-
-            {'fontsize': rcParams['axes.titlesize'],
-            'fontweight' : rcParams['axes.titleweight'],
-            'verticalalignment': 'baseline',
-            'horizontalalignment': loc}
-
-    loc : {'center', 'left', 'right'}, str, optional
-        Which title to set, defaults to 'center'
-
-    Returns
-    -------
-    text : :class:`~matplotlib.text.Text`
-        The matplotlib text instance representing the title
-
-    Other parameters
-    ----------------
-    kwargs : text properties
-        Other keyword arguments are text properties, see
-        :class:`~matplotlib.text.Text` for a list of valid text
-        properties.
-
-    """
-    return gca().set_title(s, *args, **kwargs)
-
 ## Axis ##
-
-
-def axis(*v, **kwargs):
-    """
-    Convenience method to get or set axis properties.
-
-    Calling with no arguments::
-
-      >>> axis()
-
-    returns the current axes limits ``[xmin, xmax, ymin, ymax]``.::
-
-      >>> axis(v)
-
-    sets the min and max of the x and y axes, with
-    ``v = [xmin, xmax, ymin, ymax]``.::
-
-      >>> axis('off')
-
-    turns off the axis lines and labels.::
-
-      >>> axis('equal')
-
-    changes limits of *x* or *y* axis so that equal increments of *x*
-    and *y* have the same length; a circle is circular.::
-
-      >>> axis('scaled')
-
-    achieves the same result by changing the dimensions of the plot box instead
-    of the axis data limits.::
-
-      >>> axis('tight')
-
-    changes *x* and *y* axis limits such that all data is shown. If
-    all data is already shown, it will move it to the center of the
-    figure without modifying (*xmax* - *xmin*) or (*ymax* -
-    *ymin*). Note this is slightly different than in MATLAB.::
-
-      >>> axis('image')
-
-    is 'scaled' with the axis limits equal to the data limits.::
-
-      >>> axis('auto')
-
-    and::
-
-      >>> axis('normal')
-
-    are deprecated. They restore default behavior; axis limits are automatically
-    scaled to make the data fit comfortably within the plot box.
-
-    if ``len(*v)==0``, you can pass in *xmin*, *xmax*, *ymin*, *ymax*
-    as kwargs selectively to alter just those limits without changing
-    the others.
-
-      >>> axis('square')
-
-    changes the limit ranges (*xmax*-*xmin*) and (*ymax*-*ymin*) of
-    the *x* and *y* axes to be the same, and have the same scaling,
-    resulting in a square plot.
-
-    The xmin, xmax, ymin, ymax tuple is returned
-
-    .. seealso::
-
-        :func:`xlim`, :func:`ylim`
-           For setting the x- and y-limits individually.
-    """
-    return gca().axis(*v, **kwargs)
-
-
-def xlabel(s, *args, **kwargs):
-    """
-    Set the *x* axis label of the current axis.
-
-    Default override is::
-
-      override = {
-          'fontsize'            : 'small',
-          'verticalalignment'   : 'top',
-          'horizontalalignment' : 'center'
-          }
-
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args work
-    """
-    return gca().set_xlabel(s, *args, **kwargs)
-
-
-def ylabel(s, *args, **kwargs):
-    """
-    Set the *y* axis label of the current axis.
-
-    Defaults override is::
-
-        override = {
-           'fontsize'            : 'small',
-           'verticalalignment'   : 'center',
-           'horizontalalignment' : 'right',
-           'rotation'='vertical' : }
-
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args
-            work.
-    """
-    return gca().set_ylabel(s, *args, **kwargs)
 
 
 def xlim(*args, **kwargs):
@@ -1559,42 +1146,6 @@ def ylim(*args, **kwargs):
     return ret
 
 
-@docstring.dedent_interpd
-def xscale(*args, **kwargs):
-    """
-    Set the scaling of the *x*-axis.
-
-    call signature::
-
-      xscale(scale, **kwargs)
-
-    The available scales are: %(scale)s
-
-    Different keywords may be accepted, depending on the scale:
-
-    %(scale_docs)s
-    """
-    gca().set_xscale(*args, **kwargs)
-
-
-@docstring.dedent_interpd
-def yscale(*args, **kwargs):
-    """
-    Set the scaling of the *y*-axis.
-
-    call signature::
-
-      yscale(scale, **kwargs)
-
-    The available scales are: %(scale)s
-
-    Different keywords may be accepted, depending on the scale:
-
-    %(scale_docs)s
-    """
-    gca().set_yscale(*args, **kwargs)
-
-
 def xticks(*args, **kwargs):
     """
     Get or set the *x*-limits of the current tick locations and labels.
@@ -1617,21 +1168,19 @@ def xticks(*args, **kwargs):
       xticks( arange(12), calendar.month_name[1:13], rotation=17 )
     """
     ax = gca()
-
-    if len(args)==0:
+    if len(args) == 0:
         locs = ax.get_xticks()
         labels = ax.get_xticklabels()
-    elif len(args)==1:
+    elif len(args) == 1:
         locs = ax.set_xticks(args[0])
         labels = ax.get_xticklabels()
-    elif len(args)==2:
+    elif len(args) == 2:
         locs = ax.set_xticks(args[0])
         labels = ax.set_xticklabels(args[1], **kwargs)
-    else: raise TypeError('Illegal number of arguments to xticks')
-    if len(kwargs):
-        for l in labels:
-            l.update(kwargs)
-
+    else:
+        raise TypeError('Illegal number of arguments to xticks')
+    for l in labels:
+        l.update(kwargs)
     return locs, silent_list('Text xticklabel', labels)
 
 
@@ -1657,42 +1206,20 @@ def yticks(*args, **kwargs):
       yticks( arange(12), calendar.month_name[1:13], rotation=45 )
     """
     ax = gca()
-
-    if len(args)==0:
+    if len(args) == 0:
         locs = ax.get_yticks()
         labels = ax.get_yticklabels()
-    elif len(args)==1:
+    elif len(args) == 1:
         locs = ax.set_yticks(args[0])
         labels = ax.get_yticklabels()
-    elif len(args)==2:
+    elif len(args) == 2:
         locs = ax.set_yticks(args[0])
         labels = ax.set_yticklabels(args[1], **kwargs)
-    else: raise TypeError('Illegal number of arguments to yticks')
-    if len(kwargs):
-        for l in labels:
-            l.update(kwargs)
-
-
-    return ( locs,
-             silent_list('Text yticklabel', labels)
-             )
-
-
-def minorticks_on():
-    """
-    Display minor ticks on the current plot.
-
-    Displaying minor ticks reduces performance; turn them off using
-    minorticks_off() if drawing speed is a problem.
-    """
-    gca().minorticks_on()
-
-
-def minorticks_off():
-    """
-    Remove minor ticks from the current plot.
-    """
-    gca().minorticks_off()
+    else:
+        raise TypeError('Illegal number of arguments to yticks')
+    for l in labels:
+        l.update(kwargs)
+    return locs, silent_list('Text yticklabel', labels)
 
 
 def rgrids(*args, **kwargs):
@@ -1814,8 +1341,6 @@ def get_plot_commands():
     # removing a few hard-coded exclusions, as well as all of the
     # colormap-setting functions, and anything marked as private with
     # a preceding underscore.
-
-    import inspect
 
     exclude = {'colormaps', 'colors', 'connect', 'disconnect',
                'get_plot_commands', 'get_current_fig_manager', 'ginput',
@@ -2237,7 +1762,6 @@ def set_cmap(cmap):
         im.set_cmap(cmap)
 
 
-
 @docstring.copy_dedent(_imread)
 def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
@@ -2371,11 +1895,11 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     else:
         fig = gcf()
 
-    if len(cols)<1:
+    if len(cols) < 1:
         raise ValueError('must have at least one column of data')
 
     if plotfuncs is None:
-        plotfuncs = dict()
+        plotfuncs = {}
     r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
                      checkrows=checkrows, delimiter=delimiter, names=names)
 
@@ -2392,22 +1916,22 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     xname, x = getname_val(cols[0])
     ynamelist = []
 
-    if len(cols)==1:
-        ax1 = fig.add_subplot(1,1,1)
+    if len(cols) == 1:
+        ax1 = fig.add_subplot(1, 1, 1)
         funcname = plotfuncs.get(cols[0], 'plot')
         func = getattr(ax1, funcname)
         func(x, **kwargs)
         ax1.set_ylabel(xname)
     else:
         N = len(cols)
-        for i in range(1,N):
+        for i in range(1, N):
             if subplots:
-                if i==1:
-                    ax = ax1 = fig.add_subplot(N-1,1,i)
+                if i == 1:
+                    ax = ax1 = fig.add_subplot(N - 1, 1, i)
                 else:
-                    ax = fig.add_subplot(N-1,1,i, sharex=ax1)
-            elif i==1:
-                ax = fig.add_subplot(1,1,1)
+                    ax = fig.add_subplot(N - 1, 1, i, sharex=ax1)
+            elif i == 1:
+                ax = fig.add_subplot(1, 1, 1)
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)
@@ -2426,36 +1950,23 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     if not subplots:
         ax.legend(ynamelist, loc='best')
 
-    if xname=='date':
+    if xname == 'date':
         fig.autofmt_xdate()
 
 
 def _autogen_docstring(base):
     """Autogenerated wrappers will get their docstring from a base function
     with an addendum."""
-    #msg = "\n\nAdditional kwargs: hold = [True|False] overrides default hold state"
     msg = ''
     addendum = docstring.Appender(msg, '\n\n')
     return lambda func: addendum(docstring.copy_dedent(base)(func))
+
 
 # This function cannot be generated by boilerplate.py because it may
 # return an image or a line.
 @_autogen_docstring(Axes.spy)
 def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', **kwargs):
-    ax = gca()
-    hold = kwargs.pop('hold', None)
-    # allow callers to override the hold state by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.spy(Z, precision, marker, markersize, aspect, **kwargs)
-    finally:
-        ax._hold = washold
+    ret = ax.spy(Z, precision, marker, markersize, aspect, **kwargs)
     if isinstance(ret, cm.ScalarMappable):
         sci(ret)
     return ret
@@ -2467,1612 +1978,90 @@ def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', **kwargs):
 # to determine if they should trigger a draw.
 install_repl_displayhook()
 
-################# REMAINING CONTENT GENERATED BY boilerplate.py ##############
 
+def _make_wrapper(obj_getter, cls, command):
+    if ":" in command:
+        method_name, func_name = command.split(":")
+    else:
+        method_name = func_name = command
+    method = getattr(cls, method_name)
+
+    def func(*args, **kwargs):
+        # We actually need to refetch the method here in case it has been
+        # monkey-patched.
+        return getattr(obj_getter(), method_name)(*args, **kwargs)
+
+    if six.PY2:
+        func.__name__ = func_name.encode("ascii")
+        import funcsigs
+        sig = funcsigs.signature(method)
+    else:
+        func.__name__ = func_name
+        sig = inspect.signature(method)
+
+    func.__doc__ = method.__doc__
+    func.__signature__ = sig.replace(
+        parameters=list(sig.parameters.values())[1:])
+    globals()[func.__name__] = func
+
+
+_canvas_commands = ["draw", "mpl_connect:connect", "mpl_disconnect:disconnect"]
+_fig_commands = [
+    "clf", "figimage", "gca", "ginput", "savefig", "subplots_adjust",
+    "suptitle", "tight_layout", "waitforbuttonpress",
+    # Renamed commands.
+    "legend:figlegend", "text:figtext"]
+_axes_commands = [
+    "acorr", "angle_spectrum", "annotate", "arrow", "autoscale", "axhline",
+    "axhspan", "axis", "axvline", "axvspan", "bar", "barbs", "barh", "boxplot",
+    "broken_barh", "cla", "clabel", "cohere", "contour", "contourf", "csd",
+    "errorbar", "eventplot", "fill", "fill_between", "fill_betweenx", "grid",
+    "hexbin", "hist", "hist2d", "hlines", "imshow", "legend", "locator_params",
+    "loglog", "magnitude_spectrum", "margins", "minorticks_off",
+    "minorticks_on", "pcolor", "pcolormesh", "phase_spectrum", "pie", "plot",
+    "plot_date", "psd", "quiver", "quiverkey", "scatter", "semilogx",
+    "semilogy", "specgram", "stackplot", "stem", "step", "streamplot", "table",
+    "text", "tick_params", "ticklabel_format", "tricontour", "tricontourf",
+    "tripcolor", "triplot", "violinplot", "vlines", "xcorr",
+    # Renamed commands.
+    "set_title:title", "set_xlabel:xlabel", "set_xscale:xscale",
+    "set_ylabel:ylabel", "set_yscale:yscale"]
+
+
+for _command in _canvas_commands:
+    _make_wrapper(
+        lambda: get_current_fig_manager().canvas, FigureCanvasBase, _command)
+for _command in _fig_commands:
+    _make_wrapper(gcf, Figure, _command)
+for _command in _axes_commands:
+    _make_wrapper(gca, Axes, _command)
+
+
+def _make_cmap_wrapper(name):
+
+    def func():
+        rc("image", cmap=name)
+        im = gci()
+        if im is not None:
+            im.set_cmap(name)
+
+    func.__name__ = name.encode("ascii") if six.PY2 else name
+    func.__doc__ = """
+    Set the default colormap to "{}" and apply it to the current image, if any.
+
+    See ``help(colormaps)`` for more information.
+    """.format(name)
+    globals()[func.__name__] = func
+
+
+_cmaps = [
+    "autumn", "bone", "cool", "copper", "flag", "gray", "hot", "hsv",
+    "inferno", "jet", "magma", "nipy_spectral", "pink", "plasma", "prism",
+    "spectral", "spring", "summer", "viridis", "winter"]
+
+
+for _cmap in _cmaps:
+    _make_cmap_wrapper(_cmap)
 
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.acorr)
-def acorr(x, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.acorr(x, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.angle_spectrum)
-def angle_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
-                   hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.angle_spectrum(x, Fs=Fs, Fc=Fc, window=window, pad_to=pad_to,
-                                sides=sides, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.arrow)
-def arrow(x, y, dx, dy, hold=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.arrow(x, y, dx, dy, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.axhline)
-def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.axhline(y=y, xmin=xmin, xmax=xmax, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.axhspan)
-def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.axvline)
-def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.axvline(x=x, ymin=ymin, ymax=ymax, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.axvspan)
-def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.bar)
-def bar(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.bar(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.barh)
-def barh(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.barh(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.broken_barh)
-def broken_barh(xranges, yrange, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.broken_barh(xranges, yrange, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.boxplot)
-def boxplot(x, notch=None, sym=None, vert=None, whis=None, positions=None,
-            widths=None, patch_artist=None, bootstrap=None, usermedians=None,
-            conf_intervals=None, meanline=None, showmeans=None, showcaps=None,
-            showbox=None, showfliers=None, boxprops=None, labels=None,
-            flierprops=None, medianprops=None, meanprops=None, capprops=None,
-            whiskerprops=None, manage_xticks=True, autorange=False, zorder=None,
-            hold=None, data=None):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.boxplot(x, notch=notch, sym=sym, vert=vert, whis=whis,
-                         positions=positions, widths=widths,
-                         patch_artist=patch_artist, bootstrap=bootstrap,
-                         usermedians=usermedians,
-                         conf_intervals=conf_intervals, meanline=meanline,
-                         showmeans=showmeans, showcaps=showcaps,
-                         showbox=showbox, showfliers=showfliers,
-                         boxprops=boxprops, labels=labels,
-                         flierprops=flierprops, medianprops=medianprops,
-                         meanprops=meanprops, capprops=capprops,
-                         whiskerprops=whiskerprops,
-                         manage_xticks=manage_xticks, autorange=autorange,
-                         zorder=zorder, data=data)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.cohere)
-def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-           window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default',
-           scale_by_freq=None, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.cohere(x, y, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
-                        window=window, noverlap=noverlap, pad_to=pad_to,
-                        sides=sides, scale_by_freq=scale_by_freq, data=data,
-                        **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.clabel)
-def clabel(CS, *args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.clabel(CS, *args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.contour)
-def contour(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.contour(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    if ret._A is not None: sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.contourf)
-def contourf(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.contourf(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    if ret._A is not None: sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.csd)
-def csd(x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
-        noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
-        return_line=None, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.csd(x, y, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
-                     window=window, noverlap=noverlap, pad_to=pad_to,
-                     sides=sides, scale_by_freq=scale_by_freq,
-                     return_line=return_line, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.errorbar)
-def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
-             capsize=None, barsabove=False, lolims=False, uplims=False,
-             xlolims=False, xuplims=False, errorevery=1, capthick=None,
-             hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt=fmt, ecolor=ecolor,
-                          elinewidth=elinewidth, capsize=capsize,
-                          barsabove=barsabove, lolims=lolims, uplims=uplims,
-                          xlolims=xlolims, xuplims=xuplims,
-                          errorevery=errorevery, capthick=capthick, data=data,
-                          **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.eventplot)
-def eventplot(positions, orientation='horizontal', lineoffsets=1, linelengths=1,
-              linewidths=None, colors=None, linestyles='solid', hold=None,
-              data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.eventplot(positions, orientation=orientation,
-                           lineoffsets=lineoffsets, linelengths=linelengths,
-                           linewidths=linewidths, colors=colors,
-                           linestyles=linestyles, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.fill)
-def fill(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.fill(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.fill_between)
-def fill_between(x, y1, y2=0, where=None, interpolate=False, step=None,
-                 hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.fill_between(x, y1, y2=y2, where=where,
-                              interpolate=interpolate, step=step, data=data,
-                              **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.fill_betweenx)
-def fill_betweenx(y, x1, x2=0, where=None, step=None, interpolate=False,
-                  hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.fill_betweenx(y, x1, x2=x2, where=where, step=step,
-                               interpolate=interpolate, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.hexbin)
-def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
-           yscale='linear', extent=None, cmap=None, norm=None, vmin=None,
-           vmax=None, alpha=None, linewidths=None, edgecolors='face',
-           reduce_C_function=np.mean, mincnt=None, marginals=False, hold=None,
-           data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.hexbin(x, y, C=C, gridsize=gridsize, bins=bins, xscale=xscale,
-                        yscale=yscale, extent=extent, cmap=cmap, norm=norm,
-                        vmin=vmin, vmax=vmax, alpha=alpha,
-                        linewidths=linewidths, edgecolors=edgecolors,
-                        reduce_C_function=reduce_C_function, mincnt=mincnt,
-                        marginals=marginals, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.hist)
-def hist(x, bins=None, range=None, density=None, weights=None, cumulative=False,
-         bottom=None, histtype='bar', align='mid', orientation='vertical',
-         rwidth=None, log=False, color=None, label=None, stacked=False,
-         normed=None, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.hist(x, bins=bins, range=range, density=density,
-                      weights=weights, cumulative=cumulative, bottom=bottom,
-                      histtype=histtype, align=align, orientation=orientation,
-                      rwidth=rwidth, log=log, color=color, label=label,
-                      stacked=stacked, normed=normed, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.hist2d)
-def hist2d(x, y, bins=10, range=None, normed=False, weights=None, cmin=None,
-           cmax=None, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.hist2d(x, y, bins=bins, range=range, normed=normed,
-                        weights=weights, cmin=cmin, cmax=cmax, data=data,
-                        **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret[-1])
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.hlines)
-def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None,
-           data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.hlines(y, xmin, xmax, colors=colors, linestyles=linestyles,
-                        label=label, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.imshow)
-def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None,
-           vmin=None, vmax=None, origin=None, extent=None, shape=None,
-           filternorm=1, filterrad=4.0, imlim=None, resample=None, url=None,
-           hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.imshow(X, cmap=cmap, norm=norm, aspect=aspect,
-                        interpolation=interpolation, alpha=alpha, vmin=vmin,
-                        vmax=vmax, origin=origin, extent=extent, shape=shape,
-                        filternorm=filternorm, filterrad=filterrad,
-                        imlim=imlim, resample=resample, url=url, data=data,
-                        **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.loglog)
-def loglog(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.loglog(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.magnitude_spectrum)
-def magnitude_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None,
-                       sides=None, scale=None, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.magnitude_spectrum(x, Fs=Fs, Fc=Fc, window=window,
-                                    pad_to=pad_to, sides=sides, scale=scale,
-                                    data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.pcolor)
-def pcolor(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.pcolor(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.pcolormesh)
-def pcolormesh(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.pcolormesh(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.phase_spectrum)
-def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
-                   hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.phase_spectrum(x, Fs=Fs, Fc=Fc, window=window, pad_to=pad_to,
-                                sides=sides, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.pie)
-def pie(x, explode=None, labels=None, colors=None, autopct=None,
-        pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
-        radius=None, counterclock=True, wedgeprops=None, textprops=None,
-        center=(0, 0), frame=False, rotatelabels=False, hold=None, data=None):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.pie(x, explode=explode, labels=labels, colors=colors,
-                     autopct=autopct, pctdistance=pctdistance, shadow=shadow,
-                     labeldistance=labeldistance, startangle=startangle,
-                     radius=radius, counterclock=counterclock,
-                     wedgeprops=wedgeprops, textprops=textprops, center=center,
-                     frame=frame, rotatelabels=rotatelabels, data=data)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.plot)
-def plot(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.plot(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.plot_date)
-def plot_date(x, y, fmt='o', tz=None, xdate=True, ydate=False, hold=None,
-              data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.plot_date(x, y, fmt=fmt, tz=tz, xdate=xdate, ydate=ydate,
-                           data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.psd)
-def psd(x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
-        noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
-        return_line=None, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.psd(x, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
-                     window=window, noverlap=noverlap, pad_to=pad_to,
-                     sides=sides, scale_by_freq=scale_by_freq,
-                     return_line=return_line, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.quiver)
-def quiver(*args, **kw):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kw.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.quiver(*args, **kw)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.quiverkey)
-def quiverkey(*args, **kw):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kw.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.quiverkey(*args, **kw)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.scatter)
-def scatter(x, y, s=None, c=None, marker=None, cmap=None, norm=None, vmin=None,
-            vmax=None, alpha=None, linewidths=None, verts=None, edgecolors=None,
-            hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
-                         vmin=vmin, vmax=vmax, alpha=alpha,
-                         linewidths=linewidths, verts=verts,
-                         edgecolors=edgecolors, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.semilogx)
-def semilogx(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.semilogx(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.semilogy)
-def semilogy(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.semilogy(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.specgram)
-def specgram(x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
-             noverlap=None, cmap=None, xextent=None, pad_to=None, sides=None,
-             scale_by_freq=None, mode=None, scale=None, vmin=None, vmax=None,
-             hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.specgram(x, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
-                          window=window, noverlap=noverlap, cmap=cmap,
-                          xextent=xextent, pad_to=pad_to, sides=sides,
-                          scale_by_freq=scale_by_freq, mode=mode, scale=scale,
-                          vmin=vmin, vmax=vmax, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret[-1])
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.stackplot)
-def stackplot(x, *args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.stackplot(x, *args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.stem)
-def stem(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.stem(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.step)
-def step(x, y, *args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.step(x, y, *args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.streamplot)
-def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
-               norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
-               transform=None, zorder=None, start_points=None, maxlength=4.0,
-               integration_direction='both', hold=None, data=None):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.streamplot(x, y, u, v, density=density, linewidth=linewidth,
-                            color=color, cmap=cmap, norm=norm,
-                            arrowsize=arrowsize, arrowstyle=arrowstyle,
-                            minlength=minlength, transform=transform,
-                            zorder=zorder, start_points=start_points,
-                            maxlength=maxlength,
-                            integration_direction=integration_direction,
-                            data=data)
-    finally:
-        ax._hold = washold
-    sci(ret.lines)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.tricontour)
-def tricontour(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.tricontour(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    if ret._A is not None: sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.tricontourf)
-def tricontourf(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.tricontourf(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    if ret._A is not None: sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.tripcolor)
-def tripcolor(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.tripcolor(*args, **kwargs)
-    finally:
-        ax._hold = washold
-    sci(ret)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.triplot)
-def triplot(*args, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kwargs.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.triplot(*args, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.violinplot)
-def violinplot(dataset, positions=None, vert=True, widths=0.5, showmeans=False,
-               showextrema=True, showmedians=False, points=100, bw_method=None,
-               hold=None, data=None):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.violinplot(dataset, positions=positions, vert=vert,
-                            widths=widths, showmeans=showmeans,
-                            showextrema=showextrema, showmedians=showmedians,
-                            points=points, bw_method=bw_method, data=data)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.vlines)
-def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None,
-           data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.vlines(x, ymin, ymax, colors=colors, linestyles=linestyles,
-                        label=label, data=data, **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.xcorr)
-def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
-          maxlags=10, hold=None, data=None, **kwargs):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.xcorr(x, y, normed=normed, detrend=detrend,
-                       usevlines=usevlines, maxlags=maxlags, data=data,
-                       **kwargs)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@_autogen_docstring(Axes.barbs)
-def barbs(*args, **kw):
-    ax = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    washold = ax._hold
-    hold = kw.pop('hold', None)
-    if hold is not None:
-        ax._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        ret = ax.barbs(*args, **kw)
-    finally:
-        ax._hold = washold
-
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.cla)
-def cla():
-    ret = gca().cla()
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.grid)
-def grid(b=None, which='major', axis='both', **kwargs):
-    ret = gca().grid(b=b, which=which, axis=axis, **kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.legend)
-def legend(*args, **kwargs):
-    ret = gca().legend(*args, **kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.table)
-def table(**kwargs):
-    ret = gca().table(**kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.text)
-def text(x, y, s, fontdict=None, withdash=False, **kwargs):
-    ret = gca().text(x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.annotate)
-def annotate(*args, **kwargs):
-    ret = gca().annotate(*args, **kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.ticklabel_format)
-def ticklabel_format(**kwargs):
-    ret = gca().ticklabel_format(**kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.locator_params)
-def locator_params(axis='both', tight=None, **kwargs):
-    ret = gca().locator_params(axis=axis, tight=tight, **kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.tick_params)
-def tick_params(axis='both', **kwargs):
-    ret = gca().tick_params(axis=axis, **kwargs)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.margins)
-def margins(*args, **kw):
-    ret = gca().margins(*args, **kw)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-@docstring.copy_dedent(Axes.autoscale)
-def autoscale(enable=True, axis='both', tight=None):
-    ret = gca().autoscale(enable=enable, axis=axis, tight=tight)
-    return ret
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def autumn():
-    '''
-    set the default colormap to autumn and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='autumn')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.autumn)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def bone():
-    '''
-    set the default colormap to bone and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='bone')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.bone)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def cool():
-    '''
-    set the default colormap to cool and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='cool')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.cool)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def copper():
-    '''
-    set the default colormap to copper and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='copper')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.copper)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def flag():
-    '''
-    set the default colormap to flag and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='flag')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.flag)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def gray():
-    '''
-    set the default colormap to gray and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='gray')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.gray)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def hot():
-    '''
-    set the default colormap to hot and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='hot')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.hot)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def hsv():
-    '''
-    set the default colormap to hsv and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='hsv')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.hsv)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def jet():
-    '''
-    set the default colormap to jet and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='jet')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.jet)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def pink():
-    '''
-    set the default colormap to pink and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='pink')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.pink)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def prism():
-    '''
-    set the default colormap to prism and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='prism')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.prism)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def spring():
-    '''
-    set the default colormap to spring and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='spring')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.spring)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def summer():
-    '''
-    set the default colormap to summer and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='summer')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.summer)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def winter():
-    '''
-    set the default colormap to winter and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='winter')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.winter)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def magma():
-    '''
-    set the default colormap to magma and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='magma')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.magma)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def inferno():
-    '''
-    set the default colormap to inferno and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='inferno')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.inferno)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def plasma():
-    '''
-    set the default colormap to plasma and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='plasma')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.plasma)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def viridis():
-    '''
-    set the default colormap to viridis and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='viridis')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.viridis)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def nipy_spectral():
-    '''
-    set the default colormap to nipy_spectral and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    rc('image', cmap='nipy_spectral')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.nipy_spectral)
-
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
-def spectral():
-    '''
-    set the default colormap to spectral and apply to current image if any.
-    See help(colormaps) for more information
-    '''
-    from matplotlib.cbook import warn_deprecated
-    warn_deprecated(
-                    "2.0",
-                    name="spectral",
-                    obj_type="colormap"
-                    )
-
-    rc('image', cmap='spectral')
-    im = gci()
-
-    if im is not None:
-        im.set_cmap(cm.spectral)
 
 _setup_pyplot_info_docstrings()

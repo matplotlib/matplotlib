@@ -531,16 +531,16 @@ _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
 
 
 @deprecated('2.1',
-            addendum=(" See 'validate_negative_linestyle_legacy' " +
-                      "deprecation warning for more information."))
+            addendum=(" See 'validate_negative_linestyle_legacy' deprecation "
+                      "warning for more information."))
 def validate_negative_linestyle(s):
     return _validate_negative_linestyle(s)
 
 
 @deprecated('2.1',
-            addendum=(" The 'contour.negative_linestyle' rcParam now " +
-                      "follows the same validation as the other rcParams " +
-                      "that are related to line style."))
+            addendum=(" The 'contour.negative_linestyle' rcParam now follows "
+                      "the same validation as the other rcParams that are "
+                      "related to line style."))
 def validate_negative_linestyle_legacy(s):
     try:
         res = validate_negative_linestyle(s)
@@ -1090,7 +1090,7 @@ defaultParams = {
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['nearest', six.text_type],
-    'image.cmap':          ['viridis', six.text_type],        # one of gray, jet, etc
+    'image.cmap':          ['viridis', six.text_type],  # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [True, validate_bool],
