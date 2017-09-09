@@ -197,12 +197,10 @@ class _process_plot_var_args(object):
         return ret
 
     def get_next_color(self):
-        """
-        Return the next color in the cycle.
-        """
+        """Return the next color in the cycle."""
         if 'color' not in self._prop_keys:
             return 'k'
-        return six.next(self.prop_cycler)['color']
+        return next(self.prop_cycler)['color']
 
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
@@ -275,7 +273,7 @@ class _process_plot_var_args(object):
                for k in prop_keys):
             # Need to copy this dictionary or else the next time around
             # in the cycle, the dictionary could be missing entries.
-            default_dict = six.next(self.prop_cycler).copy()
+            default_dict = next(self.prop_cycler).copy()
             for p in ignore:
                 default_dict.pop(p, None)
         else:

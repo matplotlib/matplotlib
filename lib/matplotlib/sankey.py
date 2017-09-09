@@ -748,7 +748,7 @@ class Sankey(object):
             fc = kwargs.pop('fc', kwargs.pop('facecolor', None))
             lw = kwargs.pop('lw', kwargs.pop('linewidth', None))
         if fc is None:
-            fc = six.next(self.ax._get_patches_for_fill.prop_cycler)['color']
+            fc = next(self.ax._get_patches_for_fill.prop_cycler)['color']
         patch = PathPatch(Path(vertices, codes), fc=fc, lw=lw, **kwargs)
         self.ax.add_patch(patch)
 
