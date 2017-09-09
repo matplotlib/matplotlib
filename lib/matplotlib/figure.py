@@ -1564,7 +1564,7 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
-        Get the current axes, creating one if necessary
+        Get the current axes, creating one if necessary.
 
         The following kwargs are supported for ensuring the returned axes
         adheres to the given projection etc., and for axes creation if
@@ -1610,17 +1610,14 @@ class Figure(Artist):
         return self.add_subplot(1, 1, 1, **kwargs)
 
     def sca(self, a):
-        'Set the current axes to be a and return a'
+        """Set the current axes to be a and return a."""
         self._axstack.bubble(a)
         for func in self._axobservers:
             func(self)
         return a
 
     def _gci(self):
-        """
-        helper for :func:`~matplotlib.pyplot.gci`;
-        do not use elsewhere.
-        """
+        """Get the current colorable artist."""
         # Look first for an image in the current Axes:
         cax = self._axstack.current_key_axes()[1]
         if cax is None:
@@ -1846,18 +1843,30 @@ class Figure(Artist):
         self.stale = True
         return cb
 
-    def subplots_adjust(self, *args, **kwargs):
+    def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
+                        wspace=None, hspace=None):
         """
-        Call signature::
+        Update the figure's `SubplotParams` and the subplot locations.
 
-          subplots_adjust(left=None, bottom=None, right=None, top=None,
-                              wspace=None, hspace=None)
+        All parameters default to their respective rcParams.
 
-        Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
-        *None*) and update the subplot locations
-
+        Parameters
+        ----------
+        left : float
+            Left edge of the subplots of the figure.
+        right : float
+            Right edge of the subplots of the figure.
+        bottom : float
+            Bottom edge of the subplots of the figure.
+        top : float
+            Top edge of the subplots of the figure.
+        wspace : float
+            Amount of width reserved as blank space between subplots.
+        hspace : float
+            Amount of height reserved as blank space between subplots.
         """
-        self.subplotpars.update(*args, **kwargs)
+        self.subplotpars.update(left=left, bottom=bottom, right=right, top=top,
+                                wspace=wspace, hspace=hspace)
         for ax in self.axes:
             if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis
@@ -1974,20 +1983,20 @@ class Figure(Artist):
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):
         """
-        Adjust subplot parameters to give specified padding.
+        Automatically adjust subplot parameters to give specified padding.
 
-        Parameters:
-
-          pad : float
-            padding between the figure edge and the edges of subplots,
-            as a fraction of the font-size.
-          h_pad, w_pad : float
-            padding (height/width) between edges of adjacent subplots.
-            Defaults to `pad_inches`.
-          rect : if rect is given, it is interpreted as a rectangle
-            (left, bottom, right, top) in the normalized figure
-            coordinate that the whole subplots area (including
-            labels) will fit into. Default is (0, 0, 1, 1).
+        Parameters
+        ----------
+        pad : float, optional
+            Padding between the figure edge and the edges of subplots, as a
+            fraction of the font-size.
+        h_pad, w_pad : float, optional
+            Padding (height/width) between edges of adjacent subplots.
+            Defaults to *pad_inches*.
+        rect : Tuple[float, float, float, float], optional
+            (left, bottom, right, top) rectangle in normalized figure
+            coordinates that the whole subplots area (including labels) will
+            fit into.  Defaults to using the entire figure.
         """
 
         from .tight_layout import (

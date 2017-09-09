@@ -113,11 +113,11 @@ _INSTALL_FIG_OBSERVER = False
 
 def install_repl_displayhook():
     """
-    Install a repl display hook so that any stale figure are automatically
-    redrawn when control is returned to the repl.
+    Install a REPL display hook so that any stale figure are automatically
+    redrawn when control is returned to the REPL.
 
-    This works with IPython terminals and kernels,
-    as well as vanilla python shells.
+    This works with IPython terminals and kernels, as well as vanilla Python
+    shells.
     """
     global _IP_REGISTERED
     global _INSTALL_FIG_OBSERVER
@@ -167,7 +167,7 @@ def install_repl_displayhook():
 
 def uninstall_repl_displayhook():
     """
-    Uninstalls the matplotlib display hook.
+    Uninstall the matplotlib display hook.
 
     .. warning
 
@@ -823,7 +823,7 @@ def subplot(*args, **kwargs):
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
              subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
-    Create a figure and a set of subplots
+    Create a figure and a set of subplots.
 
     This utility wrapper makes it convenient to create common layouts of
     subplots, including the enclosing figure object, in a single call.
@@ -1628,13 +1628,15 @@ def _setup_pyplot_info_docstrings():
     max_name = 0
     max_summary = 0
     for name in commands:
-        doc = globals()[name].__doc__
+        func = globals()[name]
+        doc = inspect.getdoc(func)
         summary = ''
         if doc is not None:
             match = first_sentence.match(doc)
             if match is not None:
                 summary = match.group(0).strip().replace('\n', ' ')
-        name = '`%s`' % name
+        name = ("`{0.__name__}`" if func.__module__ == __name__
+                else "`~{0.__module__}.{0.__name__}`").format(func)
         rows.append([name, summary])
         max_name = max(max_name, len(name))
         max_summary = max(max_summary, len(summary))
