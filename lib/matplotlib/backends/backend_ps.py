@@ -1345,18 +1345,13 @@ class FigureCanvasPS(FigureCanvasBase):
                                              paperHeight,
                                              orientation)
 
-            if rcParams['ps.usedistiller'] == 'ghostscript':
+            if (rcParams['ps.usedistiller'] == 'ghostscript'
+                    or rcParams['text.usetex']):
                 gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                            rotated=psfrag_rotated)
             elif rcParams['ps.usedistiller'] == 'xpdf':
                 xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
-            elif rcParams['text.usetex']:
-                if False:
-                    pass  # for debugging
-                else:
-                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                               rotated=psfrag_rotated)
 
             if is_writable_file_like(outfile):
                 if file_requires_unicode(outfile):
