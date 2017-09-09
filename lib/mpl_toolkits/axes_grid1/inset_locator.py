@@ -36,7 +36,7 @@ class InsetPosition(object):
 
         See Also
         --------
-        :meth:`matplotlib.axes.Axes.set_axes_locator`
+        `matplotlib.axes.Axes.set_axes_locator`
 
         Examples
         --------

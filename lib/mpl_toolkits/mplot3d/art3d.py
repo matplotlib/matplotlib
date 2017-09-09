@@ -71,7 +71,7 @@ class Text3D(mtext.Text):
         *text*         Text string to display
         *zdir*         Direction of text
 
-        Keyword arguments are passed onto :func:`~matplotlib.text.Text`.
+        Keyword arguments are passed onto `~matplotlib.text.Text`.
         '''
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir)
@@ -111,7 +111,7 @@ class Line3D(lines.Line2D):
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
         '''
-        Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+        Keyword arguments are passed onto `~matplotlib.lines.Line2D`.
         '''
         lines.Line2D.__init__(self, [], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
@@ -203,7 +203,7 @@ class Line3DCollection(LineCollection):
 
     def __init__(self, segments, *args, **kwargs):
         '''
-        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
+        Keyword arguments are passed onto `~matplotlib.collections.LineCollection`.
         '''
         LineCollection.__init__(self, segments, *args, **kwargs)
 
@@ -350,7 +350,7 @@ class Patch3DCollection(PatchCollection):
         the number of patches in the collection.
 
         Constructor arguments are the same as for
-        :class:`~matplotlib.collections.PatchCollection`. In addition,
+        `~matplotlib.collections.PatchCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
         Also, the keyword argument "depthshade" is available to
@@ -418,7 +418,7 @@ class Path3DCollection(PathCollection):
         the number of paths in the collection.
 
         Constructor arguments are the same as for
-        :class:`~matplotlib.collections.PathCollection`. In addition,
+        `~matplotlib.collections.PathCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
         Also, the keyword argument "depthshade" is available to
@@ -475,10 +475,10 @@ class Path3DCollection(PathCollection):
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     """
-    Convert a :class:`~matplotlib.collections.PatchCollection` into a
-    :class:`Patch3DCollection` object
-    (or a :class:`~matplotlib.collections.PathCollection` into a
-    :class:`Path3DCollection` object).
+    Convert a `~matplotlib.collections.PatchCollection` into a
+    `Patch3DCollection` object
+    (or a `~matplotlib.collections.PathCollection` into a
+    `Path3DCollection` object).
 
     Keywords:
 

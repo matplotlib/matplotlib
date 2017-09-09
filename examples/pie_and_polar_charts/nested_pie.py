@@ -13,7 +13,7 @@ import numpy as np
 
 ###############################################################################
 # The most straightforward way to build a pie chart is to use the
-# :meth:`pie method <matplotlib.axes.Axes.pie>`
+# `pie method <matplotlib.axes.Axes.pie>`
 #
 # In this case, pie takes values corresponding to counts in a group.
 # We'll first generate some fake data, corresponding to three groups.

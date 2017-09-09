@@ -16,8 +16,8 @@ Getting started
 ---------------
 An Axes3D object is created just like any other axes using
 the projection='3d' keyword.
-Create a new :class:`matplotlib.figure.Figure` and
-add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
+Create a new `matplotlib.figure.Figure` and
+add a new axes to it of type `~mpl_toolkits.mplot3d.Axes3D`::
 
    import matplotlib.pyplot as plt
    from mpl_toolkits.mplot3d import Axes3D

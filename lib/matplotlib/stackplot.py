@@ -48,10 +48,10 @@ def stackplot(axes, x, *args, **kwargs):
     *colors* : A list or tuple of colors. These will be cycled through and
                used to colour the stacked areas.
                All other keyword arguments are passed to
-               :func:`~matplotlib.Axes.fill_between`
+               `~matplotlib.Axes.fill_between`
 
     Returns *r* : A list of
-    :class:`~matplotlib.collections.PolyCollection`, one for each
+    `~matplotlib.collections.PolyCollection`, one for each
     element in the stacked area plot.
     """
 

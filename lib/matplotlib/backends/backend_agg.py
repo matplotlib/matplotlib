@@ -215,7 +215,7 @@ class RendererAgg(RendererBase):
         """
         Get the width, height, and descent (offset from the bottom
         to the baseline), in display coords, of the string *s* with
-        :class:`~matplotlib.font_manager.FontProperties` *prop*
+        `~matplotlib.font_manager.FontProperties` *prop*
         """
         if rcParams['text.usetex']:
             # todo: handle props

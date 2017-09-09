@@ -101,7 +101,7 @@ locals().update(cmap_d)
 
 def register_cmap(name=None, cmap=None, data=None, lut=None):
     """
-    Add a colormap to the set recognized by :func:`get_cmap`.
+    Add a colormap to the set recognized by `get_cmap`.
 
     It can be used in two ways::
 
@@ -109,12 +109,12 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
 
         register_cmap(name='choppy', data=choppydata, lut=128)
 
-    In the first case, *cmap* must be a :class:`matplotlib.colors.Colormap`
+    In the first case, *cmap* must be a `matplotlib.colors.Colormap`
     instance.  The *name* is optional; if absent, the name will
     be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
     In the second case, the three arguments are passed to
-    the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
+    the `~matplotlib.colors.LinearSegmentedColormap` initializer,
     and the resulting colormap is registered.
 
     """
@@ -142,10 +142,10 @@ def get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
 
-    Colormaps added with :func:`register_cmap` take precedence over
+    Colormaps added with `register_cmap` take precedence over
     built-in colormaps.
 
-    If *name* is a :class:`matplotlib.colors.Colormap` instance, it will be
+    If *name* is a `matplotlib.colors.Colormap` instance, it will be
     returned.
 
     If *lut* is not None it must be an integer giving the number of
@@ -181,12 +181,12 @@ class ScalarMappable(object):
 
         Parameters
         ----------
-        norm : :class:`matplotlib.colors.Normalize` instance
+        norm : `matplotlib.colors.Normalize` instance
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
-        cmap : str or :class:`~matplotlib.colors.Colormap` instance
+        cmap : str or `~matplotlib.colors.Colormap` instance
             The colormap used to map normalized data values to RGBA colors.
         """
 

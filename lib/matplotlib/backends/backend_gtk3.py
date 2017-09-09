@@ -57,7 +57,7 @@ cursord = {
 
 class TimerGTK3(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` using GTK3 for timer events.
+    Subclass of `backend_bases.TimerBase` using GTK3 for timer events.
 
     Attributes
     ----------
@@ -312,7 +312,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        Creates a new backend-specific subclass of `backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 

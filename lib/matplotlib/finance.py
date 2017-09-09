@@ -374,7 +374,7 @@ def quotes_historical_yahoo_ochl(ticker, date1, date2, asobject=False,
     """ Get historical data for ticker between date1 and date2.
 
 
-    See :func:`parse_yahoo_historical` for explanation of output formats
+    See `parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
 
     Parameters
@@ -416,7 +416,7 @@ def quotes_historical_yahoo_ohlc(ticker, date1, date2, asobject=False,
     """ Get historical data for ticker between date1 and date2.
 
 
-    See :func:`parse_yahoo_historical` for explanation of output formats
+    See `parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
 
     Parameters
@@ -458,7 +458,7 @@ def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
                             ochl=True):
     """ Get historical data for ticker between date1 and date2.
 
-    See :func:`parse_yahoo_historical` for explanation of output formats
+    See `parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
 
     Parameters

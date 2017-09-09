@@ -15,7 +15,7 @@ class TriFinder(object):
 
     Rather than instantiate an object of a class derived from TriFinder, it is
     usually better to use the function
-    :func:`matplotlib.tri.Triangulation.get_trifinder`.
+    `matplotlib.tri.Triangulation.get_trifinder`.
 
     Derived classes implement __call__(x,y) where x,y are array_like point
     coordinates of the same shape.
@@ -28,7 +28,7 @@ class TriFinder(object):
 
 class TrapezoidMapTriFinder(TriFinder):
     """
-    :class:`~matplotlib.tri.TriFinder` class implemented using the trapezoid
+    `~matplotlib.tri.TriFinder` class implemented using the trapezoid
     map algorithm from the book "Computational Geometry, Algorithms and
     Applications", second edition, by M. de Berg, M. van Kreveld, M. Overmars
     and O. Schwarzkopf.

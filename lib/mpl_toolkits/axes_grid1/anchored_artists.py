@@ -62,7 +62,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
         **kwargs :
             Keyworded arguments to pass to
-            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+            `matplotlib.offsetbox.AnchoredOffsetbox`.
 
         Attributes
         ----------
@@ -135,7 +135,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
 
         **kwargs :
             Keyworded arguments to pass to
-            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+            `matplotlib.offsetbox.AnchoredOffsetbox`.
 
         Attributes
         ----------
@@ -210,7 +210,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
 
         **kwargs :
             Keyworded arguments to pass to
-            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+            `matplotlib.offsetbox.AnchoredOffsetbox`.
 
         Attributes
         ----------
@@ -303,7 +303,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         **kwargs :
             Keyworded arguments to pass to
-            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+            `matplotlib.offsetbox.AnchoredOffsetbox`.
 
         Attributes
         ----------

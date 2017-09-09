@@ -100,7 +100,7 @@ plt.show()
 #
 # You can also dynamically change the default rc settings in a python script or
 # interactively from the python shell. All of the rc settings are stored in a
-# dictionary-like variable called :data:`matplotlib.rcParams`, which is global to
+# dictionary-like variable called `matplotlib.rcParams`, which is global to
 # the matplotlib package. rcParams can be modified directly, for example:
 
 mpl.rcParams['lines.linewidth'] = 2
@@ -109,18 +109,18 @@ plt.plot(data)
 
 ###############################################################################
 # Matplotlib also provides a couple of convenience functions for modifying rc
-# settings. The :func:`matplotlib.rc` command can be used to modify multiple
+# settings. The `matplotlib.rc` command can be used to modify multiple
 # settings in a single group at once, using keyword arguments:
 
 mpl.rc('lines', linewidth=4, color='g')
 plt.plot(data)
 
 ###############################################################################
-# The :func:`matplotlib.rcdefaults` command will restore the standard matplotlib
+# The `matplotlib.rcdefaults` command will restore the standard matplotlib
 # default settings.
 #
 # There is some degree of validation when setting the values of rcParams, see
-# :mod:`matplotlib.rcsetup` for details.
+# `matplotlib.rcsetup` for details.
 #
 # .. _customizing-with-matplotlibrc-files:
 #

@@ -1,11 +1,11 @@
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
-shoulders of python :mod:`datetime`, the add-on modules :mod:`pytz` and
-:mod:`dateutil`.  :class:`datetime` objects are converted to floating point
+shoulders of python `datetime`, the add-on modules `pytz` and
+`dateutil`.  `datetime` objects are converted to floating point
 numbers which represent time in days since 0001-01-01 UTC, plus 1.  For
 example, 0001-01-01, 06:00 is 1.25, not 0.25.  The helper functions
-:func:`date2num`, :func:`num2date` and :func:`drange` are used to facilitate
-easy conversion to and from :mod:`datetime` and numeric ranges.
+`date2num`, `num2date` and `drange` are used to facilitate
+easy conversion to and from `datetime` and numeric ranges.
 
 .. note::
 
@@ -26,18 +26,18 @@ easy conversion to and from :mod:`datetime` and numeric ranges.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
-:mod:`matplotlib.ticker` for general information on tick locators
+`matplotlib.ticker` for general information on tick locators
 and formatters.  These are described below.
 
 All the matplotlib date converters, tickers and formatters are
 timezone aware, and the default timezone is given by the timezone
 parameter in your :file:`matplotlibrc` file.  If you leave out a
-:class:`tz` timezone instance, the default from your rc file will be
+`tz` timezone instance, the default from your rc file will be
 assumed.  If you want to use a custom time zone, pass a
-:class:`pytz.timezone` instance with the tz keyword argument to
-:func:`num2date`, :func:`plot_date`, and any custom date tickers or
+`pytz.timezone` instance with the tz keyword argument to
+`num2date`, `plot_date`, and any custom date tickers or
 locators you create.  See `pytz <http://pythonhosted.org/pytz/>`_ for
-information on :mod:`pytz` and timezone handling.
+information on `pytz` and timezone handling.
 
 The `dateutil module <https://dateutil.readthedocs.io/en/stable/>`_ provides
 additional code to handle date ticking, making it easy to place ticks
@@ -71,28 +71,28 @@ The rrule locator allows completely general date ticking::
 
 Here are all the date tickers:
 
-    * :class:`MinuteLocator`: locate minutes
+    * `MinuteLocator`: locate minutes
 
-    * :class:`HourLocator`: locate hours
+    * `HourLocator`: locate hours
 
-    * :class:`DayLocator`: locate specified days of the month
+    * `DayLocator`: locate specified days of the month
 
-    * :class:`WeekdayLocator`: Locate days of the week, e.g., MO, TU
+    * `WeekdayLocator`: Locate days of the week, e.g., MO, TU
 
-    * :class:`MonthLocator`: locate months, e.g., 7 for july
+    * `MonthLocator`: locate months, e.g., 7 for july
 
-    * :class:`YearLocator`: locate years that are multiples of base
+    * `YearLocator`: locate years that are multiples of base
 
-    * :class:`RRuleLocator`: locate using a
-      :class:`matplotlib.dates.rrulewrapper`.  The
-      :class:`rrulewrapper` is a simple wrapper around a
-      :class:`dateutil.rrule` (`dateutil
+    * `RRuleLocator`: locate using a
+      `matplotlib.dates.rrulewrapper`.  The
+      `rrulewrapper` is a simple wrapper around a
+      `dateutil.rrule` (`dateutil
       <https://dateutil.readthedocs.io/en/stable/>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
-    * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`MultipleDateLocator` to set the view limits and the tick
+    * `AutoDateLocator`: On autoscale, this class picks the best
+      `MultipleDateLocator` to set the view limits and the tick
       locations.
 
 Date formatters
@@ -100,12 +100,12 @@ Date formatters
 
 Here all all the date formatters:
 
-    * :class:`AutoDateFormatter`: attempts to figure out the best format
-      to use.  This is most useful when used with the :class:`AutoDateLocator`.
+    * `AutoDateFormatter`: attempts to figure out the best format
+      to use.  This is most useful when used with the `AutoDateLocator`.
 
-    * :class:`DateFormatter`: use :func:`strftime` format strings
+    * `DateFormatter`: use `strftime` format strings
 
-    * :class:`IndexDateFormatter`: date plots with implicit *x*
+    * `IndexDateFormatter`: date plots with implicit *x*
       indexing.
 """
 from __future__ import (absolute_import, division, print_function,
@@ -209,9 +209,9 @@ WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
 def _to_ordinalf(dt):
     """
-    Convert :mod:`datetime` or :mod:`date` to the Gregorian date as UTC float
+    Convert `datetime` or `date` to the Gregorian date as UTC float
     days, preserving hours, minutes, seconds and microseconds.  Return value
-    is a :func:`float`.
+    is a `float`.
     """
     # Convert to UTC
     tzi = getattr(dt, 'tzinfo', None)
@@ -242,10 +242,10 @@ _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
-    seconds and microseconds.  Return value is a :class:`datetime`.
+    seconds and microseconds.  Return value is a `datetime`.
 
     The input date `x` is a float in ordinal days at UTC, and the output will
-    be the specified :class:`datetime` object corresponding to that time in
+    be the specified `datetime` object corresponding to that time in
     timezone `tz`, or if `tz` is `None`, in the timezone specified in
     `rcParams['timezone']`.
     """
@@ -322,7 +322,7 @@ _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 def datestr2num(d, default=None):
     """
     Convert a date string to a datenum using
-    :func:`dateutil.parser.parse`.
+    `dateutil.parser.parse`.
 
     Parameters
     ----------
@@ -350,7 +350,7 @@ def date2num(d):
 
     Parameters
     ----------
-    d : :class:`datetime` or sequence of :class:`datetime`
+    d : `datetime` or sequence of `datetime`
 
     Returns
     -------
@@ -423,10 +423,10 @@ def num2date(x, tz=None):
 
     Returns
     -------
-    :class:`datetime` or sequence of :class:`datetime`
+    `datetime` or sequence of `datetime`
         Dates are returned in timezone *tz*
 
-    If *x* is a sequence, a sequence of :class:`datetime` objects will
+    If *x* is a sequence, a sequence of `datetime` objects will
     be returned.
 
     Notes
@@ -455,8 +455,8 @@ _ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
 
 def num2timedelta(x):
     """
-    Converts number of days to a :class:`timdelta` object.
-    If *x* is a sequence, a sequence of :class:`timedelta` objects will
+    Converts number of days to a `timdelta` object.
+    If *x* is a sequence, a sequence of `timedelta` objects will
     be returned.
 
     Parameters
@@ -466,7 +466,7 @@ def num2timedelta(x):
 
     Returns
     -------
-    :class:`timedelta` or list[:class:`timedelta`]
+    `timedelta` or list[`timedelta`]
 
     """
     if not cbook.iterable(x):
@@ -481,8 +481,8 @@ def num2timedelta(x):
 def drange(dstart, dend, delta):
     """
     Return a date range as float Gregorian ordinals.  *dstart* and
-    *dend* are :class:`datetime` instances.  *delta* is a
-    :class:`datetime.timedelta` instance.
+    *dend* are `datetime` instances.  *delta* is a
+    `datetime.timedelta` instance.
     """
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
@@ -508,12 +508,12 @@ def drange(dstart, dend, delta):
 
 class DateFormatter(ticker.Formatter):
     """
-    Tick location is seconds since the epoch.  Use a :func:`strftime`
+    Tick location is seconds since the epoch.  Use a `strftime`
     format string.
 
-    Python only supports :mod:`datetime` :func:`strftime` formatting
+    Python only supports `datetime` `strftime` formatting
     for years greater than 1900.  Thanks to Andrew Dalke, Dalke
-    Scientific Software who contributed the :func:`strftime` code
+    Scientific Software who contributed the `strftime` code
     below to include dates earlier than this year.
     """
 
@@ -521,8 +521,8 @@ class DateFormatter(ticker.Formatter):
 
     def __init__(self, fmt, tz=None):
         """
-        *fmt* is a :func:`strftime` format string; *tz* is the
-         :class:`tzinfo` instance.
+        *fmt* is a `strftime` format string; *tz* is the
+         `tzinfo` instance.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -570,7 +570,7 @@ class DateFormatter(ticker.Formatter):
         """Call time.strftime for years before 1900 by rolling
         forward a multiple of 28 years.
 
-        *fmt* is a :func:`strftime` format string.
+        *fmt* is a `strftime` format string.
 
         Dalke: I hope I did this math right.  Every 28 years the
         calendar repeats, except through century leap years excepting
@@ -626,7 +626,7 @@ class DateFormatter(ticker.Formatter):
     def strftime(self, dt, fmt=None):
         """Refer to documentation for datetime.strftime.
 
-        *fmt* is a :func:`strftime` format string.
+        *fmt* is a `strftime` format string.
 
         Warning: For years before 1900, depending upon the current
         locale it is possible that the year displayed with %x might
@@ -647,13 +647,13 @@ class DateFormatter(ticker.Formatter):
 
 class IndexDateFormatter(ticker.Formatter):
     """
-    Use with :class:`~matplotlib.ticker.IndexLocator` to cycle format
+    Use with `~matplotlib.ticker.IndexLocator` to cycle format
     strings by index.
     """
     def __init__(self, t, fmt, tz=None):
         """
         *t* is a sequence of dates (floating point days).  *fmt* is a
-        :func:`strftime` format string.
+        `strftime` format string.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -675,7 +675,7 @@ class IndexDateFormatter(ticker.Formatter):
 class AutoDateFormatter(ticker.Formatter):
     """
     This class attempts to figure out the best format to use.  This is
-    most useful when used with the :class:`AutoDateLocator`.
+    most useful when used with the `AutoDateLocator`.
 
 
     The AutoDateFormatter has a scale dictionary that maps the scale
@@ -702,7 +702,7 @@ class AutoDateFormatter(ticker.Formatter):
     >>> formatter = AutoDateFormatter(locator)
     >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
 
-    A custom :class:`~matplotlib.ticker.FuncFormatter` can also be used.
+    A custom `~matplotlib.ticker.FuncFormatter` can also be used.
     The following example shows how to use a custom format function to strip
     trailing zeros from decimal seconds and adds the date to the first
     ticklabel::
@@ -799,7 +799,7 @@ class DateLocator(ticker.Locator):
 
     def __init__(self, tz=None):
         """
-        *tz* is a :class:`tzinfo` instance.
+        *tz* is a `tzinfo` instance.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -966,7 +966,7 @@ class RRuleLocator(DateLocator):
 class AutoDateLocator(DateLocator):
     """
     On autoscale, this class picks the best
-    :class:`DateLocator` to set the view limits and the tick
+    `DateLocator` to set the view limits and the tick
     locations.
     """
     def __init__(self, tz=None, minticks=5, maxticks=None,
@@ -981,10 +981,10 @@ class AutoDateLocator(DateLocator):
         individual rrule frequency constants (YEARLY, MONTHLY, etc.)
         to their own maximum number of ticks.  This can be used to keep
         the number of ticks appropriate to the format chosen in
-        :class:`AutoDateFormatter`. Any frequency not specified in this
+        `AutoDateFormatter`. Any frequency not specified in this
         dictionary is given a default value.
 
-        *tz* is a :class:`tzinfo` instance.
+        *tz* is a `tzinfo` instance.
 
         *interval_multiples* is a boolean that indicates whether ticks
         should be chosen to be multiple of the interval. This will lock
@@ -1281,8 +1281,8 @@ class WeekdayLocator(RRuleLocator):
         sequence.
 
         Elements of *byweekday* must be one of MO, TU, WE, TH, FR, SA,
-        SU, the constants from :mod:`dateutil.rrule`, which have been
-        imported into the :mod:`matplotlib.dates` namespace.
+        SU, the constants from `dateutil.rrule`, which have been
+        imported into the `matplotlib.dates` namespace.
 
         *interval* specifies the number of weeks to skip.  For example,
         ``interval=2`` plots every second week.
@@ -1478,7 +1478,7 @@ def num2epoch(d):
 
 def mx2num(mxdates):
     """
-    Convert mx :class:`datetime` instance (or sequence of mx
+    Convert mx `datetime` instance (or sequence of mx
     instances) to the new date format.
     """
     scalar = False
@@ -1567,7 +1567,7 @@ class DateConverter(units.ConversionInterface):
     """
     Converter for datetime.date and datetime.datetime data,
     or for date/time data represented as it would be converted
-    by :func:`date2num`.
+    by `date2num`.
 
     The 'unit' tag for such data is None or a tzinfo instance.
     """
@@ -1575,7 +1575,7 @@ class DateConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
         """
-        Return the :class:`~matplotlib.units.AxisInfo` for *unit*.
+        Return the `~matplotlib.units.AxisInfo` for *unit*.
 
         *unit* is a tzinfo instance or None.
         The *axis* argument is required but not used.
@@ -1594,7 +1594,7 @@ class DateConverter(units.ConversionInterface):
     def convert(value, unit, axis):
         """
         If *value* is not already a number or sequence of numbers,
-        convert it with :func:`date2num`.
+        convert it with `date2num`.
 
         The *unit* and *axis* arguments are not used.
         """

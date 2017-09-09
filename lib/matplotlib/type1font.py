@@ -321,7 +321,7 @@ class Type1Font(object):
         angle that the font is to be slanted to the right (so negative
         values slant to the left) and ``effects['extend']`` is the
         multiplier by which the font is to be extended (so values less
-        than 1.0 condense). Returns a new :class:`Type1Font` object.
+        than 1.0 condense). Returns a new `Type1Font` object.
         """
         with io.BytesIO() as buffer:
             tokenizer = self._tokens(self.parts[0])

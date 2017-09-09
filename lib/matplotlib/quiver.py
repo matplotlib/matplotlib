@@ -52,7 +52,7 @@ arrows, and *C* sets the color of the arrows. These arguments may be 1-D or
 If *X* and *Y* are absent, they will be generated as a uniform grid.
 If *U* and *V* are 2-D arrays and *X* and *Y* are 1-D, and if ``len(X)`` and
 ``len(Y)`` match the column and row dimensions of *U*, then *X* and *Y* will be
-expanded with :func:`numpy.meshgrid`.
+expanded with `numpy.meshgrid`.
 
 The default settings auto-scales the length of the arrows to a reasonable size.
 To change this behavior see the *scale* and *scale_units* kwargs.
@@ -155,12 +155,12 @@ pivot : [ 'tail' | 'mid' | 'middle' | 'tip' ], optional
     about this point, hence the name *pivot*.
 color : [ color | color sequence ], optional
     This is a synonym for the
-    :class:`~matplotlib.collections.PolyCollection` facecolor kwarg.
+    `~matplotlib.collections.PolyCollection` facecolor kwarg.
     If *C* has been set, *color* has no effect.
 
 Notes
 -----
-Additional :class:`~matplotlib.collections.PolyCollection`
+Additional `~matplotlib.collections.PolyCollection`
 keyword arguments:
 
 %(PolyCollection)s
@@ -217,11 +217,11 @@ Keyword arguments:
     0.1
 
   *labelcolor*:
-    defaults to default :class:`~matplotlib.text.Text` color.
+    defaults to default `~matplotlib.text.Text` color.
 
   *fontproperties*:
     A dictionary with keyword arguments accepted by the
-    :class:`~matplotlib.font_manager.FontProperties` initializer:
+    `~matplotlib.font_manager.FontProperties` initializer:
     *family*, *style*, *variant*, *size*, *weight*
 
 Any additional keyword arguments are used to override vector
@@ -773,7 +773,7 @@ All arguments may be 1-D or 2-D arrays or sequences. If *X* and *Y*
 are absent, they will be generated as a uniform grid.  If *U* and *V*
 are 2-D arrays but *X* and *Y* are 1-D, and if ``len(X)`` and ``len(Y)``
 match the column and row dimensions of *U*, then *X* and *Y* will be
-expanded with :func:`numpy.meshgrid`.
+expanded with `numpy.meshgrid`.
 
 *U*, *V*, *C* may be masked arrays, but masked *X*, *Y* are not
 supported at present.
@@ -880,7 +880,7 @@ magnitude for the barb shown above would nominally be 65, using the
 standard increments of 50, 10, and 5.
 
 linewidths and edgecolors can be used to customize the barb.
-Additional :class:`~matplotlib.collections.PolyCollection` keyword
+Additional `~matplotlib.collections.PolyCollection` keyword
 arguments:
 
 %(PolyCollection)s
@@ -893,14 +893,14 @@ class Barbs(mcollections.PolyCollection):
     '''
     Specialized PolyCollection for barbs.
 
-    The only API method is :meth:`set_UVC`, which can be used to
+    The only API method is `set_UVC`, which can be used to
     change the size, orientation, and color of the arrows.  Locations
-    are changed using the :meth:`set_offsets` collection method.
+    are changed using the `set_offsets` collection method.
     Possibly this method will be useful in animations.
 
-    There is one internal function :meth:`_find_tails` which finds
+    There is one internal function `_find_tails` which finds
     exactly what should be put on the barb given the vector magnitude.
-    From there :meth:`_make_barbs` is used to find the vertices of the
+    From there `_make_barbs` is used to find the vertices of the
     polygon to represent the barb based on this information.
     '''
     # This may be an abuse of polygons here to render what is essentially maybe
@@ -1005,7 +1005,7 @@ class Barbs(mcollections.PolyCollection):
         *nflags*, *nbarbs*, and *half_barb*, empty_flag* are,
         *respectively, the number of flags, number of barbs, flag for
         *half a barb, and flag for empty barb, ostensibly obtained
-        *from :meth:`_find_tails`.
+        *from `_find_tails`.
 
         *length* is the length of the barb staff in points.
 

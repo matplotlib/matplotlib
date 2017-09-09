@@ -93,7 +93,7 @@ class tostr(converter):
 class todatetime(converter):
     """convert to a datetime or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a :func:`time.strptime` format string for conversion'
+        'use a `time.strptime` format string for conversion'
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
 
@@ -108,7 +108,7 @@ class todatetime(converter):
 class todate(converter):
     """convert to a date or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        """use a :func:`time.strptime` format string for conversion"""
+        """use a `time.strptime` format string for conversion"""
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
 
@@ -591,7 +591,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     """
     *fname* can be a filename or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz.  *flag* is a
-    read/write flag for :func:`file`
+    read/write flag for `file`
     """
     if isinstance(fname, six.string_types):
         if fname.endswith('.gz'):
@@ -878,7 +878,7 @@ get_realpath_and_stat = GetRealpathAndStat()
 
 @deprecated('2.1')
 def dict_delall(d, keys):
-    """delete all of the *keys* from the :class:`dict` *d*"""
+    """delete all of the *keys* from the `dict` *d*"""
     for key in keys:
         try:
             del d[key]
@@ -1436,8 +1436,8 @@ class Grouper(object):
     together into disjoint sets when a full-blown graph data structure
     would be overkill.
 
-    Objects can be joined using :meth:`join`, tested for connectedness
-    using :meth:`joined`, and all disjoint sets can be retreived by
+    Objects can be joined using `join`, tested for connectedness
+    using `joined`, and all disjoint sets can be retreived by
     using the object as an iterator.
 
     The objects being joined must be hashable and weak-referenceable.
@@ -1614,7 +1614,7 @@ def delete_masked_points(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2, 3, and 4 if `np.isfinite`
     does not yield a Boolean array.
 
     All input arguments that are not passed unchanged are returned
@@ -1887,12 +1887,12 @@ def unmasked_index_ranges(mask, compressed=True):
 
     *mask* will be flattened if it is not already 1-D.
 
-    Returns Nx2 :class:`numpy.ndarray` with each row the start and stop
-    indices for slices of the compressed :class:`numpy.ndarray`
+    Returns Nx2 `numpy.ndarray` with each row the start and stop
+    indices for slices of the compressed `numpy.ndarray`
     corresponding to each of *N* uninterrupted runs of unmasked
     values.  If optional argument *compressed* is *False*, it returns
-    the start and stop indices into the original :class:`numpy.ndarray`,
-    not the compressed :class:`numpy.ndarray`.  Returns *None* if there
+    the start and stop indices into the original `numpy.ndarray`,
+    not the compressed `numpy.ndarray`.  Returns *None* if there
     are no unmasked values.
 
     Example::
@@ -1944,7 +1944,7 @@ def align_iterators(func, *iterables):
 
        (func(row), [rows from all iterators matching func(row)])
 
-    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
+    It is used by `matplotlib.mlab.recs_join` to join record arrays
     """
     class myiter:
         def __init__(self, it):

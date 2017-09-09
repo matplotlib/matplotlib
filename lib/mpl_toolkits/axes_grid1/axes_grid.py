@@ -153,11 +153,11 @@ class Grid(object):
                  axes_class=None,
                  ):
         """
-        Build an :class:`Grid` instance with a grid nrows*ncols
-        :class:`~matplotlib.axes.Axes` in
-        :class:`~matplotlib.figure.Figure` *fig* with
+        Build an `Grid` instance with a grid nrows*ncols
+        `~matplotlib.axes.Axes` in
+        `~matplotlib.figure.Figure` *fig* with
         *rect=[left, bottom, width, height]* (in
-        :class:`~matplotlib.figure.Figure` coordinates) or
+        `~matplotlib.figure.Figure` coordinates) or
         the subplot position code (e.g., "121").
 
         Optional keyword arguments:
@@ -175,7 +175,7 @@ class Grid(object):
           share_y           True      [ True | False ]
           label_mode        "L"       [ "L" | "1" | "all" ]
           axes_class        None      a type object which must be a subclass
-                                      of :class:`~matplotlib.axes.Axes`
+                                      of `~matplotlib.axes.Axes`
           ================  ========  =========================================
         """
         self._nrows, self._ncols = nrows_ncols
@@ -450,11 +450,11 @@ class ImageGrid(Grid):
                  axes_class=None,
                  ):
         """
-        Build an :class:`ImageGrid` instance with a grid nrows*ncols
-        :class:`~matplotlib.axes.Axes` in
-        :class:`~matplotlib.figure.Figure` *fig* with
+        Build an `ImageGrid` instance with a grid nrows*ncols
+        `~matplotlib.axes.Axes` in
+        `~matplotlib.figure.Figure` *fig* with
         *rect=[left, bottom, width, height]* (in
-        :class:`~matplotlib.figure.Figure` coordinates) or
+        `~matplotlib.figure.Figure` coordinates) or
         the subplot position code (e.g., "121").
 
         Optional keyword arguments:
@@ -477,7 +477,7 @@ class ImageGrid(Grid):
           cbar_set_cax      True      [ True | False ]
           axes_class        None      a type object which must be a subclass
                                       of axes_grid's subclass of
-                                      :class:`~matplotlib.axes.Axes`
+                                      `~matplotlib.axes.Axes`
           ================  ========  =========================================
 
         *cbar_set_cax* : if True, each axes in the grid has a cax

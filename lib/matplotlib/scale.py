@@ -24,23 +24,23 @@ class ScaleBase(object):
     Any subclasses will want to override:
 
       - :attr:`name`
-      - :meth:`get_transform`
-      - :meth:`set_default_locators_and_formatters`
+      - `get_transform`
+      - `set_default_locators_and_formatters`
 
     And optionally:
-      - :meth:`limit_range_for_scale`
+      - `limit_range_for_scale`
     """
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` object
+        Return the `~matplotlib.transforms.Transform` object
         associated with this scale.
         """
         raise NotImplementedError()
 
     def set_default_locators_and_formatters(self, axis):
         """
-        Set the :class:`~matplotlib.ticker.Locator` and
-        :class:`~matplotlib.ticker.Formatter` objects on the given
+        Set the `~matplotlib.ticker.Locator` and
+        `~matplotlib.ticker.Formatter` objects on the given
         axis to match this scale.
         """
         raise NotImplementedError()
@@ -79,7 +79,7 @@ class LinearScale(ScaleBase):
     def get_transform(self):
         """
         The transform for linear scaling is just the
-        :class:`~matplotlib.transforms.IdentityTransform`.
+        `~matplotlib.transforms.IdentityTransform`.
         """
         return IdentityTransform()
 
@@ -182,10 +182,10 @@ class LogScale(ScaleBase):
     C code in the common cases), this scale provides different
     transforms depending on the base of the logarithm:
 
-       - base 10 (:class:`Log10Transform`)
-       - base 2 (:class:`Log2Transform`)
-       - base e (:class:`NaturalLogTransform`)
-       - arbitrary base (:class:`LogTransform`)
+       - base 10 (`Log10Transform`)
+       - base 2 (`Log2Transform`)
+       - base e (`NaturalLogTransform`)
+       - arbitrary base (`LogTransform`)
     """
     name = 'log'
 
@@ -255,7 +255,7 @@ class LogScale(ScaleBase):
 
     def get_transform(self):
         """
-        Return a :class:`~matplotlib.transforms.Transform` instance
+        Return a `~matplotlib.transforms.Transform` instance
         appropriate for the given logarithm base.
         """
         return self._transform
@@ -419,7 +419,7 @@ class SymmetricalLogScale(ScaleBase):
 
     def get_transform(self):
         """
-        Return a :class:`SymmetricalLogTransform` instance.
+        Return a `SymmetricalLogTransform` instance.
         """
         return self._transform
 
@@ -489,7 +489,7 @@ class LogitScale(ScaleBase):
 
     def get_transform(self):
         """
-        Return a :class:`LogitTransform` instance.
+        Return a `LogitTransform` instance.
         """
         return self._transform
 
@@ -545,7 +545,7 @@ def register_scale(scale_class):
     """
     Register a new kind of scale.
 
-    *scale_class* must be a subclass of :class:`ScaleBase`.
+    *scale_class* must be a subclass of `ScaleBase`.
     """
     _scale_mapping[scale_class.name] = scale_class
 

@@ -14,12 +14,12 @@ class TriAnalyzer(object):
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalizer encapsulates a :class:`~matplotlib.tri.Triangulation`
+    A TriAnalizer encapsulates a `~matplotlib.tri.Triangulation`
     object and provides basic tools for mesh analysis and mesh improvement.
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation` object
+    triangulation : `~matplotlib.tri.Triangulation` object
         The encapsulated triangulation to analyze.
 
     Attributes
@@ -128,9 +128,9 @@ class TriAnalyzer(object):
 
         Returns a mask *new_mask* which allows to clean the encapsulated
         triangulation from its border-located flat triangles
-        (according to their :meth:`circle_ratios`).
+        (according to their `circle_ratios`).
         This mask is meant to be subsequently applied to the triangulation
-        using :func:`matplotlib.tri.Triangulation.set_mask` .
+        using `matplotlib.tri.Triangulation.set_mask` .
         *new_mask* is an extension of the initial triangulation mask
         in the sense that an initially masked triangle will remain masked.
 

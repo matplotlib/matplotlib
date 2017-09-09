@@ -5,8 +5,8 @@ Path Tutorial
 
 Defining paths in your Matplotlib visualization.
 
-The object underlying all of the :mod:`matplotlib.patch` objects is
-the :class:`~matplotlib.path.Path`, which supports the standard set of
+The object underlying all of the `matplotlib.patch` objects is
+the `~matplotlib.path.Path`, which supports the standard set of
 moveto, lineto, curveto commands to draw simple and compound outlines
 consisting of line segments and splines.  The ``Path`` is instantiated
 with a (N,2) array of (x,y) vertices, and a N-length array of path
@@ -116,12 +116,12 @@ plt.show()
 #
 # All of the simple patch primitives in matplotlib, Rectangle, Circle,
 # Polygon, etc, are implemented with simple path.  Plotting functions
-# like :meth:`~matplotlib.axes.Axes.hist` and
-# :meth:`~matplotlib.axes.Axes.bar`, which create a number of
+# like `~matplotlib.axes.Axes.hist` and
+# `~matplotlib.axes.Axes.bar`, which create a number of
 # primitives, e.g., a bunch of Rectangles, can usually be implemented more
 # efficiently using a compound path.  The reason ``bar`` creates a list
 # of rectangles and not a compound path is largely historical: the
-# :class:`~matplotlib.path.Path` code is comparatively new and ``bar``
+# `~matplotlib.path.Path` code is comparatively new and ``bar``
 # predates it.  While we could change it now, it would break old code,
 # so here we will cover how to create compound paths, replacing the
 # functionality in bar, in case you need to do so in your own code for
@@ -171,7 +171,7 @@ plt.show()
 #     verts[3::5,1] = bottom
 #
 # All that remains is to create the path, attach it to a
-# :class:`~matplotlib.patch.PathPatch`, and add it to our axes::
+# `~matplotlib.patch.PathPatch`, and add it to our axes::
 #
 #     barpath = path.Path(verts, codes)
 #     patch = patches.PathPatch(barpath, facecolor='green',

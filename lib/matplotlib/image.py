@@ -1228,14 +1228,14 @@ def imread(fname, format=None):
     otherwise the format is deduced from the filename.  If nothing can
     be deduced, PNG is tried.
 
-    Return value is a :class:`numpy.array`.  For grayscale images, the
+    Return value is a `numpy.array`.  For grayscale images, the
     return array is MxN.  For RGB images, the return value is MxNx3.
     For RGBA images the return value is MxNx4.
 
     matplotlib can only read PNGs natively, but if `PIL
     <http://www.pythonware.com/products/pil/>`_ is installed, it will
     use it to load the image and return an array (if possible) which
-    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings
+    can be used with `~matplotlib.pyplot.imshow`. Note, URL strings
     may not be compatible with PIL. Check the PIL documentation for more
     information.
     """
@@ -1394,7 +1394,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
       *preview*
         if True, the default backend (presumably a user interface
         backend) will be used which will cause a figure to be raised
-        if :func:`~matplotlib.pyplot.show` is called.  If it is False,
+        if `~matplotlib.pyplot.show` is called.  If it is False,
         a pure image backend will be used depending on the extension,
         'png'->FigureCanvasAgg, 'pdf'->FigureCanvasPdf,
         'svg'->FigureCanvasSVG

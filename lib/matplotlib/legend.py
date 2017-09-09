@@ -6,7 +6,7 @@ drawing legends associated with axes and/or figures.
 
     It is unlikely that you would ever create a Legend instance manually.
     Most users would normally create a legend via the
-    :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
+    `~matplotlib.axes.Axes.legend` function. For more details on legends
     there is also a :ref:`legend guide
     <sphx_glr_tutorials_intermediate_legend_guide.py>`.
 
@@ -15,7 +15,7 @@ and legend texts. Creation of corresponding legend handles from the
 plot elements in the axes or figures (e.g., lines, patches, etc.) are
 specified by the handler map, which defines the mapping between the
 plot elements and the legend handlers to be used (the default legend
-handlers are defined in the :mod:`~matplotlib.legend_handler` module).
+handlers are defined in the `~matplotlib.legend_handler` module).
 Note that not all kinds of artist are supported by the legend yet by default
 but it is possible to extend the legend handler's capabilities to support
 arbitrary objects. See the :ref:`legend guide
@@ -235,7 +235,7 @@ class Legend(Artist):
         Users can specify any arbitrary location for the legend using the
         *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
         of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
-        See :meth:`set_bbox_to_anchor` for more detail.
+        See `set_bbox_to_anchor` for more detail.
 
         The legend location can be specified by setting *loc* with a tuple of
         2 floats, which is interpreted as the lower-left corner of the legend

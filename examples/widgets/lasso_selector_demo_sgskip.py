@@ -27,10 +27,10 @@ class SelectFromCollection(object):
 
     Parameters
     ----------
-    ax : :class:`~matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         Axes to interact with.
 
-    collection : :class:`matplotlib.collections.Collection` subclass
+    collection : `matplotlib.collections.Collection` subclass
         Collection you want to select from.
 
     alpha_other : 0 <= float <= 1

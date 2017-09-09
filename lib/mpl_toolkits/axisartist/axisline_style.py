@@ -87,7 +87,7 @@ class _FancyAxislineStyle(object):
 
 class AxislineStyle(_Style):
     """
-    :class:`AxislineStyle` is a container class which defines style classes
+    `AxislineStyle` is a container class which defines style classes
     for AxisArtists.
 
     An instance of any axisline style class is an callable object,

@@ -246,7 +246,7 @@ class RadialLocator(mticker.Locator):
 
     Ensures that all ticks are strictly positive.  For all other
     tasks, it delegates to the base
-    :class:`~matplotlib.ticker.Locator` (which may be different
+    `~matplotlib.ticker.Locator` (which may be different
     depending on the scale of the *r*-axis.
     """
     def __init__(self, base, axes=None):
@@ -288,7 +288,7 @@ def _is_full_circle_deg(thetamin, thetamax):
     """
     Determine if a wedge (in degrees) spans the full circle.
 
-    The condition is derived from :class:`~matplotlib.patches.Wedge`.
+    The condition is derived from `~matplotlib.patches.Wedge`.
     """
     return abs(abs(thetamax - thetamin) - 360.0) < 1e-12
 
@@ -297,7 +297,7 @@ def _is_full_circle_rad(thetamin, thetamax):
     """
     Determine if a wedge (in radians) spans the full circle.
 
-    The condition is derived from :class:`~matplotlib.patches.Wedge`.
+    The condition is derived from `~matplotlib.patches.Wedge`.
     """
     return abs(abs(thetamax - thetamin) - 2 * np.pi) < 1.74e-14
 
@@ -824,8 +824,8 @@ class PolarAxes(Axes):
         and 0.95 is inside the axes.
 
         Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        *line* is `~matplotlib.lines.Line2D` instances and the
+        *label* is `~matplotlib.text.Text` instances.
 
         kwargs are optional text properties for the labels:
 
@@ -860,8 +860,8 @@ class PolarAxes(Axes):
         If *labels* is None, the built-in formatter will be used.
 
         Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        *line* is `~matplotlib.lines.Line2D` instances and the
+        *label* is `~matplotlib.text.Text` instances.
 
         kwargs are optional text properties for the labels:
 

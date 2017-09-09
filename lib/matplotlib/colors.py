@@ -7,19 +7,19 @@ range 0-1.
 This module includes functions and classes for color specification
 conversions, and for mapping numbers to colors in a 1-D array of colors called
 a colormap. Colormapping typically involves two steps: a data array is first
-mapped onto the range 0-1 using an instance of :class:`Normalize` or of a
+mapped onto the range 0-1 using an instance of `Normalize` or of a
 subclass; then this number in the 0-1 range is mapped to a color using an
-instance of a subclass of :class:`Colormap`.  Two are provided here:
-:class:`LinearSegmentedColormap`, which is used to generate all the built-in
+instance of a subclass of `Colormap`.  Two are provided here:
+`LinearSegmentedColormap`, which is used to generate all the built-in
 colormap instances, but is also useful for making custom colormaps, and
-:class:`ListedColormap`, which is used for generating a custom colormap from a
+`ListedColormap`, which is used for generating a custom colormap from a
 list of color specifications.
 
 The module also provides functions for checking whether an object can be
-interpreted as a color (:func:`is_color_like`), for converting such an object
-to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
-`#rrggbb` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
-RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
+interpreted as a color (`is_color_like`), for converting such an object
+to an RGBA tuple (`to_rgba`) or to an HTML-like hex string in the
+`#rrggbb` format (`to_hex`), and a sequence of colors to an `(n, 4)`
+RGBA array (`to_rgba_array`).  Caching is used for efficiency.
 
 Matplotlib recognizes the following formats to specify a color:
 
@@ -309,7 +309,7 @@ class ColorConverter(object):
         """
         Returns an *RGBA* tuple of four floats from 0-1.
 
-        For acceptable values of *arg*, see :meth:`to_rgb`.
+        For acceptable values of *arg*, see `to_rgb`.
         In addition, if *arg* is "none" (case-insensitive),
         then (0,0,0,0) will be returned.
         If *arg* is an *RGBA* sequence and *alpha* is not *None*,
@@ -399,8 +399,8 @@ class Colormap(object):
     Typically Colormap instances are used to convert data values (floats) from
     the interval ``[0, 1]`` to the RGBA color that the respective Colormap
     represents. For scaling of data into the ``[0, 1]`` interval see
-    :class:`matplotlib.colors.Normalize`. It is worth noting that
-    :class:`matplotlib.cm.ScalarMappable` subclasses make heavy use of this
+    `matplotlib.colors.Normalize`. It is worth noting that
+    `matplotlib.cm.ScalarMappable` subclasses make heavy use of this
     ``data->normalize->map-to-color`` processing chain.
 
     """
@@ -427,7 +427,7 @@ class Colormap(object):
         #: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
         #: the default value for the ``extend`` keyword in the
-        #: :class:`matplotlib.colorbar.Colorbar` constructor.
+        #: `matplotlib.colorbar.Colorbar` constructor.
         self.colorbar_extend = False
 
     def __call__(self, X, alpha=None, bytes=False):
@@ -597,8 +597,8 @@ class Colormap(object):
 
         Notes
         -----
-        See :meth:`LinearSegmentedColormap.reversed` and
-        :meth:`ListedColormap.reversed`
+        See `LinearSegmentedColormap.reversed` and
+        `ListedColormap.reversed`
         """
         raise NotImplementedError()
 
@@ -650,11 +650,11 @@ class LinearSegmentedColormap(Colormap):
 
         .. seealso::
 
-               :meth:`LinearSegmentedColormap.from_list`
+               `LinearSegmentedColormap.from_list`
                Static method; factory function for generating a
                smoothly-varying LinearSegmentedColormap.
 
-               :func:`makeMappingArray`
+               `makeMappingArray`
                For information about making a mapping array.
         """
         # True only if all colors in map are identical; needed for contouring.
@@ -1243,8 +1243,8 @@ class BoundaryNorm(Normalize):
     """
     Generate a colormap index based on discrete intervals.
 
-    Unlike :class:`Normalize` or :class:`LogNorm`,
-    :class:`BoundaryNorm` maps values to integers instead of to the
+    Unlike `Normalize` or `LogNorm`,
+    `BoundaryNorm` maps values to integers instead of to the
     interval 0-1.
 
     Mapping to the 0-1 interval could have been done via
@@ -1268,7 +1268,7 @@ class BoundaryNorm(Normalize):
             If clip is ``False``, out of range values are mapped to -1 if
             they are below ``boundaries[0]`` or mapped to ncolors if they are
             above ``boundaries[-1]``. These are then converted to valid indices
-            by :meth:`Colormap.__call__`.
+            by `Colormap.__call__`.
 
         Notes
         -----
@@ -1329,7 +1329,7 @@ class NoNorm(Normalize):
     """
     Dummy replacement for Normalize, for the case where we
     want to use indices directly in a
-    :class:`~matplotlib.cm.ScalarMappable` .
+    `~matplotlib.cm.ScalarMappable` .
     """
     def __call__(self, value, clip=None):
         return value
@@ -1515,10 +1515,10 @@ class LightSource(object):
     Angles are in degrees, with the azimuth measured
     clockwise from north and elevation up from the zero plane of the surface.
 
-    The :meth:`shade` is used to produce "shaded" rgb values for a data array.
-    :meth:`shade_rgb` can be used to combine an rgb image with
-    The :meth:`shade_rgb`
-    The :meth:`hillshade` produces an illumination map of a surface.
+    The `shade` is used to produce "shaded" rgb values for a data array.
+    `shade_rgb` can be used to combine an rgb image with
+    The `shade_rgb`
+    The `hillshade` produces an illumination map of a surface.
     """
     def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
                  hsv_min_sat=1, hsv_max_sat=0):
@@ -1541,8 +1541,8 @@ class LightSource(object):
         For backwards compatibility, the parameters *hsv_min_val*,
         *hsv_max_val*, *hsv_min_sat*, and *hsv_max_sat* may be supplied at
         initialization as well.  However, these parameters will only be used if
-        "blend_mode='hsv'" is passed into :meth:`shade` or :meth:`shade_rgb`.
-        See the documentation for :meth:`blend_hsv` for more details.
+        "blend_mode='hsv'" is passed into `shade` or `shade_rgb`.
+        See the documentation for `blend_hsv` for more details.
         """
         self.azdeg = azdeg
         self.altdeg = altdeg
@@ -1595,6 +1595,7 @@ class LightSource(object):
             full illumination or shadow (and clipping any values that move
             beyond 0 or 1). Note that this is not visually or mathematically
             the same as vertical exaggeration.
+
         Returns
         -------
         intensity : ndarray
@@ -1946,21 +1947,19 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     Parameters
     ----------
     levels : sequence of numbers
-        The quantization levels used to construct the :class:`BoundaryNorm`.
-        Values ``v`` are quantizized to level ``i`` if
-        ``lev[i] <= v < lev[i+1]``.
+        The quantization levels used to construct the `BoundaryNorm`.  Values
+        ``v`` are quantizized to level ``i`` if ``lev[i] <= v < lev[i+1]``.
     colors : sequence of colors
         The fill color to use for each level. If `extend` is "neither" there
         must be ``n_level - 1`` colors. For an `extend` of "min" or "max" add
         one extra color, and for an `extend` of "both" add two colors.
     extend : {'neither', 'min', 'max', 'both'}, optional
         The behaviour when a value falls out of range of the given levels.
-        See :func:`~matplotlib.pyplot.contourf` for details.
+        See `~matplotlib.pyplot.contourf` for details.
 
     Returns
     -------
-    (cmap, norm) : tuple containing a :class:`Colormap` and a \
-                   :class:`Normalize` instance
+    (cmap, norm) : tuple of a `Colormap` and a `Normalize` instance
     """
     colors_i0 = 0
     colors_i1 = None

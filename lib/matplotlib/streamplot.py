@@ -41,17 +41,17 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *color* : matplotlib color code, or 2d array
         Streamline color. When given an array with the same shape as
         velocities, *color* values are converted to colors using *cmap*.
-    *cmap* : :class:`~matplotlib.colors.Colormap`
+    *cmap* : `~matplotlib.colors.Colormap`
         Colormap used to plot streamlines and arrows. Only necessary when using
         an array input for *color*.
-    *norm* : :class:`~matplotlib.colors.Normalize`
+    *norm* : `~matplotlib.colors.Normalize`
         Normalize object used to scale luminance data to 0, 1. If None, stretch
         (min, max) to (0, 1). Only necessary when *color* is an array.
     *arrowsize* : float
         Factor scale arrow size.
     *arrowstyle* : str
         Arrow style specification.
-        See :class:`~matplotlib.patches.FancyArrowPatch`.
+        See `~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
     *start_points*: Nx2 array

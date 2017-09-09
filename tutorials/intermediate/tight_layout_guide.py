@@ -43,7 +43,7 @@ example_plot(ax, fontsize=24)
 # To prevent this, the location of axes needs to be adjusted. For
 # subplots, this can be done by adjusting the subplot params
 # (:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduces a new
-# command :func:`~matplotlib.pyplot.tight_layout` that does this
+# command `~matplotlib.pyplot.tight_layout` that does this
 # automatically for you.
 
 fig, ax = plt.subplots()
@@ -51,7 +51,7 @@ example_plot(ax, fontsize=24)
 plt.tight_layout()
 
 ###############################################################################
-# Note that :func:`matplotlib.pyplot.tight_layout` will only adjust the
+# Note that `matplotlib.pyplot.tight_layout` will only adjust the
 # subplot params when it is called.  In order to perform this adjustment each
 # time the figure is redrawn, you can call ``fig.set_tight_layout(True)``, or,
 # equivalently, set the ``figure.autolayout`` rcParam to ``True``.
@@ -68,7 +68,7 @@ example_plot(ax3)
 example_plot(ax4)
 
 ###############################################################################
-# :func:`~matplotlib.pyplot.tight_layout` will also adjust spacing between
+# `~matplotlib.pyplot.tight_layout` will also adjust spacing between
 # subplots to minimize the overlaps.
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
@@ -79,7 +79,7 @@ example_plot(ax4)
 plt.tight_layout()
 
 ###############################################################################
-# :func:`~matplotlib.pyplot.tight_layout` can take keyword arguments of
+# `~matplotlib.pyplot.tight_layout` can take keyword arguments of
 # *pad*, *w_pad* and *h_pad*. These control the extra padding around the
 # figure border and between subplots. The pads are specified in fraction
 # of fontsize.
@@ -92,7 +92,7 @@ example_plot(ax4)
 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
 ###############################################################################
-# :func:`~matplotlib.pyplot.tight_layout` will work even if the sizes of
+# `~matplotlib.pyplot.tight_layout` will work even if the sizes of
 # subplots are different as far as their grid specification is
 # compatible. In the example below, *ax1* and *ax2* are subplots of a 2x2
 # grid, while *ax3* is of a 1x2 grid.
@@ -112,7 +112,7 @@ plt.tight_layout()
 
 ###############################################################################
 # It works with subplots created with
-# :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
+# `~matplotlib.pyplot.subplot2grid`. In general, subplots created
 # from the gridspec (:ref:`sphx_glr_tutorials_intermediate_gridspec.py`) will work.
 
 plt.close('all')
@@ -148,7 +148,7 @@ plt.tight_layout()
 # Caveats
 # =======
 #
-#  * :func:`~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
+#  * `~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
 #    labels, and titles. Thus, other artists may be clipped and also may
 #    overlap.
 #
@@ -164,8 +164,8 @@ plt.tight_layout()
 # Use with GridSpec
 # =================
 #
-# GridSpec has its own :func:`~matplotlib.gridspec.GridSpec.tight_layout` method
-# (the pyplot api :func:`~matplotlib.pyplot.tight_layout` also works).
+# GridSpec has its own `~matplotlib.gridspec.GridSpec.tight_layout` method
+# (the pyplot api `~matplotlib.pyplot.tight_layout` also works).
 
 import matplotlib.gridspec as gridspec
 
@@ -234,7 +234,7 @@ plt.show()
 ###############################################################################
 # While this should be mostly good enough, adjusting top and bottom
 # may require adjustment of hspace also.  To update hspace & vspace, we
-# call :func:`~matplotlib.gridspec.GridSpec.tight_layout` again with updated
+# call `~matplotlib.gridspec.GridSpec.tight_layout` again with updated
 # rect argument. Note that the rect argument specifies the area including the
 # ticklabels, etc.  Thus, we will increase the bottom (which is 0 for the normal
 # case) by the difference between the *bottom* from above and the bottom of each
@@ -302,7 +302,7 @@ plt.tight_layout()
 # Colorbar
 # ========
 #
-# If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
+# If you create a colorbar with the `~matplotlib.pyplot.colorbar`
 # command, the created colorbar is an instance of Axes, *not* Subplot, so
 # tight_layout does not work. With Matplotlib v1.1, you may create a
 # colorbar as a subplot using the gridspec.

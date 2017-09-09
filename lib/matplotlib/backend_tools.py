@@ -2,10 +2,10 @@
 Abstract base classes define the primitives for Tools.
 These tools are used by `matplotlib.backend_managers.ToolManager`
 
-:class:`ToolBase`
+`ToolBase`
     Simple stateless tool
 
-:class:`ToolToggleBase`
+`ToolToggleBase`
     Tool that has two states, only one Toggle tool can be
     active at any given time for the same
     `matplotlib.backend_managers.ToolManager`

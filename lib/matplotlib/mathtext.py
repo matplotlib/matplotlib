@@ -1,5 +1,5 @@
 r"""
-:mod:`~matplotlib.mathtext` is a module for parsing a subset of the
+`~matplotlib.mathtext` is a module for parsing a subset of the
 TeX math syntax and drawing them to a matplotlib backend.
 
 For a tutorial of its usage see :ref:`sphx_glr_tutorials_text_mathtext.py`.  This
@@ -97,18 +97,18 @@ and the requested character is outside the BMP."""
 class MathtextBackend(object):
     """
     The base class for the mathtext backend-specific code.  The
-    purpose of :class:`MathtextBackend` subclasses is to interface
+    purpose of `MathtextBackend` subclasses is to interface
     between mathtext and a specific matplotlib graphics backend.
 
     Subclasses need to override the following:
 
-      - :meth:`render_glyph`
-      - :meth:`render_rect_filled`
-      - :meth:`get_results`
+      - `render_glyph`
+      - `render_rect_filled`
+      - `get_results`
 
     And optionally, if you need to use a FreeType hinting style:
 
-      - :meth:`get_hinting_type`
+      - `get_hinting_type`
     """
     def __init__(self):
         self.width = 0
@@ -393,11 +393,11 @@ class Fonts(object):
     def __init__(self, default_font_prop, mathtext_backend):
         """
         *default_font_prop*: A
-        :class:`~matplotlib.font_manager.FontProperties` object to use
+        `~matplotlib.font_manager.FontProperties` object to use
         for the default non-math font, or the base font for Unicode
         (generic) font rendering.
 
-        *mathtext_backend*: A subclass of :class:`MathTextBackend`
+        *mathtext_backend*: A subclass of `MathTextBackend`
         used to delegate the actual rendering.
         """
         self.default_font_prop = default_font_prop
@@ -1436,13 +1436,13 @@ class Hbox(Box):
 class Char(Node):
     """
     Represents a single character.  Unlike TeX, the font information
-    and metrics are stored with each :class:`Char` to make it easier
+    and metrics are stored with each `Char` to make it easier
     to lookup the font metrics when needed.  Note that TeX boxes have
     a width, height, and depth, unlike Type1 and Truetype which use a
     full bounding box and an advance in the x-direction.  The metrics
     must be converted to the TeX way, and the advance (if different
-    from width) must be converted into a :class:`Kern` node when the
-    :class:`Char` is added to its parent :class:`Hlist`.
+    from width) must be converted into a `Kern` node when the
+    `Char` is added to its parent `Hlist`.
     """
     def __init__(self, c, state, math=True):
         Node.__init__(self)
@@ -1477,7 +1477,7 @@ class Char(Node):
         """
         Return the amount of kerning between this and the given
         character.  Called when characters are strung together into
-        :class:`Hlist` to create :class:`Kern` nodes.
+        `Hlist` to create `Kern` nodes.
         """
         advance = self._metrics.advance - self.width
         kern = 0.
@@ -1613,9 +1613,9 @@ class Hlist(List):
 
     def kern(self):
         """
-        Insert :class:`Kern` nodes between :class:`Char` nodes to set
-        kerning.  The :class:`Char` nodes themselves determine the
-        amount of kerning they need (in :meth:`~Char.get_kerning`),
+        Insert `Kern` nodes between `Char` nodes to set
+        kerning.  The `Char` nodes themselves determine the
+        amount of kerning they need (in `~Char.get_kerning`),
         and this function just creates the linked list in the correct
         way.
         """
@@ -1651,7 +1651,7 @@ class Hlist(List):
 
     def hpack(self, w=0., m='additional'):
         """
-        The main duty of :meth:`hpack` is to compute the dimensions of
+        The main duty of `hpack` is to compute the dimensions of
         the resulting boxes, and to adjust the glue if one of those
         dimensions is pre-specified.  The computed sizes normally
         enclose all of the material inside the new box; but some items
@@ -1722,7 +1722,7 @@ class Vlist(List):
 
     def vpack(self, h=0., m='additional', l=float(inf)):
         """
-        The main duty of :meth:`vpack` is to compute the dimensions of
+        The main duty of `vpack` is to compute the dimensions of
         the resulting boxes, and to adjust the glue if one of those
         dimensions is pre-specified.
 
@@ -1788,13 +1788,13 @@ class Vlist(List):
 
 class Rule(Box):
     """
-    A :class:`Rule` node stands for a solid black rectangle; it has
+    A `Rule` node stands for a solid black rectangle; it has
     *width*, *depth*, and *height* fields just as in an
-    :class:`Hlist`. However, if any of these dimensions is inf, the
+    `Hlist`. However, if any of these dimensions is inf, the
     actual value will be determined by running the rule up to the
     boundary of the innermost enclosing box. This is called a "running
-    dimension." The width is never running in an :class:`Hlist`; the
-    height and depth are never running in a :class:`Vlist`.
+    dimension." The width is never running in an `Hlist`; the
+    height and depth are never running in a `Vlist`.
     """
     def __init__(self, width, height, depth, state):
         Box.__init__(self, width, height, depth)
@@ -1826,7 +1826,7 @@ class Vrule(Rule):
 class Glue(Node):
     """
     Most of the information in this object is stored in the underlying
-    :class:`GlueSpec` class, which is shared between multiple glue objects.  (This
+    `GlueSpec` class, which is shared between multiple glue objects.  (This
     is a memory optimization which probably doesn't matter anymore, but it's
     easier to stick to what TeX does.)
     """
@@ -1858,7 +1858,7 @@ class Glue(Node):
 
 class GlueSpec(object):
     """
-    See :class:`Glue`.
+    See `Glue`.
     """
     def __init__(self, width=0., stretch=0., stretch_order=0, shrink=0., shrink_order=0):
         self.width         = width
@@ -1922,7 +1922,7 @@ class SsGlue(Glue):
 
 class HCentered(Hlist):
     """
-    A convenience class to create an :class:`Hlist` whose contents are
+    A convenience class to create an `Hlist` whose contents are
     centered within its enclosing box.
     """
     def __init__(self, elements):
@@ -1931,7 +1931,7 @@ class HCentered(Hlist):
 
 class VCentered(Hlist):
     """
-    A convenience class to create a :class:`Vlist` whose contents are
+    A convenience class to create a `Vlist` whose contents are
     centered within its enclosing box.
     """
     def __init__(self, elements):
@@ -1939,7 +1939,7 @@ class VCentered(Hlist):
 
 class Kern(Node):
     """
-    A :class:`Kern` node has a width field to specify a (normally
+    A `Kern` node has a width field to specify a (normally
     negative) amount of spacing. This spacing correction appears in
     horizontal lists between letters like A and V when the font
     designer said that it looks better to move them closer together or
@@ -1968,7 +1968,7 @@ class Kern(Node):
 
 class SubSuperCluster(Hlist):
     """
-    :class:`SubSuperCluster` is a sort of hack to get around that fact
+    `SubSuperCluster` is a sort of hack to get around that fact
     that this code do a two-pass parse like TeX.  This lets us store
     enough information in the hlist itself, namely the nucleus, sub-
     and super-script, such that if another script follows that needs
@@ -1982,7 +1982,7 @@ class SubSuperCluster(Hlist):
 
 class AutoHeightChar(Hlist):
     """
-    :class:`AutoHeightChar` will create a character as close to the
+    `AutoHeightChar` will create a character as close to the
     given height and depth as possible.  When using a font with
     multiple height versions of some characters (such as the BaKoMa
     fonts), the correct glyph will be selected, otherwise this will
@@ -2019,7 +2019,7 @@ class AutoHeightChar(Hlist):
 
 class AutoWidthChar(Hlist):
     """
-    :class:`AutoWidthChar` will create a character as close to the
+    `AutoWidthChar` will create a character as close to the
     given width as possible.  When using a font with multiple width
     versions of some characters (such as the BaKoMa fonts), the
     correct glyph will be selected, otherwise this will always just
@@ -2047,9 +2047,9 @@ class Ship(object):
     """
     Once the boxes have been set up, this sends them to output.  Since
     boxes can be inside of boxes inside of boxes, the main work of
-    :class:`Ship` is done by two mutually recursive routines,
-    :meth:`hlist_out` and :meth:`vlist_out`, which traverse the
-    :class:`Hlist` nodes and :class:`Vlist` nodes inside of horizontal
+    `Ship` is done by two mutually recursive routines,
+    `hlist_out` and `vlist_out`, which traverse the
+    `Hlist` nodes and `Vlist` nodes inside of horizontal
     and vertical boxes.  The global variables used in TeX to store
     state as it processes have become member variables here.
     """
@@ -2508,7 +2508,7 @@ class Parser(object):
         Parse expression *s* using the given *fonts_object* for
         output, at the given *fontsize* and *dpi*.
 
-        Returns the parse tree of :class:`Node` instances.
+        Returns the parse tree of `Node` instances.
         """
         self._state_stack = [self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
         self._em_width_cache = {}
@@ -2561,19 +2561,19 @@ class Parser(object):
 
     def get_state(self):
         """
-        Get the current :class:`State` of the parser.
+        Get the current `State` of the parser.
         """
         return self._state_stack[-1]
 
     def pop_state(self):
         """
-        Pop a :class:`State` off of the stack.
+        Pop a `State` off of the stack.
         """
         self._state_stack.pop()
 
     def push_state(self):
         """
-        Push a new :class:`State` onto the stack which is just a copy
+        Push a new `State` onto the stack which is just a copy
         of the current state.
         """
         self._state_stack.append(self.get_state().copy())
@@ -3263,11 +3263,11 @@ class MathTextParser(object):
         """
         Parse the given math expression *s* at the given *dpi*.  If
         *prop* is provided, it is a
-        :class:`~matplotlib.font_manager.FontProperties` object
+        `~matplotlib.font_manager.FontProperties` object
         specifying the "default" font to use in the math expression,
         used for all non-math text.
 
-        The results are cached, so multiple calls to :meth:`parse`
+        The results are cached, so multiple calls to `parse`
         with the same expression should be fast.
         """
         # There is a bug in Python 3.x where it leaks frame references,

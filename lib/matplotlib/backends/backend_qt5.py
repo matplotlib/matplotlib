@@ -181,7 +181,7 @@ def _allow_super_init(__init__):
 
 class TimerQT(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` that uses Qt timer events.
+    Subclass of `backend_bases.TimerBase` that uses Qt timer events.
 
     Attributes
     ----------
@@ -413,7 +413,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`.  This is useful for getting
+        `backend_bases.Timer`.  This is useful for getting
         periodic events through the backend's native event
         loop. Implemented only for backends with GUIs.
 

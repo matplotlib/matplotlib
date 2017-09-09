@@ -86,12 +86,12 @@ class Sankey(object):
         The optional arguments listed above are applied to all subdiagrams so
         that there is consistent alignment and formatting.
 
-        If :class:`Sankey` is instantiated with any keyword arguments other
+        If `Sankey` is instantiated with any keyword arguments other
         than those explicitly listed above (``**kwargs``), they will be passed
-        to :meth:`add`, which will create the first subdiagram.
+        to `add`, which will create the first subdiagram.
 
         In order to draw a complex Sankey diagram, create an instance of
-        :class:`Sankey` by calling it without any kwargs::
+        `Sankey` by calling it without any kwargs::
 
             sankey = Sankey()
 
@@ -112,8 +112,8 @@ class Sankey(object):
 
         .. seealso::
 
-            :meth:`add`
-            :meth:`finish`
+            `add`
+            `finish`
 
 
         **Examples:**
@@ -356,7 +356,7 @@ class Sankey(object):
         """
         Add a simple Sankey diagram with flows at the same hierarchical level.
 
-        Return value is the instance of :class:`Sankey`.
+        Return value is the instance of `Sankey`.
 
         Optional keyword arguments:
 
@@ -409,7 +409,7 @@ class Sankey(object):
                             the left).
           ===============   ===================================================
 
-        Valid kwargs are :meth:`matplotlib.patches.PathPatch` arguments:
+        Valid kwargs are `matplotlib.patches.PathPatch` arguments:
 
         %(Patch)s
 
@@ -430,7 +430,7 @@ class Sankey(object):
 
         .. seealso::
 
-            :meth:`finish`
+            `finish`
         """
         # Check and preprocess the arguments.
         if flows is None:
@@ -804,7 +804,7 @@ class Sankey(object):
           Field             Description
           ===============   ===================================================
           *patch*           Sankey outline (an instance of
-                            :class:`~maplotlib.patches.PathPatch`)
+                            `~maplotlib.patches.PathPatch`)
           *flows*           values of the flows (positive for input, negative
                             for output)
           *angles*          list of angles of the arrows [deg/90]
@@ -818,18 +818,18 @@ class Sankey(object):
                             indicating the positions of the tips (or "dips") of
                             the flow paths
                             If the magnitude of a flow is less the *tolerance*
-                            for the instance of :class:`Sankey`, the flow is
+                            for the instance of `Sankey`, the flow is
                             skipped and its tip will be at the center of the
                             diagram.
-          *text*            :class:`~matplotlib.text.Text` instance for the
+          *text*            `~matplotlib.text.Text` instance for the
                             label of the diagram
-          *texts*           list of :class:`~matplotlib.text.Text` instances
+          *texts*           list of `~matplotlib.text.Text` instances
                             for the labels of flows
           ===============   ===================================================
 
         .. seealso::
 
-            :meth:`add`
+            `add`
         """
         self.ax.axis([self.extent[0] - self.margin,
                       self.extent[1] + self.margin,

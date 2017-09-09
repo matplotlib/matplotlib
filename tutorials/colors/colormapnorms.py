@@ -14,11 +14,11 @@ case).
 Matplotlib does this mapping in two steps, with a normalization from
 [0,1] occurring first, and then mapping onto the indices in the
 colormap.  Normalizations are classes defined in the
-:func:`matplotlib.colors` module.  The default, linear normalization is
-:func:`matplotlib.colors.Normalize`.
+`matplotlib.colors` module.  The default, linear normalization is
+`matplotlib.colors.Normalize`.
 
 Artists that map data to color pass the arguments *vmin* and *vmax* to
-construct a :func:`matplotlib.colors.Normalize` instance, then call it:
+construct a `matplotlib.colors.Normalize` instance, then call it:
 
 .. ipython::
 
@@ -37,10 +37,10 @@ Logarithmic
 
 One of the most common transformations is to plot data by taking
 its logarithm (to the base-10).  This transformation is useful to
-display changes across disparate scales.  Using :func:`colors.LogNorm`
+display changes across disparate scales.  Using `colors.LogNorm`
 normalizes the data via :math:`log_{10}`.  In the example below,
 there are two bumps, one much smaller than the other. Using
-:func:`colors.LogNorm`, the shape and location of each bump can clearly
+`colors.LogNorm`, the shape and location of each bump can clearly
 be seen:
 """
 import numpy as np
@@ -111,7 +111,7 @@ fig.show()
 #
 # Sometimes it is useful to remap the colors onto a power-law
 # relationship (i.e. :math:`y=x^{\gamma}`, where :math:`\gamma` is the
-# power).  For this we use the :func:`colors.PowerNorm`.  It takes as an
+# power).  For this we use the `colors.PowerNorm`.  It takes as an
 # argument *gamma* (*gamma* == 1.0 will just yield the default linear
 # normalization):
 #
@@ -142,7 +142,7 @@ fig.show()
 # ---------------
 #
 # Another normaization that comes with matplolib is
-# :func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
+# `colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
 # takes as arguments boundaries between which data is to be mapped.  The
 # colors are then linearly distributed between these "bounds".  For
 # instance:
@@ -192,13 +192,13 @@ fig.show()
 # ---------------------------------------
 #
 # It is possible to define your own normalization.  In the following
-# example, we modify :func:`colors:SymLogNorm` to use different linear
+# example, we modify `colors:SymLogNorm` to use different linear
 # maps for the negative data values and the positive.  (Note that this
 # example is simple, and does not validate inputs or account for complex
 # cases such as masked data)
 #
 # .. note::
-#    This may appear soon as :func:`colors.OffsetNorm`.
+#    This may appear soon as `colors.OffsetNorm`.
 #
 #    As above, non-symmetric mapping of data to color is non-standard
 #    practice for quantitative data, and should only be used advisedly.  A

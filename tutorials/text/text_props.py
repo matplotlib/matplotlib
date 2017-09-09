@@ -5,10 +5,10 @@
 
 Controlling properties of text and its layout with Matplotlib.
 
-The :class:`matplotlib.text.Text` instances have a variety of
+The `matplotlib.text.Text` instances have a variety of
 properties which can be configured via keyword arguments to the text
-commands (e.g., :func:`~matplotlib.pyplot.title`,
-:func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.text`).
+commands (e.g., `~matplotlib.pyplot.title`,
+`~matplotlib.pyplot.xlabel` and `~matplotlib.pyplot.text`).
 
 ==========================  ======================================================================================================================
 Property                    Value Type
@@ -53,7 +53,7 @@ the y positional argument for the text indicates the bottom, center or
 top side of the text bounding box.  ``multialignment``, for newline
 separated strings only, controls whether the different lines are left,
 center or right justified.  Here is an example which uses the
-:func:`~matplotlib.pyplot.text` command to show the various alignment
+`~matplotlib.pyplot.text` command to show the various alignment
 possibilities.  The use of ``transform=ax.transAxes`` throughout the
 code indicates that the coordinates are given relative to the axes
 bounding box, with 0,0 being the lower left of the axes and 1,1 the

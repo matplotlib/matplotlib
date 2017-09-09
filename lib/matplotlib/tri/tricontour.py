@@ -96,8 +96,8 @@ class TriContourSet(ContourSet):
 
     tricontour_doc = """
         Draw contours on an unstructured triangular grid.
-        :func:`~matplotlib.pyplot.tricontour` and
-        :func:`~matplotlib.pyplot.tricontourf` draw contour lines and
+        `~matplotlib.pyplot.tricontour` and
+        `~matplotlib.pyplot.tricontourf` draw contour lines and
         filled contours, respectively.  Except as noted, function
         signatures and return values are the same for both versions.
 
@@ -105,7 +105,7 @@ class TriContourSet(ContourSet):
 
           tricontour(triangulation, ...)
 
-        where triangulation is a :class:`matplotlib.tri.Triangulation`
+        where triangulation is a `matplotlib.tri.Triangulation`
         object, or
 
         ::
@@ -117,7 +117,7 @@ class TriContourSet(ContourSet):
           tricontour(x, y, triangles, mask=mask, ...)
 
         in which case a Triangulation object will be created.  See
-        :class:`~matplotlib.tri.Triangulation` for a explanation of
+        `~matplotlib.tri.Triangulation` for a explanation of
         these possibilities.
 
         The remaining arguments may be::
@@ -156,7 +156,7 @@ class TriContourSet(ContourSet):
         below for more details.
 
         ``C = tricontour(...)`` returns a
-        :class:`~matplotlib.contour.TriContourSet` object.
+        `~matplotlib.contour.TriContourSet` object.
 
         Optional keyword arguments:
 
@@ -174,12 +174,12 @@ class TriContourSet(ContourSet):
             The alpha blending value
 
           *cmap*: [ *None* | Colormap ]
-            A cm :class:`~matplotlib.colors.Colormap` instance or
+            A cm `~matplotlib.colors.Colormap` instance or
             *None*. If *cmap* is *None* and *colors* is *None*, a
             default Colormap is used.
 
           *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance for
+            A `matplotlib.colors.Normalize` instance for
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
 
@@ -199,7 +199,7 @@ class TriContourSet(ContourSet):
           *extent*: [ *None* | (x0,x1,y0,y1) ]
 
             If *origin* is not *None*, then *extent* is interpreted as
-            in :func:`matplotlib.pyplot.imshow`: it gives the outer
+            in `matplotlib.pyplot.imshow`: it gives the outer
             pixel boundaries. In this case, the position of Z[0,0]
             is the center of the pixel, not a corner. If *origin* is
             *None*, then (*x0*, *y0*) is the position of Z[0,0], and
@@ -210,7 +210,7 @@ class TriContourSet(ContourSet):
 
           *locator*: [ *None* | ticker.Locator subclass ]
             If *locator* is None, the default
-            :class:`~matplotlib.ticker.MaxNLocator` is used. The
+            `~matplotlib.ticker.MaxNLocator` is used. The
             locator is used to determine the contour levels if they
             are not given explicitly via the *V* argument.
 
@@ -220,12 +220,12 @@ class TriContourSet(ContourSet):
             are included. These added ranges are then mapped to the
             special colormap values which default to the ends of the
             colormap range, but can be set via
-            :meth:`matplotlib.colors.Colormap.set_under` and
-            :meth:`matplotlib.colors.Colormap.set_over` methods.
+            `matplotlib.colors.Colormap.set_under` and
+            `matplotlib.colors.Colormap.set_over` methods.
 
           *xunits*, *yunits*: [ *None* | registered units ]
             Override axis units by specifying an instance of a
-            :class:`matplotlib.units.ConversionInterface`.
+            `matplotlib.units.ConversionInterface`.
 
 
         tricontour-only keyword arguments:

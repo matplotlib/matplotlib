@@ -60,7 +60,7 @@ _prism_data = {
 
 def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
     """Return custom data dictionary of (r,g,b) conversion functions, which
-    can be used with :func:`register_cmap`, for the cubehelix color scheme.
+    can be used with `register_cmap`, for the cubehelix color scheme.
 
     Unlike most other color schemes cubehelix was designed by D.A. Green to
     be monotonically increasing in terms of perceived brightness.

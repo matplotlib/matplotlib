@@ -8,7 +8,7 @@ Generating legends flexibly in Matplotlib.
 .. currentmodule:: matplotlib.pyplot
 
 This legend guide is an extension of the documentation available at
-:func:`~matplotlib.pyplot.legend` - please ensure you are familiar with
+`~matplotlib.pyplot.legend` - please ensure you are familiar with
 contents of that documentation before proceeding with this guide.
 
 
@@ -34,27 +34,27 @@ This guide makes use of some common terms, which are documented here for clarity
 Controlling the legend entries
 ==============================
 
-Calling :func:`legend` with no arguments automatically fetches the legend
+Calling `legend` with no arguments automatically fetches the legend
 handles and their associated labels. This functionality is equivalent to::
 
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, labels)
 
-The :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` function returns
+The `~matplotlib.axes.Axes.get_legend_handles_labels` function returns
 a list of handles/artists which exist on the Axes which can be used to
 generate entries for the resulting legend - it is worth noting however that
 not all artists can be added to a legend, at which point a "proxy" will have
 to be created (see :ref:`proxy_legend_handles` for further details).
 
 # For full control of what is being added to the legend, it is common to pass
-# the appropriate handles directly to :func:`legend`
+# the appropriate handles directly to `legend`
 
     line_up, = plt.plot([1,2,3], label='Line 2')
     line_down, = plt.plot([3,2,1], label='Line 1')
     plt.legend(handles=[line_up, line_down])
 
 In some cases, it is not possible to set the label of the handle, so it is
-possible to pass through the list of labels to :func:`legend`::
+possible to pass through the list of labels to `legend`::
 
     line_up, = plt.plot([1,2,3], label='Line 2')
     line_down, = plt.plot([3,2,1], label='Line 1')
@@ -99,7 +99,7 @@ plt.show()
 # ===============
 #
 # The location of the legend can be specified by the keyword argument
-# *loc*. Please see the documentation at :func:`legend` for more details.
+# *loc*. Please see the documentation at `legend` for more details.
 #
 # The ``bbox_to_anchor`` keyword gives a great degree of control for manual
 # legend placement. For example, if you want your axes legend located at the
@@ -134,9 +134,9 @@ plt.show()
 #
 # Sometimes it is more clear to split legend entries across multiple
 # legends. Whilst the instinctive approach to doing this might be to call
-# the :func:`legend` function multiple times, you will find that only one
+# the `legend` function multiple times, you will find that only one
 # legend ever exists on the Axes. This has been done so that it is possible
-# to call :func:`legend` repeatedly to update the legend to the latest
+# to call `legend` repeatedly to update the legend to the latest
 # handles on the Axes, so to persist old legend instances, we must add them
 # manually to the Axes:
 
@@ -159,10 +159,10 @@ plt.show()
 # ===============
 #
 # In order to create legend entries, handles are given as an argument to an
-# appropriate :class:`~matplotlib.legend_handler.HandlerBase` subclass.
+# appropriate `~matplotlib.legend_handler.HandlerBase` subclass.
 # The choice of handler subclass is determined by the following rules:
 #
-#     1. Update :func:`~matplotlib.legend.Legend.get_legend_handler_map`
+#     1. Update `~matplotlib.legend.Legend.get_legend_handler_map`
 #        with the value in the ``handler_map`` keyword.
 #     2. Check if the ``handle`` is in the newly created ``handler_map``.
 #     3. Check if the type of ``handle`` is in the newly created
@@ -171,16 +171,16 @@ plt.show()
 #        created ``handler_map``.
 #
 # For completeness, this logic is mostly implemented in
-# :func:`~matplotlib.legend.Legend.get_legend_handler`.
+# `~matplotlib.legend.Legend.get_legend_handler`.
 #
 # All of this flexibility means that we have the necessary hooks to implement
 # custom handlers for our own type of legend key.
 #
 # The simplest example of using custom handlers is to instantiate one of the
-# existing :class:`~matplotlib.legend_handler.HandlerBase` subclasses. For the
-# sake of simplicity, let's choose :class:`matplotlib.legend_handler.HandlerLine2D`
+# existing `~matplotlib.legend_handler.HandlerBase` subclasses. For the
+# sake of simplicity, let's choose `matplotlib.legend_handler.HandlerLine2D`
 # which accepts a ``numpoints`` argument (note numpoints is a keyword
-# on the :func:`legend` function for convenience). We can then pass the mapping
+# on the `legend` function for convenience). We can then pass the mapping
 # of instance to Handler as a keyword to legend.
 
 from matplotlib.legend_handler import HandlerLine2D
@@ -193,12 +193,12 @@ plt.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
 ###############################################################################
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
 # default). Try the above code, only change the map's key from ``line1`` to
-# ``type(line1)``. Notice how now both :class:`~matplotlib.lines.Line2D` instances
+# ``type(line1)``. Notice how now both `~matplotlib.lines.Line2D` instances
 # get 4 markers.
 #
 # Along with handlers for complex plot types such as errorbars, stem plots
 # and histograms, the default ``handler_map`` has a special ``tuple`` handler
-# (:class:`~matplotlib.legend_handler.HandlerTuple`) which simply plots
+# (`~matplotlib.legend_handler.HandlerTuple`) which simply plots
 # the handles on top of one another for each item in the given tuple. The
 # following example demonstrates combining two legend keys on top of one another:
 
@@ -213,7 +213,7 @@ white_cross, = plt.plot(z[:5], "w+", markeredgewidth=3, markersize=15)
 plt.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
 
 ###############################################################################
-# The :class:`~matplotlib.legend_handler.HandlerTuple` class can also be used to
+# The `~matplotlib.legend_handler.HandlerTuple` class can also be used to
 # assign several legend keys to the same entry:
 
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
@@ -232,7 +232,7 @@ l = plt.legend([(p1, p2)], ['Two keys'], numpoints=1,
 # don't necessarily need to be matplotlib artists).
 # The handler must implement a "legend_artist" method which returns a
 # single artist for the legend to use. Signature details about the "legend_artist"
-# are documented at :meth:`~matplotlib.legend_handler.HandlerBase.legend_artist`.
+# are documented at `~matplotlib.legend_handler.HandlerBase.legend_artist`.
 
 import matplotlib.patches as mpatches
 

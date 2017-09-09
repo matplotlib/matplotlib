@@ -1031,7 +1031,7 @@ class Animation(object):
        A class that can run a callback when desired events
        are generated, as well as be stopped and started.
 
-       Examples include timers (see :class:`TimedAnimation`) and file
+       Examples include timers (see `TimedAnimation`) and file
        system notifications.
 
     blit : bool, optional
@@ -1104,7 +1104,7 @@ class Animation(object):
         filename : str
             The output filename, e.g., :file:`mymovie.mp4`.
 
-        writer : :class:`MovieWriter` or str, optional
+        writer : `MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
             class to use, such as 'ffmpeg' or 'mencoder'. If ``None``,
             defaults to ``rcParams['animation.writer']``.
@@ -1120,7 +1120,7 @@ class Animation(object):
 
         codec : str, optional
            The video codec to be used. Not all codecs are supported by
-           a given :class:`MovieWriter`. If ``None``,
+           a given `MovieWriter`. If ``None``,
            default to ``rcParams['animation.codec']``.
 
         bitrate : number, optional
@@ -1154,9 +1154,9 @@ class Animation(object):
         Notes
         -----
         fps, codec, bitrate, extra_args, metadata are used to
-        construct a :class:`MovieWriter` instance and can only be
+        construct a `MovieWriter` instance and can only be
         passed if `writer` is a string.  If they are passed as
-        non-`None` and ``writer`` is a :class:`MovieWriter`, a
+        non-`None` and ``writer`` is a `MovieWriter`, a
         `RuntimeError` will be raised.
 
         '''
@@ -1487,7 +1487,7 @@ class Animation(object):
 
 
 class TimedAnimation(Animation):
-    ''':class:`Animation` subclass for time-based animation.
+    '''`Animation` subclass for time-based animation.
 
     A new frame is drawn every *interval* milliseconds.
 

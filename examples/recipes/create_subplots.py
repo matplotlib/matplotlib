@@ -22,7 +22,7 @@ ax3 = fig.add_subplot(224, sharex=ax1, sharey=ax1)
 
 ###############################################################################
 # Fernando Perez has provided a nice top level method to create in
-# :func:`~matplotlib.pyplots.subplots` (note the "s" at the end)
+# `~matplotlib.pyplots.subplots` (note the "s" at the end)
 # everything at once, and turn on x and y sharing for the whole bunch.
 # You can either unpack the axes individually::
 

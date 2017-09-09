@@ -69,7 +69,7 @@ plt.title('Default date handling can cause overlapping labels')
 # What we'd like is for the location in the toolbar to have
 # a higher degree of precision, e.g., giving us the exact date out mouse is
 # hovering over.  To fix the first problem, we can use
-# :func:`matplotlib.figure.Figure.autofmt_xdate` and to fix the second
+# `matplotlib.figure.Figure.autofmt_xdate` and to fix the second
 # problem we can use the ``ax.fmt_xdata`` attribute which can be set to
 # any function that takes a scalar and returns a string.  matplotlib has
 # a number of date formatters built in, so we'll use one of those.

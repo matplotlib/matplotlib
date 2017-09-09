@@ -1,11 +1,11 @@
 """
 A module for finding, managing, and using fonts across platforms.
 
-This module provides a single :class:`FontManager` instance that can
-be shared across backends and platforms.  The :func:`findfont`
+This module provides a single `FontManager` instance that can
+be shared across backends and platforms.  The `findfont`
 function returns the best TrueType (TTF) font file in the local or
-system font path that matches the specified :class:`FontProperties`
-instance.  The :class:`FontManager` also handles Adobe Font Metrics
+system font path that matches the specified `FontProperties`
+instance.  The `FontManager` also handles Adobe Font Metrics
 (AFM) font files for use by the PostScript backend.
 
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
@@ -396,10 +396,10 @@ class FontEntry(object):
 
 def ttfFontProperty(font):
     """
-    A function for populating the :class:`FontKey` by extracting
+    A function for populating the `FontKey` by extracting
     information from the TrueType font file.
 
-    *font* is a :class:`FT2Font` instance.
+    *font* is a `FT2Font` instance.
     """
     name = font.family_name
 
@@ -480,10 +480,12 @@ def ttfFontProperty(font):
 
 def afmFontProperty(fontpath, font):
     """
-    A function for populating a :class:`FontKey` instance by
-    extracting information from the AFM font file.
+    Populate a `FontKey` instance with information from the AFM font file.
 
-    *font* is a class:`AFM` instance.
+    Parameters
+    ----------
+    fontpath : str
+    font : AFM
     """
 
     name = font.get_familyname()
@@ -1021,9 +1023,9 @@ class TempCache(object):
 
 class FontManager(object):
     """
-    On import, the :class:`FontManager` singleton instance creates a
+    On import, the `FontManager` singleton instance creates a
     list of TrueType fonts based on the font properties: name, style,
-    variant, weight, stretch, and size.  The :meth:`findfont` method
+    variant, weight, stretch, and size.  The `findfont` method
     does a nearest neighbor search to find the font that most closely
     matches the specification.  If no good enough match is found, a
     default font is returned.
@@ -1245,9 +1247,9 @@ class FontManager(object):
                  fallback_to_default=True, rebuild_if_missing=True):
         """
         Search the font list for the font that most closely matches
-        the :class:`FontProperties` *prop*.
+        the `FontProperties` *prop*.
 
-        :meth:`findfont` performs a nearest neighbor search.  Each
+        `findfont` performs a nearest neighbor search.  Each
         font is given a similarity score to the target font
         properties.  The first font with the highest score is
         returned.  If no matches below a certain threshold are found,

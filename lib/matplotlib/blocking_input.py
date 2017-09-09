@@ -2,21 +2,21 @@
 This provides several classes used for blocking interaction with figure
 windows:
 
-:class:`BlockingInput`
+`BlockingInput`
     creates a callable object to retrieve events in a blocking way for
     interactive sessions
 
-:class:`BlockingKeyMouseInput`
+`BlockingKeyMouseInput`
     creates a callable object to retrieve key or mouse clicks in a blocking
     way for interactive sessions.
     Note: Subclass of BlockingInput. Used by waitforbuttonpress
 
-:class:`BlockingMouseInput`
+`BlockingMouseInput`
     creates a callable object to retrieve mouse clicks in a blocking way for
     interactive sessions.
     Note: Subclass of BlockingInput.  Used by ginput
 
-:class:`BlockingContourLabeler`
+`BlockingContourLabeler`
     creates a callable object to retrieve mouse clicks in a blocking way that
     will then be used to place labels on a ContourSet
     Note: Subclass of BlockingMouseInput.  Used by clabel

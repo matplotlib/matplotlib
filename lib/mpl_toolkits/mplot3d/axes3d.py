@@ -53,10 +53,10 @@ class Axes3D(Axes):
 
     def __init__(self, fig, rect=None, *args, **kwargs):
         '''
-        Build an :class:`Axes3D` instance in
-        :class:`~matplotlib.figure.Figure` *fig* with
+        Build an `Axes3D` instance in
+        `~matplotlib.figure.Figure` *fig* with
         *rect=[left, bottom, width, height]* in
-        :class:`~matplotlib.figure.Figure` coordinates
+        `~matplotlib.figure.Figure` coordinates
 
         Optional keyword arguments:
 
@@ -400,7 +400,7 @@ class Axes3D(Axes):
         All forms above set the xmargin, ymargin and zmargin
         parameters. All keyword parameters are optional.  A single argument
         specifies xmargin, ymargin and zmargin.  The *tight* parameter
-        is passed to :meth:`autoscale_view`, which is executed after
+        is passed to `autoscale_view`, which is executed after
         a margin is changed; the default here is *True*, on the
         assumption that when margins are specified, no additional
         padding to match tick marks is usually desired.  Setting
@@ -453,7 +453,7 @@ class Axes3D(Axes):
     def autoscale(self, enable=True, axis='both', tight=None):
         """
         Convenience method for simple axis view autoscaling.
-        See :meth:`matplotlib.axes.Axes.autoscale` for full explanation.
+        See `matplotlib.axes.Axes.autoscale` for full explanation.
         Note that this function behaves the same, but for all
         three axes.  Therfore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
@@ -504,7 +504,7 @@ class Axes3D(Axes):
                              scalez=True):
         """
         Autoscale the view limits using the data limits.
-        See :meth:`matplotlib.axes.Axes.autoscale_view` for documentation.
+        See `matplotlib.axes.Axes.autoscale_view` for documentation.
         Note that this function applies to the 3D axes, and as such
         adds the *scalez* to the function arguments.
 
@@ -605,7 +605,7 @@ class Axes3D(Axes):
         """
         Set 3D x limits.
 
-        See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
+        See `matplotlib.axes.Axes.set_xlim` for full documentation.
 
         """
         if 'xmin' in kw:
@@ -657,7 +657,7 @@ class Axes3D(Axes):
         """
         Set 3D y limits.
 
-        See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
+        See `matplotlib.axes.Axes.set_ylim` for full documentation.
 
         """
         if 'ymin' in kw:
@@ -709,7 +709,7 @@ class Axes3D(Axes):
         """
         Set 3D z limits.
 
-        See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
+        See `matplotlib.axes.Axes.set_ylim` for full documentation
 
         """
         if 'zmin' in kw:
@@ -842,7 +842,7 @@ class Axes3D(Axes):
     def set_zticks(self, *args, **kwargs):
         """
         Set z-axis tick locations.
-        See :meth:`matplotlib.axes.Axes.set_yticks` for more details.
+        See `matplotlib.axes.Axes.set_yticks` for more details.
 
         .. note::
             Minor ticks are not supported.
@@ -854,7 +854,7 @@ class Axes3D(Axes):
     def get_zticks(self, minor=False):
         """
         Return the z ticks as a list of locations
-        See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
+        See `matplotlib.axes.Axes.get_yticks` for more details.
 
         .. note::
             Minor ticks are not supported.
@@ -888,7 +888,7 @@ class Axes3D(Axes):
     def set_zticklabels(self, *args, **kwargs):
         """
         Set z-axis tick labels.
-        See :meth:`matplotlib.axes.Axes.set_yticklabels` for more details.
+        See `matplotlib.axes.Axes.set_yticklabels` for more details.
 
         .. note::
             Minor ticks are not supported by Axes3D objects.
@@ -900,7 +900,7 @@ class Axes3D(Axes):
     def get_zticklabels(self, minor=False):
         """
         Get ztick labels as a list of Text instances.
-        See :meth:`matplotlib.axes.Axes.get_yticklabels` for more details.
+        See `matplotlib.axes.Axes.get_yticklabels` for more details.
 
         .. note::
             Minor ticks are not supported.
@@ -914,7 +914,7 @@ class Axes3D(Axes):
         """
         Sets up z-axis ticks and labels that treat the z data as dates.
 
-        *tz* is a timezone string or :class:`tzinfo` instance.
+        *tz* is a timezone string or `tzinfo` instance.
         Defaults to rc value.
 
         .. note::
@@ -954,7 +954,7 @@ class Axes3D(Axes):
         'azim' stores the azimuth angle in the x,y plane.
 
         if elev or azim are None (default), then the initial value
-        is used which was specified in the :class:`Axes3D` constructor.
+        is used which was specified in the `Axes3D` constructor.
         """
 
         self.dist = 10
@@ -1231,7 +1231,7 @@ class Axes3D(Axes):
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         '''
-        Set zlabel.  See doc for :meth:`set_ylabel` for description.
+        Set zlabel.  See doc for `set_ylabel` for description.
 
         '''
         if labelpad is not None : self.zaxis.labelpad = labelpad
@@ -1301,7 +1301,7 @@ class Axes3D(Axes):
         .. note::
 
             Currently, this function does not behave the same as
-            :meth:`matplotlib.axes.Axes.grid`, but it is intended to
+            `matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
 
         .. versionchanged :: 1.1.0
@@ -1318,7 +1318,7 @@ class Axes3D(Axes):
         Convenience method for manipulating the ScalarFormatter
         used by default for linear axes in Axed3D objects.
 
-        See :meth:`matplotlib.axes.Axes.ticklabel_format` for full
+        See `matplotlib.axes.Axes.ticklabel_format` for full
         documentation.  Note that this version applies to all three
         axes of the Axes3D object.  Therefore, the *axis* argument
         will also accept a value of 'z' and the value of 'both' will
@@ -1380,7 +1380,7 @@ class Axes3D(Axes):
         """
         Convenience method for controlling tick locators.
 
-        See :meth:`matplotlib.axes.Axes.locator_params` for full
+        See `matplotlib.axes.Axes.locator_params` for full
         documentation  Note that this is for Axes3D objects,
         therefore, setting *axis* to 'both' will result in the
         parameters being set for all three axes.  Also, *axis*
@@ -1406,7 +1406,7 @@ class Axes3D(Axes):
         Convenience method for changing the appearance of ticks and
         tick labels.
 
-        See :meth:`matplotlib.axes.Axes.tick_params` for more complete
+        See `matplotlib.axes.Axes.tick_params` for more complete
         documentation.
 
         The only difference is that setting *axis* to 'both' will
@@ -1531,7 +1531,7 @@ class Axes3D(Axes):
         ==========  ================================================
 
         Other arguments are passed on to
-        :func:`~matplotlib.axes.Axes.plot`
+        `~matplotlib.axes.Axes.plot`
         '''
         had_data = self.has_data()
 
@@ -1601,7 +1601,7 @@ class Axes3D(Axes):
         ============= ================================================
 
         Other arguments are passed on to
-        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
         '''
 
         had_data = self.has_data()
@@ -1813,9 +1813,9 @@ class Axes3D(Axes):
         ==========  ================================================
 
         Keyword arguments are passed on to
-        :class:`~matplotlib.collections.LineCollection`.
+        `~matplotlib.collections.LineCollection`.
 
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
+        Returns a `~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         '''
 
         had_data = self.has_data()
@@ -1917,7 +1917,7 @@ class Axes3D(Axes):
 
           plot_trisurf(triangulation, ...)
 
-        where triangulation is a :class:`~matplotlib.tri.Triangulation`
+        where triangulation is a `~matplotlib.tri.Triangulation`
         object, or::
 
           plot_trisurf(X, Y, ...)
@@ -1925,7 +1925,7 @@ class Axes3D(Axes):
           plot_trisurf(X, Y, triangles=triangles, ...)
 
         in which case a Triangulation object will be created.  See
-        :class:`~matplotlib.tri.Triangulation` for a explanation of
+        `~matplotlib.tri.Triangulation` for a explanation of
         these possibilities.
 
         The remaining arguments are::
@@ -1936,7 +1936,7 @@ class Axes3D(Axes):
         in the triangulation.
 
         Other arguments are passed on to
-        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         **Examples:**
 
@@ -2106,9 +2106,9 @@ class Axes3D(Axes):
         ==========  ================================================
 
         The positional and other keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.contour`
+        `~matplotlib.axes.Axes.contour`
 
-        Returns a :class:`~matplotlib.axes.Axes.contour`
+        Returns a `~matplotlib.axes.Axes.contour`
         '''
 
         extend3d = kwargs.pop('extend3d', False)
@@ -2144,9 +2144,9 @@ class Axes3D(Axes):
         ==========  ================================================
 
         Other keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.tricontour`
+        `~matplotlib.axes.Axes.tricontour`
 
-        Returns a :class:`~matplotlib.axes.Axes.contour`
+        Returns a `~matplotlib.axes.Axes.contour`
 
         .. versionchanged:: 1.3.0
             Added support for custom triangulations
@@ -2197,9 +2197,9 @@ class Axes3D(Axes):
         ==========  ================================================
 
         The positional and keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.contourf`
+        `~matplotlib.axes.Axes.contourf`
 
-        Returns a :class:`~matplotlib.axes.Axes.contourf`
+        Returns a `~matplotlib.axes.Axes.contourf`
 
         .. versionchanged :: 1.1.0
             The *zdir* and *offset* kwargs were added.
@@ -2234,9 +2234,9 @@ class Axes3D(Axes):
         ==========  ================================================
 
         Other keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.tricontour`
+        `~matplotlib.axes.Axes.tricontour`
 
-        Returns a :class:`~matplotlib.axes.Axes.contour`
+        Returns a `~matplotlib.axes.Axes.contour`
 
         .. versionchanged :: 1.3.0
             Added support for custom triangulations
@@ -2336,9 +2336,9 @@ class Axes3D(Axes):
         ============  ========================================================
 
         Keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.scatter`.
+        `~matplotlib.axes.Axes.scatter`.
 
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
+        Returns a `~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
         '''
 
         had_data = self.has_data()
@@ -2382,9 +2382,9 @@ class Axes3D(Axes):
                     when plotting a 2D set.
         ==========  ================================================
 
-        Keyword arguments are passed onto :func:`~matplotlib.axes.Axes.bar`.
+        Keyword arguments are passed onto `~matplotlib.axes.Axes.bar`.
 
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
+        Returns a `~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
         '''
 
         had_data = self.has_data()
@@ -2455,14 +2455,14 @@ class Axes3D(Axes):
 
         zsort : str, optional
             The z-axis sorting scheme passed onto
-            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+            `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         shade : bool, optional (default = True)
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
         Any additional keyword arguments are passed onto
-        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Returns
         -------
@@ -2582,7 +2582,7 @@ class Axes3D(Axes):
                 depending on the values of u,v,w.
 
         Any additional keyword arguments are delegated to
-        :class:`~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         """
         def calc_arrow(uvw, angle=15):
@@ -2744,7 +2744,7 @@ class Axes3D(Axes):
             These can be used to plot non-cubic voxels.
 
             If not specified, defaults to increasing integers along each axis,
-            like those returned by :func:`~numpy.indices`.
+            like those returned by `~numpy.indices`.
             As indicated by the ``/`` in the function signature, these arguments
             can only be passed positionally.
 
@@ -2764,7 +2764,7 @@ class Axes3D(Axes):
 
         **kwargs
             Additional keyword arguments to pass onto
-            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+            `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Returns
         -------
