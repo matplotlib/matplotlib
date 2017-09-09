@@ -5,9 +5,6 @@ setup.cfg.template for more information.
 
 from __future__ import print_function, absolute_import
 from string import Template
-# This needs to be the very first thing to use distribute
-from distribute_setup import use_setuptools
-use_setuptools()
 from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 
