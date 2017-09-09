@@ -1536,9 +1536,8 @@ class BackportsFuncToolsLRUCache(SetupPackage):
             try:
                 import backports.functools_lru_cache
             except ImportError:
-                return (
-                    "backports.functools_lru_cache was not found. It is required for"
-                    "Python versions prior to 3.2")
+                return ("backports.functools_lru_cache was not found. It is "
+                        "required for Python 2.")
 
             return "using backports.functools_lru_cache"
         else:
@@ -1551,6 +1550,27 @@ class BackportsFuncToolsLRUCache(SetupPackage):
             return []
 
 
+class Funcsigs(SetupPackage):
+    name = "funcsigs"
+
+    def check(self):
+        if not PY3min:
+            try:
+                import funcsigs
+            except ImportError:
+                return "funcsigs was not found. It is required for Python 2."
+
+            return "using funcsigs"
+        else:
+            return "Not required"
+
+    def get_install_requires(self):
+        if not PY3min:
+            return ['funcsigs']
+        else:
+            return []
+
+
 class Subprocess32(SetupPackage):
     name = "subprocess32"
 
@@ -1559,10 +1579,8 @@ class Subprocess32(SetupPackage):
             try:
                 import subprocess32
             except ImportError:
-                return (
-                    "subprocess32 was not found. It used "
-                    " for Python versions prior to 3.2 to improves"
-                    " functionality on Linux and OSX")
+                return ("subprocess32 was not found. It used for Python 2 to "
+                        "improves functionality on Linux and OSX.")
 
             return "using subprocess32"
         else:

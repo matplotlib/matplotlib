@@ -4,52 +4,53 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from matplotlib import cbook
-import sys
-import types
 
 
 class Substitution(object):
-    """
-    A decorator to take a function's docstring and perform string
-    substitution on it.
+    """A decorator that performs %-substitution on an object's docstring.
 
-    This decorator should be robust even if func.__doc__ is None
-    (for example, if -OO was passed to the interpreter)
+    This decorator should be robust even if obj.__doc__ is None (for example,
+    if -OO was passed to the interpreter)
 
-    Usage: construct a docstring.Substitution with a sequence or
-    dictionary suitable for performing substitution; then
-    decorate a suitable function with the constructed object. e.g.
+    Usage: construct a docstring.Substitution with a sequence or dictionary
+    suitable for performing substitution; then decorate a suitable function
+    with the constructed object, e.g.::
 
-    sub_author_name = Substitution(author='Jason')
+        sub_author_name = Substitution(author='Jason')
 
-    @sub_author_name
-    def some_function(x):
-        "%(author)s wrote this function"
+        @sub_author_name
+        def some_function(x):
+            "%(author)s wrote this function"
 
-    # note that some_function.__doc__ is now "Jason wrote this function"
+        # note that some_function.__doc__ is now "Jason wrote this function"
 
-    One can also use positional arguments.
+    One can also use positional arguments::
 
-    sub_first_last_names = Substitution('Edgar Allen', 'Poe')
+        sub_first_last_names = Substitution('Edgar Allen', 'Poe')
 
-    @sub_first_last_names
-    def some_function(x):
-        "%s %s wrote the Raven"
+        @sub_first_last_names
+        def some_function(x):
+            "%s %s wrote the Raven"
     """
     def __init__(self, *args, **kwargs):
-        assert not (len(args) and len(kwargs)), \
-                "Only positional or keyword args are allowed"
+        if args and kwargs:
+            raise ValueError("Only positional or keyword args are allowed")
         self.params = args or kwargs
 
     def __call__(self, func):
-        func.__doc__ = func.__doc__ and func.__doc__ % self.params
+        if func.__doc__:
+            if six.PY2:
+                getattr(func, "im_func", func).__doc__ %= self.params
+            else:
+                func.__doc__ %= self.params
         return func
 
     def update(self, *args, **kwargs):
-        "Assume self.params is a dict and update it with supplied args"
+        """Assume self.params is a dict and update it with supplied args."""
         self.params.update(*args, **kwargs)
 
     @classmethod
+    @cbook.deprecated("2.2")
     def from_params(cls, params):
         """
         In the case where the params is a mutable sequence (list or
@@ -62,6 +63,7 @@ class Substitution(object):
         return result
 
 
+@cbook.deprecated("2.2")
 class Appender(object):
     """
     A function decorator that will append an addendum to the docstring
@@ -86,43 +88,52 @@ class Appender(object):
         self.join = join
 
     def __call__(self, func):
-        docitems = [func.__doc__, self.addendum]
-        func.__doc__ = func.__doc__ and self.join.join(docitems)
+        if func.__doc__:
+            func.__doc__ = self.join.join([func.__doc__, self.addendum])
         return func
 
 
+@cbook.deprecated("2.2")
 def dedent(func):
-    "Dedent a docstring (if present)"
-    func.__doc__ = func.__doc__ and cbook.dedent(func.__doc__)
+    """Dedent a docstring (if present)."""
+    if func.__doc__:
+        if six.PY2:
+            getattr(func, "im_func", func).__doc__ = cbook.dedent(func.__doc__)
+        else:
+            func.__doc__ = cbook.dedent(func.__doc__)
     return func
 
 
+@cbook.deprecated("2.2")
 def copy(source):
-    "Copy a docstring from another source function (if present)"
-    def do_copy(target):
+    """A decorator that copies the docstring from the source (if present)."""
+    def decorator(target):
         if source.__doc__:
             target.__doc__ = source.__doc__
         return target
-    return do_copy
+    return decorator
 
-# create a decorator that will house the various documentation that
-#  is reused throughout matplotlib
+# Create a decorator that will house the various documentation that is reused
+# throughout Matplotlib.
 interpd = Substitution()
 
 
 def dedent_interpd(func):
-    """A special case of the interpd that first performs a dedent on
-    the incoming docstring"""
-    if isinstance(func, types.MethodType) and not six.PY3:
-        func = func.im_func
-    return interpd(dedent(func))
+    """Decorator that dedents and interpolates an object's docstring.
+    """
+    if func.__doc__:
+        if six.PY2:
+            getattr(func, "im_func", func).__doc__ = cbook.dedent(func.__doc__)
+        else:
+            func.__doc__ = cbook.dedent(func.__doc__)
+    return interpd(func)
 
 
+@cbook.deprecated("2.2")
 def copy_dedent(source):
-    """A decorator that will copy the docstring from the source and
-    then dedent it"""
-    # note the following is ugly because "Python is not a functional
-    # language" - GVR. Perhaps one day, functools.compose will exist.
-    #  or perhaps not.
-    #  http://mail.python.org/pipermail/patches/2007-February/021687.html
-    return lambda target: dedent(copy(source)(target))
+    """A decorator that copies the dedented docstring from the source."""
+    def decorator(func):
+        if source.__doc__:
+            dedent(source)
+        return func
+    return decorator

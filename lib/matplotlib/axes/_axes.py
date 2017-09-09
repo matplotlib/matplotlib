@@ -230,7 +230,7 @@ class Axes(_AxesBase):
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set the label for the yaxis
+        Set the label for the yaxis.
 
         Parameters
         ----------

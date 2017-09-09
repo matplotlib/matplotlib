@@ -187,6 +187,7 @@ Matplotlib requires a large number of dependencies:
   * `six <https://pypi.python.org/pypi/six>`_
   * `backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
     (for Python 2.7 only)
+  * `funcsigs <https://pypi.python.org/pypi/funcsigs>`_ (for Python 2.7 only)
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
     2.7 only, on Linux and macOS only)
 
@@ -332,7 +333,7 @@ without fiddling with environment variables::
   # this package is only available in the conda-forge channel
   conda install -c conda-forge msinttypes
   # for Python 2.7
-  conda install -c conda-forge backports.functools_lru_cache
+  conda install -c conda-forge backports.functools_lru_cache funcsigs
 
   # copy the libs which have "wrong" names
   set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
