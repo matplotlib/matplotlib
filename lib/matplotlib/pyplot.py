@@ -2,8 +2,8 @@
 `matplotlib.pyplot` is a state-based interface to matplotlib. It provides
 a MATLAB-like way of plotting.
 
-pyplot is mainly intended for interactive plots and simple cases of programmatic
-plot generation::
+pyplot is mainly intended for interactive plots and simple cases of
+programmatic plot generation::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -64,7 +64,9 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
 
+
 ## Backend detection ##
+
 def _backend_selection():
     """ If rcParams['backend_fallback'] is true, check to see if the
         current backend is compatible with the current running event
@@ -74,7 +76,7 @@ def _backend_selection():
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
         return
     is_agg_backend = rcParams['backend'].endswith('Agg')
-    if 'wx' in sys.modules and not backend in ('WX', 'WXAgg'):
+    if 'wx' in sys.modules and backend not in ('WX', 'WXAgg'):
         import wx
         if wx.App.IsMainLoopRunning():
             rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
@@ -224,7 +226,8 @@ def switch_backend(newbackend):
     global _backend_mod, new_figure_manager, draw_if_interactive, _show
     matplotlib.use(newbackend, warn=False, force=True)
     from matplotlib.backends import pylab_setup
-    _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+    _backend_mod, new_figure_manager, draw_if_interactive, _show = \
+        pylab_setup()
 
 
 def show(*args, **kw):
@@ -284,9 +287,7 @@ def pause(interval):
     else:
         time.sleep(interval)
 
-
 ## Any Artist ##
-
 
 def xkcd(scale=1, length=100, randomness=2):
     """
@@ -359,7 +360,6 @@ def xkcd(scale=1, length=100, randomness=2):
         __exit__ = xkcd_ctx.__exit__
 
     return dummy_ctx()
-
 
 ## Figures ##
 
@@ -604,9 +604,7 @@ def close(*args):
     else:
         raise TypeError('close takes 0 or 1 arguments')
 
-
 ## Axes ##
-
 
 def axes(arg=None, **kwargs):
     """
@@ -683,8 +681,10 @@ def axes(arg=None, **kwargs):
 
 def delaxes(ax=None):
     """
-    Remove the given `Axes` *ax* from the current figure. If *ax* is *None*,
-    the current axes is removed. A KeyError is raised if the axes doesn't exist.
+    Remove the given `Axes` *ax* from the current figure.
+
+    If *ax* is *None*, the current axes is removed. A KeyError is raised if the
+    axes doesn't exist.
     """
     if ax is None:
         ax = gca()
@@ -736,12 +736,13 @@ def subplot(*args, **kwargs):
           import matplotlib.pyplot as plt
           # plot a line, implicitly creating a subplot(111)
           plt.plot([1,2,3])
-          # now create a subplot which represents the top plot of a grid
-          # with 2 rows and 1 column. Since this subplot will overlap the
-          # first, the plot (and its axes) previously created, will be removed
+          # now create a subplot which represents the top plot of a grid with
+          # 2 rows and 1 column. Since this subplot will overlap the first, the
+          # plot (and its axes) previously created, will be removed
           plt.subplot(211)
           plt.plot(range(12))
-          plt.subplot(212, facecolor='y') # creates 2nd subplot with yellow background
+          # create a second subplot with yellow background
+          plt.subplot(212, facecolor='y')
 
        If you do not want this behavior, use the
        :meth:`~matplotlib.figure.Figure.add_subplot` method or the
@@ -778,8 +779,8 @@ def subplot(*args, **kwargs):
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
-    if len(args)==0:
-        args=(1,1,1)
+    if len(args) == 0:
+        args = (1, 1, 1)
 
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
@@ -787,19 +788,17 @@ def subplot(*args, **kwargs):
     # ever occur, but mysterious behavior can result because what was
     # intended to be the sharex argument is instead treated as a
     # subplot index for subplot()
-    if len(args) >= 3 and isinstance(args[2], bool) :
-        warnings.warn("The subplot index argument to subplot() appears"
-                      " to be a boolean. Did you intend to use subplots()?")
+    if len(args) >= 3 and isinstance(args[2], bool):
+        warnings.warn("The subplot index argument to subplot() appears "
+                      "to be a boolean. Did you intend to use subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
     bbox = a.bbox
-    byebye = []
-    for other in fig.axes:
-        if other==a: continue
-        if bbox.fully_overlaps(other.bbox):
-            byebye.append(other)
-    for ax in byebye: delaxes(ax)
+    byebye = [other for other in fig.axes
+              if other is not a and bbox.fully_overlaps(other.bbox)]
+    for ax in byebye:
+        delaxes(ax)
 
     return a
 
@@ -1021,24 +1020,28 @@ def subplot_tool(targetfig=None):
     """
     Launch a subplot tool window for a figure.
 
-    A :class:`matplotlib.widgets.SubplotTool` instance is returned.
+    Returns
+    -------
+    `matplotlib.widgets.SubplotTool`
     """
-    tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
-    rcParams['toolbar'] = 'None'
+    tbar = rcParams["toolbar"]  # Turn off the nav toolbar for the toolfig.
+    rcParams["toolbar"] = "None"
     if targetfig is None:
         manager = get_current_fig_manager()
         targetfig = manager.canvas.figure
     else:
-        # find the manager for this figure
+        # Find the manager for this figure.
         for manager in _pylab_helpers.Gcf._activeQue:
-            if manager.canvas.figure==targetfig: break
-        else: raise RuntimeError('Could not find manager for targetfig')
+            if manager.canvas.figure == targetfig:
+                break
+        else:
+            raise RuntimeError("Could not find manager for targetfig")
 
-    toolfig = figure(figsize=(6,3))
+    toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    ret =  SubplotTool(targetfig, toolfig)
-    rcParams['toolbar'] = tbar
-    _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
+    ret = SubplotTool(targetfig, toolfig)
+    rcParams["toolbar"] = tbar
+    _pylab_helpers.Gcf.set_active(manager)  # Restore the current figure.
     return ret
 
 
@@ -1057,9 +1060,7 @@ def box(on=None):
         on = not ax.get_frame_on()
     ax.set_frame_on(on)
 
-
 ## Axis ##
-
 
 def xlim(*args, **kwargs):
     """
@@ -1225,15 +1226,14 @@ def rgrids(*args, **kwargs):
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
-        raise RuntimeError('rgrids only defined for polar axes')
-    if len(args)==0:
+        raise RuntimeError("rgrids only defined for polar axes")
+    if len(args) == 0:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
-
-    return ( silent_list('Line2D rgridline', lines),
-             silent_list('Text rgridlabel', labels) )
+    return (silent_list("Line2D rgridline", lines),
+            silent_list("Text rgridlabel", labels))
 
 
 def thetagrids(*args, **kwargs):
@@ -1271,31 +1271,27 @@ def thetagrids(*args, **kwargs):
 
       - *labels* are :class:`~matplotlib.text.Text` instances.
 
-    Note that on input, the *labels* argument is a list of strings,
-    and on output it is a list of :class:`~matplotlib.text.Text`
-    instances.
+    Note that on input, the *labels* argument is a list of strings, and on
+    output it is a list of :class:`~matplotlib.text.Text` instances.
 
     Examples::
 
       # set the locations of the radial gridlines and labels
-      lines, labels = thetagrids( range(45,360,90) )
+      lines, labels = thetagrids(range(45, 360, 90))
 
       # set the locations and labels of the radial gridlines and labels
-      lines, labels = thetagrids( range(45,360,90), ('NE', 'NW', 'SW','SE') )
+      lines, labels = thetagrids(range(45, 360, 90), ('NE', 'NW', 'SW', 'SE'))
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
-        raise RuntimeError('rgrids only defined for polar axes')
-    if len(args)==0:
+        raise RuntimeError("rgrids only defined for polar axes")
+    if len(args) == 0:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
         lines, labels = ax.set_thetagrids(*args, **kwargs)
-
-    return (silent_list('Line2D thetagridline', lines),
-            silent_list('Text thetagridlabel', labels)
-            )
-
+    return (silent_list("Line2D thetagridline", lines),
+            silent_list("Text thetagridlabel", labels))
 
 ## Plotting Info ##
 
@@ -1362,16 +1358,15 @@ def colors():
     Here is an example that creates a pale turquoise title::
 
       title('Is this the best color?', color='#afeeee')
-
     """
-    pass
 
 
 def colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using
-    :func:`~matplotlib.cm.register_cmap`.  This function documents the built-in
-    colormaps, and will also return a list of all registered colormaps if called.
+    `~matplotlib.cm.register_cmap`.  This function documents the built-in
+    colormaps, and will also return a list of all registered colormaps if
+    called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
@@ -1628,7 +1623,7 @@ def _setup_pyplot_info_docstrings():
     exclude = {"colormaps", "colors", "connect", "disconnect",
                "get_current_fig_manager", "ginput", "plotting",
                "waitforbuttonpress"}
-    commands =  sorted(set(__all__) - exclude - set(colormaps()))
+    commands = sorted(set(__all__) - exclude - set(colormaps()))
 
     first_sentence = re.compile(r"(?:\s*).+?\.(?:\s+|$)", flags=re.DOTALL)
 
@@ -1676,9 +1671,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
                                'with contourf).')
     if ax is None:
         ax = gca()
-
-    ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
-    return ret
+    return gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
 colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
 
@@ -1743,7 +1736,6 @@ def matshow(A, fignum=None, **kw):
     kwarg to "lower" if you want the first row in the array to be
     at the bottom instead of the top.
 
-
     *fignum*: [ None | integer | False ]
       By default, :func:`matshow` creates a new figure window with
       automatic numbering.  If *fignum* is given as an integer, the
@@ -1758,9 +1750,9 @@ def matshow(A, fignum=None, **kw):
     if fignum is False or fignum is 0:
         ax = gca()
     else:
-        # Extract actual aspect ratio of array and make appropriately sized figure
+        # Extract array's actual aspect ratio; make appropriately sized figure.
         fig = figure(fignum, figsize=figaspect(A))
-        ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
+        ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     im = ax.matshow(A, **kw)
     sci(im)
