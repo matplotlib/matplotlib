@@ -1763,18 +1763,19 @@ class _AxesBase(martist.Artist):
     # Adding and tracking artists
 
     def _sci(self, im):
-        """
-        helper for :func:`~matplotlib.pyplot.sci`;
-        do not use elsewhere.
+        """Set the current image.
+
+        This image will be the target of colormap functions like
+        `~matplotlib.pyplot.viridis`, and other functions such as
+        `~matplotlib.pyplot.hot` or `~matplotlib.pyplot.clim`.  The current
+        image is an attribute of the current axes.
         """
         if isinstance(im, matplotlib.contour.ContourSet):
             if im.collections[0] not in self.collections:
-                raise ValueError(
-                    "ContourSet must be in current Axes")
+                raise ValueError("ContourSet must be in current Axes")
         elif im not in self.images and im not in self.collections:
-            raise ValueError(
-                "Argument must be an image, collection, or ContourSet in "
-                "this Axes")
+            raise ValueError("Argument must be an image, collection, or "
+                             "ContourSet in this Axes")
         self._current_image = im
 
     def _gci(self):

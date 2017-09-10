@@ -1394,25 +1394,25 @@ def get_backend():
 
 def interactive(b):
     """
-    Set interactive mode to boolean b.
+    Set interactive mode to boolean *b*.
 
-    If b is True, then draw after every plotting command, e.g., after xlabel
+    If *b* is True, then draw after every plotting command, e.g., after xlabel.
     """
     rcParams['interactive'] = b
 
 
 def is_interactive():
-    'Return true if plot mode is interactive'
+    """Return whether interactive mode is on."""
     return rcParams['interactive']
 
 
 def tk_window_focus():
     """Return true if focus maintenance under TkAgg on win32 is on.
-     This currently works only for python.exe and IPython.exe.
-     Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on."""
-    if rcParams['backend'] != 'TkAgg':
-        return False
-    return rcParams['tk.window_focus']
+
+    This currently works only for python.exe and IPython.exe.
+    Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on.
+    """
+    return rcParams['backend'] == 'TkAgg' and rcParams['tk.window_focus']
 
 
 default_test_modules = [
