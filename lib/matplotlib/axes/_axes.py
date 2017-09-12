@@ -238,7 +238,7 @@ class Axes(_AxesBase):
             y label
 
         labelpad : scalar, optional, default: None
-            spacing in points between the label and the x-axis
+            spacing in points between the label and the y-axis
 
         Other Parameters
         ----------------
