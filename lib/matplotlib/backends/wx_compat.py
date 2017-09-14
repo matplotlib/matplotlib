@@ -145,12 +145,23 @@ def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
             kind = wx.ITEM_CHECK
         else:
             kind = wx.ITEM_NORMAL
-        parent.AddTool(wx_ids[text], label=text,
-                       bitmap=bmp,
-                       bmpDisabled=wx.NullBitmap,
-                       shortHelpString=text,
-                       longHelpString=tooltip_text,
-                       kind=kind)
+
+        if LooseVersion(wx.VERSION_STRING) >= LooseVersion("4.0.0b2"):
+            kwargs = dict(label=text,
+                          bitmap=bmp,
+                          bmpDisabled=wx.NullBitmap,
+                          shortHelp=text,
+                          longHelp=tooltip_text,
+                          kind=kind)
+        else:
+            kwargs = dict(label=text,
+                          bitmap=bmp,
+                          bmpDisabled=wx.NullBitmap,
+                          shortHelpString=text,
+                          longHelpString=tooltip_text,
+                          kind=kind)
+
+        parent.AddTool(wx_ids[text], **kwargs)
     else:
         if text in ['Pan', 'Zoom']:
             parent.AddCheckTool(
