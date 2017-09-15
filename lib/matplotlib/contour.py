@@ -78,7 +78,8 @@ class ContourLabeler(object):
         Parameters
         ----------
         fontsize : string or float, optional
-            Size in points or relative size e.g., 'smaller', 'x-large'
+            Size in points or relative size e.g., 'smaller', 'x-large'.
+            See `Text.set_size` for accepted string values.
 
         colors :
             Color of each label
@@ -133,8 +134,8 @@ class ContourLabeler(object):
             or minus 90 degrees from level. Default is ``True``.
 
         use_clabeltext : bool, optional
-            If ``True``, ClabelText class (instead of matplotlib.Text)
-            is used to create labels. ClabelText recalculates rotation angles
+            If ``True``, `ClabelText` class (instead of `Text`) is used to
+            create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes. Default is ``False``.
         """
@@ -149,7 +150,7 @@ class ContourLabeler(object):
 
         Once these attributes are set, clabel passes control to the
         labels method (case of automatic label placement) or
-        BlockingContourLabeler (case of manual label placement).
+        `BlockingContourLabeler` (case of manual label placement).
         """
 
         fontsize = kwargs.get('fontsize', None)
