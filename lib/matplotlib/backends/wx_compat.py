@@ -139,35 +139,37 @@ else:
     StockCursor = wx.StockCursor
 
 
+# wxPython Classic's DoAddTool has become AddTool in Phoenix. Otherwise
+# they are the same, except for early betas and prerelease builds of
+# Phoenix. This function provides a shim that does the RightThing based on
+# which wxPython is in use.
 def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
-    if is_phoenix:
-        if text in ['Pan', 'Zoom']:
-            kind = wx.ITEM_CHECK
-        else:
-            kind = wx.ITEM_NORMAL
-
-        if LooseVersion(wx.VERSION_STRING) >= LooseVersion("4.0.0b2"):
-            kwargs = dict(label=text,
-                          bitmap=bmp,
-                          bmpDisabled=wx.NullBitmap,
-                          shortHelp=text,
-                          longHelp=tooltip_text,
-                          kind=kind)
-        else:
-            kwargs = dict(label=text,
-                          bitmap=bmp,
-                          bmpDisabled=wx.NullBitmap,
-                          shortHelpString=text,
-                          longHelpString=tooltip_text,
-                          kind=kind)
-
-        parent.AddTool(wx_ids[text], **kwargs)
+    if text in ['Pan', 'Zoom']:
+        kind = wx.ITEM_CHECK
     else:
-        if text in ['Pan', 'Zoom']:
-            parent.AddCheckTool(
-                wx_ids[text],
-                bmp,
-                shortHelp=text,
-                longHelp=tooltip_text)
-        else:
-            parent.AddSimpleTool(wx_ids[text], bmp, text, tooltip_text)
+        kind = wx.ITEM_NORMAL
+    if is_phoenix:
+        add_tool = parent.AddTool
+    else:
+        add_tool = parent.DoAddTool
+
+    if not is_phoenix or LooseVersion(wx.VERSION_STRING) >= LooseVersion("4.0.0b2"):
+        # NOTE: when support for Phoenix prior to 4.0.0b2 is dropped then
+        # all that is needed is this clause, and the if and else clause can
+        # be removed.
+        kwargs = dict(label=text,
+                      bitmap=bmp,
+                      bmpDisabled=wx.NullBitmap,
+                      shortHelp=text,
+                      longHelp=tooltip_text,
+                      kind=kind)
+    else:
+        kwargs = dict(label=text,
+                      bitmap=bmp,
+                      bmpDisabled=wx.NullBitmap,
+                      shortHelpString=text,
+                      longHelpString=tooltip_text,
+                      kind=kind)
+
+    return add_tool(wx_ids[text], **kwargs)
+
