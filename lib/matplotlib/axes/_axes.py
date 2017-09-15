@@ -1391,7 +1391,7 @@ or tuple of floats
 
         The *kwargs* can be used to set line properties (any property that has
         a ``set_*`` method).  You can use this to set a line label (for auto
-        legends), linewidth, anitialising, marker face color, etc.  Here is an
+        legends), linewidth, antialiasing, marker face color, etc.  Here is an
         example::
 
             plot([1,2,3], [1,2,3], 'go-', label='line 1', linewidth=2)
