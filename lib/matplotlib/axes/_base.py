@@ -2993,7 +2993,14 @@ class _AxesBase(martist.Artist):
         """
         Set the x ticks with list of *ticks*
 
-        ACCEPTS: sequence of floats
+        Parameters
+        ----------
+        ticks : sequence
+            Sequence of ticks
+
+        minor : bool, optional
+            If ``False`` sets major ticks, if ``True`` sets minor ticks.
+            Default is ``False``.
         """
         ret = self.xaxis.set_ticks(ticks, minor=minor)
         self.stale = True
@@ -3001,16 +3008,24 @@ class _AxesBase(martist.Artist):
 
     def get_xmajorticklabels(self):
         """
-        Get the xtick labels as a list of :class:`~matplotlib.text.Text`
-        instances.
+        Get the xtick major labels
+
+        Returns
+        -------
+        labels : list
+            List of :class:`~matplotlib.text.Text` instancess
         """
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_majorticklabels())
 
     def get_xminorticklabels(self):
         """
-        Get the x minor tick labels as a list of
-        :class:`matplotlib.text.Text` instances.
+        Get the x minor tick labels
+
+        Returns
+        -------
+        labels : list
+            List of :class:`~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_minorticklabels())
@@ -3299,28 +3314,38 @@ class _AxesBase(martist.Artist):
         """
         Set the y ticks with list of *ticks*
 
-        ACCEPTS: sequence of floats
+        Parameters
+        ----------
+        ticks : sequence
+            Sequence of ticks
 
-        Keyword arguments:
-
-          *minor*: [ *False* | *True* ]
-            Sets the minor ticks if *True*
+        minor : bool, optional
+            If ``False`` sets major ticks, if ``True`` sets minor ticks.
+            Default is ``False``.
         """
         ret = self.yaxis.set_ticks(ticks, minor=minor)
         return ret
 
     def get_ymajorticklabels(self):
         """
-        Get the major y tick labels as a list of
-        :class:`~matplotlib.text.Text` instances.
+        Get the major y tick labels
+
+        Returns
+        -------
+        labels : list
+            List of :class:`~matplotlib.text.Text` instancess
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_majorticklabels())
 
     def get_yminorticklabels(self):
         """
-        Get the minor y tick labels as a list of
-        :class:`~matplotlib.text.Text` instances.
+        Get the minor y tick labels
+
+        Returns
+        -------
+        labels : list
+            List of :class:`~matplotlib.text.Text` instancess
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_minorticklabels())
@@ -3389,8 +3414,10 @@ class _AxesBase(martist.Artist):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
 
-        *tz* is a timezone string or :class:`tzinfo` instance.
-        Defaults to rc value.
+        Parameters
+        ----------
+        tz : string or :class:`tzinfo` instance, optional
+            Timezone string or timezone. Defaults to rc value.
         """
         # should be enough to inform the unit conversion interface
         # dates are coming in
@@ -3400,8 +3427,10 @@ class _AxesBase(martist.Artist):
         """
         Sets up y-axis ticks and labels that treat the y data as dates.
 
-        *tz* is a timezone string or :class:`tzinfo` instance.
-        Defaults to rc value.
+        Parameters
+        ----------
+        tz : string or :class:`tzinfo` instance, optional
+            Timezone string or timezone. Defaults to rc value.
         """
         self.yaxis.axis_date(tz)
 
