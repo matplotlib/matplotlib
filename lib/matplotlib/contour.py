@@ -376,7 +376,7 @@ class ContourLabeler(object):
         not empty (lc defaults to the empty list if None).  *spacing*
         is the space around the label in pixels to leave empty.
 
-        Do both of these tasks at once to avoid calling mlab.path_length
+        Do both of these tasks at once to avoid calculating path lengths
         multiple times, which is relatively costly.
 
         The method used here involves calculating the path length
@@ -400,8 +400,10 @@ class ContourLabeler(object):
 
             ind = 0
 
-        # Path length in pixel space
-        pl = mlab.path_length(slc)
+        # Calculate path lengths
+        pl = np.zeros(slc.shape[0], dtype=float)
+        dx = np.diff(slc, axis=0)
+        pl[1:] = np.cumsum(np.hypot(dx[:, 0], dx[:, 1]))
         pl = pl - pl[ind]
 
         # Use linear interpolation to get points around label

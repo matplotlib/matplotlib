@@ -3911,6 +3911,7 @@ def cross_from_above(x, threshold):
 ##################################################
 # Vector and path length geometry calculations
 ##################################################
+@cbook.deprecated('2.2')
 def vector_lengths(X, P=2., axis=None):
     """
     Finds the length of a set of vectors in *n* dimensions.  This is
@@ -3925,6 +3926,7 @@ def vector_lengths(X, P=2., axis=None):
     return (np.sum(X**(P), axis=axis))**(1./P)
 
 
+@cbook.deprecated('2.2')
 def distances_along_curve(X):
     """
     Computes the distance between a set of successive points in *N* dimensions.
@@ -3937,6 +3939,7 @@ def distances_along_curve(X):
     return vector_lengths(X, axis=1)
 
 
+@cbook.deprecated('2.2')
 def path_length(X):
     """
     Computes the distance travelled along a polygonal curve in *N* dimensions.
