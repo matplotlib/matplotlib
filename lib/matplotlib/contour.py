@@ -75,12 +75,15 @@ class ContourLabeler(object):
 
         only labels contours listed in *v*.
 
-        Optional keyword arguments:
+        Parameters
+        ----------
+        fontsize : string or float, optional
+            Size in points or relative size e.g., 'smaller', 'x-large'.
+            See `Text.set_size` for accepted string values.
 
-          *fontsize*:
-            size in points or relative size e.g., 'smaller', 'x-large'
+        colors :
+            Color of each label
 
-          *colors*:
             - if *None*, the color of each label matches the color of
               the corresponding contour
 
@@ -91,47 +94,50 @@ class ContourLabeler(object):
               different labels will be plotted in different colors in the order
               specified
 
-          *inline*:
-            controls whether the underlying contour is removed or
-            not. Default is *True*.
+        inline : bool, optional
+            If ``True`` the underlying contour is removed where the label is
+            placed. Default is ``True``.
 
-          *inline_spacing*:
-            space in pixels to leave on each side of label when
-            placing inline.  Defaults to 5.  This spacing will be
-            exact for labels at locations where the contour is
-            straight, less so for labels on curved contours.
+        inline_spacing : float, optional
+            Space in pixels to leave on each side of label when
+            placing inline. Defaults to 5.
 
-          *fmt*:
-            a format string for the label. Default is '%1.3f'
+            This spacing will be exact for labels at locations where the
+            contour is straight, less so for labels on curved contours.
+
+        fmt : string or dict, optional
+            A format string for the label. Default is '%1.3f'
+
             Alternatively, this can be a dictionary matching contour
             levels with arbitrary strings to use for each contour level
             (i.e., fmt[level]=string), or it can be any callable, such
             as a :class:`~matplotlib.ticker.Formatter` instance, that
             returns a string when called with a numeric contour level.
 
-          *manual*:
-            if *True*, contour labels will be placed manually using
-            mouse clicks.  Click the first button near a contour to
+        manual : bool or iterable, optional
+            If ``True``, contour labels will be placed manually using
+            mouse clicks. Click the first button near a contour to
             add a label, click the second button (or potentially both
-            mouse buttons at once) to finish adding labels.  The third
+            mouse buttons at once) to finish adding labels. The third
             button can be used to remove the last label added, but
-            only if labels are not inline.  Alternatively, the keyboard
+            only if labels are not inline. Alternatively, the keyboard
             can be used to select label locations (enter to end label
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
-            *manual* can be an iterable object of x,y tuples. Contour labels
-            will be created as if mouse is clicked at each x,y positions.
+            *manual* can also be an iterable object of x,y tuples.
+            Contour labels will be created as if mouse is clicked at each
+            x,y positions.
 
-          *rightside_up*:
-            if *True* (default), label rotations will always be plus
-            or minus 90 degrees from level.
+        rightside_up : bool, optional
+            If ``True``, label rotations will always be plus
+            or minus 90 degrees from level. Default is ``True``.
 
-          *use_clabeltext*:
-            if *True* (default is False), ClabelText class (instead of
-            matplotlib.Text) is used to create labels. ClabelText
-            recalculates rotation angles of texts during the drawing time,
-            therefore this can be used if aspect of the axes changes.
+        use_clabeltext : bool, optional
+            If ``True``, `ClabelText` class (instead of `Text`) is used to
+            create labels. `ClabelText` recalculates rotation angles
+            of texts during the drawing time, therefore this can be used if
+            aspect of the axes changes. Default is ``False``.
         """
 
         """
@@ -144,7 +150,7 @@ class ContourLabeler(object):
 
         Once these attributes are set, clabel passes control to the
         labels method (case of automatic label placement) or
-        BlockingContourLabeler (case of manual label placement).
+        `BlockingContourLabeler` (case of manual label placement).
         """
 
         fontsize = kwargs.get('fontsize', None)
