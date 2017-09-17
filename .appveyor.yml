@@ -62,7 +62,9 @@ install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - set PYTHONUNBUFFERED=1
   # for obvci_appveyor_python_build_env.cmd
-  - conda install -c conda-forge --yes --quiet obvious-ci
+  - conda update --all --yes
+  - conda install anaconda-client=1.6.3 --yes
+  - conda install -c conda-forge --yes obvious-ci
   # for msinttypes and newer stuff
   - conda config --prepend channels conda-forge
   - conda config --set show_channel_urls yes
