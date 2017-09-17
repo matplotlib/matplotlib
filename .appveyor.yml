@@ -63,7 +63,7 @@ install:
   - set PYTHONUNBUFFERED=1
   # for obvci_appveyor_python_build_env.cmd
   - conda update --all --yes
-  - conda clean --all --yes
+  - conda install anaconda-client=1.6.3 --yes
   - conda install -c conda-forge --yes obvious-ci
   # for msinttypes and newer stuff
   - conda config --prepend channels conda-forge
