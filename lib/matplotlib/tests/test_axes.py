@@ -4929,6 +4929,17 @@ def test_broken_barh_empty():
     ax.broken_barh([], (.1, .5))
 
 
+def test_pandas_pcolormesh():
+    pd = pytest.importorskip('pandas')
+
+    time = pd.date_range('2000-01-01', periods=10)
+    depth = np.arange(20)
+    data = np.random.rand(20,10)
+
+    fig, ax = plt.subplots()
+    ax.pcolormesh(time, depth, data)
+
+
 def test_pandas_indexing_dates():
     pd = pytest.importorskip('pandas')
 
