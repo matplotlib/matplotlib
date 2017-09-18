@@ -6,7 +6,7 @@ import six
 import wx
 
 import matplotlib
-from . import wx_compat as wxc
+from . import cbook, wx_compat as wxc
 from .backend_agg import FigureCanvasAgg
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
@@ -15,14 +15,6 @@ from .backend_wx import (
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
         return FigureCanvasWxAgg(self, -1, fig)
-
-    def _get_toolbar(self, statbar):
-        if matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2WxAgg(self.canvas)
-            toolbar.set_status_bar(statbar)
-        else:
-            toolbar = None
-        return toolbar
 
 
 class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
@@ -74,6 +66,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         self.gui_repaint()
 
 
+@cbook.deprecated("2.2")
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
         return FigureCanvasWxAgg(frame, -1, fig)

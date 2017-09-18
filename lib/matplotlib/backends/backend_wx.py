@@ -1489,7 +1489,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
-        return FigureCanvasWx(frame, -1, fig)
+        return type(self.canvas)(frame, -1, fig)
 
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
