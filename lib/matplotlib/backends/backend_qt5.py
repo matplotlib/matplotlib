@@ -121,7 +121,7 @@ def _create_qApp():
                 if display is None or not re.search(r':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtWidgets.QApplication(["matplotlib"])
+            qApp = QtWidgets.QApplication([b"matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
@@ -170,11 +170,8 @@ def _allow_super_init(__init__):
                 QtWidgets.QWidget.__init__ = cooperative_qwidget_init
                 __init__(self, **kwargs)
             finally:
-                try:
-                    # Restore __init__ to sip.simplewrapper.__init__.
-                    del QtWidgets.QWidget.__init__
-                except AttributeError:
-                    pass
+                # Restore __init__
+                QtWidgets.QWidget.__init__ = qwidget_init
 
         return wrapper
 
