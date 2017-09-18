@@ -961,15 +961,17 @@ class Normalize(object):
         """
         Set *vmin*, *vmax* to min, max of *A*.
         """
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        A = np.asanyarray(A)
+        self.vmin = A.min()
+        self.vmax = A.max()
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None and np.size(A) > 0:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None and np.size(A) > 0:
-            self.vmax = np.ma.max(A)
+        """autoscale only None-valued vmin or vmax."""
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
 
     def scaled(self):
         'return true if vmin and vmax set'
@@ -1037,14 +1039,14 @@ class LogNorm(Normalize):
         self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
+        """autoscale only None-valued vmin or vmax."""
         if self.vmin is not None and self.vmax is not None:
             return
         A = np.ma.masked_less_equal(A, 0, copy=False)
-        if self.vmin is None:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None:
-            self.vmax = np.ma.max(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
 
 
 class SymLogNorm(Normalize):
@@ -1153,13 +1155,14 @@ class SymLogNorm(Normalize):
         self._transform_vmin_vmax()
 
     def autoscale_None(self, A):
-        """ autoscale only None-valued vmin or vmax """
+        """autoscale only None-valued vmin or vmax."""
         if self.vmin is not None and self.vmax is not None:
             pass
-        if self.vmin is None:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None:
-            self.vmax = np.ma.max(A)
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
         self._transform_vmin_vmax()
 
 
@@ -1223,20 +1226,19 @@ class PowerNorm(Normalize):
             self.vmin = 0
             warnings.warn("Power-law scaling on negative values is "
                           "ill-defined, clamping to 0.")
-
         self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None and np.size(A) > 0:
-            self.vmin = np.ma.min(A)
+        """autoscale only None-valued vmin or vmax."""
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
             if self.vmin < 0:
                 self.vmin = 0
                 warnings.warn("Power-law scaling on negative values is "
                               "ill-defined, clamping to 0.")
-
-        if self.vmax is None and np.size(A) > 0:
-            self.vmax = np.ma.max(A)
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
 
 
 class BoundaryNorm(Normalize):
