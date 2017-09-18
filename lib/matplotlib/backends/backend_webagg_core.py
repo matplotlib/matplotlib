@@ -359,17 +359,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def send_event(self, event_type, **kwargs):
         self.manager._send_event(event_type, **kwargs)
 
-    def start_event_loop(self, timeout):
-        backend_bases.FigureCanvasBase.start_event_loop_default(
-            self, timeout)
-    start_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        backend_bases.FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
-
 
 _JQUERY_ICON_CLASSES = {
     'home': 'ui-icon ui-icon-home',
