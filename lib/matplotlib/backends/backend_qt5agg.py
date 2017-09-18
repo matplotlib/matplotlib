@@ -72,7 +72,6 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             # since the latter doesn't guarantee that the event will be emitted
             # straight away, and this causes visual delays in the changes.
             self.resizeEvent(event)
-            QtWidgets.QApplication.instance().processEvents()
             # resizeEvent triggers a paintEvent itself, so we exit this one.
             return
 
