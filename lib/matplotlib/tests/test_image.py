@@ -2,28 +2,25 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+
+from copy import copy
 import io
 import os
 import warnings
 
 import numpy as np
+from numpy import ma
 from numpy.testing import assert_array_equal
 
-from matplotlib.testing.decorators import image_comparison
+from matplotlib import (
+    colors, image as mimage, mlab, patches, pyplot as plt,
+    rc_context, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
-from matplotlib import rcParams, rc_context
-from matplotlib import patches
-import matplotlib.pyplot as plt
 
-from matplotlib import mlab
 import pytest
-
-from copy import copy
-from numpy import ma
-import matplotlib.image as mimage
-import matplotlib.colors as colors
 
 
 try:
@@ -789,9 +786,16 @@ def test_imshow_flatfield():
     im.set_clim(.5, 1.5)
 
 
-def test_empty_imshow():
+@pytest.mark.parametrize(
+    "make_norm",
+    [colors.Normalize,
+     colors.LogNorm,
+     lambda: colors.SymLogNorm(1),
+     lambda: colors.PowerNorm(1)])
+@pytest.mark.filterwarnings("ignore:Attempting to set identical left==right")
+def test_empty_imshow(make_norm):
     fig, ax = plt.subplots()
-    im = ax.imshow([[]])
+    im = ax.imshow([[]], norm=make_norm())
     im.set_extent([-5, 5, -5, 5])
     fig.canvas.draw()
 
