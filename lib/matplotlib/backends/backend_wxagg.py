@@ -6,7 +6,8 @@ import six
 import wx
 
 import matplotlib
-from . import cbook, wx_compat as wxc
+from .. import cbook
+from . import wx_compat as wxc
 from .backend_agg import FigureCanvasAgg
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)

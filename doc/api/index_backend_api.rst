@@ -26,3 +26,4 @@ backends
    backend_tkagg_api.rst
    backend_webagg_api.rst
    backend_wxagg_api.rst
+   backend_wxcairo_api.rst

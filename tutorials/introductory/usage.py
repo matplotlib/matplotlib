@@ -446,9 +446,12 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #           activated in IPython with ``%matplotlib gtk``.
 # GTKCairo  Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_,
 #           and pycairo_ or cairocffi_; Python2 only).
-# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_;
+# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ --
 #           v4.0 (in beta) is required for Python3). This backend can be
-#           activated in IPython with ``%matplotlib wx``.#
+#           activated in IPython with ``%matplotlib wx``.
+# WXCairo   Cairo rendering to a :term:`wxWidgets` canvas (requires wxPython_
+#           -- v4.0 (in beta) is required for Python3, and pycairo_ or
+#           cairocffi_).
 # ========= ================================================================
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
