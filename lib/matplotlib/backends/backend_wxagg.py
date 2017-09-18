@@ -7,10 +7,9 @@ import wx
 
 import matplotlib
 from . import wx_compat as wxc
-from . import backend_wx
 from .backend_agg import FigureCanvasAgg
 from .backend_wx import (
-    _BackendWx, FigureCanvasWx, FigureFrameWx, NavigationToolbar2Wx, DEBUG_MSG)
+    _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
 
 
 class FigureFrameWxAgg(FigureFrameWx):
@@ -26,24 +25,21 @@ class FigureFrameWxAgg(FigureFrameWx):
         return toolbar
 
 
-class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
+class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
     """
     The FigureCanvas contains the figure and does event handling.
 
-    In the wxPython backend, it is derived from wxPanel, and (usually)
-    lives inside a frame instantiated by a FigureManagerWx. The parent
-    window probably implements a wxSizer to control the displayed
-    control size - but we give a hint as to our preferred minimum
-    size.
+    In the wxPython backend, it is derived from wxPanel, and (usually) lives
+    inside a frame instantiated by a FigureManagerWx. The parent window
+    probably implements a wxSizer to control the displayed control size - but
+    we give a hint as to our preferred minimum size.
     """
 
     def draw(self, drawDC=None):
         """
         Render the figure using agg.
         """
-        DEBUG_MSG("draw()", 1, self)
         FigureCanvasAgg.draw(self)
-
         self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC, origin='WXAgg')
@@ -77,42 +73,10 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
 
-    filetypes = FigureCanvasAgg.filetypes
-
-    def print_figure(self, filename, *args, **kwargs):
-        # Use pure Agg renderer to draw
-        FigureCanvasAgg.print_figure(self, filename, *args, **kwargs)
-        # Restore the current view; this is needed because the
-        # artist contains methods rely on particular attributes
-        # of the rendered figure for determining things like
-        # bounding boxes.
-        if self._isDrawn:
-            self.draw()
-
 
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
         return FigureCanvasWxAgg(frame, -1, fig)
-
-
-# agg/wxPython image conversion functions (wxPython >= 2.8)
-
-
-def _convert_agg_to_wx_image(agg, bbox):
-    """
-    Convert the region of the agg buffer bounded by bbox to a wx.Image.  If
-    bbox is None, the entire buffer is converted.
-
-    Note: agg must be a backend_agg.RendererAgg instance.
-    """
-    if bbox is None:
-        # agg => rgb -> image
-        image = wxc.EmptyImage(int(agg.width), int(agg.height))
-        image.SetData(agg.tostring_rgb())
-        return image
-    else:
-        # agg => rgba buffer -> bitmap => clipped bitmap => image
-        return wx.ImageFromBitmap(_WX28_clipped_agg_as_bitmap(agg, bbox))
 
 
 def _convert_agg_to_wx_bitmap(agg, bbox):
@@ -128,36 +92,27 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
                                     agg.buffer_rgba())
     else:
         # agg => rgba buffer -> bitmap => clipped bitmap
-        return _WX28_clipped_agg_as_bitmap(agg, bbox)
+        l, b, width, height = bbox.bounds
+        r = l + width
+        t = b + height
 
+        srcBmp = wxc.BitmapFromBuffer(int(agg.width), int(agg.height),
+                                      agg.buffer_rgba())
+        srcDC = wx.MemoryDC()
+        srcDC.SelectObject(srcBmp)
 
-def _WX28_clipped_agg_as_bitmap(agg, bbox):
-    """
-    Convert the region of a the agg buffer bounded by bbox to a wx.Bitmap.
+        destBmp = wxc.EmptyBitmap(int(width), int(height))
+        destDC = wx.MemoryDC()
+        destDC.SelectObject(destBmp)
 
-    Note: agg must be a backend_agg.RendererAgg instance.
-    """
-    l, b, width, height = bbox.bounds
-    r = l + width
-    t = b + height
+        x = int(l)
+        y = int(int(agg.height) - t)
+        destDC.Blit(0, 0, int(width), int(height), srcDC, x, y)
 
-    srcBmp = wxc.BitmapFromBuffer(int(agg.width), int(agg.height),
-                                  agg.buffer_rgba())
-    srcDC = wx.MemoryDC()
-    srcDC.SelectObject(srcBmp)
+        srcDC.SelectObject(wx.NullBitmap)
+        destDC.SelectObject(wx.NullBitmap)
 
-    destBmp = wxc.EmptyBitmap(int(width), int(height))
-    destDC = wx.MemoryDC()
-    destDC.SelectObject(destBmp)
-
-    x = int(l)
-    y = int(int(agg.height) - t)
-    destDC.Blit(0, 0, int(width), int(height), srcDC, x, y)
-
-    srcDC.SelectObject(wx.NullBitmap)
-    destDC.SelectObject(wx.NullBitmap)
-
-    return destBmp
+        return destBmp
 
 
 @_BackendWx.export

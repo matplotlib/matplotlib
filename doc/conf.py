@@ -442,15 +442,7 @@ class MySip(MagicMock):
 
 
 class MyWX(MagicMock):
-    class Panel(object):
-        pass
-
-    class ToolBar(object):
-        pass
-
-    class Frame(object):
-        pass
-
+    Frame = Panel = Printout = ToolBar = type("", (), {})
     VERSION_STRING = '2.9'
 
 

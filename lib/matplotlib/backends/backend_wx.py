@@ -16,14 +16,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from six.moves import xrange
+import six
 
-import sys
-import os
-import os.path
 import math
-import weakref
+import os.path
+import sys
 import warnings
+import weakref
 
 import matplotlib
 from matplotlib.backend_bases import (
@@ -31,13 +30,13 @@ from matplotlib.backend_bases import (
     NavigationToolbar2, RendererBase, TimerBase, cursors)
 from matplotlib.backend_bases import _has_pil
 
+from matplotlib import cbook, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.cbook import is_writable_file_like, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
-from matplotlib import cbook, rcParams
 
 from . import wx_compat as wxc
 import wx
@@ -48,29 +47,24 @@ import wx
 # traceback is performed, and pdb activated, for all uncaught exceptions in
 # this case
 _DEBUG = 5
-if _DEBUG < 5:
-    import traceback
-    import pdb
 _DEBUG_lvls = {1: 'Low ', 2: 'Med ', 3: 'High', 4: 'Error'}
 
 
 def DEBUG_MSG(string, lvl=3, o=None):
     if lvl >= _DEBUG:
-        cls = o.__class__
-        # Jeremy, often times the commented line won't print but the
-        # one below does.  I think WX is redefining stderr, damned
-        # beast
-        #print >>sys.stderr, "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
-        print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls))
+        print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, type(cls)))
 
 
+@cbook.deprecated("2.2")
 def debug_on_error(type, value, tb):
-    """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
+    import pdb
+    import traceback
     traceback.print_exception(type, value, tb)
     print()
-    pdb.pm()  # jdh uncomment
+    pdb.pm()
 
 
+@cbook.deprecated("2.2")
 class fake_stderr(object):
     """
     Wx does strange things with stderr, as it makes the assumption that
@@ -81,10 +75,6 @@ class fake_stderr(object):
     def write(self, msg):
         print("Stderr: %s\n\r" % msg)
 
-#if _DEBUG < 5:
-    #sys.excepthook = debug_on_error
-    #WxLogger =wx.LogStderr()
-    #sys.stderr = fake_stderr
 
 # the True dots per inch on the screen; should be display dependent
 # see
@@ -109,6 +99,7 @@ def error_msg_wx(msg, parent=None):
     return None
 
 
+@cbook.deprecated("2.2")
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines."""
     if not isinstance(msg, six.string_types):
@@ -504,7 +495,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
-    @cbook.deprecated("2.1")
+    @cbook.deprecated("2.2")
     def set_linestyle(self, ls):
         """
         Set the line style to be one of
@@ -547,7 +538,7 @@ class GraphicsContextWx(GraphicsContextBase):
                 alpha=int(a))
 
 
-class FigureCanvasWx(FigureCanvasBase, wx.Panel):
+class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -714,17 +705,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         # a good time (usually as soon as there are no other events pending).
         self.Refresh(eraseBackground=False)
 
-    def draw(self, drawDC=None):
-        """
-        Render the figure using RendererWx instance renderer, or using a
-        previously defined renderer if none is specified.
-        """
-        DEBUG_MSG("draw()", 1, self)
-        self.renderer = RendererWx(self.bitmap, self.figure.dpi)
-        self.figure.draw(self.renderer)
-        self._isDrawn = True
-        self.gui_repaint(drawDC=drawDC)
-
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of
@@ -837,12 +817,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     filetypes['xpm'] = 'X pixmap'
 
     def print_figure(self, filename, *args, **kwargs):
-        # Use pure Agg renderer to draw
-        FigureCanvasBase.print_figure(self, filename, *args, **kwargs)
-        # Restore the current view; this is needed because the
-        # artist contains methods rely on particular attributes
-        # of the rendered figure for determining things like
-        # bounding boxes.
+        super(_FigureCanvasWxBase, self).print_figure(
+            filename, *args, **kwargs)
+        # Restore the current view; this is needed because the artist contains
+        # methods rely on particular attributes of the rendered figure for
+        # determining things like bounding boxes.
         if self._isDrawn:
             self.draw()
 
@@ -1141,6 +1120,21 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         FigureCanvasBase.enter_notify_event(self, guiEvent=evt)
 
 
+class FigureCanvasWx(_FigureCanvasWxBase):
+    # Rendering to a Wx canvas using the deprecated Wx renderer.
+
+    def draw(self, drawDC=None):
+        """
+        Render the figure using RendererWx instance renderer, or using a
+        previously defined renderer if none is specified.
+        """
+        DEBUG_MSG("draw()", 1, self)
+        self.renderer = RendererWx(self.bitmap, self.figure.dpi)
+        self.figure.draw(self.renderer)
+        self._isDrawn = True
+        self.gui_repaint(drawDC=drawDC)
+
+
 ########################################################################
 #
 # The following functions and classes are for pylab compatibility
@@ -1306,7 +1300,6 @@ class FigureManagerWx(FigureManagerBase):
 # Identifiers for toolbar controls - images_wx contains bitmaps for the images
 # used in the controls. wxWindows does not provide any stock images, so I've
 # 'stolen' those from GTK2, and transformed them into the appropriate format.
-#import images_wx
 
 _NTB_AXISMENU = wx.NewId()
 _NTB_AXISMENU_BUTTON = wx.NewId()
@@ -1318,7 +1311,6 @@ _NTB_Y_PAN_UP = wx.NewId()
 _NTB_Y_PAN_DOWN = wx.NewId()
 _NTB_Y_ZOOMIN = wx.NewId()
 _NTB_Y_ZOOMOUT = wx.NewId()
-#_NTB_SUBPLOT            =wx.NewId()
 _NTB_SAVE = wx.NewId()
 _NTB_CLOSE = wx.NewId()
 
@@ -1423,7 +1415,7 @@ class MenuButtonWx(wx.Button):
         """Ensures that there are entries for max_axis axes in the menu
         (selected by default)."""
         if maxAxis > len(self._axisId):
-            for i in range(len(self._axisId) + 1, maxAxis + 1, 1):
+            for i in range(len(self._axisId) + 1, maxAxis + 1):
                 menuId = wx.NewId()
                 self._axisId.append(menuId)
                 self._menu.Append(menuId, "Axis %d" % i,
@@ -1435,7 +1427,7 @@ class MenuButtonWx(wx.Button):
             for menuId in self._axisId[maxAxis:]:
                 self._menu.Delete(menuId)
             self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(list(xrange(maxAxis)))
+        self._toolbar.set_active(list(range(maxAxis)))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
@@ -1511,8 +1503,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 continue
             self.wx_ids[text] = wx.NewId()
             wxc._AddTool(self, self.wx_ids, text,
-                        _load_bitmap(image_file + '.png'),
-                        tooltip_text)
+                         _load_bitmap(image_file + '.png'),
+                         tooltip_text)
 
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
@@ -1588,7 +1580,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         except AttributeError:
             pass
 
-    @cbook.deprecated("2.1", alternative="canvas.draw_idle")
+    @cbook.deprecated("2.2", alternative="canvas.draw_idle")
     def dynamic_update(self):
         d = self._idle
         self._idle = False
@@ -1717,6 +1709,7 @@ class StatusBarWx(wx.StatusBar):
 
 #< Additions for printing support: Matt Newville
 
+@cbook.deprecated("2.2")
 class PrintoutWx(wx.Printout):
     """
     Simple wrapper around wx Printout class -- all the real work
@@ -1801,7 +1794,7 @@ class PrintoutWx(wx.Printout):
         self.canvas.figure.dpi = fig_dpi
         self.canvas.draw()
         return True
-#>
+
 
 ########################################################################
 #
