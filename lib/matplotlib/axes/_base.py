@@ -2995,8 +2995,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        ticks : sequence
-            Sequence of ticks
+        ticks : list
+            List of x-axis tick locations
 
         minor : bool, optional
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
@@ -3013,7 +3013,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instancess
+            List of :class:`~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_majorticklabels())
@@ -3317,7 +3317,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         ticks : sequence
-            Sequence of ticks
+            List of y-axis tick locations
 
         minor : bool, optional
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
@@ -3333,7 +3333,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instancess
+            List of :class:`~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_majorticklabels())
@@ -3345,7 +3345,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instancess
+            List of :class:`~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_minorticklabels())
