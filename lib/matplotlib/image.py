@@ -1128,7 +1128,7 @@ class FigureImage(_ImageBase):
 
         return self._make_image(
             self._A, bbox, bbox, clip, magnification=magnification / fac,
-            unsampled=False, round_to_pixel_border=False)
+            unsampled=unsampled, round_to_pixel_border=False)
 
     def set_data(self, A):
         """Set the image array."""
