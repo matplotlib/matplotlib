@@ -6,6 +6,7 @@ import six
 from . import backend_cairo, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3
+from matplotlib import cbook
 from matplotlib.backend_bases import cursors
 
 
@@ -45,6 +46,7 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         return False  # finish event propagation?
 
 
+@cbook.deprecated("2.2", "backend_gtk3.FigureManagerGTK3")
 class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
     pass
 
@@ -52,4 +54,3 @@ class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
 @_BackendGTK3.export
 class _BackendGTK3Cairo(_BackendGTK3):
     FigureCanvas = FigureCanvasGTK3Cairo
-    FigureManager = FigureManagerGTK3Cairo
