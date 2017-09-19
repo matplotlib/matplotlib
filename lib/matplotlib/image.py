@@ -1119,7 +1119,8 @@ class FigureImage(_ImageBase):
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         bbox = Bbox([[self.ox, self.oy],
                      [self.ox + self._A.shape[1], self.oy + self._A.shape[0]]])
-        clip = Bbox([[0, 0], [renderer.width, renderer.height]])
+        width, height = renderer.get_canvas_width_height()
+        clip = Bbox([[0, 0], [width, height]])
         return self._make_image(
             self._A, bbox, bbox, clip, magnification=magnification,
             unsampled=unsampled, round_to_pixel_border=False)
