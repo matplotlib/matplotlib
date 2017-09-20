@@ -73,8 +73,8 @@ def test_interp_nearest_vs_none():
 
 
 @image_comparison(baseline_images=['figimage-0'],
-                  extensions=['png','svg','pdf'])
-def test_figimage():
+                  extensions=['png','pdf'])
+def test_figimage0():
     'test the figimage method'
 
     for suppressComposite in [False]:
@@ -91,8 +91,8 @@ def test_figimage():
         fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
 @image_comparison(baseline_images=['figimage-1'],
-                  extensions=['png','svg','pdf'])
-def test_figimage2():
+                  extensions=['png','pdf'])
+def test_figimage1():
     'test the figimage method'
 
     for suppressComposite in [True]:

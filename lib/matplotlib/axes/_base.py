@@ -1356,6 +1356,7 @@ class _AxesBase(martist.Artist):
         Use :meth:`_aspect` and :meth:`_adjustable` to modify the
         axes box or the view limits.
         """
+        print('Apply Aspect')
         if position is None:
             position = self.get_position(original=True)
 
@@ -1406,6 +1407,7 @@ class _AxesBase(martist.Artist):
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+            print('self.gwet_positions', self.get_position(), self._position)
             return
 
         # reset active to original in case it had been changed
