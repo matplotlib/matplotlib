@@ -92,13 +92,9 @@ class Artist(HasTraits, b_artist.Artist):
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
     clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True)
-
     clippath = Union([Instance('matplotlib.transforms.TransformedPath'),Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
     clipon=Bool(default_value=True)
-
-    # label = Instance('matplotlib.text.Text', allow_none=True,default_value='')
     label = Instance('matplotlib.text.Text', allow_none=True)
-
     picker=Union([Float(),Bool(),Callable()], allow_none=True, default_value=None)
     contains=List(default_value=None)
     rasterized=Perishable(Bool(allow_none=True, default_value=None))
@@ -123,16 +119,11 @@ class Artist(HasTraits, b_artist.Artist):
     #stale validate: reference @stale.setter
     @validate("stale")
     def _stale_validate(self, proposal):
-        # print("stale: cross validating %r" % proposal.value)
         if self.animated is True:
             return proposal.value
         if proposal.value and self.stale_callback is not None:
             self.stale_callback(self, proposal.value)
         return proposal.value
-    #stale observer
-    # @observe("stale", type="change")
-    # def _stale_observe(self, change):
-        # print("stale: observed a change from %r to %r" % (change.old, change.new))
 
     #stale_callback default
     # @default("stale_callback")
@@ -142,25 +133,16 @@ class Artist(HasTraits, b_artist.Artist):
     #stale_callback validate
     @validate("stale_callback")
     def _stale_callback_validate(self, proposal):
-        # print("stale_callback: cross validating %r" % proposal.value)
         return proposal.value
-    #stale_callback observer
-    # @observe("stale_callback", type="change")
-    # def _stale_callback_observe(self, change):
-        print("stale_callback: observed a change from %r to %r" % (change.old, change.new))
 
     #axes default
     @default("axes")
     def _axes_default(self):
-        print("importing Axes here")
         from matplotlib.axes import Axes
-        print("successfully imported Axes")
-        print("generating default axes value")
         return None
     #axes validate: reference @axes.setter
     @validate("axes")
     def _axes_validate(self, proposal):
-        # print("axes: cross validating %r" % proposal.value)
         if (proposal.value is not None and
                 (self.axes is not None and proposal.value != self.axes)):
             raise ValueError("Can not reset the axes.  You are "
@@ -172,23 +154,15 @@ class Artist(HasTraits, b_artist.Artist):
         if proposal.value is not None and proposal.value is not self:
             self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
-    #axes observer
-    # @observe("axes", type="change")
-    # def _axes_observe(self, change):
-        # print("axes: observed a change from %r to %r" % (change.old, change.new))
 
     #figure default
     @default("figure")
     def _figure_default(self):
-        # print("importing Figure here")
         from matplotlib.figure import Figure
-        # print("successfully imported Figure")
-        # print("generating default figure value")
         return None
     #figure validate: reference set_figure
     @validate("figure")
     def _figure_validate(self, proposal):
-        # print("figure: cross validating %r" % proposal.value)
         # if this is a no-op just return
         if self.figure is proposal.value:
             return
@@ -204,11 +178,8 @@ class Artist(HasTraits, b_artist.Artist):
     #figure observer
     @observe("figure", type="change")
     def _figure_observe(self, change):
-        # print("figure: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        # print("called self.pchanged()")
         self.stale = True
-        # print("set stale: %r" % self.stale)
 
     # @default("transform")
     # def _transform_default(self):
@@ -217,31 +188,17 @@ class Artist(HasTraits, b_artist.Artist):
     #transform validate
     @validate("transform")
     def _transform_validate(self, proposal):
-        # print("transform: cross validating %r" % proposal.value)
         return proposal.value
     #transform observer: reference set_transform
     @observe("transform", type="change")
     def _transform_observe(self, change):
-        # print("transform: observed a change from %r to %r" % (change.old, change.new))
         self.transformSet = True
-        # print("set _transformSet: %r" % self.transformSet)
         self.stale = True
-        # print("set stale: %r" % self.stale)
 
-    #transformSet default
-    # @default("transformSet")
-    # def _transformSet_default(self):
-    #     print("generating default transformSet value")
-    #     return False
     #transformSet validate
     @validate("transformSet")
     def _transformSet_validate(self, proposal):
-        # print("transformSet: cross validating %r" % proposal.value)
         return proposal.value
-    #transformSet observer
-    # @observe("transformSet", type="change")
-    # def _transformSet_observe(self, change):
-        # print("transformSet: observed a change from %r to %r" % (change.old, change.new))
 
     #visible default
     # @default("visible")
@@ -251,16 +208,12 @@ class Artist(HasTraits, b_artist.Artist):
     #visible validate
     @validate("visible")
     def _visible_validate(self, proposal):
-        # print("visible: cross validating %r" % proposal.value)
         return proposal.value
     #visible observer: reference set_visible
     @observe("visible", type="change")
     def _visible_observe(self, change):
-        # print("visible: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        # print("called self.pchanged()")
         self.stale = True
-        # print("set stale: %r" % self.stale)
 
     #animated default
     # @default("animated")
@@ -271,11 +224,10 @@ class Artist(HasTraits, b_artist.Artist):
     @validate("animated")
     def _animated_validate(self, proposal):
         # print("animated: cross validating %r" % proposal.value)
-        # if self.animated is not proposal.value:
-        #     self.pchanged()
-        #     print("called self.pchanged()")
-        #     return proposal.value
-        return proposal.value
+        if self.animated is not proposal.value:
+            self.pchanged()
+            return proposal.value
+        raise ValueError("not valid value for animated")
     #animated observer
     # @observe("animated", type="change")
     # def _animated_observe(self, change):
