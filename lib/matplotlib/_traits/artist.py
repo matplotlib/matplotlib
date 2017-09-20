@@ -134,16 +134,16 @@ class Artist(HasTraits, b_artist.Artist):
     #stale validate: reference @stale.setter
     @validate("stale")
     def _stale_validate(self, proposal):
-        print("stale: cross validating %r" % proposal.value)
+        # print("stale: cross validating %r" % proposal.value)
         if self.animated is True:
             return proposal.value
         if proposal.value and self.stale_callback is not None:
             self.stale_callback(self, proposal.value)
         return proposal.value
     #stale observer
-    @observe("stale", type="change")
-    def _stale_observe(self, change):
-        print("stale: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("stale", type="change")
+    # def _stale_observe(self, change):
+        # print("stale: observed a change from %r to %r" % (change.old, change.new))
 
     #stale_callback default
     # @default("stale_callback")
