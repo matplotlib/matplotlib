@@ -76,32 +76,21 @@ def _stale_axes_callback(self, val):
 _XYPair = namedtuple("_XYPair", "x y")
 
 
-#class Artist(_artist.Artist)
 class Artist(HasTraits, b_artist.Artist):
 
     aname = 'Artist'
     zorder = 0
     _prop_order = dict(color=-1)
 
-    # pchanged = Bool(default_value = False)
     stale=Bool(default_value=True)
-    # stale_callback=Callable(allow_none=True, default_value=True)
     stale_callback=Callable(allow_none=True, default_value=None)
-
-    # axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
     axes=Instance('matplotlib.axes.Axes', allow_none=True)
-
-    # figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
     figure=Instance('matplotlib.figure.Figure', allow_none=True)
-
-    #not sure if this would be the correct way to call TransformTrait
     transform = TransformTrait(allow_none=True, default_value=None)
     transformSet=Bool(default_value=False)
     visible=Bool(default_value=True)
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
-
-    # clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
     clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True)
 
     clippath = Union([Instance('matplotlib.transforms.TransformedPath'),Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
