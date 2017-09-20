@@ -92,7 +92,7 @@ def test_figimage():
 
 @image_comparison(baseline_images=['figimage-1'],
                   extensions=['png','svg','pdf'])
-def test_figimage():
+def test_figimage2():
     'test the figimage method'
 
     for suppressComposite in [True]:
