@@ -199,7 +199,7 @@ class Artist(HasTraits, b_artist.Artist):
     #figure validate: reference set_figure
     @validate("figure")
     def _figure_validate(self, proposal):
-        print("figure: cross validating %r" % proposal.value)
+        # print("figure: cross validating %r" % proposal.value)
         # if this is a no-op just return
         if self.figure is proposal.value:
             return
@@ -215,11 +215,11 @@ class Artist(HasTraits, b_artist.Artist):
     #figure observer
     @observe("figure", type="change")
     def _figure_observe(self, change):
-        print("figure: observed a change from %r to %r" % (change.old, change.new))
+        # print("figure: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
+        # print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     # @default("transform")
     # def _transform_default(self):
@@ -228,16 +228,16 @@ class Artist(HasTraits, b_artist.Artist):
     #transform validate
     @validate("transform")
     def _transform_validate(self, proposal):
-        print("transform: cross validating %r" % proposal.value)
+        # print("transform: cross validating %r" % proposal.value)
         return proposal.value
     #transform observer: reference set_transform
     @observe("transform", type="change")
     def _transform_observe(self, change):
-        print("transform: observed a change from %r to %r" % (change.old, change.new))
+        # print("transform: observed a change from %r to %r" % (change.old, change.new))
         self.transformSet = True
-        print("set _transformSet: %r" % self.transformSet)
+        # print("set _transformSet: %r" % self.transformSet)
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #transformSet default
     # @default("transformSet")
@@ -247,12 +247,12 @@ class Artist(HasTraits, b_artist.Artist):
     #transformSet validate
     @validate("transformSet")
     def _transformSet_validate(self, proposal):
-        print("transformSet: cross validating %r" % proposal.value)
+        # print("transformSet: cross validating %r" % proposal.value)
         return proposal.value
     #transformSet observer
-    @observe("transformSet", type="change")
-    def _transformSet_observe(self, change):
-        print("transformSet: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("transformSet", type="change")
+    # def _transformSet_observe(self, change):
+        # print("transformSet: observed a change from %r to %r" % (change.old, change.new))
 
     #visible default
     # @default("visible")
@@ -262,16 +262,16 @@ class Artist(HasTraits, b_artist.Artist):
     #visible validate
     @validate("visible")
     def _visible_validate(self, proposal):
-        print("visible: cross validating %r" % proposal.value)
+        # print("visible: cross validating %r" % proposal.value)
         return proposal.value
     #visible observer: reference set_visible
     @observe("visible", type="change")
     def _visible_observe(self, change):
-        print("visible: observed a change from %r to %r" % (change.old, change.new))
+        # print("visible: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
+        # print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #animated default
     # @default("animated")
@@ -281,22 +281,21 @@ class Artist(HasTraits, b_artist.Artist):
     #animated validate: reference set_animated
     @validate("animated")
     def _animated_validate(self, proposal):
-        print("animated: cross validating %r" % proposal.value)
+        # print("animated: cross validating %r" % proposal.value)
         # if self.animated is not proposal.value:
         #     self.pchanged()
         #     print("called self.pchanged()")
         #     return proposal.value
         return proposal.value
-        # return self._animated
     #animated observer
-    @observe("animated", type="change")
-    def _animated_observe(self, change):
-        print("animated: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("animated", type="change")
+    # def _animated_observe(self, change):
+        # print("animated: observed a change from %r to %r" % (change.old, change.new))
 
     #alpha default
     @default("alpha")
     def _alpha_default(self):
-        print("generating default alpha value")
+        # print("generating default alpha value")
         return None
     #alpha validate
     @validate("alpha")
