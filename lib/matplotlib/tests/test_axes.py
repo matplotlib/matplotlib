@@ -4934,7 +4934,7 @@ def test_pandas_pcolormesh():
 
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
-    data = np.random.rand(20,10)
+    data = np.random.rand(20, 10)
 
     fig, ax = plt.subplots()
     ax.pcolormesh(time, depth, data)
