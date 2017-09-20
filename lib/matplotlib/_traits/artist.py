@@ -85,19 +85,31 @@ class Artist(HasTraits, b_artist.Artist):
 
     # pchanged = Bool(default_value = False)
     stale=Bool(default_value=True)
-    stale_callback=Callable(allow_none=True, default_value=True)
-    axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
-    figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
+    # stale_callback=Callable(allow_none=True, default_value=True)
+    stale_callback=Callable(allow_none=True, default_value=None)
+
+    # axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
+    axes=Instance('matplotlib.axes.Axes', allow_none=True)
+
+    # figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
+    figure=Instance('matplotlib.figure.Figure', allow_none=True)
+
     #not sure if this would be the correct way to call TransformTrait
     transform = TransformTrait(allow_none=True, default_value=None)
     transformSet=Bool(default_value=False)
     visible=Bool(default_value=True)
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
-    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
+
+    # clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
+    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True)
+
     clippath = Union([Instance('matplotlib.transforms.TransformedPath'),Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
     clipon=Bool(default_value=True)
-    label = Instance('matplotlib.text.Text', allow_none=True,default_value='')
+
+    # label = Instance('matplotlib.text.Text', allow_none=True,default_value='')
+    label = Instance('matplotlib.text.Text', allow_none=True)
+
     picker=Union([Float(),Bool(),Callable()], allow_none=True, default_value=None)
     contains=List(default_value=None)
     rasterized=Perishable(Bool(allow_none=True, default_value=None))
@@ -115,10 +127,10 @@ class Artist(HasTraits, b_artist.Artist):
     sticky_edges = _XYPair([],[])
 
     #stale default
-    @default("stale")
-    def _stale_default(self):
-        print("generating default stale value")
-        return True
+    # @default("stale")
+    # def _stale_default(self):
+    #     print("generating default stale value")
+    #     return True
     #stale validate: reference @stale.setter
     @validate("stale")
     def _stale_validate(self, proposal):
@@ -134,10 +146,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("stale: observed a change from %r to %r" % (change.old, change.new))
 
     #stale_callback default
-    @default("stale_callback")
-    def _stale_callback_default(self):
-        print("generating default stale_callback value")
-        return None
+    # @default("stale_callback")
+    # def _stale_callback_default(self):
+    #     print("generating default stale_callback value")
+    #     return None
     #stale_callback validate
     @validate("stale_callback")
     def _stale_callback_validate(self, proposal):
@@ -209,10 +221,10 @@ class Artist(HasTraits, b_artist.Artist):
         self.stale = True
         print("set stale: %r" % self.stale)
 
-    @default("transform")
-    def _transform_default(self):
-        print("generating default transform value")
-        return None
+    # @default("transform")
+    # def _transform_default(self):
+    #     print("generating default transform value")
+    #     return None
     #transform validate
     @validate("transform")
     def _transform_validate(self, proposal):
@@ -228,10 +240,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     #transformSet default
-    @default("transformSet")
-    def _transformSet_default(self):
-        print("generating default transformSet value")
-        return False
+    # @default("transformSet")
+    # def _transformSet_default(self):
+    #     print("generating default transformSet value")
+    #     return False
     #transformSet validate
     @validate("transformSet")
     def _transformSet_validate(self, proposal):
@@ -243,10 +255,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("transformSet: observed a change from %r to %r" % (change.old, change.new))
 
     #visible default
-    @default("visible")
-    def _visible_default(self):
-        print("generating default visible value")
-        return True
+    # @default("visible")
+    # def _visible_default(self):
+    #     print("generating default visible value")
+    #     return True
     #visible validate
     @validate("visible")
     def _visible_validate(self, proposal):
@@ -262,10 +274,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     #animated default
-    @default("animated")
-    def _animated_default(self):
-        print("generating default animated value")
-        return False
+    # @default("animated")
+    # def _animated_default(self):
+    #     print("generating default animated value")
+    #     return False
     #animated validate: reference set_animated
     @validate("animated")
     def _animated_validate(self, proposal):
@@ -323,10 +335,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     #clipbox default
-    @default("clippath")
-    def _clippath_default(self):
-        print("generating default clippath value")
-        return None
+    # @default("clippath")
+    # def _clippath_default(self):
+    #     print("generating default clippath value")
+    #     return None
     #clippath validate
     @validate("clippath")
     def _clippath_validate(self, proposal):
@@ -385,10 +397,10 @@ class Artist(HasTraits, b_artist.Artist):
             raise TypeError("Invalid arguments to set_clip_path")
 
     #clipon default
-    @default("clipon")
-    def _clipon_default(self):
-        print("generating default clipon value")
-        return True
+    # @default("clipon")
+    # def _clipon_default(self):
+    #     print("generating default clipon value")
+    #     return True
     #clipon validate
     @validate("clipon")
     def _clipon_validate(self, proposal):
@@ -428,10 +440,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     #picker default
-    @default("picker")
-    def _picker_default(self):
-        print("generating default picker value")
-        return None
+    # @default("picker")
+    # def _picker_default(self):
+    #     print("generating default picker value")
+    #     return None
     #picker validate
     @validate("picker")
     def _picker_validate(self, proposal):
@@ -443,10 +455,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("picker: observed a change from %r to %r" % (change.old, change.new))
 
     #contains default
-    @default("contains")
-    def _contains_default(self):
-        print("generating default contains value")
-        return None
+    # @default("contains")
+    # def _contains_default(self):
+    #     print("generating default contains value")
+    #     return None
     #contains validate
     @validate("contains")
     def _contains_validate(self, proposal):
@@ -458,10 +470,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("contains: observed a change from %r to %r" % (change.old, change.new))
 
     #rasterized default
-    @default("rasterized")
-    def _rasterized_default(self):
-        print("generating default rasterized value")
-        return None
+    # @default("rasterized")
+    # def _rasterized_default(self):
+    #     print("generating default rasterized value")
+    #     return None
     #rasterized validate
     @validate("rasterized")
     def _rasterized_validate(self, proposal):
@@ -475,10 +487,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("rasterized: observed a change from %r to %r" % (change.old, change.new))
 
     #agg_filter default
-    @default("agg_filter")
-    def _agg_filter_default(self):
-        print("generating default agg_filter value")
-        return None
+    # @default("agg_filter")
+    # def _agg_filter_default(self):
+    #     print("generating default agg_filter value")
+    #     return None
     #agg_filter validate
     @validate("agg_filter")
     def _agg_filter_validate(self, proposal):
@@ -492,10 +504,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("set stale: %r" % self.stale)
 
     #mouseover default
-    @default("mouseover")
-    def _mouseover_default(self):
-        print("generating default mouseover value")
-        return False
+    # @default("mouseover")
+    # def _mouseover_default(self):
+    #     print("generating default mouseover value")
+    #     return False
     #mouseover validate: reference @mouseover.setter
     @validate("mouseover")
     def _mouseover_validate(self, proposal):
@@ -516,10 +528,10 @@ class Artist(HasTraits, b_artist.Artist):
                 ax.mouseover_set.discard(self)
 
     #eventson default
-    @default("eventson")
-    def _eventson_default(self):
-        print("generating default eventson value")
-        return False
+    # @default("eventson")
+    # def _eventson_default(self):
+    #     print("generating default eventson value")
+    #     return False
     #eventson validate
     @validate("eventson")
     def _eventson_validate(self, proposal):
@@ -531,10 +543,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("eventson: observed a change from %r to %r" % (change.old, change.new))
 
     #oid default
-    @default("oid")
-    def _oid_default(self):
-        print("generating default oid (observer id) value")
-        return 0
+    # @default("oid")
+    # def _oid_default(self):
+    #     print("generating default oid (observer id) value")
+    #     return 0
     #oid validate
     @validate("oid")
     def _oid_validate(self, proposal):
@@ -546,10 +558,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("oid: observed a change from %r to %r" % (change.old, change.new))
 
     #propobservers default
-    @default("propobservers")
-    def _propobservers_default(self):
-        print("generating default propobservers value")
-        return {}
+    # @default("propobservers")
+    # def _propobservers_default(self):
+    #     print("generating default propobservers value")
+    #     return {}
     #propobservers validate
     @validate("propobservers")
     def _propobservers_validate(self, proposal):
@@ -561,10 +573,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("propobservers: observed a change from %r to %r" % (change.old, change.new))
 
     #url default
-    @default("url")
-    def _url_default(self):
-        print("generating default url value")
-        return None
+    # @default("url")
+    # def _url_default(self):
+    #     print("generating default url value")
+    #     return None
     #url validate
     @validate("url")
     def _url_validate(self, proposal):
@@ -576,10 +588,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("url: observed a change from %r to %r" % (change.old, change.new))
 
     #gid default
-    @default("gid")
-    def _gid_default(self):
-        print("generating default gid (group id) value")
-        return None
+    # @default("gid")
+    # def _gid_default(self):
+    #     print("generating default gid (group id) value")
+    #     return None
     #gid validate
     @validate("gid")
     def _gid_validate(self, proposal):
@@ -591,10 +603,10 @@ class Artist(HasTraits, b_artist.Artist):
         print("gid: observed a change from %r to %r" % (change.old, change.new))
 
     #snap default
-    @default("snap")
-    def _snap_default(self):
-        print("generating default snap value")
-        return None
+    # @default("snap")
+    # def _snap_default(self):
+    #     print("generating default snap value")
+    #     return None
     #snap validate
     @validate("snap")
     def _snap_validate(self, proposal):
@@ -636,10 +648,10 @@ class Artist(HasTraits, b_artist.Artist):
         """
 
     #path_effects default
-    @default("path_effects")
-    def _path_effects_default(self):
-        print("generating default path_effects value")
-        return rcParams['path.effects']
+    # @default("path_effects")
+    # def _path_effects_default(self):
+    #     print("generating default path_effects value")
+    #     return rcParams['path.effects']
     #path_effects validate
     @validate("path_effects")
     def _path_effects_validate(self, proposal):
