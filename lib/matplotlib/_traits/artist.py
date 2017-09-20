@@ -153,11 +153,11 @@ class Artist(HasTraits, b_artist.Artist):
     #stale_callback validate
     @validate("stale_callback")
     def _stale_callback_validate(self, proposal):
-        print("stale_callback: cross validating %r" % proposal.value)
+        # print("stale_callback: cross validating %r" % proposal.value)
         return proposal.value
     #stale_callback observer
-    @observe("stale_callback", type="change")
-    def _stale_callback_observe(self, change):
+    # @observe("stale_callback", type="change")
+    # def _stale_callback_observe(self, change):
         print("stale_callback: observed a change from %r to %r" % (change.old, change.new))
 
     #axes default
@@ -171,7 +171,7 @@ class Artist(HasTraits, b_artist.Artist):
     #axes validate: reference @axes.setter
     @validate("axes")
     def _axes_validate(self, proposal):
-        print("axes: cross validating %r" % proposal.value)
+        # print("axes: cross validating %r" % proposal.value)
         if (proposal.value is not None and
                 (self.axes is not None and proposal.value != self.axes)):
             raise ValueError("Can not reset the axes.  You are "
@@ -184,9 +184,9 @@ class Artist(HasTraits, b_artist.Artist):
             self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
     #axes observer
-    @observe("axes", type="change")
-    def _axes_observe(self, change):
-        print("axes: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("axes", type="change")
+    # def _axes_observe(self, change):
+        # print("axes: observed a change from %r to %r" % (change.old, change.new))
 
     #figure default
     @default("figure")
