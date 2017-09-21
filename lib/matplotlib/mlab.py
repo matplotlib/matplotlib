@@ -3812,6 +3812,7 @@ def poly_between(x, ylower, yupper):
     return x, y
 
 
+@cbook.deprecated('2.2')
 def is_closed_polygon(X):
     """
     Tests whether first and last object in a sequence are the same.  These are
