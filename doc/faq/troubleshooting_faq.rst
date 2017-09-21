@@ -155,7 +155,7 @@ mode::
     rm -rf /path/to/site-packages/matplotlib*
     git clean -xdf
     git pull
-    python setup.py install > build.out
+    python -mpip install -v . > build.out
     python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
 
 and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel

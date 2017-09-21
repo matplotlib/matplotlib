@@ -90,33 +90,32 @@ the env ``MPLLOCALFREETYPE`` as::
 
   export MPLLOCALFREETYPE=1
 
-or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain ::
+or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain
+::
 
   [test]
   local_freetype = True
 
-
 To install Matplotlib (and compile the c-extensions) run the following
 command from the top-level directory ::
 
-    pip install -v -e ./
+   python -mpip install -ve .
 
 This installs Matplotlib in 'editable/develop mode', i.e., builds
 everything and places the correct link entries in the install
 directory so that python will be able to import Matplotlib from the
 source directory.  Thus, any changes to the ``*.py`` files will be
 reflected the next time you import the library.  If you change the
-c-extension source (which might happen if you change branches) you
-will need to run::
+C-extension source (which might happen if you change branches) you
+will need to run ::
 
    python setup.py build
 
-or re-run ``pip install -v -e ./``.
-
+or re-run ``python -mpip install -ve .``.
 
 Alternatively, if you do ::
 
-  pip install -v ./
+   python -mpip install -v .
 
 all of the files will be copied to the installation directory however,
 you will have to rerun this command every time the source is changed.
@@ -131,7 +130,6 @@ In either case you can then run the tests to check your work
 environment is set up properly::
 
   python tests.py
-
 
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
@@ -254,12 +252,12 @@ tools:
     * Code with a good unittest coverage (at least 70%, better 100%), check
       with::
 
-        pip install coverage
+        python -mpip install coverage
         python tests.py --with-coverage
 
     * No pyflakes warnings, check with::
 
-        pip install pyflakes
+        python -mpip install pyflakes
         pyflakes path/to/module.py
 
 .. note::
