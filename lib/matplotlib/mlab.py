@@ -1868,6 +1868,7 @@ def rk4(derivs, y0, t):
     return yout
 
 
+@cbook.deprecated('2.2')
 def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
                      mux=0.0, muy=0.0, sigmaxy=0.0):
     """
@@ -3812,6 +3813,7 @@ def poly_between(x, ylower, yupper):
     return x, y
 
 
+@cbook.deprecated('2.2')
 def is_closed_polygon(X):
     """
     Tests whether first and last object in a sequence are the same.  These are
@@ -3911,6 +3913,7 @@ def cross_from_above(x, threshold):
 ##################################################
 # Vector and path length geometry calculations
 ##################################################
+@cbook.deprecated('2.2')
 def vector_lengths(X, P=2., axis=None):
     """
     Finds the length of a set of vectors in *n* dimensions.  This is
@@ -3925,6 +3928,7 @@ def vector_lengths(X, P=2., axis=None):
     return (np.sum(X**(P), axis=axis))**(1./P)
 
 
+@cbook.deprecated('2.2')
 def distances_along_curve(X):
     """
     Computes the distance between a set of successive points in *N* dimensions.
@@ -3937,6 +3941,7 @@ def distances_along_curve(X):
     return vector_lengths(X, axis=1)
 
 
+@cbook.deprecated('2.2')
 def path_length(X):
     """
     Computes the distance travelled along a polygonal curve in *N* dimensions.

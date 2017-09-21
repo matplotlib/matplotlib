@@ -382,7 +382,7 @@ class ContourLabeler(object):
         not empty (lc defaults to the empty list if None).  *spacing*
         is the space around the label in pixels to leave empty.
 
-        Do both of these tasks at once to avoid calling mlab.path_length
+        Do both of these tasks at once to avoid calculating path lengths
         multiple times, which is relatively costly.
 
         The method used here involves calculating the path length
@@ -397,7 +397,7 @@ class ContourLabeler(object):
         hlw = lw / 2.0
 
         # Check if closed and, if so, rotate contour so label is at edge
-        closed = mlab.is_closed_polygon(slc)
+        closed = _is_closed_polygon(slc)
         if closed:
             slc = np.r_[slc[ind:-1], slc[:ind + 1]]
 
@@ -406,8 +406,10 @@ class ContourLabeler(object):
 
             ind = 0
 
-        # Path length in pixel space
-        pl = mlab.path_length(slc)
+        # Calculate path lengths
+        pl = np.zeros(slc.shape[0], dtype=float)
+        dx = np.diff(slc, axis=0)
+        pl[1:] = np.cumsum(np.hypot(dx[:, 0], dx[:, 1]))
         pl = pl - pl[ind]
 
         # Use linear interpolation to get points around label
@@ -650,7 +652,7 @@ class ContourLabeler(object):
                 # zero in print_label and locate_label.  Other than these
                 # functions, this is not necessary and should probably be
                 # eventually removed.
-                if mlab.is_closed_polygon(lc):
+                if _is_closed_polygon(lc):
                     slc = np.r_[slc0, slc0[1:2, :]]
                 else:
                     slc = slc0
@@ -711,6 +713,15 @@ def _find_closest_point_on_leg(p1, p2, p0):
     return d, pc
 
 
+def _is_closed_polygon(X):
+    """
+    Tests whether first and last object in a sequence are the same.  These are
+    presumably coordinates on a polygonal curve, in which case this function
+    tests if that curve is closed.
+    """
+    return np.all(X[0] == X[-1])
+
+
 def _find_closest_point_on_path(lc, point):
     """
     lc: coordinates of vertices
@@ -725,7 +736,7 @@ def _find_closest_point_on_path(lc, point):
     xcmin = None
     legmin = (None, None)
 
-    closed = mlab.is_closed_polygon(lc)
+    closed = _is_closed_polygon(lc)
 
     # build list of legs before and after this vertex
     legs = []
