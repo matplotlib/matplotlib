@@ -794,6 +794,20 @@ def test_hexbin_log():
     ax.hexbin(x, y, yscale='log')
 
 
+@image_comparison(baseline_images=['hexbin_marginals'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_hexbin_marginals():
+    fig = plt.figure()
+
+    np.random.seed(0)
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
+    ax = fig.add_subplot(111)
+    ax.hexbin(x, y, marginals=True)
+
+
 def test_inverted_limits():
     # Test gh:1553
     # Calling invert_xaxis prior to plotting should not disable autoscaling
