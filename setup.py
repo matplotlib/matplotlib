@@ -142,6 +142,8 @@ class PyTestCommand(TestCommand):
         self.pytest_args = ""
         self.local_freetype = ""
 
+    install_dists = staticmethod(lambda dist: [])
+
     def run_tests(self):
         import shlex
         import pytest
