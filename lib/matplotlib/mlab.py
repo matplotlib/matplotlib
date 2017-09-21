@@ -1868,6 +1868,7 @@ def rk4(derivs, y0, t):
     return yout
 
 
+@cbook.deprecated('2.2')
 def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
                      mux=0.0, muy=0.0, sigmaxy=0.0):
     """
