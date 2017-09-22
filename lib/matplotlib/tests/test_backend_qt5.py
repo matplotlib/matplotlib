@@ -145,6 +145,7 @@ def test_dpi_ratio_change():
 
         qt_canvas.draw()
         qApp.processEvents()
+        qApp.processEvents()
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 240
