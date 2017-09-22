@@ -454,7 +454,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     """
     if extensions is None:
         # default extensions to test
-        extensions = ['png', 'pdf', 'svg']
+        extensions = ['png', 'pdf', 'svgz']
 
     if savefig_kwarg is None:
         #default no kwargs to savefig
