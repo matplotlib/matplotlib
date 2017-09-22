@@ -5620,7 +5620,8 @@ or tuple of floats
 
         X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
         Ny, Nx = X.shape
-
+        X = X.ravel()
+        Y = Y.ravel()
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
         X = self.convert_xunits(X)
@@ -5628,7 +5629,7 @@ or tuple of floats
 
         # convert to one dimensional arrays
         C = C.ravel()
-        coords = np.column_stack((X.flat, Y.flat)).astype(float, copy=False)
+        coords = np.column_stack((X, Y)).astype(float, copy=False)
 
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
