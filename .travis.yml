@@ -124,7 +124,7 @@ install:
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
     pip install -U --pre \
-      -f https://wxpython.org/Phoenix/release-extras/linux/gtk3/ubuntu-14.04 \
+      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
       python -c 'import wx' &&
       echo 'wxPython is available' ||
