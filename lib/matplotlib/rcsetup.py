@@ -548,13 +548,6 @@ def validate_negative_linestyle_legacy(s):
         return (0, dashes)  # (offset, (solid, blank))
 
 
-def validate_corner_mask(s):
-    if s == 'legacy':
-        return s
-    else:
-        return validate_bool(s)
-
-
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
     ['best',
@@ -1097,7 +1090,7 @@ defaultParams = {
 
     # contour props
     'contour.negative_linestyle': ['dashed', _validate_linestyle],
-    'contour.corner_mask':        [True, validate_corner_mask],
+    'contour.corner_mask':        [True, validate_bool],
 
     # errorbar props
     'errorbar.capsize':      [0, validate_float],

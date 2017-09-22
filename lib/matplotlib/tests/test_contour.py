@@ -303,12 +303,6 @@ def test_contourf_decreasing_levels():
     plt.figure()
     with pytest.raises(ValueError):
         plt.contourf(z, [1.0, 0.0])
-    # Legacy contouring algorithm gives a warning rather than raising an error,
-    # plus a DeprecationWarning.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        plt.contourf(z, [1.0, 0.0], corner_mask='legacy')
-        assert len(w) == 2
 
 
 def test_vminvmax_warning():
