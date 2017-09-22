@@ -172,4 +172,3 @@ def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
                       kind=kind)
 
     return add_tool(wx_ids[text], **kwargs)
-
