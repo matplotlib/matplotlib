@@ -64,7 +64,7 @@ from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from matplotlib.cbook import mplDeprecation, warn_deprecated
+from matplotlib.cbook import warn_deprecated
 import matplotlib.backend_tools as tools
 
 try:

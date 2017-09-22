@@ -4902,16 +4902,6 @@ def test_errorbar_inputs_shotgun(kwargs):
     eb.remove()
 
 
-def test_axisbg_warning():
-    fig = plt.figure()
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
-        assert len(w) == 1
-        msg = "The axisbg attribute was deprecated in version 2.0."
-        assert str(w[0].message).startswith(msg)
-
-
 @image_comparison(baseline_images=["dash_offset"], remove_text=True)
 def test_dash_offset():
     fig, ax = plt.subplots()
