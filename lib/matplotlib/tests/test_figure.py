@@ -143,7 +143,7 @@ def test_suptitle_fontproperties():
 @image_comparison(baseline_images=['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
-                  extensions=['png', 'svg'],
+                  extensions=['png', 'svgz'],
                   savefig_kwarg={'facecolor': (0, 1, 0.4),
                                  'edgecolor': 'none'})
 def test_alpha():

@@ -67,7 +67,7 @@ def test_nonlinear_containment():
 
 
 @image_comparison(baseline_images=['path_clipping'],
-                  extensions=['svg'], remove_text=True)
+                  extensions=['svgz'], remove_text=True)
 def test_path_clipping():
     fig = plt.figure(figsize=(6.0, 6.2))
 
@@ -129,7 +129,7 @@ def test_marker_paths_pdf():
 
 
 @image_comparison(baseline_images=['nan_path'], style='default',
-                  remove_text=True, extensions=['pdf', 'svg', 'eps', 'png'])
+                  remove_text=True, extensions=['pdf', 'svgz', 'eps', 'png'])
 def test_nan_isolated_points():
 
     y0 = [0, np.nan, 2, np.nan, 4, 5, 6]

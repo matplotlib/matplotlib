@@ -247,7 +247,7 @@ def _update_converter():
         converter['eps'] = make_external_conversion_command(cmd)
 
     if matplotlib.checkdep_inkscape() is not None:
-        converter['svg'] = _SVGConverter()
+        converter['svgz'] = _SVGConverter()
 
 
 #: A dictionary that maps filename extensions to functions which

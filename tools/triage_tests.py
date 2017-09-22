@@ -46,7 +46,7 @@ BASELINE_IMAGES = [
 
 # Non-png image extensions
 
-exts = ['pdf', 'svg']
+exts = ['pdf', 'svgz']
 
 
 class Thumbnail(QtWidgets.QFrame):
@@ -239,7 +239,7 @@ class Entry(object):
             if basename.endswith('_' + ext):
                 display_extension = '_' + ext
                 extension = ext
-                basename = basename[:-4]
+                basename = basename[:-(len(ext) + 1)]
                 break
         else:
             display_extension = ''

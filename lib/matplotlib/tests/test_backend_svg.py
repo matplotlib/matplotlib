@@ -46,7 +46,7 @@ def test_visibility():
 
 
 @image_comparison(baseline_images=['fill_black_with_alpha'], remove_text=True,
-                  extensions=['svg'])
+                  extensions=['svgz'])
 def test_fill_black_with_alpha():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -103,7 +103,7 @@ def test_text_urls():
     assert expected in buf
 
 
-@image_comparison(baseline_images=['bold_font_output'], extensions=['svg'])
+@image_comparison(baseline_images=['bold_font_output'], extensions=['svgz'])
 def test_bold_font_output():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -114,7 +114,7 @@ def test_bold_font_output():
 
 
 @image_comparison(baseline_images=['bold_font_output_with_none_fonttype'],
-                  extensions=['svg'])
+                  extensions=['svgz'])
 def test_bold_font_output_with_none_fonttype():
     plt.rcParams['svg.fonttype'] = 'none'
     fig = plt.figure()
