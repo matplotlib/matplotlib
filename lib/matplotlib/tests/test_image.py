@@ -53,7 +53,7 @@ def test_image_interps():
 
 
 @image_comparison(baseline_images=['interp_nearest_vs_none'],
-                  extensions=['pdf', 'svg'], remove_text=True)
+                  extensions=['pdf', 'svgz'], remove_text=True)
 def test_interp_nearest_vs_none():
     'Test the effect of "nearest" and "none" interpolation'
     # Setting dpi to something really small makes the difference very
@@ -291,7 +291,7 @@ def test_no_interpolation_origin():
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
 
 @image_comparison(baseline_images=['image_shift'], remove_text=True,
-                  extensions=['pdf', 'svg'])
+                  extensions=['pdf', 'svgz'])
 def test_image_shift():
     from matplotlib.colors import LogNorm
 
@@ -374,7 +374,7 @@ def test_image_composite_alpha():
 
 
 @image_comparison(baseline_images=['rasterize_10dpi'],
-                  extensions=['pdf', 'svg'],
+                  extensions=['pdf', 'svgz'],
                   remove_text=True, style='mpl20')
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
