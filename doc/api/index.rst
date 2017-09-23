@@ -48,6 +48,7 @@
    rcsetup_api.rst
    sankey_api.rst
    scale_api.rst
+   spectral_api.rst
    spines_api.rst
    style_api.rst
    text_api.rst
