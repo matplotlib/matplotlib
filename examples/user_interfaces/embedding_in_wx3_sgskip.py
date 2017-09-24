@@ -7,7 +7,7 @@ Copyright (C) 2003-2004 Andrew Straw, Jeremy O'Donoghue and others
 
 License: This work is licensed under the PSF. A copy should be included
 with this source code, and is also available at
-http://www.python.org/psf/license.html
+https://docs.python.org/3/license.html
 
 This is yet another example of using matplotlib with wx.  Hopefully
 this is pretty full-featured:
