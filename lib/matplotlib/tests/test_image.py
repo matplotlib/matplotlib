@@ -72,22 +72,36 @@ def test_interp_nearest_vs_none():
     ax2.set_title('interpolation nearest')
 
 
-@image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'])
-def test_figimage():
+def do_figimage(suppressComposite):
+    """ Helper for the next two tests """
+    fig = plt.figure(figsize=(2,2), dpi=100)
+    fig.suppressComposite = suppressComposite
+    x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
+    z = np.sin(x**2 + y**2 - x*y)
+    c = np.sin(20*x**2 + 50*y**2)
+    img = z + c/5
+
+    fig.figimage(img, xo=0, yo=0, origin='lower')
+    fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
+    fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
+    fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
+
+@image_comparison(baseline_images=['figimage-0'],
+                  extensions=['png','pdf'])
+def test_figimage0():
     'test the figimage method'
 
-    for suppressComposite in False, True:
-        fig = plt.figure(figsize=(2,2), dpi=100)
-        fig.suppressComposite = suppressComposite
-        x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
-        z = np.sin(x**2 + y**2 - x*y)
-        c = np.sin(20*x**2 + 50*y**2)
-        img = z + c/5
+    suppressComposite = False
+    do_figimage(suppressComposite)
 
-        fig.figimage(img, xo=0, yo=0, origin='lower')
-        fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
-        fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
-        fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
+
+@image_comparison(baseline_images=['figimage-1'],
+                  extensions=['png','pdf'])
+def test_figimage1():
+    'test the figimage method'
+    suppressComposite = True
+    do_figimage(suppressComposite)
+
 
 def test_image_python_io():
     fig = plt.figure()
