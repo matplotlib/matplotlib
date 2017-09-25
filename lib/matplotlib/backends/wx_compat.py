@@ -153,7 +153,7 @@ def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
     else:
         add_tool = parent.DoAddTool
 
-    if not is_phoenix or LooseVersion(wx.VERSION_STRING) >= "4.0.0b2":
+    if not is_phoenix or LooseVersion(wx.VERSION_STRING) >= str("4.0.0b2"):
         # NOTE: when support for Phoenix prior to 4.0.0b2 is dropped then
         # all that is needed is this clause, and the if and else clause can
         # be removed.
