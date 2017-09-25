@@ -668,6 +668,7 @@ def test_polar_rlabel_position():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='polar')
     ax.set_rlabel_position(315)
+    ax.tick_params(rotation='auto')
 
 
 @image_comparison(baseline_images=['polar_theta_wedge'], style='default',
@@ -692,8 +693,9 @@ def test_polar_theta_limits():
                 ax.set_thetamin(start)
                 ax.set_thetamax(end)
                 ax.tick_params(tick1On=True, tick2On=True,
-                               direction=DIRECTIONS[i % len(DIRECTIONS)])
-                ax.yaxis.set_tick_params(label2On=True)
+                               direction=DIRECTIONS[i % len(DIRECTIONS)],
+                               rotation='auto')
+                ax.yaxis.set_tick_params(label2On=True, rotation='auto')
             else:
                 ax.set_visible(False)
 

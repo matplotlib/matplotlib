@@ -1,6 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
+
 from collections import OrderedDict
 
 import numpy as np
@@ -251,9 +253,9 @@ class ThetaTick(maxis.XTick):
     tick location. This results in ticks that are correctly perpendicular to
     the arc spine.
 
-    Labels are also rotated to be parallel to the spine. The label padding is
-    also applied here since it's not possible to use a generic axes transform
-    to produce tick-specific padding.
+    When 'auto' rotation is enabled, labels are also rotated to be parallel to
+    the spine. The label padding is also applied here since it's not possible
+    to use a generic axes transform to produce tick-specific padding.
     """
     def __init__(self, axes, *args, **kwargs):
         self._text1_translate = mtransforms.ScaledTranslation(
@@ -322,14 +324,15 @@ class ThetaTick(maxis.XTick):
                 trans = self.tick2line._marker._transform
             self.tick2line._marker._transform = trans
 
-        if not _is_full_circle_deg(axes.get_thetamin(), axes.get_thetamax()):
+        mode, user_angle = self._labelrotation
+        if mode == 'default':
+            angle = 0
+        else:
             if angle > np.pi / 2:
                 angle -= np.pi
             elif angle < -np.pi / 2:
                 angle += np.pi
-        else:
-            angle = 0
-        angle = np.rad2deg(angle) + self._labelrotation
+        angle = np.rad2deg(angle) + user_angle
         if self.label1On:
             self.label1.set_rotation(angle)
         if self.label2On:
@@ -488,8 +491,8 @@ class RadialTick(maxis.YTick):
     This subclass of `YTick` provides radial ticks with some small modification
     to their re-positioning such that ticks are rotated based on axes limits.
     This results in ticks that are correctly perpendicular to the spine. Labels
-    are also rotated to be perpendicular to the spine, but only for wedges, to
-    preserve backwards compatibility.
+    are also rotated to be perpendicular to the spine, when 'auto' rotation is
+    enabled.
     """
     def _get_text1(self):
         t = super(RadialTick, self)._get_text1()
@@ -524,9 +527,14 @@ class RadialTick(maxis.YTick):
         full = _is_full_circle_deg(thetamin, thetamax)
 
         if full:
-            angle = axes.get_rlabel_position()
+            angle = axes.get_rlabel_position() * direction + offset - 90
             tick_angle = 0
-            text_angle = 0
+            if angle > 90:
+                text_angle = angle - 180
+            elif angle < -90:
+                text_angle = angle + 180
+            else:
+                text_angle = angle
         else:
             angle = thetamin * direction + offset - 90
             if direction > 0:
@@ -539,7 +547,11 @@ class RadialTick(maxis.YTick):
                 text_angle = angle + 180
             else:
                 text_angle = angle
-        text_angle += self._labelrotation
+        mode, user_angle = self._labelrotation
+        if mode == 'auto':
+            text_angle += user_angle
+        else:
+            text_angle = user_angle
         if self.label1On:
             if full:
                 ha = 'left'
@@ -583,7 +595,11 @@ class RadialTick(maxis.YTick):
                 text_angle = angle + 180
             else:
                 text_angle = angle
-        text_angle += self._labelrotation
+        mode, user_angle = self._labelrotation
+        if mode == 'auto':
+            text_angle += user_angle
+        else:
+            text_angle = user_angle
         if self.label2On:
             ha, va = self._determine_anchor(angle, False)
             self.label2.set_ha(ha)

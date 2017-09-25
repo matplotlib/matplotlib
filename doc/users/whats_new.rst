@@ -62,10 +62,13 @@ negative values are simply used as labels, and the real radius is shifted by
 the configured minimum. This release also allows negative radii to be used for
 grids and ticks, which were previously silently ignored.
 
-For plots of a partial circle, radial ticks and tick labels have been modified
-to be parallel to the circular grid line. Angular ticks have been modified to
-be parallel to the grid line and the labels are now perpendicular to the grid
-line (i.e., parallel to the outer boundary.)
+Radial ticks have be modified to be parallel to the circular grid line. Angular
+ticks will be modified to be parallel to the grid line. It may also be useful
+to rotate tick labels to match the boundary. Calling
+``ax.tick_params(rotation='auto')`` will enable this new behavior. Radial tick
+labels will be modified to be parallel to the circular grid line. Angular tick
+labels will be perpendicular to the grid line (i.e., parallel to the outer
+boundary.)
 
 
 Merge JSAnimation
