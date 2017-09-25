@@ -323,11 +323,17 @@ class ThetaTick(maxis.XTick):
             self.tick2line._marker._transform = trans
 
         if not _is_full_circle_deg(axes.get_thetamin(), axes.get_thetamax()):
-            angle = np.rad2deg(angle) + self._labelrotation
-            if self.label1On:
-                self.label1.set_rotation(angle)
-            if self.label2On:
-                self.label2.set_rotation(angle)
+            if angle > np.pi / 2:
+                angle -= np.pi
+            elif angle < -np.pi / 2:
+                angle += np.pi
+        else:
+            angle = 0
+        angle = np.rad2deg(angle) + self._labelrotation
+        if self.label1On:
+            self.label1.set_rotation(angle)
+        if self.label2On:
+            self.label2.set_rotation(angle)
 
         # This extra padding helps preserve the look from previous releases but
         # is also needed because labels are anchored to their center.
@@ -495,6 +501,18 @@ class RadialTick(maxis.YTick):
         t.set_rotation_mode('anchor')
         return t
 
+    def _determine_anchor(self, angle, start):
+        if start:
+            if -90 <= angle <= 90:
+                return 'left', 'center'
+            else:
+                return 'right', 'center'
+        else:
+            if -90 <= angle <= 90:
+                return 'right', 'center'
+            else:
+                return 'left', 'center'
+
     def update_position(self, loc):
         super(RadialTick, self).update_position(loc)
         axes = self.axes
@@ -506,16 +524,31 @@ class RadialTick(maxis.YTick):
         full = _is_full_circle_deg(thetamin, thetamax)
 
         if full:
-            angle = 0
-            tick_angle = np.deg2rad(angle)
+            angle = axes.get_rlabel_position()
+            tick_angle = 0
+            text_angle = 0
         else:
             angle = thetamin * direction + offset - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
                 tick_angle = np.deg2rad(angle + 180)
+            if angle > 90:
+                text_angle = angle - 180
+            elif angle < -90:
+                text_angle = angle + 180
+            else:
+                text_angle = angle
+        text_angle += self._labelrotation
         if self.label1On:
-            self.label1.set_rotation(angle + self._labelrotation)
+            if full:
+                ha = 'left'
+                va = 'bottom'
+            else:
+                ha, va = self._determine_anchor(angle, True)
+            self.label1.set_ha(ha)
+            self.label1.set_va(va)
+            self.label1.set_rotation(text_angle)
         if self.tick1On:
             marker = self.tick1line.get_marker()
             if marker == mmarkers.TICKLEFT:
@@ -544,8 +577,18 @@ class RadialTick(maxis.YTick):
                 tick_angle = np.deg2rad(angle)
             else:
                 tick_angle = np.deg2rad(angle + 180)
+            if angle > 90:
+                text_angle = angle - 180
+            elif angle < -90:
+                text_angle = angle + 180
+            else:
+                text_angle = angle
+        text_angle += self._labelrotation
         if self.label2On:
-            self.label2.set_rotation(angle + self._labelrotation)
+            ha, va = self._determine_anchor(angle, False)
+            self.label2.set_ha(ha)
+            self.label2.set_va(va)
+            self.label2.set_rotation(text_angle)
         if self.tick2On:
             marker = self.tick2line.get_marker()
             if marker == mmarkers.TICKLEFT:
