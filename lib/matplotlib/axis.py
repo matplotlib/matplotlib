@@ -140,7 +140,7 @@ class Tick(artist.Artist):
             labelsize = rcParams['%s.labelsize' % name]
         self._labelsize = labelsize
 
-        self._labelrotation = labelrotation
+        self._set_labelrotation(labelrotation)
 
         if zorder is None:
             if major:
@@ -166,6 +166,20 @@ class Tick(artist.Artist):
         self.label2On = label2On
 
         self.update_position(loc)
+
+    def _set_labelrotation(self, labelrotation):
+        if isinstance(labelrotation, six.string_types):
+            mode = labelrotation
+            angle = 0
+        elif isinstance(labelrotation, (tuple, list)):
+            mode, angle = labelrotation
+        else:
+            mode = 'default'
+            angle = labelrotation
+        if mode not in ('auto', 'default'):
+            raise ValueError("Label rotation mode must be 'default' or "
+                             "'auto', not '{}'.".format(mode))
+        self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
         """
@@ -331,8 +345,14 @@ class Tick(artist.Artist):
             self.tick2line.set(**tick_kw)
             for k, v in six.iteritems(tick_kw):
                 setattr(self, '_' + k, v)
+
+        if 'labelrotation' in kw:
+            self._set_labelrotation(kw.pop('labelrotation'))
+            self.label1.set(rotation=self._labelrotation[1])
+            self.label2.set(rotation=self._labelrotation[1])
+
         label_list = [k for k in six.iteritems(kw)
-                      if k[0] in ['labelsize', 'labelcolor', 'labelrotation']]
+                      if k[0] in ['labelsize', 'labelcolor']]
         if label_list:
             label_kw = {k[5:]: v for k, v in label_list}
             self.label1.set(**label_kw)
