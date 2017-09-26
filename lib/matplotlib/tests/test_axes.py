@@ -5319,3 +5319,12 @@ def test_barh_signature(args, kwargs, warning_count):
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
+
+
+def test_patch_deprecations():
+    fig, ax = plt.subplots()
+    with warnings.catch_warnings(record=True) as w:
+        assert ax.patch == ax.axesPatch
+        assert fig.patch == fig.figurePatch
+
+    assert len(w) == 2

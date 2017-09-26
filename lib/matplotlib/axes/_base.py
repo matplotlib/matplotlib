@@ -1096,6 +1096,7 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
+    @property
     @cbook.deprecated("2.1", alternative="Axes.patch")
     def axesPatch(self):
         return self.patch
