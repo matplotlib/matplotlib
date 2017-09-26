@@ -1,14 +1,18 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
+
 from collections import OrderedDict
 
 import numpy as np
 
+import matplotlib.artist as martist
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
 from matplotlib import docstring
+import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 from matplotlib import rcParams
@@ -240,6 +244,153 @@ class ThetaLocator(mticker.Locator):
         return self.base.zoom(direction)
 
 
+class ThetaTick(maxis.XTick):
+    """
+    A theta-axis tick.
+
+    This subclass of `XTick` provides angular ticks with some small
+    modification to their re-positioning such that ticks are rotated based on
+    tick location. This results in ticks that are correctly perpendicular to
+    the arc spine.
+
+    When 'auto' rotation is enabled, labels are also rotated to be parallel to
+    the spine. The label padding is also applied here since it's not possible
+    to use a generic axes transform to produce tick-specific padding.
+    """
+    def __init__(self, axes, *args, **kwargs):
+        self._text1_translate = mtransforms.ScaledTranslation(
+            0, 0,
+            axes.figure.dpi_scale_trans)
+        self._text2_translate = mtransforms.ScaledTranslation(
+            0, 0,
+            axes.figure.dpi_scale_trans)
+        super(ThetaTick, self).__init__(axes, *args, **kwargs)
+
+    def _get_text1(self):
+        t = super(ThetaTick, self)._get_text1()
+        t.set_rotation_mode('anchor')
+        t.set_transform(t.get_transform() + self._text1_translate)
+        return t
+
+    def _get_text2(self):
+        t = super(ThetaTick, self)._get_text2()
+        t.set_rotation_mode('anchor')
+        t.set_transform(t.get_transform() + self._text2_translate)
+        return t
+
+    def _apply_params(self, **kw):
+        super(ThetaTick, self)._apply_params(**kw)
+
+        # Ensure transform is correct; sometimes this gets reset.
+        trans = self.label1.get_transform()
+        if not trans.contains_branch(self._text1_translate):
+            self.label1.set_transform(trans + self._text1_translate)
+        trans = self.label2.get_transform()
+        if not trans.contains_branch(self._text2_translate):
+            self.label2.set_transform(trans + self._text2_translate)
+
+    def _update_padding(self, pad, angle):
+        padx = pad * np.cos(angle) / 72
+        pady = pad * np.sin(angle) / 72
+        self._text1_translate._t = (padx, pady)
+        self._text1_translate.invalidate()
+        self._text2_translate._t = (-padx, -pady)
+        self._text2_translate.invalidate()
+
+    def update_position(self, loc):
+        super(ThetaTick, self).update_position(loc)
+        axes = self.axes
+        angle = (loc * axes.get_theta_direction() +
+                 axes.get_theta_offset() - np.pi / 2)
+
+        if self.tick1On:
+            marker = self.tick1line.get_marker()
+            if marker in (mmarkers.TICKUP, '|'):
+                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
+            elif marker == mmarkers.TICKDOWN:
+                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
+            else:
+                # Don't modify custom tick line markers.
+                trans = self.tick1line._marker._transform
+            self.tick1line._marker._transform = trans
+        if self.tick2On:
+            marker = self.tick2line.get_marker()
+            if marker in (mmarkers.TICKUP, '|'):
+                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
+            elif marker == mmarkers.TICKDOWN:
+                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
+            else:
+                # Don't modify custom tick line markers.
+                trans = self.tick2line._marker._transform
+            self.tick2line._marker._transform = trans
+
+        mode, user_angle = self._labelrotation
+        if mode == 'default':
+            angle = 0
+        else:
+            if angle > np.pi / 2:
+                angle -= np.pi
+            elif angle < -np.pi / 2:
+                angle += np.pi
+        angle = np.rad2deg(angle) + user_angle
+        if self.label1On:
+            self.label1.set_rotation(angle)
+        if self.label2On:
+            self.label2.set_rotation(angle)
+
+        # This extra padding helps preserve the look from previous releases but
+        # is also needed because labels are anchored to their center.
+        pad = self._pad + 7
+        self._update_padding(pad,
+                             self._loc * axes.get_theta_direction() +
+                             axes.get_theta_offset())
+
+
+class ThetaAxis(maxis.XAxis):
+    """
+    A theta Axis.
+
+    This overrides certain properties of an `XAxis` to provide special-casing
+    for an angular axis.
+    """
+    __name__ = 'thetaaxis'
+    axis_name = 'theta'
+
+    def _get_tick(self, major):
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return ThetaTick(self.axes, 0, '', major=major, **tick_kw)
+
+    def _wrap_locator_formatter(self):
+        self.set_major_locator(ThetaLocator(self.get_major_locator()))
+        self.set_major_formatter(ThetaFormatter())
+        self.isDefault_majloc = True
+        self.isDefault_majfmt = True
+
+    def cla(self):
+        super(ThetaAxis, self).cla()
+        self.set_ticks_position('none')
+        self._wrap_locator_formatter()
+
+    def _set_scale(self, value, **kwargs):
+        super(ThetaAxis, self)._set_scale(value, **kwargs)
+        self._wrap_locator_formatter()
+
+    def _copy_tick_props(self, src, dest):
+        'Copy the props from src tick to dest tick'
+        if src is None or dest is None:
+            return
+        super(ThetaAxis, self)._copy_tick_props(src, dest)
+
+        # Ensure that tick transforms are independent so that padding works.
+        trans = dest._get_text1_transform()[0]
+        dest.label1.set_transform(trans + dest._text1_translate)
+        trans = dest._get_text2_transform()[0]
+        dest.label2.set_transform(trans + dest._text2_translate)
+
+
 class RadialLocator(mticker.Locator):
     """
     Used to locate radius ticks.
@@ -282,6 +433,228 @@ class RadialLocator(mticker.Locator):
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
         return mtransforms.nonsingular(min(0, vmin), vmax)
+
+
+class _ThetaShift(mtransforms.ScaledTranslation):
+    """
+    Apply a padding shift based on axes theta limits.
+
+    This is used to create padding for radial ticks.
+
+    Parameters
+    ----------
+    axes : matplotlib.axes.Axes
+        The owning axes; used to determine limits.
+    pad : float
+        The padding to apply, in points.
+    start : str, {'min', 'max', 'rlabel'}
+        Whether to shift away from the start (``'min'``) or the end (``'max'``)
+        of the axes, or using the rlabel position (``'rlabel'``).
+    """
+    def __init__(self, axes, pad, mode):
+        mtransforms.ScaledTranslation.__init__(self, pad, pad,
+                                               axes.figure.dpi_scale_trans)
+        self.set_children(axes._realViewLim)
+        self.axes = axes
+        self.mode = mode
+        self.pad = pad
+
+    def get_matrix(self):
+        if self._invalid:
+            if self.mode == 'rlabel':
+                angle = (
+                    np.deg2rad(self.axes.get_rlabel_position()) *
+                    self.axes.get_theta_direction() +
+                    self.axes.get_theta_offset()
+                )
+            else:
+                if self.mode == 'min':
+                    angle = self.axes._realViewLim.xmin
+                elif self.mode == 'max':
+                    angle = self.axes._realViewLim.xmax
+
+            if self.mode in ('rlabel', 'min'):
+                padx = np.cos(angle - np.pi / 2)
+                pady = np.sin(angle - np.pi / 2)
+            else:
+                padx = np.cos(angle + np.pi / 2)
+                pady = np.sin(angle + np.pi / 2)
+
+            self._t = (self.pad * padx / 72, self.pad * pady / 72)
+        return mtransforms.ScaledTranslation.get_matrix(self)
+
+
+class RadialTick(maxis.YTick):
+    """
+    A radial-axis tick.
+
+    This subclass of `YTick` provides radial ticks with some small modification
+    to their re-positioning such that ticks are rotated based on axes limits.
+    This results in ticks that are correctly perpendicular to the spine. Labels
+    are also rotated to be perpendicular to the spine, when 'auto' rotation is
+    enabled.
+    """
+    def _get_text1(self):
+        t = super(RadialTick, self)._get_text1()
+        t.set_rotation_mode('anchor')
+        return t
+
+    def _get_text2(self):
+        t = super(RadialTick, self)._get_text2()
+        t.set_rotation_mode('anchor')
+        return t
+
+    def _determine_anchor(self, angle, start):
+        if start:
+            if -90 <= angle <= 90:
+                return 'left', 'center'
+            else:
+                return 'right', 'center'
+        else:
+            if -90 <= angle <= 90:
+                return 'right', 'center'
+            else:
+                return 'left', 'center'
+
+    def update_position(self, loc):
+        super(RadialTick, self).update_position(loc)
+        axes = self.axes
+        thetamin = axes.get_thetamin()
+        thetamax = axes.get_thetamax()
+        direction = axes.get_theta_direction()
+        offset_rad = axes.get_theta_offset()
+        offset = np.rad2deg(offset_rad)
+        full = _is_full_circle_deg(thetamin, thetamax)
+
+        if full:
+            angle = axes.get_rlabel_position() * direction + offset - 90
+            tick_angle = 0
+            if angle > 90:
+                text_angle = angle - 180
+            elif angle < -90:
+                text_angle = angle + 180
+            else:
+                text_angle = angle
+        else:
+            angle = thetamin * direction + offset - 90
+            if direction > 0:
+                tick_angle = np.deg2rad(angle)
+            else:
+                tick_angle = np.deg2rad(angle + 180)
+            if angle > 90:
+                text_angle = angle - 180
+            elif angle < -90:
+                text_angle = angle + 180
+            else:
+                text_angle = angle
+        mode, user_angle = self._labelrotation
+        if mode == 'auto':
+            text_angle += user_angle
+        else:
+            text_angle = user_angle
+        if self.label1On:
+            if full:
+                ha = 'left'
+                va = 'bottom'
+            else:
+                ha, va = self._determine_anchor(angle, True)
+            self.label1.set_ha(ha)
+            self.label1.set_va(va)
+            self.label1.set_rotation(text_angle)
+        if self.tick1On:
+            marker = self.tick1line.get_marker()
+            if marker == mmarkers.TICKLEFT:
+                trans = (mtransforms.Affine2D()
+                         .scale(1.0, 1.0)
+                         .rotate(tick_angle))
+            elif marker == '_':
+                trans = (mtransforms.Affine2D()
+                         .scale(1.0, 1.0)
+                         .rotate(tick_angle + np.pi / 2))
+            elif marker == mmarkers.TICKRIGHT:
+                trans = (mtransforms.Affine2D()
+                         .scale(-1.0, 1.0)
+                         .rotate(tick_angle))
+            else:
+                # Don't modify custom tick line markers.
+                trans = self.tick1line._marker._transform
+            self.tick1line._marker._transform = trans
+
+        if full:
+            self.label2On = False
+            self.tick2On = False
+        else:
+            angle = thetamax * direction + offset - 90
+            if direction > 0:
+                tick_angle = np.deg2rad(angle)
+            else:
+                tick_angle = np.deg2rad(angle + 180)
+            if angle > 90:
+                text_angle = angle - 180
+            elif angle < -90:
+                text_angle = angle + 180
+            else:
+                text_angle = angle
+        mode, user_angle = self._labelrotation
+        if mode == 'auto':
+            text_angle += user_angle
+        else:
+            text_angle = user_angle
+        if self.label2On:
+            ha, va = self._determine_anchor(angle, False)
+            self.label2.set_ha(ha)
+            self.label2.set_va(va)
+            self.label2.set_rotation(text_angle)
+        if self.tick2On:
+            marker = self.tick2line.get_marker()
+            if marker == mmarkers.TICKLEFT:
+                trans = (mtransforms.Affine2D()
+                         .scale(1.0, 1.0)
+                         .rotate(tick_angle))
+            elif marker == '_':
+                trans = (mtransforms.Affine2D()
+                         .scale(1.0, 1.0)
+                         .rotate(tick_angle + np.pi / 2))
+            elif marker == mmarkers.TICKRIGHT:
+                trans = (mtransforms.Affine2D()
+                         .scale(-1.0, 1.0)
+                         .rotate(tick_angle))
+            else:
+                # Don't modify custom tick line markers.
+                trans = self.tick2line._marker._transform
+            self.tick2line._marker._transform = trans
+
+
+class RadialAxis(maxis.YAxis):
+    """
+    A radial Axis.
+
+    This overrides certain properties of a `YAxis` to provide special-casing
+    for a radial axis.
+    """
+    __name__ = 'radialaxis'
+    axis_name = 'radius'
+
+    def _get_tick(self, major):
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return RadialTick(self.axes, 0, '', major=major, **tick_kw)
+
+    def _wrap_locator_formatter(self):
+        self.set_major_locator(RadialLocator(self.get_major_locator(),
+                                             self.axes))
+        self.isDefault_majloc = True
+
+    def cla(self):
+        super(RadialAxis, self).cla()
+        self.set_ticks_position('none')
+        self._wrap_locator_formatter()
+
+    def _set_scale(self, value, **kwargs):
+        super(RadialAxis, self)._set_scale(value, **kwargs)
+        self._wrap_locator_formatter()
 
 
 def _is_full_circle_deg(thetamin, thetamax):
@@ -397,8 +770,6 @@ class PolarAxes(Axes):
 
         self.title.set_y(1.05)
 
-        self.xaxis.set_major_formatter(self.ThetaFormatter())
-        self.xaxis.isDefault_majfmt = True
         start = self.spines.get('start', None)
         if start:
             start.set_visible(False)
@@ -406,20 +777,11 @@ class PolarAxes(Axes):
         if end:
             end.set_visible(False)
         self.set_xlim(0.0, 2 * np.pi)
-        self.xaxis.set_major_locator(
-            self.ThetaLocator(self.xaxis.get_major_locator()))
 
         self.grid(rcParams['polaraxes.grid'])
-        self.xaxis.set_ticks_position('none')
         inner = self.spines.get('inner', None)
         if inner:
             inner.set_visible(False)
-        self.yaxis.set_ticks_position('none')
-        # Why do we need to turn on yaxis tick labels, but
-        # xaxis tick labels are already on?
-        self.yaxis.set_tick_params(label1On=True)
-        self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator(), self))
 
         self.set_rorigin(None)
         self.set_theta_offset(self._default_theta_offset)
@@ -427,8 +789,8 @@ class PolarAxes(Axes):
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
-        self.xaxis = maxis.XAxis(self)
-        self.yaxis = maxis.YAxis(self)
+        self.xaxis = ThetaAxis(self)
+        self.yaxis = RadialAxis(self)
         # Calling polar_axes.xaxis.cla() or polar_axes.xaxis.cla()
         # results in weird artifacts. Therefore we disable this for
         # now.
@@ -503,14 +865,7 @@ class PolarAxes(Axes):
             .translate(0.0, -0.5) \
             .scale(1.0, -1.0) \
             .translate(0.0, 0.5)
-        self._xaxis_text1_transform = (
-            flipr_transform +
-            mtransforms.Affine2D().translate(0.0, 0.1) +
-            self._xaxis_transform)
-        self._xaxis_text2_transform = (
-            flipr_transform +
-            mtransforms.Affine2D().translate(0.0, -0.1) +
-            self._xaxis_transform)
+        self._xaxis_text_transform = flipr_transform + self._xaxis_transform
 
         # This is the transform for r-axis ticks.  It scales the theta
         # axis so the gridlines from 0.0 to 1.0, now go from thetamin to
@@ -533,10 +888,16 @@ class PolarAxes(Axes):
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        return self._xaxis_text1_transform, 'center', 'center'
+        if _is_full_circle_rad(*self._realViewLim.intervalx):
+            return self._xaxis_text_transform, 'center', 'center'
+        else:
+            return self._xaxis_text_transform, 'bottom', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        return self._xaxis_text2_transform, 'center', 'center'
+        if _is_full_circle_rad(*self._realViewLim.intervalx):
+            return self._xaxis_text_transform, 'center', 'center'
+        else:
+            return self._xaxis_text_transform, 'top', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
@@ -549,51 +910,24 @@ class PolarAxes(Axes):
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
-        full = _is_full_circle_rad(thetamin, thetamax)
-        if full:
-            angle = self.get_rlabel_position()
+        if _is_full_circle_rad(thetamin, thetamax):
+            return self._yaxis_text_transform, 'bottom', 'left'
+        elif self.get_theta_direction() > 0:
+            halign = 'left'
+            pad_shift = _ThetaShift(self, pad, 'min')
         else:
-            angle = np.rad2deg(thetamin)
-        if angle < 0:
-            angle += 360
-        angle %= 360
-
-        # NOTE: Due to a bug, previous code always used bottom left, contrary
-        # to its original intentions here.
-        valign = [['top', 'bottom', 'bottom', 'top'],
-                  # ['bottom', 'bottom', 'top', 'top']]
-                  ['bottom', 'bottom', 'bottom', 'bottom']]
-        halign = [['left', 'left', 'right', 'right'],
-                  # ['left', 'right', 'right', 'left']]
-                  ['left', 'left', 'left', 'left']]
-
-        ind = np.digitize([angle], np.arange(0, 361, 90))[0] - 1
-
-        return self._yaxis_text_transform, valign[full][ind], halign[full][ind]
+            halign = 'right'
+            pad_shift = _ThetaShift(self, pad, 'max')
+        return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def get_yaxis_text2_transform(self, pad):
-        thetamin, thetamax = self._realViewLim.intervalx
-        full = _is_full_circle_rad(thetamin, thetamax)
-        if full:
-            angle = self.get_rlabel_position()
+        if self.get_theta_direction() > 0:
+            halign = 'right'
+            pad_shift = _ThetaShift(self, pad, 'max')
         else:
-            angle = np.rad2deg(thetamax)
-        if angle < 0:
-            angle += 360
-        angle %= 360
-
-        # NOTE: Due to a bug, previous code always used top right, contrary to
-        # its original intentions here.
-        valign = [['bottom', 'top', 'top', 'bottom'],
-                  # ['top', 'top', 'bottom', 'bottom']]
-                  ['top', 'top', 'top', 'top']]
-        halign = [['right', 'right', 'left', 'left'],
-                  # ['right', 'left', 'left', 'right']]
-                  ['right', 'right', 'right', 'right']]
-
-        ind = np.digitize([angle], np.arange(0, 361, 90))[0] - 1
-
-        return self._yaxis_text_transform, valign[full][ind], halign[full][ind]
+            halign = 'left'
+            pad_shift = _ThetaShift(self, pad, 'min')
+        return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def draw(self, *args, **kwargs):
         thetamin, thetamax = self._realViewLim.intervalx
@@ -738,6 +1072,10 @@ class PolarAxes(Axes):
             raise ValueError(
                 "direction must be 1, -1, clockwise or counterclockwise")
         self._direction.invalidate()
+        # FIXME: Why is this needed? Even though the tick label gets
+        # re-created, the alignment is not correctly updated without a reset.
+        self.yaxis.reset_ticks()
+        self.yaxis.set_clip_path(self.patch)
 
     def get_theta_direction(self):
         """
@@ -794,6 +1132,8 @@ class PolarAxes(Axes):
             The angular position of the radius labels in degrees.
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
+        self.yaxis.reset_ticks()
+        self.yaxis.set_clip_path(self.patch)
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
