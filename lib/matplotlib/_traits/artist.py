@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib
 #original artist base class
 import matplotlib.artist as b_artist
-print('matplotlib.artist b_artist: ', b_artist)
+# print('matplotlib.artist b_artist: ', b_artist)
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
@@ -766,7 +766,7 @@ class Artist(HasTraits, b_artist.Artist):
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
 
-print('before b_artist.Artist: ', b_artist.Artist) #matplotlib.artist.Artist
+# print('before b_artist.Artist: ', b_artist.Artist) #matplotlib.artist.Artist
 #monkey patching
 b_artist.Artist = Artist
-print('after b_artist.Artist: ', b_artist.Artist) #matplotlib._traits.artist.Artist
+# print('after b_artist.Artist: ', b_artist.Artist) #matplotlib._traits.artist.Artist
