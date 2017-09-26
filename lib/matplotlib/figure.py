@@ -369,6 +369,7 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+    @property
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
         return self.patch
