@@ -4876,7 +4876,9 @@ or tuple of floats
                     diff_order = diff_values.argsort()
                     diff_root_x = np.interp(
                         0, diff_values[diff_order], x_values[diff_order])
-                    diff_root_y = np.interp(diff_root_x, x_values, y1_values)
+                    x_order = x_values.argsort()
+                    diff_root_y = np.interp(diff_root_x, x_values[x_order],
+                                            y1_values[x_order])
                     return diff_root_x, diff_root_y
 
                 start = get_interp_point(ind0)
@@ -5026,7 +5028,9 @@ or tuple of floats
                     diff_order = diff_values.argsort()
                     diff_root_y = np.interp(
                         0, diff_values[diff_order], y_values[diff_order])
-                    diff_root_x = np.interp(diff_root_y, y_values, x1_values)
+                    y_order = y_values.argsort()
+                    diff_root_x = np.interp(diff_root_y, y_values[y_order],
+                                            x1_values[y_order])
                     return diff_root_x, diff_root_y
 
                 start = get_interp_point(ind0)
