@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib
 #original artist base class
 import matplotlib.artist as b_artist
-print('matplotlib.artist b_artist: ', b_artist)
+# print('matplotlib.artist b_artist: ', b_artist)
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
@@ -32,16 +32,6 @@ from traitlets import HasTraits, Unicode, Int, Dict, Bool, Instance, Float, Unio
 
 from .traits import TraitProxy, Perishable, TransformTrait, Callable
 
-#this is for sticky_edges but im thinking we can just use a tuple trait...?
-# _XYPair = namedtuple("_XYPair", "x y")
-# class _XYPair(Tuple):
-#     x = List(trait=Float())
-#     y = List(trait=Float())
-#
-#     def __init__(self):
-#         Tuple.__init__(self)
-#         self.x = []
-#         self.y = []
 
 def allow_rasterization(draw):
     """
@@ -86,153 +76,73 @@ def _stale_axes_callback(self, val):
 _XYPair = namedtuple("_XYPair", "x y")
 
 
-#class Artist(_artist.Artist)
 class Artist(HasTraits, b_artist.Artist):
 
     aname = 'Artist'
     zorder = 0
     _prop_order = dict(color=-1)
-    # aname=Unicode('Artist')
-    # zorder=Int(default_value=0)
-    # _prop_order = dict(color=-1)
-    # prop_order=Dict() #asked thomas question about this asstribute
-    # pchanged = Bool(default_value = False)
+
     stale=Bool(default_value=True)
-    stale_callback=Callable(allow_none=True, default_value=True)
-    axes=Instance('matplotlib.axes.Axes', allow_none=True, default_value=None)
-    # axes=Instance(Axes, allow_none=True, default_value=None)
-
-    figure=Instance('matplotlib.figure.Figure', allow_none=True, default_value=None)
-    # figure=Instance(Figure, allow_none=True, default_value=None)
-
-    #not sure if this would be the correct way to call TransformTrait
+    stale_callback=Callable(allow_none=True, default_value=None)
+    axes=Instance('matplotlib.axes.Axes', allow_none=True)
+    figure=Instance('matplotlib.figure.Figure', allow_none=True)
     transform = TransformTrait(allow_none=True, default_value=None)
-    # transform=Instance('matplotlib.transform.Transform', allow_none=True, default_value=None)
-
     transformSet=Bool(default_value=False)
     visible=Bool(default_value=True)
     animated=Bool(default_value=False)
     alpha=Float(default_value=None, allow_none=True)
-
-    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True, default_value=None)
-    # clipbox=Instance(Bbox, allow_none=True, default_value=None)
-
-    # clippath=ClipPathTrait((Tuple(Instance('matplotlib.path.Path'), TransformTrait(allow_none = True, default_value = None)), allow_none=True, default_value=None))
-    # clippath = Union([Instance(TransformedPath),Instance(Patch)], allow_none=True, default_value=None)
+    clipbox=Instance('matplotlib.transforms.Bbox', allow_none=True)
     clippath = Union([Instance('matplotlib.transforms.TransformedPath'),Instance('matplotlib.patches.Patch')], allow_none=True, default_value=None)
-
-
     clipon=Bool(default_value=True)
-
-    # label=Unicode(allow_none=True, default_value='')
-    label = Instance('matplotlib.text.Text', allow_none=True,default_value='')
-
+    label = Instance('matplotlib.text.Text', allow_none=True)
     picker=Union([Float(),Bool(),Callable()], allow_none=True, default_value=None)
     contains=List(default_value=None)
     rasterized=Perishable(Bool(allow_none=True, default_value=None))
-    agg_filter=Unicode(allow_none=True, default_value=None) #set agg_filter function
+    agg_filter=Unicode(allow_none=True, default_value=None)
     mouseover=Bool(default_value=False)
     eventson=Bool(default_value=False)
     oid=Int(allow_none=True, default_value=0)
-    propobservers=Dict(default_value={}) #this may or may not work o/w leave alone and see what happens
+    propobservers=Dict(default_value={})
     remove_method = Any(allow_none = True, default_value = None)
     url=Unicode(allow_none=True, default_value=None)
     gid=Unicode(allow_none=True, default_value=None)
     snap=Perishable(Bool(allow_none=True, default_value=None))
-    # sketch=Tuple(Float(),Float(),Float(), default_value=rcParams['path.sketch'])
     sketch=Tuple(Float(),Float(),Float())
-    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects']) #ask abotu this attribute
-
-
-    #_XYPair = namedtuple("_XYPair", "x y")
-    #sticky_edges is a tuple with lists of floats
-    #the first element of this tuple represents x
-    #and the second element of sticky_edges represents y
-    # sticky_edges=Tuple(List(trait=Float()),List(trait=Float()))
+    path_effects=List(Instance('matplotlib.patheffects'), default_value=rcParams['path.effects'])
     sticky_edges = _XYPair([],[])
-    # print("sticky_edges class _XYPair tester: ", sticky_edges)
-
-
-    # def __init__(self):
-    #     # self.aname
-    #     # self.zorder
-    #     # self.prop_order
-    #     self.stale
-    #     self.stale_callback
-    #     self.axes
-    #     self.figure
-    #     self.transform
-    #     self.transformSet
-    #     self.visible
-    #     self.animated
-    #     self.alpha
-    #     self.clipbox
-    #     self.clippath
-    #     self.clipon
-    #     self.label
-    #     self.picker
-    #     self.contains
-    #     self.rasterized
-    #     self.agg_filter
-    #     self.mouseover
-    #     self.eventson
-    #     self.oid
-    #     self.propobservers
-    #     self.remove_method
-    #     self.url
-    #     self.gid
-    #     self.snap
-    #     self.sketch
-    #     self.path_effects
-    #     self.sticky_edges
-
 
     #stale default
-    @default("stale")
-    def _stale_default(self):
-        print("generating default stale value")
-        return True
+    # @default("stale")
+    # def _stale_default(self):
+    #     print("generating default stale value")
+    #     return True
     #stale validate: reference @stale.setter
     @validate("stale")
     def _stale_validate(self, proposal):
-        print("stale: cross validating %r" % proposal.value)
         if self.animated is True:
             return proposal.value
         if proposal.value and self.stale_callback is not None:
             self.stale_callback(self, proposal.value)
         return proposal.value
-    #stale observer
-    @observe("stale", type="change")
-    def _stale_observe(self, change):
-        print("stale: observed a change from %r to %r" % (change.old, change.new))
 
     #stale_callback default
-    @default("stale_callback")
-    def _stale_callback_default(self):
-        print("generating default stale_callback value")
-        return None
+    # @default("stale_callback")
+    # def _stale_callback_default(self):
+    #     print("generating default stale_callback value")
+    #     return None
     #stale_callback validate
     @validate("stale_callback")
     def _stale_callback_validate(self, proposal):
-        print("stale_callback: cross validating %r" % proposal.value)
         return proposal.value
-    #stale_callback observer
-    @observe("stale_callback", type="change")
-    def _stale_callback_observe(self, change):
-        print("stale_callback: observed a change from %r to %r" % (change.old, change.new))
 
     #axes default
     @default("axes")
     def _axes_default(self):
-        print("importing Axes here")
         from matplotlib.axes import Axes
-        print("successfully imported Axes")
-        print("generating default axes value")
         return None
     #axes validate: reference @axes.setter
     @validate("axes")
     def _axes_validate(self, proposal):
-        print("axes: cross validating %r" % proposal.value)
         if (proposal.value is not None and
                 (self.axes is not None and proposal.value != self.axes)):
             raise ValueError("Can not reset the axes.  You are "
@@ -244,23 +154,15 @@ class Artist(HasTraits, b_artist.Artist):
         if proposal.value is not None and proposal.value is not self:
             self.stale_callback = _stale_axes_callback #this line needs testing
         return proposal.value
-    #axes observer
-    @observe("axes", type="change")
-    def _axes_observe(self, change):
-        print("axes: observed a change from %r to %r" % (change.old, change.new))
 
     #figure default
     @default("figure")
     def _figure_default(self):
-        print("importing Figure here")
         from matplotlib.figure import Figure
-        print("successfully imported Figure")
-        print("generating default figure value")
         return None
     #figure validate: reference set_figure
     @validate("figure")
     def _figure_validate(self, proposal):
-        print("figure: cross validating %r" % proposal.value)
         # if this is a no-op just return
         if self.figure is proposal.value:
             return
@@ -272,177 +174,123 @@ class Artist(HasTraits, b_artist.Artist):
         if self.figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        # self.figure = proposal.value
         return proposal.value
-        #what does this line even mean?
-        # if self.figure and self.figure is not self:
-        # return proposal.value
     #figure observer
     @observe("figure", type="change")
     def _figure_observe(self, change):
-        print("figure: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
-    @default("transform")
-    def _transform_default(self):
-        print("generating default transform value")
-        return None
+    # @default("transform")
+    # def _transform_default(self):
+    #     print("generating default transform value")
+    #     return None
     #transform validate
     @validate("transform")
     def _transform_validate(self, proposal):
-        print("transform: cross validating %r" % proposal.value)
         return proposal.value
     #transform observer: reference set_transform
     @observe("transform", type="change")
     def _transform_observe(self, change):
-        print("transform: observed a change from %r to %r" % (change.old, change.new))
         self.transformSet = True
-        print("set _transformSet: %r" % self.transformSet)
         self.stale = True
-        print("set stale: %r" % self.stale)
 
-    #transformSet default
-    @default("transformSet")
-    def _transformSet_default(self):
-        print("generating default transformSet value")
-        return False
     #transformSet validate
     @validate("transformSet")
     def _transformSet_validate(self, proposal):
-        print("transformSet: cross validating %r" % proposal.value)
         return proposal.value
-    #transformSet observer
-    @observe("transformSet", type="change")
-    def _transformSet_observe(self, change):
-        print("transformSet: observed a change from %r to %r" % (change.old, change.new))
 
     #visible default
-    @default("visible")
-    def _visible_default(self):
-        print("generating default visible value")
-        return True
+    # @default("visible")
+    # def _visible_default(self):
+    #     print("generating default visible value")
+    #     return True
     #visible validate
     @validate("visible")
     def _visible_validate(self, proposal):
-        print("visible: cross validating %r" % proposal.value)
         return proposal.value
     #visible observer: reference set_visible
     @observe("visible", type="change")
     def _visible_observe(self, change):
-        print("visible: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
     #animated default
-    @default("animated")
-    def _animated_default(self):
-        print("generating default animated value")
-        return False
+    # @default("animated")
+    # def _animated_default(self):
+    #     print("generating default animated value")
+    #     return False
     #animated validate: reference set_animated
     @validate("animated")
     def _animated_validate(self, proposal):
-        print("animated: cross validating %r" % proposal.value)
-        # if self.animated is not proposal.value:
-        #     self.pchanged()
-        #     print("called self.pchanged()")
-        #     return proposal.value
-        return proposal.value
-        # return self._animated
+        # print("animated: cross validating %r" % proposal.value)
+        if self.animated is not proposal.value:
+            self.pchanged()
+            return proposal.value
+        raise ValueError("not valid value for animated")
     #animated observer
-    @observe("animated", type="change")
-    def _animated_observe(self, change):
-        print("animated: observed a change from %r to %r" % (change.old, change.new))
+    # @observe("animated", type="change")
+    # def _animated_observe(self, change):
+        # print("animated: observed a change from %r to %r" % (change.old, change.new))
 
-    #alpha default
-    @default("alpha")
-    def _alpha_default(self):
-        print("generating default alpha value")
-        return None
     #alpha validate
     @validate("alpha")
     def _alpha_validate(self, proposal):
-        print("alpha: cross validating %r" % proposal.value)
+        # print("alpha: cross validating %r" % proposal.value)
         return proposal.value
     #alpha observer: reference set_alpha
     @observe("alpha", type="change")
     def _alpha_observe(self, change):
-        print("alpha: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
     #clipbox default
     @default("clipbox")
     def _clipbox_default(self):
-        print("importing BBox here")
         from matplotlib.transforms import Bbox
-        print("successfully imported BBox")
-        print("generating default clipbox value")
         return None
     #clipbox validate
     @validate("clipbox")
     def _clipbox_validate(self, proposal):
-        print("clipbox: cross validating %r" % proposal.value)
         return proposal.value
     #clipbox observer: reference set_clip_box
     @observe("clipbox", type="change")
     def _clipbox_observe(self, change):
-        print("clipbox: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
     #clipbox default
-    @default("clippath")
-    def _clippath_default(self):
-        print("generating default clippath value")
-        return None
+    # @default("clippath")
+    # def _clippath_default(self):
+    #     print("generating default clippath value")
+    #     return None
     #clippath validate
     @validate("clippath")
     def _clippath_validate(self, proposal):
-        print("clippath: cross validating %r" % proposal.value)
         value = proposal.value
-        # from matplotlib.patches import Patch
         if isinstance(value, Patch):
             value = TransformedPatchPath(value)
         return value
     #clippath observer
     @observe("clippath", type="change")
     def _clippath_observe(self, change):
-        print("clippath: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
     def set_clip_path(self, path, transform=None):
         from matplotlib.transforms import TransformedPath
-        print("imported TransformedPath successfully")
         from matplotlib.patches import Rectangle, Patch
-        print("imported Ractangle & Patch successfully")
-
-        print("transform: ", transform)
-        print("path:", path)
 
         success = False
         if transform is None:
             if isinstance(path, Rectangle):
-                print("setting clippbox to TransformedBbox")
-                # print("clippbox before setting TransformedBbox", self.clippbox)
-                print("Bbox.unit()", Bbox.unit())
-                print("path.get_transform()",path.get_transform())
+                # print("setting clippbox to TransformedBbox")
+                # print("Bbox.unit()", Bbox.unit())
+                # print("path.get_transform()",path.get_transform())
                 transformedBbox_clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
-                print("transformedBbox_clipbox: ", transformedBbox_clipbox)
+                # print("transformedBbox_clipbox: ", transformedBbox_clipbox)
                 Bbox_clipbox = Bbox(transformedBbox_clipbox)
-                print("Bbox_clipbox: ", Bbox_clipbox)
-                # self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                # print("Bbox_clipbox: ", Bbox_clipbox)
                 self.clipbox = Bbox_clipbox
                 self.clippath = None
                 return
@@ -463,130 +311,73 @@ class Artist(HasTraits, b_artist.Artist):
             print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
 
-    #clipon default
-    @default("clipon")
-    def _clipon_default(self):
-        print("generating default clipon value")
-        return True
+
     #clipon validate
     @validate("clipon")
     def _clipon_validate(self, proposal):
-        print("clipon: cross validating %r" % proposal.value)
         return proposal.value
     #clipon observer
     @observe("clipon", type="change")
     def _clipon_observe(self, change):
-        print("clipon: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
     #label default
     @default("label")
     def _label_default(self):
-        print("importing Text here")
         from matplotlib.text import Text
-        print("successfully imported Text")
-        print("generating default label value")
         return None
     #label validate
     @validate("label")
     def _label_validate(self, proposal):
-        print("label: cross validating %r" % proposal.value)
         if proposal.value is not None:
             return proposal.value
         return proposal.value
     #label observer
     @observe("label", type="change")
     def _label_observe(self, change):
-        print("label: observed a change from %r to %r" % (change.old, change.new))
         self.pchanged()
-        print("called self.pchanged()")
         self.stale = True
-        print("set stale: %r" % self.stale)
 
-    #picker default
-    @default("picker")
-    def _picker_default(self):
-        print("generating default picker value")
-        return None
     #picker validate
     @validate("picker")
     def _picker_validate(self, proposal):
-        print("picker: cross validating %r" % proposal.value)
         return proposal.value
-    #picker observer
-    @observe("picker", type="change")
-    def _picker_observe(self, change):
-        print("picker: observed a change from %r to %r" % (change.old, change.new))
 
-    #contains default
-    @default("contains")
-    def _contains_default(self):
-        print("generating default contains value")
-        return None
     #contains validate
     @validate("contains")
     def _contains_validate(self, proposal):
-        print("contains: cross validating %r" % proposal.value)
+        # print("contains: cross validating %r" % proposal.value)
         return proposal.value
-    #contains observer
-    @observe("contains", type="change")
-    def _contains_observe(self, change):
-        print("contains: observed a change from %r to %r" % (change.old, change.new))
 
-    #rasterized default
-    @default("rasterized")
-    def _rasterized_default(self):
-        print("generating default rasterized value")
-        return None
     #rasterized validate
     @validate("rasterized")
     def _rasterized_validate(self, proposal):
-        print("rasterized: cross validating %r" % proposal.value)
         if proposal.value and not hasattr(self.draw, "_supports_rasterization"):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
         return proposal.value
-    #rasterized observer
-    @observe("rasterized", type="change")
-    def _rasterized_observe(self, change):
-        print("rasterized: observed a change from %r to %r" % (change.old, change.new))
 
-    #agg_filter default
-    @default("agg_filter")
-    def _agg_filter_default(self):
-        print("generating default agg_filter value")
-        return None
     #agg_filter validate
     @validate("agg_filter")
     def _agg_filter_validate(self, proposal):
-        print("agg_filter: cross validating %r" % proposal.value)
+        # print("agg_filter: cross validating %r" % proposal.value)
         return proposal.value
     #agg_filter observer
     @observe("agg_filter", type="change")
     def _agg_filter_observe(self, change):
-        print("agg_filter: observed a change from %r to %r" % (change.old, change.new))
+        # print("agg_filter: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
-    #mouseover default
-    @default("mouseover")
-    def _mouseover_default(self):
-        print("generating default mouseover value")
-        return False
     #mouseover validate: reference @mouseover.setter
     @validate("mouseover")
     def _mouseover_validate(self, proposal):
-        print("mouseover: cross validating %r" % proposal.value)
         val = bool(proposal.value)
         #val is the returned value
         return val
     #mouseover observer
     @observe("mouseover", type="change")
     def _mouseover_observe(self, change):
-        print("mouseover: observed a change from %r to %r" % (change.old, change.new))
-        print("adding or discarding from axes.mouseover_set")
         ax = self.axes
         if ax:
             if val:
@@ -594,168 +385,70 @@ class Artist(HasTraits, b_artist.Artist):
             else:
                 ax.mouseover_set.discard(self)
 
-    #eventson default
-    @default("eventson")
-    def _eventson_default(self):
-        print("generating default eventson value")
-        return False
     #eventson validate
     @validate("eventson")
     def _eventson_validate(self, proposal):
-        print("eventson: cross validating %r" % proposal.value)
         return proposal.value
-    #eventson observer
-    @observe("eventson", type="change")
-    def _eventson_observe(self, change):
-        print("eventson: observed a change from %r to %r" % (change.old, change.new))
 
-    #oid default
-    @default("oid")
-    def _oid_default(self):
-        print("generating default oid (observer id) value")
-        return 0
     #oid validate
     @validate("oid")
     def _oid_validate(self, proposal):
-        print("oid: cross validating %r" % proposal.value)
         return proposal.value
-    #oid observer
-    @observe("oid", type="change")
-    def _oid_observe(self, change):
-        print("oid: observed a change from %r to %r" % (change.old, change.new))
 
-    #propobservers default
-    @default("propobservers")
-    def _propobservers_default(self):
-        print("generating default propobservers value")
-        return {}
     #propobservers validate
     @validate("propobservers")
     def _propobservers_validate(self, proposal):
-        print("propobservers: cross validating %r" % proposal.value)
         return proposal.value
-    #propobservers observer
-    @observe("propobservers", type="change")
-    def _propobservers_observe(self, change):
-        print("propobservers: observed a change from %r to %r" % (change.old, change.new))
 
-    #url default
-    @default("url")
-    def _url_default(self):
-        print("generating default url value")
-        return None
     #url validate
     @validate("url")
     def _url_validate(self, proposal):
-        print("url: cross validating %r" % proposal.value)
         return proposal.value
-    #url observer
-    @observe("url", type="change")
-    def _url_observe(self, change):
-        print("url: observed a change from %r to %r" % (change.old, change.new))
 
-    #gid default
-    @default("gid")
-    def _gid_default(self):
-        print("generating default gid (group id) value")
-        return None
     #gid validate
     @validate("gid")
     def _gid_validate(self, proposal):
-        print("gid: cross validating %r" % proposal.value)
         return proposal.value
-    #gid observer
-    @observe("gid", type="change")
-    def _gid_observe(self, change):
-        print("gid: observed a change from %r to %r" % (change.old, change.new))
 
     #snap default
-    @default("snap")
-    def _snap_default(self):
-        print("generating default snap value")
-        return None
+    # @default("snap")
+    # def _snap_default(self):
+    #     print("generating default snap value")
+    #     return None
     #snap validate
     @validate("snap")
     def _snap_validate(self, proposal):
-        print("snap: cross validating %r" % proposal.value)
         return proposal.value
     #snap observer
     @observe("snap", type="change")
     def _snap_observe(self, change):
-        print("snap: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
 
-    # This may not work, I may or may not have to work around rcParams['path.sketch']
-    # but I am not sure yet
-    # this may also have to be a trait?
     #sketch default
     @default("sketch")
     def _sketch_default(self):
-        print("generating default sketch value")
-        # print('rcParams[path.sketch]: ', rcParams['path.sketch'])
-        # return rcParams['path.sketch']
-        # return None
         return (0.0, 0.0, 0.0)
     #sketch validate
     @validate("sketch")
     def _sketch_validate(self, proposal):
-        print("sketch: cross validating %r, %r, %r" % (proposal.value[0], proposal.value[1], proposal.value[2]))
         if proposal.value[0] is None:
             return None
         else:
             #(scale, length or 128.0, randomness or 16.0)
-            #not sure if this is how to go about this?
             return (proposal.value[0], proposal.value[1] or 128.0, proposal.value[2] or 16.0)
-        # return proposal.value
     #sketch observer
     @observe("sketch", type="change")
     def _sketch_observe(self, change):
-        print("sketch: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
 
-
-        """
-        same note as sketch:
-        This may not work, I may or may not have to work around rcParams['path.effects']
-        but I am not sure yet
-        """
-
-    #path_effects default
-    @default("path_effects")
-    def _path_effects_default(self):
-        print("generating default path_effects value")
-        return rcParams['path.effects']
     #path_effects validate
     @validate("path_effects")
     def _path_effects_validate(self, proposal):
-        print("path_effects: cross validating %r" % proposal.value)
         return proposal.value
     #path_effects observer
     @observe("path_effects", type="change")
     def _path_effects_observe(self, change):
-        print("path_effects: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
-
-    # #sticky_edges default
-    # @default("sticky_edges")
-    # def _sticky_edges_default(self):
-    #     print("generating default sticky_edges value")
-    #     #(x,y) where x & yare both List(trait=Float())
-    #     #Tuple(List(trait=Float()), List(trait=Float()))
-    #     return ([], [])
-    # #sticky_edges validate
-    # @validate("sticky_edges")
-    # def _sticky_edges_validate(self, proposal):
-    #     print("sticky_edges: cross validating %r, %r" % (proposal.value[0], proposal.value[1]))
-    #     return proposal.value
-    # #sticky_edges observer
-    # @observe("sticky_edges", type="change")
-    # def _sticky_edges_observe(self, change):
-    #     print("sticky_edges: observed a change from %r to %r" % (change.old, change.new))
-
 
     def remove(self):
         """
@@ -985,9 +678,9 @@ class Artist(HasTraits, b_artist.Artist):
         return None, None
 
     def _set_gc_clip(self, gc):
-        print('Set the clip properly for the gc')
+        # print('Set the clip properly for the gc')
         from matplotlib.patches import Rectangle, Patch
-        print('imported Ractangle & Patch successfully')
+        # print('imported Ractangle & Patch successfully')
 
         if self.clipon:
             if self.clipbox is not None:
@@ -1073,7 +766,7 @@ class Artist(HasTraits, b_artist.Artist):
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
 
-print('before b_artist.Artist: ', b_artist.Artist) #matplotlib.artist.Artist
+# print('before b_artist.Artist: ', b_artist.Artist) #matplotlib.artist.Artist
 #monkey patching
 b_artist.Artist = Artist
-print('after b_artist.Artist: ', b_artist.Artist) #matplotlib._traits.artist.Artist
+# print('after b_artist.Artist: ', b_artist.Artist) #matplotlib._traits.artist.Artist
