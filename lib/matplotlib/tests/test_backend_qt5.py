@@ -145,6 +145,11 @@ def test_dpi_ratio_change():
 
         qt_canvas.draw()
         qApp.processEvents()
+        # this second processEvents is required to fully run the draw.
+        # On `update` we notice the DPI has changed and trigger a
+        # resize event to refresh, the second processEvents is
+        # required to process that and fully update the window sizes.
+        qApp.processEvents()
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 240
