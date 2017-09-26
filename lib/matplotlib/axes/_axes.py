@@ -4816,14 +4816,6 @@ or tuple of floats
 
         """
 
-        if not rcParams['_internal.classic_mode']:
-            color_aliases = mcoll._color_aliases
-            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
-
-            if not any(c in kwargs for c in ('color', 'facecolors')):
-                fc = self._get_patches_for_fill.get_next_color()
-                kwargs['facecolors'] = fc
-
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
         self._process_unit_info(ydata=y2)
@@ -4838,81 +4830,7 @@ or tuple of floats
                 raise ValueError('Input passed into argument "%r"' % name +
                                  'is not 1-dimensional.')
 
-        if where is None:
-            where = True
-        where = where & ~functools.reduce(np.logical_or,
-                                          map(np.ma.getmask, [x, y1, y2]))
-
-        x, y1, y2 = np.broadcast_arrays(np.atleast_1d(x), y1, y2)
-
-        polys = []
-        for ind0, ind1 in mlab.contiguous_regions(where):
-            xslice = x[ind0:ind1]
-            y1slice = y1[ind0:ind1]
-            y2slice = y2[ind0:ind1]
-            if step is not None:
-                step_func = STEP_LOOKUP_MAP["steps-" + step]
-                xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
-
-            if not len(xslice):
-                continue
-
-            N = len(xslice)
-            X = np.zeros((2 * N + 2, 2), float)
-
-            if interpolate:
-                def get_interp_point(ind):
-                    im1 = max(ind - 1, 0)
-                    x_values = x[im1:ind + 1]
-                    diff_values = y1[im1:ind + 1] - y2[im1:ind + 1]
-                    y1_values = y1[im1:ind + 1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return x[im1], y1[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return x[ind], y1[ind]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_x = np.interp(
-                        0, diff_values[diff_order], x_values[diff_order])
-                    x_order = x_values.argsort()
-                    diff_root_y = np.interp(diff_root_x, x_values[x_order],
-                                            y1_values[x_order])
-                    return diff_root_x, diff_root_y
-
-                start = get_interp_point(ind0)
-                end = get_interp_point(ind1)
-            else:
-                # the purpose of the next two lines is for when y2 is a
-                # scalar like 0 and we want the fill to go all the way
-                # down to 0 even if none of the y1 sample points do
-                start = xslice[0], y2slice[0]
-                end = xslice[-1], y2slice[-1]
-
-            X[0] = start
-            X[N + 1] = end
-
-            X[1:N + 1, 0] = xslice
-            X[1:N + 1, 1] = y1slice
-            X[N + 2:, 0] = xslice[::-1]
-            X[N + 2:, 1] = y2slice[::-1]
-
-            polys.append(X)
-
-        collection = mcoll.PolyCollection(polys, **kwargs)
-
-        # now update the datalim and autoscale
-        XY1 = np.array([x[where], y1[where]]).T
-        XY2 = np.array([x[where], y2[where]]).T
-        self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
-                                         updatex=True, updatey=True)
-        self.ignore_existing_data_limits = False
-        self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
-                                         updatex=False, updatey=True)
-        self.add_collection(collection, autolim=False)
-        self.autoscale_view()
-        return collection
+        self._fill_between(x, y1, y2, where, step, interpolate, fill='y', **kwargs)
 
     @_preprocess_data(replace_names=["y", "x1", "x2", "where"],
                       label_namer=None)
@@ -4970,13 +4888,6 @@ or tuple of floats
 
         """
 
-        if not rcParams['_internal.classic_mode']:
-            color_aliases = mcoll._color_aliases
-            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
-
-            if not any(c in kwargs for c in ('color', 'facecolors')):
-                fc = self._get_patches_for_fill.get_next_color()
-                kwargs['facecolors'] = fc
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
         self._process_unit_info(xdata=x2)
@@ -4991,77 +4902,106 @@ or tuple of floats
                 raise ValueError('Input passed into argument "%r"' % name +
                                  'is not 1-dimensional.')
 
+        self._fill_between(y, x1, x2, where, step, interpolate, fill='x', **kwargs)
+
+    def _fill_between(self, pts, f1, f2, where, step, interpolate, fill,
+                      **kwargs):
+        """Private helper for common functionality of fill_between(x)
+
+        This generalizes around the concept of filling between function values
+        (func), which are functions of an independant set of points.
+        """
+
+        if not rcParams['_internal.classic_mode']:
+            color_aliases = mcoll._color_aliases
+            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+
+            if not any(c in kwargs for c in ('color', 'facecolors')):
+                fc = self._get_patches_for_fill.get_next_color()
+                kwargs['facecolors'] = fc
+
+        func_index = 0 if fill == 'x' else 1
+        point_index = 1 - func_index
+
         if where is None:
             where = True
         where = where & ~functools.reduce(np.logical_or,
-                                          map(np.ma.getmask, [y, x1, x2]))
+                                          map(np.ma.getmask, [pts, f1, f2]))
 
-        y, x1, x2 = np.broadcast_arrays(np.atleast_1d(y), x1, x2)
+        pts, f1, f2 = np.broadcast_arrays(np.atleast_1d(pts), f1, f2)
+
+        def get_interp_point(ind):
+            im1 = max(ind - 1, 0)
+            pt_values = pts[im1:ind + 1]
+            diff_values = f1[im1:ind + 1] - f2[im1:ind + 1]
+            f1_values = f1[im1:ind + 1]
+
+            if len(diff_values) == 2:
+                if np.ma.is_masked(diff_values[1]):
+                    return f1[im1], pts[im1]
+                elif np.ma.is_masked(diff_values[0]):
+                    return f1[ind], pts[ind]
+
+            diff_order = diff_values.argsort()
+            diff_root_pt = np.interp(0, diff_values[diff_order],
+                                     pt_values[diff_order])
+            pt_order = pt_values.argsort()
+            diff_root_f = np.interp(diff_root_pt, pt_values[pt_order],
+                                    f1_values[pt_order])
+            return diff_root_f, diff_root_pt
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
-            yslice = y[ind0:ind1]
-            x1slice = x1[ind0:ind1]
-            x2slice = x2[ind0:ind1]
+            pts_slice = pts[ind0:ind1]
+            f1slice = f1[ind0:ind1]
+            f2slice = f2[ind0:ind1]
             if step is not None:
                 step_func = STEP_LOOKUP_MAP["steps-" + step]
-                yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
+                pts_slice, f1slice, f2slice = step_func(pts_slice, f1slice, f2slice)
 
-            if not len(yslice):
+            if not len(pts_slice):
                 continue
 
-            N = len(yslice)
-            Y = np.zeros((2 * N + 2, 2), float)
             if interpolate:
-                def get_interp_point(ind):
-                    im1 = max(ind - 1, 0)
-                    y_values = y[im1:ind + 1]
-                    diff_values = x1[im1:ind + 1] - x2[im1:ind + 1]
-                    x1_values = x1[im1:ind + 1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return x1[im1], y[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return x1[ind], y[ind]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_y = np.interp(
-                        0, diff_values[diff_order], y_values[diff_order])
-                    y_order = y_values.argsort()
-                    diff_root_x = np.interp(diff_root_y, y_values[y_order],
-                                            x1_values[y_order])
-                    return diff_root_x, diff_root_y
-
-                start = get_interp_point(ind0)
-                end = get_interp_point(ind1)
+                start_func, start_pt = get_interp_point(ind0)
+                end_func, end_pt = get_interp_point(ind1)
             else:
-                # the purpose of the next two lines is for when x2 is a
+                # the purpose of the next two lines is for when f2 is a
                 # scalar like 0 and we want the fill to go all the way
-                # down to 0 even if none of the x1 sample points do
-                start = x2slice[0], yslice[0]
-                end = x2slice[-1], yslice[-1]
+                # to 0 even if none of the f1 sample points do
+                start_func, start_pt = f2slice[0], pts_slice[0]
+                end_func, end_pt= f2slice[-1], pts_slice[-1]
 
-            Y[0] = start
-            Y[N + 1] = end
+            N = len(pts_slice)
+            poly = np.zeros((2 * N + 2, 2), float)
+            poly[0, point_index] = start_pt
+            poly[0, func_index] = start_func
+            poly[N + 1, point_index] = end_pt
+            poly[N + 1, func_index] = end_func
 
-            Y[1:N + 1, 0] = x1slice
-            Y[1:N + 1, 1] = yslice
-            Y[N + 2:, 0] = x2slice[::-1]
-            Y[N + 2:, 1] = yslice[::-1]
+            poly[1:N + 1, point_index] = pts_slice
+            poly[1:N + 1, func_index] = f1slice
+            poly[N + 2:, point_index] = pts_slice[::-1]
+            poly[N + 2:, func_index] = f2slice[::-1]
 
-            polys.append(Y)
+            polys.append(poly)
 
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        X1Y = np.array([x1[where], y[where]]).T
-        X2Y = np.array([x2[where], y[where]]).T
-        self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
+        arrs = [None, None]
+        arrs[point_index] = pts[where]
+        arrs[func_index] = f1[where]
+        data_for_limits = np.column_stack(arrs)
+        self.dataLim.update_from_data_xy(data_for_limits,
+                                         self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
+
+        data_for_limits[:, func_index] = f2[where]
         self.ignore_existing_data_limits = False
-        self.dataLim.update_from_data_xy(X2Y, self.ignore_existing_data_limits,
-                                         updatex=True, updatey=False)
+        self.dataLim.update_from_data_xy(data_for_limits,
+                                         self.ignore_existing_data_limits,
+                                         updatex=fill == 'x', updatey=fill == 'y')
         self.add_collection(collection, autolim=False)
         self.autoscale_view()
         return collection
