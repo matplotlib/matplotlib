@@ -176,4 +176,4 @@ on_failure:
   - appveyor PushArtifact result_images.zip
 
 matrix:
-  fast_finish: true
+  fast_finish: false
