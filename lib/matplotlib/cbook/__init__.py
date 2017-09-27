@@ -2311,7 +2311,7 @@ def safe_first_element(obj):
             pass
         raise RuntimeError("matplotlib does not support generators "
                            "as input")
-    return next(filter(lambda e: not np.ma.is_masked(e), iter(obj)))
+    return next(iter(obj))
 
 
 def sanitize_sequence(data):

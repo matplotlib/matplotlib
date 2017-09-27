@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip, zip_longest
 
-from collections import Sized
 import functools
 import itertools
 import math
@@ -3020,8 +3019,7 @@ or tuple of floats
             # special case for empty lists
             if len(err) > 1:
                 fe = safe_first_element(err)
-                if (len(err) != len(data)
-                        or isinstance(fe, Sized) and len(fe) > 1):
+                if (len(err) != len(data) or np.size(fe) > 1):
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units
