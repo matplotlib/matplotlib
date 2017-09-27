@@ -773,7 +773,6 @@ class Colormap(object):
     def __getitem__(self, item):
         """Advanced indexing for colorbars.
 
-
         Examples
         --------
         import matplotlib.pyplat as plt
@@ -792,7 +791,7 @@ class Colormap(object):
 
         # Same as above, but specify the number of points
         # using `np.mgrid` complex-indexing:
-        new_cm = cmap[0.2:-0.4:1j * 64]
+        new_cm = cmap[0.2:-0.4:64j]
 
         # ### Int-style indexing
         # for int-style indexing, the values must be in [0, self.N]
@@ -805,7 +804,7 @@ class Colormap(object):
         new_cm = cmap[12:-28:4]
 
         # And so is `np.mgrid` complex-indexing (same as above)
-        new_cm = cmap[12:-28:1j * 22]
+        new_cm = cmap[12:-28:22j]
 
         # ### Array/list-style indexing
         # In this case, you specify specific points in the colormap
