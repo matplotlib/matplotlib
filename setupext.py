@@ -1166,40 +1166,39 @@ class FreeType(SetupPackage):
                 if not os.path.exists('build'):
                     os.makedirs('build')
 
-                sourceforge_url = (
+                url_fmts = [
                     'https://downloads.sourceforge.net/project/freetype'
-                    '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
-                )
-                url_fmts = (
-                    sourceforge_url + '{0}',
-                    'https://download.savannah.gnu.org/releases/freetype/{0}'
-                    )
+                    '/freetype2/{version}/{tarball}',
+                    'https://download.savannah.gnu.org/releases/freetype'
+                    '/{tarball}'
+                ]
                 for url_fmt in url_fmts:
-                    tarball_url = url_fmt.format(tarball)
+                    tarball_url = url_fmt.format(
+                        version=LOCAL_FREETYPE_VERSION, tarball=tarball)
 
                     print("Downloading {0}".format(tarball_url))
                     try:
                         urlretrieve(tarball_url, tarball_path)
-                    except:
+                    except IOError:  # URLError (a subclass) on Py3.
                         print("Failed to download {0}".format(tarball_url))
                     else:
-                        break
-                if not os.path.isfile(tarball_path):
+                        if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
+                            print("Invalid hash.")
+                        else:
+                            break
+                else:
                     raise IOError("Failed to download freetype")
-                if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
-                    try:
-                        os.makedirs(tarball_cache_dir)
-                    except OSError:
-                        # Don't care if it exists.
-                        pass
-                    try:
-                        shutil.copy(tarball_path, tarball_cache_path)
-                        print('Cached tarball at: {}'
-                              .format(tarball_cache_path))
-                    except OSError:
-                        # again, we do not care if this fails, can
-                        # always re download
-                        pass
+                try:
+                    os.makedirs(tarball_cache_dir)
+                except OSError:
+                    # Don't care if it exists.
+                    pass
+                try:
+                    shutil.copy(tarball_path, tarball_cache_path)
+                    print('Cached tarball at: {}'.format(tarball_cache_path))
+                except OSError:
+                    # If this fails, we can always re-download.
+                    pass
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                 raise IOError(
