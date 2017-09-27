@@ -6,10 +6,10 @@ Styling with cycler
 Demo of custom property-cycle settings to control colors and other style
 properties for multi-line plots.
 
-.. note:: 
+.. note::
 
     More complete documentation of the ``cycler`` API can be found
-    ``here <http://matplotlib.org/cycler/>``_.
+    `here <http://matplotlib.org/cycler/>`_.
 
 This example demonstrates two different APIs:
 
@@ -35,9 +35,10 @@ print(yy.shape)
 
 ###############################################################################
 # So ``yy[:, i]`` will give you the ``i``-th offset sine curve. Let's set the
-# default prop_cycle using :ref:`plt.rc`. We'll combine a color cycler and a
-# linestyle cycler by adding (``+``) two ``cycler``'s together. See the bottom 
-# of this tutorial for more information about combining different cyclers.
+# default prop_cycle using :func:`matplotlib.pyplot.rc`. We'll combine a color
+# cycler and a linestyle cycler by adding (``+``) two ``cycler``'s together.
+# See the bottom of this tutorial for more information about combining
+# different cyclers.
 default_cycler = cycler('color', ['r', 'g', 'b', 'y']) \
                     + cycler('linestyle', ['-', '--', ':', '-.'])
 
@@ -46,16 +47,11 @@ plt.rc('axes', prop_cycle=default_cycler)
 
 ###############################################################################
 # Now we'll generate a figure with two axes, one on top of the other. On the
-# first axis, we'll plot with the default cycler.
-fig, (ax0, ax1) = plt.subplots(nrows=2)
-ax0.plot(yy)
-ax0.set_title('Set default color cycle to rgby')
-
-###############################################################################
-# On the second axis, we'll set the prop_cycler using 
-# :ref:`Axes.set_prop_cycle` which will only set the ``prop_cycle`` for this 
-# ``Axes`` instance. We'll use a second ``cycler`` that combines a color cycler 
-# and a linewidth cycler.
+# first axis, we'll plot with the default cycler. On the second axis, we'll
+# set the prop_cycler using :func:`matplotlib.axes.Axes.set_prop_cycle`
+# which will only set the ``prop_cycle`` for this :mod:`matplotlib.axes.Axes`
+# instance. We'll use a second ``cycler`` that combines a color cycler and a
+# linewidth cycler.
 custom_cycler = cycler('color', ['c', 'm', 'y', 'k']) \
     + cycler('lw', [1, 2, 3, 4])
 
@@ -66,14 +62,7 @@ ax1.set_prop_cycle(custom_cycler)
 ax1.plot(yy)
 ax1.set_title('Set axes color cycle to cmyk')
 
-
-# Now let's add a bit more space between the two plots.
-fig, (ax0, ax1) = plt.subplots(nrows=2)
-ax0.plot(yy)
-ax0.set_title('Set default color cycle to rgby')
-ax1.set_prop_cycle(custom_cycler)
-ax1.plot(yy)
-ax1.set_title('Set axes color cycle to cmyk')
+# Add a bit more space between the two plots.
 fig.subplots_adjust(hspace=0.3)
 plt.show()
 
@@ -81,8 +70,8 @@ plt.show()
 # Setting ``prop_cycler`` in the ``matplotlibrc`` file or style files
 # -------------------------------------------------------------------
 #
-# Remember, if you want to set a custom ``prop_cycler`` in your 
-# ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the 
+# Remember, if you want to set a custom ``prop_cycler`` in your
+# ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the
 # ``axes.prop_cycle`` property:
 #
 # ..code-block:: python
@@ -122,7 +111,7 @@ plt.show()
 #         print(d)
 #
 # Results in:
-# 
+#
 # .. code-block:: python
 #
 #     {'color': 'r', 'linestyle': '-'}

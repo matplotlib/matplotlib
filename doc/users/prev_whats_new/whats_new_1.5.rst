@@ -109,8 +109,8 @@ You can even multiply cyclers, which is like using `itertools.product()`
 on two or more property cycles. Remember to use parentheses if writing
 a multi-line `prop_cycle` parameter.
 
-.. figure:: ../../gallery/color/images/sphx_glr_color_cycle_001.png
-   :target: ../../gallery/color/color_cycle.html
+.. figure:: ../../tutorials/02_intermediate/images/sphx_glr_color_cycle_001.png
+   :target: ../../tutorials/02_intermediate/color_cycle.html
    :align: center
    :scale: 50
 
