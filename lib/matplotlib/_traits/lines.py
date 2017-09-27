@@ -14,7 +14,7 @@ import numpy as np
 from matplotlib import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 import matplotlib.artist as b_artist
-print('matplotlib.artist b_artist: ', b_artist)
+# print('matplotlib.artist b_artist: ', b_artist)
 
 
 # import matplotlib._traits.artist as artist
@@ -38,7 +38,7 @@ from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool, Int, valid
 
 #for monkey patching into base lines
 import matplotlib.lines as b_Line2D
-print('matplotlib.lines.Line2D', b_Line2D)
+# print('matplotlib.lines.Line2D', b_Line2D)
 
 
 
@@ -420,7 +420,7 @@ class Line2D(b_artist.Artist, HasTraits):
 
         #initialize Artist in Line2D
         Artist.__init__(self)
-        print("Artist: ", Artist)
+        # print("Artist: ", Artist)
 
     # NOTE: NOT SURE IF xdata & ydata are needed
     #xdata default
@@ -431,7 +431,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #xdata validate
     @validate("xdata")
     def _xdata_validate(self, proposal):
-        print("xdata: cross validating %r" % proposal.value)
+        # print("xdata: cross validating %r" % proposal.value)
         #convert sequences to numpy arrays
         if not iterable(proposal.value):
             raise RuntimeError('xdata must be a sequence')
@@ -439,9 +439,9 @@ class Line2D(b_artist.Artist, HasTraits):
     #xdata observer
     @observe("xdata", type="change")
     def _xdata_observe(self, change):
-        print("xdata: observed a change from %r to %r" % (change.old, change.new))
+        # print("xdata: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #ydata default
     # @default("ydata")
@@ -451,7 +451,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #ydata validate
     @validate("ydata")
     def _ydata_validate(self, proposal):
-        print("ydata: cross validating %r" % proposal.value)
+        # print("ydata: cross validating %r" % proposal.value)
         #convert sequences to numpy arrays
         if not iterable(proposal.value):
             raise RuntimeError('ydata must be a sequence')
@@ -459,9 +459,9 @@ class Line2D(b_artist.Artist, HasTraits):
     #ydata observer
     @observe("ydata", type="change")
     def _ydata_observe(self, change):
-        print("ydata: observed a change from %r to %r" % (change.old, change.new))
+        # print("ydata: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
     #linewidth default
     # @default("linewidth")
     # def _linewidth_default(self):
@@ -471,7 +471,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #linewidth validate
     @validate("linewidth")
     def _linewidth_validate(self, proposal):
-        print("linewidth: cross validating %r" % proposal.value)
+        # print("linewidth: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.linewidth']
         #to assure we are dealing with a FLOAT
@@ -480,13 +480,13 @@ class Line2D(b_artist.Artist, HasTraits):
     #linewidth observer
     @observe("linewidth", type="change")
     def _linewidth_observe(self, change):
-        print("linewidth: observed a change from %r to %r" % (change.old, change.new))
+        # print("linewidth: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
         #NOTE: this line may cause recursion error
         self.dashOffset, self.dashSeq = _scale_dashes(self.us_dashOffset, self.us_dashSeq, self.linewidth)
-        print("set self.dashOffset: ", self.dashOffset)
-        print("set self.dashSeq: ", self.dashSeq)
+        # print("set self.dashOffset: ", self.dashOffset)
+        # print("set self.dashSeq: ", self.dashSeq)
 
     #linestyle default
     # @default("linestyle")
@@ -496,7 +496,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #linestyle validate
     @validate("linestyle")
     def _linestyle_validate(self, proposal):
-        print("linestyle: cross validating %r" % proposal.value)
+        # print("linestyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.linestyle']
 
@@ -524,7 +524,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #linestyle observer
     @observe("linestyle", type="change")
     def _linestyle_observe(self, change):
-        print("linestyle: observed a change from %r to %r" % (change.old, change.new))
+        # print("linestyle: observed a change from %r to %r" % (change.old, change.new))
 
     #color default
     # @default("color")
@@ -534,16 +534,16 @@ class Line2D(b_artist.Artist, HasTraits):
     #color validate
     @validate("color")
     def _color_validate(self, proposal):
-        print("color: cross validating %r" % proposal.value)
+        # print("color: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.color']
         return proposal.value
     #color observer
     @observe("color", type="change")
     def _color_observe(self, change):
-        print("color: observed a change from %r to %r" % (change.old, change.new))
+        # print("color: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     """
     NOTE: I may have to create a marker trait but I think
@@ -558,7 +558,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #@docstring.dedent_interpd
     @validate("marker")
     def _marker_validate(self, proposal):
-        print("marker: cross validating %r" % proposal.value)
+        # print("marker: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.marker']
         # TODO: find a method to make the line below work
@@ -567,9 +567,9 @@ class Line2D(b_artist.Artist, HasTraits):
     #marker observer
     @observe("marker", type="change")
     def _marker_observe(self, change):
-        print("marker: observed a change from %r to %r" % (change.old, change.new))
+        # print("marker: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #markersize default
     # @default("markersize")
@@ -579,16 +579,16 @@ class Line2D(b_artist.Artist, HasTraits):
     #markersize validate
     @validate("markersize")
     def _markersize_validate(self, proposal):
-        print("markersize: cross validating %r" % proposal.value)
+        # print("markersize: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.markersize']
         return proposal.value
     #markersize observer
     @observe("markersize", type="change")
     def _markersize_observe(self, change):
-        print("markersize: observed a change from %r to %r" % (change.old, change.new))
+        # print("markersize: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #markeredgewidth default
     # @default("markeredgewidth")
@@ -598,16 +598,16 @@ class Line2D(b_artist.Artist, HasTraits):
     #markeredgewidth validate
     @validate("markeredgewidth")
     def _markeredgewidth_validate(self, proposal):
-        print("markeredgewidth: cross validating %r" % proposal.value)
+        # print("markeredgewidth: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.markeredgewidth']
         return proposal.value
     #markeredgewidth observer
     @observe("markeredgewidth", type="change")
     def _markeredgewidth_observe(self, change):
-        print("markeredgewidth: observed a change from %r to %r" % (change.old, change.new))
+        # print("markeredgewidth: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #markerfacecolor default
     # @default("markerfacecolor")
@@ -617,12 +617,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #markerfacecolor validate
     @validate("markerfacecolor")
     def _markerfacecolor_validate(self, proposal):
-        print("markerfacecolor: cross validating %r" % proposal.value)
+        # print("markerfacecolor: cross validating %r" % proposal.value)
         return proposal.value
     #markerfacecolor observer
     @observe("markerfacecolor", type="change")
     def _markerfacecolor_observe(self, change):
-        print("markerfacecolor: observed a change from %r to %r" % (change.old, change.new))
+        # print("markerfacecolor: observed a change from %r to %r" % (change.old, change.new))
 
     #markerfacecoloralt default
     # @default("markerfacecoloralt")
@@ -632,12 +632,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #markerfacecoloralt validate
     @validate("markerfacecoloralt")
     def _markerfacecoloralt_validate(self, proposal):
-        print("markerfacecoloralt: cross validating %r" % proposal.value)
+        # print("markerfacecoloralt: cross validating %r" % proposal.value)
         return proposal.value
     #markerfacecoloralt observer
     @observe("markerfacecoloralt", type="change")
     def _markerfacecoloralt_observe(self, change):
-        print("markerfacecoloralt: observed a change from %r to %r" % (change.old, change.new))
+        # print("markerfacecoloralt: observed a change from %r to %r" % (change.old, change.new))
 
     #fillstyle default
     # @default("fillstyle")
@@ -647,15 +647,15 @@ class Line2D(b_artist.Artist, HasTraits):
     #fillstyle validate
     @validate("fillstyle")
     def _fillstyle_validate(self, proposal):
-        print("fillstyle: cross validating %r" % proposal.value)
+        # print("fillstyle: cross validating %r" % proposal.value)
         # return self._marker.set_fillstyle(proposal.value)
         return proposal.value
     #fillstyle observer
     @observe("fillstyle", type="change")
     def _fillstyle_observe(self, change):
-        print("fillstyle: observed a change from %r to %r" % (change.old, change.new))
+        # print("fillstyle: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #antialiased default
     # @default("antialiased")
@@ -665,16 +665,16 @@ class Line2D(b_artist.Artist, HasTraits):
     #antialiased validate
     @validate("antialiased")
     def _antialiased_validate(self, proposal):
-        print("antialiased: cross validating %r" % proposal.value)
+        # print("antialiased: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.antialiased']
         return proposal.value
     #antialiased observer
     @observe("antialiased", type="change")
     def _antialiased_observe(self, change):
-        print("antialiased: observed a change from %r to %r" % (change.old, change.new))
+        # print("antialiased: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #dash_capstyle default
     # @default("dash_capstyle")
@@ -684,14 +684,14 @@ class Line2D(b_artist.Artist, HasTraits):
     #dash_capstyle validate
     @validate("dash_capstyle")
     def _dash_capstyle_validate(self, proposal):
-        print("dash_capstyle: cross validating %r" % proposal.value)
+        # print("dash_capstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.dash_capstyle']
         return proposal.value
     #dash_capstyle observer
     @observe("dash_capstyle", type="change")
     def _dash_capstyle_observe(self, change):
-        print("dash_capstyle: observed a change from %r to %r" % (change.old, change.new))
+        # print("dash_capstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #solid_capstyle default
     # @default("solid_capstyle")
@@ -701,14 +701,14 @@ class Line2D(b_artist.Artist, HasTraits):
     #solid_capstyle validate
     @validate("solid_capstyle")
     def _solid_capstyle_validate(self, proposal):
-        print("solid_capstyle: cross validating %r" % proposal.value)
+        # print("solid_capstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.solid_capstyle']
         return proposal.value
     #solid_capstyle observer
     @observe("solid_capstyle", type="change")
     def _solid_capstyle_observe(self, change):
-        print("solid_capstyle: observed a change from %r to %r" % (change.old, change.new))
+        # print("solid_capstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #dash_joinstyle default
     # @default("dash_joinstyle")
@@ -718,7 +718,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #dash_joinstyle validate
     @validate("dash_joinstyle")
     def _dash_joinstyle_validate(self, proposal):
-        print("dash_joinstyle: cross validating %r" % proposal.value)
+        # print("dash_joinstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.dash_joinstyle']
         proposal.value = proposal.value.lower() #not sure on this line
@@ -730,9 +730,9 @@ class Line2D(b_artist.Artist, HasTraits):
     # observer
     @observe("dash_joinstyle", type="change")
     def __dash_joinstyleobserve(self, change):
-        print(": observed a change from %r to %r" % (change.old, change.new))
+        # print(": observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #solid_joinstyle default
     # @default("solid_joinstyle")
@@ -742,7 +742,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #solid_joinstyle validate
     @validate("solid_joinstyle")
     def _solid_joinstyle_validate(self, proposal):
-        print("solid_joinstyle: cross validating %r" % proposal.value)
+        # print("solid_joinstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return rcParams['lines.solid_joinstyle']
         proposal.value = proposal.value.lower() #not sure on this line
@@ -754,9 +754,9 @@ class Line2D(b_artist.Artist, HasTraits):
     #solid_joinstyle observer
     @observe("solid_joinstyle", type="change")
     def _solid_joinstyle_observe(self, change):
-        print("solid_joinstyle: observed a change from %r to %r" % (change.old, change.new))
+        # print("solid_joinstyle: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #pickradius default
     # @default("pickradius")
@@ -766,12 +766,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #pickradius validate
     @validate("pickradius")
     def _pickradius_validate(self, proposal):
-        print("pickradius: cross validating %r" % proposal.value)
+        # print("pickradius: cross validating %r" % proposal.value)
         return proposal.value
     #pickradius observer
     @observe("pickradius", type="change")
     def _pickradius_observe(self, change):
-        print("pickradius: observed a change from %r to %r" % (change.old, change.new))
+        # print("pickradius: observed a change from %r to %r" % (change.old, change.new))
 
     #drawstyle default
     # @default("drawstyle")
@@ -781,7 +781,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #drawstyle validate
     @validate("drawstyle")
     def _drawstyle_validate(self, proposal):
-        print("drawstyle: cross validating %r" % proposal.value)
+        # print("drawstyle: cross validating %r" % proposal.value)
         if proposal.value is None:
             return 'default'
         if proposal.value not in self.drawStyles:
@@ -790,9 +790,9 @@ class Line2D(b_artist.Artist, HasTraits):
     #drawstyle observer
     @observe("drawstyle", type="change")
     def _drawstyle_observe(self, change):
-        print("drawstyle: observed a change from %r to %r" % (change.old, change.new))
+        # print("drawstyle: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     #markevery default
     # @default("markevery")
@@ -851,7 +851,7 @@ class Line2D(b_artist.Artist, HasTraits):
     #markevery validate
     @validate("markevery")
     def _markevery_validate(self, proposal):
-        print("markevery: cross validating %r" % proposal.value)
+        # print("markevery: cross validating %r" % proposal.value)
         # if self._markevery != every:
             # self.stale = True
         # self._markevery = every
@@ -859,9 +859,9 @@ class Line2D(b_artist.Artist, HasTraits):
     #markevery observer
     @observe("markevery", type="change")
     def _markevery_observe(self, change):
-        print("markevery: observed a change from %r to %r" % (change.old, change.new))
+        # print("markevery: observed a change from %r to %r" % (change.old, change.new))
         self.stale = True
-        print("set stale: %r" % self.stale)
+        # print("set stale: %r" % self.stale)
 
     # TODO: figure out what to do with this!!!!!
     #verticalOffset default
@@ -887,12 +887,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #ind_offset validate
     @validate("ind_offset")
     def _ind_offset_validate(self, proposal):
-        print("ind_offset: cross validating %r" % proposal.value)
+        # print("ind_offset: cross validating %r" % proposal.value)
         return proposal.value
     #ind_offset observer
     @observe("ind_offset", type="change")
     def _ind_offset_observe(self, change):
-        print("ind_offset: observed a change from %r to %r" % (change.old, change.new))
+        # print("ind_offset: observed a change from %r to %r" % (change.old, change.new))
 
     #xorig default
     # @default("xorig")
@@ -932,12 +932,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #invalidx validate
     @validate("invalidx")
     def _invalidx_validate(self, proposal):
-        print("invalidx: cross validating %r" % proposal.value)
+        # print("invalidx: cross validating %r" % proposal.value)
         return proposal.value
     #invalidx observer
     @observe("invalidx", type="change")
     def _invalidx_observe(self, change):
-        print(": observed a change from %r to %r" % (change.old, change.new))
+        # print(": observed a change from %r to %r" % (change.old, change.new))
 
     #invalidy default
     # @default("invalidy")
@@ -947,12 +947,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #invalidy validate
     @validate("invalidy")
     def _invalidy_validate(self, proposal):
-        print("invalidy: cross validating %r" % proposal.value)
+        # print("invalidy: cross validating %r" % proposal.value)
         return proposal.value
     #invalidy observer
     @observe("invalidy", type="change")
     def _invalidy_observe(self, change):
-        print("invalidy: observed a change from %r to %r" % (change.old, change.new))
+        # print("invalidy: observed a change from %r to %r" % (change.old, change.new))
 
     #x default
     # @default("x")
@@ -992,12 +992,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #path validate
     @validate("path")
     def _path_validate(self, proposal):
-        print("path: cross validating %r" % proposal.value)
+        # print("path: cross validating %r" % proposal.value)
         return proposal.value
     #path observer
     @observe("path", type="change")
     def _path_observe(self, change):
-        print("path: observed a change from %r to %r" % (change.old, change.new))
+        # print("path: observed a change from %r to %r" % (change.old, change.new))
 
     #transformed_path default
     # @default("transformed_path")
@@ -1007,12 +1007,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #transformed_path validate
     @validate("transformed_path")
     def _transformed_path_validate(self, proposal):
-        print("transformed_path: cross validating %r" % proposal.value)
+        # print("transformed_path: cross validating %r" % proposal.value)
         return proposal.value
     #transformed_path observer
     @observe("transformed_path", type="change")
     def _transformed_path_observe(self, change):
-        print("transformed_path: observed a change from %r to %r" % (change.old, change.new))
+        # print("transformed_path: observed a change from %r to %r" % (change.old, change.new))
 
     #subslice default
     # @default("subslice")
@@ -1022,12 +1022,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #subslice validate
     @validate("subslice")
     def _subslice_validate(self, proposal):
-        print("subslice: cross validating %r" % proposal.value)
+        # print("subslice: cross validating %r" % proposal.value)
         return proposal.value
     #subslice observer
     @observe("subslice", type="change")
     def _subslice_observe(self, change):
-        print("subslice: observed a change from %r to %r" % (change.old, change.new))
+        # print("subslice: observed a change from %r to %r" % (change.old, change.new))
 
     #x_filled default
     # @default("x_filled")
@@ -1037,12 +1037,12 @@ class Line2D(b_artist.Artist, HasTraits):
     #x_filled validate
     @validate("x_filled")
     def _x_filled_validate(self, proposal):
-        print("x_filled: cross validating %r" % proposal.value)
+        # print("x_filled: cross validating %r" % proposal.value)
         return proposal.value
     #x_filled observer
     @observe("x_filled", type="change")
     def _x_filled_observe(self, change):
-        print("x_filled: observed a change from %r to %r" % (change.old, change.new))
+        # print("x_filled: observed a change from %r to %r" % (change.old, change.new))
 
     def contains(self, mouseevent):
         """
@@ -1453,7 +1453,7 @@ class Line2D(b_artist.Artist, HasTraits):
 
 
 #for monkey patching
-print('before b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib.artist.Artist
+# print('before b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib.artist.Artist
 #monkey patching
 b_Line2D.Line2D = Line2D
-print('after b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib._traits.artist.Artist
+# print('after b_Line2D.Line2D: ', b_Line2D.Line2D) #matplotlib._traits.artist.Artist
