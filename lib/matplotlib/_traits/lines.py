@@ -522,8 +522,8 @@ class Line2D(b_artist.Artist, HasTraits):
                 return proposal.value
         # return proposal.value
     #linestyle observer
-    @observe("linestyle", type="change")
-    def _linestyle_observe(self, change):
+    # @observe("linestyle", type="change")
+    # def _linestyle_observe(self, change):
         # print("linestyle: observed a change from %r to %r" % (change.old, change.new))
 
     #color default
@@ -620,8 +620,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("markerfacecolor: cross validating %r" % proposal.value)
         return proposal.value
     #markerfacecolor observer
-    @observe("markerfacecolor", type="change")
-    def _markerfacecolor_observe(self, change):
+    # @observe("markerfacecolor", type="change")
+    # def _markerfacecolor_observe(self, change):
         # print("markerfacecolor: observed a change from %r to %r" % (change.old, change.new))
 
     #markerfacecoloralt default
@@ -635,8 +635,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("markerfacecoloralt: cross validating %r" % proposal.value)
         return proposal.value
     #markerfacecoloralt observer
-    @observe("markerfacecoloralt", type="change")
-    def _markerfacecoloralt_observe(self, change):
+    # @observe("markerfacecoloralt", type="change")
+    # def _markerfacecoloralt_observe(self, change):
         # print("markerfacecoloralt: observed a change from %r to %r" % (change.old, change.new))
 
     #fillstyle default
@@ -689,8 +689,8 @@ class Line2D(b_artist.Artist, HasTraits):
             return rcParams['lines.dash_capstyle']
         return proposal.value
     #dash_capstyle observer
-    @observe("dash_capstyle", type="change")
-    def _dash_capstyle_observe(self, change):
+    # @observe("dash_capstyle", type="change")
+    # def _dash_capstyle_observe(self, change):
         # print("dash_capstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #solid_capstyle default
@@ -706,8 +706,8 @@ class Line2D(b_artist.Artist, HasTraits):
             return rcParams['lines.solid_capstyle']
         return proposal.value
     #solid_capstyle observer
-    @observe("solid_capstyle", type="change")
-    def _solid_capstyle_observe(self, change):
+    # @observe("solid_capstyle", type="change")
+    # def _solid_capstyle_observe(self, change):
         # print("solid_capstyle: observed a change from %r to %r" % (change.old, change.new))
 
     #dash_joinstyle default
@@ -769,8 +769,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("pickradius: cross validating %r" % proposal.value)
         return proposal.value
     #pickradius observer
-    @observe("pickradius", type="change")
-    def _pickradius_observe(self, change):
+    # @observe("pickradius", type="change")
+    # def _pickradius_observe(self, change):
         # print("pickradius: observed a change from %r to %r" % (change.old, change.new))
 
     #drawstyle default
@@ -890,8 +890,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("ind_offset: cross validating %r" % proposal.value)
         return proposal.value
     #ind_offset observer
-    @observe("ind_offset", type="change")
-    def _ind_offset_observe(self, change):
+    # @observe("ind_offset", type="change")
+    # def _ind_offset_observe(self, change):
         # print("ind_offset: observed a change from %r to %r" % (change.old, change.new))
 
     #xorig default
@@ -935,8 +935,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("invalidx: cross validating %r" % proposal.value)
         return proposal.value
     #invalidx observer
-    @observe("invalidx", type="change")
-    def _invalidx_observe(self, change):
+    # @observe("invalidx", type="change")
+    # def _invalidx_observe(self, change):
         # print(": observed a change from %r to %r" % (change.old, change.new))
 
     #invalidy default
@@ -950,8 +950,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("invalidy: cross validating %r" % proposal.value)
         return proposal.value
     #invalidy observer
-    @observe("invalidy", type="change")
-    def _invalidy_observe(self, change):
+    # @observe("invalidy", type="change")
+    # def _invalidy_observe(self, change):
         # print("invalidy: observed a change from %r to %r" % (change.old, change.new))
 
     #x default
@@ -995,8 +995,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("path: cross validating %r" % proposal.value)
         return proposal.value
     #path observer
-    @observe("path", type="change")
-    def _path_observe(self, change):
+    # @observe("path", type="change")
+    # def _path_observe(self, change):
         # print("path: observed a change from %r to %r" % (change.old, change.new))
 
     #transformed_path default
@@ -1010,8 +1010,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("transformed_path: cross validating %r" % proposal.value)
         return proposal.value
     #transformed_path observer
-    @observe("transformed_path", type="change")
-    def _transformed_path_observe(self, change):
+    # @observe("transformed_path", type="change")
+    # def _transformed_path_observe(self, change):
         # print("transformed_path: observed a change from %r to %r" % (change.old, change.new))
 
     #subslice default
@@ -1025,8 +1025,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("subslice: cross validating %r" % proposal.value)
         return proposal.value
     #subslice observer
-    @observe("subslice", type="change")
-    def _subslice_observe(self, change):
+    # @observe("subslice", type="change")
+    # def _subslice_observe(self, change):
         # print("subslice: observed a change from %r to %r" % (change.old, change.new))
 
     #x_filled default
@@ -1040,8 +1040,8 @@ class Line2D(b_artist.Artist, HasTraits):
         # print("x_filled: cross validating %r" % proposal.value)
         return proposal.value
     #x_filled observer
-    @observe("x_filled", type="change")
-    def _x_filled_observe(self, change):
+    # @observe("x_filled", type="change")
+    # def _x_filled_observe(self, change):
         # print("x_filled: observed a change from %r to %r" % (change.old, change.new))
 
     def contains(self, mouseevent):
