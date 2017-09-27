@@ -30,19 +30,21 @@ nrects = len(left)
 
 ###############################################################################
 # Here comes the tricky part -- we have to set up the vertex and path codes
-# arrays using `plt.Path.MOVETO`, `plt.Path.LINETO` and `plt.Path.CLOSEPOLY`
-# for each rect.
+# arrays using ``plt.Path.MOVETO``, ``plt.Path.LINETO`` and 
+# ``plt.Path.CLOSEPOLY`` for each rect.
 #
-# * We need 1 `MOVETO` per rectangle, which sets the initial point.
-# * We need 3 `LINETO`'s, which tell `matplotlib` to draw lines from vertex 1
-#   to vertex 2, v2 to v3, and v3 to v4.
-# * We then need one `CLOSEPOLY` which tells matplotlib to draw a line from the
-#   v4 to our initial vertex (the `MOVETO` vertex), in order to close the
+# * We need 1 ``MOVETO`` per rectangle, which sets the initial point.
+# * We need 3 ``LINETO``'s, which tell ``matplotlib`` to draw lines from 
+#   vertex 1 to vertex 2, v2 to v3, and v3 to v4.
+# * We then need one ``CLOSEPOLY`` which tells matplotlib to draw a line from 
+#   the v4 to our initial vertex (the ``MOVETO`` vertex), in order to close the
 #   polygon.
 #
-# Note: the vertex for `CLOSEPOLY` is ignored, but we still need a placeholder
-# in the `verts` array to keep the codes aligned with the vertices.
-nverts = nrects*(1 + 3 + 1)
+# .. note::
+#   
+#   The vertex for ``CLOSEPOLY`` is ignored, but we still need a placeholder 
+#   in the ``verts`` array to keep the codes aligned with the vertices.
+nverts = nrects * (1 + 3 + 1)
 verts = np.zeros((nverts, 2))
 codes = np.ones(nverts, int) * path.Path.LINETO
 codes[0::5] = path.Path.MOVETO
@@ -57,10 +59,10 @@ verts[3::5, 0] = right
 verts[3::5, 1] = bottom
 
 ###############################################################################
-# To animate the histogram, we need an `animate` function, which generates
+# To animate the histogram, we need an ``animate`` function, which generates
 # a random set of numbers and updates the locations of the vertices for the
-# histogram (in this case, only the heights of each rectangle). `patch` will
-# eventually be a `Patch` object.
+# histogram (in this case, only the heights of each rectangle). ``patch`` will
+# eventually be a ``Patch`` object.
 patch = None
 
 
