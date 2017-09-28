@@ -83,11 +83,3 @@ class Callable(TraitType):
             return value
         else:
             self.error(obj, value)
-
-
-
-
-#start of the install_traits() function
-# def install_traits():
-#     import matplotlib.lines
-#     matplotlib.lines.Line2D  = Line2DWithTraits
