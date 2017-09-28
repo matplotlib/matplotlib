@@ -9,6 +9,7 @@ import six
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
+# from matplotlib._traits.artist import Artist
 # import matplotlib._traits.artist as artist
 # from matplotlib._traits.artist import allow_rasterization
 
@@ -92,6 +93,7 @@ class Tick(artist.Artist):
         size is the tick size in points
         """
         artist.Artist.__init__(self)
+        # print("artist.Artist", artist.Artist)
 
         if gridOn is None:
             if major and (rcParams['axes.grid.which'] in ('both', 'major')):
@@ -454,6 +456,8 @@ class XTick(Tick):
                           alpha=rcParams['grid.alpha'],
                           markersize=0)
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
+        # print("l.path at this point", l.path)
+        # print("l.path at this point", l.get_path())
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         # l.path._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
 

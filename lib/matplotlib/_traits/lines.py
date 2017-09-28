@@ -9,16 +9,11 @@ import six
 import warnings
 import numpy as np
 
-
-# from .artist import Artist
 from matplotlib import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 import matplotlib.artist as b_artist
-# print('matplotlib.artist b_artist: ', b_artist)
 
-
-# import matplotlib._traits.artist as artist
-# from matplotlib._traits.artist import Artist, allow_rasterization
+from matplotlib._traits.artist import Artist, allow_rasterization
 from matplotlib.cbook import (
     iterable, is_numlike, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from matplotlib.markers import MarkerStyle
@@ -27,18 +22,17 @@ from matplotlib.transforms import Bbox, TransformedPath, IdentityTransform
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from numpy import ma
-# from . import _path
 from matplotlib import _path
 from matplotlib.markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
-from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool, Int, validate, observe
+from traitlets import HasTraits, Any, Instance, Unicode, Float, Bool, Int, validate, observe, default
 
 #for monkey patching into base lines
 import matplotlib.lines as b_Line2D
-# print('matplotlib.lines.Line2D', b_Line2D)
+
 
 
 
@@ -245,7 +239,7 @@ class Line2D(b_artist.Artist, HasTraits):
     can create "stepped" lines in various styles.
     """
 
-    # remain the same throughout
+    #lineStyles
     lineStyles = _lineStyles = {  # hidden names deprecated
         '-':    '_draw_solid',
         '--':   '_draw_dashed',
@@ -256,7 +250,7 @@ class Line2D(b_artist.Artist, HasTraits):
         '':     '_draw_nothing',
     }
 
-    #remain the same
+    #drawStyles_l
     _drawStyles_l = {
         'default':    '_draw_lines',
         'steps-mid':  '_draw_steps_mid',
@@ -264,7 +258,7 @@ class Line2D(b_artist.Artist, HasTraits):
         'steps-post': '_draw_steps_post',
     }
 
-    #remain the same
+    #drawStyles_s
     _drawStyles_s = {
         'steps': '_draw_steps_pre',
     }
@@ -286,9 +280,43 @@ class Line2D(b_artist.Artist, HasTraits):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
-    xdata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
+    def __init__(self, xdata, ydata,
+                 linewidth=None,  # all Nones default to rc
+                 linestyle=None,
+                 color=None,
+                 marker=None,
+                 markersize=None,
+                 markeredgewidth=None,
+                 markeredgecolor=None,
+                 markerfacecolor=None,
+                 markerfacecoloralt='none',
+                 fillstyle=None,
+                 antialiased=None,
+                 dash_capstyle=None,
+                 solid_capstyle=None,
+                 dash_joinstyle=None,
+                 solid_joinstyle=None,
+                 pickradius=5,
+                 drawstyle=None,
+                 markevery=None,
+                 **kwargs
+                 ):
 
-    ydata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
+        Artist.__init__(self)
+        print("Artist", Artist)
+
+        if not iterable(xdata):
+            raise RuntimeError('xdata must be a sequence')
+        if not iterable(ydata):
+            raise RuntimeError('ydata must be a sequence')
+
+    # xdata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
+    # xdata=Instance('numpy.array', allow_none=True) #not sure about this line
+
+
+    # ydata=Instance('numpy.array', allow_none=True,default_value=None) #not sure about this line
+    # ydata=Instance('numpy.array', allow_none=True) #not sure about this line
+
 
     xorig = np.asarray([])
     # xorig = Instance('numpy.asarray', allow_none=True,default_value=[]) #not sure on this line ay have to declare default value in default decorator
@@ -299,16 +327,17 @@ class Line2D(b_artist.Artist, HasTraits):
     # for x, y, & xy I am not sure if these following lines of code are correct, I may just leave them alone come testing time
     x = None
     # x=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
-    # x = np.asarray([]) #for testing
+
     y = None
-    # y = np.asarray([]) # for testing
     # y=Instance('numpy.asarray', allow_none=True,default_value=None) # not sure on this line
+
     xy = None
 
     linewidth=Float(allow_none=True, default_value=None)
 
     linestyle=Instance('matplotlib.text.Text', allow_none=True, default_value=None)
 
+    # TODO: not sure if this is correct?
     color=Unicode(allow_none=True, default_value=None)
     #color=Instance('matplotlib.text.Text', allow_none=True,default_value=None)
 
@@ -318,7 +347,7 @@ class Line2D(b_artist.Artist, HasTraits):
 
     markeredgewidth=Float(allow_none=True,default_value=None)
 
-    # same for color because I am not sure if the color is Unicode or Python String; assume Unicode first for testing
+    # TODO: not sure if this is correct?
     markerfacecolor=Unicode(allow_none=True, default_value=None)
     #markerfacecolor=Instance('matplotlib.text.Text', allow_none=True,default_value=None)
 
@@ -329,6 +358,7 @@ class Line2D(b_artist.Artist, HasTraits):
     # this gets passed into marker so I want to assume same for color however only accepts the following strings: ['full' | 'left' | 'right' | 'bottom' | 'top' | 'none']
     fillstyle=Unicode(allow_none=True, default_value=None)
     # fillstyle=Instance('matplotlib.text.Text', allow_none=True,default_value=None)
+
     antialiased=Bool(default_value=False)
 
     # accepts: ['butt' | 'round' | 'projecting']
@@ -367,45 +397,46 @@ class Line2D(b_artist.Artist, HasTraits):
     # invalidy = True
     invalidy=Bool(default_value=True)
 
-    # path = None
-    path=Instance('matplotlib.path.Path', allow_none=True, default_value=None)
-    # path=Instance('matplotlib.path.Path')
+    #TODO: create a PathTrait in traits.py but I am not sure if this how to
+    #really go about it because there is no setting the Path in this class,
+    #this class just gets the Path
+    path = None
+    # path=Instance('matplotlib.path.Path', allow_none=True, default_value=None)
+    # path=Instance('matplotlib.path.Path', allow_none=True)
 
-    # transformed_path = None
+
     transformed_path=Instance('matplotlib.transforms.TransformedPath', allow_none=True, default_value=None)
-    # subslice = False
+
     subslice=Bool(default_value=False)
 
-    # x_filled = None # used in subslicing; only x is needed
-    #not sure if this line below will work or not
+    # used in subslicing; only x is needed
     x_filled=Instance('numpy.array', allow_none=True, default_value=None)
 
     dashSeq = None
-    # dashSeq = Instance('')
-    # dashOffset = 0
+    # dashSeq = Instance('') #TODO: figure this out
     dashOffset=Int(allow_none=True, default_value=None)
+
     # unscaled dash + offset
     # this is needed scaling the dash pattern by linewidth
-    us_dashSeq = None
-    # us_dashOffset = 0
+    us_dashSeq = None #TODO: figure this out
     us_dashOffset=Int(allow_none=True, default_value=None)
 
-    # set_data(xdata, ydata)
+    # set_data(xdata, ydata) #TODO: determine if this is needed
 
     # not sure how much this will have to be refactored
     def __str__(self):
         if self._label != "":
             return "Line2D(%s)" % (self._label)
-        elif self._x is None:
+        elif self.x is None:
             return "Line2D()"
-        elif len(self._x) > 3:
+        elif len(self.x) > 3:
             return "Line2D((%g,%g),(%g,%g),...,(%g,%g))"\
-                % (self._x[0], self._y[0], self._x[0],
-                   self._y[0], self._x[-1], self._y[-1])
+                % (self.x[0], self.y[0], self.x[0],
+                   self.y[0], self.x[-1], self_y[-1])
         else:
             return "Line2D(%s)"\
                 % (",".join(["(%g,%g)" % (x, y) for x, y
-                             in zip(self._x, self._y)]))
+                             in zip(self.x, self.y)]))
 
     #this will have to be edited according to the traits
     def __init__(self, **kwargs):
@@ -426,22 +457,23 @@ class Line2D(b_artist.Artist, HasTraits):
     #xdata default
     # @default("xdata")
     # def _xdata_default(self):
-    #     print("xdata: generating default value")
+    #     # from numpy import array
+    #     # print("xdata: generating default value")
     #     return None
     #xdata validate
-    @validate("xdata")
-    def _xdata_validate(self, proposal):
-        # print("xdata: cross validating %r" % proposal.value)
-        #convert sequences to numpy arrays
-        if not iterable(proposal.value):
-            raise RuntimeError('xdata must be a sequence')
-        return proposal.value
+    # @validate("xdata")
+    # def _xdata_validate(self, proposal):
+    #     # print("xdata: cross validating %r" % proposal.value)
+    #     #convert sequences to numpy arrays
+    #     if not iterable(proposal.value):
+    #         raise RuntimeError('xdata must be a sequence')
+    #     return proposal.value
     #xdata observer
-    @observe("xdata", type="change")
-    def _xdata_observe(self, change):
-        # print("xdata: observed a change from %r to %r" % (change.old, change.new))
-        self.stale = True
-        # print("set stale: %r" % self.stale)
+    # @observe("xdata", type="change")
+    # def _xdata_observe(self, change):
+    #     # print("xdata: observed a change from %r to %r" % (change.old, change.new))
+    #     self.stale = True
+    #     # print("set stale: %r" % self.stale)
 
     #ydata default
     # @default("ydata")
@@ -449,19 +481,19 @@ class Line2D(b_artist.Artist, HasTraits):
     #     print("ydata: generating default value")
     #     return None
     #ydata validate
-    @validate("ydata")
-    def _ydata_validate(self, proposal):
-        # print("ydata: cross validating %r" % proposal.value)
-        #convert sequences to numpy arrays
-        if not iterable(proposal.value):
-            raise RuntimeError('ydata must be a sequence')
-        return proposal.value
-    #ydata observer
-    @observe("ydata", type="change")
-    def _ydata_observe(self, change):
-        # print("ydata: observed a change from %r to %r" % (change.old, change.new))
-        self.stale = True
-        # print("set stale: %r" % self.stale)
+    # @validate("ydata")
+    # def _ydata_validate(self, proposal):
+    #     # print("ydata: cross validating %r" % proposal.value)
+    #     #convert sequences to numpy arrays
+    #     if not iterable(proposal.value):
+    #         raise RuntimeError('ydata must be a sequence')
+    #     return proposal.value
+    # #ydata observer
+    # @observe("ydata", type="change")
+    # def _ydata_observe(self, change):
+    #     # print("ydata: observed a change from %r to %r" % (change.old, change.new))
+    #     self.stale = True
+    #     # print("set stale: %r" % self.stale)
     #linewidth default
     # @default("linewidth")
     # def _linewidth_default(self):
@@ -984,16 +1016,17 @@ class Line2D(b_artist.Artist, HasTraits):
     # def _y_observe(self, change):
         # print("y: observed a change from %r to %r" % (change.old, change.new))
 
-    #path default
+    # path default
     # @default("path")
     # def _path_default(self):
-        # print("path: generating default value")
-        # return None
-    #path validate
-    @validate("path")
-    def _path_validate(self, proposal):
-        # print("path: cross validating %r" % proposal.value)
-        return proposal.value
+    #     from matplotlib.path import Path
+    #     # print("path: generating default value")
+    #     return None
+    # #path validate
+    # @validate("path")
+    # def _path_validate(self, proposal):
+    #     # print("path: cross validating %r" % proposal.value)
+    #     return proposal.value
     #path observer
     # @observe("path", type="change")
     # def _path_observe(self, change):
