@@ -48,7 +48,7 @@ class Perishable(TraitProxy):
 
 class TransformTrait(TraitType):
 
-    #TODO: pass in a transform instance & set default value
+    #TODO: assure that an instance of transform is being passed
     default_value = None
     allow_none = True
     info_text = 'matplotlib.transforms.Transform'
@@ -67,7 +67,24 @@ class TransformTrait(TraitType):
             # self._transform = self._transform._as_mpl_transform(self.axes)
             return value
 
-#for testing purposes
+class PathTrait(TraitType):
+
+    #TODO: assure that an instance of path is being passed.
+    default_value = None
+    allow_none = True
+    info_text = 'matplotlib.path.Path'
+    def validate(self, obj, value):
+        if value is None:
+            return IdentityTransform()
+        elif (not isinstance(value, Path) and hasattr(value, '_as_mpl_transform')):
+            # TO DO: finish this
+            # return trans
+            # self._transform = self._transform._as_mpl_transform(self.axes)
+            return value
+
+
+
+#this is in traits but for some reason, my code could not pick up on it?
 class Callable(TraitType):
     """A trait which is callable.
 
@@ -83,11 +100,3 @@ class Callable(TraitType):
             return value
         else:
             self.error(obj, value)
-
-
-
-
-#start of the install_traits() function
-# def install_traits():
-#     import matplotlib.lines
-#     matplotlib.lines.Line2D  = Line2DWithTraits

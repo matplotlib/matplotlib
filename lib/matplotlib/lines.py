@@ -1194,7 +1194,7 @@ class Line2D(Artist):
 
     def set_markerfacecoloralt(self, fc):
         """
-        Set the alternate marker face color.
+        Set the alternate marker face `color`.
 
         ACCEPTS: any matplotlib color
         """
