@@ -21,14 +21,8 @@ Plot `numpy.datetime64` values
 
 For Matplotlib to plot dates (or any scalar with units) a converter
 to float needs to be registered with the `matplolib.units` module.  The
-current best converters for `datetime64` values are in `pandas`.  Simply
-importing `pandas` ::
-
-  import pandas as pd
-
-should be sufficient as `pandas` will try to install the converters
-on import.  If that does not work, or you need to reset `munits.registry`
-you can explicitly install the `pandas` converters by ::
+current best converters for `datetime64` values are in `pandas`. To enable the
+converter, import it from pandas::
 
   from pandas.tseries import converter as pdtc
   pdtc.register()
