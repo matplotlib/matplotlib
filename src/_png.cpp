@@ -408,13 +408,21 @@ static void _read_png_data(PyObject *py_file_obj, png_bytep data, png_size_t len
     Py_ssize_t bufflen;
     if (read_method) {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
-        if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
-            if (bufflen == (Py_ssize_t)length) {
-                memcpy(data, buffer, length);
-            } else {
-                PyErr_SetString(PyExc_IOError, "read past end of file");
-            }
-        }
+	if (result) {
+	    if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
+		if (bufflen == (Py_ssize_t)length) {
+		    memcpy(data, buffer, length);
+		} else {
+		    PyErr_SetString(PyExc_IOError, "read past end of file");
+		}
+	    } else {
+		PyErr_SetString(PyExc_IOError, "Failed to copy buffer");
+	    }
+	} else 	{
+	    PyErr_SetString(PyExc_IOError, "Failed to read file");
+	}
+
+
     }
     Py_XDECREF(read_method);
     Py_XDECREF(result);
@@ -424,6 +432,11 @@ static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length
 {
     PyObject *py_file_obj = (PyObject *)png_get_io_ptr(png_ptr);
     _read_png_data(py_file_obj, data, length);
+    if (PyErr_Occurred())
+    {
+	png_error(png_ptr, "failed to read file");
+    }
+
 }
 
 static PyObject *_read_png(PyObject *filein, bool float_result)
@@ -481,6 +494,9 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         }
         Py_XDECREF(read_method);
         _read_png_data(py_file, header, 8);
+	if (PyErr_Occurred()){
+	    goto exit;
+	}
     }
 
     if (png_sig_cmp(header, 0, 8)) {
@@ -503,7 +519,10 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     }
 
     if (setjmp(png_jmpbuf(png_ptr))) {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting jump");
+	if (!PyErr_Occurred())
+	{
+	    PyErr_SetString(PyExc_RuntimeError, "Error setting jump");
+	}
         goto exit;
     }
 
