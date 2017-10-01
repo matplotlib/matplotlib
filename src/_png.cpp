@@ -194,18 +194,18 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     switch (channels) {
     case 1:
-	png_color_type = PNG_COLOR_TYPE_GRAY;
-	break;
+        png_color_type = PNG_COLOR_TYPE_GRAY;
+        break;
     case 3:
-	png_color_type = PNG_COLOR_TYPE_RGB;
-	break;
+        png_color_type = PNG_COLOR_TYPE_RGB;
+        break;
     case 4:
-	png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-	break;
+        png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+        break;
     default:
         PyErr_SetString(PyExc_ValueError,
-			"Buffer must be an NxMxD array with D in 1, 3, 4 "
-			"(grayscale, RGB, RGBA)");
+                        "Buffer must be an NxMxD array with D in 1, 3, 4 "
+                        "(grayscale, RGB, RGBA)");
         goto exit;
     }
 
@@ -349,20 +349,20 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     sig_bit.alpha = 0;
     switch (png_color_type) {
     case PNG_COLOR_TYPE_GRAY:
-	sig_bit.gray = 8;
-	sig_bit.red = 0;
-	sig_bit.green = 0;
-	sig_bit.blue = 0;
-	break;
+        sig_bit.gray = 8;
+        sig_bit.red = 0;
+        sig_bit.green = 0;
+        sig_bit.blue = 0;
+        break;
     case PNG_COLOR_TYPE_RGB_ALPHA:
-	sig_bit.alpha = 8;
-	// fall through
+        sig_bit.alpha = 8;
+        // fall through
     case PNG_COLOR_TYPE_RGB:
-	sig_bit.gray = 0;
-	sig_bit.red = 8;
-	sig_bit.green = 8;
-	sig_bit.blue = 8;
-	break;
+        sig_bit.gray = 0;
+        sig_bit.red = 8;
+        sig_bit.green = 8;
+        sig_bit.blue = 8;
+        break;
     default:
         PyErr_SetString(PyExc_RuntimeError, "internal error, bad png_color_type");
         goto exit;
