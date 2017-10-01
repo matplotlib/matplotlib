@@ -39,8 +39,8 @@ The :meth:`~matplotlib.projections.polar.PolarAxes.set_theta_zero_location` now
 has an optional :code:`offset` argument. This argument may be used to further
 specify the zero location based on the given anchor point.
 
-.. figure:: ../gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_001.png
-   :target: ../gallery/pie_and_polar_charts/polar_scatter.html
+.. figure:: /gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_002.png
+   :target: ../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-with-offset-origin
    :align: center
    :scale: 50
 
@@ -50,8 +50,8 @@ The :meth:`~matplotlib.axes.projections.polar.PolarAxes.set_thetamin` and
 :meth:`~matplotlib.axes.projections.polar.PolarAxes.set_thetamax` methods may
 be used to limit the range of angles plotted, producing sectors of a circle.
 
-.. figure:: ../gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_002.png
-   :target: ../gallery/pie_and_polar_charts/polar_scatter.html
+.. figure:: /gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_003.png
+   :target: ../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-confined-to-a-sector
    :align: center
    :scale: 50
 
