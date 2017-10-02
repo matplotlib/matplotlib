@@ -432,6 +432,21 @@ Example
     fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='minor')
 
 
+New Figure Parameter for subplot2grid
+-------------------------------------
+
+A ``fig`` parameter now exists for the function
+:func:`~matplotlib.pyplot.subplot2grid`. This allows a user to specify the
+figure where the subplots will be created. If ``fig`` is ``None`` (default)
+then the method will use the current figure retrieved by
+:func:`~matplotlib.pyplot.gcf`.
+
+Example
+~~~~~~~
+::
+
+    subplot2grid(shape, loc, rowspan=1, colspan=1, fig=myfig)
+
 
 
 Internals
@@ -497,21 +512,6 @@ Pending
 +++++++
 
 
-
-New Figure Parameter for subplot2grid
--------------------------------------
-
-A ``fig`` parameter now exists for the function
-:func:`~matplotlib.pyplot.subplot2grid`. This allows a user to specify the
-figure where the subplots will be created. If ``fig`` is ``None`` (default)
-then the method will use the current figure retrieved by
-:func:`~matplotlib.pyplot.gcf`.
-
-Example
-~~~~~~~
-::
-
-    subplot2grid(shape, loc, rowspan=1, colspan=1, fig=myfig)
 
 
 Interpolation in fill_betweenx
