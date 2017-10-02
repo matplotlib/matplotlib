@@ -208,6 +208,29 @@ The default ``linecolor`` keyword argument for :func:`~matplotlib.axes.Axes.hexb
 is now ``'face'``, and supplying ``'none'`` now prevents lines from being drawn
 around the hexagons.
 
+Figure.legend() can be called without arguments
+-----------------------------------------------
+
+Calling :meth:`.Figure.legend` can now be done with no arguments. In this case
+a legend will be created that contains all the artists on all the axes
+contained within the figure.
+
+Multiple legend keys for legend entries
+---------------------------------------
+
+A legend entry can now contain more than one legend key. The extended
+`~matplotlib.legend_handler.HandlerTuple` class now accepts two parameters:
+``ndivide`` divides the legend area in the specified number of sections;
+``pad`` changes the padding between the legend keys.
+
+.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
+   :target: ../gallery/text_labels_and_annotations/legend_demo.html
+   :align: center
+   :scale: 70
+
+   Multiple Legend Keys
+
+
 
 Internals
 +++++++++
@@ -244,12 +267,6 @@ Pending
 
 
 
-Figure.legend() can be called without arguments
------------------------------------------------
-
-Calling :meth:`.Figure.legend` can now be done with no arguments. In this case
-a legend will be created that contains all the artists on all the axes
-contained within the figure.
 
 
 New parameter `clear` for :func:`~matplotlib.pyplot.figure`
@@ -328,21 +345,6 @@ Specify minimum value to format as scalar for ``LogFormatterMathtext``
 specify a minimum value exponent to format as a scalar (ie. 0.001 instead of
 10\ :sup:`-3`).
 
-
-Multiple legend keys for legend entries
----------------------------------------
-
-A legend entry can now contain more than one legend key. The extended
-`~matplotlib.legend_handler.HandlerTuple` class now accepts two parameters:
-``ndivide`` divides the legend area in the specified number of sections;
-``pad`` changes the padding between the legend keys.
-
-.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
-   :target: ../gallery/text_labels_and_annotations/legend_demo.html
-   :align: center
-   :scale: 70
-
-   Multiple Legend Keys
 
 
 Path simplification updates
