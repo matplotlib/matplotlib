@@ -357,6 +357,14 @@ The argument is keyword-only. It allows an output file other than
 to `print`.
 
 
+``streamplot`` streamline generation more configurable
+------------------------------------------------------
+
+The starting point, direction, and length of the stream lines can now
+be configured.  This allows to follow the vector field for a longer
+time and can enhance the visibility of the flow pattern in some use
+cases.
+
 
 Internals
 +++++++++
@@ -423,12 +431,6 @@ Pending
 
 
 
-
-Maximum streamline length and integration direction can now be specified
-------------------------------------------------------------------------
-
-This allows to follow the vector field for a longer time and can enhance the
-visibility of the flow pattern in some use cases.
 
 
 `Axis.set_tick_params` now responds to 'rotation'
