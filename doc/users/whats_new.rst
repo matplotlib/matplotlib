@@ -448,6 +448,14 @@ Example
     subplot2grid(shape, loc, rowspan=1, colspan=1, fig=myfig)
 
 
+Interpolation in ``fill_betweenx``
+----------------------------------
+
+The ``interpolate`` parameter now exists for the method
+:func:`~matplotlib.axes.Axes.fill_betweenx`. This allows a user to
+interpolate the data and fill the areas in the crossover points,
+similarly to :func:`~matplotlib.axes.Axes.fill_between`.
+
 
 Internals
 +++++++++
@@ -510,18 +518,6 @@ values are unlikely to cause any visible differences in your plots.
 
 Pending
 +++++++
-
-
-
-
-Interpolation in fill_betweenx
-------------------------------
-
-The ``interpolate`` parameter now exists for the method
-:func:`~matplotlib.axes.Axes.fill_betweenx`. This allows a user to interpolate
-the data and fill the areas in the crossover points, similarly to
-:func:`~matplotlib.axes.Axes.fill_between`.
-
 
 Validation of line style rcParams
 ---------------------------------
