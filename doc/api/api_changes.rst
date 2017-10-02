@@ -362,6 +362,15 @@ The `matplotlib.lines` module no longer imports the `pts_to_prestep`,
 `pts_to_midstep` and `pts_to_poststep` functions from the `matplotlib.cbook`
 module.
 
+Invalid (Non-finite) Axis Limit Error
+-------------------------------------
+
+When using :func:`~matplotlib.axes.Axes.set_xlim` and
+:func:`~matplotlib.axes.Axes.set_ylim`, passing non-finite values now
+results in a ``ValueError``. The previous behavior resulted in the
+limits being erroneously reset to ``(-0.001, 0.001)``.
+
+
 
 API Changes in 2.0.1
 ====================
