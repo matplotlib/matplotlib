@@ -122,10 +122,6 @@ itself based on the underlying patch while the older class uses an immutable
 path.
 
 
-
-Pending
-+++++++
-
 Abstract base class for movie writers
 -------------------------------------
 
@@ -135,6 +131,11 @@ the API required by a class that is to be used as the ``writer`` in the
 :class:`~matplotlib.animation.MovieWriter` class now derives from the new
 abstract base class.
 
+
+
+
+Pending
++++++++
 
 Add fill_bar argument to ``AnchoredSizeBar``
 --------------------------------------------
