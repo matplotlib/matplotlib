@@ -415,6 +415,25 @@ Example
     ax2.set_title('Shading Off')
 
     plt.show()
+
+
+New which Parameter for ``autofmt_xdate``
+-----------------------------------------
+
+A ``which`` parameter now exists for the method
+:func:`~matplotlib.figure.Figure.autofmt_xdate`. This allows a user to format
+``major``, ``minor`` or ``both`` tick labels selectively. If ``which`` is
+``None`` (default) then the method will rotate ``major`` tick labels.
+
+Example
+~~~~~~~
+::
+
+    fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='minor')
+
+
+
+
 Internals
 +++++++++
 
@@ -477,21 +496,6 @@ values are unlikely to cause any visible differences in your plots.
 Pending
 +++++++
 
-
-
-New which Parameter for autofmt_xdate
--------------------------------------
-
-A ``which`` parameter now exists for the method
-:func:`~matplotlib.figure.Figure.autofmt_xdate`. This allows a user to format
-``major``, ``minor`` or ``both`` tick labels selectively. If ``which`` is
-``None`` (default) then the method will rotate ``major`` tick labels.
-
-Example
-~~~~~~~
-::
-
-    fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='minor')
 
 
 New Figure Parameter for subplot2grid
