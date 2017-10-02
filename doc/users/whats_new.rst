@@ -103,6 +103,42 @@ allows user to query the status (True/False) of all of the buttons in the
 ``CheckButtons`` object.
 
 
+Add ``fill_bar`` argument to ``AnchoredSizeBar``
+------------------------------------------------
+
+The ``mpl_toolkits`` class
+:class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar` now has an
+additional ``fill_bar`` argument, which makes the size bar a solid rectangle
+instead of just drawing the border of the rectangle. The default is ``None``,
+and whether or not the bar will be filled by default depends on the value of
+``size_vertical``. If ``size_vertical`` is nonzero, ``fill_bar`` will be set to
+``True``. If ``size_vertical`` is zero then ``fill_bar`` will be set to
+``False``. If you wish to override this default behavior, set ``fill_bar`` to
+``True`` or ``False`` to unconditionally always or never use a filled patch
+rectangle for the size bar.
+
+Example
+~~~~~~~
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+
+    fig, ax = plt.subplots(figsize=(3, 3))
+
+    bar0 = AnchoredSizeBar(ax.transData, 0.3, 'unfilled', loc=3, frameon=False,
+                           size_vertical=0.05, fill_bar=False)
+    ax.add_artist(bar0)
+    bar1 = AnchoredSizeBar(ax.transData, 0.3, 'filled', loc=4, frameon=False,
+                           size_vertical=0.05, fill_bar=True)
+    ax.add_artist(bar1)
+
+    plt.show()
+
+
 
 Internals
 +++++++++
@@ -136,41 +172,6 @@ abstract base class.
 
 Pending
 +++++++
-
-Add fill_bar argument to ``AnchoredSizeBar``
---------------------------------------------
-
-The ``mpl_toolkits`` class
-:class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar` now has an
-additional ``fill_bar`` argument, which makes the size bar a solid rectangle
-instead of just drawing the border of the rectangle. The default is ``None``,
-and whether or not the bar will be filled by default depends on the value of
-``size_vertical``. If ``size_vertical`` is nonzero, ``fill_bar`` will be set to
-``True``. If ``size_vertical`` is zero then ``fill_bar`` will be set to
-``False``. If you wish to override this default behavior, set ``fill_bar`` to
-``True`` or ``False`` to unconditionally always or never use a filled patch
-rectangle for the size bar.
-
-Example
-~~~~~~~
-
-.. plot::
-    :include-source:
-    :align: center
-
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
-
-    fig, ax = plt.subplots(figsize=(3, 3))
-
-    bar0 = AnchoredSizeBar(ax.transData, 0.3, 'unfilled', loc=3, frameon=False,
-                           size_vertical=0.05, fill_bar=False)
-    ax.add_artist(bar0)
-    bar1 = AnchoredSizeBar(ax.transData, 0.3, 'filled', loc=4, frameon=False,
-                           size_vertical=0.05, fill_bar=True)
-    ax.add_artist(bar1)
-
-    plt.show()
 
 
 Annotation can use a default arrow style
