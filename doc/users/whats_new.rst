@@ -202,8 +202,8 @@ backends, so most test output files (but not all of them) are now
 deterministic.
 
 
-``Axes`` class now has ``subplots`` method
-------------------------------------------
+``Figure`` class now has ``subplots`` method
+--------------------------------------------
 
 TODO WRITE THIS
 
