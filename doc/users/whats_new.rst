@@ -107,8 +107,8 @@ path.
 CheckButtons widget get_status function
 ---------------------------------------
 
-A :func:`~matplotlib.widgets.CheckButtons.get_status` method has been added the
-:class:`matplotlib.widgets.CheckButtons` class. This ``get_status`` method
+A :func:`~matplotlib.widgets.CheckButtons.get_status` method has been added to
+the :class:`matplotlib.widgets.CheckButtons` class. This ``get_status`` method
 allows user to query the status (True/False) of all of the buttons in the
 ``CheckButtons`` object.
 
@@ -117,10 +117,10 @@ Abstract base class for movie writers
 -------------------------------------
 
 The new :class:`~matplotlib.animation.AbstractMovieWriter` class defines
-the API required by a class that is to be used as the `writer` in the
-`save` method of the :class:`~matplotlib.animation.Animation` class.
-The existing :class:`~matplotlib.animation.MovieWriter` class now derives
-from the new abstract base class.
+the API required by a class that is to be used as the ``writer`` in the
+:meth:`matplotlib.animation.Animation.save` method. The existing
+:class:`~matplotlib.animation.MovieWriter` class now derives from the new
+abstract base class.
 
 
 Add fill_bar argument to ``AnchoredSizeBar``
@@ -156,7 +156,7 @@ orthographic view.
 ``voxels`` function for mplot3d
 -------------------------------
 :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now has a
-`~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels` method, for visualizing boolean 3d
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels` method, for visualizing boolean 3D
 data. Uses could include plotting a sparse 3D heat map, or visualizing a
 volumetric model.
 
@@ -182,9 +182,9 @@ around the hexagons.
 Figure.legend() can be called without arguments
 -----------------------------------------------
 
-Calling ``Figure.``:func:`~matplotlib.figure.Figure.legend` can now be
-done with no arguments. In this case a legend will be created that contains all
-the artists on all the axes contained within the figure.
+Calling :meth:`.Figure.legend` can now be done with no arguments. In this case
+a legend will be created that contains all the artists on all the axes
+contained within the figure.
 
 
 New parameter `clear` for :func:`~matplotlib.pyplot.figure`
@@ -260,7 +260,8 @@ Specify minimum value to format as scalar for ``LogFormatterMathtext``
 ----------------------------------------------------------------------
 
 :class:`~matplotlib.ticker.LogFormatterMathtext` now includes the option to
-specify a minimum value exponent to format as a scalar (ie. 0.001 instead of 10^-3).
+specify a minimum value exponent to format as a scalar (ie. 0.001 instead of
+10\ :sup:`-3`).
 
 
 Multiple legend keys for legend entries
