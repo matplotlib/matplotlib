@@ -285,6 +285,15 @@ from :func:`~matplotlib.pyplot.figure`, it can also be used there::
    # fig2.texts:  []
 
 
+Specify minimum value to format as scalar for ``LogFormatterMathtext``
+----------------------------------------------------------------------
+
+:class:`~matplotlib.ticker.LogFormatterMathtext` now includes the
+option to specify a minimum value exponent to format as a scalar
+(ie. 0.001 instead of 10\ :sup:`-3`).
+
+
+
 Internals
 +++++++++
 
@@ -321,15 +330,6 @@ Pending
 
 
 
-
-
-
-Specify minimum value to format as scalar for ``LogFormatterMathtext``
-----------------------------------------------------------------------
-
-:class:`~matplotlib.ticker.LogFormatterMathtext` now includes the option to
-specify a minimum value exponent to format as a scalar (ie. 0.001 instead of
-10\ :sup:`-3`).
 
 
 
