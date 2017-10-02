@@ -201,6 +201,14 @@ This also allows these functions to handle values that need unit-conversion
 applied.
 
 
+Hexbin default line color
+-------------------------
+
+The default ``linecolor`` keyword argument for :func:`~matplotlib.axes.Axes.hexbin`
+is now ``'face'``, and supplying ``'none'`` now prevents lines from being drawn
+around the hexagons.
+
+
 Internals
 +++++++++
 
@@ -234,13 +242,6 @@ abstract base class.
 Pending
 +++++++
 
-
-Hexbin default line color
--------------------------
-
-The default ``linecolor`` keyword argument for :func:`~matplotlib.axes.Axes.hexbin`
-is now ``'face'``, and supplying ``'none'`` now prevents lines from being drawn
-around the hexagons.
 
 
 Figure.legend() can be called without arguments
