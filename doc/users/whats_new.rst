@@ -90,6 +90,53 @@ The `~matplotlib.animation.HTMLWriter` class can also be used to generate
 an HTML file by asking for the ``html`` writer.
 
 
+Orthographic projection for mplot3d
+-----------------------------------
+:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now accepts ``proj_type`` keyword
+argument and has a method :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.set_proj_type`.
+The default option is ``'persp'`` as before, and supplying ``'ortho'`` enables
+orthographic view.
+
+Example
+~~~~~~~
+
+Compare the z-axis which is vertical in orthographic view, but slightly skewed
+in the perspective view.
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+
+    fig = plt.figure(figsize=(4, 6))
+    ax1 = fig.add_subplot(2, 1, 1, projection='3d')
+    ax1.set_proj_type('persp')
+    ax1.set_title('Perspective (default)')
+
+    ax2 = fig.add_subplot(2, 1, 2, projection='3d')
+    ax2.set_proj_type('ortho')
+    ax2.set_title('Orthographic')
+
+    plt.show()
+
+
+``voxels`` function for mplot3d
+-------------------------------
+:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now has a
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels` method, for visualizing boolean 3D
+data. Uses could include plotting a sparse 3D heat map, or visualizing a
+volumetric model.
+
+.. figure:: /gallery/mplot3d/images/sphx_glr_voxels_numpy_logo_001.png
+   :target: ../gallery/mplot3d/voxels_numpy_logo.html
+   :align: center
+   :scale: 70
+
+   Voxel Demo
+
 
 Improvements
 ++++++++++++
@@ -181,52 +228,6 @@ Pending
 
 
 
-Orthographic projection for mplot3d
------------------------------------
-:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now accepts ``proj_type`` keyword
-argument and has a method :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.set_proj_type`.
-The default option is ``'persp'`` as before, and supplying ``'ortho'`` enables
-orthographic view.
-
-Example
-~~~~~~~
-
-Compare the z-axis which is vertical in orthographic view, but slightly skewed
-in the perspective view.
-
-.. plot::
-    :include-source:
-    :align: center
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-
-    fig = plt.figure(figsize=(4, 6))
-    ax1 = fig.add_subplot(2, 1, 1, projection='3d')
-    ax1.set_proj_type('persp')
-    ax1.set_title('Perspective (default)')
-
-    ax2 = fig.add_subplot(2, 1, 2, projection='3d')
-    ax2.set_proj_type('ortho')
-    ax2.set_title('Orthographic')
-
-    plt.show()
-
-
-``voxels`` function for mplot3d
--------------------------------
-:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now has a
-`~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels` method, for visualizing boolean 3D
-data. Uses could include plotting a sparse 3D heat map, or visualizing a
-volumetric model.
-
-.. figure:: /gallery/mplot3d/images/sphx_glr_voxels_numpy_logo_001.png
-   :target: ../gallery/mplot3d/voxels_numpy_logo.html
-   :align: center
-   :scale: 70
-
-   Voxel Demo
 
 
 Barbs and Quiver Support Dates
