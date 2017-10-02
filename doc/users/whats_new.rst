@@ -138,6 +138,11 @@ Example
 
     plt.show()
 
+Annotation can use a default arrow style
+----------------------------------------
+
+Annotations now use the default arrow style when setting ``arrowprops={}``,
+rather than no arrow (the new behavior actually matches the documentation).
 
 
 Internals
@@ -174,11 +179,6 @@ Pending
 +++++++
 
 
-Annotation can use a default arrow style
-----------------------------------------
-
-Annotations now use the default arrow style when setting ``arrowprops={}``,
-rather than no arrow (the new behavior actually matches the documentation).
 
 
 Orthographic projection for mplot3d
