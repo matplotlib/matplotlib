@@ -290,6 +290,10 @@ now uses 'mask' as the default method to handle invalid values (as opposed to
 
 Previously they were clipped to a very small number and shown.
 
+Font cache as json
+------------------
+
+The font cache is now saved as json, rather than a pickle.
 
 Code Removal
 ------------
