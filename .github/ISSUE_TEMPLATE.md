@@ -34,11 +34,12 @@
 
 **Matplotlib version**
 <!--Please specify your platform and versions of the relevant libraries you are using:-->
-  * Operating System:
-  * Matplotlib Version: 
-  * Python Version:
-  * Jupyter Version (if applicable):
-  * Other Libraries: 
+  * Operating system:
+  * Matplotlib version: 
+  * Matplotlib backend (`print(matplotlib.get_backend())`):
+  * Python version:
+  * Jupyter version (if applicable):
+  * Other libraries: 
 
 <!--Please tell us how you installed matplotlib and python e.g., from source, pip, conda-->
 <!--If you installed from conda, please specify which channel you used if not the default-->
