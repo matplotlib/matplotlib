@@ -94,6 +94,16 @@ an HTML file by asking for the ``html`` writer.
 Improvements
 ++++++++++++
 
+CheckButtons widget get_status function
+---------------------------------------
+
+A :func:`~matplotlib.widgets.CheckButtons.get_status` method has been added to
+the :class:`matplotlib.widgets.CheckButtons` class. This ``get_status`` method
+allows user to query the status (True/False) of all of the buttons in the
+``CheckButtons`` object.
+
+
+
 Internals
 +++++++++
 
@@ -115,15 +125,6 @@ path.
 
 Pending
 +++++++
-
-CheckButtons widget get_status function
----------------------------------------
-
-A :func:`~matplotlib.widgets.CheckButtons.get_status` method has been added to
-the :class:`matplotlib.widgets.CheckButtons` class. This ``get_status`` method
-allows user to query the status (True/False) of all of the buttons in the
-``CheckButtons`` object.
-
 
 Abstract base class for movie writers
 -------------------------------------
