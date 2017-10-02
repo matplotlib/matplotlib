@@ -77,9 +77,9 @@ Jake Vanderplas' JSAnimation package has been merged into matplotlib. This
 adds to matplotlib the `~matplotlib.animation.HTMLWriter` class for
 generating a javascript HTML animation, suitable for the IPython notebook.
 This can be activated by default by setting the ``animation.html`` rc
-parameter to ``jshtml``. One can also call the ``anim_to_jshtml`` function
-to manually convert an animation. This can be displayed using IPython's
-``HTML`` display class::
+parameter to ``jshtml``. One can also call the
+`~matplotlib.animation.Animation.to_jshtml` method to manually convert an
+animation. This can be displayed using IPython's ``HTML`` display class::
 
     from IPython.display import HTML
     HTML(animation.anim_to_jshtml(anim))
@@ -107,7 +107,10 @@ path.
 CheckButtons widget get_status function
 ---------------------------------------
 
-A :func:`get_status` function has been added the :class:`matplotlib.widgets.CheckButtons` class. This :func:`get_status` function allows user to query the status (True/False) of all of the buttons in the CheckButtons object.
+A :func:`~matplotlib.widgets.CheckButtons.get_status` method has been added the
+:class:`matplotlib.widgets.CheckButtons` class. This ``get_status`` method
+allows user to query the status (True/False) of all of the buttons in the
+``CheckButtons`` object.
 
 
 Abstract base class for movie writers
@@ -123,7 +126,7 @@ from the new abstract base class.
 Add fill_bar argument to ``AnchoredSizeBar``
 --------------------------------------------
 
-The mpl_toolkits class
+The ``mpl_toolkits`` class
 :class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar` now has an
 additional ``fill_bar`` argument, which makes the size bar a solid rectangle
 instead of just drawing the border of the rectangle. The default is ``None``,
@@ -138,7 +141,7 @@ rectangle for the size bar.
 Annotation can use a default arrow style
 ----------------------------------------
 
-Annotations now use the default arrow style when setting `arrowprops={}`,
+Annotations now use the default arrow style when setting ``arrowprops={}``,
 rather than no arrow (the new behavior actually matches the documentation).
 
 
@@ -149,33 +152,36 @@ Orthographic projection for mplot3d
 
 ``voxels`` function for mplot3d
 -------------------------------
-:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now has a ``voxels`` method, for
-visualizing boolean 3d data. Uses could include plotting a sparse 3D heat map,
-or visualizing a volumetric model.
+:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now has a
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels` method, for visualizing boolean 3d
+data. Uses could include plotting a sparse 3D heat map, or visualizing a
+volumetric model.
 
 
 Barbs and Quiver Support Dates
 ------------------------------
 
-When using the :func:`quiver` and :func:`barbs` plotting methods,
-it is now possible to pass dates, just like for other methods like
-:func:`plot`. This also allows these functions to handle values
-that need unit-conversion applied.
+When using the :func:`~matplotlib.axes.Axes.quiver` and
+:func:`~matplotlib.axes.Axes.barbs` plotting methods, it is now possible to
+pass dates, just like for other methods like :func:`~matplotlib.axes.Axes.plot`.
+This also allows these functions to handle values that need unit-conversion
+applied.
 
 
 Hexbin default line color
 -------------------------
 
-The default ``linecolor`` kwarg for :func:`hexbin` is now ``'face'``, and
-supplying ``'none'`` now prevents lines from being drawn around the hexagons.
+The default ``linecolor`` kwarg for :func:`~matplotlib.axes.Axes.hexbin` is now
+``'face'``, and supplying ``'none'`` now prevents lines from being drawn around
+the hexagons.
 
 
-figure.legend() can be called without arguments
+Figure.legend() can be called without arguments
 -----------------------------------------------
 
-Calling :func:`figure.legend` can now be done with no arguments. In this case a
-legend will be created that contains all the artists on all the axes contained
-within the figure.
+Calling ``Figure.``:func:`~matplotlib.figure.Figure.legend` can now be
+done with no arguments. In this case a legend will be created that contains all
+the artists on all the axes contained within the figure.
 
 
 New parameter `clear` for :func:`~matplotlib.pyplot.figure`
@@ -213,22 +219,23 @@ from :func:`~matplotlib.pyplot.figure`, it can also be used there::
 
 AVConv writer is back
 ---------------------
-Correct a bug that prevented detection of AVconv for matplotlib.animation.
+Correct a bug that prevented detection of AVconv for `matplotlib.animation`.
 
 
 Invalid (Non-finite) Axis Limit Error
 -------------------------------------
 
-When using :func:`set_xlim` and :func:`set_ylim`, passing non-finite values now
-results in a ValueError. The previous behavior resulted in the limits being
-erroneously reset to `(-0.001, 0.001)`.
+When using :func:`~matplotlib.axes.Axes.set_xlim` and
+:func:`~matplotlib.axes.Axes.set_ylim`, passing non-finite values now results
+in a ``ValueError``. The previous behavior resulted in the limits being
+erroneously reset to ``(-0.001, 0.001)``.
 
 
 Metadata savefig kwarg
 ----------------------
 
-:func:`~matplotlib.pyplot.savefig` now accepts `metadata` as a keyword argument.
-It can be used to store key/value pairs in the image metadata.
+:func:`~matplotlib.pyplot.savefig` now accepts ``metadata`` as a keyword
+argument. It can be used to store key/value pairs in the image metadata.
 
 Supported formats and backends
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,17 +256,17 @@ Example
 Specify minimum value to format as scalar for ``LogFormatterMathtext``
 ----------------------------------------------------------------------
 
-``LogFormatterMathtext`` now includes the option to specify a minimum value
-exponent to format as a scalar (ie. 0.001 instead of 10^-3).
+:class:`~matplotlib.ticker.LogFormatterMathtext` now includes the option to
+specify a minimum value exponent to format as a scalar (ie. 0.001 instead of 10^-3).
 
 
 Multiple legend keys for legend entries
 ---------------------------------------
 
 A legend entry can now contain more than one legend key. The extended
-``HandlerTuple`` class now accepts two parameters: ``ndivide`` divides the
-legend area in the specified number of sections; ``pad`` changes the padding
-between the legend keys.
+`~matplotlib.legend_handler.HandlerTuple` class now accepts two parameters:
+``ndivide`` divides the legend area in the specified number of sections;
+``pad`` changes the padding between the legend keys.
 
 .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
    :target: ../gallery/text_labels_and_annotations/legend_demo.html
@@ -278,7 +285,7 @@ notice better rendering performance when plotting large amounts of
 data (as long as the above parameters are set accordingly). Only the
 line segment portion of paths will be simplified -- if you are also
 drawing markers and experiencing problems with rendering speed, you
-should consider using the ``markevery`` option to ``plot``.
+should consider using the ``markevery`` option to `~matplotlib.axes.Axes.plot`.
 See the :ref:`performance` section in the usage tutorial for more
 information.
 
@@ -298,16 +305,17 @@ values are unlikely to cause any visible differences in your plots.
 Added `matplotlib.ticker.PercentFormatter`
 ------------------------------------------
 
-The new formatter has some nice features like being able to convert from
-arbitrary data scales to percents, a customizable percent symbol and
-either automatic or manual control over the decimal points.
+The new `~matplotlib.ticker.PercentFormatter` formatter has some nice features
+like being able to convert from arbitrary data scales to percents, a
+customizable percent symbol and either automatic or manual control over the
+decimal points.
 
 
 New quiverkey angle kwarg
 -------------------------
 
-Plotting a :func:`quiverkey`  now admits the ``angle`` kwarg,
-which sets the angle at which to draw the key arrow.
+Plotting a :func:`~matplotlib.axes.Axes.quiverkey`  now admits the ``angle``
+kwarg, which sets the angle at which to draw the key arrow.
 
 
 Reproducible PS, PDF and SVG output
@@ -352,16 +360,18 @@ reversed.
 `Collection` offsets are no longer implicitly flattened
 -------------------------------------------------------
 
-`Collection` (and thus `scatter` -- both 2D and 3D) no longer implicitly
-flattens its offsets.  As a consequence, `scatter`'s x and y arguments can no
-longer be 2+-dimensional arrays.
+`~matplotlib.collections.Collection` (and thus both 2D
+`~matplotlib.axes.Axes.scatter` and 3D
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter`) no
+longer implicitly flattens its offsets.  As a consequence, ``scatter``'s ``x``
+and ``y`` arguments can no longer be 2+-dimensional arrays.
 
 
 `Artist.setp` (and `pyplot.setp`) accept a `file` argument
 ----------------------------------------------------------
 
 The argument is keyword-only. It allows an output file other than
-`sys.stdout` to be specified. It works exactly like the `file` argument
+`sys.stdout` to be specified. It works exactly like the ``file`` argument
 to `print`.
 
 
@@ -376,7 +386,8 @@ visibility of the flow pattern in some use cases.
 `Axis.set_tick_params` now responds to 'rotation'
 -------------------------------------------------
 
-Bulk setting of tick label rotation is now possible via :func:`set_tick_params` using the `rotation` keyword.
+Bulk setting of tick label rotation is now possible via
+:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation`` keyword.
 
 Example
 ~~~~~~~
@@ -387,9 +398,10 @@ Example
 Users can now toggle shading in 3D bar plots
 --------------------------------------------
 
-A new ``shade`` parameter has been added the 3D bar plotting method.
-The default behavior remains to shade the bars, but now users
-have the option of setting ``shade`` to ``False``.
+A new ``shade`` parameter has been added the 3D
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.bar` plotting method. The default behavior
+remains to shade the bars, but now users have the option of setting ``shade``
+to ``False``.
 
 
 Example
@@ -417,10 +429,10 @@ Example
 New which Parameter for autofmt_xdate
 -------------------------------------
 
-A ``which`` parameter now exists for the method :func:`autofmt_xdate`. This
-allows a user to format ``major``, ``minor`` or ``both`` tick labels
-selectively. If ``which`` is ``None`` (default) then the method will rotate
-``major`` tick labels.
+A ``which`` parameter now exists for the method
+:func:`~matplotlib.figure.Figure.autofmt_xdate`. This allows a user to format
+``major``, ``minor`` or ``both`` tick labels selectively. If ``which`` is
+``None`` (default) then the method will rotate ``major`` tick labels.
 
 Example
 ~~~~~~~
@@ -432,10 +444,11 @@ Example
 New Figure Parameter for subplot2grid
 -------------------------------------
 
-A ``fig`` parameter now exists for the method :func:`subplot2grid`.  This allows
-a user to specify the figure where the subplots will be created.  If ``fig``
-is ``None`` (default) then the method will use the current figure retrieved by
-:func:`gcf`.
+A ``fig`` parameter now exists for the function
+:func:`~matplotlib.pyplot.subplot2grid`. This allows a user to specify the
+figure where the subplots will be created. If ``fig`` is ``None`` (default)
+then the method will use the current figure retrieved by
+:func:`~matplotlib.pyplot.gcf`.
 
 Example
 ~~~~~~~
@@ -447,9 +460,10 @@ Example
 Interpolation in fill_betweenx
 ------------------------------
 
-The ``interpolate`` parameter now exists for the method :func:`fill_betweenx`.
-This allows a user to interpolate the data and fill the areas in the crossover
-points, similarly to :func:`fill_between`.
+The ``interpolate`` parameter now exists for the method
+:func:`~matplotlib.axes.Axes.fill_betweenx`. This allows a user to interpolate
+the data and fill the areas in the crossover points, similarly to
+:func:`~matplotlib.axes.Axes.fill_between`.
 
 
 Validation of line style rcParams
