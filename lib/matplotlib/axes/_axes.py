@@ -1631,40 +1631,45 @@ or tuple of floats
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
-        r"""Make a plot with log scaling on the `y` axis.
+        """
+        Make a plot with log scaling on the *y* axis.
 
         Parameters
         ----------
-        basey : scalar > 1
-            Base of the `y` logarithm.
+        basey : float, optional
+            Base of the *y* logarithm. The scalar should be larger
+            than 1.
 
-        subsy : None or iterable
-            The location of the minor yticks. None defaults to
+        subsy : array_like, optional
+            The location of the minor yticks; *None* defaults to
             autosubs, which depend on the number of decades in the
-            plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
+            plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
             details.
 
-        nonposy : {'mask' | 'clip'} str
-            Non-positive values in `y` can be masked as
+        nonposy : string, optional, {'mask', 'clip'}
+            Non-positive values in *y* can be masked as
             invalid, or clipped to a very small positive number.
 
         Returns
         -------
-        `~matplotlib.lines.Line2D`
-            Line instance of the plot.
+        `~matplotlib.pyplot.plot`
+            Log-scaled plot on the *y* axis.
 
         Other Parameters
         ----------------
         **kwargs :
-            This function supports all the keyword arguments of
-            :func:`~matplotlib.pyplot.plot` and
-            :meth:`matplotlib.axes.Axes.set_xscale`.
-
-            Keyword arguments also control the
-            :class:`~matplotlib.lines.Line2D` properties:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
 
             %(Line2D)s
+
+        Notes
+        -----
+        This function supports all the keyword arguments of
+        :func:`~matplotlib.pyplot.plot` and
+        :meth:`matplotlib.axes.Axes.set_yscale`.
         """
+
         if not self._hold:
             self.cla()
         d = {'basey': kwargs.pop('basey', 10),
