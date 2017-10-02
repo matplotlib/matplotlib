@@ -560,13 +560,6 @@ values are unlikely to cause any visible differences in your plots.
 
 
 
-
-Pending
-+++++++
-
-
-
-
 Previous Whats New
 ==================
 
