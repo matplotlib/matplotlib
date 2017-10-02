@@ -414,17 +414,6 @@ The methods :meth:`~matplotlib.colors.LinearSegmentedColormap.reversed` and
 instance of the Colormap. This implements a way for any Colormap to be
 reversed.
 
-
-`Collection` offsets are no longer implicitly flattened
--------------------------------------------------------
-
-`~matplotlib.collections.Collection` (and thus both 2D
-`~matplotlib.axes.Axes.scatter` and 3D
-`~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter`) no
-longer implicitly flattens its offsets.  As a consequence, ``scatter``'s ``x``
-and ``y`` arguments can no longer be 2+-dimensional arrays.
-
-
 `Artist.setp` (and `pyplot.setp`) accept a `file` argument
 ----------------------------------------------------------
 

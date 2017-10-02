@@ -370,6 +370,14 @@ When using :func:`~matplotlib.axes.Axes.set_xlim` and
 results in a ``ValueError``. The previous behavior resulted in the
 limits being erroneously reset to ``(-0.001, 0.001)``.
 
+`scatter` and `Collection` offsets are no longer implicitly flattened
+---------------------------------------------------------------------
+
+`~matplotlib.collections.Collection` (and thus both 2D
+`~matplotlib.axes.Axes.scatter` and 3D
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter`) no
+longer implicitly flattens its offsets.  As a consequence, ``scatter``'s ``x``
+and ``y`` arguments can no longer be 2+-dimensional arrays.
 
 
 API Changes in 2.0.1
