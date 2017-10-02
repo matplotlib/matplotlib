@@ -27,6 +27,11 @@ New in Matplotlib 2.1
 New features
 ++++++++++++
 
+String categorical values
+-------------------------
+
+TODO
+
 Enhancements to polar plot
 --------------------------
 
@@ -196,6 +201,11 @@ These features are now enabled in the tests for the PDF and SVG
 backends, so most test output files (but not all of them) are now
 deterministic.
 
+
+``Axes`` class now has ``subplots`` method
+------------------------------------------
+
+TODO WRITE THIS
 
 
 Improvements
@@ -469,6 +479,21 @@ and its unit even in the absence of SI prefix.  There was formerly a
 bug that was causing strings like "3.14V" to be returned instead of
 the expected "3.14 V" (with the default behavior).
 
+Extend ``MATPLOTLIBRC`` behavior
+--------------------------------
+
+The environmental variable can now specify the full file path or path
+to find :file:`matplotlibrc` in.
+
+Improvements to Qt plot options
+-------------------------------
+
+TODO write
+
+Added style sheets
+------------------
+
+TODO write
 
 Internals
 +++++++++
@@ -529,6 +554,10 @@ Examples of use
     grid.linestyle             : (1, 3)   # loosely dotted grid lines
     contour.negative_linestyle : dashdot  # previously only solid or dashed
 
+pytest
+------
+
+The automated tests have been switched from `nose` to `pytest`.
 
 Performance
 +++++++++++
