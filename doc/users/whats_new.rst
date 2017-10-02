@@ -300,11 +300,6 @@ Pending
 
 
 
-AVConv writer is back
----------------------
-Correct a bug that prevented detection of AVconv for `matplotlib.animation`.
-
-
 Invalid (Non-finite) Axis Limit Error
 -------------------------------------
 
