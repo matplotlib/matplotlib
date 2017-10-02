@@ -366,6 +366,19 @@ time and can enhance the visibility of the flow pattern in some use
 cases.
 
 
+`Axis.set_tick_params` now responds to ``rotation``
+---------------------------------------------------
+
+Bulk setting of tick label rotation is now possible via
+:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation`` keyword.
+
+Example
+~~~~~~~
+::
+
+    ax.xaxis.set_tick_params(which='both', rotation=90)
+
+
 Internals
 +++++++++
 
@@ -428,22 +441,6 @@ values are unlikely to cause any visible differences in your plots.
 Pending
 +++++++
 
-
-
-
-
-
-`Axis.set_tick_params` now responds to 'rotation'
--------------------------------------------------
-
-Bulk setting of tick label rotation is now possible via
-:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation`` keyword.
-
-Example
-~~~~~~~
-::
-
-    ax.xaxis.set_tick_params(which='both', rotation=90)
 
 Users can now toggle shading in 3D bar plots
 --------------------------------------------
