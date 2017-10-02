@@ -303,6 +303,13 @@ option to specify a minimum value exponent to format as a scalar
 (ie. 0.001 instead of 10\ :sup:`-3`).
 
 
+New quiverkey angle keyword argument
+------------------------------------
+
+Plotting a :func:`~matplotlib.axes.Axes.quiverkey` now admits the
+``angle`` keyword argument, which sets the angle at which to draw the
+key arrow.
+
 
 Internals
 +++++++++
@@ -366,17 +373,6 @@ values are unlikely to cause any visible differences in your plots.
 Pending
 +++++++
 
-
-
-
-
-
-
-New quiverkey angle keyword argument
-------------------------------------
-
-Plotting a :func:`~matplotlib.axes.Axes.quiverkey`  now admits the ``angle``
-keyword argument, which sets the angle at which to draw the key arrow.
 
 
 Reproducible PS, PDF and SVG output
