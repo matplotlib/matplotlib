@@ -322,16 +322,8 @@ the API required by a class that is to be used as the ``writer`` in the
 abstract base class.
 
 
-
-
-Pending
-+++++++
-
-
-
-
-
-
+Performance
++++++++++++
 
 Path simplification updates
 ---------------------------
@@ -357,6 +349,17 @@ want to make sure your plot reflects your data *exactly*, then you should
 set ``path.simplify`` to false and/or ``path.simplify_threshold`` to ``0``.
 Matplotlib currently defaults to a conservative value of ``1/9``, smaller
 values are unlikely to cause any visible differences in your plots.
+
+
+
+
+Pending
++++++++
+
+
+
+
+
 
 
 Added `matplotlib.ticker.PercentFormatter`
