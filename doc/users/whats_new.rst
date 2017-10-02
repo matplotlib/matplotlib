@@ -42,7 +42,7 @@ to further specify the zero location based on the given anchor point.
 .. figure:: /gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_002.png
    :target: ../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-with-offset-origin
    :align: center
-   :scale: 50
+   :scale: 70
 
    Polar Offset Demo
 
@@ -53,7 +53,7 @@ be used to limit the range of angles plotted, producing sectors of a circle.
 .. figure:: /gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_003.png
    :target: ../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-confined-to-a-sector
    :align: center
-   :scale: 50
+   :scale: 70
 
    Polar Sector Demo
 
@@ -137,6 +137,27 @@ and whether or not the bar will be filled by default depends on the value of
 ``True`` or ``False`` to unconditionally always or never use a filled patch
 rectangle for the size bar.
 
+Example
+~~~~~~~
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+
+    fig, ax = plt.subplots(figsize=(3, 3))
+
+    bar0 = AnchoredSizeBar(ax.transData, 0.3, 'unfilled', loc=3, frameon=False,
+                           size_vertical=0.05, fill_bar=False)
+    ax.add_artist(bar0)
+    bar1 = AnchoredSizeBar(ax.transData, 0.3, 'filled', loc=4, frameon=False,
+                           size_vertical=0.05, fill_bar=True)
+    ax.add_artist(bar1)
+
+    plt.show()
+
 
 Annotation can use a default arrow style
 ----------------------------------------
@@ -152,6 +173,31 @@ argument and has a method :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.set_proj_ty
 The default option is ``'persp'`` as before, and supplying ``'ortho'`` enables
 orthographic view.
 
+Example
+~~~~~~~
+
+Compare the z-axis which is vertical in orthographic view, but slightly skewed
+in the perspective view.
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+
+    fig = plt.figure(figsize=(4, 6))
+    ax1 = fig.add_subplot(2, 1, 1, projection='3d')
+    ax1.set_proj_type('persp')
+    ax1.set_title('Perspective (default)')
+
+    ax2 = fig.add_subplot(2, 1, 2, projection='3d')
+    ax2.set_proj_type('ortho')
+    ax2.set_title('Orthographic')
+
+    plt.show()
+
 
 ``voxels`` function for mplot3d
 -------------------------------
@@ -159,6 +205,13 @@ orthographic view.
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels` method, for visualizing boolean 3D
 data. Uses could include plotting a sparse 3D heat map, or visualizing a
 volumetric model.
+
+.. figure:: /gallery/mplot3d/images/sphx_glr_voxels_numpy_logo_001.png
+   :target: ../gallery/mplot3d/voxels_numpy_logo.html
+   :align: center
+   :scale: 70
+
+   Voxel Demo
 
 
 Barbs and Quiver Support Dates
@@ -275,7 +328,7 @@ A legend entry can now contain more than one legend key. The extended
 .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
    :target: ../gallery/text_labels_and_annotations/legend_demo.html
    :align: center
-   :scale: 50
+   :scale: 70
 
    Multiple Legend Keys
 
@@ -410,24 +463,31 @@ to ``False``.
 
 Example
 ~~~~~~~
-::
+.. plot::
+    :include-source:
+    :align: center
 
     import numpy as np
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 
-    fig = plt.figure(figsize=(7,3))
-    ax1 = fig.add_subplot(121, projection='3d')
     x = np.arange(2)
     y = np.arange(3)
     x2d, y2d = np.meshgrid(x, y)
-    x2d, y2d = x2d.ravel(), y2d.ravel()
-    z = x2d + y2d
-    ax1.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    x, y = x2d.ravel(), y2d.ravel()
+    z = np.zeros_like(x)
+    dz = x + y
 
-    ax2 = fig.add_subplot(122, projection='3d')
-    ax2.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
-    fig.canvas.draw()
+    fig = plt.figure(figsize=(4, 6))
+    ax1 = fig.add_subplot(2, 1, 1, projection='3d')
+    ax1.bar3d(x, y, z, 1, 1, dz, shade=True)
+    ax1.set_title('Shading On')
+
+    ax2 = fig.add_subplot(2, 1, 2, projection='3d')
+    ax2.bar3d(x, y, z, 1, 1, dz, shade=False)
+    ax2.set_title('Shading Off')
+
+    plt.show()
 
 
 New which Parameter for autofmt_xdate
