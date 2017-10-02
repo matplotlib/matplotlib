@@ -8,7 +8,7 @@ For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
 .. contents:: Table of Contents
-   :depth: 3
+   :depth: 4
 
 
 ..
@@ -23,6 +23,18 @@ revision, see the :ref:`github-stats`.
 
 New in Matplotlib 2.1
 =====================
+
+New features
+++++++++++++
+
+Improvements
+++++++++++++
+
+Internals
++++++++++
+
+Pending
++++++++
 
 Enhancements to polar plot
 --------------------------
