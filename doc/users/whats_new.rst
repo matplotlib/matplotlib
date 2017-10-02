@@ -27,15 +27,6 @@ New in Matplotlib 2.1
 New features
 ++++++++++++
 
-Improvements
-++++++++++++
-
-Internals
-+++++++++
-
-Pending
-+++++++
-
 Enhancements to polar plot
 --------------------------
 
@@ -81,6 +72,16 @@ be useful to rotate tick *labels* to match the boundary. Calling
 labels will be parallel to the circular grid line, and angular tick labels will
 be perpendicular to the grid line (i.e., parallel to the outer boundary.)
 
+
+
+Improvements
+++++++++++++
+
+Internals
++++++++++
+
+Pending
++++++++
 
 Merge JSAnimation
 -----------------
