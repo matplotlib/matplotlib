@@ -191,6 +191,15 @@ Annotation can use a default arrow style
 Annotations now use the default arrow style when setting ``arrowprops={}``,
 rather than no arrow (the new behavior actually matches the documentation).
 
+Barbs and Quiver Support Dates
+------------------------------
+
+When using the :func:`~matplotlib.axes.Axes.quiver` and
+:func:`~matplotlib.axes.Axes.barbs` plotting methods, it is now possible to
+pass dates, just like for other methods like :func:`~matplotlib.axes.Axes.plot`.
+This also allows these functions to handle values that need unit-conversion
+applied.
+
 
 Internals
 +++++++++
@@ -224,20 +233,6 @@ abstract base class.
 
 Pending
 +++++++
-
-
-
-
-
-
-Barbs and Quiver Support Dates
-------------------------------
-
-When using the :func:`~matplotlib.axes.Axes.quiver` and
-:func:`~matplotlib.axes.Axes.barbs` plotting methods, it is now possible to
-pass dates, just like for other methods like :func:`~matplotlib.axes.Axes.plot`.
-This also allows these functions to handle values that need unit-conversion
-applied.
 
 
 Hexbin default line color
