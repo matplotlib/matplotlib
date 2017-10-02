@@ -555,8 +555,6 @@ class FigureManagerTkAgg(FigureManagerBase):
                 Gcf.destroy(self._num)
             self.canvas._tkcanvas.bind("<Destroy>", destroy)
             self.window.deiconify()
-            # anim.py requires this
-            self.window.update()
         else:
             self.canvas.draw_idle()
         # Raise the new window.
