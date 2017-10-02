@@ -82,7 +82,7 @@ parameter to ``jshtml``. One can also call the
 animation. This can be displayed using IPython's ``HTML`` display class::
 
     from IPython.display import HTML
-    HTML(animation.anim_to_jshtml(anim))
+    HTML(animation.to_jshtml())
 
 The `~matplotlib.animation.HTMLWriter` class can also be used to generate
 an HTML file by asking for the ``html`` writer.
@@ -147,7 +147,10 @@ rather than no arrow (the new behavior actually matches the documentation).
 
 Orthographic projection for mplot3d
 -----------------------------------
-:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now accepts ``proj_type`` kwarg and has a method :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.set_proj_type`. The default option is ``'persp'`` as before, and supplying ``'ortho'`` enables orthographic view.
+:class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` now accepts ``proj_type`` keyword
+argument and has a method :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.set_proj_type`.
+The default option is ``'persp'`` as before, and supplying ``'ortho'`` enables
+orthographic view.
 
 
 ``voxels`` function for mplot3d
@@ -171,9 +174,9 @@ applied.
 Hexbin default line color
 -------------------------
 
-The default ``linecolor`` kwarg for :func:`~matplotlib.axes.Axes.hexbin` is now
-``'face'``, and supplying ``'none'`` now prevents lines from being drawn around
-the hexagons.
+The default ``linecolor`` keyword argument for :func:`~matplotlib.axes.Axes.hexbin`
+is now ``'face'``, and supplying ``'none'`` now prevents lines from being drawn
+around the hexagons.
 
 
 Figure.legend() can be called without arguments
@@ -231,8 +234,8 @@ in a ``ValueError``. The previous behavior resulted in the limits being
 erroneously reset to ``(-0.001, 0.001)``.
 
 
-Metadata savefig kwarg
-----------------------
+Metadata savefig keyword argument
+---------------------------------
 
 :func:`~matplotlib.pyplot.savefig` now accepts ``metadata`` as a keyword
 argument. It can be used to store key/value pairs in the image metadata.
@@ -311,11 +314,11 @@ customizable percent symbol and either automatic or manual control over the
 decimal points.
 
 
-New quiverkey angle kwarg
--------------------------
+New quiverkey angle keyword argument
+------------------------------------
 
 Plotting a :func:`~matplotlib.axes.Axes.quiverkey`  now admits the ``angle``
-kwarg, which sets the angle at which to draw the key arrow.
+keyword argument, which sets the angle at which to draw the key arrow.
 
 
 Reproducible PS, PDF and SVG output
@@ -438,7 +441,7 @@ Example
 ~~~~~~~
 ::
 
-    autofmt_xdate(self, bottom=0.2, rotation=30, ha='right', which='minor')
+    fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='minor')
 
 
 New Figure Parameter for subplot2grid
@@ -505,8 +508,8 @@ New keyword argument 'sep' for EngFormatter
 A new "sep" keyword argument has been added to
 :class:`~matplotlib.ticker.EngFormatter` and provides a means to define
 the string that will be used between the value and its unit. The default
-string is " ", which preserves the former behavior. Besides, the separator is
-now present between the value and its unit even in the absence of SI prefix.
+string is " ", which preserves the former behavior. Additionally, the separator
+is now present between the value and its unit even in the absence of SI prefix.
 There was formerly a bug that was causing strings like "3.14V" to be returned
 instead of the expected "3.14 V" (with the default behavior).
 
