@@ -72,19 +72,8 @@ be useful to rotate tick *labels* to match the boundary. Calling
 labels will be parallel to the circular grid line, and angular tick labels will
 be perpendicular to the grid line (i.e., parallel to the outer boundary.)
 
-
-
-Improvements
-++++++++++++
-
-Internals
-+++++++++
-
-Pending
-+++++++
-
-Merge JSAnimation
------------------
+Interactive JS widgets for animation
+------------------------------------
 
 Jake Vanderplas' JSAnimation package has been merged into matplotlib. This
 adds to matplotlib the `~matplotlib.animation.HTMLWriter` class for
@@ -101,6 +90,17 @@ The `~matplotlib.animation.HTMLWriter` class can also be used to generate
 an HTML file by asking for the ``html`` writer.
 
 
+
+
+
+Improvements
+++++++++++++
+
+Internals
++++++++++
+
+Pending
++++++++
 
 New TransformedPatchPath caching object
 ---------------------------------------
