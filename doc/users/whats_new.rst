@@ -340,6 +340,14 @@ Plotting a :func:`~matplotlib.axes.Axes.quiverkey` now admits the
 ``angle`` keyword argument, which sets the angle at which to draw the
 key arrow.
 
+Colormap reversed method
+------------------------
+
+The methods :meth:`~matplotlib.colors.LinearSegmentedColormap.reversed` and
+:meth:`~matplotlib.colors.ListedColormap.reversed` return a reversed
+instance of the Colormap. This implements a way for any Colormap to be
+reversed.
+
 
 Internals
 +++++++++
@@ -405,14 +413,6 @@ Pending
 
 
 
-
-Colormap reversed method
-------------------------
-
-The methods :meth:`~matplotlib.colors.LinearSegmentedColormap.reversed` and
-:meth:`~matplotlib.colors.ListedColormap.reversed` return a reversed
-instance of the Colormap. This implements a way for any Colormap to be
-reversed.
 
 `Artist.setp` (and `pyplot.setp`) accept a `file` argument
 ----------------------------------------------------------
