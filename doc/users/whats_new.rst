@@ -91,16 +91,11 @@ an HTML file by asking for the ``html`` writer.
 
 
 
-
-
 Improvements
 ++++++++++++
 
 Internals
 +++++++++
-
-Pending
-+++++++
 
 New TransformedPatchPath caching object
 ---------------------------------------
@@ -116,6 +111,10 @@ This class differs from the older
 itself based on the underlying patch while the older class uses an immutable
 path.
 
+
+
+Pending
++++++++
 
 CheckButtons widget get_status function
 ---------------------------------------
