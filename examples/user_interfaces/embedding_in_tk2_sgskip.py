@@ -38,7 +38,7 @@ a.set_ylabel('Y label')
 
 # a tk.DrawingArea
 canvas = FigureCanvasTkAgg(f, master=root)
-canvas.show()
+canvas.draw()
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
 canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)

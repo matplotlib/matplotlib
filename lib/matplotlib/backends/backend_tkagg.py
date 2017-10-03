@@ -231,7 +231,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             master=self._tkcanvas, width=int(width), height=int(height))
         self._tkcanvas.create_image(int(width/2),int(height/2),image=self._tkphoto)
         self.resize_event()
-        self.show()
+        self.draw()
 
         # a resizing will in general move the pointer position
         # relative to the canvas, so process it as a motion notify
@@ -307,10 +307,12 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._master.update_idletasks()
 
     def blit(self, bbox=None):
-        tkagg.blit(self._tkphoto, self.renderer._renderer, bbox=bbox, colormode=2)
+        tkagg.blit(
+            self._tkphoto, self.renderer._renderer, bbox=bbox, colormode=2)
         self._master.update_idletasks()
 
-    show = draw
+    show = cbook.deprecated("2.2", name="FigureCanvasTkAgg.show",
+                            alternative="FigureCanvasTkAgg.draw")(draw)
 
     def draw_idle(self):
         'update drawing area only if idle'
@@ -738,8 +740,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         window = Tk.Toplevel()
         canvas = FigureCanvasTkAgg(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
-        canvas.tool =  SubplotTool(self.canvas.figure, toolfig)
-        canvas.show()
+        canvas.tool = SubplotTool(self.canvas.figure, toolfig)
+        canvas.draw()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         window.grab_set()
 
@@ -1021,7 +1023,7 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
         canvas = FigureCanvasTkAgg(toolfig, master=self.window)
         toolfig.subplots_adjust(top=0.9)
         _tool = SubplotTool(self.figure, toolfig)
-        canvas.show()
+        canvas.draw()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self.window.protocol("WM_DELETE_WINDOW", self.destroy)
 
