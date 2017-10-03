@@ -536,6 +536,8 @@ class FigureManagerTkAgg(FigureManagerBase):
 
         # when a single parameter is given, consider it as a event
         if height is None:
+            cbook.warn_deprecated("2.2", "FigureManagerTkAgg.resize now takes "
+                                  "width and height as separate arguments")
             width = width.width
         else:
             self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
