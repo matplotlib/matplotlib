@@ -841,8 +841,8 @@ class PathSimplifier : protected EmbeddedQueue<9>
 
     bool m_moveto;
     bool m_after_moveto;
-    double m_lastx, m_lasty;
     bool m_clipped;
+    double m_lastx, m_lasty;
 
     double m_origdx;
     double m_origdy;
