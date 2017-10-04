@@ -1560,49 +1560,60 @@ class Axes3D(Axes):
     plot3D = plot
 
     def plot_surface(self, X, Y, Z, *args, **kwargs):
-        '''
+        """
         Create a surface plot.
 
-        By default it will be colored in shades of a solid color,
-        but it also supports color mapping by supplying the *cmap*
-        argument.
+        By default it will be colored in shades of a solid color, but it also
+        supports color mapping by supplying the *cmap* argument.
 
-        The `rstride` and `cstride` kwargs set the stride used to
-        sample the input data to generate the graph.  If 1k by 1k
-        arrays are passed in, the default values for the strides will
-        result in a 100x100 grid being plotted. Defaults to 10.
-        Raises a ValueError if both stride and count kwargs
-        (see next section) are provided.
+        .. note::
 
-        The `rcount` and `ccount` kwargs supersedes `rstride` and
-        `cstride` for default sampling method for surface plotting.
-        These arguments will determine at most how many evenly spaced
-        samples will be taken from the input data to generate the graph.
-        This is the default sampling method unless using the 'classic'
-        style. Will raise ValueError if both stride and count are
-        specified.
-        Added in v2.0.0.
+           The *rcount* and *ccount* kwargs, which both default to 50,
+           determine the maximum number of samples used in each direction.  If
+           the input data is larger, it will be downsampled (by slicing) to
+           these numbers of points.
 
-        ============= ================================================
-        Argument      Description
-        ============= ================================================
-        *X*, *Y*, *Z* Data values as 2D arrays
-        *rstride*     Array row stride (step size)
-        *cstride*     Array column stride (step size)
-        *rcount*      Use at most this many rows, defaults to 50
-        *ccount*      Use at most this many columns, defaults to 50
-        *color*       Color of the surface patches
-        *cmap*        A colormap for the surface patches.
-        *facecolors*  Face colors for the individual patches
-        *norm*        An instance of Normalize to map values to colors
-        *vmin*        Minimum value to map
-        *vmax*        Maximum value to map
-        *shade*       Whether to shade the facecolors
-        ============= ================================================
+        Parameters
+        ----------
+        X, Y, Z : 2d arrays
+            Data values.
 
-        Other arguments are passed on to
-        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
-        '''
+        rcount, ccount : int
+            Maximum number of samples used in each direction.  If the input
+            data is larger, it will be downsampled (by slicing) to these
+            numbers of points.  Defaults to 50.
+
+            .. versionadded:: 2.0
+
+        rstride, cstride : int
+            Downsampling stride in each direction.  These arguments are
+            mutually exclusive with *rcount* and *ccount*.  If only one of
+            *rstride* or *cstride* is set, the other defaults to 10.
+
+            'classic' mode uses a default of ``rstride = cstride = 10`` instead
+            of the new default of ``rcount = ccount = 50``.
+
+        color : color-like
+            Color of the surface patches.
+
+        cmap : Colormap
+            Colormap of the surface patches.
+
+        facecolors : array-like of colors.
+            Colors of each individual patch.
+
+        norm : Normalize
+            Normalization for the colormap.
+
+        vmin, vmax : float
+            Bounds for the normalization.
+
+        shade : bool
+            Whether to shade the face colors.
+
+        **kwargs :
+            Other arguments are forwarded to `~.Poly3DCollection`.
+        """
 
         had_data = self.has_data()
 
@@ -1628,14 +1639,14 @@ class Axes3D(Axes):
             # So, only compute strides from counts
             # if counts were explicitly given
             if has_count:
-                rstride = int(np.ceil(rows / rcount))
-                cstride = int(np.ceil(cols / ccount))
+                rstride = int(max(np.ceil(rows / rcount), 1))
+                cstride = int(max(np.ceil(cols / ccount), 1))
         else:
             # If the strides are provided then it has priority.
             # Otherwise, compute the strides from the counts.
             if not has_stride:
-                rstride = int(np.ceil(rows / rcount))
-                cstride = int(np.ceil(cols / ccount))
+                rstride = int(max(np.ceil(rows / rcount), 1))
+                cstride = int(max(np.ceil(cols / ccount), 1))
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
@@ -1779,44 +1790,44 @@ class Axes3D(Axes):
         return lightsource.shade(data, cmap)
 
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
-        '''
+        """
         Plot a 3D wireframe.
 
-        The `rstride` and `cstride` kwargs set the stride used to
-        sample the input data to generate the graph. If either is 0
-        the input data in not sampled along this direction producing a
-        3D line plot rather than a wireframe plot. The stride arguments
-        are only used by default if in the 'classic' mode. They are
-        now superseded by `rcount` and `ccount`. Will raise ValueError
-        if both stride and count are used.
+        .. note::
 
-`       The `rcount` and `ccount` kwargs supersedes `rstride` and
-        `cstride` for default sampling method for wireframe plotting.
-        These arguments will determine at most how many evenly spaced
-        samples will be taken from the input data to generate the graph.
-        This is the default sampling method unless using the 'classic'
-        style. Will raise ValueError if both stride and count are
-        specified. If either is zero, then the input data is not sampled
-        along this direction, producing a 3D line plot rather than a
-        wireframe plot.
-        Added in v2.0.0.
+           The *rcount* and *ccount* kwargs, which both default to 50,
+           determine the maximum number of samples used in each direction.  If
+           the input data is larger, it will be downsampled (by slicing) to
+           these numbers of points.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *X*, *Y*,   Data values as 2D arrays
-        *Z*
-        *rstride*   Array row stride (step size), defaults to 1
-        *cstride*   Array column stride (step size), defaults to 1
-        *rcount*    Use at most this many rows, defaults to 50
-        *ccount*    Use at most this many columns, defaults to 50
-        ==========  ================================================
+        Parameters
+        ----------
+        X, Y, Z : 2d arrays
+            Data values.
 
-        Keyword arguments are passed on to
-        :class:`~matplotlib.collections.LineCollection`.
+        rcount, ccount : int
+            Maximum number of samples used in each direction.  If the input
+            data is larger, it will be downsampled (by slicing) to these
+            numbers of points.  Setting a count to zero causes the data to be
+            not sampled in the corresponding direction, producing a 3D line
+            plot rather than a wireframe plot.  Defaults to 50.
 
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
-        '''
+            .. versionadded:: 2.0
+
+        rstride, cstride : int
+            Downsampling stride in each direction.  These arguments are
+            mutually exclusive with *rcount* and *ccount*.  If only one of
+            *rstride* or *cstride* is set, the other defaults to 1.  Setting a
+            stride to zero causes the data to be not sampled in the
+            corresponding direction, producing a 3D line plot rather than a
+            wireframe plot.
+
+            'classic' mode uses a default of ``rstride = cstride = 1`` instead
+            of the new default of ``rcount = ccount = 50``.
+
+        **kwargs :
+            Other arguments are forwarded to `~.Line3DCollection`.
+        """
 
         had_data = self.has_data()
         if Z.ndim != 2:
@@ -1841,14 +1852,14 @@ class Axes3D(Axes):
             # So, only compute strides from counts
             # if counts were explicitly given
             if has_count:
-                rstride = int(np.ceil(rows / rcount)) if rcount else 0
-                cstride = int(np.ceil(cols / ccount)) if ccount else 0
+                rstride = int(max(np.ceil(rows / rcount), 1)) if rcount else 0
+                cstride = int(max(np.ceil(cols / ccount), 1)) if ccount else 0
         else:
             # If the strides are provided then it has priority.
             # Otherwise, compute the strides from the counts.
             if not has_stride:
-                rstride = int(np.ceil(rows / rcount)) if rcount else 0
-                cstride = int(np.ceil(cols / ccount)) if ccount else 0
+                rstride = int(max(np.ceil(rows / rcount), 1)) if rcount else 0
+                cstride = int(max(np.ceil(cols / ccount), 1)) if ccount else 0
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
