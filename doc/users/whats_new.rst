@@ -24,13 +24,53 @@ revision, see the :ref:`github-stats`.
 New in Matplotlib 2.1
 =====================
 
+Documentation
++++++++++++++
+
+The examples have been migrated to use sphinx gallery.  This allows
+better mixing of prose and code in the examples, provides links to
+download the examples as both a python script and a Jupyter notebook,
+and improves the thumbnail galleries.  The examples have been
+re-organized into :ref:`tutorials` and a :ref:`gallery`.
+
+Many docstrings and examples have been clarified and improved.
+
+
 New features
 ++++++++++++
 
 String categorical values
 -------------------------
 
-TODO
+All plotting functions now support string categorical values as input.
+For example:
+
+.. plot::
+   :include-source:
+   :align: center
+
+   data = {'apples':10, 'oranges':15, 'lemons':5, 'limes':20}
+   fig, ax = plt.subplots()
+   ax.bar(data.keys(), data.values(), color='lightgray')
+
+
+Interactive JS widgets for animation
+------------------------------------
+
+Jake Vanderplas' JSAnimation package has been merged into matplotlib. This
+adds to matplotlib the `~matplotlib.animation.HTMLWriter` class for
+generating a javascript HTML animation, suitable for the IPython notebook.
+This can be activated by default by setting the ``animation.html`` rc
+parameter to ``jshtml``. One can also call the
+`~matplotlib.animation.Animation.to_jshtml` method to manually convert an
+animation. This can be displayed using IPython's ``HTML`` display class::
+
+    from IPython.display import HTML
+    HTML(animation.to_jshtml())
+
+The `~matplotlib.animation.HTMLWriter` class can also be used to generate
+an HTML file by asking for the ``html`` writer.
+
 
 Enhancements to polar plot
 --------------------------
@@ -77,22 +117,14 @@ be useful to rotate tick *labels* to match the boundary. Calling
 labels will be parallel to the circular grid line, and angular tick labels will
 be perpendicular to the grid line (i.e., parallel to the outer boundary.)
 
-Interactive JS widgets for animation
-------------------------------------
 
-Jake Vanderplas' JSAnimation package has been merged into matplotlib. This
-adds to matplotlib the `~matplotlib.animation.HTMLWriter` class for
-generating a javascript HTML animation, suitable for the IPython notebook.
-This can be activated by default by setting the ``animation.html`` rc
-parameter to ``jshtml``. One can also call the
-`~matplotlib.animation.Animation.to_jshtml` method to manually convert an
-animation. This can be displayed using IPython's ``HTML`` display class::
+``Figure`` class now has ``subplots`` method
+--------------------------------------------
 
-    from IPython.display import HTML
-    HTML(animation.to_jshtml())
+The :class:`~matplotlib.figure.Figure` class now has a
+:meth:`~matplotlib.figure.Figure.subplots` method which behaves the same as
+:func:`.pyplot.subplots` but on an existing figure.
 
-The `~matplotlib.animation.HTMLWriter` class can also be used to generate
-an HTML file by asking for the ``html`` writer.
 
 Metadata savefig keyword argument
 ---------------------------------
@@ -114,6 +146,58 @@ Example
 
     plt.savefig('test.png', metadata={'Software': 'My awesome software'})
 
+
+Busy Cursor
+-----------
+
+The interactive GUI backends will now change the cursor to busy when
+Matplotlib is rendering the canvas.
+
+PolygonSelector
+---------------
+
+A :class:`~matplotlib.widgets.PolygonSelector` class has been added to
+:mod:`matplotlib.widgets`.  See
+:ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py` for details.
+
+
+Added `matplotlib.ticker.PercentFormatter`
+------------------------------------------
+
+The new `~matplotlib.ticker.PercentFormatter` formatter has some nice
+features like being able to convert from arbitrary data scales to
+percents, a customizable percent symbol and either automatic or manual
+control over the decimal points.
+
+
+Reproducible PS, PDF and SVG output
+-----------------------------------
+
+The ``SOURCE_DATE_EPOCH`` environment variable can now be used to set
+the timestamp value in the PS and PDF outputs. See
+https://reproducible-builds.org/specs/source-date-epoch/
+
+Alternatively, calling ``savefig`` with ``metadata={'creationDate': None}``
+will omit the timestamp altogether.
+
+The reproducibility of the output from the PS and PDF backends has so
+far been tested using various plot elements but only default values of
+options such as ``{ps,pdf}.fonttype`` that can affect the output at a
+low level, and not with the mathtext or usetex features. When
+matplotlib calls external tools (such as PS distillers or LaTeX) their
+versions need to be kept constant for reproducibility, and they may
+add sources of nondeterminism outside the control of matplotlib.
+
+For SVG output, the ``svg.hashsalt`` rc parameter has been added in an
+earlier release. This parameter changes some random identifiers in the
+SVG file to be deterministic. The downside of this setting is that if
+more than one file is generated using deterministic identifiers
+and they end up as parts of one larger document, the identifiers can
+collide and cause the different parts to affect each other.
+
+These features are now enabled in the tests for the PDF and SVG
+backends, so most test output files (but not all of them) are now
+deterministic.
 
 Orthographic projection for mplot3d
 -----------------------------------
@@ -161,51 +245,6 @@ volumetric model.
    :scale: 70
 
    Voxel Demo
-
-
-Added `matplotlib.ticker.PercentFormatter`
-------------------------------------------
-
-The new `~matplotlib.ticker.PercentFormatter` formatter has some nice
-features like being able to convert from arbitrary data scales to
-percents, a customizable percent symbol and either automatic or manual
-control over the decimal points.
-
-
-Reproducible PS, PDF and SVG output
------------------------------------
-
-The ``SOURCE_DATE_EPOCH`` environment variable can now be used to set
-the timestamp value in the PS and PDF outputs. See
-https://reproducible-builds.org/specs/source-date-epoch/
-
-Alternatively, calling ``savefig`` with ``metadata={'creationDate': None}``
-will omit the timestamp altogether.
-
-The reproducibility of the output from the PS and PDF backends has so
-far been tested using various plot elements but only default values of
-options such as ``{ps,pdf}.fonttype`` that can affect the output at a
-low level, and not with the mathtext or usetex features. When
-matplotlib calls external tools (such as PS distillers or LaTeX) their
-versions need to be kept constant for reproducibility, and they may
-add sources of nondeterminism outside the control of matplotlib.
-
-For SVG output, the ``svg.hashsalt`` rc parameter has been added in an
-earlier release. This parameter changes some random identifiers in the
-SVG file to be deterministic. The downside of this setting is that if
-more than one file is generated using deterministic identifiers
-and they end up as parts of one larger document, the identifiers can
-collide and cause the different parts to affect each other.
-
-These features are now enabled in the tests for the PDF and SVG
-backends, so most test output files (but not all of them) are now
-deterministic.
-
-
-``Figure`` class now has ``subplots`` method
---------------------------------------------
-
-TODO WRITE THIS
 
 
 Improvements
@@ -485,15 +524,17 @@ Extend ``MATPLOTLIBRC`` behavior
 The environmental variable can now specify the full file path or path
 to find :file:`matplotlibrc` in.
 
-Improvements to Qt plot options
--------------------------------
 
-TODO write
+``density`` kwarg to hist
+-------------------------
 
-Added style sheets
-------------------
+The :meth:`~matplotlib.axes.Axes.hist` method now prefers ``density``
+to ``normed`` to control if the histogram should be normalized,
+following a change upstream to numpy.  This will reduce confusion as
+the behavior has always been that the integral of the histogram is 1
+(rather than sum or maximum value).
 
-TODO write
+
 
 Internals
 +++++++++
@@ -587,6 +628,11 @@ set ``path.simplify`` to false and/or ``path.simplify_threshold`` to ``0``.
 Matplotlib currently defaults to a conservative value of ``1/9``, smaller
 values are unlikely to cause any visible differences in your plots.
 
+Implement intersects_bbox in c++
+--------------------------------
+
+:meth:`~matplotlib.path.Path.intersects_bbox` has been implemented in
+c++ which improves the performance of automatically placing the legend.
 
 
 Previous Whats New
