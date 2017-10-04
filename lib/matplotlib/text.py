@@ -208,7 +208,8 @@ class Text(Artist):
         """
 
         Artist.__init__(self)
-        self._x, self._y = x, y
+        self.set_x(x)
+        self.set_y(y)
 
         if color is None:
             color = rcParams['text.color']
@@ -1165,7 +1166,10 @@ class Text(Artist):
 
         ACCEPTS: float
         """
-        self._x = x
+        if x is None or np.isfinite(x):
+            self._x = x
+        else:
+            raise ValueError('argument x must be finite')
         self.stale = True
 
     def set_y(self, y):
@@ -1174,7 +1178,10 @@ class Text(Artist):
 
         ACCEPTS: float
         """
-        self._y = y
+        if y is None or np.isfinite(y):
+            self._y = y
+        else:
+            raise ValueError('argument y must be finite')
         self.stale = True
 
     def set_rotation(self, s):
