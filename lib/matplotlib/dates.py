@@ -799,7 +799,7 @@ class DateLocator(ticker.Locator):
     """
     Determines the tick locations when plotting dates.
     
-    This class is subclassed by other Locators and 
+    This class is subclassed by other Locators and
     is not meant to be used on its own.
     """
     hms0d = {'byhour': 0, 'byminute': 0, 'bysecond': 0}
