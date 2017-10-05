@@ -4,6 +4,9 @@
 # https://github.com/rmcgibbo/python-appveyor-conda-example
 
 # Backslashes in quotes need to be escaped: \ -> "\\"
+branches:
+  except:
+    - /auto-backport-.*/
 
 environment:
 
