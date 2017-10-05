@@ -45,7 +45,7 @@ Passing a string as *num* argument when calling an instance of
 `matplotlib.ticker.EngFormatter` is deprecated and will be removed in 2.3.
 
 
-:meth:`matpltolib.cbook.CallbackRegistry.process` suppresses exceptions by default
+:meth:`matplotlib.cbook.CallbackRegistry.process` suppresses exceptions by default
 ----------------------------------------------------------------------------------
 
 Matplotlib uses instances of :obj:`~matplotlib.cbook.CallbackRegistry`
@@ -126,7 +126,7 @@ binary file is acceptable, we suggest using one of the following two new files.
 The ``aapl.npy.gz`` and ``goog.npy`` files have been replaced by ``aapl.npz``
 and ``goog.npz``, wherein the first column's type has changed from
 `datetime.date` to `np.datetime64` for better portability across Python
-versions. Note that matplotlib does not fully support `np.datetime64` as yet.
+versions. Note that Matplotlib does not fully support `np.datetime64` as yet.
 
 
 Updated qhull to 2015.2

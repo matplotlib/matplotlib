@@ -1,7 +1,7 @@
 .. _whats-new:
 
 ==========================
- What's new in matplotlib
+ What's new in Matplotlib
 ==========================
 
 For a list of all of the issues and pull requests since the last
@@ -29,7 +29,7 @@ Documentation
 
 The examples have been migrated to use sphinx gallery.  This allows
 better mixing of prose and code in the examples, provides links to
-download the examples as both a python script and a Jupyter notebook,
+download the examples as both a Python script and a Jupyter notebook,
 and improves the thumbnail galleries.  The examples have been
 re-organized into :ref:`tutorials` and a :ref:`gallery`.
 
@@ -57,9 +57,9 @@ For example:
 Interactive JS widgets for animation
 ------------------------------------
 
-Jake Vanderplas' JSAnimation package has been merged into matplotlib. This
-adds to matplotlib the `~matplotlib.animation.HTMLWriter` class for
-generating a javascript HTML animation, suitable for the IPython notebook.
+Jake Vanderplas' JSAnimation package has been merged into Matplotlib. This
+adds to Matplotlib the `~matplotlib.animation.HTMLWriter` class for
+generating a JavaScript HTML animation, suitable for the IPython notebook.
 This can be activated by default by setting the ``animation.html`` rc
 parameter to ``jshtml``. One can also call the
 `~matplotlib.animation.Animation.to_jshtml` method to manually convert an
@@ -184,9 +184,9 @@ The reproducibility of the output from the PS and PDF backends has so
 far been tested using various plot elements but only default values of
 options such as ``{ps,pdf}.fonttype`` that can affect the output at a
 low level, and not with the mathtext or usetex features. When
-matplotlib calls external tools (such as PS distillers or LaTeX) their
+Matplotlib calls external tools (such as PS distillers or LaTeX) their
 versions need to be kept constant for reproducibility, and they may
-add sources of nondeterminism outside the control of matplotlib.
+add sources of nondeterminism outside the control of Matplotlib.
 
 For SVG output, the ``svg.hashsalt`` rc parameter has been added in an
 earlier release. This parameter changes some random identifiers in the
@@ -379,7 +379,7 @@ Specify minimum value to format as scalar for ``LogFormatterMathtext``
 
 :class:`~matplotlib.ticker.LogFormatterMathtext` now includes the
 option to specify a minimum value exponent to format as a scalar
-(ie. 0.001 instead of 10\ :sup:`-3`).
+(i.e., 0.001 instead of 10\ :sup:`-3`).
 
 
 New quiverkey angle keyword argument
@@ -530,7 +530,7 @@ to find :file:`matplotlibrc` in.
 
 The :meth:`~matplotlib.axes.Axes.hist` method now prefers ``density``
 to ``normed`` to control if the histogram should be normalized,
-following a change upstream to numpy.  This will reduce confusion as
+following a change upstream to NumPy.  This will reduce confusion as
 the behavior has always been that the integral of the histogram is 1
 (rather than sum or maximum value).
 
