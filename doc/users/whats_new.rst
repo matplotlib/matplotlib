@@ -204,9 +204,6 @@ argument and has a method :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.set_proj_ty
 The default option is ``'persp'`` as before, and supplying ``'ortho'`` enables
 orthographic view.
 
-Example
-~~~~~~~
-
 Compare the z-axis which is vertical in orthographic view, but slightly skewed
 in the perspective view.
 
@@ -271,8 +268,6 @@ and whether or not the bar will be filled by default depends on the value of
 ``True`` or ``False`` to unconditionally always or never use a filled patch
 rectangle for the size bar.
 
-Example
-~~~~~~~
 
 .. plot::
     :include-source:
@@ -420,8 +415,6 @@ Bulk setting of tick label rotation is now possible via
 :func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation``
 keyword.
 
-Example
-~~~~~~~
 ::
 
     ax.xaxis.set_tick_params(which='both', rotation=90)
@@ -436,8 +429,6 @@ remains to shade the bars, but now users have the option of setting ``shade``
 to ``False``.
 
 
-Example
-~~~~~~~
 .. plot::
     :include-source:
     :align: center
@@ -474,8 +465,6 @@ A ``which`` parameter now exists for the method
 default behavior will rotate and align the ``major`` tick labels.
 
 
-Example
-~~~~~~~
 ::
 
     fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='minor')
@@ -490,8 +479,7 @@ figure where the subplots will be created. If ``fig`` is ``None`` (default)
 then the method will use the current figure retrieved by
 :func:`~matplotlib.pyplot.gcf`.
 
-Example
-~~~~~~~
+
 ::
 
     subplot2grid(shape, loc, rowspan=1, colspan=1, fig=myfig)
