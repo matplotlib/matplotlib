@@ -21,6 +21,7 @@
    axes_api.rst
    axis_api.rst
    index_backend_api.rst
+   blocking_input_api.rst
    cbook_api.rst
    cm_api.rst
    collections_api.rst
