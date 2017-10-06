@@ -27,7 +27,8 @@ New in Matplotlib 2.1
 Documentation
 +++++++++++++
 
-The examples have been migrated to use sphinx gallery.  This allows
+The examples have been migrated to use `sphinx gallery
+<https://sphinx-gallery.readthedocs.io/en/latest/>`__.  This allows
 better mixing of prose and code in the examples, provides links to
 download the examples as both a Python script and a Jupyter notebook,
 and improves the thumbnail galleries.  The examples have been
@@ -115,7 +116,7 @@ angular ticks have been modified to be parallel to the grid line. It may also
 be useful to rotate tick *labels* to match the boundary. Calling
 ``ax.tick_params(rotation='auto')`` will enable new behavior: radial tick
 labels will be parallel to the circular grid line, and angular tick labels will
-be perpendicular to the grid line (i.e., parallel to the outer boundary.)
+be perpendicular to the grid line (i.e., parallel to the outer boundary).
 
 
 ``Figure`` class now has ``subplots`` method
@@ -132,16 +133,13 @@ Metadata savefig keyword argument
 :func:`~matplotlib.pyplot.savefig` now accepts ``metadata`` as a keyword
 argument. It can be used to store key/value pairs in the image metadata.
 
-Supported formats and backends
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * 'png' with Agg backend
 * 'pdf' with PDF backend (see
   :func:`~matplotlib.backends.backend_pdf.PdfFile.writeInfoDict` for a list of
   supported keywords)
 * 'eps' and 'ps' with PS backend (only 'Creator' key is accepted)
 
-Example
-~~~~~~~
 ::
 
     plt.savefig('test.png', metadata={'Software': 'My awesome software'})
@@ -174,8 +172,8 @@ Reproducible PS, PDF and SVG output
 -----------------------------------
 
 The ``SOURCE_DATE_EPOCH`` environment variable can now be used to set
-the timestamp value in the PS and PDF outputs. See
-https://reproducible-builds.org/specs/source-date-epoch/
+the timestamp value in the PS and PDF outputs. See `source date epoch
+<https://reproducible-builds.org/specs/source-date-epoch/>`__.
 
 Alternatively, calling ``savefig`` with ``metadata={'creationDate': None}``
 will omit the timestamp altogether.
@@ -250,8 +248,8 @@ volumetric model.
 Improvements
 ++++++++++++
 
-CheckButtons widget get_status function
----------------------------------------
+CheckButtons widget ``get_status`` function
+-------------------------------------------
 
 A :func:`~matplotlib.widgets.CheckButtons.get_status` method has been added to
 the :class:`matplotlib.widgets.CheckButtons` class. This ``get_status`` method
@@ -392,8 +390,8 @@ key arrow.
 Colormap reversed method
 ------------------------
 
-The methods :meth:`~matplotlib.colors.LinearSegmentedColormap.reversed` and
-:meth:`~matplotlib.colors.ListedColormap.reversed` return a reversed
+The methods :meth:`matplotlib.colors.LinearSegmentedColormap.reversed` and
+:meth:`matplotlib.colors.ListedColormap.reversed` return a reversed
 instance of the Colormap. This implements a way for any Colormap to be
 reversed.
 
@@ -419,7 +417,8 @@ cases.
 ---------------------------------------------------
 
 Bulk setting of tick label rotation is now possible via
-:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation`` keyword.
+:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation``
+keyword.
 
 Example
 ~~~~~~~
@@ -466,13 +465,14 @@ Example
     plt.show()
 
 
-New which Parameter for ``autofmt_xdate``
------------------------------------------
+New ``which`` Parameter for ``autofmt_xdate``
+---------------------------------------------
 
 A ``which`` parameter now exists for the method
 :func:`~matplotlib.figure.Figure.autofmt_xdate`. This allows a user to format
-``major``, ``minor`` or ``both`` tick labels selectively. If ``which`` is
-``None`` (default) then the method will rotate ``major`` tick labels.
+``major``, ``minor`` or ``both`` tick labels selectively. The
+default behavior will rotate and align the ``major`` tick labels.
+
 
 Example
 ~~~~~~~
@@ -512,11 +512,11 @@ New keyword argument ``sep`` for EngFormatter
 A new ``sep`` keyword argument has been added to
 :class:`~matplotlib.ticker.EngFormatter` and provides a means to
 define the string that will be used between the value and its
-unit. The default string is " ", which preserves the former
+unit. The default string is ``" "``, which preserves the former
 behavior. Additionally, the separator is now present between the value
 and its unit even in the absence of SI prefix.  There was formerly a
-bug that was causing strings like "3.14V" to be returned instead of
-the expected "3.14 V" (with the default behavior).
+bug that was causing strings like ``"3.14V"`` to be returned instead of
+the expected ``"3.14 V"`` (with the default behavior).
 
 Extend ``MATPLOTLIBRC`` behavior
 --------------------------------
@@ -563,37 +563,25 @@ the API required by a class that is to be used as the ``writer`` in the
 :class:`~matplotlib.animation.MovieWriter` class now derives from the new
 abstract base class.
 
-Validation of line style rcParams
----------------------------------
 
-Stricter validation
-~~~~~~~~~~~~~~~~~~~
+Stricter validation of line style rcParams
+------------------------------------------
+
 The validation of rcParams that are related to line styles
 (``lines.linestyle``, ``boxplot.*.linestyle``, ``grid.linestyle`` and
 ``contour.negative_linestyle``) now effectively checks that the values
-are valid line styles. Strings like ``dashed`` or ``--`` are accepted,
-as well as even-length sequences of on-off ink like ``[1, 1.65]``. In
-this latter case, the offset value is handled internally and should *not*
-be provided by the user.
+are valid line styles. Strings like ``'dashed'`` or ``'--'`` are
+accepted, as well as even-length sequences of on-off ink like ``[1,
+1.65]``. In this latter case, the offset value is handled internally
+and should *not* be provided by the user.
+
+
+The new validation scheme replaces the former one used for the
+``contour.negative_linestyle`` rcParams, that was limited to
+``'solid'`` and ``'dashed'`` line styles.
 
 The validation is case-insensitive.
 
-Deprecation of the former validators for ``contour.negative_linestyle``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The new validation scheme replaces the former one used for the
-``contour.negative_linestyle`` rcParams, that was limited to ``solid``
-and ``dashed`` line styles.
-
-The former public validation functions ``validate_negative_linestyle``
-and ``validate_negative_linestyle_legacy`` will be deprecated in 2.1 and
-may be removed in 2.3. There are no public functions to replace them.
-
-Examples of use
-~~~~~~~~~~~~~~~
-::
-
-    grid.linestyle             : (1, 3)   # loosely dotted grid lines
-    contour.negative_linestyle : dashdot  # previously only solid or dashed
 
 pytest
 ------

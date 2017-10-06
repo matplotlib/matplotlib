@@ -374,14 +374,28 @@ When using :func:`~matplotlib.axes.Axes.set_xlim` and
 results in a ``ValueError``. The previous behavior resulted in the
 limits being erroneously reset to ``(-0.001, 0.001)``.
 
-`scatter` and `Collection` offsets are no longer implicitly flattened
----------------------------------------------------------------------
+``scatter`` and ``Collection`` offsets are no longer implicitly flattened
+-------------------------------------------------------------------------
 
 `~matplotlib.collections.Collection` (and thus both 2D
 `~matplotlib.axes.Axes.scatter` and 3D
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter`) no
 longer implicitly flattens its offsets.  As a consequence, ``scatter``'s ``x``
 and ``y`` arguments can no longer be 2+-dimensional arrays.
+
+
+Deprecation of the former validators for ``contour.negative_linestyle``
+-----------------------------------------------------------------------
+
+
+The former public validation functions ``validate_negative_linestyle``
+and ``validate_negative_linestyle_legacy`` will be deprecated in 2.1 and
+may be removed in 2.3. There are no public functions to replace them.
+
+::
+
+    grid.linestyle             : (1, 3)   # loosely dotted grid lines
+    contour.negative_linestyle : dashdot  # previously only solid or dashed
 
 
 API Changes in 2.0.1
