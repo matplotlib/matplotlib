@@ -1030,6 +1030,12 @@ def find_tex_file(filename, format=None):
         The library that :program:`kpsewhich` is part of.
     """
 
+    if six.PY3:
+        if isinstance(filename, bytes):
+            filename = filename.decode('utf-8', errors='replace')
+        if isinstance(format, bytes):
+            format = format.decode('utf-8', errors='replace')
+
     cmd = [str('kpsewhich')]
     if format is not None:
         cmd += ['--format=' + format]
