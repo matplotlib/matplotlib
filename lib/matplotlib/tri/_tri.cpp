@@ -1400,7 +1400,7 @@ TrapezoidMapTriFinder::initialize()
     unsigned int nedges = _edges.size();
     for (unsigned int index = 2; index < nedges; ++index) {
         if (!add_edge_to_tree(_edges[index]))
-            throw "Triangulation is invalid";
+            throw std::runtime_error("Triangulation is invalid");
         _tree->assert_valid(index == nedges-1);
     }
 }
