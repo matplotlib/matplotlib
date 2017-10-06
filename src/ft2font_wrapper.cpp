@@ -362,7 +362,7 @@ static void close_file_callback(FT_Stream stream)
     PyFT2Font *def = (PyFT2Font *)stream->descriptor.pointer;
 
     if (mpl_PyFile_DupClose(def->py_file, def->fp, def->offset)) {
-        throw "Couldn't close file";
+        throw std::runtime_error("Couldn't close file");
     }
 
     if (def->close_file) {

@@ -398,7 +398,7 @@ void QuadContourGenerator::append_contour_line_to_vertices(
     }
     if (PyList_Append(vertices_list, line.pyobj_steal())) {
         Py_XDECREF(vertices_list);
-        throw "Unable to add contour line to vertices_list";
+        throw std::runtime_error("Unable to add contour line to vertices_list");
     }
 
     contour_line.clear();
@@ -475,7 +475,7 @@ void QuadContourGenerator::append_contour_to_vertices_and_codes(
                 Py_XDECREF(vertices_list);
                 Py_XDECREF(codes_list);
                 contour.delete_contour_lines();
-                throw "Unable to add contour line to vertices and codes lists";
+                throw std::runtime_error("Unable to add contour line to vertices and codes lists");
             }
 
             delete *line_it;
@@ -510,7 +510,7 @@ PyObject* QuadContourGenerator::create_contour(const double& level)
 
     PyObject* vertices_list = PyList_New(0);
     if (vertices_list == 0)
-        throw "Failed to create Python list";
+        throw std::runtime_error("Failed to create Python list");
 
     // Lines that start and end on boundaries.
     long ichunk, jchunk, istart, iend, jstart, jend;
@@ -602,12 +602,12 @@ PyObject* QuadContourGenerator::create_filled_contour(const double& lower_level,
 
     PyObject* vertices = PyList_New(0);
     if (vertices == 0)
-        throw "Failed to create Python list";
+        throw std::runtime_error("Failed to create Python list");
 
     PyObject* codes = PyList_New(0);
     if (codes == 0) {
         Py_XDECREF(vertices);
-        throw "Failed to create Python list";
+        throw std::runtime_error("Failed to create Python list");
     }
 
     long ichunk, jchunk, istart, iend, jstart, jend;
@@ -644,7 +644,7 @@ PyObject* QuadContourGenerator::create_filled_contour(const double& lower_level,
     if (tuple == 0) {
         Py_XDECREF(vertices);
         Py_XDECREF(codes);
-        throw "Failed to create Python tuple";
+        throw std::runtime_error("Failed to create Python tuple");
     }
 
     // No error checking here as filling in a brand new pre-allocated tuple.

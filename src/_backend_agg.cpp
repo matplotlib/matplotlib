@@ -101,7 +101,7 @@ BufferRegion *RendererAgg::copy_from_bbox(agg::rect_d in_rect)
 void RendererAgg::restore_region(BufferRegion &region)
 {
     if (region.get_data() == NULL) {
-        throw "Cannot restore_region from NULL data";
+        throw std::runtime_error("Cannot restore_region from NULL data");
     }
 
     agg::rendering_buffer rbuf;
@@ -115,7 +115,7 @@ void
 RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int yy2, int x, int y )
 {
     if (region.get_data() == NULL) {
-        throw "Cannot restore_region from NULL data";
+        throw std::runtime_error("Cannot restore_region from NULL data");
     }
 
     agg::rect_i &rrect = region.get_rect();
