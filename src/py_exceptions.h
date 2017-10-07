@@ -46,6 +46,14 @@ class exception : public std::exception
         }                                                                    \
         return (errorcode);                                                  \
     }                                                                        \
+    catch (const std::runtime_error &e)                                      \
+    {                                                                        \
+        PyErr_Format(PyExc_RuntimeError, "In %s: %s", (name), e.what());    \
+        {                                                                    \
+            cleanup;                                                         \
+        }                                                                    \
+        return (errorcode);                                                  \
+    }                                                                        \
     catch (...)                                                              \
     {                                                                        \
         PyErr_Format(PyExc_RuntimeError, "Unknown exception in %s", (name)); \
