@@ -323,7 +323,7 @@ a *unique* label to each axes instance.  See the docstring of
 :meth:`~matplotlib.figure.Figure.add_axes` for more information.
 
 Additional details on the rationale behind this deprecation can be found
-in :issue:`7377` and :issue:`9024`.
+in :ghissue:`7377` and :ghissue:`9024`.
 
 
 Former validators for ``contour.negative_linestyle``
