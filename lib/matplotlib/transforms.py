@@ -2869,28 +2869,30 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
     Modify the endpoints of a range as needed to avoid singularities.
 
-    *vmin*, *vmax*
+    Parameters
+    ----------
+    vmin, vmax : float
         the initial endpoints.
-
-    *tiny*
-        threshold for the ratio of the interval to the maximum absolute
+    expander : float, optional, default: 0.001
+        Fractional amount by which `vmin` and `vmax` are expanded if
+        the original interval is too small, based on `tiny`.
+    tiny : float, optional, default: 1e-15
+        Threshold for the ratio of the interval to the maximum absolute
         value of its endpoints.  If the interval is smaller than
         this, it will be expanded.  This value should be around
         1e-15 or larger; otherwise the interval will be approaching
         the double precision resolution limit.
+    increasing : bool, optional, default: True
+        If True, swap `vmin`, `vmax` if `vmin` > `vmax`.
 
-    *expander*
-        fractional amount by which *vmin* and *vmax* are expanded if
-        the original interval is too small, based on *tiny*.
-
-    *increasing*: [True | False]
-        If True (default), swap *vmin*, *vmax* if *vmin* > *vmax*
-
-    Returns *vmin*, *vmax*, expanded and/or swapped if necessary.
-
-    If either input is inf or NaN, or if both inputs are 0 or very
-    close to zero, it returns -*expander*, *expander*.
+    Returns
+    -------
+    vmin, vmax : float
+        Endpoints, expanded and/or swapped if necessary.
+        If either input is inf or NaN, or if both inputs are 0 or very
+        close to zero, it returns -`expander`, `expander`.
     '''
+
     if (not np.isfinite(vmin)) or (not np.isfinite(vmax)):
         return -expander, expander
 
@@ -2918,11 +2920,41 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 
 
 def interval_contains(interval, val):
+    """
+    Check, inclusively, whether an interval includes a given value.
+
+    Parameters
+    ----------
+    interval : list of scalar
+        Definition of interval, as [start, end].
+    val : scalar
+        Value to check is within interval.
+
+    Returns
+    -------
+    bool
+        Returns true if given val is within the interval.
+    """
     a, b = interval
     return a <= val <= b or a >= val >= b
 
 
 def interval_contains_open(interval, val):
+    """
+    Check, excluding edges, whether an interval includes a given value.
+
+    Parameters
+    ----------
+    interval : list of scalar
+        Definition of interval, as [start, end].
+    val : scalar
+        Value to check is within interval.
+
+    Returns
+    -------
+    bool
+        Returns true if given val is within the interval.
+    """
     a, b = interval
     return a < val < b or a > val > b
 
@@ -2930,12 +2962,22 @@ def interval_contains_open(interval, val):
 def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     '''
     Return a new transform with an added offset.
-      args:
-        trans is any transform
-      kwargs:
-        fig is the current figure; it can be None if units are 'dots'
-        x, y give the offset
-        units is 'inches', 'points' or 'dots'
+
+    Parameters
+    ----------
+    trans : TransformNode
+        Any transform, to which offset will be applied.
+    fig : matplotlib figure, optional, default: None
+        The current figure. It can be None if units are 'dots'.
+    x, y : float, optional, default: 0.0
+        Specifies the offset to apply.
+    units : {'inches', 'points', 'dots'}, optional
+        Units of the offset.
+
+    Returns
+    -------
+    trans : TransformNode
+        Transform with applied offset.
     '''
     if units == 'dots':
         return trans + Affine2D().translate(x, y)
