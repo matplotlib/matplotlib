@@ -96,7 +96,10 @@ def test_too_many_date_ticks():
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.set_xlim((t0, tf), auto=True)
+    with pytest.warns(UserWarning) as rec:
+        ax.set_xlim((t0, tf), auto=True)
+        assert len(rec) == 1
+        assert 'Attempting to set identical left==right' in str(rec[0].message)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
     with pytest.raises(RuntimeError):

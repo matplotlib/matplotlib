@@ -29,16 +29,18 @@ def test_is_hashable():
 
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
-    d1 = cbook.restrict_dict(d, ['foo', 1])
-    assert d1 == d
-    d2 = cbook.restrict_dict(d, ['bar', 2])
-    assert d2 == {}
-    d3 = cbook.restrict_dict(d, {'foo': 1})
-    assert d3 == {'foo': 'bar'}
-    d4 = cbook.restrict_dict(d, {})
-    assert d4 == {}
-    d5 = cbook.restrict_dict(d, {'foo', 2})
-    assert d5 == {'foo': 'bar'}
+    with pytest.warns(cbook.deprecation.MatplotlibDeprecationWarning) as rec:
+        d1 = cbook.restrict_dict(d, ['foo', 1])
+        assert d1 == d
+        d2 = cbook.restrict_dict(d, ['bar', 2])
+        assert d2 == {}
+        d3 = cbook.restrict_dict(d, {'foo': 1})
+        assert d3 == {'foo': 'bar'}
+        d4 = cbook.restrict_dict(d, {})
+        assert d4 == {}
+        d5 = cbook.restrict_dict(d, {'foo', 2})
+        assert d5 == {'foo': 'bar'}
+    assert len(rec) == 5
     # check that d was not modified
     assert d == {'foo': 'bar', 1: 2}
 
