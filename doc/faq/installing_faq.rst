@@ -140,15 +140,15 @@ or ::
 Macports Python
 ^^^^^^^^^^^^^^^
 
-For Python 2.7::
+For Python 2::
 
    sudo port install py27-pip
-   sudo python2.7 -mpip install matplotlib
+   sudo python2 -mpip install matplotlib
 
-For Python 3.4::
+For Python 3::
 
-   sudo port install py34-pip
-   sudo python3.4 -mpip install matplotlib
+   sudo port install py36-pip
+   sudo python3.6 -mpip install matplotlib
 
 Homebrew Python
 ^^^^^^^^^^^^^^^
@@ -180,17 +180,17 @@ Checking your installation
 The new version of Matplotlib should now be on your Python "path".  Check this
 with one of these commands at the Terminal.app command line::
 
-  python2.7 -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
+  python2 -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
 
 (Python 2) or::
 
-  python3.4 -c 'import matplotlib; print(matplotlib.__version__, matplotlib.__file__)'
+  python3 -c 'import matplotlib; print(matplotlib.__version__, matplotlib.__file__)'
 
-(Python 3.4).  You should see something like this::
+(Python 3).  You should see something like this::
 
-  1.4.0 /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/__init__.pyc
+  2.1.0 /Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/matplotlib/__init__.pyc
 
-where ``1.4.0`` is the Matplotlib version you just installed, and the path
+where ``2.1.0`` is the Matplotlib version you just installed, and the path
 following depends on whether you are using Python.org Python, Homebrew or
 Macports.  If you see another version, or you get an error like this::
 
@@ -201,11 +201,11 @@ Macports.  If you see another version, or you get an error like this::
 then check that the Python binary is the one you expected by doing one of
 these commands in Terminal.app::
 
-  which python2.7
+  which python2
 
 or::
 
-  which python3.4
+  which python3
 
 If you get the result ``/usr/bin/python2.7``, then you are getting the Python
 installed with OSX, which is probably not what you want.  Try closing and
