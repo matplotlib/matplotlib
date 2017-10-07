@@ -50,7 +50,7 @@ For example:
    :include-source:
    :align: center
 
-   data = {'apples':10, 'oranges':15, 'lemons':5, 'limes':20}
+   data = {'apples': 10, 'oranges': 15, 'lemons': 5, 'limes': 20}
    fig, ax = plt.subplots()
    ax.bar(data.keys(), data.values(), color='lightgray')
 
@@ -111,12 +111,13 @@ negative values are simply used as labels, and the real radius is shifted by
 the configured minimum. This release also allows negative radii to be used for
 grids and ticks, which were previously silently ignored.
 
-Radial ticks have been modified to be parallel to the circular grid line, and
-angular ticks have been modified to be parallel to the grid line. It may also
-be useful to rotate tick *labels* to match the boundary. Calling
-``ax.tick_params(rotation='auto')`` will enable new behavior: radial tick
-labels will be parallel to the circular grid line, and angular tick labels will
-be perpendicular to the grid line (i.e., parallel to the outer boundary).
+Radial ticks have been modified to be parallel to the circular grid
+line, and angular ticks have been modified to be parallel to the grid
+line. It may also be useful to rotate tick *labels* to match the
+boundary. Calling ``ax.tick_params(rotation='auto')`` will enable the
+new behavior: radial tick labels will be parallel to the circular grid
+line, and angular tick labels will be perpendicular to the grid line
+(i.e., parallel to the outer boundary).
 
 
 ``Figure`` class now has ``subplots`` method
@@ -176,7 +177,7 @@ the timestamp value in the PS and PDF outputs. See `source date epoch
 <https://reproducible-builds.org/specs/source-date-epoch/>`__.
 
 Alternatively, calling ``savefig`` with ``metadata={'creationDate': None}``
-will omit the timestamp altogether.
+will omit the timestamp altogether for the PDF backend.
 
 The reproducibility of the output from the PS and PDF backends has so
 far been tested using various plot elements but only default values of
@@ -420,8 +421,8 @@ keyword.
     ax.xaxis.set_tick_params(which='both', rotation=90)
 
 
-Users can now toggle shading in 3D bar plots
---------------------------------------------
+Shading in 3D bar plots
+-----------------------
 
 A new ``shade`` parameter has been added the 3D
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.bar` plotting method. The default behavior
@@ -509,8 +510,8 @@ the expected ``"3.14 V"`` (with the default behavior).
 Extend ``MATPLOTLIBRC`` behavior
 --------------------------------
 
-The environmental variable can now specify the full file path or path
-to find :file:`matplotlibrc` in.
+The environmental variable can now specify the full file path or the
+path to a directory containing a :file:`matplotlibrc` file.
 
 
 ``density`` kwarg to hist

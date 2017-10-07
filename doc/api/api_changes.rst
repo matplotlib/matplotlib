@@ -33,7 +33,7 @@ of of the ``process`` method, which is typically in the GUI event
 loop.  Most GUI frameworks simple print the traceback to the screen
 and continue as there is not always a clear method of getting the
 exception back to the user.  However PyQt5 now exits the process when
-it receives and un-handled python exception in the event loop.  Thus,
+it receives an un-handled python exception in the event loop.  Thus,
 :meth:`~matplotlib.cbook.CallbackRegistry.process` now suppresses and
 prints tracebacks to stderr by default.
 
