@@ -2158,6 +2158,7 @@ or tuple of floats
                 r.sticky_edges.y.append(b)
             elif orientation == 'horizontal':
                 r.sticky_edges.x.append(l)
+            r._force_clip_in_log_scale = True
             self.add_patch(r)
             patches.append(r)
 
@@ -3053,7 +3054,9 @@ or tuple of floats
             if xlolims.any():
                 yo, _ = xywhere(y, right, xlolims & everymask)
                 lo, ro = xywhere(x, right, xlolims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+                ebs = self.hlines(yo, lo, ro, **eb_lines_style)
+                ebs._force_clip_in_log_scale = True
+                barcols.append(ebs)
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
@@ -3092,7 +3095,9 @@ or tuple of floats
             if noylims.any():
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+                ebs = self.vlines(xo, lo, uo, **eb_lines_style)
+                ebs._force_clip_in_log_scale = True
+                barcols.append(ebs)
                 if capsize > 0:
                     caplines.append(mlines.Line2D(xo, lo, marker='_',
                                                   **eb_cap_style))
@@ -4905,6 +4910,7 @@ or tuple of floats
             polys.append(X)
 
         collection = mcoll.PolyCollection(polys, **kwargs)
+        collection._force_clip_in_log_scale = True
 
         # now update the datalim and autoscale
         XY1 = np.array([x[where], y1[where]]).T
@@ -5057,6 +5063,7 @@ or tuple of floats
             polys.append(Y)
 
         collection = mcoll.PolyCollection(polys, **kwargs)
+        collection._force_clip_in_log_scale = True
 
         # now update the datalim and autoscale
         X1Y = np.array([x1[where], y[where]]).T

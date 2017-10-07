@@ -564,7 +564,10 @@ class Patch(artist.Artist):
 
         path = self.get_path()
         transform = self.get_transform()
-        tpath = transform.transform_path_non_affine(path)
+
+        with self._forcing_clip_in_log_scale():
+            tpath = transform.transform_path_non_affine(path)
+
         affine = transform.get_affine()
 
         if self.get_path_effects():
