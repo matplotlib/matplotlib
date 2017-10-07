@@ -471,8 +471,8 @@ default behavior will rotate and align the ``major`` tick labels.
     fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='minor')
 
 
-New Figure Parameter for subplot2grid
--------------------------------------
+New Figure Parameter for ``subplot2grid``
+-----------------------------------------
 
 A ``fig`` parameter now exists for the function
 :func:`~matplotlib.pyplot.subplot2grid`. This allows a user to specify the
