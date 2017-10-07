@@ -49,9 +49,9 @@ installation of the package.  In order to fully remove an installed Matplotlib:
 Linux Notes
 ===========
 
-We recommend that you use your distribution's package manager to install
-Matplotlib.  This will guarantee that Matplotlib's dependencies will be
-installed as well.
+To install Matplotlib at the system-level we recommend that you use your 
+distribution's package manager to install Matplotlib.  This will guarantee 
+that Matplotlib's dependencies will be installed as well.
 
 If, for some reason, you can not use the package manager, you may use the
 manylinux wheels available on PyPI::
