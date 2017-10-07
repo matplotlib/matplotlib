@@ -10,6 +10,10 @@ Please do not create the PR out of master, but out of a separate branch. -->
 example "Raises ValueError on Non-Numeric Input to set_xlim".  Please avoid
 non-descriptive titles such as "Addresses issue #8576".-->
 
+<!--If you are contributing fixes to docstrings, please pay attention to
+http://matplotlib.org/devel/documenting_mpl.html#formatting.  In particular,
+note the difference between using single backquotes, double backquotes, and
+asterisks in the markup.-->
 
 ## PR Summary
 
