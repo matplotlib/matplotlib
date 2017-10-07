@@ -113,7 +113,8 @@ using Matplotlib, i.e. any use of `matplotlib.tri.Triangulation` that
 requests that a Delaunay triangulation is calculated, which includes
 `matplotlib.pyplot.tricontour`, `matplotlib.pyplot.tricontourf`,
 `matplotlib.pyplot.tripcolor`, `matplotlib.pyplot.triplot`,
-`mlab.griddata` and `mpl_toolkits.mplot3d.plot_trisurf`.
+`matplotlib.mlab.griddata` and
+`mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 
 
 
@@ -234,8 +235,9 @@ still *left* and *bottom* respectively::
   bar(left, height, *, align='center', **kwargs)
   barh(bottom, width, *, align='center', **kwargs)
 
-despite behaving as the center in both cases. The methods now take ``*args, **kwargs``
-is input and are documented to have the primary signatures of::
+despite behaving as the center in both cases. The methods now take
+``*args, **kwargs`` as input and are documented to have the primary
+signatures of::
 
   bar(x, height, *, align='center', **kwargs)
   barh(y, width, *, align='center', **kwargs)
@@ -276,14 +278,17 @@ Deprecations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``GraphicsContextBase.get_linestyle`` and
-``GraphicsContextBase.set_linestyle`` methods, which effectively had
-no effect, have been deprecated.
+``GraphicsContextBase.set_linestyle`` methods, which had no effect,
+have been deprecated.  All of the backends Matplotlib ships use
+``GraphicsContextBase.get_dashes`` and
+``GraphicsContextBase.set_dashes`` which are more general.
+Third-party backends should also migrate to the ``*_dashes`` methods.
 
 
 ``NavigationToolbar2.dynamic_update``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use :meth:`matplotlib.backend_bases.FigureCanvas.draw_idle` instead.
+Use :meth:`draw_idle` method on the ``Canvas`` instance instead.
 
 
 Testing
@@ -302,10 +307,10 @@ Passing a string as *num* argument when calling an instance of
 ``mpl_toolkits.axes_grid`` module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All functionallity from `mpl_toolkits.axes_grid` can be found in
-either `mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes
-classes from `mpl_toolkits.axes_grid` based on `Axis` from
-`mpl_toolkits.axisartist` can be found in `mpl_toolkits.axisartist`
+All functionally from `mpl_toolkits.axes_grid` can be found in either
+`mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes classes
+from `mpl_toolkits.axes_grid` based on `Axis` from
+`mpl_toolkits.axisartist` can be found in `mpl_toolkits.axisartist`.
 
 
 ``Axes`` collision in ``Figure.add_axes``
