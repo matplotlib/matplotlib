@@ -806,10 +806,12 @@ def test_imshow_flatfield():
      colors.LogNorm,
      lambda: colors.SymLogNorm(1),
      lambda: colors.PowerNorm(1)])
-@pytest.mark.filterwarnings("ignore:Attempting to set identical left==right")
 def test_empty_imshow(make_norm):
     fig, ax = plt.subplots()
-    im = ax.imshow([[]], norm=make_norm())
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", "Attempting to set identical left==right")
+        im = ax.imshow([[]], norm=make_norm())
     im.set_extent([-5, 5, -5, 5])
     fig.canvas.draw()
 
