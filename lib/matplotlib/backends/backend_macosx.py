@@ -109,6 +109,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self.invalidate()
 
     def draw_idle(self, *args, **kwargs):
+        self.figure.stale = True
         self.invalidate()
 
     def blit(self, bbox):
