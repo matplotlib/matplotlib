@@ -20,7 +20,7 @@ from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import Artist
 from matplotlib.cbook import maxdict
-from matplotlib import docstring
+from matplotlib import docstring, verbose
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch
 from matplotlib.patches import FancyArrowPatch, Rectangle
@@ -759,9 +759,12 @@ class Text(Artist):
             # position in Text, and dash position in TextWithDash:
             posx = float(textobj.convert_xunits(textobj._x))
             posy = float(textobj.convert_yunits(textobj._y))
-            if not np.isfinite(posx) or not np.isfinite(posy):
-                raise ValueError("posx and posy should be finite values")
             posx, posy = trans.transform_point((posx, posy))
+            if not np.isfinite(posx) or not np.isfinite(posy):
+                verbose.report("x and y are not finite values for text "
+                              "string '{}'.  Not rendering "
+                              "text.".format(self.get_text()), 'helpful')
+                return
             canvasw, canvash = renderer.get_canvas_width_height()
 
             # draw the FancyBboxPatch

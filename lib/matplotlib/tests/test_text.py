@@ -441,3 +441,10 @@ def test_two_2line_texts(spacing1, spacing2):
         assert box1.height == box2.height
     else:
         assert box1.height != box2.height
+
+
+def test_nonfinite_pos():
+    fig, ax = plt.subplots()
+    ax.text(0, np.nan, 'nan')
+    ax.text(np.inf, 0, 'inf')
+    fig.canvas.draw()
