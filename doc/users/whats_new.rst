@@ -568,7 +568,12 @@ The new validation scheme replaces the former one used for the
 ``contour.negative_linestyle`` rcParams, that was limited to
 ``'solid'`` and ``'dashed'`` line styles.
 
-The validation is case-insensitive.
+The validation is case-insensitive.  The following are now valid:
+
+::
+
+    grid.linestyle             : (1, 3)   # loosely dotted grid lines
+    contour.negative_linestyle : dashdot  # previously only solid or dashed
 
 
 pytest
