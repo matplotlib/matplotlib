@@ -140,7 +140,6 @@ def test_tilde_in_tempfilename():
         plt.rc('text', usetex=True)
         plt.plot([1, 2, 3, 4])
         plt.xlabel(r'\textbf{time} (s)')
-        # matplotlib.verbose.set_level("debug")
         output_eps = os.path.join(base_tempdir, 'tex_demo.eps')
         # use the PS backend to write the file...
         plt.savefig(output_eps, format="ps")

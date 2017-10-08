@@ -8,6 +8,7 @@ from six.moves import tkinter_filedialog as FileDialog
 
 import os, sys, math
 import os.path
+import logging
 
 # Paint image to Tk photo blitter extension
 import matplotlib.backends.tkagg as tkagg
@@ -30,9 +31,9 @@ from matplotlib.widgets import SubplotTool
 
 import matplotlib.cbook as cbook
 
-rcParams = matplotlib.rcParams
-verbose = matplotlib.verbose
+_log = logging.getLogger(__name__)
 
+rcParams = matplotlib.rcParams
 
 backend_version = Tk.TkVersion
 
@@ -1059,7 +1060,7 @@ class _BackendTkAgg(_Backend):
             window.tk.call('wm', 'foobar', window._w, icon_img)
         except Exception as exc:
             # log the failure (due e.g. to Tk version), but carry on
-            verbose.report('Could not load matplotlib icon: %s' % exc)
+            _log.info('Could not load matplotlib icon: %s', exc)
 
         canvas = FigureCanvasTkAgg(figure, master=window)
         manager = FigureManagerTkAgg(canvas, num, window)

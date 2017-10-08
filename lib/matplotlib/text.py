@@ -9,6 +9,7 @@ from six.moves import zip
 
 import math
 import warnings
+import logging
 import weakref
 
 import contextlib
@@ -20,7 +21,7 @@ from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import Artist
 from matplotlib.cbook import maxdict
-from matplotlib import docstring, verbose
+from matplotlib import docstring
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch
 from matplotlib.patches import FancyArrowPatch, Rectangle
@@ -32,6 +33,8 @@ from matplotlib.path import Path
 from matplotlib.artist import allow_rasterization
 
 from matplotlib.textpath import TextPath
+
+_log = logging.getLogger(__name__)
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
@@ -721,9 +724,7 @@ class Text(Artist):
             posy = float(textobj.convert_yunits(textobj._y))
             posx, posy = trans.transform_point((posx, posy))
             if not np.isfinite(posx) or not np.isfinite(posy):
-                verbose.report("x and y are not finite values for text "
-                              "string '{}'.  Not rendering "
-                              "text.".format(self.get_text()), 'helpful')
+                _log.warning("posx and posy should be finite values")
                 return
             canvasw, canvash = renderer.get_canvas_width_height()
 

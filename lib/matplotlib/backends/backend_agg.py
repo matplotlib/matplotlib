@@ -28,7 +28,7 @@ import threading
 import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin
-from matplotlib import verbose, rcParams, __version__
+from matplotlib import rcParams, __version__
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, cursors)
 from matplotlib.figure import Figure

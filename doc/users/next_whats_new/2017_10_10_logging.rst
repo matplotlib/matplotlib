@@ -1,0 +1,24 @@
+Logging for debug output
+------------------------
+
+Matplotlib has in the past (sporadically) used an internal
+verbose-output reporter.  This version converts those calls to using the
+standard python `logging` library.
+
+Support for the old ``rcParams`` ``verbose.level`` and ``verbose.fileo`` is
+dropped.
+
+The command-line options ``--verbose-helpful`` and ``--verbose-debug`` are
+still accepted, but deprecated.  They are now equivalent to setting
+``logging.INFO`` and ``logging.DEBUG``.
+
+The logger's root name is ``matplotlib`` and can be accessed from programs
+as::
+
+  import logging
+  mlog = logging.getLogger('matplotlib')
+
+Instructions for basic usage are in :ref:`troubleshooting-faq` and for
+developers in :ref:`contributing`.
+
+.. _logging: https://docs.python.org/3/library/logging.html

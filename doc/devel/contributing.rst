@@ -171,7 +171,7 @@ repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR).
 
 The best practices for using GitHub to make PRs to Matplotlib are
-documented in the :ref:`development-workflow` section. 
+documented in the :ref:`development-workflow` section.
 
 A brief overview is:
 
@@ -436,6 +436,70 @@ forced to use ``**kwargs``.  An example is
           indices = range(len(self.levels))
       elif len(args) == 1:
          ...etc...
+
+.. _using_logging:
+
+Using logging for debug messages
+--------------------------------
+
+Matplotlib uses the standard python `logging` library to write verbose
+warnings, information, and
+debug messages.  Please use it!  In all those places you write :func:`print()`
+statements to do your debugging, try using :func:`log.debug()` instead!
+
+
+To include `logging` in your module, at the top of the module, you need to
+``import logging``.  Then calls in your code like::
+
+  _log = logging.getLogger(__name__)  # right after the imports
+
+  # code
+  # more code
+  _log.info('Here is some information')
+  _log.debug('Here is some more detailed information')
+
+will log to a logger named ``matplotlib.yourmodulename``.
+
+If an end-user of Matplotlib sets up `logging` to display at levels
+more verbose than `logger.WARNING` in their code as follows::
+
+  import logging
+  fmt = '%(name)s:%(lineno)5d - %(levelname)s - %(message)s'
+  logging.basicConfig(level=logging.DEBUG, format=fmt)
+  import matplotlib.pyplot as plt
+
+Then they will receive messages like::
+
+  matplotlib.backends:   89 - INFO - backend MacOSX version unknown
+  matplotlib.yourmodulename: 347 - INFO - Here is some information
+  matplotlib.yourmodulename: 348 - DEBUG - Here is some more detailed information
+
+Which logging level to use?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are five levels at which you can emit messages.
+`logging.critical` and `logging.error`
+are really only there for errors that will end the use of the library but
+not kill the interpreter.  `logging.warning` overlaps with the
+``warnings`` library.  The
+`logging tutorial <https://docs.python.org/3/howto/logging.html#logging-basic-tutorial>`_
+suggests that the difference
+between `logging.warning` and `warnings.warn` is that
+`warnings.warn` be used for things the user must change to stop
+the warning, whereas `logging.warning` can be more persistent.
+
+By default, `logging` displays all log messages at levels higher than
+`logging.WARNING` to `sys.stderr`.
+
+Calls to `logging.info` are not displayed by default.  They are for
+information that the user may want to know if the program behaves oddly.
+For instance, if an object isn't drawn because its position is ``NaN``,
+that can usually be ignored, but a mystified user could set
+``logging.basicConfig(level=logging.INFO)`` and get an error message that
+says why.
+
+`logging.debug` is the least likely to be displayed, and hence can
+be the most verbose.
 
 .. _custom_backend:
 

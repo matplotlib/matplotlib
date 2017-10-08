@@ -17,16 +17,19 @@ import warnings
 from six.moves.urllib.request import urlopen
 
 import datetime
+import logging
 
 import numpy as np
 
-from matplotlib import colors as mcolors, verbose, get_cachedir
+from matplotlib import colors as mcolors, get_cachedir
 from matplotlib.dates import date2num
 from matplotlib.cbook import iterable, mkdirs, warn_deprecated
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
+
+_log = logging.getLogger(__name__)
 
 warn_deprecated(
     since=2.0,
@@ -338,7 +341,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
 
     if dividends:
         g = 'v'
-        verbose.report('Retrieving dividends instead of prices')
+        _log.info('Retrieving dividends instead of prices')
     else:
         g = 'd'
 
@@ -353,14 +356,14 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
     if cachename is not None:
         if os.path.exists(cachename):
             fh = open(cachename)
-            verbose.report('Using cachefile %s for '
+            _log.info('Using cachefile %s for '
                            '%s' % (cachename, ticker))
         else:
             mkdirs(os.path.abspath(os.path.dirname(cachename)))
             with contextlib.closing(urlopen(url)) as urlfh:
                 with open(cachename, 'wb') as fh:
                     fh.write(urlfh.read())
-            verbose.report('Saved %s data to cache file '
+            _log.info('Saved %s data to cache file '
                            '%s' % (ticker, cachename))
             fh = open(cachename, 'r')
 

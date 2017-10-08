@@ -7,7 +7,9 @@ import matplotlib
 import inspect
 import traceback
 import warnings
+import logging
 
+_log = logging.getLogger(__name__)
 
 backend = matplotlib.get_backend()
 _backend_loading_tb = "".join(
@@ -85,8 +87,7 @@ or with matplotlib.use()""" %
     draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
                                   do_nothing)
 
-    matplotlib.verbose.report('backend %s version %s' %
-                              (name, backend_version))
+    _log.info('backend %s version %s' % (name, backend_version))
 
     # need to keep a global reference to the backend for compatibility
     # reasons. See https://github.com/matplotlib/matplotlib/issues/6092

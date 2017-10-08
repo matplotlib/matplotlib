@@ -53,6 +53,7 @@ import os
 import sys
 from threading import Timer
 import warnings
+import logging
 
 import matplotlib
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
@@ -65,9 +66,9 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
+_log = logging.getLogger(__name__)
 
 USE_FONTCONFIG = False
-verbose = matplotlib.verbose
 
 font_scalings = {
     'xx-small' : 0.579,
@@ -554,7 +555,7 @@ def createFontList(fontfiles, fontext='ttf'):
     #  Add fonts from list of known font files.
     seen = set()
     for fpath in fontfiles:
-        verbose.report('createFontDict: %s' % fpath, 'debug')
+        _log.debug('createFontDict: %s' % (fpath))
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
@@ -564,12 +565,12 @@ def createFontList(fontfiles, fontext='ttf'):
             try:
                 fh = open(fpath, 'rb')
             except EnvironmentError:
-                verbose.report("Could not open font file %s" % fpath)
+                _log.info("Could not open font file %s", fpath)
                 continue
             try:
                 font = afm.AFM(fh)
             except RuntimeError:
-                verbose.report("Could not parse font file %s" % fpath)
+                _log.info("Could not parse font file %s", fpath)
                 continue
             finally:
                 fh.close()
@@ -581,13 +582,13 @@ def createFontList(fontfiles, fontext='ttf'):
             try:
                 font = ft2font.FT2Font(fpath)
             except RuntimeError:
-                verbose.report("Could not open font file %s" % fpath)
+                _log.info("Could not open font file %s", fpath)
                 continue
             except UnicodeError:
-                verbose.report("Cannot handle unicode filenames")
+                _log.info("Cannot handle unicode filenames")
                 continue
             except IOError:
-                verbose.report("IO error - cannot open font file %s" % fpath)
+                _log.info("IO error - cannot open font file %s", fpath)
                 continue
             try:
                 prop = ttfFontProperty(font)
@@ -1057,8 +1058,7 @@ class FontManager(object):
                     paths.extend(ttfpath.split(':'))
                 else:
                     paths.append(ttfpath)
-
-        verbose.report('font search path %s'%(str(paths)))
+        _log.info('font search path %s', str(paths))
         #  Load TrueType fonts and create font dictionary.
 
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
@@ -1068,7 +1068,7 @@ class FontManager(object):
         self.defaultFont = {}
 
         for fname in self.ttffiles:
-            verbose.report('trying fontname %s' % fname, 'debug')
+            _log.debug('trying fontname %s' % fname)
             if fname.lower().find('DejaVuSans.ttf')>=0:
                 self.defaultFont['ttf'] = fname
                 break
@@ -1288,8 +1288,9 @@ class FontManager(object):
         if not isinstance(prop, FontProperties):
             prop = FontProperties(prop)
         fname = prop.get_file()
+
         if fname is not None:
-            verbose.report('findfont returning %s'%fname, 'debug')
+            _log.debug('findfont returning %s'%fname)
             return fname
 
         if fontext == 'afm':
@@ -1340,14 +1341,14 @@ class FontManager(object):
                     UserWarning)
                 result = self.defaultFont[fontext]
         else:
-            verbose.report(
+            _log.info(
                 'findfont: Matching %s to %s (%s) with score of %f' %
                 (prop, best_font.name, repr(best_font.fname), best_score))
             result = best_font.fname
 
         if not os.path.isfile(result):
             if rebuild_if_missing:
-                verbose.report(
+                _log.info(
                     'findfont: Found a missing font file.  Rebuilding cache.')
                 _rebuild()
                 return fontManager.findfont(
@@ -1444,8 +1445,7 @@ else:
         if _fmcache:
             with cbook.Locked(cachedir):
                 json_dump(fontManager, _fmcache)
-
-        verbose.report("generated new fontManager")
+        _log.info("generated new fontManager")
 
     if _fmcache:
         try:
@@ -1455,7 +1455,7 @@ else:
                 _rebuild()
             else:
                 fontManager.default_size = None
-                verbose.report("Using fontManager instance from %s" % _fmcache)
+                _log.info("Using fontManager instance from %s", _fmcache)
         except cbook.Locked.TimeoutError:
             raise
         except:

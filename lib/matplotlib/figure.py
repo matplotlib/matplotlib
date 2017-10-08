@@ -16,6 +16,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
 import warnings
 
 import numpy as np
@@ -47,6 +48,8 @@ from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
+
+_log = logging.getLogger(__name__)
 
 docstring.interpd.update(projection_names=get_projection_names())
 

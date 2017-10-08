@@ -26,16 +26,18 @@ from six.moves import xrange
 from collections import namedtuple
 import errno
 from functools import partial, wraps
-import matplotlib
-import matplotlib.cbook as mpl_cbook
-from matplotlib.compat import subprocess
-from matplotlib import rcParams
+import logging
 import numpy as np
 import re
 import struct
 import sys
 import textwrap
 import os
+
+import matplotlib
+import matplotlib.cbook as mpl_cbook
+from matplotlib.compat import subprocess
+from matplotlib import rcParams
 
 try:
     from functools import lru_cache
@@ -45,6 +47,8 @@ except ImportError:  # Py2
 if six.PY3:
     def ord(x):
         return x
+
+_log = logging.getLogger(__name__)
 
 # Dvi is a bytecode format documented in
 # http://mirrors.ctan.org/systems/knuth/dist/texware/dvitype.web
@@ -204,7 +208,7 @@ class Dvi(object):
         *dpi* only sets the units and does not limit the resolution.
         Use None to return TeX's internal units.
         """
-        matplotlib.verbose.report('Dvi: ' + filename, 'debug')
+        _log.debug('Dvi: ' + filename)
         self.file = open(filename, 'rb')
         self.dpi = dpi
         self.fonts = {}
@@ -450,12 +454,11 @@ class Dvi(object):
         else:
             def chr_(x):
                 return x
-        matplotlib.verbose.report(
+        _log.debug(
             'Dvi._xxx: encountered special: %s'
             % ''.join([(32 <= ord(ch) < 127) and chr_(ch)
                        or '<%02x>' % ord(ch)
-                       for ch in special]),
-            'debug')
+                       for ch in special]))
 
     @dispatch(min=243, max=246, args=('olen1', 'u4', 'u4', 'u4', 'u1', 'u1'))
     def _fnt_def(self, k, c, s, d, a, l):
@@ -580,10 +583,8 @@ class DviFont(object):
         width = self._tfm.width.get(char, None)
         if width is not None:
             return _mul2012(width, self._scale)
-
-        matplotlib.verbose.report(
-            'No width for char %d in font %s' % (char, self.texname),
-            'debug')
+        _log.debug(
+            'No width for char %d in font %s' % (char, self.texname))
         return 0
 
     def _height_depth_of(self, char):
@@ -596,10 +597,9 @@ class DviFont(object):
                              (self._tfm.depth, "depth")):
             value = metric.get(char, None)
             if value is None:
-                matplotlib.verbose.report(
+                _log.debug(
                     'No %s for char %d in font %s' % (
-                        name, char, self.texname),
-                    'debug')
+                        name, char, self.texname))
                 result.append(0)
             else:
                 result.append(_mul2012(value, self._scale))
@@ -712,7 +712,7 @@ class Vf(Dvi):
         if i != 202:
             raise ValueError("Unknown vf format %d" % i)
         if len(x):
-            matplotlib.verbose.report('vf file comment: ' + x, 'debug')
+            _log.debug('vf file comment: ' + x)
         self.state = _dvistate.outer
         # cs = checksum, ds = design size
 
@@ -760,14 +760,14 @@ class Tfm(object):
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
     def __init__(self, filename):
-        matplotlib.verbose.report('opening tfm file ' + filename, 'debug')
+        _log.debug('opening tfm file ' + filename)
         with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
                 struct.unpack(str('!6H'), header1[2:14])
-            matplotlib.verbose.report(
+            _log.debug(
                 'lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d' % (
-                    lh, bc, ec, nw, nh, nd), 'debug')
+                    lh, bc, ec, nw, nh, nd))
             header2 = file.read(4*lh)
             self.checksum, self.design_size = \
                 struct.unpack(str('!2I'), header2[:8])
@@ -864,7 +864,7 @@ class PsfontsMap(object):
             msg = fmt.format(texname.decode('ascii'), self._filename)
             msg = textwrap.fill(msg, break_on_hyphens=False,
                                 break_long_words=False)
-            matplotlib.verbose.report(msg, 'helpful')
+            _log.info(msg)
             raise
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith(b'/'):
@@ -937,10 +937,9 @@ class PsfontsMap(object):
                        w.group('enc2') or w.group('enc1'))
                 if enc:
                     if encoding is not None:
-                        matplotlib.verbose.report(
+                        _log.debug(
                             'Multiple encodings for %s = %s'
-                            % (texname, psname),
-                            'debug')
+                            % (texname, psname))
                     encoding = enc
                     continue
                 # File names are probably unquoted:
@@ -983,11 +982,9 @@ class Encoding(object):
 
     def __init__(self, filename):
         with open(filename, 'rb') as file:
-            matplotlib.verbose.report('Parsing TeX encoding ' + filename,
-                                      'debug-annoying')
+            _log.debug('Parsing TeX encoding ' + filename)
             self.encoding = self._parse(file)
-            matplotlib.verbose.report('Result: ' + repr(self.encoding),
-                                      'debug-annoying')
+            _log.debug('Result: ' + repr(self.encoding))
 
     def __iter__(self):
         for name in self.encoding:
@@ -1047,9 +1044,8 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-
-    matplotlib.verbose.report('find_tex_file(%s): %s'
-                              % (filename, cmd), 'debug')
+    _log.debug('find_tex_file(%s): %s'
+                              % (filename, cmd))
     # stderr is unused, but reading it avoids a subprocess optimization
     # that breaks EINTR handling in some Python versions:
     # http://bugs.python.org/issue12493
@@ -1057,8 +1053,7 @@ def find_tex_file(filename, format=None):
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
-    matplotlib.verbose.report('find_tex_file result: %s' % result,
-                              'debug')
+    _log.debug('find_tex_file result: %s' % result)
     return result.decode('ascii')
 
 
@@ -1078,7 +1073,6 @@ _vffile = partial(_fontfile, Vf, ".vf")
 
 if __name__ == '__main__':
     import sys
-    matplotlib.verbose.set_level('debug-annoying')
     fname = sys.argv[1]
     try:
         dpi = float(sys.argv[2])
