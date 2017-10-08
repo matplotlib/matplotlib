@@ -15,3 +15,5 @@ The ``bgcolor`` keyword argument to ``Axes`` has been removed.
 
 The ``spectral`` colormap has been removed.  The ``Vega*`` colormaps, which
 were aliases for the ``tab*`` colormaps, have been removed.
+
+``mencoder`` can no longer be used to encode animations.

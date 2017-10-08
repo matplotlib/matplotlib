@@ -30,7 +30,6 @@ addons:
       - libgeos-dev
       - libgirepository-1.0.1
       - lmodern
-      - mencoder
       - otf-freefont
       - pgf
       - texlive-fonts-recommended
