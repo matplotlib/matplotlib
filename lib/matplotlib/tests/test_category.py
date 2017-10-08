@@ -16,8 +16,8 @@ class TestUnitData(object):
     testdata = [("hello world", ["hello world"], [0]),
                 ("Здравствуйте мир", ["Здравствуйте мир"], [0]),
                 (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
-                 ['-inf', '3.14', 'A', 'B', 'inf', 'nan'],
-                 [-3.0, 0, 1, 2, -2.0, -1.0])]
+                 ['A', 'nan', 'B', '-inf', '3.14', 'inf'],
+                 [0, -1, 1, -3, 2, -2])]
 
     ids = ["single", "unicode", "mixed"]
 
@@ -28,21 +28,13 @@ class TestUnitData(object):
         assert act.locs == locs
 
     def test_update_map(self):
-        data = ['a', 'd']
-        oseq = ['a', 'd']
-        olocs = [0, 1]
+        unitdata = cat.UnitData(['a', 'd'])
+        assert unitdata.seq == ['a', 'd']
+        assert unitdata.locs == [0, 1]
 
-        data_update = ['b', 'd', 'e', np.inf]
-        useq = ['a', 'd', 'b', 'e', 'inf']
-        ulocs = [0, 1, 2, 3, -2]
-
-        unitdata = cat.UnitData(data)
-        assert unitdata.seq == oseq
-        assert unitdata.locs == olocs
-
-        unitdata.update(data_update)
-        assert unitdata.seq == useq
-        assert unitdata.locs == ulocs
+        unitdata.update(['b', 'd', 'e', np.inf])
+        assert unitdata.seq == ['a', 'd', 'b', 'e', 'inf']
+        assert unitdata.locs == [0, 1, 2, 3, -2]
 
 
 class FakeAxis(object):

@@ -1,19 +1,18 @@
-# -*- coding: utf-8 OA-*-za
-"""
-catch all for categorical functions
+"""Helpers for categorical data.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import six
 
+import collections
+from collections import OrderedDict
+from distutils.version import LooseVersion
+import itertools
+
 import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-
-# np 1.6/1.7 support
-from distutils.version import LooseVersion
-import collections
 
 
 if LooseVersion(np.__version__) >= LooseVersion('1.8.0'):
@@ -37,9 +36,7 @@ else:
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Uses axis.unit_data map to encode
-        data as floats
-        """
+        """Uses axis.unit_data map to encode data as floats."""
         vmap = dict(zip(axis.unit_data.seq, axis.unit_data.locs))
 
         if isinstance(value, six.string_types):
@@ -86,8 +83,7 @@ class UnitData(object):
     spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
 
     def __init__(self, data):
-        """Create mapping between unique categorical values
-        and numerical identifier
+        """Create mapping between unique categorical values and numerical id.
 
         Parameters
         ----------
@@ -95,23 +91,20 @@ class UnitData(object):
             sequence of values
         """
         self.seq, self.locs = [], []
-        self._set_seq_locs(data, 0)
+        self._counter = itertools.count()
+        self.update(data)
 
-    def update(self, new_data):
-        # so as not to conflict with spdict
-        value = max(max(self.locs) + 1, 0)
-        self._set_seq_locs(new_data, value)
-
-    def _set_seq_locs(self, data, value):
-        strdata = shim_array(data)
-        new_s = [d for d in np.unique(strdata) if d not in self.seq]
-        for ns in new_s:
-            self.seq.append(ns)
-            if ns in UnitData.spdict:
-                self.locs.append(UnitData.spdict[ns])
+    def update(self, data):
+        data = np.atleast_1d(shim_array(data))
+        sorted_unique = list(OrderedDict(zip(data, itertools.repeat(None))))
+        for s in sorted_unique:
+            if s in self.seq:
+                continue
+            self.seq.append(s)
+            if s in UnitData.spdict:
+                self.locs.append(UnitData.spdict[s])
             else:
-                self.locs.append(value)
-                value += 1
+                self.locs.append(next(self._counter))
 
 
 # Connects the convertor to matplotlib
