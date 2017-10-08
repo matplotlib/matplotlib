@@ -22,8 +22,8 @@ Installing an official release
 Matplotlib and most of its dependencies are all available as wheel
 packages for macOS, Windows and Linux distributions::
 
-  python -m pip install -U pip
-  python -m pip install -U matplotlib
+  python -mpip install -U pip
+  python -mpip install -U matplotlib
 
 .. note::
 
@@ -150,16 +150,14 @@ Python, NumPy, libpng and FreeType), you can build Matplotlib.
 ::
 
   cd matplotlib
-  python setup.py build
-  python setup.py install
+  python -mpip install .
 
-We provide a `setup.cfg
-<https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template>`_
-file that goes with :file:`setup.py` which you can use to customize
-the build process. For example, which default backend to use, whether
-some of the optional libraries that Matplotlib ships with are
-installed, and so on.  This file will be particularly useful to those
-packaging Matplotlib.
+We provide a setup.cfg_ file which you can use to customize the build
+process. For example, which default backend to use, whether some of the
+optional libraries that Matplotlib ships with are installed, and so on.  This
+file will be particularly useful to those packaging Matplotlib.
+
+.. _setup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template
 
 If you have installed prerequisites to nonstandard places and need to
 inform Matplotlib where they are, edit ``setupext.py`` and add the base
@@ -282,7 +280,7 @@ If you are using MacPorts, execute the following instead::
 After installing the above requirements, install Matplotlib from source by
 executing::
 
-  python setup.py install
+  python -mpip install .
 
 Note that your environment is somewhat important. Some conda users have
 found that, to run the tests, their PYTHONPATH must include

@@ -82,63 +82,57 @@ Getting help
 There are a number of good resources for getting help with matplotlib.
 There is a good chance your question has already been asked:
 
-  - The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
+- The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
 
-  - `Github issues <https://github.com/matplotlib/matplotlib/issues>`_.
+- `Github issues <https://github.com/matplotlib/matplotlib/issues>`_.
 
-  - Stackoverflow questions tagged `matplotlib
-    <http://stackoverflow.com/questions/tagged/matplotlib>`_.
+- Stackoverflow questions tagged `matplotlib
+  <http://stackoverflow.com/questions/tagged/matplotlib>`_.
 
-If you are unable to find an answer to your question through search,
-please provide the following information in your e-mail to the
-`mailing list
+If you are unable to find an answer to your question through search, please
+provide the following information in your e-mail to the `mailing list
 <https://mail.python.org/mailman/listinfo/matplotlib-users>`_:
 
-  * your operating system; (Linux/UNIX users: post the output of ``uname -a``)
+* Your operating system (Linux/UNIX users: post the output of ``uname -a``).
 
-  * matplotlib version::
+* Matplotlib version::
 
-        python -c `import matplotlib; print matplotlib.__version__`
+     python -c "import matplotlib; print matplotlib.__version__"
 
-  * where you obtained matplotlib (e.g., your Linux distribution's
-    packages, github, PyPi, or Anaconda_ or `Enthought Canopy
-    <https://www.enthought.com/products/canopy/>`_).
+* Where you obtained Matplotlib (e.g., your Linux distribution's packages,
+  Github, PyPi, or `Anaconda <https://www.continuum.io/downloads>`_ or
+  `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
 
-.. _Anaconda: https://www.continuum.io/downloads
+* Any customizations to your ``matplotlibrc`` file (see
+  :ref:`sphx_glr_tutorials_introductory_customizing.py`).
 
+* If the problem is reproducible, please try to provide a *minimal*, standalone
+  Python script that demonstrates the problem.  This is *the* critical step.
+  If you can't post a piece of code that we can run and reproduce your error,
+  the chances of getting help are significantly diminished.  Very often, the
+  mere act of trying to minimize your code to the smallest bit that produces
+  the error will help you find a bug in *your* code that is causing the
+  problem.
 
-  * any customizations to your ``matplotlibrc`` file (see
-    :ref:`sphx_glr_tutorials_introductory_customizing.py`).
+* You can get very helpful debugging output from matlotlib by running your
+  script with a ``verbose-helpful`` or ``--verbose-debug`` flags and posting
+  the verbose output the lists::
 
-  * if the problem is reproducible, please try to provide a *minimal*,
-    standalone Python script that demonstrates the problem.  This is
-    *the* critical step.  If you can't post a piece of code that we
-    can run and reproduce your error, the chances of getting help are
-    significantly diminished.  Very often, the mere act of trying to
-    minimize your code to the smallest bit that produces the error
-    will help you find a bug in *your* code that is causing the
-    problem.
+     python simple_plot.py --verbose-helpful > output.txt
 
-  * you can get very helpful debugging output from matlotlib by
-    running your script with a ``verbose-helpful`` or
-    ``--verbose-debug`` flags and posting the verbose output the
-    lists::
+If you compiled Matplotlib yourself, please also provide:
 
-        > python simple_plot.py --verbose-helpful > output.txt
+* any changes you have made to ``setup.py`` or ``setupext.py``.
+* the output of::
 
-If you compiled matplotlib yourself, please also provide
+     rm -rf build
+     python setup.py build
 
-  * any changes you have made to ``setup.py`` or ``setupext.py``
-  * the output of::
+  The beginning of the build output contains lots of details about your
+  platform that are useful for the Matplotlib developers to diagnose your
+  problem.
 
-      rm -rf build
-      python setup.py build
-
-    The beginning of the build output contains lots of details about your
-    platform that are useful for the matplotlib developers to diagnose
-    your problem.
-
-  * your compiler version -- e.g., ``gcc --version``
+* your compiler version -- e.g., ``gcc --version``.
 
 Including this information in your first e-mail to the mailing list
 will save a lot of time.
@@ -149,24 +143,22 @@ tracker only periodically.  If your problem has been determined to be
 a bug and can not be quickly solved, you may be asked to file a bug in
 the tracker so the issue doesn't get lost.
 
-
 .. _git-trouble:
 
 Problems with recent git versions
 =================================
 
-First make sure you have a clean build and install (see
-:ref:`clean-install`), get the latest git update, install it and run a
-simple test script in debug mode::
+First make sure you have a clean build and install (see :ref:`clean-install`),
+get the latest git update, install it and run a simple test script in debug
+mode::
 
-    rm -rf build
     rm -rf /path/to/site-packages/matplotlib*
+    git clean -xdf
     git pull
-    python setup.py install > build.out
+    python -mpip install -v . > build.out
     python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
 
-and post :file:`build.out` and :file:`run.out` to the
-`matplotlib-devel
+and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel
 <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
 mailing list (please do not post git problems to the `users list
 <https://mail.python.org/mailman/listinfo/matplotlib-users>`_).
