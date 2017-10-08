@@ -135,7 +135,7 @@ sphinx_gallery_conf = {
     'subsection_order': ExplicitOrder(explicit_order_folders)
 }
 
-plot_gallery = True
+plot_gallery = 'True'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
