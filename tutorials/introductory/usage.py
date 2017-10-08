@@ -104,7 +104,7 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # :class:`~matplotlib.axis.Axis`
 # ------------------------------
 #
-# These are the number-line-like objects (circled in green).  They take
+# These are the number-line-like objects.  They take
 # care of setting the graph limits and generating the ticks (the marks
 # on the axis) and ticklabels (strings labeling the ticks).  The
 # location of the ticks is determined by a
