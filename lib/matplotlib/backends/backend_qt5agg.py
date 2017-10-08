@@ -56,7 +56,10 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-
+        # if there is a pending draw, run it now as we need the updated render
+        # to paint the widget
+        if self._agg_draw_pending:
+            self.__draw_idle_agg()
         # As described in __init__ above, we need to be careful in cases with
         # mixed resolution displays if dpi_ratio is changing between painting
         # events.
@@ -72,7 +75,6 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             # since the latter doesn't guarantee that the event will be emitted
             # straight away, and this causes visual delays in the changes.
             self.resizeEvent(event)
-            QtWidgets.QApplication.instance().processEvents()
             # resizeEvent triggers a paintEvent itself, so we exit this one.
             return
 
@@ -138,6 +140,8 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             QtCore.QTimer.singleShot(0, self.__draw_idle_agg)
 
     def __draw_idle_agg(self, *args):
+        if not self._agg_draw_pending:
+            return
         if self.height() < 0 or self.width() < 0:
             self._agg_draw_pending = False
             return

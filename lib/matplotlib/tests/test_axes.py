@@ -968,6 +968,28 @@ def test_fill_between_interpolate():
                      interpolate=True)
 
 
+@image_comparison(baseline_images=['fill_between_interpolate_decreasing'],
+                  style='mpl20', remove_text=True)
+def test_fill_between_interpolate_decreasing():
+    p = np.array([724.3, 700, 655])
+    t = np.array([9.4, 7, 2.2])
+    prof = np.array([7.9, 6.6, 3.8])
+
+    fig = plt.figure(figsize=(9, 9))
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.plot(t, p, 'tab:red')
+    ax.plot(prof, p, 'k')
+
+    ax.fill_betweenx(p, t, prof, where=prof < t,
+                     facecolor='blue', interpolate=True, alpha=0.4)
+    ax.fill_betweenx(p, t, prof, where=prof > t,
+                     facecolor='red', interpolate=True, alpha=0.4)
+
+    ax.set_xlim(0, 30)
+    ax.set_ylim(800, 600)
+
+
 @image_comparison(baseline_images=['symlog'])
 def test_symlog():
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
@@ -5319,3 +5341,12 @@ def test_barh_signature(args, kwargs, warning_count):
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
+
+
+def test_patch_deprecations():
+    fig, ax = plt.subplots()
+    with warnings.catch_warnings(record=True) as w:
+        assert ax.patch == ax.axesPatch
+        assert fig.patch == fig.figurePatch
+
+    assert len(w) == 2

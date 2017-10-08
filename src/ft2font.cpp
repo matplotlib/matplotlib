@@ -602,9 +602,7 @@ void FT2Font::set_text(
     FT_Bool use_kerning = FT_HAS_KERNING(face);
     FT_UInt previous = 0;
 
-    glyphs.resize(0);
-    pen.x = 0;
-    pen.y = 0;
+    clear();
 
     bbox.xMin = bbox.yMin = 32000;
     bbox.xMax = bbox.yMax = -32000;
