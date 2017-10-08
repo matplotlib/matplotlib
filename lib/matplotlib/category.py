@@ -1,73 +1,40 @@
-# -*- coding: utf-8 OA-*-za
+"""Helpers for categorical data.
 """
-catch all for categorical functions
-"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import six
 
+from collections import OrderedDict
+import itertools
+
 import numpy as np
 
-import matplotlib.units as units
-import matplotlib.ticker as ticker
-
-# np 1.6/1.7 support
-from distutils.version import LooseVersion
-import collections
-
-
-if LooseVersion(np.__version__) >= LooseVersion('1.8.0'):
-    def shim_array(data):
-        return np.array(data, dtype=np.unicode)
-else:
-    def shim_array(data):
-        if (isinstance(data, six.string_types) or
-                not isinstance(data, collections.Iterable)):
-            data = [data]
-        try:
-            data = [str(d) for d in data]
-        except UnicodeEncodeError:
-            # this yields gibberish but unicode text doesn't
-            # render under numpy1.6 anyway
-            data = [d.encode('utf-8', 'ignore').decode('utf-8')
-                    for d in data]
-        return np.array(data, dtype=np.unicode)
+from matplotlib import cbook, ticker, units
 
 
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Uses axis.unit_data map to encode
-        data as floats
-        """
-        value = np.atleast_1d(value)
-        # try and update from here....
-        if hasattr(axis.unit_data, 'update'):
-            for val in value:
-                if isinstance(val, six.string_types):
-                    axis.unit_data.update(val)
-        vmap = dict(zip(axis.unit_data.seq, axis.unit_data.locs))
-
-        if isinstance(value, six.string_types):
-            return vmap[value]
-
-        vals = shim_array(value)
-
-        for lab, loc in vmap.items():
-            vals[vals == lab] = loc
-
-        return vals.astype('float')
+        """Uses axis.unit_data map to encode data as floats."""
+        # We also need to pass numbers through.
+        if np.issubdtype(np.asarray(value).dtype.type, np.number):
+            return value
+        else:
+            axis.unit_data.update(value)
+            return np.vectorize(axis.unit_data._mapping.__getitem__)(value)
 
     @staticmethod
     def axisinfo(unit, axis):
-        majloc = StrCategoryLocator(axis.unit_data.locs)
-        majfmt = StrCategoryFormatter(axis.unit_data.seq)
-        return units.AxisInfo(majloc=majloc, majfmt=majfmt)
+        # Note that mapping may get mutated by later calls to plotting methods,
+        # so the locator and formatter must dynamically recompute locs and seq.
+        return units.AxisInfo(
+            majloc=StrCategoryLocator(axis.unit_data._mapping),
+            majfmt=StrCategoryFormatter(axis.unit_data._mapping))
 
     @staticmethod
     def default_units(data, axis):
-        # the conversion call stack is:
-        # default_units->axis_info->convert
+        # the conversion call stack is default_units->axis_info->convert
         if axis.unit_data is None:
             axis.unit_data = UnitData(data)
         else:
@@ -76,48 +43,51 @@ class StrCategoryConverter(units.ConversionInterface):
 
 
 class StrCategoryLocator(ticker.FixedLocator):
-    def __init__(self, locs):
-        self.locs = locs
+    def __init__(self, mapping):
+        self._mapping = mapping
         self.nbins = None
+
+    @property
+    def locs(self):
+        return list(self._mapping.values())
 
 
 class StrCategoryFormatter(ticker.FixedFormatter):
-    def __init__(self, seq):
-        self.seq = seq
-        self.offset_string = ''
+    def __init__(self, mapping):
+        self._mapping = mapping
+        self.offset_string = ""
+
+    @property
+    def seq(self):
+        out = []
+        for key in self._mapping:
+            # So that we support bytes input.
+            out.append(key.decode("latin-1") if isinstance(key, bytes)
+                       else key)
+        return out
 
 
 class UnitData(object):
-    # debatable makes sense to special code missing values
-    spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
-
     def __init__(self, data):
-        """Create mapping between unique categorical values
-        and numerical identifier
+        """Create mapping between unique categorical values and numerical id.
 
         Parameters
         ----------
         data: iterable
             sequence of values
         """
-        self.seq, self.locs = [], []
-        self._set_seq_locs(data, 0)
+        self._mapping = {}
+        self._counter = itertools.count()
+        self.update(data)
 
-    def update(self, new_data):
-        # so as not to conflict with spdict
-        value = max(max(self.locs) + 1, 0)
-        self._set_seq_locs(new_data, value)
-
-    def _set_seq_locs(self, data, value):
-        strdata = shim_array(data)
-        new_s = [d for d in np.unique(strdata) if d not in self.seq]
-        for ns in new_s:
-            self.seq.append(ns)
-            if ns in UnitData.spdict:
-                self.locs.append(UnitData.spdict[ns])
-            else:
-                self.locs.append(value)
-                value += 1
+    def update(self, data):
+        if isinstance(data, six.string_types):
+            data = [data]
+        sorted_unique = OrderedDict.fromkeys(data)
+        for s in sorted_unique:
+            if s in self._mapping:
+                continue
+            self._mapping[s] = next(self._counter)
 
 
 # Connects the convertor to matplotlib
