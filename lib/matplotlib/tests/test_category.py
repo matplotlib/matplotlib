@@ -52,8 +52,8 @@ class TestStrCategoryConverter(object):
                  {'a': 0, 'b': 1, 'c': 2},
                  [0, 1, 1, 0, 0, 2, 2, 2]),
                 (['A', 'A', 'B', 3.14],
-                 {'A': 1, 'B': 2},
-                 [1, 1, 2, 3.14])]
+                 {'3.14': 0, 'A': 1, 'B': 2},
+                 [1, 1, 2, 0])]
     ids = ["unicode", "single", "basic", "mixed"]
 
     @pytest.fixture(autouse=True)

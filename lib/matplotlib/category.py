@@ -6,7 +6,6 @@ import six
 
 from collections import OrderedDict
 import itertools
-from numbers import Number
 
 import numpy as np
 
@@ -22,15 +21,8 @@ class StrCategoryConverter(units.ConversionInterface):
     def convert(value, unit, axis):
         """Uses axis.unit_data map to encode data as floats."""
         mapping = axis.unit_data._mapping
-        if isinstance(value, (Number, np.number)):
-            return value
-        elif isinstance(value, (str, bytes)):
-            return mapping[_to_str(value)]
-        else:
-            return np.array([v if isinstance(v, (Number, np.number))
-                             else mapping[_to_str(v)]
-                             for v in value],
-                            float)
+        return (mapping[_to_str(value)] if np.isscalar(value)
+                else np.array([mapping[_to_str(v)] for v in value], float))
 
     @staticmethod
     def axisinfo(unit, axis):
