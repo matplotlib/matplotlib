@@ -84,7 +84,7 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # ------------------------------
 #
 # This is what you think of as 'a plot', it is the region of the image
-# with the data space (marked as the inner blue box).  A given figure
+# with the data space. A given figure
 # can contain many Axes, but a given :class:`~matplotlib.axes.Axes`
 # object can only be in one :class:`~matplotlib.figure.Figure`.  The
 # Axes contains two (or three in the case of 3D)
