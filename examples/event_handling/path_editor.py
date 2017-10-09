@@ -3,6 +3,10 @@
 Path Editor
 ===========
 
+Sharing events across GUIs.
+
+This example demonstrates a cross-GUI application using Matplotlib event
+handling to interact with and modify objects on the canvas.
 """
 import numpy as np
 import matplotlib.path as mpath
