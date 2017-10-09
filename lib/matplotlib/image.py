@@ -180,14 +180,17 @@ def _rgb_to_rgba(A):
 class _ImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
 
+    @property
     @cbook.deprecated("2.1")
     def _interpd(self):
         return _interpd_
 
+    @property
     @cbook.deprecated("2.1")
     def _interpdr(self):
         return {v: k for k, v in six.iteritems(_interpd_)}
 
+    @property
     @cbook.deprecated("2.1")
     def iterpnames(self):
         return interpolations_names
