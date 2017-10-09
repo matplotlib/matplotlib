@@ -51,12 +51,13 @@ class StrCategoryConverter(units.ConversionInterface):
         if isinstance(value, six.string_types):
             return vmap[value]
 
-        vals = shim_array(value)
+        str_value = shim_array(value)
+        mapped_value = str_value.copy()
 
         for lab, loc in vmap.items():
-            vals[vals == lab] = loc
+            mapped_value[str_value == lab] = loc
 
-        return vals.astype('float')
+        return mapped_value.astype("float")
 
     @staticmethod
     def axisinfo(unit, axis):
