@@ -191,7 +191,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return {v: k for k, v in six.iteritems(_interpd_)}
 
     @property
-    @cbook.deprecated("2.1")
+    @cbook.deprecated("2.1", alternative="mpl.image.interpolation_names")
     def iterpnames(self):
         return interpolations_names
 
