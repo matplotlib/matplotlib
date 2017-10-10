@@ -124,6 +124,7 @@ def get_win32_compiler():
     """
     Determine the compiler being used on win32.
     """
+    # TODO: rewrite to use distutils
     # Used to determine mingw32 or msvc
     # This is pretty bad logic, someone know a better way?
     for v in sys.argv:
@@ -151,7 +152,8 @@ def has_include_file(include_dirs, filename):
     directories in `include_dirs`.
     """
     if sys.platform == 'win32':
-        include_dirs += os.environ.get('INCLUDE', '.').split(';')
+        include_dirs = list(include_dirs)
+        include_dirs += os.environ.get('INCLUDE', '.').split(os.pathsep)
     for dir in include_dirs:
         if os.path.exists(os.path.join(dir, filename)):
             return True
@@ -180,10 +182,14 @@ def get_base_dirs():
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
     win_bases = ['win32_static', ]
-    # on conda windows, we also add the <installdir>\Library of the local interpreter,
+    # on conda windows, we also add the <conda_env_dir>\Library,
     # as conda installs libs/includes there
-    if os.getenv('CONDA_DEFAULT_ENV'):
-        win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
+    # env var names mess: https://github.com/conda/conda/issues/2312
+    conda_env_path = os.getenv('CONDA_PREFIX')  # conda >= 4.1
+    if not conda_env_path:
+        conda_env_path = os.getenv('CONDA_DEFAULT_ENV')  # conda < 4.1
+    if conda_env_path and os.path.isdir(conda_env_path):
+        win_bases.append(os.path.join(conda_env_path, "Library"))
 
     basedir_map = {
         'win32': win_bases,
@@ -541,11 +547,16 @@ class SetupPackage(object):
 
         return 'version %s' % version
 
-    def do_custom_build(self):
+    def do_custom_build(self, cmd):
         """
         If a package needs to do extra custom things, such as building a
         third-party library, before building an extension, it should
         override this method.
+
+        Parameters
+        ----------
+        cmd : distutils.command.build_ext
+            The 'build_ext' instance
         """
         pass
 
@@ -1094,19 +1105,24 @@ class FreeType(SetupPackage):
                                 patch = value
                 return '.'.join([major, minor, patch])
 
+    def get_local_freetype_path(self, version=LOCAL_FREETYPE_VERSION):
+        return os.path.join('build', 'freetype-{0}'.format(version))
+
+    def get_local_freetype_lib_path(self, version=LOCAL_FREETYPE_VERSION):
+        if sys.platform == 'win32':
+            libfreetype = 'libfreetype.lib'
+        else:
+            libfreetype = 'libfreetype.a'
+
+        src_path = self.get_local_freetype_path(version)
+        return os.path.join(src_path, 'objs', '.libs', libfreetype)
+
     def add_flags(self, ext):
         if options.get('local_freetype'):
-            src_path = os.path.join(
-                'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
-            # Statically link to the locally-built freetype.
-            # This is certainly broken on Windows.
+            src_path = self.get_local_freetype_path()
+            # link to the locally-built freetype.
             ext.include_dirs.insert(0, os.path.join(src_path, 'include'))
-            if sys.platform == 'win32':
-                libfreetype = 'libfreetype.lib'
-            else:
-                libfreetype = 'libfreetype.a'
-            ext.extra_objects.insert(
-                0, os.path.join(src_path, 'objs', '.libs', libfreetype))
+            ext.extra_objects.insert(0, self.get_local_freetype_lib_path())
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
         else:
             pkg_config.setup_extension(
@@ -1117,26 +1133,21 @@ class FreeType(SetupPackage):
                     'lib/freetype2/include/freetype2'],
                 default_library_dirs=[
                     'freetype2/lib'],
-                default_libraries=['freetype', 'z'])
+                default_libraries=['freetype'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
-    def do_custom_build(self):
-        # We're using a system freetype
+    def do_custom_build(self, cmd):
         if not options.get('local_freetype'):
+            # We're using a system freetype
             return
 
-        src_path = os.path.join(
-            'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
-
-        # We've already built freetype
-        if sys.platform == 'win32':
-            libfreetype = 'libfreetype.lib'
-        else:
-            libfreetype = 'libfreetype.a'
-
-        if os.path.isfile(os.path.join(src_path, 'objs', '.libs', libfreetype)):
+        libdir = os.path.dirname(self.get_local_freetype_lib_path())
+        if os.path.isfile(self.get_local_freetype_lib_path()):
+            # We've already built freetype
+            # TODO: This will prevent x86/x64 debug/release switch
             return
 
+        src_path = self.get_local_freetype_path()
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
         tarball_path = os.path.join('build', tarball)
         try:
@@ -1226,40 +1237,72 @@ class FreeType(SetupPackage):
             subprocess.check_call(
                 [cflags + 'make'], shell=True, cwd=src_path)
         else:
-            # compilation on windows
-            FREETYPE_BUILD_CMD = """\
-call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
-call "{vcvarsall}" {xXX}
-set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
-rd /S /Q %FREETYPE%\\objs
-%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
-echo Build completed, moving result"
-:: move to the "normal" path for the unix builds...
-mkdir %FREETYPE%\\objs\\.libs
-:: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-if errorlevel 1 (
-  rem This is a py27 version, which has a different location for the lib file :-/
-  copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-)
-"""
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
-            # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010' if VS2010 else 'vc2008'
-            WinXX = 'x64' if X64 else 'Win32'
+            assert cmd.compiler.compiler_type == 'msvc', (
+                'Support for other compilers is not implemented')
+
+            from distutils.msvccompiler import get_build_version
+            from setup_external_compile import fixproj, X64, tar_extract
+
+            if not cmd.compiler.initialized:
+                cmd.compiler.initialize()
+
+            # NOTE: need change on upgrade of local freetype to newer versions
+            vc = {9: 'vc2008', 10: 'vc2010'}[min(int(get_build_version()), 10)]
+            ftproj = os.path.join(src_path, 'builds', 'windows', vc, 'freetype')
+
+            vc_config = 'Debug' if cmd.debug else 'Release'
+
             tar_extract(tarball_path, "build")
-            # This is only false for py2.7, even on py3.5...
-            if not VS2010:
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
 
-            cmdfile = os.path.join("build", 'build_freetype.cmd')
-            with open(cmdfile, 'w') as cmd:
-                cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
-                                            config='Release' if VS2010 else 'LIB Release'))
+            if not cmd.compiler.initialized:
+                cmd.compiler.initialize()
 
-            os.environ['FREETYPE'] = src_path
-            subprocess.check_call([cmdfile], shell=True)
+            def spawn(command):
+                command = list(command)
+                if hasattr(cmd.compiler, 'find_exe'):
+                    executable = cmd.compiler.find_exe(command[0])
+                    if not executable:
+                        raise ValueError("Couldn't find %s" % command[0])
+                    return cmd.compiler.spawn([executable] + command[1:])
+                else:
+                    return cmd.compiler.spawn(command)
+
+            if get_build_version() < 11.0:
+                vc_platform = 'x64' if X64 else 'Win32'
+                vc_config = 'LIB ' + vc_config
+                # monkey-patch project files, because
+                # vc2005 and vc2008 have only Win32 targets
+                # TODO: fix `win32` output dir to `x64`?
+                fixproj(ftproj + '.sln', vc_platform)
+                fixproj(ftproj + '.vcproj', vc_platform)
+                spawn(['vcbuild', ftproj + '.sln', '/M', '/time',
+                       '/platform:{}'.format(vc_platform),
+                       '{config}|{platform}'.format(config=vc_config,
+                           platform=vc_platform)
+                      ])
+                postfix = '_D' if cmd.debug else ''
+                builddir = os.path.join(src_path, 'objs', 'win32', vc)
+            else:
+                vc_platform = 'x64' if X64 else 'x86'
+                spawn(['msbuild', ftproj + '.sln', '/m', '/t:Clean;Build',
+                       '/toolsversion:{}'.format(get_build_version()),
+                       ('/p:Configuration={config}'
+                        ';Platform={platform}'
+                        ';VisualStudioVersion={version}'
+                        ';ToolsVersion={version}'
+                        ';PlatformToolset=v{toolset:d}'
+                       ).format(config=vc_config, platform=vc_platform,
+                                version=get_build_version(),
+                                toolset=int(get_build_version() * 10)),
+                      ])
+                postfix = 'd' if cmd.debug else ''
+                builddir = os.path.join(src_path, 'objs', vc, vc_platform)
+
+            verstr = LOCAL_FREETYPE_VERSION.replace('.', '')
+            buildname = 'freetype{0}{1}.lib'.format(verstr, postfix)
+            buildpath = os.path.join(builddir, buildname)
+            assert os.path.isfile(buildpath)
+            os.renames(buildpath, self.get_local_freetype_lib_path())
 
 
 class FT2Font(SetupPackage):
@@ -1275,6 +1318,23 @@ class FT2Font(SetupPackage):
         FreeType().add_flags(ext)
         Numpy().add_flags(ext)
         return ext
+
+    def do_custom_build(self, cmd):
+        if cmd.compiler.compiler_type != 'msvc':
+            return
+
+        if not cmd.compiler.initialized:
+            cmd.compiler.initialize()
+
+        # TODO: What about compiler pathes?
+        if not has_include_file(cmd.compiler.include_dirs, 'stdint.h'):
+            if os.getenv('CONDA_DEFAULT_ENV'):
+                # TODO: spawn conda install msinttypes?
+                pass
+            else:
+                # TODO: download from https://code.google.com/p/msinttypes/
+                #cmd.compiler.add_include_dir(...)
+                pass
 
 
 class Png(SetupPackage):
@@ -1309,13 +1369,24 @@ class Png(SetupPackage):
             raise
 
     def get_extension(self):
+        # TODO: implement a dynamic/static linking switch
+        zlib = 'z' if sys.platform != 'win32' else 'zlibstatic'
+        if sys.platform != 'win32':
+            png = 'png'
+            zlib = 'z'
+        elif os.getenv('CONDA_DEFAULT_ENV'):
+            # libpng in conda copies versioned lib to unversioned
+            png = 'libpng_static'
+        else:
+            # TODO: there is no good solution with our build system
+            png = 'libpng16_static'
         sources = [
             'src/_png.cpp',
             'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
-            ext, 'libpng', default_libraries=['png', 'z'],
+            ext, 'libpng', default_libraries=[png, zlib],
             alt_exec='libpng-config --ldflags')
         Numpy().add_flags(ext)
         return ext

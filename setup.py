@@ -136,11 +136,11 @@ class NoopTestCommand(TestCommand):
 
 
 class BuildExtraLibraries(BuildExtCommand):
-    def run(self):
+    def build_extensions(self):
         for package in good_packages:
-            package.do_custom_build()
+            package.do_custom_build(self)
 
-        return BuildExtCommand.run(self)
+        return BuildExtCommand.build_extensions(self)
 
 
 cmdclass = versioneer.get_cmdclass()

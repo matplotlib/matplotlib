@@ -99,17 +99,6 @@ install:
     curl -sL https://github.com/python/cpython/pull/1224.patch |
     patch -fsup 1 -d %CONDA_PREFIX% ) || ( set errorlevel= )
 
-  # Let the install prefer the static builds of the libs
-  - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
-  - mkdir lib || cmd /c "exit /b 0"
-  - copy /y %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  - copy /y %LIBRARY_LIB%\libpng_static.lib lib\png.lib
-  # These z.lib / png.lib are not static versions but files which end up as
-  # dependencies to the dll file. This is fine for the conda build, but not here
-  # and for the wheels
-  - del %LIBRARY_LIB%\png.lib
-  - del %LIBRARY_LIB%\z.lib
-  - set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
   # enables the local freetype build
   - copy ci\travis\setup.cfg .
   # Show the installed packages + versions
@@ -150,9 +139,6 @@ after_test:
   # And now the conda build after a cleanup...
   # cleanup build files so that they don't pollute the conda build but keep the wheel in dist...
   - git clean -xdfq -e dist/
-  # cleanup the environment so that the test-environment does not leak into the conda build...
-  - set MPLBASEDIRLIST=
-  - set LIBRARY_LIB=
   - deactivate
   - path
   - where python
