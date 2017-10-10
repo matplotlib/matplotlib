@@ -3,6 +3,7 @@
 Griddata Demo
 =============
 
+Example showing plotting of non uniform data points in the form of grid.
 """
 from matplotlib.mlab import griddata
 import matplotlib.pyplot as plt
