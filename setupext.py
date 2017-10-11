@@ -578,8 +578,14 @@ class SetupPackage(object):
                         # is dropped. It is available in Python 3.3+
                         _ = check_output(["which", manager],
                                          stderr=subprocess.STDOUT)
-                        return ('Try installing {0} with `{1} install {2}`'
-                                .format(self.name, manager, pkg_name))
+                        if manager == 'port':
+                            pkgconfig = 'pkgconfig'
+                        else:
+                            pkgconfig = 'pkg-config'
+                        return ('Try installing {0} with `{1} install {2}` '
+                                'and pkg-config with `{1} install {3}`'
+                                .format(self.name, manager, pkg_name,
+                                        pkgconfig))
                     except subprocess.CalledProcessError:
                         pass
 
