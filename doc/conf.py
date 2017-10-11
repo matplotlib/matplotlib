@@ -41,13 +41,13 @@ exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
 
 def _check_deps():
-    names = ["colorspacious",
-             "IPython.sphinxext.ipython_console_highlighting",
-             "matplotlib",
-             "numpydoc",
-             "PIL.Image",
-             "scipy",
-             "sphinx_gallery"]
+    names = {"colorspacious": 'colorspacious',
+             "IPython.sphinxext.ipython_console_highlighting": 'ipython',
+             "matplotlib": 'matplotlib',
+             "numpydoc": 'numpydoc',
+             "PIL.Image": 'pillow',
+             "scipy": 'scipy',
+             "sphinx_gallery": 'sphinx_gallery'}
     if sys.version_info < (3, 3):
         names.append("mock")
     missing = []
@@ -55,11 +55,12 @@ def _check_deps():
         try:
             __import__(name)
         except ImportError:
-            missing.append(name)
+            missing.append(names[name])
     if missing:
         raise ImportError(
             "The following dependencies are missing to build the "
             "documentation: {}".format(", ".join(missing)))
+
 
 _check_deps()
 
