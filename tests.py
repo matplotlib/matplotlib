@@ -49,6 +49,7 @@ if __name__ == '__main__':
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()
         extra_args.extend(['-m', 'not network'])
+    extra_args.extend(['-s'])
 
     print('Python byte-compilation optimization level:', sys.flags.optimize)
 
