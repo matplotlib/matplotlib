@@ -136,7 +136,7 @@ class Spine(mpatches.Patch):
     def _recompute_transform(self):
         """NOTE: This cannot be called until after this has been added
                  to an Axes, otherwise unit conversion will fail. This
-                 maxes it very important to call the accessor method and
+                 makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
         assert self._patch_type in ('arc', 'circle')
