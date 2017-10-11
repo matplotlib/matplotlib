@@ -2108,9 +2108,10 @@ or tuple of floats
         if edgecolor is None:
             edgecolor = itertools.repeat(None)
         else:
-            edgecolor = itertools.chain(mcolors.to_rgba_array(edgecolor),
-                                        # Fallback if edgecolor == "none".
-                                        itertools.repeat([0, 0, 0, 0]))
+            edgecolor = itertools.chain(
+                itertools.cycle(mcolors.to_rgba_array(edgecolor)),
+                # Fallback if edgecolor == "none".
+                itertools.repeat([0, 0, 0, 0]))
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly

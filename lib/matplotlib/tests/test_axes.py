@@ -5260,12 +5260,15 @@ def test_eventplot_legend():
     plt.legend()
 
 
-def test_bar_single_height():
+def test_bar_broadcast_args():
     fig, ax = plt.subplots()
-    # Check that a bar chart with a single height for all bars works
+    # Check that a bar chart with a single height for all bars works.
     ax.bar(range(4), 1)
-    # Check that a horizontal chart with one width works
+    # Check that a horizontal chart with one width works.
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
+    # Check that edgecolor gets broadcasted.
+    rect1, rect2 = ax.bar([0, 1], [0, 1], edgecolor=(.1, .2, .3, .4))
+    assert rect1.get_edgecolor() == rect2.get_edgecolor() == (.1, .2, .3, .4)
 
 
 def test_invalid_axis_limits():
