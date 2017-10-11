@@ -16,7 +16,7 @@ import os.path as osp
 import re
 
 import matplotlib
-from matplotlib import cm, markers, colors as mcolors
+from matplotlib import cm, colors as mcolors, markers, image as mimage
 import matplotlib.backends.qt_editor.formlayout as formlayout
 from matplotlib.backends.qt_compat import QtGui
 
@@ -165,7 +165,7 @@ def figure_edit(axes, parent=None):
             ('Max. value', high),
             ('Interpolation',
              [image.get_interpolation()]
-             + [(name, name) for name in sorted(image.iterpnames)])]
+             + [(name, name) for name in sorted(mimage.interpolations_names)])]
         images.append([imagedata, label, ""])
     # Is there an image displayed?
     has_image = bool(images)

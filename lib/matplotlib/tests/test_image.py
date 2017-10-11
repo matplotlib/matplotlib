@@ -827,3 +827,11 @@ def test_imshow_float128():
 def test_imshow_bool():
     fig, ax = plt.subplots()
     ax.imshow(np.array([[True, False], [False, True]], dtype=bool))
+
+
+def test_imshow_deprecated_interd_warn():
+    im = plt.imshow([[1, 2], [3, np.nan]])
+    for k in ('_interpd', '_interpdr', 'iterpnames'):
+        with warnings.catch_warnings(record=True) as warns:
+            getattr(im, k)
+        assert len(warns) == 1
