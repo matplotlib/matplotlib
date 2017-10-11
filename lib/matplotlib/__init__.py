@@ -1347,12 +1347,15 @@ default_test_modules = [
 
 
 def _init_tests():
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
+    # work around https://bugs.python.org/issue31701
+    # faulthandler dumps 'Windows fatal exception: code 0xe06d7363'
+    if not (sys.platform == 'win32' and sys.version_info[:3] == (3, 6, 3)):
+        try:
+            import faulthandler
+        except ImportError:
+            pass
+        else:
+            faulthandler.enable()
 
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
