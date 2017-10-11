@@ -705,7 +705,7 @@ class Rectangle(Patch):
     def _update_patch_transform(self):
         """NOTE: This cannot be called until after this has been added
                  to an Axes, otherwise unit conversion will fail. This
-                 maxes it very important to call the accessor method and
+                 makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
         x = self.convert_xunits(self._x)
@@ -1465,7 +1465,7 @@ class Ellipse(Patch):
     def _recompute_transform(self):
         """NOTE: This cannot be called until after this has been added
                  to an Axes, otherwise unit conversion will fail. This
-                 maxes it very important to call the accessor method and
+                 makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
         center = (self.convert_xunits(self.center[0]),
