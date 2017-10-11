@@ -1347,13 +1347,6 @@ default_test_modules = [
 
 
 def _init_tests():
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
-
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
     LOCAL_FREETYPE_VERSION = '2.6.1'
