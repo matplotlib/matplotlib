@@ -46,6 +46,7 @@ import os
 import sys
 import time
 import warnings
+from weakref import WeakKeyDictionary
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -2799,15 +2800,11 @@ class NavigationToolbar2(object):
         @partial(canvas.mpl_connect, 'draw_event')
         def update_stack(event):
             nav_info = self._nav_stack()
-            if nav_info is None:
-                # Define the true initial navigation info.
-                self.push_current()
-            else:
-                axes, views, positions = nav_info
-                if axes != self.canvas.figure.axes:
+            if (nav_info is None  # True initial navigation info.
                     # An axes has been added or removed, so update the
                     # navigation info too.
-                    self.push_current()
+                    or set(nav_info) != set(self.canvas.figure.axes)):
+                self.push_current()
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar."""
@@ -3016,13 +3013,13 @@ class NavigationToolbar2(object):
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
-        axs = self.canvas.figure.axes
-        views = [ax._get_view() for ax in axs]
-        # Store both the original and modified positions.
-        positions = [
-            (ax.get_position(True).frozen(), ax.get_position().frozen())
-            for ax in axs]
-        self._nav_stack.push((axs, views, positions))
+        self._nav_stack.push(
+            WeakKeyDictionary(
+                {ax: (ax._get_view(),
+                      # Store both the original and modified positions.
+                      (ax.get_position(True).frozen(),
+                       ax.get_position().frozen()))
+                 for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
     def release(self, event):
@@ -3143,16 +3140,17 @@ class NavigationToolbar2(object):
         """Update the viewlim and position from the view and
         position stack for each axes.
         """
-
         nav_info = self._nav_stack()
         if nav_info is None:
             return
-        axs, views, pos = nav_info
-        for i, a in enumerate(self.canvas.figure.get_axes()):
-            a._set_view(views[i])
+        # Retrieve all items at once to avoid any risk of GC deleting an Axes
+        # while in the middle of the loop below.
+        items = list(nav_info.items())
+        for ax, (view, (pos_orig, pos_active)) in items:
+            ax._set_view(view)
             # Restore both the original and modified positions
-            a.set_position(pos[i][0], 'original')
-            a.set_position(pos[i][1], 'active')
+            ax.set_position(pos_orig, 'original')
+            ax.set_position(pos_active, 'active')
         self.canvas.draw_idle()
 
     def save_figure(self, *args):
