@@ -368,14 +368,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     scaled_dtype = A.dtype
                 else:
                     scaled_dtype = np.float32
-                    
+
                 a_min = A.min()
                 if a_min is np.ma.masked:
                     a_min, a_max = 0, 1  # all masked, so values don't matter
                 else:
                     a_min = a_min.astype(scaled_dtype)
                     a_max = A.max().astype(scaled_dtype)
-                
+
                 # scale the input data to [.1, .9].  The Agg
                 # interpolators clip to [0, 1] internally, use a
                 # smaller input scale to identify which of the
