@@ -3830,8 +3830,12 @@ class _AxesBase(martist.Artist):
                 warnings.warn('Overflow while panning')
                 return
 
-        self.set_xlim(*result.intervalx)
-        self.set_ylim(*result.intervaly)
+        valid = np.isfinite(result.transformed(p.trans))
+        points = result.get_points().astype(object)
+        # Just ignore invalid limits (typically, underflow in log-scale).
+        points[~valid] = None
+        self.set_xlim(points[:, 0])
+        self.set_ylim(points[:, 1])
 
     @cbook.deprecated("2.1")
     def get_cursor_props(self):
