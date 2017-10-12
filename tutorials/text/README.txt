@@ -1,7 +1,7 @@
 .. _tutorials-text:
 
 Text
-====
+----
 
 matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
