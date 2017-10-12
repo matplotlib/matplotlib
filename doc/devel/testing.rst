@@ -23,7 +23,7 @@ Requirements
 
 We strongly recommend developing new features in a seperate virtualenv.
 
-Install all the matplotlib dependencies_, and install matplotlib into the
+Install all the Matplotlib dependencies_, and install matplotlib into the
 virtualenv with ``pip install -e matplotlib`` (but note the changes needed to
 ``setup.cfg`` below) which will allow you to edit the code without
 reinstalling.
