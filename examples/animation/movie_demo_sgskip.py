@@ -7,6 +7,7 @@ Movie Demo
 
 from __future__ import print_function
 
+import os
 import subprocess
 import matplotlib.pyplot as plt
 import numpy as np

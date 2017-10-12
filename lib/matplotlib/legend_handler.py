@@ -10,7 +10,7 @@ signature. ::
     legend_handler(legend, orig_handle, fontsize, handlebox)
 
 Where *legend* is the legend itself, *orig_handle* is the original
-plot, *fontsize* is the fontsize in pixles, and *handlebox* is a
+plot, *fontsize* is the fontsize in pixels, and *handlebox* is a
 OffsetBox instance. Within the call, you should create relevant
 artists (using relevant properties from the *legend* and/or
 *orig_handle*) and add them into the handlebox. The artists needs to

@@ -137,7 +137,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
 
             offset = getULONG( ptr + 8 );
             length = getULONG( ptr + 12 );
-            table = (BYTE*)calloc( sizeof(BYTE), length );
+            table = (BYTE*)calloc( sizeof(BYTE), length + 2 );
 
             try
             {
@@ -160,6 +160,9 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
                 free(table);
                 throw;
             }
+            /* Always NUL-terminate; add two in case of UTF16 strings. */
+            table[length] = '\0';
+            table[length + 1] = '\0';
             return table;
         }
 

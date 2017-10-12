@@ -369,6 +369,7 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+    @property
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
         return self.patch
@@ -708,14 +709,14 @@ class Figure(Artist):
 
         Usage ::
 
-             fig.set_size_inches(w,h)  # OR
-             fig.set_size_inches((w,h))
+             fig.set_size_inches(w, h)  # OR
+             fig.set_size_inches((w, h))
 
         optional kwarg *forward=True* will cause the canvas size to be
         automatically updated; e.g., you can resize the figure window
         from the shell
 
-        ACCEPTS: a w,h tuple with w,h in inches
+        ACCEPTS: a w, h tuple with w, h in inches
 
         See Also
         --------

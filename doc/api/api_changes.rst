@@ -13,39 +13,17 @@ For new features that were added to Matplotlib, please see
 API Changes in 2.1.0
 ====================
 
-cbook deprecations
-------------------
+Default behavior of log scales changed to mask <= 0 values
+----------------------------------------------------------
 
-Many unused or near-unused cbook functions and classes have been deprecated:
-``converter``, ``tostr``, ``todatetime``, ``todate``, ``tofloat``, ``toint``,
-``unique``, ``is_string_like``, ``is_sequence_of_strings``, ``is_scalar``,
-``Sorter``, ``Xlator``, ``soundex``, ``Null``, ``dict_delall``, ``RingBuffer``,
-``get_split_ind``, ``wrap``, ``get_recursive_filelist``, ``pieces``,
-``exception_to_str``, ``allequal``, ``alltrue``, ``onetrue``, ``allpairs``,
-``finddir``, ``reverse_dict``, ``restrict_dict``, ``issubclass_safe``,
-``recursive_remove``, ``unmasked_index_ranges``.
+Calling `matplotlib.axes.Axes.set_xscale` or `matplotlib.axes.Axes.set_yscale`
+now uses 'mask' as the default method to handle invalid values (as opposed to
+'clip'). This means that any values <= 0 on a log scale will not be shown.
+
+Previously they were clipped to a very small number and shown.
 
 
-Improved Delaunay triangulations with large offsets
----------------------------------------------------
-
-Delaunay triangulations now deal with large x,y offsets in a better
-way. This can cause minor changes to any triangulations calculated
-using Matplotlib, i.e. any use of `matplotlib.tri.Triangulation` that
-requests that a Delaunay triangulation is calculated, which includes
-`matplotlib.pyplot.tricontour`, `matplotlib.pyplot.tricontourf`,
-`matplotlib.pyplot.tripcolor`, `matplotlib.pyplot.triplot`,
-`mlab.griddata` and `mpl_toolkits.mplot3d.plot_trisurf`.
-
-
-Deprecation in EngFormatter
----------------------------
-
-Passing a string as *num* argument when calling an instance of
-`matplotlib.ticker.EngFormatter` is deprecated and will be removed in 2.3.
-
-
-:meth:`matpltolib.cbook.CallbackRegistry.process` suppresses exceptions by default
+:meth:`matplotlib.cbook.CallbackRegistry.process` suppresses exceptions by default
 ----------------------------------------------------------------------------------
 
 Matplotlib uses instances of :obj:`~matplotlib.cbook.CallbackRegistry`
@@ -55,7 +33,7 @@ of of the ``process`` method, which is typically in the GUI event
 loop.  Most GUI frameworks simple print the traceback to the screen
 and continue as there is not always a clear method of getting the
 exception back to the user.  However PyQt5 now exits the process when
-it receives and un-handled python exception in the event loop.  Thus,
+it receives an un-handled python exception in the event loop.  Thus,
 :meth:`~matplotlib.cbook.CallbackRegistry.process` now suppresses and
 prints tracebacks to stderr by default.
 
@@ -76,16 +54,6 @@ A function which take and ``Exception`` as its only argument may also be passed 
 
   cb = CallbackRegistry(exception_handler=maybe_reraise)
 
-
-
-
-`mpl_toolkits.axes_grid` has been deprecated
---------------------------------------------
-
-All functionallity from `mpl_toolkits.axes_grid` can be found in either
-`mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes classes from
-`mpl_toolkits.axes_grid` based on `Axis` from `mpl_toolkits.axisartist` can be
-found in `mpl_toolkits.axisartist`
 
 
 Improved toggling of the axes grids
@@ -126,7 +94,7 @@ binary file is acceptable, we suggest using one of the following two new files.
 The ``aapl.npy.gz`` and ``goog.npy`` files have been replaced by ``aapl.npz``
 and ``goog.npz``, wherein the first column's type has changed from
 `datetime.date` to `np.datetime64` for better portability across Python
-versions. Note that matplotlib does not fully support `np.datetime64` as yet.
+versions. Note that Matplotlib does not fully support `np.datetime64` as yet.
 
 
 Updated qhull to 2015.2
@@ -136,23 +104,34 @@ The version of qhull shipped with Matplotlib, which is used for
 Delaunay triangulation, has been updated from version 2012.1 to
 2015.2.
 
+Improved Delaunay triangulations with large offsets
+---------------------------------------------------
 
-Use backports.functools_lru_cache instead of functools32
---------------------------------------------------------
+Delaunay triangulations now deal with large x,y offsets in a better
+way. This can cause minor changes to any triangulations calculated
+using Matplotlib, i.e. any use of `matplotlib.tri.Triangulation` that
+requests that a Delaunay triangulation is calculated, which includes
+`matplotlib.pyplot.tricontour`, `matplotlib.pyplot.tricontourf`,
+`matplotlib.pyplot.tripcolor`, `matplotlib.pyplot.triplot`,
+`matplotlib.mlab.griddata` and
+`mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
+
+
+
+Use ``backports.functools_lru_cache`` instead of ``functools32``
+----------------------------------------------------------------
 
 It's better maintained and more widely used (by pylint, jaraco, etc).
 
 
-`cbook.is_numlike` only performs an instance check, `cbook.is_string_like` is deprecated
-----------------------------------------------------------------------------------------
 
-`cbook.is_numlike` now only checks that its argument is an instance of
-``(numbers.Number, np.Number)``.  In particular, this means that arrays are now
-not num-like.
+``cbook.is_numlike`` only performs an instance check
+----------------------------------------------------
 
-`cbook.is_string_like` and `cbook.is_sequence_of_strings` have been
-deprecated.  Use ``isinstance(obj, six.string_types)`` and ``iterable(obj) and
-all(isinstance(o, six.string_types) for o in obj)`` instead.
+:func:`~matplotlib.cbook.is_numlike` now only checks that its argument
+is an instance of ``(numbers.Number, np.Number)``.  In particular,
+this means that arrays are now not num-like.
+
 
 
 Elliptical arcs now drawn between correct angles
@@ -165,20 +144,13 @@ Previously a circular arc was drawn and then stretched into an ellipse,
 so the resulting arc did not lie between *theta1* and *theta2*.
 
 
-Changes to PDF backend methods
-------------------------------
-
-The methods `embedTeXFont` and `tex_font_mapping` of
-`matplotlib.backend_pdf.PdfFile` have been removed.
-It is unlikely that external users would have called
-these methods, which are related to the font system
-internal to the PDF backend.
-
 
 ``-d$backend`` no longer sets the backend
 -----------------------------------------
 
-It is no longer possible to set the backend by passing ``-d$backend`` at the command line.  Use the ``MPLBACKEND`` environment variable instead.
+It is no longer possible to set the backend by passing ``-d$backend``
+at the command line.  Use the ``MPLBACKEND`` environment variable
+instead.
 
 
 Path.intersects_bbox always treats the bounding box as filled
@@ -204,39 +176,6 @@ the old behavior is actually desired, the suggested workaround is to call
     result = path.intersects_path(rect, filled=False)
 
 
-Removed resolution kwarg from PolarAxes
----------------------------------------
-
-The kwarg `resolution` of `matplotlib.projections.polar.PolarAxes` has been
-removed. It has triggered a deprecation warning of being with no effect
-beyond version `0.98.x`.
-
-
-Deprecation of `GraphicsContextBase`\'s ``linestyle`` property.
----------------------------------------------------------------
-
-The ``GraphicsContextBase.get_linestyle`` and
-``GraphicsContextBase.set_linestyle`` methods, which effectively had no effect,
-have been deprecated.
-
-
-NavigationToolbar2.dynamic_update is deprecated
------------------------------------------------
-
-Use `FigureCanvas.draw_idle` instead.
-
-
-Unique identifier added to `RendererBase` classes
--------------------------------------------------
-
-Since ``id()`` is not guaranteed to be unique between objects that exist at
-different times, a new private property ``_uid`` has been added to
-`RendererBase` which is used along with the renderer's ``id()`` to cache
-certain expensive operations.
-
-If a custom renderer does not subclass `RendererBase` or `MixedModeRenderer`,
-it is not required to implement this ``_uid`` property, but this may produce
-incorrect behavior when the renderers' ``id()`` clashes.
 
 
 WX no longer calls generates ``IdleEvent`` events or calls ``idle_event``
@@ -246,6 +185,7 @@ Removed unused private method ``_onIdle`` from ``FigureCanvasWx``.
 
 The ``IdleEvent`` class and ``FigureCanvasBase.idle_event`` method
 will be removed in 2.2
+
 
 
 Correct scaling of :func:`magnitude_spectrum()`
@@ -281,32 +221,152 @@ new and old scaling::
 
 
 
-Default behavior of log scales changed to mask <= 0 values
-----------------------------------------------------------
 
-Calling `matplotlib.axes.Axes.set_xscale` or `matplotlib.axes.Axes.set_yscale`
-now uses 'mask' as the default method to handle invalid values (as opposed to
-'clip'). This means that any values <= 0 on a log scale will not be shown.
 
-Previously they were clipped to a very small number and shown.
+Change to signatures of :meth:`~matplotlib.axes.Axes.bar` & :meth:`~matplotlib.axes.Axes.barh`
+----------------------------------------------------------------------------------------------
+
+For 2.0 the :ref:`default value of *align* <barbarh_align>` changed to
+``'center'``.  However this caused the signature of
+:meth:`~matplotlib.axes.Axes.bar` and
+:meth:`~matplotlib.axes.Axes.barh` to be misleading as the first parameters were
+still *left* and *bottom* respectively::
+
+  bar(left, height, *, align='center', **kwargs)
+  barh(bottom, width, *, align='center', **kwargs)
+
+despite behaving as the center in both cases. The methods now take
+``*args, **kwargs`` as input and are documented to have the primary
+signatures of::
+
+  bar(x, height, *, align='center', **kwargs)
+  barh(y, width, *, align='center', **kwargs)
+
+Passing *left* and *bottom* as keyword arguments to
+:meth:`~matplotlib.axes.Axes.bar` and
+:meth:`~matplotlib.axes.Axes.barh` respectively will warn.
+Support will be removed in Matplotlib 3.0.
+
+
+Font cache as json
+------------------
+
+The font cache is now saved as json, rather than a pickle.
+
+
+Invalid (Non-finite) Axis Limit Error
+-------------------------------------
+
+When using :func:`~matplotlib.axes.Axes.set_xlim` and
+:func:`~matplotlib.axes.Axes.set_ylim`, passing non-finite values now
+results in a ``ValueError``. The previous behavior resulted in the
+limits being erroneously reset to ``(-0.001, 0.001)``.
+
+``scatter`` and ``Collection`` offsets are no longer implicitly flattened
+-------------------------------------------------------------------------
+
+`~matplotlib.collections.Collection` (and thus both 2D
+`~matplotlib.axes.Axes.scatter` and 3D
+`~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter`) no
+longer implicitly flattens its offsets.  As a consequence, ``scatter``'s ``x``
+and ``y`` arguments can no longer be 2+-dimensional arrays.
+
+Deprecations
+------------
+
+``GraphicsContextBase``\'s ``linestyle`` property.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``GraphicsContextBase.get_linestyle`` and
+``GraphicsContextBase.set_linestyle`` methods, which had no effect,
+have been deprecated.  All of the backends Matplotlib ships use
+``GraphicsContextBase.get_dashes`` and
+``GraphicsContextBase.set_dashes`` which are more general.
+Third-party backends should also migrate to the ``*_dashes`` methods.
+
+
+``NavigationToolbar2.dynamic_update``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use :meth:`draw_idle` method on the ``Canvas`` instance instead.
+
+
+Testing
+~~~~~~~
+
+`matplotlib.testing.noseclasses` is deprecated and will be removed in 2.3
+
+
+``EngFormatter`` *num* arg as string
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing a string as *num* argument when calling an instance of
+`matplotlib.ticker.EngFormatter` is deprecated and will be removed in 2.3.
+
+
+``mpl_toolkits.axes_grid`` module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All functionally from `mpl_toolkits.axes_grid` can be found in either
+`mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes classes
+from `mpl_toolkits.axes_grid` based on `Axis` from
+`mpl_toolkits.axisartist` can be found in `mpl_toolkits.axisartist`.
+
+
+``Axes`` collision in ``Figure.add_axes``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Adding an axes instance to a figure by using the same arguments as for
+a previous axes instance currently reuses the earlier instance.  This
+behavior has been deprecated in Matplotlib 2.1. In a future version, a
+*new* instance will always be created and returned.  Meanwhile, in such
+a situation, a deprecation warning is raised by
+:class:`~matplotlib.figure.AxesStack`.
+
+This warning can be suppressed, and the future behavior ensured, by passing
+a *unique* label to each axes instance.  See the docstring of
+:meth:`~matplotlib.figure.Figure.add_axes` for more information.
+
+Additional details on the rationale behind this deprecation can be found
+in :ghissue:`7377` and :ghissue:`9024`.
+
+
+Former validators for ``contour.negative_linestyle``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+The former public validation functions ``validate_negative_linestyle``
+and ``validate_negative_linestyle_legacy`` will be deprecated in 2.1 and
+may be removed in 2.3. There are no public functions to replace them.
+
+
+
+``cbook``
+~~~~~~~~~
+
+Many unused or near-unused :mod:`matplotlib.cbook` functions and
+classes have been deprecated: ``converter``, ``tostr``,
+``todatetime``, ``todate``, ``tofloat``, ``toint``, ``unique``,
+``is_string_like``, ``is_sequence_of_strings``, ``is_scalar``,
+``Sorter``, ``Xlator``, ``soundex``, ``Null``, ``dict_delall``,
+``RingBuffer``, ``get_split_ind``, ``wrap``,
+``get_recursive_filelist``, ``pieces``, ``exception_to_str``,
+``allequal``, ``alltrue``, ``onetrue``, ``allpairs``, ``finddir``,
+``reverse_dict``, ``restrict_dict``, ``issubclass_safe``,
+``recursive_remove``, ``unmasked_index_ranges``.
 
 
 Code Removal
 ------------
 
-matplotlib.delaunay
-~~~~~~~~~~~~~~~~~~~
-Remove the delaunay triangulation code which is now handled by Qhull
-via ``matplotlib.tri``
-
-
 qt4_compat.py
 ~~~~~~~~~~~~~
+
 Moved to ``qt_compat.py``.  Renamed because it now handles Qt5 as well.
 
 
-Deprecated methods
-~~~~~~~~~~~~~~~~~~
+Previously Deprecated methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``GraphicsContextBase.set_graylevel``, ``FigureCanvasBase.onHilite`` and
 ``mpl_toolkits.axes_grid1.mpl_axes.Axes.toggle_axisline`` methods have been
@@ -321,23 +381,9 @@ The deprecated ``point_in_path``, ``get_path_extents``,
 functions in the ``matplotlib.path`` module have been removed.  Their
 functionality remains exposed as methods on the ``Path`` class.
 
+The deprecated ``Artist.get_axes`` and ``Artist.set_axes`` methods
+have been removed
 
-`Axes.set_aspect("normal")`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Support for setting an ``Axes``' aspect to ``"normal"`` has been removed, in
-favor of the synonym ``"auto"``.
-
-
-``shading`` kwarg to ``pcolor``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``shading`` kwarg to ``pcolor`` has been removed.  Set ``edgecolors``
-appropriately instead.
-
-
-Removed internal functions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``matplotlib.backends.backend_ps.seq_allequal`` function has been removed.
 Use ``np.array_equal`` instead.
@@ -349,19 +395,47 @@ The deprecated ``matplotlib.rcsetup.validate_maskedarray``,
 removed.
 
 
-Deprecations
-------------
+The kwarg ``resolution`` of
+:class:`matplotlib.projections.polar.PolarAxes` has been removed. It
+has deprecation with no effect from version `0.98.x`.
 
-- `matplotlib.testing.noseclasses` is deprecated and will be removed in 2.3
+
+``Axes.set_aspect("normal")``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for setting an ``Axes``\'s aspect to ``"normal"`` has been
+removed, in favor of the synonym ``"auto"``.
+
+
+``shading`` kwarg to ``pcolor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``shading`` kwarg to `~matplotlib.axes.Axes.pcolor` has been
+removed.  Set ``edgecolors`` appropriately instead.
 
 
 Functions removed from the `lines` module
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `matplotlib.lines` module no longer imports the `pts_to_prestep`,
-`pts_to_midstep` and `pts_to_poststep` functions from the `matplotlib.cbook`
-module.
+The :mod:`matplotlib.lines` module no longer imports the
+``pts_to_prestep``, ``pts_to_midstep`` and ``pts_to_poststep``
+functions from :mod:`matplotlib.cbook`.
 
+
+PDF backend functions
+~~~~~~~~~~~~~~~~~~~~~
+
+The methods ``embedTeXFont`` and ``tex_font_mapping`` of
+:class:`matplotlib.backqend_pdf.PdfFile` have been removed.  It is
+unlikely that external users would have called these methods, which
+are related to the font system internal to the PDF backend.
+
+
+matplotlib.delaunay
+~~~~~~~~~~~~~~~~~~~
+
+Remove the delaunay triangulation code which is now handled by Qhull
+via :mod:`matplotlib.tri`.
 
 API Changes in 2.0.1
 ====================
