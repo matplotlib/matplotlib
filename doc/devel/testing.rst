@@ -8,6 +8,7 @@ Matplotlib's testing infrastructure depends on pytest_. The tests are in
 :file:`lib/matplotlib/tests`, and customizations to the pytest testing
 infrastructure are in :mod:`matplotlib.testing`.
 
+.. _dependencies: http://matplotlib.org/users/installing.html#dependencies
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _mock: https://docs.python.org/3/library/unittest.mock.html>
 .. _Ghostscript: https://www.ghostscript.com/
@@ -19,6 +20,13 @@ infrastructure are in :mod:`matplotlib.testing`.
 
 Requirements
 ------------
+
+We strongly recommend developing new features in a seperate virtualenv.
+
+Install all the matplotlib dependencies_, and install matplotlib into the
+virtualenv with ``pip install -e matplotlib`` (but note the changes needed to
+``setup.cfg`` below) which will allow you to edit the code without
+reinstalling.
 
 The following software is required to run the tests:
 
