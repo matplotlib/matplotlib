@@ -49,7 +49,7 @@ def _check_deps():
              "scipy": 'scipy',
              "sphinx_gallery": 'sphinx_gallery'}
     if sys.version_info < (3, 3):
-        names.append("mock")
+        names["mock"] = 'mock'
     missing = []
     for name in names:
         try:
