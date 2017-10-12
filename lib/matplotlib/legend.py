@@ -620,7 +620,8 @@ class Legend(Artist):
                     "Legend does not support {!r} instances.\nA proxy artist "
                     "may be used instead.\nSee: "
                     "http://matplotlib.org/users/legend_guide.html"
-                    "#using-proxy-artist".format(orig_handle)
+                    "#creating-artists-specifically-for-adding-to-the-legend-"
+                    "aka-proxy-artists".format(orig_handle)
                 )
                 # We don't have a handle for this artist, so we just defer
                 # to None.
