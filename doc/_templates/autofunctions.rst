@@ -2,7 +2,8 @@
 {{ fullname | escape | underline }}
 
 
-.. currentmodule:: {{ fullname }}
+.. automodule:: {{ fullname }}
+   :no-members:
 
 {% block functions %}
 {% if functions %}
@@ -10,7 +11,7 @@
 Functions
 ---------
 
-.. autosummary:: 
+.. autosummary::
    :template: autosummary.rst
    :toctree:
 {% for item in functions %}{% if item not in ['plotting', 'colormaps'] %}
