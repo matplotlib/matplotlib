@@ -1018,8 +1018,8 @@ def find_tex_file(filename, format=None):
 
     Parameters
     ----------
-    filename : string or bytestring
-    format : string or bytestring
+    filename : str or bytes
+    format : str
         Used as the value of the `--format` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 
@@ -1032,7 +1032,9 @@ def find_tex_file(filename, format=None):
 
     cmd = [str('kpsewhich')]
     if format is not None:
-        cmd += ['--format=' + format]
+        cmd += [str('--format=') + format]
+    if six.PY3 and isinstance(filename, bytes):
+        filename = filename.decode('ascii')
     cmd += [filename]
 
     matplotlib.verbose.report('find_tex_file(%s): %s'
