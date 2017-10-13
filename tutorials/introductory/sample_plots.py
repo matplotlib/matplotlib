@@ -36,6 +36,23 @@ Multiple axes (i.e. subplots) are created with the
 
    Subplot
 
+.. _screenshots_pcolormesh_demo
+
+Contouring and pseudocolor
+==========================
+
+The :func:`~matplotlib.pyplot.pcolormesh` command can make a colored
+representation of a two-dimensional array.  The
+:func:`~matplotlib.pyplot.contour` command is another way to representation
+the same data:
+
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_pcolormesh_levels_001.png
+   :target: ../../gallery/images_contours_and_fields/pcolormesh_levels.html
+   :align: center
+   :scale: 50
+
+   Contour and Pcolormesh 
+
 .. _screenshots_histogram_demo:
 
 Histograms
