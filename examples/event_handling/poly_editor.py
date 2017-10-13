@@ -114,9 +114,8 @@ class PolygonInteractor(object):
         elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.xy = [tup
-                                for i, tup in enumerate(self.poly.xy)
-                                if i != ind]
+                self.poly.xy = np.delete(self.poly.xy,
+                                         ind, axis=0)
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key == 'i':
             xys = self.poly.get_transform().transform(self.poly.xy)
