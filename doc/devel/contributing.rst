@@ -84,6 +84,11 @@ you can use ``git@`` instead of  ``https://``, which works through the ssh proto
 and might be easier to use if you are using 2-factor authentication.
 
 
+Installation is required before you can start hacking into the local fork.
+Instructions to build from source can be found
+`here <http://matplotlib.org/users/installing.html#installing-from-source>`.
+Although installation is not necessary to contribute to documentation.
+
 To make sure the tests run locally you must build against the correct version
 of freetype.  To configure the build system to fetch and build it either export
 the env ``MPLLOCALFREETYPE`` as::
