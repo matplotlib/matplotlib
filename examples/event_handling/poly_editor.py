@@ -126,10 +126,10 @@ class PolygonInteractor(object):
                 s1 = xys[i + 1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d <= self.epsilon:
-                    self.poly.xy = np.array(
-                        list(self.poly.xy[:i + 1]) +
-                        [(event.xdata, event.ydata)] +
-                        list(self.poly.xy[i + 1:]))
+                    self.poly.xy = np.insert(
+                        self.poly.xy, i+1,
+                        [event.xdata, event.ydata],
+                        axis=0)
                     self.line.set_data(zip(*self.poly.xy))
                     break
 
