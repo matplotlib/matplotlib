@@ -54,23 +54,19 @@ The documentation sources are found in the :file:`doc/` directory in
 the trunk.  To build the users guide in html format, cd into
 :file:`doc/` and do::
 
-  python make.py html
+  make html
 
-or::
+There are many other targets you can pass to ``make``, and you can see the
+full list inside that file. Here are some useful ones:
 
-  ./make.py html
-
-There are many other flags you can pass to ``make.py``, and you can see the
-full list inside that file. Here are two useful ones:
-
-* ``clean`` will delete the built Sphinx files. Use this command if you're getting strange
+* ``make html-noplots`` will build the documentation without writing the gallery
+  images. This is much faster than ``make html``.
+* ``make clean`` will delete the built Sphinx files. Use this command if you're getting strange
   errors about missing paths or broken links, particularly if you move files around.
-* ``latex`` builds a PDF of the documentation.
-
-In addition, these are useful flags:
-
-* ``--help`` will (among other things) display the allowed commands for ``make.py``.
-* ``--allowsphinxwarnings`` will allow the docs to continue building even if Sphinx
+* ``make latex`` builds a PDF of the documentation.
+* ``make help`` will (among other things) display the allowed commands for
+  ``make``.
+* ``make-allow-warnings`` will allow the docs to continue building even if Sphinx
   throws a warning. This is useful for debugging and spot-checking many warnings
   at once.
 
