@@ -40,8 +40,7 @@ The source code for the plot may be included in one of three ways:
           >>> import matplotlib.pyplot as plt
           >>> plt.plot([1,2,3], [4,5,6])
 
-Options
--------
+**Options**
 
 The ``plot`` directive supports the following options:
 
@@ -78,8 +77,7 @@ Additionally, this directive supports all of the options of the
 target).  These include `alt`, `height`, `width`, `scale`, `align` and
 `class`.
 
-Configuration options
----------------------
+**Configuration options**
 
 The plot directive has the following configuration options:
 
