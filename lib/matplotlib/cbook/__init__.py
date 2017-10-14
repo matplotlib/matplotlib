@@ -623,6 +623,9 @@ def _string_to_bool(s):
     """Parses the string argument as a boolean"""
     if not isinstance(s, six.string_types):
         return bool(s)
+    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
+                    "boolean is deprecated; use an actual boolean "
+                    "(True/False) instead.")
     if s.lower() in ['on', 'true']:
         return True
     if s.lower() in ['off', 'false']:
