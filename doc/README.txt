@@ -34,9 +34,9 @@ generated.
 
 You can build the documentation with several options:
 
-* `--small` saves figures in low resolution.
-* `--allowsphinxwarnings`: Don't turn Sphinx warnings into errors.
-* `-n N` enables parallel build of the documentation using N process.
+* `make html-noplot` doesn't save the gallery's images. Allows for fast build.
+* `make html-allow-warnings`: Don't turn Sphinx warnings into errors.
+* `make -j N` enables parallel build of the documentation using N process.
 
 Organization
 -------------
