@@ -65,6 +65,16 @@ def test_spy():
     ax.spy(a)
 
 
+@image_comparison(baseline_images=['matshow'],
+                  extensions=['png'], style='mpl20')
+def test_matshow():
+    np.random.seed(19680801)
+    a = np.random.rand(32, 32)
+
+    fig, ax = plt.subplots()
+    ax.matshow(a)
+
+
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
                                    'formatter_ticker_003',
