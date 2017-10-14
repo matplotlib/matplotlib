@@ -95,6 +95,12 @@ install:
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout
 
+  # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
+  # https://github.com/matplotlib/matplotlib/issues/9176
+  - python -c "import sys; sys.exit(not (3,) < sys.version_info < (3,6,3))" && (
+    curl -sL https://github.com/python/cpython/pull/1224.patch |
+    patch -fsup 1 -d %CONDA_PREFIX% ) || ( set errorlevel= )
+
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
   - mkdir lib || cmd /c "exit /b 0"
