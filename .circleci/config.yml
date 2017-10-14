@@ -28,6 +28,20 @@ apt-run:  &apt-install
       libgeos-dev \
       otf-freefont
 
+conda-run:  &conda-install
+  name: Install conda
+  command: |
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+      -O miniconda.sh
+    chmod +x miniconda.sh && ./miniconda.sh -b -p $MINICONDA_PATH
+    export PATH="$MINICONDA_PATH/bin:$PATH"
+    conda update --yes --quiet conda
+
+    # Configure the conda environment and put it in the path using the
+    # provided versions
+    conda create -n $CONDA_ENV_NAME --yes --quiet python
+    source activate testenv
+
 fonts-run:  &fonts-install
   name: Install custom fonts
   # We manually install Humor-Sans using the package from Ubuntu 14.10.
@@ -52,19 +66,19 @@ pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
   name: Upgrade pip, setuptools, wheel
   command: |
-    pip install --upgrade --user pip
-    pip install --upgrade --user wheel
-    pip install --upgrade --user setuptools
+    pip install --upgrade pip
+    pip install --upgrade wheel
+    pip install --upgrade setuptools
 
 deps-run: &deps-install
   name: Install Python dependencies
   command: |
-    pip install --user python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
-    pip install --user -r doc-requirements.txt
+    pip install python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+    pip install -r doc-requirements.txt
 
 mpl-run: &mpl-install
   name: Install Matplotlib
-  command: pip install --user -ve .
+  command: pip install -ve .
 
 doc-run: &doc-build
   name: Build documentation
@@ -89,6 +103,7 @@ jobs:
       - checkout
 
       - run: *apt-install
+      - run: *conda-install
       - run: *fonts-install
       - run: *pip-install
 
@@ -122,6 +137,7 @@ jobs:
       - checkout
 
       - run: *apt-install
+      - run: *conda-install
       - run: *fonts-install
       - run: *pip-install
 
@@ -131,7 +147,7 @@ jobs:
             NUMPY_VERSION: "==1.7.1"
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
-      - run: pip install --user $PRE requests==2.9.2 linkchecker
+      - run: pip install $PRE requests==2.9.2 linkchecker
       - run: *mpl-install
 
       - run: *doc-build
