@@ -43,6 +43,16 @@ def test_get_labels():
     assert ax.get_ylabel() == 'y label'
 
 
+@image_comparison(baseline_images=['acorr'], extensions=['png'], style='mpl20')
+def test_acorr():
+    np.random.seed(19680801)
+    n = 512
+    x = np.random.normal(0, 1, n).cumsum()
+
+    fig, ax = plt.subplots()
+    ax.acorr(x, maxlags=n - 1)
+
+
 @image_comparison(baseline_images=['spy'], extensions=['png'], style='mpl20')
 def test_spy():
     np.random.seed(19680801)
