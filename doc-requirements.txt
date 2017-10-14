@@ -12,5 +12,4 @@ ipython
 mock
 numpydoc
 pillow
-scipy
 sphinx-gallery>=0.1.12
