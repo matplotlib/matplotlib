@@ -46,7 +46,6 @@ def _check_deps():
              "matplotlib": 'matplotlib',
              "numpydoc": 'numpydoc',
              "PIL.Image": 'pillow',
-             "scipy": 'scipy',
              "sphinx_gallery": 'sphinx_gallery'}
     if sys.version_info < (3, 3):
         names["mock"] = 'mock'
