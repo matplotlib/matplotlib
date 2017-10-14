@@ -25,7 +25,7 @@ or all of them via conda and pip::
     sphinx-gallery
   pip install colorspacious
 
-To build the HTML documentation, type ``python make.py html`` in this
+To build the HTML documentation, type ``make html`` in this
 directory. The top file of the results will be ./build/html/index.html
 
 **Note that Sphinx uses the installed version of the package to build the
@@ -57,7 +57,7 @@ python documentation system built on top of ReST.  This directory contains
 * mpl_toolkits - documentation of individual toolkits that ship with
   Matplotlib
 
-* make.py - the build script to build the html or PDF docs
+* Makefile - the build script to build the html or PDF docs
 
 * index.rst - the top level include document for Matplotlib docs
 

@@ -54,7 +54,7 @@ temporarily comment out the include and toctree glob; re-instate these after a
 release. Finally, make sure that the docs build cleanly ::
 
   pushd doc
-  python make.py html latex -n 16
+  make html latex
   popd
 
 After the docs are built, check that all of the links, internal and external, are still
@@ -214,7 +214,7 @@ build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
   git checkout v2.0.0-doc
   git clean -xfd
   cd doc
-  python make.py html latex -n 16
+  make html latex
 
 which will build both the html and pdf version of the documentation.
 
