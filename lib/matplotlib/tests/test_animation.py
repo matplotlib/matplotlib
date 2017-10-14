@@ -121,7 +121,7 @@ WRITER_OUTPUT = [
     ('avconv_file', 'mp4'),
     ('imagemagick', 'gif'),
     ('imagemagick_file', 'gif'),
-    ('html', 'html'),
+    #('html', 'html'),
     ('null', 'null')
 ]
 
