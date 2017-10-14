@@ -458,9 +458,9 @@ class _ToolGridBase(ToolBase):
         Returns True/False if all grid lines are on or off, None if they are
         not all in the same state.
         """
-        if all(tick.gridOn for tick in ticks):
+        if all(tick.gridline.get_visible() for tick in ticks):
             return True
-        elif not any(tick.gridOn for tick in ticks):
+        elif not any(tick.gridline.get_visible() for tick in ticks):
             return False
         else:
             return None
