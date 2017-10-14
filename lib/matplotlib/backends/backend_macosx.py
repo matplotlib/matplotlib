@@ -216,6 +216,7 @@ class _BackendMac(_Backend):
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
 
+    @staticmethod
     def trigger_manager_draw(manager):
         # For performance reasons, we don't want to redraw the figure after
         # each draw command. Instead, we mark the figure as invalid, so that it
