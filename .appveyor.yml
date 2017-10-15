@@ -18,9 +18,6 @@ environment:
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -rawR --timeout=300 --durations=25 --cov-report= --cov=lib -m "not network"
-    PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
-                       # https://github.com/pytest-dev/pytest/issues/920
-                       # https://github.com/pytest-dev/pytest/issues/1075
 
   matrix:
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
