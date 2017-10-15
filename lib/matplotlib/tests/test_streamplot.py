@@ -34,8 +34,7 @@ def test_startpoints():
     plt.plot(start_x, start_y, 'ok')
 
 
-@image_comparison(baseline_images=['streamplot_colormap'],
-                  tol=0.002)
+@image_comparison(baseline_images=['streamplot_colormap'])
 def test_colormap():
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,
