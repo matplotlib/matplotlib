@@ -617,7 +617,7 @@ def test_pandas_iterable():
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-@pytest.mark.parametrize('name', cm.cmap_d)
+@pytest.mark.parametrize('name', sorted(cm.cmap_d))
 def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
