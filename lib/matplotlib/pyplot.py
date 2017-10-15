@@ -22,6 +22,7 @@ import six
 
 import sys
 import warnings
+import time
 import types
 
 from cycler import cycler
