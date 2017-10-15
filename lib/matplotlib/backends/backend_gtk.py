@@ -711,6 +711,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         fname, format = chooser.get_filename_from_user()
         chooser.destroy()
         if fname:
+            startpath = os.path.expanduser(rcParams['savefig.directory'])
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 rcParams['savefig.directory'] = (
