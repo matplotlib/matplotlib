@@ -92,7 +92,7 @@ deps-run: &deps-install
   command: |
     export PATH="$HOME/miniconda/bin:$PATH"
     source activate testenv
-    pip install python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+    pip install python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage
     pip install -r doc-requirements.txt
 
 mpl-run: &mpl-install
