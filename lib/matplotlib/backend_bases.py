@@ -2606,7 +2606,7 @@ def key_press_handler(event, canvas, toolbar=None):
         elif scalex == 'linear':
             try:
                 ax.set_xscale('log')
-            except ValueError:
+            except ValueError as exc:
                 warnings.warn(str(exc))
                 ax.set_xscale('linear')
             ax.figure.canvas.draw_idle()
