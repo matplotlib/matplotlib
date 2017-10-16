@@ -175,6 +175,9 @@ class Patch(artist.Artist):
         self._us_dashes = other._us_dashes
         self.set_linewidth(other._linewidth)  # also sets dash properties
         self.set_transform(other.get_data_transform())
+        # If the transform of other needs further initialization, then it will
+        # be the case for this artist too.
+        self._transformSet = other.is_transform_set()
 
     def get_extents(self):
         """
