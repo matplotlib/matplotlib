@@ -21,12 +21,9 @@ infrastructure are in :mod:`matplotlib.testing`.
 Requirements
 ------------
 
-We strongly recommend developing new features in a seperate virtualenv.
-
-Install all the Matplotlib dependencies_, and install matplotlib into the
-virtualenv with ``pip install -e matplotlib`` (but note the changes needed to
-``setup.cfg`` below) which will allow you to edit the code without
-reinstalling.
+Install the latest version of Matplotlib as documented in
+:ref:`installing_for_devs` In particular, follow the instructions to use a
+local FreeType build
 
 The following software is required to run the tests:
 
@@ -42,26 +39,6 @@ Optionally you can install:
   - pytest-timeout_ to limit runtime in case of stuck tests
   - pytest-xdist_ to run tests in parallel
 
-
-Building matplotlib for image comparison tests
-----------------------------------------------
-
-matplotlib's test suite makes heavy use of image comparison tests,
-meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of FreeType produce differently
-formed characters, causing these image comparisons to fail.  To make
-them reproducible, matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all matplotlib developers.
-
-Add the following content to a ``setup.cfg`` file at the root of the
-matplotlib source directory::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-or by setting the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.
 
 Running the tests
 -----------------

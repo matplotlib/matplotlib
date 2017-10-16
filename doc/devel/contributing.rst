@@ -45,6 +45,8 @@ use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
 
+.. _installing_for_devs:
+
 Retrieving and installing the latest version of the code
 ========================================================
 
@@ -84,17 +86,28 @@ you can use ``git@`` instead of  ``https://``, which works through the ssh proto
 and might be easier to use if you are using 2-factor authentication.
 
 
-To make sure the tests run locally you must build against the correct version
-of freetype.  To configure the build system to fetch and build it either export
-the env ``MPLLOCALFREETYPE`` as::
+Building matplotlib for image comparison tests
+----------------------------------------------
 
-  export MPLLOCALFREETYPE=1
+Matplotlib's test suite makes heavy use of image comparison tests,
+meaning the result of a plot is compared against a known good result.
+Unfortunately, different versions of FreeType produce differently
+formed characters, causing these image comparisons to fail.  To make
+them reproducible, matplotlib can be built with a special local copy
+of FreeType.  This is recommended for all matplotlib developers.
 
-or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain
-::
+Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
 
   [test]
   local_freetype = True
+  tests = True
+
+or set the ``MPLLOCALFREETYPE`` environmental variable to any true
+value.
+
+
+Install matplotlib in developer mode
+------------------------------------
 
 To install Matplotlib (and compile the c-extensions) run the following
 command from the top-level directory ::
