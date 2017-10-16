@@ -983,7 +983,6 @@ class LogFormatter(Formatter):
         if x == 0.0:  # Symlog
             return '0'
 
-        sign = np.sign(x)
         x = abs(x)
         b = self._base
         # only label the decades
