@@ -132,7 +132,8 @@ sphinx_gallery_conf = {
         'scipy': 'https://docs.scipy.org/doc/scipy/reference',
     },
     'backreferences_dir': 'api/_as_gen',
-    'subsection_order': ExplicitOrder(explicit_order_folders)
+    'subsection_order': ExplicitOrder(explicit_order_folders),
+    'min_reported_time': 1,
 }
 
 plot_gallery = 'True'
