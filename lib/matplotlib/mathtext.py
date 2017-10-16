@@ -1838,7 +1838,7 @@ class Glue(Node):
         elif isinstance(glue_type, GlueSpec):
             glue_spec = glue_type
         else:
-            raise ArgumentError("glue_type must be a glue spec name or instance.")
+            raise ValueError("glue_type must be a glue spec name or instance.")
         if copy:
             glue_spec = glue_spec.copy()
         self.glue_spec      = glue_spec
