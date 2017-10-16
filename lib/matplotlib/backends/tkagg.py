@@ -37,13 +37,11 @@ else:
             bbox_array = None
         data = np.asarray(aggimage)
         try:
-            import pdb;pdb.set_trace()
             tk.call(
                 "PyAggImagePhoto", photoimage,
                 id(data), colormode, id(bbox_array))
         except Tk.TclError:
             try:
-                import pdb;pdb.set_trace()
                 try:
                     _tkagg.tkinit(tk.interpaddr(), 1)
                 except AttributeError:
