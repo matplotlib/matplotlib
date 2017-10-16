@@ -4,14 +4,6 @@
 Working with Matplotlib in Virtual environments
 ***********************************************
 
-.. contents::
-   :backlinks: none
-
-.. _virtualenv_introduction:
-
-Introduction
-============
-
 When running Matplotlib in a `virtual environment
 <https://virtualenv.pypa.io/en/latest/>`_ you may discover a few issues.
 Matplotlib itself has no issue with virtual environments.  However, some of
