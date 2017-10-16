@@ -54,6 +54,7 @@ webagg_server_thread = ServerThread()
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     def show(self):
         # show the figure window
+        from matplotlib.pyplot import show
         show()
 
     def new_timer(self, *args, **kwargs):
