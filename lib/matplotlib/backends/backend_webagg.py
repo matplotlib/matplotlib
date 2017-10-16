@@ -78,8 +78,8 @@ class WebAggApplication(tornado.web.Application):
     class SingleFigurePage(tornado.web.RequestHandler):
         def __init__(self, application, request, **kwargs):
             self.url_prefix = kwargs.pop('url_prefix', '')
-            return tornado.web.RequestHandler.__init__(self, application,
-                                                       request, **kwargs)
+            tornado.web.RequestHandler.__init__(self, application,
+                                                request, **kwargs)
 
         def get(self, fignum):
             fignum = int(fignum)
@@ -98,8 +98,8 @@ class WebAggApplication(tornado.web.Application):
     class AllFiguresPage(tornado.web.RequestHandler):
         def __init__(self, application, request, **kwargs):
             self.url_prefix = kwargs.pop('url_prefix', '')
-            return tornado.web.RequestHandler.__init__(self, application,
-                                                       request, **kwargs)
+            tornado.web.RequestHandler.__init__(self, application,
+                                                request, **kwargs)
 
         def get(self):
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
