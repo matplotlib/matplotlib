@@ -8,7 +8,6 @@ Matplotlib's testing infrastructure depends on pytest_. The tests are in
 :file:`lib/matplotlib/tests`, and customizations to the pytest testing
 infrastructure are in :mod:`matplotlib.testing`.
 
-.. _dependencies: http://matplotlib.org/users/installing.html#dependencies
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _mock: https://docs.python.org/3/library/unittest.mock.html>
 .. _Ghostscript: https://www.ghostscript.com/
