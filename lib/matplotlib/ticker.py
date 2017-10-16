@@ -1410,7 +1410,7 @@ class PercentFormatter(Formatter):
         return symbol
 
     @symbol.setter
-    def symbol(self):
+    def symbol(self, symbol):
         self._symbol = symbol
 
 
