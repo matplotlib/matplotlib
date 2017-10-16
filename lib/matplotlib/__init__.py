@@ -878,7 +878,6 @@ class RcParams(MutableMapping, dict):
             the parent RcParams dictionary.
 
         """
-        import re
         pattern_re = re.compile(pattern)
         return RcParams((key, value)
                         for key, value in self.items()
@@ -1700,7 +1699,6 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 elif label_namer in kwargs:
                     kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
-                    import warnings
                     msg = ("Tried to set a label via parameter '%s' in "
                            "func '%s' but couldn't find such an argument. \n"
                            "(This is a programming error, please report to "
