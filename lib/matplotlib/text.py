@@ -46,8 +46,7 @@ def _process_text_args(override, fontdict=None, **kwargs):
 
 @contextlib.contextmanager
 def _wrap_text(textobj):
-    """
-    Temporarily inserts newlines to the text if the wrap option is enabled.
+    """Temporarily inserts newlines to the text if the wrap option is enabled.
     """
     if textobj.get_wrap():
         old_text = textobj.get_text()
@@ -82,62 +81,6 @@ def get_rotation(rotation):
                              "None".format(rotation))
 
     return angle % 360
-# these are not available for the object inspector until after the
-# class is build so we define an initial set here for the init
-# function and they will be overridden after object defn
-docstring.interpd.update(Text="""
-    ========================== ================================================
-    Property                   Value
-    ========================== ================================================
-    alpha                      float or None
-    animated                   [True | False]
-    backgroundcolor            any matplotlib color
-    bbox                       rectangle prop dict plus key 'pad' which is a
-                               pad in points; if a boxstyle is supplied as
-                               a string, then pad is instead a fraction
-                               of the font size
-    clip_box                   a matplotlib.transform.Bbox instance
-    clip_on                    [True | False]
-    color                      any matplotlib color
-    family                     ['serif' | 'sans-serif' | 'cursive' |
-                                'fantasy' | 'monospace']
-    figure                     a matplotlib.figure.Figure instance
-    fontproperties             a matplotlib.font_manager.FontProperties
-                               instance
-    horizontalalignment or ha  ['center' | 'right' | 'left']
-    label                      any string
-    linespacing                float
-    lod                        [True | False]
-    multialignment             ['left' | 'right' | 'center' ]
-    name or fontname           string e.g.,
-                               ['Sans' | 'Courier' | 'Helvetica' ...]
-    position                   (x,y)
-    rotation                   [ angle in degrees 'vertical' | 'horizontal'
-    rotation_mode              [ None | 'anchor']
-    size or fontsize           [size in points | relative size e.g., 'smaller',
-                                                                  'x-large']
-    style or fontstyle         [ 'normal' | 'italic' | 'oblique']
-    text                       string
-    transform                  a matplotlib.transform transformation instance
-    usetex                     [True | False | None]
-    variant                    ['normal' | 'small-caps']
-    verticalalignment or va    ['center' | 'top' | 'bottom' | 'baseline' |
-                                'center_baseline' ]
-    visible                    [True | False]
-    weight or fontweight       ['normal' | 'bold' | 'heavy' | 'light' |
-                                'ultrabold' | 'ultralight']
-    wrap                       [True | False]
-    x                          float
-    y                          float
-    zorder                     any number
-    ========================== ===============================================
-    """)
-
-# TODO : This function may move into the Text class as a method. As a
-# matter of fact, The information from the _get_textbox function
-# should be available during the Text._get_layout() call, which is
-# called within the _get_textbox. So, it would better to move this
-# function as a method with some refactoring of _get_layout method.
 
 
 def _get_textbox(text, renderer):
@@ -146,6 +89,11 @@ def _get_textbox(text, renderer):
     :meth:`matplotlib.text.Text.get_extents` method, The bbox size of
     the text before the rotation is calculated.
     """
+    # TODO : This function may move into the Text class as a method. As a
+    # matter of fact, The information from the _get_textbox function
+    # should be available during the Text._get_layout() call, which is
+    # called within the _get_textbox. So, it would better to move this
+    # function as a method with some refactoring of _get_layout method.
 
     projected_xs = []
     projected_ys = []

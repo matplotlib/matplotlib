@@ -27,36 +27,6 @@ from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
 
-# these are not available for the object inspector until after the
-# class is built so we define an initial set here for the init
-# function and they will be overridden after object definition
-docstring.interpd.update(Patch="""
-
-          =================   ==============================================
-          Property            Description
-          =================   ==============================================
-          alpha               float
-          animated            [True | False]
-          antialiased or aa   [True | False]
-          capstyle            ['butt' | 'round' | 'projecting']
-          clip_box            a matplotlib.transform.Bbox instance
-          clip_on             [True | False]
-          edgecolor or ec     any matplotlib color
-          facecolor or fc     any matplotlib color
-          figure              a matplotlib.figure.Figure instance
-          fill                [True | False]
-          hatch               unknown
-          joinstyle           ['miter' | 'round' | 'bevel']
-          label               any string
-          linewidth or lw     float
-          lod                 [True | False]
-          transform           a matplotlib.transform transformation instance
-          visible             [True | False]
-          zorder              any number
-          =================   ==============================================
-
-          """)
-
 _patch_alias_map = {
         'antialiased': ['aa'],
         'edgecolor': ['ec'],
