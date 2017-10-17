@@ -302,10 +302,14 @@ class Artist(object):
 
     def set_transform(self, t):
         """
-        Set the :class:`~matplotlib.transforms.Transform` instance
-        used by this artist.
+        Set the artist transform.
 
-        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
+        Parameters
+        ----------
+        t : `~.Transform`
+
+        ..
+            ACCEPTS: `~.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -523,6 +527,9 @@ class Artist(object):
             segments, round to the nearest pixel center
 
         Only supported by the Agg and MacOSX backends.
+
+        ..
+            ACCEPTS: Optional[bool]
         """
         self._snap = snap
         self.stale = True
@@ -553,6 +560,9 @@ class Artist(object):
         """
         Sets the sketch parameters.
 
+        ..
+            ACCEPTS: (scale: float, length: float, randomness: float)
+
         Parameters
         ----------
 
@@ -576,9 +586,14 @@ class Artist(object):
         self.stale = True
 
     def set_path_effects(self, path_effects):
-        """
-        set path_effects, which should be a list of instances of
-        matplotlib.patheffect._Base class or its derivatives.
+        """Set the path effects.
+
+        ..
+            ACCEPTS: `~.AbstractPathEffect`
+
+        Parameters
+        ----------
+        path_effects : `~.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -762,13 +777,21 @@ class Artist(object):
         self._rasterized = rasterized
 
     def get_agg_filter(self):
-        "return filter function to be used for agg filter"
+        """Return filter function to be used for agg filter."""
         return self._agg_filter
 
     def set_agg_filter(self, filter_func):
-        """
-        set agg_filter function.
+        """Set the agg filter.
 
+        ..
+            ACCEPTS: a filter function, which takes a (m, n, 3) float array and
+            a dpi value, and returns a (m, n, 3) array
+
+        Parameters
+        ----------
+        filter_func : callable
+            A filter function, which takes a (m, n, 3) float array and a dpi
+            value, and returns a (m, n, 3) array.
         """
         self._agg_filter = filter_func
         self.stale = True

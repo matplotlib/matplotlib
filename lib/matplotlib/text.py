@@ -246,11 +246,17 @@ class Text(Artist):
 
     def set_rotation_mode(self, m):
         """
-        set text rotation mode. If "anchor", the un-rotated text
-        will first aligned according to their *ha* and
-        *va*, and then will be rotated with the alignement
-        reference point as a origin. If None (default), the text will be
-        rotated first then will be aligned.
+        Set text rotation mode.
+
+        ..
+            ACCEPTS: [ None | "default" | "anchor" ]
+
+        Parameters
+        ----------
+        m : ``None`` or ``"default"`` or ``"anchor"``
+            If ``None`` or ``"default"``, the text will be first rotated, then
+            aligned according to their horizontal and vertical alignments.  If
+            ``"anchor"``, then alignment occurs before rotation.
         """
         if m is None or m in ["anchor", "default"]:
             self._rotation_mode = m
@@ -583,8 +589,14 @@ class Text(Artist):
         return self._wrap
 
     def set_wrap(self, wrap):
-        """
-        Sets the wrapping state for the text.
+        """Sets the wrapping state for the text.
+
+        ..
+            ACCEPTS: bool
+
+        Parameters
+        ----------
+        wrap : bool
         """
         self._wrap = wrap
 
@@ -1207,10 +1219,13 @@ class Text(Artist):
 
     def set_usetex(self, usetex):
         """
-        Set this `Text` object to render using TeX (or not).
+        Set whether to render using TeX.
 
-        If `None` is given, the option will be reset to use the value of
-        `rcParams['text.usetex']`
+        If ``None`` is given, the option will be reset to use the value of
+        ``rcParams['text.usetex']``.
+
+        ..
+            ACCEPTS: Optional[bool]
         """
         if usetex is None:
             self._usetex = rcParams['text.usetex']

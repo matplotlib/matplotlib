@@ -327,6 +327,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.stale = False
 
     def set_pickradius(self, pr):
+        """Set the pick radius used for containment tests.
+
+        ..
+            ACCEPTS: float distance in points
+
+        Parameters
+        ----------
+        d : float
+            Pick radius, in points.
+        """
         self._pickradius = pr
 
     def get_pickradius(self):
@@ -362,6 +372,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return len(ind) > 0, dict(ind=ind)
 
     def set_urls(self, urls):
+        """
+        ..
+            ACCEPTS: Optional[Iterable[str]]
+        """
         if urls is None:
             self._urls = [None, ]
         else:
@@ -440,6 +454,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         been applied, that is, the offsets are in screen coordinates.
         If offset_position is 'data', the offset is applied before the
         master transform, i.e., the offsets are in data coordinates.
+
+        ..
+            ACCEPTS: [ 'screen' | 'data' ]
         """
         if offset_position not in ('screen', 'data'):
             raise ValueError("offset_position must be 'screen' or 'data'")
