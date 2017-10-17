@@ -378,7 +378,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
                                                 antialiaseds,
                                                 offset_position)));
     }
-    catch (py::exception &e)
+    catch (const py::exception &)
     {
         return NULL;
     }
