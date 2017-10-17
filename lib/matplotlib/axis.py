@@ -1052,11 +1052,12 @@ class Axis(artist.Artist):
         for tick, loc, label in tick_tups:
             if tick is None:
                 continue
-            if not mtransforms.interval_contains(interval_expanded, loc):
-                continue
+            # NB: always update labels and position to avoid issues like #9397
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
+            if not mtransforms.interval_contains(interval_expanded, loc):
+                continue
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
