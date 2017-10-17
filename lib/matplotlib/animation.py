@@ -1814,7 +1814,7 @@ class FuncAnimation(TimedAnimation):
         self._drawn_artists = self._func(framedata, *self._args)
         if self._blit:
             if self._drawn_artists is None:
-                    raise RuntimeError('The animation function must return a '
-                                       'sequence of Artist objects.')
+                raise RuntimeError('The animation function must return a '
+                                   'sequence of Artist objects.')
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
