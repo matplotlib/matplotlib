@@ -106,8 +106,8 @@ or set the ``MPLLOCALFREETYPE`` environmental variable to any true
 value.
 
 
-Install Matplotlib in developer mode
-------------------------------------
+Installing Matplotlib in developer mode
+---------------------------------------
 
 To install Matplotlib (and compile the c-extensions) run the following
 command from the top-level directory ::
