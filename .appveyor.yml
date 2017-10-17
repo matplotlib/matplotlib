@@ -17,7 +17,8 @@ environment:
     CMD_IN_ENV: cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: UTF-8
-    PYTEST_ARGS: -rawR --timeout=300 --durations=25 --cov-report= --cov=lib -m "not network"
+    PYTEST_ARGS: -rawR --numprocesses=auto --timeout=300 --durations=25
+                 --cov-report= --cov=lib -m "not network"
 
   matrix:
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
@@ -90,7 +91,7 @@ install:
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-  - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout
+  - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-xdist
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
   # https://github.com/matplotlib/matplotlib/issues/9176
