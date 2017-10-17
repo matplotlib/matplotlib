@@ -2075,10 +2075,10 @@ class _AxesBase(martist.Artist):
         *m* times the data interval will be added to each
         end of that interval before it is used in autoscaling.
 
-        accepts: float in range 0 to 1
+        accepts: float greater than -0.5
         """
-        if m < 0 or m > 1:
-            raise ValueError("margin must be in range 0 to 1")
+        if m <= -0.5:
+            raise ValueError("margin must be greater than -0.5")
         self._xmargin = m
         self.stale = True
 
@@ -2089,10 +2089,10 @@ class _AxesBase(martist.Artist):
         *m* times the data interval will be added to each
         end of that interval before it is used in autoscaling.
 
-        accepts: float in range 0 to 1
+        accepts: float greater than -0.5
         """
-        if m < 0 or m > 1:
-            raise ValueError("margin must be in range 0 to 1")
+        if m <= -0.5:
+            raise ValueError("margin must be greater than -0.5")
         self._ymargin = m
         self.stale = True
 
