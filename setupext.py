@@ -1267,6 +1267,16 @@ class FreeType(SetupPackage):
                 else:
                     return cmd.compiler.spawn(command)
 
+            if cmd.debug:
+                mt = '/MTd' in cmd.compiler.compile_options_debug
+            else:
+                mt = '/MT' in cmd.compiler.compile_options
+
+            if mt:
+                vc_config += ' Multithreaded'
+
+            postfix = 'MT' if mt else ''
+
             if get_build_version() < 11.0:
                 vc_platform = 'x64' if X64 else 'Win32'
                 vc_config = 'LIB ' + vc_config
@@ -1280,7 +1290,7 @@ class FreeType(SetupPackage):
                        '{config}|{platform}'.format(config=vc_config,
                            platform=vc_platform)
                       ])
-                postfix = '_D' if cmd.debug else ''
+                postfix += '_D' if cmd.debug else ''
                 builddir = os.path.join(src_path, 'objs', 'win32', vc)
             else:
                 vc_platform = 'x64' if X64 else 'x86'
@@ -1295,7 +1305,7 @@ class FreeType(SetupPackage):
                                 version=get_build_version(),
                                 toolset=int(get_build_version() * 10)),
                       ])
-                postfix = 'd' if cmd.debug else ''
+                postfix += 'd' if cmd.debug else ''
                 builddir = os.path.join(src_path, 'objs', vc, vc_platform)
 
             verstr = LOCAL_FREETYPE_VERSION.replace('.', '')
