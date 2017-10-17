@@ -180,9 +180,9 @@ colorbar, for example, from being taller than the axes of the mappable
 to which the colorbar is attached; but it is a manual method requiring
 some trial and error. If the colorbar is too tall (or a horizontal
 colorbar is too wide) use a smaller value of *shrink*.
-Further *shrink* and *cax* kwargs are incompatible with each other and shrink
-applies only if the colorbar makes its own Axes by sharing space from the Axes
-in which the mappable resides.
+Further, *shrink* and *cax* kwargs are incompatible with each other and
+*shrink* applies only if the colorbar makes its own Axes by sharing space
+with the Axes in which it resides.
 
 For more precise control, you can manually specify the positions of
 the axes objects in which the mappable and the colorbar are drawn.  In
