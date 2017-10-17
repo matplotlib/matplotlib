@@ -148,8 +148,7 @@ Writing an image based test is only slightly more difficult than a
 simple test. The main consideration is that you must specify the
 "baseline", or expected, images in the
 :func:`~matplotlib.testing.decorators.image_comparison` decorator. For
-example, this test generates a single image and automatically tests
-it::
+example, this test generates a single image and automatically tests it::
 
   import numpy as np
   import matplotlib
@@ -246,13 +245,13 @@ repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
 <https://travis-ci.org/matplotlib/matplotlib>`_.
 
-If you want to enable Travis CI for your personal matplotlib GitHub
+If you want to enable Travis CI for your personal Matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
 UI or the GitHub UI (Admin | Service Hooks). For details, see `the
 Travis CI Getting Started page
 <https://docs.travis-ci.com/user/getting-started/>`_.  This
 generally isn't necessary, since any pull request submitted against
-the main matplotlib repository will be tested.
+the main Matplotlib repository will be tested.
 
 Once this is configured, you can see the Travis CI results at
 https://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an

@@ -86,15 +86,15 @@ you can use ``git@`` instead of  ``https://``, which works through the ssh proto
 and might be easier to use if you are using 2-factor authentication.
 
 
-Building matplotlib for image comparison tests
+Building Matplotlib for image comparison tests
 ----------------------------------------------
 
 Matplotlib's test suite makes heavy use of image comparison tests,
 meaning the result of a plot is compared against a known good result.
 Unfortunately, different versions of FreeType produce differently
 formed characters, causing these image comparisons to fail.  To make
-them reproducible, matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all matplotlib developers.
+them reproducible, Matplotlib can be built with a special local copy
+of FreeType.  This is recommended for all Matplotlib developers.
 
 Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
 
@@ -106,7 +106,7 @@ or set the ``MPLLOCALFREETYPE`` environmental variable to any true
 value.
 
 
-Install matplotlib in developer mode
+Install Matplotlib in developer mode
 ------------------------------------
 
 To install Matplotlib (and compile the c-extensions) run the following
