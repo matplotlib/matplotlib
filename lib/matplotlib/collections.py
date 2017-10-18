@@ -1528,17 +1528,11 @@ class EventCollection(LineCollection):
         self._lineoffset = lineoffset
 
     def get_linewidth(self):
-        '''
-        get the width of the lines used to mark each event
-        '''
-        return self.get_linewidths()[0]
+        """Get the width of the lines used to mark each event."""
+        return super(EventCollection, self).get_linewidth()[0]
 
-    def get_linestyle(self):
-        '''
-        get the style of the lines used to mark each event
-        [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
-        '''
-        return self.get_linestyles()
+    def get_linewidths(self):
+        return super(EventCollection, self).get_linewidth()
 
     def get_color(self):
         '''

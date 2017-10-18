@@ -591,8 +591,8 @@ class Poly3DCollection(PolyCollection):
         self.update_scalarmappable()
         self._sort_zpos = None
         self.set_zsort(True)
-        self._facecolors3d = PolyCollection.get_facecolors(self)
-        self._edgecolors3d = PolyCollection.get_edgecolors(self)
+        self._facecolors3d = PolyCollection.get_facecolor(self)
+        self._edgecolors3d = PolyCollection.get_edgecolor(self)
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
@@ -664,12 +664,10 @@ class Poly3DCollection(PolyCollection):
     def set_facecolor(self, colors):
         PolyCollection.set_facecolor(self, colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
-    set_facecolors = set_facecolor
 
     def set_edgecolor(self, colors):
         PolyCollection.set_edgecolor(self, colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
-    set_edgecolors = set_edgecolor
 
     def set_alpha(self, alpha):
         """
@@ -696,13 +694,11 @@ class Poly3DCollection(PolyCollection):
             pass
         self.stale = True
 
-    def get_facecolors(self):
+    def get_facecolor(self):
         return self._facecolors2d
-    get_facecolor = get_facecolors
 
-    def get_edgecolors(self):
+    def get_edgecolor(self):
         return self._edgecolors2d
-    get_edgecolor = get_edgecolors
 
     def draw(self, renderer):
         return Collection.draw(self, renderer)
