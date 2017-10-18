@@ -132,7 +132,8 @@ class TriContourSet(ContourSet):
 
           tricontour(..., Z, N)
 
-        contour up to *N+1* automatically chosed contour levels (*N* intervals).
+        contour up to *N+1* automatically chosed contour levels
+        (*N* intervals).
 
         ::
 
