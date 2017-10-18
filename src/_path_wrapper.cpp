@@ -283,7 +283,7 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
                  (get_path_collection_extents(
                      master_transform, paths, transforms, offsets, offset_trans, e)));
     }
-    catch (py::exception &e)
+    catch (const py::exception &)
     {
         return NULL;
     }
@@ -351,7 +351,7 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
                                            offset_position,
                                            result)));
     }
-    catch (py::exception &e)
+    catch (const py::exception &)
     {
         return NULL;
     }

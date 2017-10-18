@@ -23,7 +23,7 @@ class exception : public std::exception
     {                                                                        \
         a;                                                                   \
     }                                                                        \
-    catch (const py::exception &e)                                           \
+    catch (const py::exception &)                                            \
     {                                                                        \
         {                                                                    \
             cleanup;                                                         \
