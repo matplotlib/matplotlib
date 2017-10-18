@@ -1287,6 +1287,10 @@ class Transform(TransformNode):
     # override `__eq__`), but some subclasses, such as TransformWrapper &
     # AffineBase, override this behavior.
 
+    if six.PY2:
+        def __ne__(self, other):
+            return not (self == other)
+
     def _iter_break_from_left_to_right(self):
         """
         Returns an iterator breaking down this transform stack from left to
