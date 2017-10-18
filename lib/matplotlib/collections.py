@@ -505,14 +505,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._us_lw, self._us_linestyles)
         self.stale = True
 
-    def set_linewidths(self, lw):
-        """alias for set_linewidth"""
-        return self.set_linewidth(lw)
-
-    def set_lw(self, lw):
-        """alias for set_linewidth"""
-        return self.set_linewidth(lw)
-
     def set_linestyle(self, ls):
         """
         Set the linestyle(s) for the collection.
@@ -640,14 +632,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         return linewidths, dashes
 
-    def set_linestyles(self, ls):
-        """alias for set_linestyle"""
-        return self.set_linestyle(ls)
-
-    def set_dashes(self, ls):
-        """alias for set_linestyle"""
-        return self.set_linestyle(ls)
-
     def set_antialiased(self, aa):
         """
         Set the antialiasing state for rendering.
@@ -658,10 +642,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             aa = mpl.rcParams['patch.antialiased']
         self._antialiaseds = np.atleast_1d(np.asarray(aa, bool))
         self.stale = True
-
-    def set_antialiaseds(self, aa):
-        """alias for set_antialiased"""
-        return self.set_antialiased(aa)
 
     def set_color(self, c):
         """
@@ -704,13 +684,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._original_facecolor = c
         self._set_facecolor(c)
 
-    def set_facecolors(self, c):
-        """alias for set_facecolor"""
-        return self.set_facecolor(c)
-
     def get_facecolor(self):
         return self._facecolors
-    get_facecolors = get_facecolor
 
     def get_edgecolor(self):
         if (isinstance(self._edgecolors, six.string_types)
@@ -718,7 +693,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return self.get_facecolors()
         else:
             return self._edgecolors
-    get_edgecolors = get_edgecolor
 
     def _set_edgecolor(self, c):
         set_hatch_color = True
@@ -764,10 +738,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._original_edgecolor = c
         self._set_edgecolor(c)
 
-    def set_edgecolors(self, c):
-        """alias for set_edgecolor"""
-        return self.set_edgecolor(c)
-
     def set_alpha(self, alpha):
         """
         Set the alpha tranparencies of the collection.  *alpha* must be
@@ -785,13 +755,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
 
-    def get_linewidths(self):
+    def get_linewidth(self):
         return self._linewidths
-    get_linewidth = get_linewidths
 
-    def get_linestyles(self):
+    def get_linestyle(self):
         return self._linestyles
-    get_dashes = get_linestyle = get_linestyles
 
     def update_scalarmappable(self):
         """
@@ -835,6 +803,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
         self.stale = True
+
+    cbook._define_aliases(locals(), {
+        "antialiased": ["antialiaseds"],
+        "edgecolor": ["edgecolors"],
+        "facecolor": ["facecolors"],
+        "linestyle": ["linestyles", "dashes"],
+        "linewidth": ["linewidths", "lw"],
+    })
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init

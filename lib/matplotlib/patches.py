@@ -266,10 +266,6 @@ class Patch(artist.Artist):
         self._antialiased = aa
         self.stale = True
 
-    def set_aa(self, aa):
-        """alias for set_antialiased"""
-        return self.set_antialiased(aa)
-
     def _set_edgecolor(self, color):
         set_hatch_color = True
         if color is None:
@@ -294,10 +290,6 @@ class Patch(artist.Artist):
         self._original_edgecolor = color
         self._set_edgecolor(color)
 
-    def set_ec(self, color):
-        """alias for set_edgecolor"""
-        return self.set_edgecolor(color)
-
     def _set_facecolor(self, color):
         if color is None:
             color = mpl.rcParams['patch.facecolor']
@@ -313,10 +305,6 @@ class Patch(artist.Artist):
         """
         self._original_facecolor = color
         self._set_facecolor(color)
-
-    def set_fc(self, color):
-        """alias for set_facecolor"""
-        return self.set_facecolor(color)
 
     def set_color(self, c):
         """
@@ -366,10 +354,6 @@ class Patch(artist.Artist):
             offset, ls, self._linewidth)
         self.stale = True
 
-    def set_lw(self, lw):
-        """alias for set_linewidth"""
-        return self.set_linewidth(lw)
-
     def set_linestyle(self, ls):
         """
         Set the patch linestyle
@@ -409,10 +393,6 @@ class Patch(artist.Artist):
         self._dashoffset, self._dashes = mlines._scale_dashes(
             offset, ls, self._linewidth)
         self.stale = True
-
-    def set_ls(self, ls):
-        """alias for set_linestyle"""
-        return self.set_linestyle(ls)
 
     def set_fill(self, b):
         """
@@ -569,6 +549,14 @@ class Patch(artist.Artist):
 
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
+
+    cbook._define_aliases(locals(), {
+        "antialiased": ["aa"],
+        "edgecolor": ["ec"],
+        "facecolor": ["fc"],
+        "linewidth": ["lw"],
+        "linestyle": ["ls"],
+    })
 
 
 patchdoc = artist.kwdoc(Patch)

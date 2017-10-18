@@ -766,17 +766,9 @@ class Text(Artist):
         "Return the :class:`~font_manager.FontProperties` object"
         return self._fontproperties
 
-    def get_font_properties(self):
-        'alias for get_fontproperties'
-        return self.get_fontproperties()
-
     def get_family(self):
         "Return the list of font families used for font lookup"
         return self._fontproperties.get_family()
-
-    def get_fontfamily(self):
-        'alias for get_family'
-        return self.get_family()
 
     def get_name(self):
         "Return the font name as string"
@@ -794,41 +786,13 @@ class Text(Artist):
         "Return the font variant as a string"
         return self._fontproperties.get_variant()
 
-    def get_fontvariant(self):
-        'alias for get_variant'
-        return self.get_variant()
-
     def get_weight(self):
         "Get the font weight as string or number"
         return self._fontproperties.get_weight()
 
-    def get_fontname(self):
-        'alias for get_name'
-        return self.get_name()
-
-    def get_fontstyle(self):
-        'alias for get_style'
-        return self.get_style()
-
-    def get_fontsize(self):
-        'alias for get_size'
-        return self.get_size()
-
-    def get_fontweight(self):
-        'alias for get_weight'
-        return self.get_weight()
-
     def get_stretch(self):
         'Get the font stretch as a string or number'
         return self._fontproperties.get_stretch()
-
-    def get_fontstretch(self):
-        'alias for get_stretch'
-        return self.get_stretch()
-
-    def get_ha(self):
-        'alias for get_horizontalalignment'
-        return self.get_horizontalalignment()
 
     def get_horizontalalignment(self):
         """
@@ -872,10 +836,6 @@ class Text(Artist):
     def get_text(self):
         "Get the text as string"
         return self._text
-
-    def get_va(self):
-        'alias for :meth:`getverticalalignment`'
-        return self.get_verticalalignment()
 
     def get_verticalalignment(self):
         """
@@ -960,10 +920,6 @@ class Text(Artist):
         self._color = color
         self.stale = True
 
-    def set_ha(self, align):
-        'alias for set_horizontalalignment'
-        self.set_horizontalalignment(align)
-
     def set_horizontalalignment(self, align):
         """
         Set the horizontal alignment to one of
@@ -976,10 +932,6 @@ class Text(Artist):
                              str(legal))
         self._horizontalalignment = align
         self.stale = True
-
-    def set_ma(self, align):
-        'alias for set_multialignment'
-        self.set_multialignment(align)
 
     def set_multialignment(self, align):
         """
@@ -1030,18 +982,6 @@ class Text(Artist):
         self._fontproperties.set_variant(variant)
         self.stale = True
 
-    def set_fontvariant(self, variant):
-        'alias for set_variant'
-        return self.set_variant(variant)
-
-    def set_name(self, fontname):
-        """alias for set_family"""
-        return self.set_family(fontname)
-
-    def set_fontname(self, fontname):
-        """alias for set_family"""
-        self.set_family(fontname)
-
     def set_style(self, fontstyle):
         """
         Set the font style.
@@ -1050,10 +990,6 @@ class Text(Artist):
         """
         self._fontproperties.set_style(fontstyle)
         self.stale = True
-
-    def set_fontstyle(self, fontstyle):
-        'alias for set_style'
-        return self.set_style(fontstyle)
 
     def set_size(self, fontsize):
         """
@@ -1065,10 +1001,6 @@ class Text(Artist):
         """
         self._fontproperties.set_size(fontsize)
         self.stale = True
-
-    def set_fontsize(self, fontsize):
-        'alias for set_size'
-        return self.set_size(fontsize)
 
     def set_weight(self, weight):
         """
@@ -1082,10 +1014,6 @@ class Text(Artist):
         self._fontproperties.set_weight(weight)
         self.stale = True
 
-    def set_fontweight(self, weight):
-        'alias for set_weight'
-        return self.set_weight(weight)
-
     def set_stretch(self, stretch):
         """
         Set the font stretch (horizontal condensation or expansion).
@@ -1097,10 +1025,6 @@ class Text(Artist):
         """
         self._fontproperties.set_stretch(stretch)
         self.stale = True
-
-    def set_fontstretch(self, stretch):
-        'alias for set_stretch'
-        return self.set_stretch(stretch)
 
     def set_position(self, xy):
         """
@@ -1137,10 +1061,6 @@ class Text(Artist):
         """
         self._rotation = s
         self.stale = True
-
-    def set_va(self, align):
-        'alias for set_verticalalignment'
-        self.set_verticalalignment(align)
 
     def set_verticalalignment(self, align):
         """
@@ -1202,10 +1122,6 @@ class Text(Artist):
         self._fontproperties = fp.copy()
         self.stale = True
 
-    def set_font_properties(self, fp):
-        'alias for set_fontproperties'
-        self.set_fontproperties(fp)
-
     def set_usetex(self, usetex):
         """
         Parameters
@@ -1233,6 +1149,24 @@ class Text(Artist):
             return rcParams['text.usetex']
         else:
             return self._usetex
+
+    def set_name(self, fontname):  # One-way alias only: the getter differs.
+        """alias for set_family"""
+        return self.set_family(fontname)
+
+    cbook._define_aliases(locals(), {
+        "family": ["fontfamily"],
+        "fontproperties": ["font_properties"],
+        "horizontalalignment": ["ha"],
+        "multialignment": ["ma"],
+        "name": ["fontname"],
+        "size": ["fontsize"],
+        "stretch": ["fontstretch"],
+        "style": ["fontstyle"],
+        "variant": ["fontvariant"],
+        "verticalalignment": ["va"],
+        "weight": ["fontweight"],
+    })
 
 docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)

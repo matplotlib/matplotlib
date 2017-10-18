@@ -2803,3 +2803,37 @@ def _str_lower_equal(obj, s):
     cannot be used in a boolean context.
     """
     return isinstance(obj, six.string_types) and obj.lower() == s
+
+
+def _define_aliases(local_d, alias_d):
+    """Define property aliases.
+
+    Use in a class definition as ::
+
+        cbook._define_aliases(locals(), {
+            "property": ["alias", ...], ...
+        })
+
+    For each property, if the corresponding ``get_property`` is defined in the
+    class so far, an alias named ``get_alias`` will be defined; the same will
+    be done for setters.  If neither the getter nor the setter exists, an
+    exception will be raised.
+    """
+
+    def make_alias(name):  # Enfore a closure over *name*.
+        def method(self, *args, **kwargs):
+            return getattr(self, name)(*args, **kwargs)
+        method.__doc__ = "alias for {}".format(name)
+        return method
+
+    for prop, aliases in alias_d.items():
+        exists = False
+        for prefix in ["get_", "set_"]:
+            if prefix + prop in local_d:
+                exists = True
+                for alias in aliases:
+                    method = make_alias(prefix + prop)
+                    method.__name__ = str(prefix + alias)  # Py2 compat.
+                    local_d[prefix + alias] = method
+        if not exists:
+            raise ValueError("property {} does not exist".format(prop))
