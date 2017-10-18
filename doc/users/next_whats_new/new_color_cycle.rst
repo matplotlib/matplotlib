@@ -1,4 +1,5 @@
-New colorblind-friendly color cycle
-===================================
+New style colorblind-friendly color cycle
+=========================================
 
-A new color cycle has been added, tableau-colorblind10, to provide another option for colorblind-friendly plots.
+A new style defining a color cycle has been added, tableau-colorblind10, to provide another option for 
+colorblind-friendly plots.
