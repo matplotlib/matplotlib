@@ -155,7 +155,12 @@ How to contribute
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR):
+then submit a "pull request" (PR).
+
+The best practices for using GitHub to make PRs to Matplotlib are
+documented in the :ref:`development-workflow` section. 
+
+A brief overview is:
 
  1. `Create an account <https://github.com/join>`_ on
     GitHub if you do not already have one.
