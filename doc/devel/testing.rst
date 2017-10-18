@@ -20,6 +20,10 @@ infrastructure are in :mod:`matplotlib.testing`.
 Requirements
 ------------
 
+Install the latest version of Matplotlib as documented in
+:ref:`installing_for_devs` In particular, follow the instructions to use a
+local FreeType build
+
 The following software is required to run the tests:
 
   - pytest_, version 3.0.0 or later
@@ -34,26 +38,6 @@ Optionally you can install:
   - pytest-timeout_ to limit runtime in case of stuck tests
   - pytest-xdist_ to run tests in parallel
 
-
-Building matplotlib for image comparison tests
-----------------------------------------------
-
-matplotlib's test suite makes heavy use of image comparison tests,
-meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of FreeType produce differently
-formed characters, causing these image comparisons to fail.  To make
-them reproducible, matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all matplotlib developers.
-
-Add the following content to a ``setup.cfg`` file at the root of the
-matplotlib source directory::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-or by setting the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.
 
 Running the tests
 -----------------
@@ -164,8 +148,7 @@ Writing an image based test is only slightly more difficult than a
 simple test. The main consideration is that you must specify the
 "baseline", or expected, images in the
 :func:`~matplotlib.testing.decorators.image_comparison` decorator. For
-example, this test generates a single image and automatically tests
-it::
+example, this test generates a single image and automatically tests it::
 
   import numpy as np
   import matplotlib
@@ -262,13 +245,13 @@ repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
 <https://travis-ci.org/matplotlib/matplotlib>`_.
 
-If you want to enable Travis CI for your personal matplotlib GitHub
+If you want to enable Travis CI for your personal Matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
 UI or the GitHub UI (Admin | Service Hooks). For details, see `the
 Travis CI Getting Started page
 <https://docs.travis-ci.com/user/getting-started/>`_.  This
 generally isn't necessary, since any pull request submitted against
-the main matplotlib repository will be tested.
+the main Matplotlib repository will be tested.
 
 Once this is configured, you can see the Travis CI results at
 https://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an

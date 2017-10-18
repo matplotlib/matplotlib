@@ -1193,7 +1193,10 @@ class FreeType(SetupPackage):
                         else:
                             break
                 else:
-                    raise IOError("Failed to download freetype")
+                    raise IOError("Failed to download freetype. "
+                                  "You can download the file by "
+                                  "alternative means and copy it "
+                                  " to '{0}'".format(tarball_path))
                 try:
                     os.makedirs(tarball_cache_dir)
                 except OSError:
