@@ -132,7 +132,9 @@ class TriContourSet(ContourSet):
 
           tricontour(..., Z, N)
 
-        contour *N* automatically-chosen levels.
+        contour up to *N+1* automatically-chosen levels.
+        If exactly *N* levels are required either *V* or an
+        optional :class:`~matplotlib.ticker.Locator` can be passed.
 
         ::
 
