@@ -19,15 +19,6 @@ from .bezier import (
     split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
 
-_patch_alias_map = {
-        'antialiased': ['aa'],
-        'edgecolor': ['ec'],
-        'facecolor': ['fc'],
-        'linewidth': ['lw'],
-        'linestyle': ['ls']
-    }
-
-
 class Patch(artist.Artist):
     """
     A patch is a 2D artist with a face color and an edge color.

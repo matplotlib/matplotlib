@@ -2818,6 +2818,9 @@ def _define_aliases(local_d, alias_d):
     class so far, an alias named ``get_alias`` will be defined; the same will
     be done for setters.  If neither the getter nor the setter exists, an
     exception will be raised.
+
+    The alias map is stored as the ``_alias_map`` attribute on the class and
+    can be used by `~.normalize_kwargs`.
     """
 
     def make_alias(name):  # Enfore a closure over *name*.
@@ -2837,3 +2840,5 @@ def _define_aliases(local_d, alias_d):
                     local_d[prefix + alias] = method
         if not exists:
             raise ValueError("property {} does not exist".format(prop))
+
+    local_d["_alias_map"] = alias_d
