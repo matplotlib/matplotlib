@@ -3639,8 +3639,9 @@ class _AxesBase(martist.Artist):
                     xzc + xwidth/2./scl, yzc + ywidth/2./scl]
         elif len(bbox) != 4:
             # should be len 3 or 4 but nothing else
-            warnings.warn('Warning in _set_view_from_bbox: bounding box is not a\
-                  tuple of length 3 or 4. Ignoring the view change...')
+            warnings.warn(
+                "Warning in _set_view_from_bbox: bounding box is not a tuple "
+                "of length 3 or 4. Ignoring the view change.")
             return
 
         # Just grab bounding box

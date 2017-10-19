@@ -352,8 +352,7 @@ class Axes(_AxesBase):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : :class:`matplotlib.transforms.BboxBase` instance \
-or tuple of floats
+        bbox_to_anchor : `~.BboxBase` or pair of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -4230,10 +4229,10 @@ or tuple of floats
         linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'face', 'none', *None*} or mpl color, optional, default\
-            is 'face'
+        edgecolors : {'face', 'none', *None*} or color, optional
 
-            If 'face', draws the edges in the same color as the fill color.
+            If 'face' (the default), draws the edges in the same color as the
+            fill color.
 
             If 'none', no edge is drawn; this can sometimes lead to unsightly
             unpainted pixels between the hexagons.
