@@ -267,9 +267,7 @@ class RendererAgg(RendererBase):
         Get the font for text instance t, cacheing for efficiency
         """
         fname = findfont(prop)
-        font = get_font(
-            fname,
-            hinting_factor=rcParams['text.hinting_factor'])
+        font = get_font(fname)
 
         font.clear()
         size = prop.get_size_in_points()
