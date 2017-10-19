@@ -4326,9 +4326,23 @@ class Axes(_AxesBase):
                 offset_position="data"
                 )
 
+        # Check for valid norm
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
+
+        # Set normalizer if bins is 'log'
+        if bins == 'log':
+            if norm is not None:
+                warnings.warn("Only one of 'bins' and 'norm' arguments can be "
+                              "supplied, ignoring bins={}".format(bins))
+            else:
+                norm = mcolors.LogNorm()
+            bins = None
+
         if isinstance(norm, mcolors.LogNorm):
             if (accum == 0).any():
-                # make sure we have not zeros
+                # make sure we have no zeros
                 accum += 1
 
         # autoscale the norm with curren accum values if it hasn't
@@ -4337,10 +4351,7 @@ class Axes(_AxesBase):
             if norm.vmin is None and norm.vmax is None:
                 norm.autoscale(accum)
 
-        # Transform accum if needed
-        if bins == 'log':
-            accum = np.log10(accum + 1)
-        elif bins is not None:
+        if bins is not None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)
                 bins -= 1  # one less edge than bins
@@ -4348,9 +4359,6 @@ class Axes(_AxesBase):
             bins = np.sort(bins)
             accum = bins.searchsorted(accum)
 
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            raise ValueError(
-                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
