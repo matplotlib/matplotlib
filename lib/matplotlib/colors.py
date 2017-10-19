@@ -90,20 +90,17 @@ _colors_full_map = _ColorMapping(_colors_full_map)
 
 
 def get_named_colors_mapping():
-    """Return the global mapping of names to named colors.
-    """
+    """Return the global mapping of names to named colors."""
     return _colors_full_map
 
 
 def _is_nth_color(c):
-    """Return whether `c` can be interpreted as an item in the color cycle.
-    """
+    """Return whether *c* can be interpreted as an item in the color cycle."""
     return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
 
 
 def is_color_like(c):
-    """Return whether `c` can be interpreted as an RGB(A) color.
-    """
+    """Return whether *c* can be interpreted as an RGB(A) color."""
     # Special-case nth color syntax because it cannot be parsed during
     # setup.
     if _is_nth_color(c):
@@ -117,10 +114,10 @@ def is_color_like(c):
 
 
 def to_rgba(c, alpha=None):
-    """Convert `c` to an RGBA color.
+    """Convert *c* to an RGBA color.
 
-    If `alpha` is not `None`, it forces the alpha value, except if `c` is
-    "none" (case-insensitive), which always maps to `(0, 0, 0, 0)`.
+    If *alpha* is not *None*, it forces the alpha value, except if *c* is
+    ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
@@ -140,10 +137,10 @@ def to_rgba(c, alpha=None):
 
 
 def _to_rgba_no_colorcycle(c, alpha=None):
-    """Convert `c` to an RGBA color, with no support for color-cycle syntax.
+    """Convert *c* to an RGBA color, with no support for color-cycle syntax.
 
-    If `alpha` is not `None`, it forces the alpha value, except if `c` is
-    "none" (case-insensitive), which always maps to `(0, 0, 0, 0)`.
+    If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+    ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
     if isinstance(c, six.string_types):
@@ -197,10 +194,10 @@ def _to_rgba_no_colorcycle(c, alpha=None):
 
 
 def to_rgba_array(c, alpha=None):
-    """Convert `c` to a (n, 4) array of RGBA colors.
+    """Convert *c* to a (n, 4) array of RGBA colors.
 
-    If `alpha` is not `None`, it forces the alpha value.  If `c` is "none"
-    (case-insensitive) or an empty list, an empty array is returned.
+    If *alpha* is not ``None``, it forces the alpha value.  If *c* is
+    ``"none"`` (case-insensitive) or an empty list, an empty array is returned.
     """
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
@@ -235,16 +232,15 @@ def to_rgba_array(c, alpha=None):
 
 
 def to_rgb(c):
-    """Convert `c` to an RGB color, silently dropping the alpha channel.
-    """
+    """Convert *c* to an RGB color, silently dropping the alpha channel."""
     return to_rgba(c)[:3]
 
 
 def to_hex(c, keep_alpha=False):
-    """Convert `c` to a hex color.
+    """Convert *c* to a hex color.
 
-    Uses the #rrggbb format if `keep_alpha` is False (the default), `#rrggbbaa`
-    otherwise.
+    Uses the ``#rrggbb`` format if *keep_alpha* is False (the default),
+    ``#rrggbbaa`` otherwise.
     """
     c = to_rgba(c)
     if not keep_alpha:
