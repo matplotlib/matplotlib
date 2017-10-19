@@ -92,15 +92,24 @@ class LogTransformBase(Transform):
 
     def __init__(self, nonpos):
         Transform.__init__(self)
-        if nonpos == 'mask':
-            self._fill_value = np.nan
-        else:
-            self._fill_value = 1e-300
+        self._clip = {"clip": True, "mask": False}[nonpos]
 
     def transform_non_affine(self, a):
-        with np.errstate(invalid="ignore"):
-            a = np.where(a <= 0, self._fill_value, a)
-        return np.divide(np.log(a, out=a), np.log(self.base), out=a)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            out = np.log(a)
+        out /= np.log(self.base)
+        if self._clip:
+            # SVG spec says that conforming viewers must support values up
+            # to 3.4e38 (C float); however experiments suggest that Inkscape
+            # (which uses cairo for rendering) runs into cairo's 24-bit limit
+            # (which is apparently shared by Agg).
+            # Ghostscript (used for pdf rendering appears to overflow even
+            # earlier, with the max value around 2 ** 15 for the tests to pass.
+            # On the other hand, in practice, we want to clip beyond
+            #     np.log10(np.nextafter(0, 1)) ~ -323
+            # so 1000 seems safe.
+            out[a <= 0] = -1000
+        return out
 
 
 class InvertedLogTransformBase(Transform):
@@ -432,18 +441,17 @@ class LogitTransform(Transform):
 
     def __init__(self, nonpos):
         Transform.__init__(self)
-        if nonpos == 'mask':
-            self._fill_value = np.nan
-        else:
-            self._fill_value = 1e-300
         self._nonpos = nonpos
+        self._clip = {"clip": True, "mask": False}[nonpos]
 
     def transform_non_affine(self, a):
         """logit transform (base 10), masked or clipped"""
-        with np.errstate(invalid="ignore"):
-            a = np.select(
-                [a <= 0, a >= 1], [self._fill_value, 1 - self._fill_value], a)
-        return np.log10(a / (1 - a))
+        with np.errstate(divide="ignore", invalid="ignore"):
+            out = np.log10(a / (1 - a))
+        if self._clip:  # See LogTransform for choice of clip value.
+            out[a <= 0] = -1000
+            out[1 <= a] = 1000
+        return out
 
     def inverted(self):
         return LogisticTransform(self._nonpos)
