@@ -1,15 +1,15 @@
 <!--Thank you so much for your PR! To help us review, fill out the form
 to the best of your ability.  Please make use of the development guide at
-https://matplotlib.org/devdocs/devel/index.html-->
+https://matplotlib.org/devdocs/devel/index.html
+
+For help with git and github workflow, please see https://matplotlib.org/devel/gitwash/development_workflow.html
+
+Please do not create the PR out of master, but out of a separate branch. -->
 
 <!--Provide a general summary of your changes in the title above, for
 example "Raises ValueError on Non-Numeric Input to set_xlim".  Please avoid
 non-descriptive titles such as "Addresses issue #8576".-->
 
-<!--If you are able to do so, please do not create the
-PR out of master, but out of a separate branch.  See
-https://matplotlib.org/devel/gitwash/development_workflow.html for
-instructions.-->
 
 ## PR Summary
 
@@ -21,7 +21,7 @@ detail.  Why is this change required?  What problem does it solve?-->
 ## PR Checklist
 
 - [ ] Has Pytest style unit tests
-- [ ] Code is PEP 8 compliant 
+- [ ] Code is PEP 8 compliant
 - [ ] New features are documented, with examples if plot related
 - [ ] Documentation is sphinx and numpydoc compliant
 - [ ] Added an entry to doc/users/next_whats_new/ if major new feature (follow instructions in README.rst there)
