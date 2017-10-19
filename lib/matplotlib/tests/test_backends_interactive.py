@@ -41,9 +41,10 @@ plt.show()
 
 
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
+@pytest.mark.flaky(reruns=3)
 def test_backend(backend):
     environ = os.environ.copy()
     environ["MPLBACKEND"] = backend
     proc = Popen([sys.executable, "-c", _test_script], env=environ)
     # Empirically, 1s is not enough on Travis.
-    assert proc.wait(timeout=5) == 0
+    assert proc.wait(timeout=10) == 0
