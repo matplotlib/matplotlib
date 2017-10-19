@@ -44,9 +44,9 @@ html: prepare
 	# the embedding of images more robust
 	rm -rf $(BUILDDIR)/html/_images
 	#rm -rf _build/doctrees/
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) -W $(BUILDDIR)/html/stable
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) -W $(BUILDDIR)/html
 	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html/stable"
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html"
 
 
 html-allow-warnings: prepare
@@ -54,15 +54,15 @@ html-allow-warnings: prepare
 	# the embedding of images more robust
 	rm -rf $(BUILDDIR)/html/_images
 	#rm -rf _build/doctrees/
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html/stable
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html/stable"
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html"
 
 
 html-noplot: prepare
-	$(SPHINXBUILD) -D plot_gallery=0 -b html -W $(ALLSPHINXOPTS) $(BUILDDIR)/html/stable
+	$(SPHINXBUILD) -D plot_gallery=0 -b html -W $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html/stable."
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 dirhtml: prepare
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
