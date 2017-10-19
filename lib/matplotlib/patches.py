@@ -621,6 +621,10 @@ class Shadow(Patch):
 
     def _update(self):
         self.update_from(self.patch)
+
+        # Place the shadow patch directly behind the inherited patch.
+        self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
+
         if self.props is not None:
             self.update(self.props)
         else:
