@@ -2,7 +2,7 @@
 ===========
 Slider Demo
 ===========
-An example to show the use of slider widget. In this example, slider is used to choose the frequency of the wave.
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,8 +19,8 @@ l, = plt.plot(t, s, lw=2, color='red')
 plt.axis([0, 1, -10, 10])
 
 axcolor = 'lightgoldenrodyellow'
-axfreq = plt.axes([0.25, 0.1, 0.65, 0.03], facecolor=axcolor)
-axamp = plt.axes([0.25, 0.15, 0.65, 0.03], facecolor=axcolor)
+axfreq = plt.axes([0.25, 0.1, 0.65, 0.03])
+axamp = plt.axes([0.25, 0.15, 0.65, 0.03])
 
 sfreq = Slider(axfreq, 'Freq', 0.1, 30.0, valinit=f0, valstep=delta_f)
 samp = Slider(axamp, 'Amp', 0.1, 10.0, valinit=a0)

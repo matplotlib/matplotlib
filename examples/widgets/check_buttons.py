@@ -2,7 +2,7 @@
 =============
 Check Buttons
 =============
-
+This program shows the use of 'Check Buttons' which is similar to our usual check boxes. There are 3 different sine waves which are shown and by checking the boxes, we can choose which waves we want to see.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -2,7 +2,7 @@
 =======
 Textbox
 =======
-
+An example to show the use of textbox widget. You can use it mention any text that needs to be displayed or formulas or values. You can further use it to take input from the user, and use a submit button to create plots using the given input(Just a use case).
 """
 
 import numpy as np

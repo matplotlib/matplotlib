@@ -2,7 +2,7 @@
 =============
 Radio Buttons
 =============
-
+An example to show how radio buttons widget can be used in the plots. The radio button in this program helps you choose one of the three different sine waves to be shown in the plot.
 """
 import numpy as np
 import matplotlib.pyplot as plt
