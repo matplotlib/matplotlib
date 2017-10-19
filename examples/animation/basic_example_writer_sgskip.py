@@ -30,6 +30,7 @@ writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 
 fig1 = plt.figure()
 
+###############################################################################
 data = np.random.rand(2, 25)
 l, = plt.plot([], [], 'r-')
 plt.xlim(0, 1)

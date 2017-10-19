@@ -20,7 +20,9 @@ if __name__ == "__main__":
         ax.set_yticks([0.5])
         ax.set_yticklabels(["very long label"])
 
-        make_axes_area_auto_adjustable(ax)
+        oake_axes_area_auto_adjustable(ax)
+
+#########################################################################
 
     def ex2():
 
@@ -37,6 +39,7 @@ if __name__ == "__main__":
         make_axes_area_auto_adjustable(ax1, pad=0.1, use_axes=[ax1, ax2])
         make_axes_area_auto_adjustable(ax2, pad=0.1, use_axes=[ax1, ax2])
 
+#########################################################################
     def ex3():
 
         fig = plt.figure(3)
@@ -59,7 +62,7 @@ if __name__ == "__main__":
 
         ax2.set_title("Title")
         ax2.set_xlabel("X - Label")
-
+#########################################################################
     ex1()
     ex2()
     ex3()
