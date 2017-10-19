@@ -2,7 +2,7 @@
 =======
 Buttons
 =======
-An pretty cool example to show how to use buttons widget.The program shows a simple GUI with a sine wave changing its frequency.The next and previous button widget used here helps shows the wave with new frequency.
+The program shows a simple GUI with a sine wave changing its frequency.The next and previous button widget used here helps shows the wave with new frequency.
 """
 
 import numpy as np

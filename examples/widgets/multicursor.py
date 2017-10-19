@@ -2,7 +2,7 @@
 ===========
 Multicursor
 ===========
-An example to show multiple cursors. The graph has two subplots and on hovering over the cursor over the two seperate graphs, the values are shown respectively.
+A program to show multiple cursors. The graph has two subplots and on hovering the cursor over the two seperate graphs, the values are shown respectively.
 """
 import numpy as np
 import matplotlib.pyplot as plt
