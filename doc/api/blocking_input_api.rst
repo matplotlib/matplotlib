@@ -1,3 +1,7 @@
+**************
+blocking_input
+**************
+
 :mod:`matplotlib.blocking_input`
 ================================
 
