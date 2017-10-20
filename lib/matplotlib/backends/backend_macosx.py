@@ -104,6 +104,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def draw(self):
         self.invalidate()
+        self.flush_events()
 
     def draw_idle(self, *args, **kwargs):
         self.invalidate()
