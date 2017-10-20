@@ -1712,24 +1712,21 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with plt.axes
     ax = plt.axes([0, 0, 1, 1], projection=prj)
-    assert type(ax) == PolarAxes, \
-        'Expected a PolarAxes, got %s' % type(ax)
+    assert type(ax) == PolarAxes
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     plt.close()
 
     # testing axes creation with gca
     ax = plt.gca(projection=prj)
-    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes], \
-        'Expected a PolarAxesSubplot, got %s' % type(ax)
+    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes]
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     # try getting the axes given a different polar projection
     ax_via_gca = plt.gca(projection=prj2)
     assert ax_via_gca is not ax
-    assert ax.get_theta_offset() == 0, ax.get_theta_offset()
-    assert ax_via_gca.get_theta_offset() == np.pi, \
-        ax_via_gca.get_theta_offset()
+    assert ax.get_theta_offset() == 0
+    assert ax_via_gca.get_theta_offset() == np.pi
     # try getting the axes given an == (not is) polar projection
     ax_via_gca = plt.gca(projection=prj3)
     assert ax_via_gca is ax
@@ -1737,8 +1734,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes], \
-        'Expected a PolarAxesSubplot, got %s' % type(ax)
+    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes]
     plt.close()
 
 
@@ -4956,12 +4952,7 @@ def shared_axis_remover(request):
         r = ax.yaxis.get_major_locator()()
         assert r[-1] > 14
 
-    if request.param == 'x':
-        return _helper_x
-    elif request.param == 'y':
-        return _helper_y
-    else:
-        assert False, 'Request param %s is invalid.' % (request.param, )
+    return {"x": _helper_x, "y": _helper_y}[request.param]
 
 
 @pytest.fixture(params=['gca', 'subplots', 'subplots_shared', 'add_axes'])
@@ -4978,9 +4969,6 @@ def shared_axes_generator(request):
     elif request.param == 'add_axes':
         fig = plt.figure()
         ax = fig.add_axes([.1, .1, .8, .8])
-    else:
-        assert False, 'Request param %s is invalid.' % (request.param, )
-
     return fig, ax
 
 
