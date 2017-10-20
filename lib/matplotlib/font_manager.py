@@ -220,7 +220,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
     fontext = get_fontext_synonyms(fontext)
 
-    key, items = None, {}
+    key, items = None, set()
     for fontdir in MSFontDirectories:
         try:
             local = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir)
@@ -239,7 +239,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                         direc = os.path.join(directory, direc)
                     direc = os.path.abspath(direc).lower()
                     if os.path.splitext(direc)[1][1:] in fontext:
-                        items[direc] = 1
+                        items.add(direc)
                 except EnvironmentError:
                     continue
                 except WindowsError:
@@ -550,14 +550,14 @@ def createFontList(fontfiles, fontext='ttf'):
 
     fontlist = []
     #  Add fonts from list of known font files.
-    seen = {}
+    seen = set()
     for fpath in fontfiles:
-        verbose.report('createFontDict: %s' % (fpath), 'debug')
+        verbose.report('createFontDict: %s' % fpath, 'debug')
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
         else:
-            seen[fname] = 1
+            seen.add(fname)
         if fontext == 'afm':
             try:
                 fh = open(fpath, 'rb')
@@ -583,7 +583,6 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             except UnicodeError:
                 verbose.report("Cannot handle unicode filenames")
-                # print >> sys.stderr, 'Bad file is', fpath
                 continue
             except IOError:
                 verbose.report("IO error - cannot open font file %s" % fpath)
