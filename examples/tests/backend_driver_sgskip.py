@@ -9,7 +9,7 @@ regression testing, and comparing backend efficiency.
 You can specify the backends to be tested via the --backends
 switch, which takes a space-separated list, e.g.
 
-    python backend_driver.py --backends agg ps
+    python backend_driver_sgskip.py --backends agg ps
 
 would test the agg and ps backends. If --backends is not specified, a
 default list of backends will be tested.
