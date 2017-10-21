@@ -1,8 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import os
 
 from matplotlib._pylab_helpers import Gcf
@@ -99,14 +97,14 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     def _draw(self):
         renderer = self.get_renderer()
 
-        if not self.figure.stale:
-            return renderer
+        if self.figure.stale:
+            self.figure.draw(renderer)
 
-        self.figure.draw(renderer)
         return renderer
 
     def draw(self):
         self.invalidate()
+        self.flush_events()
 
     def draw_idle(self, *args, **kwargs):
         self.invalidate()
