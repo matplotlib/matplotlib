@@ -151,7 +151,8 @@ def has_include_file(include_dirs, filename):
     directories in `include_dirs`.
     """
     if sys.platform == 'win32':
-        include_dirs += os.environ.get('INCLUDE', '.').split(';')
+        include_dirs = list(include_dirs)  # copy before modify
+        include_dirs += os.environ.get('INCLUDE', '.').split(os.pathsep)
     for dir in include_dirs:
         if os.path.exists(os.path.join(dir, filename)):
             return True
