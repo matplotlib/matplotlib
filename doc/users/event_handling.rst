@@ -57,12 +57,12 @@ Here are the events that you can connect to, the class instances that
 are sent back to you when the event occurs, and the event descriptions
 
 
-=======================  ======================================================================================
+=======================  =============================================================================================
 Event name               Class and description
-=======================  ======================================================================================
+=======================  =============================================================================================
 'button_press_event'     :class:`~matplotlib.backend_bases.MouseEvent`     - mouse button is pressed
 'button_release_event'   :class:`~matplotlib.backend_bases.MouseEvent`     - mouse button is released
-'draw_event'             :class:`~matplotlib.backend_bases.DrawEvent`      - canvas draw
+'draw_event'             :class:`~matplotlib.backend_bases.DrawEvent`      - canvas draw (but before screen update)
 'key_press_event'        :class:`~matplotlib.backend_bases.KeyEvent`       - key is pressed
 'key_release_event'      :class:`~matplotlib.backend_bases.KeyEvent`       - key is released
 'motion_notify_event'    :class:`~matplotlib.backend_bases.MouseEvent`     - mouse motion
@@ -73,7 +73,7 @@ Event name               Class and description
 'figure_leave_event'     :class:`~matplotlib.backend_bases.LocationEvent`  - mouse leaves a figure
 'axes_enter_event'       :class:`~matplotlib.backend_bases.LocationEvent`  - mouse enters a new axes
 'axes_leave_event'       :class:`~matplotlib.backend_bases.LocationEvent`  - mouse leaves an axes
-=======================  ======================================================================================
+=======================  =============================================================================================
 
 .. _event-attributes:
 

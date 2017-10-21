@@ -1428,6 +1428,17 @@ class DrawEvent(Event):
     In addition to the :class:`Event` attributes, the following event
     attributes are defined:
 
+
+    In most backends callbacks subscribed to this callback will be
+    fired after the rendering is complete but before the screen is
+    updated.  Any extra artists drawn to the canvas's renderer will
+    be reflected without an explicit call to ``blit``.
+
+    .. warning ::
+
+       Calling ``canvas.draw`` and ``canvas.blit`` in these callbacks may
+       not be safe with all backends and may cause infinite recursion.
+
     Attributes
     ----------
     renderer : `RendererBase`
