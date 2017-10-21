@@ -59,7 +59,8 @@ class PolygonInteractor(object):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)
-        self.canvas.blit(self.ax.bbox)
+        # do not need to blit here, this will fire before the screen is
+        # updated
 
     def poly_changed(self, poly):
         'this method is called whenever the polygon object is called'
@@ -114,9 +115,8 @@ class PolygonInteractor(object):
         elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.xy = [tup
-                                for i, tup in enumerate(self.poly.xy)
-                                if i != ind]
+                self.poly.xy = np.delete(self.poly.xy,
+                                         ind, axis=0)
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key == 'i':
             xys = self.poly.get_transform().transform(self.poly.xy)
@@ -126,14 +126,14 @@ class PolygonInteractor(object):
                 s1 = xys[i + 1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d <= self.epsilon:
-                    self.poly.xy = np.array(
-                        list(self.poly.xy[:i]) +
-                        [(event.xdata, event.ydata)] +
-                        list(self.poly.xy[i:]))
+                    self.poly.xy = np.insert(
+                        self.poly.xy, i+1,
+                        [event.xdata, event.ydata],
+                        axis=0)
                     self.line.set_data(zip(*self.poly.xy))
                     break
-
-        self.canvas.draw()
+        if self.line.stale:
+            self.canvas.draw_idle()
 
     def motion_notify_callback(self, event):
         'on mouse movement'
