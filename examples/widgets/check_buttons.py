@@ -3,6 +3,11 @@
 Check Buttons
 =============
 
+Turning visual elements on and off with check buttons.
+
+This program shows the use of 'Check Buttons' which is similar to
+check boxes. There are 3 different sine waves shown and we can choose which
+waves are displayed with the check buttons.
 """
 import numpy as np
 import matplotlib.pyplot as plt
