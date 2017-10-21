@@ -232,8 +232,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 offsets = np.column_stack([xs, ys])
 
         if not transform.is_affine:
-            paths = [transform.transform_path_non_affine(path)
-                     for path in paths]
+            with self._forcing_clip_in_log_scale():
+                paths = [transform.transform_path_non_affine(path)
+                         for path in paths]
             transform = transform.get_affine()
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)

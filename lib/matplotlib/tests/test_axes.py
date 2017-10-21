@@ -5427,3 +5427,21 @@ def test_patch_deprecations():
         assert fig.patch == fig.figurePatch
 
     assert len(w) == 2
+
+
+@pytest.mark.parametrize("plotter",
+                         [lambda ax: ax.bar([0, 1], [1, 2]),
+                          lambda ax: ax.errorbar([0, 1], [2, 2], [1, 3]),
+                          lambda ax: ax.fill_between([0, 1], [1, 2], [1, 0])])
+def test_clipped_log_zero(plotter):
+    fig, ax = plt.subplots()
+    plotter(ax)
+    ax.set_yscale("log")
+    png1 = io.BytesIO()
+    fig.savefig(png1, format="png")
+    fig, ax = plt.subplots()
+    plotter(ax)
+    ax.set_yscale("log", nonposy="clip")
+    png2 = io.BytesIO()
+    fig.savefig(png2, format="png")
+    assert png1.getvalue() == png2.getvalue()

@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from collections import OrderedDict, namedtuple
+import contextlib
 from functools import wraps
 import inspect
 import re
@@ -119,6 +120,22 @@ class Artist(object):
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
+
+        # When plotting in log-scale, force the use of clip mode instead of
+        # mask.  The typical (internal) use case is log-scaled bar plots and
+        # error bars.  Ideally we'd want BarContainers / ErrorbarContainers
+        # to have their own show() method which takes care of the patching,
+        # but right now Containers are not taken into account during
+        # the draw; instead their components (in the case of bar plots,
+        # these are Rectangle patches; in the case of ErrorbarContainers,
+        # LineCollections) are drawn individually, so tracking the force_clip
+        # state must be done by the component artists.  Note that handling of
+        # _force_clip_in_log_scale must be done by the individual artists'
+        # draw implementation; right now only Patches and Collections support
+        # it.  The `_forcing_clip_in_log_scale` decorator may be helpful to
+        # implement such support, it should typically be applied around a call
+        # to `transform_path_non_affine`.
+        self._force_clip_in_log_scale = False
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -778,6 +795,21 @@ class Artist(object):
         if not self.get_visible():
             return
         self.stale = False
+
+    @contextlib.contextmanager
+    def _forcing_clip_in_log_scale(self):
+        # See _force_clip_in_log_scale for explanation.
+        fvs = {}
+        if self._force_clip_in_log_scale and self.axes:
+            for axis in self.axes._get_axis_list():
+                if axis.get_scale() == "log":
+                    fvs[axis] = axis._scale._transform._fill_value
+                    axis._scale._transform._fill_value = 1e-300
+        try:
+            yield
+        finally:
+            for axis, fv in fvs.items():
+                axis._scale._transform._fill_value = fv
 
     def set_alpha(self, alpha):
         """
