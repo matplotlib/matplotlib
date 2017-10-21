@@ -2,8 +2,12 @@
 ===================
 Lasso Selector Demo
 ===================
-An example to show the use of Lasso Selector widget. The graph shows a scatter plot. You can select a few points by drawing a lasso loop around the points on the graphjust like any other Lasso tool. To draw, just click on the graph,hold and drag it around the points you need to select.
 
+Interactively selecting data points with the lasso tool.
+
+This examples plots a scatter plot. You can then select a few points by drawing
+a lasso loop around the points on the graph. To draw, just click
+on the graph, hold, and drag it around the points you need to select.
 """
 from __future__ import print_function
 

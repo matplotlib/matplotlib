@@ -2,7 +2,12 @@
 ===========
 Slider Demo
 ===========
-An example to show the use of slider widget. In this example, slider is used to choose the frequency of the wave.
+
+Using the slider widget to control visual properties of your plot.
+
+In this example, a slider is used to choose the frequency of a sine
+wave. You can control many continuously-varying properties of your plot in
+this way.
 """
 import numpy as np
 import matplotlib.pyplot as plt
