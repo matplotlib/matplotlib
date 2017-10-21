@@ -59,7 +59,8 @@ class PolygonInteractor(object):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)
-        self.canvas.blit(self.ax.bbox)
+        # do not need to blit here, this will fire before the screen is
+        # updated
 
     def poly_changed(self, poly):
         'this method is called whenever the polygon object is called'
@@ -131,8 +132,8 @@ class PolygonInteractor(object):
                         axis=0)
                     self.line.set_data(zip(*self.poly.xy))
                     break
-
-        self.canvas.draw()
+        if self.line.stale:
+            self.canvas.draw_idle()
 
     def motion_notify_callback(self, event):
         'on mouse movement'
