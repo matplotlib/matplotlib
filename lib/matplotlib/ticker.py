@@ -2525,18 +2525,14 @@ class AutoMinorLocator(Locator):
             # TODO: Figure out a way to still be able to display minor
             # ticks without two major ticks visible. For now, just display
             # no ticks at all.
-            majorstep = 0
+            return []
 
         if self.ndivs is None:
-            if majorstep == 0:
-                # TODO: Need a better way to figure out ndivs
-                ndivs = 1
+            x = int(np.round(10 ** (np.log10(majorstep) % 1)))
+            if x in [1, 5, 10]:
+                ndivs = 5
             else:
-                x = int(np.round(10 ** (np.log10(majorstep) % 1)))
-                if x in [1, 5, 10]:
-                    ndivs = 5
-                else:
-                    ndivs = 4
+                ndivs = 4
         else:
             ndivs = self.ndivs
 
@@ -2546,15 +2542,12 @@ class AutoMinorLocator(Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        if len(majorlocs) > 0:
-            t0 = majorlocs[0]
-            tmin = ((vmin - t0) // minorstep + 1) * minorstep
-            tmax = ((vmax - t0) // minorstep + 1) * minorstep
-            locs = np.arange(tmin, tmax, minorstep) + t0
-            cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
-            locs = locs.compress(cond)
-        else:
-            locs = []
+        t0 = majorlocs[0]
+        tmin = ((vmin - t0) // minorstep + 1) * minorstep
+        tmax = ((vmax - t0) // minorstep + 1) * minorstep
+        locs = np.arange(tmin, tmax, minorstep) + t0
+        cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
+        locs = locs.compress(cond)
 
         return self.raise_if_exceeds(np.array(locs))
 
