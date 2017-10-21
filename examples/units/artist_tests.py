@@ -14,6 +14,13 @@ to scalars.
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
+
+# We have to modify the path at run time for sphinx-gallery to compile.
+import sys
+import os
+sys.path.insert(0, os.getcwd())
+
+
 import random
 import matplotlib.lines as lines
 import matplotlib.patches as patches
