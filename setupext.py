@@ -180,10 +180,14 @@ def get_base_dirs():
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
     win_bases = ['win32_static', ]
-    # on conda windows, we also add the <installdir>\Library of the local interpreter,
+    # on conda windows, we also add the <conda_env_dir>\Library,
     # as conda installs libs/includes there
-    if os.getenv('CONDA_DEFAULT_ENV'):
-        win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
+    # env var names mess: https://github.com/conda/conda/issues/2312
+    conda_env_path = os.getenv('CONDA_PREFIX')  # conda >= 4.1
+    if not conda_env_path:
+        conda_env_path = os.getenv('CONDA_DEFAULT_ENV')  # conda < 4.1
+    if conda_env_path and os.path.isdir(conda_env_path):
+        win_bases.append(os.path.join(conda_env_path, "Library"))
 
     basedir_map = {
         'win32': win_bases,
