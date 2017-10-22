@@ -56,12 +56,46 @@ This is the documentation for Matplotlib version |version|.
 
 To get started, read the :doc:`User's Guide <users/index>`.
 
-Other versions are available:
+.. raw:: html
 
-- `2.1.0 <http://matplotlib.org/2.1.0/index.html>`_: Latest stable version.
-- `2.x <http://matplotlib.org/devdocs/index.html>`_: Latest git master (unstable).
-- `2.0.2 <http://matplotlib.org/2.0.2/index.html>`_: Previous stable version.
-- `1.5.3 <http://matplotlib.org/1.5.3/index.html>`_: Older stable version.
+   <p id="other_versions"></p>
+
+   <script>
+   function getSnippet(id, url) {
+      var req = false;
+      // For Safari, Firefox, and other non-MS browsers
+      if (window.XMLHttpRequest) {
+         try {
+            req = new XMLHttpRequest();
+         } catch (e) {
+            req = false;
+         }
+      } else if (window.ActiveXObject) {
+         // For Internet Explorer on Windows
+         try {
+            req = new ActiveXObject("Msxml2.XMLHTTP");
+         } catch (e) {
+            try {
+            req = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {
+            req = false;
+            }
+         }
+      }
+      var element = document.getElementById(id);
+      if (req) {
+         // Synchronous request, wait till we have it all
+         req.open('GET', url, false);
+         req.send(null);
+         if (req.status == 200) {
+            element.innerHTML = req.responseText;
+         } else {
+            element.innerHTML = "<mark>Could not find Snippet to insert at " + url + "</mark>"
+         }
+      }
+   }
+   getSnippet('other_versions', '/versions.html');
+   </script>
 
 Trying to learn how to do a particular kind of plot?  Check out the
 :doc:`examples gallery <gallery/index>` or the :doc:`list of plotting commands
