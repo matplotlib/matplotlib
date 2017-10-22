@@ -6,10 +6,10 @@
 # Install the documentation requirements with:
 #     pip install -r doc-requirements.txt
 #
-sphinx>=1.3,!=1.5.0
+sphinx>=1.3,!=1.5.0,!=1.6.4
 colorspacious
 ipython
 mock
-numpydoc
+numpydoc>=0.4
 pillow
 sphinx-gallery>=0.1.12

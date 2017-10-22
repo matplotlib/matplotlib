@@ -68,7 +68,7 @@ mpl-run: &mpl-install
 
 doc-run: &doc-build
   name: Build documentation
-  command: python make.py html
+  command: make O=-W html
   working_directory: doc
 
 doc-bundle-run: &doc-bundle

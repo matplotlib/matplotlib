@@ -15,13 +15,14 @@ the Sphinx_ documentation generation tool. There are several extra requirements
 that are needed to build the documentation. They are listed in
 :file:`doc-requirements.txt` and listed below:
 
-1. Sphinx 1.3 or later (1.5.0 is not supported)
-2. numpydoc 0.4 or later
-3. IPython
-4. mock
-5. colorspacious
-6. Pillow
-7. Graphviz
+* Sphinx>=1.3, !=1.5.0, !=1.6.4
+* colorspacious
+* IPython
+* mock
+* numpydoc>=0.4
+* Pillow
+* sphinx-gallery>=0.1.12
+* graphviz
 
 .. note::
 
@@ -69,24 +70,34 @@ Building the docs
 -----------------
 
 The documentation sources are found in the :file:`doc/` directory in the trunk.
-To build the documentation in html format, cd into :file:`doc/` and run:
+To build the documentation in html format, cd into :file:`doc/` and run
 
 .. code-block:: sh
 
-   python make.py html
+   make html
 
-The list of commands and flags for ``make.py`` can be listed by running
-``python make.py --help``. In particular,
+Other useful invocations include
 
-* ``python make.py clean`` will delete the built Sphinx files. Use this command
-  if you're getting strange errors about missing paths or broken links,
-  particularly if you move files around.
-* ``python make.py latex`` builds a PDF of the documentation.
-* The ``--allowsphinxwarnings`` flag allows the docs to continue building even
-  if Sphinx throws a warning. This is useful for debugging and spot-checking
-  many warnings at once.
+.. code-block:: sh
 
-.. _formatting-mpl-docs:
+   # Delete built files.  May help if you get errors about missing paths or
+   # broken links.
+   make clean
+
+   # Build pdf docs.
+   make latexpdf
+
+You can build the documentation with several options:
+
+* ``make O=-W html`` turns Sphinx warnings into errors.  The continuous
+  integration script uses this option.
+* ``make O=-j4 html`` (for example) runs a parallel build with 4 processes.
+* ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
+* ``make O=-Dplot_gallery=0 html`` skips the gallery build.
+
+Multiple options can be combined using e.g. ``make O='-W -j4 ...' html``.  On
+Windows, the option needs to be set as the ``SPHINXOPTS`` environment
+variable, e.g. ``set SPHINXOPTS=-W -j4 & make html``.
 
 Writing new documentation
 =========================
