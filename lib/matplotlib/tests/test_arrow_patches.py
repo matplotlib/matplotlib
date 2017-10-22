@@ -119,3 +119,20 @@ def test_fancyarrow_dash():
                          color='k')
     ax.add_patch(e)
     ax.add_patch(e2)
+
+
+@image_comparison(baseline_images=['arrow_styles'], extensions=['png'],
+                  style='mpl20', remove_text=True)
+def test_arrow_styles():
+    styles = mpatches.ArrowStyle.get_styles()
+
+    n = len(styles)
+    fig, ax = plt.subplots(figsize=(6, 10))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-1, n)
+
+    for i, stylename in enumerate(sorted(styles)):
+        patch = mpatches.FancyArrowPatch((0.1, i), (0.8, i),
+                                         arrowstyle=stylename,
+                                         mutation_scale=25)
+        ax.add_patch(patch)
