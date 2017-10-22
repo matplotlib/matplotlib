@@ -18,27 +18,31 @@ description of that system. In the `Transformation Object` column,
 ``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
 :class:`~matplotlib.figure.Figure` instance.
 
-=========== ============================= =====================================
-Coordinates Transformation object         Description
-=========== ============================= =====================================
-"data"      ``ax.transData````            The coordinate system for the data,
-                                          controlled by xlim and ylim.
-"axes"      ``ax.transAxes``              The coordinate system of the
-                                          `~.Axes`; (0, 0) is bottom left of
-                                          the axes, and (1, 1) is top right of
-                                          the axes.
-"figure"    ``fig.transFigure``           The coordinate system of the
-                                          `~.Figure`; (0, 0) is bottom left of
-                                          the figure, and (1, 1) is top right
-                                          of the figure.
-"display"   ``None``, or                  The pixel coordinate system of the
-            ``IdentityTransform()``       display; (0, 0) is bottom left of the
-                                          display, and (width, height) is top
-                                          right of the display in pixels.
-"xaxis",    ``ax.get_xaxis_transform()``, Blended coordinate systems; use data
-"yaxis"     ``ax.get_yaxis_transform()``  coordinates on one of the axis and
-                                          axes coordinates on the other.
-=========== ============================= =====================================
++-----------+-----------------------------+-----------------------------------+
+|Coordinates|Transformation object        |Description                        |
++-----------+-----------------------------+-----------------------------------+
+|"data"     |``ax.transData``             |The coordinate system for the data,|
+|           |                             |controlled by xlim and ylim.       |
++-----------+-----------------------------+-----------------------------------+
+|"axes"     |``ax.transAxes``             |The coordinate system of the       |
+|           |                             |`~.Axes`; (0, 0) is bottom left of |
+|           |                             |the axes, and (1, 1) is top right  |
+|           |                             |of the axes.                       |
++-----------+-----------------------------+-----------------------------------+
+|"figure"   |``fig.transFigure``          |The coordinate system of the       |
+|           |                             |`~.Figure`; (0, 0) is bottom left  |
+|           |                             |of the figure, and (1, 1) is top   |
+|           |                             |right of the figure.               |
++-----------+-----------------------------+-----------------------------------+
+|"display"  |``None``, or                 |The pixel coordinate system of the |
+|           |``IdentityTransform()``      |display; (0, 0) is bottom left of  |
+|           |                             |the display, and (width, height) is|
+|           |                             |top right of the display in pixels.|
++-----------+-----------------------------+-----------------------------------+
+|"xaxis",   |``ax.get_xaxis_transform()``,|Blended coordinate systems; use    |
+|"yaxis"    |``ax.get_yaxis_transform()`` |data coordinates on one of the axis|
+|           |                             |and axes coordinates on the other. |
++-----------+-----------------------------+-----------------------------------+
 
 All of the transformation objects in the table above take inputs in
 their coordinate system, and transform the input to the `display`
