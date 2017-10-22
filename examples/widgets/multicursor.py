@@ -3,6 +3,11 @@
 Multicursor
 ===========
 
+Showing a cursor on multiple plots simultaneously.
+
+This example generates two subplots and on hovering
+the cursor over data in one subplot, the values of that datapoint
+are shown in both respectively.
 """
 import numpy as np
 import matplotlib.pyplot as plt

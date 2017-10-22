@@ -3,6 +3,11 @@
 Textbox
 =======
 
+Allowing text input with the Textbox widget.
+
+You can use the Textbox widget to let users provide any text that needs to be
+displayed, including formulas. You can use a submit button to create plots
+with the given input.
 """
 
 import numpy as np
