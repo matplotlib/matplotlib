@@ -52,11 +52,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
       prop[i % len(props)]
 
+    Exceptions are *capstyle* and *joinstyle* properties, these can
+    only be set globally for the whole collection.
+
     Keyword arguments and default values:
 
         * *edgecolors*: None
         * *facecolors*: None
         * *linewidths*: None
+        * *capstyle*:   None
+        * *joinstyle*:  None
         * *antialiaseds*: None
         * *offsets*: None
         * *transOffset*: transforms.IdentityTransform()
@@ -104,6 +109,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  facecolors=None,
                  linewidths=None,
                  linestyles='solid',
+                 capstyle=None,
+                 joinstyle=None,
                  antialiaseds=None,
                  offsets=None,
                  transOffset=None,
@@ -144,6 +151,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_hatch(hatch)
         self.set_offset_position(offset_position)
         self.set_zorder(zorder)
+
+        if capstyle:
+            self.set_capstyle(capstyle)
+        else:
+            self._capstyle = None
+
+        if joinstyle:
+            self.set_joinstyle(joinstyle)
+        else:
+            self._joinstyle = None
 
         self._offsets = np.zeros((1, 2))
         self._uniform_offsets = None
@@ -303,6 +320,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if (extents.width < width and
                 extents.height < height):
                 do_single_path_optimization = True
+
+        if self._joinstyle:
+            gc.set_joinstyle(self._joinstyle)
+
+        if self._capstyle:
+            gc.set_capstyle(self._capstyle)
 
         if do_single_path_optimization:
             gc.set_foreground(tuple(edgecolors[0]))
@@ -535,6 +558,42 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # broadcast and scale the lw and dash patterns
         self._linewidths, self._linestyles = self._bcast_lwls(
             self._us_lw, self._us_linestyles)
+
+    def set_capstyle(self, cs):
+        """
+        Set the capstyle for the collection. The capstyle can
+        only be set globally for all elements in the collection
+
+        Parameters
+        ----------
+        cs : ['butt' | 'round' | 'projecting']
+            The capstyle
+        """
+        if cs in ('butt', 'round', 'projecting'):
+            self._capstyle = cs
+        else:
+            raise ValueError('Unrecognized cap style.  Found %s' % cs)
+
+    def get_capstyle(self):
+        return self._capstyle
+
+    def set_joinstyle(self, js):
+        """
+        Set the joinstyle for the collection. The joinstyle can only be
+        set globally for all elements in the collection.
+
+        Parameters
+        ----------
+        js : ['miter' | 'round' | 'bevel']
+            The joinstyle
+        """
+        if js in ('miter', 'round', 'bevel'):
+            self._joinstyle = js
+        else:
+            raise ValueError('Unrecognized join style.  Found %s' % js)
+
+    def get_joinstyle(self):
+        return self._joinstyle
 
     @staticmethod
     def _bcast_lwls(linewidths, dashes):
