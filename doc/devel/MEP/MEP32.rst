@@ -112,7 +112,7 @@ considered below.  In all cases, it is necessary to encode, in a way or
 another, that the config file uses the new syntax, so that Matplotlib can tell
 which file-parser to use.
 
-Maintain a matplotlibrc-like layout
+Maintain a matplotlibrc-like syntax
 ```````````````````````````````````
 
 The config files would maintain the format
@@ -194,6 +194,16 @@ The documentation would encourage manual downloading (... or could even
 document how to do it using ``urllib`` if we really want to) of style sheets,
 which I believe is a good enough replacement (but I am happy to hear arguments
 that it is not).
+
+(Lack of) changes for the end-user
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For the end user, calls to ``matplotlib.style.use`` are unchanged.  If
+maintaining the *same* naming convention, then the lookup mechanism stays the
+same and there is no ambiguity as to what file should be loaded.  If the naming
+convention is changed (e.g. ``.mplstyle-v2`` with the matplotlibrc-like syntax,
+or ``.py``\(!) with the full Python syntax), then a simple priority policy
+(such as "always prefer the newer syntax if available") can be implemented.
 
 Implementation
 --------------
