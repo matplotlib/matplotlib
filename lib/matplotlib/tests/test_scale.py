@@ -4,6 +4,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import numpy as np
 import io
+import pytest
 
 
 @image_comparison(baseline_images=['log_scales'], remove_text=True)
@@ -65,3 +66,10 @@ def test_logscale_mask():
     ax.plot(np.exp(-xs**2))
     fig.canvas.draw()
     ax.set(yscale="log")
+
+
+def test_extra_kwargs_raise():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.set_yscale('log', nonpos='mask')
+

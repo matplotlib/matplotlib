@@ -235,6 +235,12 @@ class LogScale(ScaleBase):
             subs = kwargs.pop('subsy', None)
             nonpos = kwargs.pop('nonposy', 'clip')
 
+        if len(kwargs):
+            raise ValueError(("provided too many kwargs, can only pass "
+                              "{'basex', 'subsx', nonposx'} or "
+                              "{'basey', 'subsy', nonposy'}.  You passed ") +
+                             "{!r}".format(kwargs))
+
         if nonpos not in ['mask', 'clip']:
             raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
 
