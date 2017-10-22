@@ -53,7 +53,7 @@ import subprocess
 
 def run(arglist):
     try:
-        ret = subprocess.call(arglist)
+        ret = subprocess.check_output(arglist)
     except KeyboardInterrupt:
         sys.exit()
     else:
@@ -133,12 +133,15 @@ def drive(backend, directories, python=[sys.executable], switches=[]):
         tmpfile.close()
         start_time = time.time()
         program = [x % {'name': basename} for x in python]
-        ret = run(program + [tmpfile_name] + switches)
-        end_time = time.time()
-        print("%s %s" % ((end_time - start_time), ret))
-        os.remove(tmpfile_name)
-        if ret:
+        try:
+            ret = run(program + [tmpfile_name] + switches)
+        except subprocess.CalledProcessError:
             failures.append(fullpath)
+        finally:
+            end_time = time.time()
+            print("%s %s" % ((end_time - start_time), ret))
+            os.remove(tmpfile_name)
+
     return failures
 
 
