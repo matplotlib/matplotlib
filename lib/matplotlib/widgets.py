@@ -422,6 +422,13 @@ class Slider(AxesWidget):
             self.set_val(val)
 
     def set_val(self, val):
+        """
+        Set slider value to *val*
+
+        Parameters
+        ----------
+        val : float
+        """
         xy = self.poly.xy
         xy[2] = val, 1
         xy[3] = val, 0
@@ -437,10 +444,19 @@ class Slider(AxesWidget):
 
     def on_changed(self, func):
         """
-        When the slider value is changed, call *func* with the new
-        slider position
+        When the slider value is changed call *func* with the new
+        slider value
 
-        A connection id is returned which can be used to disconnect
+        Parameters
+        ----------
+        func : callable
+            Function to call when slider is changed.
+            The function must accept a single float as its arguments.
+
+        Returns
+        -------
+        cid : int
+            Connection id (which can be used to disconnect *func*)
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -448,14 +464,21 @@ class Slider(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """
+        Remove the observer with connection id *cid*
+
+        Parameters
+        ----------
+        cid : int
+            Connection id of the observer to be removed
+        """
         try:
             del self.observers[cid]
         except KeyError:
             pass
 
     def reset(self):
-        """reset the slider to the initial value if needed"""
+        """Reset the slider to the initial value"""
         if (self.val != self.valinit):
             self.set_val(self.valinit)
 
