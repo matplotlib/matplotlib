@@ -215,7 +215,9 @@ if __name__ == '__main__':
         print('Backend %s took %1.2f minutes to complete' % (backend, elapsed))
         failed = failures[backend]
         if failed:
-            print('  Failures: %s' % failed)
+            print('  Failures: ')
+            for f in failed:
+                print('     {!r}'.format(f))
         if 'template' in times:
             print('\ttemplate ratio %1.3f, template residual %1.3f' % (
                 elapsed / times['template'], elapsed - times['template']))
