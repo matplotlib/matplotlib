@@ -3,6 +3,10 @@ language: python
 dist: trusty
 sudo: false
 
+branches:
+  except:
+  - /^auto-backport-of-pr-\d*/
+
 cache:
   pip: true
   directories:
