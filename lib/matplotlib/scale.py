@@ -229,11 +229,11 @@ class LogScale(ScaleBase):
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
             subs = kwargs.pop('subsx', None)
-            nonpos = kwargs.pop('nonposx', 'mask')
+            nonpos = kwargs.pop('nonposx', 'clip')
         else:
             base = kwargs.pop('basey', 10.0)
             subs = kwargs.pop('subsy', None)
-            nonpos = kwargs.pop('nonposy', 'mask')
+            nonpos = kwargs.pop('nonposy', 'clip')
 
         if nonpos not in ['mask', 'clip']:
             raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")

@@ -2970,9 +2970,6 @@ class _AxesBase(martist.Artist):
 
         matplotlib.scale.LogisticTransform : logit transform
         """
-        if value.lower() == "log":  # Avoid headaches around zero.
-            kwargs.setdefault("nonposx", "clip")
-
         g = self.get_shared_x_axes()
         for ax in g.get_siblings(self):
             ax.xaxis._set_scale(value, **kwargs)
@@ -3290,9 +3287,6 @@ class _AxesBase(martist.Artist):
 
         matplotlib.scale.LogisticTransform : logit transform
         """
-        if value.lower() == "log":  # Avoid headaches around zero.
-            kwargs.setdefault("nonposy", "clip")
-
         g = self.get_shared_y_axes()
         for ax in g.get_siblings(self):
             ax.yaxis._set_scale(value, **kwargs)
