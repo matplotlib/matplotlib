@@ -626,6 +626,22 @@ def test_lslw_bcast():
     assert_equal(col.get_linewidths(), [1, 2, 3])
 
 
+@pytest.mark.style('default')
+def test_capstyle():
+    col = mcollections.PathCollection([], capstyle='round')
+    assert_equal(col.get_capstyle(), 'round')
+    col.set_capstyle('butt')
+    assert_equal(col.get_capstyle(), 'butt')
+
+
+@pytest.mark.style('default')
+def test_joinstyle():
+    col = mcollections.PathCollection([], joinstyle='round')
+    assert_equal(col.get_joinstyle(), 'round')
+    col.set_joinstyle('miter')
+    assert_equal(col.get_joinstyle(), 'miter')
+
+
 @image_comparison(baseline_images=['scatter_post_alpha'],
                   extensions=['png'], remove_text=True,
                   style='default')
