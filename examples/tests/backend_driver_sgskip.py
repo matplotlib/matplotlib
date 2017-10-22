@@ -22,7 +22,6 @@ import glob
 from argparse import ArgumentParser
 
 import matplotlib.rcsetup as rcsetup
-from matplotlib.cbook import Bunch, dedent
 
 
 all_backends = list(rcsetup.all_backends)  # to leave the original list alone
@@ -41,7 +40,7 @@ excluded_dirs = ['user_interfaces']
 excluded_files = {'units': ['date_support.py'],
                   'widgets': ['lasso_selector_demo_sgskip.py'],
                   'event_handling': ['ginput_manual_clabel_sgskip.py',
-                                     'ginput_demo_sgskip.py',]}
+                                     'ginput_demo_sgskip.py']}
 # dict of files to not run on specific backend
 failbackend = {'svg': ['tex_demo.py'],
                'agg': ['hyperlinks.py'],
