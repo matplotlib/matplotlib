@@ -226,15 +226,17 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             local = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir)
         except OSError:
             continue
-
         if not local:
             return list_fonts(directory, fontext)
         try:
             for j in range(winreg.QueryInfoKey(local)[1]):
                 try:
-                    key, direc, any = winreg.EnumValue( local, j)
+                    key, direc, tp = winreg.EnumValue(local, j)
                     if not isinstance(direc, six.string_types):
                         continue
+                    # Work around for https://bugs.python.org/issue25778, which
+                    # is fixed in Py>=3.6.1.
+                    direc = direc.split("\0", 1)[0]
                     if not os.path.dirname(direc):
                         direc = os.path.join(directory, direc)
                     direc = os.path.abspath(direc).lower()
