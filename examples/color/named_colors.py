@@ -1,7 +1,7 @@
 """
-================
-Color references
-================
+===============
+Color reference
+===============
 
 All the named colors and what they look like.
 
@@ -65,7 +65,7 @@ def plot_colors(colors):
 # Base colors
 # ===========
 #
-# Available in Matplotlib since the ages of dawn, the base colors offer the
+# Available in Matplotlib since the age of dawn, the base colors offer the
 # user easy access to a large color palette.
 colors = dict(mcolors.BASE_COLORS)
 plot_colors(colors)
@@ -84,7 +84,7 @@ plot_colors(colors)
 # Short names
 # ===========
 #
-# For fast access, these 1-letter names cover the basics colors!
+# For fast access, these 1-letter names cover the basics!
 colors = dict(mcolors.CSS4_COLORS)
 plot_colors(colors)
 
