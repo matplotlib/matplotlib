@@ -140,31 +140,40 @@ but the first are also method signatures for the
   colorbar(mappable, cax=cax, **kwargs)
   colorbar(mappable, ax=ax, **kwargs)
 
-arguments:
-
-  *mappable*
-    the :class:`~matplotlib.image.Image`,
+Parameters
+----------
+mappable :
+    The :class:`~matplotlib.image.Image`,
     :class:`~matplotlib.contour.ContourSet`, etc. to
-    which the colorbar applies; this argument is mandatory for the
+    which the colorbar applies; this argument is mandatory for the Figure
     :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
-    :func:`~matplotlib.pyplot.colorbar` function, which sets the
+    pyplot :func:`~matplotlib.pyplot.colorbar` function, which sets the
     default to the current image.
 
-keyword arguments:
+cax : :class:`~matplotlib.axes.Axes` object, optional
+    Axis into which the colorbar will be drawn
 
-  *cax*
-    None | axes object into which the colorbar will be drawn
-  *ax*
-    None | parent axes object(s) from which space for a new
-    colorbar axes will be stolen. If a list of axes is given
-    they will all be resized to make room for the colorbar axes.
-  *use_gridspec*
-    False | If *cax* is None, a new *cax* is created as an instance of
-    Axes. If *ax* is an instance of Subplot and *use_gridspec* is True,
+ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
+    Parent axes from which space for a new colorbar axes will be stolen.
+    If a list of axes is given they will all be resized to make room for the
+    colorbar axes.
+
+use_gridspec : bool, optional
+    If *cax* is ``None``, a new *cax* is created as an instance of
+    Axes. If *ax* is an instance of Subplot and *use_gridspec* is ``True``,
     *cax* is created as an instance of Subplot using the
     grid_spec module.
 
 
+Returns
+-------
+:class:`~matplotlib.colorbar.Colorbar` instance
+    See also its base class, :class:`~matplotlib.colorbar.ColorbarBase`.
+    Call the :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+    to label the colorbar.
+
+Notes
+-----
 Additional keyword arguments are of two kinds:
 
   axes properties:
@@ -197,12 +206,6 @@ segments::
 However this has negative consequences in other circumstances. Particularly
 with semi transparent images (alpha < 1) and colorbar extensions and is not
 enabled by default see (issue #1188).
-
-returns:
-    :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
-    :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
-    :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
-    to label the colorbar.
 
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
