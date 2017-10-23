@@ -77,7 +77,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
             self._device_scale = value
 
     def _draw(self):
-        renderer = self.get_renderer()
+        renderer = self.get_renderer(cleared=self.figure.stale)
 
         if self.figure.stale:
             self.figure.draw(renderer)
