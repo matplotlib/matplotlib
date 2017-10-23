@@ -3072,11 +3072,11 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        A list of `~.Text` instances.
+        A list of `~.text.Text` instances.
 
         Other Parameters
         -----------------
-        **kwargs : `~.Text` properties.
+        **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
@@ -3386,11 +3386,11 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        A list of `~.Text` instances.
+        A list of `~.text.Text` instances.
 
         Other Parameters
         ----------------
-        **kwargs : `~.Text` properties.
+        **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
