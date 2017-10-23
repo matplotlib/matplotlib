@@ -416,10 +416,10 @@ static void _read_png_data(PyObject *py_file_obj, png_bytep data, png_size_t len
                     PyErr_SetString(PyExc_IOError, "read past end of file");
                 }
             } else {
-                PyErr_SetString(PyExc_IOError, "Failed to copy buffer");
+                PyErr_SetString(PyExc_IOError, "failed to copy buffer");
             }
         } else  {
-            PyErr_SetString(PyExc_IOError, "Failed to read file");
+            PyErr_SetString(PyExc_IOError, "failed to read file");
         }
 
 
@@ -519,7 +519,7 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
 
     if (setjmp(png_jmpbuf(png_ptr))) {
         if (!PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Error setting jump");
+            PyErr_SetString(PyExc_RuntimeError, "error setting jump");
         }
         goto exit;
     }
