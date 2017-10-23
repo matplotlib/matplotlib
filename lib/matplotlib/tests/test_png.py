@@ -5,14 +5,12 @@ import six
 from six import BytesIO
 import glob
 import os
-import shutil
 import numpy as np
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
-import tempfile
 import sys
 on_win = (sys.platform == 'win32')
 
@@ -49,10 +47,10 @@ def test_imread_png_uint16():
     assert np.sum(img.flatten()) == 134184960
 
 
-def test_truncated_file():
-    d = tempfile.mkdtemp()
-    fname = os.path.join(d, 'test.png')
-    fname_t = os.path.join(d, 'test_truncated.png')
+def test_truncated_file(tmpdir):
+    d = tmpdir.mkdir('test')
+    fname = str(d.join('test.png'))
+    fname_t = str(d.join('test_truncated.png'))
     plt.savefig(fname)
     with open(fname, 'rb') as fin:
         buf = fin.read()
@@ -61,8 +59,6 @@ def test_truncated_file():
 
     with pytest.raises(Exception):
         plt.imread(fname_t)
-
-    shutil.rmtree(d)
 
 
 def test_truncated_buffer():
