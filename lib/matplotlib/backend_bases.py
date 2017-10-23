@@ -1425,10 +1425,6 @@ class DrawEvent(Event):
     """
     An event triggered by a draw operation on the canvas
 
-    In addition to the :class:`Event` attributes, the following event
-    attributes are defined:
-
-
     In most backends callbacks subscribed to this callback will be
     fired after the rendering is complete but before the screen is
     updated.  Any extra artists drawn to the canvas's renderer will
@@ -1438,6 +1434,9 @@ class DrawEvent(Event):
 
        Calling ``canvas.draw`` and ``canvas.blit`` in these callbacks may
        not be safe with all backends and may cause infinite recursion.
+
+    In addition to the :class:`Event` attributes, the following event
+    attributes are defined:
 
     Attributes
     ----------
