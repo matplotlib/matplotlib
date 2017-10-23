@@ -252,27 +252,6 @@ class Axes(_AxesBase):
             self.yaxis.labelpad = labelpad
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
-    def _get_legend_handles(self, legend_handler_map=None):
-        """
-        Return a generator of artists that can be used as handles in
-        a legend.
-
-        """
-        handles_original = (self.lines + self.patches +
-                            self.collections + self.containers)
-        handler_map = mlegend.Legend.get_default_handler_map()
-
-        if legend_handler_map is not None:
-            handler_map = handler_map.copy()
-            handler_map.update(legend_handler_map)
-
-        has_handler = mlegend.Legend.get_legend_handler
-
-        for handle in handles_original:
-            label = handle.get_label()
-            if label != '_nolegend_' and has_handler(handler_map, handle):
-                yield handle
-
     def get_legend_handles_labels(self, legend_handler_map=None):
         """
         Return handles and labels for legend
@@ -283,16 +262,13 @@ class Axes(_AxesBase):
           ax.legend(h, l)
 
         """
-        handles = []
-        labels = []
-        for handle in self._get_legend_handles(legend_handler_map):
-            label = handle.get_label()
-            if label and not label.startswith('_'):
-                handles.append(handle)
-                labels.append(label)
 
+        # pass through to legend.
+        handles, labels = mlegend._get_legend_handles_labels([self],
+                legend_handler_map)
         return handles, labels
 
+    @docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
         Places a legend on the axes.
@@ -328,6 +304,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
+
         loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
 
@@ -497,6 +474,11 @@ class Axes(_AxesBase):
             handler. This `handler_map` updates the default handler map
             found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
 
+        Returns
+        -------
+
+        :class:`matplotlib.legend.Legend` instance
+
         Notes
         -----
 
@@ -509,57 +491,12 @@ class Axes(_AxesBase):
         .. plot:: gallery/api/legend.py
 
         """
-        handlers = kwargs.get('handler_map', {}) or {}
-
-        # Support handles and labels being passed as keywords.
-        handles = kwargs.pop('handles', None)
-        labels = kwargs.pop('labels', None)
-
-        if (handles is not None or labels is not None) and len(args):
-            warnings.warn("You have mixed positional and keyword "
-                          "arguments, some input will be "
-                          "discarded.")
-
-        # if got both handles and labels as kwargs, make same length
-        if handles and labels:
-            handles, labels = zip(*zip(handles, labels))
-
-        elif handles is not None and labels is None:
-            labels = [handle.get_label() for handle in handles]
-            for label, handle in zip(labels[:], handles[:]):
-                if label.startswith('_'):
-                    warnings.warn('The handle {!r} has a label of {!r} which '
-                                  'cannot be automatically added to the '
-                                  'legend.'.format(handle, label))
-                    labels.remove(label)
-                    handles.remove(handle)
-
-        elif labels is not None and handles is None:
-            # Get as many handles as there are labels.
-            handles = [handle for handle, label
-                       in zip(self._get_legend_handles(handlers), labels)]
-
-        # No arguments - automatically detect labels and handles.
-        elif len(args) == 0:
-            handles, labels = self.get_legend_handles_labels(handlers)
-            if not handles:
-                return None
-
-        # One argument. User defined labels - automatic handle detection.
-        elif len(args) == 1:
-            labels, = args
-            # Get as many handles as there are labels.
-            handles = [handle for handle, label
-                       in zip(self._get_legend_handles(handlers), labels)]
-
-        # Two arguments:
-        #   * user defined handles and labels
-        elif len(args) == 2:
-            handles, labels = args
-
-        else:
-            raise TypeError('Invalid arguments to legend.')
-
+        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
+                [self],
+                *args,
+                **kwargs)
+        if len(extra_args):
+            raise TypeError('legend only accepts two non-keyword arguments')
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
         return self.legend_
