@@ -561,6 +561,12 @@ def test_pcolorimage_setdata():
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
 
 
+def test_pcolorimage_extent():
+    im = plt.hist2d([1, 2, 3], [3, 5, 6],
+                    bins=[[0, 3, 7], [1, 2, 3]])[-1]
+    assert im.get_extent() == (0, 7, 1, 3)
+
+
 def test_minimized_rasterized():
     # This ensures that the rasterized content in the colorbars is
     # only as thick as the colorbar, and doesn't extend to other parts
