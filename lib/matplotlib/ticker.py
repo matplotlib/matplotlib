@@ -37,8 +37,21 @@ axis limits and ticks that are multiples of that base.
 
 The Locator subclasses defined here are
 
-:class:`NullLocator`
-    No ticks.
+:class:`AutoLocator`
+    `MaxNLocator` with simple defaults.  This is the default tick locator for
+    most plotting.
+
+:class:`MaxNLocator`
+    Finds up to a max number of intervals with ticks at nice locations.
+
+:class:`LinearLocator`
+    Space ticks evenly from min to max.
+
+:class:`LogLocator`
+    Space ticks logarithmically from min to max.
+
+:class:`MultipleLocator`
+    Ticks and range are a multiple of base; either integer or float.
 
 :class:`FixedLocator`
     Tick locations are fixed.
@@ -46,29 +59,19 @@ The Locator subclasses defined here are
 :class:`IndexLocator`
     Locator for index plots (e.g., where ``x = range(len(y))``).
 
-:class:`LinearLocator`
-    Evenly spaced ticks from min to max.
-
-:class:`LogLocator`
-    Logarithmically ticks from min to max.
+:class:`NullLocator`
+    No ticks.
 
 :class:`SymmetricalLogLocator`
     Locator for use with with the symlog norm; works like `LogLocator` for the
-    part outside of the threshold and add 0 if inside the limits.
+    part outside of the threshold and adds 0 if inside the limits.
 
-:class:`MultipleLocator`
-    Ticks and range are a multiple of base; either integer or float.
+:class:`LogitLocator`
+    Locator for logit scaling.
 
 :class:`OldAutoLocator`
-    Choose a `MultipleLocator` and dyamically reassign it for intelligent
+    Choose a `MultipleLocator` and dynamically reassign it for intelligent
     ticking during navigation.
-
-:class:`MaxNLocator`
-    Finds up to a max number of ticks at nice locations.
-
-:class:`AutoLocator`
-    `MaxNLocator` with simple defaults.  This is the default tick locator for
-    most plotting.
 
 :class:`AutoMinorLocator`
     Locator for minor ticks when the axis is linear and the
@@ -76,8 +79,6 @@ The Locator subclasses defined here are
     tick interval into a specified number of minor intervals,
     defaulting to 4 or 5 depending on the major interval.
 
-:class:`LogitLocator`
-    Locator for logit scaling.
 
 There are a number of locators specialized for date locations - see
 the `dates` module.
