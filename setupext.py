@@ -1450,170 +1450,25 @@ class Tri(SetupPackage):
         return ext
 
 
-class Six(SetupPackage):
-    name = "six"
-    min_version = "1.10"
+class InstallRequires(SetupPackage):
+    name = "install_requires"
 
     def check(self):
-        try:
-            import six
-        except ImportError:
-            return (
-                "six was not found."
-                "pip will attempt to install it "
-                "after matplotlib.")
-
-        if not is_min_version(six.__version__, self.min_version):
-            return ("The installed version of six is {inst_ver} but "
-                    "a the minimum required version is {min_ver}. "
-                    "pip/easy install will attempt to install a "
-                    "newer version."
-                    ).format(min_ver=self.min_version,
-                             inst_ver=six.__version__)
-
-        return "using six version %s" % six.__version__
+        return "handled by setuptools"
 
     def get_install_requires(self):
-        return ['six>={0}'.format(self.min_version)]
-
-
-class Pytz(SetupPackage):
-    name = "pytz"
-
-    def check(self):
-        try:
-            import pytz
-        except ImportError:
-            return (
-                "pytz was not found. "
-                "pip/easy_install may attempt to install it "
-                "after matplotlib.")
-
-        return "using pytz version %s" % pytz.__version__
-
-    def get_install_requires(self):
-        return ['pytz']
-
-
-class Cycler(SetupPackage):
-    name = "cycler"
-
-    def check(self):
-        try:
-            import cycler
-        except ImportError:
-            return (
-                "cycler was not found. "
-                "pip/easy_install may attempt to install it "
-                "after matplotlib.")
-        return "using cycler version %s" % cycler.__version__
-
-    def get_install_requires(self):
-        return ['cycler>=0.10']
-
-
-class Dateutil(SetupPackage):
-    name = "dateutil"
-
-    def __init__(self, version='>=2.0'):
-        self.version = version
-
-    def check(self):
-        try:
-            import dateutil
-        except ImportError:
-            return (
-                "dateutil was not found. It is required for date axis "
-                "support. pip/easy_install may attempt to install it "
-                "after matplotlib.")
-
-        return "using dateutil version %s" % dateutil.__version__
-
-    def get_install_requires(self):
-        dateutil = 'python-dateutil'
-        if self.version is not None:
-            dateutil += self.version
-        return [dateutil]
-
-
-class BackportsFuncToolsLRUCache(SetupPackage):
-    name = "backports.functools_lru_cache"
-
-    def check(self):
-        if not PY3min:
-            try:
-                import backports.functools_lru_cache
-            except ImportError:
-                return (
-                    "backports.functools_lru_cache was not found. It is required for"
-                    "Python versions prior to 3.2")
-
-            return "using backports.functools_lru_cache"
-        else:
-            return "Not required"
-
-    def get_install_requires(self):
-        if not PY3min:
-            return ['backports.functools_lru_cache']
-        else:
-            return []
-
-
-class Subprocess32(SetupPackage):
-    name = "subprocess32"
-
-    def check(self):
-        if not PY3min:
-            try:
-                import subprocess32
-            except ImportError:
-                return (
-                    "subprocess32 was not found. It used "
-                    " for Python versions prior to 3.2 to improves"
-                    " functionality on Linux and OSX")
-
-            return "using subprocess32"
-        else:
-            return "Not required"
-
-    def get_install_requires(self):
-        if not PY3min and os.name == 'posix':
-            return ['subprocess32']
-        else:
-            return []
-
-
-class Tornado(OptionalPackage):
-    name = "tornado"
-
-    def check(self):
-        try:
-            import tornado
-        except ImportError:
-            return (
-                "tornado was not found. It is required for the WebAgg "
-                "backend. pip/easy_install may attempt to install it "
-                "after matplotlib.")
-
-        return "using tornado version %s" % tornado.version
-
-
-class Pyparsing(SetupPackage):
-    name = "pyparsing"
-
-    def check(self):
-        try:
-            import pyparsing
-        except ImportError:
-            return (
-                "pyparsing was not found. It is required for mathtext "
-                "support. pip/easy_install may attempt to install it "
-                "after matplotlib.")
-
-        return "using pyparsing version %s" % pyparsing.__version__
-
-    def get_install_requires(self):
-        return ['pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6']
+        install_requires = [
+            "cycler>=0.10",
+            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
+            "python-dateutil>=2.0",
+            "pytz",
+            "six>=1.10",
+        ]
+        if sys.version_info < (3,):
+            install_requires += ["backports.functools_lru_cache"]
+        if sys.version_info < (3,) and os.name == "posix":
+            install_requires += ["subprocess32"]
+        return install_requires
 
 
 class BackendAgg(OptionalBackendPackage):
