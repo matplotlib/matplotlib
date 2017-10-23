@@ -27,9 +27,7 @@ Detailed description
 The problem
 ~~~~~~~~~~~
 
-Current ("old-style") configuration files use a custom syntax, of the form
-
-.. code:: conf
+Current ("old-style") configuration files use a custom syntax, of the form ::
 
    key: value  # possible comment
    key: value
@@ -115,9 +113,7 @@ which file-parser to use.
 Maintain a matplotlibrc-like syntax
 ```````````````````````````````````
 
-The config files would maintain the format
-
-.. code:: conf
+The config files would maintain the format ::
 
    key: value  # possible comment
    key: value
@@ -241,6 +237,22 @@ Alternatives
   discussion that took place over PEP518_ (not that I particularly like the
   final choice of yet another obscure configuration language by that PEP).
 
+Relevant issues
+---------------
+
+- `#3670`_: "Document that rcparam values are unquoted"
+- `#4240`_: "Style RC parameter"
+- `#4371`_: "LaTeX and PGF preambles do not allow commas"
+- `#6157`_: "Add style for xkcd"
+- `#6274`_: "A feeble attempt to plug a theoretical security hole"
+- `#6320`_: "all matplotlibrc files should be loaded in order"
+- `#7089`_: "matplotlibrc reader cannot handle rcparams with a hash"
+- `#7219`_: "Cycler passed as string for rc"
+- `#8235`_: "Investigate why some examples build properly in our gallery
+  despite using numpy and not importing it explicitely"
+- `#8430`_: "[feature request] move default colors into styles"
+- `#9184`_: "matplotlibrc parsing is inconsistent with matplotlibrc.template"
+
 .. _#3670: https://github.com/matplotlib/matplotlib/issues/3670
 .. _#4240: https://github.com/matplotlib/matplotlib/issues/4240
 .. _#4371: https://github.com/matplotlib/matplotlib/issues/4371
@@ -249,7 +261,7 @@ Alternatives
 .. _#6320: https://github.com/matplotlib/matplotlib/issues/6320
 .. _#7089: https://github.com/matplotlib/matplotlib/issues/7089
 .. _#7219: https://github.com/matplotlib/matplotlib/issues/7219
-.. _#8235: https://github.com/matplotlib/matplotlib/issues/8430
+.. _#8235: https://github.com/matplotlib/matplotlib/issues/8235
 .. _#8430: https://github.com/matplotlib/matplotlib/issues/8430
 .. _#9184: https://github.com/matplotlib/matplotlib/issues/9184
 .. _PEP518: https://www.python.org/dev/peps/pep-0518/#other-file-formats
