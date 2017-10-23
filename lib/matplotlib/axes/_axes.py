@@ -1556,11 +1556,9 @@ or tuple of floats
 
         dx = {'basex': kwargs.pop('basex', 10),
               'subsx': kwargs.pop('subsx', None),
-              'nonposx': kwargs.pop('nonposx', 'mask'),
               }
         dy = {'basey': kwargs.pop('basey', 10),
               'subsy': kwargs.pop('subsy', None),
-              'nonposy': kwargs.pop('nonposy', 'mask'),
               }
 
         self.set_xscale('log', **dx)
@@ -1618,7 +1616,6 @@ or tuple of floats
             self.cla()
         d = {'basex': kwargs.pop('basex', 10),
              'subsx': kwargs.pop('subsx', None),
-             'nonposx': kwargs.pop('nonposx', 'clip'),
              }
 
         self.set_xscale('log', **d)
@@ -1674,7 +1671,6 @@ or tuple of floats
             self.cla()
         d = {'basey': kwargs.pop('basey', 10),
              'subsy': kwargs.pop('subsy', None),
-             'nonposy': kwargs.pop('nonposy', 'mask'),
              }
         self.set_yscale('log', **d)
         b = self._hold
