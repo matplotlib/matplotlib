@@ -7,7 +7,7 @@ import tempfile
 import warnings
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
-                           assert_array_equal)
+                           assert_array_equal, assert_array_almost_equal_nulp)
 import numpy.ma.testutils as matest
 import numpy as np
 import datetime as datetime
@@ -1985,7 +1985,7 @@ class TestSpectral(object):
                                 noverlap=self.nover_density,
                                 pad_to=self.pad_to_density,
                                 sides=self.sides)
-        assert_array_equal(Pxx, Pxy)
+        assert_array_almost_equal_nulp(Pxx, Pxy)
         assert_array_equal(freqsxx, freqsxy)
 
     def test_specgram_auto_default_equal(self):
