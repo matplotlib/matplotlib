@@ -23,11 +23,11 @@ Here's how to create a line plot with  text labels using
 
 .. _screenshots_subplot_demo:
 
-Subplot demo
-============
+Multiple subplots in one figure
+===============================
 
 Multiple axes (i.e. subplots) are created with the
-:func:`~matplotlib.pyplot.subplot` command:
+:func:`~matplotlib.pyplot.subplot` function:
 
 .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_subplot_001.png
    :target: ../../gallery/subplots_axes_and_figures/subplot.html
@@ -36,12 +36,46 @@ Multiple axes (i.e. subplots) are created with the
 
    Subplot
 
+.. _screenshots_images_demo:
+
+Images
+======
+
+Matplotlib can display images (assuming equally spaced
+horizontal dimensions) using the :func:`~matplotlib.pyplot.imshow` function.
+
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_image_demo_003.png
+   :target: ../../gallery/images_contours_and_fields/image_demo.html
+   :align: center
+   :scale: 50
+
+   Example of using :func:`~matplotlib.pyplot.imshow` to display a CT scan
+
+.. _screenshots_pcolormesh_demo:
+
+
+Contouring and pseudocolor
+==========================
+
+The :func:`~matplotlib.pyplot.pcolormesh` function can make a colored
+representation of a two-dimensional array, even if the horizontal dimensions
+are unevenly spaced.  The
+:func:`~matplotlib.pyplot.contour` function is another way to represent
+the same data:
+
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_pcolormesh_levels_001.png
+   :target: ../../gallery/images_contours_and_fields/pcolormesh_levels.html
+   :align: center
+   :scale: 50
+
+   Example comparing :func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.contour` for plotting two-dimensional data
+
 .. _screenshots_histogram_demo:
 
 Histograms
 ==========
 
-The :func:`~matplotlib.pyplot.hist` command automatically generates
+The :func:`~matplotlib.pyplot.hist` function automatically generates
 histograms and returns the bin counts or probabilities:
 
 .. figure:: ../../gallery/statistics/images/sphx_glr_histogram_features_001.png
@@ -54,8 +88,8 @@ histograms and returns the bin counts or probabilities:
 
 .. _screenshots_path_demo:
 
-Path demo
-=========
+Paths
+=====
 
 You can add arbitrary paths in Matplotlib using the
 :mod:`matplotlib.path` module:
@@ -69,8 +103,8 @@ You can add arbitrary paths in Matplotlib using the
 
 .. _screenshots_mplot3d_surface:
 
-mplot3d
-=========
+Three-dimensional plotting
+==========================
 
 The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
 :ref:`mplot3d-examples-index`) has support for simple 3d graphs
@@ -103,7 +137,7 @@ such as the speed or local intensity of the vector field.
    :align: center
    :scale: 50
 
-   Plot Streamplot
+   Streamplot with various plotting options.
 
 This feature complements the :meth:`~matplotlib.pyplot.quiver` function for
 plotting vector fields. Thanks to Tom Flannaghan and Tony Yu for adding the
@@ -132,7 +166,7 @@ accurate  8-spline approximation to elliptical arcs (see
 Bar charts
 ==========
 
-Use the :func:`~matplotlib.pyplot.bar` command to make bar charts, which
+Use the :func:`~matplotlib.pyplot.bar` function to make bar charts, which
 includes customizations such as error bars:
 
 .. figure:: ../../gallery/statistics/images/sphx_glr_barchart_demo_001.png
@@ -153,7 +187,7 @@ or horizontal bar charts
 Pie charts
 ==========
 
-The :func:`~matplotlib.pyplot.pie` command allows you to create pie
+The :func:`~matplotlib.pyplot.pie` function allows you to create pie
 charts.  Optional features include auto-labeling the percentage of area,
 exploding one or more wedges from the center of the pie, and a shadow effect.
 Take a close look at the attached code, which generates this figure in just
@@ -168,10 +202,10 @@ a few lines of code.
 
 .. _screenshots_table_demo:
 
-Table demo
-==========
+Tables
+======
 
-The :func:`~matplotlib.pyplot.table` command adds a text table
+The :func:`~matplotlib.pyplot.table` function adds a text table
 to an axes.
 
 .. figure:: ../../gallery/misc/images/sphx_glr_table_demo_001.png
@@ -185,10 +219,10 @@ to an axes.
 .. _screenshots_scatter_demo:
 
 
-Scatter demo
-============
+Scatter plots
+=============
 
-The :func:`~matplotlib.pyplot.scatter` command makes a scatter plot
+The :func:`~matplotlib.pyplot.scatter` function makes a scatter plot
 with (optional) size and color arguments. This example plots changes
 in Google's stock price, with marker sizes reflecting the
 trading volume and colors varying with time. Here, the
@@ -204,7 +238,7 @@ alpha attribute is used to make semitransparent circle markers.
 
 .. _screenshots_slider_demo:
 
-Slider demo
+GUI widgets
 ===========
 
 Matplotlib has basic GUI widgets that are independent of the graphical
@@ -217,15 +251,15 @@ and widgets.  See :mod:`matplotlib.widgets` and the
    :align: center
    :scale: 50
 
-   Slider Demo
+   Slider and radio-button GUI.
 
 
 .. _screenshots_fill_demo:
 
-Fill demo
-=========
+Filled curves
+=============
 
-The :func:`~matplotlib.pyplot.fill` command lets you
+The :func:`~matplotlib.pyplot.fill` function lets you
 plot filled curves and polygons:
 
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_fill_001.png
@@ -239,8 +273,8 @@ Thanks to Andrew Straw for adding this function.
 
 .. _screenshots_date_demo:
 
-Date demo
-=========
+Date handling
+=============
 
 You can plot timeseries data with major and minor ticks and custom
 tick formatters for both.
@@ -280,7 +314,7 @@ log-scaling infrastructure.
 Polar plots
 ===========
 
-The :func:`~matplotlib.pyplot.polar` command generates polar plots.
+The :func:`~matplotlib.pyplot.polar` function generates polar plots.
 
 .. figure:: ../../gallery/pie_and_polar_charts/images/sphx_glr_polar_demo_001.png
    :target: ../../gallery/pie_and_polar_charts/polar_demo.html
@@ -295,9 +329,9 @@ The :func:`~matplotlib.pyplot.polar` command generates polar plots.
 Legends
 =======
 
-The :func:`~matplotlib.pyplot.legend` command automatically
-generates figure legends, with MATLAB-compatible legend placement
-commands.
+The :func:`~matplotlib.pyplot.legend` function automatically
+generates figure legends, with MATLAB-compatible legend-placement
+functions.
 
 .. figure:: ../../gallery/api/images/sphx_glr_legend_001.png
    :target: ../../gallery/api/legend.html
@@ -306,12 +340,12 @@ commands.
 
    Legend
 
-Thanks to Charles Twardy for input on the legend command.
+Thanks to Charles Twardy for input on the legend function.
 
 .. _screenshots_mathtext_examples_demo:
 
-Mathtext_examples
-=================
+TeX-notation for text objects
+=============================
 
 Below is a sampling of the many TeX expressions now supported by Matplotlib's
 internal mathtext engine.  The mathtext module provides TeX style mathematical
@@ -349,8 +383,8 @@ rendering of strings with the *usetex* option.
 
 .. _screenshots_eeg_demo:
 
-EEG demo
-=========
+EEG GUI
+=======
 
 You can embed Matplotlib into pygtk, wx, Tk, or Qt applications.
 Here is a screenshot of an EEG viewer called `pbrain
@@ -372,7 +406,7 @@ For examples of how to embed Matplotlib in different toolkits, see:
 XKCD-style sketch plots
 =======================
 
-Matplotlib supports plotting in the style of `xkcd
+Just for fun, Matplotlib supports plotting in the style of `xkcd
 <http://www.xkcd.com/>`.
 
 .. figure:: ../../gallery/showcase/images/sphx_glr_xkcd_001.png
@@ -383,7 +417,13 @@ Matplotlib supports plotting in the style of `xkcd
    Xkcd
 """
 
-# An extra set of sample plots for the thumbnail image.
+###################################################################
+# Subplot example
+# ===============
+#
+# Many plot types can be combined in one figure to create
+# powerful and flexible representations of data.
+#
 import matplotlib.pyplot as plt
 import numpy as np
 

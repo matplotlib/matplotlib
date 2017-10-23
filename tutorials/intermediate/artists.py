@@ -280,7 +280,7 @@ plt.show()
 # .. _figure-container:
 #
 # Figure container
-# ================
+# ----------------
 #
 # The top level container ``Artist`` is the
 # :class:`matplotlib.figure.Figure`, and it contains everything in the
@@ -366,7 +366,7 @@ plt.show()
 # .. _axes-container:
 #
 # Axes container
-# ==============
+# --------------
 #
 # The :class:`matplotlib.axes.Axes` is the center of the matplotlib
 # universe -- it contains the vast majority of all the ``Artists`` used
@@ -544,7 +544,7 @@ plt.show()
 # .. _axis-container:
 #
 # Axis containers
-# ===============
+# ---------------
 #
 # The :class:`matplotlib.axis.Axis` instances handle the drawing of the
 # tick lines, the grid lines, the tick labels and the axis label.  You
@@ -648,7 +648,7 @@ plt.show()
 # .. _tick-container:
 #
 # Tick containers
-# ===============
+# ---------------
 #
 # The :class:`matplotlib.axis.Tick` is the final container object in our
 # descent from the :class:`~matplotlib.figure.Figure` to the
