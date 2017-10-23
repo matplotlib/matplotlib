@@ -1723,8 +1723,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
     shutil.move(epsfile, tmpfile)
 
 
-class FigureManagerPS(FigureManagerBase):
-    pass
+FigureManagerPS = FigureManagerBase
 
 
 # The following Python dictionary psDefs contains the entries for the
@@ -1770,4 +1769,3 @@ psDefs = [
 @_Backend.export
 class _BackendPS(_Backend):
     FigureCanvas = FigureCanvasPS
-    FigureManager = FigureManagerPS
