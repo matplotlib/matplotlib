@@ -3074,7 +3074,7 @@ class _AxesBase(martist.Artist):
 
         minor : bool, optional
             If True select the minor ticklabels,
-            else select the minor ticklabels
+            else select the major ticklabels
 
         Returns
         -------
@@ -3394,7 +3394,7 @@ class _AxesBase(martist.Artist):
 
         minor : bool, optional
             If True select the minor ticklabels,
-            else select the minor ticklabels
+            else select the major ticklabels
 
         Returns
         -------
