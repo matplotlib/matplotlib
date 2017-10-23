@@ -2,7 +2,7 @@
 colors
 ******
 
-For a visual representation of the matplotlib colormaps, see:
+For a visual representation of the Matplotlib colormaps, see:
 
 * The :ref:`color_examples` examples for examples of controlling color with
   Matplotlib.
