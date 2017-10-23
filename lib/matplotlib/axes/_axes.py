@@ -5847,6 +5847,7 @@ class Axes(_AxesBase):
                                         norm=norm,
                                         alpha=alpha,
                                         **kwargs)
+                im.set_extent((xl, xr, yb, yt))
             self.add_image(im)
             ret = im
 
