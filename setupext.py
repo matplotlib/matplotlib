@@ -1435,6 +1435,7 @@ class InstallRequires(SetupPackage):
             "python-dateutil>=2.1",
             "pytz",
             "six>=1.10",
+            "kiwisolver>=1.0.1",
         ]
         if sys.version_info < (3,):
             install_requires += ["backports.functools_lru_cache"]

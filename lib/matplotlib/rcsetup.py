@@ -1286,6 +1286,19 @@ defaultParams = {
     'figure.subplot.hspace': [0.2, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=False)],
 
+    # do constrained_layout.
+    'figure.constrained_layout.use': [False, validate_bool],
+    # wspace and hspace are fraction of adjacent subplots to use
+    # for space.  Much smaller than above because we don't need
+    # room for the text.
+    'figure.constrained_layout.hspace': [0.02, ValidateInterval(
+            0, 1, closedmin=True, closedmax=False)],
+    'figure.constrained_layout.wspace': [0.02, ValidateInterval(
+            0, 1, closedmin=True, closedmax=False)],
+    # This is a buffer around the axes in inches.  This is 3pts.
+    'figure.constrained_layout.h_pad': [0.04167, validate_float],
+    'figure.constrained_layout.w_pad': [0.04167, validate_float],
+
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
     'savefig.facecolor':   ['w', validate_color],  # facecolor; white

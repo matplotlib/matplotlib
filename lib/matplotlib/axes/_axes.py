@@ -1312,8 +1312,8 @@ class Axes(_AxesBase):
         The following two calls yield identical results:
 
         >>> plot(x, y, 'go--', linewidth=2, markersize=12)
-        >>> plot(x, y, color='green', marker='o', linestyle='dashed', \
-linewidth=2, markersize=12)
+        >>> plot(x, y, color='green', marker='o', linestyle='dashed',
+                linewidth=2, markersize=12)
 
         When conflicting with *fmt*, keyword arguments take precedence.
 
@@ -1990,7 +1990,7 @@ linewidth=2, markersize=12)
            bar(x, height, width, *, align='center', **kwargs)
            bar(x, height, width, bottom, *, align='center', **kwargs)
 
-        The bars are positioned at *x* with the given *align*\ ment. Their
+        The bars are positioned at *x* with the given *align* ment. Their
         dimensions are given by *width* and *height*. The vertical baseline
         is *bottom* (default 0).
 
@@ -2307,7 +2307,7 @@ linewidth=2, markersize=12)
            bar(y, width, height, *, align='center', **kwargs)
            bar(y, width, height, left, *, align='center', **kwargs)
 
-        The bars are positioned at *y* with the given *align*\ ment. Their
+        The bars are positioned at *y* with the given *align*. Their
         dimensions are given by *width* and *height*. The horizontal baseline
         is *left* (default 0).
 

@@ -40,7 +40,8 @@ import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.transforms as mtransforms
-
+import matplotlib._layoutbox as layoutbox
+import matplotlib._constrained_layout as constrained_layout
 from matplotlib import docstring
 
 make_axes_kw_doc = '''
@@ -532,9 +533,10 @@ class ColorbarBase(cm.ScalarMappable):
             self.dividers = None
         if self.drawedges:
             linewidths = (0.5 * mpl.rcParams['axes.linewidth'],)
-            self.dividers = collections.LineCollection(self._edges(X, Y),
-                                    colors=(mpl.rcParams['axes.edgecolor'],),
-                                    linewidths=linewidths)
+            self.dividers = collections.LineCollection(
+                    self._edges(X, Y),
+                    colors=(mpl.rcParams['axes.edgecolor'],),
+                    linewidths=linewidths)
             self.ax.add_collection(self.dividers)
         elif len(self._y) >= self.n_rasterize:
             self.solids.set_rasterized(True)
@@ -1049,7 +1051,7 @@ class Colorbar(ColorbarBase):
         except AttributeError:
             # use_gridspec was False
             pos = ax.get_position(original=True)
-            ax.set_position(pos)
+            ax._set_position(pos)
         else:
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
@@ -1124,12 +1126,20 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
-    pad = kw.pop('pad', loc_settings['pad'])
 
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
     parents = np.atleast_1d(parents).ravel()
+
+    # check if using constrained_layout:
+    gs = parents[0].get_subplotspec().get_gridspec()
+    using_constrained_layout = (gs._layoutbox is not None)
+    # defaults are not appropriate for constrained_layout:
+    pad0 = loc_settings['pad']
+    if using_constrained_layout:
+        pad0 = 0.02
+    pad = kw.pop('pad', pad0)
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
@@ -1165,12 +1175,37 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
         new_posn = mtransforms.Bbox(new_posn)
-        ax.set_position(new_posn)
+        ax._set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
     cax = fig.add_axes(pbcb)
-    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+
+    # OK, now make a layoutbox for the cb axis.  Later, we will use this
+    # to make the colorbar fit nicely.
+    if not using_constrained_layout:
+        # no layout boxes:
+        lb = None
+        lbpos = None
+        # and we need to set the aspect ratio by hand...
+        cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+    else:
+        if len(parents) == 1:
+            # this is a single axis...
+            ax = parents[0]
+            lb, lbpos = constrained_layout.layoutcolorbarsingle(
+                    ax, cax, shrink, aspect, location, pad=pad)
+        else:  # there is more than one parent, so lets use gridspec
+            # the colorbar will be a sibling of this gridspec, so the
+            # parent is the same parent as the gridspec.  Either the figure,
+            # or a subplotspec.
+
+            lb, lbpos = constrained_layout.layoutcolorbargridspec(
+                    parents, cax, shrink, aspect, location, pad)
+
+    cax._layoutbox = lb
+    cax._poslayoutbox = lbpos
+
     return cax, kw
 
 
@@ -1222,6 +1257,11 @@ def make_axes_gridspec(parent, **kw):
     pad_s = (1 - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
+    # we need to none the tree of layoutboxes because
+    # constrained_layout can't remove and replace the tree
+    # hierarchy w/o a seg fault.
+    gs = parent.get_subplotspec().get_gridspec()
+    layoutbox.nonetree(gs._layoutbox)
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
@@ -1253,7 +1293,7 @@ def make_axes_gridspec(parent, **kw):
 
     parent.set_subplotspec(gs[0])
     parent.update_params()
-    parent.set_position(parent.figbox)
+    parent._set_position(parent.figbox)
     parent.set_anchor(panchor)
 
     fig = parent.get_figure()
@@ -1329,7 +1369,8 @@ class ColorbarPatch(Colorbar):
             self.dividers = None
 
         if self.drawedges:
-            self.dividers = collections.LineCollection(self._edges(X, Y),
+            self.dividers = collections.LineCollection(
+                    self._edges(X, Y),
                     colors=(mpl.rcParams['axes.edgecolor'],),
                     linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)

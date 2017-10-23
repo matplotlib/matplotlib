@@ -622,8 +622,8 @@ class ToolViewsPositions(ToolBase):
         if set(all_axes).issubset(pos):
             for a in all_axes:
                 # Restore both the original and modified positions
-                a.set_position(pos[a][0], 'original')
-                a.set_position(pos[a][1], 'active')
+                a._set_position(pos[a][0], 'original')
+                a._set_position(pos[a][1], 'active')
 
         self.figure.canvas.draw_idle()
 
