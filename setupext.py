@@ -2083,7 +2083,7 @@ def backend_pyqt4_internal_check(self):
 
     try:
         qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.QT_VERSION_STR
+        pyqt_version_str = QtCore.PYQT_VERSION_STR
     except AttributeError:
         raise CheckFailed('PyQt4 not correctly imported')
     else:
@@ -2133,7 +2133,7 @@ def backend_pyqt5_internal_check(self):
 
     try:
         qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.QT_VERSION_STR
+        pyqt_version_str = QtCore.PYQT_VERSION_STR
     except AttributeError:
         raise CheckFailed('PyQt5 not correctly imported')
     else:
