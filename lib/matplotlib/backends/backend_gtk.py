@@ -1025,6 +1025,7 @@ def error_msg_gtk(msg, parent=None):
 
 @_Backend.export
 class _BackendGTK(_Backend):
+    required_event_loop = "gtk2"
     FigureCanvas = FigureCanvasGTK
     FigureManager = FigureManagerGTK
 

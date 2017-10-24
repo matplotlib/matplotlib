@@ -907,6 +907,7 @@ Toolbar = ToolbarGTK3
 
 @_Backend.export
 class _BackendGTK3(_Backend):
+    required_event_loop = "gtk3"
     FigureCanvas = FigureCanvasGTK3
     FigureManager = FigureManagerGTK3
 

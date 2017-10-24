@@ -434,5 +434,6 @@ class FigureCanvasGDK (FigureCanvasBase):
 
 @_Backend.export
 class _BackendGDK(_Backend):
+    required_event_loop = "gtk2"
     FigureCanvas = FigureCanvasGDK
     FigureManager = FigureManagerBase

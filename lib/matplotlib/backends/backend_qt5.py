@@ -857,6 +857,7 @@ def exception_handler(type, value, tb):
 
 @_Backend.export
 class _BackendQT5(_Backend):
+    required_event_loop = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 

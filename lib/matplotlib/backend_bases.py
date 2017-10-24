@@ -2538,6 +2538,7 @@ class FigureManagerBase(object):
             figure.canvas.mpl_disconnect(
                 figure.canvas.manager.key_press_handler_id)
     """
+
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -3262,6 +3263,9 @@ class _Backend(object):
     # class FooBackend(_Backend):
     #     # override the attributes and methods documented below.
 
+    # Set to one of {"qt5", "qt4", "gtk3", "gtk2", "tk"} if an event loop is
+    # required, or None otherwise.
+    required_event_loop = None
     # May be overridden by the subclass.
     backend_version = "unknown"
     # The `FigureCanvas` class must be overridden.
@@ -3351,13 +3355,11 @@ or with matplotlib.use()""".format(matplotlib.matplotlib_fname()))
 
     @staticmethod
     def export(cls):
-        for name in ["backend_version",
-                     "FigureCanvas",
-                     "FigureManager",
-                     "new_figure_manager",
-                     "new_figure_manager_given_figure",
-                     "draw_if_interactive",
-                     "show"]:
+        for name in [
+                "required_event_loop", "backend_version",
+                "FigureCanvas", "FigureManager",
+                "new_figure_manager", "new_figure_manager_given_figure",
+                "draw_if_interactive", "show"]:
             setattr(sys.modules[cls.__module__], name, getattr(cls, name))
 
         # For back-compatibility, generate a shim `Show` class.

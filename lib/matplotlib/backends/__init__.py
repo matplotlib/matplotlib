@@ -5,6 +5,7 @@ import six
 
 import importlib
 import logging
+import sys
 import traceback
 
 import matplotlib
@@ -13,11 +14,36 @@ from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-backend = matplotlib.get_backend()
-_backend_loading_tb = "".join(
-    line for line in traceback.format_stack()
-    # Filter out line noise from importlib line.
-    if not line.startswith('  File "<frozen importlib._bootstrap'))
+
+def _get_current_event_loop():
+    """Return the currently running event loop if any, or None.
+
+    Returns
+    -------
+    Optional[str]
+        A value in {"qt5", "qt4", "gtk3", "gtk2", "tk", None}
+    """
+    QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
+                 or sys.modules.get("PySide2.QtWidgets"))
+    if QtWidgets and QtWidgets.QApplication.instance():
+        return "qt5"
+    QtGui = (sys.modules.get("PyQt4.QtGui")
+             or sys.modules.get("PySide.QtGui"))
+    if QtGui and QtGui.QApplication.instance():
+        return "qt4"
+    Gtk = (sys.modules.get("gi.repository.Gtk")
+           or sys.modules.get("pgi.repository.Gtk"))
+    if Gtk and Gtk.main_level():
+        return "gtk3"
+    gtk = sys.modules.get("gtk")
+    # gtk3 will also insert gtk into sys.modules :/
+    if not Gtk and gtk and gtk.main_level():
+        return "gtk2"
+    tkinter = sys.modules.get("tkinter") or sys.modules.get("Tkinter")
+    if tkinter and any(frame.f_code.co_filename == tkinter.__file__
+                       and frame.f_code.co_name == "mainloop"
+                       for frame in sys._current_frames().values()):
+        return "tk"
 
 
 def pylab_setup(name=None):
@@ -46,6 +72,12 @@ def pylab_setup(name=None):
     show : function
         Show (and possibly block) any unshown figures.
 
+    Raises
+    ------
+    ImportError
+        If a backend cannot be loaded because a different event loop has
+        already started, or if a third-party backend fails to import.
+
     '''
     # Import the requested backend into a generic module object
     if name is None:
@@ -56,6 +88,15 @@ def pylab_setup(name=None):
     backend_mod = importlib.import_module(backend_name)
     Backend = type(str("Backend"), (_Backend,), vars(backend_mod))
     _log.info('backend %s version %s', name, Backend.backend_version)
+
+    required_event_loop = Backend.required_event_loop
+    current_event_loop = _get_current_event_loop()
+    if (current_event_loop and required_event_loop
+            and current_event_loop != required_event_loop):
+        raise ImportError(
+            "Cannot load backend {!r} which requires the {!r} event loop, as "
+            "the {!r} event loop is currently running".format(
+                name, required_event_loop, current_event_loop))
 
     # need to keep a global reference to the backend for compatibility
     # reasons. See https://github.com/matplotlib/matplotlib/issues/6092

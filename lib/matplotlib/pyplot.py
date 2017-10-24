@@ -29,7 +29,7 @@ import warnings
 from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
-from matplotlib import style
+from matplotlib import backends, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_numlike
 from matplotlib.cbook import _string_to_bool
@@ -79,34 +79,18 @@ def _backend_selection():
     backend = rcParams['backend']
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
         return
-    is_agg_backend = rcParams['backend'].endswith('Agg')
-    if 'wx' in sys.modules and not backend in ('WX', 'WXAgg'):
-        import wx
-        if wx.App.IsMainLoopRunning():
-            rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
-    elif 'PyQt4.QtCore' in sys.modules and not backend == 'Qt4Agg':
-        import PyQt4.QtGui
-        if not PyQt4.QtGui.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt4Agg'
-    elif 'PyQt5.QtCore' in sys.modules and not backend == 'Qt5Agg':
-        import PyQt5.QtWidgets
-        if not PyQt5.QtWidgets.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules and
-          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
-        if 'gi' in sys.modules:
-            from gi.repository import GObject
-            ml = GObject.MainLoop
-        else:
-            import gobject
-            ml = gobject.MainLoop
-        if ml().is_running():
-            rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
-    elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
-        # import Tkinter
-        pass  # what if anything do we need to do for tkinter?
+    current_event_loop = backends._get_current_event_loop()
+    if current_event_loop == "qt5":
+        rcParams["backend"] = "qt5agg"
+    elif current_event_loop == "qt4":
+        rcParams["backend"] = "qt4agg"
+    elif current_event_loop == "gtk3":
+        rcParams["backend"] = ("gtk3agg" if rcParams["backend"].endswith("agg")
+                               else "gtk3cairo")
+    elif current_event_loop == "gtk2":
+        rcParams["backend"] = "gtkagg"
+    elif current_event_loop == "tk":
+        rcParams["backend"] = "tkagg"
 
 _backend_selection()
 
@@ -216,21 +200,17 @@ def findobj(o=None, match=None, include_self=True):
 
 def switch_backend(newbackend):
     """
-    Switch the default backend.  This feature is **experimental**, and
-    is only expected to work switching to an image backend.  e.g., if
-    you have a bunch of PostScript scripts that you want to run from
-    an interactive ipython session, you may want to switch to the PS
-    backend before running them to avoid having a bunch of GUI windows
-    popup.  If you try to interactively switch from one GUI backend to
-    another, you will explode.
+    Close all open figures and set the Matplotlib backend.
 
-    Calling this command will close all open windows.
+    The argument is case-insensitive.  Switching to an interactive backend is
+    only safe if no event loop for another interactive backend has started.
+    Switching to and from non-interactive backends is safe.
     """
-    close('all')
+    close("all")
     global _backend_mod, new_figure_manager, draw_if_interactive, _show
-    matplotlib.use(newbackend, warn=False, force=True)
-    from matplotlib.backends import pylab_setup
-    _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+    rcParams["backend"] = newbackend
+    _backend_mod, new_figure_manager, draw_if_interactive, _show = \
+        backends.pylab_setup()
 
 
 def show(*args, **kw):
