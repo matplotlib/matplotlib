@@ -5943,10 +5943,22 @@ or tuple of floats
             Input values, this takes either a single array or a sequency of
             arrays which are not required to be of the same length
 
-        bins : integer or array_like or 'auto', optional
-            If an integer is given, ``bins + 1`` bin edges are returned,
-            consistently with :func:`numpy.histogram` for numpy version >=
-            1.3.
+        bins : integer or sequence or 'auto', optional
+            If an integer is given, ``bins + 1`` bin edges are calculated and
+            returned, consistent with :func:`numpy.histogram`.
+
+            If `bins` is a sequence, gives bin edges, including left edge of
+            first bin and right edge of last bin.  In this case, `bins` is
+            returned unmodified.
+
+            All but the last (righthand-most) bin is half-open.  In other
+            words, if `bins` is::
+
+                [1, 2, 3, 4]
+
+            then the first bin is ``[1, 2)`` (including 1, but excluding 2) and
+            the second ``[2, 3)``.  The last bin, however, is ``[3, 4]``, which
+            *includes* 4.
 
             Unequally spaced bins are supported if *bins* is a sequence.
 
