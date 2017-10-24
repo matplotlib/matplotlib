@@ -2484,7 +2484,16 @@ class LogitLocator(Locator):
 
 
 class AutoLocator(MaxNLocator):
+    """
+    Dynamically find major tick positions. This is actually a subclass
+    of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
+    and *steps = [1, 2, 2.5, 5, 10]*.
+    """
     def __init__(self):
+        """
+        To know the values of the non-public parameters, please have a
+        look to the defaults of `~matplotlib.ticker.MaxNLocator`.
+        """
         if rcParams['_internal.classic_mode']:
             nbins = 9
             steps = [1, 2, 5, 10]
