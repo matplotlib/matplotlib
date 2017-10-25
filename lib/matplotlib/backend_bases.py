@@ -2654,6 +2654,12 @@ class FigureManagerBase(object):
     num : int or str
         The figure number
 
+    key_press_handler_id : int
+        The default key handler cid, when using the toolmanager.  Can be used
+        to disable default key press handling ::
+
+            figure.canvas.mpl_disconnect(
+                figure.canvas.manager.key_press_handler_id)
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2661,16 +2667,6 @@ class FigureManagerBase(object):
         self.num = num
 
         self.key_press_handler_id = None
-        """
-        The returned id from connecting the default key handler via
-        :meth:`FigureCanvasBase.mpl_connect`.
-
-        To disable default key press handling::
-
-            manager, canvas = figure.canvas.manager, figure.canvas
-            canvas.mpl_disconnect(manager.key_press_handler_id)
-
-        """
         if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
                 'key_press_event',
