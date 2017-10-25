@@ -70,7 +70,53 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
 
+
+def close(*args):
+    """
+    Close a figure window.
+
+    ``close()`` by itself closes the current figure
+
+    ``close(fig)`` closes the `~.Figure` instance *fig*
+
+    ``close(num)`` closes the figure number *num*
+
+    ``close(name)`` where *name* is a string, closes figure with that label
+
+    ``close('all')`` closes all the figure windows
+    """
+
+    if len(args) == 0:
+        figManager = _pylab_helpers.Gcf.get_active()
+        if figManager is None:
+            return
+        else:
+            _pylab_helpers.Gcf.destroy(figManager.num)
+    elif len(args) == 1:
+        arg = args[0]
+        if arg == 'all':
+            _pylab_helpers.Gcf.destroy_all()
+        elif isinstance(arg, six.integer_types):
+            _pylab_helpers.Gcf.destroy(arg)
+        elif hasattr(arg, 'int'):
+            # if we are dealing with a type UUID, we
+            # can use its integer representation
+            _pylab_helpers.Gcf.destroy(arg.int)
+        elif isinstance(arg, six.string_types):
+            allLabels = get_figlabels()
+            if arg in allLabels:
+                num = get_fignums()[allLabels.index(arg)]
+                _pylab_helpers.Gcf.destroy(num)
+        elif isinstance(arg, Figure):
+            _pylab_helpers.Gcf.destroy_fig(arg)
+        else:
+            raise TypeError('Unrecognized argument type %s to close' % type(arg))
+    else:
+        raise TypeError('close takes 0 or 1 arguments')
+
+
 ## Backend detection ##
+
 def _backend_selection():
     """ If rcParams['backend_fallback'] is true, check to see if the
         current backend is compatible with the current running event
@@ -94,9 +140,29 @@ def _backend_selection():
 
 _backend_selection()
 
-## Global ##
+def switch_backend(newbackend):
+    """
+    Close all open figures and set the Matplotlib backend.
 
-_backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+    The argument is case-insensitive.  Switching to an interactive backend is
+    only safe if no event loop for another interactive backend has started.
+    Switching to and from non-interactive backends is safe.
+
+    Parameters
+    ----------
+    newbackend : str or List[str]
+        The name of the backend to use.  If a list of backends, they will be
+        tried in order until one successfully loads.
+    """
+    close("all")
+    global _backend_mod, new_figure_manager, draw_if_interactive, _show
+    _backend_mod, new_figure_manager, draw_if_interactive, _show = \
+        backends.pylab_setup(newbackend)
+
+switch_backend(rcParams["backend"])
+
+
+## Global ##
 
 _IP_REGISTERED = None
 _INSTALL_FIG_OBSERVER = False
@@ -196,21 +262,6 @@ def findobj(o=None, match=None, include_self=True):
     if o is None:
         o = gcf()
     return o.findobj(match, include_self=include_self)
-
-
-def switch_backend(newbackend):
-    """
-    Close all open figures and set the Matplotlib backend.
-
-    The argument is case-insensitive.  Switching to an interactive backend is
-    only safe if no event loop for another interactive backend has started.
-    Switching to and from non-interactive backends is safe.
-    """
-    close("all")
-    global _backend_mod, new_figure_manager, draw_if_interactive, _show
-    rcParams["backend"] = newbackend
-    _backend_mod, new_figure_manager, draw_if_interactive, _show = \
-        backends.pylab_setup()
 
 
 def show(*args, **kw):
@@ -613,50 +664,6 @@ def connect(s, func):
 @docstring.copy_dedent(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
-
-
-def close(*args):
-    """
-    Close a figure window.
-
-    ``close()`` by itself closes the current figure
-
-    ``close(fig)`` closes the `~.Figure` instance *fig*
-
-    ``close(num)`` closes the figure number *num*
-
-    ``close(name)`` where *name* is a string, closes figure with that label
-
-    ``close('all')`` closes all the figure windows
-    """
-
-    if len(args) == 0:
-        figManager = _pylab_helpers.Gcf.get_active()
-        if figManager is None:
-            return
-        else:
-            _pylab_helpers.Gcf.destroy(figManager.num)
-    elif len(args) == 1:
-        arg = args[0]
-        if arg == 'all':
-            _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, six.integer_types):
-            _pylab_helpers.Gcf.destroy(arg)
-        elif hasattr(arg, 'int'):
-            # if we are dealing with a type UUID, we
-            # can use its integer representation
-            _pylab_helpers.Gcf.destroy(arg.int)
-        elif isinstance(arg, six.string_types):
-            allLabels = get_figlabels()
-            if arg in allLabels:
-                num = get_fignums()[allLabels.index(arg)]
-                _pylab_helpers.Gcf.destroy(num)
-        elif isinstance(arg, Figure):
-            _pylab_helpers.Gcf.destroy_fig(arg)
-        else:
-            raise TypeError('Unrecognized argument type %s to close' % type(arg))
-    else:
-        raise TypeError('close takes 0 or 1 arguments')
 
 
 def clf():

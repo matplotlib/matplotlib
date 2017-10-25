@@ -1322,9 +1322,14 @@ def use(arg, warn=True, force=False):
     Switching to and from non-interactive backends is safe.
 
     To find out which backend is currently set, see `matplotlib.get_backend`.
+
+    Parameters
+    ----------
+    arg : str or List[str]
+        The name of the backend to use.  If a list of backends, they will be
+        tried in order until one successfully loads.
     """
-    import matplotlib.pyplot
-    pyplot.switch_backend(arg)
+    rcParams["backend"] = arg
 
 
 def get_backend():

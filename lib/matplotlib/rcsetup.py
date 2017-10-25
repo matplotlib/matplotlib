@@ -21,8 +21,9 @@ from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
-import warnings
 import re
+import sys
+import warnings
 
 from matplotlib import cbook
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
@@ -255,15 +256,21 @@ def validate_fonttype(s):
         return fonttype
 
 
-_validate_standard_backends = ValidateInStrings(
-    'backend', all_backends, ignorecase=True)
-
-
 def validate_backend(s):
-    if s.startswith('module://'):
-        return s
+    candidates = _listify_validator(
+        lambda s:
+        s if s.startswith("module://")
+        else ValidateInStrings('backend', all_backends, ignorecase=True)(s))(s)
+    if len(candidates) == 1:
+        return candidates[0]
     else:
-        return _validate_standard_backends(s)
+        pyplot = sys.modules.get("matplotlib.pyplot")
+        if pyplot:
+            pyplot.switch_backend(candidates)  # Actually resolves the backend.
+            from matplotlib import rcParams
+            return rcParams["backend"]
+        else:
+            return candidates
 
 
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])

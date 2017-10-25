@@ -9,6 +9,7 @@ import sys
 import traceback
 
 import matplotlib
+from matplotlib import rcParams
 from matplotlib.backend_bases import _Backend
 
 
@@ -54,9 +55,10 @@ def pylab_setup(name=None):
 
     Parameters
     ----------
-    name : str, optional
-        The name of the backend to use.  If `None`, falls back to
-        ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
+    name : str or List[str], optional
+        The name of the backend to use.  If a list of backends, they will be
+        tried in order until one successfully loads.  If ``None``, use
+        ``rcParams['backend']``.
 
     Returns
     -------
@@ -79,9 +81,18 @@ def pylab_setup(name=None):
         already started, or if a third-party backend fails to import.
 
     '''
-    # Import the requested backend into a generic module object
     if name is None:
-        name = matplotlib.get_backend()
+        name = matplotlib.rcParams["backend"]
+
+    if not isinstance(name, six.string_types):
+        for n in name:
+            try:
+                return pylab_setup(n)
+            except ImportError:
+                pass
+        else:
+            raise ValueError("No suitable backend among {}".format(name))
+
     backend_name = (name[9:] if name.startswith("module://")
                     else "matplotlib.backends.backend_{}".format(name.lower()))
 
@@ -97,6 +108,8 @@ def pylab_setup(name=None):
             "Cannot load backend {!r} which requires the {!r} event loop, as "
             "the {!r} event loop is currently running".format(
                 name, required_event_loop, current_event_loop))
+
+    rcParams["backend"] = name
 
     # need to keep a global reference to the backend for compatibility
     # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
