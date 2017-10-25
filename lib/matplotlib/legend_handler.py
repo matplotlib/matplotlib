@@ -90,7 +90,7 @@ class HandlerBase(object):
         return xdescent, ydescent, width, height
 
     def legend_artist(self, legend, orig_handle,
-                       fontsize, handlebox):
+                      fontsize, handlebox):
         """
         Return the artist that this HandlerBase generates for the given
         original artist/handle.
@@ -134,6 +134,19 @@ class HandlerBase(object):
 
 class HandlerNpoints(HandlerBase):
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
+        '''
+        Parameters
+        ----------
+        marker_pad : float
+            Padding between points in legend entry
+
+        numpoints : int
+            Number of points to show in legend entry
+
+        Notes
+        -----
+        Any other keyword arguments are given to `HandlerBase`
+        '''
         HandlerBase.__init__(self, **kw)
 
         self._numpoints = numpoints
@@ -160,9 +173,21 @@ class HandlerNpoints(HandlerBase):
         return xdata, xdata_marker
 
 
-
 class HandlerNpointsYoffsets(HandlerNpoints):
     def __init__(self, numpoints=None, yoffsets=None, **kw):
+        '''
+        Parameters
+        ----------
+        numpoints : int
+            Number of points to show in legend entry
+
+        yoffsets : array of floats
+            Length *numpoints* list of y offsets for each point in legend entry
+
+        Notes
+        -----
+        Any other keyword arguments are given to `HandlerNpoints`
+        '''
         HandlerNpoints.__init__(self, numpoints=numpoints, **kw)
         self._yoffsets = yoffsets
 
@@ -180,7 +205,21 @@ class HandlerLine2D(HandlerNpoints):
     Handler for Line2D instances.
     """
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
-        HandlerNpoints.__init__(self, marker_pad=marker_pad, numpoints=numpoints, **kw)
+        '''
+        Parameters
+        ----------
+        marker_pad : float
+            Padding between points in legend entry
+
+        numpoints : int
+            Number of points to show in legend entry
+
+        Notes
+        -----
+        Any other keyword arguments are given to `HandlerNpoints`
+        '''
+        HandlerNpoints.__init__(self, marker_pad=marker_pad,
+                                numpoints=numpoints, **kw)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -396,10 +435,11 @@ class HandlerErrorbar(HandlerLine2D):
         self._xerr_size = xerr_size
         self._yerr_size = yerr_size
 
-        HandlerLine2D.__init__(self, marker_pad=marker_pad, numpoints=numpoints,
-                               **kw)
+        HandlerLine2D.__init__(self, marker_pad=marker_pad,
+                               numpoints=numpoints, **kw)
 
-    def get_err_size(self, legend, xdescent, ydescent, width, height, fontsize):
+    def get_err_size(self, legend, xdescent, ydescent,
+                     width, height, fontsize):
         xerr_size = self._xerr_size * fontsize
 
         if self._yerr_size is None:
@@ -420,7 +460,6 @@ class HandlerErrorbar(HandlerLine2D):
 
         ydata = ((height - ydescent) / 2.) * np.ones(xdata.shape, float)
         legline = Line2D(xdata, ydata)
-
 
         xdata_marker = np.asarray(xdata_marker)
         ydata_marker = np.asarray(ydata[:len(xdata_marker)])
@@ -501,10 +540,28 @@ class HandlerErrorbar(HandlerLine2D):
 
 class HandlerStem(HandlerNpointsYoffsets):
     """
-    Handler for Errorbars
+    Handler for plots produced by `stem`
     """
     def __init__(self, marker_pad=0.3, numpoints=None,
                  bottom=None, yoffsets=None, **kw):
+        '''
+        Parameters
+        ----------
+        marker_pad : float
+            Padding between points in legend entry. Default is 0.3.
+
+        numpoints : int, optional
+            Number of points to show in legend entry
+
+        bottom : float, optional
+
+        yoffsets : array of floats, optional
+            Length *numpoints* list of y offsets for each point in legend entry
+
+        Notes
+        -----
+        Any other keyword arguments are given to `HandlerNpointsYoffsets`
+        '''
 
         HandlerNpointsYoffsets.__init__(self, marker_pad=marker_pad,
                                         numpoints=numpoints,
