@@ -609,7 +609,8 @@ def test_load_from_url():
 
 @image_comparison(baseline_images=['log_scale_image'],
                   remove_text=True)
-def test_log_scale_image():
+# The recwarn fixture captures a warning in image_comparison.
+def test_log_scale_image(recwarn):
     Z = np.zeros((10, 10))
     Z[::2] = 1
 
@@ -619,7 +620,6 @@ def test_log_scale_image():
     ax.imshow(Z, extent=[1, 100, 1, 100], cmap='viridis',
               vmax=1, vmin=-1)
     ax.set_yscale('log')
-
 
 
 @image_comparison(baseline_images=['rotate_image'],

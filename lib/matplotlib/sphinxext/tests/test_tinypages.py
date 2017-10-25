@@ -22,8 +22,7 @@ def setup_module():
     ret = call([sys.executable, '-msphinx', '--help'],
                stdout=PIPE, stderr=PIPE)
     if ret != 0:
-        raise RuntimeError(
-            "'{} -msphinx' does not return 0".format(sys.executable))
+        pytest.skip("'{} -msphinx' does not return 0".format(sys.executable))
 
 
 @cbook.deprecated("2.1", alternative="filecmp.cmp")
