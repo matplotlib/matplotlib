@@ -105,11 +105,6 @@ mpl_packages = [
     setupext.BackendAgg(),
     setupext.BackendCairo(),
     setupext.Windowing(),
-    'Optional LaTeX dependencies',
-    setupext.DviPng(),
-    setupext.Ghostscript(),
-    setupext.LaTeX(),
-    setupext.PdfToPs(),
     'Optional package data',
     setupext.Dlls(),
     ]
