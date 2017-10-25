@@ -118,6 +118,7 @@ import logging
 import os
 import re
 import shutil
+import stat
 import sys
 import tempfile
 import warnings
@@ -798,7 +799,8 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - `$MATPLOTLIBRC` if it is a file
+    - `$MATPLOTLIBRC` if it is a file (or a named pipe, which can be created
+      e.g. by process substitution)
 
     - `$MATPLOTLIBRC/matplotlibrc`
 
@@ -833,8 +835,10 @@ def matplotlib_fname():
         yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
-        if os.path.isfile(fname):
-            break
+        if os.path.exists(fname):
+            st_mode = os.stat(fname).st_mode
+            if stat.S_ISREG(st_mode) or stat.S_ISFIFO(st_mode):
+                break
     # Return first candidate that is a file, or last candidate if none is
     # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
