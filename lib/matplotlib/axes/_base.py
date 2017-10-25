@@ -2971,11 +2971,6 @@ class _AxesBase(martist.Artist):
 
         matplotlib.scale.LogisticTransform : logit transform
         """
-        # If the scale is being set to log, mask nonposx to prevent headaches
-        # around zero
-        if value.lower() == 'log' and 'nonposx' not in kwargs:
-            kwargs['nonposx'] = 'mask'
-
         g = self.get_shared_x_axes()
         for ax in g.get_siblings(self):
             ax.xaxis._set_scale(value, **kwargs)
@@ -3293,11 +3288,6 @@ class _AxesBase(martist.Artist):
 
         matplotlib.scale.LogisticTransform : logit transform
         """
-        # If the scale is being set to log, mask nonposy to prevent headaches
-        # around zero
-        if value.lower() == 'log' and 'nonposy' not in kwargs:
-            kwargs['nonposy'] = 'mask'
-
         g = self.get_shared_y_axes()
         for ax in g.get_siblings(self):
             ax.yaxis._set_scale(value, **kwargs)
