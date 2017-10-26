@@ -4793,6 +4793,10 @@ class Axes(_AxesBase):
         step : {'pre', 'post', 'mid'}, optional
             If not None, fill with step logic.
 
+        Returns
+        -------
+        `PolyCollection`
+            Plotted polygon collection
 
         Notes
         -----
@@ -4947,6 +4951,12 @@ class Axes(_AxesBase):
             precise point of intersection.  Otherwise, the start and
             end points of the filled region will only occur on explicit
             values in the *x* array.
+
+
+        Returns
+        -------
+        `PolyCollection`
+            Plotted polygon collection
 
         Notes
         -----
