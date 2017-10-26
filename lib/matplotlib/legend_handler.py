@@ -134,7 +134,7 @@ class HandlerBase(object):
 
 class HandlerNpoints(HandlerBase):
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
-        '''
+        """
         Parameters
         ----------
         marker_pad : float
@@ -146,7 +146,7 @@ class HandlerNpoints(HandlerBase):
         Notes
         -----
         Any other keyword arguments are given to `HandlerBase`
-        '''
+        """
         HandlerBase.__init__(self, **kw)
 
         self._numpoints = numpoints
@@ -175,7 +175,7 @@ class HandlerNpoints(HandlerBase):
 
 class HandlerNpointsYoffsets(HandlerNpoints):
     def __init__(self, numpoints=None, yoffsets=None, **kw):
-        '''
+        """
         Parameters
         ----------
         numpoints : int
@@ -187,7 +187,7 @@ class HandlerNpointsYoffsets(HandlerNpoints):
         Notes
         -----
         Any other keyword arguments are given to `HandlerNpoints`
-        '''
+        """
         HandlerNpoints.__init__(self, numpoints=numpoints, **kw)
         self._yoffsets = yoffsets
 
@@ -544,7 +544,7 @@ class HandlerStem(HandlerNpointsYoffsets):
     """
     def __init__(self, marker_pad=0.3, numpoints=None,
                  bottom=None, yoffsets=None, **kw):
-        '''
+        """
         Parameters
         ----------
         marker_pad : float
@@ -561,7 +561,7 @@ class HandlerStem(HandlerNpointsYoffsets):
         Notes
         -----
         Any other keyword arguments are given to `HandlerNpointsYoffsets`
-        '''
+        """
 
         HandlerNpointsYoffsets.__init__(self, marker_pad=marker_pad,
                                         numpoints=numpoints,
