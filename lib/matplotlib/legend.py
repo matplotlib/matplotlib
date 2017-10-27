@@ -865,12 +865,14 @@ class Legend(Artist):
                 bboxes.append(
                     artist.get_bbox().transformed(artist.get_data_transform()))
             elif isinstance(artist, Patch):
-                bboxes.append(
-                    artist.get_path().get_extents(artist.get_transform()))
+                lines.append(
+                    artist.get_transform().transform_path(artist.get_path()))
             elif isinstance(artist, Collection):
-                _, offset_trf, hoffsets, _ = artist._prepare_points()
-                for offset in offset_trf.transform(hoffsets):
-                    offsets.append(offset)
+                transform, transOffset, hoffsets, _ = artist._prepare_points()
+                if len(hoffsets):
+                    for offset in transOffset.transform(hoffsets):
+                        offsets.append(offset)
+
         return bboxes, lines, offsets
 
     def get_children(self):
