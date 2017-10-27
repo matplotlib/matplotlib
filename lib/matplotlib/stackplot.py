@@ -19,40 +19,51 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args, **kwargs):
-    """Draws a stacked area plot.
+    """
+    Draws a stacked area plot.
 
-    *x* : 1d array of dimension N
+    Parameters
+    ----------
+    x : 1d array of dimension N
 
-    *y* : 2d array of dimension MxN, OR any number 1d arrays each of dimension
-          1xN. The data is assumed to be unstacked. Each of the following
-          calls is legal::
+    y : 2d array of dimension MxN, OR sequence 1d arrays each of dimension 1xN
+        The data is assumed to be unstacked. Each of the following
+        calls is legal::
 
             stackplot(x, y)               # where y is MxN
             stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
-    Keyword arguments:
+    baseline : string
+        One of ``['zero', 'sym', 'wiggle', 'weighted_wiggle']``.
 
-    *baseline* : ['zero', 'sym', 'wiggle', 'weighted_wiggle']
-                Method used to calculate the baseline. 'zero' is just a
-                simple stacked plot. 'sym' is symmetric around zero and
-                is sometimes called `ThemeRiver`.  'wiggle' minimizes the
-                sum of the squared slopes. 'weighted_wiggle' does the
-                same but weights to account for size of each layer.
-                It is also called `Streamgraph`-layout. More details
-                can be found at http://leebyron.com/streamgraph/.
-
-
-    *labels* : A list or tuple of labels to assign to each data series.
+        Method used to calculate the baseline. ``'zero'`` is just a
+        simple stacked plot.
+        ``'sym'`` is symmetric around zero and is sometimes called
+        'ThemeRiver'.
+        ``'wiggle'`` minimizes the sum of the squared slopes.
+        ``'weighted_wiggle'`` does the same but weights to account for size of
+        each layer. It is also called 'Streamgraph'-layout. More details
+        can be found at http://leebyron.com/streamgraph/.
 
 
-    *colors* : A list or tuple of colors. These will be cycled through and
-               used to colour the stacked areas.
-               All other keyword arguments are passed to
-               :func:`~matplotlib.Axes.fill_between`
+    labels : Length N sequence of strings
+        Labels to assign to each data series.
 
-    Returns *r* : A list of
-    :class:`~matplotlib.collections.PolyCollection`, one for each
-    element in the stacked area plot.
+
+    colors : Length N sequence of colors
+        A list or tuple of colors. These will be cycled through and used to
+        colour the stacked areas.
+
+    **kwargs :
+        All other keyword arguments are passed to
+        `Axes.fill_between`
+
+
+    Returns
+    -------
+    r : list
+        A list of `PolyCollection`, one for each element in the stacked area
+        plot.
     """
 
     y = np.row_stack(args)
@@ -116,6 +127,6 @@ def stackplot(axes, x, *args, **kwargs):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color,
-                                   label= six.next(labels, None),
+                                   label=six.next(labels, None),
                                    **kwargs))
     return r
