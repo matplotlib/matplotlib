@@ -5156,17 +5156,26 @@ class Axes(_AxesBase):
 
     @staticmethod
     def _pcolorargs(funcname, *args, **kw):
-        # This takes one kwarg, allmatch.
-        # If allmatch is True, then the incoming X, Y, C must
-        # have matching dimensions, taking into account that
-        # X and Y can be 1-D rather than 2-D.  This perfect
-        # match is required for Gouroud shading.  For flat
-        # shading, X and Y specify boundaries, so we need
-        # one more boundary than color in each direction.
-        # For convenience, and consistent with Matlab, we
-        # discard the last row and/or column of C if necessary
-        # to meet this condition.  This is done if allmatch
-        # is False.
+        # This function takes care of resizing the grids X and Y
+        # to match the size of the color grid C.
+        #
+        # If only a color grid is given dummy grids for X and Y are
+        # created, matching the dimensions of C.
+        #
+        # If given, the X and Y grids must have the same size or
+        # one more row and column than C.
+        #
+        # If the keyword allmatch is given and True the returned X, Y and
+        # C grids will have the same dimensions. If this is not the case
+        # on input, this is achieved by linearly interpolating the grids
+        # to obtain their midpoints. This is what is required for gouraud
+        # shading.
+        #
+        # If the keyword allmatch is not given or False the returned
+        # X, Y will have one more row and column than the C grid, which
+        # is achieved by potentially dropping the last row and column of
+        # X and Y. This is consistent with Matlab behaviour. This is
+        # required for flat shading.
 
         allmatch = kw.pop("allmatch", False)
 
@@ -5200,16 +5209,23 @@ class Axes(_AxesBase):
             raise TypeError(
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
                 funcname, funcname))
+
+        if not (numCols in (Nx, Nx - 1) and numRows in (Ny, Ny - 1)):
+            raise TypeError('Dimensions of C %s are incompatible with'
+                            ' X (%d) and/or Y (%d); see help(%s)' % (
+                                C.shape, Nx, Ny, funcname))
+
         if allmatch:
-            if not (Nx == numCols and Ny == numRows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+            if numRows == Ny - 1:
+                Y_new = 0.5 * Y[:numRows, :numCols]
+                Y_new += 0.5 * Y[1:, 1:]
+                Y = Y_new
+
+            if numCols == Nx - 1:
+                X_new = 0.5 * X[:numRows, :numCols]
+                X_new += 0.5 * X[1:, 1:]
+                X = X_new
         else:
-            if not (numCols in (Nx, Nx - 1) and numRows in (Ny, Ny - 1)):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
             C = C[:Ny - 1, :Nx - 1]
         C = cbook.safe_masked_invalid(C)
         return X, Y, C
