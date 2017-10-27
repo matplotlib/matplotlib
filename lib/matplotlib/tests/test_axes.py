@@ -1186,10 +1186,6 @@ def test_pcolorargs():
         ax.pcolormesh(y, x, Z)
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z.T)
-    with pytest.raises(TypeError):
-        ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
-    with pytest.raises(TypeError):
-        ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
 
 
 @image_comparison(baseline_images=['canonical'])
