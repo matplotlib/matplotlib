@@ -39,6 +39,18 @@ class PolarTransform(mtransforms.Transform):
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
 
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "    use_rmin={},\n"
+                    "    _apply_theta_transforms={})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._axis),
+                        self._use_rmin,
+                        self._apply_theta_transforms))
+
+    __repr__ = __str__
+
     def transform_non_affine(self, tr):
         xy = np.empty(tr.shape, float)
 
@@ -95,6 +107,16 @@ class PolarAffine(mtransforms.Affine2DBase):
         self.set_children(scale_transform, limits)
         self._mtx = None
 
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._scale_transform),
+                        mtransforms._indent_str(self._limits)))
+
+    __repr__ = __str__
+
     def get_matrix(self):
         if self._invalid:
             limits_scaled = self._limits.transformed(self._scale_transform)
@@ -124,6 +146,18 @@ class InvertedPolarTransform(mtransforms.Transform):
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
+
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "    use_rmin={},\n"
+                    "    _apply_theta_transforms={})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._axis),
+                        self._use_rmin,
+                        self._apply_theta_transforms))
+
+    __repr__ = __str__
 
     def transform_non_affine(self, xy):
         x = xy[:, 0:1]
@@ -459,6 +493,18 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         self.mode = mode
         self.pad = pad
 
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self.axes),
+                        mtransforms._indent_str(self.pad),
+                        mtransforms._indent_str(repr(self.mode))))
+
+    __repr__ = __str__
+
     def get_matrix(self):
         if self._invalid:
             if self.mode == 'rlabel':
@@ -697,9 +743,17 @@ class _WedgeBbox(mtransforms.Bbox):
         self._originLim = originLim
         self.set_children(viewLim, originLim)
 
-    def __repr__(self):
-        return "_WedgeBbox(%r, %r, %r)" % (self._center, self._viewLim,
-                                           self._originLim)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._center),
+                        mtransforms._indent_str(self._viewLim),
+                        mtransforms._indent_str(self._originLim)))
+
+    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
