@@ -203,6 +203,10 @@ def test_nose_image_comparison(func, kwargs, errors, failures, dots,
             assert failures[self.failure_count][1] in str(err[1])
             self.failure_count += 1
 
+    # Make sure that multiple extensions work, but don't require LaTeX or
+    # Inkscape to do so.
+    kwargs.setdefault('extensions', ['png', 'png', 'png'])
+
     func = image_comparison(**kwargs)(func)
     loader = nose.loader.TestLoader()
     suite = loader.loadTestsFromGenerator(

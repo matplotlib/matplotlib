@@ -1734,12 +1734,18 @@ def test_as_mpl_axes_api():
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     # try getting the axes given a different polar projection
-    ax_via_gca = plt.gca(projection=prj2)
+    with pytest.warns(UserWarning) as rec:
+        ax_via_gca = plt.gca(projection=prj2)
+        assert len(rec) == 1
+        assert 'Requested projection is different' in str(rec[0].message)
     assert ax_via_gca is not ax
     assert ax.get_theta_offset() == 0
     assert ax_via_gca.get_theta_offset() == np.pi
     # try getting the axes given an == (not is) polar projection
-    ax_via_gca = plt.gca(projection=prj3)
+    with pytest.warns(UserWarning):
+        ax_via_gca = plt.gca(projection=prj3)
+        assert len(rec) == 1
+        assert 'Requested projection is different' in str(rec[0].message)
     assert ax_via_gca is ax
     plt.close()
 
@@ -5426,3 +5432,19 @@ def test_patch_deprecations():
         assert fig.patch == fig.figurePatch
 
     assert len(w) == 2
+
+
+def test_polar_gridlines():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, polar=True)
+
+    # make all major grid lines lighter, only x grid lines set in 2.1.0
+    ax.grid(alpha=0.2)
+
+    # hide y tick labels, no effect in 2.1.0
+    plt.setp(ax.yaxis.get_ticklabels(), visible=False)
+
+    fig.canvas.draw()
+
+    assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
+    assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2

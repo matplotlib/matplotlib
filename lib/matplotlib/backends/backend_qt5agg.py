@@ -140,18 +140,22 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             QtCore.QTimer.singleShot(0, self.__draw_idle_agg)
 
     def __draw_idle_agg(self, *args):
+        # if nothing to do, bail
         if not self._agg_draw_pending:
             return
+        # we have now tried this function at least once, do not run
+        # again until re-armed.  Doing this here rather than after
+        # protects against recursive calls triggered through self.draw
+        self._agg_draw_pending = False
+        # if negative size, bail
         if self.height() < 0 or self.width() < 0:
-            self._agg_draw_pending = False
             return
         try:
+            # actually do the drawing
             self.draw()
         except Exception:
             # Uncaught exceptions are fatal for PyQt5, so catch them instead.
             traceback.print_exc()
-        finally:
-            self._agg_draw_pending = False
 
     def blit(self, bbox=None):
         """Blit the region in bbox.

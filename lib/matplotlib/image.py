@@ -829,7 +829,10 @@ class AxesImage(_ImageBase):
         array_extent = Bbox([[0, 0], arr.shape[:2]])
         trans = BboxTransform(boxin=data_extent, boxout=array_extent)
         y, x = event.ydata, event.xdata
-        i, j = trans.transform_point([y, x]).astype(int)
+        point = trans.transform_point([y, x])
+        if any(np.isnan(point)):
+            return None
+        i, j = point.astype(int)
         # Clip the coordinates at array bounds
         if not (0 <= i < arr.shape[0]) or not (0 <= j < arr.shape[1]):
             return None
