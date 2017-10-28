@@ -26,7 +26,8 @@ def stackplot(axes, x, *args, **kwargs):
     ----------
     x : 1d array of dimension N
 
-    y : 2d array of dimension MxN, OR sequence of 1d arrays each of dimension 1xN
+    y : 2d array (dimension MxN), OR sequence of 1d arrays (each dimension 1xN)
+
         The data is assumed to be unstacked. Each of the following
         calls is legal::
 
