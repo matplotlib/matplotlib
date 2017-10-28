@@ -5178,6 +5178,7 @@ class Axes(_AxesBase):
         # required for flat shading.
 
         allmatch = kw.pop("allmatch", False)
+        interpolate_grids = kw.pop("interpolate_grids", False)
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
@@ -5216,15 +5217,25 @@ class Axes(_AxesBase):
                                 C.shape, Nx, Ny, funcname))
 
         if allmatch:
-            if numRows == Ny - 1:
-                Y_new = 0.5 * Y[:numRows, :numCols]
-                Y_new += 0.5 * Y[1:, 1:]
-                Y = Y_new
+            if numRows != Ny or numCols != Nx:
+                if interpolate_grids:
 
-            if numCols == Nx - 1:
-                X_new = 0.5 * X[:numRows, :numCols]
-                X_new += 0.5 * X[1:, 1:]
-                X = X_new
+                    if numRows == Ny - 1:
+                        Y_new = 0.5 * Y[:numRows, :numCols]
+                        Y_new += 0.5 * Y[1:, 1:]
+                        Y = Y_new
+
+                    if numCols == Nx - 1:
+                        X_new = 0.5 * X[:numRows, :numCols]
+                        X_new += 0.5 * X[1:, 1:]
+                        X = X_new
+
+                else:
+
+                    raise TypeError('Dimensions of C %s are incompatible with'
+                                    ' X (%d) and/or Y (%d); see help(%s)' % (
+                                        C.shape, Nx, Ny, funcname))
+
         else:
             C = C[:Ny - 1, :Nx - 1]
         C = cbook.safe_masked_invalid(C)
@@ -5514,6 +5525,22 @@ class Axes(_AxesBase):
         contrast, :func:`~matplotlib.pyplot.pcolor` simply does not
         draw quadrilaterals with masked colors or vertices.
 
+        If flat shading is used, the arrays *X* and *Y* are assumed to
+        specify the boundary points of quadrilaterals. They should thus
+        each have one more column and row than the *C* array. For compatibility
+        with Matlab as well as convenience, the case in which *X*, *Y*, *C*
+        have the same dimension is also accepted and handled by dropping the
+        last row and column of *C*.
+
+        If Gouraud shading is used, the arrays *X* and *Y* are assumed to
+        specify the centers of the quadrilaterals and thus should have the
+        same dimensions as *C*. If this is not the case an error will be
+        thrown. However, for compatibility with the flat shading case, the
+        ``interpolate_grids`` keyword argument is provided. When set to
+        ``True`` and *X* and *Y* have one row and column more then *C*,
+         *X* and *Y* will be linearly interpolated to obtain the corresponding
+        centerpoints.
+
         Keyword arguments:
 
           *cmap*: [ *None* | Colormap ]
@@ -5552,6 +5579,19 @@ class Axes(_AxesBase):
           *alpha*: ``0 <= scalar <= 1``  or *None*
             the alpha blending value
 
+          *interpolate_grids*: [``True`` | ``False``]
+
+            When set to ``True`` and Gouraud shading is used with *X* and
+            *Y* with one more row and column than *C*, *X* and *Y* will be
+            linearly interpolated to obtain the centers of the quadrilaterals
+            described by *X* and *Y*.
+
+            When set to ``False`` the above case with cause an error to be
+            thrown.
+
+            Ignored when ``shading = flat``.
+
+
         Return value is a :class:`matplotlib.collections.QuadMesh`
         object.
 
@@ -5577,11 +5617,15 @@ class Axes(_AxesBase):
         vmax = kwargs.pop('vmax', None)
         shading = kwargs.pop('shading', 'flat').lower()
         antialiased = kwargs.pop('antialiased', False)
+        interpolate_grids = kwargs.pop('interpolate_grids', False)
         kwargs.setdefault('edgecolors', 'None')
 
         allmatch = (shading == 'gouraud')
 
-        X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
+        X, Y, C = self._pcolorargs('pcolormesh',
+                                   *args,
+                                   allmatch=allmatch,
+                                   interpolate_grids=interpolate_grids)
         Ny, Nx = X.shape
         X = X.ravel()
         Y = Y.ravel()
