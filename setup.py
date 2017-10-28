@@ -5,6 +5,7 @@ setup.cfg.template for more information.
 
 from __future__ import print_function, absolute_import
 from string import Template
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 
@@ -26,14 +27,6 @@ if __name__ == '__main__':
     # update it when the contents of directories change.
     if os.path.exists('MANIFEST'):
         os.remove('MANIFEST')
-
-try:
-    from setuptools import setup
-except ImportError:
-    try:
-        from setuptools.core import setup
-    except ImportError:
-        from distutils.core import setup
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
@@ -64,14 +57,7 @@ mpl_packages = [
     setupext.Platform(),
     'Required dependencies and extensions',
     setupext.Numpy(),
-    setupext.Six(),
-    setupext.Dateutil(),
-    setupext.BackportsFuncToolsLRUCache(),
-    setupext.Subprocess32(),
-    setupext.Pytz(),
-    setupext.Cycler(),
-    setupext.Tornado(),
-    setupext.Pyparsing(),
+    setupext.InstallRequires(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
