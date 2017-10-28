@@ -161,9 +161,10 @@ class RendererAgg(RendererBase):
                 except OverflowError:
                     raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
         else:
-            if rgbFace is not None:
-                rgbFace = tuple(rgbFace)
-            self._renderer.draw_path(gc, path, transform, rgbFace)
+            try:
+                if rgbFace is not None:
+                    rgbFace = tuple(rgbFace)
+                self._renderer.draw_path(gc, path, transform, rgbFace)
             
             except OverflowError:
                 raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
