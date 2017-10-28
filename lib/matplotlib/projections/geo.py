@@ -17,8 +17,7 @@ from matplotlib.path import Path
 import matplotlib.spines as mspines
 import matplotlib.axis as maxis
 from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, NullFormatter
-from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
-    BboxTransformTo, IdentityTransform, Transform, TransformWrapper
+from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 
 class GeoAxes(Axes):
     """
@@ -268,6 +267,11 @@ class AitoffAxes(GeoAxes):
             Transform.__init__(self)
             self._resolution = resolution
 
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
+
         def transform_non_affine(self, ll):
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
@@ -308,6 +312,11 @@ class AitoffAxes(GeoAxes):
             Transform.__init__(self)
             self._resolution = resolution
 
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
+
         def transform_non_affine(self, xy):
             # MGDTODO: Math is hard ;(
             return xy
@@ -347,6 +356,11 @@ class HammerAxes(GeoAxes):
             Transform.__init__(self)
             self._resolution = resolution
 
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
+
         def transform_non_affine(self, ll):
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
@@ -380,6 +394,11 @@ class HammerAxes(GeoAxes):
         def __init__(self, resolution):
             Transform.__init__(self)
             self._resolution = resolution
+
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
 
         def transform_non_affine(self, xy):
             x, y = xy.T
@@ -422,6 +441,11 @@ class MollweideAxes(GeoAxes):
             """
             Transform.__init__(self)
             self._resolution = resolution
+
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
 
         def transform_non_affine(self, ll):
             def d(theta):
@@ -476,6 +500,11 @@ class MollweideAxes(GeoAxes):
             Transform.__init__(self)
             self._resolution = resolution
 
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
+
         def transform_non_affine(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
@@ -525,6 +554,11 @@ class LambertAxes(GeoAxes):
             self._center_longitude = center_longitude
             self._center_latitude = center_latitude
 
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
+
         def transform_non_affine(self, ll):
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
@@ -571,6 +605,11 @@ class LambertAxes(GeoAxes):
             self._resolution = resolution
             self._center_longitude = center_longitude
             self._center_latitude = center_latitude
+
+        def __str__(self):
+            return "{}({})".format(type(self).__name__, self._resolution)
+
+        __repr__ = __str__
 
         def transform_non_affine(self, xy):
             x = xy[:, 0:1]
