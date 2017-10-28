@@ -11,7 +11,7 @@ from contextlib import contextmanager
 import pytest
 
 import matplotlib as mpl
-from matplotlib import style
+from matplotlib import pyplot as plt, style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 import six
@@ -158,3 +158,16 @@ def test_alias(equiv_styles):
     rc_base = rc_dicts[0]
     for nm, rc in zip(equiv_styles[1:], rc_dicts[1:]):
         assert rc_base == rc
+
+
+def test_xkcd_no_cm():
+    assert mpl.rcParams["path.sketch"] is None
+    plt.xkcd()
+    assert mpl.rcParams["path.sketch"] == (1, 100, 2)
+
+
+def test_xkcd_cm():
+    assert mpl.rcParams["path.sketch"] is None
+    with plt.xkcd():
+        assert mpl.rcParams["path.sketch"] == (1, 100, 2)
+    assert mpl.rcParams["path.sketch"] is None
