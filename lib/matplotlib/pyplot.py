@@ -1186,18 +1186,42 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
-    Create a subplot in a grid.  The grid is specified by *shape*, at
-    location of *loc*, spanning *rowspan*, *colspan* cells in each
-    direction.  The index for loc is 0-based.  The current figure will
-    be used unless *fig* is specified. ::
+    Create an axis at specific location inside a regular grid.
 
-      subplot2grid(shape, loc, rowspan=1, colspan=1)
+    Parameters
+    ----------
+    shape : sequence of 2 ints
+        Shape of grid in which to place axis.
+        First entry is number of rows, second entry is number of columns.
+
+    loc : sequence of 2 ints
+        Location to place axis within grid.
+        First entry is row number, second entry is column number.
+
+    rowspan : int
+        Number of rows for the axis to span to the right.
+
+    colspan : int
+        Number of columns for the axis to span downwards.
+
+    fig : `Figure`, optional
+        Figure to place axis in. Defaults to current figure.
+
+    **kwargs
+        Additional keyword arguments are handed to `add_subplot`.
+
+
+    Notes
+    -----
+    The following call ::
+
+        subplot2grid(shape, loc, rowspan=1, colspan=1)
 
     is identical to ::
 
-      gridspec=GridSpec(shape[0], shape[1])
-      subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
-      subplot(subplotspec)
+        gridspec=GridSpec(shape[0], shape[1])
+        subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
+        subplot(subplotspec)
     """
 
     if fig is None:

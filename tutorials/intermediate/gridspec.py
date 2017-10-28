@@ -75,13 +75,13 @@ ax = plt.subplot(gs[0, 0])
 
 # A GridSpec instance provides array-like (2d or 1d) indexing that
 # returns the SubplotSpec instance. For a SubplotSpec that spans multiple
-# cells, use slice. ::
+# cells, use slice.
 
 ax2 = plt.subplot(gs[1, :-1])
 ax3 = plt.subplot(gs[1:, -1])
 
 ###############################################################################
-# The above example becomes ::
+# The above example becomes
 
 fig = plt.figure()
 gs = gridspec.GridSpec(3, 3)
@@ -96,7 +96,7 @@ ax5 = plt.subplot(gs[-1, -2])
 # ======================
 #
 # When a GridSpec is explicitly used, you can adjust the layout
-# parameters of subplots that are created from the GridSpec. ::
+# parameters of subplots that are created from the GridSpec.
 
 fig = plt.figure()
 gs1 = gridspec.GridSpec(3, 3)
