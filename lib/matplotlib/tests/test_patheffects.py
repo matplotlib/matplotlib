@@ -111,10 +111,7 @@ def test_PathEffect_points_to_pixels():
     renderer = fig.canvas.get_renderer()
     pe_renderer = path_effects.SimpleLineShadow().get_proxy_renderer(renderer)
 
-    assert isinstance(pe_renderer, path_effects.PathEffectRenderer), (
-                'Expected a PathEffectRendere instance, got '
-                'a {0} instance.'.format(type(pe_renderer)))
-
+    assert isinstance(pe_renderer, path_effects.PathEffectRenderer)
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
     assert renderer.points_to_pixels(15) == pe_renderer.points_to_pixels(15)
