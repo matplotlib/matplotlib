@@ -2043,6 +2043,7 @@ class AutoWidthChar(Hlist):
         Hlist.__init__(self, [char])
         self.width = char.width
 
+
 class Ship(object):
     """
     Once the boxes have been set up, this sends them to output.  Since
@@ -2111,11 +2112,11 @@ class Ship(object):
                 if isinf(rule_depth):
                     rule_depth = box.depth
                 if rule_height > 0 and rule_width > 0:
-                    self.cur_v = baseline + rule_depth
+                    self.cur_v = base_line + rule_depth
                     p.render(self.cur_h + self.off_h,
                              self.cur_v + self.off_v,
                              rule_width, rule_height)
-                    self.cur_v = baseline
+                    self.cur_v = base_line
                 self.cur_h += rule_width
             elif isinstance(p, Glue):
                 # node625
@@ -2190,6 +2191,7 @@ class Ship(object):
             elif isinstance(p, Char):
                 raise RuntimeError("Internal mathtext error: Char node found in vlist")
         self.cur_s -= 1
+
 
 ship = Ship()
 
