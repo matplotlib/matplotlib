@@ -988,7 +988,7 @@ class Figure(Artist):
             grid with J rows and K columns.
 
         projection : ['aitoff' | 'hammer' | 'lambert' | \
-'mollweide', 'polar' | 'rectilinear'], optional
+'mollweide' | 'polar' | 'rectilinear'], optional
             The projection type of the axes.
 
         polar : boolean, optional
