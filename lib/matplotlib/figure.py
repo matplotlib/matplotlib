@@ -1230,13 +1230,13 @@ class Figure(Artist):
         if last_ax is not None:
             _reset_loc_form(last_ax.xaxis)
 
-    def clf(self, keep_observers=False, disable_rc_fetch=True):
+    def clf(self, keep_observers=False, reset_rcparams=False):
         """
         Clear the figure.
 
         Set *keep_observers* to True if, for example,
         a gui widget is tracking the axes in the figure.
-        Set *disable_rc_fetch* to False to reset figure
+        Set *reset_rcparams* to True to reset figure
         parameters to rcParams values.
         """
         self.suppressComposite = None
@@ -1258,7 +1258,7 @@ class Figure(Artist):
         self.legends = []
         if not keep_observers:
             self._axobservers = []
-        if not disable_rc_fetch:
+        if reset_rcparams:
             if self.figsize is None:
                 self.figsize = rcParams['figure.figsize']
             if self.facecolor is None:
@@ -1272,11 +1272,11 @@ class Figure(Artist):
         self._suptitle = None
         self.stale = True
 
-    def clear(self, keep_observers=False, disable_rc_fetch=True):
+    def clear(self, keep_observers=False, reset_rcparams=False):
         """
         Clear the figure -- synonym for :meth:`clf`.
         """
-        self.clf(keep_observers=keep_observers)
+        self.clf(keep_observers=keep_observers, reset_rcparams=reset_rcparams)
 
     @allow_rasterization
     def draw(self, renderer):
