@@ -1180,12 +1180,22 @@ def test_pcolorargs():
     y = np.linspace(-1.5, 1.5, n*2)
     X, Y = np.meshgrid(x, y)
     Z = np.sqrt(X**2 + Y**2)/5
+    Z_1 = Z[:-1, :-1]
 
     _, ax = plt.subplots()
     with pytest.raises(TypeError):
         ax.pcolormesh(y, x, Z)
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z.T)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(y, x, Z, shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X, Y, Z.T, shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X, Y, Z_1, shading="gouraud")
+
+    ax.pcolormesh(X, Y, Z_1)
+    ax.pcolormesh(x, y, Z_1, shading="gouraud", interpolate_grids=True)
 
 
 @image_comparison(baseline_images=['canonical'])
