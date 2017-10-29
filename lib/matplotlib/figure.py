@@ -336,6 +336,7 @@ class Figure(Artist):
             raise ValueError('figure size must be finite not '
                              '{}'.format(figsize))
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+        self.figsize = figsize
 
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
         # do not use property as it will trigger
@@ -351,6 +352,8 @@ class Figure(Artist):
             facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
+        self.facecolor = facecolor
+        self.edgecolor = edgecolor
 
         self._hold = rcParams['axes.hold']
         if self._hold is None:
@@ -364,6 +367,7 @@ class Figure(Artist):
 
         self.subplotpars = subplotpars
         self.set_tight_layout(tight_layout)
+        self.tight_layout = tight_layout
 
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
@@ -1226,12 +1230,14 @@ class Figure(Artist):
         if last_ax is not None:
             _reset_loc_form(last_ax.xaxis)
 
-    def clf(self, keep_observers=False):
+    def clf(self, keep_observers=False, disable_rc_fetch=True):
         """
         Clear the figure.
 
         Set *keep_observers* to True if, for example,
         a gui widget is tracking the axes in the figure.
+        Set *disable_rc_fetch* to False to reset figure
+        parameters to rcParams values.
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry()
@@ -1252,10 +1258,21 @@ class Figure(Artist):
         self.legends = []
         if not keep_observers:
             self._axobservers = []
+        if not disable_rc_fetch:
+            if self.figsize is None:
+                self.figsize = rcParams['figure.figsize']
+            if self.facecolor is None:
+                self.facecolor = rcParams['figure.facecolor']
+            if self.edgecolor is None:
+                self.edgecolor = rcParams['figure.edgecolor']
+            if self.frameon is None:
+                self.frameon = rcParams['figure.frameon']
+            self.subplotpars.update()
+            self.set_tight_layout(self.tight_layout)
         self._suptitle = None
         self.stale = True
 
-    def clear(self, keep_observers=False):
+    def clear(self, keep_observers=False, disable_rc_fetch=True):
         """
         Clear the figure -- synonym for :meth:`clf`.
         """
