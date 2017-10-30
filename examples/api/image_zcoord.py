@@ -3,7 +3,7 @@
 Modifying the coordinate formatter
 ==================================
 
-Show how to modify the coordinate formatter to report the image "z"
+Modify the coordinate formatter to report the image "z"
 value of the nearest pixel given x and y
 """
 import numpy as np

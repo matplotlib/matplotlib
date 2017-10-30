@@ -3,7 +3,7 @@
 Custom projection
 =================
 
-This example showcases the Hammer projection by alleviating many features of
+Showcase Hammer projection by alleviating many features of
 matplotlib.
 """
 

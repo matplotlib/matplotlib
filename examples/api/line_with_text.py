@@ -3,7 +3,7 @@
 Artist within an artist
 =======================
 
-Show how to override basic methods so an artist can contain another
+Override basic methods so an artist can contain another
 artist.  In this case, the line contains a Text instance to label it.
 """
 import numpy as np

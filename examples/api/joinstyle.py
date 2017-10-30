@@ -3,7 +3,7 @@
 Join styles
 ===========
 
-Illustrate the three different join styles
+Illustrate the three different join styles.
 """
 
 import numpy as np
