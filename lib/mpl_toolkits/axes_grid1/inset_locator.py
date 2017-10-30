@@ -578,7 +578,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
         The patches connecting two corners of the inset axes and its area.
     """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
-    
+
     fill = kwargs.pop("fill", False)
     pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
