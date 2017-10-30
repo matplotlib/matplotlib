@@ -46,6 +46,7 @@ import os
 import sys
 import time
 import warnings
+from weakref import WeakKeyDictionary
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -2781,9 +2782,7 @@ class NavigationToolbar2(object):
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
-        # a dict from axes index to a list of view limits
-        self._views = cbook.Stack()
-        self._positions = cbook.Stack()  # stack of subplot positions
+        self._nav_stack = cbook.Stack()
         self._xypress = None  # the location and axis info at the time
                               # of the press
         self._idPress = None
@@ -2805,19 +2804,20 @@ class NavigationToolbar2(object):
         self.set_history_buttons()
 
         @partial(canvas.mpl_connect, 'draw_event')
-        def define_home(event):
-            self.push_current()
-            # The decorator sets `define_home` to the callback cid, so we can
-            # disconnect it after the first use.
-            canvas.mpl_disconnect(define_home)
+        def update_stack(event):
+            nav_info = self._nav_stack()
+            if (nav_info is None  # True initial navigation info.
+                    # An axes has been added or removed, so update the
+                    # navigation info too.
+                    or set(nav_info) != set(self.canvas.figure.axes)):
+                self.push_current()
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar."""
 
     def back(self, *args):
         """move back up the view lim stack"""
-        self._views.back()
-        self._positions.back()
+        self._nav_stack.back()
         self.set_history_buttons()
         self._update_view()
 
@@ -2836,15 +2836,13 @@ class NavigationToolbar2(object):
 
     def forward(self, *args):
         """Move forward in the view lim stack."""
-        self._views.forward()
-        self._positions.forward()
+        self._nav_stack.forward()
         self.set_history_buttons()
         self._update_view()
 
     def home(self, *args):
         """Restore the original view."""
-        self._views.home()
-        self._positions.home()
+        self._nav_stack.home()
         self.set_history_buttons()
         self._update_view()
 
@@ -3021,16 +3019,13 @@ class NavigationToolbar2(object):
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
-        views = []
-        pos = []
-        for a in self.canvas.figure.get_axes():
-            views.append(a._get_view())
-            # Store both the original and modified positions
-            pos.append((
-                a.get_position(True).frozen(),
-                a.get_position().frozen()))
-        self._views.push(views)
-        self._positions.push(pos)
+        self._nav_stack.push(
+            WeakKeyDictionary(
+                {ax: (ax._get_view(),
+                      # Store both the original and modified positions.
+                      (ax.get_position(True).frozen(),
+                       ax.get_position().frozen()))
+                 for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
     def release(self, event):
@@ -3151,19 +3146,17 @@ class NavigationToolbar2(object):
         """Update the viewlim and position from the view and
         position stack for each axes.
         """
-
-        views = self._views()
-        if views is None:
+        nav_info = self._nav_stack()
+        if nav_info is None:
             return
-        pos = self._positions()
-        if pos is None:
-            return
-        for i, a in enumerate(self.canvas.figure.get_axes()):
-            a._set_view(views[i])
+        # Retrieve all items at once to avoid any risk of GC deleting an Axes
+        # while in the middle of the loop below.
+        items = list(nav_info.items())
+        for ax, (view, (pos_orig, pos_active)) in items:
+            ax._set_view(view)
             # Restore both the original and modified positions
-            a.set_position(pos[i][0], 'original')
-            a.set_position(pos[i][1], 'active')
-
+            ax.set_position(pos_orig, 'original')
+            ax.set_position(pos_active, 'active')
         self.canvas.draw_idle()
 
     def save_figure(self, *args):
@@ -3181,8 +3174,7 @@ class NavigationToolbar2(object):
 
     def update(self):
         """Reset the axes stack."""
-        self._views.clear()
-        self._positions.clear()
+        self._nav_stack.clear()
         self.set_history_buttons()
 
     def zoom(self, *args):
