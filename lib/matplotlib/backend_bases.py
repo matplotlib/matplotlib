@@ -1537,22 +1537,19 @@ class LocationEvent(Event):
         else:
             axes_list = [self.canvas.mouse_grabber]
 
-        if axes_list:  # Use highest zorder.
-            self.inaxes = max(axes_list, key=lambda x: x.zorder)
-        else:  # None found.
-            self.inaxes = None
-            self._update_enter_leave()
-            return
-
-        try:
-            trans = self.inaxes.transData.inverted()
-            xdata, ydata = trans.transform_point((x, y))
-        except ValueError:
-            self.xdata = None
-            self.ydata = None
+        if axes_list:
+            self.inaxes = cbook._topmost_artist(axes_list)
+            try:
+                trans = self.inaxes.transData.inverted()
+                xdata, ydata = trans.transform_point((x, y))
+            except ValueError:
+                self.xdata = None
+                self.ydata = None
+            else:
+                self.xdata = xdata
+                self.ydata = ydata
         else:
-            self.xdata = xdata
-            self.ydata = ydata
+            self.inaxes = None
 
         self._update_enter_leave()
 
@@ -1815,7 +1812,7 @@ class FigureCanvasBase(object):
             canvas.mpl_connect('mouse_press_event',canvas.onRemove)
         """
         # Find the top artist under the cursor
-        under = sorted(self.figure.hitlist(ev), key=lambda x: x.zorder)
+        under = cbook._topmost_artist(self.figure.hitlist(ev))
         h = None
         if under:
             h = under[-1]
@@ -2899,7 +2896,7 @@ class NavigationToolbar2(object):
                            if a.contains(event) and a.get_visible()]
 
                 if artists:
-                    a = max(artists, key=lambda x: x.zorder)
+                    a = cbook._topmost_artist(artists)
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:
