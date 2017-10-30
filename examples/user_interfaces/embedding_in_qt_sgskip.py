@@ -1,6 +1,6 @@
 """
 ===============
-Embedding In Qt
+Embedding in Qt
 ===============
 
 Simple Qt application embedding Matplotlib canvases.  This program will work
@@ -9,10 +9,8 @@ example) by setting the ``MPLBACKEND`` environment variable to "Qt4Agg" or
 "Qt5Agg", or by first importing the desired version of PyQt.
 """
 
-from __future__ import unicode_literals
-
-import os
 import sys
+import time
 
 import numpy as np
 
@@ -26,105 +24,41 @@ else:
 from matplotlib.figure import Figure
 
 
-progname = os.path.basename(sys.argv[0])
-
-
-class MyMplCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
-
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        FigureCanvas.__init__(self, fig)
-
-        self.axes = fig.subplots()
-        self.compute_initial_figure()
-
-        self.setParent(parent)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                           QtWidgets.QSizePolicy.Expanding)
-        self.updateGeometry()
-
-    def compute_initial_figure(self):
-        pass
-
-
-class MyStaticMplCanvas(MyMplCanvas):
-    """Simple canvas with a sine plot."""
-
-    def compute_initial_figure(self):
-        t = np.arange(0.0, 3.0, 0.01)
-        s = np.sin(2 * np.pi * t)
-        self.axes.plot(t, s)
-
-
-class MyDynamicMplCanvas(MyMplCanvas):
-    """A canvas that updates itself every second with a new plot."""
-
-    def __init__(self, *args, **kwargs):
-        MyMplCanvas.__init__(self, *args, **kwargs)
-        timer = QtCore.QTimer(self)
-        timer.timeout.connect(self.update_figure)
-        timer.start(1000)
-
-    def compute_initial_figure(self):
-        self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
-
-    def update_figure(self):
-        self.axes.cla()
-        # Plot 4 random integers between 0 and 9.
-        self.axes.plot(range(4), np.random.randint(0, 10, 4), 'r')
-        self.draw()
-
-
 class ApplicationWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        QtWidgets.QMainWindow.__init__(self)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle("application main window")
+        super(ApplicationWindow, self).__init__()
+        self._main = QtWidgets.QWidget()
+        self.setCentralWidget(self._main)
+        layout = QtWidgets.QVBoxLayout(self._main)
 
-        self.file_menu = QtWidgets.QMenu('&File', self)
-        self.file_menu.addAction('&Quit', self.fileQuit,
-                                 QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
-        self.menuBar().addMenu(self.file_menu)
+        static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        layout.addWidget(static_canvas)
+        self.addToolBar(NavigationToolbar(static_canvas, self))
 
-        self.help_menu = QtWidgets.QMenu('&Help', self)
-        self.menuBar().addSeparator()
-        self.menuBar().addMenu(self.help_menu)
+        dynamic_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        layout.addWidget(dynamic_canvas)
+        self.addToolBar(QtCore.Qt.BottomToolBarArea,
+                        NavigationToolbar(dynamic_canvas, self))
 
-        self.help_menu.addAction('&About', self.about)
+        self._static_ax = static_canvas.figure.subplots()
+        t = np.linspace(0, 10, 501)
+        self._static_ax.plot(t, np.tan(t), ".")
 
-        self.main_widget = QtWidgets.QWidget(self)
+        self._dynamic_ax = dynamic_canvas.figure.subplots()
+        self._timer = dynamic_canvas.new_timer(
+            100, [(self._update_canvas, (), {})])
+        self._timer.start()
 
-        l = QtWidgets.QVBoxLayout(self.main_widget)
-        sc = MyStaticMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
-        l.addWidget(sc)
-        l.addWidget(dc)
-
-        self.setCentralWidget(self.main_widget)
-
-        # Add a toolbar for each canvas.
-        self.addToolBar(NavigationToolbar(sc, self))
-        self.addToolBar(
-            QtCore.Qt.BottomToolBarArea, NavigationToolbar(dc, self))
-
-    def fileQuit(self):
-        self.close()
-
-    def closeEvent(self, ce):
-        self.fileQuit()
-
-    def about(self):
-        QtWidgets.QMessageBox.about(self, "About", """\
-embedding_in_qt_sgskip.py example
-
-This program is a simple example of a Qt application embedding Matplotlib \
-canvases.""")
+    def _update_canvas(self):
+        self._dynamic_ax.clear()
+        t = np.linspace(0, 10, 101)
+        # Shift the sinusoid as a function of time.
+        self._dynamic_ax.plot(t, np.sin(t + time.time()))
+        self._dynamic_ax.figure.canvas.draw()
 
 
-qApp = QtWidgets.QApplication(sys.argv)
-
-aw = ApplicationWindow()
-aw.setWindowTitle(progname)
-aw.show()
-sys.exit(qApp.exec_())
+if __name__ == "__main__":
+    qapp = QtWidgets.QApplication(sys.argv)
+    app = ApplicationWindow()
+    app.show()
+    qapp.exec_()
