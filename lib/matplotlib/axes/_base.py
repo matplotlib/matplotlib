@@ -3055,28 +3055,27 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         labels : list of str
-            list of string labels
+            List of string labels.
 
         fontdict : dict, optional
-            A dictionary controlling the appearance of the ticklabels,
-            the default `fontdict` is:
+            A dictionary controlling the appearance of the ticklabels.
+            The default `fontdict` is::
 
                {'fontsize': rcParams['axes.titlesize'],
-                'fontweight' : rcParams['axes.titleweight'],
+                'fontweight': rcParams['axes.titleweight'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
         minor : bool, optional
-            If True select the minor ticklabels,
-            else select the major ticklabels
+            Whether to set the minor ticklabels rather than the major ones.
 
         Returns
         -------
-        A list of `~matplotlib.text.Text` instances
+        A list of `~.text.Text` instances.
 
         Other Parameters
         -----------------
-        **kwargs : `~matplotlib.text.Text` properties.
+        **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
@@ -3373,25 +3372,24 @@ class _AxesBase(martist.Artist):
             list of string labels
 
         fontdict : dict, optional
-            A dictionary controlling the appearance of the ticklabels,
-            the default `fontdict` is::
+            A dictionary controlling the appearance of the ticklabels.
+            The default `fontdict` is::
 
                {'fontsize': rcParams['axes.titlesize'],
-                'fontweight' : rcParams['axes.titleweight'],
+                'fontweight': rcParams['axes.titleweight'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
         minor : bool, optional
-            If True select the minor ticklabels,
-            else select the major ticklabels
+            Whether to set the minor ticklabels rather than the major ones.
 
         Returns
         -------
-        A list of `~matplotlib.text.Text` instances.
+        A list of `~.text.Text` instances.
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties.
+        **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
