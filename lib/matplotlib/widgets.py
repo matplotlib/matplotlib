@@ -1251,11 +1251,10 @@ class Cursor(AxesWidget):
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
         """
-        Add a cursor to *ax*.  If ``useblit=True``, use the backend-
-        dependent blitting features for faster updates (GTKAgg
-        only for now).  *lineprops* is a dictionary of line properties.
+        Add a cursor to *ax*.  If ``useblit=True``, use the backend-dependent
+        blitting features for faster updates.  *lineprops* is a dictionary of
+        line properties.
         """
-        # TODO: Is the GTKAgg limitation still true?
         AxesWidget.__init__(self, ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -1677,8 +1676,7 @@ class SpanSelector(_SelectorWidget):
     Visually select a min/max range on a single axis and call a function with
     those values.
 
-    To guarantee that the selector remains responsive, keep a reference to
-    it.
+    To guarantee that the selector remains responsive, keep a reference to it.
 
     In order to turn off the SpanSelector, set `span_selector.active=False`. To
     turn it back on, set `span_selector.active=True`.
@@ -1697,7 +1695,7 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default is False
       If True, use the backend-dependent blitting features for faster
-      canvas updates. Only available for GTKAgg right now.
+      canvas updates.
 
     rectprops : dict, default is None
       Dictionary of :class:`matplotlib.patches.Patch` properties
