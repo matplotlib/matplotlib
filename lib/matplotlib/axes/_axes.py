@@ -5603,7 +5603,7 @@ default: :rc:`scatter.edgecolors`
         return im
 
     @staticmethod
-    def _pcolorargs(funcname, *args, allmatch=False):
+    def _pcolorargs(funcname, *args, allmatch=False, dropdata=True):
         # If allmatch is True, then the incoming X, Y, C must have matching
         # dimensions, taking into account that X and Y can be 1-D rather than
         # 2-D.  This perfect match is required for Gouraud shading.  For flat
@@ -5665,14 +5665,34 @@ default: :rc:`scatter.edgecolors`
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            C = C[:Ny - 1, :Nx - 1]
+
+            if dropdata:
+                C = C[:Ny - 1, :Nx - 1]
+            else:
+                def _interp_grid(X):
+                    # helper for below
+                    dX = np.diff(X, axis=1)/2.
+                    X = np.hstack((X[:, [0]] - dX[:, [0]],
+                                    X[:, :-1] + dX,
+                                    X[:, [-1]] + dX[:, [-1]])
+                                  )
+                    return X
+
+                if ncols == Nx:
+                    X = _interp_grid(X)
+                    Y = _interp_grid(Y)
+
+                if nrows == Ny:
+                    X = _interp_grid(X.T).T
+                    Y = _interp_grid(Y.T).T
+
         C = cbook.safe_masked_invalid(C)
         return X, Y, C
 
     @_preprocess_data()
     @docstring.dedent_interpd
     def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-               vmax=None, **kwargs):
+               vmax=None, dropdata=None, **kwargs):
         r"""
         Create a pseudocolor plot with a non-regular rectangular grid.
 
@@ -5686,7 +5706,9 @@ default: :rc:`scatter.edgecolors`
 
             ``pcolor()`` can be very slow for large arrays. In most
             cases you should use the similar but much faster
-            `~.Axes.pcolormesh` instead. See there for a discussion of the
+            `~.Axes.pcolormesh` instead. See
+            :ref:`Differences between pcolor() and pcolormesh()
+            <differences-pcolor-pcolormesh>` for a discussion of the
             differences.
 
         Parameters
@@ -5711,7 +5733,8 @@ default: :rc:`scatter.edgecolors`
 
             The dimensions of *X* and *Y* should be one greater than those of
             *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
-            which case the last row and column of *C* will be ignored.
+            which case the last row and column of *C* will be ignored if
+            *dropdata* is True (see below).
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2-D arrays, making a
@@ -5750,6 +5773,13 @@ default: :rc:`scatter.edgecolors`
 
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
+
+        dropdata : bool, default: :rc:`pcolor.dropdata`
+            If True (default), and *X* and *Y* are the same size as C in their
+            respective dimensions, drop the last element of C in both
+            dimensions.  If False, *X* and *Y* are assumed to be the midpoints
+            of the quadrilaterals, and their edges calculated by linear
+            interpolation.
 
         Returns
         -------
@@ -5801,12 +5831,19 @@ default: :rc:`scatter.edgecolors`
         ``pcolor()`` displays all columns of *C* if *X* and *Y* are not
         specified, or if *X* and *Y* have one more column than *C*.
         If *X* and *Y* have the same number of columns as *C* then the last
-        column of *C* is dropped. Similarly for the rows.
+        column of *C* is dropped if *dropdata* is True. Similarly for the rows.
+        If *dropdata* is False, then *X* and *Y* are assumed to be at the
+        middle of the quadrilaterals, and the edges of the quadrilaterals are
+        linearly interpolated.
 
-        Note: This behavior is different from MATLAB's ``pcolor()``, which
+        This behavior is different from MATLAB's ``pcolor()``, which
         always discards the last row and column of *C*.
         """
-        X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
+        if dropdata is None:
+            dropdata = rcParams['pcolor.dropdata']
+
+        X, Y, C = self._pcolorargs('pcolor', *args, dropdata=dropdata,
+                                   allmatch=False)
         Ny, Nx = X.shape
 
         # unit conversion allows e.g. datetime objects as axis values
@@ -5903,7 +5940,8 @@ default: :rc:`scatter.edgecolors`
     @_preprocess_data()
     @docstring.dedent_interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-                   vmax=None, shading='flat', antialiased=False, **kwargs):
+                   vmax=None, shading='flat', antialiased=False,
+                   dropdata=None, **kwargs):
         """
         Create a pseudocolor plot with a non-regular rectangular grid.
 
@@ -5913,9 +5951,9 @@ default: :rc:`scatter.edgecolors`
 
         *X* and *Y* can be used to specify the corners of the quadrilaterals.
 
-        .. note::
+        .. hint::
 
-           `~Axes.pcolormesh` is similar to `~Axes.pcolor`. It's much faster
+           `~Axes.pcolormesh` is similar to `~Axes.pcolor`. It is much faster
            and preferred in most cases. For a detailed discussion on the
            differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
@@ -5942,7 +5980,8 @@ default: :rc:`scatter.edgecolors`
 
             The dimensions of *X* and *Y* should be one greater than those of
             *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
-            which case the last row and column of *C* will be ignored.
+            which case the last row and column of *C* will be ignored, unless
+            *dropdata* is *False* (see below).
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2-D arrays, making a
@@ -5990,6 +6029,13 @@ default: :rc:`scatter.edgecolors`
 
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
+
+        dropdata : bool, default: :rc:`pcolor.dropdata`
+            If True (default), and *X* and *Y* are the same size as C in their
+            respective dimensions, drop the last element of C in both
+            dimensions.  If False, *X* and *Y* are assumed to be the midpoints
+            of the quadrilaterals, and their edges calculated by linear
+            interpolation.
 
         Returns
         -------
@@ -6062,7 +6108,11 @@ default: :rc:`scatter.edgecolors`
 
         allmatch = (shading == 'gouraud')
 
-        X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
+        if dropdata is None:
+            dropdata = rcParams['pcolor.dropdata']
+
+        X, Y, C = self._pcolorargs('pcolormesh', *args,
+                allmatch=allmatch, dropdata=dropdata)
         Ny, Nx = X.shape
         X = X.ravel()
         Y = Y.ravel()

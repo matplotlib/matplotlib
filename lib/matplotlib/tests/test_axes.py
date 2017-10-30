@@ -1268,6 +1268,52 @@ def test_pcolorargs():
         ax.pcolormesh(x, y, Z[:-1, :-1])
 
 
+@check_figures_equal(extensions=["png"])
+def test_pcolornodropdata(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x = np.arange(0, 10)
+    y = np.arange(0, 3)
+    np.random.seed(19680801)
+    Z = np.random.randn(2, 9)
+    ax.pcolormesh(x, y, Z)
+
+    ax = fig_ref.subplots()
+    x2 = x[:-1] + np.diff(x) / 2
+    y2 = y[:-1] + np.diff(y) / 2
+    ax.pcolormesh(x2, y2, Z, dropdata=False)
+
+
+@check_figures_equal(extensions=["png"])
+def test_pcolornodropdatarc(fig_test, fig_ref):
+    matplotlib.rcParams['pcolor.dropdata'] = False
+    ax = fig_test.subplots()
+    x = np.arange(0, 10)
+    y = np.arange(0, 3)
+    np.random.seed(19680801)
+    Z = np.random.randn(2, 9)
+    ax.pcolormesh(x, y, Z)
+
+    ax = fig_ref.subplots()
+    x2 = x[:-1] + np.diff(x) / 2
+    y2 = y[:-1] + np.diff(y) / 2
+    ax.pcolormesh(x2, y2, Z)
+
+
+@check_figures_equal(extensions=["png"])
+def test_pcolordropdata(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x = np.arange(0, 10)
+    y = np.arange(0, 4)
+    np.random.seed(19680801)
+    Z = np.random.randn(3, 9)
+    ax.pcolormesh(x[:-1], y[:-1], Z[:-1, :-1])
+
+    ax = fig_ref.subplots()
+    x2 = x[:-1]
+    y2 = y[:-1]
+    ax.pcolormesh(x2, y2, Z)
+
+
 @image_comparison(['canonical'])
 def test_canonical():
     fig, ax = plt.subplots()

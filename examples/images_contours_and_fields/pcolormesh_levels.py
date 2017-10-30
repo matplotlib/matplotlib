@@ -1,11 +1,11 @@
 """
 ==========
-pcolormesh
+Pcolormesh
 ==========
 
-Shows how to combine Normalization and Colormap instances to draw "levels" in
-`~.axes.Axes.pcolor`, `~.axes.Axes.pcolormesh` and `~.axes.Axes.imshow` type
-plots in a similar way to the levels keyword argument to contour/contourf.
+`.axes.Axes.pcolormesh` allows you to generate 2-D image-style plots.  Note it
+is somewhat faster than `~.axes.Axes.pcolor`.
+
 """
 
 import matplotlib
@@ -14,6 +14,66 @@ from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 
+###############################################################################
+# Basic Pcolormesh
+# ----------------
+#
+# We usually specify a pcolormesh by defining the edge of quadrilaterals and
+# the value of the quadrilateral.  Note that here *x* and *y* each have one
+# extra element than Z in the respective dimension.
+
+np.random.seed(19680801)
+Z = np.random.rand(6, 10)
+x = np.arange(-0.5, 10, 1)  # len = 11
+y = np.arange(4.5, 11, 1)  # len = 7
+
+fig, ax = plt.subplots()
+ax.pcolormesh(x, y, Z)
+
+###############################################################################
+# Non-rectilinear Pcolormesh
+# --------------------------
+#
+# Note that we can also specify matrices for *X* and *Y* and have
+# non-rectilinear quadrilaterals.
+
+x = np.arange(-0.5, 10, 1)  # len = 11
+y = np.arange(4.5, 11, 1)  # len = 7
+X, Y = np.meshgrid(x, y)
+X = X + 0.2 * Y  # tilt the co-ordinates.
+Y = Y + 0.3 * X
+
+fig, ax = plt.subplots()
+ax.pcolormesh(X, Y, Z)
+
+###############################################################################
+# Centered Co-ordinates
+# ---------------------
+#
+# Often a user wants to pass *X* and *Y* with the same sizes as *Z* to
+# `.axes.Axes.pcolormesh`.  Matplotlib will either drop the last row and
+# column of *Z* (default, h=istorically compatible with Matlab), or if
+# ``dropdata=True`` assume the user wanted *X* and *Y* centered on the
+# quadrilateral and linearly interpolate to get the edges.
+
+x = np.arange(10)  # len = 10
+y = np.arange(6)  # len = 6
+X, Y = np.meshgrid(x, y)
+
+fig, axs = plt.subplots(2, 1, sharex=True, sharey=True)
+axs[0].pcolormesh(X, Y, Z, vmin=np.min(Z), vmax=np.max(Z))
+axs[0].set_title('dropdata=True (default)')
+axs[1].pcolormesh(X, Y, Z, vmin=np.min(Z), vmax=np.max(Z), dropdata=False)
+axs[1].set_title('dropdata=False')
+
+###############################################################################
+# Making levels using Norms
+# -------------------------
+#
+# Shows how to combine Normalization and Colormap instances to draw
+# "levels" in `.axes.Axes.pcolor`, `.axes.Axes.pcolormesh`
+# and `.axes.Axes.imshow` type plots in a similar
+# way to the levels keyword argument to contour/contourf.
 
 # make these smaller to increase the resolution
 dx, dy = 0.05, 0.05
@@ -53,8 +113,6 @@ ax1.set_title('contourf with levels')
 # adjust spacing between subplots so `ax1` title and `ax0` tick labels
 # don't overlap
 fig.tight_layout()
-
-plt.show()
 
 #############################################################################
 #

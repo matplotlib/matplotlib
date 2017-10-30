@@ -2515,11 +2515,11 @@ def minorticks_on():
 @docstring.copy(Axes.pcolor)
 def pcolor(
         *args, alpha=None, norm=None, cmap=None, vmin=None,
-        vmax=None, data=None, **kwargs):
+        vmax=None, dropdata=None, data=None, **kwargs):
     __ret = gca().pcolor(
         *args, alpha=alpha, norm=norm, cmap=cmap, vmin=vmin,
-        vmax=vmax, **({"data": data} if data is not None else {}),
-        **kwargs)
+        vmax=vmax, dropdata=dropdata, **({"data": data} if data is not
+        None else {}), **kwargs)
     sci(__ret)
     return __ret
 
@@ -2528,12 +2528,13 @@ def pcolor(
 @docstring.copy(Axes.pcolormesh)
 def pcolormesh(
         *args, alpha=None, norm=None, cmap=None, vmin=None,
-        vmax=None, shading='flat', antialiased=False, data=None,
-        **kwargs):
+        vmax=None, shading='flat', antialiased=False, dropdata=None,
+        data=None, **kwargs):
     __ret = gca().pcolormesh(
         *args, alpha=alpha, norm=norm, cmap=cmap, vmin=vmin,
         vmax=vmax, shading=shading, antialiased=antialiased,
-        **({"data": data} if data is not None else {}), **kwargs)
+        dropdata=dropdata, **({"data": data} if data is not None else
+        {}), **kwargs)
     sci(__ret)
     return __ret
 

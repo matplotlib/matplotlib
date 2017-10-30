@@ -135,6 +135,7 @@
 
 #markers.fillstyle : full  ## {full, left, right, bottom, top, none}
 
+# pcolor.dropdata : True
 
 ## ***************************************************************************
 ## * PATCHES                                                                 *

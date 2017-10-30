@@ -1030,6 +1030,9 @@ defaultParams = {
     # marker props
     'markers.fillstyle': ['full', validate_fillstyle],
 
+    ## pcolor(mesh) props:
+    'pcolor.dropdata': [True, validate_bool],
+
     ## patch props
     'patch.linewidth':   [1.0, validate_float],     # line width in points
     'patch.edgecolor':   ['black', validate_color],
