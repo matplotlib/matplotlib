@@ -39,8 +39,6 @@ import numpy as np
 import binascii
 import re
 
-if sys.platform.startswith('win'): cmd_split = '&'
-else: cmd_split = ';'
 
 backend_version = 'Level II'
 

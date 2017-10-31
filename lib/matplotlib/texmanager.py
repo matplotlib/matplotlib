@@ -57,12 +57,8 @@ from matplotlib.compat.subprocess import subprocess, Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
 import re
 
-DEBUG = False
 
-if sys.platform.startswith('win'):
-    cmd_split = '&'
-else:
-    cmd_split = ';'
+DEBUG = False
 
 
 @mpl.cbook.deprecated("2.1")
