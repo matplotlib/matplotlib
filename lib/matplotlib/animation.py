@@ -167,7 +167,12 @@ class MovieWriterRegistry(object):
         self.ensure_not_dirty()
         if not self.avail:
             raise RuntimeError("No MovieWriters available!")
-        return self.avail[name]
+        try:
+            return self.avail[name]
+        except KeyError:
+            raise RuntimeError(
+                'Requested MovieWriter ({}) not available'.format(name))
+
 
 writers = MovieWriterRegistry()
 
