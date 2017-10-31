@@ -143,11 +143,26 @@ class Patch(artist.Artist):
 
     def contains_point(self, point, radius=None):
         """
-        Returns *True* if the given point is inside the path
+        Returns `True` if the given point is inside the path
         (transformed with its transform attribute).
+        
+        `radius` allows the path to be made slightly larger or smaller.
         """
         radius = self._process_radius(radius)
         return self.get_path().contains_point(point,
+                                              self.get_transform(),
+                                              radius)
+
+    def contains_points(self, points, radius=None):
+        """
+        Returns a bool array which is `True` if the (closed) path contains the corresponding point.
+        (transformed with its transform attribute).
+        
+        `points` should be an N x 2 array. 
+        `radius` allows the path to be made slightly larger or smaller.
+        """
+        radius = self._process_radius(radius)
+        return self.get_path().contains_points(points,
                                               self.get_transform(),
                                               radius)
 
