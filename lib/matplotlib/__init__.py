@@ -94,14 +94,24 @@ The base matplotlib namespace includes:
 
 matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
-
-Occasionally the internal documentation (python docstrings) will refer
-to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
-
 """
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for existing editable installs.
 from __future__ import absolute_import, division, print_function
+
+import pkg_resources
+
+try:
+    pkg_resources.get_distribution("matplotlib")
+except pkg_resources.DistributionNotFound:
+    # Running from source -- you're on your own.
+    pass
+else:
+    try:
+        # Check that dependencies are correctly installed.
+        pkg_resources.require("matplotlib")
+    except pkg_resources.ResolutionError as e:
+        raise ImportError("Matplotlib requires {}".format(e.req))
 
 import six
 
@@ -120,8 +130,7 @@ See Matplotlib `INSTALL.rst` file for more information:
 import atexit
 from collections import MutableMapping
 import contextlib
-import distutils.version
-import distutils.sysconfig
+from distutils.version import LooseVersion
 import functools
 import io
 import inspect
@@ -137,16 +146,39 @@ import subprocess
 import tempfile
 import warnings
 
+if sys.version_info < (3, 5):  # noqa: E402
+    raise ImportError("""
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+See Matplotlib `INSTALL.rst` file for more information:
+
+    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
+
+""")
+
+if sys.version_info < (3, 5):  # noqa: E402
+    raise ImportError("""
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+See Matplotlib `INSTALL.rst` file for more information:
+
+    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
+
+""")
+
+from six.moves.urllib.request import urlopen
+from six.moves import reload_module as reload
+
+import numpy
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
-from matplotlib.cbook import (
+from .cbook import (
     _backports, mplDeprecation, dedent, get_label, sanitize_sequence)
-from matplotlib.rcsetup import defaultParams, validate_backend, cycler
-
-import numpy
-from six.moves.urllib.request import urlopen
-from six.moves import reload_module as reload
+from .rcsetup import defaultParams, validate_backend, cycler
 
 # Get the version from the _version.py versioneer file. For a git checkout,
 # this is computed based on the number of commits since the last tag.
@@ -191,39 +223,9 @@ def compare_versions(a, b):
                 a = a.decode('ascii')
             if isinstance(b, bytes):
                 b = b.decode('ascii')
-        a = distutils.version.LooseVersion(a)
-        b = distutils.version.LooseVersion(b)
-        return a >= b
+        return LooseVersion(a) >= LooseVersion(b)
     else:
         return False
-
-
-try:
-    import dateutil
-except ImportError:
-    raise ImportError("Matplotlib requires dateutil")
-
-
-if not compare_versions(six.__version__, '1.10'):
-    raise ImportError(
-        "Matplotlib requires six>=1.10; you have %s" % six.__version__)
-
-
-try:
-    import pyparsing
-except ImportError:
-    raise ImportError("Matplotlib requires pyparsing")
-else:
-    if not compare_versions(pyparsing.__version__, '2.0.1'):
-        raise ImportError(
-            "Matplotlib requires pyparsing>=2.0.1; you have %s"
-            % pyparsing.__version__)
-
-
-if not compare_versions(numpy.__version__, __version__numpy__):
-    raise ImportError(
-        "Matplotlib requires numpy>=%s; you have %s" % (
-            __version__numpy__, numpy.__version__))
 
 
 if not hasattr(sys, 'argv'):  # for modpython

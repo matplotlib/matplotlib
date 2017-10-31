@@ -137,19 +137,20 @@ e.g., if the header of some required library is in
 Dependencies
 ------------
 
-Matplotlib requires a large number of dependencies:
+Matplotlib requires the following dependencies:
 
   * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
-  * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
-  * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
+  * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
+  * `NumPy <http://www.numpy.org>`_ (>= 1.10.0)
+  * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
   * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
-  * `pyparsing <https://pyparsing.wikispaces.com/>`__
-  * `libpng <http://www.libpng.org>`__ (>= 1.2)
-  * `pytz <http://pytz.sourceforge.net/>`__
-  * FreeType (>= 2.3)
-  * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
-  * `six <https://pypi.python.org/pypi/six>`_
   * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
+  * `pyparsing <https://pyparsing.wikispaces.com/>`_ (>= 2.1.7; some older
+    versions may work)
+  * `pytz <http://pytz.sourceforge.net/>`_
+  * `six <https://pypi.python.org/pypi/six>`_ (>= 1.10)
+  * `FreeType <https://www.freetype.org>`_ (>= 2.3)
+  * `libpng <http://www.libpng.org>`_ (>= 1.2)
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the

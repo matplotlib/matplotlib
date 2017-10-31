@@ -107,18 +107,6 @@ def get_win32_compiler():
 win32_compiler = get_win32_compiler()
 
 
-def extract_versions():
-    """
-    Extracts version values from the main matplotlib __init__.py and
-    returns them as a dictionary.
-    """
-    with open('lib/matplotlib/__init__.py') as fd:
-        for line in fd.readlines():
-            if (line.startswith('__version__numpy__')):
-                exec(line.strip())
-    return locals()
-
-
 def has_include_file(include_dirs, filename):
     """
     Returns `True` if `filename` can be found in one of the
@@ -925,7 +913,8 @@ class Numpy(SetupPackage):
         return [numpy.get_include()]
 
     def check(self):
-        min_version = extract_versions()['__version__numpy__']
+        # Remember to keep the version in INSTALL.rst in sync.
+        min_version = "1.7.1"
         try:
             import numpy
         except ImportError:
@@ -1391,6 +1380,7 @@ class InstallRequires(SetupPackage):
         return "handled by setuptools"
 
     def get_install_requires(self):
+        # Remember to keep the list in INSTALL.rst in sync.
         install_requires = [
             "cycler>=0.10",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
