@@ -2,7 +2,7 @@
 Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
 See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
-See :doc:`/tutorial/colors/colormaps` for an in-depth discussion of colormaps.
+See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
