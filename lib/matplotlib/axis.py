@@ -692,6 +692,7 @@ class Axis(artist.Artist):
 
         self._autolabelpos = True
         self._smart_bounds = False
+        self._align_label_siblings = [self]
 
         self.label = self._get_label()
         self.labelpad = rcParams['axes.labelpad']
@@ -1113,10 +1114,12 @@ class Axis(artist.Artist):
             return
 
         ticks_to_draw = self._update_ticks(renderer)
-        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
-                                                                renderer)
 
-        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(renderer)
+
+        # go back to just this axis's tick labels
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(
+                    ticks_to_draw, renderer)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text(self.major.formatter.get_offset())
@@ -1167,7 +1170,7 @@ class Axis(artist.Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
 
-        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(renderer)
 
         self.label.draw(renderer)
 
@@ -1670,7 +1673,24 @@ class Axis(artist.Artist):
             self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, renderer):
+        """
+        Get the bounding boxes for this axis and its sibblings
+        as set by `Figure.align_xlabels` or  ``Figure.align_ylables`.
+
+        By default it just gets bboxes for self.
+        """
+        bboxes = []
+        bboxes2 = []
+        # if we want to align labels from other axes:
+        for axx in self._align_label_siblings:
+            ticks_to_draw = axx._update_ticks(renderer)
+            tlb, tlb2 = axx._get_tick_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
@@ -1846,13 +1866,18 @@ class XAxis(Axis):
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
             return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer)
+
         x, y = self.label.get_position()
         if self.label_position == 'bottom':
             try:
@@ -2191,13 +2216,18 @@ class YAxis(Axis):
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
             return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_ylabels()`
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer)
+
         x, y = self.label.get_position()
         if self.label_position == 'left':
             try:
@@ -2209,7 +2239,6 @@ class YAxis(Axis):
                 spinebbox = self.axes.bbox
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             left = bbox.x0
-
             self.label.set_position(
                 (left - self.labelpad * self.figure.dpi / 72.0, y)
             )

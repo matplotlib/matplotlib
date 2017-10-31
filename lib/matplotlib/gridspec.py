@@ -340,12 +340,29 @@ class SubplotSpec(object):
         return self._gridspec
 
     def get_geometry(self):
-        """Get the subplot geometry (``n_rows, n_cols, row, col``).
+        """
+        Get the subplot geometry (``n_rows, n_cols, start, stop``).
 
-        Unlike SuplorParams, indexes are 0-based.
+        start and stop are the index of the start and stop of the
+        subplot.
         """
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
+
+    def get_rows_columns(self):
+        """
+        Get the subplot row and column numbers:
+        (``n_rows, n_cols, row_start, row_stop, col_start, col_stop``)
+        """
+        gridspec = self.get_gridspec()
+        nrows, ncols = gridspec.get_geometry()
+        row_start, col_start = divmod(self.num1, ncols)
+        if self.num2 is not None:
+            row_stop, col_stop = divmod(self.num2, ncols)
+        else:
+            row_stop = row_start
+            col_stop = col_start
+        return nrows, ncols, row_start, row_stop, col_start, col_stop
 
     def get_position(self, fig, return_all=False):
         """Update the subplot position from ``fig.subplotpars``.
