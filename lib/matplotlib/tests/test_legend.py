@@ -7,6 +7,8 @@ try:
 except ImportError:
     import mock
 import numpy as np
+import pytest
+
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -14,6 +16,36 @@ import matplotlib as mpl
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
+import inspect
+
+
+# test that docstrigs are the same
+def get_docstring_section(func, section):
+    """ extract a section from the docstring of a function """
+    ll = inspect.getdoc(func)
+    lines = ll.splitlines()
+    insec = False
+    st = ''
+    for ind in range(len(lines)):
+        if lines[ind][:len(section)] == section and lines[ind+1][:3] == '---':
+            insec = True
+            ind = ind+1
+        if insec:
+            if len(lines[ind + 1]) > 3 and lines[ind + 1][0:3] == '---':
+                insec = False
+                break
+            else:
+                st += lines[ind] + '\n'
+    return st
+
+
+def test_legend_kwdocstrings():
+    stleg = get_docstring_section(mpl.legend.Legend.__init__, 'Parameters')
+    stax = get_docstring_section(mpl.axes.Axes.legend, 'Parameters')
+    stfig = get_docstring_section(mpl.figure.Figure.legend, 'Parameters')
+    assert stleg == stax
+    assert stfig == stax
+    assert stleg == stfig
 
 
 @image_comparison(baseline_images=['legend_auto1'], remove_text=True)
@@ -233,13 +265,19 @@ class TestLegendFunction(object):
             plt.legend(['foobar'])
         Legend.assert_called_with(plt.gca(), lines, ['foobar'])
 
+    def test_legend_three_args(self):
+        lines = plt.plot(range(10), label='hello world')
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            plt.legend(lines, ['foobar'], loc='right')
+        Legend.assert_called_with(plt.gca(), lines, ['foobar'], loc='right')
+
     def test_legend_handler_map(self):
         lines = plt.plot(range(10), label='hello world')
-        with mock.patch('matplotlib.axes.Axes.'
-                        'get_legend_handles_labels') as handles_labels:
+        with mock.patch('matplotlib.legend.'
+                        '_get_legend_handles_labels') as handles_labels:
             handles_labels.return_value = lines, ['hello world']
             plt.legend(handler_map={'1': 2})
-        handles_labels.assert_called_with({'1': 2})
+        handles_labels.assert_called_with([plt.gca()], {'1': 2})
 
     def test_kwargs(self):
         fig, ax = plt.subplots(1, 1)
@@ -247,7 +285,7 @@ class TestLegendFunction(object):
         lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
         lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            ax.legend(handles=(lnc, lns), labels=('a', 'b'))
+            ax.legend(labels=('a', 'b'), handles=(lnc, lns))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 
     def test_warn_args_kwargs(self):
@@ -259,7 +297,80 @@ class TestLegendFunction(object):
             ax.legend((lnc, lns), labels=('a', 'b'))
 
         warn.assert_called_with("You have mixed positional and keyword "
-                                "arguments, some input will be "
+                                "arguments, some input may be "
+                                "discarded.")
+
+    def test_parasite(self):
+        from mpl_toolkits.axes_grid1 import host_subplot
+
+        host = host_subplot(111)
+        par = host.twinx()
+
+        p1, = host.plot([0, 1, 2], [0, 1, 2], label="Density")
+        p2, = par.plot([0, 1, 2], [0, 3, 2], label="Temperature")
+
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            leg = plt.legend()
+        Legend.assert_called_with(host, [p1, p2],
+                ['Density', 'Temperature'])
+
+
+class TestLegendFigureFunction(object):
+    # Tests the legend function for figure
+    def test_legend_handle_label(self):
+        fig, ax = plt.subplots()
+        lines = ax.plot(range(10))
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            fig.legend(lines, ['hello world'])
+        Legend.assert_called_with(fig, lines, ['hello world'])
+
+    def test_legend_no_args(self):
+        fig, ax = plt.subplots()
+        lines = ax.plot(range(10), label='hello world')
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            fig.legend()
+        Legend.assert_called_with(fig, lines, ['hello world'])
+
+    def test_legend_label_arg(self):
+        fig, ax = plt.subplots()
+        lines = ax.plot(range(10))
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            fig.legend(['foobar'])
+        Legend.assert_called_with(fig, lines, ['foobar'])
+
+    def test_legend_label_three_args(self):
+        fig, ax = plt.subplots()
+        lines = ax.plot(range(10))
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            fig.legend(lines, ['foobar'], 'right')
+        Legend.assert_called_with(fig, lines, ['foobar'], 'right')
+
+    def test_legend_label_three_args_pluskw(self):
+        # test that third argument and loc=  called together give
+        # Exception
+        fig, ax = plt.subplots()
+        lines = ax.plot(range(10))
+        with pytest.raises(Exception):
+            fig.legend(lines, ['foobar'], 'right', loc='left')
+
+    def test_legend_kw_args(self):
+        fig, axs = plt.subplots(1, 2)
+        lines = axs[0].plot(range(10))
+        lines2 = axs[1].plot(np.arange(10) * 2.)
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            fig.legend(loc='right', labels=('a', 'b'),
+                    handles=(lines, lines2))
+        Legend.assert_called_with(fig, (lines, lines2), ('a', 'b'),
+                loc='right')
+
+    def test_warn_args_kwargs(self):
+        fig, axs = plt.subplots(1, 2)
+        lines = axs[0].plot(range(10))
+        lines2 = axs[1].plot(np.arange(10) * 2.)
+        with mock.patch('warnings.warn') as warn:
+            fig.legend((lines, lines2), labels=('a', 'b'))
+        warn.assert_called_with("You have mixed positional and keyword "
+                                "arguments, some input may be "
                                 "discarded.")
 
 
