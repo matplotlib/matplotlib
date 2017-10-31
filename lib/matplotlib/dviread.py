@@ -37,6 +37,11 @@ import sys
 import textwrap
 import os
 
+try:
+    from functools import lru_cache
+except ImportError:  # Py2
+    from backports.functools_lru_cache import lru_cache
+
 if six.PY3:
     def ord(x):
         return x
@@ -1056,36 +1061,19 @@ def find_tex_file(filename, format=None):
                               'debug')
     return result.decode('ascii')
 
+
 # With multiple text objects per figure (e.g., tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
 # simple cache. TODO: is this worth making persistent?
 
-_tfmcache = {}
-_vfcache = {}
-
-
-def _fontfile(texname, class_, suffix, cache):
-    try:
-        return cache[texname]
-    except KeyError:
-        pass
-
+@lru_cache()
+def _fontfile(cls, suffix, texname):
     filename = find_tex_file(texname + suffix)
-    if filename:
-        result = class_(filename)
-    else:
-        result = None
-
-    cache[texname] = result
-    return result
+    return cls(filename) if filename else None
 
 
-def _tfmfile(texname):
-    return _fontfile(texname, Tfm, '.tfm', _tfmcache)
-
-
-def _vffile(texname):
-    return _fontfile(texname, Vf, '.vf', _vfcache)
+_tfmfile = partial(_fontfile, Tfm, ".tfm")
+_vffile = partial(_fontfile, Vf, ".vf")
 
 
 if __name__ == '__main__':
