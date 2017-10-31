@@ -16,7 +16,7 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
 
 
 needs_ghostscript = pytest.mark.xfail(
-    matplotlib.checkdep_ghostscript()[0] is None,
+    matplotlib.get_executable_info("gs") is None,
     reason="This test needs a ghostscript installation")
 
 

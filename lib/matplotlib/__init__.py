@@ -117,9 +117,9 @@ See Matplotlib `INSTALL.rst` file for more information:
 """)
 
 import atexit
-from collections import MutableMapping
+from collections import MutableMapping, namedtuple
 import contextlib
-import distutils.version
+from distutils.version import LooseVersion
 import functools
 import io
 import importlib
@@ -184,9 +184,7 @@ def compare_versions(a, b):
             "3.0", "compare_version arguments should be strs.")
         b = b.decode('ascii')
     if a:
-        a = distutils.version.LooseVersion(a)
-        b = distutils.version.LooseVersion(b)
-        return a >= b
+        return LooseVersion(a) >= LooseVersion(b)
     else:
         return False
 
@@ -424,138 +422,157 @@ def _wrap(fmt, func, level=logging.DEBUG, always=True):
     return wrapper
 
 
-def checkdep_dvipng():
-    try:
-        s = subprocess.Popen([str('dvipng'), '-version'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        line = stdout.decode('ascii').split('\n')[1]
-        v = line.split()[-1]
-        return v
-    except (IndexError, ValueError, OSError):
-        return None
+_ExecInfo = namedtuple("_ExecInfo", "executable version")
 
 
-def checkdep_ghostscript():
-    if checkdep_ghostscript.executable is None:
-        if sys.platform == 'win32':
-            # mgs is the name in miktex
-            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
+@functools.lru_cache()
+def get_executable_info(name):
+    """
+    Get the version of some executable that Matplotlib optionally depends on.
+
+    .. warning:
+       The list of executables that this function supports is set according to
+       Matplotlib's internal needs, and may change without notice.
+
+    Parameters
+    ----------
+    name : str
+        The executable to query.  The following values are currently supported:
+        "dvipng", "gs", "inkscape", "pdftops".  This list is subject to change
+        without notice.
+
+    Returns
+    -------
+    If the executable is found, a namedtuple with fields ``executable`` (`str`)
+    and ``version`` (`distutils.version.LooseVersion`, or ``None`` if the
+    version cannot be determined); ``None`` if the executable is not found.
+    """
+
+    def impl(args, regex, min_ver=None):
+        # Execute the subprocess specified by args; capture stdout and stderr.
+        # Search for a regex match in the output; if the match succeeds, use
+        # the *first group* of the match as the version.
+        # If min_ver is not None, emit a warning if the version is less than
+        # min_ver.
+        try:
+            proc = subprocess.Popen(
+                args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                universal_newlines=True)
+            proc.wait()
+        except OSError:
+            return None
+        match = re.search(regex, proc.stdout.read())
+        if match:
+            version = LooseVersion(match.group(1))
+            if min_ver is not None and version < min_ver:
+                warnings.warn("You have {} version {} but the minimum version "
+                              "supported by Matplotlib is {}."
+                              .format(args[0], version, min_ver))
+                return None
+            return _ExecInfo(args[0], version)
         else:
-            gs_execs = ['gs']
-        for gs_exec in gs_execs:
-            try:
-                s = subprocess.Popen(
-                    [gs_exec, '--version'], stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-                stdout, stderr = s.communicate()
-                if s.returncode == 0:
-                    v = stdout[:-1].decode('ascii')
-                    checkdep_ghostscript.executable = gs_exec
-                    checkdep_ghostscript.version = v
-            except (IndexError, ValueError, OSError):
-                pass
+            return None
+
+    if name == "dvipng":
+        info = impl(["dvipng", "-version"], "(?m)^dvipng .* (.+)", "1.6")
+    elif name == "gs":
+        execs = (["gswin32c", "gswin64c", "mgs", "gs"]  # "mgs" for miktex.
+                 if sys.platform == "win32" else
+                 ["gs"])
+        info = next((info for info in (impl([e, "--version"], "(.*)", "9")
+                                       for e in execs)
+                     if info),
+                    None)
+    elif name == "inkscape":
+        info = impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
+    elif name == "pdftops":
+        info = impl(["pdftops", "-v"], "^pdftops version (.*)")
+        if info and not ("3.0" <= info.version
+                         # poppler version numbers.
+                         or "0.9" <= info.version <= "1.0"):
+            warnings.warn(
+                "You have pdftops version {} but the minimum version "
+                "supported by Matplotlib is 3.0.".format(info.version))
+            return None
+    else:
+        raise ValueError("Unknown executable: {!r}".format(name))
+    return info
+
+
+def get_all_executable_infos():
+    """
+    Get the version of some executables that Matplotlib optionally depends on.
+
+    .. warning:
+       The list of executables that this function queries is set according to
+       Matplotlib's internal needs, and may change without notice.
+
+    Returns
+    -------
+    A mapping of the required executable to its corresponding information,
+    as returned by `get_executable_info`.  The keys in the mapping are subject
+    to change without notice.
+    """
+    return {name: get_executable_info(name)
+            for name in ["dvipng", "gs", "inkscape", "pdftops"]}
+
+
+@cbook.deprecated("3.0")
+def checkdep_dvipng():
+    return str(get_executable_info("dvipng").version)
+
+
+@cbook.deprecated("3.0")
+def checkdep_ghostscript():
+    info = get_executable_info("gs")
+    checkdep_ghostscript.executable = info.executable
+    checkdep_ghostscript.version = str(info.version)
     return checkdep_ghostscript.executable, checkdep_ghostscript.version
 checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
 
 
+@cbook.deprecated("3.0")
 def checkdep_pdftops():
-    try:
-        s = subprocess.Popen([str('pdftops'), '-v'], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        lines = stderr.decode('ascii').split('\n')
-        for line in lines:
-            if 'version' in line:
-                v = line.split()[-1]
-        return v
-    except (IndexError, ValueError, UnboundLocalError, OSError):
-        return None
+    return str(get_executable_info("pdftops").version)
 
 
+@cbook.deprecated("3.0")
 def checkdep_inkscape():
-    if checkdep_inkscape.version is None:
-        try:
-            s = subprocess.Popen([str('inkscape'), '-V'],
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            stdout, stderr = s.communicate()
-            lines = stdout.decode('ascii').split('\n')
-            for line in lines:
-                if 'Inkscape' in line:
-                    v = line.split()[1]
-                    break
-            checkdep_inkscape.version = v
-        except (IndexError, ValueError, UnboundLocalError, OSError):
-            pass
+    checkdep_inkscape.version = str(get_executable_info("inkscape").version)
     return checkdep_inkscape.version
 checkdep_inkscape.version = None
 
 
+@cbook.deprecated("3.0")
 def checkdep_ps_distiller(s):
     if not s:
         return False
-
-    flag = True
-    gs_req = '8.60'
-    gs_exec, gs_v = checkdep_ghostscript()
-    if not compare_versions(gs_v, gs_req):
-        flag = False
-        warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
-                       'unless ghostscript-%s or later is installed on your '
-                       'system') % gs_req)
-
-    if s == 'xpdf':
-        pdftops_req = '3.0'
-        pdftops_req_alt = '0.9'  # poppler version numbers, ugh
-        pdftops_v = checkdep_pdftops()
-        if compare_versions(pdftops_v, pdftops_req):
-            pass
-        elif (compare_versions(pdftops_v, pdftops_req_alt) and not
-              compare_versions(pdftops_v, '1.0')):
-            pass
-        else:
-            flag = False
-            warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
-                           'xpdf unless xpdf-%s or later is installed on '
-                           'your system') % pdftops_req)
-
-    if flag:
-        return s
-    else:
+    if not get_executable_info("gs"):
+        warnings.warn(
+            "Setting matplotlibrc ps.usedistiller requires ghostscript.")
         return False
+    if s == "xpdf" and not get_executable_info("pdftops"):
+        warnings.warn(
+            "Setting matplotlibrc ps.usedistiller to 'xpdf' requires xpdf.")
+        return False
+    return s
 
 
 def checkdep_usetex(s):
     if not s:
         return False
-
-    gs_req = '8.60'
-    dvipng_req = '1.6'
-    flag = True
-
-    if shutil.which("tex") is None:
-        flag = False
-        warnings.warn('matplotlibrc text.usetex option can not be used unless '
-                      'TeX is installed on your system')
-
-    dvipng_v = checkdep_dvipng()
-    if not compare_versions(dvipng_v, dvipng_req):
-        flag = False
-        warnings.warn('matplotlibrc text.usetex can not be used with *Agg '
-                      'backend unless dvipng-%s or later is installed on '
-                      'your system' % dvipng_req)
-
-    gs_exec, gs_v = checkdep_ghostscript()
-    if not compare_versions(gs_v, gs_req):
-        flag = False
-        warnings.warn('matplotlibrc text.usetex can not be used unless '
-                      'ghostscript-%s or later is installed on your system'
-                      % gs_req)
-
-    return flag
+    if not shutil.which("tex"):
+        warnings.warn("Setting matplotlibrc text.usetex requires TeX.")
+        return False
+    if not get_executable_info("dvipng"):
+        warnings.warn("Setting matplotlibrc text.usetex requires dvipng.")
+        return False
+    if not get_executable_info("gs"):
+        warnings.warn(
+            "Setting matplotlibrc text.usetex requires ghostscript.")
+        return False
+    return True
 
 
 def _get_home():
@@ -1132,9 +1149,6 @@ with warnings.catch_warnings():
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])
-
-rcParams['ps.usedistiller'] = checkdep_ps_distiller(
-                      rcParams['ps.usedistiller'])
 
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 

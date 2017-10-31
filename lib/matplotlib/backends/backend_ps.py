@@ -1,6 +1,7 @@
 """
-A PostScript backend, which can produce both PostScript .ps and .eps
+A PostScript backend, which can produce both PostScript .ps and .eps.
 """
+
 import six
 from six.moves import StringIO
 
@@ -10,15 +11,15 @@ import logging
 import subprocess
 
 from tempfile import mkstemp
+
+import matplotlib as mpl
 from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
-
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
@@ -48,6 +49,7 @@ class PsBackendHelper(object):
         self._cached = {}
 
     @property
+    @cbook.deprecated("3.0")
     def gs_exe(self):
         """
         executable name of ghostscript.
@@ -65,6 +67,7 @@ class PsBackendHelper(object):
         return str(gs_exe)
 
     @property
+    @cbook.deprecated("3.0")
     def gs_version(self):
         """
         version of ghostscript.
@@ -90,6 +93,7 @@ class PsBackendHelper(object):
         return gs_version
 
     @property
+    @cbook.deprecated("3.0")
     def supports_ps2write(self):
         """
         True if the installed ghostscript supports ps2write device.
@@ -1494,14 +1498,9 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     psfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
 
-    gs_exe = ps_backend_helper.gs_exe
-    if ps_backend_helper.supports_ps2write: # gs version >= 9
-        device_name = "ps2write"
-    else:
-        device_name = "pswrite"
-
-    command = [str(gs_exe), "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
-               "-sDEVICE=%s" % device_name, paper_option,
+    command = [mpl.get_executable_info("gs").executable,
+               "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
+               "-sDEVICE=ps2write", paper_option,
                "-sOutputFile=%s" % psfile, tmpfile]
     _log.debug(command)
     try:
@@ -1524,11 +1523,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         # For some versions of gs, above steps result in an ps file
         # where the original bbox is no more correct. Do not adjust
         # bbox for now.
-        if ps_backend_helper.supports_ps2write:
-            # fo gs version >= 9 w/ ps2write device
-            pstoeps(tmpfile, bbox, rotated=rotated)
-        else:
-            pstoeps(tmpfile)
+        pstoeps(tmpfile, bbox, rotated=rotated)
 
 
 def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
@@ -1608,8 +1603,8 @@ def get_bbox(tmpfile, bbox):
     hack.
     """
 
-    gs_exe = ps_backend_helper.gs_exe
-    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox", "%s" % tmpfile]
+    command = [get_executable_info("gs").executable,
+               "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox", "%s" % tmpfile]
     _log.debug(command)
     p = subprocess.Popen(command, stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -1622,11 +1617,12 @@ def get_bbox(tmpfile, bbox):
     if bbox_found:
         bbox_info = bbox_found.group()
     else:
-        raise RuntimeError('Ghostscript was not able to extract a bounding box.\
-Here is the Ghostscript output:\n\n%s' % bbox_info)
+        raise RuntimeError(
+            "Ghostscript was not able to extract a bounding box. "
+            "Here is the Ghostscript output:\n\n%s" % bbox_info)
     l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
 
-    # this is a hack to deal with the fact that ghostscript does not return the
+    # This is a hack to deal with the fact that ghostscript does not return the
     # intended bbox, but a tight bbox. For now, we just center the ink in the
     # intended bbox. This is not ideal, users may intend the ink to not be
     # centered.

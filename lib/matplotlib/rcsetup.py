@@ -13,6 +13,7 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
+
 import six
 
 from collections import Iterable, Mapping
@@ -22,6 +23,7 @@ import os
 import warnings
 import re
 
+import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
@@ -507,7 +509,12 @@ def validate_ps_distiller(s):
     elif s in ('false', False):
         return False
     elif s in ('ghostscript', 'xpdf'):
-        return s
+        if not mpl.get_executable_info("gs"):
+            warnings.warn("Setting ps.usedistiller requires ghostscript.")
+            return False
+        if s == "xpdf" and not mpl.get_executable_info("pdftops"):
+            warnings.warn("Setting ps.usedistiller to 'xpdf' requires xpdf.")
+            return False
     else:
         raise ValueError('matplotlibrc ps.usedistiller must either be none, '
                          'ghostscript or xpdf')

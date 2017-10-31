@@ -102,11 +102,11 @@ def get_file_hash(path, block_size=2 ** 20):
             md5.update(data)
 
     if path.endswith('.pdf'):
-        from matplotlib import checkdep_ghostscript
-        md5.update(checkdep_ghostscript()[1].encode('utf-8'))
+        md5.update(str(matplotlib.get_executable_info("gs").version)
+                   .encode('utf-8'))
     elif path.endswith('.svg'):
-        from matplotlib import checkdep_inkscape
-        md5.update(checkdep_inkscape().encode('utf-8'))
+        md5.update(str(matplotlib.get_executable_info("inkscape").version)
+                   .encode('utf-8'))
 
     return md5.hexdigest()
 
@@ -178,7 +178,7 @@ class _GSConverter(_Converter):
         if not self._proc:
             self._stdout = TemporaryFile()
             self._proc = subprocess.Popen(
-                [matplotlib.checkdep_ghostscript.executable,
+                [matplotlib.get_executable_info("gs").executable,
                  "-dNOPAUSE", "-sDEVICE=png16m"],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -266,20 +266,15 @@ class _SVGConverter(_Converter):
                     sys.getfilesystemencoding(), "replace"))
 
 
-def _update_converter():
-    gs, gs_v = matplotlib.checkdep_ghostscript()
-    if gs_v is not None:
-        converter['pdf'] = converter['eps'] = _GSConverter()
-    if matplotlib.checkdep_inkscape() is not None:
-        converter['svg'] = _SVGConverter()
-
-
-#: A dictionary that maps filename extensions to functions which
-#: themselves map arguments `old` and `new` (filenames) to a list of strings.
-#: The list can then be passed to Popen to convert files with that
-#: extension to png format.
-converter = {}
-_update_converter()
+#: A dictionary that maps filename extensions to functions which themselves map
+#: arguments `old` and `new` (filenames) to a list of strings.  The list can
+#: then be passed to Popen to convert files with that extension to png format.
+converter = {
+    **({"pdf": _GSConverter(), "eps": _GSConverter()}
+       if matplotlib.get_executable_info("gs") else {}),
+    **({"svg": _SVGConverter()}
+       if matplotlib.get_executable_info("inkscape") else {}),
+}
 
 
 def comparable_formats():
