@@ -5879,7 +5879,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : (n,) array or sequence of (n,) arrays
-            Input values, this takes either a single array or a sequency of
+            Input values, this takes either a single array or a sequence of
             arrays which are not required to be of the same length
 
         bins : integer or sequence or 'auto', optional
@@ -6091,18 +6091,8 @@ class Axes(_AxesBase):
                              "Please only use 'density', since 'normed'"
                              "will be deprecated.")
 
-        # process the unit information
-        self._process_unit_info(xdata=x, kwargs=kwargs)
-        x = self.convert_xunits(x)
-        if bin_range is not None:
-            bin_range = self.convert_xunits(bin_range)
-
-        # Check whether bins or range are given explicitly.
-        binsgiven = (cbook.iterable(bins) or bin_range is not None)
-
         # basic input validation
         input_empty = np.size(x) == 0
-
         # Massage 'x' for processing.
         if input_empty:
             x = np.array([[]])
@@ -6110,11 +6100,27 @@ class Axes(_AxesBase):
             x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
+        # Process unit information
+        # If doing a stacked histogram, the input is a list of datasets, so
+        # we need to do the unit conversion individually on each dataset
+        if stacked:
+            self._process_unit_info(xdata=x[0], kwargs=kwargs)
+            x = [self.convert_xunits(xi) for xi in x]
+        else:
+            self._process_unit_info(xdata=x, kwargs=kwargs)
+            x = self.convert_xunits(x)
+
+        if bin_range is not None:
+            bin_range = self.convert_xunits(bin_range)
+
+        # Check whether bins or range are given explicitly.
+        binsgiven = (cbook.iterable(bins) or bin_range is not None)
+
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             w = cbook._reshape_2D(weights, 'weights')
         else:
-            w = [None]*nx
+            w = [None] * nx
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')

@@ -1576,6 +1576,13 @@ def test_hist_unequal_bins_density():
     assert_allclose(mpl_heights, np_heights)
 
 
+def test_hist_stacked_datetime():
+    data = [[datetime.datetime(2017, 1, 1), datetime.datetime(2017, 1, 1)],
+            [datetime.datetime(2017, 1, 1), datetime.datetime(2017, 1, 2)]]
+    fig, ax = plt.subplots()
+    ax.hist(data, stacked=True)
+
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)
