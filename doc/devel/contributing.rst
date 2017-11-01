@@ -79,7 +79,7 @@ We use `Git <https://git-scm.com/>`_ for version control and
 You can check out the latest sources with the command (see
 :ref:`set-up-fork` for more details)::
 
-    git clone https://github.com:matplotlib/matplotlib.git
+    git clone https://github.com/matplotlib/matplotlib.git
 
 and navigate to the :file:`matplotlib` directory. If you have the proper privileges,
 you can use ``git@`` instead of  ``https://``, which works through the ssh protocol
@@ -185,7 +185,7 @@ A brief overview is:
 
  3. Clone this copy to your local disk::
 
-        $ git clone https://github.com:YourLogin/matplotlib.git
+        $ git clone https://github.com/YourLogin/matplotlib.git
 
  4. Create a branch to hold your changes::
 
