@@ -5538,7 +5538,7 @@ class Axes(_AxesBase):
         thrown. However, for compatibility with the flat shading case, the
         ``interpolate_grids`` keyword argument is provided. When set to
         ``True`` and *X* and *Y* have one row and column more then *C*,
-         *X* and *Y* will be linearly interpolated to obtain the corresponding
+        *X* and *Y* will be linearly interpolated to obtain the corresponding
         centerpoints.
 
         Keyword arguments:
