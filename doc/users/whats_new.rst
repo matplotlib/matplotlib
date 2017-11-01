@@ -246,6 +246,14 @@ volumetric model.
 Improvements
 ++++++++++++
 
+New ``interpolate_grids`` keyword arg to `pcolormesh`
+-----------------------------------------------------
+
+`pcolormesh` now has a keyword argument ``interpolate_grids`` that will allow
+interpolation of the boundary grids ``X``, ``Y`` to match the dimension of
+``C`` if Gouraud shading is used. This will simplify changing between flat
+and Gouraud shading.
+
 CheckButtons widget ``get_status`` function
 -------------------------------------------
 
