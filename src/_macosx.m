@@ -2867,7 +2867,11 @@ static void timer_callback(CFRunLoopTimerRef timer, void* info)
     PyObject* method = info;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallFunction(method, NULL);
-    if (result==NULL) PyErr_Print();
+    if (result) {
+        Py_DECREF(result);
+    } else {
+        PyErr_Print();
+    }
     PyGILState_Release(gstate);
 }
 
@@ -2923,6 +2927,7 @@ Timer__timer_start(Timer* self, PyObject* args)
             PyErr_SetString(PyExc_ValueError, "Cannot interpret _single attribute as True of False");
             return NULL;
     }
+    Py_DECREF(attribute);
     attribute = PyObject_GetAttrString((PyObject*)self, "_on_timer");
     if (attribute==NULL)
     {
@@ -2942,10 +2947,10 @@ Timer__timer_start(Timer* self, PyObject* args)
                                  timer_callback,
                                  &context);
     if (!timer) {
+        Py_DECREF(attribute);
         PyErr_SetString(PyExc_RuntimeError, "Failed to create timer");
         return NULL;
     }
-    Py_INCREF(attribute);
     if (self->timer) {
         CFRunLoopTimerInvalidate(self->timer);
         CFRelease(self->timer);
