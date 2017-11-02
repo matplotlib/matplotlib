@@ -83,10 +83,12 @@ install:
   # same things as the requirements in ci/conda_recipe/meta.yaml
   # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
   # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
+  #
+  # n.b. pandas is pinned to <0.21 due to issue 9610
   - conda create -q -n test-environment python=%PYTHON_VERSION%
     pip setuptools numpy python-dateutil freetype=2.6 msinttypes "tk=8.5"
     pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10"
-    mock sphinx pandas
+    mock sphinx "pandas<0.21.0"
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
