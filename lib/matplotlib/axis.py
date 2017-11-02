@@ -2275,8 +2275,10 @@ class YAxis(Axis):
 
     def tick_right(self):
         'use ticks only on right'
-        label = (self._major_tick_kw['label1On']
-                 or self._major_tick_kw['label2On'])
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('right')
         # if labels were turned off before this was called
         # leave them off
@@ -2284,8 +2286,10 @@ class YAxis(Axis):
 
     def tick_left(self):
         'use ticks only on left'
-        label = (self._major_tick_kw['label1On']
-                 or self._major_tick_kw['label2On'])
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('left')
         # if labels were turned off before this was called
         # leave them off
