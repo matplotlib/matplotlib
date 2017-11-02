@@ -2887,6 +2887,11 @@ static void timer_callback(CFRunLoopTimerRef timer, void* info)
     PyGILState_Release(gstate);
 }
 
+static void context_cleanup(const void* info)
+{
+    Py_DECREF((PyObject*)info);
+}
+
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
@@ -2904,7 +2909,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     }
     context.version = 0;
     context.retain = 0;
-    context.release = 0;
+    context.release = context_cleanup;
     context.copyDescription = 0;
     attribute = PyObject_GetAttrString((PyObject*)self, "_interval");
     if (attribute==NULL)
@@ -2958,10 +2963,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     }
     Py_INCREF(attribute);
     if (self->timer) {
-        CFRunLoopTimerGetContext(self->timer, &context);
-        attribute = context.info;
-        Py_DECREF(attribute);
-        CFRunLoopRemoveTimer(runloop, self->timer, kCFRunLoopCommonModes);
+        CFRunLoopTimerInvalidate(self->timer);
         CFRelease(self->timer);
     }
     CFRunLoopAddTimer(runloop, timer, kCFRunLoopCommonModes);
@@ -2977,15 +2979,7 @@ static PyObject*
 Timer__timer_stop(Timer* self)
 {
     if (self->timer) {
-        PyObject* attribute;
-        CFRunLoopTimerContext context;
-        CFRunLoopTimerGetContext(self->timer, &context);
-        attribute = context.info;
-        Py_DECREF(attribute);
-        CFRunLoopRef runloop = CFRunLoopGetCurrent();
-        if (runloop) {
-            CFRunLoopRemoveTimer(runloop, self->timer, kCFRunLoopCommonModes);
-        }
+        CFRunLoopTimerInvalidate(self->timer);
         CFRelease(self->timer);
         self->timer = NULL;
     }
