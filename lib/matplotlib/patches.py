@@ -1737,7 +1737,7 @@ class Arc(Ellipse):
         path_original = self._path
         for theta in thetas:
             if inside:
-                Path.arc(last_theta, theta, 8)
+                self._path = Path.arc(last_theta, theta, 8)
                 Patch.draw(self, renderer)
                 inside = False
             else:
