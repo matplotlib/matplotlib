@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 
 fig = Figure()
 # A canvas must be manually attached to the figure (pyplot would automatically
-# do it).  This is done by instanciating the canvas with the figure as
+# do it).  This is done by instantiating the canvas with the figure as
 # argument.
 FigureCanvas(fig)
 ax = fig.add_subplot(111)
