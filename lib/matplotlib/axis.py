@@ -1939,11 +1939,25 @@ class XAxis(Axis):
 
     def tick_top(self):
         'use ticks only on top'
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('top')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labeltop=label)
 
     def tick_bottom(self):
         'use ticks only on bottom'
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('bottom')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelbottom=label)
 
     def get_ticks_position(self):
         """
