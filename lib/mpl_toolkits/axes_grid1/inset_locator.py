@@ -11,6 +11,7 @@ from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxTransformTo
 from matplotlib.transforms import IdentityTransform, TransformedBbox
+import matplotlib.cbook as cbook
 
 from . import axes_size as Size
 from .parasite_axes import HostAxes
@@ -309,7 +310,10 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, fill=False, **kwargs)
+        _alias_map = {'color': ['c'], 'facecolor': ['fc']}
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        fill = ('color' in kwargs) or ('facecolor' in kwargs)
+        Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
@@ -327,10 +331,10 @@ class BboxConnectorPatch(BboxConnector):
         """
         Connect two bboxes with a quadrilateral.
 
-        The quadrilateral is specified by two lines that start and end at corners
-        of the bboxes. The four sides of the quadrilateral are defined by the two
-        lines given, the line between the two corners specified in *bbox1* and the
-        line between the two corners specified in *bbox2*.
+        The quadrilateral is specified by two lines that start and end at
+        corners of the bboxes. The four sides of the quadrilateral are defined
+        by the two lines given, the line between the two corners specified in
+        *bbox1* and the line between the two corners specified in *bbox2*.
 
         Parameters
         ----------
