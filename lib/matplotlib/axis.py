@@ -2295,7 +2295,6 @@ class YAxis(Axis):
         # leave them off
         self.set_tick_params(which='both', labelleft=label)
 
-
     def get_ticks_position(self):
         """
         Return the ticks position (left, right, both or unknown)
