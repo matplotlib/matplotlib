@@ -348,8 +348,7 @@ FigureCanvas_draw(FigureCanvas* self)
         [pool release];
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -362,8 +361,7 @@ FigureCanvas_invalidate(FigureCanvas* self)
         return NULL;
     }
     [view setNeedsDisplay: YES];
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -376,8 +374,7 @@ FigureCanvas_flush_events(FigureCanvas* self)
         return NULL;
     }
     [view displayIfNeeded];
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -420,8 +417,7 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
     }
 
     [view setRubberband: rubberband];
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -434,8 +430,7 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
         return NULL;
     }
     [view removeRubberband];
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static NSImage* _read_ppm_image(PyObject* obj)
@@ -546,8 +541,7 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
     if (error==0) close(channel[1]);
     if (interrupted) raise(SIGINT);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -563,8 +557,7 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
                                            data1: 0
                                            data2: 0];
     [NSApp postEvent: event atStart: true];
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef FigureCanvas_methods[] = {
@@ -770,8 +763,7 @@ FigureManager_show(FigureManager* self)
         [window orderFrontRegardless];
         [pool release];
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -785,8 +777,7 @@ FigureManager_destroy(FigureManager* self)
         [pool release];
         self->window = NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -808,8 +799,7 @@ FigureManager_set_window_title(FigureManager* self,
         [pool release];
     }
     PyMem_Free(title);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -830,8 +820,7 @@ FigureManager_get_window_title(FigureManager* self)
     if (result) {
         return result;
     } else {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 
@@ -1280,8 +1269,7 @@ NavigationToolbar_update (NavigationToolbar* self)
         [button setEnabled: YES];
     }
     [pool release];
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -1783,8 +1771,7 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
         [pool release];
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef NavigationToolbar2_methods[] = {
@@ -1888,8 +1875,7 @@ choose_save_file(PyObject* unused, PyObject* args)
         free(buffer);
         return string;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -1906,8 +1892,7 @@ set_cursor(PyObject* unused, PyObject* args)
       case 4: break;
       default: return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 @implementation WindowServerConnectionManager
@@ -2845,8 +2830,7 @@ show(PyObject* self)
     Py_BEGIN_ALLOW_THREADS
     [NSApp run];
     Py_END_ALLOW_THREADS
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 typedef struct {
@@ -2971,8 +2955,7 @@ Timer__timer_start(Timer* self, PyObject* args)
      * the timer lost before we have a chance to decrease the reference count
      * of the attribute */
     self->timer = timer;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -2983,8 +2966,7 @@ Timer__timer_stop(Timer* self)
         CFRelease(self->timer);
         self->timer = NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static void
