@@ -2895,10 +2895,6 @@ Timer__timer_start(Timer* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
         return NULL;
     }
-    context.version = 0;
-    context.retain = 0;
-    context.release = context_cleanup;
-    context.copyDescription = 0;
     attribute = PyObject_GetAttrString((PyObject*)self, "_interval");
     if (attribute==NULL)
     {
@@ -2938,6 +2934,10 @@ Timer__timer_start(Timer* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
         return NULL;
     }
+    context.version = 0;
+    context.retain = NULL;
+    context.release = context_cleanup;
+    context.copyDescription = NULL;
     context.info = attribute;
     timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
                                  0,
