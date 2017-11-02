@@ -5159,8 +5159,8 @@ class Axes(_AxesBase):
         # This function takes care of resizing the grids X and Y
         # to match the size of the color grid C.
         #
-        # If only a color grid is given dummy grids for X and Y are
-        # created, matching the dimensions of C.
+        # If only a color grid is given uniform grids with step size 1.0
+        # are created for X and Y are, matching the dimensions of C.
         #
         # If given, the X and Y grids must have the same size or
         # one more row and column than C.
@@ -5233,8 +5233,10 @@ class Axes(_AxesBase):
                 else:
 
                     raise TypeError('Dimensions of C %s are incompatible with'
-                                    ' X (%d) and/or Y (%d); see help(%s)' % (
-                                        C.shape, Nx, Ny, funcname))
+                                    ' X (%d) and/or Y (%d); To allow linear '
+                                    ' interpolation of the grids to match C '
+                                    ' set the keyword interpolate_grids to '
+                                    ' True' % (C.shape, Nx, Ny, funcname))
 
         else:
             C = C[:Ny - 1, :Nx - 1]
