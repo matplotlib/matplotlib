@@ -1611,9 +1611,7 @@ class _AxesBase(martist.Artist):
         return v
 
     def get_legend(self):
-        """
-        Return the legend.Legend instance, or None if no legend is defined
-        """
+        """Return the `Legend` instance, or None if no legend is defined."""
         return self.legend_
 
     def get_images(self):
@@ -1625,30 +1623,30 @@ class _AxesBase(martist.Artist):
         return cbook.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
-        """Return the XAxis instance"""
+        """Return the XAxis instance."""
         return self.xaxis
 
     def get_xgridlines(self):
-        """Get the x grid lines as a list of Line2D instances"""
+        """Get the x grid lines as a list of `Line2D` instances."""
         return cbook.silent_list('Line2D xgridline',
                                  self.xaxis.get_gridlines())
 
     def get_xticklines(self):
-        """Get the xtick lines as a list of Line2D instances"""
-        return cbook.silent_list('Text xtickline',
+        """Get the x tick lines as a list of `Line2D` instances."""
+        return cbook.silent_list('Line2D xtickline',
                                  self.xaxis.get_ticklines())
 
     def get_yaxis(self):
-        """Return the YAxis instance"""
+        """Return the YAxis instance."""
         return self.yaxis
 
     def get_ygridlines(self):
-        """Get the y grid lines as a list of Line2D instances"""
+        """Get the y grid lines as a list of `Line2D` instances."""
         return cbook.silent_list('Line2D ygridline',
                                  self.yaxis.get_gridlines())
 
     def get_yticklines(self):
-        """Get the ytick lines as a list of Line2D instances"""
+        """Get the y tick lines as a list of `Line2D` instances."""
         return cbook.silent_list('Line2D ytickline',
                                  self.yaxis.get_ticklines())
 
@@ -2745,27 +2743,16 @@ class _AxesBase(martist.Artist):
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):
-        "Invert the x-axis."
-        left, right = self.get_xlim()
-        self.set_xlim(right, left, auto=None)
+        """Invert the x-axis."""
+        self.set_xlim(self.get_xlim()[::-1], auto=None)
 
     def xaxis_inverted(self):
-        """Returns *True* if the x-axis is inverted."""
+        """Return whether the x-axis is inverted."""
         left, right = self.get_xlim()
         return right < left
 
     def get_xbound(self):
-        """Returns the x-axis numerical bounds
-
-        This always returns::
-
-          lowerBound < upperBound
-
-        Returns
-        -------
-        lowerBound, upperBound : float
-
-        """
+        """Return the lower and upper x-axis bounds, in increasing order."""
         left, right = self.get_xlim()
         if left < right:
             return left, right
@@ -3001,7 +2988,7 @@ class _AxesBase(martist.Artist):
 
     def get_xmajorticklabels(self):
         """
-        Get the xtick major labels
+        Get the major x tick labels.
 
         Returns
         -------
@@ -3013,7 +3000,7 @@ class _AxesBase(martist.Artist):
 
     def get_xminorticklabels(self):
         """
-        Get the x minor tick labels
+        Get the minor x tick labels.
 
         Returns
         -------
@@ -3085,22 +3072,16 @@ class _AxesBase(martist.Artist):
         return ret
 
     def invert_yaxis(self):
-        """
-        Invert the y-axis.
-        """
-        bottom, top = self.get_ylim()
-        self.set_ylim(top, bottom, auto=None)
+        """Invert the y-axis."""
+        self.set_ylim(self.get_ylim()[::-1], auto=None)
 
     def yaxis_inverted(self):
-        """Returns *True* if the y-axis is inverted."""
+        """Return whether the y-axis is inverted."""
         bottom, top = self.get_ylim()
         return top < bottom
 
     def get_ybound(self):
-        """
-        Return y-axis numerical bounds in the form of
-        ``lowerBound < upperBound``
-        """
+        """Return the lower and upper y-axis bounds, in increasing order."""
         bottom, top = self.get_ylim()
         if bottom < top:
             return bottom, top
@@ -3315,7 +3296,7 @@ class _AxesBase(martist.Artist):
 
     def get_ymajorticklabels(self):
         """
-        Get the major y tick labels
+        Get the major y tick labels.
 
         Returns
         -------
@@ -3327,7 +3308,7 @@ class _AxesBase(martist.Artist):
 
     def get_yminorticklabels(self):
         """
-        Get the minor y tick labels
+        Get the minor y tick labels.
 
         Returns
         -------
