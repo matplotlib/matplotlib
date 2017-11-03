@@ -23,8 +23,14 @@ try:
     import threading
 except ImportError:
     import dummy_threading as threading
-import numpy as np
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 from math import radians, cos, sin
+
+import numpy as np
+
 from matplotlib import cbook, rcParams, __version__
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
@@ -383,7 +389,10 @@ class FigureCanvasAgg(FigureCanvasBase):
         Draw the figure using the renderer.
         """
         self.renderer = self.get_renderer(cleared=True)
-        with RendererAgg.lock:
+        # Acquire a lock on the shared font cache.
+        with RendererAgg.lock, \
+             (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
+              else nullcontext()):
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
             # don't forget to call the superclass.
