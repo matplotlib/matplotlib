@@ -258,8 +258,8 @@ class HostAxesBase(object):
         ax2._remove_method = lambda h: self.parasites.remove(h)
         return ax2
 
-
     def _get_legend_handles(self, legend_handler_map=None):
+        # don't use this!
         Axes_get_legend_handles = self._get_base_axes_attr("_get_legend_handles")
         all_handles = list(Axes_get_legend_handles(self, legend_handler_map))
 
