@@ -7,49 +7,32 @@ from six.moves import tkinter as Tk
 import numpy as np
 
 from matplotlib.backends import _tkagg
-from platform import python_implementation
 
-if python_implementation() == 'PyPy':
-    def blit(photoimage, aggimage, bbox=None, colormode=1):
-        tk = photoimage.tk
+def blit(photoimage, aggimage, bbox=None, colormode=1):
+    tk = photoimage.tk
 
-        if bbox is not None:
-            bbox_array = bbox.__array__()
-        else:
-            bbox_array = None
-        data = np.asarray(aggimage)
+    if bbox is not None:
+        bbox_array = bbox.__array__()
+        # x1, x2, y1, y2
+        bboxptr = (bbox_array[0, 0], bbox_array[1, 0], bbox_array[0, 1], bbox_array[1, 1])
+    else:
+        bboxptr = 0
+    data = np.asarray(aggimage)
+    dataptr = (data.ctypes.data, data.shape[0], data.shape[1])
+    try:
+        tk.call(
+            "PyAggImagePhoto", photoimage,
+            dataptr, colormode, bboxptr)
+    except Tk.TclError:
         try:
-            tk.call(
-                "PyAggImagePhoto", photoimage,
-                data, colormode, bbox_array)
-        except Tk.TclError:
-                _tkagg.tkinit(tk)
-                tk.call("PyAggImagePhoto", photoimage,
-                        data, colormode, bbox_array)
-
-else:
-    def blit(photoimage, aggimage, bbox=None, colormode=1):
-        tk = photoimage.tk
-
-        if bbox is not None:
-            bbox_array = bbox.__array__()
-        else:
-            bbox_array = None
-        data = np.asarray(aggimage)
-        try:
-            tk.call(
-                "PyAggImagePhoto", photoimage,
-                id(data), colormode, id(bbox_array))
-        except Tk.TclError:
             try:
-                try:
-                    _tkagg.tkinit(tk.interpaddr(), 1)
-                except AttributeError:
-                    _tkagg.tkinit(id(tk), 0)
-                tk.call("PyAggImagePhoto", photoimage,
-                        id(data), colormode, id(bbox_array))
-            except (ImportError, AttributeError, Tk.TclError):
-                raise
+                _tkagg.tkinit(tk.interpaddr(), 1)
+            except AttributeError:
+                _tkagg.tkinit(tk, 0)
+            tk.call("PyAggImagePhoto", photoimage,
+                    dataptr, colormode, bboxptr)
+        except (ImportError, AttributeError, Tk.TclError):
+            raise
 
 def test(aggimage):
     import time

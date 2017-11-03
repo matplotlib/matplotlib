@@ -13,16 +13,15 @@
 #include <cstdio>
 #include <sstream>
 
-#include "py_converters.h"
-
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
 #if defined(_MSC_VER)
-#  define SIZE_T_FORMAT "%Iu"
+#  define IMG_FORMAT "%Iu %d %d"
 #else
-#  define SIZE_T_FORMAT "%zu"
+#  define IMG_FORMAT "%zu %d %d"
 #endif
+# define BBOX_FORMAT "%f %f %f %f"
 
 typedef struct
 {
@@ -44,16 +43,15 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    PyObject *bufferobj;
 
     // vars for blitting
-    PyObject *bboxo;
 
-    size_t aggl, bboxl;
+    size_t pdata;
+    int wdata, hdata;
+    float x1, x2, y1, y2;
     bool has_bbox;
-    uint8_t *destbuffer;
+    uint8_t *destbuffer, *buffer;
     int destx, desty, destwidth, destheight, deststride;
-    //unsigned long tmp_ptr;
 
     long mode;
     long nval;
@@ -73,24 +71,14 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         TCL_APPEND_RESULT(interp, "destination photo must exist", (char *)NULL);
         return TCL_ERROR;
     }
-    /* get array (or object that can be converted to array) pointer */
-    if (sscanf(argv[2], SIZE_T_FORMAT, &aggl) != 1) {
-        TCL_APPEND_RESULT(interp, "error casting pointer", (char *)NULL);
+    /* get buffer from str which is "ptr height width" */
+    if (sscanf(argv[2], IMG_FORMAT, &pdata, &hdata, &wdata) != 3) {
+        TCL_APPEND_RESULT(interp, 
+                          "error reading data, expected ptr height width",
+                          (char *)NULL);
         return TCL_ERROR;
     }
-    bufferobj = (PyObject *)aggl;
-
-    numpy::array_view<uint8_t, 3> buffer;
-    try {
-        buffer = numpy::array_view<uint8_t, 3>(bufferobj);
-    } catch (...) {
-        TCL_APPEND_RESULT(interp, "buffer is of wrong type", (char *)NULL);
-        PyErr_Clear();
-        return TCL_ERROR;
-    }
-    int srcheight = buffer.dim(0);
-
-    /* XXX insert aggRenderer type check */
+    buffer = (uint8_t*)pdata;
 
     /* get array mode (0=mono, 1=rgb, 2=rgba) */
     mode = atol(argv[3]);
@@ -100,27 +88,22 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
     }
 
     /* check for bbox/blitting */
-    if (sscanf(argv[4], SIZE_T_FORMAT, &bboxl) != 1) {
-        TCL_APPEND_RESULT(interp, "error casting pointer", (char *)NULL);
-        return TCL_ERROR;
-    }
-    bboxo = (PyObject *)bboxl;
-
-    if (bboxo != NULL && bboxo != Py_None) {
-        agg::rect_d rect;
-        if (!convert_rect(bboxo, &rect)) {
-            return TCL_ERROR;
-        }
-
+    if (sscanf(argv[4], BBOX_FORMAT, &x1, &x2, &y1, &y2) == 4) {
         has_bbox = true;
+    }
+    else {
+        has_bbox = false;
+    }
 
-        destx = (int)rect.x1;
-        desty = srcheight - (int)rect.y2;
-        destwidth = (int)(rect.x2 - rect.x1);
-        destheight = (int)(rect.y2 - rect.y1);
+    if (has_bbox) {
+        int srcstride = wdata * 4;
+        destx = x1;
+        desty = hdata - y2;
+        destwidth = x2 - x1;
+        destheight = y2 - y1;
         deststride = 4 * destwidth;
 
-        destbuffer = new agg::int8u[deststride * destheight];
+        destbuffer = new uint8_t[deststride * destheight];
         if (destbuffer == NULL) {
             TCL_APPEND_RESULT(interp, "could not allocate memory", (char *)NULL);
             return TCL_ERROR;
@@ -128,11 +111,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
 
         for (int i = 0; i < destheight; ++i) {
             memcpy(destbuffer + (deststride * i),
-                   &buffer(i + desty, destx, 0),
+                   &buffer[(i + desty) * srcstride + (destx * 4)],
                    deststride);
         }
     } else {
-        has_bbox = false;
         destbuffer = NULL;
         destx = desty = destwidth = destheight = deststride = 0;
     }
@@ -168,10 +150,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         delete[] destbuffer;
 
     } else {
-        block.width = buffer.dim(1);
-        block.height = buffer.dim(0);
+        block.width = wdata;
+        block.height = hdata;
         block.pitch = (int)block.width * nval;
-        block.pixelPtr = buffer.data();
+        block.pixelPtr = buffer;
 
         /* Clear current contents */
         TK_PHOTO_BLANK(photo);
@@ -457,15 +439,11 @@ PyMODINIT_FUNC PyInit__tkagg(void)
 
     m = PyModule_Create(&_tkagg_module);
 
-    import_array();
-
     return (load_tkinter_funcs() == 0) ? m : NULL;
 }
 #else
 PyMODINIT_FUNC init_tkagg(void)
 {
-    import_array();
-
     Py_InitModule("_tkagg", functions);
 
     load_tkinter_funcs();
