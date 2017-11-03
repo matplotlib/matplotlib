@@ -1938,7 +1938,9 @@ class XAxis(Axis):
         self.stale = True
 
     def tick_top(self):
-        'use ticks only on top'
+        """
+        Move ticks and ticklabels (if present) to the top of the axes.
+        """
         label = True
         if 'label1On' in self._major_tick_kw:
             label = (self._major_tick_kw['label1On']
@@ -1949,7 +1951,9 @@ class XAxis(Axis):
         self.set_tick_params(which='both', labeltop=label)
 
     def tick_bottom(self):
-        'use ticks only on bottom'
+        """
+        Move ticks and ticklabels (if present) to the bottom of the axes.
+        """
         label = True
         if 'label1On' in self._major_tick_kw:
             label = (self._major_tick_kw['label1On']
@@ -2288,7 +2292,9 @@ class YAxis(Axis):
         self.stale = True
 
     def tick_right(self):
-        'use ticks only on right'
+        """
+        Move ticks and ticklabels (if present) to the right of the axes.
+        """
         label = True
         if 'label1On' in self._major_tick_kw:
             label = (self._major_tick_kw['label1On']
@@ -2299,7 +2305,9 @@ class YAxis(Axis):
         self.set_tick_params(which='both', labelright=label)
 
     def tick_left(self):
-        'use ticks only on left'
+        """
+        Move ticks and ticklabels (if present) to the left of the axes.
+        """
         label = True
         if 'label1On' in self._major_tick_kw:
             label = (self._major_tick_kw['label1On']
