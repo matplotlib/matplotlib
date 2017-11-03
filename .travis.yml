@@ -116,10 +116,7 @@ install:
         $PANDAS \
         codecov \
         coverage \
-        cycler \
         pillow \
-        pyparsing!=2.1.6 \
-        python-dateutil \
         sphinx
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
