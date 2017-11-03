@@ -163,8 +163,8 @@ class Patch(artist.Artist):
         """
         radius = self._process_radius(radius)
         return self.get_path().contains_points(points,
-                                              self.get_transform(),
-                                              radius)
+                                               self.get_transform(),
+                                               radius)
 
     def update_from(self, other):
         """
