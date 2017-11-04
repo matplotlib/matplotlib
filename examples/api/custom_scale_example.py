@@ -3,7 +3,7 @@
 Custom scale
 ============
 
-This example showcases how to create a custom scale, by implementing the
+Create a custom scale, by implementing the
 scaling use for latitude data in a Mercator Projection.
 """
 

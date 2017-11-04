@@ -3,8 +3,7 @@
 Hatch-filled histograms
 =========================
 
-This example showcases the hatching capabilities of matplotlib by plotting
-various histograms.
+Hatching capabilities for plotting histograms.
 """
 
 import itertools
