@@ -3,8 +3,8 @@
 Building histograms using Rectangles and PolyCollections
 ========================================================
 
-This example shows how to use a path patch to draw a bunch of
-rectangles.  The technique of using lots of Rectangle instances, or
+Using a path patch to draw rectangles.
+The technique of using lots of Rectangle instances, or
 the faster method of using PolyCollections, were implemented before we
 had proper paths with moveto/lineto, closepoly etc in mpl.  Now that
 we have them, we can draw collections of regularly shaped objects with

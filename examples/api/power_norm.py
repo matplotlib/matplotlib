@@ -3,7 +3,7 @@
 Exploring normalizations
 ========================
 
-Let's explore various normalization on a multivariate normal distribution.
+Various normalization on a multivariate normal distribution.
 
 """
 
