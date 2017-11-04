@@ -151,7 +151,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
 
 class BezierSegment(object):
     """
-    A simple class of a 2-dimensional bezier segment
+    A simple class of an N-dimensional bezier segment
     """
 
     # Higher order bezier lines can be supported by simplying adding
@@ -163,19 +163,19 @@ class BezierSegment(object):
     def __init__(self, control_points):
         """
         *control_points* : location of contol points. It needs have a
-         shpae of n * 2, where n is the order of the bezier line. 1<=
-         n <= 3 is supported.
+         shpae of n * D, where n is the order of the bezier line
+         and D is the dimension (the length of each control point
+         tuple).  1 <= n <= 3 is supported.
         """
         _o = len(control_points)
+        dim = len(control_points[0])
         self._orders = np.arange(_o)
         _coeff = BezierSegment._binom_coeff[_o - 1]
 
         _control_points = np.asarray(control_points)
-        xx = _control_points[:, 0]
-        yy = _control_points[:, 1]
+        xyz = [_control_points[:, i] for i in range(0, dim)]
 
-        self._px = xx * _coeff
-        self._py = yy * _coeff
+        self._pxyz = [xx * _coeff for xx in xyz]
 
     def point_at_t(self, t):
         "evaluate a point at t"
@@ -183,11 +183,9 @@ class BezierSegment(object):
         t_powers = np.power(t, self._orders)
 
         tt = one_minus_t_powers * t_powers
-        _x = sum(tt * self._px)
-        _y = sum(tt * self._py)
+        _xyz = [sum(tt * px) for px in self._pxyz]
 
-        return _x, _y
-
+        return tuple(_xyz)
 
 def split_bezier_intersecting_with_closedpath(bezier,
                                               inside_closedpath,
