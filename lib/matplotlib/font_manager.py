@@ -1369,7 +1369,12 @@ fontManager = None
 _fmcache = None
 
 
-get_font = lru_cache(64)(ft2font.FT2Font)
+_get_font = lru_cache(64)(ft2font.FT2Font)
+
+def get_font(filename, hinting_factor=None):
+    if hinting_factor is None:
+        hinting_factor = rcParams['text.hinting_factor']
+    return _get_font(filename, hinting_factor)
 
 
 # The experimental fontconfig-based backend.
