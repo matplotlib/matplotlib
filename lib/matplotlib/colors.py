@@ -251,21 +251,11 @@ def to_hex(c, keep_alpha=False):
 
 ### Backwards-compatible color-conversion API
 
+
 cnames = CSS4_COLORS
 hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")
-
-
-def rgb2hex(c):
-    'Given an rgb or rgba sequence of 0-1 floats, return the hex string'
-    return to_hex(c)
-
-
-def hex2color(c):
-    """
-    Take a hex string *s* and return the corresponding rgb 3-tuple
-    Example: #efefef -> (0.93725, 0.93725, 0.93725)
-    """
-    return ColorConverter.to_rgb(c)
+rgb2hex = to_hex
+hex2color = to_rgb
 
 
 class ColorConverter(object):
@@ -327,6 +317,7 @@ class ColorConverter(object):
 
 
 colorConverter = ColorConverter()
+
 
 ### End of backwards-compatible color-conversion API
 
