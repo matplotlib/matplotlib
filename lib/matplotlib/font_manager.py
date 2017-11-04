@@ -965,8 +965,10 @@ def json_dump(data, filename):
     Handles FontManager and its fields."""
 
     with open(filename, 'w') as fh:
-        json.dump(data, fh, cls=JSONEncoder, indent=2)
-
+        try:
+            json.dump(data, fh, cls=JSONEncoder, indent=2)
+        except IOError as e:
+            warnings.warn('Could not save font_manager cache ', e)
 
 def json_load(filename):
     """Loads a data structure as JSON from the named file.
