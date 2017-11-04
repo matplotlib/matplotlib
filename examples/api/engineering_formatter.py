@@ -3,7 +3,7 @@
 Labeling ticks using engineering notation
 =========================================
 
-Demo to show use of the engineering Formatter.
+Use of the engineering Formatter.
 '''
 
 import matplotlib.pyplot as plt
