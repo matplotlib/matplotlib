@@ -428,7 +428,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return TimerQT(*args, **kwargs)
 
     def flush_events(self):
-        global qApp
         qApp.processEvents()
 
     def start_event_loop(self, timeout=0):
@@ -858,5 +857,4 @@ class _BackendQT5(_Backend):
     def mainloop():
         # allow KeyboardInterrupt exceptions to close the plot window.
         signal.signal(signal.SIGINT, signal.SIG_DFL)
-        global qApp
         qApp.exec_()
