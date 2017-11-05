@@ -7,7 +7,7 @@ You can explicitly set which font family is picked up for a given font
 style (e.g., 'serif', 'sans-serif', or 'monospace').
 
 In the example below, we only allow one font family (Tahoma) for the
-san-serif font style.  You the default family with the font.family rc
+sans-serif font style.  You the default family with the font.family rc
 param, e.g.,::
 
   rcParams['font.family'] = 'sans-serif'
