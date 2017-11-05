@@ -159,7 +159,7 @@ class Patch(artist.Artist):
         contains the corresponding point.
         (transformed with its transform attribute).
 
-        *points* should be an N x 2 array.
+        *points* must be Nx2 array.
         *radius* allows the path to be made slightly larger or smaller.
         """
         radius = self._process_radius(radius)
