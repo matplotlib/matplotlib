@@ -61,3 +61,8 @@
 # modules.  The default is determined by fallback.
 #
 #backend = Agg
+
+[build]
+# Build options
+# If we should try to use static libraries on Windows
+#staticbuild = True
