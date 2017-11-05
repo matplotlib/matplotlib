@@ -14,7 +14,8 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
     if bbox is not None:
         bbox_array = bbox.__array__()
         # x1, x2, y1, y2
-        bboxptr = (bbox_array[0, 0], bbox_array[1, 0], bbox_array[0, 1], bbox_array[1, 1])
+        bboxptr = (bbox_array[0, 0], bbox_array[1, 0],
+                   bbox_array[0, 1], bbox_array[1, 1])
     else:
         bboxptr = 0
     data = np.asarray(aggimage)
