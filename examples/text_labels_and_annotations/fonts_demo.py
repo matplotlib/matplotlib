@@ -1,13 +1,13 @@
 """
-==========
-Fonts Demo
-==========
+==================================
+Fonts demo (object-oriented style)
+==================================
 
-Show how to set custom font properties.
+Set font properties using setters.
 
-For interactive users, you can also use kwargs to the text command,
-which requires less typing.  See examples/fonts_demo_kw.py
+See :doc:`fonts_demo_kw` to achieve the same effect using kwargs.
 """
+
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 
