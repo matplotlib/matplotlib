@@ -181,7 +181,7 @@ static PyObject *_tkinit(PyObject *self, PyObject *args)
     } else {
         /* Do it the hard way.  This will break if the TkappObject
            layout changes */
-        app = (TkappObject *)PyLong_AsVoidPtr(arg);
+        app = (TkappObject *)arg;
         interp = app->interp;
     }
 
@@ -320,7 +320,7 @@ int load_tkinter_funcs(void)
  * tkinter uses these symbols, and the symbols are therefore visible in the
  * tkinter dynamic library (module).
  */
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
 #define TKINTER_PKG "tkinter"
 #define TKINTER_MOD "_tkinter"
 // From module __file__ attribute to char *string for dlopen.
@@ -414,13 +414,31 @@ int load_tkinter_funcs(void)
     }
     tkinter_lib = dlopen(tkinter_libname, RTLD_LAZY);
     if (tkinter_lib == NULL) {
-        PyErr_SetString(PyExc_RuntimeError,
-                "Cannot dlopen tkinter module file");
-        goto exit;
+        /* Perhaps it is a cffi module, like in PyPy? */
+        pString = PyObject_GetAttrString(pSubmodule, "tklib_cffi");
+        if (pString == NULL) {
+            goto fail;
+        }
+        pString = PyObject_GetAttrString(pString, "__file__");
+        if (pString == NULL) {
+            goto fail;
+        }
+        tkinter_libname = fname2char(pString);
+        if (tkinter_libname == NULL) {
+            goto fail;
+        }
+        tkinter_lib = dlopen(tkinter_libname, RTLD_LAZY);
+    }
+    if (tkinter_lib == NULL) {
+        goto fail;
     }
     ret = _func_loader(tkinter_lib);
     // dlclose probably safe because tkinter has been imported.
     dlclose(tkinter_lib);
+    goto exit;
+fail:
+    PyErr_SetString(PyExc_RuntimeError,
+            "Cannot dlopen tkinter module file");
 exit:
     Py_XDECREF(pModule);
     Py_XDECREF(pSubmodule);
@@ -429,7 +447,7 @@ exit:
 }
 #endif // end not Windows
 
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
 static PyModuleDef _tkagg_module = { PyModuleDef_HEAD_INIT, "_tkagg", "",   -1,  functions,
                                      NULL,                  NULL,     NULL, NULL };
 

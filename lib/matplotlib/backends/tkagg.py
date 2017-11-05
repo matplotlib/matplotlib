@@ -24,15 +24,13 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
             "PyAggImagePhoto", photoimage,
             dataptr, colormode, bboxptr)
     except Tk.TclError:
-        try:
-            try:
-                _tkagg.tkinit(tk.interpaddr(), 1)
-            except AttributeError:
-                _tkagg.tkinit(tk, 0)
-            tk.call("PyAggImagePhoto", photoimage,
-                    dataptr, colormode, bboxptr)
-        except (ImportError, AttributeError, Tk.TclError):
-            raise
+        if hasattr(tk, 'interpaddr'):
+            _tkagg.tkinit(tk.interpaddr(), 1)
+        else:
+            # very old python?
+            _tkagg.tkinit(tk, 0)
+        tk.call("PyAggImagePhoto", photoimage,
+                dataptr, colormode, bboxptr)
 
 def test(aggimage):
     import time
