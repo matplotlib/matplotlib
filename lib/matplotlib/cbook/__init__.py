@@ -255,8 +255,7 @@ def _exception_printer(exc):
 
 
 class CallbackRegistry(object):
-    """Handle registering and disconnecting for a set of signals and
-    callbacks:
+    """Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -332,9 +331,7 @@ class CallbackRegistry(object):
         self.__init__(**state)
 
     def connect(self, s, func):
-        """
-        register *func* to be called when a signal *s* is generated
-        func will be called
+        """Register *func* to be called when signal *s* is generated.
         """
         self._func_cid_map.setdefault(s, WeakKeyDictionary())
         # Note proxy not needed in python 3.
@@ -363,8 +360,7 @@ class CallbackRegistry(object):
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """
-        disconnect the callback registered with callback id *cid*
+        """Disconnect the callback registered with callback id *cid*.
         """
         for eventname, callbackd in list(six.iteritems(self.callbacks)):
             try:
@@ -381,8 +377,10 @@ class CallbackRegistry(object):
 
     def process(self, s, *args, **kwargs):
         """
-        process signal `s`.  All of the functions registered to receive
-        callbacks on `s` will be called with ``**args`` and ``**kwargs``
+        Process signal *s*.
+
+        All of the functions registered to receive callbacks on *s* will be
+        called with ``*args`` and ``**kwargs``.
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
