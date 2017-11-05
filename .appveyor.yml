@@ -28,6 +28,7 @@ environment:
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
+      MPLSTATICBUILD: True
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
@@ -74,17 +75,6 @@ install:
     curl -sL https://github.com/python/cpython/pull/1224.patch |
     patch -fsup 1 -d %CONDA_PREFIX% ) || cmd /c "exit /b 0"
 
-  # Let the install prefer the static builds of the libs
-  - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
-  - mkdir lib || cmd /c "exit /b 0"
-  - copy /y %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  - copy /y %LIBRARY_LIB%\libpng_static.lib lib\png.lib
-  # These z.lib / png.lib are not static versions but files which end up as
-  # dependencies to the dll file. This is fine for the conda build, but not here
-  # and for the wheels
-  - del %LIBRARY_LIB%\png.lib
-  - del %LIBRARY_LIB%\z.lib
-  - set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
   # enables the local freetype build
   - copy ci\travis\setup.cfg .
   # Show the installed packages + versions
@@ -95,9 +85,9 @@ test_script:
   - pip install -ve .
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
-  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
-  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
-  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
+  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
+  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
+  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
   - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex pillow
@@ -114,6 +104,7 @@ test_script:
 after_test:
   # After the tests were a success, build wheels with the static libs
   # Hide the output, the copied files really clutter the build log...
+  - set MPLSTATICBUILD=True
   - 'python setup.py bdist_wheel > NUL:'
   - dir dist\
   - echo finished...

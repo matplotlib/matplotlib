@@ -88,7 +88,8 @@ options = {
     'display_status': True,
     'verbose': False,
     'backend': None,
-    'basedirlist': None
+    'basedirlist': None,
+    'staticbuild': False,
     }
 
 
@@ -118,6 +119,9 @@ else:
 
 lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
+
+staticbuild = bool(os.environ.get('MPLSTATICBUILD', True))
+options['staticbuild'] = staticbuild or options.get('staticbuild', False)
 
 
 def get_win32_compiler():
@@ -305,6 +309,23 @@ def get_file_hash(filename):
             hasher.update(buf)
             buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
+
+
+def deplib(libname):
+    if sys.platform != 'win32':
+        return libname
+
+    known_libs = {
+        # TODO: support versioned libpng on build system revrite
+        'png': ('libpng', '_static'),
+        'z': ('zlib', 'static'),
+    }
+
+    libname, static_postfix = known_libs[libname]
+    if options['staticbuild']:
+        libname += static_postfix
+
+    return libname
 
 
 class PkgConfig(object):
@@ -1122,7 +1143,7 @@ class FreeType(SetupPackage):
                     'lib/freetype2/include/freetype2'],
                 default_library_dirs=[
                     'freetype2/lib'],
-                default_libraries=['freetype', 'z'])
+                default_libraries=['freetype', deplib('z')])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
@@ -1320,7 +1341,7 @@ class Png(SetupPackage):
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
-            ext, 'libpng', default_libraries=['png', 'z'],
+            ext, 'libpng', default_libraries=map(deplib, ['png', 'z']),
             alt_exec='libpng-config --ldflags')
         Numpy().add_flags(ext)
         return ext
