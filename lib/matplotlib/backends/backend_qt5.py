@@ -233,20 +233,12 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     @_allow_super_init
     def __init__(self, figure):
         _create_qApp()
-        figure._original_dpi = figure.dpi
-
         super(FigureCanvasQT, self).__init__(figure=figure)
 
+        figure._original_dpi = figure.dpi
         self.figure = figure
         self._update_figure_dpi()
-
-        w, h = self.get_width_height()
-        self.resize(w, h)
-
-        self.setMouseTracking(True)
-        # Key auto-repeat enabled by default
-        self._keyautorepeat = True
-
+        self.resize(*self.get_width_height())
         # In cases with mixed resolution displays, we need to be careful if the
         # dpi_ratio changes - in this case we need to resize the canvas
         # accordingly. We could watch for screenChanged events from Qt, but
@@ -255,6 +247,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # dpi_ratio value here and in paintEvent we resize the canvas if
         # needed.
         self._dpi_ratio_prev = None
+
+        self.setMouseTracking(True)
+        # Key auto-repeat enabled by default
+        self._keyautorepeat = True
 
     @property
     def _dpi_ratio(self):
