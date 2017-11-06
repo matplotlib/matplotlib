@@ -619,7 +619,6 @@ Artist Methods
    :template: autosummary.rst
    :nosignatures:
 
-   Axes.is_figure_set
    Axes.remove
    Axes.is_transform_set
 
