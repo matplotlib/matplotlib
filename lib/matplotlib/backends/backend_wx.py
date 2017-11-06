@@ -684,8 +684,8 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._onCaptureLost)
         self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._onCaptureLost)
 
-        # Reduce flicker.
-        self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
+        self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
+        self.SetBackgroundColour(wx.WHITE)
 
         self.macros = {}  # dict from wx id to seq of macros
 
@@ -940,13 +940,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         else:
             self.gui_repaint(drawDC=drawDC)
         evt.Skip()
-
-    def _onEraseBackground(self, evt):
-        """
-        Called when window is redrawn; since we are blitting the entire
-        image, we can leave this blank to suppress flicker.
-        """
-        pass
 
     def _onSize(self, evt):
         """

@@ -252,6 +252,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
 
+        palette = QtGui.QPalette(QtCore.Qt.white)
+        self.setPalette(palette)
+
     @property
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
