@@ -306,6 +306,16 @@ class Tick(artist.Artist):
         self.label2.set_text(s)
         self.stale = True
 
+    def set_url(self, s):
+        """
+        Set the url of label1 and label2
+
+        ACCEPTS: str
+        """
+        self.label1.set_url(s)
+        self.label2.set_url(s)
+        self.stale = True
+
     def _set_artist_props(self, a):
         a.set_figure(self.figure)
 
