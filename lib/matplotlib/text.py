@@ -1219,13 +1219,14 @@ class Text(Artist):
 
     def set_usetex(self, usetex):
         """
-        Set whether to render using TeX.
+        Parameters
+        ----------
+        usetex : bool or None
+            Whether to render using TeX, ``None`` means to use the
+            ``rcParams['text.usetex']``.
 
-        If ``None`` is given, the option will be reset to use the value of
-        ``rcParams['text.usetex']``.
-
-        ..
-            ACCEPTS: Optional[bool]
+            ..
+                ACCEPTS: bool or None
         """
         if usetex is None:
             self._usetex = rcParams['text.usetex']

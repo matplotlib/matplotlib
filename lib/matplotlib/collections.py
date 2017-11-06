@@ -373,13 +373,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_urls(self, urls):
         """
-        ..
-            ACCEPTS: Optional[Iterable[str]]
+        Parameters
+        ----------
+        urls : List[str] or None
+            ..
+                ACCEPTS: List[str] or None
         """
-        if urls is None:
-            self._urls = [None, ]
-        else:
-            self._urls = urls
+        self._urls = urls if urls is not None else [None]
         self.stale = True
 
     def get_urls(self):

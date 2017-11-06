@@ -2203,23 +2203,20 @@ class _AxesBase(martist.Artist):
 
     def set_rasterization_zorder(self, z):
         """
-        Set zorder value below which artists will be rasterized.  Set to
-        ``None`` to disable rasterizing of artists below a particular zorder.
-
-        ..
-            ACCEPTS: Optional[float]
-
         Parameters
         ----------
-        z : Optional[float]
+        z : float or None
+            zorder below which artists are rasterized.  ``None`` means that
+            artists do not get rasterized based on zorder.
+
+            ..
+                ACCEPTS: float or None
         """
         self._rasterization_zorder = z
         self.stale = True
 
     def get_rasterization_zorder(self):
-        """
-        Get zorder value below which artists will be rasterized
-        """
+        """Return the zorder value below which artists will be rasterized."""
         return self._rasterization_zorder
 
     def autoscale(self, enable=True, axis='both', tight=None):

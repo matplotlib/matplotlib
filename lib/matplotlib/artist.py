@@ -538,9 +538,9 @@ class Artist(object):
 
         Parameters
         ----------
-        snap : Optional[bool]
+        snap : bool or None
             ..
-                ACCEPTS: Optional[bool]
+                ACCEPTS: bool or None
         """
         self._snap = snap
         self.stale = True
@@ -783,13 +783,13 @@ class Artist(object):
         """
         Force rasterized (bitmap) drawing in vector backend output.
 
-        Defaults to None, which implies the backend's default behavior
+        Defaults to None, which implies the backend's default behavior.
 
         Parameters
         ----------
-        rasterized : Optional[bool]
+        rasterized : bool or None
             ..
-                ACCEPTS: [True | False | None]
+                ACCEPTS: bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
