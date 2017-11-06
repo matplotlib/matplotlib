@@ -255,7 +255,7 @@ class TriContourSet(ContourSet):
 
         tricontourf-only keyword arguments:
 
-          *antialiased*: [ *True* | *False* ]
+          *antialiased*: bool
             enable antialiasing
 
         Note: tricontourf fills intervals that are closed at the top; that

@@ -893,21 +893,18 @@ def axes(arg=None, **kwargs):
         `.Figure.add_axes` respectively. Some common keyword arguments are
         listed below:
 
-        =========   ==============   ==============================================
-        kwarg       Accepts          Description
-        =========   ==============   ==============================================
-        facecolor   color            the axes background color
-        frameon     [True|False]     display the frame?
-        sharex      otherax          current axes shares xaxis attribute
-                                     with otherax
-        sharey      otherax          current axes shares yaxis attribute
-                                     with otherax
-        polar       [True|False]     use a polar axes?
-        aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
-                                     the ratio of y-unit/x-unit in screen-space.
-                                     Also see
-                                     :meth:`~matplotlib.axes.Axes.set_aspect`.
-        =========   ==============   ==============================================
+        ========= =========== =================================================
+        kwarg     Accepts     Description
+        ========= =========== =================================================
+        facecolor color       the axes background color
+        frameon   bool        whether to display the frame
+        sharex    otherax     share x-axis with *otherax*
+        sharey    otherax     share y-axis with *otherax*
+        polar     bool        whether to use polar axes
+        aspect    [str | num] ['equal', 'auto'] or a number.  If a number, the
+                              ratio of y-unit/x-unit in screen-space.  See also
+                              `~.Axes.set_aspect`.
+        ========= =========== =================================================
 
     Returns
     -------

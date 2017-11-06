@@ -445,17 +445,16 @@ class _AxesBase(martist.Artist):
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
           *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
-          *autoscale_on*     [ *True* | *False* ] whether or not to
-                             autoscale the *viewlim*
-          *axisbelow*        [ *True* | *False* | 'line'] draw the grids
+          *autoscale_on*     bool; whether to autoscale the *viewlim*
+          *axisbelow*        [ bool | 'line' ] draw the grids
                              and ticks below or above most other artists,
                              or below lines but above patches
           *cursor_props*     a (*float*, *color*) tuple
           *figure*           a :class:`~matplotlib.figure.Figure`
                              instance
-          *frame_on*         a boolean - draw the axes frame
+          *frame_on*         bool; whether to draw the axes frame
           *label*            the axes label
-          *navigate*         [ *True* | *False* ]
+          *navigate*         bool
           *navigate_mode*    [ 'PAN' | 'ZOOM' | None ] the navigation
                              toolbar button status
           *position*         [left, bottom, width, height] in
@@ -465,8 +464,7 @@ class _AxesBase(martist.Artist):
           *sharey*           an class:`~matplotlib.axes.Axes` instance
                              to share the y-axis with
           *title*            the title string
-          *visible*          [ *True* | *False* ] whether the axes is
-                             visible
+          *visible*          bool, whether the axes is visible
           *xlabel*           the xlabel
           *xlim*             (*xmin*, *xmax*) view limits
           *xscale*           [%(scale)s]
@@ -1289,7 +1287,7 @@ class _AxesBase(martist.Artist):
         anchor : None or str or 2-tuple of float, optional
             If not ``None``, this defines where the Axes will be drawn if there
             is extra space due to aspect constraints. The most common way to
-            to specify the anchor are abbreviations of carindal directions:
+            to specify the anchor are abbreviations of cardinal directions:
 
             =====   =====================
             value   description
@@ -2322,14 +2320,14 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        enable : [True | False | None], optional
+        enable : bool or None, optional
             True (default) turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
 
         axis : ['both' | 'x' | 'y'], optional
             which axis to operate on; default is 'both'
 
-        tight: [None | True | False], optional
+        tight: bool or None, optional
             If True, set view limits to data limits;
             if False, let the locator and margins expand the view limits;
             if None, use tight scaling if the only artist is an image,
@@ -2667,7 +2665,7 @@ class _AxesBase(martist.Artist):
                            be used for numbers outside the range
                            10`m`:sup: to 10`n`:sup:.
                            Use (0,0) to include all numbers.
-          *useOffset*      [True | False | offset]; if True,
+          *useOffset*      [ bool | offset ]; if True,
                            the offset will be calculated as needed;
                            if False, no offset will be used; if a
                            numeric offset is specified, it will be
@@ -2752,7 +2750,7 @@ class _AxesBase(martist.Artist):
         axis : ['both' | 'x' | 'y'], optional
             The axis on which to operate.
 
-        tight : [None | True | False], optional
+        tight : bool or None, optional
             Parameter passed to :meth:`autoscale_view`.
             Default is None, for no change.
 

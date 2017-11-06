@@ -1118,7 +1118,7 @@ class Legend(Artist):
         self.stale = True
 
     def get_title(self):
-        'Return `~.text.Text` instance for the legend title.'
+        'Return the `~.Text` instance for the legend title.'
         return self._legend_title_box._text
 
     def get_window_extent(self, *args, **kwargs):
@@ -1126,24 +1126,24 @@ class Legend(Artist):
         return self.legendPatch.get_window_extent(*args, **kwargs)
 
     def get_frame_on(self):
-        """
-        Get whether the legend box patch is drawn.
-        """
+        """Get whether the legend box patch is drawn."""
         return self._drawFrame
 
     def set_frame_on(self, b):
         """
-        Set whether the legend box patch is drawn
+        Set whether the legend box patch is drawn.
 
-        ACCEPTS: [ *True* | *False* ]
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         self._drawFrame = b
         self.stale = True
 
     def get_bbox_to_anchor(self):
-        """
-        Return the bbox that the legend will be anchored.
-        """
+        """Return the bbox that the legend will be anchored to."""
         if self._bbox_to_anchor is None:
             return self.parent.bbox
         else:
@@ -1151,16 +1151,15 @@ class Legend(Artist):
 
     def set_bbox_to_anchor(self, bbox, transform=None):
         """
-        Set the bbox that the legend will be anchored.
+        Set the bbox that the legend will be anchored to.
 
         *bbox* can be
 
         - A `~.BboxBase` instance
         - A tuple of ``(left, bottom, width, height)`` in the given transform
           (normalized axes coordinate if None)
-        - A tuple of ``[left, bottom]`` where the width and height will be
+        - A tuple of ``(left, bottom)`` where the width and height will be
           assumed to be zero.
-
         """
         if bbox is None:
             self._bbox_to_anchor = None

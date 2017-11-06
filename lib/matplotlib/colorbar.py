@@ -88,7 +88,7 @@ colormap_kw_doc = '''
                   be given, indicating the lengths of the minimum and
                   maximum colorbar extensions respectively as a
                   fraction of the interior colorbar length.
-    *extendrect*  [ *False* | *True* ]
+    *extendrect*  bool
                   If *False* the minimum and maximum colorbar extensions
                   will be triangular (the default). If *True* the
                   extensions will be rectangular.
@@ -106,8 +106,8 @@ colormap_kw_doc = '''
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
-    *drawedges*   [ False | True ] If true, draw lines at color
-                  boundaries.
+    *drawedges*   bool
+                  Whether to draw lines at color boundaries.
     ============  ====================================================
 
     The following will probably be useful only in the context of

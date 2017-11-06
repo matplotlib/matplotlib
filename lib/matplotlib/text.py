@@ -576,29 +576,30 @@ class Text(Artist):
         """
         Set whether artist uses clipping.
 
-        When False artists will be visible out side of the axes which
-        can lead to unexpected results.
+        When False, artists will be visible outside of the axes, which can lead
+        to unexpected results.
 
-        ACCEPTS: [True | False]
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         super(Text, self).set_clip_on(b)
         self._update_clip_properties()
 
     def get_wrap(self):
-        """
-        Returns the wrapping state for the text.
-        """
+        """Returns the wrapping state for the text."""
         return self._wrap
 
     def set_wrap(self, wrap):
         """Sets the wrapping state for the text.
 
-        ..
-            ACCEPTS: bool
-
         Parameters
         ----------
         wrap : bool
+            ..
+                ACCEPTS: bool
         """
         self._wrap = wrap
 
