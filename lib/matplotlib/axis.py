@@ -2227,14 +2227,17 @@ class YAxis(Axis):
         )
 
     def set_offset_position(self, position):
+        """
+        ..
+            ACCEPTS: [ 'left' | 'right' ]
+        """
         x, y = self.offsetText.get_position()
         if position == 'left':
             x = 0
         elif position == 'right':
             x = 1
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only [ 'left' | 'right' ]")
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))

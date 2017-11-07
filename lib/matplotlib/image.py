@@ -618,7 +618,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Retained for backwards compatibility - use set_data instead
 
-        ACCEPTS: numpy array A or PIL Image"""
+        ACCEPTS: numpy array A or PIL Image
+        """
         # This also needs to be here to override the inherited
         # cm.ScalarMappable.set_array method so it is not invoked
         # by mistake.
