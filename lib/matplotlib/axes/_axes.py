@@ -3033,7 +3033,7 @@ or tuple of floats
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
-            if noxlims.any():
+            if noxlims.any() or len(noxlims) == 0:
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
                 barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
@@ -3082,7 +3082,7 @@ or tuple of floats
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
-            if noylims.any():
+            if noylims.any() or len(noylims) == 0:
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
                 barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
