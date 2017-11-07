@@ -1807,7 +1807,7 @@ class BackendWxAgg(OptionalBackendPackage):
                 _wx_ensure_failed = wxversion.VersionError
 
             try:
-                wxversion.ensureMinimal('2.8')
+                wxversion.ensureMinimal('2.9')
             except _wx_ensure_failed:
                 pass
 
@@ -1817,13 +1817,9 @@ class BackendWxAgg(OptionalBackendPackage):
         except ImportError:
             raise CheckFailed("requires wxPython")
 
-        # Extra version check in case wxversion lacks AlreadyImportedError;
-        # then VersionError might have been raised and ignored when
-        # there really *is* a problem with the version.
-        major, minor = [int(n) for n in backend_version.split('.')[:2]]
-        if major < 2 or (major < 3 and minor < 8):
+        if not is_min_version(backend_version, "2.9"):
             raise CheckFailed(
-                "Requires wxPython 2.8, found %s" % backend_version)
+                "Requires wxPython 2.9, found %s" % backend_version)
 
         return "version %s" % backend_version
 

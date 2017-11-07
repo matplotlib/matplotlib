@@ -3,25 +3,14 @@
 Embedding In Wx2
 ================
 
-An example of how to use wx or wxagg in an application with the new
-toolbar - comment out the setA_toolbar line for no toolbar
+An example of how to use wxagg in an application with the new
+toolbar - comment out the add_toolbar line for no toolbar
 """
-
-# Matplotlib requires wxPython 2.8+
-# set the wxPython version in lib\site-packages\wx.pth file
-# or if you have wxversion installed un-comment the lines below
-#import wxversion
-#wxversion.ensureMinimal('2.8')
 
 from numpy import arange, sin, pi
 
 import matplotlib
 
-# uncomment the following to use wx rather than wxagg
-#matplotlib.use('WX')
-#from matplotlib.backends.backend_wx import FigureCanvasWx as FigureCanvas
-
-# comment out the following to use wx rather than wxagg
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 

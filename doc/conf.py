@@ -351,7 +351,7 @@ class MyWX(MagicMock):
     class Frame(object):
         pass
 
-    VERSION_STRING = '2.8.12'
+    VERSION_STRING = '2.9'
 
 
 class MyPyQt4(MagicMock):
