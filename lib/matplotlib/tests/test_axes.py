@@ -5412,3 +5412,10 @@ def test_polar_gridlines():
 
     assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
     assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2
+
+
+def test_empty_errorbar_legend():
+    fig, ax = plt.subplots()
+    ax.errorbar([], [], xerr=[], label='empty y')
+    ax.errorbar([], [], yerr=[], label='empty x')
+    ax.legend()
