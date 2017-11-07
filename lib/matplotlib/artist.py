@@ -458,6 +458,7 @@ class Artist(object):
         'Return the picker object used by this artist'
         return self._picker
 
+    @cbook.deprecated("2.2", "artist.figure is not None")
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a
