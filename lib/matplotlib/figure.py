@@ -829,7 +829,7 @@ class Figure(Artist):
         self.dpi = val
         self.stale = True
 
-    def set_figwidth(self, val, forward=False):
+    def set_figwidth(self, val, forward=True):
         """
         Set the width of the figure in inches
 
@@ -837,7 +837,7 @@ class Figure(Artist):
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
-    def set_figheight(self, val, forward=False):
+    def set_figheight(self, val, forward=True):
         """
         Set the height of the figure in inches
 
