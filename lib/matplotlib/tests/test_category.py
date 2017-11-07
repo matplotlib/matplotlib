@@ -243,3 +243,16 @@ class TestPlot(object):
         unit_data = MockUnitData(list(zip(labels, ticks)))
 
         self.axis_test(ax.yaxis, ticks, labels, unit_data)
+
+    def test_scatter_update(self):
+        fig, ax = plt.subplots()
+
+        ax.scatter(['a', 'b'], [0., 3.])
+        ax.scatter(['a', 'b', 'd'], [1., 2., 3.])
+        ax.scatter(['b', 'c', 'd'], [4., 1., 2.])
+        fig.canvas.draw()
+
+        labels = ['a', 'b', 'd', 'c']
+        ticks = [0, 1, 2, 3]
+        unit_data = MockUnitData(list(zip(labels, ticks)))
+        self.axis_test(ax.xaxis, ticks, labels, unit_data)
