@@ -35,7 +35,7 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.inheritance_diagram', 'sphinx.ext.intersphinx',
               'sphinx_gallery.gen_gallery',
               'matplotlib.sphinxext.plot_directive',
-              'sphinxext.github',
+              'sphinxext.github', 'sphinxext.custom_roles',
               'numpydoc']
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']

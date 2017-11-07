@@ -1051,32 +1051,31 @@ class Animation(object):
         writer : :class:`MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
             class to use, such as 'ffmpeg'. If ``None``, defaults to
-            ``rcParams['animation.writer']``.
+            :rc:`animation.writer`.
 
         fps : number, optional
            Frames per second in the movie. Defaults to ``None``, which will use
            the animation's specified interval to set the frames per second.
 
         dpi : number, optional
-           Controls the dots per inch for the movie frames.  This
-           combined with the figure's size in inches controls the size of
-           the movie.  If ``None``, defaults to ``rcparam['savefig.dpi']``.
+           Controls the dots per inch for the movie frames.  This combined with
+           the figure's size in inches controls the size of the movie.  If
+           ``None``, defaults to :rc:`savefig.dpi`.
 
         codec : str, optional
-           The video codec to be used. Not all codecs are supported by
-           a given :class:`MovieWriter`. If ``None``,
-           default to ``rcParams['animation.codec']``.
+           The video codec to be used. Not all codecs are supported
+           by a given :class:`MovieWriter`. If ``None``, default to
+           :rc:`animation.codec`.
 
         bitrate : number, optional
            Specifies the number of bits used per second in the compressed
            movie, in kilobits per second. A higher number means a higher
            quality movie, but at the cost of increased file size. If ``None``,
-           defaults to ``rcParam['animation.bitrate']``.
+           defaults to :rc:`animation.bitrate`.
 
         extra_args : list, optional
-           List of extra string arguments to be passed to the
-           underlying movie utility. If ``None``, defaults to
-           ``rcParams['animation.extra_args']``
+           List of extra string arguments to be passed to the underlying movie
+           utility. If ``None``, defaults to :rc:`animation.extra_args`.
 
         metadata : Dict[str, str], optional
            Dictionary of keys and values for metadata to include in

@@ -28,7 +28,7 @@ def pylab_setup(name=None):
     ----------
     name : str, optional
         The name of the backend to use.  If `None`, falls back to
-        ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
+        ``matplotlib.get_backend()`` (which return :rc:`backend`).
 
     Returns
     -------
