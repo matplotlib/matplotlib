@@ -5182,7 +5182,21 @@ class Axes(_AxesBase):
             return X, Y, C
 
         if len(args) == 3:
-            X, Y, C = [np.asanyarray(a) for a in args]
+            # Check x and y for bad data...
+            C = np.asanyarray(args[2])
+            X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
+            if funcname == 'pcolormesh':
+                if np.ma.is_masked(X) or np.ma.is_masked(Y):
+                    raise ValueError(
+                        'x and y arguments to pcolormesh cannot have '
+                        'non-finite values or be of type '
+                        'numpy.ma.core.MaskedArray with masked values')
+                # safe_masked_invalid() returns an ndarray for dtypes other
+                # than floating point.
+                if isinstance(X, np.ma.core.MaskedArray):
+                    X = X.data  # strip mask as downstream doesn't like it...
+                if isinstance(Y, np.ma.core.MaskedArray):
+                    Y = Y.data
             numRows, numCols = C.shape
         else:
             raise TypeError(
@@ -5577,7 +5591,6 @@ class Axes(_AxesBase):
         # convert to one dimensional arrays
         C = C.ravel()
         coords = np.column_stack((X, Y)).astype(float, copy=False)
-
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
                                     **kwargs)
