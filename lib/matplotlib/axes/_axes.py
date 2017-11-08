@@ -5576,7 +5576,11 @@ class Axes(_AxesBase):
 
         # convert to one dimensional arrays
         C = C.ravel()
-        coords = np.column_stack((X, Y)).astype(float, copy=False)
+        try:
+            coords = np.column_stack((X, Y)).astype(float, copy=False)
+        except TypeError:
+            # masked arrays, at least, don't allow copy kwarg:
+            coords = np.column_stack((X, Y)).astype(float)
 
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,

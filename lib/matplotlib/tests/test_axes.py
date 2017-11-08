@@ -1174,6 +1174,15 @@ def test_pcolor_datetime_axis():
             label.set_rotation(30)
 
 
+def test_pcolor_masked():
+    # This just tests that this runs...
+    x = np.linspace(0, 1, 4)
+    xx, yy = np.meshgrid(x, x)
+    xx = np.ma.masked_array(xx, mask=(xx > 0.5))
+    yy = np.ma.masked_array(yy, mask=(xx > 0.5))
+    plt.pcolormesh(xx, yy, xx*yy)
+
+
 def test_pcolorargs():
     n = 12
     x = np.linspace(-1.5, 1.5, n)
