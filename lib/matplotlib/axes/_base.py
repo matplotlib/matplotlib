@@ -481,7 +481,6 @@ class _AxesBase(martist.Artist):
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
-        self._in_init = True
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
         else:
@@ -579,8 +578,6 @@ class _AxesBase(martist.Artist):
             right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
             which='major')
 
-        self._in_init = False
-
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
@@ -612,11 +609,11 @@ class _AxesBase(martist.Artist):
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
-        self.spines['bottom'].register_axis(self.xaxis, _init=True)
-        self.spines['top'].register_axis(self.xaxis, _init=True)
+        self.spines['bottom'].register_axis(self.xaxis)
+        self.spines['top'].register_axis(self.xaxis)
         self.yaxis = maxis.YAxis(self)
-        self.spines['left'].register_axis(self.yaxis, _init=True)
-        self.spines['right'].register_axis(self.yaxis, _init=True)
+        self.spines['left'].register_axis(self.yaxis)
+        self.spines['right'].register_axis(self.yaxis)
         self._update_transScale()
 
     def set_figure(self, fig):
@@ -980,13 +977,10 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        # Don't clear during __init__ because they're already been cleared by
-        # their own __init__.
-        if not self._in_init:
-            self.xaxis.cla()
-            self.yaxis.cla()
-            for name, spine in six.iteritems(self.spines):
-                spine.cla()
+        self.xaxis.cla()
+        self.yaxis.cla()
+        for name, spine in six.iteritems(self.spines):
+            spine.cla()
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()
