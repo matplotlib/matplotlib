@@ -312,6 +312,7 @@ class Tick(artist.Artist):
 
         ACCEPTS: str
         """
+        super(Tick, self).set_url(s)
         self.label1.set_url(s)
         self.label2.set_url(s)
         self.stale = True
