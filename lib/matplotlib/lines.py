@@ -550,8 +550,8 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        every: None | int | length-2 tuple of int | slice | list/array of int |
-        float | length-2 tuple of float
+        every: None | int | length-2 tuple of int | slice | list/array of int \
+| float | length-2 tuple of float
             Which markers to plot.
 
             - every=None, every point will be plotted.
