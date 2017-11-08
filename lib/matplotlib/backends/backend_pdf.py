@@ -2591,7 +2591,8 @@ class FigureCanvasPdf(FigureCanvasBase):
                 bbox_inches_restore=_bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
-            file.finalize()
+            if not isinstance(filename, PdfPages):
+                file.finalize()
         finally:
             if isinstance(filename, PdfPages):  # finish off this page
                 file.endStream()
