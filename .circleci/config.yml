@@ -28,6 +28,35 @@ apt-run:  &apt-install
       libgeos-dev \
       otf-freefont
 
+conda36-run:  &conda36-install
+  name: Install conda
+  command: |
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+      -O miniconda.sh
+    chmod +x miniconda.sh && ./miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    echo $PATH
+    conda update --yes --quiet conda
+
+    # Configure the conda environment and put it in the path using the
+    # provided versions
+    conda create -n testenv --yes --quiet python
+    source activate testenv
+
+conda27-run:  &conda27-install
+  name: Install conda
+  command: |
+    wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh \
+      -O miniconda.sh
+    chmod +x miniconda.sh && ./miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    conda update --yes --quiet conda
+
+    # Configure the conda environment and put it in the path using the
+    # provided versions
+    conda create -n testenv --yes --quiet python
+    source activate testenv
+
 fonts-run:  &fonts-install
   name: Install custom fonts
   # We manually install Humor-Sans using the package from Ubuntu 14.10.
@@ -52,23 +81,40 @@ pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
   name: Upgrade pip, setuptools, wheel
   command: |
-    pip install --upgrade --user pip
-    pip install --upgrade --user wheel
-    pip install --upgrade --user setuptools
+    export PATH="$HOME/miniconda/bin:$PATH"
+    source activate testenv
+    pip install --upgrade pip
+    pip install --upgrade wheel
+    pip install --upgrade setuptools
 
 deps-run: &deps-install
   name: Install Python dependencies
   command: |
-    pip install --user numpy${NUMPY_VERSION} codecov coverage
-    pip install --user -r doc-requirements.txt
+    export PATH="$HOME/miniconda/bin:$PATH"
+    source activate testenv
+    pip install numpy${NUMPY_VERSION} codecov coverage
+    pip install -r doc-requirements.txt
 
 mpl-run: &mpl-install
   name: Install Matplotlib
-  command: pip install --user -ve .
+  command: |
+    export PATH="$HOME/miniconda/bin:$PATH"
+    source activate testenv
+    pip install -ve .
+
+linkchecker-run: &linkchecker-install
+  name: Install linkchecker
+  command: |
+    export PATH="$HOME/miniconda/bin:$PATH"
+    source activate testenv
+    pip install $PRE requests==2.9.2 linkchecker
 
 doc-run: &doc-build
   name: Build documentation
-  command: python make.py html
+  command: |
+    export PATH="$HOME/miniconda/bin:$PATH"
+    source activate testenv
+    make
   working_directory: doc
 
 doc-bundle-run: &doc-bundle
@@ -82,13 +128,14 @@ doc-bundle-run: &doc-bundle
 #
 
 jobs:
-  docs-python35:
+  docs-python36:
     docker:
-      - image: circleci/python:3.5
+      - image: circleci/python:3.6
     steps:
       - checkout
 
       - run: *apt-install
+      - run: *conda36-install
       - run: *fonts-install
       - run: *pip-install
 
@@ -122,6 +169,7 @@ jobs:
       - checkout
 
       - run: *apt-install
+      - run: *conda27-install
       - run: *fonts-install
       - run: *pip-install
 
@@ -131,7 +179,7 @@ jobs:
             NUMPY_VERSION: "==1.7.1"
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
-      - run: pip install --user $PRE requests==2.9.2 linkchecker
+      - run: *linkchecker-install
       - run: *mpl-install
 
       - run: *doc-build
@@ -142,7 +190,10 @@ jobs:
       # Linkchecker only works with python 2.7 for the time being
       - run:
           name: linkchecker
-          command: ~/.local/bin/linkchecker build/html/index.html
+          command: |
+            export PATH="$HOME/miniconda/bin:$PATH"
+            source activate testenv
+            linkchecker build/html/index.html
           working_directory: doc
 
       - run: *doc-bundle
@@ -165,5 +216,5 @@ workflows:
   version: 2
   build:
     jobs:
-      - docs-python35
+      - docs-python36
       - docs-python27
