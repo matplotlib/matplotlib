@@ -761,8 +761,10 @@ class PolarAxes(Axes):
             kwargs.pop('rlabel_position', 22.5))
 
         Axes.__init__(self, *args, **kwargs)
+        self._in_init = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
+        self._in_init = False
     __init__.__doc__ = Axes.__init__.__doc__
 
     def cla(self):
