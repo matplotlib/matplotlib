@@ -164,7 +164,7 @@ class Spine(mpatches.Patch):
             self._position = ('outward', 0.0)  # in points
             self.set_position(self._position)
 
-    def register_axis(self, axis, _init=False):
+    def register_axis(self, axis):
         """register an axis
 
         An axis should be registered with its corresponding spine from
@@ -172,9 +172,7 @@ class Spine(mpatches.Patch):
         properties when needed.
         """
         self.axis = axis
-        if not _init and self.axis is not None:
-            # Clear the axis when added, but *not* if the caller says it was
-            # just created.
+        if self.axis is not None:
             self.axis.cla()
         self.stale = True
 
