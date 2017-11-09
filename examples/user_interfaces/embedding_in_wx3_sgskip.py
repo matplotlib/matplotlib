@@ -99,10 +99,6 @@ class PlotPanel(wx.Panel):
 
         self.canvas.draw()
 
-    def onEraseBackground(self, evt):
-        # this is supposed to prevent redraw flicker on some X servers...
-        pass
-
 
 class MyApp(wx.App):
     def OnInit(self):

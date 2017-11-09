@@ -176,8 +176,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
-            master=master, width=w, height=h, borderwidth=0,
-            highlightthickness=0)
+            master=master, background="white",
+            width=w, height=h, borderwidth=0, highlightthickness=0)
         self._tkphoto = Tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
@@ -661,7 +661,6 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def __init__(self, canvas, window):
         self.canvas = canvas
         self.window = window
-        self._idle = True
         NavigationToolbar2.__init__(self, canvas)
 
     def destroy(self, *args):
