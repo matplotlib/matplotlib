@@ -171,4 +171,25 @@ class Registry(dict):
         return converter
 
 
+class DefaultConverter(ConversionInterface):
+    """
+    Do-nothing converter to catch good entries and lock out other
+    converters.
+    """
+    @staticmethod
+    def convert(obj, unit, axis):
+        """
+        convert obj using unit for the specified axis.  If obj is a sequence,
+        return the converted sequence.  The output must be a sequence of
+        scalars that can be used by the numpy array layer
+        """
+        return np.asarray(obj, dtype=np.float64)
+
+
 registry = Registry()
+registry[np.float64] = DefaultConverter()
+registry[np.float32] = DefaultConverter()
+registry[np.int32] = DefaultConverter()
+registry[np.int64] = DefaultConverter()
+registry[float] = DefaultConverter()
+registry[int] = DefaultConverter()
