@@ -4409,6 +4409,57 @@ def test_empty_shared_subplots():
     assert y1 >= 6
 
 
+def test_shared_with_aspect():
+    # allow sharing one axis
+    for adjustable in ['box', 'datalim']:
+        fig, axes = plt.subplots(nrows=2, sharex=True)
+        axes[0].set_aspect(2, adjustable=adjustable, share=True)
+        assert axes[1].get_aspect() == 2
+        assert axes[1].get_adjustable() == adjustable
+
+        fig, axes = plt.subplots(nrows=2, sharex=True)
+        axes[0].set_aspect(2, adjustable=adjustable)
+        assert axes[1].get_aspect() == 'auto'
+
+    # Share 2 axes only with 'box':
+    fig, axes = plt.subplots(nrows=2, sharex=True, sharey=True)
+    axes[0].set_aspect(2, share=True)
+    axes[0].plot([1, 2], [3, 4])
+    axes[1].plot([3, 4], [1, 2])
+    plt.draw()  # Trigger apply_aspect().
+    assert axes[0].get_xlim() == axes[1].get_xlim()
+    assert axes[0].get_ylim() == axes[1].get_ylim()
+
+    # Different aspect ratios:
+    for adjustable in ['box', 'datalim']:
+        fig, axes = plt.subplots(nrows=2, sharey=True)
+        axes[0].set_aspect(2, adjustable=adjustable)
+        axes[1].set_aspect(0.5, adjustable=adjustable)
+        axes[0].plot([1, 2], [3, 4])
+        axes[1].plot([3, 4], [1, 2])
+        plt.draw()  # Trigger apply_aspect().
+        assert axes[0].get_xlim() != axes[1].get_xlim()
+        assert axes[0].get_ylim() == axes[1].get_ylim()
+        fig_aspect = fig.bbox_inches.height / fig.bbox_inches.width
+        for ax in axes:
+            p = ax.get_position()
+            box_aspect = p.height / p.width
+            lim_aspect = ax.viewLim.height / ax.viewLim.width
+            expected = fig_aspect * box_aspect / lim_aspect
+            assert round(expected, 4) == round(ax.get_aspect(), 4)
+
+
+@pytest.mark.parametrize('twin', ('x', 'y'))
+def test_twin_with_aspect(twin):
+    fig, ax = plt.subplots()
+    # test twinx or twiny
+    ax_twin = getattr(ax, 'twin{}'.format(twin))()
+    ax.set_aspect(5)
+    ax_twin.set_aspect(2)
+    assert_array_equal(ax.bbox.extents,
+                       ax_twin.bbox.extents)
+
+
 def test_relim_visible_only():
     x1 = (0., 10.)
     y1 = (0., 10.)
