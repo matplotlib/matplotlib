@@ -985,6 +985,7 @@ def _normalize_font_family(family):
     return family
 
 
+@cbook.deprecated("2.2")
 class TempCache(object):
     """
     A class to store temporary caches that are (a) not saved to disk
@@ -1270,6 +1271,20 @@ class FontManager(object):
         <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
         for a description of the font finding algorithm.
         """
+        # Pass the relevant rcParams (and the font manager, as `self`) to
+        # _findfont_cached so to prevent using a stale cache entry after an
+        # rcParam was changed.
+        rc_params = tuple(tuple(rcParams[key]) for key in [
+            "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
+            "font.monospace"])
+        return self._findfont_cached(
+            prop, fontext, directory, fallback_to_default, rebuild_if_missing,
+            rc_params)
+
+    @lru_cache()
+    def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
+                         rebuild_if_missing, rc_params):
+
         if not isinstance(prop, FontProperties):
             prop = FontProperties(prop)
         fname = prop.get_file()
@@ -1282,11 +1297,7 @@ class FontManager(object):
         else:
             fontlist = self.ttflist
 
-        if directory is None:
-            cached = _lookup_cache[fontext].get(prop)
-            if cached is not None:
-                return cached
-        else:
+        if directory is not None:
             directory = os.path.normcase(directory)
 
         best_score = 1e64
@@ -1344,11 +1355,9 @@ class FontManager(object):
             else:
                 raise ValueError("No valid font could be found")
 
-        if directory is None:
-            _lookup_cache[fontext].set(prop, result)
         return result
 
-_is_opentype_cff_font_cache = {}
+@lru_cache()
 def is_opentype_cff_font(filename):
     """
     Returns True if the given font is a Postscript Compact Font Format
@@ -1356,14 +1365,10 @@ def is_opentype_cff_font(filename):
     PDF backends that can not subset these fonts.
     """
     if os.path.splitext(filename)[1].lower() == '.otf':
-        result = _is_opentype_cff_font_cache.get(filename)
-        if result is None:
-            with open(filename, 'rb') as fd:
-                tag = fd.read(4)
-            result = (tag == b'OTTO')
-            _is_opentype_cff_font_cache[filename] = result
-        return result
-    return False
+        with open(filename, 'rb') as fd:
+            return fd.read(4) == b"OTTO"
+    else:
+        return False
 
 fontManager = None
 _fmcache = None
@@ -1430,11 +1435,6 @@ else:
         _fmcache = os.path.join(cachedir, 'fontList.json')
 
     fontManager = None
-
-    _lookup_cache = {
-        'ttf': TempCache(),
-        'afm': TempCache()
-    }
 
     def _rebuild():
         global fontManager
