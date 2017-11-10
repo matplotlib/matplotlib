@@ -208,7 +208,7 @@ collaborator:
 
 Now all those people can do::
 
-    git clone https://gith hub.com:your-user-name/matplotlib.git
+    git clone https://github.com/your-user-name/matplotlib.git
 
 Remember that links starting with ``https`` or ``git@`` are read-write, and that 
 ``git@`` uses the ssh protocol; links starting with ``git://`` are read-only.

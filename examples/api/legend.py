@@ -3,7 +3,7 @@
 Legend using pre-defined labels
 ===============================
 
-Notice how the legend labels are defined with the plots!
+Defining legend labels with plots.
 """
 
 

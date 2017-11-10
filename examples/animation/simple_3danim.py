@@ -3,7 +3,7 @@
 3D animation
 ============
 
-A simple example of an animated plot... In 3D!
+An animated plot in 3D.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -3,8 +3,8 @@
 Simple animation examples
 =========================
 
-This example contains two animations. The first is a random walk plot. The
-second is an image animation.
+Two animations where the first is a random walk plot and
+the second is an image animation.
 """
 
 import numpy as np

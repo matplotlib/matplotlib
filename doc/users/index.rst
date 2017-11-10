@@ -12,7 +12,7 @@ User's Guide
 .. toctree::
     :maxdepth: 2
 
-    intro.rst
+    history.rst
     installing.rst
     ../tutorials/index.rst
     interactive.rst
