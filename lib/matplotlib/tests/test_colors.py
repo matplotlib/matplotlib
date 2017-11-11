@@ -701,7 +701,7 @@ def test_ndarray_subclass_norm(recwarn):
         def __add__(self, other):
             raise RuntimeError
 
-    data = np.arange(-10, 10, 1, dtype=float)
+    data = np.arange(1, 10, 1, dtype=float)
 
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
