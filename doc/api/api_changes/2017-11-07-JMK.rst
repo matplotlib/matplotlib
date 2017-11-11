@@ -1,0 +1,7 @@
+`Figure.set_figwidth` and `Figure.set_figheight` default forward to True
+------------------------------------------------------------------------
+
+`matplotlib.Figure.set_figwidth` and `matplotlib.Figure.set_figheight`
+had the kwarg `forward=False`
+by default, but `Figure.set_size_inches` now defaults to `forward=True`.  
+This makes these functions conistent.
