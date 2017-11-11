@@ -275,6 +275,13 @@ class Figure(Artist):
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
 
+    def __repr__(self):
+        return "<{clsname} size {h:g}x{w:g} with {naxes} Axes>".format(
+            clsname=self.__class__.__name__,
+            h=self.bbox.size[0], w=self.bbox.size[1],
+            naxes=len(self.axes),
+        )
+
     def __init__(self,
                  figsize=None,  # defaults to rc figure.figsize
                  dpi=None,  # defaults to rc figure.dpi
