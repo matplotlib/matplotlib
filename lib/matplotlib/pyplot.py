@@ -974,28 +974,22 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Return a subplot axes positioned by the given grid definition.
+    Return a subplot axes at the given grid position.
 
-    Typical call signature::
+    Call signature::
 
-      subplot(nrows, ncols, plot_number)
+       subplot(nrows, ncols, index, **kwargs)
 
-    Where *nrows* and *ncols* are used to notionally split the figure
-    into ``nrows * ncols`` sub-axes, and *plot_number* is used to identify
-    the particular subplot that this function is to create within the notional
-    grid. *plot_number* starts at 1, increments across rows first and has a
-    maximum of ``nrows * ncols``.
+    In the current figure, create and return an `~.Axes`, at position *index*
+    of a (virtual) grid of *nrows* by *ncols* axes.  Indexes go from 1 to
+    ``nrows * ncols``, incrementing in row-major order.
 
-    In the case when *nrows*, *ncols* and *plot_number* are all less than 10,
-    a convenience exists, such that the a 3 digit number can be given instead,
-    where the hundreds represent *nrows*, the tens represent *ncols* and the
-    units represent *plot_number*. For instance::
+    If *nrows*, *ncols* and *index* are all less than 10, they can also be
+    given as a single, concatenated, three-digit number.
 
-      subplot(211)
-
-    produces a subaxes in a figure which represents the top plot (i.e. the
-    first) in a 2 row by 1 column notional grid (no grid actually exists,
-    but conceptually this is how the returned subplot has been positioned).
+    For example, ``subplot(2, 3, 3)`` and ``subplot(233)`` both create an
+    `~.Axes` at the top right corner of the current figure, occupying half of
+    the figure height and a third of the figure width.
 
     .. note::
 
