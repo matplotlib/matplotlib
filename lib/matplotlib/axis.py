@@ -644,11 +644,9 @@ class _LazyDefaultTickList(object):
     def _instantiate_list(self):
         if self.major:
             self.axis.majorTicks = [self.axis._get_tick(major=True)]
-            self.axis._lastNumMajorTicks = 1
             return self.axis.majorTicks
         else:
             self.axis.minorTicks = [self.axis._get_tick(major=False)]
-            self.axis._lastNumMinorTicks = 1
             return self.axis.minorTicks
 
     def __iter__(self):
@@ -1376,22 +1374,15 @@ class Axis(artist.Artist):
             numticks = len(self.get_major_locator()())
         if len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
+            protoTick = self.majorTicks[0]
             for i in range(numticks - len(self.majorTicks)):
                 tick = self._get_tick(major=True)
-                self.majorTicks.append(tick)
-
-        if self._lastNumMajorTicks < numticks:
-            protoTick = self.majorTicks[0]
-            for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
-                tick = self.majorTicks[i]
                 if self._gridOnMajor:
                     tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
+                self.majorTicks.append(tick)
 
-        self._lastNumMajorTicks = numticks
-        ticks = self.majorTicks[:numticks]
-
-        return ticks
+        return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
@@ -1400,22 +1391,15 @@ class Axis(artist.Artist):
 
         if len(self.minorTicks) < numticks:
             # update the new tick label properties from the old
+            protoTick = self.minorTicks[0]
             for i in range(numticks - len(self.minorTicks)):
                 tick = self._get_tick(major=False)
-                self.minorTicks.append(tick)
-
-        if self._lastNumMinorTicks < numticks:
-            protoTick = self.minorTicks[0]
-            for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
-                tick = self.minorTicks[i]
                 if self._gridOnMinor:
                     tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
+                self.minorTicks.append(tick)
 
-        self._lastNumMinorTicks = numticks
-        ticks = self.minorTicks[:numticks]
-
-        return ticks
+        return self.minorTicks[:numticks]
 
     def grid(self, b=None, which='major', **kwargs):
         """
