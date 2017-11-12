@@ -668,6 +668,21 @@ Make sure you have pip >= 9.0.1.
         return sys.version
 
 
+class get_pybind_include(object):
+    """Helper class to determine the pybind11 include path.
+
+    The purpose of this class is to postpone importing pybind11 until it is
+    actually installed, so that the ``get_include()`` method can be invoked.
+    """
+
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
+        import pybind11
+        return pybind11.get_include(self.user)
+
+
 class Matplotlib(SetupPackage):
     name = "matplotlib"
 
@@ -1198,6 +1213,22 @@ class FT2Font(SetupPackage):
         return ext
 
 
+class FT2(SetupPackage):
+    name = "ft2"
+
+    def get_extension(self):
+        ext = make_extension(
+            "matplotlib._ft2", sorted(glob.glob("src/ft2/*.cpp")))
+        if sys.platform in ["linux", "darwin"]:
+            ext.extra_compile_args += ["-std=c++1z", "-Wextra", "-Wpedantic"]
+        elif sys.platform == "win32":
+            ext.extra_compile_args += ["/std:c++17"]
+        ext.include_dirs += [
+            get_pybind_include(), get_pybind_include(user=True)]
+        FreeType().add_flags(ext)
+        return ext
+
+
 class Png(SetupPackage):
     name = "png"
     pkg_names = {
@@ -1365,6 +1396,7 @@ class InstallRequires(SetupPackage):
         return [
             "cycler>=0.10",
             "kiwisolver>=1.0.1",
+            "pybind11",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
             "pytz",

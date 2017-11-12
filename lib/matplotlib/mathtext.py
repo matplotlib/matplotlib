@@ -31,17 +31,14 @@ from pyparsing import (
 
 ParserElement.enablePackrat()
 
-from matplotlib import _png, cbook, colors as mcolors, get_data_path, rcParams
+from matplotlib import (
+    _ft2, _png, cbook, colors as mcolors, get_data_path, rcParams)
 from matplotlib.afm import AFM
 from matplotlib.cbook import get_realpath_and_stat
-from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
                                        tex2uni, latex_to_cmex,
                                        stix_virtual_fonts)
-
-####################
-
 
 
 ##############################################################################
@@ -132,7 +129,8 @@ class MathtextBackend(object):
         Get the FreeType hinting type to use with this particular
         backend.
         """
-        return LOAD_NO_HINTING
+        return _ft2.LOAD_NO_HINTING
+
 
 class MathtextBackendAgg(MathtextBackend):
     """
@@ -140,79 +138,38 @@ class MathtextBackendAgg(MathtextBackend):
     transferred to the Agg image by the Agg backend.
     """
     def __init__(self):
-        self.ox = 0
-        self.oy = 0
-        self.image = None
-        self.mode = 'bbox'
-        self.bbox = [0, 0, 0, 0]
-        MathtextBackend.__init__(self)
-
-    def _update_bbox(self, x1, y1, x2, y2):
-        self.bbox = [min(self.bbox[0], x1),
-                     min(self.bbox[1], y1),
-                     max(self.bbox[2], x2),
-                     max(self.bbox[3], y2)]
-
-    def set_canvas_size(self, w, h, d):
-        MathtextBackend.set_canvas_size(self, w, h, d)
-        if self.mode != 'bbox':
-            self.image = FT2Image(np.ceil(w), np.ceil(h + max(d, 0)))
+        super(MathtextBackendAgg, self).__init__()
+        self._positioned_glyphs = []
+        self._rectangles = []
 
     def render_glyph(self, ox, oy, info):
-        if self.mode == 'bbox':
-            self._update_bbox(ox + info.metrics.xmin,
-                              oy - info.metrics.ymax,
-                              ox + info.metrics.xmax,
-                              oy - info.metrics.ymin)
-        else:
-            info.font.draw_glyph_to_bitmap(
-                self.image, ox, oy - info.metrics.iceberg, info.glyph,
-                antialiased=rcParams['text.antialiased'])
+        self._positioned_glyphs.append((info.glyph, ox, oy))
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        if self.mode == 'bbox':
-            self._update_bbox(x1, y1, x2, y2)
-        else:
-            height = max(int(y2 - y1) - 1, 0)
-            if height == 0:
-                center = (y2 + y1) / 2.0
-                y = int(center - (height + 1) / 2.0)
-            else:
-                y = int(y1)
-            self.image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
+        self._rectangles.append((x1, x2, y1, y2))
 
     def get_results(self, box, used_characters):
-        self.mode = 'bbox'
-        orig_height = box.height
-        orig_depth  = box.depth
         ship(0, 0, box)
-        bbox = self.bbox
-        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
-        self.mode = 'render'
-        self.set_canvas_size(
-            bbox[2] - bbox[0],
-            (bbox[3] - bbox[1]) - orig_depth,
-            (bbox[3] - bbox[1]) - orig_height)
-        ship(-bbox[0], -bbox[1], box)
-        result = (self.ox,
-                  self.oy,
-                  self.width,
-                  self.height + self.depth,
-                  self.depth,
-                  self.image,
-                  used_characters)
-        self.image = None
-        return result
+        layout = _ft2.Layout.manual(
+            self._positioned_glyphs, self._rectangles, self.get_hinting_type())
+        return (0, 0,
+                self.width,
+                self.height + self.depth,
+                self.depth,
+                layout.render(antialiased=rcParams["text.antialiased"]),
+                used_characters)
 
     def get_hinting_type(self):
         from matplotlib.backends import backend_agg
         return backend_agg.get_hinting_flag()
+
 
 class MathtextBackendBitmap(MathtextBackendAgg):
     def get_results(self, box, used_characters):
         ox, oy, width, height, depth, image, characters = \
             MathtextBackendAgg.get_results(self, box, used_characters)
         return image, depth
+
 
 class MathtextBackendPs(MathtextBackend):
     """
@@ -264,7 +221,7 @@ class MathtextBackendPdf(MathtextBackend):
         self.rects = []
 
     def render_glyph(self, ox, oy, info):
-        filename = info.font.fname
+        filename = info.font.pathname
         oy = self.height - oy + info.offset
         self.glyphs.append(
             (ox, oy, filename, info.fontsize,
@@ -475,7 +432,7 @@ class Fonts(object):
           - *dpi*: The dpi to draw at.
         """
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
-        realpath, stat_key = get_realpath_and_stat(info.font.fname)
+        realpath, stat_key = get_realpath_and_stat(info.font.pathname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].add(info.num)
@@ -528,8 +485,8 @@ class Fonts(object):
 
 class TruetypeFonts(Fonts):
     """
-    A generic base class for all font setups that use Truetype fonts
-    (through FT2Font).
+    A generic base class for all font setups that use Truetype fonts (through
+    _ft2).
     """
     def __init__(self, default_font_prop, mathtext_backend):
         Fonts.__init__(self, default_font_prop, mathtext_backend)
@@ -554,12 +511,12 @@ class TruetypeFonts(Fonts):
         if cached_font is None and os.path.exists(basename):
             cached_font = get_font(basename)
             self._fonts[basename] = cached_font
-            self._fonts[cached_font.postscript_name] = cached_font
-            self._fonts[cached_font.postscript_name.lower()] = cached_font
+            self._fonts[cached_font.get_postscript_name()] = cached_font
+            self._fonts[cached_font.get_postscript_name().lower()] = cached_font
         return cached_font
 
     def _get_offset(self, font, glyph, fontsize, dpi):
-        if font.postscript_name == 'Cmex10':
+        if font.get_postscript_name() == 'Cmex10':
             return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
         return 0.
 
@@ -572,30 +529,29 @@ class TruetypeFonts(Fonts):
         font, num, symbol_name, fontsize, slanted = \
             self._get_glyph(fontname, font_class, sym, fontsize, math)
 
-        font.set_size(fontsize, dpi)
-        glyph = font.load_char(
-            num,
-            flags=self.mathtext_backend.get_hinting_type())
+        font.set_char_size(fontsize, dpi)
+        font.load_char(num, flags=self.mathtext_backend.get_hinting_type())
+        glyph = font.glyph
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, xmax, ymin, ymax = glyph.get_cbox(_ft2.GlyphBbox.SUBPIXELS)
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = types.SimpleNamespace(
-            advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0,
-            width   = glyph.width/64.0,
+            advance = glyph.linearHoriAdvance,
+            height  = glyph.height,
+            width   = glyph.width,
             xmin    = xmin,
             xmax    = xmax,
             ymin    = ymin+offset,
             ymax    = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset,
+            iceberg = glyph.horiBearingY + offset,
             slanted = slanted
             )
 
         result = self.glyphd[key] = types.SimpleNamespace(
             font            = font,
             fontsize        = fontsize,
-            postscript_name = font.postscript_name,
+            postscript_name = font.get_postscript_name(),
             metrics         = metrics,
             symbol_name     = symbol_name,
             num             = num,
@@ -606,7 +562,7 @@ class TruetypeFonts(Fonts):
 
     def get_xheight(self, fontname, fontsize, dpi):
         font = self._get_font(fontname)
-        font.set_size(fontsize, dpi)
+        font.set_char_size(fontsize, dpi)
         pclt = font.get_sfnt_table('pclt')
         if pclt is None:
             # Some fonts don't store the xHeight, so we do a poor man's xHeight
@@ -627,9 +583,12 @@ class TruetypeFonts(Fonts):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64.0
-        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
-                              font2, fontclass2, sym2, fontsize2, dpi)
+            kx, ky = font.get_kerning(
+                info1.num, info2.num, _ft2.Kerning.DEFAULT)
+            return kx
+        else:
+            return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
+                                  font2, fontclass2, sym2, fontsize2, dpi)
 
 class BakomaFonts(TruetypeFonts):
     """
@@ -1087,7 +1046,7 @@ class StandardPsFonts(Fonts):
                                 directory=self.basepath)
         with open(filename, 'rb') as fd:
             default_font = AFM(fd)
-        default_font.fname = filename
+        default_font.pathname = filename
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
@@ -1104,7 +1063,7 @@ class StandardPsFonts(Fonts):
             fname = os.path.join(self.basepath, basename + ".afm")
             with open(fname, 'rb') as fd:
                 cached_font = AFM(fd)
-            cached_font.fname = fname
+            cached_font.pathname = fname
             self.fonts[basename] = cached_font
             self.fonts[cached_font.get_fontname()] = cached_font
         return cached_font
@@ -3295,9 +3254,7 @@ class MathTextParser(object):
         assert self._output == "bitmap"
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
-
-        x = ftimage.as_array()
-        return x, depth
+        return ftimage, depth
 
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         """

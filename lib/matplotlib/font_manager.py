@@ -34,14 +34,14 @@ found.
 from collections import Iterable
 from functools import lru_cache
 import json
+import logging
 import os
 import subprocess
 import sys
 from threading import Timer
 import warnings
-import logging
 
-from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
+from matplotlib import _ft2, afm, cbook, rcParams, get_cachedir
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 
@@ -143,9 +143,10 @@ def get_fontext_synonyms(fontext):
     Return a list of file extensions extensions that are synonyms for
     the given file extension *fileext*.
     """
-    return {'ttf': ('ttf', 'otf'),
-            'otf': ('ttf', 'otf'),
-            'afm': ('afm',)}[fontext]
+    for exts in [["afm"], ["otf", "ttf"]]:
+        if fontext in exts:
+            return exts
+    raise ValueError("Unknown font extension")
 
 
 def list_fonts(directory, extensions):
@@ -353,20 +354,19 @@ def ttfFontProperty(font):
 
     Parameters
     ----------
-    font : `.FT2Font`
+    font : `.Font`
         The TrueType font file from which information will be extracted.
 
     Returns
     -------
     `FontEntry`
         The extracted font properties.
-
     """
     name = font.family_name
 
     #  Styles are: italic, oblique, and normal (default)
 
-    sfnt = font.get_sfnt()
+    sfnt = font.get_sfnt_name_table()
     sfnt2 = sfnt.get((1,0,0,2))
     sfnt4 = sfnt.get((1,0,0,4))
     if sfnt2:
@@ -383,7 +383,7 @@ def ttfFontProperty(font):
         style = 'italic'
     elif sfnt2.find('regular') >= 0:
         style = 'normal'
-    elif font.style_flags & ft2font.ITALIC:
+    elif font.style_flags & _ft2.STYLE_FLAG_ITALIC:
         style = 'italic'
     else:
         style = 'normal'
@@ -398,7 +398,7 @@ def ttfFontProperty(font):
 
     weight = next((w for w in weight_dict if sfnt4.find(w) >= 0), None)
     if not weight:
-        if font.style_flags & ft2font.BOLD:
+        if font.style_flags & _ft2.STYLE_FLAG_BOLD:
             weight = 700
         else:
             weight = 400
@@ -427,11 +427,12 @@ def ttfFontProperty(font):
     #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
-    if not font.scalable:
+    if not (font.face_flags & _ft2.FACE_FLAG_SCALABLE):
         raise NotImplementedError("Non-scalable fonts are not supported")
     size = 'scalable'
 
-    return FontEntry(font.fname, name, style, variant, weight, stretch, size)
+    return FontEntry(
+        font.pathname, name, style, variant, weight, stretch, size)
 
 
 def afmFontProperty(fontpath, font):
@@ -501,15 +502,7 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
-def createFontList(fontfiles, fontext='ttf'):
-    """
-    A function to create a font lookup list.  The default is to create
-    a list of TrueType fonts.  An AFM font list can optionally be
-    created.
-    """
-
-    fontlist = []
-    #  Add fonts from list of known font files.
+def _iter_font_list(fontfiles, fontext):
     seen = set()
     for fpath in fontfiles:
         _log.debug('createFontDict: %s', fpath)
@@ -532,28 +525,26 @@ def createFontList(fontfiles, fontext='ttf'):
             finally:
                 fh.close()
             try:
-                prop = afmFontProperty(fpath, font)
+                yield afmFontProperty(fpath, font)
             except KeyError:
                 continue
         else:
             try:
-                font = ft2font.FT2Font(fpath)
+                font = get_font(fpath)
             except RuntimeError:
                 _log.info("Could not open font file %s", fpath)
                 continue
-            except UnicodeError:
-                _log.info("Cannot handle unicode filenames")
-                continue
-            except OSError:
-                _log.info("IO error - cannot open font file %s", fpath)
-                continue
             try:
-                prop = ttfFontProperty(font)
+                yield ttfFontProperty(font)
             except (KeyError, RuntimeError, ValueError, NotImplementedError):
                 continue
 
-        fontlist.append(prop)
-    return fontlist
+
+def createFontList(fontfiles, fontext="ttf"):
+    """
+    Create a font lookup list -- by default TrueType, but AFM is also possible.
+    """
+    return list(_iter_font_list(fontfiles, fontext))
 
 
 class FontProperties(object):
@@ -1246,7 +1237,7 @@ class FontManager(object):
 
         for font in fontlist:
             if (directory is not None and
-                    os.path.commonprefix([os.path.normcase(font.fname),
+                    os.path.commonprefix([os.path.normcase(font.pathname),
                                           directory]) != directory):
                 continue
             # Matching family should have highest priority, so it is multiplied
@@ -1315,12 +1306,11 @@ fontManager = None
 _fmcache = None
 
 
-_get_font = lru_cache(64)(ft2font.FT2Font)
-
-def get_font(filename, hinting_factor=None):
+def get_font(filename, index=0, hinting_factor=None,
+             _get_font=lru_cache(64)(_ft2.Face)):
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
-    return _get_font(filename, hinting_factor)
+    return _get_font(filename, index, hinting_factor)
 
 
 # The experimental fontconfig-based backend.

@@ -13,20 +13,24 @@ apt-run:  &apt-install
   command: |
     sudo apt-get -qq update
     sudo apt-get install -y \
+      cm-super \
+      dvipng \
+      graphviz \
       inkscape \
       libav-tools \
-      dvipng \
-      pgf \
+      libgeos-dev \
       lmodern \
-      cm-super \
+      otf-freefont \
+      pgf \
+      software-properties-common \
+      texlive-fonts-recommended \
       texlive-latex-base \
       texlive-latex-extra \
-      texlive-fonts-recommended \
       texlive-latex-recommended \
-      texlive-xetex \
-      graphviz \
-      libgeos-dev \
-      otf-freefont
+      texlive-xetex
+    sudo add-apt-repository 'deb http://ftp.us.debian.org/debian testing main'
+    sudo apt-get update
+    sudo apt-get install g++-7
 
 fonts-run:  &fonts-install
   name: Install custom fonts
@@ -64,7 +68,10 @@ deps-run: &deps-install
 
 mpl-run: &mpl-install
   name: Install Matplotlib
-  command: pip install --user -ve .
+  command: |
+    ls /usr/include/freetype2
+    cat /usr/include/freetype2/ft2build.h
+    CC=gcc-7 CXX=g++-7 pip install --user -ve .
 
 doc-run: &doc-build
   name: Build documentation

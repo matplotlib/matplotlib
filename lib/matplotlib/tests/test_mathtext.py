@@ -197,11 +197,10 @@ def test_mathfont_rendering(baseline_images, fontset, index, test):
 
 def test_fontinfo():
     import matplotlib.font_manager as font_manager
-    import matplotlib.ft2font as ft2font
-    fontpath = font_manager.findfont("DejaVu Sans")
-    font = ft2font.FT2Font(fontpath)
+    from matplotlib._ft2 import Face
+    face = Face(font_manager.findfont("DejaVu Sans"))
     table = font.get_sfnt_table("head")
-    assert table['version'] == (1, 0)
+    assert table['Table_Version'] == 65536
 
 
 @pytest.mark.parametrize(

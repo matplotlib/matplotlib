@@ -12,7 +12,7 @@ Features that are implemented
  * alpha blending
  * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
  * draw polygon
- * freetype2 w/ ft2font
+ * freetype2
 
 TODO:
 
@@ -28,19 +28,15 @@ import threading
 import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin
-from matplotlib import cbook, rcParams, __version__
+
+from matplotlib import (
+    _ft2, _png, cbook, colors as mcolors, font_manager, rcParams, __version__)
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, cursors)
-from matplotlib.font_manager import findfont, get_font
-from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
-                                LOAD_DEFAULT, LOAD_NO_AUTOHINT)
+from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
-from matplotlib import colors as mcolors
-
-from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
-from matplotlib import _png
 
 try:
     from PIL import Image
@@ -52,12 +48,12 @@ backend_version = 'v2.2'
 
 def get_hinting_flag():
     mapping = {
-        True: LOAD_FORCE_AUTOHINT,
-        False: LOAD_NO_HINTING,
-        'either': LOAD_DEFAULT,
-        'native': LOAD_NO_AUTOHINT,
-        'auto': LOAD_FORCE_AUTOHINT,
-        'none': LOAD_NO_HINTING
+        True: _ft2.LOAD_FORCE_AUTOHINT,
+        False: _ft2.LOAD_NO_HINTING,
+        'either': _ft2.LOAD_DEFAULT,
+        'native': _ft2.LOAD_NO_AUTOHINT,
+        'auto': _ft2.LOAD_FORCE_AUTOHINT,
+        'none': _ft2.LOAD_NO_HINTING
         }
     return mapping[rcParams['text.hinting']]
 
@@ -105,9 +101,9 @@ class RendererAgg(RendererBase):
 
     def _get_hinting_flag(self):
         if rcParams['text.hinting']:
-            return LOAD_FORCE_AUTOHINT
+            return _ft2.LOAD_FORCE_AUTOHINT
         else:
-            return LOAD_NO_HINTING
+            return _ft2.LOAD_NO_HINTING
 
     # for filtering to work with rasterization, methods needs to be wrapped.
     # maybe there is better way to do it.
@@ -178,7 +174,7 @@ class RendererAgg(RendererBase):
         yd = descent * cos(radians(angle))
         x = np.round(x + ox + xd)
         y = np.round(y - oy + yd)
-        self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
+        self._renderer.draw_text_image(font_image, x, y, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
@@ -192,23 +188,15 @@ class RendererAgg(RendererBase):
 
         if font is None:
             return None
-        if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=flags)
-        else:
-            # We pass '0' for angle here, since it will be rotated (in raster
-            # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
-        d = font.get_descent() / 64.0
+        layout = _ft2.Layout.simple(s, font, flags)
+        d = -np.floor(layout.yMin)
         # The descent needs to be adjusted for the angle.
-        xo, yo = font.get_bitmap_offset()
-        xo /= 64.0
-        yo /= 64.0
         xd = -d * sin(radians(angle))
         yd = d * cos(radians(angle))
 
         self._renderer.draw_text_image(
-            font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
+            layout.render(antialiased=rcParams['text.antialiased']),
+            np.round(x - xd), np.round(y + yd), angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -232,13 +220,10 @@ class RendererAgg(RendererBase):
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)
-        w, h = font.get_width_height()  # width and height of unrotated string
-        d = font.get_descent()
-        w /= 64.0  # convert from subpixels
-        h /= 64.0
-        d /= 64.0
-        return w, h, d
+        layout = _ft2.Layout.simple(s, font, flags)
+        return (layout.xMax - layout.xMin,
+                layout.yMax - layout.yMin,
+                -layout.yMin)
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
@@ -265,13 +250,10 @@ class RendererAgg(RendererBase):
         """
         Get the font for text instance t, cacheing for efficiency
         """
-        fname = findfont(prop)
-        font = get_font(fname)
-
-        font.clear()
+        fname = font_manager.findfont(prop)
+        font = font_manager.get_font(fname)
         size = prop.get_size_in_points()
-        font.set_size(size, self.dpi)
-
+        font.set_char_size(size, self.dpi)
         return font
 
     def points_to_pixels(self, points):

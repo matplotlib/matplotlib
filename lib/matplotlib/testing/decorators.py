@@ -15,18 +15,13 @@ import warnings
 # This allows other functions here to be used by pytest-based testing suites
 # without requiring nose to be installed.
 
-
 import matplotlib as mpl
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
-from matplotlib import cbook
-from matplotlib import ticker
-from matplotlib import pyplot as plt
-from matplotlib import ft2font
-from matplotlib.testing.compare import (
-    comparable_formats, compare_images, make_test_filename)
+from matplotlib import _ft2, cbook, pyplot as plt, ticker
 from . import _copy_metadata, is_called_from_pytest
+from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
 
@@ -152,7 +147,7 @@ def check_freetype_version(ver):
     if isinstance(ver, six.string_types):
         ver = (ver, ver)
     ver = [version.StrictVersion(x) for x in ver]
-    found = version.StrictVersion(ft2font.__freetype_version__)
+    found = version.StrictVersion(_ft2.__freetype_version__)
 
     return found >= ver[0] and found <= ver[1]
 
@@ -163,7 +158,7 @@ def _checked_on_freetype_version(required_freetype_version):
 
     reason = ("Mismatched version of freetype. "
               "Test requires '%s', you have '%s'" %
-              (required_freetype_version, ft2font.__freetype_version__))
+              (required_freetype_version, _ft2.__freetype_version__))
     return _knownfailureif('indeterminate', msg=reason,
                            known_exception_class=ImageComparisonFailure)
 

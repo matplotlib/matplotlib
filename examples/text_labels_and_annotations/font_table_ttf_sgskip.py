@@ -15,7 +15,7 @@ import sys
 import os
 
 import matplotlib
-from matplotlib.ft2font import FT2Font
+from matplotlib import _ft2
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 
@@ -32,8 +32,8 @@ else:
     fontname = os.path.join(matplotlib.get_data_path(),
                             'fonts', 'ttf', 'DejaVuSans.ttf')
 
-font = FT2Font(fontname)
-codes = sorted(font.get_charmap().items())
+font = _ft2.Face(fontname)
+codes = sorted(font.get_charmap().items())  # FIXME
 
 # a 16,16 array of character strings
 chars = [['' for c in range(16)] for r in range(16)]

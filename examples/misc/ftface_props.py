@@ -1,67 +1,53 @@
 """
-============
-Ftface Props
-============
+===============
+Face properties
+===============
 
-This is a demo script to show you how to use all the properties of an
-FT2Font object.  These describe global font properties.  For
-individual character metrics, use the Glyph object, as returned by
-load_char
+This is a demo script to show you how to use all the properties of a Face
+object.  These describe global font properties.  For individual character
+metrics, use the Glyph object, as loaded from the glyph attribute after calling
+load_char.
 """
 import matplotlib
-import matplotlib.ft2font as ft
+from matplotlib import font_manager, _ft2
 
 
-#fname = '/usr/local/share/matplotlib/VeraIt.ttf'
-fname = matplotlib.get_data_path() + '/fonts/ttf/DejaVuSans-Oblique.ttf'
-#fname = '/usr/local/share/matplotlib/cmr10.ttf'
+fname = matplotlib.get_data_path() + "/fonts/ttf/DejaVuSans-Oblique.ttf"
+font = font_manager.get_font(fname)
 
-font = ft.FT2Font(fname)
+print("Faces in file          :", font.num_faces)
+print("Glyphs in face         :", font.num_glyphs)
+print("Family name            :", font.family_name)
+print("Style name             :", font.style_name)
+print("Postscript name        :", font.get_postscript_name())
+print("Embedded bitmap strikes:", font.num_fixed_sizes)
 
-print('Num faces   :', font.num_faces)        # number of faces in file
-print('Num glyphs  :', font.num_glyphs)       # number of glyphs in the face
-print('Family name :', font.family_name)      # face family name
-print('Style name  :', font.style_name)       # face style name
-print('PS name     :', font.postscript_name)  # the postscript name
-print('Num fixed   :', font.num_fixed_sizes)  # number of embedded bitmap in face
+if font.face_flags & _ft2.FACE_FLAG_SCALABLE:
+    print('Global bbox (xmin, ymin, xmax, ymax):', font.bbox)
+    print('Font units per EM                   :', font.units_per_EM)
+    print('Ascender (pixels)                   :', font.ascender)
+    print('Descender (pixels)                  :', font.descender)
+    print('Height (pixels)                     :', font.height)
+    print('Max horizontal advance              :', font.max_advance_width)
+    print('Max vertical advance                :', font.max_advance_height)
+    print('Underline position                  :', font.underline_position)
+    print('Underline thickness                 :', font.underline_thickness)
 
-# the following are only available if face.scalable
-if font.scalable:
-    # the face global bounding box (xmin, ymin, xmax, ymax)
-    print('Bbox                :', font.bbox)
-    # number of font units covered by the EM
-    print('EM                  :', font.units_per_EM)
-    # the ascender in 26.6 units
-    print('Ascender            :', font.ascender)
-    # the descender in 26.6 units
-    print('Descender           :', font.descender)
-    # the height in 26.6 units
-    print('Height              :', font.height)
-    # maximum horizontal cursor advance
-    print('Max adv width       :', font.max_advance_width)
-    # same for vertical layout
-    print('Max adv height      :', font.max_advance_height)
-    # vertical position of the underline bar
-    print('Underline pos       :', font.underline_position)
-    # vertical thickness of the underline
-    print('Underline thickness :', font.underline_thickness)
+for style in ['Style flag italic',
+              'Style flag bold']:
+    flag = getattr(_ft2, style.replace(' ', '_').upper()) - 1
+    print('%-26s:' % style, bool(font.style_flags & flag))
 
-for style in ('Italic',
-              'Bold',
-              'Scalable',
-              'Fixed sizes',
-              'Fixed width',
-              'SFNT',
-              'Horizontal',
-              'Vertical',
-              'Kerning',
-              'Fast glyphs',
-              'Multiple masters',
-              'Glyph names',
-              'External stream'):
-    bitpos = getattr(ft, style.replace(' ', '_').upper()) - 1
-    print('%-17s:' % style, bool(font.style_flags & (1 << bitpos)))
-
-print(dir(font))
-
-print(font.get_kerning)
+for style in ['Face flag scalable',
+              'Face flag fixed sizes',
+              'Face flag fixed width',
+              'Face flag SFNT',
+              'Face flag horizontal',
+              'Face flag vertical',
+              'Face flag kerning',
+              'Face flag fast glyphs',
+              'Face flag multiple masters',
+              'Face flag glyph names',
+              'Face flag external stream']:
+    flag = getattr(_ft2, style.replace(' ', '_').upper())
+    print('%-26s:' % style, bool(font.face_flags & flag))

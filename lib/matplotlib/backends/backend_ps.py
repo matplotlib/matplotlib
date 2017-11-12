@@ -8,36 +8,37 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import StringIO
 
-import glob, os, shutil, sys, time, datetime
+import binascii
+import datetime
+import glob
 import io
 import logging
+import os
+import re
+import shutil
 import subprocess
+import sys
+import tempfile
+import time
 
-from tempfile import mkstemp
-from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
+import numpy as np
+
+from matplotlib import _ft2, _path, __version__, rcParams, checkdep_ghostscript
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
-
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
-from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
-from matplotlib import _path
 from matplotlib.transforms import Affine2D
+from matplotlib.ttconv import convert_ttf_to_ps
 
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 
-
-import numpy as np
-import binascii
-import re
 
 _log = logging.getLogger(__name__)
 
@@ -227,7 +228,7 @@ class RendererPS(RendererBase):
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
-        realpath, stat_key = get_realpath_and_stat(font.fname)
+        realpath, stat_key = get_realpath_and_stat(font.pathname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].update([ord(x) for x in s])
@@ -335,34 +336,25 @@ class RendererPS(RendererBase):
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
-            return w, h, d
-
-        if ismath:
-            width, height, descent, pswriter, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-            return width, height, descent
-
-        if rcParams['ps.useafm']:
+            w, h, d = texmanager.get_text_width_height_descent(
+                s, fontsize, renderer=self)
+        elif ismath:
+            w, h, d, _, _ = self.mathtext_parser.parse(s, 72, prop)
+        elif rcParams['ps.useafm']:
             if ismath: s = s[1:-1]
             font = self._get_font_afm(prop)
-            l,b,w,h,d = font.get_str_bbox_and_descent(s)
-
+            l, b, w, h, d = font.get_str_bbox_and_descent(s)
             fontsize = prop.get_size_in_points()
-            scale = 0.001*fontsize
+            scale = fontsize / 1000
             w *= scale
             h *= scale
             d *= scale
-            return w, h, d
-
-        font = self._get_font_ttf(prop)
-        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-        w, h = font.get_width_height()
-        w /= 64.0  # convert from subpixels
-        h /= 64.0
-        d = font.get_descent()
-        d /= 64.0
+        else:
+            font = self._get_font_ttf(prop)
+            layout = _ft2.Layout.simple(s, font, _ft2.LOAD_NO_HINTING)
+            w = layout.xMax - layout.xMin
+            h = layout.yMax - layout.yMin
+            d = -layout.yMin
         return w, h, d
 
     def flipy(self):
@@ -386,11 +378,9 @@ class RendererPS(RendererBase):
         return font
 
     def _get_font_ttf(self, prop):
-        fname = findfont(prop)
-        font = get_font(fname)
-        font.clear()
+        font = get_font(findfont(prop))
         size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
+        font.set_char_size(size, 72.0)
         return font
 
     def _rgb(self, rgba):
@@ -709,17 +699,11 @@ grestore
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
-            sfnt = font.get_sfnt()
-            try:
-                ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
-            except KeyError:
-                ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
-            ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
-            self.set_font(ps_name, prop.get_size_in_points())
+            self.set_font(
+                font.get_postscript_name(), prop.get_size_in_points())
 
             lastgind = None
             lines = []
@@ -734,18 +718,18 @@ grestore
                     gind = 0
                 else:
                     name = font.get_glyph_name(gind)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
 
                 if lastgind is not None:
-                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
+                    kern, _ = font.get_kerning(
+                        lastgind, gind, _ft2.Kerning.DEFAULT)
                 else:
                     kern = 0
                 lastgind = gind
-                thisx += kern/64.0
+                thisx += kern
 
                 lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
-                thisx += glyph.linearHoriAdvance/65536.0
-
+                font.load_char(ccode, flags=_ft2.LOAD_NO_HINTING)
+                thisx += font.glyph.linearHoriAdvance
 
             thetext = '\n'.join(lines)
             ps = """gsave
@@ -1161,7 +1145,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
-            fd, tmpfile = mkstemp()
+            fd, tmpfile = tempfile.mkstemp()
             try:
                 with io.open(fd, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
@@ -1269,7 +1253,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
 
-        fd, tmpfile = mkstemp()
+        fd, tmpfile = tempfile.mkstemp()
         try:
             with io.open(fd, 'w', encoding='latin-1') as fh:
                 # write the Encapsulated PostScript headers

@@ -8,7 +8,8 @@ Author: Jouni K Seppänen <jks@iki.fi>
 import codecs
 import collections
 from datetime import datetime
-from functools import total_ordering
+from encodings import cp1252
+import functools
 from io import BytesIO
 import logging
 from math import ceil, cos, floor, pi, sin
@@ -23,28 +24,24 @@ import zlib
 
 import numpy as np
 
-from matplotlib import cbook, __version__, rcParams
+import matplotlib
+from matplotlib import (
+    _ft2, _path, _png, cbook, dviread, ttconv, type1font, __version__,
+    rcParams)
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (get_realpath_and_stat,
-                              is_writable_file_like, maxdict)
+from matplotlib.cbook import (
+    get_realpath_and_stat, is_writable_file_like, maxdict)
+from matplotlib.dates import UTC
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
-from matplotlib.afm import AFM
-import matplotlib.type1font as type1font
-import matplotlib.dviread as dviread
-from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED)
 from matplotlib.mathtext import MathTextParser
-from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
-from matplotlib.dates import UTC
-from matplotlib import _path
-from matplotlib import _png
-from matplotlib import ttconv
+from matplotlib.transforms import Affine2D, BboxBase
 
 _log = logging.getLogger(__name__)
 
@@ -247,7 +244,7 @@ class Reference(object):
         write(b"\nendobj\n")
 
 
-@total_ordering
+@functools.total_ordering
 class Name(object):
     """PDF name object."""
     __slots__ = ('name',)
@@ -927,24 +924,15 @@ end"""
                 }
 
             # Make the "Widths" array
-            from encodings import cp1252
-            # The "decoding_map" was changed
-            # to a "decoding_table" as of Python 2.5.
-            if hasattr(cp1252, 'decoding_map'):
-                def decode_char(charcode):
-                    return cp1252.decoding_map[charcode] or 0
-            else:
-                def decode_char(charcode):
-                    return ord(cp1252.decoding_table[charcode])
-
             def get_char_width(charcode):
-                s = decode_char(charcode)
-                width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
-                return cvt(width)
+                s = ord(cp1252.decoding_table[charcode])
+                font.load_char(
+                    s, flags=_ft2.LOAD_NO_SCALE | _ft2.LOAD_NO_HINTING)
+                width = font.glyph.horiAdvance
+                return cvt(width * 64)
 
             widths = [get_char_width(charcode)
-                      for charcode in range(firstchar, lastchar+1)]
+                      for charcode in range(firstchar, lastchar + 1)]
             descriptor['MaxWidth'] = max(widths)
 
             # Make the "Differences" array, sort the ccodes < 255 from
@@ -953,8 +941,7 @@ end"""
             glyph_ids = []
             differences = []
             multi_byte_chars = set()
-            for c in characters:
-                ccode = c
+            for ccode in characters:
                 gind = font.get_char_index(ccode)
                 glyph_ids.append(gind)
                 glyph_name = font.get_glyph_name(gind)
@@ -1071,9 +1058,9 @@ end"""
             for c in characters:
                 ccode = c
                 gind = font.get_char_index(ccode)
-                glyph = font.load_char(ccode,
-                                       flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
-                widths.append((ccode, cvt(glyph.horiAdvance)))
+                font.load_char(
+                    ccode, flags=_ft2.LOAD_NO_SCALE | _ft2.LOAD_NO_HINTING)
+                widths.append((ccode, cvt(font.glyph.horiAdvance * 64)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = chr(gind)
                 max_ccode = max(ccode, max_ccode)
@@ -1132,24 +1119,15 @@ end"""
 
         # Beginning of main embedTTF function...
 
-        # You are lost in a maze of TrueType tables, all different...
-        sfnt = font.get_sfnt()
-        try:
-            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')  # Macintosh scheme
-        except KeyError:
-            # Microsoft scheme:
-            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
-            # (see freetype/ttnameid.h)
-        ps_name = ps_name.encode('ascii', 'replace')
-        ps_name = Name(ps_name)
-        pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}
-        post = font.get_sfnt_table('post') or {'italicAngle': (0, 0)}
+        ps_name = Name(font.get_postscript_name().encode('ascii', 'replace'))
+        pclt = font.get_sfnt_table('pclt') or {'CapHeight': 0, 'xHeight': 0}
+        post = font.get_sfnt_table('post') or {'italicAngle': 0}
         ff = font.face_flags
         sf = font.style_flags
 
         flags = 0
         symbolic = False  # ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH:
+        if ff & _ft2.FACE_FLAG_FIXED_WIDTH:
             flags |= 1 << 0
         if 0:  # TODO: serif
             flags |= 1 << 1
@@ -1157,7 +1135,7 @@ end"""
             flags |= 1 << 2
         else:
             flags |= 1 << 5
-        if sf & ITALIC:
+        if sf & _ft2.STYLE_FLAG_ITALIC:
             flags |= 1 << 6
         if 0:  # TODO: all caps
             flags |= 1 << 16
@@ -1173,11 +1151,11 @@ end"""
             'FontBBox': [cvt(x, nearest=False) for x in font.bbox],
             'Ascent': cvt(font.ascender, nearest=False),
             'Descent': cvt(font.descender, nearest=False),
-            'CapHeight': cvt(pclt['capHeight'], nearest=False),
+            'CapHeight': cvt(pclt['CapHeight'], nearest=False),
             'XHeight': cvt(pclt['xHeight']),
-            'ItalicAngle': post['italicAngle'][1],  # ???
+            'ItalicAngle': post['italicAngle'],
             'StemV': 0  # ???
-            }
+        }
 
         # The font subsetting to a Type 3 font does not work for
         # OpenType (.otf) that embed a Postscript CFF font, so avoid that --
@@ -1643,7 +1621,7 @@ class RendererPdf(RendererBase):
         if isinstance(font, str):
             fname = font
         else:
-            fname = font.fname
+            fname = font.pathname
         realpath, stat_key = get_realpath_and_stat(fname)
         used_characters = self.file.used_characters.setdefault(
             stat_key, (realpath, set()))
@@ -2020,13 +1998,12 @@ class RendererPdf(RendererBase):
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
 
             fonttype = rcParams['pdf.fonttype']
 
             # We can't subset all OpenType fonts, so switch to Type 42
             # in that case.
-            if is_opentype_cff_font(font.fname):
+            if is_opentype_cff_font(font.pathname):
                 fonttype = 42
 
         def check_simple_method(s):
@@ -2107,21 +2084,20 @@ class RendererPdf(RendererBase):
                                                  0, 0.001 * fontsize,
                                                  newx, 0, Op.concat_matrix)
                                 name = self.file._get_xobject_symbol_name(
-                                    font.fname, glyph_name)
+                                    font.pathname, glyph_name)
                                 self.file.output(Name(name), Op.use_xobject)
                                 self.file.output(Op.grestore)
 
                             # Move the pointer based on the character width
                             # and kerning
-                            glyph = font.load_char(ccode,
-                                                   flags=LOAD_NO_HINTING)
+                            font.load_char(ccode, flags=_ft2.LOAD_NO_HINTING)
                             if lastgind is not None:
-                                kern = font.get_kerning(
-                                    lastgind, gind, KERNING_UNFITTED)
+                                kern, _ = font.get_kerning(
+                                    lastgind, gind, _ft2.Kerning.UNFITTED)
                             else:
                                 kern = 0
                             lastgind = gind
-                            newx += kern/64.0 + glyph.linearHoriAdvance/65536.0
+                            newx += kern + font.glyph.linearHoriAdvance
 
                 if mode == 1:
                     self.file.output(Op.end_text)
@@ -2138,14 +2114,10 @@ class RendererPdf(RendererBase):
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
-            return w, h, d
-
-        if ismath:
-            w, h, d, glyphs, rects, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-
+            w, h, d = texmanager.get_text_width_height_descent(
+                s, fontsize, renderer=self)
+        elif ismath:
+            w, h, d, _, _, _ = self.mathtext_parser.parse(s, 72, prop)
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
             l, b, w, h, d = font.get_str_bbox_and_descent(s)
@@ -2155,13 +2127,10 @@ class RendererPdf(RendererBase):
             d *= scale / 1000
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            w, h = font.get_width_height()
-            scale = (1.0 / 64.0)
-            w *= scale
-            h *= scale
-            d = font.get_descent()
-            d *= scale
+            layout = _ft2.Layout.simple(s, font, _ft2.LOAD_NO_HINTING)
+            w = layout.xMax - layout.xMin
+            h = layout.yMax - layout.yMin
+            d = -layout.yMin
         return w, h, d
 
     def _get_font_afm(self, prop):
@@ -2185,8 +2154,7 @@ class RendererPdf(RendererBase):
     def _get_font_ttf(self, prop):
         filename = findfont(prop)
         font = get_font(filename)
-        font.clear()
-        font.set_size(prop.get_size_in_points(), 72)
+        font.set_char_size(prop.get_size_in_points(), 72)
         return font
 
     def flipy(self):

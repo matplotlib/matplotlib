@@ -17,18 +17,16 @@ import uuid
 
 import numpy as np
 
-from matplotlib import cbook, __version__, rcParams
+from matplotlib import (
+    _ft2, _path, _png, cbook, colors as mcolors, __version__, rcParams)
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.colors import rgb2hex
 from matplotlib.font_manager import findfont, get_font
-from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
-from matplotlib import _png
+
 
 _log = logging.getLogger(__name__)
 
@@ -331,11 +329,8 @@ class RendererSVG(RendererBase):
                 .translate(0.0, self.height))
 
     def _get_font(self, prop):
-        fname = findfont(prop)
-        font = get_font(fname)
-        font.clear()
-        size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
+        font = get_font(findfont(prop))
+        font.set_char_size(prop.get_size_in_points(), 72.0)
         return font
 
     def _get_hatch(self, gc, rgbFace):
@@ -376,7 +371,7 @@ class RendererSVG(RendererBase):
             if face is None:
                 fill = 'none'
             else:
-                fill = rgb2hex(face)
+                fill = mcolors.to_hex(face)
             writer.element(
                 'rect',
                 x="0", y="0", width=six.text_type(HATCH_SIZE+1),
@@ -386,8 +381,8 @@ class RendererSVG(RendererBase):
                 'path',
                 d=path_data,
                 style=generate_css({
-                    'fill': rgb2hex(stroke),
-                    'stroke': rgb2hex(stroke),
+                    'fill': mcolors.to_hex(stroke),
+                    'stroke': mcolors.to_hex(stroke),
                     'stroke-width': six.text_type(rcParams['hatch.linewidth']),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
@@ -414,7 +409,7 @@ class RendererSVG(RendererBase):
                 attrib['fill'] = 'none'
             else:
                 if tuple(rgbFace[:3]) != (0, 0, 0):
-                    attrib['fill'] = rgb2hex(rgbFace)
+                    attrib['fill'] = mcolors.to_hex(rgbFace)
                 if len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
                     attrib['fill-opacity'] = short_float_fmt(rgbFace[3])
 
@@ -429,7 +424,7 @@ class RendererSVG(RendererBase):
         linewidth = gc.get_linewidth()
         if linewidth:
             rgb = gc.get_rgb()
-            attrib['stroke'] = rgb2hex(rgb)
+            attrib['stroke'] = mcolors.to_hex(rgb)
             if not forced_alpha and rgb[3] != 1.0:
                 attrib['stroke-opacity'] = short_float_fmt(rgb[3])
             if linewidth != 1.0:
@@ -499,7 +494,7 @@ class RendererSVG(RendererBase):
         for font_fname, chars in six.iteritems(self._fonts):
             font = get_font(font_fname)
             font.set_size(72, 72)
-            sfnt = font.get_sfnt()
+            sfnt = font.get_sfnt_name_table()
             writer.start('font', id=sfnt[1, 0, 0, 4].decode("mac_roman"))
             writer.element(
                 'font-face',
@@ -510,7 +505,8 @@ class RendererSVG(RendererBase):
                     'bbox': ' '.join(
                         short_float_fmt(x / 64.0) for x in font.bbox)})
             for char in chars:
-                glyph = font.load_char(char, flags=LOAD_NO_HINTING)
+                font.load_char(char, flags=_ft2.LOAD_NO_HINTING)
+                glyph = font.glyph
                 verts, codes = font.get_path()
                 path = Path(verts, codes)
                 path_data = self._convert_path(path)
@@ -522,7 +518,7 @@ class RendererSVG(RendererBase):
                         # 'glyph-name': name,
                         'unicode': unichr(char),
                         'horiz-adv-x':
-                        short_float_fmt(glyph.linearHoriAdvance / 65536.0)})
+                        short_float_fmt(glyph.linearHoriAdvance)})
             writer.end('font')
         writer.end('defs')
 
@@ -740,12 +736,12 @@ class RendererSVG(RendererBase):
             writer.element(
                 'stop',
                 offset='0',
-                style=generate_css({'stop-color': rgb2hex(c),
+                style=generate_css({'stop-color': mcolors.to_hex(c),
                                     'stop-opacity': short_float_fmt(c[-1])}))
             writer.element(
                 'stop',
                 offset='1',
-                style=generate_css({'stop-color': rgb2hex(c),
+                style=generate_css({'stop-color': mcolors.to_hex(c),
                                     'stop-opacity': "0"}))
             writer.end('linearGradient')
 
@@ -761,7 +757,7 @@ class RendererSVG(RendererBase):
         writer.element(
             'use',
             attrib={'xlink:href': href,
-                    'fill': rgb2hex(avg_color),
+                    'fill': mcolors.to_hex(avg_color),
                     'fill-opacity': short_float_fmt(avg_color[-1])})
         for i in range(3):
             writer.element(
@@ -895,7 +891,7 @@ class RendererSVG(RendererBase):
         glyph_map=self._glyph_map
 
         text2path = self._text2path
-        color = rgb2hex(gc.get_rgb())
+        color = mcolors.to_hex(gc.get_rgb())
         fontsize = prop.get_size_in_points()
 
         style = {}
@@ -998,7 +994,7 @@ class RendererSVG(RendererBase):
     def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         writer = self.writer
 
-        color = rgb2hex(gc.get_rgb())
+        color = mcolors.to_hex(gc.get_rgb())
         style = {}
         if color != '#000000':
             style['fill'] = color
@@ -1007,7 +1003,7 @@ class RendererSVG(RendererBase):
 
         if not ismath:
             font = self._get_font(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
+            font.set_text(s, 0.0, flags=_ft2.LOAD_NO_HINTING)
 
             fontsize = prop.get_size_in_points()
 
@@ -1060,7 +1056,7 @@ class RendererSVG(RendererBase):
                 writer.element('text', s, attrib=attrib)
 
             if rcParams['svg.fonttype'] == 'svgfont':
-                fontset = self._fonts.setdefault(font.fname, set())
+                fontset = self._fonts.setdefault(font.pathname, set())
                 for c in s:
                     fontset.add(ord(c))
         else:
@@ -1097,7 +1093,7 @@ class RendererSVG(RendererBase):
 
             if rcParams['svg.fonttype'] == 'svgfont':
                 for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
-                    fontset = self._fonts.setdefault(font.fname, set())
+                    fontset = self._fonts.setdefault(font.pathname, set())
                     fontset.add(thetext)
 
             for style, chars in six.iteritems(spans):

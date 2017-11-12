@@ -26,6 +26,8 @@ environment:
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
 
+image: Visual Studio 2017
+
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
 platform:
@@ -42,6 +44,7 @@ init:
   - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
 
 install:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - set PYTHONUNBUFFERED=1
   # for msinttypes and newer stuff

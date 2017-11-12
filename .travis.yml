@@ -5,7 +5,7 @@ sudo: false
 
 branches:
   except:
-  - /^auto-backport-of-pr-\d*/
+    - /^auto-backport-of-pr-\d*/
 
 cache:
   pip: true
@@ -16,11 +16,14 @@ cache:
 addons:
   artifacts:
     paths:
-    - result_images.tar.bz2
+      - result_images.tar.bz2
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - cm-super
       - dvipng
+      - g++-7
       - gdb
       - gir1.2-gtk-3.0
       - graphviz
@@ -68,6 +71,8 @@ matrix:
     - python: 3.5
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
       env:
+        - CC=gcc-7
+        - CXX=g++-7
         - CYCLER=cycler==0.10
         - DATEUTIL=python-dateutil==2.1
         - NOSE=nose
@@ -78,14 +83,30 @@ matrix:
         - PYTEST_COV=pytest-cov==2.3.1
         - SPHINX=sphinx==1.3
     - python: 3.5
-      env: PYTHON_ARGS=-OO
+      env:
+        - CC=gcc-7
+        - CXX=g++-7
+        - PYTHON_ARGS=-OO
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
+      env:
+        - CC=gcc-7
+        - CXX=g++-7
+        - DELETE_FONT_CACHE=1
+        - PANDAS='pandas<0.21.0'
+        - PYTEST_PEP8=pytest-pep8
+        - RUN_PEP8=--pep8
     - python: "nightly"
-      env: PRE=--pre
+      env:
+        - CC=gcc-7
+        - CXX=g++-7
+        - PRE=--pre
     - os: osx
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       only: master
+      env:
+        - PATH="/usr/local/opt/llvm/bin:$PATH"
+        - CPPFLAGS=-L/usr/local/opt/llvm/include
+        - LDFLAGS='-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib'
       cache:
         # As for now travis caches only "$HOME/.cache/pip"
         # https://docs.travis-ci.com/user/caching/#pip-cache
@@ -108,7 +129,9 @@ before_install:
     else
       ci/travis/silence brew update
       brew upgrade python
-      brew install ffmpeg imagemagick mplayer ccache
+      brew install ccache llvm
+      brew info llvm
+      brew install ffmpeg imagemagick mplayer
       hash -r
       which python
       python --version
