@@ -101,7 +101,7 @@ class BlockingInput(object):
         self.events = []
         self.callbacks = []
 
-        if hasattr(self.fig, "manager"):
+        if hasattr(self.fig.canvas, "manager"):
             # Ensure that the figure is shown, if we are managing it.
             self.fig.show()
 
