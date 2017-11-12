@@ -396,31 +396,6 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
-def _wrap(fmt, func, level='DEBUG', always=True):
-    """
-    return a callable function that wraps func and reports its
-    output through logger
-
-    if always is True, the report will occur on every function
-    call; otherwise only on the first time the function is called
-    """
-    assert callable(func)
-
-    def wrapper(*args, **kwargs):
-        ret = func(*args, **kwargs)
-
-        if (always or not wrapper._spoke):
-            lvl = logging.getLevelName(level.upper())
-            _log.log(lvl, fmt % ret)
-            spoke = True
-            if not wrapper._spoke:
-                wrapper._spoke = spoke
-        return ret
-    wrapper._spoke = False
-    wrapper.__doc__ = func.__doc__
-    return wrapper
-
-
 def checkdep_dvipng():
     try:
         s = subprocess.Popen([str('dvipng'), '-version'],
@@ -589,7 +564,27 @@ def checkdep_usetex(s):
     return flag
 
 
-def _get_home():
+def _log_and_cache_result(fmt, level="DEBUG", func=None):
+    """Decorator that logs & caches the result of a function with no arguments.
+
+    The first time the decorated *func* is called, its result is logged at
+    level *level* using log format *fmt*, and cached.  Later calls immediately
+    return the cached result without logging.
+    """
+    if func is None:
+        return functools.partial(_log_and_cache_result, fmt, level)
+
+    @functools.lru_cache(1)  # Calls after the 1st return the cached result.
+    @functools.wraps(func)
+    def wrapper():
+        retval = func()
+        _log.log(logging.getLevelName(level.upper()), fmt, retval)
+        return retval
+    return wrapper
+
+
+@_log_and_cache_result("HOME=%s")
+def get_home():
     """Find user's home directory if possible.
     Otherwise, returns None.
 
@@ -618,9 +613,6 @@ def _create_tmp_config_dir():
         tempfile.mkdtemp(prefix='matplotlib-'))
     atexit.register(shutil.rmtree, configdir)
     return configdir
-
-
-get_home = _wrap('$HOME=%s', _get_home, always=False)
 
 
 def _get_xdg_config_dir():
@@ -684,7 +676,8 @@ def _get_config_or_cache_dir(xdg_base):
     return _create_tmp_config_dir()
 
 
-def _get_configdir():
+@_log_and_cache_result("CONFIGDIR=%s")
+def get_configdir():
     """
     Return the string representing the configuration directory.
 
@@ -705,10 +698,9 @@ def _get_configdir():
     """
     return _get_config_or_cache_dir(_get_xdg_config_dir())
 
-get_configdir = _wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
-
-def _get_cachedir():
+@_log_and_cache_result("CACHEDIR=%s")
+def get_cachedir():
     """
     Return the location of the cache directory.
 
@@ -716,8 +708,6 @@ def _get_cachedir():
     _get_config_dir, except using `$XDG_CACHE_HOME`/`~/.cache` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
-
-get_cachedir = _wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _decode_filesystem_path(path):
@@ -770,13 +760,11 @@ def _get_data_path():
     raise RuntimeError('Could not find the matplotlib data files')
 
 
-def _get_data_path_cached():
+@_log_and_cache_result('rcParams["datapath"]=%s')
+def get_data_path():
     if defaultParams['datapath'][0] is None:
         defaultParams['datapath'][0] = _get_data_path()
     return defaultParams['datapath'][0]
-
-get_data_path = _wrap('matplotlib data path %s', _get_data_path_cached,
-                      always=False)
 
 
 def get_py2exe_datafiles():
@@ -835,7 +823,7 @@ def matplotlib_fname():
         else:
             yield matplotlibrc
             yield os.path.join(matplotlibrc, 'matplotlibrc')
-        yield os.path.join(_get_configdir(), 'matplotlibrc')
+        yield os.path.join(get_configdir(), 'matplotlibrc')
         yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
