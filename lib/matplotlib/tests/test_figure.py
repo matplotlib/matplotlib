@@ -68,6 +68,32 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
+def test_reset_rcparams():
+    # test whether clf resets unset figure properties to rcParams values
+    fig0 = plt.figure()
+    fig0.figsize = None
+    fig0.facecolor = None
+    fig0.edgecolor = None
+    fig0.frameon = None
+    fig0.clf(reset_rcparams=True)
+    assert fig0.figsize == rcParams['figure.figsize']
+    assert fig0.facecolor == rcParams['figure.facecolor']
+    assert fig0.edgecolor == rcParams['figure.edgecolor']
+    assert fig0.frameon == rcParams['figure.frameon']
+
+    # set figure properties should not be reset to rcParams
+    fig1 = plt.figure()
+    fig1.figsize = (10, 10)
+    fig1.facecolor = 'red'
+    fig1.edgecolor = 'blue'
+    fig1.frameon = False
+    fig1.clf(reset_rcparams=True)
+    assert not fig1.figsize == rcParams['figure.figsize']
+    assert not fig1.facecolor == rcParams['figure.facecolor']
+    assert not fig1.edgecolor == rcParams['figure.edgecolor']
+    assert not fig1.frameon == rcParams['figure.frameon']
+
+
 @image_comparison(baseline_images=['figure_today'])
 def test_figure():
     # named figure support
