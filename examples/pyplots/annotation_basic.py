@@ -20,3 +20,4 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             arrowprops=dict(facecolor='black', shrink=0.05),
             )
 ax.set_ylim(-2, 2)
+plt.show()
