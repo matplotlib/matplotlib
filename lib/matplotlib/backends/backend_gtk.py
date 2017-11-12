@@ -3,7 +3,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os, sys, warnings
+import logging
+import os
+import sys
+import warnings
 
 if six.PY3:
     warnings.warn(
@@ -38,7 +41,9 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import (
-    cbook, colors as mcolors, lines, markers, rcParams, verbose)
+    cbook, colors as mcolors, lines, markers, rcParams)
+
+_log = logging.getLogger(__name__)
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -512,7 +517,8 @@ class FigureManagerGTK(FigureManagerBase):
                 # all, so I am not sure how to catch it.  I am unhappy
                 # diong a blanket catch here, but an not sure what a
                 # better way is - JDH
-                verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+                _log.info('Could not load matplotlib '
+                         'icon: %s', sys.exc_info()[1])
 
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
@@ -997,7 +1003,7 @@ try:
     window_icon = os.path.join(rcParams['datapath'], 'images', icon_filename)
 except:
     window_icon = None
-    verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+    _log.info('Could not load matplotlib icon: %s', sys.exc_info()[1])
 
 def error_msg_gtk(msg, parent=None):
     if parent is not None: # find the toplevel gtk.Window

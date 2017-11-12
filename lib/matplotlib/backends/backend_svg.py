@@ -10,11 +10,12 @@ from six.moves import xrange
 import os, base64, tempfile, gzip, io, sys, codecs, re
 
 import numpy as np
+import logging
 
 from hashlib import md5
 import uuid
 
-from matplotlib import verbose, __version__, rcParams
+from matplotlib import __version__, rcParams
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -31,6 +32,8 @@ from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
 
 from xml.sax.saxutils import escape as escape_xml_text
+
+_log = logging.getLogger(__name__)
 
 backend_version = __version__
 
@@ -823,7 +826,7 @@ class RendererSVG(RendererBase):
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename, 0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
-            verbose.report('Writing image file for inclusion: %s' % filename)
+            _log.info('Writing image file for inclusion: %s', filename)
             _png.write_png(im, filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
