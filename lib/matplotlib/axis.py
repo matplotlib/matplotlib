@@ -1938,12 +1938,30 @@ class XAxis(Axis):
         self.stale = True
 
     def tick_top(self):
-        'use ticks only on top'
+        """
+        Move ticks and ticklabels (if present) to the top of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('top')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labeltop=label)
 
     def tick_bottom(self):
-        'use ticks only on bottom'
+        """
+        Move ticks and ticklabels (if present) to the bottom of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('bottom')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelbottom=label)
 
     def get_ticks_position(self):
         """
@@ -2277,12 +2295,30 @@ class YAxis(Axis):
         self.stale = True
 
     def tick_right(self):
-        'use ticks only on right'
+        """
+        Move ticks and ticklabels (if present) to the right of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('right')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelright=label)
 
     def tick_left(self):
-        'use ticks only on left'
+        """
+        Move ticks and ticklabels (if present) to the left of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('left')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelleft=label)
 
     def get_ticks_position(self):
         """
