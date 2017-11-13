@@ -828,7 +828,7 @@ class Axis(artist.Artist):
                    'tick1On', 'tick2On', 'label1On', 'label2On']
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
                    'labelleft', 'labelbottom', 'labelright', 'labeltop',
-                   'rotation']
+                   'labelrotation']
         kwkeys = kwkeys0 + kwkeys1
         kwtrans = dict()
         if to_init_kw:

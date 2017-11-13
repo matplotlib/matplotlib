@@ -16,6 +16,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
 import warnings
 
 import numpy as np
@@ -47,6 +48,8 @@ from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
+
+_log = logging.getLogger(__name__)
 
 docstring.interpd.update(projection_names=get_projection_names())
 
@@ -274,6 +277,13 @@ class Figure(Artist):
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
+
+    def __repr__(self):
+        return "<{clsname} size {h:g}x{w:g} with {naxes} Axes>".format(
+            clsname=self.__class__.__name__,
+            h=self.bbox.size[0], w=self.bbox.size[1],
+            naxes=len(self.axes),
+        )
 
     def __init__(self,
                  figsize=None,  # defaults to rc figure.figsize
@@ -829,7 +839,7 @@ class Figure(Artist):
         self.dpi = val
         self.stale = True
 
-    def set_figwidth(self, val, forward=False):
+    def set_figwidth(self, val, forward=True):
         """
         Set the width of the figure in inches
 
@@ -837,7 +847,7 @@ class Figure(Artist):
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
-    def set_figheight(self, val, forward=False):
+    def set_figheight(self, val, forward=True):
         """
         Set the height of the figure in inches
 

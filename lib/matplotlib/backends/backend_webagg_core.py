@@ -468,7 +468,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         with io.open(os.path.join(
                 os.path.dirname(__file__),
-                "web_backend",
+                "web_backend", "js",
                 "mpl.js"), encoding='utf8') as fd:
             output.write(fd.read())
 

@@ -328,7 +328,7 @@ class ContourLabeler(object):
             return lev
         else:
             if isinstance(fmt, dict):
-                return fmt[lev]
+                return fmt.get(lev, '%1.3f')
             elif callable(fmt):
                 return fmt(lev)
             else:

@@ -9,10 +9,10 @@ Troubleshooting
 
 .. _matplotlib-version:
 
-Obtaining matplotlib version
+Obtaining Matplotlib version
 ============================
 
-To find out your matplotlib version number, import it and print the
+To find out your Matplotlib version number, import it and print the
 ``__version__`` attribute::
 
     >>> import matplotlib
@@ -25,7 +25,7 @@ To find out your matplotlib version number, import it and print the
 :file:`matplotlib` install location
 ===================================
 
-You can find what directory matplotlib is installed in by importing it
+You can find what directory Matplotlib is installed in by importing it
 and printing the ``__file__`` attribute::
 
     >>> import matplotlib
@@ -37,7 +37,7 @@ and printing the ``__file__`` attribute::
 :file:`matplotlib` configuration and cache directory locations
 ==============================================================
 
-Each user has a matplotlib configuration directory which may contain a
+Each user has a Matplotlib configuration directory which may contain a
 :ref:`matplotlibrc <customizing-with-matplotlibrc-files>` file. To
 locate your :file:`matplotlib/` configuration directory, use
 :func:`matplotlib.get_configdir`::
@@ -79,7 +79,7 @@ directory and the cache directory.
 Getting help
 ============
 
-There are a number of good resources for getting help with matplotlib.
+There are a number of good resources for getting help with Matplotlib.
 There is a good chance your question has already been asked:
 
 - The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
@@ -114,11 +114,35 @@ provide the following information in your e-mail to the `mailing list
   the error will help you find a bug in *your* code that is causing the
   problem.
 
-* You can get very helpful debugging output from matlotlib by running your
-  script with a ``verbose-helpful`` or ``--verbose-debug`` flags and posting
-  the verbose output the lists::
+* You can get helpful debugging output from Matlotlib by using the `logging`
+  library in your code and posting the verbose output to the lists.  For a
+  command-line version of this, try::
 
-     python simple_plot.py --verbose-helpful > output.txt
+     python -c "from logging import *; basicConfig(level=DEBUG); from pylab import *; plot(); show()"
+
+
+  If you want to put the debugging hooks in your own code, then the
+  most simple way to do so is to insert the following *before* any calls
+  to ``import matplotlib``::
+
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    import matplotlib.pyplot as plt
+
+  Note that if you want to use `logging` in your own code, but do not
+  want verbose Matplotlib output, you can set the logging level
+  for Matplotlib independently::
+
+    import logging
+    # set DEBUG for everything
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger('matplotlib')
+    # set WARNING for Matplotlib
+    logger.setLevel(logging.WARNING)
+
+  The `logging` module is very flexible, and can be a valuable tool in chasing
+  down errors.
 
 If you compiled Matplotlib yourself, please also provide:
 

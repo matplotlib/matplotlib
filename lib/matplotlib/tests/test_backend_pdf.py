@@ -7,6 +7,7 @@ import six
 
 import io
 import os
+import sys
 import tempfile
 
 import pytest
@@ -69,6 +70,19 @@ def test_multipage_pagecount():
         assert pdf.get_pagecount() == 1
         pdf.savefig()
         assert pdf.get_pagecount() == 2
+
+
+def test_multipage_properfinalize():
+    pdfio = io.BytesIO()
+    with PdfPages(pdfio) as pdf:
+        for i in range(10):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            ax.set_title('This is a long title')
+            fig.savefig(pdf, format="pdf")
+    pdfio.seek(0)
+    assert sum(b'startxref' in line for line in pdfio) == 1
+    assert sys.getsizeof(pdfio) < 40000
 
 
 def test_multipage_keep_empty():

@@ -5049,6 +5049,8 @@ def test_broken_barh_empty():
 
 def test_pandas_pcolormesh():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
@@ -5060,6 +5062,8 @@ def test_pandas_pcolormesh():
 
 def test_pandas_indexing_dates():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
@@ -5073,6 +5077,8 @@ def test_pandas_indexing_dates():
 
 def test_pandas_errorbar_indexing():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     df = pd.DataFrame(np.random.uniform(size=(5, 4)),
                       columns=['x', 'y', 'xe', 'ye'],
@@ -5083,6 +5089,8 @@ def test_pandas_errorbar_indexing():
 
 def test_pandas_indexing_hist():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
@@ -5093,6 +5101,8 @@ def test_pandas_indexing_hist():
 def test_pandas_bar_align_center():
     # Tests fix for issue 8767
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     df = pd.DataFrame({'a': range(2), 'b': range(2)})
 
@@ -5101,21 +5111,6 @@ def test_pandas_bar_align_center():
     rect = ax.bar(df.loc[df['a'] == 1, 'b'],
                   df.loc[df['a'] == 1, 'b'],
                   align='center')
-
-    fig.canvas.draw()
-
-
-def test_pandas_bar_align_center():
-    # Tests fix for issue 8767
-    pd = pytest.importorskip('pandas')
-
-    df = pd.DataFrame({'a': range(2), 'b': range(2)})
-
-    fig, ax = plt.subplots(1)
-
-    rect = ax.barh(df.loc[df['a'] == 1, 'b'],
-                   df.loc[df['a'] == 1, 'b'],
-                   align='center')
 
     fig.canvas.draw()
 
@@ -5265,14 +5260,22 @@ def test_bar_color_cycle():
 
 
 def test_tick_param_label_rotation():
-    fix, ax = plt.subplots()
-    plt.plot([0, 1], [0, 1])
+    fix, (ax, ax2) = plt.subplots(1, 2)
+    ax.plot([0, 1], [0, 1])
+    ax2.plot([0, 1], [0, 1])
     ax.xaxis.set_tick_params(which='both', rotation=75)
     ax.yaxis.set_tick_params(which='both', rotation=90)
     for text in ax.get_xticklabels(which='both'):
         assert text.get_rotation() == 75
     for text in ax.get_yticklabels(which='both'):
         assert text.get_rotation() == 90
+
+    ax2.tick_params(axis='x', labelrotation=53)
+    ax2.tick_params(axis='y', rotation=35)
+    for text in ax2.get_xticklabels(which='major'):
+        assert text.get_rotation() == 53
+    for text in ax2.get_yticklabels(which='major'):
+        assert text.get_rotation() == 35
 
 
 @pytest.mark.style('default')
@@ -5458,3 +5461,10 @@ def test_polar_gridlines():
 
     assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
     assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2
+
+
+def test_empty_errorbar_legend():
+    fig, ax = plt.subplots()
+    ax.errorbar([], [], xerr=[], label='empty y')
+    ax.errorbar([], [], yerr=[], label='empty x')
+    ax.legend()
