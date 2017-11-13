@@ -134,10 +134,6 @@ test_script:
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - python tests.py %PYTEST_ARGS%
-  # Generate a html for visual tests
-  - python tools/visualize_tests.py --no-browser
-  - pip install codecov
-  - codecov -e PYTHON_VERSION PLATFORM
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
@@ -174,8 +170,11 @@ artifacts:
     type: zip
 
 on_finish:
+  - pip install codecov
+  - codecov -e PYTHON_VERSION PLATFORM
 
 on_failure:
+  # Generate a html for visual tests
   - python tools/visualize_tests.py --no-browser
   - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ | grep -v "Compressing"
