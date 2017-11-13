@@ -46,12 +46,17 @@ class StrCategoryConverter(units.ConversionInterface):
             for val in value:
                 if isinstance(val, six.string_types):
                     axis.unit_data.update(val)
+
+        if units.ConversionInterface.is_numlike(value):
+            return value
+
         vmap = dict(zip(axis.unit_data.seq, axis.unit_data.locs))
 
         if isinstance(value, six.string_types):
             return vmap[value]
 
         str_value = shim_array(value)
+
         mapped_value = str_value.copy()
 
         for lab, loc in vmap.items():

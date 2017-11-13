@@ -72,9 +72,10 @@ class TestStrCategoryConverter(object):
                  [('nan', -1), ('3.14', 0), ('A', 1), ('B', 2),
                   ('-inf', 100), ('inf', 200)],
                  [1, 1, -1, 2, 100, 0, 200]),
-                (["!", "0"], [("!", 0), ("0", 1)], [0, 1])]
+                (["!", "0"], [("!", 0), ("0", 1)], [0, 1]),
+                (0.0, [(0.0, 0.0)], 0.0)]
 
-    ids = ["unicode", "single", "basic", "mixed", "integer"]
+    ids = ["unicode", "single", "basic", "mixed", "integer str", "number"]
 
     @pytest.fixture(autouse=True)
     def mock_axis(self, request):
