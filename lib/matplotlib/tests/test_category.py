@@ -2,29 +2,30 @@
 """Catch all for categorical functions"""
 from __future__ import absolute_import, division, print_function
 
+from collections import OrderedDict
+import six
 import pytest
 import numpy as np
+
 
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
 
-import unittest
-
 
 class TestUnitData(object):
-    testdata = [("hello world", ["hello world"], [0]),
-                (u"Здравствуйте мир", [u"Здравствуйте мир"], [0]),
-                (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
-                 ['-inf', '3.14', 'A', 'B', 'inf', 'nan'],
-                 [-3.0, 0, 1, 2, -2.0, -1.0])]
+    test_cases = [('single', ("hello world", ["hello world"], [0])),
+                  ('unicode', (u"Здравствуйте мир", [u"Здравствуйте мир"], [0])),
+                  ('mixed', (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
+                             ['A', 'nan', 'B', '-inf', '3.14', 'inf'],
+                             [0, np.nan, 1, 2, 3, 4]))]
 
-    ids = ["single", "unicode", "mixed"]
+    ids, data = zip(*test_cases)
 
-    @pytest.mark.parametrize("data, seq, locs", testdata, ids=ids)
+    @pytest.mark.parametrize("data, seq, locs", data, ids=ids)
     def test_unit(self, data, seq, locs):
         act = cat.UnitData(data)
-        assert act.seq == seq
-        assert act.locs == locs
+        assert act._seq == seq
+        assert act._locs == locs
 
     def test_update_map(self):
         data = ['a', 'd']
@@ -33,15 +34,15 @@ class TestUnitData(object):
 
         data_update = ['b', 'd', 'e', np.inf]
         useq = ['a', 'd', 'b', 'e', 'inf']
-        ulocs = [0, 1, 2, 3, -2]
+        ulocs = [0, 1, 2, 3, 4]
 
         unitdata = cat.UnitData(data)
-        assert unitdata.seq == oseq
-        assert unitdata.locs == olocs
+        assert unitdata._seq == oseq
+        assert unitdata._locs == olocs
 
         unitdata.update(data_update)
-        assert unitdata.seq == useq
-        assert unitdata.locs == ulocs
+        assert unitdata._seq == useq
+        assert unitdata._locs == ulocs
 
 
 class FakeAxis(object):
@@ -50,10 +51,13 @@ class FakeAxis(object):
 
 
 class MockUnitData(object):
-    def __init__(self, data):
-        seq, locs = zip(*data)
-        self.seq = list(seq)
-        self.locs = list(locs)
+    def __init__(self, data, labels=None):
+        self._mapping = OrderedDict(data)
+        if labels:
+            self._seq = labels
+        else:
+            self._seq = list(self._mapping.keys())
+        self._locs = list(self._mapping.values())
 
 
 class TestStrCategoryConverter(object):
@@ -62,27 +66,29 @@ class TestStrCategoryConverter(object):
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize
     """
-    testdata = [(u"Здравствуйте мир", [(u"Здравствуйте мир", 42)], 42),
-                ("hello world", [("hello world", 42)], 42),
-                (['a', 'b', 'b', 'a', 'a', 'c', 'c', 'c'],
-                 [('a', 0), ('b', 1), ('c', 2)],
-                 [0, 1, 1, 0, 0, 2, 2, 2]),
-                (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
-                 [('nan', -1), ('3.14', 0), ('A', 1), ('B', 2),
-                  ('-inf', 100), ('inf', 200)],
-                 [1, 1, -1, 2, 100, 0, 200])]
-    ids = ["unicode", "single", "basic", "mixed"]
+
+    test_cases = [("unicode", {u"Здравствуйте мир": 42}),
+                  ("ascii", {"hello world": 42}),
+                  ("single", {'a': 0, 'b': 1, 'c': 2}),
+                  ("mixed", {3.14: 0, 'A': 1, 'B': 2,
+                             -np.inf: 3, np.inf: 4, np.nan: 5}),
+                  ("integer string", {"!": 0, "0": 1, 0: 1}),
+                  ("number", {0.0: 0.0}),
+                  ("number string", {'42': 0, 42: 1})]
+
+    ids, unitmaps = zip(*test_cases)
 
     @pytest.fixture(autouse=True)
     def mock_axis(self, request):
         self.cc = cat.StrCategoryConverter()
 
-    @pytest.mark.parametrize("data, unitmap, exp", testdata, ids=ids)
-    def test_convert(self, data, unitmap, exp):
+    @pytest.mark.parametrize("unitmap", unitmaps, ids=ids)
+    def test_convert(self, unitmap):
+        data, exp = zip(*six.iteritems(unitmap))
         MUD = MockUnitData(unitmap)
         axis = FakeAxis(MUD)
         act = self.cc.convert(data, None, axis)
-        np.testing.assert_array_equal(act, exp)
+        np.testing.assert_allclose(act, exp)
 
     def test_axisinfo(self):
         MUD = MockUnitData([(None, None)])
@@ -103,7 +109,7 @@ class TestStrCategoryLocator(object):
         np.testing.assert_array_equal(ticks.tick_values(None, None), locs)
 
 
-class TestStrCategoryFormatter(unittest.TestCase):
+class TestStrCategoryFormatter(object):
     def test_StrCategoryFormatter(self):
         seq = ["hello", "world", "hi"]
         labels = cat.StrCategoryFormatter(seq)
@@ -119,85 +125,39 @@ def lt(tl):
     return [l.get_text() for l in tl]
 
 
-class TestPlot(object):
-    bytes_data = [
-        ['a', 'b', 'c'],
-        [b'a', b'b', b'c'],
-        np.array([b'a', b'b', b'c'])
-    ]
+def axis_test(axis, ticks, labels, unit_data):
+    np.testing.assert_array_equal(axis.get_majorticklocs(), ticks)
+    assert lt(axis.get_majorticklabels()) == labels
+    np.testing.assert_array_equal(axis.unit_data._locs, unit_data._locs)
+    assert axis.unit_data._seq == unit_data._seq
 
-    bytes_ids = ['string list', 'bytes list', 'bytes ndarray']
 
-    numlike_data = [
-        ['1', '11', '3'],
-        np.array(['1', '11', '3']),
-        [b'1', b'11', b'3'],
-        np.array([b'1', b'11', b'3']),
-    ]
+class TestBarsBytes(object):
+    bytes_cases = [('string list', ['a', 'b', 'c']),
+                   ('bytes list', [b'a', b'b', b'c']),
+                   ('bytes ndarray', np.array([b'a', b'b', b'c']))]
 
-    numlike_ids = [
-        'string list', 'string ndarray', 'bytes list', 'bytes ndarray'
-    ]
+    bytes_ids, bytes_data = zip(*bytes_cases)
 
-    @pytest.fixture
-    def data(self):
-        self.d = ['a', 'b', 'c', 'a']
-        self.dticks = [0, 1, 2]
-        self.dlabels = ['a', 'b', 'c']
-        unitmap = [('a', 0), ('b', 1), ('c', 2)]
-        self.dunit_data = MockUnitData(unitmap)
-
-    @pytest.fixture
-    def missing_data(self):
-        self.dm = ['here', np.nan, 'here', 'there']
-        self.dmticks = [0, -1, 1]
-        self.dmlabels = ['here', 'nan', 'there']
-        unitmap = [('here', 0), ('nan', -1), ('there', 1)]
-        self.dmunit_data = MockUnitData(unitmap)
-
-    def axis_test(self, axis, ticks, labels, unit_data):
-        np.testing.assert_array_equal(axis.get_majorticklocs(), ticks)
-        assert lt(axis.get_majorticklabels()) == labels
-        np.testing.assert_array_equal(axis.unit_data.locs, unit_data.locs)
-        assert axis.unit_data.seq == unit_data.seq
-
-    def test_plot_unicode(self):
-        words = [u'Здравствуйте', u'привет']
-        locs = [0.0, 1.0]
-        unit_data = MockUnitData(zip(words, locs))
-
-        fig, ax = plt.subplots()
-        ax.plot(words)
-        fig.canvas.draw()
-
-        self.axis_test(ax.yaxis, locs, words, unit_data)
-
-    @pytest.mark.usefixtures("data")
-    def test_plot_1d(self):
-        fig, ax = plt.subplots()
-        ax.plot(self.d)
-        fig.canvas.draw()
-
-        self.axis_test(ax.yaxis, self.dticks, self.dlabels, self.dunit_data)
-
-    @pytest.mark.usefixtures("missing_data")
-    def test_plot_1d_missing(self):
-        fig, ax = plt.subplots()
-        ax.plot(self.dm)
-        fig.canvas.draw()
-
-        self.axis_test(ax.yaxis, self.dmticks, self.dmlabels, self.dmunit_data)
-
-    @pytest.mark.usefixtures("data")
     @pytest.mark.parametrize("bars", bytes_data, ids=bytes_ids)
     def test_plot_bytes(self, bars):
-        counts = np.array([4, 6, 5])
 
+        unitmap = MockUnitData([('a', 0), ('b', 1), ('c', 2)])
+
+        counts = np.array([4, 6, 5])
         fig, ax = plt.subplots()
         ax.bar(bars, counts)
         fig.canvas.draw()
+        axis_test(ax.xaxis, [0, 1, 2], ['a', 'b', 'c'], unitmap)
 
-        self.axis_test(ax.xaxis, self.dticks, self.dlabels, self.dunit_data)
+
+class TestBarsNumlike(object):
+    numlike_cases = [('string list', ['1', '11', '3']),
+                     ('string ndarray', np.array(['1', '11', '3'])),
+                     ('bytes list', [b'1', b'11', b'3']),
+                     ('bytes ndarray', np.array([b'1', b'11', b'3']))]
+
+    numlike_ids, numlike_data = zip(*numlike_cases)
 
     @pytest.mark.parametrize("bars", numlike_data, ids=numlike_ids)
     def test_plot_numlike(self, bars):
@@ -208,30 +168,82 @@ class TestPlot(object):
         fig.canvas.draw()
 
         unitmap = MockUnitData([('1', 0), ('11', 1), ('3', 2)])
-        self.axis_test(ax.xaxis, [0, 1, 2], ['1', '11', '3'], unitmap)
+        axis_test(ax.xaxis, [0, 1, 2], ['1', '11', '3'], unitmap)
 
-    @pytest.mark.usefixtures("data", "missing_data")
-    def test_plot_2d(self):
+
+class TestPlotTypes(object):
+    @pytest.fixture
+    def complete_data(self):
+        self.complete = ['a', 'b', 'c', 'a']
+        self.complete_ticks = [0, 1, 2]
+        self.complete_labels = ['a', 'b', 'c']
+        unitmap = [('a', 0), ('b', 1), ('c', 2)]
+        self.complete_unit_data = MockUnitData(unitmap)
+
+    @pytest.fixture
+    def missing_data(self):
+        self.missing = ['here', np.nan, 'here', 'there']
+        self.missing_ticks = [0, np.nan, 1]
+        self.missing_labels = ['here', 'nan', 'there']
+        unitmap = [('here', 0), (np.nan, np.nan), ('there', 1)]
+        self.missing_unit_data = MockUnitData(unitmap,
+                                              labels=self.missing_labels)
+
+    def test_plot_unicode(self):
+        words = [u'Здравствуйте', u'привет']
+        locs = [0.0, 1.0]
+        unit_data = MockUnitData(zip(words, locs))
+
         fig, ax = plt.subplots()
-        ax.plot(self.dm, self.d)
+        ax.plot(words)
         fig.canvas.draw()
 
-        self.axis_test(ax.xaxis, self.dmticks, self.dmlabels, self.dmunit_data)
-        self.axis_test(ax.yaxis, self.dticks, self.dlabels, self.dunit_data)
+        axis_test(ax.yaxis, locs, words, unit_data)
 
-    @pytest.mark.usefixtures("data", "missing_data")
-    def test_scatter_2d(self):
-
+    @pytest.mark.usefixtures("complete_data")
+    def test_plot_yaxis(self):
         fig, ax = plt.subplots()
-        ax.scatter(self.dm, self.d)
+        ax.plot(self.complete)
+        fig.canvas.draw()
+        axis_test(ax.yaxis, self.complete_ticks, self.complete_labels,
+                  self.complete_unit_data)
+
+    @pytest.mark.xfail(reason="scatter/plot inconsistencies")
+    @pytest.mark.usefixtures("missing_data")
+    def test_plot_yaxis_missing_data(self):
+        fig, ax = plt.subplots()
+        ax.plot(self.missing)
+        fig.canvas.draw()
+        axis_test(ax.yaxis, self.missing_ticks, self.missing_labels,
+                  self.missing_unit_data)
+
+    @pytest.mark.xfail(reason="scatter/plot inconsistencies")
+    @pytest.mark.usefixtures("complete_data", "missing_data")
+    def test_plot_missing_xaxis_yaxis(self):
+        fig, ax = plt.subplots()
+        ax.plot(self.missing, self.complete)
         fig.canvas.draw()
 
-        self.axis_test(ax.xaxis, self.dmticks, self.dmlabels, self.dmunit_data)
-        self.axis_test(ax.yaxis, self.dticks, self.dlabels, self.dunit_data)
+        axis_test(ax.xaxis, self.missing_ticks, self.missing_labels,
+                  self.missing_unit_data)
+        axis_test(ax.yaxis, self.complete_ticks, self.complete_labels,
+                  self.complete_unit_data)
 
-    def test_plot_update(self):
+    @pytest.mark.usefixtures("complete_data", "missing_data")
+    def test_scatter_missing_xaxis_yaxis(self):
         fig, ax = plt.subplots()
+        ax.scatter(self.missing, self.complete)
+        fig.canvas.draw()
+        axis_test(ax.xaxis, self.missing_ticks, self.missing_labels,
+                  self.missing_unit_data)
+        axis_test(ax.yaxis, self.complete_ticks, self.complete_labels,
+                  self.complete_unit_data)
 
+
+class TestUpdatePlot(object):
+
+    def test_update_plot(self):
+        fig, ax = plt.subplots()
         ax.plot(['a', 'b'])
         ax.plot(['a', 'b', 'd'])
         ax.plot(['b', 'c', 'd'])
@@ -239,13 +251,12 @@ class TestPlot(object):
 
         labels = ['a', 'b', 'd', 'c']
         ticks = [0, 1, 2, 3]
-        unit_data = MockUnitData(zip(labels, ticks))
+        unitmap = MockUnitData(list(zip(labels, ticks)))
 
-        self.axis_test(ax.yaxis, ticks, labels, unit_data)
+        axis_test(ax.yaxis, ticks, labels, unitmap)
 
-    def test_scatter_update(self):
+    def test_update_scatter(self):
         fig, ax = plt.subplots()
-
         ax.scatter(['a', 'b'], [0., 3.])
         ax.scatter(['a', 'b', 'd'], [1., 2., 3.])
         ax.scatter(['b', 'c', 'd'], [4., 1., 2.])
@@ -253,5 +264,6 @@ class TestPlot(object):
 
         labels = ['a', 'b', 'd', 'c']
         ticks = [0, 1, 2, 3]
-        unit_data = MockUnitData(list(zip(labels, ticks)))
-        self.axis_test(ax.xaxis, ticks, labels, unit_data)
+        unitmap = MockUnitData(list(zip(labels, ticks)))
+
+        axis_test(ax.xaxis, ticks, labels, unitmap)
