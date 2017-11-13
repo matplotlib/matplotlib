@@ -312,11 +312,13 @@ def _parse_optional(fh):
 def parse_afm(fh):
     """
     Parse the Adobe Font Metics file in file handle *fh*. Return value
-    is a (*dhead*, *dcmetrics*, *dkernpairs*, *dcomposite*) tuple where
-    *dhead* is a :func:`_parse_header` dict, *dcmetrics* is a
-    :func:`_parse_composites` dict, *dkernpairs* is a
-    :func:`_parse_kern_pairs` dict (possibly {}), and *dcomposite* is a
-    :func:`_parse_composites` dict (possibly {})
+    is a (*dhead*, *dcmetrics_ascii*, *dmetrics_name*, *dkernpairs*,
+    *dcomposite*) tuple where
+    *dhead* is a :func:`_parse_header` dict,
+    *dcmetrics_ascii* and *dcmetrics_name* are the two resulting dicts
+    from :func:`_parse_char_metrics`,
+    *dkernpairs* is a :func:`_parse_kern_pairs` dict (possibly {}) and
+    *dcomposite* is a :func:`_parse_composites` dict (possibly {})
     """
     _sanity_check(fh)
     dhead = _parse_header(fh)
@@ -503,8 +505,8 @@ class AFM(object):
 
         # FamilyName not specified so we'll make a guess
         name = self.get_fullname()
-        extras = (br'(?i)([ -](regular|plain|italic|oblique|bold|semibold|'
-                  br'light|ultralight|extra|condensed))+$')
+        extras = (r'(?i)([ -](regular|plain|italic|oblique|bold|semibold|'
+                  r'light|ultralight|extra|condensed))+$')
         return re.sub(extras, '', name)
 
     @property
