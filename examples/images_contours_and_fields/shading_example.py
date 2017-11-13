@@ -3,17 +3,16 @@
 Shading Example
 ===============
 
+Example showing how to make shaded relief plots
+like Mathematica
+(http://reference.wolfram.com/mathematica/ref/ReliefPlot.html)
+or Generic Mapping Tools
+(http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/GMT_Docs/node145.html)
 """
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
 from matplotlib.cbook import get_sample_data
-
-# Example showing how to make shaded relief plots
-# like Mathematica
-# (http://reference.wolfram.com/mathematica/ref/ReliefPlot.html)
-# or Generic Mapping Tools
-# (http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/GMT_Docs/node145.html)
 
 
 def main():

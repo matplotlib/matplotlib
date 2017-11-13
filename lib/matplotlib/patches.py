@@ -27,36 +27,6 @@ from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
 
-# these are not available for the object inspector until after the
-# class is built so we define an initial set here for the init
-# function and they will be overridden after object definition
-docstring.interpd.update(Patch="""
-
-          =================   ==============================================
-          Property            Description
-          =================   ==============================================
-          alpha               float
-          animated            [True | False]
-          antialiased or aa   [True | False]
-          capstyle            ['butt' | 'round' | 'projecting']
-          clip_box            a matplotlib.transform.Bbox instance
-          clip_on             [True | False]
-          edgecolor or ec     any matplotlib color
-          facecolor or fc     any matplotlib color
-          figure              a matplotlib.figure.Figure instance
-          fill                [True | False]
-          hatch               unknown
-          joinstyle           ['miter' | 'round' | 'bevel']
-          label               any string
-          linewidth or lw     float
-          lod                 [True | False]
-          transform           a matplotlib.transform transformation instance
-          visible             [True | False]
-          zorder              any number
-          =================   ==============================================
-
-          """)
-
 _patch_alias_map = {
         'antialiased': ['aa'],
         'edgecolor': ['ec'],
@@ -621,6 +591,10 @@ class Shadow(Patch):
 
     def _update(self):
         self.update_from(self.patch)
+
+        # Place the shadow patch directly behind the inherited patch.
+        self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
+
         if self.props is not None:
             self.update(self.props)
         else:
@@ -705,7 +679,7 @@ class Rectangle(Patch):
     def _update_patch_transform(self):
         """NOTE: This cannot be called until after this has been added
                  to an Axes, otherwise unit conversion will fail. This
-                 maxes it very important to call the accessor method and
+                 makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
         x = self.convert_xunits(self._x)
@@ -1465,7 +1439,7 @@ class Ellipse(Patch):
     def _recompute_transform(self):
         """NOTE: This cannot be called until after this has been added
                  to an Axes, otherwise unit conversion will fail. This
-                 maxes it very important to call the accessor method and
+                 makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
         center = (self.convert_xunits(self.center[0]),
@@ -1733,7 +1707,7 @@ class Arc(Ellipse):
         path_original = self._path
         for theta in thetas:
             if inside:
-                Path.arc(last_theta, theta, 8)
+                self._path = Path.arc(last_theta, theta, 8)
                 Patch.draw(self, renderer)
                 inside = False
             else:

@@ -3,6 +3,11 @@
 Radio Buttons
 =============
 
+Using radio buttons to choose properties of your plot.
+
+Radio buttons let you choose between multiple options in a visualization.
+In this case, the buttons let the user choose one of the three different sine
+waves to be shown in the plot.
 """
 import numpy as np
 import matplotlib.pyplot as plt

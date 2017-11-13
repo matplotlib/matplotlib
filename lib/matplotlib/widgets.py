@@ -273,7 +273,7 @@ class Slider(AxesWidget):
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
-                 slidermax=None, dragging=True, **kwargs):
+                 slidermax=None, dragging=True, valstep=None, **kwargs):
         """
         Parameters
         ----------
@@ -312,6 +312,9 @@ class Slider(AxesWidget):
         dragging : bool, optional, default: True
             If True the slider can be dragged by the mouse.
 
+        valstep : float, optional, default: None
+            If given, the slider will snap to multiples of `valstep`.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
@@ -334,6 +337,7 @@ class Slider(AxesWidget):
         self.drag_active = False
         self.valmin = valmin
         self.valmax = valmax
+        self.valstep = valstep
         valinit = self._value_in_bounds(valinit)
         if valinit is None:
             valinit = valmin
@@ -368,6 +372,10 @@ class Slider(AxesWidget):
 
     def _value_in_bounds(self, val):
         """ Makes sure self.val is with given bounds."""
+        if self.valstep:
+            val = np.round((val - self.valmin)/self.valstep)*self.valstep
+            val += self.valmin
+
         if val <= self.valmin:
             if not self.closedmin:
                 return
@@ -410,10 +418,17 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
         val = self._value_in_bounds(event.xdata)
-        if val is not None:
+        if (val is not None) and (val != self.val):
             self.set_val(val)
 
     def set_val(self, val):
+        """
+        Set slider value to *val*
+
+        Parameters
+        ----------
+        val : float
+        """
         xy = self.poly.xy
         xy[2] = val, 1
         xy[3] = val, 0
@@ -429,10 +444,19 @@ class Slider(AxesWidget):
 
     def on_changed(self, func):
         """
-        When the slider value is changed, call *func* with the new
-        slider position
+        When the slider value is changed call *func* with the new
+        slider value
 
-        A connection id is returned which can be used to disconnect
+        Parameters
+        ----------
+        func : callable
+            Function to call when slider is changed.
+            The function must accept a single float as its arguments.
+
+        Returns
+        -------
+        cid : int
+            Connection id (which can be used to disconnect *func*)
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -440,14 +464,21 @@ class Slider(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """
+        Remove the observer with connection id *cid*
+
+        Parameters
+        ----------
+        cid : int
+            Connection id of the observer to be removed
+        """
         try:
             del self.observers[cid]
         except KeyError:
             pass
 
     def reset(self):
-        """reset the slider to the initial value if needed"""
+        """Reset the slider to the initial value"""
         if (self.val != self.valinit):
             self.set_val(self.valinit)
 
@@ -1228,11 +1259,10 @@ class Cursor(AxesWidget):
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
         """
-        Add a cursor to *ax*.  If ``useblit=True``, use the backend-
-        dependent blitting features for faster updates (GTKAgg
-        only for now).  *lineprops* is a dictionary of line properties.
+        Add a cursor to *ax*.  If ``useblit=True``, use the backend-dependent
+        blitting features for faster updates.  *lineprops* is a dictionary of
+        line properties.
         """
-        # TODO: Is the GTKAgg limitation still true?
         AxesWidget.__init__(self, ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -1654,8 +1684,7 @@ class SpanSelector(_SelectorWidget):
     Visually select a min/max range on a single axis and call a function with
     those values.
 
-    To guarantee that the selector remains responsive, keep a reference to
-    it.
+    To guarantee that the selector remains responsive, keep a reference to it.
 
     In order to turn off the SpanSelector, set `span_selector.active=False`. To
     turn it back on, set `span_selector.active=True`.
@@ -1674,7 +1703,7 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default is False
       If True, use the backend-dependent blitting features for faster
-      canvas updates. Only available for GTKAgg right now.
+      canvas updates.
 
     rectprops : dict, default is None
       Dictionary of :class:`matplotlib.patches.Patch` properties

@@ -3,7 +3,7 @@
 Decay
 =====
 
-This example showcases a sinusoidal decay animation.
+A sinusoidal decay animation.
 """
 
 

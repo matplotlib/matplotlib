@@ -21,6 +21,7 @@ import io
 from itertools import repeat
 import locale
 import numbers
+import operator
 import os
 import re
 import sys
@@ -254,8 +255,7 @@ def _exception_printer(exc):
 
 
 class CallbackRegistry(object):
-    """Handle registering and disconnecting for a set of signals and
-    callbacks:
+    """Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -331,9 +331,7 @@ class CallbackRegistry(object):
         self.__init__(**state)
 
     def connect(self, s, func):
-        """
-        register *func* to be called when a signal *s* is generated
-        func will be called
+        """Register *func* to be called when signal *s* is generated.
         """
         self._func_cid_map.setdefault(s, WeakKeyDictionary())
         # Note proxy not needed in python 3.
@@ -362,8 +360,7 @@ class CallbackRegistry(object):
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """
-        disconnect the callback registered with callback id *cid*
+        """Disconnect the callback registered with callback id *cid*.
         """
         for eventname, callbackd in list(six.iteritems(self.callbacks)):
             try:
@@ -380,8 +377,10 @@ class CallbackRegistry(object):
 
     def process(self, s, *args, **kwargs):
         """
-        process signal `s`.  All of the functions registered to receive
-        callbacks on `s` will be called with ``**args`` and ``**kwargs``
+        Process signal *s*.
+
+        All of the functions registered to receive callbacks on *s* will be
+        called with ``*args`` and ``**kwargs``.
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
@@ -2752,3 +2751,16 @@ class _StringFuncParser(object):
                              (params, str_func))
 
         return str_func, params
+
+
+def _topmost_artist(
+        artists,
+        _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
+    """Get the topmost artist of a list.
+
+    In case of a tie, return the *last* of the tied artists, as it will be
+    drawn on top of the others. `max` returns the first maximum in case of ties
+    (on Py2 this is undocumented but true), so we need to iterate over the list
+    in reverse order.
+    """
+    return _cached_max(reversed(artists))

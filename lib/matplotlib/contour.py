@@ -328,7 +328,7 @@ class ContourLabeler(object):
             return lev
         else:
             if isinstance(fmt, dict):
-                return fmt[lev]
+                return fmt.get(lev, '%1.3f')
             elif callable(fmt):
                 return fmt(lev)
             else:
@@ -1672,7 +1672,8 @@ class QuadContourSet(ContourSet):
           contour(Z,N)
           contour(X,Y,Z,N)
 
-        contour up to *N* automatically-chosen levels.
+        contour up to *N+1* automatically chosen contour levels
+        (*N* intervals).
 
         ::
 

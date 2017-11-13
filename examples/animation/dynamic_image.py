@@ -3,7 +3,7 @@
 An animated image
 =================
 
-This example demonstrates how to animate an image.
+Animation of an image.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -14,7 +14,7 @@ import pytest
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
-from matplotlib.collections import Collection, EventCollection
+from matplotlib.collections import Collection, LineCollection, EventCollection
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -624,6 +624,44 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-', '-'])
     assert_equal(col.get_linestyles(), [(None, None)] * 3)
     assert_equal(col.get_linewidths(), [1, 2, 3])
+
+
+@pytest.mark.style('default')
+def test_capstyle():
+    col = mcollections.PathCollection([], capstyle='round')
+    assert_equal(col.get_capstyle(), 'round')
+    col.set_capstyle('butt')
+    assert_equal(col.get_capstyle(), 'butt')
+
+
+@pytest.mark.style('default')
+def test_joinstyle():
+    col = mcollections.PathCollection([], joinstyle='round')
+    assert_equal(col.get_joinstyle(), 'round')
+    col.set_joinstyle('miter')
+    assert_equal(col.get_joinstyle(), 'miter')
+
+
+@image_comparison(baseline_images=['cap_and_joinstyle'],
+                  extensions=['png'])
+def test_cap_and_joinstyle_image():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim([-0.5, 1.5])
+    ax.set_ylim([-0.5, 2.5])
+
+    x = np.array([0.0, 1.0, 0.5])
+    ys = np.array([[0.0], [0.5], [1.0]]) + np.array([[0.0, 0.0, 1.0]])
+
+    segs = np.zeros((3, 3, 2))
+    segs[:, :, 0] = x
+    segs[:, :, 1] = ys
+    line_segments = LineCollection(segs, linewidth=[10, 15, 20])
+    line_segments.set_capstyle("round")
+    line_segments.set_joinstyle("miter")
+
+    ax.add_collection(line_segments)
+    ax.set_title('Line collection with customized caps and joinstyle')
 
 
 @image_comparison(baseline_images=['scatter_post_alpha'],

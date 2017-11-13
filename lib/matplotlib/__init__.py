@@ -113,6 +113,7 @@ import io
 import inspect
 import itertools
 import locale
+import logging
 import os
 import re
 import sys
@@ -137,6 +138,8 @@ from ._version import get_versions
 __version__ = str(get_versions()['version'])
 del get_versions
 
+_log = logging.getLogger(__name__)
+
 __version__numpy__ = str('1.7.1')  # minimum required numpy version
 
 __bibtex__ = r"""@Article{Hunter:2007,
@@ -159,6 +162,9 @@ _python27 = (sys.version_info.major == 2 and sys.version_info.minor >= 7)
 _python34 = (sys.version_info.major == 3 and sys.version_info.minor >= 4)
 if not (_python27 or _python34):
     raise ImportError("Matplotlib requires Python 2.7 or 3.4 or later")
+
+if _python27:
+    _log.addHandler(logging.NullHandler())
 
 
 def compare_versions(a, b):
@@ -215,7 +221,75 @@ def _is_writable_dir(p):
     """
     return os.access(p, os.W_OK) and os.path.isdir(p)
 
+_verbose_msg = """\
+Command line argument --verbose-LEVEL is deprecated.
+This functionality is now provided by the standard
+python logging library.  To get more (or less) logging output:
+    import logging
+    logger = logging.getLogger('matplotlib')
+    logger.set_level(logging.INFO)"""
 
+
+def _set_logger_verbose_level(level_str='silent', file_str='sys.stdout'):
+    """
+    Use a --verbose-LEVEL level to set the logging level:
+
+    """
+    levelmap = {'silent': logging.WARNING, 'helpful': logging.INFO,
+                'debug': logging.DEBUG, 'debug-annoying': logging.DEBUG,
+                'info': logging.INFO, 'warning': logging.WARNING}
+    # Check that current state of logger isn't already more verbose
+    # than the requested level.  If it is more verbose, then leave more
+    # verbose.
+    newlev = levelmap[level_str]
+    oldlev = _log.getEffectiveLevel()
+    if newlev < oldlev:
+        _log.setLevel(newlev)
+        std = {
+            'sys.stdout': sys.stdout,
+            'sys.stderr': sys.stderr,
+        }
+        if file_str in std:
+            fileo = std[file_str]
+        else:
+            fileo = sys.stdout
+            try:
+                fileo = open(file_str, 'w')
+                # if this fails, we will just write to stdout
+            except IOError:
+                warnings.warn('could not open log file "{0}"'
+                              'for writing.  Check your '
+                              'matplotlibrc'.format(file_str))
+        console = logging.StreamHandler(fileo)
+        console.setLevel(newlev)
+        _log.addHandler(console)
+
+
+def _parse_commandline():
+    """
+    Check for --verbose-LEVEL type command line arguments and
+    set logging level appropriately.
+    """
+
+    levels = ('silent', 'helpful', 'debug', 'debug-annoying',
+              'info', 'warning')
+
+    for arg in sys.argv[1:]:
+        # cast to str because we are using unicode_literals,
+        # and argv is always str
+
+        if arg.startswith(str('--verbose-')):
+            level_str = arg[10:]
+            # If it doesn't match one of ours, then don't even
+            # bother noting it, we are just a 3rd-party library
+            # to somebody else's script.
+            if level_str in levels:
+                _set_logger_verbose_level(level_str)
+
+_parse_commandline()
+
+
+@cbook.deprecated("2.2", message=_verbose_msg)
 class Verbose(object):
     """
     A class to handle reporting.  Set the fileo attribute to any file
@@ -311,7 +385,29 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
-verbose = Verbose()
+def _wrap(fmt, func, level='INFO', always=True):
+    """
+    return a callable function that wraps func and reports its
+    output through logger
+
+    if always is True, the report will occur on every function
+    call; otherwise only on the first time the function is called
+    """
+    assert callable(func)
+
+    def wrapper(*args, **kwargs):
+        ret = func(*args, **kwargs)
+
+        if (always or not wrapper._spoke):
+            lvl = logging.getLevelName(level.upper())
+            _log.log(lvl, fmt % ret)
+            spoke = True
+            if not wrapper._spoke:
+                wrapper._spoke = spoke
+        return ret
+    wrapper._spoke = False
+    wrapper.__doc__ = func.__doc__
+    return wrapper
 
 
 def checkdep_dvipng():
@@ -512,7 +608,7 @@ def _create_tmp_config_dir():
     return configdir
 
 
-get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
+get_home = _wrap('$HOME=%s', _get_home, always=False)
 
 
 def _get_xdg_config_dir():
@@ -601,7 +697,7 @@ def _get_configdir():
     """
     return _get_config_or_cache_dir(_get_xdg_config_dir())
 
-get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
+get_configdir = _wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 
 def _get_cachedir():
@@ -613,7 +709,7 @@ def _get_cachedir():
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
-get_cachedir = verbose.wrap('CACHEDIR=%s', _get_cachedir, always=False)
+get_cachedir = _wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _decode_filesystem_path(path):
@@ -671,8 +767,8 @@ def _get_data_path_cached():
         defaultParams['datapath'][0] = _get_data_path()
     return defaultParams['datapath'][0]
 
-get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached,
-                             always=False)
+get_data_path = _wrap('matplotlib data path %s', _get_data_path_cached,
+                      always=False)
 
 
 def get_py2exe_datafiles():
@@ -878,7 +974,6 @@ class RcParams(MutableMapping, dict):
             the parent RcParams dictionary.
 
         """
-        import re
         pattern_re = re.compile(pattern)
         return RcParams((key, value)
                         for key, value in self.items()
@@ -1036,22 +1131,18 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
                                       if key not in _all_deprecated])
     config.update(config_from_file)
 
-    verbose.set_level(config['verbose.level'])
-    verbose.set_fileo(config['verbose.fileo'])
-
     if config['datapath'] is None:
         config['datapath'] = get_data_path()
 
     if "".join(config['text.latex.preamble']):
-        verbose.report("""
+        _log.info("""
 *****************************************************************
 You have the following UNSUPPORTED LaTeX preamble customizations:
 %s
 Please do not ask for support with these customizations active.
 *****************************************************************
-""" % '\n'.join(config['text.latex.preamble']), 'helpful')
-
-    verbose.report('loaded rc file %s' % fname)
+""", '\n'.join(config['text.latex.preamble']))
+    _log.info('loaded rc file %s', fname)
 
     return config
 
@@ -1352,7 +1443,14 @@ def _init_tests():
     except ImportError:
         pass
     else:
-        faulthandler.enable()
+        # CPython's faulthandler since v3.6 handles exceptions on Windows
+        # https://bugs.python.org/issue23848 but until v3.6.4 it was
+        # printing non-fatal exceptions https://bugs.python.org/issue30557
+        import platform
+        if not (sys.platform == 'win32' and
+                (3, 6) < sys.version_info < (3, 6, 4) and
+                platform.python_implementation() == 'CPython'):
+            faulthandler.enable()
 
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
@@ -1700,7 +1798,6 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 elif label_namer in kwargs:
                     kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
-                    import warnings
                     msg = ("Tried to set a label via parameter '%s' in "
                            "func '%s' but couldn't find such an argument. \n"
                            "(This is a programming error, please report to "
@@ -1731,9 +1828,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         return inner
     return param
 
-
-verbose.report('matplotlib version %s' % __version__)
-verbose.report('verbose.level %s' % verbose.level)
-verbose.report('interactive is %s' % is_interactive())
-verbose.report('platform is %s' % sys.platform)
-verbose.report('loaded modules: %s' % list(sys.modules), 'debug')
+_log.info('matplotlib version %s', __version__)
+_log.info('interactive is %s', is_interactive())
+_log.info('platform is %s', sys.platform)
+_log.debug('loaded modules: %s', list(sys.modules))

@@ -3,7 +3,7 @@
 Colorbar
 ========
 
-This example shows how to use colorbar by specifying the mappable object (here
+Use colorbar by specifying the mappable object (here
 the imshow returned object) and the axes to attach the colorbar to.
 """
 

@@ -40,6 +40,16 @@ class StrCategoryConverter(units.ConversionInterface):
         """Uses axis.unit_data map to encode
         data as floats
         """
+<<<<<<< HEAD
+=======
+        value = np.atleast_1d(value)
+        # try and update from here....
+        if hasattr(axis.unit_data, 'update'):
+            for val in value:
+                if isinstance(val, six.string_types):
+                    axis.unit_data.update(val)
+
+>>>>>>> temp-branch
         if units.ConversionInterface.is_numlike(value):
             return value
 

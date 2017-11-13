@@ -617,7 +617,7 @@ def test_pandas_iterable():
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-@pytest.mark.parametrize('name', cm.cmap_d)
+@pytest.mark.parametrize('name', sorted(cm.cmap_d))
 def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
@@ -690,7 +690,7 @@ def test_tableau_order():
     assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
 
 
-def test_ndarray_subclass_norm():
+def test_ndarray_subclass_norm(recwarn):
     # Emulate an ndarray subclass that handles units
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
@@ -707,3 +707,11 @@ def test_ndarray_subclass_norm():
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
                  mcolors.PowerNorm(1)]:
         assert_array_equal(norm(data.view(MyArray)), norm(data))
+        if isinstance(norm, mcolors.PowerNorm):
+            assert len(recwarn) == 1
+            warn = recwarn.pop(UserWarning)
+            assert ('Power-law scaling on negative values is ill-defined'
+                    in str(warn.message))
+        else:
+            assert len(recwarn) == 0
+        recwarn.clear()

@@ -828,7 +828,7 @@ class Axis(artist.Artist):
                    'tick1On', 'tick2On', 'label1On', 'label2On']
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
                    'labelleft', 'labelbottom', 'labelright', 'labeltop',
-                   'rotation']
+                   'labelrotation']
         kwkeys = kwkeys0 + kwkeys1
         kwtrans = dict()
         if to_init_kw:
@@ -1052,11 +1052,12 @@ class Axis(artist.Artist):
         for tick, loc, label in tick_tups:
             if tick is None:
                 continue
-            if not mtransforms.interval_contains(interval_expanded, loc):
-                continue
+            # NB: always update labels and position to avoid issues like #9397
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
+            if not mtransforms.interval_contains(interval_expanded, loc):
+                continue
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
@@ -1937,12 +1938,30 @@ class XAxis(Axis):
         self.stale = True
 
     def tick_top(self):
-        'use ticks only on top'
+        """
+        Move ticks and ticklabels (if present) to the top of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('top')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labeltop=label)
 
     def tick_bottom(self):
-        'use ticks only on bottom'
+        """
+        Move ticks and ticklabels (if present) to the bottom of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('bottom')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelbottom=label)
 
     def get_ticks_position(self):
         """
@@ -2209,14 +2228,17 @@ class YAxis(Axis):
         )
 
     def set_offset_position(self, position):
+        """
+        ..
+            ACCEPTS: [ 'left' | 'right' ]
+        """
         x, y = self.offsetText.get_position()
         if position == 'left':
             x = 0
         elif position == 'right':
             x = 1
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only [ 'left' | 'right' ]")
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
@@ -2273,12 +2295,30 @@ class YAxis(Axis):
         self.stale = True
 
     def tick_right(self):
-        'use ticks only on right'
+        """
+        Move ticks and ticklabels (if present) to the right of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('right')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelright=label)
 
     def tick_left(self):
-        'use ticks only on left'
+        """
+        Move ticks and ticklabels (if present) to the left of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('left')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelleft=label)
 
     def get_ticks_position(self):
         """

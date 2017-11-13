@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip, zip_longest
 
-from collections import Sized
 import functools
 import itertools
 import math
@@ -253,27 +252,6 @@ class Axes(_AxesBase):
             self.yaxis.labelpad = labelpad
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
-    def _get_legend_handles(self, legend_handler_map=None):
-        """
-        Return a generator of artists that can be used as handles in
-        a legend.
-
-        """
-        handles_original = (self.lines + self.patches +
-                            self.collections + self.containers)
-        handler_map = mlegend.Legend.get_default_handler_map()
-
-        if legend_handler_map is not None:
-            handler_map = handler_map.copy()
-            handler_map.update(legend_handler_map)
-
-        has_handler = mlegend.Legend.get_legend_handler
-
-        for handle in handles_original:
-            label = handle.get_label()
-            if label != '_nolegend_' and has_handler(handler_map, handle):
-                yield handle
-
     def get_legend_handles_labels(self, legend_handler_map=None):
         """
         Return handles and labels for legend
@@ -284,16 +262,13 @@ class Axes(_AxesBase):
           ax.legend(h, l)
 
         """
-        handles = []
-        labels = []
-        for handle in self._get_legend_handles(legend_handler_map):
-            label = handle.get_label()
-            if label and not label.startswith('_'):
-                handles.append(handle)
-                labels.append(label)
 
+        # pass through to legend.
+        handles, labels = mlegend._get_legend_handles_labels([self],
+                legend_handler_map)
         return handles, labels
 
+    @docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
         Places a legend on the axes.
@@ -329,6 +304,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
+
         loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
 
@@ -353,8 +329,7 @@ class Axes(_AxesBase):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : :class:`matplotlib.transforms.BboxBase` instance \
-or tuple of floats
+        bbox_to_anchor : `~.BboxBase` or pair of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -499,6 +474,11 @@ or tuple of floats
             handler. This `handler_map` updates the default handler map
             found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
 
+        Returns
+        -------
+
+        :class:`matplotlib.legend.Legend` instance
+
         Notes
         -----
 
@@ -511,57 +491,12 @@ or tuple of floats
         .. plot:: gallery/api/legend.py
 
         """
-        handlers = kwargs.get('handler_map', {}) or {}
-
-        # Support handles and labels being passed as keywords.
-        handles = kwargs.pop('handles', None)
-        labels = kwargs.pop('labels', None)
-
-        if (handles is not None or labels is not None) and len(args):
-            warnings.warn("You have mixed positional and keyword "
-                          "arguments, some input will be "
-                          "discarded.")
-
-        # if got both handles and labels as kwargs, make same length
-        if handles and labels:
-            handles, labels = zip(*zip(handles, labels))
-
-        elif handles is not None and labels is None:
-            labels = [handle.get_label() for handle in handles]
-            for label, handle in zip(labels[:], handles[:]):
-                if label.startswith('_'):
-                    warnings.warn('The handle {!r} has a label of {!r} which '
-                                  'cannot be automatically added to the '
-                                  'legend.'.format(handle, label))
-                    labels.remove(label)
-                    handles.remove(handle)
-
-        elif labels is not None and handles is None:
-            # Get as many handles as there are labels.
-            handles = [handle for handle, label
-                       in zip(self._get_legend_handles(handlers), labels)]
-
-        # No arguments - automatically detect labels and handles.
-        elif len(args) == 0:
-            handles, labels = self.get_legend_handles_labels(handlers)
-            if not handles:
-                return None
-
-        # One argument. User defined labels - automatic handle detection.
-        elif len(args) == 1:
-            labels, = args
-            # Get as many handles as there are labels.
-            handles = [handle for handle, label
-                       in zip(self._get_legend_handles(handlers), labels)]
-
-        # Two arguments:
-        #   * user defined handles and labels
-        elif len(args) == 2:
-            handles, labels = args
-
-        else:
-            raise TypeError('Invalid arguments to legend.')
-
+        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
+                [self],
+                *args,
+                **kwargs)
+        if len(extra_args):
+            raise TypeError('legend only accepts two non-keyword arguments')
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
         return self.legend_
@@ -1557,11 +1492,9 @@ or tuple of floats
 
         dx = {'basex': kwargs.pop('basex', 10),
               'subsx': kwargs.pop('subsx', None),
-              'nonposx': kwargs.pop('nonposx', 'mask'),
               }
         dy = {'basey': kwargs.pop('basey', 10),
               'subsy': kwargs.pop('subsy', None),
-              'nonposy': kwargs.pop('nonposy', 'mask'),
               }
 
         self.set_xscale('log', **dx)
@@ -2109,9 +2042,10 @@ or tuple of floats
         if edgecolor is None:
             edgecolor = itertools.repeat(None)
         else:
-            edgecolor = itertools.chain(mcolors.to_rgba_array(edgecolor),
-                                        # Fallback if edgecolor == "none".
-                                        itertools.repeat([0, 0, 0, 0]))
+            edgecolor = itertools.chain(
+                itertools.cycle(mcolors.to_rgba_array(edgecolor)),
+                # Fallback if edgecolor == "none".
+                itertools.repeat([0, 0, 0, 0]))
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
@@ -2851,11 +2785,6 @@ or tuple of floats
             Valid kwargs for the marker properties are
 
             %(Line2D)s
-
-        Notes
-        -----
-        Error bars with negative values will not be shown when plotted on a
-        logarithmic axis.
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
@@ -3025,8 +2954,7 @@ or tuple of floats
             # special case for empty lists
             if len(err) > 1:
                 fe = safe_first_element(err)
-                if (len(err) != len(data)
-                        or isinstance(fe, Sized) and len(fe) > 1):
+                if (len(err) != len(data) or np.size(fe) > 1):
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units
@@ -3041,7 +2969,7 @@ or tuple of floats
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
-            if noxlims.any():
+            if noxlims.any() or len(noxlims) == 0:
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
                 barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
@@ -3090,7 +3018,7 @@ or tuple of floats
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
-            if noylims.any():
+            if noylims.any() or len(noylims) == 0:
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
                 barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
@@ -4231,10 +4159,10 @@ or tuple of floats
         linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'face', 'none', *None*} or mpl color, optional, default\
-            is 'face'
+        edgecolors : {'face', 'none', *None*} or color, optional
 
-            If 'face', draws the edges in the same color as the fill color.
+            If 'face' (the default), draws the edges in the same color as the
+            fill color.
 
             If 'none', no edge is drawn; this can sometimes lead to unsightly
             unpainted pixels between the hexagons.
@@ -4802,6 +4730,10 @@ or tuple of floats
         step : {'pre', 'post', 'mid'}, optional
             If not None, fill with step logic.
 
+        Returns
+        -------
+        `PolyCollection`
+            Plotted polygon collection
 
         Notes
         -----
@@ -4956,6 +4888,12 @@ or tuple of floats
             precise point of intersection.  Otherwise, the start and
             end points of the filled region will only occur on explicit
             values in the *x* array.
+
+
+        Returns
+        -------
+        `PolyCollection`
+            Plotted polygon collection
 
         Notes
         -----
@@ -5244,7 +5182,21 @@ or tuple of floats
             return X, Y, C
 
         if len(args) == 3:
-            X, Y, C = [np.asanyarray(a) for a in args]
+            # Check x and y for bad data...
+            C = np.asanyarray(args[2])
+            X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
+            if funcname == 'pcolormesh':
+                if np.ma.is_masked(X) or np.ma.is_masked(Y):
+                    raise ValueError(
+                        'x and y arguments to pcolormesh cannot have '
+                        'non-finite values or be of type '
+                        'numpy.ma.core.MaskedArray with masked values')
+                # safe_masked_invalid() returns an ndarray for dtypes other
+                # than floating point.
+                if isinstance(X, np.ma.core.MaskedArray):
+                    X = X.data  # strip mask as downstream doesn't like it...
+                if isinstance(Y, np.ma.core.MaskedArray):
+                    Y = Y.data
             numRows, numCols = C.shape
         else:
             raise TypeError(
@@ -5639,7 +5591,6 @@ or tuple of floats
         # convert to one dimensional arrays
         C = C.ravel()
         coords = np.column_stack((X, Y)).astype(float, copy=False)
-
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
                                     **kwargs)
@@ -5849,6 +5800,7 @@ or tuple of floats
                                         norm=norm,
                                         alpha=alpha,
                                         **kwargs)
+                im.set_extent((xl, xr, yb, yt))
             self.add_image(im)
             ret = im
 
@@ -5943,10 +5895,22 @@ or tuple of floats
             Input values, this takes either a single array or a sequency of
             arrays which are not required to be of the same length
 
-        bins : integer or array_like or 'auto', optional
-            If an integer is given, ``bins + 1`` bin edges are returned,
-            consistently with :func:`numpy.histogram` for numpy version >=
-            1.3.
+        bins : integer or sequence or 'auto', optional
+            If an integer is given, ``bins + 1`` bin edges are calculated and
+            returned, consistent with :func:`numpy.histogram`.
+
+            If `bins` is a sequence, gives bin edges, including left edge of
+            first bin and right edge of last bin.  In this case, `bins` is
+            returned unmodified.
+
+            All but the last (righthand-most) bin is half-open.  In other
+            words, if `bins` is::
+
+                [1, 2, 3, 4]
+
+            then the first bin is ``[1, 2)`` (including 1, but excluding 2) and
+            the second ``[2, 3)``.  The last bin, however, is ``[3, 4]``, which
+            *includes* 4.
 
             Unequally spaced bins are supported if *bins* is a sequence.
 
@@ -6105,13 +6069,6 @@ or tuple of floats
         --------
         hist2d : 2D histograms
 
-        Notes
-        -----
-        Until numpy release 1.5, the underlying numpy histogram function was
-        incorrect with ``normed=True`` if bin sizes were unequal.  MPL
-        inherited that error. It is now corrected within MPL when using
-        earlier numpy versions.
-
         """
         # Avoid shadowing the builtin.
         bin_range = range
@@ -6204,8 +6161,10 @@ or tuple of floats
         else:
             hist_kwargs = dict(range=bin_range)
 
-        n = []
+        # List to store all the top coordinates of the histograms
+        tops = []
         mlast = None
+        # Loop through datasets
         for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
@@ -6213,29 +6172,26 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if density and not stacked:
-                db = np.diff(bins)
-                m = (m.astype(float) / db) / m.sum()
             if stacked:
-                if mlast is None:
-                    mlast = np.zeros(len(bins)-1, m.dtype)
                 m += mlast
                 mlast[:] = m
-            n.append(m)
+            tops.append(m)
 
+        # If a stacked density plot, normalize so the area of all the stacked
+        # histograms together is 1
         if stacked and density:
             db = np.diff(bins)
-            for m in n:
-                m[:] = (m.astype(float) / db) / n[-1].sum()
+            for m in tops:
+                m[:] = (m.astype(float) / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
             if density:
-                n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
+                tops = [(m * np.diff(bins))[slc].cumsum()[slc] for m in tops]
             else:
-                n = [m[slc].cumsum()[slc] for m in n]
+                tops = [m[slc].cumsum()[slc] for m in tops]
 
         patches = []
 
@@ -6253,7 +6209,7 @@ or tuple of floats
 
             if rwidth is not None:
                 dr = np.clip(rwidth, 0, 1)
-            elif (len(n) > 1 and
+            elif (len(tops) > 1 and
                   ((not stacked) or rcParams['_internal.classic_mode'])):
                 dr = 0.8
             else:
@@ -6279,7 +6235,7 @@ or tuple of floats
                 _barfunc = self.bar
                 bottom_kwarg = 'bottom'
 
-            for m, c in zip(n, color):
+            for m, c in zip(tops, color):
                 if bottom is None:
                     bottom = np.zeros(len(m))
                 if stacked:
@@ -6323,7 +6279,7 @@ or tuple of floats
                     # For data that is normed to form a probability density,
                     # set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
-                    ndata = np.array(n)
+                    ndata = np.array(tops)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
                     # For non-normed (density = False) data,
@@ -6346,7 +6302,7 @@ or tuple of floats
             fill = (histtype == 'stepfilled')
 
             xvals, yvals = [], []
-            for m in n:
+            for m in tops:
                 if stacked:
                     # starting point for drawing polygon
                     y[0] = y[1]
@@ -6409,9 +6365,9 @@ or tuple of floats
                     p.set_label('_nolegend_')
 
         if nx == 1:
-            return n[0], bins, cbook.silent_list('Patch', patches[0])
+            return tops[0], bins, cbook.silent_list('Patch', patches[0])
         else:
-            return n, bins, cbook.silent_list('Lists of Patches', patches)
+            return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"], label_namer=None)
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,

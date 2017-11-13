@@ -684,13 +684,8 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._onCaptureLost)
         self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._onCaptureLost)
 
-        if wx.VERSION_STRING < "2.9":
-            # only needed in 2.8 to reduce flicker
-            self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-            self.Bind(wx.EVT_ERASE_BACKGROUND, self._onEraseBackground)
-        else:
-            # this does the same in 2.9+
-            self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
+        self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
+        self.SetBackgroundColour(wx.WHITE)
 
         self.macros = {}  # dict from wx id to seq of macros
 
@@ -945,13 +940,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         else:
             self.gui_repaint(drawDC=drawDC)
         evt.Skip()
-
-    def _onEraseBackground(self, evt):
-        """
-        Called when window is redrawn; since we are blitting the entire
-        image, we can leave this blank to suppress flicker.
-        """
-        pass
 
     def _onSize(self, evt):
         """
@@ -1703,8 +1691,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.statbar.set_function(s)
 
     def set_history_buttons(self):
-        can_backward = (self._views._pos > 0)
-        can_forward = (self._views._pos < len(self._views._elements) - 1)
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
         self.EnableTool(self.wx_ids['Back'], can_backward)
         self.EnableTool(self.wx_ids['Forward'], can_forward)
 

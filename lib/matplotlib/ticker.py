@@ -37,100 +37,96 @@ axis limits and ticks that are multiples of that base.
 
 The Locator subclasses defined here are
 
-:class:`NullLocator`
-    No ticks
-
-:class:`FixedLocator`
-    Tick locations are fixed
-
-:class:`IndexLocator`
-    locator for index plots (e.g., where x = range(len(y)))
-
-:class:`LinearLocator`
-    evenly spaced ticks from min to max
-
-:class:`LogLocator`
-    logarithmically ticks from min to max
-
-:class:`SymmetricalLogLocator`
-    locator for use with with the symlog norm, works like the
-    `LogLocator` for the part outside of the threshold and add 0 if
-    inside the limits
-
-:class:`MultipleLocator`
-    ticks and range are a multiple of base; either integer or float
-
-:class:`OldAutoLocator`
-    choose a MultipleLocator and dyamically reassign it for
-    intelligent ticking during navigation
+:class:`AutoLocator`
+    `MaxNLocator` with simple defaults.  This is the default tick locator for
+    most plotting.
 
 :class:`MaxNLocator`
-    finds up to a max number of ticks at nice locations
+    Finds up to a max number of intervals with ticks at nice locations.
 
-:class:`AutoLocator`
-    :class:`MaxNLocator` with simple defaults. This is the default
-    tick locator for most plotting.
+:class:`LinearLocator`
+    Space ticks evenly from min to max.
 
-:class:`AutoMinorLocator`
-    locator for minor ticks when the axis is linear and the
-    major ticks are uniformly spaced. It subdivides the major
-    tick interval into a specified number of minor intervals,
-    defaulting to 4 or 5 depending on the major interval.
+:class:`LogLocator`
+    Space ticks logarithmically from min to max.
+
+:class:`MultipleLocator`
+    Ticks and range are a multiple of base; either integer or float.
+
+:class:`FixedLocator`
+    Tick locations are fixed.
+
+:class:`IndexLocator`
+    Locator for index plots (e.g., where ``x = range(len(y))``).
+
+:class:`NullLocator`
+    No ticks.
+
+:class:`SymmetricalLogLocator`
+    Locator for use with with the symlog norm; works like `LogLocator` for the
+    part outside of the threshold and adds 0 if inside the limits.
 
 :class:`LogitLocator`
     Locator for logit scaling.
 
+:class:`OldAutoLocator`
+    Choose a `MultipleLocator` and dynamically reassign it for intelligent
+    ticking during navigation.
+
+:class:`AutoMinorLocator`
+    Locator for minor ticks when the axis is linear and the
+    major ticks are uniformly spaced.  Subdivides the major
+    tick interval into a specified number of minor intervals,
+    defaulting to 4 or 5 depending on the major interval.
+
 
 There are a number of locators specialized for date locations - see
-the dates module
+the `dates` module.
 
 You can define your own locator by deriving from Locator. You must
 override the ``__call__`` method, which returns a sequence of locations,
 and you will probably want to override the autoscale method to set the
 view limits from the data limits.
 
-If you want to override the default locator, use one of the above or a
-custom locator and pass it to the x or y axis instance. The relevant
-methods are::
+If you want to override the default locator, use one of the above or a custom
+locator and pass it to the x or y axis instance. The relevant methods are::
 
-  ax.xaxis.set_major_locator( xmajorLocator )
-  ax.xaxis.set_minor_locator( xminorLocator )
-  ax.yaxis.set_major_locator( ymajorLocator )
-  ax.yaxis.set_minor_locator( yminorLocator )
+  ax.xaxis.set_major_locator(xmajor_locator)
+  ax.xaxis.set_minor_locator(xminor_locator)
+  ax.yaxis.set_major_locator(ymajor_locator)
+  ax.yaxis.set_minor_locator(yminor_locator)
 
-The default minor locator is the NullLocator, e.g., no minor ticks on by
-default.
+The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
 
 Tick formatting
 ---------------
 
-Tick formatting is controlled by classes derived from Formatter. The
-formatter operates on a single tick value and returns a string to the
-axis.
+Tick formatting is controlled by classes derived from Formatter. The formatter
+operates on a single tick value and returns a string to the axis.
 
 :class:`NullFormatter`
-    No labels on the ticks
+    No labels on the ticks.
 
 :class:`IndexFormatter`
-    Set the strings from a list of labels
+    Set the strings from a list of labels.
 
 :class:`FixedFormatter`
-    Set the strings manually for the labels
+    Set the strings manually for the labels.
 
 :class:`FuncFormatter`
-    User defined function sets the labels
+    User defined function sets the labels.
 
 :class:`StrMethodFormatter`
-    Use string `format` method
+    Use string `format` method.
 
 :class:`FormatStrFormatter`
-    Use an old-style sprintf format string
+    Use an old-style sprintf format string.
 
 :class:`ScalarFormatter`
-    Default formatter for scalars: autopick the format string
+    Default formatter for scalars: autopick the format string.
 
 :class:`LogFormatter`
-    Formatter for log axes
+    Formatter for log axes.
 
 :class:`LogFormatterExponent`
     Format values for log axis using ``exponent = log_base(value)``.
@@ -158,10 +154,10 @@ access to the axis view and data limits.
 To control the major and minor tick label formats, use one of the
 following methods::
 
-  ax.xaxis.set_major_formatter( xmajorFormatter )
-  ax.xaxis.set_minor_formatter( xminorFormatter )
-  ax.yaxis.set_major_formatter( ymajorFormatter )
-  ax.yaxis.set_minor_formatter( yminorFormatter )
+  ax.xaxis.set_major_formatter(xmajor_formatter)
+  ax.xaxis.set_minor_formatter(xminor_formatter)
+  ax.yaxis.set_major_formatter(ymajor_formatter)
+  ax.yaxis.set_minor_formatter(yminor_formatter)
 
 See :ref:`sphx_glr_gallery_ticks_and_spines_major_minor_demo.py` for an
 example of setting major and minor ticks. See the :mod:`matplotlib.dates`
@@ -983,7 +979,6 @@ class LogFormatter(Formatter):
         if x == 0.0:  # Symlog
             return '0'
 
-        sign = np.sign(x)
         x = abs(x)
         b = self._base
         # only label the decades
@@ -1410,7 +1405,7 @@ class PercentFormatter(Formatter):
         return symbol
 
     @symbol.setter
-    def symbol(self):
+    def symbol(self, symbol):
         self._symbol = symbol
 
 
@@ -2485,7 +2480,16 @@ class LogitLocator(Locator):
 
 
 class AutoLocator(MaxNLocator):
+    """
+    Dynamically find major tick positions. This is actually a subclass
+    of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
+    and *steps = [1, 2, 2.5, 5, 10]*.
+    """
     def __init__(self):
+        """
+        To know the values of the non-public parameters, please have a
+        look to the defaults of `~matplotlib.ticker.MaxNLocator`.
+        """
         if rcParams['_internal.classic_mode']:
             nbins = 9
             steps = [1, 2, 5, 10]
@@ -2525,18 +2529,14 @@ class AutoMinorLocator(Locator):
             # TODO: Figure out a way to still be able to display minor
             # ticks without two major ticks visible. For now, just display
             # no ticks at all.
-            majorstep = 0
+            return []
 
         if self.ndivs is None:
-            if majorstep == 0:
-                # TODO: Need a better way to figure out ndivs
-                ndivs = 1
+            x = int(np.round(10 ** (np.log10(majorstep) % 1)))
+            if x in [1, 5, 10]:
+                ndivs = 5
             else:
-                x = int(np.round(10 ** (np.log10(majorstep) % 1)))
-                if x in [1, 5, 10]:
-                    ndivs = 5
-                else:
-                    ndivs = 4
+                ndivs = 4
         else:
             ndivs = self.ndivs
 
@@ -2546,15 +2546,12 @@ class AutoMinorLocator(Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        if len(majorlocs) > 0:
-            t0 = majorlocs[0]
-            tmin = ((vmin - t0) // minorstep + 1) * minorstep
-            tmax = ((vmax - t0) // minorstep + 1) * minorstep
-            locs = np.arange(tmin, tmax, minorstep) + t0
-            cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
-            locs = locs.compress(cond)
-        else:
-            locs = []
+        t0 = majorlocs[0]
+        tmin = ((vmin - t0) // minorstep + 1) * minorstep
+        tmax = ((vmax - t0) // minorstep + 1) * minorstep
+        locs = np.arange(tmin, tmax, minorstep) + t0
+        cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
+        locs = locs.compress(cond)
 
         return self.raise_if_exceeds(np.array(locs))
 

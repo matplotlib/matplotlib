@@ -3,6 +3,10 @@ language: python
 dist: trusty
 sudo: false
 
+branches:
+  except:
+  - /^auto-backport-of-pr-\d*/
+
 cache:
   pip: true
   directories:
@@ -10,6 +14,9 @@ cache:
     - $HOME/.cache/matplotlib
 
 addons:
+  artifacts:
+    paths:
+    - result_images.tar.bz2
   apt:
     packages:
       - inkscape
@@ -32,7 +39,7 @@ addons:
 env:
   global:
     - ARTIFACTS_AWS_REGION=us-east-1
-    - ARTIFACTS_S3_BUCKET=matplotlib-test-results
+    - ARTIFACTS_BUCKET=matplotlib-test-results
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
@@ -109,10 +116,7 @@ install:
         $PANDAS \
         codecov \
         coverage \
-        cycler \
         pillow \
-        pyparsing!=2.1.6 \
-        python-dateutil \
         sphinx
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
@@ -124,7 +128,7 @@ install:
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
     pip install -U --pre \
-      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
+      --no-index -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
       python -c 'import wx' &&
       echo 'wxPython is available' ||
@@ -162,11 +166,8 @@ before_cache:
 after_failure:
   - |
     if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
-      gem install travis-artifacts
-      cd $TRAVIS_BUILD_DIR/../tmp_test_dir
       tar cjf result_images.tar.bz2 result_images
-      travis-artifacts upload --path result_images.tar.bz2
-      echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
+      echo 'See "Uploading Artifacts" near the end of the log for the download URL'
     else
       echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
     fi

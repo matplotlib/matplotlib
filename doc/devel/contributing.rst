@@ -45,6 +45,8 @@ use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
 
+.. _installing_for_devs:
+
 Retrieving and installing the latest version of the code
 ========================================================
 
@@ -77,24 +79,35 @@ We use `Git <https://git-scm.com/>`_ for version control and
 You can check out the latest sources with the command (see
 :ref:`set-up-fork` for more details)::
 
-    git clone https://github.com:matplotlib/matplotlib.git
+    git clone https://github.com/matplotlib/matplotlib.git
 
 and navigate to the :file:`matplotlib` directory. If you have the proper privileges,
 you can use ``git@`` instead of  ``https://``, which works through the ssh protocol
 and might be easier to use if you are using 2-factor authentication.
 
 
-To make sure the tests run locally you must build against the correct version
-of freetype.  To configure the build system to fetch and build it either export
-the env ``MPLLOCALFREETYPE`` as::
+Building Matplotlib for image comparison tests
+----------------------------------------------
 
-  export MPLLOCALFREETYPE=1
+Matplotlib's test suite makes heavy use of image comparison tests,
+meaning the result of a plot is compared against a known good result.
+Unfortunately, different versions of FreeType produce differently
+formed characters, causing these image comparisons to fail.  To make
+them reproducible, Matplotlib can be built with a special local copy
+of FreeType.  This is recommended for all Matplotlib developers.
 
-or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain
-::
+Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
 
   [test]
   local_freetype = True
+  tests = True
+
+or set the ``MPLLOCALFREETYPE`` environmental variable to any true
+value.
+
+
+Installing Matplotlib in developer mode
+---------------------------------------
 
 To install Matplotlib (and compile the c-extensions) run the following
 command from the top-level directory ::
@@ -155,7 +168,12 @@ How to contribute
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR):
+then submit a "pull request" (PR).
+
+The best practices for using GitHub to make PRs to Matplotlib are
+documented in the :ref:`development-workflow` section.
+
+A brief overview is:
 
  1. `Create an account <https://github.com/join>`_ on
     GitHub if you do not already have one.
@@ -167,7 +185,7 @@ then submit a "pull request" (PR):
 
  3. Clone this copy to your local disk::
 
-        $ git clone https://github.com:YourLogin/matplotlib.git
+        $ git clone https://github.com/YourLogin/matplotlib.git
 
  4. Create a branch to hold your changes::
 
@@ -418,6 +436,70 @@ forced to use ``**kwargs``.  An example is
           indices = range(len(self.levels))
       elif len(args) == 1:
          ...etc...
+
+.. _using_logging:
+
+Using logging for debug messages
+--------------------------------
+
+Matplotlib uses the standard python `logging` library to write verbose
+warnings, information, and
+debug messages.  Please use it!  In all those places you write :func:`print()`
+statements to do your debugging, try using :func:`log.debug()` instead!
+
+
+To include `logging` in your module, at the top of the module, you need to
+``import logging``.  Then calls in your code like::
+
+  _log = logging.getLogger(__name__)  # right after the imports
+
+  # code
+  # more code
+  _log.info('Here is some information')
+  _log.debug('Here is some more detailed information')
+
+will log to a logger named ``matplotlib.yourmodulename``.
+
+If an end-user of Matplotlib sets up `logging` to display at levels
+more verbose than `logger.WARNING` in their code as follows::
+
+  import logging
+  fmt = '%(name)s:%(lineno)5d - %(levelname)s - %(message)s'
+  logging.basicConfig(level=logging.DEBUG, format=fmt)
+  import matplotlib.pyplot as plt
+
+Then they will receive messages like::
+
+  matplotlib.backends:   89 - INFO - backend MacOSX version unknown
+  matplotlib.yourmodulename: 347 - INFO - Here is some information
+  matplotlib.yourmodulename: 348 - DEBUG - Here is some more detailed information
+
+Which logging level to use?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are five levels at which you can emit messages.
+`logging.critical` and `logging.error`
+are really only there for errors that will end the use of the library but
+not kill the interpreter.  `logging.warning` overlaps with the
+``warnings`` library.  The
+`logging tutorial <https://docs.python.org/3/howto/logging.html#logging-basic-tutorial>`_
+suggests that the difference
+between `logging.warning` and `warnings.warn` is that
+`warnings.warn` be used for things the user must change to stop
+the warning, whereas `logging.warning` can be more persistent.
+
+By default, `logging` displays all log messages at levels higher than
+`logging.WARNING` to `sys.stderr`.
+
+Calls to `logging.info` are not displayed by default.  They are for
+information that the user may want to know if the program behaves oddly.
+For instance, if an object isn't drawn because its position is ``NaN``,
+that can usually be ignored, but a mystified user could set
+``logging.basicConfig(level=logging.INFO)`` and get an error message that
+says why.
+
+`logging.debug` is the least likely to be displayed, and hence can
+be the most verbose.
 
 .. _custom_backend:
 

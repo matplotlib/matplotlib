@@ -180,15 +180,18 @@ def _rgb_to_rgba(A):
 class _ImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
 
+    @property
     @cbook.deprecated("2.1")
     def _interpd(self):
         return _interpd_
 
+    @property
     @cbook.deprecated("2.1")
     def _interpdr(self):
         return {v: k for k, v in six.iteritems(_interpd_)}
 
-    @cbook.deprecated("2.1")
+    @property
+    @cbook.deprecated("2.1", alternative="mpl.image.interpolation_names")
     def iterpnames(self):
         return interpolations_names
 
@@ -365,10 +368,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     scaled_dtype = A.dtype
                 else:
                     scaled_dtype = np.float32
-                # old versions of numpy do not work with `np.nammin`
-                # and `np.nanmax` as inputs
-                a_min = np.ma.min(A).astype(scaled_dtype)
-                a_max = np.ma.max(A).astype(scaled_dtype)
+
+                a_min = A.min()
+                if a_min is np.ma.masked:
+                    a_min, a_max = 0, 1  # all masked, so values don't matter
+                else:
+                    a_min = a_min.astype(scaled_dtype)
+                    a_max = A.max().astype(scaled_dtype)
+
                 # scale the input data to [.1, .9].  The Agg
                 # interpolators clip to [0, 1] internally, use a
                 # smaller input scale to identify which of the
@@ -611,7 +618,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Retained for backwards compatibility - use set_data instead
 
-        ACCEPTS: numpy array A or PIL Image"""
+        ACCEPTS: numpy array A or PIL Image
+        """
         # This also needs to be here to override the inherited
         # cm.ScalarMappable.set_array method so it is not invoked
         # by mistake.
@@ -822,7 +830,10 @@ class AxesImage(_ImageBase):
         array_extent = Bbox([[0, 0], arr.shape[:2]])
         trans = BboxTransform(boxin=data_extent, boxout=array_extent)
         y, x = event.ydata, event.xdata
-        i, j = trans.transform_point([y, x]).astype(int)
+        point = trans.transform_point([y, x])
+        if any(np.isnan(point)):
+            return None
+        i, j = point.astype(int)
         # Clip the coordinates at array bounds
         if not (0 <= i < arr.shape[0]) or not (0 <= j < arr.shape[1]):
             return None

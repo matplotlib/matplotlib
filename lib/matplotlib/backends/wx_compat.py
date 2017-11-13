@@ -13,7 +13,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from distutils.version import LooseVersion
 
-missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8.12"
+missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython>=2.9"
 
 
 try:
@@ -24,8 +24,7 @@ except ImportError:
     raise ImportError(missingwx)
 
 # Ensure we have the correct version imported
-if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.8.12"):
-    print(" wxPython version %s was imported." % backend_version)
+if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.9"):
     raise ImportError(missingwx)
 
 if is_phoenix:

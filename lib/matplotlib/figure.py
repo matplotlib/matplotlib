@@ -16,6 +16,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
 import warnings
 
 import numpy as np
@@ -39,7 +40,7 @@ import matplotlib.colorbar as cbar
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
-from matplotlib.legend import Legend
+import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
                                     process_projection_requirements)
@@ -47,6 +48,8 @@ from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
+
+_log = logging.getLogger(__name__)
 
 docstring.interpd.update(projection_names=get_projection_names())
 
@@ -259,19 +262,28 @@ class Figure(Artist):
     the callback will be called with ``func(fig)`` where fig is the
     :class:`Figure` instance.
 
-    *patch*
-       The figure patch is drawn by a
-       :class:`matplotlib.patches.Rectangle` instance
+    Attributes
+    ----------
+    patch
+        The figure patch is drawn by a
+        :class:`matplotlib.patches.Rectangle` instance
 
-    *suppressComposite*
-       For multiple figure images, the figure will make composite
-       images depending on the renderer option_image_nocomposite
-       function.  If suppressComposite is True|False, this will
-       override the renderer.
+    suppressComposite
+        For multiple figure images, the figure will make composite images
+        depending on the renderer option_image_nocomposite function.
+        If *suppressComposite* is ``True`` or ``False``, this will override
+        the renderer.
     """
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
+
+    def __repr__(self):
+        return "<{clsname} size {h:g}x{w:g} with {naxes} Axes>".format(
+            clsname=self.__class__.__name__,
+            h=self.bbox.size[0], w=self.bbox.size[1],
+            naxes=len(self.axes),
+        )
 
     def __init__(self,
                  figsize=None,  # defaults to rc figure.figsize
@@ -284,33 +296,35 @@ class Figure(Artist):
                  tight_layout=None,  # default to rc figure.autolayout
                  ):
         """
-        *figsize*
-            w,h tuple in inches
+        Parameters
+        ----------
+        figsize : 2-tuple of floats
+            ``(width, height)`` tuple in inches
 
-        *dpi*
+        dpi : float
             Dots per inch
 
-        *facecolor*
+        facecolor
             The figure patch facecolor; defaults to rc ``figure.facecolor``
 
-        *edgecolor*
+        edgecolor
             The figure patch edge color; defaults to rc ``figure.edgecolor``
 
-        *linewidth*
+        linewidth : float
             The figure patch edge linewidth; the default linewidth of the frame
 
-        *frameon*
-            If *False*, suppress drawing the figure frame
+        frameon : bool
+            If ``False``, suppress drawing the figure frame
 
-        *subplotpars*
-            A :class:`SubplotParams` instance, defaults to rc
+        subplotpars : :class:`SubplotParams`
+            Subplot parameters, defaults to rc
 
-        *tight_layout*
-            If *False* use *subplotpars*; if *True* adjust subplot
+        tight_layout : bool
+            If ``False`` use *subplotpars*; if ``True`` adjust subplot
             parameters using :meth:`tight_layout` with default padding.
-            When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
-            and `rect`, the default :meth:`tight_layout` paddings will be
-            overridden.
+            When providing a dict containing the keys
+            ``pad``, ``w_pad``, ``h_pad``, and ``rect``, the default
+            :meth:`tight_layout` paddings will be overridden.
             Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
@@ -382,7 +396,7 @@ class Figure(Artist):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditiionally.
         if (self.canvas is not None and
-            'WebAgg' in self.canvas.__class__.__name__):
+                'WebAgg' in self.canvas.__class__.__name__):
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
 
@@ -395,8 +409,15 @@ class Figure(Artist):
         :class:`~matplotlib.backend_bases.FigureManagerBase`, and
         will raise an AttributeError.
 
-        For non-GUI backends, this does nothing, in which case
-        a warning will be issued if *warn* is True (default).
+        Parameters
+        ----------
+        warm : bool
+            If ``True``, issue warning when called on a non-GUI backend
+
+        Notes
+        -----
+        For non-GUI backends, this does nothing, in which case a warning will
+        be issued if *warn* is ``True`` (default).
         """
         try:
             manager = getattr(self.canvas, 'manager')
@@ -428,7 +449,12 @@ class Figure(Artist):
 
     def _set_dpi(self, dpi, forward=True):
         """
-        The forward kwarg is passed on to set_size_inches
+        Parameters
+        ----------
+        dpi : float
+
+        forward : bool
+            Passed on to `~.Figure.set_size_inches`
         """
         self._dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi, dpi)
@@ -440,7 +466,7 @@ class Figure(Artist):
 
     def get_tight_layout(self):
         """
-        Return the Boolean flag, True to use :meth:`tight_layout` when drawing.
+        Return whether the figure uses :meth:`tight_layout` when drawing.
         """
         return self._tight
 
@@ -531,7 +557,9 @@ class Figure(Artist):
         return inside, {}
 
     def get_window_extent(self, *args, **kwargs):
-        'get the figure bounding box in display space; kwargs are void'
+        ''''
+        Return figure bounding box in display space; arguments are ignored.
+        '''
         return self.bbox
 
     def suptitle(self, t, **kwargs):
@@ -811,7 +839,7 @@ class Figure(Artist):
         self.dpi = val
         self.stale = True
 
-    def set_figwidth(self, val, forward=False):
+    def set_figwidth(self, val, forward=True):
         """
         Set the width of the figure in inches
 
@@ -819,7 +847,7 @@ class Figure(Artist):
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
-    def set_figheight(self, val, forward=False):
+    def set_figheight(self, val, forward=True):
         """
         Set the height of the figure in inches
 
@@ -988,7 +1016,7 @@ class Figure(Artist):
             grid with J rows and K columns.
 
         projection : ['aitoff' | 'hammer' | 'lambert' | \
-'mollweide', 'polar' | 'rectilinear'], optional
+'mollweide' | 'polar' | 'rectilinear'], optional
             The projection type of the axes.
 
         polar : boolean, optional
@@ -1315,6 +1343,7 @@ class Figure(Artist):
     def get_axes(self):
         return self.axes
 
+    @docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the figure.
@@ -1327,16 +1356,24 @@ class Figure(Artist):
 
           legend( (line1, line2, line3),
                   ('label1', 'label2', 'label3'),
-                  'upper right')
+                  loc='upper right')
+
+        These can also be specified by keyword::
+
+          legend(handles=(line1, line2, line3),
+                labels=('label1', 'label2', 'label3'),
+                loc='upper right')
 
         Parameters
         ----------
-        loc : string or integer
+
+        loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
 
                 ===============   =============
                 Location String   Location Code
                 ===============   =============
+                'best'            0
                 'upper right'     1
                 'upper left'      2
                 'lower left'      3
@@ -1349,27 +1386,57 @@ class Figure(Artist):
                 'center'          10
                 ===============   =============
 
-            *loc* can also be an (x,y) tuple in figure coords, which specifies
-            the lower left of the legend box. In figure coords (0,0) is the
-            bottom left of the figure, and (1,1) is the top right.
 
-        prop : None or FontProperties or dict
-            A :class:`matplotlib.font_manager.FontProperties` instance. If
-            *prop* is a dictionary, a new instance will be created with *prop*.
-            If *None*, use rc settings.
+            Alternatively can be a 2-tuple giving ``x, y`` of the lower-left
+            corner of the legend in axes coordinates (in which case
+            ``bbox_to_anchor`` will be ignored).
 
-        numpoints : integer
-            The number of points in the legend line, default is 4
+        bbox_to_anchor : `~.BboxBase` or pair of floats
+            Specify any arbitrary location for the legend in `bbox_transform`
+            coordinates (default Axes coordinates).
 
-        scatterpoints : integer
-            The number of points in the legend line, default is 4
+            For example, to put the legend's upper right hand corner in the
+            center of the axes the following keywords can be used::
 
-        scatteryoffsets : list of floats
-            A list of yoffsets for scatter symbols in legend
+               loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
-        markerscale : None or scalar
-            The relative size of legend markers vs. original. If *None*, use rc
-            settings.
+        ncol : integer
+            The number of columns that the legend has. Default is 1.
+
+        prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
+            The font properties of the legend. If None (default), the current
+            :data:`matplotlib.rcParams` will be used.
+
+        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
+'large', 'x-large', 'xx-large'}
+            Controls the font size of the legend. If the value is numeric the
+            size will be the absolute font size in points. String values are
+            relative to the current default font size. This argument is only
+            used if `prop` is not specified.
+
+        numpoints : None or int
+            The number of marker points in the legend when creating a legend
+            entry for a line/:class:`matplotlib.lines.Line2D`.
+            Default is ``None`` which will take the value from the
+            ``legend.numpoints`` :data:`rcParam<matplotlib.rcParams>`.
+
+        scatterpoints : None or int
+            The number of marker points in the legend when creating a legend
+            entry for a scatter plot/
+            :class:`matplotlib.collections.PathCollection`.
+            Default is ``None`` which will take the value from the
+            ``legend.scatterpoints`` :data:`rcParam<matplotlib.rcParams>`.
+
+        scatteryoffsets : iterable of floats
+            The vertical offset (relative to the font size) for the markers
+            created for a scatter plot legend entry. 0.0 is at the base the
+            legend text, and 1.0 is at the top. To draw all markers at the
+            same height, set to ``[0.5]``. Default ``[0.375, 0.5, 0.3125]``.
+
+        markerscale : None or int or float
+            The relative size of legend markers compared with the originally
+            drawn ones. Default is ``None`` which will take the value from
+            the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
         markerfirst : bool
             If *True*, legend marker is placed to the left of the legend label.
@@ -1379,78 +1446,95 @@ class Figure(Artist):
 
         frameon : None or bool
             Control whether the legend should be drawn on a patch (frame).
-            Default is *None* which will take the value from the
+            Default is ``None`` which will take the value from the
             ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
 
         fancybox : None or bool
-            If *True*, draw a frame with a round fancybox. If *None*, use rc
-            settings.
+            Control whether round edges should be enabled around
+            the :class:`~matplotlib.patches.FancyBboxPatch` which
+            makes up the legend's background.
+            Default is ``None`` which will take the value from the
+            ``legend.fancybox`` :data:`rcParam<matplotlib.rcParams>`.
 
         shadow : None or bool
-            If *True*, draw a shadow behind legend. If *None*, use rc settings.
+            Control whether to draw a shadow behind the legend.
+            Default is ``None`` which will take the value from the
+            ``legend.shadow`` :data:`rcParam<matplotlib.rcParams>`.
 
         framealpha : None or float
             Control the alpha transparency of the legend's background.
-            Default is *None* which will take the value from the
+            Default is ``None`` which will take the value from the
             ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+            If shadow is activated and framealpha is ``None`` the
+            default value is being ignored.
 
         facecolor : None or "inherit" or a color spec
             Control the legend's background color.
-            Default is *None* which will take the value from the
+            Default is ``None`` which will take the value from the
             ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.facecolor``
             :data:`rcParam<matplotlib.rcParams>`.
 
         edgecolor : None or "inherit" or a color spec
             Control the legend's background patch edge color.
-            Default is *None* which will take the value from the
+            Default is ``None`` which will take the value from the
             ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.edgecolor``
             :data:`rcParam<matplotlib.rcParams>`.
 
-        ncol : integer
-            Number of columns. Default is 1.
+        mode : {"expand", None}
+            If `mode` is set to ``"expand"`` the legend will be horizontally
+            expanded to fill the axes area (or `bbox_to_anchor` if defines
+            the legend's size).
 
-        mode : "expand" or None
-            If mode is "expand", the legend will be horizontally expanded
-            to fill the axes area (or *bbox_to_anchor*)
+        bbox_transform : None or :class:`matplotlib.transforms.Transform`
+            The transform for the bounding box (`bbox_to_anchor`). For a value
+            of ``None`` (default) the Axes'
+            :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
 
-        title : string
-            The legend title
+        title : str or None
+            The legend's title. Default is no title (``None``).
 
         borderpad : float or None
-            The fractional whitespace inside the legend border, measured in
-            font-size units.
-            Default is *None* which will take the value from the
+            The fractional whitespace inside the legend border.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
             ``legend.borderpad`` :data:`rcParam<matplotlib.rcParams>`.
 
         labelspacing : float or None
-            The vertical space between the legend entries, measured in
-            font-size units.
-            Default is *None* which will take the value from the
+            The vertical space between the legend entries.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
             ``legend.labelspacing`` :data:`rcParam<matplotlib.rcParams>`.
 
         handlelength : float or None
-            The length of the legend handles, measured in font-size units.
-            Default is *None* which will take the value from the
+            The length of the legend handles.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
             ``legend.handlelength`` :data:`rcParam<matplotlib.rcParams>`.
 
         handletextpad : float or None
-            The padding between the legend handle and text, measured in
-            font-size units.
-            Default is *None* which will take the value from the
+            The pad between the legend handle and text.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
             ``legend.handletextpad`` :data:`rcParam<matplotlib.rcParams>`.
 
         borderaxespad : float or None
-            The padding between the axes and legend border, measured in
-            font-size units.
-            Default is *None* which will take the value from the
+            The pad between the axes and legend border.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
             ``legend.borderaxespad`` :data:`rcParam<matplotlib.rcParams>`.
 
         columnspacing : float or None
-            The spacing between columns, measured in font-size units.
-            Default is *None* which will take the value from the
+            The spacing between columns.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
             ``legend.columnspacing`` :data:`rcParam<matplotlib.rcParams>`.
+
+        handler_map : dict or None
+            The custom dictionary mapping instances or types to a legend
+            handler. This `handler_map` updates the default handler map
+            found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
 
         Returns
         -------
@@ -1462,67 +1546,22 @@ class Figure(Artist):
         :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for details.
         """
 
-        # If no arguments given, collect up all the artists on the figure
-        if len(args) == 0:
-            handles = []
-            labels = []
-
-            def in_handles(h, l):
-                # Method to check if we already have a given handle and label.
-                # Consider two handles to be the same if they share a label,
-                # color, facecolor, and edgecolor.
-
-                # Loop through each handle and label already collected
-                for f_h, f_l in zip(handles, labels):
-                    if f_l != l:
-                        continue
-                    if type(f_h) != type(h):
-                        continue
-                    try:
-                        if f_h.get_color() != h.get_color():
-                            continue
-                    except AttributeError:
-                        pass
-                    try:
-                        if f_h.get_facecolor() != h.get_facecolor():
-                            continue
-                    except AttributeError:
-                        pass
-                    try:
-                        if f_h.get_edgecolor() != h.get_edgecolor():
-                            continue
-                    except AttributeError:
-                        pass
-                    return True
-                return False
-
-            for ax in self.axes:
-                ax_handles, ax_labels = ax.get_legend_handles_labels()
-                for h, l in zip(ax_handles, ax_labels):
-                    if not in_handles(h, l):
-                        handles.append(h)
-                        labels.append(l)
-            if len(handles) == 0:
-                warnings.warn("No labeled objects found. "
-                              "Use label='...' kwarg on individual plots.")
-                return None
-
-        elif len(args) == 2:
-            # LINES, LABELS
-            handles, labels = args
-
-        elif len(args) == 3:
-            # LINES, LABELS, LOC
-            handles, labels, loc = args
-            kwargs['loc'] = loc
-
-        else:
-            raise TypeError('Invalid number of arguments passed to legend. '
-                            'Please specify either 0 args, 2 args '
-                            '(artist handles, figure labels) or 3 args '
-                            '(artist handles, figure labels, legend location)')
-
-        l = Legend(self, handles, labels, **kwargs)
+        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
+                self.axes,
+                *args,
+                **kwargs)
+        # check for third arg
+        if len(extra_args):
+            # cbook.warn_deprecated(
+            #     "2.1",
+            #     "Figure.legend will accept no more than two "
+            #     "positional arguments in the future.  Use "
+            #     "'fig.legend(handles, labels, loc=location)' "
+            #     "instead.")
+            # kwargs['loc'] = extra_args[0]
+            # extra_args = extra_args[1:]
+            pass
+        l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
         self.stale = True

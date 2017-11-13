@@ -3,7 +3,7 @@
 Mmh Donuts!!!
 =============
 
-This example draws donuts (miam!) using Path and Patches.
+Draw donuts (miam!) using Path and Patches.
 """
 
 import numpy as np

@@ -140,31 +140,40 @@ but the first are also method signatures for the
   colorbar(mappable, cax=cax, **kwargs)
   colorbar(mappable, ax=ax, **kwargs)
 
-arguments:
-
-  *mappable*
-    the :class:`~matplotlib.image.Image`,
+Parameters
+----------
+mappable :
+    The :class:`~matplotlib.image.Image`,
     :class:`~matplotlib.contour.ContourSet`, etc. to
-    which the colorbar applies; this argument is mandatory for the
+    which the colorbar applies; this argument is mandatory for the Figure
     :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
-    :func:`~matplotlib.pyplot.colorbar` function, which sets the
+    pyplot :func:`~matplotlib.pyplot.colorbar` function, which sets the
     default to the current image.
 
-keyword arguments:
+cax : :class:`~matplotlib.axes.Axes` object, optional
+    Axis into which the colorbar will be drawn
 
-  *cax*
-    None | axes object into which the colorbar will be drawn
-  *ax*
-    None | parent axes object(s) from which space for a new
-    colorbar axes will be stolen. If a list of axes is given
-    they will all be resized to make room for the colorbar axes.
-  *use_gridspec*
-    False | If *cax* is None, a new *cax* is created as an instance of
-    Axes. If *ax* is an instance of Subplot and *use_gridspec* is True,
+ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
+    Parent axes from which space for a new colorbar axes will be stolen.
+    If a list of axes is given they will all be resized to make room for the
+    colorbar axes.
+
+use_gridspec : bool, optional
+    If *cax* is ``None``, a new *cax* is created as an instance of
+    Axes. If *ax* is an instance of Subplot and *use_gridspec* is ``True``,
     *cax* is created as an instance of Subplot using the
     grid_spec module.
 
 
+Returns
+-------
+:class:`~matplotlib.colorbar.Colorbar` instance
+    See also its base class, :class:`~matplotlib.colorbar.ColorbarBase`.
+    Call the :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+    to label the colorbar.
+
+Notes
+-----
 Additional keyword arguments are of two kinds:
 
   axes properties:
@@ -175,11 +184,9 @@ Additional keyword arguments are of two kinds:
 If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
 
-Note that the *shrink* kwarg provides a simple way to keep a vertical
-colorbar, for example, from being taller than the axes of the mappable
-to which the colorbar is attached; but it is a manual method requiring
-some trial and error. If the colorbar is too tall (or a horizontal
-colorbar is too wide) use a smaller value of *shrink*.
+The *shrink* kwarg provides a simple way to scale the colorbar with respect
+to the axes. Note that if *cax* is specified it determines the size of the
+colorbar and *shrink* and *aspect* kwargs are ignored.
 
 For more precise control, you can manually specify the positions of
 the axes objects in which the mappable and the colorbar are drawn.  In
@@ -197,12 +204,6 @@ segments::
 However this has negative consequences in other circumstances. Particularly
 with semi transparent images (alpha < 1) and colorbar extensions and is not
 enabled by default see (issue #1188).
-
-returns:
-    :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
-    :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
-    :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
-    to label the colorbar.
 
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 

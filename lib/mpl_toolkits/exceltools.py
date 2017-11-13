@@ -55,9 +55,9 @@ def xlformat_factory(format):
 
     xlstyle = excel.XFStyle()
     if isinstance(format, mlab.FormatPercent):
-       zeros = ''.join(['0']*format.precision)
-       xlstyle.num_format_str = '0.%s%%;[RED]-0.%s%%'%(zeros, zeros)
-       format.scale = 1.
+        zeros = ''.join(['0']*format.precision)
+        xlstyle.num_format_str = '0.%s%%;[RED]-0.%s%%'%(zeros, zeros)
+        format.scale = 1.
     elif isinstance(format, mlab.FormatFloat):
         if format.precision>0:
             zeros = ''.join(['0']*format.precision)

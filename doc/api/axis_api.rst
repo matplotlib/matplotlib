@@ -503,7 +503,6 @@ Ticks
    Tick.get_zorder
    Tick.have_units
    Tick.hitlist
-   Tick.is_figure_set
    Tick.is_transform_set
    Tick.mouseover
    Tick.pchanged
@@ -571,7 +570,6 @@ Ticks
    XTick.get_zorder
    XTick.have_units
    XTick.hitlist
-   XTick.is_figure_set
    XTick.is_transform_set
    XTick.mouseover
    XTick.pchanged
@@ -639,7 +637,6 @@ Ticks
    YTick.get_zorder
    YTick.have_units
    YTick.hitlist
-   YTick.is_figure_set
    YTick.is_transform_set
    YTick.mouseover
    YTick.pchanged
@@ -717,7 +714,6 @@ Axis
    Axis.get_zorder
    Axis.have_units
    Axis.hitlist
-   Axis.is_figure_set
    Axis.is_transform_set
    Axis.mouseover
    Axis.pchanged
@@ -785,7 +781,6 @@ Axis
    XAxis.get_zorder
    XAxis.have_units
    XAxis.hitlist
-   XAxis.is_figure_set
    XAxis.is_transform_set
    XAxis.mouseover
    XAxis.pchanged
@@ -853,7 +848,6 @@ Axis
    YAxis.get_zorder
    YAxis.have_units
    YAxis.hitlist
-   YAxis.is_figure_set
    YAxis.is_transform_set
    YAxis.mouseover
    YAxis.pchanged

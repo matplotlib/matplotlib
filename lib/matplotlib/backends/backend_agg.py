@@ -28,10 +28,9 @@ import threading
 import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin
-from matplotlib import verbose, rcParams, __version__
+from matplotlib import rcParams, __version__
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, cursors)
-from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
@@ -267,9 +266,7 @@ class RendererAgg(RendererBase):
         Get the font for text instance t, cacheing for efficiency
         """
         fname = findfont(prop)
-        font = get_font(
-            fname,
-            hinting_factor=rcParams['text.hinting_factor'])
+        font = get_font(fname)
 
         font.clear()
         size = prop.get_size_in_points()

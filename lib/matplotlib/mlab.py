@@ -720,8 +720,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     if not same_data:
         # if same_data is False, mode must be 'psd'
         resultY = stride_windows(y, NFFT, noverlap)
-        resultY = apply_window(resultY, window, axis=0)
         resultY = detrend(resultY, detrend_func, axis=0)
+        resultY = apply_window(resultY, window, axis=0)
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
         result = np.conj(result) * resultY
     elif mode == 'psd':
@@ -2330,7 +2330,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     values themselves.
     """
     if (not isinstance(names, six.string_types) and cbook.iterable(names)
-            and len(names) and isinstance(names[0]), six.string_types):
+            and len(names) and isinstance(names[0], six.string_types)):
         if len(names) != len(arrs):
             raise ValueError("number of arrays do not match number of names")
     else:  # we have only 1 name and 1 array

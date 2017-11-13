@@ -3,8 +3,7 @@
 An animated image using a list of images
 ========================================
 
-This examples demonstrates how to animate an image from a list of images (or
-Artists).
+Animate an image from a list of images (or Artists).
 """
 import numpy as np
 import matplotlib.pyplot as plt

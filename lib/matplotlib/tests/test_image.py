@@ -201,8 +201,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 44, "Did not get 44, got %d" % z
+    assert im.get_cursor_data(event) == 44
 
     # Now try for a point outside the image
     # Tests issue #4957
@@ -210,8 +209,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
     # Hmm, something is wrong here... I get 0, not None...
     # But, this works further down in the tests with extents flipped
@@ -229,8 +227,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 44, "Did not get 44, got %d" % z
+    assert im.get_cursor_data(event) == 44
 
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), extent=[0, 0.5, 0, 0.5])
@@ -239,8 +236,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 55, "Did not get 55, got %d" % z
+    assert im.get_cursor_data(event) == 55
 
     # Now try for a point outside the image
     # Tests issue #4957
@@ -248,15 +244,13 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
     x, y = 0.01, -0.01
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
 
 @image_comparison(baseline_images=['image_clip'], style='mpl20')
@@ -295,14 +289,18 @@ def test_imshow():
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
 
-@image_comparison(baseline_images=['no_interpolation_origin'], remove_text=True)
+
+@image_comparison(baseline_images=['no_interpolation_origin'],
+                  remove_text=True)
 def test_no_interpolation_origin():
     fig = plt.figure()
     ax = fig.add_subplot(211)
-    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower", interpolation='none')
+    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower",
+              interpolation='none')
 
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
+
 
 @image_comparison(baseline_images=['image_shift'], remove_text=True,
                   extensions=['pdf', 'svg'])
@@ -318,6 +316,7 @@ def test_image_shift():
     ax.imshow(imgData, norm=LogNorm(), interpolation='none',
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
+
 
 def test_image_edges():
     f = plt.figure(figsize=[1, 1])
@@ -514,11 +513,10 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185, 'num colors: %d' % (num_colors, )
-    # The fully transparent part should be red, not white or black
-    # or anything else
+    assert 175 <= num_colors <= 185
+    # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
-    assert corner_pixel == (254, 0, 0), "corner pixel: %r" % (corner_pixel, )
+    assert corner_pixel == (254, 0, 0)
 
 
 def test_nonuniformimage_setdata():
@@ -559,6 +557,12 @@ def test_pcolorimage_setdata():
     im.set_data(x, y, z)
     x[0] = y[0] = z[0, 0] = 9.9
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
+
+
+def test_pcolorimage_extent():
+    im = plt.hist2d([1, 2, 3], [3, 5, 6],
+                    bins=[[0, 3, 7], [1, 2, 3]])[-1]
+    assert im.get_extent() == (0, 7, 1, 3)
 
 
 def test_minimized_rasterized():
@@ -603,7 +607,8 @@ def test_load_from_url():
 
 @image_comparison(baseline_images=['log_scale_image'],
                   remove_text=True)
-def test_log_scale_image():
+# The recwarn fixture captures a warning in image_comparison.
+def test_log_scale_image(recwarn):
     Z = np.zeros((10, 10))
     Z[::2] = 1
 
@@ -613,7 +618,6 @@ def test_log_scale_image():
     ax.imshow(Z, extent=[1, 100, 1, 100], cmap='viridis',
               vmax=1, vmin=-1)
     ax.set_yscale('log')
-
 
 
 @image_comparison(baseline_images=['rotate_image'],
@@ -827,3 +831,21 @@ def test_imshow_float128():
 def test_imshow_bool():
     fig, ax = plt.subplots()
     ax.imshow(np.array([[True, False], [False, True]], dtype=bool))
+
+
+def test_imshow_deprecated_interd_warn():
+    im = plt.imshow([[1, 2], [3, np.nan]])
+    for k in ('_interpd', '_interpdr', 'iterpnames'):
+        with warnings.catch_warnings(record=True) as warns:
+            getattr(im, k)
+        assert len(warns) == 1
+
+
+def test_full_invalid():
+    x = np.ones((10, 10))
+    x[:] = np.nan
+
+    f, ax = plt.subplots()
+    ax.imshow(x)
+
+    f.canvas.draw()

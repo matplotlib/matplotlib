@@ -71,6 +71,10 @@ The rrule locator allows completely general date ticking::
 
 Here are all the date tickers:
 
+    * :class:`MicrosecondLocator`: locate microseconds
+
+    * :class:`SecondLocator`: locate seconds
+
     * :class:`MinuteLocator`: locate minutes
 
     * :class:`HourLocator`: locate hours
@@ -794,6 +798,9 @@ class rrulewrapper(object):
 class DateLocator(ticker.Locator):
     """
     Determines the tick locations when plotting dates.
+
+    This class is subclassed by other Locators and
+    is not meant to be used on its own.
     """
     hms0d = {'byhour': 0, 'byminute': 0, 'bysecond': 0}
 
@@ -1176,8 +1183,9 @@ class AutoDateLocator(DateLocator):
 
         locator.set_axis(self.axis)
 
-        locator.set_view_interval(*self.axis.get_view_interval())
-        locator.set_data_interval(*self.axis.get_data_interval())
+        if self.axis is not None:
+            locator.set_view_interval(*self.axis.get_view_interval())
+            locator.set_data_interval(*self.axis.get_data_interval())
         return locator
 
 

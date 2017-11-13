@@ -10,16 +10,17 @@ from six.moves import xrange
 import os, base64, tempfile, gzip, io, sys, codecs, re
 
 import numpy as np
+import logging
 
 from hashlib import md5
 import uuid
 
-from matplotlib import verbose, __version__, rcParams
+from matplotlib import __version__, rcParams
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_writable_file_like, maxdict
+from matplotlib.cbook import is_writable_file_like
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -31,6 +32,8 @@ from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
 
 from xml.sax.saxutils import escape as escape_xml_text
+
+_log = logging.getLogger(__name__)
 
 backend_version = __version__
 
@@ -258,9 +261,6 @@ def generate_css(attrib={}):
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    FONT_SCALE = 100.0
-    fontd = maxdict(50)
-
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
         self.width = width
         self.height = height
@@ -826,7 +826,7 @@ class RendererSVG(RendererBase):
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename, 0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
-            verbose.report('Writing image file for inclusion: %s' % filename)
+            _log.info('Writing image file for inclusion: %s', filename)
             _png.write_png(im, filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename

@@ -1206,6 +1206,7 @@ class Axes3D(Axes):
             self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
             self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
+            self.stale = True
             self.figure.canvas.draw_idle()
 
 #        elif self.button_pressed == 2:
