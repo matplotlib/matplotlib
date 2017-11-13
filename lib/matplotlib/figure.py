@@ -367,7 +367,7 @@ class Figure(Artist):
 
         self.subplotpars = subplotpars
         self.set_tight_layout(tight_layout)
-        self.tight_layout = tight_layout
+        self.tight = tight_layout
 
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
@@ -1268,7 +1268,7 @@ class Figure(Artist):
             if self.frameon is None:
                 self.frameon = rcParams['figure.frameon']
             self.subplotpars.update()
-            self.set_tight_layout(self.tight_layout)
+            self.set_tight_layout(self.tight)
         self._suptitle = None
         self.stale = True
 
