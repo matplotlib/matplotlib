@@ -5893,7 +5893,9 @@ class Axes(_AxesBase):
         ----------
         x : (n,) array or sequence of (n,) arrays
             Input values, this takes either a single array or a sequence of
-            arrays which are not required to be of the same length
+            arrays which are not required to be of the same length.
+            Masked arrays or arrays with invalid values (e.g. ``nan``) are
+            allowed.
 
         bins : integer or sequence or 'auto', optional
             If an integer is given, ``bins + 1`` bin edges are calculated and
@@ -5949,7 +5951,8 @@ class Axes(_AxesBase):
             only contributes its associated weight towards the bin count
             (instead of 1).  If *normed* or *density* is ``True``,
             the weights are normalized, so that the integral of the density
-            over the range remains 1.
+            over the range remains 1. Masked arrays or arrays with invalid
+            values (e.g. ``nan``) are allowed.
 
             Default is ``None``
 
