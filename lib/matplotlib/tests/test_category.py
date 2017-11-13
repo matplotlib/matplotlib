@@ -3,25 +3,26 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
 import pytest
 import numpy as np
+
 
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
 
-import unittest
 
 
 class TestUnitData(object):
-    testdata = [("hello world", ["hello world"], [0]),
-                ("Здравствуйте мир", ["Здравствуйте мир"], [0]),
-                (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
-                 ['-inf', '3.14', 'A', 'B', 'inf', 'nan'],
-                 [-3.0, 0, 1, 2, -2.0, -1.0])]
+    test_cases = {'single': ("hello world", ["hello world"], [0]),
+                  'unicode': ("Здравствуйте мир", ["Здравствуйте мир"], [0]),
+                  'mixed': (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
+                       ['-inf', '3.14', 'A', 'B', 'inf', 'nan'],
+                       [-3.0, 0, 1, 2, -2.0, -1.0])}
+ 
+    ids, data = zip(*six.iteritems(test_cases))
 
-    ids = ["single", "unicode", "mixed"]
-
-    @pytest.mark.parametrize("data, seq, locs", testdata, ids=ids)
+    @pytest.mark.parametrize("data, seq, locs", data, ids=ids)
     def test_unit(self, data, seq, locs):
         act = cat.UnitData(data)
         assert act.seq == seq
@@ -63,22 +64,26 @@ class TestStrCategoryConverter(object):
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize
     """
-    testdata = [("Здравствуйте мир", [("Здравствуйте мир", 42)], 42),
-                ("hello world", [("hello world", 42)], 42),
-                (['a', 'b', 'b', 'a', 'a', 'c', 'c', 'c'],
-                 [('a', 0), ('b', 1), ('c', 2)],
-                 [0, 1, 1, 0, 0, 2, 2, 2]),
-                (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
-                 [('nan', -1), ('3.14', 0), ('A', 1), ('B', 2),
-                  ('-inf', 100), ('inf', 200)],
-                 [1, 1, -1, 2, 100, 0, 200])]
-    ids = ["unicode", "single", "basic", "mixed"]
+
+    test_cases = {"unicode": ("Здравствуйте мир", [("Здравствуйте мир", 42)], 42),
+                  "ascii" : ("hello world", [("hello world", 42)], 42),
+                  "single" : (['a', 'b', 'b', 'a', 'a', 'c', 'c', 'c'],
+                          [('a', 0), ('b', 1), ('c', 2)],
+                            [0, 1, 1, 0, 0, 2, 2, 2]),
+                  "mixed": (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
+                      [('nan', -1), ('3.14', 0), ('A', 1), ('B', 2),
+                        ('-inf', 100), ('inf', 200)], 
+                        [1, 1, -1, 2, 100, 0, 200]),
+                 "integer string": (["!", "0"], [("!", 0), ("0", 1)], [0, 1]),
+                 "number": (0.0, [(0.0, 0.0)], 0.0)}
+
+    ids, data = zip(*six.iteritems(test_cases))
 
     @pytest.fixture(autouse=True)
     def mock_axis(self, request):
         self.cc = cat.StrCategoryConverter()
 
-    @pytest.mark.parametrize("data, unitmap, exp", testdata, ids=ids)
+    @pytest.mark.parametrize("data, unitmap, exp", data, ids=ids)
     def test_convert(self, data, unitmap, exp):
         MUD = MockUnitData(unitmap)
         axis = FakeAxis(MUD)
@@ -104,7 +109,7 @@ class TestStrCategoryLocator(object):
         np.testing.assert_array_equal(ticks.tick_values(None, None), locs)
 
 
-class TestStrCategoryFormatter(unittest.TestCase):
+class TestStrCategoryFormatter(object):
     def test_StrCategoryFormatter(self):
         seq = ["hello", "world", "hi"]
         labels = cat.StrCategoryFormatter(seq)
@@ -121,24 +126,18 @@ def lt(tl):
 
 
 class TestPlot(object):
-    bytes_data = [
-        ['a', 'b', 'c'],
-        [b'a', b'b', b'c'],
-        np.array([b'a', b'b', b'c'])
-    ]
+    bytes_cases = {'string list': ['a', 'b', 'c'],
+                    'bytes list': [b'a', b'b', b'c'],
+                    'bytes ndarray' : np.array([b'a', b'b', b'c'])}
 
-    bytes_ids = ['string list', 'bytes list', 'bytes ndarray']
+    bytes_ids, bytes_data = zip(*six.iteritems(bytes_cases))
 
-    numlike_data = [
-        ['1', '11', '3'],
-        np.array(['1', '11', '3']),
-        [b'1', b'11', b'3'],
-        np.array([b'1', b'11', b'3']),
-    ]
+    numlike_cases = {'string list': ['1', '11', '3'],
+                     'string ndarray' : np.array(['1', '11', '3']),
+                     'bytes list' : [b'1', b'11', b'3'],
+                     'bytes ndarray' : np.array([b'1', b'11', b'3'])}
 
-    numlike_ids = [
-        'string list', 'string ndarray', 'bytes list', 'bytes ndarray'
-    ]
+    numlike_ids, numlike_data = zip(*six.iteritems(numlike_cases))
 
     @pytest.fixture
     def data(self):
