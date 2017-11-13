@@ -6095,20 +6095,15 @@ class Axes(_AxesBase):
         input_empty = np.size(x) == 0
         # Massage 'x' for processing.
         if input_empty:
-            x = np.array([[]])
+            x = [np.array([[]])]
         else:
             x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
         # Process unit information
-        # If doing a stacked histogram, the input is a list of datasets, so
-        # we need to do the unit conversion individually on each dataset
-        if stacked:
-            self._process_unit_info(xdata=x[0], kwargs=kwargs)
-            x = [self.convert_xunits(xi) for xi in x]
-        else:
-            self._process_unit_info(xdata=x, kwargs=kwargs)
-            x = self.convert_xunits(x)
+        # Unit conversion is done individually on each dataset
+        self._process_unit_info(xdata=x[0], kwargs=kwargs)
+        x = [self.convert_xunits(xi) for xi in x]
 
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
