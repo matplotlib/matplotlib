@@ -158,7 +158,7 @@ def test_fancy():
                  yerr=0.5, label='XX')
     lg = plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
-    lg.get_title().set_fontsize(10)
+    lg.get_title().set_fontsize(12)
 
 
 @image_comparison(baseline_images=['framealpha'], remove_text=True)
@@ -178,7 +178,7 @@ def test_rc():
     ax.scatter(np.arange(10), np.arange(10, 0, -1), label='three')
     lg = ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
-    lg.get_title().set_fontsize(10)
+    lg.get_title().set_fontsize(12)
 
     mpl.rcParams['legend.scatterpoints'] = 1
     plt.figure()
@@ -186,7 +186,7 @@ def test_rc():
     ax.scatter(np.arange(10), np.arange(10, 0, -1), label='one')
     lg = ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
-    lg.get_title().set_fontsize(10)
+    lg.get_title().set_fontsize(12)
 
 
 @image_comparison(baseline_images=['legend_expand'], remove_text=True)
