@@ -6095,7 +6095,7 @@ class Axes(_AxesBase):
         input_empty = np.size(x) == 0
         # Massage 'x' for processing.
         if input_empty:
-            x = [np.array([[]])]
+            x = [np.array([])]
         else:
             x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
