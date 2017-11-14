@@ -668,7 +668,6 @@ class Axis(artist.Artist):
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
-        self._unit_data = None  # Categorical mapping data.
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API

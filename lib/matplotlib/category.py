@@ -21,24 +21,20 @@ class StrCategoryConverter(units.ConversionInterface):
         if np.issubdtype(np.asarray(value).dtype.type, np.number):
             return value
         else:
-            axis._unit_data.update(value)
-            return np.vectorize(axis._unit_data._val_to_idx.__getitem__)(value)
+            unit.update(value)
+            return np.vectorize(unit._val_to_idx.__getitem__)(value)
 
     @staticmethod
     def axisinfo(unit, axis):
         # Note that mapping may get mutated by later calls to plotting methods,
         # so the locator and formatter must dynamically recompute locs and seq.
         return units.AxisInfo(
-            majloc=StrCategoryLocator(axis._unit_data),
-            majfmt=StrCategoryFormatter(axis._unit_data))
+            majloc=StrCategoryLocator(unit),
+            majfmt=StrCategoryFormatter(unit))
 
     @staticmethod
     def default_units(data, axis):
-        # the conversion call stack is default_units->axis_info->convert
-        if axis._unit_data is None:
-            axis._unit_data = _UnitData()
-        axis._unit_data.update(data)
-        return None
+        return _CategoricalUnit()
 
 
 class StrCategoryLocator(ticker.Locator):
@@ -63,7 +59,7 @@ class StrCategoryFormatter(ticker.Formatter):
             return ""
 
 
-class _UnitData(object):
+class _CategoricalUnit(object):
     def __init__(self):
         """Create mapping between unique categorical values and numerical id.
         """

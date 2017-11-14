@@ -36,7 +36,8 @@ def test_simple(ax, data, expected_indices, expected_labels):
 
 def test_default_units(ax):
     ax.plot(["a"])
-    assert ax.yaxis.converter.default_units(["a"], ax.yaxis) is None
+    du = ax.yaxis.converter.default_units(["a"], ax.yaxis)
+    assert isinstance(du, cat._CategoricalUnit)
 
 
 def test_update(ax):
@@ -44,8 +45,8 @@ def test_update(ax):
     l2, = ax.plot(["b", "d", "e"])
     assert_array_equal(l1.get_ydata(orig=False), [0, 1])
     assert_array_equal(l2.get_ydata(orig=False), [2, 1, 3])
-    assert ax.yaxis._unit_data._vals == ["a", "d", "b", "e"]
-    assert ax.yaxis._unit_data._val_to_idx == {"a": 0, "d": 1, "b": 2, "e": 3}
+    assert ax.yaxis.units._vals == ["a", "d", "b", "e"]
+    assert ax.yaxis.units._val_to_idx == {"a": 0, "d": 1, "b": 2, "e": 3}
 
 
 @pytest.mark.parametrize("plotter", [Axes.plot, Axes.scatter, Axes.bar])
