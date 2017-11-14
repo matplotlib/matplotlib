@@ -89,6 +89,7 @@ install:
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-xdist
+    cycler pyparsing backports.functools-lru-cache
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
   # https://github.com/matplotlib/matplotlib/issues/9176
