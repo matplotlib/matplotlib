@@ -74,6 +74,8 @@ class _CategoricalUnit(object):
         for val in sorted_unique:
             if val in self._val_to_idx:
                 continue
+            if not isinstance(val, (six.text_type, six.binary_type)):
+                raise TypeError("Not a string")
             self._vals.append(val)
             self._val_to_idx[val] = next(self._counter)
 

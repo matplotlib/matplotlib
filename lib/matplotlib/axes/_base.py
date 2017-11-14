@@ -216,24 +216,10 @@ class _process_plot_var_args(object):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
-
-            if self.command != 'plot':
-                # the Line2D class can handle unitized data, with
-                # support for post hoc unit changes etc.  Other mpl
-                # artists, e.g., Polygon which _process_plot_var_args
-                # also serves on calls to fill, cannot.  So this is a
-                # hack to say: if you are not "plot", which is
-                # creating Line2D, then convert the data now to
-                # floats.  If you are plot, pass the raw data through
-                # to Line2D which will handle the conversion.  So
-                # polygons will not support post hoc conversions of
-                # the unit type since they are not storing the orig
-                # data.  Hopefully we can rationalize this at a later
-                # date - JDH
-                if bx:
-                    x = self.axes.convert_xunits(x)
-                if by:
-                    y = self.axes.convert_yunits(y)
+            if bx:
+                x = self.axes.convert_xunits(x)
+            if by:
+                y = self.axes.convert_yunits(y)
 
         # like asanyarray, but converts scalar to array, and doesn't change
         # existing compatible sequences
@@ -376,11 +362,12 @@ class _process_plot_var_args(object):
         if 'label' not in kwargs or kwargs['label'] is None:
             kwargs['label'] = get_label(tup[-1], None)
 
-        if len(tup) == 2:
-            x = _check_1d(tup[0])
-            y = _check_1d(tup[-1])
+        if len(tup) == 1:
+            x, y = index_of(tup[0])
+        elif len(tup) == 2:
+            x, y = tup
         else:
-            x, y = index_of(tup[-1])
+            assert False
 
         x, y = self._xy_from_xy(x, y)
 

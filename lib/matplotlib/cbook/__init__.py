@@ -2295,8 +2295,7 @@ def index_of(y):
     try:
         return y.index.values, y.values
     except AttributeError:
-        y = _check_1d(y)
-        return np.arange(y.shape[0], dtype=float), y
+        return np.arange(len(y)), y
 
 
 def safe_first_element(obj):
