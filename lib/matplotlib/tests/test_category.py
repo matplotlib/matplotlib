@@ -18,8 +18,7 @@ def ax():
 
 @pytest.mark.parametrize(
     "data, expected_indices, expected_labels",
-    [("hello world", [0], ["hello world"]),
-     (["Здравствуйте мир"], [0], ["Здравствуйте мир"]),
+    [(["Здравствуйте мир"], [0], ["Здравствуйте мир"]),
      (["a", "b", "b", "a", "c", "c"], [0, 1, 1, 0, 2, 2], ["a", "b", "c"]),
      ([b"foo", b"bar"], range(2), ["foo", "bar"]),
      (np.array(["1", "11", "3"]), range(3), ["1", "11", "3"]),

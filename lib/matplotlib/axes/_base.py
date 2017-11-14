@@ -369,20 +369,44 @@ class _process_plot_var_args(object):
         else:
             assert False
 
-        x, y = self._xy_from_xy(x, y)
-
-        if self.command == 'plot':
-            func = self._makeline
+        deunitized_x, deunitized_y = self._xy_from_xy(x, y)
+        # The previous call has registered the converters, if any, on the axes.
+        # This check will need to be replaced by a comparison with the
+        # DefaultConverter when that PR goes in.
+        if self.axes.xaxis.converter is None or self.command is not "plot":
+            xt, yt = deunitized_x.T, deunitized_y.T
         else:
-            kw['closed'] = kwargs.get('closed', True)
-            func = self._makefill
+            # np.asarray would destroy unit information so we need to construct
+            # the 1D arrays to pass to Line2D.set_xdata manually... (but this
+            # is only relevant if the command is "plot").
 
-        ncx, ncy = x.shape[1], y.shape[1]
+            def to_list_of_lists(data):
+                ndim = np.ndim(data)
+                if ndim == 0:
+                    return [[data]]
+                elif ndim == 1:
+                    return [data]
+                elif ndim == 2:
+                    return zip(*data)  # Transpose it.
+
+            xt, yt = map(to_list_of_lists, [x, y])
+
+        ncx, ncy = deunitized_x.shape[1], deunitized_y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
             cbook.warn_deprecated("2.2", "cycling among columns of inputs "
                                   "with non-matching shapes is deprecated.")
         for j in xrange(max(ncx, ncy)):
-            seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
+            if self.command == "plot":
+                seg = self._makeline([], [], kw, kwargs)
+                # This ensures that the line remembers both the unitized and
+                # deunitized data.
+                seg.set_xdata(xt[j % ncx])
+                seg.set_ydata(yt[j % ncy])
+            else:
+                kw['closed'] = kwargs.get('closed', True)
+                seg = self._makefill(deunitized_x[:, j % ncx],
+                                     deunitized_y[:, j % ncy],
+                                     kw, kwargs)
             ret.append(seg)
         return ret
 
