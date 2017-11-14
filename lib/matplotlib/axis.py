@@ -668,7 +668,7 @@ class Axis(artist.Artist):
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
-        self.unit_data = None
+        self._unit_data = None  # Categorical mapping data.
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API
@@ -718,17 +718,6 @@ class Axis(artist.Artist):
 
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
-
-    @property
-    def unit_data(self):
-        """Holds data that a ConversionInterface subclass uses
-        to convert between labels and indexes
-        """
-        return self._unit_data
-
-    @unit_data.setter
-    def unit_data(self, unit_data):
-        self._unit_data = unit_data
 
     def get_children(self):
         children = [self.label, self.offsetText]

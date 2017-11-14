@@ -16,78 +16,70 @@ from matplotlib import cbook, ticker, units
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Uses axis.unit_data map to encode data as floats."""
+        """Encode data as floats."""
         # We also need to pass numbers through.
         if np.issubdtype(np.asarray(value).dtype.type, np.number):
             return value
         else:
-            axis.unit_data.update(value)
-            return np.vectorize(axis.unit_data._mapping.__getitem__)(value)
+            axis._unit_data.update(value)
+            return np.vectorize(axis._unit_data._val_to_idx.__getitem__)(value)
 
     @staticmethod
     def axisinfo(unit, axis):
         # Note that mapping may get mutated by later calls to plotting methods,
         # so the locator and formatter must dynamically recompute locs and seq.
         return units.AxisInfo(
-            majloc=StrCategoryLocator(axis.unit_data._mapping),
-            majfmt=StrCategoryFormatter(axis.unit_data._mapping))
+            majloc=StrCategoryLocator(axis._unit_data),
+            majfmt=StrCategoryFormatter(axis._unit_data))
 
     @staticmethod
     def default_units(data, axis):
         # the conversion call stack is default_units->axis_info->convert
-        if axis.unit_data is None:
-            axis.unit_data = UnitData(data)
-        else:
-            axis.unit_data.update(data)
+        if axis._unit_data is None:
+            axis._unit_data = _UnitData()
+        axis._unit_data.update(data)
         return None
 
 
-class StrCategoryLocator(ticker.FixedLocator):
-    def __init__(self, mapping):
-        self._mapping = mapping
-        self.nbins = None
+class StrCategoryLocator(ticker.Locator):
+    def __init__(self, unit_data):
+        self._unit_data = unit_data
 
-    @property
-    def locs(self):
-        return list(self._mapping.values())
+    def __call__(self):
+        return list(self._unit_data._val_to_idx.values())
 
 
-class StrCategoryFormatter(ticker.FixedFormatter):
-    def __init__(self, mapping):
-        self._mapping = mapping
-        self.offset_string = ""
+class StrCategoryFormatter(ticker.Formatter):
+    def __init__(self, unit_data):
+        self._unit_data = unit_data
 
-    @property
-    def seq(self):
-        out = []
-        for key in self._mapping:
-            # So that we support bytes input.
-            out.append(key.decode("latin-1") if isinstance(key, bytes)
-                       else key)
-        return out
+    def __call__(self, x, pos=None):
+        if pos in range(len(self._unit_data._vals)):
+            s = self._unit_data._vals[pos]
+            if isinstance(s, bytes):
+                s = s.decode("latin-1")
+            return s
+        else:
+            return ""
 
 
-class UnitData(object):
-    def __init__(self, data):
+class _UnitData(object):
+    def __init__(self):
         """Create mapping between unique categorical values and numerical id.
-
-        Parameters
-        ----------
-        data: iterable
-            sequence of values
         """
-        self._mapping = {}
+        self._vals = []
+        self._val_to_idx = OrderedDict()
         self._counter = itertools.count()
-        self.update(data)
 
     def update(self, data):
         if isinstance(data, six.string_types):
             data = [data]
         sorted_unique = OrderedDict.fromkeys(data)
-        for s in sorted_unique:
-            if s in self._mapping:
+        for val in sorted_unique:
+            if val in self._val_to_idx:
                 continue
-            self._mapping[s] = next(self._counter)
+            self._vals.append(val)
+            self._val_to_idx[val] = next(self._counter)
 
 
 # Connects the convertor to matplotlib
