@@ -892,11 +892,12 @@ class Figure(Artist):
         polar : boolean, optional
             If True, equivalent to projection='polar'.
 
-        This method also takes the keyword arguments for
-        :class:`~matplotlib.axes.Axes`.
+        **kwargs
+            This method also takes the keyword arguments for
+            :class:`~matplotlib.axes.Axes`.
 
         Returns
-        ------
+        -------
         axes : Axes
             The added axes.
 
@@ -994,8 +995,9 @@ class Figure(Artist):
         polar : boolean, optional
             If True, equivalent to projection='polar'.
 
-        This method also takes the keyword arguments for
-        :class:`~matplotlib.axes.Axes`.
+        **kwargs
+            This method also takes the keyword arguments for
+            :class:`~matplotlib.axes.Axes`.
 
         Returns
         -------
@@ -1010,6 +1012,8 @@ class Figure(Artist):
 
         Examples
         --------
+        ::
+
             fig.add_subplot(111)
 
             # equivalent but more general
@@ -1734,9 +1738,10 @@ class Figure(Artist):
 
         The output formats available depend on the backend being used.
 
-        Arguments:
+        Parameters
+        ----------
 
-          *fname*:
+        fname : str or file-like object
             A string containing a path to a filename, or a Python
             file-like object, or possibly some backend-dependent object
             such as :class:`~matplotlib.backends.backend_pdf.PdfPages`.
@@ -1749,29 +1754,33 @@ class Figure(Artist):
             If *fname* is not a string, remember to specify *format* to
             ensure that the correct backend is used.
 
-        Keyword arguments:
+        Other Parameters
+        ----------------
 
-          *dpi*: [ *None* | ``scalar > 0`` | 'figure']
+        dpi : [ *None* | scalar > 0 | 'figure']
             The resolution in dots per inch.  If *None* it will default to
             the value ``savefig.dpi`` in the matplotlibrc file. If 'figure'
             it will set the dpi to be the value of the figure.
 
-          *facecolor*, *edgecolor*:
-            the colors of the figure rectangle
+        facecolor : color spec or None, optional
+            the facecolor of the figure; if None, defaults to savefig.facecolor
 
-          *orientation*: [ 'landscape' | 'portrait' ]
+        edgecolor : color spec or None, optional
+            the edgecolor of the figure; if None, defaults to savefig.edgecolor
+
+        orientation : {'landscape', 'portrait'}
             not supported on all backends; currently only on postscript output
 
-          *papertype*:
+        papertype : str
             One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
             'a10', 'b0' through 'b10'. Only supported for postscript
             output.
 
-          *format*:
+        format : str
             One of the file extensions supported by the active
             backend.  Most backends support png, pdf, ps, eps and svg.
 
-          *transparent*:
+        transparent : bool
             If *True*, the axes patches will all be transparent; the
             figure patch will also be transparent unless facecolor
             and/or edgecolor are specified via kwargs.
@@ -1780,21 +1789,21 @@ class Figure(Artist):
             transparency of these patches will be restored to their
             original values upon exit of this function.
 
-          *frameon*:
+        frameon : bool
             If *True*, the figure patch will be colored, if *False*, the
             figure background will be transparent.  If not provided, the
             rcParam 'savefig.frameon' will be used.
 
-          *bbox_inches*:
+        bbox_inches : str or `~matplotlib.transforms.Bbox`, optional
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
-            the figure.
+            the figure. If None, use savefig.bbox
 
-          *pad_inches*:
+        pad_inches : scalar, optional
             Amount of padding around the figure when bbox_inches is
-            'tight'.
+            'tight'. If None, use savefig.pad_inches
 
-          *bbox_extra_artists*:
+        bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
@@ -1988,17 +1997,20 @@ class Figure(Artist):
         """
         Adjust subplot parameters to give specified padding.
 
-        Parameters:
+        Parameters
+        ----------
 
-          pad : float
+        pad : float
             padding between the figure edge and the edges of subplots,
             as a fraction of the font-size.
-          h_pad, w_pad : float
+
+        h_pad, w_pad : float, optional
             padding (height/width) between edges of adjacent subplots.
             Defaults to `pad_inches`.
-          rect : if rect is given, it is interpreted as a rectangle
-            (left, bottom, right, top) in the normalized figure
-            coordinate that the whole subplots area (including
+
+        rect : tuple (left, bottom, right, top), optional
+            a rectangle (left, bottom, right, top) in the normalized
+            figure coordinate that the whole subplots area (including
             labels) will fit into. Default is (0, 0, 1, 1).
         """
 
