@@ -32,7 +32,8 @@ import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 
-def make_vtk_plane(ren):
+def make_vtk_plane():
+    ''' Create a plane in vtk and return the actor for the plane.'''
 
     # create source
     source = vtk.vtkPlaneSource()
@@ -47,13 +48,11 @@ def make_vtk_plane(ren):
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
 
-    # assign actor to the renderer
-    ren.AddActor(actor)
-
-    return source, mapper, actor
+    return actor
 
 
-def make_vtk_cylinder(ren):
+def make_vtk_cylinder():
+    ''' Create a cylinder in vtk and return the actor for the plane.'''
 
     # Create source
     source = vtk.vtkCylinderSource()
@@ -69,9 +68,7 @@ def make_vtk_cylinder(ren):
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
 
-    ren.AddActor(actor)
-
-    return source, mapper, actor
+    return actor
 
 
 class AppForm(QtWidgets.QMainWindow):
@@ -111,8 +108,12 @@ class AppForm(QtWidgets.QMainWindow):
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
-        self.cyl = make_vtk_cylinder(self.ren)
-        self.pln = make_vtk_plane(self.ren)
+        self.cyl = make_vtk_cylinder()
+        self.pln = make_vtk_plane()
+
+        # add the actors to the renderer
+        self.ren.AddActor(self.cyl)
+        self.ren.AddActor(self.pln)
 
         self.ren.ResetCamera()
 
@@ -122,7 +123,7 @@ class AppForm(QtWidgets.QMainWindow):
         vbox.addWidget(self.slider)
 
         def move_plane(x):
-            self.pln[2].SetPosition(0, 0, x)
+            self.pln.SetPosition(0, 0, x)
             self.im.set_array(self.data[int(x) + 10])
             self.vtkWidget.update()
             self.canvas.draw_idle()
