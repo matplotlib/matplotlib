@@ -1,3 +1,5 @@
+from io import BytesIO
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -9,7 +11,7 @@ import pytest
 from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
     get_fontconfig_fonts, is_opentype_cff_font)
-from matplotlib import rc_context
+from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -91,7 +93,7 @@ def test_hinting_factor(factor):
 
 
 @pytest.mark.skipif(sys.platform != "win32",
-                   reason="Need Windows font to test against")
+                    reason="Need Windows font to test against")
 def test_utf16m_sfnt():
     segoe_ui_semibold = None
     for f in fontManager.ttflist:
@@ -105,3 +107,20 @@ def test_utf16m_sfnt():
     # Check that we successfully read the "semibold" from the font's
     # sfnt table and set its weight accordingly
     assert segoe_ui_semibold.weight == "semibold"
+
+
+@pytest.mark.xfail(not (os.environ.get("TRAVIS") and sys.platform == "linux"),
+                   reason="Font may be missing.")
+def test_find_ttc():
+    fp = FontProperties(family=["WenQuanYi Zen Hei"])
+    font = findfont(fp)
+    assert Path(font).name == "wqy-zenhei.ttc"
+
+    fig, ax = plt.subplots()
+    ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
+    fig.savefig(BytesIO(), format="raw")
+    fig.savefig(BytesIO(), format="svg")
+    with pytest.raises(RuntimeError):
+        fig.savefig(BytesIO(), format="pdf")
+    with pytest.raises(RuntimeError):
+        fig.savefig(BytesIO(), format="ps")

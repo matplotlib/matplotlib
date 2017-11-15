@@ -1117,8 +1117,14 @@ class FigureCanvasPS(FigureCanvasBase):
                                 "time; consider using the Cairo backend")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(os.fsencode(font_filename),
-                                              fh, fonttype, glyph_ids)
+                            try:
+                                convert_ttf_to_ps(os.fsencode(font_filename),
+                                                  fh, fonttype, glyph_ids)
+                            except RuntimeError:
+                                _log.warning("The PostScript backend does not "
+                                             "currently support the selected "
+                                             "font.")
+                                raise
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
