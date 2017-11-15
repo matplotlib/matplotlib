@@ -36,7 +36,7 @@ def test_simple(ax, data, expected_indices, expected_labels):
 def test_default_units(ax):
     ax.plot(["a"])
     du = ax.yaxis.converter.default_units(["a"], ax.yaxis)
-    assert isinstance(du, cat._CategoricalUnit)
+    assert isinstance(du, cat.UnitData)
 
 
 def test_update(ax):

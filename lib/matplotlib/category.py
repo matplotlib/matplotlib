@@ -34,7 +34,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(data, axis):
-        return _CategoricalUnit()
+        return UnitData()
 
 
 class StrCategoryLocator(ticker.Locator):
@@ -53,24 +53,25 @@ class StrCategoryFormatter(ticker.Formatter):
         if pos in range(len(self._unit_data._vals)):
             s = self._unit_data._vals[pos]
             if isinstance(s, bytes):
-                s = s.decode("latin-1")
+                s = s.decode("utf-8")
             return s
         else:
             return ""
 
 
-class _CategoricalUnit(object):
-    def __init__(self):
+class UnitData(object):
+    def __init__(self, data=()):
         """Create mapping between unique categorical values and numerical id.
         """
         self._vals = []
         self._val_to_idx = OrderedDict()
         self._counter = itertools.count()
+        self.update(data)
 
-    def update(self, data):
-        if isinstance(data, six.string_types):
-            data = [data]
-        sorted_unique = OrderedDict.fromkeys(data)
+    def update(self, new_data):
+        if isinstance(new_data, six.string_types):
+            new_data = [new_data]
+        sorted_unique = OrderedDict.fromkeys(new_data)
         for val in sorted_unique:
             if val in self._val_to_idx:
                 continue

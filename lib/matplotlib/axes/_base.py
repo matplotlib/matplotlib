@@ -397,11 +397,7 @@ class _process_plot_var_args(object):
                                   "with non-matching shapes is deprecated.")
         for j in xrange(max(ncx, ncy)):
             if self.command == "plot":
-                seg = self._makeline([], [], kw, kwargs)
-                # This ensures that the line remembers both the unitized and
-                # deunitized data.
-                seg.set_xdata(xt[j % ncx])
-                seg.set_ydata(yt[j % ncy])
+                seg = self._makeline(xt[j % ncx], yt[j % ncy], kw, kwargs)
             else:
                 kw['closed'] = kwargs.get('closed', True)
                 seg = self._makefill(deunitized_x[:, j % ncx],
