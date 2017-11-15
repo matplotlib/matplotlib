@@ -3,13 +3,14 @@ from __future__ import (absolute_import, division, print_function,
 
 from six.moves import map
 
-import datetime
-import warnings
-import tempfile
-import pytest
 
+import datetime
 import dateutil
+import numpy as np
+import pytest
 import pytz
+import tempfile
+import warnings
 
 try:
     # mock in python 3.3+
@@ -20,6 +21,43 @@ except ImportError:
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+
+
+def test_date_numpyx():
+    # test that numpy dates work properly...
+    base = datetime.datetime(2017, 1, 1)
+    time = [base + datetime.timedelta(days=x) for x in range(0, 3)]
+    timenp = np.array(time, dtype='datetime64[ns]')
+    data = np.array([0., 2., 1.])
+    fig = plt.figure(figsize=(10, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    h, = ax.plot(time, data)
+    hnp, = ax.plot(timenp, data)
+    assert np.array_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
+    fig = plt.figure(figsize=(10, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    h, = ax.plot(data, time)
+    hnp, = ax.plot(data, timenp)
+    assert np.array_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
+
+
+@pytest.mark.parametrize('t0', [datetime.datetime(2017, 1, 1, 0, 1, 1),
+
+                                [datetime.datetime(2017, 1, 1, 0, 1, 1),
+                                 datetime.datetime(2017, 1, 1, 1, 1, 1)],
+
+                                [[datetime.datetime(2017, 1, 1, 0, 1, 1),
+                                  datetime.datetime(2017, 1, 1, 1, 1, 1)],
+                                 [datetime.datetime(2017, 1, 1, 2, 1, 1),
+                                  datetime.datetime(2017, 1, 1, 3, 1, 1)]]])
+@pytest.mark.parametrize('dtype', ['datetime64[s]',
+                                    'datetime64[us]',
+                                    'datetime64[ms]'])
+def test_date_date2num_numpy(t0, dtype):
+    time = mdates.date2num(t0)
+    tnp = np.array(t0, dtype=dtype)
+    nptime = mdates.date2num(tnp)
+    assert np.array_equal(time, nptime)
 
 
 @image_comparison(baseline_images=['date_empty'], extensions=['png'])
