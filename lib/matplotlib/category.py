@@ -66,6 +66,10 @@ class UnitData(object):
         self._vals = []
         self._val_to_idx = OrderedDict()
         self._counter = itertools.count()
+        if np.size(data):
+            cbook.warn_deprecated(
+                "2.1.1",
+                "Passing data to the UnitData constructor is deprecated.")
         self.update(data)
 
     def update(self, new_data):
