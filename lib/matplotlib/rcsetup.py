@@ -25,7 +25,7 @@ import os
 import warnings
 import re
 
-from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
+from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper, iterable
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -931,13 +931,29 @@ def _validate_linestyle(ls):
                          "sequence nor a valid string.".format(ls))
 
     # Look for an on-off ink sequence (in points) *of even length*.
-    # Offset is set to None.
+    # Offset is set to None if not present.
     try:
+        offset = None
+        # Look first for the case (offset, on-off seq). Take also care of the
+        # historically supported corner-case of an on-off seq like ["1", "2"].
+        if (len(ls) == 2 and iterable(ls[1]) and
+                not isinstance(ls[0], six.string_types)):
+            # That is likely to be a pattern (offset, on-off seq), so extract
+            # the offset and continue with the on-off sequence candidate.
+            if ls[0] is not None:
+                try:
+                    offset = float(ls[0])
+                except ValueError:
+                    raise ValueError(
+                            "a linestyle offset should be None or "
+                            "a numerical value, not {!r}.".format(ls[0]))
+            offset, ls = ls
+
         if len(ls) % 2 != 0:
             raise ValueError("the linestyle sequence {!r} is not of even "
                              "length.".format(ls))
 
-        return (None, validate_nseq_float()(ls))
+        return (offset, validate_nseq_float()(ls))
 
     except (ValueError, TypeError):
         # TypeError can be raised inside the instance of validate_nseq_float,
