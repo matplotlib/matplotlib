@@ -654,9 +654,10 @@ class DateFormatter(ticker.Formatter):
         return cbook.unicode_safe(s1)
 
     def strftime(self, dt, fmt=None):
-        """Refer to documentation for datetime.strftime.
+        """
+        Refer to documentation for :meth:`datetime.datetime.strftime`
 
-        *fmt* is a :func:`strftime` format string.
+        *fmt* is a :meth:`datetime.datetime.strftime` format string.
 
         Warning: For years before 1900, depending upon the current
         locale it is possible that the year displayed with %x might
