@@ -190,36 +190,32 @@ funcd = {
     }
 
 
-small_docs = False
-warnings_as_errors = True
-n_proc = 1
-
 # Change directory to the one containing this file
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
 copy_if_out_of_date('../INSTALL.rst', 'users/installing.rst')
 
 parser = argparse.ArgumentParser(description='Build matplotlib docs')
-parser.add_argument("cmd", help=("Command to execute. Can be multiple. "
-                    "Valid options are: %s" % (funcd.keys())), nargs='*')
-parser.add_argument("--small",
-                    help="Smaller docs with only low res png figures",
-                    action="store_true")
-parser.add_argument("--allowsphinxwarnings",
-                    help="Don't turn Sphinx warnings into errors",
-                    action="store_true")
-parser.add_argument("-n",
-                    help="Number of parallel workers to use")
+parser.add_argument(
+    "cmd", nargs="*",
+    help="Command(s) to execute.  Valid commands: {}."
+         .format(", ".join(sorted(funcd))))
+parser.add_argument(
+    "--small", action="store_true", default=False,
+    help="Smaller docs with only low resolution PNG figures.")
+parser.add_argument(
+    "--allowsphinxwarnings", action="store_true", default=False,
+    help="Don't turn Sphinx warnings into errors.")
+parser.add_argument(
+    "-n", type=int, default=1,
+    help="Number of parallel workers to use.")
 
 args = parser.parse_args()
-if args.small:
-    small_docs = True
-if args.allowsphinxwarnings:
-    warnings_as_errors = False
-if args.n is not None:
-    n_proc = int(args.n)
+small_docs = args.small
+warnings_as_errors = not args.allowsphinxwarnings
+n_proc = args.n
 
-_valid_commands = "Valid targets are: {}".format(", ".join(sorted(funcd)))
+_valid_commands = "Valid commnds: {}".format(", ".join(sorted(funcd)))
 if args.cmd:
     for command in args.cmd:
         func = funcd.get(command)
