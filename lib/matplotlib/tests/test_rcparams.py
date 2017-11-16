@@ -375,14 +375,18 @@ def generate_validator_testcases(valid):
                            (['1.23', '4.56'], (None, [1.23, 4.56])),
                            ([1.23, 456], (None, [1.23, 456.0])),
                            ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                           ((-1, [1.23, 456]), (-1, [1.23, 456.0])),
+                           ((None, [1.23, 456]), (None, [1.23, 456.0])),
+                           ((9.87, [1.23, 456]), (9.87, [1.23, 456.0])),
+                           ((np.float128(1), [1.23, 4]), (1.0, [1.23, 4.0])),
                           ),
                'fail': (('aardvark', ValueError),  # not a valid string
                         ('dotted'.encode('utf-16'), ValueError),  # even on PY2
-                        ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
-                        ((0, [1, 2]), ValueError),  # idem
-                        ((-1, [1, 2]), ValueError),  # idem
                         ([1, 2, 3], ValueError),  # sequence with odd length
                         (1.23, ValueError),  # not a sequence
+                        (("a", [1, 2]), ValueError),  # wrong explicit offset
+                        ((1, [1, 2, 3]), ValueError),  # odd length sequence
+                        (([1, 2], 1), ValueError),  # inverted offset/onoff
                        )
                 }
     # Add some cases of bytes arguments that Python 2 can convert silently:
