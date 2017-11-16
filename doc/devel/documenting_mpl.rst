@@ -1,7 +1,7 @@
 .. _documenting-matplotlib:
 
 ===========================================
-Developer's tips for documenting matplotlib
+Developer's tips for documenting Matplotlib
 ===========================================
 
 Getting started
@@ -10,19 +10,20 @@ Getting started
 Installing dependencies
 -----------------------
 
-The documentation for matplotlib is generated from reStructuredText using the
-Sphinx_ documentation generation tool. There are several extra requirements that
-are needed to build the documentation. They are listed in the file
+The documentation for Matplotlib is generated from reStructuredText using the
+Sphinx_ documentation generation tool. There are several extra requirements
+that are needed to build the documentation. They are listed in the file
 `doc-requirements.txt <https://github.com/matplotlib/matplotlib/blob/master/doc-requirements.txt>`_
 as well as listed below:
 
-1. Sphinx-1.3 or later(Version 1.5.0 is not supported)
+1. Sphinx-1.3 or later (version 1.5.0 is not supported)
 2. numpydoc 0.4 or later
 3. IPython
 4. Mock
 5. colorspacious
 6. pillow
 7. graphviz
+8. spinx-gallery 0.1.12 or later
 
 .. note::
 
@@ -30,8 +31,8 @@ as well as listed below:
   * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a python package, and needs
     to be installed separately.
 
-General structure
------------------
+General file structure
+----------------------
 
 All documentation is built from the :file:`doc/` directory. This directory contains both
 ``.rst`` files that contain pages in the documentation, directories that contain more
@@ -39,7 +40,7 @@ All documentation is built from the :file:`doc/` directory. This directory conta
 
 .. note::
 
-  An exception to this are the directories :file:`gallery` and :file:`tutorials`, which
+  An exception to this are the directories :file:`examples` and :file:`tutorials`, which
   exist in the root directory. These contain Python files that are built by `Sphinx Gallery`_.
   When the docs are built, directories of the same name will be generated inside of :file:`docs/`.
   The generated directories :file:`docs/gallery` and :file:`docs/tutorials` can be safely deleted.
@@ -51,14 +52,10 @@ Building the docs
 -----------------
 
 The documentation sources are found in the :file:`doc/` directory in
-the trunk.  To build the users guide in html format, cd into
-:file:`doc/` and do::
+the trunk.  To build the documentation in html format, cd into
+:file:`doc/` and run::
 
   python make.py html
-
-or::
-
-  ./make.py html
 
 There are many other flags you can pass to ``make.py``, and you can see the
 full list inside that file. Here are two useful ones:
@@ -75,16 +72,16 @@ In addition, these are useful flags:
   at once.
 
 
-Organization of matplotlib's documentation
+Organization of Matplotlib's documentation
 ==========================================
 
 The actual ReStructured Text files are kept in :file:`doc/users`,
 :file:`doc/devel`, :file:`doc/api` and :file:`doc/faq`. The main entry point is
 :file:`doc/index.rst`, which pulls in the :file:`index.rst` file for the users
-guide, developers guide, api reference, and faqs. The documentation suite is
+guide, developers guide, api reference, and FAQs. The documentation suite is
 built as a single document in order to make the most effective use of cross
-referencing, we want to make navigating the Matplotlib documentation as easy as
-possible.
+referencing (we want to make navigating the Matplotlib documentation as easy as
+possible).
 
 Additional files can be added to the various guides by including their base
 file name (the .rst extension is not necessary) in the table of contents.
@@ -97,9 +94,9 @@ docstrings
 ----------
 
 In addition to the "narrative" documentation described above,
-matplotlib also defines its API reference documentation in docstrings.
+Matplotlib also defines its API reference documentation in docstrings.
 For the most part, these are standard Python docstrings, but
-matplotlib also includes some features to better support documenting
+Matplotlib also includes some features to better support documenting
 getters and setters.
 
 Matplotlib uses artist introspection of docstrings to support
@@ -119,7 +116,7 @@ e.g., in :class:`matplotlib.lines.Line2D`::
       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
       """
 
-Since matplotlib uses a lot of pass-through ``kwargs``, e.g., in every
+Since Matplotlib uses a lot of pass-through keyword arguments (``kwargs``), e.g., in every
 function that creates a line (:func:`~matplotlib.pyplot.plot`,
 :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.semilogy`, etc...), it can be difficult for
@@ -131,11 +128,11 @@ function that takes a ``**kwargs``.  The requirements are:
    require multiple docstring edits.
 
 2. as automated as possible so that as properties change, the docs
-   are updated automagically.
+   are updated automatically.
 
 The function :func:`matplotlib.artist.kwdoc` and the decorator
 :func:`matplotlib.docstring.dedent_interpd` facilitate this.  They combine
-python string interpolation in the docstring with the matplotlib
+python string interpolation in the docstring with the Matplotlib
 artist introspection facility that underlies ``setp`` and ``getp``.
 The ``kwdoc`` function gives the list of properties as a docstring. In order
 to use this in another docstring, first update the
@@ -181,120 +178,10 @@ Formatting
 The Sphinx website contains plenty of documentation_ concerning ReST markup and
 working with Sphinx in general. Here are a few additional things to keep in mind:
 
-* Please familiarize yourself with the Sphinx directives for `inline
-  markup`_. Matplotlib's documentation makes heavy use of cross-referencing and
-  other semantic markup. For example, when referring to external files, use the
-  ``:file:`` directive.
-
-* Function arguments and keywords should be referred to using the *emphasis*
-  role. This will keep matplotlib's documentation consistent with Python's
-  documentation::
-
-    Here is a description of *argument*
-
-  Please do not use the `default role`::
-
-    Please do not describe `argument` like this.
-
-  nor the ``literal`` role::
-
-    Please do not describe ``argument`` like this.
-
-* Sphinx does not support tables with column- or row-spanning cells for
-  latex output. Such tables can not be used when documenting matplotlib.
-
-* Mathematical expressions can be rendered as png images in html, and in the
-  usual way by latex. For example:
-
-  ``:math:`\sin(x_n^2)``` yields: :math:`\sin(x_n^2)`, and::
-
-    .. math::
-
-      \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
-
-  yields:
-
-  .. math::
-
-    \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
-
-* Interactive IPython sessions can be illustrated in the documentation using
-  the following directive::
-
-    .. sourcecode:: ipython
-
-      In [69]: lines = plot([1,2,3])
-
-  which would yield:
-
-  .. sourcecode:: ipython
-
-    In [69]: lines = plot([1,2,3])
-
-* Footnotes [#]_ can be added using ``[#]_``, followed later by::
-
-    .. rubric:: Footnotes
-
-    .. [#]
-
-  .. rubric:: Footnotes
-
-  .. [#] For example.
-
-* Use the *note* and *warning* directives, sparingly, to draw attention to
-  important comments::
-
-    .. note::
-       Here is a note
-
-  yields:
-
-  .. note::
-     here is a note
-
-  also:
-
-  .. warning::
-     here is a warning
-
-* Use the *deprecated* directive when appropriate::
-
-    .. deprecated:: 0.98
-       This feature is obsolete, use something else.
-
-  yields:
-
-  .. deprecated:: 0.98
-     This feature is obsolete, use something else.
-
-* Use the *versionadded* and *versionchanged* directives, which have similar
-  syntax to the *deprecated* role::
-
-    .. versionadded:: 0.98
-       The transforms have been completely revamped.
-
-  .. versionadded:: 0.98
-     The transforms have been completely revamped.
-
-* Use the *seealso* directive, for example::
-
-    .. seealso::
-
-       Using ReST :ref:`emacs-helpers`:
-          One example
-
-       A bit about :ref:`referring-to-mpl-docs`:
-          One more
-
-  yields:
-
-  .. seealso::
-
-     Using ResT :ref:`emacs-helpers`:
-        One example
-
-     A bit about :ref:`referring-to-mpl-docs`:
-        One more
+* Matplotlib's documentation makes heavy use of cross-referencing and
+  other semantic markup. Details can be found in Sphinx directives for `inline
+  markup`_. For example, when referring to external files, the
+  ``:file:`` directive should be used.
 
 * Please keep the :ref:`glossary` in mind when writing documentation. You can
   create a references to a term in the glossary with the ``:term:`` role.
@@ -302,14 +189,70 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 * The autodoc extension will handle index entries for the API, but additional
   entries in the index_ need to be explicitly added.
 
-* Please limit the text width of docstrings to 70 characters.
+* Please limit the text width of docstrings to 79 characters.
 
-* Keyword arguments should be described using a definition list.
+Function arguments
+------------------
+Function arguments and keywords should be referred to using the *emphasis*
+role. This will keep Matplotlib's documentation consistent with Python's
+documentation::
 
-  .. note::
-     matplotlib makes extensive use of keyword arguments as pass-through
-     arguments, there are a many cases where a table is used in place of a
-     definition list for autogenerated sections of docstrings.
+    Here is a description of *argument*
+
+Please do not use the `default role`::
+
+    Please do not describe `argument` like this.
+
+nor the ``literal`` role::
+
+    Please do not describe ``argument`` like this.
+
+* Sphinx does not support tables with column- or row-spanning cells for
+  latex output. Such tables can not be used when documenting Matplotlib.
+
+Maths
+-----
+Mathematical expressions can be rendered as png images in html, and in the
+usual way by latex. For example:
+
+  ``:math:`\sin(x_n^2)``` yields: :math:`\sin(x_n^2)`, and::
+
+    .. math::
+
+      \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
+
+yields:
+
+  .. math::
+
+    \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
+
+IPython code
+------------
+Interactive IPython sessions can be illustrated in the documentation using
+the following directive::
+
+    .. sourcecode:: ipython
+
+      In [69]: lines = plot([1,2,3])
+
+which would yield:
+
+  .. sourcecode:: ipython
+
+    In [69]: lines = plot([1,2,3])
+
+Footnotes
+---------
+Footnotes [#]_ can be added using ``[#]_``, followed later by::
+
+    .. rubric:: Footnotes
+
+    .. [#]
+
+.. rubric:: Footnotes
+
+.. [#] For example.
 
 Figures
 =======
@@ -354,12 +297,12 @@ insert the following special comment anywhere in the script::
 Animations
 ----------
 
-We have a matplotlib google/gmail account with username ``mplgithub``
+We have a Matplotlib Google/gmail account with username ``mplgithub``
 which we used to setup the github account but can be used for other
 purposes, like hosting google docs or youtube videos.  You can embed a
-matplotlib animation in the docs by first saving the animation as a
+Matplotlib animation in the docs by first saving the animation as a
 movie using :meth:`matplotlib.animation.Animation.save`, and then
-uploading to `matplotlib's youtube
+uploading to `Matplotlib's youtube
 channel <https://www.youtube.com/user/matplotlib>`_ and inserting the
 embedding string youtube provides like::
 
@@ -388,15 +331,15 @@ Referring to mpl documents
 ==========================
 
 In the documentation, you may want to include to a document in the
-matplotlib src, e.g., a license file or an image file from `mpl-data`,
+Matplotlib src, e.g., a license file or an image file from `mpl-data`,
 refer to it via a relative path from the document where the rst file
 resides, e.g., in :file:`users/navigation_toolbar.rst`, we refer to the
 image icons with::
 
     .. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
 
-In the `users` subdirectory, if I want to refer to a file in the mpl-data
-directory, I use the symlink directory.  For example, from
+In the `users` subdirectory, if you want to refer to a file in the mpl-data
+directory, you can use the symlink directory.  For example, from
 `customizing.rst`::
 
     .. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
@@ -437,8 +380,8 @@ and refer to it using  the standard reference syntax::
 
     See :ref:`howto-webapp`
 
-Keep in mind that we may want to reorganize the contents later, so
-let's avoid top level names in references like ``user`` or ``devel``
+Keep in mind that we may want to re-organize the contents later, so
+please try to avoid top level names in references like ``user`` or ``devel``
 or ``faq`` unless necessary, because for example the FAQ "what is a
 backend?" could later become part of the users guide, so the label::
 
@@ -448,10 +391,8 @@ is better than::
 
     .. _faq-backend
 
-In addition, since underscores are widely used by Sphinx itself, let's prefer
+In addition, since underscores are widely used by Sphinx itself, please use
 hyphens to separate words.
-
-
 
 Section names, etc
 ==================
@@ -464,7 +405,7 @@ Inheritance diagrams
 ====================
 
 Class inheritance diagrams can be generated with the
-``inheritance-diagram`` directive.  To use it, you provide the
+``inheritance-diagram`` directive.  To use it, provide the
 directive with a number of class or module names (separated by
 whitespace).  If a module name is provided, all classes in that module
 will be used.  All of the ancestors of these classes will be included
