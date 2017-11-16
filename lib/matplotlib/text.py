@@ -722,7 +722,9 @@ class Text(Artist):
             # position in Text, and dash position in TextWithDash:
             posx = float(textobj.convert_xunits(textobj._x))
             posy = float(textobj.convert_yunits(textobj._y))
+            _log.debug('posx %1.1f, posy %1.1f', posx, posy)
             posx, posy = trans.transform_point((posx, posy))
+            _log.debug('trans posx %1.1f, posy %1.1f', posx, posy)
             if not np.isfinite(posx) or not np.isfinite(posy):
                 _log.warning("posx and posy should be finite values")
                 return
@@ -741,10 +743,17 @@ class Text(Artist):
             angle = textobj.get_rotation()
 
             for line, wh, x, y in info:
-
-                mtext = textobj if len(info) == 1 else None
                 x = x + posx
                 y = y + posy
+                # note that y is the bottom of the text...
+                if len(info) > 1:
+                    _log.debug('info > 1')
+                    x_, y_ = trans.inverted().transform_point((x, y))
+                    mtext = Text(text=line, x=textobj._x, y=y_)
+                    mtext.update_from(textobj)
+                    mtext._verticalalignment = 'bottom'
+                else:
+                    mtext = textobj
                 if renderer.flipy():
                     y = canvash - y
                 clean_line, ismath = textobj.is_math_text(line,
