@@ -885,6 +885,8 @@ class Artist(object):
 
         ACCEPTS: any number
         """
+        if level is None:
+            level = self.__class__.zorder
         self.zorder = level
         self.pchanged()
         self.stale = True
