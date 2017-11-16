@@ -551,7 +551,8 @@ def test_single_point():
     plt.plot('b', 'b', 'o', data=data)
 
 
-@image_comparison(baseline_images=['single_date'])
+@image_comparison(baseline_images=['single_date'], extensions=['png'],
+        style='mpl20')
 def test_single_date():
     time1 = [721964.0]
     data1 = [-65.54]
@@ -1156,7 +1157,7 @@ def test_pcolormesh():
 
 
 @image_comparison(baseline_images=['pcolormesh_datetime_axis'],
-                  extensions=['png'], remove_text=False)
+                  extensions=['png'], remove_text=False, style='mpl20')
 def test_pcolormesh_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
@@ -1182,7 +1183,7 @@ def test_pcolormesh_datetime_axis():
 
 
 @image_comparison(baseline_images=['pcolor_datetime_axis'],
-                  extensions=['png'], remove_text=False)
+                  extensions=['png'], remove_text=False, style='mpl20')
 def test_pcolor_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)

@@ -322,7 +322,7 @@ def test_empty_date_with_year_formatter():
 
 def test_auto_date_locator():
     def _create_auto_date_locator(date1, date2):
-        locator = mdates.AutoDateLocator()
+        locator = mdates.AutoDateLocator(interval_multiples=False)
         locator.create_dummy_axis()
         locator.set_view_interval(mdates.date2num(date1),
                                   mdates.date2num(date2))
@@ -423,10 +423,12 @@ def test_auto_date_locator_intmult():
                  '1997-05-01 00:00:00+00:00', '1997-05-22 00:00:00+00:00']
                 ],
                [datetime.timedelta(days=40),
-                ['1997-01-01 00:00:00+00:00', '1997-01-08 00:00:00+00:00',
-                 '1997-01-15 00:00:00+00:00', '1997-01-22 00:00:00+00:00',
-                 '1997-01-29 00:00:00+00:00', '1997-02-01 00:00:00+00:00',
-                 '1997-02-08 00:00:00+00:00']
+                ['1997-01-01 00:00:00+00:00', '1997-01-05 00:00:00+00:00',
+                 '1997-01-09 00:00:00+00:00', '1997-01-13 00:00:00+00:00',
+                 '1997-01-17 00:00:00+00:00', '1997-01-21 00:00:00+00:00',
+                 '1997-01-25 00:00:00+00:00', '1997-01-29 00:00:00+00:00',
+                 '1997-02-01 00:00:00+00:00', '1997-02-05 00:00:00+00:00',
+                 '1997-02-09 00:00:00+00:00']
                 ],
                [datetime.timedelta(hours=40),
                 ['1997-01-01 00:00:00+00:00', '1997-01-01 04:00:00+00:00',

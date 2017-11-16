@@ -224,7 +224,7 @@ def test_given_colors_levels_and_extends():
 
 
 @image_comparison(baseline_images=['contour_datetime_axis'],
-                  extensions=['png'], remove_text=False)
+                  extensions=['png'], remove_text=False, style='mpl20')
 def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
