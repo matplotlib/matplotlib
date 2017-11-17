@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function)
 
 import re
 
+import numpy as np
 import pytest
 
 from matplotlib import _preprocess_data
@@ -165,7 +166,9 @@ def test_function_call_with_pandas_data(func):
     """test with pandas dataframe -> label comes from data["col"].name """
     pd = pytest.importorskip('pandas')
 
-    data = pd.DataFrame({"a": [1, 2], "b": [8, 9], "w": ["NOT", "NOT"]})
+    data = pd.DataFrame({"a": np.array([1, 2], dtype=np.int32),
+                         "b": np.array([8, 9], dtype=np.int32),
+                         "w": ["NOT", "NOT"]})
 
     assert (func(None, "a", "b", data=data) ==
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
