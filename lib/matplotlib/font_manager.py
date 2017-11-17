@@ -32,7 +32,6 @@ KNOWN ISSUES
   - font variant is untested
   - font stretch is incomplete
   - font size is incomplete
-  - font size_adjust is incomplete
   - default font algorithm needs improvement and testing
   - setWeights function needs improvement
   - 'light' is an invalid weight value, remove it.
@@ -469,14 +468,9 @@ def ttfFontProperty(font):
     #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
-    #  !!!!  Incomplete
-    if font.scalable:
-        size = 'scalable'
-    else:
-        size = str(float(font.get_fontsize()))
-
-    #  !!!!  Incomplete
-    size_adjust = None
+    if not font.scalable:
+        raise NotImplementedError("Non-scalable fonts are not supported")
+    size = 'scalable'
 
     return FontEntry(font.fname, name, style, variant, weight, stretch, size)
 
@@ -538,9 +532,6 @@ def afmFontProperty(fontpath, font):
 
     size = 'scalable'
 
-    # !!!!  Incomplete
-    size_adjust = None
-
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
@@ -592,7 +583,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError):
+            except (KeyError, RuntimeError, ValueError, NotImplementedError):
                 continue
 
         fontlist.append(prop)
