@@ -1312,7 +1312,6 @@ def rc_context(rc=None, fname=None):
         dict.update(rcParams, orig)
 
 
-# Could be entirely replaced by pyplot.switch_backends.
 def use(arg, warn=True, force=False):
     """
     Set the Matplotlib backend.
@@ -1325,11 +1324,16 @@ def use(arg, warn=True, force=False):
 
     Parameters
     ----------
-    arg : str or List[str]
-        The name of the backend to use.  If a list of backends, they will be
-        tried in order until one successfully loads.
+    arg : str
+        The name of the backend to use.
     """
-    rcParams["backend"] = arg
+    if not isinstance(arg, six.string_types):
+        # We want to keep 'use(...); rcdefaults()' working, which means that
+        # use(...) needs to force the default backend, and thus be a single
+        # string.
+        raise TypeError("matplotlib.use takes a single string as argument")
+    rcParams["backend"] = \
+        rcParamsDefault["backend"] = rcParamsOrig["backend"] = arg
 
 
 def get_backend():
@@ -1453,8 +1457,7 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
 
         retcode = pytest.main(args, **kwargs)
     finally:
-        if old_backend.lower() != 'agg':
-            use(old_backend, warn=switch_backend_warn)
+        rcParams['backend'] = old_backend
         if recursionlimit:
             sys.setrecursionlimit(old_recursionlimit)
 

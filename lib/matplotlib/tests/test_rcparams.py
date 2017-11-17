@@ -57,11 +57,9 @@ def test_rcparams():
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    try:
+    with mpl.rc_context():
         mpl.rc_file(fname)
         assert mpl.rcParams['lines.linewidth'] == 33
-    finally:
-        mpl.rcParams['lines.linewidth'] = linewidth
 
 
 def test_RcParams_class():
