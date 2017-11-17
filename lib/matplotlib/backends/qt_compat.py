@@ -112,17 +112,17 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYQT5):
             QT_API = QT_API_PYSIDE2
         else:
             QT_API = QT_API_PYSIDE
-        cond = ("Could not import sip; falling back on PySide\n"
-                "in place of PyQt4 or PyQt5.\n")
+        cond = ("Could not import sip; falling back on PySide in place of "
+                "PyQt4 or PyQt5.")
         _log.info(cond)
 
 if _sip_imported:
     if QT_API == QT_API_PYQTv2:
         if QT_API_ENV == 'pyqt':
             cond = ("Found 'QT_API=pyqt' environment variable. "
-                    "Setting PyQt4 API accordingly.\n")
+                    "Setting PyQt4 API accordingly. ")
         else:
-            cond = "PyQt API v2 specified."
+            cond = "PyQt API v2 specified. "
         try:
             sip.setapi('QString', 2)
         except:
@@ -201,7 +201,7 @@ if QT_API == QT_API_PYSIDE:  # try importing pyside
         from PySide import QtCore, QtGui, __version__, __version_info__
     except ImportError:
         raise ImportError(
-            "Matplotlib qt-based backends require an external PyQt4, PyQt5,\n"
+            "Matplotlib qt-based backends require an external PyQt4, PyQt5, "
             "PySide or PySide2 package to be installed, but it was not found.")
 
     if __version_info__ < (1, 0, 3):

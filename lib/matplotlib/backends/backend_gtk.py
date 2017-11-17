@@ -17,7 +17,8 @@ try:
     import gobject
     import gtk; gdk = gtk.gdk
     import pango
-except ImportError:
+except (ImportError, AttributeError):
+    # AttributeError occurs when getting gtk.gdk if gi is already imported.
     raise ImportError("Gtk* backend requires pygtk to be installed.")
 
 pygtk_version_required = (2,4,0)

@@ -4,7 +4,6 @@ import six
 
 import functools
 import os
-import re
 import signal
 import sys
 from six import unichr
@@ -116,10 +115,8 @@ def _create_qApp():
                     is_x11_build = False
             else:
                 is_x11_build = hasattr(QtGui, "QX11Info")
-            if is_x11_build:
-                display = os.environ.get('DISPLAY')
-                if display is None or not re.search(r':\d', display):
-                    raise RuntimeError('Invalid DISPLAY variable')
+            if is_x11_build and not os.environ.get("DISPLAY"):
+                raise RuntimeError("No DISPLAY variable")
 
             qApp = QtWidgets.QApplication([b"matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)

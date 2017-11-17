@@ -5,6 +5,7 @@ import six
 
 import importlib
 import logging
+import os
 import sys
 import traceback
 
@@ -17,12 +18,14 @@ _log = logging.getLogger(__name__)
 
 
 def _get_current_event_loop():
-    """Return the currently running event loop if any, or None.
+    """Return the currently running event loop if any, or "headless", or None.
+
+    "headless" indicates that no event loop can be started.
 
     Returns
     -------
     Optional[str]
-        A value in {"qt5", "qt4", "gtk3", "gtk2", "tk", None}
+        A value in {"qt5", "qt4", "gtk3", "gtk2", "tk", "headless", None}
     """
     QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
                  or sys.modules.get("PySide2.QtWidgets"))
@@ -45,6 +48,8 @@ def _get_current_event_loop():
                        and frame.f_code.co_name == "mainloop"
                        for frame in sys._current_frames().values()):
         return "tk"
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        return "headless"
 
 
 def pylab_setup(name=None):
@@ -87,9 +92,10 @@ def pylab_setup(name=None):
     if not isinstance(name, six.string_types):
         for n in name:
             try:
+                _log.info("Trying to load backend %s.", n)
                 return pylab_setup(n)
-            except ImportError:
-                pass
+            except ImportError as exc:
+                _log.info("Loading backend %s failed: %s", n, exc)
         else:
             raise ValueError("No suitable backend among {}".format(name))
 
@@ -98,7 +104,7 @@ def pylab_setup(name=None):
 
     backend_mod = importlib.import_module(backend_name)
     Backend = type(str("Backend"), (_Backend,), vars(backend_mod))
-    _log.info('backend %s version %s', name, Backend.backend_version)
+    _log.info("Loaded backend %s version %s.", name, Backend.backend_version)
 
     required_event_loop = Backend.required_event_loop
     current_event_loop = _get_current_event_loop()
