@@ -3266,14 +3266,29 @@ class ToolContainerBase(object):
 
     def _get_image_filename(self, image):
         """Find the image based on its name."""
-        # TODO: better search for images, they are not always in the
-        # datapath
+        if not image:
+            return None
+
         basedir = os.path.join(rcParams['datapath'], 'images')
-        if image is not None:
-            fname = os.path.join(basedir, image)
-        else:
-            fname = None
-        return fname
+        possible_images = [
+            image,
+            image + self.btn_image_extension(),
+            os.path.join(basedir, image) + self.btn_image_extension()]
+
+        for fname in possible_images:
+            if os.path.isfile(fname):
+                return fname
+
+    def btn_image_extension(self):
+        """
+        Get the preferred image extension
+
+        Return
+        ======
+        str: Image extension
+        """
+        raise NotImplementedError
+
 
     def trigger_tool(self, name):
         """

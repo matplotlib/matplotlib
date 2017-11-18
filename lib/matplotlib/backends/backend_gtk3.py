@@ -786,6 +786,9 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._toolarea.pack_start(sep, False, True, 0)
         sep.show_all()
 
+    def btn_image_extension(self):
+        return '.png'
+
 
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):

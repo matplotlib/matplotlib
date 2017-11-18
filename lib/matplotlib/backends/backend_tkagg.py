@@ -935,6 +935,9 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
             toolitem.pack_forget()
         del self._toolitems[name]
 
+    def btn_image_extension(self):
+        return '.gif'
+
 
 class StatusbarTk(StatusbarBase, Tk.Frame):
     def __init__(self, window, *args, **kwargs):
