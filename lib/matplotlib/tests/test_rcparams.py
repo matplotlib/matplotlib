@@ -2,9 +2,11 @@ from __future__ import absolute_import, division, print_function
 
 import six
 
+from collections import OrderedDict
+import copy
+from itertools import chain
 import os
 import warnings
-from collections import OrderedDict
 
 from cycler import cycler, Cycler
 import pytest
@@ -16,7 +18,6 @@ except ImportError:
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
@@ -31,15 +32,17 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 _validate_linestyle)
 
 
-mpl.rc('text', usetex=False)
-mpl.rc('lines', linewidth=22)
-
-fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
+@pytest.fixture(autouse=True)
+def setup_module():
+    with mpl.rc_context():
+        mpl.rc('text', usetex=False)
+        mpl.rc('lines', linewidth=22)
 
 
 def test_rcparams():
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
+    fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -57,9 +60,8 @@ def test_rcparams():
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    with mpl.rc_context():
-        mpl.rc_file(fname)
-        assert mpl.rcParams['lines.linewidth'] == 33
+    mpl.rc_file(fname)
+    assert mpl.rcParams['lines.linewidth'] == 33
 
 
 def test_RcParams_class():
@@ -135,8 +137,7 @@ def test_Bug_2543():
                 mpl.rcParams[key] = _copy[key]
             mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():
-            from copy import deepcopy
-            _deep_copy = deepcopy(mpl.rcParams)
+            _deep_copy = copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
