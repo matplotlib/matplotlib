@@ -3224,7 +3224,7 @@ class ToolContainerBase(object):
 
     _icon_extension = '.png'
     """
-    Toocontainer button image format extension
+    Toolcontainer button icon image format extension
 
     **String**: Image extension
     """
