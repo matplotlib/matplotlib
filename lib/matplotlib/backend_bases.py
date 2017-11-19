@@ -2010,8 +2010,12 @@ class FigureCanvasBase(object):
         if xy is not None:
             x, y = xy
             self._lastx, self._lasty = x, y
+        else:
+            x = None
+            y = None
+            warn_deprecated('2.2', 'enter_notify_event expects a location but your backend did not pass one.')
 
-        event = Event('figure_enter_event', self, guiEvent)
+        event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
     @cbook.deprecated("2.1")
