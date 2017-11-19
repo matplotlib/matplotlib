@@ -49,8 +49,6 @@ class PolarTransform(mtransforms.Transform):
                         self._use_rmin,
                         self._apply_theta_transforms))
 
-    __repr__ = __str__
-
     def transform_non_affine(self, tr):
         xy = np.empty(tr.shape, float)
 
@@ -115,8 +113,6 @@ class PolarAffine(mtransforms.Affine2DBase):
                         mtransforms._indent_str(self._scale_transform),
                         mtransforms._indent_str(self._limits)))
 
-    __repr__ = __str__
-
     def get_matrix(self):
         if self._invalid:
             limits_scaled = self._limits.transformed(self._scale_transform)
@@ -156,8 +152,6 @@ class InvertedPolarTransform(mtransforms.Transform):
                         mtransforms._indent_str(self._axis),
                         self._use_rmin,
                         self._apply_theta_transforms))
-
-    __repr__ = __str__
 
     def transform_non_affine(self, xy):
         x = xy[:, 0:1]
@@ -503,8 +497,6 @@ class _ThetaShift(mtransforms.ScaledTranslation):
                         mtransforms._indent_str(self.pad),
                         mtransforms._indent_str(repr(self.mode))))
 
-    __repr__ = __str__
-
     def get_matrix(self):
         if self._invalid:
             if self.mode == 'rlabel':
@@ -752,8 +744,6 @@ class _WedgeBbox(mtransforms.Bbox):
                         mtransforms._indent_str(self._center),
                         mtransforms._indent_str(self._viewLim),
                         mtransforms._indent_str(self._originLim)))
-
-    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:

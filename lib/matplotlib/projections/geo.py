@@ -270,8 +270,6 @@ class AitoffAxes(GeoAxes):
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
 
-        __repr__ = __str__
-
         def transform_non_affine(self, ll):
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
@@ -315,8 +313,6 @@ class AitoffAxes(GeoAxes):
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
 
-        __repr__ = __str__
-
         def transform_non_affine(self, xy):
             # MGDTODO: Math is hard ;(
             return xy
@@ -359,8 +355,6 @@ class HammerAxes(GeoAxes):
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
 
-        __repr__ = __str__
-
         def transform_non_affine(self, ll):
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
@@ -397,8 +391,6 @@ class HammerAxes(GeoAxes):
 
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
-
-        __repr__ = __str__
 
         def transform_non_affine(self, xy):
             x, y = xy.T
@@ -444,8 +436,6 @@ class MollweideAxes(GeoAxes):
 
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
-
-        __repr__ = __str__
 
         def transform_non_affine(self, ll):
             def d(theta):
@@ -503,8 +493,6 @@ class MollweideAxes(GeoAxes):
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
 
-        __repr__ = __str__
-
         def transform_non_affine(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
@@ -557,8 +545,6 @@ class LambertAxes(GeoAxes):
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
 
-        __repr__ = __str__
-
         def transform_non_affine(self, ll):
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
@@ -608,8 +594,6 @@ class LambertAxes(GeoAxes):
 
         def __str__(self):
             return "{}({})".format(type(self).__name__, self._resolution)
-
-        __repr__ = __str__
 
         def transform_non_affine(self, xy):
             x = xy[:, 0:1]
