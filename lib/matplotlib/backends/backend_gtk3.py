@@ -225,7 +225,10 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, event)
 
     def enter_notify_event(self, widget, event):
-        FigureCanvasBase.enter_notify_event(self, event)
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.get_allocation().height - event.y
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def size_allocate(self, widget, allocation):
         dpival = self.figure.dpi
