@@ -3222,6 +3222,13 @@ class ToolContainerBase(object):
         The tools with which this `ToolContainer` wants to communicate.
     """
 
+    _icon_extension = '.png'
+    """
+    Toocontainer button image format extension
+
+    **String**: Image extension
+    """
+
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_removed_event',
@@ -3279,18 +3286,6 @@ class ToolContainerBase(object):
         for fname in possible_images:
             if os.path.isfile(fname):
                 return fname
-
-    @property
-    def _icon_extension(self):
-        """
-        Get the button image format extension
-
-        Returns
-        =======
-        str: Image extension
-        """
-        raise AttributeError
-
 
     def trigger_tool(self, name):
         """
