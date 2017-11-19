@@ -122,7 +122,7 @@ class TransformNode(object):
 
     def __copy__(self, *args):
         raise NotImplementedError(
-            "TransformNode instances can not be copied. " +
+            "TransformNode instances can not be copied. "
             "Consider using frozen() instead.")
     __deepcopy__ = __copy__
 
