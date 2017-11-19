@@ -336,7 +336,7 @@ class Figure(Artist):
             raise ValueError('figure size must be finite not '
                              '{}'.format(figsize))
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
-        self.figsize = figsize
+        self._figsize = figsize
 
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
         # do not use property as it will trigger
@@ -352,8 +352,8 @@ class Figure(Artist):
             facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
-        self.facecolor = facecolor
-        self.edgecolor = edgecolor
+        self._facecolor = facecolor
+        self._edgecolor = edgecolor
 
         self._hold = rcParams['axes.hold']
         if self._hold is None:
@@ -367,7 +367,7 @@ class Figure(Artist):
 
         self.subplotpars = subplotpars
         self.set_tight_layout(tight_layout)
-        self.tight = tight_layout
+        self._tight = tight_layout
 
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
@@ -1259,16 +1259,24 @@ class Figure(Artist):
         if not keep_observers:
             self._axobservers = []
         if reset_rcparams:
-            if self.figsize is None:
-                self.figsize = rcParams['figure.figsize']
-            if self.facecolor is None:
-                self.facecolor = rcParams['figure.facecolor']
-            if self.edgecolor is None:
-                self.edgecolor = rcParams['figure.edgecolor']
+            if self._figsize is None:
+                self._figsize = rcParams['figure.figsize']
+            if self._dpi is None:
+                self._dpi = rcParams['figure.dpi']
+            if self._facecolor is None:
+                self._facecolor = rcParams['figure.facecolor']
+            if self._edgecolor is None:
+                self._edgecolor = rcParams['figure.edgecolor']
             if self.frameon is None:
                 self.frameon = rcParams['figure.frameon']
+            self.bbox_inches = Bbox.from_bounds(0, 0, *self._figsize)
+            self.dpi_scale_trans = Affine2D().scale(self._dpi, self._dpi)
+            self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
+            self.transFigure = BboxTransformTo(self.bbox)
+            self.set_facecolor(self._facecolor)
+            self.set_edgecolor(self._edgecolor)
             self.subplotpars.update()
-            self.set_tight_layout(self.tight)
+            self.set_tight_layout(self._tight)
         self._suptitle = None
         self.stale = True
 

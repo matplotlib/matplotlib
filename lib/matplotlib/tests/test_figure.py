@@ -6,6 +6,7 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import matplotlib.dates as mdates
 import numpy as np
 import warnings
@@ -71,27 +72,33 @@ def test_clf_keyword():
 def test_reset_rcparams():
     # test whether clf resets unset figure properties to rcParams values
     fig0 = plt.figure()
-    fig0.figsize = None
-    fig0.facecolor = None
-    fig0.edgecolor = None
+    fig0._figsize = None
+    fig0._dpi = None
+    fig0._facecolor = None
+    fig0._edgecolor = None
     fig0.frameon = None
     fig0.clf(reset_rcparams=True)
-    assert fig0.figsize == rcParams['figure.figsize']
-    assert fig0.facecolor == rcParams['figure.facecolor']
-    assert fig0.edgecolor == rcParams['figure.edgecolor']
-    assert fig0.frameon == rcParams['figure.frameon']
+    assert fig0.get_figwidth() == rcParams['figure.figsize'][0]
+    assert fig0.get_figheight() == rcParams['figure.figsize'][1]
+    assert fig0.get_dpi() == rcParams['figure.dpi']
+    assert fig0.get_facecolor() == colors.to_rgba(rcParams['figure.facecolor'])
+    assert fig0.get_edgecolor() == colors.to_rgba(rcParams['figure.edgecolor'])
+    assert fig0.get_frameon() == rcParams['figure.frameon']
 
     # set figure properties should not be reset to rcParams
     fig1 = plt.figure()
-    fig1.figsize = (10, 10)
-    fig1.facecolor = 'red'
-    fig1.edgecolor = 'blue'
-    fig1.frameon = False
+    fig1._figsize = (11, 13)
+    fig1._figsize
+    fig1._dpi = 251
+    fig1._facecolor = 'red'
+    fig1._edgecolor = 'blue'
     fig1.clf(reset_rcparams=True)
-    assert not fig1.figsize == rcParams['figure.figsize']
-    assert not fig1.facecolor == rcParams['figure.facecolor']
-    assert not fig1.edgecolor == rcParams['figure.edgecolor']
-    assert not fig1.frameon == rcParams['figure.frameon']
+    fig1._figsize
+    assert not fig1.get_figwidth() == rcParams['figure.figsize'][0]
+    assert not fig1.get_figheight() == rcParams['figure.figsize'][1]
+    assert not fig1.get_dpi() == rcParams['figure.dpi']
+    assert not fig1.get_facecolor() == colors.to_rgba(rcParams['figure.facecolor'])
+    assert not fig1.get_edgecolor() == colors.to_rgba(rcParams['figure.edgecolor'])
 
 
 @image_comparison(baseline_images=['figure_today'])
