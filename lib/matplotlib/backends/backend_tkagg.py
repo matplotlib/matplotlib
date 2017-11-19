@@ -868,6 +868,7 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
+    _icon_extension = '.gif'
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
@@ -934,9 +935,6 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
         for toolitem in self._toolitems[name]:
             toolitem.pack_forget()
         del self._toolitems[name]
-
-    def btn_image_extension(self):
-        return '.gif'
 
 
 class StatusbarTk(StatusbarBase, Tk.Frame):

@@ -712,6 +712,7 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
+    _icon_extension = '.png'
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
@@ -785,9 +786,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         sep.set_property("orientation", Gtk.Orientation.VERTICAL)
         self._toolarea.pack_start(sep, False, True, 0)
         sep.show_all()
-
-    def btn_image_extension(self):
-        return '.png'
 
 
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):

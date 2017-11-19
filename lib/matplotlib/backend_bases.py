@@ -3270,16 +3270,18 @@ class ToolContainerBase(object):
             return None
 
         basedir = os.path.join(rcParams['datapath'], 'images')
-        possible_images = [
+        possible_images = (
             image,
-            image + self.btn_image_extension(),
-            os.path.join(basedir, image) + self.btn_image_extension()]
+            image + self._icon_extension,
+            os.path.join(basedir, image),
+            os.path.join(basedir, image) + self._icon_extension)
 
         for fname in possible_images:
             if os.path.isfile(fname):
                 return fname
 
-    def btn_image_extension(self):
+    @property
+    def _icon_extension(self):
         """
         Get the button image format extension
 
@@ -3287,7 +3289,7 @@ class ToolContainerBase(object):
         =======
         str: Image extension
         """
-        raise NotImplementedError
+        raise AttributeError
 
 
     def trigger_tool(self, name):
