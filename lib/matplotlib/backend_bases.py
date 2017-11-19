@@ -3281,10 +3281,10 @@ class ToolContainerBase(object):
 
     def btn_image_extension(self):
         """
-        Get the preferred image extension
+        Get the button image format extension
 
-        Return
-        ======
+        Returns
+        =======
         str: Image extension
         """
         raise NotImplementedError
