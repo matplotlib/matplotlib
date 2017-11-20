@@ -55,10 +55,6 @@ install:
   # this is now the downloaded conda...
   - conda info -a
 
-  # Fix the appveyor build environment to work with conda build
-  # workaround for missing vcvars64.bat in py34 64bit
-  - copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
-
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
   # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
