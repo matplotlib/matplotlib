@@ -111,13 +111,16 @@ negative values are simply used as labels, and the real radius is shifted by
 the configured minimum. This release also allows negative radii to be used for
 grids and ticks, which were previously silently ignored.
 
-Radial ticks have been modified to be parallel to the circular grid
-line, and angular ticks have been modified to be parallel to the grid
-line. It may also be useful to rotate tick *labels* to match the
-boundary. Calling ``ax.tick_params(rotation='auto')`` will enable the
-new behavior: radial tick labels will be parallel to the circular grid
-line, and angular tick labels will be perpendicular to the grid line
-(i.e., parallel to the outer boundary).
+Radial ticks have been modified to be parallel to the circular grid line, and
+angular ticks have been modified to be parallel to the grid line. It may also
+be useful to rotate tick *labels* to match the boundary. Calling
+``ax.tick_params(rotation='auto')`` will enable the new behavior: radial tick
+labels will be parallel to the circular grid line, and angular tick labels will
+be perpendicular to the grid line (i.e., parallel to the outer boundary).
+Additionally, tick labels now obey the padding settings that previously only
+worked on Cartesian plots. Consequently, the ``frac`` argument to
+`.PolarAxes.set_thetagrids` is no longer applied. Tick padding can be modified
+with the ``pad`` argument to `.Axes.tick_params` or `.Axis.set_tick_params`.
 
 
 ``Figure`` class now has ``subplots`` method
