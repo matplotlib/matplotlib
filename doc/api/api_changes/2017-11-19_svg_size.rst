@@ -1,0 +1,6 @@
+Do not truncate svg sizes to nearest point
+------------------------------------------
+
+There is no reason to size the SVG out put in integer points, change
+to out putting floats for the *height*, *width*, and *viewBox* attributes
+of the *svg* element.
