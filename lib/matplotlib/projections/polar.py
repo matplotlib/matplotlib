@@ -1173,6 +1173,11 @@ class PolarAxes(Axes):
 
         ACCEPTS: sequence of floats
         """
+        if frac is not None:
+            cbook.warn_deprecated('2.1', name='frac', obj_type='parameter',
+                                  alternative='tick padding via '
+                                              'Axes.tick_params')
+
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
         angles = np.asarray(angles, float)
