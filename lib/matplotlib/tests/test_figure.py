@@ -97,8 +97,10 @@ def test_reset_rcparams():
     assert not fig1.get_figwidth() == rcParams['figure.figsize'][0]
     assert not fig1.get_figheight() == rcParams['figure.figsize'][1]
     assert not fig1.get_dpi() == rcParams['figure.dpi']
-    assert not fig1.get_facecolor() == colors.to_rgba(rcParams['figure.facecolor'])
-    assert not fig1.get_edgecolor() == colors.to_rgba(rcParams['figure.edgecolor'])
+    assert not fig1.get_facecolor() == colors.to_rgba(
+        rcParams['figure.facecolor'])
+    assert not fig1.get_edgecolor() == colors.to_rgba(
+        rcParams['figure.edgecolor'])
 
 
 @image_comparison(baseline_images=['figure_today'])
