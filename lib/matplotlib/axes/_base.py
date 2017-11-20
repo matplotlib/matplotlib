@@ -1053,10 +1053,6 @@ class _AxesBase(martist.Artist):
             size=rcParams['axes.titlesize'],
             weight=rcParams['axes.titleweight'])
 
-        title_offset_points = rcParams['axes.titlepad']
-        self.titleOffsetTrans = mtransforms.ScaledTranslation(
-            0.0, title_offset_points / 72.0,
-            self.figure.dpi_scale_trans)
         self.title = mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
@@ -1074,10 +1070,12 @@ class _AxesBase(martist.Artist):
             verticalalignment='baseline',
             horizontalalignment='right',
             )
+        title_offset_points = rcParams['axes.titlepad']
+        # refactor this out so it can be called in ax.set_title if
+        # pad argument used...
+        self._set_title_offset_trans(title_offset_points)
 
         for _title in (self.title, self._left_title, self._right_title):
-            _title.set_transform(self.transAxes + self.titleOffsetTrans)
-            _title.set_clip_box(None)
             self._set_artist_props(_title)
 
         # The patch draws the background of the axes.  We want this to be below
@@ -1133,6 +1131,18 @@ class _AxesBase(martist.Artist):
         self._facecolor = color
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
+
+    def _set_title_offset_trans(self, title_offset_points):
+        """
+        Set the offset for the title either from rcParams['axes.titlepad']
+        or from set_title kwarg ``pad``.
+        """
+        self.titleOffsetTrans = mtransforms.ScaledTranslation(
+                0.0, title_offset_points / 72.0,
+                self.figure.dpi_scale_trans)
+        for _title in (self.title, self._left_title, self._right_title):
+            _title.set_transform(self.transAxes + self.titleOffsetTrans)
+            _title.set_clip_box(None)
 
     def set_prop_cycle(self, *args, **kwargs):
         """

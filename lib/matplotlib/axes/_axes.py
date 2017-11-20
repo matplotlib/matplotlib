@@ -6,6 +6,7 @@ from six.moves import xrange, zip, zip_longest
 
 import functools
 import itertools
+import logging
 import math
 import warnings
 
@@ -42,6 +43,7 @@ from matplotlib.cbook import (
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
+_log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
@@ -134,7 +136,8 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc="center", **kwargs):
+    def set_title(self, label, fontdict=None, loc="center", pad=None,
+                    **kwargs):
         """
         Set a title for the axes.
 
@@ -159,6 +162,10 @@ class Axes(_AxesBase):
         loc : {'center', 'left', 'right'}, str, optional
             Which title to set, defaults to 'center'
 
+        pad : float
+            The offset of the title from the top of the axes, in points.
+            Default is ``None`` to use rcParams['axes.titlepad'].
+
         Returns
         -------
         text : :class:`~matplotlib.text.Text`
@@ -182,6 +189,9 @@ class Axes(_AxesBase):
             'fontweight': rcParams['axes.titleweight'],
             'verticalalignment': 'baseline',
             'horizontalalignment': loc.lower()}
+        if pad is None:
+            pad = rcParams['axes.titlepad']
+        self._set_title_offset_trans(float(pad))
         title.set_text(label)
         title.update(default)
         if fontdict is not None:
