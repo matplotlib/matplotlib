@@ -1,0 +1,7 @@
+Deprecations
+````````````
+
+When given 2D inputs with non-matching numbers of columns, `~.pyplot.plot`
+currently cycles through the columns of the narrower input, until all the
+columns of the wider input have been plotted.  This behavior is deprecated; in
+the future, only broadcasting (1 column to *n* columns) will be performed.
