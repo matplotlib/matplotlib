@@ -261,13 +261,28 @@ def validate_backend(s):
         lambda s:
         s if s.startswith("module://")
         else ValidateInStrings('backend', all_backends, ignorecase=True)(s))(s)
+    pyplot = sys.modules.get("matplotlib.pyplot")
     if len(candidates) == 1:
-        return candidates[0]
-    else:
-        pyplot = sys.modules.get("matplotlib.pyplot")
+        backend, = candidates
         if pyplot:
-            pyplot.switch_backend(candidates)  # Actually resolves the backend.
+            # This import needs to be delayed (below too) because it is not
+            # available at first import.
             from matplotlib import rcParams
+            # Don't recurse.
+            old_backend = rcParams["backend"]
+            if old_backend == backend:
+                return backend
+            dict.__setitem__(rcParams, "backend", backend)
+            try:
+                pyplot.switch_backend(backend)
+            except Exception:
+                dict.__setitem__(rcParams, "backend", old_backend)
+                raise
+        return backend
+    else:
+        if pyplot:
+            from matplotlib import rcParams
+            pyplot.switch_backend(candidates)  # Actually resolves the backend.
             return rcParams["backend"]
         else:
             return candidates
