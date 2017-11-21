@@ -1,24 +1,22 @@
-# -*- coding: utf-8 OA-*-za
+# -*- coding: utf-8 OA -*-
+
 """
 catch all for categorical functions
 """
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from collections import Iterable, Sequence, OrderedDict
 import itertools
 import numbers
-
+from matplotlib import cbook, ticker, units
 import six
 
+from collections import OrderedDict
+import itertools
+
 import numpy as np
-
-import matplotlib.units as units
-import matplotlib.ticker as ticker
-
-# np 1.6/1.7 support
-from distutils.version import LooseVersion
-
 
 def to_str(value):
     if LooseVersion(np.__version__) < LooseVersion('1.7.0'):
