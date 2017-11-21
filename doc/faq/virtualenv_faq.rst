@@ -58,10 +58,8 @@ version):
   from within the virtualenv to specific system-wide packages without the
   overall shadowing issue.  A specific package needs to be installed for each
   framework, e.g. `vext.pyqt5 <https://pypi.python.org/pypi/vext.pyqt5>`_, etc.
-
-- The GUI frameworks can be manually symlinked into the environment, e.g. for
-  PyQt5, you should symlink ``PyQt5`` and ``sip`` from the system site-packages
-  into the virtualenv site-packages.
+  It is recommended to use ``vext>=0.7.0`` as earlier versions misconfigure the
+  logging system.
 
 If you are using Matplotlib on OSX, you may also want to consider the
 :ref:`OSX framework FAQ <osxframework-faq>`.
