@@ -125,9 +125,8 @@ def _get_textbox(text, renderer):
     "weight": ["fontweight"],
 })
 class Text(Artist):
-    """
-    Handle storing and drawing of text in window or data coordinates.
-    """
+    """Handle storing and drawing of text in window or data coordinates."""
+
     zorder = 3
     _cached = cbook.maxdict(50)
 
@@ -149,8 +148,7 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a :class:`~matplotlib.text.Text` instance at *x*, *y*
-        with string *text*.
+        Create a `Text` instance at *x*, *y* with string *text*.
 
         Valid kwargs are
         %(Text)s
