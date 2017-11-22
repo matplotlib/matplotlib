@@ -1552,9 +1552,103 @@ class Ellipse(Patch):
     angle = property(get_angle, set_angle)
 
 
-class Circle(Ellipse):
-    """A circle patch."""
 
+class Annulus(Patch):
+    """
+    An elliptical annulus.
+    """
+
+    def __str__(self):
+        if self.a == self.b:
+            fmt = "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)"
+            pars = (self.center[0], self.center[1],
+                    self.a, self.width, self.angle)
+        else:
+            fmt = "Annulus(xy=(%s, %s), a=%s, b=%s, width=%s, angle=%s)"
+            pars = (self.center[0], self.center[1],
+                    self.a, self.b, self.width, self.angle)
+        return fmt % pars
+
+    @docstring.dedent_interpd
+    def __init__(self, xy, r, width, angle=0.0, **kwargs):
+        """
+        *xy*
+          center of annulus
+
+        *r*
+          if float:
+            radius of the outer circle
+          if array-like of size 2:
+            semi-major and -minor axes of outer ellipse
+
+        *width*
+          width of the annulus
+
+        *angle*
+          rotation in degrees (anti-clockwise)
+
+        Valid kwargs are:
+        %(Patch)s
+        """
+        Patch.__init__(self, **kwargs)
+
+        if np.size(r) == 2:
+            self.a, self.b = r
+        elif np.size(r) == 1:
+            self.a = self.b = float(r)
+        else:
+            raise ValueError(
+                'r parameter should be either float, or sequence of size 2')
+
+        if min(self.a, self.b) <= width:
+            raise ValueError(
+                'Width should be smaller than semi-minor axis')
+
+        self.center = xy
+        self.width = width
+        self.angle = angle
+        self._path = None
+        # Note: This cannot be calculated until this is added to an Axes
+        self._patch_transform = transforms.IdentityTransform()
+
+    def _transform_verts(self, verts, a, b):
+        center = (self.convert_xunits(self.center[0]),
+                  self.convert_yunits(self.center[1]))
+        a = self.convert_xunits(a)
+        b = self.convert_yunits(b)
+        tr = transforms.Affine2D() \
+            .scale(a, b) \
+            .rotate_deg(self.angle) \
+            .translate(*center)
+
+        return tr.transform(verts)
+
+    def _recompute_path(self):
+
+        # circular arc
+        arc = Path.arc(0, 360)
+
+        # annulus needs to draw the outer ring
+        # followed by a reversed and scaled inner ring
+        a, b, w = self.a, self.b, self.width
+        v1 = self._transform_verts(arc.vertices, a, b)
+        v2 = self._transform_verts(arc.vertices[::-1], a - w, b - w)
+        v = np.vstack([v1, v2, v1[0, :], (0, 0)])
+        c = np.hstack([arc.codes, arc.codes, Path.MOVETO, Path.CLOSEPOLY])
+        c[len(arc.codes)] = Path.MOVETO
+
+        self._path = Path(v, c)
+
+    def get_path(self):
+        if self._path is None:
+            self._recompute_path()
+        return self._path
+
+
+class Circle(Ellipse):
+    """
+    A circle patch.
+    """
     def __str__(self):
         pars = self.center[0], self.center[1], self.radius
         fmt = "Circle(xy=(%g, %g), radius=%g)"
