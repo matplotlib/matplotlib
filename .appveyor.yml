@@ -63,15 +63,13 @@ install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - set PYTHONUNBUFFERED=1
   # for obvci_appveyor_python_build_env.cmd
-  - conda update --all --yes
-  - conda install anaconda-client=1.6.3 --yes
-  - conda install -c conda-forge --yes obvious-ci
+  - conda config --set always_yes true
+  - conda config --set show_channel_urls yes
+  - conda update --all
   # for msinttypes and newer stuff
   - conda config --prepend channels conda-forge
-  - conda config --set show_channel_urls yes
-  - conda config --set always_yes true
   # For building conda packages
-  - conda install --yes conda-build jinja2 anaconda-client
+  - conda install conda-build jinja2 obvious-ci anaconda-client=1.6.3
   # this is now the downloaded conda...
   - conda info -a
 
@@ -91,6 +89,7 @@ install:
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-xdist
+    cycler pyparsing backports.functools-lru-cache
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
   # https://github.com/matplotlib/matplotlib/issues/9176
