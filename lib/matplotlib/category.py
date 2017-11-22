@@ -35,8 +35,8 @@ class StrCategoryConverter(units.ConversionInterface):
 
     @staticmethod
     def axisinfo(unit, axis):
-        majloc = StrCategoryLocator(axis.unit_data._locs)
-        majfmt = StrCategoryFormatter(axis.unit_data._seq)
+        majloc = StrCategoryLocator(axis.units)
+        majfmt = StrCategoryFormatter(axis.units)
         return units.AxisInfo(majloc=majloc, majfmt=majfmt)
 
     @staticmethod
@@ -44,17 +44,26 @@ class StrCategoryConverter(units.ConversionInterface):
         return UnitData()
 
 
+class StrCategoryLocator(ticker.Locator):
+    def __init__(self, unit_data):
+        self._unit_data = unit_data
 
-class StrCategoryLocator(ticker.FixedLocator):
-    def __init__(self, locs):
-        self.locs = locs
-        self.nbins = None
+    def __call__(self):
+        return list(self._unit_data._mapping.values())
+
+    def tick_values(self, vmin, vmax):
+        return self()
 
 
-class StrCategoryFormatter(ticker.FixedFormatter):
-    def __init__(self, seq):
-        self.seq = seq
-        self.offset_string = ''
+class StrCategoryFormatter(ticker.Formatter):
+    def __init__(self, unit_data):
+        self._unit_data = unit_data
+
+    def __call__(self, x, pos=None):
+        if pos is None:
+            return ""
+        r_mapping = {v: k for k, v in self._unit_data._mapping.items()}
+        return r_mapping.get(int(x), '')
 
 
 class UnitData(object):
