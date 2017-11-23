@@ -21,7 +21,7 @@
 #else
 #  define IMG_FORMAT "%zu %d %d"
 #endif
-# define BBOX_FORMAT "%f %f %f %f"
+#define BBOX_FORMAT "%f %f %f %f"
 
 typedef struct
 {
@@ -47,7 +47,7 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
     // vars for blitting
 
     size_t pdata;
-    int wdata, hdata;
+    int wdata, hdata, bbox_parse;
     float x1, x2, y1, y2;
     bool has_bbox;
     uint8_t *destbuffer, *buffer;
@@ -88,11 +88,15 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
     }
 
     /* check for bbox/blitting */
-    if (sscanf(argv[4], BBOX_FORMAT, &x1, &x2, &y1, &y2) == 4) {
+    bbox_parse = sscanf(argv[4], BBOX_FORMAT, &x1, &x2, &y1, &y2);
+    if (bbox_parse == 4) {
         has_bbox = true;
     }
-    else {
+    else if ((bbox_parse == 1) && (x1 == 0)){
         has_bbox = false;
+    } else {
+        TCL_APPEND_RESULT(interp, "illegal bbox", (char *)NULL);
+        return TCL_ERROR;
     }
 
     if (has_bbox) {
