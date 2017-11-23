@@ -1189,15 +1189,15 @@ class AutoDateLocator(DateLocator):
             else:
                 byranges[i] = self._byranges[i]
 
-            # We found what frequency to use
             break
         else:
             raise ValueError('No sensible date limit could be found in the '
                              'AutoDateLocator.')
 
-        if use_rrule_locator[i]:
+        if (freq == YEARLY) and self.interval_multiples:
+            locator = YearLocator(interval)
+        elif use_rrule_locator[i]:
             _, bymonth, bymonthday, byhour, byminute, bysecond, _ = byranges
-
             rrule = rrulewrapper(self._freq, interval=interval,
                                  dtstart=dmin, until=dmax,
                                  bymonth=bymonth, bymonthday=bymonthday,
