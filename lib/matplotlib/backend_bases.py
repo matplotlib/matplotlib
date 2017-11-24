@@ -1496,7 +1496,10 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
 
-        self.inaxes = self.canvas.figure.inaxes((x, y))
+        if self.canvas.mouse_grabber is None:
+            self.inaxes = self.canvas.figure.inaxes((x, y))
+        else:
+            self.inaxes = self.canvas.mouse_grabber
 
         if self.inaxes is not None:
             try:
