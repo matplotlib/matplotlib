@@ -13,6 +13,8 @@
 #include <cstdio>
 #include <sstream>
 
+#include <mplutils.h> // uint8_t on old MSC_VER
+
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
@@ -101,10 +103,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
 
     if (has_bbox) {
         int srcstride = wdata * 4;
-        destx = x1;
-        desty = hdata - y2;
-        destwidth = x2 - x1;
-        destheight = y2 - y1;
+        destx = (int)x1;
+        desty = (int)(hdata - y2);
+        destwidth = (int)(x2 - x1);
+        destheight = (int)(y2 - y1);
         deststride = 4 * destwidth;
 
         destbuffer = new uint8_t[deststride * destheight];
