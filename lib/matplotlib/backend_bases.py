@@ -1496,15 +1496,9 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
 
-        # Find all axes containing the mouse
-        if self.canvas.mouse_grabber is None:
-            axes_list = [a for a in self.canvas.figure.get_axes()
-                         if a.in_axes(self)]
-        else:
-            axes_list = [self.canvas.mouse_grabber]
+        self.inaxes = self.canvas.figure.inaxes((x, y))
 
-        if axes_list:
-            self.inaxes = cbook._topmost_artist(axes_list)
+        if self.inaxes is not None:
             try:
                 trans = self.inaxes.transData.inverted()
                 xdata, ydata = trans.transform_point((x, y))
@@ -1514,8 +1508,6 @@ class LocationEvent(Event):
             else:
                 self.xdata = xdata
                 self.ydata = ydata
-        else:
-            self.inaxes = None
 
         self._update_enter_leave()
 
