@@ -34,33 +34,32 @@ Basic text commands
 The following commands are used to create text in the pyplot
 interface and the object-oriented API:
 
-* `matplotlib.pyplot.text` - add text at an arbitrary location to the Axes;
-  `matplotlib.axes.Axes.text` in the API.
+=================== =================== ======================================
+`~.pyplot` API      OO API              description
+=================== =================== ======================================
+`~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
+                                        the `~.Axes`.
 
-* `matplotlib.pyplot.xlabel` - add a label to the x-axis;
-  `matplotlib.axes.Axes.set_xlabel` in the API.
+`~.pyplot.annotate` `~.Axes.annotate`   Add an annotation, with an optional
+                                        arrow, at an arbitrary location of the
+                                        `~.Axes`.
 
-* `matplotlib.pyplot.ylabel` - add a label to the y-axis;
-  `matplotlib.axes.Axes.set_ylabel` in the API.
+`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the `~.Axes`\\'s x-axis.
 
-* `matplotlib.pyplot.title` - add a title to the `~matplotlib.axes.Axes`;
-  `matplotlib.axes.Axes.set_title` in the API.
+`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the `~.Axes`\\'s y-axis.
 
-* `matplotlib.pyplot.figtext` - add text at an arbitrary location to the
-  `~matplotlib.figure.Figure`; `matplotlib.figure.Figure.text` in the API.
+`~.pyplot.title`    `~.Axes.set_title`  Add a title to the `~.Axes`.
 
-* `matplotlib.pyplot.suptitle` - add a title to the
-  `~matplotlib.figure.Figure`; `matplotlib.figure.Figure.suptitle` in the API.
+`~.pyplot.figtext`  `~.Figure.text`     Add text at an arbitrary location of
+                                        the `~.Figure`.
 
-* `matplotlib.pyplot.annotate` - add an annotation, with
-  optional arrow, to the `~matplotlib.axes.Axes`;
-  `matplotlib.axes.Axes.annotate` in the API.
+`~.pyplot.suptitle` `~.Figure.suptitle` Add a title to the `~.Figure`.
+=================== =================== ======================================
 
-All of these functions create and return a
-`matplotlib.text.Text` instance, which can be configured with a
-variety of font and other properties.  The example below shows all of
-these commands in action, and more detail is provided in the sections that
-follow.
+All of these functions create and return a `~.text.Text` instance, which can
+be configured with a variety of font and other properties.  The example below
+shows all of these commands in action, and more detail is provided in the
+sections that follow.
 """
 
 import matplotlib
