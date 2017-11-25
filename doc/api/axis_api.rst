@@ -388,7 +388,7 @@ YAxis
    YAxis.update_units
    YAxis.zoom
 
-``YAxis``
+XAxis
 ---------
 
 .. autosummary::
