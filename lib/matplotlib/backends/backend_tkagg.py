@@ -868,6 +868,7 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
+    _icon_extension = '.gif'
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx

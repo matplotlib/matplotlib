@@ -716,6 +716,7 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
+    _icon_extension = '.png'
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
