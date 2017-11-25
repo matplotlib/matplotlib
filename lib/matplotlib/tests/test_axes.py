@@ -24,7 +24,8 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import (
+    assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.cbook import (
     IgnoredKeywordWarning, MatplotlibDeprecationWarning)
 from matplotlib.cbook._backports import broadcast_to
@@ -4828,6 +4829,12 @@ def test_square_plot():
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
     assert np.diff(xlim) == np.diff(ylim)
     assert ax.get_aspect() == 'equal'
+    assert_array_almost_equal(
+            ax.get_position(original=True).extents,
+            np.array((0.125, 0.1, 0.9, 0.9)))
+    assert_array_almost_equal(
+        ax.get_position(original=False).extents,
+        np.array((0.2125, 0.1, 0.8125, 0.9)))
 
 
 def test_no_None():
