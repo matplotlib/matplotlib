@@ -56,8 +56,8 @@ interface and the object-oriented API:
 `~.pyplot.suptitle` `~.Figure.suptitle` Add a title to the `~.Figure`.
 =================== =================== ======================================
 
-All of these functions create and return a `~.text.Text` instance, which can
-be configured with a variety of font and other properties.  The example below
+All of these functions create and return a `~.Text` instance, which can be
+configured with a variety of font and other properties.  The example below
 shows all of these commands in action, and more detail is provided in the
 sections that follow.
 """
@@ -145,11 +145,11 @@ ax.set_ylabel('Damped oscillation [V]', labelpad=18)
 plt.show()
 
 ###############################################################################
-# Or, the labels accept all the `~matplotlib.text.Text` keyword arguments,
-# including *position*, via which we can manually specify the label positions.
-# Here we put the xlabel to the far left of the axis.  Note, that the
-# y-coordinate of this position has no effect - to adjust the y-position we
-# need to use the *labelpad* kwarg.
+# Or, the labels accept all the `~.Text` keyword arguments, including
+# *position*, via which we can manually specify the label positions.  Here we
+# put the xlabel to the far left of the axis.  Note, that the y-coordinate of
+# this position has no effect - to adjust the y-position we need to use the
+# *labelpad* kwarg.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
