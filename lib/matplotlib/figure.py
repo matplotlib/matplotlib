@@ -1551,7 +1551,7 @@ default: 'top'
         axes_list = [a for a in self.get_axes() if a.patch.contains_point(xy)]
 
         if axes_list:
-            axes = max(reversed(axes_list), key=lambda x: x.zorder)
+            axes = cbook._topmost_artist(axes_list)
         else:
             axes = None
 
