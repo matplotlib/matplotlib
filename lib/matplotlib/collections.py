@@ -1211,7 +1211,7 @@ class LineCollection(Collection):
            zorder of the LineCollection. Default is 2.
 
         facecolors : optional
-           The facecolors of the LineCollection. Default is 'none'
+           The facecolors of the LineCollection. Default is 'none'.
            Setting to a value other than 'none' will lead to a filled
            polygon being drawn between points on each line.
 
@@ -1316,7 +1316,7 @@ class LineCollection(Collection):
 
     def set_color(self, c):
         """
-        Set the color(s) of the line collection.
+        Set the color(s) of the LineCollection.
 
         Parameters
         ----------
