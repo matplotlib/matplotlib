@@ -96,8 +96,11 @@ Here are all the date tickers:
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`MultipleDateLocator` to set the view limits and the tick
-      locations.
+      :class:`RRuleLocator` to set the view limits and the tick
+      locations.  If called with ``interval_multiples=True`` it will
+      make ticks line up with sensible multiples of the tick intervals.  E.g.
+      if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
+      This behaviour is not garaunteed by default.
 
 Date formatters
 ---------------
@@ -1189,15 +1192,15 @@ class AutoDateLocator(DateLocator):
             else:
                 byranges[i] = self._byranges[i]
 
-            # We found what frequency to use
             break
         else:
             raise ValueError('No sensible date limit could be found in the '
                              'AutoDateLocator.')
 
-        if use_rrule_locator[i]:
+        if (freq == YEARLY) and self.interval_multiples:
+            locator = YearLocator(interval)
+        elif use_rrule_locator[i]:
             _, bymonth, bymonthday, byhour, byminute, bysecond, _ = byranges
-
             rrule = rrulewrapper(self._freq, interval=interval,
                                  dtstart=dmin, until=dmax,
                                  bymonth=bymonth, bymonthday=bymonthday,
