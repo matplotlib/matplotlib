@@ -11,11 +11,6 @@ branches:
 environment:
 
   global:
-    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-    # /E:ON and /V:ON options are not enabled in the batch script intepreter
-    # See: http://stackoverflow.com/a/13751649/163740
-    CMD_IN_ENV: cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd
-    # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -rawR --timeout=300 --durations=25 --cov-report= --cov=lib -m "not network"
     PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
@@ -23,31 +18,21 @@ environment:
                        # https://github.com/pytest-dev/pytest/issues/1075
 
   matrix:
-    # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
     # one for 64bit because we construct envs anyway. But using one for the
     # right python version is hopefully making it fast due to package caching.
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "27"
-      CONDA_NPY: "18"
-      PYTHON_VERSION: "2.7"
-      TEST_ALL: "no"
+    - PYTHON_VERSION: "2.7"
       CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "35"
-      CONDA_NPY: "110"
-      PYTHON_VERSION: "3.5"
+      TEST_ALL: "no"
+    - PYTHON_VERSION: "3.5"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
       TEST_ALL: "no"
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "36"
-      PYTHON_VERSION: "3.6"
-      CONDA_NPY: "111"
+    - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
 
 # We always use a 64-bit machine, but can build x86 distributions
-# with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
+# with the PYTHON_ARCH variable
 platform:
     - x64
 
@@ -64,22 +49,13 @@ init:
 install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - set PYTHONUNBUFFERED=1
-  # for obvci_appveyor_python_build_env.cmd
-  - conda update --all --yes
-  - conda install anaconda-client=1.6.3 --yes
-  - conda install -c conda-forge --yes obvious-ci
   # for msinttypes and newer stuff
-  - conda config --prepend channels conda-forge
-  - conda config --set show_channel_urls yes
   - conda config --set always_yes true
-  # For building conda packages
-  - conda install --yes conda-build jinja2 anaconda-client
+  - conda update --all
+  - conda config --set show_channel_urls yes
+  - conda config --prepend channels conda-forge
   # this is now the downloaded conda...
   - conda info -a
-
-  # Fix the appveyor build environment to work with conda build
-  # workaround for missing vcvars64.bat in py34 64bit
-  - copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
 
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
@@ -100,7 +76,7 @@ install:
   # https://github.com/matplotlib/matplotlib/issues/9176
   - python -c "import sys; sys.exit(not (3,) < sys.version_info < (3,6,3))" && (
     curl -sL https://github.com/python/cpython/pull/1224.patch |
-    patch -fsup 1 -d %CONDA_PREFIX% ) || ( set errorlevel= )
+    patch -fsup 1 -d %CONDA_PREFIX% ) || cmd /c "exit /b 0"
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
@@ -120,7 +96,7 @@ install:
 
 test_script:
   # Now build the thing..
-  - '%CMD_IN_ENV% pip install --no-deps -ve .'
+  - pip install -ve .
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
@@ -138,34 +114,11 @@ test_script:
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - python tests.py %PYTEST_ARGS%
-  # Generate a html for visual tests
-  - python tools/visualize_tests.py --no-browser
-  - pip install codecov
-  - codecov -e PYTHON_VERSION PLATFORM
 
 after_test:
-  # After the tests were a success, build packages (wheels and conda)
-
-  # Build the wheel with the static libs
+  # After the tests were a success, build wheels with the static libs
   # Hide the output, the copied files really clutter the build log...
-  - '%CMD_IN_ENV% python setup.py bdist_wheel > NUL:'
-
-  # And now the conda build after a cleanup...
-  # cleanup build files so that they don't pollute the conda build but keep the wheel in dist...
-  - git clean -xdfq -e dist/
-  # cleanup the environment so that the test-environment does not leak into the conda build...
-  - set MPLBASEDIRLIST=
-  - set LIBRARY_LIB=
-  - deactivate
-  - path
-  - where python
-  - '%CMD_IN_ENV% conda config --get channels'
-  - '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
-
-  # Move the conda package into the dist directory, to register it
-  # as an "artifact" for Appveyor.
-  - copy /y %CONDA_INSTALL_LOCN%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"
-  - copy /y %CONDA_INSTALL_LOCN%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"
+  - 'python setup.py bdist_wheel > NUL:'
   - dir dist\
   - echo finished...
 
@@ -178,8 +131,11 @@ artifacts:
     type: zip
 
 on_finish:
+  - pip install codecov
+  - codecov -e PYTHON_VERSION PLATFORM
 
 on_failure:
+  # Generate a html for visual tests
   - python tools/visualize_tests.py --no-browser
   - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ | grep -v "Compressing"
