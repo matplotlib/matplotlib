@@ -26,7 +26,8 @@ import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
 from numpy.testing import assert_allclose, assert_array_equal
-from matplotlib.cbook import IgnoredKeywordWarning
+from matplotlib.cbook import (
+    IgnoredKeywordWarning, MatplotlibDeprecationWarning)
 from matplotlib.cbook._backports import broadcast_to
 
 # Note: Some test cases are run twice: once normally and once with labeled data
@@ -5498,3 +5499,8 @@ def test_empty_errorbar_legend():
     ax.errorbar([], [], xerr=[], label='empty y')
     ax.errorbar([], [], yerr=[], label='empty x')
     ax.legend()
+
+
+def test_plot_columns_cycle_deprecation():
+    with pytest.warns(MatplotlibDeprecationWarning):
+        plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))

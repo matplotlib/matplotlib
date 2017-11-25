@@ -391,6 +391,9 @@ class _process_plot_var_args(object):
             func = self._makefill
 
         ncx, ncy = x.shape[1], y.shape[1]
+        if ncx > 1 and ncy > 1 and ncx != ncy:
+            cbook.warn_deprecated("2.2", "cycling among columns of inputs "
+                                  "with non-matching shapes is deprecated.")
         for j in xrange(max(ncx, ncy)):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
