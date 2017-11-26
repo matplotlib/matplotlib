@@ -211,6 +211,11 @@ class _process_plot_var_args(object):
         fill_poly.set(**kwargs)
 
     def _xy_from_xy(self, x, y):
+        def _check_numeric(inp):
+            if inp.dtype.kind not in set('biufc'):
+                raise TypeError('input must be numeric after unit conversion')
+            return inp
+
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
@@ -221,8 +226,9 @@ class _process_plot_var_args(object):
 
         # like asanyarray, but converts scalar to array, and doesn't change
         # existing compatible sequences
-        x = _check_1d(x)
-        y = _check_1d(y)
+        x = _check_numeric(_check_1d(x))
+        y = _check_numeric(_check_1d(y))
+
         if x.shape[0] != y.shape[0]:
             raise ValueError("x and y must have same first dimension, but "
                              "have shapes {} and {}".format(x.shape, y.shape))
