@@ -3404,44 +3404,46 @@ def griddata(x, y, z, xi, yi, interp='nn'):
 ##################################################
 # Linear interpolation algorithms
 ##################################################
-def less_simple_linear_interpolation(x, y, xi, extrap=False):
+_sentinel = object()
+def less_simple_linear_interpolation(x, y, xi, extrap=_sentinel):
     """
-    This function provides simple (but somewhat less so than
-    :func:`cbook.simple_linear_interpolation`) linear interpolation.
-    :func:`simple_linear_interpolation` will give a list of point
-    between a start and an end, while this does true linear
-    interpolation at an arbitrary set of points.
+    Linearly interpolate and extrapolate a function.
 
-    This is very inefficient linear interpolation meant to be used
-    only for a small number of points in relatively non-intensive use
-    cases.  For real linear interpolation, use scipy.
+    This function differs from `np.interp` by its ability to linearly
+    extrapolate beyond the lowest and highest x, and to handle multidimensional
+    output.
+
+    Parameters
+    ----------
+    x : a 1D array-like
+        The x-values where the interpolated function is known.
+    y : a 2D array-like
+        The values of the interpolated function.
+    xi : a 1D array-like
+        The x-values where to interpolate or extrapolate the function.
+
+    Returns
+    -------
+    The linearly interpolated and extrapolated values as a 2D array.
     """
     x = np.asarray(x)
     y = np.asarray(y)
-    xi = np.atleast_1d(xi)
-
-    s = list(y.shape)
-    s[0] = len(xi)
-    yi = np.tile(np.nan, s)
-
-    for ii, xx in enumerate(xi):
-        bb = x == xx
-        if np.any(bb):
-            jj, = np.nonzero(bb)
-            yi[ii] = y[jj[0]]
-        elif xx < x[0]:
-            if extrap:
-                yi[ii] = y[0]
-        elif xx > x[-1]:
-            if extrap:
-                yi[ii] = y[-1]
-        else:
-            jj, = np.nonzero(x < xx)
-            jj = max(jj)
-
-            yi[ii] = y[jj] + (xx-x[jj])/(x[jj+1]-x[jj]) * (y[jj+1]-y[jj])
-
-    return yi
+    xi = np.asarray(xi)
+    out = np.column_stack([np.interp(xi, x, col, left=np.nan, right=np.nan)
+                           for col in y.T])
+    if extrap is not _sentinel:
+        cbook.warn_deprecated(
+            "2.2", "The 'extrap' keyword argument to "
+            "'less_simple_linear_interpolation' is deprecated "
+            "(use np.interp instead).")
+    if extrap:
+        mask = xi < x[0]
+        if np.any(mask):
+            out[mask] = np.polyval(np.polyfit(x[:2], y[:2], 1), xi[mask])
+        mask = xi > x[-1]
+        if np.any(mask):
+            out[mask] = np.polyval(np.polyfit(x[-2:], y[-2:], 1), xi[mask])
+    return out
 
 
 def slopes(x, y):
