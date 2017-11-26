@@ -112,7 +112,7 @@ def error_msg_wx(msg, parent=None):
 
 
 def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
+    """msg is a return arg from a raise.  Join with new lines."""
     if not isinstance(msg, six.string_types):
         msg = '\n'.join(map(str, msg))
     return msg

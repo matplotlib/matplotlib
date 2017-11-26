@@ -1459,10 +1459,9 @@ class Locator(TickHelper):
         """raise a RuntimeError if Locator attempts to create more than
            MAXTICKS locs"""
         if len(locs) >= self.MAXTICKS:
-            msg = ('Locator attempting to generate %d ticks from %s to %s: ' +
-                   'exceeds Locator.MAXTICKS') % (len(locs), locs[0], locs[-1])
-            raise RuntimeError(msg)
-
+            raise RuntimeError("Locator attempting to generate {} ticks from "
+                               "{} to {}: exceeds Locator.MAXTICKS".format(
+                                   len(locs), locs[0], locs[-1]))
         return locs
 
     def view_limits(self, vmin, vmax):

@@ -1012,7 +1012,7 @@ def error_msg_gtk(msg, parent=None):
             parent = None
 
     if not isinstance(msg, six.string_types):
-        msg = ','.join(map(str,msg))
+        msg = ','.join(map(str, msg))
 
     dialog = gtk.MessageDialog(
         parent         = parent,

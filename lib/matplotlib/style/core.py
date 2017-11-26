@@ -112,10 +112,10 @@ def use(style):
                 rc = rc_params_from_file(style, use_default_template=False)
                 _apply_style(rc)
             except IOError:
-                msg = ("'%s' not found in the style library and input is "
-                       "not a valid URL or path. See `style.available` for "
-                       "list of available styles.")
-                raise IOError(msg % style)
+                raise IOError(
+                    "{!r} not found in the style library and input is not a "
+                    "valid URL or path; see `style.available` for list of "
+                    "available styles".format(style))
 
 
 @contextlib.contextmanager

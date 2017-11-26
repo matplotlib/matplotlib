@@ -1657,10 +1657,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                     # all to be replaced arguments are in the list
                     arg_names = _arg_names[1:]
                 else:
-                    msg = ("Got unknown 'replace_names' and wrapped function "
-                           "'%s' uses '*args', need "
-                           "'positional_parameter_names'!")
-                    raise AssertionError(msg % func.__name__)
+                    raise AssertionError(
+                        "Got unknown 'replace_names' and wrapped function "
+                        "{!r} uses '*args', need 'positional_parameter_names'"
+                        .format(func.__name__))
             else:
                 if positional_parameter_names is not None:
                     if callable(positional_parameter_names):
@@ -1674,11 +1674,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                     if replace_all_args:
                         arg_names = []
                     else:
-                        msg = ("Got 'replace_names' and wrapped function "
-                               "'%s' uses *args, need "
-                               "'positional_parameter_names' or "
-                               "'replace_all_args'!")
-                        raise AssertionError(msg % func.__name__)
+                        raise AssertionError(
+                            "Got 'replace_names' and wrapped function {!r} "
+                            "uses *args, need 'positional_parameter_names' or "
+                            "'replace_all_args'".format(func.__name__))
 
         # compute the possible label_namer and label position in positional
         # arguments
@@ -1697,13 +1696,13 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         # which might surprise the user :-(
         if label_namer and not arg_names_at_runtime and not _has_varkwargs:
             if not arg_names:
-                msg = ("label_namer '%s' can't be found as the parameter "
-                       "without 'positional_parameter_names'.")
-                raise AssertionError(msg % label_namer)
+                raise AssertionError(
+                    "label_namer {!r} can't be found as the parameter without "
+                    "'positional_parameter_names'".format(label_namer))
             elif label_namer not in arg_names:
-                msg = ("label_namer '%s' can't be found in the parameter "
-                       "names (known argnames: %s).")
-                raise AssertionError(msg % (label_namer, arg_names))
+                raise AssertionError(
+                    "label_namer {!r} can't be found in the parameter names "
+                    "(known argnames: %s).".format(label_namer, arg_names))
             else:
                 # this is the case when the name is in arg_names
                 pass
@@ -1783,12 +1782,12 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 elif label_namer in kwargs:
                     kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
-                    msg = ("Tried to set a label via parameter '%s' in "
-                           "func '%s' but couldn't find such an argument. \n"
-                           "(This is a programming error, please report to "
-                           "the matplotlib list!)")
-                    warnings.warn(msg % (label_namer, func.__name__),
-                                  RuntimeWarning, stacklevel=2)
+                    warnings.warn(
+                        "Tried to set a label via parameter %r in func %r but "
+                        "couldn't find such an argument.\n"
+                        "(This is a programming error, please report to "
+                        "the Matplotlib list!)" % (label_namer, func.__name__),
+                        RuntimeWarning, stacklevel=2)
             return func(ax, *args, **kwargs)
         pre_doc = inner.__doc__
         if pre_doc is None:

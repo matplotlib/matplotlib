@@ -1846,9 +1846,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                 loval = np.min(x)
                 hival = np.max(x)
             else:
-                whismsg = ('whis must be a float, valid string, or '
-                           'list of percentiles')
-                raise ValueError(whismsg)
+                raise ValueError('whis must be a float, valid string, or list '
+                                 'of percentiles')
         else:
             loval = np.percentile(x, whis[0])
             hival = np.percentile(x, whis[1])

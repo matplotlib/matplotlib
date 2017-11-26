@@ -176,10 +176,8 @@ class ContourLabeler(object):
                     indices.append(i)
                     levels.append(lev)
             if len(levels) < len(levlabs):
-                msg = "Specified levels " + str(levlabs)
-                msg += "\n don't match available levels "
-                msg += str(self.levels)
-                raise ValueError(msg)
+                raise ValueError("Specified levels {} don't match available "
+                                 "levels {}".format(levlabs, self.levels))
         else:
             raise TypeError("Illegal arguments to clabel, see help(clabel)")
         self.labelLevelList = levels

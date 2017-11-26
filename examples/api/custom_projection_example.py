@@ -192,8 +192,8 @@ class GeoAxes(Axes):
         Returns a tuple of the form (transform, valign, halign)
         """
         if which not in ['tick1', 'tick2', 'grid']:
-            msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -214,8 +214,8 @@ class GeoAxes(Axes):
         y-axis grid and ticks.
         """
         if which not in ['tick1', 'tick2', 'grid']:
-            msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):

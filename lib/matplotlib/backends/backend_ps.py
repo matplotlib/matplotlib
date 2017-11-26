@@ -1104,11 +1104,10 @@ class FigureCanvasPS(FigureCanvasBase):
                         # STIX fonts).  This will simply turn that off to avoid
                         # errors.
                         if is_opentype_cff_font(font_filename):
-                            msg = ("OpenType CFF fonts can not be saved "
-                                   "using the internal Postscript backend "
-                                   "at this time.\nConsider using the "
-                                   "Cairo backend.")
-                            raise RuntimeError(msg)
+                            raise RuntimeError(
+                                "OpenType CFF fonts can not be saved using "
+                                "the internal Postscript backend at this "
+                                "time; consider using the Cairo backend")
                         else:
                             fh.flush()
                             convert_ttf_to_ps(
