@@ -676,8 +676,8 @@ class Line2D(Artist):
             if nanmask.any():
                 self._x_filled = self._x.copy()
                 indices = np.arange(len(x))
-                self._x_filled[nanmask] = np.interp(indices[nanmask],
-                        indices[~nanmask], self._x[~nanmask])
+                self._x_filled[nanmask] = np.interp(
+                    indices[nanmask], indices[~nanmask], self._x[~nanmask])
             else:
                 self._x_filled = self._x
 
