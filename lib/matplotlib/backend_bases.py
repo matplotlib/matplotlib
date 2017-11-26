@@ -1497,7 +1497,7 @@ class LocationEvent(Event):
             return
 
         if self.canvas.mouse_grabber is None:
-            self.inaxes = self.canvas.figure.inaxes((x, y))
+            self.inaxes = self.canvas.inaxes((x, y))
         else:
             self.inaxes = self.canvas.mouse_grabber
 
@@ -1987,6 +1987,38 @@ class FigureCanvasBase(object):
 
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
+
+    @cbook.deprecated("2.1")
+    def idle_event(self, guiEvent=None):
+        """Called when GUI is idle."""
+        s = 'idle_event'
+        event = IdleEvent(s, self, guiEvent=guiEvent)
+        self.callbacks.process(s, event)
+
+    def inaxes(self, xy):
+        """
+        Check if a point is in an axes.
+
+        Parameters
+        ----------
+        xy : tuple or list
+            (x,y) coordinates.
+            x position - pixels from left of canvas.
+            y position - pixels from bottom of canvas.
+
+        Returns
+        -------
+        axes: topmost axes containing the point, or None if no axes.
+
+        """
+        axes_list = [a for a in self.figure.get_axes() if a.patch.contains_point(xy)]
+
+        if axes_list:
+            axes = cbook._topmost_artist(axes_list)
+        else:
+            axes = None
+
+        return axes
 
     def grab_mouse(self, ax):
         """
