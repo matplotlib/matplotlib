@@ -267,3 +267,10 @@ def test_StrCategoryFormatter(ax, plotter):
     assert ax.yaxis.major.formatter(1, 1) == "мир"
     assert ax.yaxis.major.formatter(2, 2) == ""
     assert ax.yaxis.major.formatter(0, None) == ""
+
+
+@pytest.mark.parametrize("plotter", [Axes.plot, Axes.scatter])
+@pytest.mark.parametrize("xdata", [[1, 'a'], ['a', 1]])
+def test_mixed_failures(ax, plotter, xdata):
+    with pytest.raises((ValueError, TypeError)):
+        plotter(ax, xdata, [1, 2])
