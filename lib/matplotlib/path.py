@@ -1,15 +1,12 @@
-"""
-A module for dealing with the polylines used throughout matplotlib.
+r"""
+A module for dealing with the polylines used throughout Matplotlib.
 
-The primary class for polyline handling in matplotlib is :class:`Path`.
-Almost all vector drawing makes use of Paths somewhere in the drawing
-pipeline.
+The primary class for polyline handling in Matplotlib is `Path`.  Almost all
+vector drawing makes use of `Path`\s somewhere in the drawing pipeline.
 
-Whilst a :class:`Path` instance itself cannot be drawn, there exists
-:class:`~matplotlib.artist.Artist` subclasses which can be used for
-convenient Path visualisation - the two most frequently used of these are
-:class:`~matplotlib.patches.PathPatch` and
-:class:`~matplotlib.collections.PathCollection`.
+Whilst a `Path` instance itself cannot be drawn, some `~.Artist` subclasses,
+such as `~.PathPatch` and `~.PathCollection`, can be used for convenient `Path`
+visualisation.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -17,7 +14,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
 from weakref import WeakValueDictionary
 
 try:
@@ -28,8 +24,7 @@ except ImportError:  # Py2
 import numpy as np
 
 from . import _path, rcParams
-from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
-                    maxdict)
+from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 
 class Path(object):
