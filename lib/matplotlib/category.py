@@ -98,7 +98,7 @@ class UnitData(object):
             if val in self._mapping:
                 continue
             if not isinstance(val, six.text_type):
-                raise TypeError("{val!r} is not a string".format(val))
+                raise TypeError("{val!r} is not a string".format(val=val))
             self._vals.append(val)
             self._mapping[val] = next(self._counter)
 
