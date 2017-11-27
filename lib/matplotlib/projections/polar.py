@@ -557,7 +557,7 @@ class RadialTick(maxis.YTick):
                 ha = 'left'
                 va = 'bottom'
             else:
-                ha, va = self._determine_anchor(angle, True)
+                ha, va = self._determine_anchor(angle, direction > 0)
             self.label1.set_ha(ha)
             self.label1.set_va(va)
             self.label1.set_rotation(text_angle)
@@ -601,7 +601,7 @@ class RadialTick(maxis.YTick):
         else:
             text_angle = user_angle
         if self.label2On:
-            ha, va = self._determine_anchor(angle, False)
+            ha, va = self._determine_anchor(angle, direction < 0)
             self.label2.set_ha(ha)
             self.label2.set_va(va)
             self.label2.set_rotation(text_angle)
