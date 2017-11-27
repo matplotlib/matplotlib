@@ -104,6 +104,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import atexit
 from collections import MutableMapping
 import contextlib
 import distutils.version
@@ -116,6 +117,7 @@ import locale
 import logging
 import os
 import re
+import shutil
 import sys
 import tempfile
 import warnings
@@ -605,6 +607,7 @@ def _create_tmp_config_dir():
     """
     configdir = os.environ['MPLCONFIGDIR'] = (
         tempfile.mkdtemp(prefix='matplotlib-'))
+    atexit.register(shutil.rmtree, configdir)
     return configdir
 
 
