@@ -888,16 +888,10 @@ class PolarAxes(Axes):
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        if _is_full_circle_rad(*self._realViewLim.intervalx):
-            return self._xaxis_text_transform, 'center', 'center'
-        else:
-            return self._xaxis_text_transform, 'bottom', 'center'
+        return self._xaxis_text_transform, 'center', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        if _is_full_circle_rad(*self._realViewLim.intervalx):
-            return self._xaxis_text_transform, 'center', 'center'
-        else:
-            return self._xaxis_text_transform, 'top', 'center'
+        return self._xaxis_text_transform, 'center', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
