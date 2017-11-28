@@ -1,8 +1,8 @@
 .. _documenting-matplotlib:
 
-===========================================
-Developer's tips for documenting Matplotlib
-===========================================
+=====================
+Writing documentation
+=====================
 
 Getting started
 ===============
@@ -11,9 +11,9 @@ Installing dependencies
 -----------------------
 
 The documentation for Matplotlib is generated from reStructuredText using
-the Sphinx_ documentation generation tool.  There are several extra
-requirements that are needed to build the documentation.  They are listed in
-:file:`doc-requirements.txt` as well as listed below:
+the Sphinx_ documentation generation tool. There are several extra requirements
+that are needed to build the documentation. They are listed in
+:file:`doc-requirements.txt` and listed below:
 
 1. Sphinx 1.3 or later (1.5.0 is not supported)
 2. numpydoc 0.4 or later
@@ -29,60 +29,30 @@ requirements that are needed to build the documentation.  They are listed in
   * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a Python package,
     and needs to be installed separately.
 
-General structure
------------------
+General file structure
+----------------------
 
 All documentation is built from the :file:`doc/` directory.  This directory
-contains both ``.rst`` files that contain pages in the documentation,
-directories that contain more ``.rst`` files, and configuration files for
-Sphinx_.
+contains both ``.rst`` files that contain pages in the documentation and
+configuration files for Sphinx_.
+
+The ``.rst`` files are kept in :file:`doc/users`,
+:file:`doc/devel`, :file:`doc/api` and :file:`doc/faq`. The main entry point is
+:file:`doc/index.rst`, which pulls in the :file:`index.rst` file for the users
+guide, developers guide, api reference, and FAQs. The documentation suite is
+built as a single document in order to make the most effective use of cross
+referencing.
 
 .. note::
 
-   An exception to this are the directories :file:`gallery` and
+   An exception to this are the directories :file:`examples` and
    :file:`tutorials`, which exist in the root directory.  These contain Python
    files that are built by `Sphinx Gallery`_.  When the docs are built,
-   directories of the same name will be generated inside of :file:`docs/`.  The
-   generated directories :file:`docs/gallery` and :file:`docs/tutorials` can be
-   safely deleted.
+   the directories :file:`docs/gallery` and :file:`docs/tutorials`
+   are automatically generated. Do not edit the rst files in :file:docs/gallery
+   and :file:docs/tutorials, as they are rebuilt from the original sources in
+   the root directory.
 
-The configuration file for Sphinx is :file:`doc/conf.py`.  It controls which
-directories Sphinx parses, how the docs are built, and how the extensions are
-used.
-
-Building the docs
------------------
-
-The documentation sources are found in the :file:`doc/` directory in
-the trunk.  To build the users guide in html format, cd into
-:file:`doc/` and do:
-
-.. code-block:: sh
-
-   python make.py html
-
-The list of comamnds and flags for ``make.py`` can be listed by running
-``python make.py --help``.  In particular,
-
-* ``python make.py clean`` will delete the built Sphinx files.  Use this
-  command if you're getting strange errors about missing paths or broken links,
-  particularly if you move files around.
-* ``python make.py latex`` builds a PDF of the documentation.
-* The ``--allowsphinxwarnings`` flag allows the docs to continue building even
-  if Sphinx throws a warning.  This is useful for debugging and spot-checking
-  many warnings at once.
-
-
-Organization of Matplotlib's documentation
-==========================================
-
-The actual reStructured Text files are kept in :file:`doc/users`,
-:file:`doc/devel`, :file:`doc/api` and :file:`doc/faq`. The main entry point is
-:file:`doc/index.rst`, which pulls in the :file:`index.rst` file for the users
-guide, developers guide, api reference, and faqs. The documentation suite is
-built as a single document in order to make the most effective use of cross
-referencing, we want to make navigating the Matplotlib documentation as easy as
-possible.
 
 Additional files can be added to the various guides by including their base
 file name (the .rst extension is not necessary) in the table of contents.
@@ -91,33 +61,145 @@ statement, such as::
 
   .. include:: ../../TODO
 
-docstrings
-----------
+The configuration file for Sphinx is :file:`doc/conf.py`. It controls which
+directories Sphinx parses, how the docs are built, and how the extensions are
+used.
 
-In addition to the "narrative" documentation described above,
-Matplotlib also defines its API reference documentation in docstrings.
-For the most part, these are standard Python docstrings, but
-Matplotlib also includes some features to better support documenting
-getters and setters.
+Building the docs
+-----------------
 
-Matplotlib uses artist introspection of docstrings to support properties.
-All properties that you want to support through `~.pyplot.setp` and
-`~.pyplot.getp` should have a ``set_property`` and ``get_property`` method in
-the `~.matplotlib.artist.Artist` class.  Yes, this is not ideal given python
-properties or enthought traits, but it is a historical legacy for now.  The
-setter methods use the docstring with the ACCEPTS token to indicate the type of
-argument the method accepts. e.g., in `.Line2D`:
+The documentation sources are found in the :file:`doc/` directory in the trunk.
+To build the documentation in html format, cd into :file:`doc/` and run:
+
+.. code-block:: sh
+
+   python make.py html
+
+The list of commands and flags for ``make.py`` can be listed by running
+``python make.py --help``. In particular,
+
+* ``python make.py clean`` will delete the built Sphinx files. Use this command
+  if you're getting strange errors about missing paths or broken links,
+  particularly if you move files around.
+* ``python make.py latex`` builds a PDF of the documentation.
+* The ``--allowsphinxwarnings`` flag allows the docs to continue building even
+  if Sphinx throws a warning. This is useful for debugging and spot-checking
+  many warnings at once.
+
+.. _formatting-mpl-docs:
+
+Writing new documentation
+=========================
+
+Most documentation lives in "docstrings". These are comment blocks in source
+code that explain how the code works. All new or edited docstrings should
+conform to the numpydoc guidelines. These split the docstring into a number
+of sections - see
+https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt for more
+details and a guide to how docstrings should be formatted.
+
+An example docstring looks like:
 
 .. code-block:: python
 
-  # in lines.py
-  def set_linestyle(self, linestyle):
-      """
-      Set the linestyle of the line
+  def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
+             label='', **kwargs):
+        """
+        Plot horizontal lines at each *y* from *xmin* to *xmax*.
 
-      ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
-      """
+        Parameters
+        ----------
+        y : scalar or sequence of scalar
+            y-indexes where to plot the lines.
 
+        xmin, xmax : scalar or 1D array_like
+            Respective beginning and end of each line. If scalars are
+            provided, all lines will have same length.
+
+        colors : array_like of colors, optional, default: 'k'
+
+        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
+
+        label : string, optional, default: ''
+
+        Returns
+        -------
+        lines : `~matplotlib.collections.LineCollection`
+
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.collections.LineCollection` properties.
+
+        See also
+        --------
+        vlines : vertical lines
+        axhline: horizontal line across the axes
+        """
+
+The Sphinx website also contains plenty of documentation_ concerning ReST
+markup and working with Sphinx in general.
+
+Linking to other code
+---------------------
+To link to other methods, classes, or modules in Matplotlib you can encase
+the name to refer to in back ticks, for example:
+
+.. code-block:: python
+
+  `~matplotlib.collections.LineCollection`
+
+It is also possible to add links to code in Python, Numpy, Scipy, or Pandas.
+Sometimes it is tricky to get external Sphinx linking to work; to check that
+a something exists to link to the following shell command outputs a list of all
+objects that can be referenced (in this case for Numpy)::
+
+  python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
+
+
+Function arguments
+------------------
+Function arguments and keywords within docstrings should be referred to using
+the ``*emphasis*`` role. This will keep Matplotlib's documentation consistent
+with Python's documentation:
+
+.. code-block:: rst
+
+  Here is a description of *argument*
+
+Please do not use the ```default role```:
+
+
+.. code-block:: rst
+
+   Please do not describe `argument` like this.
+
+nor the ````literal```` role:
+
+.. code-block:: rst
+
+   Please do not describe ``argument`` like this.
+
+Setters and getters
+-------------------
+Matplotlib uses artist introspection of docstrings to support properties.
+All properties that you want to support through `~.pyplot.setp` and
+`~.pyplot.getp` should have a ``set_property`` and ``get_property`` method in
+the `~.matplotlib.artist.Artist` class. The setter methods use the docstring
+with the ACCEPTS token to indicate the type of argument the method accepts.
+e.g., in `.Line2D`:
+
+.. code-block:: python
+
+   # in lines.py
+   def set_linestyle(self, linestyle):
+       """
+       Set the linestyle of the line
+
+       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       """
+
+Keyword arguments
+-----------------
 Since Matplotlib uses a lot of pass-through ``kwargs``, e.g., in every function
 that creates a line (`~.pyplot.plot`, `~.pyplot.semilogx`, `~.pyplot.semilogy`,
 etc...), it can be difficult for the new user to know which ``kwargs`` are
@@ -129,10 +211,10 @@ are:
    require multiple docstring edits.
 
 2. as automated as possible so that as properties change, the docs
-   are updated automagically.
+   are updated automatically.
 
 The function `matplotlib.artist.kwdoc` and the decorator
-`matplotlib.docstring.dedent_interpd` facilitate this.  They combine python
+`matplotlib.docstring.dedent_interpd` facilitate this.  They combine Python
 string interpolation in the docstring with the Matplotlib artist introspection
 facility that underlies ``setp`` and ``getp``.  The ``kwdoc`` function gives
 the list of properties as a docstring. In order to use this in another
@@ -163,7 +245,6 @@ Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
       autoscaled; default True.  See Axes.autoscale_view for more
       information
       """
-      pass
 
 Note there is a problem for `~matplotlib.artist.Artist` ``__init__`` methods,
 e.g., `matplotlib.patches.Patch.__init__`, which supports ``Patch`` ``kwargs``,
@@ -173,208 +254,41 @@ definition.  There are some some manual hacks in this case, violating the
 "single entry point" requirement above -- see the ``docstring.interpd.update``
 calls in `matplotlib.patches`.
 
-.. _formatting-mpl-docs:
-
-Formatting
-==========
-
-The Sphinx website contains plenty of documentation_ concerning ReST markup and
-working with Sphinx in general. Here are a few additional things to keep in mind:
-
-* Please familiarize yourself with the Sphinx directives for `inline
-  markup`_. Matplotlib's documentation makes heavy use of cross-referencing and
-  other semantic markup. For example, when referring to external files, use the
-  ``:file:`` directive.
-
-* Function arguments and keywords should be referred to using the
-  ``*emphasis*`` role. This will keep Matplotlib's documentation consistent
-  with Python's documentation:
-
-  .. code-block:: rst
-
-     Here is a description of *argument*
-
-  Please do not use the ```default role```:
-
-  .. code-block:: rst
-
-     Please do not describe `argument` like this.
-
-  nor the ````literal```` role:
-
-  .. code-block:: rst
-
-     Please do not describe ``argument`` like this.
-
-* Mathematical expressions can be rendered as png images in html, and in the
-  usual way by LaTeX.  For example,
-
-  .. code-block:: rst
-
-    :math:`\sin(x_n^2)`
-
-  yields :math:`\sin(x_n^2)`, and:
-
-  .. code-block:: rst
-
-     .. math::
-
-        \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
-
-  yields :math:`\int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}`.
-
-* Interactive IPython sessions can be illustrated in the documentation using
-  the following directive:
-
-  .. code-block:: rst
-
-    .. sourcecode-block:: ipython
-
-      In [69]: lines = plot([1,2,3])
-
-  which yields
-
-  .. code-block:: ipython
-
-    In [69]: lines = plot([1,2,3])
-
-* Footnotes [#]_ can be added using ``[#]_``, followed later by:
-
-  .. code-block:: rst
-
-    .. rubric:: Footnotes
-
-    .. [#]
-
-  which yields
-
-  .. rubric:: Footnotes
-
-  .. [#] For example.
-
-* Use the *note* and *warning* directives, sparingly, to draw attention to
-  important comments:
-
-  .. code-block:: rst
-
-    .. note::
-       Here is a note.
-
-    .. warning::
-       Here is a warning.
-
-  yields:
-
-  .. note::
-     Here is a note.
-
-  .. warning::
-     Here is a warning.
-
-* Use the *deprecated* directive when appropriate:
-
-  .. code-block:: rst
-
-    .. deprecated:: 0.98
-       This feature is obsolete, use something else.
-
-  yields:
-
-  .. deprecated:: 0.98
-     This feature is obsolete, use something else.
-
-* Use the *versionadded* and *versionchanged* directives, which have similar
-  syntax to the *deprecated* role:
-
-  .. code-block:: rst
-
-    .. versionadded:: 0.98
-       The transforms have been completely revamped.
-
-  .. versionadded:: 0.98
-     The transforms have been completely revamped.
-
-* Use the *seealso* directive, for example:
-
-  .. code-block:: rst
-
-    .. seealso::
-
-       Using ReST :ref:`emacs-helpers`:
-          One example
-
-       A bit about :ref:`referring-to-mpl-docs`:
-          One more
-
-  yields:
-
-  .. seealso::
-
-     Using ResT :ref:`emacs-helpers`:
-        One example
-
-     A bit about :ref:`referring-to-mpl-docs`:
-        One more
-
-* Please keep the :ref:`glossary` in mind when writing documentation. You can
-  create a references to a term in the glossary with the ``:term:`` role.
-
-* The autodoc extension will handle index entries for the API, but additional
-  entries in the index_ need to be explicitly added.
-
-* Keyword arguments should be described using a definition list.
-
-  .. note::
-     Matplotlib makes extensive use of keyword arguments as pass-through
-     arguments, there are a many cases where a table is used in place of a
-     definition list for autogenerated sections of docstrings.
-
-Figures
-=======
-
-Dynamically generated figures
------------------------------
-
-Figures can be automatically generated from scripts and included in
-the docs.  It is not necessary to explicitly save the figure in the
-script, this will be done automatically at build time to ensure that
-the code that is included runs and produces the advertised figure.
-
-The path should be relative to the ``doc`` directory.  Any plots
-specific to the documentation should be added to the ``doc/mpl_examples/pyplots``
-directory and committed to git.  Plots from the ``examples`` directory
-may be referenced through the symlink ``mpl_examples`` in the ``doc``
-directory, e.g.:
+Adding figures
+==============
+Figures in the documentation are automatically generated from scripts.
+It is not necessary to explicitly save the figure from the script; this will be
+done automatically when the docs are built to ensure that the code that is
+included runs and produces the advertised figure.
+
+There are two options for where to put the code that generates a figure. If
+you want to include a plot in the examples gallery, the code should be added to
+the :file:`examples` directory. Plots from
+the :file:`examples` directory can then be referenced through the symlink
+``mpl_examples`` in the ``doc`` directory, e.g.:
 
 .. code-block:: rst
 
-  .. plot:: mpl_examples/pylab_examples/simple_plot.py
+  .. plot:: mpl_examples/lines_bars_and_markers/fill.py
 
-The ``:scale:`` directive rescales the image to some percentage of the
-original size, though we don't recommend using this in most cases
-since it is probably better to choose the correct figure size and dpi
-in Matplotlib and let it handle the scaling.
+Alternatively the plotting code can be placed directly in the docstring.
+To include plots directly in docstrings, see the following guide:
 
 Plot directive documentation
-''''''''''''''''''''''''''''
+----------------------------
 
 .. automodule:: matplotlib.sphinxext.plot_directive
+   :no-undoc-members:
 
 Examples
 --------
 
-The source of the files in the ``examples`` directory are
-automatically included in the HTML docs.  An image is generated and
-included for all examples in the ``api`` and ``pylab_examples``
-directories.  To exclude the example from having an image rendered,
-insert the following special comment anywhere in the script:
+The source of the files in the :file:`examples` directory are automatically run
+and their output plots included in the documentation. To exclude an example
+from having an plot generated insert "sgskip" somewhere in the filename.
 
-.. code-block:: python
-
-  # -*- noplot -*-
-
-Animations
-----------
+Adding animations
+=================
 
 We have a Matplotlib Google/Gmail account with username ``mplgithub``
 which we used to setup the github account but can be used for other
@@ -408,27 +322,26 @@ google docs to the mplgithub account.
 
 .. _referring-to-mpl-docs:
 
-Referring to Matplotlib documents
-=================================
+Referring to data files
+=======================
 
-In the documentation, you may want to include to a document in the Matplotlib
-sources, e.g., a license file or an image file from :file:`mpl-data`, refer to
-it via a relative path from the document where the rst file resides, e.g., in
-:file:`users/navigation_toolbar.rst`, we refer to the image icons with::
+In the documentation, you may want to include to a data file in the Matplotlib
+sources, e.g., a license file or an image file from :file:`mpl-data`, refer to it via
+a relative path from the document where the rst file resides, e.g.,
+in :file:`users/navigation_toolbar.rst`, you can refer to the image icons with::
 
     .. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
 
-In the :file:`users` subdirectory, if I want to refer to a file in the
-mpl-data directory, I use the symlink directory.  For example, from
-:file:`customizing.rst`::
+In the :file:`users` subdirectory, if you want to refer to a file in the
+:file:`mpl-data` directory, you can use the symlink directory. For example,
+from :file:`customizing.rst`::
 
     .. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
 
-One exception to this is when referring to the examples dir.  Relative
-paths are extremely confusing in the sphinx plot extensions, so
-without getting into the dirty details, it is easier to simply include
-a symlink to the files at the top doc level directory.  This way, API
-documents like :meth:`matplotlib.pyplot.plot` can refer to the
+One exception to this is when referring to the examples directory. Relative
+paths are extremely confusing in the sphinx plot extensions, so it is easier
+to simply include a symlink to the files at the top doc level directory.
+This way, API documents like :meth:`matplotlib.pyplot.plot` can refer to the
 examples in a known location.
 
 In the top level :file:`doc` directory we have symlinks pointing to the
@@ -444,10 +357,6 @@ So we can include plots from the examples dir using the symlink:
 .. code-block:: rst
 
     .. plot:: mpl_examples/pylab_examples/simple_plot.py
-
-We used to use a symlink for :file:`mpl-data` too, but the distro
-becomes very large on platforms that do not support links (e.g., the font
-files are duplicated and large)
 
 .. _internal-section-refs:
 
@@ -468,7 +377,7 @@ and refer to it using  the standard reference syntax:
     See :ref:`howto-webapp`
 
 Keep in mind that we may want to reorganize the contents later, so
-let's avoid top level names in references like ``user`` or ``devel``
+please try to avoid top level names in references like ``user`` or ``devel``
 or ``faq`` unless necessary, because for example the FAQ "what is a
 backend?" could later become part of the users guide, so the label:
 
@@ -482,21 +391,21 @@ is better than:
 
     .. _faq-backend
 
-In addition, since underscores are widely used by Sphinx itself, let's prefer
+In addition, since underscores are widely used by Sphinx itself, please use
 hyphens to separate words.
 
-Section names, etc.
-===================
+Section name formatting
+=======================
 
 For everything but top level chapters, please use ``Upper lower`` for
 section titles, e.g., ``Possible hangups`` rather than ``Possible
 Hangups``
 
-Inheritance diagrams
-====================
+Generating inheritance diagrams
+===============================
 
 Class inheritance diagrams can be generated with the
-``inheritance-diagram`` directive.  To use it, you provide the
+``inheritance-diagram`` directive.  To use it, provide the
 directive with a number of class or module names (separated by
 whitespace).  If a module name is provided, all classes in that module
 will be used.  All of the ancestors of these classes will be included
