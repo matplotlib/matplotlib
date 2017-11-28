@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 
 cmaps = [('Perceptually Uniform Sequential', [
-            'viridis', 'plasma', 'inferno', 'magma']),
+            'viridis', 'plasma', 'inferno', 'magma', 'cividis']),
          ('Sequential', [
             'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
             'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
