@@ -300,8 +300,9 @@ class ThetaTick(maxis.XTick):
     def update_position(self, loc):
         super(ThetaTick, self).update_position(loc)
         axes = self.axes
-        angle = (loc * axes.get_theta_direction() +
-                 axes.get_theta_offset() - np.pi / 2)
+        angle = loc * axes.get_theta_direction() + axes.get_theta_offset()
+        text_angle = np.rad2deg(angle) % 360 - 90
+        angle -= np.pi / 2
 
         if self.tick1On:
             marker = self.tick1line.get_marker()
@@ -326,17 +327,17 @@ class ThetaTick(maxis.XTick):
 
         mode, user_angle = self._labelrotation
         if mode == 'default':
-            angle = 0
+            text_angle = user_angle
         else:
-            if angle > np.pi / 2:
-                angle -= np.pi
-            elif angle < -np.pi / 2:
-                angle += np.pi
-        angle = np.rad2deg(angle) + user_angle
+            if text_angle > 90:
+                text_angle -= 180
+            elif text_angle < -90:
+                text_angle += 180
+            text_angle += user_angle
         if self.label1On:
-            self.label1.set_rotation(angle)
+            self.label1.set_rotation(text_angle)
         if self.label2On:
-            self.label2.set_rotation(angle)
+            self.label2.set_rotation(text_angle)
 
         # This extra padding helps preserve the look from previous releases but
         # is also needed because labels are anchored to their center.
@@ -527,7 +528,8 @@ class RadialTick(maxis.YTick):
         full = _is_full_circle_deg(thetamin, thetamax)
 
         if full:
-            angle = axes.get_rlabel_position() * direction + offset - 90
+            angle = (axes.get_rlabel_position() * direction +
+                     offset) % 360 - 90
             tick_angle = 0
             if angle > 90:
                 text_angle = angle - 180
@@ -536,7 +538,7 @@ class RadialTick(maxis.YTick):
             else:
                 text_angle = angle
         else:
-            angle = thetamin * direction + offset - 90
+            angle = (thetamin * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
@@ -584,7 +586,7 @@ class RadialTick(maxis.YTick):
             self.label2On = False
             self.tick2On = False
         else:
-            angle = thetamax * direction + offset - 90
+            angle = (thetamax * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
