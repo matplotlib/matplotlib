@@ -24,25 +24,25 @@ import six
 from six.moves import xrange
 
 from collections import namedtuple
-import errno
 from functools import partial, wraps
+import errno
 import logging
-import numpy as np
+import os
 import re
 import struct
 import sys
 import textwrap
-import os
 
 import matplotlib
-import matplotlib.cbook as mpl_cbook
+from matplotlib import cbook, rcParams
 from matplotlib.compat import subprocess
-from matplotlib import rcParams
 
 try:
     from functools import lru_cache
 except ImportError:  # Py2
     from backports.functools_lru_cache import lru_cache
+
+import numpy as np
 
 if six.PY3:
     def ord(x):
@@ -66,12 +66,27 @@ _log = logging.getLogger(__name__)
 #              just stops reading)
 #   finale:    the finale (unimplemented in our current implementation)
 
-_dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
+_dvistate = cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
-Page = namedtuple('Page', 'text boxes height width descent')
-Text = namedtuple('Text', 'x y font glyph width')
-Box = namedtuple('Box', 'x y height width')
+_Page = namedtuple('_Page', 'text boxes height width descent')
+_Text = namedtuple('_Text', 'x y font glyph width')
+_Box = namedtuple('_Box', 'x y height width')
+
+
+@cbook.deprecated("2.2")
+class Page(_Page):
+    pass
+
+
+@cbook.deprecated("2.2")
+class Text(_Text):
+    pass
+
+
+@cbook.deprecated("2.2")
+class Box(_Box):
+    pass
 
 
 # Opcode argument parsing
@@ -244,10 +259,10 @@ class Dvi(object):
 
         Yields
         ------
-        Page
+        _Page
             Details of all the text and box objects on the page.
-            The Page tuple contains lists of Text and Box tuples and
-            the page dimensions, and the Text and Box tuples contain
+            The _Page tuple contains lists of _Text and _Box tuples and
+            the page dimensions, and the _Text and _Box tuples contain
             coordinates transformed into a standard Cartesian
             coordinate system at the dpi value given when initializing.
             The coordinates are floating point numbers, but otherwise
@@ -276,7 +291,7 @@ class Dvi(object):
         minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
-            if isinstance(elt, Box):
+            if isinstance(elt, _Box):
                 x, y, h, w = elt
                 e = 0           # zero depth
             else:               # glyph
@@ -290,7 +305,7 @@ class Dvi(object):
 
         if self.dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
-            return Page(text=self.text, boxes=self.boxes,
+            return _Page(text=self.text, boxes=self.boxes,
                         width=maxx-minx, height=maxy_pure-miny,
                         descent=maxy-maxy_pure)
 
@@ -301,12 +316,12 @@ class Dvi(object):
         else:
             descent = self.baseline
 
-        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
+        text = [_Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
                 for (x, y, f, g, w) in self.text]
-        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
+        boxes = [_Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
                  for (x, y, h, w) in self.boxes]
 
-        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
+        return _Page(text=text, boxes=boxes, width=(maxx-minx)*d,
                     height=(maxy_pure-miny)*d, descent=descent)
 
     def _read(self):
@@ -358,17 +373,17 @@ class Dvi(object):
     def _put_char_real(self, char):
         font = self.fonts[self.f]
         if font._vf is None:
-            self.text.append(Text(self.h, self.v, font, char,
+            self.text.append(_Text(self.h, self.v, font, char,
                                   font._width_of(char)))
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
                 newf = DviFont(scale=_mul2012(scale, f._scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
-                self.text.append(Text(self.h + _mul2012(x, scale),
+                self.text.append(_Text(self.h + _mul2012(x, scale),
                                       self.v + _mul2012(y, scale),
                                       newf, g, newf._width_of(g)))
-            self.boxes.extend([Box(self.h + _mul2012(x, scale),
+            self.boxes.extend([_Box(self.h + _mul2012(x, scale),
                                    self.v + _mul2012(y, scale),
                                    _mul2012(a, scale), _mul2012(b, scale))
                                for x, y, a, b in font._vf[char].boxes])
@@ -379,7 +394,7 @@ class Dvi(object):
 
     def _put_rule_real(self, a, b):
         if a > 0 and b > 0:
-            self.boxes.append(Box(self.h, self.v, a, b))
+            self.boxes.append(_Box(self.h, self.v, a, b))
 
     @dispatch(138)
     def _nop(self, _):
@@ -390,8 +405,8 @@ class Dvi(object):
         self.state = _dvistate.inpage
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
         self.stack = []
-        self.text = []          # list of Text objects
-        self.boxes = []         # list of Box objects
+        self.text = []          # list of _Text objects
+        self.boxes = []         # list of _Box objects
 
     @dispatch(140, state=_dvistate.inpage)
     def _eop(self, _):
@@ -701,7 +716,7 @@ class Vf(Dvi):
         return self.file.tell() + pl
 
     def _finalize_packet(self, packet_char, packet_width):
-        self._chars[packet_char] = Page(
+        self._chars[packet_char] = _Page(
             text=self.text, boxes=self.boxes, width=packet_width,
             height=None, descent=None)
         self.state = _dvistate.outer

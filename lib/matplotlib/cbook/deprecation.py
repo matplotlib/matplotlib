@@ -169,7 +169,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         if isinstance(obj, type):
             obj_type = "class"
             old_doc = obj.__doc__
-            func = obj.__init__
+            func = obj.__new__
 
             def finalize(wrapper, new_doc):
                 try:
@@ -178,7 +178,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                     # cls.__doc__ is not writeable on Py2.
                     # TypeError occurs on PyPy
                     pass
-                obj.__init__ = wrapper
+                obj.__new__ = wrapper
                 return obj
         else:
             obj_type = "function"
