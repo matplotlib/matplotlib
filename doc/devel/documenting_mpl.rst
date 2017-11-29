@@ -76,6 +76,7 @@ The list of commands and flags for ``make.py`` can be listed by running
   if Sphinx throws a warning. This is useful for debugging and spot-checking
   many warnings at once.
 
+.. _writing-rest-pages
 
 Writing ReST pages
 ==================
@@ -223,6 +224,45 @@ a list of all objects that can be referenced (in this case for Numpy)::
 
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
 
+.. _referring-to-mpl-docs:
+
+Referring to data files
+-----------------------
+
+In the documentation, you may want to include to a data file in the Matplotlib
+sources, e.g., a license file or an image file from :file:`mpl-data`,
+refer to it via a relative path from the document where the rst
+file resides, e.g.,
+in :file:`users/navigation_toolbar.rst`, you can refer to the image icons with::
+
+    .. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
+
+In the :file:`users` subdirectory, if you want to refer to a file in the
+:file:`mpl-data` directory, you can use the symlink directory. For example,
+from :file:`customizing.rst`::
+
+    .. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
+
+One exception to this is when referring to the examples directory. Relative
+paths are extremely confusing in the sphinx plot extensions, so it is easier
+to simply include a symlink to the files at the top doc level directory.
+This way, API documents like :meth:`matplotlib.pyplot.plot` can refer to the
+examples in a known location.
+
+In the top level :file:`doc` directory we have symlinks pointing to the
+Matplotlib :file:`examples`:
+
+.. code-block:: sh
+
+    home:~/mpl/doc> ls -l mpl_*
+    mpl_examples -> ../examples
+
+So we can include plots from the examples dir using the symlink:
+
+.. code-block:: rst
+
+    .. plot:: mpl_examples/pylab_examples/simple_plot.py
+
 
 `include` statements
 --------------------
@@ -238,6 +278,24 @@ The configuration file for Sphinx is :file:`doc/conf.py`. It controls which
 directories Sphinx parses, how the docs are built, and how the extensions are
 used.
 
+Adding figures
+--------------
+
+Figures in the example gallery can be referenced by te
+
+There are two options for where to put the code that generates a figure. If
+you want to include a plot in the examples gallery, the code should be added to
+the :file:`examples` directory. Plots from
+the :file:`examples` directory can then be referenced through the symlink
+``mpl_examples`` in the ``doc`` directory, e.g.:
+
+.. code-block:: rst
+
+  .. plot:: mpl_examples/lines_bars_and_markers/fill.py
+
+
+.. _writing-docstrings
+
 Writing docstrings
 ==================
 
@@ -247,8 +305,10 @@ code that explain how the code works. All new or edited docstrings should
 conform to the numpydoc guidelines. These split the docstring into a number
 of sections - see
 https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt for more
-details and a guide to how docstrings should be formatted.  These docstrings
-eventually populate the :file:`doc/api` directory.
+details and a guide to how docstrings should be formatted.   Much of the
+ReST_ syntax discussed above (:ref:_writing-rest-pages) can be used for
+links and references.  These docstrings eventually populate the :file:`doc/api`
+directory and form the reference documentation for the library.
 
 An example docstring looks like:
 
@@ -293,10 +353,8 @@ See the `~.Axes.hlines` documentation for how this renders.
 The Sphinx website also contains plenty of documentation_ concerning ReST
 markup and working with Sphinx in general.
 
-
-
 Setters and getters
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Artist properties are implemented using setter and getter methods (because
 Matplotlib predates the introductions of the `property` decorator in Python).
@@ -323,7 +381,7 @@ acceptable values in the docs; it can also be displayed using, e.g.,
 (just one property).
 
 Keyword arguments
-~~~~~~~~~~~~~~~~~
+-----------------
 
 .. note::
 
@@ -387,23 +445,11 @@ definition.  There are some some manual hacks in this case, violating the
 calls in `matplotlib.patches`.
 
 Adding figures
-==============
-Figures in the documentation are automatically generated from scripts.
-It is not necessary to explicitly save the figure from the script; this will be
-done automatically when the docs are built to ensure that the code that is
-included runs and produces the advertised figure.
+--------------
 
-There are two options for where to put the code that generates a figure. If
-you want to include a plot in the examples gallery, the code should be added to
-the :file:`examples` directory. Plots from
-the :file:`examples` directory can then be referenced through the symlink
-``mpl_examples`` in the ``doc`` directory, e.g.:
+As above,
 
-.. code-block:: rst
-
-  .. plot:: mpl_examples/lines_bars_and_markers/fill.py
-
-Alternatively the plotting code can be placed directly in the docstring.
+Alternatively the plotting code can be placed directly in a docstring.
 To include plots directly in docstrings, see the following guide:
 
 Plot directive documentation
@@ -412,6 +458,13 @@ Plot directive documentation
 .. automodule:: matplotlib.sphinxext.plot_directive
    :no-undoc-members:
 
+
+
+.. _writing-examples-and-tutorials
+
+Writing examples and tutorials
+==============================
+
 Examples
 --------
 
@@ -419,8 +472,13 @@ The source of the files in the :file:`examples` directory are automatically run
 and their output plots included in the documentation. To exclude an example
 from having an plot generated insert "sgskip" somewhere in the filename.
 
+
+
+Miscellaneous
+=============
+
 Adding animations
-=================
+-----------------
 
 We have a Matplotlib Google/Gmail account with username ``mplgithub``
 which we used to setup the github account but can be used for other
@@ -452,49 +510,10 @@ An example save command to generate a movie looks like this
 Contact Michael Droettboom for the login password to upload youtube videos of
 google docs to the mplgithub account.
 
-.. _referring-to-mpl-docs:
-
-Referring to data files
-=======================
-
-In the documentation, you may want to include to a data file in the Matplotlib
-sources, e.g., a license file or an image file from :file:`mpl-data`, refer to it via
-a relative path from the document where the rst file resides, e.g.,
-in :file:`users/navigation_toolbar.rst`, you can refer to the image icons with::
-
-    .. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
-
-In the :file:`users` subdirectory, if you want to refer to a file in the
-:file:`mpl-data` directory, you can use the symlink directory. For example,
-from :file:`customizing.rst`::
-
-    .. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
-
-One exception to this is when referring to the examples directory. Relative
-paths are extremely confusing in the sphinx plot extensions, so it is easier
-to simply include a symlink to the files at the top doc level directory.
-This way, API documents like :meth:`matplotlib.pyplot.plot` can refer to the
-examples in a known location.
-
-In the top level :file:`doc` directory we have symlinks pointing to the
-Matplotlib :file:`examples`:
-
-.. code-block:: sh
-
-    home:~/mpl/doc> ls -l mpl_*
-    mpl_examples -> ../examples
-
-So we can include plots from the examples dir using the symlink:
-
-.. code-block:: rst
-
-    .. plot:: mpl_examples/pylab_examples/simple_plot.py
-
-
-
+.. _inheritance-diagrams:
 
 Generating inheritance diagrams
-===============================
+-------------------------------
 
 Class inheritance diagrams can be generated with the
 ``inheritance-diagram`` directive.  To use it, provide the
@@ -522,7 +541,7 @@ Example:
 .. _emacs-helpers:
 
 Emacs helpers
-=============
+-------------
 
 There is an emacs mode `rst.el
 <http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
