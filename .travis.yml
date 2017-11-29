@@ -95,7 +95,7 @@ before_install:
       # but this makes the test time really long.
       # brew tap caskroom/cask
       # brew install ghostscript inkscape
-      export PATH=/usr/local/opt/ccache/libexec:$PATH
+      export PATH=/usr/local/opt/python/libexec/bin:/usr/local/opt/ccache/libexec:$PATH
     fi
 
 install:
