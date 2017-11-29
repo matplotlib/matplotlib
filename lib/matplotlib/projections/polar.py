@@ -1068,10 +1068,6 @@ class PolarAxes(Axes):
             raise ValueError(
                 "direction must be 1, -1, clockwise or counterclockwise")
         self._direction.invalidate()
-        # FIXME: Why is this needed? Even though the tick label gets
-        # re-created, the alignment is not correctly updated without a reset.
-        self.yaxis.reset_ticks()
-        self.yaxis.set_clip_path(self.patch)
 
     def get_theta_direction(self):
         """
@@ -1128,8 +1124,6 @@ class PolarAxes(Axes):
             The angular position of the radius labels in degrees.
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
-        self.yaxis.reset_ticks()
-        self.yaxis.set_clip_path(self.patch)
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
