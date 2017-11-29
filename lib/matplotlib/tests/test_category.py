@@ -60,7 +60,11 @@ class TestStrCategoryConverter(object):
 
     test_cases = [("unicode", {u"Здравствуйте мир": 42}),
                   ("ascii", {"hello world": 42}),
-                  ("single", {'a': 0, 'b': 1, 'c': 2})]
+                  ("single", {'a': 0, 'b': 1, 'c': 2}),
+                  ("single + values>10", {'A': 0, 'B': 1, 'C': 2,
+                                          'D': 3, 'E': 4, 'F': 5,
+                                          'G': 6, 'H': 7, 'I': 8,
+                                          'J': 9, 'K': 10})]
 
     ids, unitmaps = zip(*test_cases)
 
