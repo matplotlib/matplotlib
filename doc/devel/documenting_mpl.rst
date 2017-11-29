@@ -139,6 +139,54 @@ An example docstring looks like:
 The Sphinx website also contains plenty of documentation_ concerning ReST
 markup and working with Sphinx in general.
 
+.. note::
+
+   Some parts of the documentation do not yet conform to the current
+   documentation style. If in doubt, follow the rules given here and not what
+   you may see in the source code. Pull requests updating docstrings to
+   the current style are very welcome.
+
+Additional formatting conventions
+---------------------------------
+
+There are some additional conventions, not handled by numpydoc and the Sphinx
+guide:
+
+* We do not have a convention whether to use single-quotes or double-quotes.
+  There is a mixture of both in the current code. Please leave them as they are.
+
+* Long parameter lists should be wrapped using a ``\`` for continuation and
+  starting on the new line without any indent:
+
+  .. code-block:: python
+
+     def add_axes(self, *args, **kwargs):
+         """
+         ...
+
+         Parameters
+         ----------
+         projection :
+             ['aitoff' | 'hammer' | 'lambert' | 'mollweide' | \
+     'polar' | 'rectilinear'], optional
+             The projection type of the axes.
+
+  Alternatively, you can describe the valid parameter values in a dedicated
+  section of the docstring.
+
+* Generally, do not add markup to types for ``Parameters`` and ``Returns``.
+  This is usually not needed because Sphinx will link them automatically and
+  would unnecessarily clutter the docstring. However, it does seem to fail in
+  some situations. If you encounter such a case, you are allowed to add markup:
+
+  .. code-block:: rst
+
+     Returns
+     -------
+     lines : `~matplotlib.collections.LineCollection`
+
+
+
 Linking to other code
 ---------------------
 To link to other methods, classes, or modules in Matplotlib you can encase
