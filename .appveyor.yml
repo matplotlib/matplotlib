@@ -70,7 +70,7 @@ install:
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-  - pip install -q pytest "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout
+  - pip install -q "pytest!=3.3.0" "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
   # https://github.com/matplotlib/matplotlib/issues/9176
