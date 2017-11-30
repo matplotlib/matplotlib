@@ -1608,8 +1608,6 @@ class Annulus(Patch):
         self.width = width
         self.angle = angle
         self._path = None
-        # Note: This cannot be calculated until this is added to an Axes
-        self._patch_transform = transforms.IdentityTransform()
 
     def _transform_verts(self, verts, a, b):
         center = (self.convert_xunits(self.center[0]),
@@ -1624,11 +1622,10 @@ class Annulus(Patch):
         return tr.transform(verts)
 
     def _recompute_path(self):
-
         # circular arc
         arc = Path.arc(0, 360)
 
-        # annulus needs to draw the outer ring
+        # annulus needs to draw an outer ring
         # followed by a reversed and scaled inner ring
         a, b, w = self.a, self.b, self.width
         v1 = self._transform_verts(arc.vertices, a, b)
