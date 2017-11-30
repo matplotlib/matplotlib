@@ -6051,6 +6051,9 @@ class Axes(_AxesBase):
 
             Default is ``False``
 
+        normed : bool, optional
+            Deprecated; use the density keyword argument instead.
+
         Returns
         -------
         n : array or list of arrays
@@ -6108,11 +6111,14 @@ class Axes(_AxesBase):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
+        if normed is not None:
+            warnings.warm("The 'normed' kwarg is deprecated, and has been "
+                          "replaced by the 'density' kwarg.")
         if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used "
                              "simultaneously. "
                              "Please only use 'density', since 'normed'"
-                             "will be deprecated.")
+                             "is deprecated.")
 
         # basic input validation
         input_empty = np.size(x) == 0
