@@ -6112,7 +6112,7 @@ class Axes(_AxesBase):
             stacked = True
 
         if normed is not None:
-            warnings.warm("The 'normed' kwarg is deprecated, and has been "
+            warnings.warn("The 'normed' kwarg is deprecated, and has been "
                           "replaced by the 'density' kwarg.")
         if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used "
