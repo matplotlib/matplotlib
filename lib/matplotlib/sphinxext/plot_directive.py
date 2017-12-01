@@ -90,7 +90,11 @@ The plot directive has the following configuration options:
         Whether to show a link to the source in HTML.
 
     plot_pre_code
-        Code that should be executed before each plot.
+        Code that should be executed before each plot. If not specified or None
+        it will default to a string containing::
+
+            import numpy as np
+            from matplotlib import pyplot as plt
 
     plot_basedir
         Base directory, to which ``plot::`` file names are relative
