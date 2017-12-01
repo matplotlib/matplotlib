@@ -880,7 +880,7 @@ def axes(*args, **kwargs):
                                  with otherax
     polar       [True|False]     use a polar axes?
     aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
-                                 the ratio of x-unit/y-unit in screen-space.
+                                 the ratio of y-unit/x-unit in screen-space.
                                  Also see
                                  :meth:`~matplotlib.axes.Axes.set_aspect`.
     =========   ==============   ==============================================
