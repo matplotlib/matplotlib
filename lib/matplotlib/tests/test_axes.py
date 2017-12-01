@@ -729,16 +729,19 @@ def test_polar_theta_limits():
     for i, start in enumerate(theta_mins):
         for j, end in enumerate(theta_maxs):
             ax = axes[i, j]
+            ax.plot(theta, r)
             if start < end:
-                ax.plot(theta, r)
                 ax.set_thetamin(start)
                 ax.set_thetamax(end)
-                ax.tick_params(tick1On=True, tick2On=True,
-                               direction=DIRECTIONS[i % len(DIRECTIONS)],
-                               rotation='auto')
-                ax.yaxis.set_tick_params(label2On=True, rotation='auto')
             else:
-                ax.set_visible(False)
+                # Plot with clockwise orientation instead.
+                ax.set_thetamin(end)
+                ax.set_thetamax(start)
+                ax.set_theta_direction('clockwise')
+            ax.tick_params(tick1On=True, tick2On=True,
+                           direction=DIRECTIONS[i % len(DIRECTIONS)],
+                           rotation='auto')
+            ax.yaxis.set_tick_params(label2On=True, rotation='auto')
 
 
 @image_comparison(baseline_images=['axvspan_epoch'])
