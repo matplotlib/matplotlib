@@ -735,12 +735,13 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6,3))
-        window = Tk.Tk()
+        window = Tk.Toplevel()
         canvas = FigureCanvasTkAgg(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+        canvas.tool =  SubplotTool(self.canvas.figure, toolfig)
         canvas.show()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        window.grab_set()
 
     def save_figure(self, *args):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
