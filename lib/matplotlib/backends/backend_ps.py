@@ -640,7 +640,7 @@ grestore
             write("% text\n")
 
         if ismath=='TeX':
-            return self.tex(gc, x, y, s, prop, angle)
+            return self.draw_tex(gc, x, y, s, prop, angle)
 
         elif ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
