@@ -289,6 +289,7 @@ class ContourLabeler(object):
 
         return lw
 
+    @cbook.deprecated("2.2")
     def get_real_label_width(self, lev, fmt, fsize):
         """
         This computes actual onscreen label width.
