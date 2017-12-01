@@ -990,7 +990,7 @@ class Text(Artist):
         self.stale = True
 
     def set_ma(self, align):
-        'alias for set_verticalalignment'
+        'alias for set_multialignment'
         self.set_multialignment(align)
 
     def set_multialignment(self, align):
