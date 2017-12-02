@@ -87,17 +87,24 @@ Other useful invocations include
    # Build pdf docs.
    make latexpdf
 
-You can build the documentation with several options:
+The ``SPHINXOPTS`` variable is set to ``-W`` by default to turn warnings into
+errors.  To unset it, use
 
-* ``make O=-W html`` turns Sphinx warnings into errors.  The continuous
-  integration script uses this option.
-* ``make O=-j4 html`` (for example) runs a parallel build with 4 processes.
+.. code-block:: sh
+
+   make SPHINXOPTS= html
+
+You can use the ``O`` variable to set additional options:
+
+* ``make O=-j4 html`` runs a parallel build with 4 processes.
 * ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
 * ``make O=-Dplot_gallery=0 html`` skips the gallery build.
 
-Multiple options can be combined using e.g. ``make O='-W -j4 ...' html``.  On
-Windows, the option needs to be set as the ``SPHINXOPTS`` environment
-variable, e.g. ``set SPHINXOPTS=-W -j4 & make html``.
+Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
+html``.
+
+On Windows, options needs to be set as environment variables, e.g. ``set O=-W
+-j4 & make html``.
 
 Writing new documentation
 =========================
