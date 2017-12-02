@@ -300,8 +300,9 @@ class ThetaTick(maxis.XTick):
     def update_position(self, loc):
         super(ThetaTick, self).update_position(loc)
         axes = self.axes
-        angle = (loc * axes.get_theta_direction() +
-                 axes.get_theta_offset() - np.pi / 2)
+        angle = loc * axes.get_theta_direction() + axes.get_theta_offset()
+        text_angle = np.rad2deg(angle) % 360 - 90
+        angle -= np.pi / 2
 
         if self.tick1On:
             marker = self.tick1line.get_marker()
@@ -326,17 +327,17 @@ class ThetaTick(maxis.XTick):
 
         mode, user_angle = self._labelrotation
         if mode == 'default':
-            angle = 0
+            text_angle = user_angle
         else:
-            if angle > np.pi / 2:
-                angle -= np.pi
-            elif angle < -np.pi / 2:
-                angle += np.pi
-        angle = np.rad2deg(angle) + user_angle
+            if text_angle > 90:
+                text_angle -= 180
+            elif text_angle < -90:
+                text_angle += 180
+            text_angle += user_angle
         if self.label1On:
-            self.label1.set_rotation(angle)
+            self.label1.set_rotation(text_angle)
         if self.label2On:
-            self.label2.set_rotation(angle)
+            self.label2.set_rotation(text_angle)
 
         # This extra padding helps preserve the look from previous releases but
         # is also needed because labels are anchored to their center.
@@ -504,17 +505,59 @@ class RadialTick(maxis.YTick):
         t.set_rotation_mode('anchor')
         return t
 
-    def _determine_anchor(self, angle, start):
-        if start:
-            if -90 <= angle <= 90:
-                return 'left', 'center'
+    def _determine_anchor(self, mode, angle, start):
+        # Note: angle is the (spine angle - 90) because it's used for the tick
+        # & text setup, so all numbers below are -90 from (normed) spine angle.
+        if mode == 'auto':
+            if start:
+                if -90 <= angle <= 90:
+                    return 'left', 'center'
+                else:
+                    return 'right', 'center'
             else:
-                return 'right', 'center'
+                if -90 <= angle <= 90:
+                    return 'right', 'center'
+                else:
+                    return 'left', 'center'
         else:
-            if -90 <= angle <= 90:
-                return 'right', 'center'
+            if start:
+                if angle < -68.5:
+                    return 'center', 'top'
+                elif angle < -23.5:
+                    return 'left', 'top'
+                elif angle < 22.5:
+                    return 'left', 'center'
+                elif angle < 67.5:
+                    return 'left', 'bottom'
+                elif angle < 112.5:
+                    return 'center', 'bottom'
+                elif angle < 157.5:
+                    return 'right', 'bottom'
+                elif angle < 202.5:
+                    return 'right', 'center'
+                elif angle < 247.5:
+                    return 'right', 'top'
+                else:
+                    return 'center', 'top'
             else:
-                return 'left', 'center'
+                if angle < -68.5:
+                    return 'center', 'bottom'
+                elif angle < -23.5:
+                    return 'right', 'bottom'
+                elif angle < 22.5:
+                    return 'right', 'center'
+                elif angle < 67.5:
+                    return 'right', 'top'
+                elif angle < 112.5:
+                    return 'center', 'top'
+                elif angle < 157.5:
+                    return 'left', 'top'
+                elif angle < 202.5:
+                    return 'left', 'center'
+                elif angle < 247.5:
+                    return 'left', 'bottom'
+                else:
+                    return 'center', 'bottom'
 
     def update_position(self, loc):
         super(RadialTick, self).update_position(loc)
@@ -527,7 +570,8 @@ class RadialTick(maxis.YTick):
         full = _is_full_circle_deg(thetamin, thetamax)
 
         if full:
-            angle = axes.get_rlabel_position() * direction + offset - 90
+            angle = (axes.get_rlabel_position() * direction +
+                     offset) % 360 - 90
             tick_angle = 0
             if angle > 90:
                 text_angle = angle - 180
@@ -536,7 +580,7 @@ class RadialTick(maxis.YTick):
             else:
                 text_angle = angle
         else:
-            angle = thetamin * direction + offset - 90
+            angle = (thetamin * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
@@ -557,7 +601,7 @@ class RadialTick(maxis.YTick):
                 ha = 'left'
                 va = 'bottom'
             else:
-                ha, va = self._determine_anchor(angle, True)
+                ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)
             self.label1.set_va(va)
             self.label1.set_rotation(text_angle)
@@ -584,7 +628,7 @@ class RadialTick(maxis.YTick):
             self.label2On = False
             self.tick2On = False
         else:
-            angle = thetamax * direction + offset - 90
+            angle = (thetamax * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
@@ -601,7 +645,7 @@ class RadialTick(maxis.YTick):
         else:
             text_angle = user_angle
         if self.label2On:
-            ha, va = self._determine_anchor(angle, False)
+            ha, va = self._determine_anchor(mode, angle, direction < 0)
             self.label2.set_ha(ha)
             self.label2.set_va(va)
             self.label2.set_rotation(text_angle)
@@ -888,16 +932,10 @@ class PolarAxes(Axes):
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        if _is_full_circle_rad(*self._realViewLim.intervalx):
-            return self._xaxis_text_transform, 'center', 'center'
-        else:
-            return self._xaxis_text_transform, 'bottom', 'center'
+        return self._xaxis_text_transform, 'center', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        if _is_full_circle_rad(*self._realViewLim.intervalx):
-            return self._xaxis_text_transform, 'center', 'center'
-        else:
-            return self._xaxis_text_transform, 'top', 'center'
+        return self._xaxis_text_transform, 'center', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
@@ -1072,10 +1110,6 @@ class PolarAxes(Axes):
             raise ValueError(
                 "direction must be 1, -1, clockwise or counterclockwise")
         self._direction.invalidate()
-        # FIXME: Why is this needed? Even though the tick label gets
-        # re-created, the alignment is not correctly updated without a reset.
-        self.yaxis.reset_ticks()
-        self.yaxis.set_clip_path(self.patch)
 
     def get_theta_direction(self):
         """
@@ -1132,8 +1166,6 @@ class PolarAxes(Axes):
             The angular position of the radius labels in degrees.
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
-        self.yaxis.reset_ticks()
-        self.yaxis.set_clip_path(self.patch)
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
