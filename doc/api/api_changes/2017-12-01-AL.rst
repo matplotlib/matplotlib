@@ -1,0 +1,4 @@
+Deprecation of unused methods
+`````````````````````````````
+
+The unused ``ContourLabeler.get_real_label_width`` method is deprecated.

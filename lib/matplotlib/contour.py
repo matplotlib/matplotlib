@@ -289,6 +289,7 @@ class ContourLabeler(object):
 
         return lw
 
+    @cbook.deprecated("2.2")
     def get_real_label_width(self, lev, fmt, fsize):
         """
         This computes actual onscreen label width.
@@ -336,8 +337,7 @@ class ContourLabeler(object):
 
     def locate_label(self, linecontour, labelwidth):
         """
-        Find a good place to plot a label (relatively flat
-        part of the contour).
+        Find good place to draw a label (relatively flat part of the contour).
         """
 
         # Number of contour points
@@ -354,16 +354,15 @@ class ContourLabeler(object):
         XX = np.resize(linecontour[:, 0], (xsize, ysize))
         YY = np.resize(linecontour[:, 1], (xsize, ysize))
         # I might have fouled up the following:
-        yfirst = YY[:, 0].reshape(xsize, 1)
-        ylast = YY[:, -1].reshape(xsize, 1)
-        xfirst = XX[:, 0].reshape(xsize, 1)
-        xlast = XX[:, -1].reshape(xsize, 1)
+        yfirst = YY[:, :1]
+        ylast = YY[:, -1:]
+        xfirst = XX[:, :1]
+        xlast = XX[:, -1:]
         s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
-        L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
+        L = np.hypot(xlast - xfirst, ylast - yfirst)
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
-                                 -1)
+            dist = np.sum(np.abs(s) / L, axis=-1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
         # There must be a more efficient way...
