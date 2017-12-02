@@ -21,6 +21,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
 import warnings
+from copy import copy
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -660,6 +661,11 @@ class Axis(artist.Artist):
         self.minor = Ticker()
         self.callbacks = cbook.CallbackRegistry()
 
+        # Keep track of the relevant ticker (locator/formatter) when
+        # toggling between logarithmic and linear scale
+        self._prev_major = {"linear": Ticker(), "log": Ticker()}
+        self._prev_minor = {"linear": Ticker(), "log": Ticker()}
+
         self._autolabelpos = True
         self._smart_bounds = False
 
@@ -706,6 +712,32 @@ class Axis(artist.Artist):
 
     def get_scale(self):
         return self._scale.name
+
+    def _shallowcopy_current_tickers(self, current_scale):
+        """Helper method to store the locators and formatters when
+        interactively toggling between 'linear' and 'log' scales.
+        """
+        _scale = current_scale.lower()
+        self._prev_major[_scale].formatter = copy(self.get_major_formatter())
+        self._prev_major[_scale].locator = copy(self.get_major_locator())
+        self._prev_minor[_scale].formatter = copy(self.get_minor_formatter())
+        self._prev_minor[_scale].locator = copy(self.get_minor_locator())
+
+    def _restore_previous_tickers(self, prev_scale):
+        """Helper method to restore previously stored locators and formatters
+        when interactively toggling between 'linear' and 'log' scales.
+        """
+        _scale = prev_scale.lower()
+        # Relevant major ticker
+        prev_ticker = self._prev_major[_scale]
+        if prev_ticker.formatter is not None:  # scale A -> scale B -> scale A
+            self.set_major_locator(prev_ticker.locator)
+            self.set_major_formatter(prev_ticker.formatter)
+        # Relevant minor ticker
+        prev_ticker = self._prev_minor[_scale]
+        if prev_ticker.formatter is not None:
+            self.set_minor_locator(prev_ticker.locator)
+            self.set_minor_formatter(prev_ticker.formatter)
 
     def _set_scale(self, value, **kwargs):
         self._scale = mscale.scale_factory(value, self, **kwargs)

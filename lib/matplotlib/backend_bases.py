@@ -2596,27 +2596,39 @@ def key_press_handler(event, canvas, toolbar=None):
     elif event.key in toggle_yscale_keys:
         scale = ax.get_yscale()
         if scale == 'log':
+            ax.yaxis._shallowcopy_current_tickers('log')
             ax.set_yscale('linear')
+            ax.yaxis._restore_previous_tickers('linear')
             ax.figure.canvas.draw_idle()
         elif scale == 'linear':
+            ax.yaxis._shallowcopy_current_tickers('linear')
             try:
                 ax.set_yscale('log')
+                ax.yaxis._restore_previous_tickers('log')
             except ValueError as exc:
                 warnings.warn(str(exc))
+                # NB: no need to keep track of the aborted log tickers
                 ax.set_yscale('linear')
+                ax.yaxis._restore_previous_tickers('linear')
             ax.figure.canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
     elif event.key in toggle_xscale_keys:
         scalex = ax.get_xscale()
         if scalex == 'log':
+            ax.xaxis._shallowcopy_current_tickers('log')
             ax.set_xscale('linear')
+            ax.xaxis._restore_previous_tickers('linear')
             ax.figure.canvas.draw_idle()
         elif scalex == 'linear':
+            ax.xaxis._shallowcopy_current_tickers('linear')
             try:
                 ax.set_xscale('log')
+                ax.xaxis._restore_previous_tickers('log')
             except ValueError as exc:
                 warnings.warn(str(exc))
+                # NB: no need to keep track of the aborted log tickers
                 ax.set_xscale('linear')
+                ax.xaxis._restore_previous_tickers('linear')
             ax.figure.canvas.draw_idle()
 
     elif (event.key.isdigit() and event.key != '0') or event.key in all_keys:
