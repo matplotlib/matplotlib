@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+The unused ``FigureManagerBase.show_popup`` method is deprecated.  This 
+introduced in e945059b327d42a99938b939a1be867fa023e7ba in 2005 but never built
+out into any of the backends.
