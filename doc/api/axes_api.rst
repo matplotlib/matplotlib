@@ -498,7 +498,6 @@ Interactive
    Axes.format_xdata
    Axes.format_ydata
 
-   Axes.hitlist
    Axes.mouseover
    Axes.in_axes
 

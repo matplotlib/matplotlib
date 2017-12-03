@@ -327,6 +327,7 @@ class Artist(object):
             self._transform = self._transform._as_mpl_transform(self.axes)
         return self._transform
 
+    @cbook.deprecated("2.2")
     def hitlist(self, event):
         """
         List the children of the artist which contain the mouse event *event*.
