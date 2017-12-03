@@ -1,7 +1,3 @@
-.. The source of this document is INSTALL.rst. During the doc build process,
-.. this file is copied over to doc/users/installing.rst.
-.. Therefore, you must edit INSTALL.rst, *not* doc/users/installing.rst!
-
 .. _pip: https://pypi.python.org/pypi/pip/
 
 ==========
@@ -12,7 +8,6 @@ Installing
 
     If you wish to contribute to the project, it's recommended you
     :ref:`install the latest development version<install_from_source>`.
-
 
 .. contents::
 
