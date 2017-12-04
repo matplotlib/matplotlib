@@ -1480,5 +1480,5 @@ axes property.  A removal date has not been set."""
 
 
 a = Artist()
-print('a: ', a)
+# print('a: ', a)
 # print('isinstance(a,matplotlib._traits.artist.Artist): ', isinstance(a,matplotlib._traits.artist.Artist))
