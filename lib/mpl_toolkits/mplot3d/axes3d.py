@@ -13,6 +13,8 @@ from functools import reduce
 from collections import defaultdict
 import math
 import warnings
+import copy
+from weakref import WeakSet
 
 import numpy as np
 
@@ -44,7 +46,6 @@ class Axes3D(Axes):
     3D axes object.
     """
     name = '3d'
-    _shared_z_axes = cbook.Grouper()
 
     def __init__(
             self, fig, rect=None, *args,
@@ -90,10 +91,11 @@ class Axes3D(Axes):
         self.view_init(self.initial_elev, self.initial_azim)
         self._ready = 0
 
+        self._shared_z_axes = WeakSet([self])
         self._sharez = sharez
+
         if sharez is not None:
-            self._shared_z_axes.join(self, sharez)
-            self._adjustable = 'datalim'
+            self.share_z_axes(sharez)
 
         super().__init__(fig, rect, frameon=True, *args, **kwargs)
         # Disable drawing of axes by base class
@@ -124,6 +126,17 @@ class Axes3D(Axes):
         self._pseudo_w, self._pseudo_h = pseudo_bbox[1] - pseudo_bbox[0]
 
         self.figure.add_axes(self)
+
+    def __getstate__(self):
+        state = super(Axes3D, self).__getstate__()
+        state['_shared_z_axes'] = list(self._shared_z_axes)
+
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+
+        self._shared_z_axes = WeakSet(state['_shared_z_axes'])
 
     def set_axis_off(self):
         self._axis3don = False
@@ -640,7 +653,7 @@ class Axes3D(Axes):
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
+            for other in self._shared_x_axes:
                 if other is not self:
                     other.set_xlim(self.xy_viewLim.intervalx,
                                             emit=False, auto=auto)
@@ -698,7 +711,7 @@ class Axes3D(Axes):
         if emit:
             self.callbacks.process('ylim_changed', self)
             # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
+            for other in self._shared_y_axes:
                 if other is not self:
                     other.set_ylim(self.xy_viewLim.intervaly,
                                             emit=False, auto=auto)
@@ -756,7 +769,7 @@ class Axes3D(Axes):
         if emit:
             self.callbacks.process('zlim_changed', self)
             # Call all of the other y-axes that are shared with this one
-            for other in self._shared_z_axes.get_siblings(self):
+            for other in self._shared_z_axes:
                 if other is not self:
                     other.set_zlim(self.zz_viewLim.intervalx,
                                             emit=False, auto=auto)
@@ -1105,12 +1118,14 @@ class Axes3D(Axes):
         super().cla()
         self.zaxis.cla()
 
-        if self._sharez is not None:
-            self.zaxis.major = self._sharez.zaxis.major
-            self.zaxis.minor = self._sharez.zaxis.minor
-            z0, z1 = self._sharez.get_zlim()
+        sharez = self._sharez
+
+        if sharez is not None:
+            self.zaxis.major = sharez.zaxis.major
+            self.zaxis.minor = sharez.zaxis.minor
+            z0, z1 = sharez.get_zlim()
             self.set_zlim(z0, z1, emit=False, auto=None)
-            self.zaxis._set_scale(self._sharez.zaxis.get_scale())
+            self.zaxis._set_scale(sharez.zaxis.get_scale())
         else:
             self.zaxis._set_scale('linear')
             try:
@@ -2884,6 +2899,60 @@ class Axes3D(Axes):
             polygons[coord] = poly
 
         return polygons
+
+    def unshare_z_axes(self, axes=None):
+        """
+        Unshare z axis.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to unshare, if related. None will unshare itself.
+        """
+        if axes is None or axes is self:
+            children = self._unshare_axes('_shared_z_axes', '_sharez')
+            for ax in children:
+                self._copy_axis_major_minor(ax.zaxis)
+            self._copy_axis_major_minor(self.zaxis)
+        elif axes in self._shared_z_axes:
+            axes.unshare_z_axes()
+
+    def unshare_axes(self, axes=None):
+        """
+        Unshare x, y and z axes.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to unshare, if related. None will unshare itself.
+        """
+        self.unshare_x_axes(axes)
+        self.unshare_y_axes(axes)
+        self.unshare_z_axes(axes)
+
+    def share_z_axes(self, axes):
+        """
+        Share z axis.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to share.
+        """
+        self._share_axes(axes, '_shared_z_axes')
+
+    def share_axes(self, axes):
+        """
+        Share x, y, z axes.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to share.
+        """
+        self.share_x_axes(axes)
+        self.share_y_axes(axes)
+        self.share_z_axes(axes)
 
 
 def get_test_data(delta=0.05):

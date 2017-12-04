@@ -2922,9 +2922,9 @@ class NavigationToolbar2(object):
             twinx, twiny = False, False
             if last_a:
                 for la in last_a:
-                    if a.get_shared_x_axes().joined(a, la):
+                    if la in a.get_shared_x_axes():
                         twinx = True
-                    if a.get_shared_y_axes().joined(a, la):
+                    if la in a.get_shared_y_axes():
                         twiny = True
             last_a.append(a)
 

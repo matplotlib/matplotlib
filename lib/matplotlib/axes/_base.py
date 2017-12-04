@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from weakref import WeakSet
+import copy
 import itertools
 import logging
 import math
@@ -400,8 +402,6 @@ class _AxesBase(martist.Artist):
     """
     name = "rectilinear"
 
-    _shared_x_axes = cbook.Grouper()
-    _shared_y_axes = cbook.Grouper()
     _twinned_axes = cbook.Grouper()
 
     def __str__(self):
@@ -482,12 +482,18 @@ class _AxesBase(martist.Artist):
         self._aspect = 'auto'
         self._adjustable = 'box'
         self._anchor = 'C'
+        #Adding yourself to shared xy axes. Reflexive.
+        self._shared_x_axes = WeakSet([self])
+        self._shared_y_axes = WeakSet([self])
         self._sharex = sharex
         self._sharey = sharey
+
         if sharex is not None:
-            self._shared_x_axes.join(self, sharex)
+            self.share_x_axes(sharex)
+
         if sharey is not None:
-            self._shared_y_axes.join(self, sharey)
+            self.share_y_axes(sharey)
+
         self.set_label(label)
         self.set_figure(fig)
 
@@ -571,10 +577,14 @@ class _AxesBase(martist.Artist):
         state.pop('_layoutbox')
         state.pop('_poslayoutbox')
 
+        state['_shared_x_axes'] = list(self._shared_x_axes)
+        state['_shared_y_axes'] = list(self._shared_y_axes)
         return state
 
     def __setstate__(self, state):
         self.__dict__ = state
+        self._shared_x_axes = WeakSet(state['_shared_x_axes'])
+        self._shared_y_axes = WeakSet(state['_shared_y_axes'])
         self._stale = True
         self._layoutbox = None
         self._poslayoutbox = None
@@ -989,6 +999,7 @@ class _AxesBase(martist.Artist):
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()
 
+
         if self._sharex is not None:
             # major and minor are axis.Ticker class instances with
             # locator and formatter attributes
@@ -1102,8 +1113,6 @@ class _AxesBase(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
-        self._shared_x_axes.clean()
-        self._shared_y_axes.clean()
         if self._sharex:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
@@ -1335,8 +1344,7 @@ class _AxesBase(martist.Artist):
         if adjustable not in ('box', 'datalim', 'box-forced'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
-            axes = set(self._shared_x_axes.get_siblings(self)
-                       + self._shared_y_axes.get_siblings(self))
+            axes = set(self._shared_x_axes | self._shared_y_axes)
         else:
             axes = [self]
         for ax in axes:
@@ -1403,8 +1411,7 @@ class _AxesBase(martist.Artist):
             raise ValueError('argument must be among %s' %
                              ', '.join(mtransforms.Bbox.coefs))
         if share:
-            axes = set(self._shared_x_axes.get_siblings(self)
-                       + self._shared_y_axes.get_siblings(self))
+            axes = set(self._shared_x_axes | self._shared_y_axes)
         else:
             axes = [self]
         for ax in axes:
@@ -1556,8 +1563,8 @@ class _AxesBase(martist.Artist):
         xm = 0
         ym = 0
 
-        shared_x = self in self._shared_x_axes
-        shared_y = self in self._shared_y_axes
+        shared_x = self.is_sharing_x_axes()
+        shared_y = self.is_sharing_y_axes()
         # Not sure whether we need this check:
         if shared_x and shared_y:
             raise RuntimeError("adjustable='datalim' is not allowed when both"
@@ -2389,8 +2396,7 @@ class _AxesBase(martist.Artist):
             if not (scale and autoscaleon):
                 return  # nothing to do...
 
-            shared = shared_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in shared]
+            dl = [ax.dataLim for ax in shared_axes]
             # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
@@ -3126,7 +3132,7 @@ class _AxesBase(martist.Artist):
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
+            for other in self._shared_x_axes:
                 if other is not self:
                     other.set_xlim(self.viewLim.intervalx,
                                    emit=False, auto=auto)
@@ -3165,8 +3171,7 @@ class _AxesBase(martist.Artist):
 
         matplotlib.scale.LogisticTransform : logit transform
         """
-        g = self.get_shared_x_axes()
-        for ax in g.get_siblings(self):
+        for ax in self._shared_x_axes:
             ax.xaxis._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
@@ -3459,7 +3464,7 @@ class _AxesBase(martist.Artist):
         if emit:
             self.callbacks.process('ylim_changed', self)
             # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
+            for other in self._shared_y_axes:
                 if other is not self:
                     other.set_ylim(self.viewLim.intervaly,
                                    emit=False, auto=auto)
@@ -3498,8 +3503,7 @@ class _AxesBase(martist.Artist):
 
         matplotlib.scale.LogisticTransform : logit transform
         """
-        g = self.get_shared_y_axes()
-        for ax in g.get_siblings(self):
+        for ax in self._shared_y_axes:
             ax.yaxis._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
@@ -4231,9 +4235,128 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def get_shared_x_axes(self):
-        """Return a reference to the shared axes Grouper object for x axes."""
+        """Return a copy of the shared axes Weakset object for x axes"""
         return self._shared_x_axes
 
     def get_shared_y_axes(self):
-        """Return a reference to the shared axes Grouper object for y axes."""
+        """Return a copy of the shared axes Weakset object for y axes"""
         return self._shared_y_axes
+
+    def is_sharing_x_axes(self):
+        return len(self.get_shared_x_axes()) > 1
+
+    def is_sharing_y_axes(self):
+        return len(self.get_shared_y_axes()) > 1
+
+    def _unshare_axes(self, shared_axes, parent):
+        children = []
+
+        for ax in getattr(self, shared_axes):
+            if getattr(ax, parent) is self:
+                setattr(ax, parent, None)
+                children.append(ax)
+
+        getattr(self, shared_axes).remove(self)
+        setattr(self, shared_axes, WeakSet([self]))
+        setattr(self, parent, None)
+
+        return children
+
+    @staticmethod
+    def _copy_axis_major_minor(axis):
+        major = axis.major
+        minor = axis.minor
+
+        axis.major = copy.deepcopy(major)
+        axis.minor = copy.deepcopy(minor)
+
+        axis.major.set_axis(axis)
+        axis.minor.set_axis(axis)
+
+    def unshare_x_axes(self, axes=None):
+        """
+        Unshare x axis.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to unshare, if related. None will unshare itself.
+        """
+        if axes is None or axes is self:
+            children = self._unshare_axes('_shared_x_axes', '_sharex')
+            for ax in children:
+                self._copy_axis_major_minor(ax.xaxis)
+            self._copy_axis_major_minor(self.xaxis)
+        elif axes in self._shared_x_axes:
+            axes.unshare_x_axes()
+
+    def unshare_y_axes(self, axes=None):
+        """
+        Unshare y axis.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to unshare, if related. None will unshare itself.
+        """
+        if axes is None or axes is self:
+            children = self._unshare_axes('_shared_y_axes', '_sharey')
+            for ax in children:
+                self._copy_axis_major_minor(ax.yaxis)
+            self._copy_axis_major_minor(self.yaxis)
+        elif axes in self._shared_y_axes:
+            axes.unshare_y_axes()
+
+    def unshare_axes(self, axes=None):
+        """
+        Unshare both x and y axes.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to unshare, if related. None will unshare itself.
+        """
+        self.unshare_x_axes(axes)
+        self.unshare_y_axes(axes)
+
+    def _share_axes(self, axes, shared_axes):
+        shared = getattr(self, shared_axes)
+        shared |= getattr(axes, shared_axes)
+
+        for ax in shared:
+            setattr(ax, shared_axes, shared)
+            ax._adjustable = 'datalim'
+
+    def share_x_axes(self, axes):
+        """
+        Share x axis.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to share.
+        """
+        self._share_axes(axes, '_shared_x_axes')
+
+    def share_y_axes(self, axes):
+        """
+        Share y axis.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to share.
+        """
+        self._share_axes(axes, '_shared_y_axes')
+
+    def share_axes(self, axes):
+        """
+        Share both x and y axes.
+
+        Parameters
+        ----------
+        axes: Axes
+            Axes to share.
+        """
+        self.share_x_axes(axes)
+        self.share_y_axes(axes)

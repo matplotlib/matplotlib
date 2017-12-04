@@ -7,6 +7,7 @@ import logging
 import warnings
 
 import numpy as np
+import copy
 
 from matplotlib import rcParams
 import matplotlib.artist as artist
@@ -650,6 +651,31 @@ class YTick(Tick):
 class Ticker(object):
     locator = None
     formatter = None
+
+    def __deepcopy__(self, memodict={}):
+        """
+        Perform deep copy by disable axis attribute from
+        locator and formatter.
+
+        """
+        axisLocator = self.locator.axis
+        axisFormatter = self.formatter.axis
+        self.locator.axis = None
+        self.formatter.axis = None
+
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.locator = copy.deepcopy(self.locator)
+        result.formatter = copy.deepcopy(self.formatter)
+
+        self.locator.axis = axisLocator
+        self.formatter.axis = axisFormatter
+
+        return result
+
+    def set_axis(self, axis):
+        self.locator.axis = axis
+        self.formatter.axis = axis
 
 
 class _LazyTickList(object):

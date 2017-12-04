@@ -147,6 +147,45 @@ def test_polar():
     plt.draw()
 
 
+def test_sharing_axes():
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
+
+    pf = pickle.dumps(fig)
+    fig1 = pickle.loads(pf)
+
+    ax = fig1.axes
+
+    assert ax[0] in ax[1]._shared_x_axes
+    assert ax[0] in ax[1]._shared_y_axes
+
+    assert ax[1] in ax[0]._shared_x_axes
+    assert ax[1] in ax[0]._shared_y_axes
+
+
+def test_sharing_3d_axes():
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211, projection="3d")
+    ax2 = fig.add_subplot(212, projection="3d",
+                          sharex=ax1,
+                          sharey=ax1,
+                          sharez=ax1)
+
+    pf = pickle.dumps(fig)
+    fig1 = pickle.loads(pf)
+
+    ax = fig1.axes
+
+    assert ax[0] in ax[1]._shared_x_axes
+    assert ax[0] in ax[1]._shared_y_axes
+    assert ax[0] in ax[1]._shared_z_axes
+
+    assert ax[1] in ax[0]._shared_x_axes
+    assert ax[1] in ax[0]._shared_y_axes
+    assert ax[1] in ax[0]._shared_z_axes
+
+
 class TransformBlob(object):
     def __init__(self):
         self.identity = mtransforms.IdentityTransform()

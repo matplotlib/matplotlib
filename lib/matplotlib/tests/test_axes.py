@@ -5719,3 +5719,115 @@ def test_tick_padding_tightbbox():
     bb2 = ax.get_window_extent(fig.canvas.get_renderer())
     assert bb.x0 < bb2.x0
     assert bb.y0 < bb2.y0
+
+
+def test_share_unshare_axes():
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
+
+    # Testing unsharing
+    ax1.unshare_axes()
+    assert ax2._sharex is None
+    assert ax2._sharey is None
+
+    sharedx = ax2._shared_x_axes
+    sharedy = ax2._shared_y_axes
+
+    assert ax1 not in sharedx
+    assert ax1 not in sharedy
+
+    sharedx = ax1._shared_x_axes
+    sharedy = ax1._shared_y_axes
+
+    assert ax2 not in sharedx
+    assert ax2 not in sharedy
+
+    assert not ax1.is_sharing_x_axes()
+    assert not ax1.is_sharing_y_axes()
+
+    assert not ax2.is_sharing_x_axes()
+    assert not ax2.is_sharing_y_axes()
+
+    # Testing sharing
+    ax1.share_x_axes(ax2)
+
+    sharedx = ax1._shared_x_axes
+    assert ax2 in sharedx
+
+    sharedx = ax2._shared_x_axes
+    assert ax1 in sharedx
+
+    ax2.share_y_axes(ax1)
+
+    sharedy = ax1._shared_y_axes
+    assert ax2 in sharedy
+
+    sharedy = ax2._shared_y_axes
+    assert ax1 in sharedy
+
+    assert ax1.is_sharing_x_axes()
+    assert ax1.is_sharing_y_axes()
+
+    assert ax2.is_sharing_x_axes()
+    assert ax2.is_sharing_y_axes()
+
+
+def test_share_unshare_3d_axes():
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211, projection="3d")
+    ax2 = fig.add_subplot(212, projection="3d",
+                          sharex=ax1,
+                          sharey=ax1,
+                          sharez=ax1)
+
+    # Testing unsharing
+    ax1.unshare_axes()
+    assert ax2._sharex is None
+    assert ax2._sharey is None
+    assert ax2._sharez is None
+
+    sharedx = ax2._shared_x_axes
+    sharedy = ax2._shared_y_axes
+    sharedz = ax2._shared_z_axes
+
+    assert ax1 not in sharedx
+    assert ax1 not in sharedy
+    assert ax1 not in sharedz
+
+    sharedx = ax1._shared_x_axes
+    sharedy = ax1._shared_y_axes
+    sharedz = ax1._shared_z_axes
+
+    assert ax2 not in sharedx
+    assert ax2 not in sharedy
+    assert ax2 not in sharedz
+
+    # Testing sharing
+
+    # x axis
+    ax1.share_x_axes(ax2)
+
+    sharedx = ax1._shared_x_axes
+    assert ax2 in sharedx
+
+    sharedx = ax2._shared_x_axes
+    assert ax1 in sharedx
+
+    # y axis
+    ax2.share_y_axes(ax1)
+
+    sharedy = ax1._shared_y_axes
+    assert ax2 in sharedy
+
+    sharedy = ax2._shared_y_axes
+    assert ax1 in sharedy
+
+    # z axis
+    ax1.share_z_axes(ax2)
+
+    sharedz = ax2._shared_z_axes
+    assert ax1 in sharedz
+
+    sharedz = ax1._shared_z_axes
+    assert ax2 in sharedz
