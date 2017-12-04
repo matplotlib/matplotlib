@@ -76,10 +76,10 @@ MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
 if sys.platform == 'darwin':
     # in OSX, the control and super (aka cmd/apple) keys are switched, so
     # switch them back.
-    SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'super',  # cmd/apple key
+    SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'cmd',  # cmd/apple key
                          QtCore.Qt.Key_Meta: 'control',
                          })
-    MODIFIER_KEYS[0] = ('super', QtCore.Qt.ControlModifier,
+    MODIFIER_KEYS[0] = ('cmd', QtCore.Qt.ControlModifier,
                         QtCore.Qt.Key_Control)
     MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier,
                         QtCore.Qt.Key_Meta)
