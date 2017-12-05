@@ -335,7 +335,7 @@ def test_multi_color_hatch():
 
     for i in range(5):
         with mstyle.context({'hatch.color': 'C{}'.format(i)}):
-            r = Rectangle((i-.8/2, 5), .8, 1, hatch='//', fc='none')
+            r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
 
 
@@ -350,3 +350,40 @@ def test_units_rectangle():
     ax.add_patch(p)
     ax.set_xlim([4*U.km, 7*U.km])
     ax.set_ylim([5*U.km, 9*U.km])
+
+
+@image_comparison(baseline_images=['connection_patch'], extensions=['png'],
+                  style='mpl20', remove_text=True)
+def test_connection_patch():
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    con = mpatches.ConnectionPatch(xyA=(0.1, 0.1), xyB=(0.9, 0.9),
+                                   coordsA='data', coordsB='data',
+                                   axesA=ax2, axesB=ax1,
+                                   arrowstyle="->")
+    ax2.add_artist(con)
+
+
+def test_datetime_rectangle():
+    # Check that creating a rectangle with timedeltas doesn't fail
+    from datetime import datetime, timedelta
+
+    start = datetime(2017, 1, 1, 0, 0, 0)
+    delta = timedelta(seconds=16)
+    patch = mpatches.Rectangle((start, 0), delta, 1)
+
+    fig, ax = plt.subplots()
+    ax.add_patch(patch)
+
+
+def test_datetime_datetime_fails():
+    from datetime import datetime
+
+    start = datetime(2017, 1, 1, 0, 0, 0)
+    dt_delta = datetime(1970, 1, 5)    # Will be 5 days if units are done wrong
+
+    with pytest.raises(TypeError):
+        mpatches.Rectangle((start, 0), dt_delta, 1)
+
+    with pytest.raises(TypeError):
+        mpatches.Rectangle((0, start), 1, dt_delta)

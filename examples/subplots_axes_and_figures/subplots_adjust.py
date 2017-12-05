@@ -3,7 +3,8 @@
 Subplots Adjust
 ===============
 
-Adjusting the spacing of margins and subplots using :func:~matplotlib.pyplot.subplots_adjust.
+Adjusting the spacing of margins and subplots using
+:func:`~matplotlib.pyplot.subplots_adjust`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -238,12 +238,10 @@ def test_chunksize():
 
 @pytest.mark.backend('Agg')
 def test_jpeg_dpi():
-    try:
-        from PIL import Image
-    except Exception:
-        pytest.skip("Could not import PIL")
-    # Check that dpi is set correctly in jpg files
+    Image = pytest.importorskip("PIL.Image")
+    # Check that dpi is set correctly in jpg files.
     plt.plot([0, 1, 2], [0, 1, 0])
-    plt.savefig('test.jpg', dpi=200)
-    im = Image.open("test.jpg")
+    buf = io.BytesIO()
+    plt.savefig(buf, format="jpg", dpi=200)
+    im = Image.open(buf)
     assert im.info['dpi'] == (200, 200)

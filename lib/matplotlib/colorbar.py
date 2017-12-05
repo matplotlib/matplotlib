@@ -184,11 +184,9 @@ Additional keyword arguments are of two kinds:
 If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
 
-Note that the *shrink* kwarg provides a simple way to keep a vertical
-colorbar, for example, from being taller than the axes of the mappable
-to which the colorbar is attached; but it is a manual method requiring
-some trial and error. If the colorbar is too tall (or a horizontal
-colorbar is too wide) use a smaller value of *shrink*.
+The *shrink* kwarg provides a simple way to scale the colorbar with respect
+to the axes. Note that if *cax* is specified it determines the size of the
+colorbar and *shrink* and *aspect* kwargs are ignored.
 
 For more precise control, you can manually specify the positions of
 the axes objects in which the mappable and the colorbar are drawn.  In

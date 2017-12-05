@@ -34,7 +34,6 @@ Interactive
    Artist.get_contains
    Artist.get_cursor_data
    Artist.get_picker
-   Artist.hitlist
    Artist.mouseover
    Artist.pchanged
    Artist.pick
@@ -43,7 +42,6 @@ Interactive
    Artist.set_contains
    Artist.set_picker
    Artist.contains
-
 
 Margins and Autoscaling
 -----------------------
@@ -80,7 +78,6 @@ Bulk Properties
    Artist.properties
    Artist.set
 
-
 Drawing
 -------
 
@@ -114,8 +111,6 @@ Drawing
    Artist.get_path_effects
    Artist.get_transformed_clip_path_and_affine
 
-
-
 Figure and Axes
 ---------------
 
@@ -129,7 +124,6 @@ Figure and Axes
 
    Artist.set_figure
    Artist.get_figure
-   Artist.is_figure_set
 
 Children
 --------
@@ -141,7 +135,6 @@ Children
    Artist.get_children
    Artist.findobj
 
-
 Transform
 ---------
 
@@ -152,8 +145,6 @@ Transform
    Artist.set_transform
    Artist.get_transform
    Artist.is_transform_set
-
-
 
 Units
 -----

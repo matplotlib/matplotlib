@@ -96,8 +96,11 @@ Here are all the date tickers:
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`MultipleDateLocator` to set the view limits and the tick
-      locations.
+      :class:`RRuleLocator` to set the view limits and the tick
+      locations.  If called with ``interval_multiples=True`` it will
+      make ticks line up with sensible multiples of the tick intervals.  E.g.
+      if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
+      This behaviour is not garaunteed by default.
 
 Date formatters
 ---------------
@@ -122,6 +125,7 @@ import re
 import time
 import math
 import datetime
+import functools
 
 import warnings
 
@@ -243,6 +247,27 @@ def _to_ordinalf(dt):
 _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
 
 
+def _dt64_to_ordinalf(d):
+    """
+    Convert `numpy.datetime64` or an ndarray of those types to Gregorian
+    date as UTC float.  Roundoff is via float64 precision.  Practically:
+    microseconds for dates between 290301 BC, 294241 AD, milliseconds for
+    larger dates (see `numpy.datetime64`).  Nanoseconds aren't possible
+    because we do times compared to ``0001-01-01T00:00:00`` (plus one day).
+    """
+
+    # the "extra" ensures that we at least allow the dynamic range out to
+    # seconds.  That should get out to +/-2e11 years.
+    extra = d - d.astype('datetime64[s]')
+    extra = extra.astype('timedelta64[ns]')
+    t0 = np.datetime64('0001-01-01T00:00:00').astype('datetime64[s]')
+    dt = (d.astype('datetime64[s]') - t0).astype(np.float64)
+    dt += extra.astype(np.float64) / 1.0e9
+    dt = dt / SEC_PER_DAY + 1.0
+
+    return dt
+
+
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
@@ -354,12 +379,13 @@ def date2num(d):
 
     Parameters
     ----------
-    d : :class:`datetime` or sequence of :class:`datetime`
+    d : :class:`datetime` or :class:`numpy.datetime64`, or sequences of
+        these classes.
 
     Returns
     -------
     float or sequence of floats
-        Number of days (fraction part represents hours, minutes, seconds)
+        Number of days (fraction part represents hours, minutes, seconds, ms)
         since 0001-01-01 00:00:00 UTC, plus one.
 
     Notes
@@ -368,6 +394,10 @@ def date2num(d):
     Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
+
+    if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
+            or isinstance(d, np.datetime64)):
+        return _dt64_to_ordinalf(d)
     if not cbook.iterable(d):
         return _to_ordinalf(d)
     else:
@@ -488,8 +518,8 @@ def drange(dstart, dend, delta):
     *dend* are :class:`datetime` instances.  *delta* is a
     :class:`datetime.timedelta` instance.
     """
-    f1 = _to_ordinalf(dstart)
-    f2 = _to_ordinalf(dend)
+    f1 = date2num(dstart)
+    f2 = date2num(dend)
     step = delta.total_seconds() / SEC_PER_DAY
 
     # calculate the difference between dend and dstart in times of delta
@@ -504,7 +534,7 @@ def drange(dstart, dend, delta):
         dinterval_end -= delta
         num -= 1
 
-    f2 = _to_ordinalf(dinterval_end)  # new float-endpoint
+    f2 = date2num(dinterval_end)  # new float-endpoint
     return np.linspace(f1, f2, num + 1)
 
 ### date tickers and formatters ###
@@ -628,9 +658,10 @@ class DateFormatter(ticker.Formatter):
         return cbook.unicode_safe(s1)
 
     def strftime(self, dt, fmt=None):
-        """Refer to documentation for datetime.strftime.
+        """
+        Refer to documentation for :meth:`datetime.datetime.strftime`
 
-        *fmt* is a :func:`strftime` format string.
+        *fmt* is a :meth:`datetime.datetime.strftime` format string.
 
         Warning: For years before 1900, depending upon the current
         locale it is possible that the year displayed with %x might
@@ -776,20 +807,105 @@ class AutoDateFormatter(ticker.Formatter):
 
 
 class rrulewrapper(object):
+    def __init__(self, freq, tzinfo=None, **kwargs):
+        kwargs['freq'] = freq
+        self._base_tzinfo = tzinfo
 
-    def __init__(self, freq, **kwargs):
-        self._construct = kwargs.copy()
-        self._construct["freq"] = freq
-        self._rrule = rrule(**self._construct)
+        self._update_rrule(**kwargs)
 
     def set(self, **kwargs):
         self._construct.update(kwargs)
+
+        self._update_rrule(**self._construct)
+
+    def _update_rrule(self, **kwargs):
+        tzinfo = self._base_tzinfo
+
+        # rrule does not play nicely with time zones - especially pytz time
+        # zones, it's best to use naive zones and attach timezones once the
+        # datetimes are returned
+        if 'dtstart' in kwargs:
+            dtstart = kwargs['dtstart']
+            if dtstart.tzinfo is not None:
+                if tzinfo is None:
+                    tzinfo = dtstart.tzinfo
+                else:
+                    dtstart = dtstart.astimezone(tzinfo)
+
+                kwargs['dtstart'] = dtstart.replace(tzinfo=None)
+
+        if 'until' in kwargs:
+            until = kwargs['until']
+            if until.tzinfo is not None:
+                if tzinfo is not None:
+                    until = until.astimezone(tzinfo)
+                else:
+                    raise ValueError('until cannot be aware if dtstart '
+                                     'is naive and tzinfo is None')
+
+                kwargs['until'] = until.replace(tzinfo=None)
+
+        self._construct = kwargs.copy()
+        self._tzinfo = tzinfo
         self._rrule = rrule(**self._construct)
+
+    def _attach_tzinfo(self, dt, tzinfo):
+        # pytz zones are attached by "localizing" the datetime
+        if hasattr(tzinfo, 'localize'):
+            return tzinfo.localize(dt, is_dst=True)
+
+        return dt.replace(tzinfo=tzinfo)
+
+    def _aware_return_wrapper(self, f, returns_list=False):
+        """Decorator function that allows rrule methods to handle tzinfo."""
+        # This is only necessary if we're actually attaching a tzinfo
+        if self._tzinfo is None:
+            return f
+
+        # All datetime arguments must be naive. If they are not naive, they are
+        # converted to the _tzinfo zone before dropping the zone.
+        def normalize_arg(arg):
+            if isinstance(arg, datetime.datetime) and arg.tzinfo is not None:
+                if arg.tzinfo is not self._tzinfo:
+                    arg = arg.astimezone(self._tzinfo)
+
+                return arg.replace(tzinfo=None)
+
+            return arg
+
+        def normalize_args(args, kwargs):
+            args = tuple(normalize_arg(arg) for arg in args)
+            kwargs = {kw: normalize_arg(arg) for kw, arg in kwargs.items()}
+
+            return args, kwargs
+
+        # There are two kinds of functions we care about - ones that return
+        # dates and ones that return lists of dates.
+        if not returns_list:
+            def inner_func(*args, **kwargs):
+                args, kwargs = normalize_args(args, kwargs)
+                dt = f(*args, **kwargs)
+                return self._attach_tzinfo(dt, self._tzinfo)
+        else:
+            def inner_func(*args, **kwargs):
+                args, kwargs = normalize_args(args, kwargs)
+                dts = f(*args, **kwargs)
+                return [self._attach_tzinfo(dt, self._tzinfo) for dt in dts]
+
+        return functools.wraps(f)(inner_func)
 
     def __getattr__(self, name):
         if name in self.__dict__:
             return self.__dict__[name]
-        return getattr(self._rrule, name)
+
+        f = getattr(self._rrule, name)
+
+        if name in {'after', 'before'}:
+            return self._aware_return_wrapper(f)
+        elif name in {'xafter', 'xbefore', 'between'}:
+            return self._aware_return_wrapper(f, returns_list=True)
+        else:
+            return f
 
     def __setstate__(self, state):
         self.__dict__.update(state)
@@ -1162,15 +1278,15 @@ class AutoDateLocator(DateLocator):
             else:
                 byranges[i] = self._byranges[i]
 
-            # We found what frequency to use
             break
         else:
             raise ValueError('No sensible date limit could be found in the '
                              'AutoDateLocator.')
 
-        if use_rrule_locator[i]:
+        if (freq == YEARLY) and self.interval_multiples:
+            locator = YearLocator(interval)
+        elif use_rrule_locator[i]:
             _, bymonth, bymonthday, byhour, byminute, bysecond, _ = byranges
-
             rrule = rrulewrapper(self._freq, interval=interval,
                                  dtstart=dmin, until=dmax,
                                  bymonth=bymonth, bymonthday=bymonthday,
@@ -1274,7 +1390,7 @@ class MonthLocator(RRuleLocator):
             bymonth = [x.item() for x in bymonth.astype(int)]
 
         rule = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
-                         interval=interval, **self.hms0d)
+                            interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, rule, tz)
 
 
@@ -1630,5 +1746,6 @@ class DateConverter(units.ConversionInterface):
         return None
 
 
+units.registry[np.datetime64] = DateConverter()
 units.registry[datetime.date] = DateConverter()
 units.registry[datetime.datetime] = DateConverter()

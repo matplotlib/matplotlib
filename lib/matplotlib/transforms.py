@@ -43,6 +43,7 @@ from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
+import re
 import weakref
 import warnings
 
@@ -50,6 +51,10 @@ from . import cbook
 from .path import Path
 
 DEBUG = False
+
+
+def _indent_str(obj):  # textwrap.indent(str(obj), 4) on Py3.
+    return re.sub("(^|\n)", r"\1    ", str(obj))
 
 
 class TransformNode(object):
@@ -117,7 +122,7 @@ class TransformNode(object):
 
     def __copy__(self, *args):
         raise NotImplementedError(
-            "TransformNode instances can not be copied. " +
+            "TransformNode instances can not be copied. "
             "Consider using frozen() instead.")
     __deepcopy__ = __copy__
 
@@ -1053,8 +1058,15 @@ class TransformedBbox(BboxBase):
         self.set_children(bbox, transform)
         self._points = None
 
-    def __repr__(self):
-        return "TransformedBbox(%r, %r)" % (self._bbox, self._transform)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._bbox),
+                        _indent_str(self._transform)))
+
+    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1134,8 +1146,15 @@ class LockableBbox(BboxBase):
         self._locked_points = np.ma.array(fp, np.float_,
                                           mask=mask).reshape((2, 2))
 
-    def __repr__(self):
-        return "LockableBbox(%r, %r)" % (self._bbox, self._locked_points)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._bbox),
+                        _indent_str(self._locked_points)))
+
+    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1622,6 +1641,9 @@ class Transform(TransformNode):
         """
         raise NotImplementedError()
 
+    def __repr__(self):
+        return str(self)
+
 
 class TransformWrapper(Transform):
     """
@@ -1661,11 +1683,6 @@ class TransformWrapper(Transform):
     def __eq__(self, other):
         return self._child.__eq__(other)
 
-    if DEBUG:
-
-        def __str__(self):
-            return str(self._child)
-
     # NOTE: Transform.__[gs]etstate__ should be sufficient when using only
     # Python 3.4+.
     def __getstate__(self):
@@ -1690,8 +1707,11 @@ class TransformWrapper(Transform):
         self._parents = dict((k, weakref.ref(v)) for (k, v) in
                              six.iteritems(state['parents']) if v is not None)
 
-    def __repr__(self):
-        return "TransformWrapper(%r)" % self._child
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._child)))
 
     def frozen(self):
         return self._child.frozen()
@@ -1918,8 +1938,11 @@ class Affine2D(Affine2DBase):
         self._mtx = matrix
         self._invalid = 0
 
-    def __repr__(self):
-        return "Affine2D(%s)" % repr(self._mtx)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._mtx)))
 
     @staticmethod
     def from_values(a, b, c, d, e, f):
@@ -2123,8 +2146,9 @@ class IdentityTransform(Affine2DBase):
         return self
     frozen.__doc__ = Affine2DBase.frozen.__doc__
 
-    def __repr__(self):
-        return "IdentityTransform()"
+    def __str__(self):
+        return ("{}()"
+                .format(type(self).__name__))
 
     def get_matrix(self):
         return self._mtx
@@ -2223,8 +2247,13 @@ class BlendedGenericTransform(Transform):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
     frozen.__doc__ = Transform.frozen.__doc__
 
-    def __repr__(self):
-        return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._x),
+                        _indent_str(self._y)))
 
     def transform_non_affine(self, points):
         if self._x.is_affine and self._y.is_affine:
@@ -2328,8 +2357,13 @@ class BlendedAffine2D(Affine2DBase):
         # Note, this is an exact copy of BlendedTransform.contains_branch_seperately
         return self._x.contains_branch(transform), self._y.contains_branch(transform)
 
-    def __repr__(self):
-        return "BlendedAffine2D(%s,%s)" % (self._x, self._y)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._x),
+                        _indent_str(self._y)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2443,12 +2477,13 @@ class CompositeGenericTransform(Transform):
         return self._a.is_separable and self._b.is_separable
     is_separable = property(_get_is_separable)
 
-    if DEBUG:
-        def __str__(self):
-            return '(%s, %s)' % (self._a, self._b)
-
-    def __repr__(self):
-        return "CompositeGenericTransform(%r, %r)" % (self._a, self._b)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._a),
+                        _indent_str(self._b)))
 
     def transform_affine(self, points):
         return self.get_affine().transform(points)
@@ -2525,10 +2560,6 @@ class CompositeAffine2D(Affine2DBase):
         self.set_children(a, b)
         self._mtx = None
 
-    if DEBUG:
-        def __str__(self):
-            return '(%s, %s)' % (self._a, self._b)
-
     @property
     def depth(self):
         return self._a.depth + self._b.depth
@@ -2539,8 +2570,13 @@ class CompositeAffine2D(Affine2DBase):
         for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
             yield self._a + lh_compliment, rh_compliment
 
-    def __repr__(self):
-        return "CompositeAffine2D(%r, %r)" % (self._a, self._b)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._a),
+                        _indent_str(self._b)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2603,8 +2639,13 @@ class BboxTransform(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "BboxTransform(%r, %r)" % (self._boxin, self._boxout)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._boxin),
+                        _indent_str(self._boxout)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2646,8 +2687,11 @@ class BboxTransformTo(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "BboxTransformTo(%r)" % (self._boxout)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._boxout)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2670,9 +2714,6 @@ class BboxTransformToMaxOnly(BboxTransformTo):
     transforms points from the unit bounding box to a given
     :class:`Bbox` with a fixed upper left of (0, 0).
     """
-    def __repr__(self):
-        return "BboxTransformToMaxOnly(%r)" % (self._boxout)
-
     def get_matrix(self):
         if self._invalid:
             xmax, ymax = self._boxout.max
@@ -2705,8 +2746,11 @@ class BboxTransformFrom(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "BboxTransformFrom(%r)" % (self._boxin)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._boxin)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2738,8 +2782,11 @@ class ScaledTranslation(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "ScaledTranslation(%r)" % (self._t,)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._t)))
 
     def get_matrix(self):
         if self._invalid:

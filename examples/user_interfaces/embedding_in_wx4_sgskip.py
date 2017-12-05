@@ -7,12 +7,6 @@ An example of how to use wx or wxagg in an application with a custom
 toolbar
 """
 
-# matplotlib requires wxPython 2.8+
-# set the wxPython version in lib\site-packages\wx.pth file
-# or if you have wxversion installed un-comment the lines below
-#import wxversion
-#wxversion.ensureMinimal('2.8')
-
 from numpy import arange, sin, pi
 
 import matplotlib

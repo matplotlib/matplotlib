@@ -1,31 +1,28 @@
 """
-==============
-Animation Demo
-==============
+================
+pyplot animation
+================
 
-Pyplot animation example.
+Generating an animation by calling `~.pyplot.pause` between plotting commands.
 
-The method shown here is only for very simple, low-performance
-use.  For more demanding applications, look at the animation
-module and the examples that use it.
+The method shown here is only suitable for simple, low-performance use.  For
+more demanding applications, look at the :mod:`animation` module and the
+examples that use it.
+
+Note that calling `time.sleep` instead of `~.pyplot.pause` would *not* work.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-x = np.arange(6)
-y = np.arange(5)
-z = x * y[:, np.newaxis]
+np.random.seed(19680801)
+data = np.random.random((50, 50, 50))
 
-for i in range(5):
-    if i == 0:
-        p = plt.imshow(z)
-        fig = plt.gcf()
-        plt.clim()   # clamp the color limits
-        plt.title("Boring slide show")
-    else:
-        z = z + 2
-        p.set_data(z)
+fig, ax = plt.subplots()
 
-    print("step", i)
-    plt.pause(0.5)
+for i in range(len(data)):
+    ax.cla()
+    ax.imshow(data[i])
+    ax.set_title("frame {}".format(i))
+    # Note that using time.sleep does *not* work here!
+    plt.pause(0.1)

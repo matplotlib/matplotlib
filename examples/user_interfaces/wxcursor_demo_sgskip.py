@@ -5,11 +5,6 @@ WXcursor Demo
 
 Example to draw a cursor and report the data coords in wx
 """
-# matplotlib requires wxPython 2.8+
-# set the wxPython version in lib\site-packages\wx.pth file
-# or if you have wxversion installed un-comment the lines below
-#import wxversion
-#wxversion.ensureMinimal('2.8')
 
 import matplotlib
 matplotlib.use('WXAgg')

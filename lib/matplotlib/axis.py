@@ -1052,11 +1052,12 @@ class Axis(artist.Artist):
         for tick, loc, label in tick_tups:
             if tick is None:
                 continue
-            if not mtransforms.interval_contains(interval_expanded, loc):
-                continue
+            # NB: always update labels and position to avoid issues like #9397
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
+            if not mtransforms.interval_contains(interval_expanded, loc):
+                continue
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
@@ -2227,14 +2228,17 @@ class YAxis(Axis):
         )
 
     def set_offset_position(self, position):
+        """
+        ..
+            ACCEPTS: [ 'left' | 'right' ]
+        """
         x, y = self.offsetText.get_position()
         if position == 'left':
             x = 0
         elif position == 'right':
             x = 1
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only [ 'left' | 'right' ]")
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))

@@ -86,6 +86,7 @@ def do_figimage(suppressComposite):
     fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
     fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
+
 @image_comparison(baseline_images=['figimage-0'],
                   extensions=['png','pdf'])
 def test_figimage0():
@@ -201,8 +202,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 44, "Did not get 44, got %d" % z
+    assert im.get_cursor_data(event) == 44
 
     # Now try for a point outside the image
     # Tests issue #4957
@@ -210,8 +210,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
     # Hmm, something is wrong here... I get 0, not None...
     # But, this works further down in the tests with extents flipped
@@ -229,8 +228,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 44, "Did not get 44, got %d" % z
+    assert im.get_cursor_data(event) == 44
 
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), extent=[0, 0.5, 0, 0.5])
@@ -239,8 +237,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 55, "Did not get 55, got %d" % z
+    assert im.get_cursor_data(event) == 55
 
     # Now try for a point outside the image
     # Tests issue #4957
@@ -248,15 +245,13 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
     x, y = 0.01, -0.01
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
 
 @image_comparison(baseline_images=['image_clip'], style='mpl20')
@@ -295,14 +290,18 @@ def test_imshow():
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
 
-@image_comparison(baseline_images=['no_interpolation_origin'], remove_text=True)
+
+@image_comparison(baseline_images=['no_interpolation_origin'],
+                  remove_text=True)
 def test_no_interpolation_origin():
     fig = plt.figure()
     ax = fig.add_subplot(211)
-    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower", interpolation='none')
+    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower",
+              interpolation='none')
 
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
+
 
 @image_comparison(baseline_images=['image_shift'], remove_text=True,
                   extensions=['pdf', 'svg'])
@@ -318,6 +317,7 @@ def test_image_shift():
     ax.imshow(imgData, norm=LogNorm(), interpolation='none',
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
+
 
 def test_image_edges():
     f = plt.figure(figsize=[1, 1])
@@ -514,11 +514,10 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185, 'num colors: %d' % (num_colors, )
-    # The fully transparent part should be red, not white or black
-    # or anything else
+    assert 175 <= num_colors <= 185
+    # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
-    assert corner_pixel == (254, 0, 0), "corner pixel: %r" % (corner_pixel, )
+    assert corner_pixel == (254, 0, 0)
 
 
 def test_nonuniformimage_setdata():
@@ -851,3 +850,22 @@ def test_full_invalid():
     ax.imshow(x)
 
     f.canvas.draw()
+
+
+@pytest.mark.parametrize("fmt,counted",
+                         [("ps", b" colorimage"), ("svg", b"<image")])
+@pytest.mark.parametrize("composite_image,count", [(True, 1), (False, 2)])
+def test_composite(fmt, counted, composite_image, count):
+    # Test that figures can be saved with and without combining multiple images
+    # (on a single set of axes) into a single composite image.
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y ** 2)
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim(0, 3)
+    ax.imshow(Z, extent=[0, 1, 0, 1])
+    ax.imshow(Z[::-1], extent=[2, 3, 0, 1])
+    plt.rcParams['image.composite_image'] = composite_image
+    buf = io.BytesIO()
+    fig.savefig(buf, format=fmt)
+    assert buf.getvalue().count(counted) == count

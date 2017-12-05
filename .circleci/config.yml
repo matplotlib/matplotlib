@@ -59,7 +59,7 @@ pip-run:  &pip-install
 deps-run: &deps-install
   name: Install Python dependencies
   command: |
-    pip install --user python-dateutil numpy${NUMPY_VERSION} pyparsing!=2.1.6 cycler codecov coverage sphinx pillow
+    pip install --user numpy${NUMPY_VERSION} codecov coverage
     pip install --user -r doc-requirements.txt
 
 mpl-run: &mpl-install
@@ -68,7 +68,7 @@ mpl-run: &mpl-install
 
 doc-run: &doc-build
   name: Build documentation
-  command: python make.py html
+  command: make html
   working_directory: doc
 
 doc-bundle-run: &doc-bundle

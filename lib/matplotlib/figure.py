@@ -16,6 +16,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
 import warnings
 
 import numpy as np
@@ -47,6 +48,8 @@ from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
+
+_log = logging.getLogger(__name__)
 
 docstring.interpd.update(projection_names=get_projection_names())
 
@@ -259,19 +262,28 @@ class Figure(Artist):
     the callback will be called with ``func(fig)`` where fig is the
     :class:`Figure` instance.
 
-    *patch*
-       The figure patch is drawn by a
-       :class:`matplotlib.patches.Rectangle` instance
+    Attributes
+    ----------
+    patch
+        The figure patch is drawn by a
+        :class:`matplotlib.patches.Rectangle` instance
 
-    *suppressComposite*
-       For multiple figure images, the figure will make composite
-       images depending on the renderer option_image_nocomposite
-       function.  If suppressComposite is True|False, this will
-       override the renderer.
+    suppressComposite
+        For multiple figure images, the figure will make composite images
+        depending on the renderer option_image_nocomposite function.
+        If *suppressComposite* is ``True`` or ``False``, this will override
+        the renderer.
     """
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
+
+    def __repr__(self):
+        return "<{clsname} size {h:g}x{w:g} with {naxes} Axes>".format(
+            clsname=self.__class__.__name__,
+            h=self.bbox.size[0], w=self.bbox.size[1],
+            naxes=len(self.axes),
+        )
 
     def __init__(self,
                  figsize=None,  # defaults to rc figure.figsize
@@ -284,33 +296,35 @@ class Figure(Artist):
                  tight_layout=None,  # default to rc figure.autolayout
                  ):
         """
-        *figsize*
-            w,h tuple in inches
+        Parameters
+        ----------
+        figsize : 2-tuple of floats
+            ``(width, height)`` tuple in inches
 
-        *dpi*
+        dpi : float
             Dots per inch
 
-        *facecolor*
+        facecolor
             The figure patch facecolor; defaults to rc ``figure.facecolor``
 
-        *edgecolor*
+        edgecolor
             The figure patch edge color; defaults to rc ``figure.edgecolor``
 
-        *linewidth*
+        linewidth : float
             The figure patch edge linewidth; the default linewidth of the frame
 
-        *frameon*
-            If *False*, suppress drawing the figure frame
+        frameon : bool
+            If ``False``, suppress drawing the figure frame
 
-        *subplotpars*
-            A :class:`SubplotParams` instance, defaults to rc
+        subplotpars : :class:`SubplotParams`
+            Subplot parameters, defaults to rc
 
-        *tight_layout*
-            If *False* use *subplotpars*; if *True* adjust subplot
+        tight_layout : bool
+            If ``False`` use *subplotpars*; if ``True`` adjust subplot
             parameters using :meth:`tight_layout` with default padding.
-            When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
-            and `rect`, the default :meth:`tight_layout` paddings will be
-            overridden.
+            When providing a dict containing the keys
+            ``pad``, ``w_pad``, ``h_pad``, and ``rect``, the default
+            :meth:`tight_layout` paddings will be overridden.
             Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
@@ -382,7 +396,7 @@ class Figure(Artist):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditiionally.
         if (self.canvas is not None and
-            'WebAgg' in self.canvas.__class__.__name__):
+                'WebAgg' in self.canvas.__class__.__name__):
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
 
@@ -395,8 +409,15 @@ class Figure(Artist):
         :class:`~matplotlib.backend_bases.FigureManagerBase`, and
         will raise an AttributeError.
 
-        For non-GUI backends, this does nothing, in which case
-        a warning will be issued if *warn* is True (default).
+        Parameters
+        ----------
+        warm : bool
+            If ``True``, issue warning when called on a non-GUI backend
+
+        Notes
+        -----
+        For non-GUI backends, this does nothing, in which case a warning will
+        be issued if *warn* is ``True`` (default).
         """
         try:
             manager = getattr(self.canvas, 'manager')
@@ -428,7 +449,12 @@ class Figure(Artist):
 
     def _set_dpi(self, dpi, forward=True):
         """
-        The forward kwarg is passed on to set_size_inches
+        Parameters
+        ----------
+        dpi : float
+
+        forward : bool
+            Passed on to `~.Figure.set_size_inches`
         """
         self._dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi, dpi)
@@ -440,7 +466,7 @@ class Figure(Artist):
 
     def get_tight_layout(self):
         """
-        Return the Boolean flag, True to use :meth:`tight_layout` when drawing.
+        Return whether the figure uses :meth:`tight_layout` when drawing.
         """
         return self._tight
 
@@ -531,7 +557,9 @@ class Figure(Artist):
         return inside, {}
 
     def get_window_extent(self, *args, **kwargs):
-        'get the figure bounding box in display space; kwargs are void'
+        ''''
+        Return figure bounding box in display space; arguments are ignored.
+        '''
         return self.bbox
 
     def suptitle(self, t, **kwargs):
@@ -811,7 +839,7 @@ class Figure(Artist):
         self.dpi = val
         self.stale = True
 
-    def set_figwidth(self, val, forward=False):
+    def set_figwidth(self, val, forward=True):
         """
         Set the width of the figure in inches
 
@@ -819,7 +847,7 @@ class Figure(Artist):
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
-    def set_figheight(self, val, forward=False):
+    def set_figheight(self, val, forward=True):
         """
         Set the height of the figure in inches
 
@@ -836,9 +864,11 @@ class Figure(Artist):
         self.frameon = b
         self.stale = True
 
-    def delaxes(self, a):
-        'remove a from the figure and update the current axes'
-        self._axstack.remove(a)
+    def delaxes(self, ax):
+        """
+        Remove the `~.Axes` *ax* from the figure and update the current axes.
+        """
+        self._axstack.remove(ax)
         for func in self._axobservers:
             func(self)
         self.stale = True

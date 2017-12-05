@@ -1804,6 +1804,7 @@ class FigureCanvasBase(object):
         """
         return self._is_saving
 
+    @cbook.deprecated("2.2")
     def onRemove(self, ev):
         """
         Mouse event processor which removes the top artist
@@ -2696,6 +2697,7 @@ class FigureManagerBase(object):
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
 
+    @cbook.deprecated("2.2")
     def show_popup(self, msg):
         """Display message in a popup -- GUI only."""
 
@@ -3218,6 +3220,13 @@ class ToolContainerBase(object):
         The tools with which this `ToolContainer` wants to communicate.
     """
 
+    _icon_extension = '.png'
+    """
+    Toolcontainer button icon image format extension
+
+    **String**: Image extension
+    """
+
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_removed_event',
@@ -3262,14 +3271,19 @@ class ToolContainerBase(object):
 
     def _get_image_filename(self, image):
         """Find the image based on its name."""
-        # TODO: better search for images, they are not always in the
-        # datapath
+        if not image:
+            return None
+
         basedir = os.path.join(rcParams['datapath'], 'images')
-        if image is not None:
-            fname = os.path.join(basedir, image)
-        else:
-            fname = None
-        return fname
+        possible_images = (
+            image,
+            image + self._icon_extension,
+            os.path.join(basedir, image),
+            os.path.join(basedir, image) + self._icon_extension)
+
+        for fname in possible_images:
+            if os.path.isfile(fname):
+                return fname
 
     def trigger_tool(self, name):
         """

@@ -979,7 +979,6 @@ class LogFormatter(Formatter):
         if x == 0.0:  # Symlog
             return '0'
 
-        sign = np.sign(x)
         x = abs(x)
         b = self._base
         # only label the decades
@@ -1406,7 +1405,7 @@ class PercentFormatter(Formatter):
         return symbol
 
     @symbol.setter
-    def symbol(self):
+    def symbol(self, symbol):
         self._symbol = symbol
 
 
@@ -1805,7 +1804,11 @@ class MaxNLocator(Locator):
 
         *steps*
             Sequence of nice numbers starting with 1 and ending with 10;
-            e.g., [1, 2, 4, 5, 10]
+            e.g., [1, 2, 4, 5, 10], where the values are acceptable
+            tick multiples.  i.e. for the example, 20, 40, 60 would be
+            an acceptable set of ticks, as would 0.4, 0.6, 0.8, because
+            they are multiples of 2.  However, 30, 60, 90 would not
+            be allowed because 3 does not appear in the list of steps.
 
         *integer*
             If True, ticks will take only integer values, provided
@@ -2481,7 +2484,16 @@ class LogitLocator(Locator):
 
 
 class AutoLocator(MaxNLocator):
+    """
+    Dynamically find major tick positions. This is actually a subclass
+    of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
+    and *steps = [1, 2, 2.5, 5, 10]*.
+    """
     def __init__(self):
+        """
+        To know the values of the non-public parameters, please have a
+        look to the defaults of `~matplotlib.ticker.MaxNLocator`.
+        """
         if rcParams['_internal.classic_mode']:
             nbins = 9
             steps = [1, 2, 5, 10]

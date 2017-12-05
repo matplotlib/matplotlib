@@ -29,6 +29,7 @@ import matplotlib.transforms as mtransforms
 
 import numpy as np
 
+
 class GridSpecBase(object):
     """
     A base class of GridSpec that specifies the geometry of the grid
@@ -187,9 +188,21 @@ class GridSpec(GridSpecBase):
                  wspace=None, hspace=None,
                  width_ratios=None, height_ratios=None):
         """
-        The number of rows and number of columns of the
-        grid need to be set. Optionally, the subplot layout parameters
-        (e.g., left, right, etc.) can be tuned.
+        The number of rows and number of columns of the grid need to be set.
+        Optionally, the subplot layout parameters (e.g., left, right, etc.)
+        can be tuned.
+
+        Parameters
+        ----------
+        nrows : int
+            Number of rows in grid.
+
+        ncols : int
+            Number or columns in grid.
+
+        Notes
+        -----
+        See `~.figure.SubplotParams` for descriptions of the layout parameters.
         """
         self.left = left
         self.bottom = bottom
@@ -239,7 +252,7 @@ class GridSpec(GridSpecBase):
 
     def get_subplot_params(self, fig=None):
         """
-        return a dictionary of subplot layout parameters. The default
+        Return a dictionary of subplot layout parameters. The default
         parameters are from rcParams unless a figure attribute is set.
         """
         from matplotlib.figure import SubplotParams

@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import gc
+from io import BytesIO
 
 try:
     import tracemalloc
@@ -110,7 +111,7 @@ class MemleakTest(object):
             ax = fig.add_subplot(224)
             ax.pcolor(10 * np.random.rand(50, 50))
 
-        fig.savefig('tmp', dpi=75)
+        fig.savefig(BytesIO(), dpi=75)
         plt.close(1)
 
 

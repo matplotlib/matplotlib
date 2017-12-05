@@ -75,12 +75,15 @@ class ContourLabeler(object):
 
         only labels contours listed in *v*.
 
-        Optional keyword arguments:
+        Parameters
+        ----------
+        fontsize : string or float, optional
+            Size in points or relative size e.g., 'smaller', 'x-large'.
+            See `Text.set_size` for accepted string values.
 
-          *fontsize*:
-            size in points or relative size e.g., 'smaller', 'x-large'
+        colors :
+            Color of each label
 
-          *colors*:
             - if *None*, the color of each label matches the color of
               the corresponding contour
 
@@ -91,47 +94,50 @@ class ContourLabeler(object):
               different labels will be plotted in different colors in the order
               specified
 
-          *inline*:
-            controls whether the underlying contour is removed or
-            not. Default is *True*.
+        inline : bool, optional
+            If ``True`` the underlying contour is removed where the label is
+            placed. Default is ``True``.
 
-          *inline_spacing*:
-            space in pixels to leave on each side of label when
-            placing inline.  Defaults to 5.  This spacing will be
-            exact for labels at locations where the contour is
-            straight, less so for labels on curved contours.
+        inline_spacing : float, optional
+            Space in pixels to leave on each side of label when
+            placing inline. Defaults to 5.
 
-          *fmt*:
-            a format string for the label. Default is '%1.3f'
+            This spacing will be exact for labels at locations where the
+            contour is straight, less so for labels on curved contours.
+
+        fmt : string or dict, optional
+            A format string for the label. Default is '%1.3f'
+
             Alternatively, this can be a dictionary matching contour
             levels with arbitrary strings to use for each contour level
             (i.e., fmt[level]=string), or it can be any callable, such
             as a :class:`~matplotlib.ticker.Formatter` instance, that
             returns a string when called with a numeric contour level.
 
-          *manual*:
-            if *True*, contour labels will be placed manually using
-            mouse clicks.  Click the first button near a contour to
+        manual : bool or iterable, optional
+            If ``True``, contour labels will be placed manually using
+            mouse clicks. Click the first button near a contour to
             add a label, click the second button (or potentially both
-            mouse buttons at once) to finish adding labels.  The third
+            mouse buttons at once) to finish adding labels. The third
             button can be used to remove the last label added, but
-            only if labels are not inline.  Alternatively, the keyboard
+            only if labels are not inline. Alternatively, the keyboard
             can be used to select label locations (enter to end label
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
-            *manual* can be an iterable object of x,y tuples. Contour labels
-            will be created as if mouse is clicked at each x,y positions.
+            *manual* can also be an iterable object of x,y tuples.
+            Contour labels will be created as if mouse is clicked at each
+            x,y positions.
 
-          *rightside_up*:
-            if *True* (default), label rotations will always be plus
-            or minus 90 degrees from level.
+        rightside_up : bool, optional
+            If ``True``, label rotations will always be plus
+            or minus 90 degrees from level. Default is ``True``.
 
-          *use_clabeltext*:
-            if *True* (default is False), ClabelText class (instead of
-            matplotlib.Text) is used to create labels. ClabelText
-            recalculates rotation angles of texts during the drawing time,
-            therefore this can be used if aspect of the axes changes.
+        use_clabeltext : bool, optional
+            If ``True``, `ClabelText` class (instead of `Text`) is used to
+            create labels. `ClabelText` recalculates rotation angles
+            of texts during the drawing time, therefore this can be used if
+            aspect of the axes changes. Default is ``False``.
         """
 
         """
@@ -144,7 +150,7 @@ class ContourLabeler(object):
 
         Once these attributes are set, clabel passes control to the
         labels method (case of automatic label placement) or
-        BlockingContourLabeler (case of manual label placement).
+        `BlockingContourLabeler` (case of manual label placement).
         """
 
         fontsize = kwargs.get('fontsize', None)
@@ -283,6 +289,7 @@ class ContourLabeler(object):
 
         return lw
 
+    @cbook.deprecated("2.2")
     def get_real_label_width(self, lev, fmt, fsize):
         """
         This computes actual onscreen label width.
@@ -330,8 +337,7 @@ class ContourLabeler(object):
 
     def locate_label(self, linecontour, labelwidth):
         """
-        Find a good place to plot a label (relatively flat
-        part of the contour).
+        Find good place to draw a label (relatively flat part of the contour).
         """
 
         # Number of contour points
@@ -348,16 +354,15 @@ class ContourLabeler(object):
         XX = np.resize(linecontour[:, 0], (xsize, ysize))
         YY = np.resize(linecontour[:, 1], (xsize, ysize))
         # I might have fouled up the following:
-        yfirst = YY[:, 0].reshape(xsize, 1)
-        ylast = YY[:, -1].reshape(xsize, 1)
-        xfirst = XX[:, 0].reshape(xsize, 1)
-        xlast = XX[:, -1].reshape(xsize, 1)
+        yfirst = YY[:, :1]
+        ylast = YY[:, -1:]
+        xfirst = XX[:, :1]
+        xlast = XX[:, -1:]
         s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
-        L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
+        L = np.hypot(xlast - xfirst, ylast - yfirst)
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
-                                 -1)
+            dist = np.sum(np.abs(s) / L, axis=-1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
         # There must be a more efficient way...
@@ -411,25 +416,15 @@ class ContourLabeler(object):
         else:
             dp = np.zeros_like(xi)
 
-        ll = mlab.less_simple_linear_interpolation(pl, slc, dp + xi,
-                                                   extrap=True)
-
-        # get vector in pixel space coordinates from one point to other
-        dd = np.diff(ll, axis=0).ravel()
-
-        # Get angle of vector - must be calculated in pixel space for
-        # text rotation to work correctly
-        if np.all(dd == 0):  # Must deal with case of zero length label
-            rotation = 0.0
-        else:
-            rotation = np.rad2deg(np.arctan2(dd[1], dd[0]))
+        # Get angle of vector between the two ends of the label - must be
+        # calculated in pixel space for text rotation to work correctly.
+        (dx,), (dy,) = (np.diff(np.interp(dp + xi, pl, slc_col))
+                        for slc_col in slc.T)
+        rotation = np.rad2deg(np.arctan2(dy, dx))
 
         if self.rightside_up:
             # Fix angle so text is never upside-down
-            if rotation > 90:
-                rotation = rotation - 180.0
-            if rotation < -90:
-                rotation = 180.0 + rotation
+            rotation = (rotation + 90) % 180 - 90
 
         # Break contour if desired
         nlc = []
@@ -437,37 +432,26 @@ class ContourLabeler(object):
             # Expand range by spacing
             xi = dp + xi + np.array([-spacing, spacing])
 
-            # Get indices near points of interest
-            I = mlab.less_simple_linear_interpolation(
-                pl, np.arange(len(pl)), xi, extrap=False)
-
-            # If those indices aren't beyond contour edge, find x,y
-            if (not np.isnan(I[0])) and int(I[0]) != I[0]:
-                xy1 = mlab.less_simple_linear_interpolation(
-                    pl, lc, [xi[0]])
-
-            if (not np.isnan(I[1])) and int(I[1]) != I[1]:
-                xy2 = mlab.less_simple_linear_interpolation(
-                    pl, lc, [xi[1]])
-
-            # Round to integer values but keep as float
-            # To allow check against nan below
-            # Ignore nans here to avoid throwing an error on Appveyor build
-            # (can possibly be removed when build uses numpy 1.13)
-            with np.errstate(invalid='ignore'):
-                I = [np.floor(I[0]), np.ceil(I[1])]
+            # Get (integer) indices near points of interest; use -1 as marker
+            # for out of bounds.
+            I = np.interp(xi, pl, np.arange(len(pl)), left=-1, right=-1)
+            I = [np.floor(I[0]).astype(int), np.ceil(I[1]).astype(int)]
+            if I[0] != -1:
+                xy1 = [np.interp(xi[0], pl, lc_col) for lc_col in lc.T]
+            if I[1] != -1:
+                xy2 = [np.interp(xi[1], pl, lc_col) for lc_col in lc.T]
 
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
-                if np.all(~np.isnan(I)):
-                    nlc.append(np.r_[xy2, lc[int(I[1]):int(I[0]) + 1], xy1])
+                if np.all(I != -1):
+                    nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
-                if not np.isnan(I[0]):
-                    nlc.append(np.r_[lc[:int(I[0]) + 1], xy1])
-                if not np.isnan(I[1]):
-                    nlc.append(np.r_[xy2, lc[int(I[1]):]])
+                if I[0] != -1:
+                    nlc.append(np.row_stack([lc[:I[0]+1], xy1]))
+                if I[1] != -1:
+                    nlc.append(np.row_stack([xy2, lc[I[1]:]]))
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
@@ -1666,7 +1650,8 @@ class QuadContourSet(ContourSet):
           contour(Z,N)
           contour(X,Y,Z,N)
 
-        contour up to *N* automatically-chosen levels.
+        contour up to *N+1* automatically chosen contour levels
+        (*N* intervals).
 
         ::
 

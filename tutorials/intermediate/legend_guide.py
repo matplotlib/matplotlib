@@ -46,8 +46,8 @@ generate entries for the resulting legend - it is worth noting however that
 not all artists can be added to a legend, at which point a "proxy" will have
 to be created (see :ref:`proxy_legend_handles` for further details).
 
-# For full control of what is being added to the legend, it is common to pass
-# the appropriate handles directly to :func:`legend`
+For full control of what is being added to the legend, it is common to pass
+the appropriate handles directly to :func:`legend`::
 
     line_up, = plt.plot([1,2,3], label='Line 2')
     line_down, = plt.plot([3,2,1], label='Line 1')

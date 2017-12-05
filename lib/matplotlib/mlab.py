@@ -720,8 +720,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     if not same_data:
         # if same_data is False, mode must be 'psd'
         resultY = stride_windows(y, NFFT, noverlap)
-        resultY = apply_window(resultY, window, axis=0)
         resultY = detrend(resultY, detrend_func, axis=0)
+        resultY = apply_window(resultY, window, axis=0)
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
         result = np.conj(result) * resultY
     elif mode == 'psd':
@@ -3404,6 +3404,7 @@ def griddata(x, y, z, xi, yi, interp='nn'):
 ##################################################
 # Linear interpolation algorithms
 ##################################################
+@cbook.deprecated("2.2", alternative="np.interp")
 def less_simple_linear_interpolation(x, y, xi, extrap=False):
     """
     This function provides simple (but somewhat less so than

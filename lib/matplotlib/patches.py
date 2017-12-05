@@ -27,36 +27,6 @@ from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
 
-# these are not available for the object inspector until after the
-# class is built so we define an initial set here for the init
-# function and they will be overridden after object definition
-docstring.interpd.update(Patch="""
-
-          =================   ==============================================
-          Property            Description
-          =================   ==============================================
-          alpha               float
-          animated            [True | False]
-          antialiased or aa   [True | False]
-          capstyle            ['butt' | 'round' | 'projecting']
-          clip_box            a matplotlib.transform.Bbox instance
-          clip_on             [True | False]
-          edgecolor or ec     any matplotlib color
-          facecolor or fc     any matplotlib color
-          figure              a matplotlib.figure.Figure instance
-          fill                [True | False]
-          hatch               unknown
-          joinstyle           ['miter' | 'round' | 'bevel']
-          label               any string
-          linewidth or lw     float
-          lod                 [True | False]
-          transform           a matplotlib.transform transformation instance
-          visible             [True | False]
-          zorder              any number
-          =================   ==============================================
-
-          """)
-
 _patch_alias_map = {
         'antialiased': ['aa'],
         'edgecolor': ['ec'],
@@ -621,6 +591,10 @@ class Shadow(Patch):
 
     def _update(self):
         self.update_from(self.patch)
+
+        # Place the shadow patch directly behind the inherited patch.
+        self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
+
         if self.props is not None:
             self.update(self.props)
         else:
@@ -669,29 +643,43 @@ class Rectangle(Patch):
     """
 
     def __str__(self):
-        pars = self._x, self._y, self._width, self._height, self.angle
+        pars = self._x0, self._y0, self._width, self._height, self.angle
         fmt = "Rectangle(xy=(%g, %g), width=%g, height=%g, angle=%g)"
         return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
+        Parameters
+        ----------
+        xy: length-2 tuple
+            The bottom and left rectangle coordinates
+        width:
+            Rectangle width
+        height:
+            Rectangle height
+        angle: float, optional
+          rotation in degrees anti-clockwise about *xy* (default is 0.0)
+        fill: bool, optional
+            Whether to fill the rectangle (default is ``True``)
 
-        *angle*
-          rotation in degrees (anti-clockwise)
-
-        *fill* is a boolean indicating whether to fill the rectangle
-
+        Notes
+        -----
         Valid kwargs are:
         %(Patch)s
         """
 
         Patch.__init__(self, **kwargs)
 
-        self._x = xy[0]
-        self._y = xy[1]
+        self._x0 = xy[0]
+        self._y0 = xy[1]
+
         self._width = width
         self._height = height
+
+        self._x1 = self._x0 + self._width
+        self._y1 = self._y0 + self._height
+
         self.angle = float(angle)
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
@@ -708,15 +696,28 @@ class Rectangle(Patch):
                  makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
-        x = self.convert_xunits(self._x)
-        y = self.convert_yunits(self._y)
-        width = self.convert_xunits(self._width)
-        height = self.convert_yunits(self._height)
-        bbox = transforms.Bbox.from_bounds(x, y, width, height)
+        x0, y0, x1, y1 = self._convert_units()
+        bbox = transforms.Bbox.from_extents(x0, y0, x1, y1)
         rot_trans = transforms.Affine2D()
-        rot_trans.rotate_deg_around(x, y, self.angle)
+        rot_trans.rotate_deg_around(x0, y0, self.angle)
         self._rect_transform = transforms.BboxTransformTo(bbox)
         self._rect_transform += rot_trans
+
+    def _update_x1(self):
+        self._x1 = self._x0 + self._width
+
+    def _update_y1(self):
+        self._y1 = self._y0 + self._height
+
+    def _convert_units(self):
+        '''
+        Convert bounds of the rectangle
+        '''
+        x0 = self.convert_xunits(self._x0)
+        y0 = self.convert_yunits(self._y0)
+        x1 = self.convert_xunits(self._x1)
+        y1 = self.convert_yunits(self._y1)
+        return x0, y0, x1, y1
 
     def get_patch_transform(self):
         self._update_patch_transform()
@@ -724,18 +725,18 @@ class Rectangle(Patch):
 
     def get_x(self):
         "Return the left coord of the rectangle"
-        return self._x
+        return self._x0
 
     def get_y(self):
         "Return the bottom coord of the rectangle"
-        return self._y
+        return self._y0
 
     def get_xy(self):
         "Return the left and bottom coords of the rectangle"
-        return self._x, self._y
+        return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the  rectangle"
+        "Return the width of the rectangle"
         return self._width
 
     def get_height(self):
@@ -743,21 +744,15 @@ class Rectangle(Patch):
         return self._height
 
     def set_x(self, x):
-        """
-        Set the left coord of the rectangle
-
-        ACCEPTS: float
-        """
-        self._x = x
+        "Set the left coord of the rectangle"
+        self._x0 = x
+        self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        """
-        Set the bottom coord of the rectangle
-
-        ACCEPTS: float
-        """
-        self._y = y
+        "Set the bottom coord of the rectangle"
+        self._y0 = y
+        self._update_y1()
         self.stale = True
 
     def set_xy(self, xy):
@@ -766,25 +761,21 @@ class Rectangle(Patch):
 
         ACCEPTS: 2-item sequence
         """
-        self._x, self._y = xy
+        self._x0, self._y0 = xy
+        self._update_x1()
+        self._update_y1()
         self.stale = True
 
     def set_width(self, w):
-        """
-        Set the width rectangle
-
-        ACCEPTS: float
-        """
+        "Set the width of the rectangle"
         self._width = w
+        self._update_x1()
         self.stale = True
 
     def set_height(self, h):
-        """
-        Set the width rectangle
-
-        ACCEPTS: float
-        """
+        "Set the height of the rectangle"
         self._height = h
+        self._update_y1()
         self.stale = True
 
     def set_bounds(self, *args):
@@ -797,15 +788,18 @@ class Rectangle(Patch):
             l, b, w, h = args[0]
         else:
             l, b, w, h = args
-        self._x = l
-        self._y = b
+        self._x0 = l
+        self._y0 = b
         self._width = w
         self._height = h
+        self._update_x1()
+        self._update_y1()
         self.stale = True
 
     def get_bbox(self):
-        return transforms.Bbox.from_bounds(self._x, self._y,
-                                           self._width, self._height)
+        x0, y0, x1, y1 = self._convert_units()
+        return transforms.Bbox.from_extents(self._x0, self._y0,
+                                            self._x1, self._y1)
 
     xy = property(get_xy, set_xy)
 

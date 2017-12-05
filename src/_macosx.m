@@ -2608,8 +2608,11 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
     NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
-    if (specialchar)
+    if (specialchar){
+        if ([event modifierFlags] & NSShiftKeyMask)
+            [returnkey appendString:@"shift+" ];
         [returnkey appendString:specialchar];
+    }
     else
         [returnkey appendString:[event charactersIgnoringModifiers]];
 

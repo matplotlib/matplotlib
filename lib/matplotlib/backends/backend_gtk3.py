@@ -3,7 +3,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os, sys
+import logging
+import os
+import sys
 
 try:
     import gi
@@ -37,7 +39,9 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import (
-    backend_tools, cbook, colors as mcolors, lines, verbose, rcParams)
+    backend_tools, cbook, colors as mcolors, lines, rcParams)
+
+_log = logging.getLogger(__name__)
 
 backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
@@ -366,7 +370,7 @@ class FigureManagerGTK3(FigureManagerBase):
             # all, so I am not sure how to catch it.  I am unhappy
             # doing a blanket catch here, but am not sure what a
             # better way is - JDH
-            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+            _log.info('Could not load matplotlib icon: %s', sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
@@ -712,6 +716,7 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
+    _icon_extension = '.png'
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)

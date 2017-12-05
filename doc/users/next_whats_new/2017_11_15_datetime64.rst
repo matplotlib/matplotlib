@@ -1,0 +1,10 @@
+Support for numpy.datetime64
+----------------------------
+
+Matplotlib has supported `datetime.datetime` dates for a long time in
+`matplotlib.dates`.  We
+now support `numpy.datetime64` dates as well.  Anywhere that
+`dateime.datetime` could be used, `numpy.datetime64` can be used.  eg::
+
+  time = np.arange('2005-02-01', '2005-02-02', dtype='datetime64[h]')
+  plt.plot(time)

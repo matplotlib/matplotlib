@@ -498,7 +498,6 @@ Interactive
    Axes.format_xdata
    Axes.format_ydata
 
-   Axes.hitlist
    Axes.mouseover
    Axes.in_axes
 
@@ -619,7 +618,6 @@ Artist Methods
    :template: autosummary.rst
    :nosignatures:
 
-   Axes.is_figure_set
    Axes.remove
    Axes.is_transform_set
 

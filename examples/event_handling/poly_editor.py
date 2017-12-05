@@ -14,7 +14,7 @@ from matplotlib.mlab import dist_point_to_segment
 
 class PolygonInteractor(object):
     """
-    An polygon editor.
+    A polygon editor.
 
     Key-bindings
 

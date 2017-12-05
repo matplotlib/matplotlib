@@ -8,6 +8,7 @@ from six.moves import tkinter_filedialog as FileDialog
 
 import os, sys, math
 import os.path
+import logging
 
 # Paint image to Tk photo blitter extension
 import matplotlib.backends.tkagg as tkagg
@@ -30,9 +31,9 @@ from matplotlib.widgets import SubplotTool
 
 import matplotlib.cbook as cbook
 
-rcParams = matplotlib.rcParams
-verbose = matplotlib.verbose
+_log = logging.getLogger(__name__)
 
+rcParams = matplotlib.rcParams
 
 backend_version = Tk.TkVersion
 
@@ -176,8 +177,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
-            master=master, width=w, height=h, borderwidth=0,
-            highlightthickness=0)
+            master=master, background="white",
+            width=w, height=h, borderwidth=0, highlightthickness=0)
         self._tkphoto = Tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
@@ -661,7 +662,6 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def __init__(self, canvas, window):
         self.canvas = canvas
         self.window = window
-        self._idle = True
         NavigationToolbar2.__init__(self, canvas)
 
     def destroy(self, *args):
@@ -735,12 +735,13 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6,3))
-        window = Tk.Tk()
+        window = Tk.Toplevel()
         canvas = FigureCanvasTkAgg(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+        canvas.tool =  SubplotTool(self.canvas.figure, toolfig)
         canvas.show()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        window.grab_set()
 
     def save_figure(self, *args):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
@@ -868,6 +869,7 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
+    _icon_extension = '.gif'
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
@@ -1060,7 +1062,7 @@ class _BackendTkAgg(_Backend):
             window.tk.call('wm', 'foobar', window._w, icon_img)
         except Exception as exc:
             # log the failure (due e.g. to Tk version), but carry on
-            verbose.report('Could not load matplotlib icon: %s' % exc)
+            _log.info('Could not load matplotlib icon: %s', exc)
 
         canvas = FigureCanvasTkAgg(figure, master=window)
         manager = FigureManagerTkAgg(canvas, num, window)

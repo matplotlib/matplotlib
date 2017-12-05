@@ -6,6 +6,7 @@ from six.moves import xrange, zip, zip_longest
 
 import functools
 import itertools
+import logging
 import math
 import warnings
 
@@ -42,6 +43,7 @@ from matplotlib.cbook import (
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
+_log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
@@ -134,7 +136,8 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc="center", **kwargs):
+    def set_title(self, label, fontdict=None, loc="center", pad=None,
+                    **kwargs):
         """
         Set a title for the axes.
 
@@ -159,6 +162,10 @@ class Axes(_AxesBase):
         loc : {'center', 'left', 'right'}, str, optional
             Which title to set, defaults to 'center'
 
+        pad : float
+            The offset of the title from the top of the axes, in points.
+            Default is ``None`` to use rcParams['axes.titlepad'].
+
         Returns
         -------
         text : :class:`~matplotlib.text.Text`
@@ -182,6 +189,9 @@ class Axes(_AxesBase):
             'fontweight': rcParams['axes.titleweight'],
             'verticalalignment': 'baseline',
             'horizontalalignment': loc.lower()}
+        if pad is None:
+            pad = rcParams['axes.titlepad']
+        self._set_title_offset_trans(float(pad))
         title.set_text(label)
         title.update(default)
         if fontdict is not None:
@@ -237,7 +247,7 @@ class Axes(_AxesBase):
             y label
 
         labelpad : scalar, optional, default: None
-            spacing in points between the label and the x-axis
+            spacing in points between the label and the y-axis
 
         Other Parameters
         ----------------
@@ -1326,7 +1336,7 @@ class Axes(_AxesBase):
 
         The *kwargs* can be used to set line properties (any property that has
         a ``set_*`` method).  You can use this to set a line label (for auto
-        legends), linewidth, anitialising, marker face color, etc.  Here is an
+        legends), linewidth, antialiasing, marker face color, etc.  Here is an
         example::
 
             plot([1,2,3], [1,2,3], 'go-', label='line 1', linewidth=2)
@@ -4159,10 +4169,10 @@ class Axes(_AxesBase):
         linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'face', 'none', *None*} or mpl color, optional, default\
-            is 'face'
+        edgecolors : {'face', 'none', *None*} or color, optional
 
-            If 'face', draws the edges in the same color as the fill color.
+            If 'face' (the default), draws the edges in the same color as the
+            fill color.
 
             If 'none', no edge is drawn; this can sometimes lead to unsightly
             unpainted pixels between the hexagons.
@@ -4730,6 +4740,10 @@ class Axes(_AxesBase):
         step : {'pre', 'post', 'mid'}, optional
             If not None, fill with step logic.
 
+        Returns
+        -------
+        `PolyCollection`
+            Plotted polygon collection
 
         Notes
         -----
@@ -4884,6 +4898,12 @@ class Axes(_AxesBase):
             precise point of intersection.  Otherwise, the start and
             end points of the filled region will only occur on explicit
             values in the *x* array.
+
+
+        Returns
+        -------
+        `PolyCollection`
+            Plotted polygon collection
 
         Notes
         -----
@@ -5882,7 +5902,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : (n,) array or sequence of (n,) arrays
-            Input values, this takes either a single array or a sequency of
+            Input values, this takes either a single array or a sequence of
             arrays which are not required to be of the same length
 
         bins : integer or sequence or 'auto', optional
@@ -6031,6 +6051,9 @@ class Axes(_AxesBase):
 
             Default is ``False``
 
+        normed : bool, optional
+            Deprecated; use the density keyword argument instead.
+
         Returns
         -------
         n : array or list of arrays
@@ -6088,36 +6111,40 @@ class Axes(_AxesBase):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
+        if normed is not None:
+            warnings.warn("The 'normed' kwarg is deprecated, and has been "
+                          "replaced by the 'density' kwarg.")
         if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used "
                              "simultaneously. "
                              "Please only use 'density', since 'normed'"
-                             "will be deprecated.")
+                             "is deprecated.")
 
-        # process the unit information
-        self._process_unit_info(xdata=x, kwargs=kwargs)
-        x = self.convert_xunits(x)
+        # basic input validation
+        input_empty = np.size(x) == 0
+        # Massage 'x' for processing.
+        if input_empty:
+            x = [np.array([])]
+        else:
+            x = cbook._reshape_2D(x, 'x')
+        nx = len(x)  # number of datasets
+
+        # Process unit information
+        # Unit conversion is done individually on each dataset
+        self._process_unit_info(xdata=x[0], kwargs=kwargs)
+        x = [self.convert_xunits(xi) for xi in x]
+
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
 
         # Check whether bins or range are given explicitly.
         binsgiven = (cbook.iterable(bins) or bin_range is not None)
 
-        # basic input validation
-        input_empty = np.size(x) == 0
-
-        # Massage 'x' for processing.
-        if input_empty:
-            x = np.array([[]])
-        else:
-            x = cbook._reshape_2D(x, 'x')
-        nx = len(x)  # number of datasets
-
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             w = cbook._reshape_2D(weights, 'weights')
         else:
-            w = [None]*nx
+            w = [None] * nx
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')

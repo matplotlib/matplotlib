@@ -1,8 +1,8 @@
 """
-This module provides a large set of colormaps, functions for
-registering new colormaps and for getting a colormap by name,
-and a mixin class for adding color mapping functionality.
+Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
+See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
+See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -277,7 +277,15 @@ class ScalarMappable(object):
         return rgba
 
     def set_array(self, A):
-        'Set the image array from numpy array *A*'
+        """Set the image array from numpy array *A*.
+
+        ..
+            ACCEPTS: ndarray
+
+        Parameters
+        ----------
+        A : ndarray
+        """
         self._A = A
         self.update_dict['array'] = True
 
@@ -323,7 +331,15 @@ class ScalarMappable(object):
         self.changed()
 
     def set_norm(self, norm):
-        'set the normalization instance'
+        """Set the normalization instance.
+
+        ..
+            ACCEPTS: `~.Normalize`
+
+        Parameters
+        ----------
+        norm : `~.Normalize`
+        """
         if norm is None:
             norm = colors.Normalize()
         self.norm = norm

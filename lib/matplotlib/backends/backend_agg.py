@@ -28,10 +28,9 @@ import threading
 import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin
-from matplotlib import verbose, rcParams, __version__
+from matplotlib import cbook, rcParams, __version__
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, cursors)
-from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
@@ -69,7 +68,11 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-    debug=1
+
+    @property
+    @cbook.deprecated("2.2")
+    def debug(self):
+        return 1
 
     # we want to cache the fonts at the class level so that when
     # multiple figures are created we can reuse them.  This helps with
@@ -80,16 +83,17 @@ class RendererAgg(RendererBase):
     # draw, and release it when it is done.  This allows multiple
     # renderers to share the cached fonts, but only one figure can
     # draw at time and so the font cache is used by only one
-    # renderer at a time
+    # renderer at a time.
 
     lock = threading.RLock()
+
     def __init__(self, width, height, dpi):
         RendererBase.__init__(self)
 
         self.dpi = dpi
         self.width = width
         self.height = height
-        self._renderer = _RendererAgg(int(width), int(height), dpi, debug=False)
+        self._renderer = _RendererAgg(int(width), int(height), dpi)
         self._filter_renderers = []
 
         self._update_methods()
@@ -159,12 +163,14 @@ class RendererAgg(RendererBase):
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
                 except OverflowError:
-                    raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
+                    raise OverflowError("Exceeded cell block limit (set "
+                                        "'agg.path.chunksize' rcparam)")
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
             except OverflowError:
-                raise OverflowError("Exceeded cell block limit (set 'agg.path.chunksize' rcparam)")
+                raise OverflowError("Exceeded cell block limit (set "
+                                    "'agg.path.chunksize' rcparam)")
 
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -233,8 +239,8 @@ class RendererAgg(RendererBase):
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
-        w, h = font.get_width_height()
+        font.set_text(s, 0.0, flags=flags)
+        w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
         h /= 64.0
@@ -267,9 +273,7 @@ class RendererAgg(RendererBase):
         Get the font for text instance t, cacheing for efficiency
         """
         fname = findfont(prop)
-        font = get_font(
-            fname,
-            hinting_factor=rcParams['text.hinting_factor'])
+        font = get_font(fname)
 
         font.clear()
         size = prop.get_size_in_points()
@@ -370,9 +374,8 @@ class RendererAgg(RendererBase):
         post_processing is plotted (using draw_image) on it.
         """
 
-        # WARNING.
-        # For agg_filter to work, the rendere's method need
-        # to overridden in the class. See draw_markers, and draw_path_collections
+        # WARNING:  For agg_filter to work, the renderer's method need to
+        # overridden in the class. See draw_markers and draw_path_collections.
 
         width, height = int(self.width), int(self.height)
 
