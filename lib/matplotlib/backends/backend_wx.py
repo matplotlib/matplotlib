@@ -663,9 +663,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         self.macros = {}  # dict from wx id to seq of macros
 
-    def Destroy(self, *args, **kwargs):
-        wx.Panel.Destroy(self, *args, **kwargs)
-
     def Copy_to_Clipboard(self, event=None):
         "copy bitmap of canvas to system clipboard"
         bmp_obj = wx.BitmapDataObject()
