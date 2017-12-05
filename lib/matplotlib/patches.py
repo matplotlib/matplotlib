@@ -798,8 +798,7 @@ class Rectangle(Patch):
 
     def get_bbox(self):
         x0, y0, x1, y1 = self._convert_units()
-        return transforms.Bbox.from_extents(self._x0, self._y0,
-                                            self._x1, self._y1)
+        return transforms.Bbox.from_extents(x0, y0, x1, y1)
 
     xy = property(get_xy, set_xy)
 
