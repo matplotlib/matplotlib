@@ -6,10 +6,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os
-
 import matplotlib
-from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_gtk import (
     gtk, _BackendGTK, FigureCanvasGTK, FigureManagerGTK, NavigationToolbar2GTK,

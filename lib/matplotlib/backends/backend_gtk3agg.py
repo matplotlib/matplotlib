@@ -9,7 +9,6 @@ import warnings
 from . import backend_agg, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3
-from matplotlib.figure import Figure
 from matplotlib import transforms
 
 if six.PY3 and not HAS_CAIRO_CFFI:

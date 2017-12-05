@@ -7,7 +7,6 @@ from . import backend_cairo, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3
 from matplotlib.backend_bases import cursors
-from matplotlib.figure import Figure
 
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):

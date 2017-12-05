@@ -6,32 +6,23 @@ from __future__ import absolute_import, division, print_function
 import six
 from six.moves import zip
 
+import contextlib
+import logging
 import math
 import warnings
-import logging
 import weakref
-
-import contextlib
 
 import numpy as np
 
-from matplotlib import cbook
-from matplotlib import rcParams
-import matplotlib.artist as artist
-from matplotlib.artist import Artist
-from matplotlib.cbook import maxdict
-from matplotlib import docstring
+from matplotlib import artist, cbook, docstring, rcParams
+from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch
-from matplotlib.patches import FancyArrowPatch, Rectangle
-import matplotlib.transforms as mtransforms
-from matplotlib.transforms import Affine2D, Bbox, Transform
-from matplotlib.transforms import BboxBase, BboxTransformTo
 from matplotlib.lines import Line2D
-from matplotlib.path import Path
-from matplotlib.artist import allow_rasterization
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
+from matplotlib.textpath import TextPath  # Unused, but imported by others.
+from matplotlib.transforms import (
+    Affine2D, Bbox, BboxBase, BboxTransformTo, IdentityTransform, Transform)
 
-from matplotlib.textpath import TextPath
 
 _log = logging.getLogger(__name__)
 
@@ -101,7 +92,7 @@ def _get_textbox(text, renderer):
     projected_ys = []
 
     theta = np.deg2rad(text.get_rotation())
-    tr = mtransforms.Affine2D().rotate(-theta)
+    tr = Affine2D().rotate(-theta)
 
     _, parts, d = text._get_layout(renderer)
 
@@ -118,7 +109,7 @@ def _get_textbox(text, renderer):
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
 
-    tr = mtransforms.Affine2D().rotate(theta)
+    tr = Affine2D().rotate(theta)
 
     x_box, y_box = tr.transform_point((xt_box, yt_box))
 
@@ -130,7 +121,7 @@ class Text(Artist):
     Handle storing and drawing of text in window or data coordinates.
     """
     zorder = 3
-    _cached = maxdict(50)
+    _cached = cbook.maxdict(50)
 
     def __repr__(self):
         return "Text(%g,%g,%s)" % (self._x, self._y, repr(self._text))
@@ -474,7 +465,7 @@ class Text(Artist):
                                     1., 1.,
                                     boxstyle=boxstyle,
                                     bbox_transmuter=bbox_transmuter,
-                                    transform=mtransforms.IdentityTransform(),
+                                    transform=IdentityTransform(),
                                     **props)
         else:
             self._bbox_patch = None
@@ -509,7 +500,7 @@ class Text(Artist):
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             theta = np.deg2rad(self.get_rotation())
-            tr = mtransforms.Affine2D().rotate(theta)
+            tr = Affine2D().rotate(theta)
             tr = tr.translate(posx + x_box, posy + y_box)
             self._bbox_patch.set_transform(tr)
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
@@ -524,7 +515,7 @@ class Text(Artist):
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
         self._bbox_patch.set_bounds(0., 0., w_box, h_box)
         theta = np.deg2rad(self.get_rotation())
-        tr = mtransforms.Affine2D().rotate(theta)
+        tr = Affine2D().rotate(theta)
         tr = tr.translate(posx + x_box, posy + y_box)
         self._bbox_patch.set_transform(tr)
         fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
@@ -2280,7 +2271,7 @@ class Annotation(Text, _AnnotationBase):
                                   width=w,
                                   height=h,
                                   )
-                    r.set_transform(mtransforms.IdentityTransform())
+                    r.set_transform(IdentityTransform())
                     r.set_clip_on(False)
 
                     self.arrow_patch.set_patchA(r)

@@ -23,33 +23,31 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip
 
-import numpy as np
+import abc
+import contextlib
+import itertools
+import logging
 import os
 import platform
 import sys
-import itertools
-try:
-    # python3
-    from base64 import encodebytes
-except ImportError:
-    # python2
-    from base64 import encodestring as encodebytes
-import abc
-import contextlib
 import tempfile
 import uuid
-import warnings
-import logging
+
+import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
 from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
 from matplotlib import rcParams, rcParamsDefault, rc_context
-if sys.version_info < (3, 0):
-    from cStringIO import StringIO as InMemory
+
+if six.PY2:
+    from base64 import encodestring as encodebytes
+    from cStringIO import StringIO as BytesIO
 else:
-    from io import BytesIO as InMemory
+    from base64 import encodebytes
+    from io import BytesIO
+
 
 _log = logging.getLogger(__name__)
 
@@ -875,7 +873,7 @@ class HTMLWriter(FileMovieWriter):
             if self._hit_limit:
                 return
             suffix = '.' + self.frame_format
-            f = InMemory()
+            f = BytesIO()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
             imgdata64 = encodebytes(f.getvalue()).decode('ascii')

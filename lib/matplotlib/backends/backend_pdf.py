@@ -8,28 +8,25 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+from six import unichr
 
 import codecs
+import collections
+from datetime import datetime
+from functools import total_ordering
+from io import BytesIO
+import logging
+from math import ceil, cos, floor, pi, sin
 import os
 import re
 import struct
 import sys
 import time
 import warnings
-import logging
 import zlib
-import collections
-from io import BytesIO
-from functools import total_ordering
 
 import numpy as np
-from six import unichr
 
-
-from datetime import datetime, tzinfo, timedelta
-from math import ceil, cos, floor, pi, sin
-
-import matplotlib
 from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (

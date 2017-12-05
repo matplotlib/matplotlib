@@ -2,7 +2,6 @@
 
 import filecmp
 from os.path import join as pjoin, dirname, isdir
-import shutil
 from subprocess import call, Popen, PIPE
 import sys
 

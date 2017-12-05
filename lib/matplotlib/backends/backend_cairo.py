@@ -24,7 +24,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import gzip
-import os
 import sys
 import warnings
 
@@ -54,10 +53,9 @@ del _version_required
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox, Affine2D
+from matplotlib.transforms import Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
 

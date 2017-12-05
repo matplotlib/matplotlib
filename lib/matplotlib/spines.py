@@ -5,14 +5,11 @@ import six
 
 import matplotlib
 
-import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 from matplotlib import docstring
 import matplotlib.transforms as mtransforms
-import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
-import matplotlib.cbook as cbook
 import numpy as np
 import warnings
 

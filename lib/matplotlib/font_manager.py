@@ -22,7 +22,6 @@ found.
 from __future__ import absolute_import, division, print_function
 
 import six
-from six.moves import cPickle as pickle
 
 """
 KNOWN ISSUES
@@ -53,7 +52,6 @@ from threading import Timer
 import warnings
 import logging
 
-import matplotlib
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
@@ -1375,7 +1373,6 @@ def get_font(filename, hinting_factor=None):
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
-    import re
 
     def fc_match(pattern, fontext):
         fontexts = get_fontext_synonyms(fontext)

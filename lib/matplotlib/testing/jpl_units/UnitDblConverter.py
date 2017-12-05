@@ -17,7 +17,6 @@ import six
 
 import numpy as np
 import matplotlib.units as units
-import matplotlib.ticker as ticker
 import matplotlib.projections.polar as polar
 from matplotlib.cbook import iterable
 #

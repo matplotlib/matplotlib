@@ -4,11 +4,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import tkinter as Tk
-from six.moves import tkinter_filedialog as FileDialog
 
-import os, sys, math
-import os.path
 import logging
+import os.path
+import sys
 
 # Paint image to Tk photo blitter extension
 import matplotlib.backends.tkagg as tkagg
@@ -17,23 +16,17 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.backends.windowing as windowing
 
 import matplotlib
+from matplotlib import backend_tools, rcParams
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
-    ToolContainerBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
-from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
-
 from matplotlib.figure import Figure
-
 from matplotlib.widgets import SubplotTool
 
-import matplotlib.cbook as cbook
 
 _log = logging.getLogger(__name__)
-
-rcParams = matplotlib.rcParams
 
 backend_version = Tk.TkVersion
 

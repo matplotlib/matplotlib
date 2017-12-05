@@ -8,15 +8,12 @@ import os
 import sys
 
 import matplotlib
-from matplotlib import (
-    backend_tools, cbook, colors as mcolors, lines, rcParams)
+from matplotlib import backend_tools, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
-    ToolContainerBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
-from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 from ._gtk3_compat import GLib, GObject, Gtk, Gdk

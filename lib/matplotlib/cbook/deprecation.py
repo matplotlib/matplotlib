@@ -1,5 +1,6 @@
-import warnings
 import functools
+import textwrap
+import warnings
 
 
 class MatplotlibDeprecationWarning(UserWarning):
@@ -161,7 +162,6 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending, addendum=addendum):
-        import textwrap
 
         if not name:
             name = obj.__name__

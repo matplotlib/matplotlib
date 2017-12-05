@@ -16,7 +16,7 @@ from matplotlib.widgets import SubplotTool
 import matplotlib
 from matplotlib.backends import _macosx
 
-from .backend_agg import RendererAgg, FigureCanvasAgg
+from .backend_agg import FigureCanvasAgg
 
 
 ########################################################################

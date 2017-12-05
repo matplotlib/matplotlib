@@ -49,23 +49,13 @@ import warnings
 from weakref import WeakKeyDictionary
 
 import numpy as np
-import matplotlib.cbook as cbook
-import matplotlib.colors as colors
-import matplotlib.transforms as transforms
-import matplotlib.widgets as widgets
-from matplotlib import rcParams
-from matplotlib import is_interactive
-from matplotlib import get_backend
-from matplotlib import lines
+
+from matplotlib import (
+    backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
+    widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
-
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
-
-import matplotlib.tight_bbox as tight_bbox
-import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from matplotlib.cbook import warn_deprecated
-import matplotlib.backend_tools as tools
 
 try:
     from PIL import Image
@@ -2384,7 +2374,7 @@ class FigureCanvasBase(object):
 
         """
         if s == 'idle_event':
-            warn_deprecated(1.5,
+            cbook.warn_deprecated(1.5,
                 "idle_event is only implemented for the wx backend, and will "
                 "be removed in matplotlib 2.1. Use the animations module "
                 "instead.")

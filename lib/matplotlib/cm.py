@@ -9,7 +9,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os
 import numpy as np
 from numpy import ma
 import matplotlib as mpl

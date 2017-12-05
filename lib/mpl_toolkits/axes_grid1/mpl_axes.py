@@ -3,8 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import warnings
-
 import matplotlib.axes as maxes
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis

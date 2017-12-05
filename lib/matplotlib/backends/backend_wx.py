@@ -25,8 +25,6 @@ import math
 import weakref
 import warnings
 
-import numpy as np
-
 import matplotlib
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,

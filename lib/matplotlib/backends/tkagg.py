@@ -32,7 +32,6 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
             raise
 
 def test(aggimage):
-    import time
     r = Tk.Tk()
     c = Tk.Canvas(r, width=aggimage.width, height=aggimage.height)
     c.pack()

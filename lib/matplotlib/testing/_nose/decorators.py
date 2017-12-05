@@ -1,9 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import os
 import six
-import sys
 from .. import _copy_metadata
 from . import knownfail
 from .exceptions import KnownFailureDidNotFailTest

@@ -2,18 +2,15 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import functools
-import inspect
 import warnings
-from contextlib import contextmanager
 
 import matplotlib
-from matplotlib.cbook import iterable
-from matplotlib import rcParams, rcdefaults, use
+from matplotlib import cbook, rcParams, rcdefaults, use
 
 
 def _is_list_like(obj):
     """Returns whether the obj is iterable and not a string"""
-    return not isinstance(obj, six.string_types) and iterable(obj)
+    return not isinstance(obj, six.string_types) and cbook.iterable(obj)
 
 
 def is_called_from_pytest():
@@ -42,7 +39,6 @@ def setup():
     # The baseline images are created in this locale, so we should use
     # it during all of the tests.
     import locale
-    import warnings
     from matplotlib.backends import backend_agg, backend_pdf, backend_svg
 
     try:

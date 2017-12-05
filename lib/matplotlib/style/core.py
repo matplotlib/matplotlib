@@ -20,7 +20,6 @@ import contextlib
 import warnings
 
 import matplotlib as mpl
-from matplotlib import cbook
 from matplotlib import rc_params_from_file, rcParamsDefault
 
 
