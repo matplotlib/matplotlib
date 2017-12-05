@@ -11,8 +11,6 @@ from numpy.testing import assert_array_almost_equal
 import pytest
 import warnings
 
-import re
-
 
 def test_contour_shape_1d_valid():
 

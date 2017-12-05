@@ -6,11 +6,11 @@ from six.moves import map
 
 import datetime
 import dateutil
+import tempfile
+
 import numpy as np
 import pytest
 import pytz
-import tempfile
-import warnings
 
 try:
     # mock in python 3.3+

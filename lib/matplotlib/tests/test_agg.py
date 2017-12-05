@@ -2,20 +2,17 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import io
-from distutils.version import LooseVersion
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
 
+from matplotlib import (
+    collections, path, pyplot as plt, transforms as mtransforms, rcParams)
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import image_comparison
-from matplotlib import pyplot as plt
-from matplotlib import collections
-from matplotlib import path, rcParams
-from matplotlib import transforms as mtransforms
 
 
 def test_repeated_save_with_alpha():

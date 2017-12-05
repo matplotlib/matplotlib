@@ -1,6 +1,5 @@
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import RendererBase
-from matplotlib.testing.decorators import image_comparison
 
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms

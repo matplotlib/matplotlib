@@ -3,7 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import io
 import os
 import warnings
 from collections import OrderedDict

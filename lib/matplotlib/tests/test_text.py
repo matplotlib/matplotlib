@@ -10,13 +10,9 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-from matplotlib.transforms import Bbox
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.figure import Figure
-from matplotlib.text import Annotation, Text
-from matplotlib.backends.backend_agg import RendererAgg
 
 
 @image_comparison(baseline_images=['font_styles'])
