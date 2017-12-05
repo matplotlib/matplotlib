@@ -14,10 +14,12 @@ import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors)
+    TimerBase, cursors, ToolContainerBase, StatusbarBase)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.figure import Figure
+from matplotlib.backend_managers import ToolManager
+from matplotlib import backend_tools
 
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _getSaveFileName, is_pyqt5, __version__, QT_API)
@@ -489,14 +491,23 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window._destroying = False
 
-        # add text label to status bar
-        self.statusbar_label = QtWidgets.QLabel()
-        self.window.statusBar().addWidget(self.statusbar_label)
-
+        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar(self.canvas, self.window)
+        self.statusbar = None
+
+        if self.toolmanager:
+            backend_tools.add_tools_to_manager(self.toolmanager)
+            if self.toolbar:
+                backend_tools.add_tools_to_container(self.toolbar)
+                self.statusbar = StatusbarQt(self.window, self.toolmanager)
+
         if self.toolbar is not None:
             self.window.addToolBar(self.toolbar)
-            self.toolbar.message.connect(self.statusbar_label.setText)
+            if not self.toolmanager:
+                # add text label to status bar
+                statusbar_label = QtWidgets.QLabel()
+                self.window.statusBar().addWidget(statusbar_label)
+                self.toolbar.message.connect(statusbar_label.setText)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -545,9 +556,18 @@ class FigureManagerQT(FigureManagerBase):
         # attrs are set
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2QT(canvas, parent, False)
+        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+            toolbar = ToolbarQt(self.toolmanager, self.window)
         else:
             toolbar = None
         return toolbar
+
+    def _get_toolmanager(self):
+        if matplotlib.rcParams['toolbar'] == 'toolmanager':
+            toolmanager = ToolManager(self.canvas.figure)
+        else:
+            toolmanager = None
+        return toolmanager
 
     def resize(self, width, height):
         'set the canvas size in pixels'
@@ -816,6 +836,151 @@ class SubplotToolQt(UiSubplotTool):
     def _reset(self):
         for attr, value in self._defaults.items():
             self._widgets[attr].setValue(value)
+
+
+class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
+    def __init__(self, toolmanager, parent):
+        ToolContainerBase.__init__(self, toolmanager)
+        QtWidgets.QToolBar.__init__(self, parent)
+        self._toolitems = {}
+        self._groups = {}
+        self._last = None
+
+    @property
+    def _icon_extension(self):
+        if is_pyqt5():
+            return '_large.png'
+        return '.png'
+
+    def add_toolitem(
+            self, name, group, position, image_file, description, toggle):
+
+        button = QtWidgets.QToolButton(self)
+        button.setIcon(self._icon(image_file))
+        button.setText(name)
+        if description:
+            button.setToolTip(description)
+
+        def handler():
+            self.trigger_tool(name)
+        if toggle:
+            button.setCheckable(True)
+            button.toggled.connect(handler)
+        else:
+            button.clicked.connect(handler)
+
+        self._last = button
+        self._toolitems.setdefault(name, [])
+        self._add_to_group(group, name, button, position)
+        self._toolitems[name].append((button, handler))
+
+    def _add_to_group(self, group, name, button, position):
+        gr = self._groups.get(group, [])
+        if not gr:
+            sep = self.addSeparator()
+            gr.append(sep)
+        before = gr[position]
+        widget = self.insertWidget(before, button)
+        gr.insert(position, widget)
+        self._groups[group] = gr
+
+    def _icon(self, name):
+        pm = QtGui.QPixmap(name)
+        if hasattr(pm, 'setDevicePixelRatio'):
+            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        return QtGui.QIcon(pm)
+
+    def toggle_toolitem(self, name, toggled):
+        if name not in self._toolitems:
+            return
+        for button, handler in self._toolitems[name]:
+            button.toggled.disconnect(handler)
+            button.setChecked(toggled)
+            button.toggled.connect(handler)
+
+    def remove_toolitem(self, name):
+        for button, handler in self._toolitems[name]:
+            button.setParent(None)
+        del self._toolitems[name]
+
+
+class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
+    def __init__(self, window, *args, **kwargs):
+        StatusbarBase.__init__(self, *args, **kwargs)
+        QtWidgets.QLabel.__init__(self)
+        window.statusBar().addWidget(self)
+
+    def set_message(self, s):
+        self.setText(s)
+
+
+class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
+    def trigger(self, *args):
+        image = os.path.join(matplotlib.rcParams['datapath'],
+                             'images', 'matplotlib.png')
+        parent = self.canvas.manager.window
+        dia = SubplotToolQt(self.figure, parent)
+        dia.setWindowIcon(QtGui.QIcon(image))
+        dia.exec_()
+
+
+class SaveFigureQt(backend_tools.SaveFigureBase):
+    def trigger(self, *args):
+        filetypes = self.canvas.get_supported_filetypes_grouped()
+        sorted_filetypes = sorted(six.iteritems(filetypes))
+        default_filetype = self.canvas.get_default_filetype()
+
+        startpath = os.path.expanduser(
+            matplotlib.rcParams['savefig.directory'])
+        start = os.path.join(startpath, self.canvas.get_default_filename())
+        filters = []
+        selectedFilter = None
+        for name, exts in sorted_filetypes:
+            exts_list = " ".join(['*.%s' % ext for ext in exts])
+            filter = '%s (%s)' % (name, exts_list)
+            if default_filetype in exts:
+                selectedFilter = filter
+            filters.append(filter)
+        filters = ';;'.join(filters)
+
+        parent = self.canvas.manager.window
+        fname, filter = _getSaveFileName(parent,
+                                         "Choose a filename to save to",
+                                         start, filters, selectedFilter)
+        if fname:
+            # Save dir for next time, unless empty str (i.e., use cwd).
+            if startpath != "":
+                matplotlib.rcParams['savefig.directory'] = (
+                    os.path.dirname(six.text_type(fname)))
+            try:
+                self.canvas.figure.savefig(six.text_type(fname))
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(
+                    self, "Error saving file", six.text_type(e),
+                    QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+
+
+class SetCursorQt(backend_tools.SetCursorBase):
+    def set_cursor(self, cursor):
+        self.canvas.setCursor(cursord[cursor])
+
+
+class RubberbandQt(backend_tools.RubberbandBase):
+    def draw_rubberband(self, x0, y0, x1, y1):
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
+        self.canvas.drawRectangle(rect)
+
+    def remove_rubberband(self):
+        self.canvas.drawRectangle(None)
+
+
+backend_tools.ToolSaveFigure = SaveFigureQt
+backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
+backend_tools.ToolSetCursor = SetCursorQt
+backend_tools.ToolRubberband = RubberbandQt
 
 
 def error_msg_qt(msg, parent=None):
