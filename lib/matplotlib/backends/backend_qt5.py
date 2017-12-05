@@ -887,7 +887,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
     def _icon(self, name):
         pm = QtGui.QPixmap(name)
         if hasattr(pm, 'setDevicePixelRatio'):
-            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+            pm.setDevicePixelRatio(self.toolmanager.canvas._dpi_ratio)
         return QtGui.QIcon(pm)
 
     def toggle_toolitem(self, name, toggled):
