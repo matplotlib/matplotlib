@@ -2815,6 +2815,16 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
+@image_comparison(baseline_images=['errorbar_with_prop_cycle'],
+                  extensions=['png'], style='mpl20', remove_text=True)
+def test_errorbar_with_prop_cycle():
+    _cycle = cycler(ls=['--', ':'], marker=['s', 's'], mfc=['k', 'w'])
+    plt.rc("axes", prop_cycle=_cycle)
+    fig, ax = plt.subplots()
+    ax.errorbar(x=[2, 4, 10], y=[3, 2, 4], yerr=0.5)
+    ax.errorbar(x=[2, 4, 10], y=[6, 4, 2], yerr=0.5)
+
+
 @image_comparison(baseline_images=['hist_stacked_stepfilled',
                                    'hist_stacked_stepfilled'])
 def test_hist_stacked_stepfilled():
