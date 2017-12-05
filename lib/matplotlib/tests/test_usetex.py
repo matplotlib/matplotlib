@@ -5,7 +5,6 @@ import pytest
 
 import matplotlib
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.compat.subprocess import check_output
 import matplotlib.pyplot as plt
 
 

@@ -10,19 +10,16 @@ import os
 import sys
 import tempfile
 
+import numpy as np
 import pytest
 
-import numpy as np
-from matplotlib import checkdep_usetex, cm, rcParams
+from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib import pyplot as plt
+from matplotlib.testing.compare import compare_images
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
-from matplotlib.testing.decorators import image_comparison
-from matplotlib import dviread
-from matplotlib.testing.compare import compare_images
 
-import matplotlib as mpl
 
 needs_usetex = pytest.mark.xfail(
     not checkdep_usetex(True),
