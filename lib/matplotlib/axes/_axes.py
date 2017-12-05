@@ -2822,7 +2822,10 @@ class Axes(_AxesBase):
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 
-        fmt_style_kwargs = {k: v for k, v in
+        if fmt=='':
+            fmt_style_kwargs={}
+        else:
+            fmt_style_kwargs = {k: v for k, v in
                             zip(('linestyle', 'marker', 'color'),
                                 _process_plot_format(fmt)) if v is not None}
         if fmt == 'none':
@@ -2886,6 +2889,9 @@ class Axes(_AxesBase):
         eb_cap_style = dict(base_style)
         # eject any marker information from format string
         eb_cap_style.pop('marker', None)
+        eb_lines_style.pop('markerfacecolor', None)
+        eb_lines_style.pop('markeredgewidth', None)
+        eb_lines_style.pop('markeredgecolor', None)
         eb_cap_style.pop('ls', None)
         eb_cap_style['linestyle'] = 'none'
         if capsize is None:
