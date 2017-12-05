@@ -919,19 +919,14 @@ def axes(*args, **kwargs):
     return a
 
 
-def delaxes(*args):
+def delaxes(ax=None):
     """
-    Remove an axes from the current figure.  If *ax*
-    doesn't exist, an error will be raised.
-
-    ``delaxes()``: delete the current axes
+    Remove the given `Axes` *ax* from the current figure. If *ax* is *None*,
+    the current axes is removed. A KeyError is raised if the axes doesn't exist.
     """
-    if not len(args):
+    if ax is None:
         ax = gca()
-    else:
-        ax = args[0]
-    ret = gcf().delaxes(ax)
-    return ret
+    gcf().delaxes(ax)
 
 
 def sca(ax):
