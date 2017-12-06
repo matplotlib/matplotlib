@@ -838,12 +838,9 @@ class ToolTip(object):
             tw.destroy()
 
 
-@backend_tools.register_tool("rubberband", __name__)
-class RubberbandTk(backend_tools.RubberbandBase):
-    def __init__(self, *args, **kwargs):
-        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-
-    def draw_rubberband(self, x0, y0, x1, y1):
+@backend_tools.register_tool("zoom", __name__)
+class ZoomTk(backend_tools.ToolZoom):
+    def _draw_rubberband(self, x0, y0, x1, y1):
         height = self.figure.canvas.figure.bbox.height
         y0 = height - y0
         y1 = height - y1
@@ -852,7 +849,7 @@ class RubberbandTk(backend_tools.RubberbandBase):
         self.lastrect = self.figure.canvas._tkcanvas.create_rectangle(
             x0, y0, x1, y1)
 
-    def remove_rubberband(self):
+    def _remove_rubberband(self):
         if hasattr(self, "lastrect"):
             self.figure.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect

@@ -145,7 +145,7 @@ class ToolBase(object):
         """
         self._figure = figure
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         """
         Called when this tool gets used
 
@@ -158,8 +158,6 @@ class ToolBase(object):
             The Canvas event that caused this tool to be called
         sender: object
             Object that requested the tool to be triggered
-        data: object
-            Extra data
         """
 
         pass
@@ -211,7 +209,7 @@ class ToolToggleBase(ToolBase):
         self._toggled = kwargs.pop('toggled', self.default_toggled)
         ToolBase.__init__(self, *args, **kwargs)
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         """Calls `enable` or `disable` based on `toggled` value"""
         if self._toggled:
             self.disable(event)
@@ -387,34 +385,6 @@ class ToolCursorPosition(ToolBase):
         self.toolmanager.message_event(message, self)
 
 
-class RubberbandBase(ToolBase):
-    """Draw and remove rubberband"""
-    def trigger(self, sender, event, data):
-        """Call `draw_rubberband` or `remove_rubberband` based on data"""
-        if not self.figure.canvas.widgetlock.available(sender):
-            return
-        if data is not None:
-            self.draw_rubberband(*data)
-        else:
-            self.remove_rubberband()
-
-    def draw_rubberband(self, *data):
-        """
-        Draw rubberband
-
-        This method must get implemented per backend
-        """
-        raise NotImplementedError
-
-    def remove_rubberband(self):
-        """
-        Remove rubberband
-
-        This method should get implemented per backend
-        """
-        pass
-
-
 @register_tool("quit")
 class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method"""
@@ -422,7 +392,7 @@ class ToolQuit(ToolBase):
     description = 'Quit the figure'
     default_keymap = rcParams['keymap.quit']
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         Gcf.destroy_fig(self.figure)
 
 
@@ -433,7 +403,7 @@ class ToolQuitAll(ToolBase):
     description = 'Quit all figures'
     default_keymap = rcParams['keymap.quit_all']
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         Gcf.destroy_all()
 
 
@@ -444,7 +414,7 @@ class ToolEnableAllNavigation(ToolBase):
     description = 'Enables all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         if event.inaxes is None:
             return
 
@@ -461,7 +431,7 @@ class ToolEnableNavigation(ToolBase):
     description = 'Enables one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         if event.inaxes is None:
             return
 
@@ -477,7 +447,7 @@ class _ToolGridBase(ToolBase):
 
     _cycle = [(False, False), (True, False), (True, True), (False, True)]
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         ax = event.inaxes
         if ax is None:
             return
@@ -566,10 +536,10 @@ class ToolFullScreen(ToolToggleBase):
 class AxisScaleBase(ToolToggleBase):
     """Base Tool to toggle between linear and logarithmic"""
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         if event.inaxes is None:
             return
-        ToolToggleBase.trigger(self, sender, event, data)
+        ToolToggleBase.trigger(self, event)
 
     def enable(self, event):
         self.set_scale(event.inaxes, 'log')
@@ -760,7 +730,7 @@ class ViewsPositionsBase(ToolBase):
 
     _on_trigger = None
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         self.toolmanager.get_tool("viewpos").add_figure(self.figure)
         getattr(self.toolmanager.get_tool("viewpos"),
                 self._on_trigger)()
@@ -845,9 +815,9 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idRelease)
         self.figure.canvas.mpl_disconnect(self._idScroll)
 
-    def trigger(self, sender, event, data=None):
+    def trigger(self, sender, event):
         self.toolmanager.get_tool("viewpos").add_figure(self.figure)
-        ToolToggleBase.trigger(self, sender, event, data)
+        ToolToggleBase.trigger(self, event)
 
     def scroll_zoom(self, event):
         # https://gist.github.com/tacaswell/3144287
@@ -881,6 +851,8 @@ class ZoomPanBase(ToolToggleBase):
 @register_tool("zoom")
 class ToolZoom(ZoomPanBase):
     """Zoom to rectangle"""
+    # Subclasses should overrider _draw_rubberband and possibly
+    # _remove_rubberband.
 
     description = 'Zoom to rectangle'
     image = 'zoom_to_rect'
@@ -892,10 +864,16 @@ class ToolZoom(ZoomPanBase):
         ZoomPanBase.__init__(self, *args)
         self._ids_zoom = []
 
+    def _draw_rubberband(self, x1, y1, x2, y2):
+        raise NotImplementedError
+
+    def _remove_rubberband(self):
+        pass
+
     def _cancel_action(self):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
-        self.toolmanager.trigger_tool('rubberband', self)
+        self._remove_rubberband()
         self.toolmanager.get_tool("viewpos").refresh_locators()
         self._xypress = None
         self._button_pressed = None
@@ -956,8 +934,7 @@ class ToolZoom(ZoomPanBase):
                 y1, y2 = a.bbox.intervaly
             elif self._zoom_mode == "y":
                 x1, x2 = a.bbox.intervalx
-            self.toolmanager.trigger_tool(
-                'rubberband', self, data=(x1, y1, x2, y2))
+            self._draw_rubberband(x1, y1, x2, y2)
 
     def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""
@@ -1075,7 +1052,7 @@ class ToolPan(ZoomPanBase):
 default_tools = [
     'home', 'back', 'forward', 'zoom', 'pan', 'subplots', 'save',
     'grid', 'grid_minor', 'fullscreen', 'quit', 'quit_all', 'allnav', 'nav',
-    'xscale', 'yscale', 'position', 'viewpos', 'cursor', 'rubberband',
+    'xscale', 'yscale', 'position', 'viewpos', 'cursor',
 ]
 """Default tools"""
 
