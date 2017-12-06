@@ -19,16 +19,17 @@ import matplotlib
 matplotlib.use('GTK3Cairo')
 matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
-from matplotlib.backend_tools import ToolBase, ToolToggleBase
+from matplotlib.backend_tools import ToolBase, ToolToggleBase, register_tool
 
 
+@register_tool("List")
 class ListTools(ToolBase):
     '''List all the tools controlled by the `ToolManager`'''
     # keyboard shortcut
     default_keymap = 'm'
     description = 'List Tools'
 
-    def trigger(self, *args, **kwargs):
+    def trigger(self, event):
         print('_' * 80)
         print("{0:12} {1:45} {2}".format(
             'Name (id)', 'Tool description', 'Keymap'))
@@ -48,6 +49,7 @@ class ListTools(ToolBase):
             print("{0:12} {1:45}".format(str(group), str(active)))
 
 
+@register_tool("Show")
 class GroupHideTool(ToolToggleBase):
     '''Show lines with a given gid'''
     default_keymap = 'G'
@@ -58,10 +60,10 @@ class GroupHideTool(ToolToggleBase):
         self.gid = kwargs.pop('gid')
         ToolToggleBase.__init__(self, *args, **kwargs)
 
-    def enable(self, *args):
+    def enable(self, event):
         self.set_lines_visibility(True)
 
-    def disable(self, *args):
+    def disable(self, event):
         self.set_lines_visibility(False)
 
     def set_lines_visibility(self, state):
@@ -79,9 +81,8 @@ plt.plot([2, 3, 4], gid='unknown')
 plt.plot([3, 2, 1], gid='mygroup')
 
 # Add the custom tools that we created
-fig.canvas.manager.toolmanager.add_tool('List', ListTools)
-fig.canvas.manager.toolmanager.add_tool('Show', GroupHideTool, gid='mygroup')
-
+fig.canvas.manager.toolmanager.add_tool('List')
+fig.canvas.manager.toolmanager.add_tool('Show', gid='mygroup')
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want
