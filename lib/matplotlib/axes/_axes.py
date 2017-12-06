@@ -1689,7 +1689,6 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-
         x : sequence of scalars of length n
 
         y : sequence of scalars of length n
@@ -1743,10 +1742,10 @@ class Axes(_AxesBase):
         x = detrend(np.asarray(x))
         y = detrend(np.asarray(y))
 
-        c = np.correlate(x, y, mode=2)
+        correls = np.correlate(x, y, mode=2)
 
         if normed:
-            c /= np.sqrt(np.dot(x, x) * np.dot(y, y))
+            correls /= np.sqrt(np.dot(x, x) * np.dot(y, y))
 
         if maxlags is None:
             maxlags = Nx - 1
@@ -1756,18 +1755,19 @@ class Axes(_AxesBase):
                              'positive < %d' % Nx)
 
         lags = np.arange(-maxlags, maxlags + 1)
-        c = c[Nx - 1 - maxlags:Nx + maxlags]
+        correls = correls[Nx - 1 - maxlags:Nx + maxlags]
 
         if usevlines:
-            a = self.vlines(lags, [0], c, **kwargs)
+            a = self.vlines(lags, [0], correls, **kwargs)
+            # Make label empty so only vertical lines get a legend entry
+            kwargs['label'] = ''
             b = self.axhline(**kwargs)
         else:
-
             kwargs.setdefault('marker', 'o')
             kwargs.setdefault('linestyle', 'None')
-            a, = self.plot(lags, c, **kwargs)
+            a, = self.plot(lags, correls, **kwargs)
             b = None
-        return lags, c, a, b
+        return lags, correls, a, b
 
     #### Specialized plotting
 
