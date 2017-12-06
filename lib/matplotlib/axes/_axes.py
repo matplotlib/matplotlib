@@ -2697,7 +2697,7 @@ class Axes(_AxesBase):
                       label_namer="y")
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='', ecolor=None, elinewidth=None, capsize=None,
+                 fmt='', ecolor=None, elinewidth=None, ealpha=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -2737,6 +2737,9 @@ class Axes(_AxesBase):
 
         elinewidth : scalar, optional, default: None
             The linewidth of the errorbar lines. If None, use the linewidth.
+            
+        ealpha : scalar, optional, default: None
+            The alpha of the errorbar lines. If None, use alpha.
 
         capsize : scalar, optional, default: None
             The length of the error bar caps in points; if None, it will
@@ -2877,8 +2880,13 @@ class Axes(_AxesBase):
             eb_lines_style['linewidth'] = elinewidth
         elif 'linewidth' in kwargs:
             eb_lines_style['linewidth'] = kwargs['linewidth']
+            
+        if ealpha:
+            eb_lines_style['alpha'] = ealpha
+        elif 'alpha' in kwargs:
+            eb_lines_style['alpha'] = kwargs['alpha']
 
-        for key in ('transform', 'alpha', 'zorder', 'rasterized'):
+        for key in ('transform', 'zorder', 'rasterized'):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
