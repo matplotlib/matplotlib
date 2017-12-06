@@ -234,7 +234,7 @@ class ToolManager(object):
 
         del self._tools[name]
 
-    def add_tool(self, name, tool, *args, **kwargs):
+    def add_tool(self, tool_name):
         """
         Add *tool* to `ToolManager`
 
@@ -258,20 +258,18 @@ class ToolManager(object):
         matplotlib.backend_tools.ToolBase : The base class for tools.
         """
 
-        tool_cls = self._get_cls_to_instantiate(tool)
-        if not tool_cls:
-            raise ValueError('Impossible to find class for %s' % str(tool))
+        tool_cls = tools.get_tool(tool_name, self.canvas.__module__)
 
-        if name in self._tools:
+        if tool_name in self._tools:
             warnings.warn('A "Tool class" with the same name already exists, '
                           'not added')
-            return self._tools[name]
+            return self._tools[tool_name]
 
-        tool_obj = tool_cls(self, name, *args, **kwargs)
-        self._tools[name] = tool_obj
+        tool_obj = tool_cls(self, tool_name)
+        self._tools[tool_name] = tool_obj
 
         if tool_cls.default_keymap is not None:
-            self.update_keymap(name, tool_cls.default_keymap)
+            self.update_keymap(tool_name, tool_cls.default_keymap)
 
         # For toggle tools init the radio_group in self._toggled
         if isinstance(tool_obj, tools.ToolToggleBase):

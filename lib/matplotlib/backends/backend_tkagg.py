@@ -838,6 +838,7 @@ class ToolTip(object):
             tw.destroy()
 
 
+@backend_tools.register_tool("rubberband", __name__)
 class RubberbandTk(backend_tools.RubberbandBase):
     def __init__(self, *args, **kwargs):
         backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
@@ -857,6 +858,7 @@ class RubberbandTk(backend_tools.RubberbandBase):
             del self.lastrect
 
 
+@backend_tools.register_tool("cursor", __name__)
 class SetCursorTk(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.manager.window.configure(cursor=cursord[cursor])
@@ -956,6 +958,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
         self._message.set(s)
 
 
+@backend_tools.register_tool("save", __name__)
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
@@ -1003,6 +1006,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
                 tkinter_messagebox.showerror("Error saving file", str(e))
 
 
+@backend_tools.register_tool("subplots", __name__)
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
         backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
@@ -1031,10 +1035,6 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
         self.window = None
 
 
-backend_tools.ToolSaveFigure = SaveFigureTk
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
-backend_tools.ToolSetCursor = SetCursorTk
-backend_tools.ToolRubberband = RubberbandTk
 Toolbar = ToolbarTk
 
 

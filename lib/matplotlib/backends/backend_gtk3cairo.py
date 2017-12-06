@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from .. import backend_tools
 from . import backend_cairo, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3
@@ -47,6 +48,9 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
 
 class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
     pass
+
+
+backend_tools._inherit_tools(__name__, backend_gtk3.__name__)
 
 
 @_BackendGTK3.export

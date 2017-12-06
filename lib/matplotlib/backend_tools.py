@@ -11,15 +11,18 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
+import six
+
+import functools
+import time
+import warnings
+from weakref import WeakKeyDictionary
+
+import numpy as np
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
-from weakref import WeakKeyDictionary
-import six
-import time
-import warnings
-import numpy as np
 
 
 class Cursors(object):
@@ -27,8 +30,41 @@ class Cursors(object):
     HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
 cursors = Cursors()
 
-# Views positions tool
-_views_positions = 'viewpos'
+
+_registered_tools = {}
+_tools_inheritance = {}
+
+
+def register_tool(name, backend="", cls=None):
+    """Declares that class *cls* implements tool *name* for backend *backend*.
+
+    Can be used as a class decorator.
+    """
+    if cls is None:
+        return functools.partial(register_tool, name, backend)
+    if (name, backend) in _registered_tools:
+        raise KeyError("Tool {!r} is already registered for backend {!r}"
+                       .format(name, backend))
+    _registered_tools[name, backend] = cls
+    return cls
+
+
+def _inherit_tools(child, parent):
+    """Declares that backend *child* should default to the tools of *parent*.
+    """
+    _tools_inheritance[child] = parent
+
+
+def get_tool(name, backend):
+    """Get the tool class for tool name *name* and backend *backend*.
+    """
+    try:
+        return _registered_tools[name, backend]
+    except KeyError:
+        try:
+            return _registered_tools[name, _tools_inheritance[backend]]
+        except KeyError:
+            return _registered_tools[name, ""]
 
 
 class ToolBase(object):
@@ -305,6 +341,7 @@ class SetCursorBase(ToolBase):
         raise NotImplementedError
 
 
+@register_tool("position")
 class ToolCursorPosition(ToolBase):
     """
     Send message with the current pointer position
@@ -378,6 +415,7 @@ class RubberbandBase(ToolBase):
         pass
 
 
+@register_tool("quit")
 class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method"""
 
@@ -388,6 +426,7 @@ class ToolQuit(ToolBase):
         Gcf.destroy_fig(self.figure)
 
 
+@register_tool("quit_all")
 class ToolQuitAll(ToolBase):
     """Tool to call the figure manager destroy method"""
 
@@ -398,6 +437,7 @@ class ToolQuitAll(ToolBase):
         Gcf.destroy_all()
 
 
+@register_tool("allnav")
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
@@ -414,6 +454,7 @@ class ToolEnableAllNavigation(ToolBase):
                 a.set_navigate(True)
 
 
+@register_tool("nav")
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for toolmanager interaction"""
 
@@ -465,6 +506,7 @@ class _ToolGridBase(ToolBase):
             return None
 
 
+@register_tool("grid")
 class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
@@ -486,6 +528,7 @@ class ToolGrid(_ToolGridBase):
                 y_state, "major" if y_state else "both")
 
 
+@register_tool("grid_minor")
 class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
@@ -506,6 +549,7 @@ class ToolMinorGrid(_ToolGridBase):
         return x_state, "both", y_state, "both"
 
 
+@register_tool("fullscreen")
 class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
@@ -536,16 +580,7 @@ class AxisScaleBase(ToolToggleBase):
         self.figure.canvas.draw_idle()
 
 
-class ToolYScale(AxisScaleBase):
-    """Tool to toggle between linear and logarithmic scales on the Y axis"""
-
-    description = 'Toogle Scale Y axis'
-    default_keymap = rcParams['keymap.yscale']
-
-    def set_scale(self, ax, scale):
-        ax.set_yscale(scale)
-
-
+@register_tool("xscale")
 class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
@@ -556,6 +591,18 @@ class ToolXScale(AxisScaleBase):
         ax.set_xscale(scale)
 
 
+@register_tool("yscale")
+class ToolYScale(AxisScaleBase):
+    """Tool to toggle between linear and logarithmic scales on the Y axis"""
+
+    description = 'Toogle Scale Y axis'
+    default_keymap = rcParams['keymap.yscale']
+
+    def set_scale(self, ax, scale):
+        ax.set_yscale(scale)
+
+
+@register_tool("viewpos")
 class ToolViewsPositions(ToolBase):
     """
     Auxiliary Tool to handle changes in views and positions
@@ -714,12 +761,13 @@ class ViewsPositionsBase(ToolBase):
     _on_trigger = None
 
     def trigger(self, sender, event, data=None):
-        self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
-        getattr(self.toolmanager.get_tool(_views_positions),
+        self.toolmanager.get_tool("viewpos").add_figure(self.figure)
+        getattr(self.toolmanager.get_tool("viewpos"),
                 self._on_trigger)()
-        self.toolmanager.get_tool(_views_positions).update_view()
+        self.toolmanager.get_tool("viewpos").update_view()
 
 
+@register_tool("home")
 class ToolHome(ViewsPositionsBase):
     """Restore the original view lim"""
 
@@ -729,6 +777,7 @@ class ToolHome(ViewsPositionsBase):
     _on_trigger = 'home'
 
 
+@register_tool("back")
 class ToolBack(ViewsPositionsBase):
     """Move back up the view lim stack"""
 
@@ -738,6 +787,7 @@ class ToolBack(ViewsPositionsBase):
     _on_trigger = 'back'
 
 
+@register_tool("forward")
 class ToolForward(ViewsPositionsBase):
     """Move forward in the view lim stack"""
 
@@ -747,6 +797,7 @@ class ToolForward(ViewsPositionsBase):
     _on_trigger = 'forward'
 
 
+@register_tool("subplots")
 class ConfigureSubplotsBase(ToolBase):
     """Base tool for the configuration of subplots"""
 
@@ -754,6 +805,7 @@ class ConfigureSubplotsBase(ToolBase):
     image = 'subplots'
 
 
+@register_tool("save")
 class SaveFigureBase(ToolBase):
     """Base tool for figure saving"""
 
@@ -794,7 +846,7 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idScroll)
 
     def trigger(self, sender, event, data=None):
-        self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
+        self.toolmanager.get_tool("viewpos").add_figure(self.figure)
         ToolToggleBase.trigger(self, sender, event, data)
 
     def scroll_zoom(self, event):
@@ -818,14 +870,15 @@ class ZoomPanBase(ToolToggleBase):
         # If last scroll was done within the timing threshold, delete the
         # previous view
         if (time.time()-self.lastscroll) < self.scrollthresh:
-            self.toolmanager.get_tool(_views_positions).back()
+            self.toolmanager.get_tool("viewpos").back()
 
         self.figure.canvas.draw_idle()  # force re-draw
 
         self.lastscroll = time.time()
-        self.toolmanager.get_tool(_views_positions).push_current()
+        self.toolmanager.get_tool("viewpos").push_current()
 
 
+@register_tool("zoom")
 class ToolZoom(ZoomPanBase):
     """Zoom to rectangle"""
 
@@ -843,7 +896,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.toolmanager.trigger_tool('rubberband', self)
-        self.toolmanager.get_tool(_views_positions).refresh_locators()
+        self.toolmanager.get_tool("viewpos").refresh_locators()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -948,10 +1001,11 @@ class ToolZoom(ZoomPanBase):
                                   self._zoom_mode, twinx, twiny)
 
         self._zoom_mode = None
-        self.toolmanager.get_tool(_views_positions).push_current()
+        self.toolmanager.get_tool("viewpos").push_current()
         self._cancel_action()
 
 
+@register_tool("pan")
 class ToolPan(ZoomPanBase):
     """Pan axes with left mouse, zoom with right"""
 
@@ -970,7 +1024,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._idDrag)
         self.toolmanager.messagelock.release(self)
-        self.toolmanager.get_tool(_views_positions).refresh_locators()
+        self.toolmanager.get_tool("viewpos").refresh_locators()
 
     def _press(self, event):
         if event.button == 1:
@@ -1007,7 +1061,7 @@ class ToolPan(ZoomPanBase):
             self._cancel_action()
             return
 
-        self.toolmanager.get_tool(_views_positions).push_current()
+        self.toolmanager.get_tool("viewpos").push_current()
         self._cancel_action()
 
     def _mouse_move(self, event):
@@ -1018,24 +1072,11 @@ class ToolPan(ZoomPanBase):
         self.toolmanager.canvas.draw_idle()
 
 
-default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
-                 'zoom': ToolZoom, 'pan': ToolPan,
-                 'subplots': 'ToolConfigureSubplots',
-                 'save': 'ToolSaveFigure',
-                 'grid': ToolGrid,
-                 'grid_minor': ToolMinorGrid,
-                 'fullscreen': ToolFullScreen,
-                 'quit': ToolQuit,
-                 'quit_all': ToolQuitAll,
-                 'allnav': ToolEnableAllNavigation,
-                 'nav': ToolEnableNavigation,
-                 'xscale': ToolXScale,
-                 'yscale': ToolYScale,
-                 'position': ToolCursorPosition,
-                 _views_positions: ToolViewsPositions,
-                 'cursor': 'ToolSetCursor',
-                 'rubberband': 'ToolRubberband',
-                 }
+default_tools = [
+    'home', 'back', 'forward', 'zoom', 'pan', 'subplots', 'save',
+    'grid', 'grid_minor', 'fullscreen', 'quit', 'quit_all', 'allnav', 'nav',
+    'xscale', 'yscale', 'position', 'viewpos', 'cursor', 'rubberband',
+]
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
@@ -1052,13 +1093,12 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
     ----------
     toolmanager: ToolManager
         `backend_managers.ToolManager` object that will get the tools added
-    tools : {str: class_like}, optional
-        The tools to add in a {name: tool} dict, see `add_tool` for more
-        info.
+    tools : List[str], optional
+        The tools to add.
     """
 
-    for name, tool in six.iteritems(tools):
-        toolmanager.add_tool(name, tool)
+    for tool_name in tools:
+        toolmanager.add_tool(tool_name)
 
 
 def add_tools_to_container(container, tools=default_toolbar_tools):
