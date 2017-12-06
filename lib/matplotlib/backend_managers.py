@@ -252,7 +252,7 @@ class ToolManager(object):
         matplotlib.backend_tools.ToolBase : The base class for tools.
         """
 
-        tool_cls = tools.get_tool(tool_name, self.canvas.__module__)
+        tool_cls = tools.get_tool(tool_name, type(self.canvas))
 
         if tool_name in self._tools:
             warnings.warn('A "Tool class" with the same name already exists, '

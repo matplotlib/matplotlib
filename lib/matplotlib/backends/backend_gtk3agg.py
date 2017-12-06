@@ -6,7 +6,6 @@ import six
 import numpy as np
 import warnings
 
-from .. import backend_tools
 from . import backend_agg, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3
@@ -95,9 +94,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
 
 class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
     pass
-
-
-backend_tools._inherit_tools(__name__, backend_gtk3.__name__)
 
 
 @_BackendGTK3.export

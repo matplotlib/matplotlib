@@ -20,51 +20,38 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 from matplotlib._pylab_helpers import Gcf
-import matplotlib.cbook as cbook
-
-
-class Cursors(object):
-    """Simple namespace for cursor reference"""
-    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
-cursors = Cursors()
+from matplotlib.backend_bases import FigureCanvasBase, cursors
 
 
 _registered_tools = {}
-_tools_inheritance = {}
 
 
-def register_tool(name, backend="", cls=None):
-    """Declares that class *cls* implements tool *name* for backend *backend*.
+def register_tool(name, canvas_cls, cls=None):
+    """Declares that a class implements a tool for a certain canvas class.
 
     Can be used as a class decorator.
     """
     if cls is None:
-        return functools.partial(register_tool, name, backend)
-    if (name, backend) in _registered_tools:
-        raise KeyError("Tool {!r} is already registered for backend {!r}"
-                       .format(name, backend))
-    _registered_tools[name, backend] = cls
+        return functools.partial(register_tool, name, canvas_cls)
+    if (name, canvas_cls) in _registered_tools:
+        raise KeyError("Tool {!r} is already registered for canvas class {!r}"
+                       .format(name, canvas_cls.__name__))
+    _registered_tools[name, canvas_cls] = cls
     return cls
 
 
-def _inherit_tools(child, parent):
-    """Declares that backend *child* should default to the tools of *parent*.
-    """
-    _tools_inheritance[child] = parent
-
-
-def get_tool(name, backend):
+def get_tool(name, canvas_cls):
     """Get the tool class for tool name *name* and backend *backend*.
     """
-    try:
-        return _registered_tools[name, backend]
-    except KeyError:
+    for parent in canvas_cls.__mro__:
         try:
-            return _registered_tools[name, _tools_inheritance[backend]]
+            return _registered_tools[name, parent]
         except KeyError:
-            return _registered_tools[name, ""]
+            pass
+    raise KeyError("Tool {!r} is not implemented for canvas class {!r}"
+                   .format(name, canvas_cls.__name__))
 
 
 class ToolBase(object):
@@ -335,7 +322,7 @@ class SetCursorBase(ToolBase):
         raise NotImplementedError
 
 
-@register_tool("position")
+@register_tool("position", FigureCanvasBase)
 class ToolCursorPosition(ToolBase):
     """
     Send message with the current pointer position
@@ -381,7 +368,7 @@ class ToolCursorPosition(ToolBase):
         self.toolmanager.message_event(message)
 
 
-@register_tool("quit")
+@register_tool("quit", FigureCanvasBase)
 class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method"""
 
@@ -392,7 +379,7 @@ class ToolQuit(ToolBase):
         Gcf.destroy_fig(self.figure)
 
 
-@register_tool("quit_all")
+@register_tool("quit_all", FigureCanvasBase)
 class ToolQuitAll(ToolBase):
     """Tool to call the figure manager destroy method"""
 
@@ -403,7 +390,7 @@ class ToolQuitAll(ToolBase):
         Gcf.destroy_all()
 
 
-@register_tool("allnav")
+@register_tool("allnav", FigureCanvasBase)
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
@@ -420,7 +407,7 @@ class ToolEnableAllNavigation(ToolBase):
                 a.set_navigate(True)
 
 
-@register_tool("nav")
+@register_tool("nav", FigureCanvasBase)
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for toolmanager interaction"""
 
@@ -472,7 +459,7 @@ class _ToolGridBase(ToolBase):
             return None
 
 
-@register_tool("grid")
+@register_tool("grid", FigureCanvasBase)
 class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
@@ -494,7 +481,7 @@ class ToolGrid(_ToolGridBase):
                 y_state, "major" if y_state else "both")
 
 
-@register_tool("grid_minor")
+@register_tool("grid_minor", FigureCanvasBase)
 class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
@@ -515,7 +502,7 @@ class ToolMinorGrid(_ToolGridBase):
         return x_state, "both", y_state, "both"
 
 
-@register_tool("fullscreen")
+@register_tool("fullscreen", FigureCanvasBase)
 class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
@@ -546,7 +533,7 @@ class AxisScaleBase(ToolToggleBase):
         self.figure.canvas.draw_idle()
 
 
-@register_tool("xscale")
+@register_tool("xscale", FigureCanvasBase)
 class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
@@ -557,7 +544,7 @@ class ToolXScale(AxisScaleBase):
         ax.set_xscale(scale)
 
 
-@register_tool("yscale")
+@register_tool("yscale", FigureCanvasBase)
 class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
@@ -568,7 +555,7 @@ class ToolYScale(AxisScaleBase):
         ax.set_yscale(scale)
 
 
-@register_tool("viewpos")
+@register_tool("viewpos", FigureCanvasBase)
 class ToolViewsPositions(ToolBase):
     """
     Auxiliary Tool to handle changes in views and positions
@@ -733,7 +720,7 @@ class ViewsPositionsBase(ToolBase):
         self.toolmanager.get_tool("viewpos").update_view()
 
 
-@register_tool("home")
+@register_tool("home", FigureCanvasBase)
 class ToolHome(ViewsPositionsBase):
     """Restore the original view lim"""
 
@@ -743,7 +730,7 @@ class ToolHome(ViewsPositionsBase):
     _on_trigger = 'home'
 
 
-@register_tool("back")
+@register_tool("back", FigureCanvasBase)
 class ToolBack(ViewsPositionsBase):
     """Move back up the view lim stack"""
 
@@ -753,7 +740,7 @@ class ToolBack(ViewsPositionsBase):
     _on_trigger = 'back'
 
 
-@register_tool("forward")
+@register_tool("forward", FigureCanvasBase)
 class ToolForward(ViewsPositionsBase):
     """Move forward in the view lim stack"""
 
@@ -763,7 +750,7 @@ class ToolForward(ViewsPositionsBase):
     _on_trigger = 'forward'
 
 
-@register_tool("subplots")
+@register_tool("subplots", FigureCanvasBase)
 class ConfigureSubplotsBase(ToolBase):
     """Base tool for the configuration of subplots"""
 
@@ -771,7 +758,7 @@ class ConfigureSubplotsBase(ToolBase):
     image = 'subplots'
 
 
-@register_tool("save")
+@register_tool("save", FigureCanvasBase)
 class SaveFigureBase(ToolBase):
     """Base tool for figure saving"""
 
@@ -844,7 +831,7 @@ class ZoomPanBase(ToolToggleBase):
         self.toolmanager.get_tool("viewpos").push_current()
 
 
-@register_tool("zoom")
+@register_tool("zoom", FigureCanvasBase)
 class ToolZoom(ZoomPanBase):
     """Zoom to rectangle"""
     # Subclasses should overrider _draw_rubberband and possibly
@@ -978,7 +965,7 @@ class ToolZoom(ZoomPanBase):
         self._cancel_action()
 
 
-@register_tool("pan")
+@register_tool("pan", FigureCanvasBase)
 class ToolPan(ZoomPanBase):
     """Pan axes with left mouse, zoom with right"""
 

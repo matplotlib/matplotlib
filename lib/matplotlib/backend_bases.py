@@ -51,8 +51,8 @@ from weakref import WeakKeyDictionary
 import numpy as np
 
 from matplotlib import (
-    backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
-    widgets, get_backend, is_interactive, rcParams)
+    cbook, colors, textpath, tight_bbox, transforms, widgets, get_backend,
+    is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 from matplotlib.path import Path
@@ -89,6 +89,12 @@ _default_backends = {
     'svg': 'matplotlib.backends.backend_svg',
     'svgz': 'matplotlib.backends.backend_svg',
 }
+
+
+class Cursors(object):
+    """Simple namespace for cursor reference"""
+    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
+cursors = Cursors()
 
 
 def register_backend(format, backend, description=None):
@@ -2702,9 +2708,6 @@ class FigureManagerBase(object):
 
         This has no effect for non-GUI (e.g., PS) backends.
         """
-
-
-cursors = tools.cursors
 
 
 class NavigationToolbar2(object):
