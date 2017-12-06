@@ -116,6 +116,7 @@ import itertools
 import locale
 import logging
 import os
+import __main__ as main
 import re
 import shutil
 import sys
@@ -1421,7 +1422,10 @@ def interactive(b):
 
 def is_interactive():
     'Return true if plot mode is interactive'
-    return rcParams['interactive']
+    ret = rcParams['interactive']
+    if ret is None:
+        ret = not hasattr(main, '__file__')
+    return ret
 
 
 def tk_window_focus():
