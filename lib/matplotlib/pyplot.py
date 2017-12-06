@@ -865,60 +865,74 @@ def over(func, *args, **kwargs):
 ## Axes ##
 
 
-def axes(*args, **kwargs):
+def axes(arg=None, **kwargs):
     """
-    Add an axes to the figure.
+    Add an axes to the current figure and make it the current axes.
 
-    The axes is added at position *rect* specified by:
+    Parameters
+    ----------
+    arg : None or 4-tuple or Axes
+        The exact behavior of this function depends on the type:
 
-    - ``axes()`` by itself creates a default full ``subplot(111)`` window axis.
+        - *None*: A new full window axes is added using
+          ``subplot(111, **kwargs)``
+        - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
+          A new axes is added with dimensions *rect* in normalized
+          (0, 1) units using `~.Figure.add_axes` on the current figure.
+        - `~.Axes`: This is equivalent to `.pyplot.sca`. It sets the current
+          axes to *arg*. Note: This implicitly changes the current figure to
+          the parent of *arg*.
 
-    - ``axes(rect, facecolor='w')`` where *rect* = [left, bottom, width,
-      height] in normalized (0, 1) units.  *facecolor* is the background
-      color for the axis, default white.
+    Other Parameters
+    ----------------
+    **kwargs :
+        For allowed keyword arguments see `.pyplot.subplot` and
+        `.Figure.add_axes` respectively. Some common keyword arguments are
+        listed below:
 
-    - ``axes(h)`` where *h* is an axes instance makes *h* the current
-      axis and the parent of *h* the current figure.
-      An :class:`~matplotlib.axes.Axes` instance is returned.
+        =========   ==============   ===========================================
+        kwarg       Accepts          Description
+        =========   ==============   ===========================================
+        facecolor   color            the axes background color
+        frameon     [True|False]     display the frame?
+        sharex      otherax          current axes shares xaxis attribute
+                                     with otherax
+        sharey      otherax          current axes shares yaxis attribute
+                                     with otherax
+        polar       [True|False]     use a polar axes?
+        aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
+                                     the ratio of y-unit/x-unit in screen-space.
+                                     Also see
+                                     :meth:`~matplotlib.axes.Axes.set_aspect`.
+        =========   ==============   ===========================================
 
-    =========   ==============   ==============================================
-    kwarg       Accepts          Description
-    =========   ==============   ==============================================
-    facecolor   color            the axes background color
-    frameon     [True|False]     display the frame?
-    sharex      otherax          current axes shares xaxis attribute
-                                 with otherax
-    sharey      otherax          current axes shares yaxis attribute
-                                 with otherax
-    polar       [True|False]     use a polar axes?
-    aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
-                                 the ratio of x-unit/y-unit in screen-space.
-                                 Also see
-                                 :meth:`~matplotlib.axes.Axes.set_aspect`.
-    =========   ==============   ==============================================
+    Returns
+    -------
+    axes : Axes
+        The created or activated axes.
 
-    Examples:
+    Examples
+    --------
+    Creating a new full window axes::
 
-    * :file:`examples/pylab_examples/axes_demo.py` places custom axes.
-    * :file:`examples/pylab_examples/shared_axis_demo.py` uses
-      *sharex* and *sharey*.
+        >>> plt.axes()
+
+    Creating a new axes with specified dimensions and some kwargs::
+
+        >>> plt.axes((left, bottom, width, height), facecolor='w')
 
     """
 
-    nargs = len(args)
-    if len(args) == 0:
+    if arg is None:
         return subplot(111, **kwargs)
-    if nargs > 1:
-        raise TypeError('Only one non keyword arg to axes allowed')
-    arg = args[0]
 
     if isinstance(arg, Axes):
-        sca(arg)
-        a = arg
+        ax = arg
+        sca(ax)
+        return ax
     else:
         rect = arg
-        a = gcf().add_axes(rect, **kwargs)
-    return a
+        return gcf().add_axes(rect, **kwargs)
 
 
 def delaxes(ax=None):
