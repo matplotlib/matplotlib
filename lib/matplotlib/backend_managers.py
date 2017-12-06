@@ -228,7 +228,7 @@ class ToolManager(object):
 
         del self._tools[name]
 
-    def add_tool(self, tool_name, *args, **kwargs):
+    def add_tool(self, tool_cls_or_name, *args, **kwargs):
         """
         Add *tool* to `ToolManager`
 
@@ -238,8 +238,8 @@ class ToolManager(object):
 
         Parameters
         ----------
-        name : str
-            Name of the tool, treated as the ID, has to be unique
+        tool_cls_or_name : callable or name
+            Class or name of the tool, treated as the ID, has to be unique
         tool : class_like, i.e. str or type
             Reference to find the class of the Tool to added.
 
@@ -252,18 +252,25 @@ class ToolManager(object):
         matplotlib.backend_tools.ToolBase : The base class for tools.
         """
 
-        tool_cls = tools.get_tool(tool_name, type(self.canvas))
+        if callable(tool_cls_or_name):
+            tool_cls = tool_cls_or_name
+        elif isinstance(tool_cls_or_name, six.string_types):
+            tool_cls = tools.get_tool(tool_cls_or_name, type(self.canvas))
+        else:
+            raise TypeError(
+                "'tool_cls_or_name' must be a callable or a tool name")
+        name = tool_cls.name
 
-        if tool_name in self._tools:
+        if name in self._tools:
             warnings.warn('A "Tool class" with the same name already exists, '
                           'not added')
-            return self._tools[tool_name]
+            return self._tools[name]
 
-        tool_obj = tool_cls(self, tool_name, *args, **kwargs)
-        self._tools[tool_name] = tool_obj
+        tool_obj = tool_cls(self, *args, **kwargs)
+        self._tools[name] = tool_obj
 
         if tool_cls.default_keymap is not None:
-            self.update_keymap(tool_name, tool_cls.default_keymap)
+            self.update_keymap(name, tool_cls.default_keymap)
 
         # For toggle tools init the radio_group in self._toggled
         if isinstance(tool_obj, tools.ToolToggleBase):

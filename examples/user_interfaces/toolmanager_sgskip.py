@@ -22,10 +22,10 @@ import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase, ToolToggleBase, register_tool
 
 
-@register_tool("List")
-class ListTools(ToolBase):
+class ListTool(ToolBase):
     '''List all the tools controlled by the `ToolManager`'''
     # keyboard shortcut
+    name = "List"
     default_keymap = 'm'
     description = 'List Tools'
 
@@ -49,9 +49,9 @@ class ListTools(ToolBase):
             print("{0:12} {1:45}".format(str(group), str(active)))
 
 
-@register_tool("Show")
 class GroupHideTool(ToolToggleBase):
     '''Show lines with a given gid'''
+    name = "Show"
     default_keymap = 'G'
     description = 'Show by gid'
     default_toggled = True
@@ -81,8 +81,8 @@ plt.plot([2, 3, 4], gid='unknown')
 plt.plot([3, 2, 1], gid='mygroup')
 
 # Add the custom tools that we created
-fig.canvas.manager.toolmanager.add_tool('List')
-fig.canvas.manager.toolmanager.add_tool('Show', gid='mygroup')
+fig.canvas.manager.toolmanager.add_tool(ListTool)
+fig.canvas.manager.toolmanager.add_tool(GroupHideTool, gid='mygroup')
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want

@@ -665,7 +665,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         return filename, self.ext
 
 
-@backend_tools.register_tool("zoom", FigureCanvasGTK3)
+@backend_tools.register_tool(FigureCanvasGTK3)
 class ToolZoom(backend_tools.ToolZoom):
     def _draw_rubberband(self, x0, y0, x1, y1):
         # 'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
@@ -778,7 +778,7 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
-@backend_tools.register_tool("save", FigureCanvasGTK3)
+@backend_tools.register_tool(FigureCanvasGTK3)
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
 
     def get_filechooser(self):
@@ -810,13 +810,13 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
                 error_msg_gtk(str(e), parent=self)
 
 
-@backend_tools.register_tool("cursor", FigureCanvasGTK3)
+@backend_tools.register_tool(FigureCanvasGTK3)
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
 
 
-@backend_tools.register_tool("subplots", FigureCanvasGTK3)
+@backend_tools.register_tool(FigureCanvasGTK3)
 class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
     def __init__(self, *args, **kwargs):
         backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
