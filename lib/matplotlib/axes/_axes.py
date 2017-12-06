@@ -2822,8 +2822,8 @@ class Axes(_AxesBase):
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 
-        if fmt=='':
-            fmt_style_kwargs={}
+        if fmt == '':
+            fmt_style_kwargs = {}
         else:
             fmt_style_kwargs = {k: v for k, v in
                             zip(('linestyle', 'marker', 'color'),
