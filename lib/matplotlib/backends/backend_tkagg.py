@@ -957,7 +957,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
 
 @backend_tools.register_tool("save", __name__)
 class SaveFigureTk(backend_tools.SaveFigureBase):
-    def trigger(self, *args):
+    def trigger(self, event):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
         default_filetype = self.figure.canvas.get_default_filetype()
@@ -1009,7 +1009,7 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
         backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
         self.window = None
 
-    def trigger(self, *args):
+    def trigger(self, event):
         self.init_window()
         self.window.lift()
 

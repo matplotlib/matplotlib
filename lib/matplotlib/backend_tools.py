@@ -145,7 +145,7 @@ class ToolBase(object):
         """
         self._figure = figure
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         """
         Called when this tool gets used
 
@@ -156,11 +156,7 @@ class ToolBase(object):
         ----------
         event: `Event`
             The Canvas event that caused this tool to be called
-        sender: object
-            Object that requested the tool to be triggered
         """
-
-        pass
 
     @property
     def name(self):
@@ -209,7 +205,7 @@ class ToolToggleBase(ToolBase):
         self._toggled = kwargs.pop('toggled', self.default_toggled)
         ToolBase.__init__(self, *args, **kwargs)
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         """Calls `enable` or `disable` based on `toggled` value"""
         if self._toggled:
             self.disable(event)
@@ -252,7 +248,7 @@ class ToolToggleBase(ToolBase):
         toggled = self.toggled
         if toggled:
             if self.figure:
-                self.trigger(self, None)
+                self.trigger(None)
             else:
                 # if no figure the internal state is not changed
                 # we change it here so next call to trigger will change it back
@@ -260,7 +256,7 @@ class ToolToggleBase(ToolBase):
         ToolBase.set_figure(self, figure)
         if toggled:
             if figure:
-                self.trigger(self, None)
+                self.trigger(None)
             else:
                 # if there is no figure, triggen wont change the internal state
                 # we change it back
@@ -382,7 +378,7 @@ class ToolCursorPosition(ToolBase):
                             s += ' [%s]' % a.format_cursor_data(data)
 
                 message = s
-        self.toolmanager.message_event(message, self)
+        self.toolmanager.message_event(message)
 
 
 @register_tool("quit")
@@ -392,7 +388,7 @@ class ToolQuit(ToolBase):
     description = 'Quit the figure'
     default_keymap = rcParams['keymap.quit']
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         Gcf.destroy_fig(self.figure)
 
 
@@ -403,7 +399,7 @@ class ToolQuitAll(ToolBase):
     description = 'Quit all figures'
     default_keymap = rcParams['keymap.quit_all']
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         Gcf.destroy_all()
 
 
@@ -414,7 +410,7 @@ class ToolEnableAllNavigation(ToolBase):
     description = 'Enables all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         if event.inaxes is None:
             return
 
@@ -431,7 +427,7 @@ class ToolEnableNavigation(ToolBase):
     description = 'Enables one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         if event.inaxes is None:
             return
 
@@ -447,7 +443,7 @@ class _ToolGridBase(ToolBase):
 
     _cycle = [(False, False), (True, False), (True, True), (False, True)]
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         ax = event.inaxes
         if ax is None:
             return
@@ -536,7 +532,7 @@ class ToolFullScreen(ToolToggleBase):
 class AxisScaleBase(ToolToggleBase):
     """Base Tool to toggle between linear and logarithmic"""
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         if event.inaxes is None:
             return
         ToolToggleBase.trigger(self, event)
@@ -730,7 +726,7 @@ class ViewsPositionsBase(ToolBase):
 
     _on_trigger = None
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         self.toolmanager.get_tool("viewpos").add_figure(self.figure)
         getattr(self.toolmanager.get_tool("viewpos"),
                 self._on_trigger)()
@@ -815,7 +811,7 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idRelease)
         self.figure.canvas.mpl_disconnect(self._idScroll)
 
-    def trigger(self, sender, event):
+    def trigger(self, event):
         self.toolmanager.get_tool("viewpos").add_figure(self.figure)
         ToolToggleBase.trigger(self, event)
 

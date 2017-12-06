@@ -17,16 +17,15 @@ import matplotlib.backend_tools as tools
 
 class ToolEvent(object):
     """Event for tool manipulation (add/remove)"""
-    def __init__(self, name, sender, tool):
+    def __init__(self, name, tool):
         self.name = name
-        self.sender = sender
         self.tool = tool
 
 
 class ToolTriggerEvent(ToolEvent):
     """Event to inform  that a tool has been triggered"""
-    def __init__(self, name, sender, tool, canvasevent=None):
-        ToolEvent.__init__(self, name, sender, tool)
+    def __init__(self, name, tool, canvasevent=None):
+        ToolEvent.__init__(self, name, tool)
         self.canvasevent = canvasevent
 
 
@@ -36,9 +35,8 @@ class ToolManagerMessageEvent(object):
 
     Messages usually get displayed to the user by the toolbar
     """
-    def __init__(self, name, sender, message):
+    def __init__(self, name, message):
         self.name = name
-        self.sender = sender
         self.message = message
 
 
@@ -149,13 +147,10 @@ class ToolManager(object):
         """
         return self._callbacks.disconnect(cid)
 
-    def message_event(self, message, sender=None):
+    def message_event(self, message):
         """ Emit a `ToolManagerMessageEvent`"""
-        if sender is None:
-            sender = self
-
         s = 'tool_message_event'
-        event = ToolManagerMessageEvent(s, sender, message)
+        event = ToolManagerMessageEvent(s, message)
         self._callbacks.process(s, event)
 
     @property
@@ -228,7 +223,7 @@ class ToolManager(object):
         self._remove_keys(name)
 
         s = 'tool_removed_event'
-        event = ToolEvent(s, self, tool)
+        event = ToolEvent(s, tool)
         self._callbacks.process(s, event)
 
         del self._tools[name]
@@ -281,7 +276,7 @@ class ToolManager(object):
 
             # If initially toggled
             if tool_obj.toggled:
-                self._handle_toggle(tool_obj, None, None)
+                self._handle_toggle(tool_obj, None)
         tool_obj.set_figure(self.figure)
 
         self._tool_added_event(tool_obj)
@@ -289,10 +284,10 @@ class ToolManager(object):
 
     def _tool_added_event(self, tool):
         s = 'tool_added_event'
-        event = ToolEvent(s, self, tool)
+        event = ToolEvent(s, tool)
         self._callbacks.process(s, event)
 
-    def _handle_toggle(self, tool, sender, canvasevent):
+    def _handle_toggle(self, tool, canvasevent):
         """
         Toggle tools, need to untoggle prior to using other Toggle tool
         Called from trigger_tool
@@ -300,8 +295,6 @@ class ToolManager(object):
         Parameters
         ----------
         tool: Tool object
-        sender: object
-            Object that wishes to trigger the tool
         canvasevent : Event
             Original Canvas event or None
         """
@@ -326,7 +319,7 @@ class ToolManager(object):
         # Other tool in the radio_group is toggled
         else:
             # Untoggle previously toggled tool
-            self.trigger_tool(self._toggled[radio_group], self, canvasevent)
+            self.trigger_tool(self._toggled[radio_group], canvasevent)
             toggled = tool.name
 
         # Keep track of the toggled tool in the radio_group
@@ -349,7 +342,7 @@ class ToolManager(object):
         else:
             return None
 
-    def trigger_tool(self, name, sender=None, canvasevent=None):
+    def trigger_tool(self, name, canvasevent=None):
         """
         Trigger a tool and emit the tool_trigger_[name] event
 
@@ -357,25 +350,18 @@ class ToolManager(object):
         ----------
         name : string
             Name of the tool
-        sender: object
-            Object that wishes to trigger the tool
         canvasevent : Event
             Original Canvas event or None
         """
         tool = self.get_tool(name)
         if tool is None:
             return
-
-        if sender is None:
-            sender = self
-
-        self._trigger_tool(name, sender, canvasevent)
-
+        self._trigger_tool(name, canvasevent)
         s = 'tool_trigger_%s' % name
-        event = ToolTriggerEvent(s, sender, tool, canvasevent)
+        event = ToolTriggerEvent(s, tool, canvasevent)
         self._callbacks.process(s, event)
 
-    def _trigger_tool(self, name, sender=None, canvasevent=None):
+    def _trigger_tool(self, name, canvasevent=None):
         """
         Trigger on a tool
 
@@ -384,11 +370,11 @@ class ToolManager(object):
         tool = self.get_tool(name)
 
         if isinstance(tool, tools.ToolToggleBase):
-            self._handle_toggle(tool, sender, canvasevent)
+            self._handle_toggle(tool, canvasevent)
 
         # Important!!!
         # This is where the Tool object gets triggered
-        tool.trigger(sender, canvasevent)
+        tool.trigger(canvasevent)
 
     def _key_press(self, event):
         if event.key is None or self.keypresslock.locked():

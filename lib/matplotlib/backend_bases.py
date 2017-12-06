@@ -3282,7 +3282,7 @@ class ToolContainerBase(object):
         name : String
             Name (id) of the tool triggered from within the container
         """
-        self.toolmanager.trigger_tool(name, sender=self)
+        self.toolmanager.trigger_tool(name)
 
     def add_toolitem(self, name, group, position, image, description, toggle):
         """
