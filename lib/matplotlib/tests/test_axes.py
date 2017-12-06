@@ -51,7 +51,8 @@ def test_acorr():
     x = np.random.normal(0, 1, n).cumsum()
 
     fig, ax = plt.subplots()
-    ax.acorr(x, maxlags=n - 1)
+    ax.acorr(x, maxlags=n - 1, label='acorr')
+    ax.legend()
 
 
 @image_comparison(baseline_images=['spy'], extensions=['png'], style='mpl20')

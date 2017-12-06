@@ -1760,7 +1760,7 @@ class Axes(_AxesBase):
         if usevlines:
             a = self.vlines(lags, [0], correls, **kwargs)
             # Make label empty so only vertical lines get a legend entry
-            kwargs['label'] = ''
+            kwargs.pop('label', '')
             b = self.axhline(**kwargs)
         else:
             kwargs.setdefault('marker', 'o')
