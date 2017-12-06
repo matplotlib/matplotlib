@@ -5,9 +5,9 @@ A new colormap, named cividis, has been optimized so that it looks similar to pe
 
 .. plot::
 
-    import matplotlib.pyplot
+    import matplotlib.pyplot as plt
     import numpy as np
 
     fig, ax = plt.subplots()
-    pcm = ax.pcolormesh(np.rand.random(32,32), cmap='cividis')
+    pcm = ax.pcolormesh(np.random.rand(32,32), cmap='cividis')
     fig.colorbar(pcm)
