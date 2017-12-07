@@ -56,9 +56,11 @@ from . import legend_handler
 class DraggableLegend(DraggableOffsetBox):
     def __init__(self, legend, use_blit=False, update="loc"):
         """
-        update : If "loc", update *loc* parameter of
-                 legend upon finalizing. If "bbox", update
-                 *bbox_to_anchor* parameter.
+        Parameters
+        ----------
+        update : string
+            If "loc", update *loc* parameter of legend upon finalizing.
+            If "bbox", update *bbox_to_anchor* parameter.
         """
         self.legend = legend
 
@@ -581,8 +583,8 @@ class Legend(Artist):
         del locals_view
         # trim handles and labels if illegal label...
         for label, handle in zip(labels[:], handles[:]):
-                if (isinstance(label, six.string_types)
-                        and label.startswith('_')):
+                if (isinstance(label, six.string_types) and
+                        label.startswith('_')):
                     warnings.warn('The handle {!r} has a label of {!r} which '
                                   'cannot be automatically added to the '
                                   'legend.'.format(handle, label))
@@ -709,7 +711,7 @@ class Legend(Artist):
 
     def _set_artist_props(self, a):
         """
-        set the boilerplate props for artists added to axes
+        Set the boilerplate props for artists added to axes.
         """
         a.set_figure(self.figure)
         if self.isaxes:
@@ -731,7 +733,7 @@ class Legend(Artist):
     _loc = property(_get_loc, _set_loc)
 
     def _findoffset(self, width, height, xdescent, ydescent, renderer):
-        "Helper function to locate the legend"
+        "Helper function to locate the legend."
 
         if self._loc == 0:  # "best".
             x, y = self._find_best_position(width, height, renderer)
@@ -749,7 +751,7 @@ class Legend(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        "Draw everything that belongs to the legend"
+        "Draw everything that belongs to the legend."
         if not self.get_visible():
             return
 
@@ -836,7 +838,7 @@ class Legend(Artist):
 
     def get_legend_handler_map(self):
         """
-        return the handler map.
+        Return the handler map.
         """
 
         default_handler_map = self.get_default_handler_map()
@@ -851,7 +853,7 @@ class Legend(Artist):
     @staticmethod
     def get_legend_handler(legend_handler_map, orig_handle):
         """
-        return a legend handler from *legend_handler_map* that
+        Return a legend handler from *legend_handler_map* that
         corresponds to *orig_handler*.
 
         *legend_handler_map* should be a dictionary object (that is
@@ -861,7 +863,7 @@ class Legend(Artist):
         *legend_hanler_map* and return the associated value.
         Otherwise, it checks for each of the classes in its
         method-resolution-order. If no matching key is found, it
-        returns None.
+        returns ``None``.
         """
         if is_hashable(orig_handle):
             try:
@@ -1058,11 +1060,17 @@ class Legend(Artist):
         return [vertices, bboxes, lines, offsets]
 
     def draw_frame(self, b):
-        'b is a boolean.  Set draw frame to b'
+        '''
+        Set draw frame to b.
+
+        Parameters
+        ----------
+        b : bool
+        '''
         self.set_frame_on(b)
 
     def get_children(self):
-        'return a list of child artists'
+        'Return a list of child artists.'
         children = []
         if self._legend_box:
             children.append(self._legend_box)
@@ -1071,26 +1079,28 @@ class Legend(Artist):
         return children
 
     def get_frame(self):
-        'return the Rectangle instance used to frame the legend'
+        '''
+        Return the `~.patches.Rectangle` instances used to frame the legend.
+        '''
         return self.legendPatch
 
     def get_lines(self):
-        'return a list of lines.Line2D instances in the legend'
+        'Return a list of `~.lines.Line2D` instances in the legend.'
         return [h for h in self.legendHandles if isinstance(h, Line2D)]
 
     def get_patches(self):
-        'return a list of patch instances in the legend'
+        'Return a list of `~.patches.Patch` instances in the legend.'
         return silent_list('Patch',
                            [h for h in self.legendHandles
                             if isinstance(h, Patch)])
 
     def get_texts(self):
-        'return a list of text.Text instance in the legend'
+        'Return a list of `~.text.Text` instances in the legend.'
         return silent_list('Text', self.texts)
 
     def set_title(self, title, prop=None):
         """
-        set the legend title. Fontproperties can be optionally set
+        Set the legend title. Fontproperties can be optionally set
         with *prop* parameter.
         """
         self._legend_title_box._text.set_text(title)
@@ -1107,16 +1117,16 @@ class Legend(Artist):
         self.stale = True
 
     def get_title(self):
-        'return Text instance for the legend title'
+        'Return `~.text.Text` instance for the legend title.'
         return self._legend_title_box._text
 
     def get_window_extent(self, *args, **kwargs):
-        'return a extent of the legend'
+        'Return extent of the legend.'
         return self.legendPatch.get_window_extent(*args, **kwargs)
 
     def get_frame_on(self):
         """
-        Get whether the legend box patch is drawn
+        Get whether the legend box patch is drawn.
         """
         return self._drawFrame
 
@@ -1131,7 +1141,7 @@ class Legend(Artist):
 
     def get_bbox_to_anchor(self):
         """
-        return the bbox that the legend will be anchored
+        Return the bbox that the legend will be anchored.
         """
         if self._bbox_to_anchor is None:
             return self.parent.bbox
@@ -1140,12 +1150,16 @@ class Legend(Artist):
 
     def set_bbox_to_anchor(self, bbox, transform=None):
         """
-        set the bbox that the legend will be anchored.
+        Set the bbox that the legend will be anchored.
 
-        *bbox* can be a BboxBase instance, a tuple of [left, bottom,
-        width, height] in the given transform (normalized axes
-        coordinate if None), or a tuple of [left, bottom] where the
-        width and height will be assumed to be zero.
+        *bbox* can be
+
+        - A `BboxBase` instance
+        - A tuple of ``(left, bottom, width, height)`` in the given transform
+          (normalized axes coordinate if None)
+        - A tuple of ``[left, bottom]`` where the width and height will be
+          assumed to be zero.
+
         """
         if bbox is None:
             self._bbox_to_anchor = None
@@ -1209,7 +1223,7 @@ class Legend(Artist):
         """
         Determine the best location to place the legend.
 
-        `consider` is a list of (x, y) pairs to consider as a potential
+        *consider* is a list of ``(x, y)`` pairs to consider as a potential
         lower-left corner of the legend. All are display coords.
         """
         # should always hold because function is only called internally
@@ -1258,7 +1272,7 @@ class Legend(Artist):
           * False : turn draggable off
 
         If draggable is on, you can drag the legend on the canvas with
-        the mouse.  The DraggableLegend helper instance is returned if
+        the mouse. The `DraggableLegend` helper instance is returned if
         draggable is on.
 
         The update parameter control which parameter of the legend changes
