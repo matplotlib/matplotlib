@@ -854,36 +854,44 @@ class _AxesBase(martist.Artist):
                     pass
 
     def get_position(self, original=False):
-        'Return the a copy of the axes rectangle as a Bbox'
+        """
+        Get a copy of the axes rectangle as a `.Bbox`.
+
+        Parameters
+        ----------
+        original : bool
+            If ``True``, return the original position. Otherwise return the
+            active position. For an explanation of the positions see
+            `.set_position`.
+
+        Returns
+        -------
+        pos : `.Bbox`
+
+        """
         if original:
             return self._originalPosition.frozen()
         else:
             return self._position.frozen()
 
     def set_position(self, pos, which='both'):
-        """Set the axes position
+        """
+        Set the axes position.
 
-        The expected shape of ``pos`` is::
+        Axes have two position attributes. The 'original' position is the
+        position allocated for the Axes. The 'active' position is the
+        position the Axes is actually drawn at. These positions are usually
+        the same unless a fixed aspect is set to the Axes. See `.set_aspect`
+        for details.
 
-          pos = [left, bottom, width, height]
+        Parameters
+        ----------
+        pos : [left, bottom, width, height] or `~matplotlib.transforms.Bbox`
+            The new position of the in `.Figure` coordinates.
 
-        in relative 0,1 coords, or *pos* can be a
-        :class:`~matplotlib.transforms.Bbox`
+        which : ['both' | 'active' | 'original'], optional
+            Determines which position variables to change.
 
-        There are two position variables: one which is ultimately
-        used, but which may be modified by :meth:`apply_aspect`, and a
-        second which is the starting point for :meth:`apply_aspect`.
-
-        Optional keyword arguments:
-          *which*
-
-            ==========   ====================
-            value        description
-            ==========   ====================
-            'active'     to change the first
-            'original'   to change the second
-            'both'       to change both
-            ==========   ====================
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
@@ -894,7 +902,12 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     def reset_position(self):
-        """Make the original position the active position"""
+        """
+        Reset the active position to the original position.
+
+        This resets the a possible position change due to aspect constraints.
+        For an explanation of the positions see `.set_position`.
+        """
         pos = self.get_position(original=True)
         self.set_position(pos, which='active')
 
@@ -917,7 +930,7 @@ class _AxesBase(martist.Artist):
 
     def get_axes_locator(self):
         """
-        return axes_locator
+        Return the axes_locator.
         """
         return self._axes_locator
 
@@ -1114,10 +1127,11 @@ class _AxesBase(martist.Artist):
         return self.patch
 
     def clear(self):
-        """clear the axes"""
+        """Clear the axes."""
         self.cla()
 
     def get_facecolor(self):
+        """Get the Axes facecolor."""
         return self.patch.get_facecolor()
     get_fc = get_facecolor
 
@@ -1226,7 +1240,7 @@ class _AxesBase(martist.Artist):
     @cbook.deprecated("2.0", message=_hold_msg)
     def hold(self, b=None):
         """
-        Set the hold state
+        Set the hold state.
 
         The ``hold`` mechanism is deprecated and will be removed in
         v3.0.  The behavior will remain consistent with the
