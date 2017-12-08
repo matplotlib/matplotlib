@@ -913,9 +913,16 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
             b = Tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
                           command=lambda: self._button_click(text))
         else:
+            # There is a bug in tkinter included in some python 3.6 versions
+            # that without this variable, produces a "visual" toggling of
+            # other near checkbuttons
+            # https://bugs.python.org/issue29402
+            # https://bugs.python.org/issue25684
+            var = Tk.IntVar()
             b = Tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
                                image=im, indicatoron=False,
-                               command=lambda: self._button_click(text))
+                               command=lambda: self._button_click(text),
+                               variable=var)
         b._ntimage = im
         b.pack(side=Tk.LEFT)
         return b
