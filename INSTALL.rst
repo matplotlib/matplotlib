@@ -1,7 +1,3 @@
-.. The source of this document is INSTALL.rst. During the doc build process,
-.. this file is copied over to doc/users/installing.rst.
-.. Therefore, you must edit INSTALL.rst, *not* doc/users/installing.rst!
-
 .. _pip: https://pypi.python.org/pypi/pip/
 
 ==========
@@ -12,7 +8,6 @@ Installing
 
     If you wish to contribute to the project, it's recommended you
     :ref:`install the latest development version<install_from_source>`.
-
 
 .. contents::
 
@@ -198,7 +193,7 @@ optional Matplotlib backends and the capabilities they provide.
     `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
-  * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend;
+  * :term:`wxpython` (>= 2.9 or later): for the WX or WXAgg backend;
   * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for GTK3Cairo;
   * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
 

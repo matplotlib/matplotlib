@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import logging
 from six.moves import zip
 import numpy as np
 
@@ -12,9 +13,10 @@ from matplotlib.cbook import iterable, Bunch
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
-from matplotlib import verbose
 from matplotlib import docstring
 from matplotlib import rcParams
+
+_log = logging.getLogger(__name__)
 
 __author__ = "Kevin L. Davies"
 __credits__ = ["Yannick Copin"]
@@ -465,22 +467,21 @@ class Sankey(object):
             "trunklength is negative.\nThis isn't allowed, because it would "
             "cause poor layout.")
         if np.abs(np.sum(flows)) > self.tolerance:
-            verbose.report(
-                "The sum of the flows is nonzero (%f).\nIs the "
-                "system not at steady state?" % np.sum(flows), 'helpful')
+            _log.info("The sum of the flows is nonzero (%f).\nIs the "
+                     "system not at steady state?", np.sum(flows))
         scaled_flows = self.scale * flows
         gain = sum(max(flow, 0) for flow in scaled_flows)
         loss = sum(min(flow, 0) for flow in scaled_flows)
         if not (0.5 <= gain <= 2.0):
-            verbose.report(
+            _log.info(
                 "The scaled sum of the inputs is %f.\nThis may "
                 "cause poor layout.\nConsider changing the scale so"
-                " that the scaled sum is approximately 1.0." % gain, 'helpful')
+                " that the scaled sum is approximately 1.0.", gain)
         if not (-2.0 <= loss <= -0.5):
-            verbose.report(
+            _log.info(
                 "The scaled sum of the outputs is %f.\nThis may "
                 "cause poor layout.\nConsider changing the scale so"
-                " that the scaled sum is approximately 1.0." % gain, 'helpful')
+                " that the scaled sum is approximately 1.0.", gain)
         if prior is not None:
             if prior < 0:
                 raise ValueError("The index of the prior diagram is negative.")
@@ -522,11 +523,11 @@ class Sankey(object):
             elif flow <= -self.tolerance:
                 are_inputs[i] = False
             else:
-                verbose.report(
+                _log.info(
                     "The magnitude of flow %d (%f) is below the "
                     "tolerance (%f).\nIt will not be shown, and it "
                     "cannot be used in a connection."
-                    % (i, flow, self.tolerance), 'helpful')
+                    % (i, flow, self.tolerance))
 
         # Determine the angles of the arrows (before rotation).
         angles = [None] * n

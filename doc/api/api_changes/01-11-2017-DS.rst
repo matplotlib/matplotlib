@@ -1,0 +1,6 @@
+MovieWriterRegistry raises RuntimeError when writer not available
+-----------------------------------------------------------------
+
+If `MovieWriterRegistry` can't find the requested `MovieWriter`, a more helpful
+`RuntimeError` message is now raised instead of the previously raised
+`KeyError`.

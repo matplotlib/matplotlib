@@ -277,7 +277,15 @@ class ScalarMappable(object):
         return rgba
 
     def set_array(self, A):
-        'Set the image array from numpy array *A*'
+        """Set the image array from numpy array *A*.
+
+        ..
+            ACCEPTS: ndarray
+
+        Parameters
+        ----------
+        A : ndarray
+        """
         self._A = A
         self.update_dict['array'] = True
 
@@ -323,7 +331,15 @@ class ScalarMappable(object):
         self.changed()
 
     def set_norm(self, norm):
-        'set the normalization instance'
+        """Set the normalization instance.
+
+        ..
+            ACCEPTS: `~.Normalize`
+
+        Parameters
+        ----------
+        norm : `~.Normalize`
+        """
         if norm is None:
             norm = colors.Normalize()
         self.norm = norm

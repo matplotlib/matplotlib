@@ -391,6 +391,9 @@ class _process_plot_var_args(object):
             func = self._makefill
 
         ncx, ncy = x.shape[1], y.shape[1]
+        if ncx > 1 and ncy > 1 and ncx != ncy:
+            cbook.warn_deprecated("2.2", "cycling among columns of inputs "
+                                  "with non-matching shapes is deprecated.")
         for j in xrange(max(ncx, ncy)):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
@@ -618,9 +621,14 @@ class _AxesBase(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the class:`~matplotlib.axes.Axes` figure
+        Set the `~.Figure` for this `~.Axes`.
 
-        accepts a class:`~matplotlib.figure.Figure` instance
+        ..
+            ACCEPTS: `~.Figure`
+
+        Parameters
+        ----------
+        fig : `~.Figure`
         """
         martist.Artist.set_figure(self, fig)
 
@@ -866,7 +874,6 @@ class _AxesBase(martist.Artist):
         used, but which may be modified by :meth:`apply_aspect`, and a
         second which is the starting point for :meth:`apply_aspect`.
 
-
         Optional keyword arguments:
           *which*
 
@@ -877,7 +884,6 @@ class _AxesBase(martist.Artist):
             'original'   to change the second
             'both'       to change both
             ==========   ====================
-
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
@@ -894,10 +900,17 @@ class _AxesBase(martist.Artist):
 
     def set_axes_locator(self, locator):
         """
-        set axes_locator
+        Set the axes locator.
 
-        ACCEPT: a callable object which takes an axes instance and renderer and
-                 returns a bbox.
+        ..
+            ACCEPTS: a callable object which takes an axes instance and
+            renderer and returns a bbox.
+
+        Parameters
+        ----------
+        locator : callable
+            A locator function, which takes an axes and a renderer and returns
+            a bbox.
         """
         self._axes_locator = locator
         self.stale = True
@@ -1043,10 +1056,6 @@ class _AxesBase(martist.Artist):
             size=rcParams['axes.titlesize'],
             weight=rcParams['axes.titleweight'])
 
-        title_offset_points = rcParams['axes.titlepad']
-        self.titleOffsetTrans = mtransforms.ScaledTranslation(
-            0.0, title_offset_points / 72.0,
-            self.figure.dpi_scale_trans)
         self.title = mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
@@ -1064,10 +1073,12 @@ class _AxesBase(martist.Artist):
             verticalalignment='baseline',
             horizontalalignment='right',
             )
+        title_offset_points = rcParams['axes.titlepad']
+        # refactor this out so it can be called in ax.set_title if
+        # pad argument used...
+        self._set_title_offset_trans(title_offset_points)
 
         for _title in (self.title, self._left_title, self._right_title):
-            _title.set_transform(self.transAxes + self.titleOffsetTrans)
-            _title.set_clip_box(None)
             self._set_artist_props(_title)
 
         # The patch draws the background of the axes.  We want this to be below
@@ -1111,9 +1122,30 @@ class _AxesBase(martist.Artist):
     get_fc = get_facecolor
 
     def set_facecolor(self, color):
+        """Set the Axes facecolor.
+
+        ..
+            ACCEPTS: color
+
+        Parameters
+        ----------
+        color : color
+        """
         self._facecolor = color
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
+
+    def _set_title_offset_trans(self, title_offset_points):
+        """
+        Set the offset for the title either from rcParams['axes.titlepad']
+        or from set_title kwarg ``pad``.
+        """
+        self.titleOffsetTrans = mtransforms.ScaledTranslation(
+                0.0, title_offset_points / 72.0,
+                self.figure.dpi_scale_trans)
+        for _title in (self.title, self._left_title, self._right_title):
+            _title.set_transform(self.transAxes + self.titleOffsetTrans)
+            _title.set_clip_box(None)
 
     def set_prop_cycle(self, *args, **kwargs):
         """
@@ -1306,7 +1338,7 @@ class _AxesBase(martist.Artist):
           =====  ============
           value  description
           =====  ============
-          'C'    Center
+          'C'    center
           'SW'   bottom left
           'S'    bottom
           'SE'   bottom right
@@ -1317,6 +1349,9 @@ class _AxesBase(martist.Artist):
           'W'    left
           =====  ============
 
+        ..
+            ACCEPTS:
+            [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
         """
         if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
             self._anchor = anchor
@@ -2024,7 +2059,12 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling is applied on plot commands
 
-        accepts: [ *True* | *False* ]
+        ..
+            ACCEPTS: bool
+
+        Parameters
+        ----------
+        b : bool
         """
         self._autoscaleXon = b
         self._autoscaleYon = b
@@ -2033,7 +2073,12 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the x-axis is applied on plot commands
 
-        accepts: [ *True* | *False* ]
+        ..
+            ACCEPTS: bool
+
+        Parameters
+        ----------
+        b : bool
         """
         self._autoscaleXon = b
 
@@ -2041,7 +2086,12 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the y-axis is applied on plot commands
 
-        accepts: [ *True* | *False* ]
+        ..
+            ACCEPTS: bool
+
+        Parameters
+        ----------
+        b : bool
         """
         self._autoscaleYon = b
 
@@ -2074,7 +2124,12 @@ class _AxesBase(martist.Artist):
         *m* times the data interval will be added to each
         end of that interval before it is used in autoscaling.
 
-        accepts: float greater than -0.5
+        ..
+            ACCEPTS: float greater than -0.5
+
+        Parameters
+        ----------
+        m : float greater than -0.5
         """
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
@@ -2088,7 +2143,12 @@ class _AxesBase(martist.Artist):
         *m* times the data interval will be added to each
         end of that interval before it is used in autoscaling.
 
-        accepts: float greater than -0.5
+        ..
+            ACCEPTS: float greater than -0.5
+
+        Parameters
+        ----------
+        m : float greater than -0.5
         """
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
@@ -2154,17 +2214,20 @@ class _AxesBase(martist.Artist):
 
     def set_rasterization_zorder(self, z):
         """
-        Set zorder value below which artists will be rasterized.  Set
-        to `None` to disable rasterizing of artists below a particular
-        zorder.
+        Parameters
+        ----------
+        z : float or None
+            zorder below which artists are rasterized.  ``None`` means that
+            artists do not get rasterized based on zorder.
+
+            ..
+                ACCEPTS: float or None
         """
         self._rasterization_zorder = z
         self.stale = True
 
     def get_rasterization_zorder(self):
-        """
-        Get zorder value below which artists will be rasterized
-        """
+        """Return the zorder value below which artists will be rasterized."""
         return self._rasterization_zorder
 
     def autoscale(self, enable=True, axis='both', tight=None):
@@ -2432,31 +2495,40 @@ class _AxesBase(martist.Artist):
 
     def get_frame_on(self):
         """
-        Get whether the axes rectangle patch is drawn
+        Get whether the axes rectangle patch is drawn.
         """
         return self._frameon
 
     def set_frame_on(self, b):
         """
-        Set whether the axes rectangle patch is drawn
+        Set whether the axes rectangle patch is drawn.
 
-        ACCEPTS: [ *True* | *False* ]
+        ..
+            ACCEPTS: bool
+
+        Parameters
+        ----------
+        b : bool
         """
         self._frameon = b
         self.stale = True
 
     def get_axisbelow(self):
         """
-        Get whether axis below is true or not
+        Get whether axis ticks and gridlines are above or below most artists.
         """
         return self._axisbelow
 
     def set_axisbelow(self, b):
         """
-        Set whether the axis ticks and gridlines are above or below most
-        artists
+        Set whether axis ticks and gridlines are above or below most artists.
 
-        ACCEPTS: [ *True* | *False* | 'line' ]
+        ..
+            ACCEPTS: [ bool | 'line' ]
+
+        Parameters
+        ----------
+        b : bool or 'line'
         """
         self._axisbelow = validate_axisbelow(b)
         self.stale = True
@@ -2763,8 +2835,12 @@ class _AxesBase(martist.Artist):
     def set_xbound(self, lower=None, upper=None):
         """
         Set the lower and upper numerical bounds of the x-axis.
+
         This method will honor axes inversion regardless of parameter order.
         It will not change the _autoscaleXon attribute.
+
+        ..
+            ACCEPTS: (lower: float, upper: float)
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -2827,6 +2903,9 @@ class _AxesBase(martist.Artist):
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
         """
         Set the data limits for the x-axis
+
+        ..
+            ACCEPTS: (left: float, right: float)
 
         Parameters
         ----------
@@ -2936,7 +3015,10 @@ class _AxesBase(martist.Artist):
 
     def set_xscale(self, value, **kwargs):
         """
-        Set the x-axis scale
+        Set the x-axis scale.
+
+        ..
+            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Parameters
         ----------
@@ -2974,10 +3056,13 @@ class _AxesBase(martist.Artist):
         """
         Set the x ticks with list of *ticks*
 
+        ..
+            ACCEPTS: list of tick locations.
+
         Parameters
         ----------
         ticks : list
-            List of x-axis tick locations
+            List of x-axis tick locations.
 
         minor : bool, optional
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
@@ -3038,7 +3123,10 @@ class _AxesBase(martist.Artist):
 
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the xtick labels with list of string labels
+        Set the x-tick labels with list of string labels.
+
+        ..
+            ACCEPTS: list of string labels
 
         Parameters
         ----------
@@ -3094,6 +3182,9 @@ class _AxesBase(martist.Artist):
         Set the lower and upper numerical bounds of the y-axis.
         This method will honor axes inversion regardless of parameter order.
         It will not change the _autoscaleYon attribute.
+
+        ..
+            ACCEPTS: (lower: float, upper: float)
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -3137,6 +3228,9 @@ class _AxesBase(martist.Artist):
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
         """
         Set the data limits for the y-axis
+
+        ..
+            ACCEPTS: (bottom: float, top: float)
 
         Parameters
         ----------
@@ -3246,7 +3340,10 @@ class _AxesBase(martist.Artist):
 
     def set_yscale(self, value, **kwargs):
         """
-        Set the y-axis scale
+        Set the y-axis scale.
+
+        ..
+            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Parameters
         ----------
@@ -3282,6 +3379,9 @@ class _AxesBase(martist.Artist):
     def set_yticks(self, ticks, minor=False):
         """
         Set the y ticks with list of *ticks*
+
+        ..
+            ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3346,7 +3446,10 @@ class _AxesBase(martist.Artist):
 
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the y-tick labels with list of strings labels
+        Set the y-tick labels with list of strings labels.
+
+        ..
+            ACCEPTS: list of string labels
 
         Parameters
         ----------
@@ -3483,7 +3586,12 @@ class _AxesBase(martist.Artist):
         """
         Set whether the axes responds to navigation toolbar commands
 
-        ACCEPTS: [ *True* | *False* ]
+        ..
+            ACCEPTS: bool
+
+        Parameters
+        ----------
+        b : bool
         """
         self._navigate = b
 

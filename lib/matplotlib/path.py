@@ -1,15 +1,12 @@
-"""
-A module for dealing with the polylines used throughout matplotlib.
+r"""
+A module for dealing with the polylines used throughout Matplotlib.
 
-The primary class for polyline handling in matplotlib is :class:`Path`.
-Almost all vector drawing makes use of Paths somewhere in the drawing
-pipeline.
+The primary class for polyline handling in Matplotlib is `Path`.  Almost all
+vector drawing makes use of `Path`\s somewhere in the drawing pipeline.
 
-Whilst a :class:`Path` instance itself cannot be drawn, there exists
-:class:`~matplotlib.artist.Artist` subclasses which can be used for
-convenient Path visualisation - the two most frequently used of these are
-:class:`~matplotlib.patches.PathPatch` and
-:class:`~matplotlib.collections.PathCollection`.
+Whilst a `Path` instance itself cannot be drawn, some `~.Artist` subclasses,
+such as `~.PathPatch` and `~.PathCollection`, can be used for convenient `Path`
+visualisation.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -17,14 +14,17 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
 from weakref import WeakValueDictionary
+
+try:
+    from functools import lru_cache
+except ImportError:  # Py2
+    from backports.functools_lru_cache import lru_cache
 
 import numpy as np
 
 from . import _path, rcParams
-from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
-                    maxdict)
+from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 
 class Path(object):
@@ -942,27 +942,17 @@ class Path(object):
         """
         return cls.arc(theta1, theta2, n, True)
 
-    _hatch_dict = maxdict(8)
-
-    @classmethod
-    def hatch(cls, hatchpattern, density=6):
+    @staticmethod
+    @lru_cache(8)
+    def hatch(hatchpattern, density=6):
         """
         Given a hatch specifier, *hatchpattern*, generates a Path that
         can be used in a repeated hatching pattern.  *density* is the
         number of lines per unit square.
         """
         from matplotlib.hatch import get_path
-
-        if hatchpattern is None:
-            return None
-
-        hatch_path = cls._hatch_dict.get((hatchpattern, density))
-        if hatch_path is not None:
-            return hatch_path
-
-        hatch_path = get_path(hatchpattern, density)
-        cls._hatch_dict[(hatchpattern, density)] = hatch_path
-        return hatch_path
+        return (get_path(hatchpattern, density)
+                if hatchpattern is not None else None)
 
     def clip_to_bbox(self, bbox, inside=True):
         """

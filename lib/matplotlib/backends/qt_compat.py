@@ -6,8 +6,11 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os
+import logging
 import sys
-from matplotlib import rcParams, verbose
+from matplotlib import rcParams
+
+_log = logging.getLogger(__name__)
 
 # Available APIs.
 QT_API_PYQT = 'PyQt4'       # API is not set here; Python 2.x default is V 1
@@ -111,7 +114,7 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYQT5):
             QT_API = QT_API_PYSIDE
         cond = ("Could not import sip; falling back on PySide\n"
                 "in place of PyQt4 or PyQt5.\n")
-        verbose.report(cond, 'helpful')
+        _log.info(cond)
 
 if _sip_imported:
     if QT_API == QT_API_PYQTv2:
@@ -124,14 +127,14 @@ if _sip_imported:
             sip.setapi('QString', 2)
         except:
             res = 'QString API v2 specification failed. Defaulting to v1.'
-            verbose.report(cond + res, 'helpful')
+            _log.info(cond + res)
             # condition has now been reported, no need to repeat it:
             cond = ""
         try:
             sip.setapi('QVariant', 2)
         except:
             res = 'QVariant API v2 specification failed. Defaulting to v1.'
-            verbose.report(cond + res, 'helpful')
+            _log.info(cond + res)
     if QT_API == QT_API_PYQT5:
         try:
             from PyQt5 import QtCore, QtGui, QtWidgets

@@ -289,6 +289,7 @@ class ContourLabeler(object):
 
         return lw
 
+    @cbook.deprecated("2.2")
     def get_real_label_width(self, lev, fmt, fsize):
         """
         This computes actual onscreen label width.
@@ -328,7 +329,7 @@ class ContourLabeler(object):
             return lev
         else:
             if isinstance(fmt, dict):
-                return fmt[lev]
+                return fmt.get(lev, '%1.3f')
             elif callable(fmt):
                 return fmt(lev)
             else:
@@ -336,8 +337,7 @@ class ContourLabeler(object):
 
     def locate_label(self, linecontour, labelwidth):
         """
-        Find a good place to plot a label (relatively flat
-        part of the contour).
+        Find good place to draw a label (relatively flat part of the contour).
         """
 
         # Number of contour points
@@ -354,16 +354,15 @@ class ContourLabeler(object):
         XX = np.resize(linecontour[:, 0], (xsize, ysize))
         YY = np.resize(linecontour[:, 1], (xsize, ysize))
         # I might have fouled up the following:
-        yfirst = YY[:, 0].reshape(xsize, 1)
-        ylast = YY[:, -1].reshape(xsize, 1)
-        xfirst = XX[:, 0].reshape(xsize, 1)
-        xlast = XX[:, -1].reshape(xsize, 1)
+        yfirst = YY[:, :1]
+        ylast = YY[:, -1:]
+        xfirst = XX[:, :1]
+        xlast = XX[:, -1:]
         s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
-        L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
+        L = np.hypot(xlast - xfirst, ylast - yfirst)
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
-                                 -1)
+            dist = np.sum(np.abs(s) / L, axis=-1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
         # There must be a more efficient way...
@@ -417,25 +416,15 @@ class ContourLabeler(object):
         else:
             dp = np.zeros_like(xi)
 
-        ll = mlab.less_simple_linear_interpolation(pl, slc, dp + xi,
-                                                   extrap=True)
-
-        # get vector in pixel space coordinates from one point to other
-        dd = np.diff(ll, axis=0).ravel()
-
-        # Get angle of vector - must be calculated in pixel space for
-        # text rotation to work correctly
-        if np.all(dd == 0):  # Must deal with case of zero length label
-            rotation = 0.0
-        else:
-            rotation = np.rad2deg(np.arctan2(dd[1], dd[0]))
+        # Get angle of vector between the two ends of the label - must be
+        # calculated in pixel space for text rotation to work correctly.
+        (dx,), (dy,) = (np.diff(np.interp(dp + xi, pl, slc_col))
+                        for slc_col in slc.T)
+        rotation = np.rad2deg(np.arctan2(dy, dx))
 
         if self.rightside_up:
             # Fix angle so text is never upside-down
-            if rotation > 90:
-                rotation = rotation - 180.0
-            if rotation < -90:
-                rotation = 180.0 + rotation
+            rotation = (rotation + 90) % 180 - 90
 
         # Break contour if desired
         nlc = []
@@ -443,37 +432,26 @@ class ContourLabeler(object):
             # Expand range by spacing
             xi = dp + xi + np.array([-spacing, spacing])
 
-            # Get indices near points of interest
-            I = mlab.less_simple_linear_interpolation(
-                pl, np.arange(len(pl)), xi, extrap=False)
-
-            # If those indices aren't beyond contour edge, find x,y
-            if (not np.isnan(I[0])) and int(I[0]) != I[0]:
-                xy1 = mlab.less_simple_linear_interpolation(
-                    pl, lc, [xi[0]])
-
-            if (not np.isnan(I[1])) and int(I[1]) != I[1]:
-                xy2 = mlab.less_simple_linear_interpolation(
-                    pl, lc, [xi[1]])
-
-            # Round to integer values but keep as float
-            # To allow check against nan below
-            # Ignore nans here to avoid throwing an error on Appveyor build
-            # (can possibly be removed when build uses numpy 1.13)
-            with np.errstate(invalid='ignore'):
-                I = [np.floor(I[0]), np.ceil(I[1])]
+            # Get (integer) indices near points of interest; use -1 as marker
+            # for out of bounds.
+            I = np.interp(xi, pl, np.arange(len(pl)), left=-1, right=-1)
+            I = [np.floor(I[0]).astype(int), np.ceil(I[1]).astype(int)]
+            if I[0] != -1:
+                xy1 = [np.interp(xi[0], pl, lc_col) for lc_col in lc.T]
+            if I[1] != -1:
+                xy2 = [np.interp(xi[1], pl, lc_col) for lc_col in lc.T]
 
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
-                if np.all(~np.isnan(I)):
-                    nlc.append(np.r_[xy2, lc[int(I[1]):int(I[0]) + 1], xy1])
+                if np.all(I != -1):
+                    nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
-                if not np.isnan(I[0]):
-                    nlc.append(np.r_[lc[:int(I[0]) + 1], xy1])
-                if not np.isnan(I[1]):
-                    nlc.append(np.r_[xy2, lc[int(I[1]):]])
+                if I[0] != -1:
+                    nlc.append(np.row_stack([lc[:I[0]+1], xy1]))
+                if I[1] != -1:
+                    nlc.append(np.row_stack([xy2, lc[I[1]:]]))
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep

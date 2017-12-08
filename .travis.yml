@@ -57,11 +57,11 @@ env:
 matrix:
   include:
     - python: 2.7
-      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS='pandas<0.21.0' NOSE=nose
+      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas NOSE=nose
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS='pandas<0.21.0'
+      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -136,7 +136,7 @@ install:
 
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
     pip install $PRE \
-        pytest \
+        pytest!=3.3.0 \
         pytest-cov>=2.3.1 \
         pytest-faulthandler \
         pytest-rerunfailures \

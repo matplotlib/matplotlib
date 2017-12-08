@@ -674,7 +674,7 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using `Pillow <http://python-imaging.github.io/>`_.
+Here is an example using `Pillow <https://python-pillow.org/>`_.
 First, the figure is saved to a BytesIO object which is then fed to
 Pillow for further processing::
 

@@ -124,6 +124,19 @@ part of exploring and understanding complex datasets.
 .. image:: /_static/seaborn.png
     :height: 157px
 
+WCSAxes
+=======
+
+The `Astropy <http://www.astropy.org>`_ core package includes a submodule
+called WCSAxes (available at `astropy.visualization.wcsaxes
+<http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html>`_) which
+adds Matplotlib projections for Astronomical image data. The following is an
+example of a plot made with WCSAxes which includes the original coordinate
+system of the image and an overlay of a different coordinate system:
+
+.. image:: /_static/wcsaxes.jpg
+    :height: 400px
+
 Windrose
 ========
 `Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib,

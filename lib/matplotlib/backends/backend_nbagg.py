@@ -125,7 +125,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         super(FigureManagerNbAgg, cls).get_javascript(stream=output)
         with io.open(os.path.join(
                 os.path.dirname(__file__),
-                "web_backend",
+                "web_backend", 'js',
                 "nbagg_mpl.js"), encoding='utf8') as fd:
             output.write(fd.read())
         if stream is None:
@@ -258,7 +258,8 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show():
+    def show(*args, **kwargs):
+        ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 
         managers = Gcf.get_all_fig_managers()

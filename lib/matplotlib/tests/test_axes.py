@@ -26,7 +26,8 @@ import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
 from numpy.testing import assert_allclose, assert_array_equal
-from matplotlib.cbook import IgnoredKeywordWarning
+from matplotlib.cbook import (
+    IgnoredKeywordWarning, MatplotlibDeprecationWarning)
 from matplotlib.cbook._backports import broadcast_to
 
 # Note: Some test cases are run twice: once normally and once with labeled data
@@ -728,16 +729,19 @@ def test_polar_theta_limits():
     for i, start in enumerate(theta_mins):
         for j, end in enumerate(theta_maxs):
             ax = axes[i, j]
+            ax.plot(theta, r)
             if start < end:
-                ax.plot(theta, r)
                 ax.set_thetamin(start)
                 ax.set_thetamax(end)
-                ax.tick_params(tick1On=True, tick2On=True,
-                               direction=DIRECTIONS[i % len(DIRECTIONS)],
-                               rotation='auto')
-                ax.yaxis.set_tick_params(label2On=True, rotation='auto')
             else:
-                ax.set_visible(False)
+                # Plot with clockwise orientation instead.
+                ax.set_thetamin(end)
+                ax.set_thetamax(start)
+                ax.set_theta_direction('clockwise')
+            ax.tick_params(tick1On=True, tick2On=True,
+                           direction=DIRECTIONS[i % len(DIRECTIONS)],
+                           rotation='auto')
+            ax.yaxis.set_tick_params(label2On=True, rotation='auto')
 
 
 @image_comparison(baseline_images=['axvspan_epoch'])
@@ -1190,6 +1194,12 @@ def test_pcolorargs():
         ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
+    x[0] = np.NaN
+    with pytest.raises(ValueError):
+        ax.pcolormesh(x, y, Z[:-1, :-1])
+    x = np.ma.array(x, mask=(x < 0))
+    with pytest.raises(ValueError):
+        ax.pcolormesh(x, y, Z[:-1, :-1])
 
 
 @image_comparison(baseline_images=['canonical'])
@@ -1584,6 +1594,14 @@ def test_hist_unequal_bins_density():
     mpl_heights, _, _ = plt.hist(t, bins=bins, density=True)
     np_heights, _ = np.histogram(t, bins=bins, density=True)
     assert_allclose(mpl_heights, np_heights)
+
+
+def test_hist_datetime_datasets():
+    data = [[datetime.datetime(2017, 1, 1), datetime.datetime(2017, 1, 1)],
+            [datetime.datetime(2017, 1, 1), datetime.datetime(2017, 1, 2)]]
+    fig, ax = plt.subplots()
+    ax.hist(data, stacked=True)
+    ax.hist(data, stacked=False)
 
 
 def contour_dat():
@@ -4903,6 +4921,22 @@ def test_dash_offset():
         ax.plot(x, j*y, ls=(j, (10, 10)), lw=5, color='k')
 
 
+def test_title_pad():
+    # check that title padding puts the title in the right
+    # place...
+    fig, ax = plt.subplots()
+    ax.set_title('aardvark', pad=30.)
+    m = ax.titleOffsetTrans.get_matrix()
+    assert m[1, -1] == (30. / 72. * fig.dpi)
+    ax.set_title('aardvark', pad=0.)
+    m = ax.titleOffsetTrans.get_matrix()
+    assert m[1, -1] == 0.
+    # check that it is reverted...
+    ax.set_title('aardvark', pad=None)
+    m = ax.titleOffsetTrans.get_matrix()
+    assert m[1, -1] == (matplotlib.rcParams['axes.titlepad'] / 72. * fig.dpi)
+
+
 def test_title_location_roundtrip():
     fig, ax = plt.subplots()
     ax.set_title('aardvark')
@@ -5049,6 +5083,8 @@ def test_broken_barh_empty():
 
 def test_pandas_pcolormesh():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
@@ -5060,6 +5096,8 @@ def test_pandas_pcolormesh():
 
 def test_pandas_indexing_dates():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
@@ -5073,6 +5111,8 @@ def test_pandas_indexing_dates():
 
 def test_pandas_errorbar_indexing():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     df = pd.DataFrame(np.random.uniform(size=(5, 4)),
                       columns=['x', 'y', 'xe', 'ye'],
@@ -5083,6 +5123,8 @@ def test_pandas_errorbar_indexing():
 
 def test_pandas_indexing_hist():
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
@@ -5093,6 +5135,8 @@ def test_pandas_indexing_hist():
 def test_pandas_bar_align_center():
     # Tests fix for issue 8767
     pd = pytest.importorskip('pandas')
+    from pandas.tseries import converter
+    converter.register()
 
     df = pd.DataFrame({'a': range(2), 'b': range(2)})
 
@@ -5101,21 +5145,6 @@ def test_pandas_bar_align_center():
     rect = ax.bar(df.loc[df['a'] == 1, 'b'],
                   df.loc[df['a'] == 1, 'b'],
                   align='center')
-
-    fig.canvas.draw()
-
-
-def test_pandas_bar_align_center():
-    # Tests fix for issue 8767
-    pd = pytest.importorskip('pandas')
-
-    df = pd.DataFrame({'a': range(2), 'b': range(2)})
-
-    fig, ax = plt.subplots(1)
-
-    rect = ax.barh(df.loc[df['a'] == 1, 'b'],
-                   df.loc[df['a'] == 1, 'b'],
-                   align='center')
 
     fig.canvas.draw()
 
@@ -5265,14 +5294,22 @@ def test_bar_color_cycle():
 
 
 def test_tick_param_label_rotation():
-    fix, ax = plt.subplots()
-    plt.plot([0, 1], [0, 1])
+    fix, (ax, ax2) = plt.subplots(1, 2)
+    ax.plot([0, 1], [0, 1])
+    ax2.plot([0, 1], [0, 1])
     ax.xaxis.set_tick_params(which='both', rotation=75)
     ax.yaxis.set_tick_params(which='both', rotation=90)
     for text in ax.get_xticklabels(which='both'):
         assert text.get_rotation() == 75
     for text in ax.get_yticklabels(which='both'):
         assert text.get_rotation() == 90
+
+    ax2.tick_params(axis='x', labelrotation=53)
+    ax2.tick_params(axis='y', rotation=35)
+    for text in ax2.get_xticklabels(which='major'):
+        assert text.get_rotation() == 53
+    for text in ax2.get_yticklabels(which='major'):
+        assert text.get_rotation() == 35
 
 
 @pytest.mark.style('default')
@@ -5458,3 +5495,15 @@ def test_polar_gridlines():
 
     assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
     assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2
+
+
+def test_empty_errorbar_legend():
+    fig, ax = plt.subplots()
+    ax.errorbar([], [], xerr=[], label='empty y')
+    ax.errorbar([], [], yerr=[], label='empty x')
+    ax.legend()
+
+
+def test_plot_columns_cycle_deprecation():
+    with pytest.warns(MatplotlibDeprecationWarning):
+        plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))

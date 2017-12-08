@@ -1804,7 +1804,11 @@ class MaxNLocator(Locator):
 
         *steps*
             Sequence of nice numbers starting with 1 and ending with 10;
-            e.g., [1, 2, 4, 5, 10]
+            e.g., [1, 2, 4, 5, 10], where the values are acceptable
+            tick multiples.  i.e. for the example, 20, 40, 60 would be
+            an acceptable set of ticks, as would 0.4, 0.6, 0.8, because
+            they are multiples of 2.  However, 30, 60, 90 would not
+            be allowed because 3 does not appear in the list of steps.
 
         *integer*
             If True, ticks will take only integer values, provided

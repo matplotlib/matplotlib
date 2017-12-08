@@ -245,4 +245,14 @@ def test_setp():
     # Check `file` argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
-    assert sio.getvalue() == '  zorder: any number \n'
+    assert sio.getvalue() == '  zorder: float \n'
+
+
+def test_None_zorder():
+    fig, ax = plt.subplots()
+    ln, = ax.plot(range(5), zorder=None)
+    assert ln.get_zorder() == mlines.Line2D.zorder
+    ln.set_zorder(123456)
+    assert ln.get_zorder() == 123456
+    ln.set_zorder(None)
+    assert ln.get_zorder() == mlines.Line2D.zorder

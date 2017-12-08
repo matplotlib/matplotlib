@@ -180,11 +180,7 @@ plt.plot(data)
 # A sample matplotlibrc file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# .. htmlonly::
-#
-#     `(download) <../../_static/matplotlibrc>`__
-#
-# .. literalinclude:: ../../_static/matplotlibrc
+# .. literalinclude:: ../../../matplotlibrc.template
 #
 #
 # .. _matplotlibrc: http://matplotlib.org/users/customizing.html

@@ -1557,24 +1557,26 @@ class Grouper(object):
 
 
 def simple_linear_interpolation(a, steps):
-    if steps == 1:
-        return a
+    """
+    Resample an array with ``steps - 1`` points between original point pairs.
 
-    steps = int(np.floor(steps))
-    new_length = ((len(a) - 1) * steps) + 1
-    new_shape = list(a.shape)
-    new_shape[0] = new_length
-    result = np.zeros(new_shape, a.dtype)
+    Parameters
+    ----------
+    a : array, shape (n, ...)
+    steps : int
 
-    result[0] = a[0]
-    a0 = a[0:-1]
-    a1 = a[1:]
-    delta = ((a1 - a0) / steps)
-    for i in range(1, steps):
-        result[i::steps] = delta * i + a0
-    result[steps::steps] = a1
+    Returns
+    -------
+    array, shape ``((n - 1) * steps + 1, ...)``
 
-    return result
+    Along each column of *a*, ``(steps - 1)`` points are introduced between
+    each original values; the values are linearly interpolated.
+    """
+    fps = a.reshape((len(a), -1))
+    xp = np.arange(len(a)) * steps
+    x = np.arange((len(a) - 1) * steps + 1)
+    return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
+            .reshape((len(x),) + a.shape[1:]))
 
 
 @deprecated('2.1', alternative='shutil.rmtree')

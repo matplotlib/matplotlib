@@ -4,13 +4,8 @@ Fourier Demo WX
 ===============
 
 """
-import numpy as np
 
-# matplotlib requires wxPython 2.8+
-# set the wxPython version in lib\site-packages\wx.pth file
-# or if you have wxversion installed un-comment the lines below
-#import wxversion
-#wxversion.ensureMinimal('2.8')
+import numpy as np
 
 import wx
 import matplotlib
@@ -165,9 +160,9 @@ class FourierDemoWindow(wx.Window, Knob):
         self.canvas.SetSize(self.GetSize())
 
     def mouseDown(self, evt):
-        if self.lines[0] in self.figure.hitlist(evt):
+        if self.lines[0].contains(evt)[0]:
             self.state = 'frequency'
-        elif self.lines[1] in self.figure.hitlist(evt):
+        elif self.lines[1].contains(evt)[0]:
             self.state = 'time'
         else:
             self.state = ''

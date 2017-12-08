@@ -936,10 +936,11 @@ class TextBox(AxesWidget):
 
     def disconnect(self, cid):
         """remove the observer with connection id *cid*"""
-        try:
-            del self.observers[cid]
-        except KeyError:
-            pass
+        for reg in (self.change_observers, self.submit_observers):
+            try:
+                del reg[cid]
+            except KeyError:
+                pass
 
 
 class RadioButtons(AxesWidget):

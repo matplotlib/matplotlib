@@ -6,6 +6,7 @@ from six.moves import xrange, zip, zip_longest
 
 import functools
 import itertools
+import logging
 import math
 import warnings
 
@@ -42,6 +43,7 @@ from matplotlib.cbook import (
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
+_log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
@@ -134,7 +136,8 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc="center", **kwargs):
+    def set_title(self, label, fontdict=None, loc="center", pad=None,
+                    **kwargs):
         """
         Set a title for the axes.
 
@@ -159,6 +162,10 @@ class Axes(_AxesBase):
         loc : {'center', 'left', 'right'}, str, optional
             Which title to set, defaults to 'center'
 
+        pad : float
+            The offset of the title from the top of the axes, in points.
+            Default is ``None`` to use rcParams['axes.titlepad'].
+
         Returns
         -------
         text : :class:`~matplotlib.text.Text`
@@ -182,6 +189,9 @@ class Axes(_AxesBase):
             'fontweight': rcParams['axes.titleweight'],
             'verticalalignment': 'baseline',
             'horizontalalignment': loc.lower()}
+        if pad is None:
+            pad = rcParams['axes.titlepad']
+        self._set_title_offset_trans(float(pad))
         title.set_text(label)
         title.update(default)
         if fontdict is not None:
@@ -2969,7 +2979,7 @@ class Axes(_AxesBase):
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
-            if noxlims.any():
+            if noxlims.any() or len(noxlims) == 0:
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
                 barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
@@ -3018,7 +3028,7 @@ class Axes(_AxesBase):
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
-            if noylims.any():
+            if noylims.any() or len(noylims) == 0:
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
                 barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
@@ -5182,7 +5192,21 @@ class Axes(_AxesBase):
             return X, Y, C
 
         if len(args) == 3:
-            X, Y, C = [np.asanyarray(a) for a in args]
+            # Check x and y for bad data...
+            C = np.asanyarray(args[2])
+            X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
+            if funcname == 'pcolormesh':
+                if np.ma.is_masked(X) or np.ma.is_masked(Y):
+                    raise ValueError(
+                        'x and y arguments to pcolormesh cannot have '
+                        'non-finite values or be of type '
+                        'numpy.ma.core.MaskedArray with masked values')
+                # safe_masked_invalid() returns an ndarray for dtypes other
+                # than floating point.
+                if isinstance(X, np.ma.core.MaskedArray):
+                    X = X.data  # strip mask as downstream doesn't like it...
+                if isinstance(Y, np.ma.core.MaskedArray):
+                    Y = Y.data
             numRows, numCols = C.shape
         else:
             raise TypeError(
@@ -5577,7 +5601,6 @@ class Axes(_AxesBase):
         # convert to one dimensional arrays
         C = C.ravel()
         coords = np.column_stack((X, Y)).astype(float, copy=False)
-
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
                                     **kwargs)
@@ -5879,7 +5902,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : (n,) array or sequence of (n,) arrays
-            Input values, this takes either a single array or a sequency of
+            Input values, this takes either a single array or a sequence of
             arrays which are not required to be of the same length
 
         bins : integer or sequence or 'auto', optional
@@ -6028,6 +6051,9 @@ class Axes(_AxesBase):
 
             Default is ``False``
 
+        normed : bool, optional
+            Deprecated; use the density keyword argument instead.
+
         Returns
         -------
         n : array or list of arrays
@@ -6085,36 +6111,40 @@ class Axes(_AxesBase):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
+        if normed is not None:
+            warnings.warn("The 'normed' kwarg is deprecated, and has been "
+                          "replaced by the 'density' kwarg.")
         if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used "
                              "simultaneously. "
                              "Please only use 'density', since 'normed'"
-                             "will be deprecated.")
+                             "is deprecated.")
 
-        # process the unit information
-        self._process_unit_info(xdata=x, kwargs=kwargs)
-        x = self.convert_xunits(x)
+        # basic input validation
+        input_empty = np.size(x) == 0
+        # Massage 'x' for processing.
+        if input_empty:
+            x = [np.array([])]
+        else:
+            x = cbook._reshape_2D(x, 'x')
+        nx = len(x)  # number of datasets
+
+        # Process unit information
+        # Unit conversion is done individually on each dataset
+        self._process_unit_info(xdata=x[0], kwargs=kwargs)
+        x = [self.convert_xunits(xi) for xi in x]
+
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
 
         # Check whether bins or range are given explicitly.
         binsgiven = (cbook.iterable(bins) or bin_range is not None)
 
-        # basic input validation
-        input_empty = np.size(x) == 0
-
-        # Massage 'x' for processing.
-        if input_empty:
-            x = np.array([[]])
-        else:
-            x = cbook._reshape_2D(x, 'x')
-        nx = len(x)  # number of datasets
-
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             w = cbook._reshape_2D(weights, 'weights')
         else:
-            w = [None]*nx
+            w = [None] * nx
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
