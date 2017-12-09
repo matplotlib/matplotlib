@@ -2802,15 +2802,6 @@ class NavigationToolbar2(object):
         self.mode = ''  # a mode string for the status bar
         self.set_history_buttons()
 
-        @partial(canvas.mpl_connect, 'draw_event')
-        def update_stack(event):
-            nav_info = self._nav_stack()
-            if (nav_info is None  # True initial navigation info.
-                    # An axes has been added or removed, so update the
-                    # navigation info too.
-                    or set(nav_info) != set(self.canvas.figure.axes)):
-                self.push_current()
-
     def set_message(self, s):
         """Display a message on toolbar or in status bar."""
 
@@ -2955,6 +2946,10 @@ class NavigationToolbar2(object):
             self._button_pressed = None
             return
 
+        if self._nav_stack() is None:
+            # set the home button to this view
+            self.push_current()
+
         x, y = event.x, event.y
         self._xypress = []
         for i, a in enumerate(self.canvas.figure.get_axes()):
@@ -2989,6 +2984,10 @@ class NavigationToolbar2(object):
         else:
             self._button_pressed = None
             return
+
+        if self._nav_stack() is None:
+            # set the home button to this view
+            self.push_current()
 
         x, y = event.x, event.y
         self._xypress = []
