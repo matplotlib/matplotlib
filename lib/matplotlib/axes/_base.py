@@ -1261,43 +1261,52 @@ class _AxesBase(martist.Artist):
 
     def set_aspect(self, aspect, adjustable=None, anchor=None):
         """
-        *aspect*
+        Set the aspect of the axis scaling, i.e. the ratio of y-unit to x-unit.
 
-          ========   ================================================
-          value      description
-          ========   ================================================
-          'auto'     automatic; fill position rectangle with data
-          'equal'    same scaling from data to plot units for x and y
-           num       a circle will be stretched such that the height
-                     is num times the width. aspect=1 is the same as
-                     aspect='equal'.
-          ========   ================================================
+        Parameters
+        ----------
+        aspect : ['auto' | 'equal'] or num
+            Possible values:
 
-        *adjustable*
+            ========   ================================================
+            value      description
+            ========   ================================================
+            'auto'     automatic; fill the position rectangle with data
+            'equal'    same scaling from data to plot units for x and y
+             num       a circle will be stretched such that the height
+                       is num times the width. aspect=1 is the same as
+                       aspect='equal'.
+            ========   ================================================
 
-          ============   =====================================
-          value          description
-          ============   =====================================
-          'box'          change physical size of axes
-          'datalim'      change xlim or ylim
-          'box-forced'   same as 'box', but axes can be shared
-          ============   =====================================
+        adjustable : None or ['box' | 'datalim' | 'box-forced'], optional
+            If not ``None``, this defines which parameter will be adjusted to
+            meet the required aspect. See `.set_adjustable` for further
+            details.
 
-        'box' does not allow axes sharing, as this can cause
-        unintended side effect. For cases when sharing axes is
-        fine, use 'box-forced'.
+        anchor : None or str or 2-tuple of float, optional
+            If not ``None``, this defines where the Axes will be drawn if there
+            is extra space due to aspect constraints. The most common way to
+            to specify the anchor are abbreviations of carindal directions:
 
-        *anchor*
+            =====   =====================
+            value   description
+            =====   =====================
+            'C'     centered
+            'SW'    lower left corner
+            'S'     middle of bottom edge
+            'SE'    lower right corner
+            etc.
+            =====   =====================
 
-          =====   =====================
-          value   description
-          =====   =====================
-          'C'     centered
-          'SW'    lower left corner
-          'S'     middle of bottom edge
-          'SE'    lower right corner
-          etc.
-          =====   =====================
+            See `.set_anchor` for further details.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_adjustable
+            defining the parameter to adjust in order to meet the required
+            aspect.
+        matplotlib.axes.Axes.set_anchor
+            defining the position in case of extra space.
         """
         if (isinstance(aspect, six.string_types)
                 and aspect in ('equal', 'auto')):
@@ -1316,7 +1325,29 @@ class _AxesBase(martist.Artist):
 
     def set_adjustable(self, adjustable):
         """
-        ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
+        Define which parameter the Axes will change to achieve a given aspect.
+
+        Possible values are:
+
+        ============   =====================================
+        value          description
+        ============   =====================================
+        'box'          change the physical size of the Axes
+        'datalim'      change xlim or ylim
+        'box-forced'   same as 'box', but axes can be shared
+        ============   =====================================
+
+        'box' does not allow axes sharing, as this can cause
+        unintended side effect. For cases when sharing axes is
+        fine, use 'box-forced'.
+
+        ..
+            ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
         """
         if adjustable in ('box', 'datalim', 'box-forced'):
             if self in self._shared_x_axes or self in self._shared_y_axes:
@@ -1329,29 +1360,60 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     def get_anchor(self):
+        """
+        Get the anchor location.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_anchor
+            for a description of the anchor.
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
+        """
         return self._anchor
 
     def set_anchor(self, anchor):
         """
-        *anchor*
+        Define the anchor location.
 
-          =====  ============
-          value  description
-          =====  ============
-          'C'    center
-          'SW'   bottom left
-          'S'    bottom
-          'SE'   bottom right
-          'E'    right
-          'NE'   top right
-          'N'    top
-          'NW'   top left
-          'W'    left
-          =====  ============
+        The actual drawing area (active position) of the Axes may be smaller
+        than the Bbox (original position) when a fixed aspect is required. The
+        anchor defines where the drawing area will be located within the
+        available space.
 
         ..
             ACCEPTS:
             [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
+
+        Parameters
+        ----------
+        anchor : str or 2-tuple of floats
+            The anchor position may be either:
+
+            - a sequence (*cx*, *cy*). *cx* and *cy* may range from 0
+              to 1, where 0 is left or bottom and 1 is right or top.
+
+            - a string using cardinal directions as abbreviation:
+
+              - 'C' for centered
+              - 'S' (south) for bottom-center
+              - 'SW' (south west) for bottom-left
+              - etc.
+
+              Here is an overview of the possible positions:
+
+              +------+------+------+
+              | 'NW' | 'N'  | 'NE' |
+              +------+------+------+
+              | 'W'  | 'C'  | 'E'  |
+              +------+------+------+
+              | 'SW' | 'S'  | 'SE' |
+              +------+------+------+
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
         """
         if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
             self._anchor = anchor
@@ -1390,8 +1452,26 @@ class _AxesBase(martist.Artist):
 
     def apply_aspect(self, position=None):
         """
-        Use :meth:`_aspect` and :meth:`_adjustable` to modify the
-        axes box or the view limits.
+        Adjust the Axes so that it fulfills its aspect setting.
+
+        Depending on `.get_adjustable` and `.get_anchor` this will either
+        modify the Axes box or the view limits.
+
+        Notes
+        -----
+        This is automatically called on draw. So you won't need to call this
+        yourself in most cases. One exception may be if you need to update the
+        Axes before drawing.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
+        matplotlib.axes.Axes.set_adjustable
+            defining the parameter to adjust in order to meet the required
+            aspect.
+        matplotlib.axes.Axes.set_anchor
+            defining the position in case of extra space.
         """
         if position is None:
             position = self.get_position(original=True)
