@@ -1234,10 +1234,14 @@ class Figure(Artist):
         """
         Clear the figure.
 
-        Set *keep_observers* to True if, for example,
-        a gui widget is tracking the axes in the figure.
-        Set *reset_rcparams* to True to reset figure
-        parameters to rcParams values.
+        Parameters
+        ----------
+        keep_observers : bool, optional
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the axes in the figure.
+        reset_rcparams : bool, optional
+            Set *reset_rcparams* to True to reset figure
+            parameters to rcParams values.
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry()
