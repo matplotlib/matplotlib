@@ -755,6 +755,7 @@ class Matplotlib(SetupPackage):
                 'mpl-data/example/*.npy',
                 'mpl-data/matplotlibrc',
                 'backends/web_backend/*.*',
+                'backends/web_backend/js/*.*',
                 'backends/web_backend/jquery/js/*.min.js',
                 'backends/web_backend/jquery/css/themes/base/*.min.css',
                 'backends/web_backend/jquery/css/themes/base/images/*',

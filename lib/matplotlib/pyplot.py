@@ -890,9 +890,9 @@ def axes(arg=None, **kwargs):
         `.Figure.add_axes` respectively. Some common keyword arguments are
         listed below:
 
-        =========   ==============   ===========================================
+        =========   ==============   ==============================================
         kwarg       Accepts          Description
-        =========   ==============   ===========================================
+        =========   ==============   ==============================================
         facecolor   color            the axes background color
         frameon     [True|False]     display the frame?
         sharex      otherax          current axes shares xaxis attribute
@@ -904,7 +904,7 @@ def axes(arg=None, **kwargs):
                                      the ratio of y-unit/x-unit in screen-space.
                                      Also see
                                      :meth:`~matplotlib.axes.Axes.set_aspect`.
-        =========   ==============   ===========================================
+        =========   ==============   ==============================================
 
     Returns
     -------
