@@ -46,13 +46,10 @@ class ToolBase:
 
     Attributes
     ----------
-    toolmanager : `matplotlib.backend_managers.ToolManager`
-        ToolManager that controls this Tool.
-    figure : `FigureCanvas`
-        Figure instance that is affected by this Tool.
-    name : str
-        Used as **Id** of the tool, has to be unique among tools of the same
-        ToolManager.
+    toolmanager: `matplotlib.backend_managers.ToolManager`
+        ToolManager that controls this Tool
+    figure: `FigureCanvas`
+        Figure instance that is affected by this Tool
     """
 
     default_keymap = None
@@ -83,7 +80,6 @@ class ToolBase:
         cbook._warn_external(
             'The new Tool classes introduced in v1.5 are experimental; their '
             'API (including names) will likely change in future versions.')
-        self._name = name
         self._toolmanager = toolmanager
         self._figure = None
 
@@ -141,11 +137,6 @@ class ToolBase:
             Extra data.
         """
         pass
-
-    @property
-    def name(self):
-        """Tool Id."""
-        return self._name
 
     def destroy(self):
         """
@@ -262,8 +253,8 @@ class SetCursorBase(ToolBase):
                                              self._add_tool_cbk)
 
         # process current tools
-        for tool in self.toolmanager.tools.values():
-            self._add_tool(tool)
+        for tool_name, tool in self.toolmanager.tools.items():
+            self._add_tool(tool_name, tool)
 
     def set_figure(self, figure):
         if self._id_drag:
@@ -281,17 +272,17 @@ class SetCursorBase(ToolBase):
 
         self._set_cursor_cbk(event.canvasevent)
 
-    def _add_tool(self, tool):
-        """Set the cursor when the tool is triggered."""
+    def _add_tool(self, tool_name, tool):
+        """set the cursor when the tool is triggered"""
         if getattr(tool, 'cursor', None) is not None:
-            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
+            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool_name,
                                                  self._tool_trigger_cbk)
 
     def _add_tool_cbk(self, event):
         """Process every newly added tool."""
         if event.tool is self:
             return
-        self._add_tool(event.tool)
+        self._add_tool(event.tool_name, event.tool)
 
     def _set_cursor_cbk(self, event):
         if not event:

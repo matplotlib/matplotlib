@@ -9,18 +9,18 @@ _log = logging.getLogger(__name__)
 
 
 class ToolEvent:
-    """Event for tool manipulation (add/remove)."""
-    def __init__(self, name, sender, tool, data=None):
+    """Event for tool manipulation (add/remove)"""
+    def __init__(self, name, sender, tool, tool_name, data=None):
         self.name = name
         self.sender = sender
         self.tool = tool
+        self.tool_name = tool_name
         self.data = data
 
 
 class ToolTriggerEvent(ToolEvent):
-    """Event to inform that a tool has been triggered."""
-    def __init__(self, name, sender, tool, canvasevent=None, data=None):
-        ToolEvent.__init__(self, name, sender, tool, data)
+    def __init__(self, name, sender, tool, tool_name, canvasevent=None, data=None):
+        ToolEvent.__init__(self, name, sender, tool, tool_name, data)
         self.canvasevent = canvasevent
 
 
@@ -234,7 +234,7 @@ class ToolManager:
         self._remove_keys(name)
 
         s = 'tool_removed_event'
-        event = ToolEvent(s, self, tool)
+        event = ToolEvent(s, self, tool, name)
         self._callbacks.process(s, event)
 
         del self._tools[name]
@@ -289,24 +289,25 @@ class ToolManager:
 
             # If initially toggled
             if tool_obj.toggled:
-                self._handle_toggle(tool_obj, None, None, None)
+                self._handle_toggle(name, tool_obj, None, None, None)
         tool_obj.set_figure(self.figure)
 
-        self._tool_added_event(tool_obj)
+        self._tool_added_event(tool_obj, name)
         return tool_obj
 
-    def _tool_added_event(self, tool):
+    def _tool_added_event(self, tool, tool_name):
         s = 'tool_added_event'
-        event = ToolEvent(s, self, tool)
+        event = ToolEvent(s, self, tool, tool_name)
         self._callbacks.process(s, event)
 
-    def _handle_toggle(self, tool, sender, canvasevent, data):
+    def _handle_toggle(self, tool_name, tool, sender, canvasevent, data):
         """
         Toggle tools, need to untoggle prior to using other Toggle tool.
         Called from trigger_tool.
 
         Parameters
         ----------
+        tool_name: String
         tool : `.ToolBase`
         sender : object
             Object that wishes to trigger the tool.
@@ -320,19 +321,19 @@ class ToolManager:
         # radio_group None is not mutually exclusive
         # just keep track of toggled tools in this group
         if radio_group is None:
-            if tool.name in self._toggled[None]:
-                self._toggled[None].remove(tool.name)
+            if tool_name in self._toggled[None]:
+                self._toggled[None].remove(tool_name)
             else:
-                self._toggled[None].add(tool.name)
+                self._toggled[None].add(tool_name)
             return
 
         # If the tool already has a toggled state, untoggle it
-        if self._toggled[radio_group] == tool.name:
+        if self._toggled[radio_group] == tool_name:
             toggled = None
         # If no tool was toggled in the radio_group
         # toggle it
         elif self._toggled[radio_group] is None:
-            toggled = tool.name
+            toggled = tool_name
         # Other tool in the radio_group is toggled
         else:
             # Untoggle previously toggled tool
@@ -340,7 +341,7 @@ class ToolManager:
                               self,
                               canvasevent,
                               data)
-            toggled = tool.name
+            toggled = tool_name
 
         # Keep track of the toggled tool in the radio_group
         self._toggled[radio_group] = toggled
@@ -387,7 +388,7 @@ class ToolManager:
         self._trigger_tool(name, sender, canvasevent, data)
 
         s = 'tool_trigger_%s' % name
-        event = ToolTriggerEvent(s, sender, tool, canvasevent, data)
+        event = ToolTriggerEvent(s, sender, tool, name, canvasevent, data)
         self._callbacks.process(s, event)
 
     def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
@@ -395,7 +396,7 @@ class ToolManager:
         tool = self.get_tool(name)
 
         if isinstance(tool, tools.ToolToggleBase):
-            self._handle_toggle(tool, sender, canvasevent, data)
+            self._handle_toggle(name, tool, sender, canvasevent, data)
 
         # Important!!!
         # This is where the Tool object gets triggered

@@ -3314,9 +3314,9 @@ class ToolContainerBase:
 
         This only gets used for toggled tools.
         """
-        self.toggle_toolitem(event.tool.name, event.tool.toggled)
+        self.toggle_toolitem(event.tool_name, event.tool.toggled)
 
-    def add_tool(self, tool, group, position=-1):
+    def add_tool(self, tool_name, group, position=-1):
         """
         Add a tool to this container.
 
@@ -3329,17 +3329,21 @@ class ToolContainerBase:
         position : int, default: -1
             The position within the group to place this tool.
         """
-        tool = self.toolmanager.get_tool(tool)
+        tool = self.toolmanager.get_tool(tool_name)
         image = self._get_image_filename(tool.image)
         toggle = getattr(tool, 'toggled', None) is not None
-        self.add_toolitem(tool.name, group, position,
+        self.add_toolitem(tool_name, group, position,
                           image, tool.description, toggle)
         if toggle:
-            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
+            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool_name,
                                                  self._tool_toggled_cbk)
             # If initially toggled
             if tool.toggled:
-                self.toggle_toolitem(tool.name, True)
+                self.toggle_toolitem(tool_name, True)
+
+    def _remove_tool_cbk(self, event):
+        """Captures the 'tool_removed_event' signal and removes the tool."""
+        self.remove_toolitem(event.tool_name)
 
     def _get_image_filename(self, image):
         """Find the image based on its name."""
