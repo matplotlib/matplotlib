@@ -7374,7 +7374,7 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["dataset"], label_namer=None)
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   points=100, bw_method=None):
+                   percentiles=[], points=100, bw_method=None):
         """
         Make a violin plot.
 
@@ -7409,6 +7409,10 @@ class Axes(_AxesBase):
 
         showmedians : bool, default = False
           If `True`, will toggle rendering of the medians.
+
+        percentiles : array-like, default = []
+          Displays percentiles in the plot for all the given percentiles
+          in the set
 
         points : scalar, default = 100
           Defines the number of points to evaluate each of the
@@ -7457,6 +7461,11 @@ class Axes(_AxesBase):
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
+
+            - ``cpercentiles`` : A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the percentile values of each of the
+              violins' distributions
         """
 
         def _kde_method(X, coords):
@@ -7466,7 +7475,8 @@ class Axes(_AxesBase):
             kde = mlab.GaussianKDE(X, bw_method)
             return kde.evaluate(coords)
 
-        vpstats = cbook.violin_stats(dataset, _kde_method, points=points)
+        vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
+                                     percentiles=percentiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
                            showextrema=showextrema, showmedians=showmedians)
@@ -7501,6 +7511,8 @@ class Axes(_AxesBase):
 
           - ``max``: The maximum value for this violin's dataset.
 
+          - ``percentiles``: The percentiles for this violin's dataset.
+
         positions : array-like, default = [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
           automatically set to match the positions.
@@ -7522,6 +7534,10 @@ class Axes(_AxesBase):
 
         showmedians : bool, default = False
           If true, will toggle rendering of the medians.
+
+        percentiles : array-like, default = []
+          Displays percentiles in the plot for all the given percentiles in the set.
+
 
         Returns
         -------
@@ -7558,6 +7574,11 @@ class Axes(_AxesBase):
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
+              
+            - ``cpercentiles``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the percentiles values of each of the
+              violin's distribution.
 
         """
 
@@ -7566,6 +7587,7 @@ class Axes(_AxesBase):
         mins = []
         maxes = []
         medians = []
+        percentiles = []
 
         # Collections to be returned
         artists = {}
@@ -7622,6 +7644,7 @@ class Axes(_AxesBase):
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
+            percentiles.append(stats['percentiles'])
         artists['bodies'] = bodies
 
         # Render means
@@ -7640,10 +7663,17 @@ class Axes(_AxesBase):
 
         # Render medians
         if showmedians:
-            artists['cmedians'] = perp_lines(medians,
-                                             pmins,
-                                             pmaxes,
+            artists['cmedians'] = perp_lines(medians, pmins, pmaxes,
                                              colors=edgecolor)
+
+        # Render percentiles
+        artists['cpercentiles'] = []
+        for pcs, pmin, pmax in zip(percentiles, pmins, pmaxes):
+            linelen = pmax - pmin
+            artists['cpercentiles'].append(perp_lines(pcs,
+                                                      pmin + linelen * 0.17,
+                                                      pmax - linelen * 0.17,
+                                                      colors=edgecolor))
 
         return artists
 
