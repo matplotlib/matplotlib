@@ -34,7 +34,7 @@ from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_numlike
 from matplotlib.cbook import _string_to_bool
-from matplotlib.cbook import deprecated
+from matplotlib.cbook import deprecated, warn_deprecated
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -883,6 +883,9 @@ def axes(arg=None, **kwargs):
           axes to *arg*. Note: This implicitly changes the current figure to
           the parent of *arg*.
 
+          .. note:: The use of an Axes as an argument is deprecated and will be
+                    removed in v3.0. Please use `.pyplot.sca` instead.
+
     Other Parameters
     ----------------
     **kwargs :
@@ -927,6 +930,10 @@ def axes(arg=None, **kwargs):
         return subplot(111, **kwargs)
 
     if isinstance(arg, Axes):
+        warn_deprecated("2.2",
+                        message="Using pyplot.axes(ax) with ax an Axes "
+                                "argument is deprecated. Please use "
+                                "pyplot.sca(ax) instead.")
         ax = arg
         sca(ax)
         return ax
