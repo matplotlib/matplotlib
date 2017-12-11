@@ -3322,8 +3322,8 @@ class ToolContainerBase:
 
         Parameters
         ----------
-        tool : tool_like
-            The tool to add, see `.ToolManager.get_tool`.
+        tool_name : str
+            Name of the the tool to add, see `ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
         position : int, default: -1
