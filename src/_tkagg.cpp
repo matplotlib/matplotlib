@@ -13,7 +13,7 @@
 #include <cstdio>
 #include <sstream>
 
-#include <mplutils.h> // uint8_t on old MSC_VER
+#include <agg_basics.h> // agg:int8u
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
@@ -52,7 +52,7 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
     int wdata, hdata, bbox_parse;
     float x1, x2, y1, y2;
     bool has_bbox;
-    uint8_t *destbuffer, *buffer;
+    agg::int8u *destbuffer, *buffer;
     int destx, desty, destwidth, destheight, deststride;
 
     long mode;
@@ -80,7 +80,7 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
                           (char *)NULL);
         return TCL_ERROR;
     }
-    buffer = (uint8_t*)pdata;
+    buffer = (agg::int8u*)pdata;
 
     /* get array mode (0=mono, 1=rgb, 2=rgba) */
     mode = atol(argv[3]);
@@ -109,7 +109,7 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         destheight = (int)(y2 - y1);
         deststride = 4 * destwidth;
 
-        destbuffer = new uint8_t[deststride * destheight];
+        destbuffer = new agg::int8u[deststride * destheight];
         if (destbuffer == NULL) {
             TCL_APPEND_RESULT(interp, "could not allocate memory", (char *)NULL);
             return TCL_ERROR;
