@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
+import logging
 import warnings
 import matplotlib as mpl
 import numpy as np
@@ -30,6 +31,8 @@ from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
+
+_logger = logging.getLogger(__name__)
 
 # We can't use a single line collection for contour because a line
 # collection can have only a single line style, and we want to be able to have
@@ -796,6 +799,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.extent = kwargs.pop('extent', None)
         cmap = kwargs.pop('cmap', None)
         self.colors = kwargs.pop('colors', None)
+        self.edgecolors = kwargs.pop('edgecolors', None)
         norm = kwargs.pop('norm', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
@@ -889,15 +893,32 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.allsegs, self.allkinds = self._get_allsegs_and_allkinds()
 
         if self.filled:
-            if self.linewidths is not None:
-                warnings.warn('linewidths is ignored by contourf')
-
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
 
             # Ensure allkinds can be zipped below.
             if self.allkinds is None:
                 self.allkinds = [None] * len(self.allsegs)
+
+            if self.edgecolors is None:
+                self.edgecolors = 'none'
+            if (not isinstance(self.edgecolors, six.string_types)
+                    or self.edgecolors not in ['face', 'none']):
+                raise ValueError(
+                        "contourf kwarg edgecolors must be either "
+                        "'face' or 'none'")
+            if self.edgecolors == 'face':
+                    if self.linewidths is None:
+                        # default of 0.2 was chosen to give good results
+                        # in Agg (png) and pdf.  Thinner, and png looks
+                        # bad, thicker and contours will be too distorted.
+                        self.linewidths = 0.2
+                    if self.alpha is not None and self.alpha < 1.:
+                        _logger.info(
+                            "contourf kwargs 'alpha' and 'face' "
+                            "may produce artifacts at contour boundaries")
+            else:
+                self.linewidths = None
 
             # Default zorder taken from Collection
             zorder = kwargs.pop('zorder', 1)
@@ -908,7 +929,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 col = mcoll.PathCollection(
                     paths,
                     antialiaseds=(self.antialiased,),
-                    edgecolors='none',
+                    edgecolors=self.edgecolors,
+                    linewidths=self.linewidths,
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=zorder)

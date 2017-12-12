@@ -171,6 +171,24 @@ def test_contour_uniform_z():
     assert len(record) == 1
 
 
+@image_comparison(baseline_images=['contourf_linewidths_edgecolor'])
+def test_contourf_linewidths_edgecolor():
+
+    Z = np.array([[1., 2., 3.], [1., 2., 4.], [2, 3., 4.]])
+    fig, axs = plt.subplots(2, 2, figsize=(8, 8))
+    axs = axs.flatten()
+    for mm, (ec, lw) in enumerate(zip(['none', 'face', 'face', 'face'],
+                                    [None, 0.2, 1.0, 1.1])):
+            print('Linewi', lw)
+            ax = axs[mm]
+            ax.contourf(Z, vmin=0., vmax=10., edgecolors=ec, linewidths=lw)
+            ax.set_axis_off()
+            if lw is not None:
+                ax.set_title('edgecolors=%s\nlinewidths=%f' % (ec, lw))
+            else:
+                ax.set_title('edgecolors=%s\nlinewidths=None' % ec)
+
+
 @image_comparison(baseline_images=['contour_manual_labels'])
 def test_contour_manual_labels():
 
