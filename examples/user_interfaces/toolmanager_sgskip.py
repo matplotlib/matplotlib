@@ -20,7 +20,6 @@ matplotlib.use('GTK3Cairo')
 matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
-from gi.repository import Gtk, Gdk
 
 
 class ListTools(ToolBase):
