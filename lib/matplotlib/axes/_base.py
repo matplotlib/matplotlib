@@ -2217,6 +2217,12 @@ class _AxesBase(martist.Artist):
 
         *m* times the data interval will be added to each
         end of that interval before it is used in autoscaling.
+        For example, if your data is in the range [0, 2], a factor of
+        ``m = 0.1`` will result in a range [-0.2, 2.2].
+
+        Negative values -0.5 < m < 0 will result in clipping of the data range.
+        I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
+        a range [0.2, 1.8].
 
         ..
             ACCEPTS: float greater than -0.5
@@ -2236,6 +2242,12 @@ class _AxesBase(martist.Artist):
 
         *m* times the data interval will be added to each
         end of that interval before it is used in autoscaling.
+        For example, if your data is in the range [0, 2], a factor of
+        ``m = 0.1`` will result in a range [-0.2, 2.2].
+
+        Negative values -0.5 < m < 0 will result in clipping of the data range.
+        I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
+        a range [0.2, 1.8].
 
         ..
             ACCEPTS: float greater than -0.5
@@ -2333,14 +2345,16 @@ class _AxesBase(martist.Artist):
         if autoscaling for either axis is on, it performs
         the autoscaling on the specified axis or axes.
 
-        *enable*: [True | False | None]
+        Parameters
+        ----------
+        enable : [True | False | None], optional
             True (default) turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
 
-        *axis*: ['x' | 'y' | 'both']
+        axis : ['both' | 'x' | 'y'], optional
             which axis to operate on; default is 'both'
 
-        *tight*: [True | False | None]
+        tight: [None | True | False], optional
             If True, set view limits to data limits;
             if False, let the locator and margins expand the view limits;
             if None, use tight scaling if the only artist is an image,
@@ -2348,8 +2362,6 @@ class _AxesBase(martist.Artist):
             The *tight* setting is retained for future autoscaling
             until it is explicitly changed.
 
-
-        Returns None.
         """
         if enable is None:
             scalex = True
@@ -2371,8 +2383,9 @@ class _AxesBase(martist.Artist):
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
-        Autoscale the view limits using the data limits. You can
-        selectively autoscale only a single axis, e.g., the xaxis by
+        Autoscale the view limits using the data limits.
+
+        You can selectively autoscale only a single axis, e.g., the xaxis by
         setting *scaley* to *False*.  The autoscaling preserves any
         axis direction reversal that has already been done.
 
@@ -2761,18 +2774,20 @@ class _AxesBase(martist.Artist):
         """
         Control behavior of tick locators.
 
-        Keyword arguments:
+        Parameters
+        ----------
+        axis : ['both' | 'x' | 'y'], optional
+            The axis on which to operate.
 
-        *axis*
-            ['x' | 'y' | 'both']  Axis on which to operate;
-            default is 'both'.
-
-        *tight*
-            [True | False | None] Parameter passed to :meth:`autoscale_view`.
+        tight : [None | True | False], optional
+            Parameter passed to :meth:`autoscale_view`.
             Default is None, for no change.
 
-        Remaining keyword arguments are passed to directly to the
-        :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
+        Other Parameters
+        ----------------
+        **kw :
+            Remaining keyword arguments are passed to directly to the
+            :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
 
         Typically one might want to reduce the maximum number
         of ticks and use tight bounds when plotting small
@@ -4217,9 +4232,9 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def get_shared_x_axes(self):
-        'Return a copy of the shared axes Grouper object for x axes'
+        """Return a copy of the shared axes Grouper object for x axes."""
         return self._shared_x_axes
 
     def get_shared_y_axes(self):
-        'Return a copy of the shared axes Grouper object for y axes'
+        """Return a copy of the shared axes Grouper object for y axes."""
         return self._shared_y_axes
