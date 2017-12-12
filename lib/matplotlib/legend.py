@@ -1154,7 +1154,7 @@ class Legend(Artist):
 
         *bbox* can be
 
-        - A `BboxBase` instance
+        - A `~.BboxBase` instance
         - A tuple of ``(left, bottom, width, height)`` in the given transform
           (normalized axes coordinate if None)
         - A tuple of ``[left, bottom]`` where the width and height will be
@@ -1272,7 +1272,7 @@ class Legend(Artist):
           * False : turn draggable off
 
         If draggable is on, you can drag the legend on the canvas with
-        the mouse. The `DraggableLegend` helper instance is returned if
+        the mouse. The `~.DraggableLegend` helper instance is returned if
         draggable is on.
 
         The update parameter control which parameter of the legend changes
