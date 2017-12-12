@@ -5129,6 +5129,16 @@ class Axes(_AxesBase):
         coordinates. In other words: the origin will coincide with the center
         of pixel (0, 0).
 
+        Two typical representations are used for RGB images with an alpha
+        channel:
+
+        -   Straight (unassociated) alpha: R, G, and B channels represent the
+            color of the pixel, disregarding its opacity.
+        -   Premultiplied (associated) alpha: R, G, and B channels represent
+            the color of the pixel, adjusted for its opacity by multiplication.
+
+        `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
+        (unassociated) alpha representation.
         """
 
         if not self._hold:
