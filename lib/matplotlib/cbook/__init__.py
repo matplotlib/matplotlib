@@ -2183,7 +2183,7 @@ def pts_to_prestep(x, *args):
     --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
@@ -2220,7 +2220,7 @@ def pts_to_poststep(x, *args):
     --------
     >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 2::2]
     steps[1:, 0::2] = args
@@ -2258,7 +2258,8 @@ def pts_to_midstep(x, *args):
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
     steps[0, 1:-1:2] = steps[0, 2::2] = (x[:-1] + x[1:]) / 2
-    steps[0, 0], steps[0, -1] = x[0], x[-1]
+    steps[0, :1] = x[:1]  # Also works for zero-sized input.
+    steps[0, -1:] = x[-1:]
     steps[1:, 0::2] = args
     steps[1:, 1::2] = steps[1:, 0::2]
     return steps
