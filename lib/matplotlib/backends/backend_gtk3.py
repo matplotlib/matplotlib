@@ -7,39 +7,20 @@ import logging
 import os
 import sys
 
-try:
-    import gi
-except ImportError:
-    raise ImportError("Gtk3 backend requires pygobject to be installed.")
-
-try:
-    gi.require_version("Gtk", "3.0")
-except AttributeError:
-    raise ImportError(
-        "pygobject version too old -- it must have require_version")
-except ValueError:
-    raise ImportError(
-        "Gtk3 backend requires the GObject introspection bindings for Gtk 3 "
-        "to be installed.")
-
-try:
-    from gi.repository import Gtk, Gdk, GObject, GLib
-except ImportError:
-    raise ImportError("Gtk3 backend requires pygobject to be installed.")
-
 import matplotlib
+from matplotlib import (
+    backend_tools, cbook, colors as mcolors, lines, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, TimerBase, cursors)
-from matplotlib.backend_bases import ToolContainerBase, StatusbarBase
+    NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
+    ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from ._gtk3_compat import GLib, GObject, Gtk, Gdk
 
-from matplotlib import (
-    backend_tools, cbook, colors as mcolors, lines, rcParams)
 
 _log = logging.getLogger(__name__)
 
