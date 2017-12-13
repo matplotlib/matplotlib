@@ -1683,72 +1683,60 @@ class Axes3D(Axes):
         if shade and cmap is not None and fcolors is not None:
             fcolors = self._shade_colors_lightsource(Z, cmap, lightsource)
 
+        # evenly spaced, and including both endpoints
+        row_inds = list(range(0, rows-1, rstride)) + [rows-1]
+        col_inds = list(range(0, cols-1, cstride)) + [cols-1]
+
+        colset = []  # the sampled facecolor
         polys = []
-        # Only need these vectors to shade if there is no cmap
-        if cmap is None and shade :
-            totpts = int(np.ceil((rows - 1) / rstride) *
-                         np.ceil((cols - 1) / cstride))
-            v1 = np.empty((totpts, 3))
-            v2 = np.empty((totpts, 3))
-            # This indexes the vertex points
-            which_pt = 0
-
-
-        #colset contains the data for coloring: either average z or the facecolor
-        colset = []
-        for rs in range(0, rows-1, rstride):
-            for cs in range(0, cols-1, cstride):
-                ps = []
-                for a in (X, Y, Z):
-                    ztop = a[rs,cs:min(cols, cs+cstride+1)]
-                    zleft = a[rs+1:min(rows, rs+rstride+1),
-                              min(cols-1, cs+cstride)]
-                    zbase = a[min(rows-1, rs+rstride), cs:min(cols, cs+cstride+1):][::-1]
-                    zright = a[rs:min(rows-1, rs+rstride):, cs][::-1]
-                    z = np.concatenate((ztop, zleft, zbase, zright))
-                    ps.append(z)
-
-                # The construction leaves the array with duplicate points, which
-                # are removed here.
-                ps = list(zip(*ps))
-                lastp = np.array([])
-                ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
-                avgzsum = sum(p[2] for p in ps2)
-                polys.append(ps2)
+        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
+            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+                ps = [
+                    # +1 ensures we share edges between polygons
+                    cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
+                    for a in (X, Y, Z)
+                ]
+                # ps = np.stack(ps, axis=-1)
+                ps = np.array(ps).T
+                polys.append(ps)
 
                 if fcolors is not None:
                     colset.append(fcolors[rs][cs])
-                else:
-                    colset.append(avgzsum / len(ps2))
 
-                # Only need vectors to shade if no cmap
-                if cmap is None and shade:
-                    i1, i2, i3 = 0, int(len(ps2)/3), int(2*len(ps2)/3)
-                    v1[which_pt] = np.array(ps2[i1]) - np.array(ps2[i2])
-                    v2[which_pt] = np.array(ps2[i2]) - np.array(ps2[i3])
-                    which_pt += 1
-        if cmap is None and shade:
-            normals = np.cross(v1, v2)
-        else :
-            normals = []
+        def get_normals(polygons):
+            """
+            Takes a list of polygons and return an array of their normals
+            """
+            v1 = np.empty((len(polygons), 3))
+            v2 = np.empty((len(polygons), 3))
+            for poly_i, ps in enumerate(polygons):
+                # pick three points around the polygon at which to find the normal
+                # doesn't vectorize because polygons is jagged
+                i1, i2, i3 = 0, len(ps)//3, 2*len(ps)//3
+                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
+                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
+            return np.cross(v1, v2)
 
+        # note that the striding causes some polygons to have more coordinates
+        # than others
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
 
         if fcolors is not None:
             if shade:
-                colset = self._shade_colors(colset, normals)
+                colset = self._shade_colors(colset, get_normals(polys))
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
-            colset = np.array(colset)
-            polyc.set_array(colset)
+            # doesn't vectorize because polys is jagged
+            avg_z = np.array([ps[:,2].mean() for ps in polys])
+            polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
             if norm is not None:
                 polyc.set_norm(norm)
         else:
             if shade:
-                colset = self._shade_colors(color, normals)
+                colset = self._shade_colors(color, get_normals(polys))
             else:
                 colset = color
             polyc.set_facecolors(colset)
