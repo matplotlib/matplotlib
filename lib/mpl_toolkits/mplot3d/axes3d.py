@@ -1984,47 +1984,30 @@ class Axes3D(Axes):
             args = args[1:]
 
         triangles = tri.get_masked_triangles()
-        xt = tri.x[triangles][..., np.newaxis]
-        yt = tri.y[triangles][..., np.newaxis]
-        zt = z[triangles][..., np.newaxis]
+        xt = tri.x[triangles]
+        yt = tri.y[triangles]
+        zt = z[triangles]
 
-        verts = np.concatenate((xt, yt, zt), axis=2)
-
-        # Only need these vectors to shade if there is no cmap
-        if cmap is None and shade:
-            totpts = len(verts)
-            v1 = np.empty((totpts, 3))
-            v2 = np.empty((totpts, 3))
-            # This indexes the vertex points
-            which_pt = 0
-
-        colset = []
-        for i in xrange(len(verts)):
-            avgzsum = verts[i,0,2] + verts[i,1,2] + verts[i,2,2]
-            colset.append(avgzsum / 3.0)
-
-            # Only need vectors to shade if no cmap
-            if cmap is None and shade:
-                v1[which_pt] = np.array(verts[i,0]) - np.array(verts[i,1])
-                v2[which_pt] = np.array(verts[i,1]) - np.array(verts[i,2])
-                which_pt += 1
-
-        if cmap is None and shade:
-            normals = np.cross(v1, v2)
-        else:
-            normals = []
+        # verts = np.stack((xt, yt, zt), axis=-1)
+        verts = np.concatenate((
+            xt[..., np.newaxis], yt[..., np.newaxis], zt[..., np.newaxis]
+        ), axis=-1)
 
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
         if cmap:
-            colset = np.array(colset)
-            polyc.set_array(colset)
+            # average over the three points of each triangle
+            avg_z = verts[:, :, 2].mean(axis=1)
+            polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
             if norm is not None:
                 polyc.set_norm(norm)
         else:
             if shade:
+                v1 = verts[:, 0, :] - verts[:, 1, :]
+                v2 = verts[:, 1, :] - verts[:, 2, :]
+                normals = np.cross(v1, v2)
                 colset = self._shade_colors(color, normals)
             else:
                 colset = color
