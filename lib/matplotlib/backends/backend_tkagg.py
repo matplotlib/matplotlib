@@ -208,6 +208,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # to the window and filter.
         def filter_destroy(evt):
             if evt.widget is self._tkcanvas:
+                self._master.update_idletasks()
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
 
