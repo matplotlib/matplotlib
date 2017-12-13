@@ -10,7 +10,8 @@ from distutils.version import LooseVersion as V
 import numpy as np
 import pytest
 
-from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
+from numpy.testing.utils import (assert_array_equal,
+                                 assert_array_almost_equal, assert_equal)
 
 from matplotlib import cycler
 import matplotlib
@@ -715,3 +716,34 @@ def test_ndarray_subclass_norm(recwarn):
         else:
             assert len(recwarn) == 0
         recwarn.clear()
+
+
+def _brighten_test_helper(color, shade, expected):
+    sc = mcolors.brighten_color(color, shade)
+    assert_equal(sc, expected)
+
+
+def test_color_brightening():
+    test_colors = (
+        'red',
+        'red',
+        'red',
+        'red',
+        'red',
+        [0, .5, .9],
+        'slategrey',
+    )
+    test_brighten = (0, 0.50, 1.00, -0.50, -1.00, 0.20, -0.20)
+    known_brighten_result = (
+        (1.0, 0.0, 0.0),
+        (1.0, 0.5, 0.5),
+        (1.0, 1.0, 1.0),
+        (0.5, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.080000000000000071, 0.59111111111111092, 1.0),
+        (0.35097730430754981, 0.40156862745098038, 0.45215995059441105)
+    )
+    for color, brighten, expected in zip(test_colors,
+                                      test_brighten,
+                                      known_brighten_result):
+        _brighten_test_helper(color, brighten, expected)
