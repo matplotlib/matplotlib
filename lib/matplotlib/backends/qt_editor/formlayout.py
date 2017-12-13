@@ -46,7 +46,7 @@ from numbers import Integral, Real
 import warnings
 
 from matplotlib import colors as mcolors
-from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
+from ..qt_compat import QtCore, QtGui, QtWidgets
 
 
 BLACKLIST = {"title", "label"}
