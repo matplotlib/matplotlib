@@ -45,11 +45,11 @@ class ToolManagerMessageEvent(object):
 
 class ToolManager(object):
     """
-    Helper class that groups all the user interactions for a FigureManager
+    Helper class that groups all the user interactions for a Figure
 
     Attributes
     ----------
-    manager: `FigureManager`
+    figure: `Figure`
     keypresslock: `widgets.LockDraw`
         `LockDraw` object to know if the `canvas` key_press_event is locked
     messagelock: `widgets.LockDraw`
