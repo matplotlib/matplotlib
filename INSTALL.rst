@@ -150,8 +150,9 @@ interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
 * :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
-* `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
-  `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4-based backends;
+* `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.6) or
+  `PySide <https://pypi.python.org/pypi/PySide>`_ (>= 1.0.3): for the Qt4-based
+  backends;
 * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5-based backends;
 * `PyGObject <https://pypi.org/project/PyGObject/>`_ or
   `pgi <https://pypi.org/project/pgi/>`_ (>= 0.0.11.2): for the GTK3-based
