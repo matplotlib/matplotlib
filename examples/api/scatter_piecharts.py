@@ -25,17 +25,17 @@ sizes = np.array([60, 80, 120])
 x = [0] + np.cos(np.linspace(0, 2 * np.pi * r1, 10)).tolist()
 y = [0] + np.sin(np.linspace(0, 2 * np.pi * r1, 10)).tolist()
 xy1 = list(zip(x, y))
-s1 = np.max(xy1)
+s1 = np.abs(xy1).max()
 
 x = [0] + np.cos(np.linspace(2 * np.pi * r1, 2 * np.pi * r2, 10)).tolist()
 y = [0] + np.sin(np.linspace(2 * np.pi * r1, 2 * np.pi * r2, 10)).tolist()
 xy2 = list(zip(x, y))
-s2 = np.max(xy2)
+s2 = np.abs(xy2).max()
 
 x = [0] + np.cos(np.linspace(2 * np.pi * r2, 2 * np.pi, 10)).tolist()
 y = [0] + np.sin(np.linspace(2 * np.pi * r2, 2 * np.pi, 10)).tolist()
 xy3 = list(zip(x, y))
-s3 = np.max(xy3)
+s3 = np.abs(xy3).max()
 
 fig, ax = plt.subplots()
 ax.scatter(range(3), range(3), marker=(xy1, 0),
