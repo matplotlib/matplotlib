@@ -4291,9 +4291,8 @@ default: :rc:`scatter.edgecolors`
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
 
-            For non-filled markers, *edgecolors* is ignored. Instead, the color
-            is determined like with 'face', i.e. from *c*, *colors*, or
-            *facecolors*.
+            For non-filled markers, *edgecolors* kwarg (if it is not None,
+            'face' or 'none') dictates the color of the marker.
 
         plotnonfinite : bool, default: False
             Whether to plot points with nonfinite *c* (i.e. ``inf``, ``-inf``
@@ -4378,6 +4377,11 @@ default: :rc:`scatter.edgecolors`
         path = marker_obj.get_path().transformed(
             marker_obj.get_transform())
         if not marker_obj.is_filled():
+            # In classic mode or non-classic mode
+            if edgecolors is None or edgecolors == 'face':
+                edgecolors = colors
+            colors = 'none'
+
             if linewidths is None:
                 linewidths = rcParams['lines.linewidth']
             elif np.iterable(linewidths):
@@ -4389,8 +4393,8 @@ default: :rc:`scatter.edgecolors`
 
         collection = mcoll.PathCollection(
                 (path,), scales,
-                facecolors=colors if marker_obj.is_filled() else 'none',
-                edgecolors=edgecolors if marker_obj.is_filled() else colors,
+                facecolors=colors,
+                edgecolors=edgecolors,
                 linewidths=linewidths,
                 offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),

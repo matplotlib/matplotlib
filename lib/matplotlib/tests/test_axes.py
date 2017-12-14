@@ -2367,6 +2367,21 @@ def test_parse_scatter_color_args_error():
             c, None, kwargs={}, xsize=2, get_next_color_func=get_next_color)
 
 
+@pytest.mark.parametrize(('facecolor', 'edgecolor', 'expected_color'), [
+    ('red', 'cyan', 'cyan'),
+    (None, 'cyan', 'cyan'),
+    ('red', None, 'red')
+])
+def test_scatter_edgecolor(facecolor, edgecolor, expected_color):
+    fig, ax = plt.subplots()
+    artist = ax.scatter(x=[1, 2, 3], y=[1, 2, 3], s=550,
+                        linewidth=5, marker='2',
+                        facecolor=facecolor,
+                        edgecolor=edgecolor)
+    result_color = artist.get_edgecolor()[0]
+    assert mcolors.to_hex(result_color) == mcolors.to_hex(expected_color)
+
+
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
     from matplotlib.projections.polar import PolarAxes

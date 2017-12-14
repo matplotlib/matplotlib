@@ -1,0 +1,6 @@
+Scatter plot unfilled marker edgecolor
+--------------------------------------
+
+For :meth:`~matplotlib.axes.Axes.scatter`, when both the `facecolor`
+and `edgecolor` are specified for unfilled marker types, the `edgecolor`
+is used. Previously, the points took on the `facecolor`.
