@@ -1373,6 +1373,24 @@ class Figure(Artist):
         Parameters
         ----------
 
+        handles : sequence of `~.Artist`, optional
+            A list of Artists (lines, patches) to be added to the legend.
+            Use this together with *labels*, if you need full control on what
+            is shown in the legend and the automatic mechanism described above
+            is not sufficient.
+
+            The length of handles and labels should be the same in this
+            case. If they are not, they are truncated to the smaller length.
+
+        labels : sequence of strings, optional
+            A list of labels to show next to the artists.
+            Use this together with *handles*, if you need full control on what
+            is shown in the legend and the automatic mechanism described above
+            is not sufficient.
+
+        Other Parameters
+        ----------------
+
         loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
 

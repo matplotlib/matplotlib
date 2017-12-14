@@ -283,8 +283,8 @@ def pause(interval):
     This can be used for crude animation.  For more complex animation, see
     :mod:`matplotlib.animation`.
 
-    Note
-    ----
+    Notes
+    -----
     This function is experimental; its behavior may be changed or extended in a
     future release.
     """

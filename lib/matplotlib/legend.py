@@ -286,9 +286,7 @@ docstring.interpd.update(_legend_kw_doc=_legend_kw_doc)
 
 class Legend(Artist):
     """
-    Place a legend on the axes at location loc.  Labels are a
-    sequence of strings and loc can be a string or an integer
-    specifying the legend location
+    Place a legend on the axes at location loc.
 
     """
     codes = {'best':         0,  # only implemented for axes legends
@@ -353,13 +351,22 @@ class Legend(Artist):
                  handler_map=None,
                  ):
         """
-        - *parent*: the artist that contains the legend
-        - *handles*: a list of artists (lines, patches) to be added to the
-                      legend
-        - *labels*: a list of strings to label the legend
 
         Parameters
         ----------
+        parent : `.Axes` or `.Figure`
+            The artist that contains the legend.
+
+        handles : sequence of `.Artist`
+            A list of Artists (lines, patches) to be added to the legend.
+
+        labels : sequence of strings
+            A list of labels to show next to the artists. The length of handles
+            and labels should be the same. If they are not, they are truncated
+            to the smaller of both lengths.
+
+        Other Parameters
+        ----------------
 
         loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
