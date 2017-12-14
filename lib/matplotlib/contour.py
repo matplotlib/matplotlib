@@ -575,6 +575,9 @@ class ContourLabeler(object):
         # Get label width for rotating labels and breaking contours
         lw = self.get_label_width(self.labelLevelList[lmin],
                                   self.labelFmt, self.labelFontSizeList[lmin])
+        # lw is in points.
+        lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
+        # now lw in pixels
 
         # Figure out label rotation.
         if inline:
