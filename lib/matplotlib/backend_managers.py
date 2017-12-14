@@ -19,7 +19,9 @@ class ToolEvent:
 
 
 class ToolTriggerEvent(ToolEvent):
-    def __init__(self, name, sender, tool, tool_name, canvasevent=None, data=None):
+    """Event to inform  that a tool has been triggered"""
+    def __init__(self, name, sender, tool, tool_name,
+                 canvasevent=None, data=None):
         ToolEvent.__init__(self, name, sender, tool, tool_name, data)
         self.canvasevent = canvasevent
 
