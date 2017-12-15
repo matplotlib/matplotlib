@@ -2826,7 +2826,6 @@ def _define_aliases(local_d, alias_d):
     def make_alias(name):  # Enfore a closure over *name*.
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
-        method.__doc__ = "alias for {}".format(name)
         return method
 
     for prop, aliases in alias_d.items():
@@ -2837,6 +2836,7 @@ def _define_aliases(local_d, alias_d):
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = str(prefix + alias)  # Py2 compat.
+                    method.__doc__ = "alias for `{}`".format(prefix + prop)
                     local_d[prefix + alias] = method
         if not exists:
             raise ValueError("property {} does not exist".format(prop))
