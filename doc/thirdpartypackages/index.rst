@@ -173,7 +173,7 @@ Miscellaneous
 mpl-template
 ============
 `mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
-a custommizable way to add engineering figure elements such as a title block,
+a customizable way to add engineering figure elements such as a title block,
 border, and logo.
 
 .. image:: /_static/mpl_template_example.png
