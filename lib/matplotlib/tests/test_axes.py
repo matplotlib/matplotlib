@@ -4876,6 +4876,24 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
+@image_comparison(baseline_images=["test_loglog_nonpos"],
+                  remove_text=True, extensions=['png'], style='mpl20')
+def test_loglog_nonpos():
+    fig, ax = plt.subplots(3, 3)
+    x = np.arange(1, 11)
+    y = x**3
+    y[7] = -3.
+    x[4] = -10
+    for nn, mcx in enumerate(['mask', 'clip', '']):
+        for mm, mcy in enumerate(['mask', 'clip', '']):
+            kws = {}
+            if mcx:
+                kws['nonposx'] = mcx
+            if mcy:
+                kws['nonposy'] = mcy
+            ax[mm, nn].loglog(x, y**3, lw=2, **kws)
+
+
 @pytest.mark.style('default')
 def test_axes_margins():
     fig, ax = plt.subplots()

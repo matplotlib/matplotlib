@@ -1490,12 +1490,10 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        dx = {'basex': kwargs.pop('basex', 10),
-              'subsx': kwargs.pop('subsx', None),
-              }
-        dy = {'basey': kwargs.pop('basey', 10),
-              'subsy': kwargs.pop('subsy', None),
-              }
+        dx = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
+                if k in kwargs}
+        dy = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
+                if k in kwargs}
 
         self.set_xscale('log', **dx)
         self.set_yscale('log', **dy)
@@ -1550,9 +1548,8 @@ class Axes(_AxesBase):
         """
         if not self._hold:
             self.cla()
-        d = {'basex': kwargs.pop('basex', 10),
-             'subsx': kwargs.pop('subsx', None),
-             }
+        d = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
+                if k in kwargs}
 
         self.set_xscale('log', **d)
         b = self._hold
@@ -1605,9 +1602,8 @@ class Axes(_AxesBase):
 
         if not self._hold:
             self.cla()
-        d = {'basey': kwargs.pop('basey', 10),
-             'subsy': kwargs.pop('subsy', None),
-             }
+        d = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
+                if k in kwargs}
         self.set_yscale('log', **d)
         b = self._hold
         self._hold = True  # we've already processed the hold
