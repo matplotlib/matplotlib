@@ -399,13 +399,6 @@ def validate_color(s):
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
 
-def deprecate_axes_colorcycle(value):
-    warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
-                  "instead. Will be removed in 2.1.0",
-                  mplDeprecation)
-    return validate_colorlist(value)
-
-
 validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
@@ -570,18 +563,6 @@ validate_legend_loc = ValidateInStrings(
      'lower center',
      'upper center',
      'center'], ignorecase=True)
-
-
-def deprecate_svg_image_noscale(value):
-    warnings.warn("svg.image_noscale is deprecated. Set "
-                  "image.interpolation to 'none' instead.",
-                  mplDeprecation)
-
-
-def deprecate_svg_embed_char_paths(value):
-    warnings.warn("svg.embed_char_paths is deprecated.  Use "
-                  "svg.fonttype instead.",
-                  mplDeprecation)
 
 
 validate_svg_fonttype = ValidateInStrings('svg.fonttype',
@@ -1155,12 +1136,6 @@ defaultParams = {
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.formatter.offset_threshold': [4, validate_int],
     'axes.unicode_minus': [True, validate_bool],
-    'axes.color_cycle': [
-        ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-         '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
-         '#bcbd22', '#17becf'],
-                         deprecate_axes_colorcycle],  # cycle of plot
-                                                      # line colors
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
@@ -1351,10 +1326,7 @@ defaultParams = {
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
-    # suppress scaling of raster data embedded in SVG
-    'svg.image_noscale':    [False, deprecate_svg_image_noscale],
     # True to save all characters as paths in the SVG
-    'svg.embed_char_paths': [True, deprecate_svg_embed_char_paths],
     'svg.fonttype':         ['path', validate_svg_fonttype],
     'svg.hashsalt':         [None, validate_string_or_None],
 

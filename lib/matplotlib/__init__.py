@@ -843,23 +843,11 @@ def matplotlib_fname():
 # names of keys to deprecate
 # the values are a tuple of (new_name, f_old_2_new, f_new_2_old)
 # the inverse function may be `None`
-_deprecated_map = {
-    'text.fontstyle':   ('font.style', lambda x: x, None),
-    'text.fontangle':   ('font.style', lambda x: x, None),
-    'text.fontvariant': ('font.variant', lambda x: x, None),
-    'text.fontweight':  ('font.weight', lambda x: x, None),
-    'text.fontsize':    ('font.size', lambda x: x, None),
-    'tick.size':        ('tick.major.size', lambda x: x, None),
-    'svg.embed_char_paths': ('svg.fonttype',
-                             lambda x: "path" if x else "none", None),
-    'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
-                         lambda x: [c.get('color', None) for c in x]),
-    'svg.image_noscale': ('image.interpolation', None, None),
-    }
+_deprecated_map = {}
 
 _deprecated_ignore_map = {}
 
-_obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
+_obsolete_set = {'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
 _deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated

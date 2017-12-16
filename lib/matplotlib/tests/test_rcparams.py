@@ -160,11 +160,6 @@ def test_Bug_2543():
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
-        _fonttype = mpl.rcParams['svg.fonttype']
-        assert _fonttype == mpl.rcParams['svg.embed_char_paths']
-        with mpl.rc_context():
-            mpl.rcParams['svg.embed_char_paths'] = False
-            assert mpl.rcParams['svg.fonttype'] == "none"
 
     with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
