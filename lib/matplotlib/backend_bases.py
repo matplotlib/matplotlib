@@ -2125,12 +2125,6 @@ class FigureCanvasBase(object):
         dpi : scalar, optional
             the dots per inch to save the figure in; if None, use savefig.dpi
 
-        facecolor : color spec or None, optional
-            the facecolor of the figure; if None, defaults to savefig.facecolor
-
-        edgecolor : color spec or None, optional
-            the edgecolor of the figure; if None, defaults to savefig.edgecolor
-
         format : str, optional
             when set, forcibly set the file format to save to
 
@@ -2172,8 +2166,18 @@ class FigureCanvasBase(object):
 
         if facecolor is None:
             facecolor = rcParams['savefig.facecolor']
+        else:
+            cbook.warn_deprecated(
+                "2.2",
+                "The 'facecolor' kwarg is deprecated; set the figure's "
+                "facecolor ('figure.patch.facecolor') instead")
         if edgecolor is None:
             edgecolor = rcParams['savefig.edgecolor']
+        else:
+            cbook.warn_deprecated(
+                "2.2",
+                "The 'edgecolor' kwarg is deprecated; set the figure's "
+                "edgecolor ('figure.patch.edgecolor') instead")
 
         origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()

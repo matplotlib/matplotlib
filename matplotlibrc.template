@@ -507,8 +507,6 @@ backend      : $TEMPLATE_BACKEND
 # e.g., you may want a higher resolution, or to make the figure
 # background white
 #savefig.dpi         : figure   # figure dots per inch or 'figure'
-#savefig.facecolor   : white    # figure facecolor when saving
-#savefig.edgecolor   : white    # figure edgecolor when saving
 #savefig.format      : png      # png, ps, pdf, svg
 #savefig.bbox        : standard # 'tight' or 'standard'.
                                 # 'tight' is incompatible with pipe-based animation
@@ -519,8 +517,6 @@ backend      : $TEMPLATE_BACKEND
 #savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 #savefig.directory   : ~        # default directory in savefig dialog box,
                                 # leave empty to always use current working directory
-#savefig.transparent : False    # setting that controls whether figures are saved with a
-                                # transparent background by default
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg

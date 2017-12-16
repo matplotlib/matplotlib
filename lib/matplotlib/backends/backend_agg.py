@@ -562,12 +562,9 @@ class FigureCanvasAgg(FigureCanvasBase):
             buf, size = self.print_to_buffer()
             if kwargs.pop("dryrun", False):
                 return
-            # The image is "pasted" onto a white background image to safely
-            # handle any transparency
+            # Paste image onto a white background to handle transparency.
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            rgba = mcolors.to_rgba(rcParams['savefig.facecolor'])
-            color = tuple([int(x * 255.0) for x in rgba[:3]])
-            background = Image.new('RGB', size, color)
+            background = Image.new('RGB', size, (255, 255, 255))
             background.paste(image, image)
             options = {k: kwargs[k]
                        for k in ['quality', 'optimize', 'progressive', 'dpi']

@@ -1,0 +1,12 @@
+Deprecation of savefig-time modification of the figure patch face and edge colors
+`````````````````````````````````````````````````````````````````````````````````
+
+The ``facecolor``, ``edgecolor``, and ``transparent`` keyword arguments to
+`~.Figure.savefig` and `~.FigureCanvasBase.print_figure`, and the associated
+``savefig.facecolor``, ``savefig.edgecolor``, and ``savefig.transparent``
+rcParams, have been deprecated.  As a replacement for the first two
+options, directly set the facecolor and edgecolor of the figure patch
+(``figure.patch``), or set the ``figure.facecolor`` and ``figure.edgecolor``
+rcParams.  As a replacement for ``transparent``, set both the figure
+patch color and the axes patch color to transparent, or likewise set the
+corresponding rcParams.

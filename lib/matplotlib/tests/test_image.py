@@ -523,20 +523,16 @@ def test_jpeg_alpha():
 
     plt.figimage(im)
 
-    buff = io.BytesIO()
-    with rc_context({'savefig.facecolor': 'red'}):
-        plt.savefig(buff, transparent=True, format='jpg', dpi=300)
+    buf = io.BytesIO()
+    plt.savefig(buf, transparent=True, format='jpg', dpi=300)
+    buf.seek(0)
+    image = Image.open(buf)
 
-    buff.seek(0)
-    image = Image.open(buff)
-
-    # If this fails, there will be only one color (all black). If this
-    # is working, we should have all 256 shades of grey represented.
-    num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185
-    # The fully transparent part should be red.
-    corner_pixel = image.getpixel((0, 0))
-    assert corner_pixel == (254, 0, 0)
+    # If this fails, there will be only one color (all black). If this is
+    # working, we should have all 256 shades of grey represented.
+    assert len(image.getcolors(256)) == 256
+    # The fully transparent part should be white.
+    assert image.getpixel((0, 0)) == (255, 255, 255)
 
 
 def test_nonuniformimage_setdata():

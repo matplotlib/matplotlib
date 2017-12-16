@@ -848,7 +848,13 @@ _deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 _obsolete_set = {'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
-_deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
+# Do NOT include in _all_deprecated.
+_deprecated_set = {
+    'axes.hold',
+    'savefig.facecolor',
+    'savefig.edgecolor',
+    'savefig.transparent',
+}
 
 _all_deprecated = set(itertools.chain(
     _deprecated_ignore_map, _deprecated_map, _obsolete_set))
@@ -977,9 +983,11 @@ def rc_params(fail_on_error=False):
     if not os.path.exists(fname):
         # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
-        ret = RcParams([(key, default) for key, (default, _) in
-                        six.iteritems(defaultParams)
-                        if key not in _all_deprecated])
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=mplDeprecation)
+            ret = RcParams([(key, default) for key, (default, _) in
+                            six.iteritems(defaultParams)
+                            if key not in _all_deprecated])
         warnings.warn(message)
         return ret
 
@@ -1116,9 +1124,11 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = six.iteritems(defaultParams)
-    config = RcParams([(key, default) for key, (default, _) in iter_params
-                                      if key not in _all_deprecated])
-    config.update(config_from_file)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=mplDeprecation)
+        config = RcParams([(key, default) for key, (default, _) in iter_params
+                           if key not in _all_deprecated])
+        config.update(config_from_file)
 
     if config['datapath'] is None:
         config['datapath'] = get_data_path()
@@ -1155,9 +1165,11 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                            six.iteritems(defaultParams)
-                            if key not in _all_deprecated])
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=mplDeprecation)
+    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
+                                six.iteritems(defaultParams)
+                                if key not in _all_deprecated])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
@@ -1253,7 +1265,9 @@ def rcdefaults():
         the default style.
     """
     rcParams.clear()
-    rcParams.update(rcParamsDefault)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=mplDeprecation)
+        rcParams.update(rcParamsDefault)
 
 
 def rc_file_defaults():

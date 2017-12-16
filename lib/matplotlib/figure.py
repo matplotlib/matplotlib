@@ -1811,12 +1811,6 @@ class Figure(Artist):
             the value ``savefig.dpi`` in the matplotlibrc file. If 'figure'
             it will set the dpi to be the value of the figure.
 
-        facecolor : color spec or None, optional
-            the facecolor of the figure; if None, defaults to savefig.facecolor
-
-        edgecolor : color spec or None, optional
-            the edgecolor of the figure; if None, defaults to savefig.edgecolor
-
         orientation : {'landscape', 'portrait'}
             not supported on all backends; currently only on postscript output
 
@@ -1828,15 +1822,6 @@ class Figure(Artist):
         format : str
             One of the file extensions supported by the active
             backend.  Most backends support png, pdf, ps, eps and svg.
-
-        transparent : bool
-            If *True*, the axes patches will all be transparent; the
-            figure patch will also be transparent unless facecolor
-            and/or edgecolor are specified via kwargs.
-            This is useful, for example, for displaying
-            a plot on top of a colored background on a web page.  The
-            transparency of these patches will be restored to their
-            original values upon exit of this function.
 
         frameon : bool
             If *True*, the figure patch will be colored, if *False*, the
@@ -1859,6 +1844,24 @@ class Figure(Artist):
         """
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
+
+        if "transparent" in kwargs:
+            cbook.warn_deprecated(
+                "2.2",
+                "The 'transparent' kwarg is deprecated; set the figure's and "
+                "axes' facecolor ('figure.patch.facecolor', 'axes.patch."
+                "facecolor') to fully transparent ('none') instead")
+        if "facecolor" in kwargs:
+            cbook.warn_deprecated(
+                "2.2",
+                "The 'facecolor' kwarg is deprecated; set the figure's "
+                "facecolor ('figure.patch.facecolor') instead")
+        if "edgecolor" in kwargs:
+            cbook.warn_deprecated(
+                "2.2",
+                "The 'edgecolor' kwarg is deprecated; set the figure's "
+                "edgecolor ('figure.patch.edgecolor') instead")
+
         transparent = kwargs.pop('transparent',
                                  rcParams['savefig.transparent'])
 
@@ -1872,9 +1875,6 @@ class Figure(Artist):
                                              patch.get_edgecolor()))
                 patch.set_facecolor('none')
                 patch.set_edgecolor('none')
-        else:
-            kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
-            kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
         if frameon:
             original_frameon = self.get_frameon()

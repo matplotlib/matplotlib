@@ -23,7 +23,3 @@ figure.facecolor: 0.75
 figure.edgecolor: white
 
 image.cmap: gray
-
-savefig.facecolor: white
-savefig.edgecolor: white
-

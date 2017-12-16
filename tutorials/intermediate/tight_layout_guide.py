@@ -24,7 +24,7 @@ clipped.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams['savefig.facecolor'] = "0.8"
+plt.rcParams['figure.facecolor'] = "0.8"
 
 
 def example_plot(ax, fontsize=12):

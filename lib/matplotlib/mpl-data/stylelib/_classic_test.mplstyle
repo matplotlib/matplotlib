@@ -294,14 +294,13 @@ legend.facecolor     : inherit   # legend background color (when 'inherit' uses 
 legend.edgecolor     : inherit   # legend edge color (when 'inherit' uses axes.edgecolor)
 
 
-
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 figure.titlesize : medium     # size of the figure title
 figure.titleweight : normal   # weight of the figure title
 figure.figsize   : 8, 6    # figure size in inches
 figure.dpi       : 80      # figure dots per inch
-figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
+figure.facecolor : w       # figure facecolor
 figure.edgecolor : w       # figure edgecolor
 figure.autolayout : False  # When True, automatically adjust subplot
                            # parameters to make the plot fit the figure
@@ -408,8 +407,6 @@ path.sketch : None # May be none, or a 3-tuple of the form (scale, length,
 # e.g., you may want a higher resolution, or to make the figure
 # background white
 savefig.dpi         : 100      # figure dots per inch
-savefig.facecolor   : w        # figure facecolor when saving
-savefig.edgecolor   : w        # figure edgecolor when saving
 savefig.format      : png      # png, ps, pdf, svg
 savefig.bbox        : standard # 'tight' or 'standard'.
                                # 'tight' is incompatible with pipe-based animation
@@ -418,8 +415,6 @@ savefig.bbox        : standard # 'tight' or 'standard'.
                                # use ffmpeg_file instead
 savefig.pad_inches  : 0.1      # Padding to be used when bbox is set to 'tight'
 savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
-savefig.transparent : False    # setting that controls whether figures are saved with a
-                               # transparent background by default
 savefig.frameon : True
 savefig.orientation : portrait
 
