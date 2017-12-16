@@ -174,9 +174,11 @@ Open source
 
 .. raw:: html
 
+   <a href="https://www.numfocus.org/">
    <img src="_static/numfocus_badge.png"
     alt="A Fiscally Sponsored Project of NUMFocus"
     style="float:right; margin-left:20px" />
+   </a>
 
 Please consider `donating to the Matplotlib project <donating_>`_ through
 the Numfocus organization or to the `John Hunter Technology Fellowship
