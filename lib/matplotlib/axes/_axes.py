@@ -3804,9 +3804,9 @@ class Axes(_AxesBase):
                 verts=None, edgecolors=None,
                 **kwargs):
         """
-        Make a scatter plot of `x` vs `y`.
+        Make a scatter plot of *x* vs *y*.
 
-        Marker size is scaled by `s` and marker color is mapped to `c`.
+        Marker size is scaled by *s* and marker color is mapped to *c*.
 
         Parameters
         ----------
@@ -3814,10 +3814,11 @@ class Axes(_AxesBase):
             Input data
 
         s : scalar or array_like, shape (n, ), optional
-            size in points^2.  Default is `rcParams['lines.markersize'] ** 2`.
+            Size in points**2.
+            Default is ``rcParams['lines.markersize'] ** 2``.
 
         c : color, sequence, or sequence of color, optional, default: 'b'
-            `c` can be a single color format string, or a sequence of color
+            *c* can be a single color format string, or a sequence of color
             specifications of length `N`, or a sequence of `N` numbers to be
             mapped to colors using the `cmap` and `norm` specified via kwargs
             (see below). Note that `c` should not be a single numeric RGB or
@@ -3828,48 +3829,48 @@ class Axes(_AxesBase):
 
         marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
             See `~matplotlib.markers` for more information on the different
-            styles of markers scatter supports. `marker` can be either
+            styles of markers scatter supports. *marker* can be either
             an instance of the class or the text shorthand for a particular
             marker.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `~matplotlib.colors.Colormap` instance or registered name.
-            `cmap` is only used if `c` is an array of floats. If None,
-            defaults to rc `image.cmap`.
+            *cmap* is only used if *c* is an array of floats. If ``None``,
+            defaults to rc ``image.cmap``.
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
-            luminance data to 0, 1. `norm` is only used if `c` is an array of
-            floats. If `None`, use the default :func:`normalize`.
+            luminance data to 0, 1. *norm* is only used if *c* is an array of
+            floats. If ``None``, use the default :func:`normalize`.
 
         vmin, vmax : scalar, optional, default: None
-            `vmin` and `vmax` are used in conjunction with `norm` to normalize
-            luminance data.  If either are `None`, the min and max of the
-            color array is used.  Note if you pass a `norm` instance, your
-            settings for `vmin` and `vmax` will be ignored.
+            *vmin* and *vmax* are used in conjunction with *norm* to normalize
+            luminance data. If either are ``None``, the min and max of the
+            color array is used.  Note if you pass a *norm* instance, your
+            settings for *vmin* and *vmax* will be ignored.
 
         alpha : scalar, optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque)
 
         linewidths : scalar or array_like, optional, default: None
-            If None, defaults to (lines.linewidth,).
+            If ``None``, defaults to ``(lines.linewidth,)``.
 
         verts : sequence of (x, y), optional
-            If `marker` is None, these vertices will be used to
+            If *marker* is ``None``, these vertices will be used to
             construct the marker.  The center of the marker is located
             at (0,0) in normalized units.  The overall marker is rescaled
-            by ``s``.
+            by *s*.
 
         edgecolors : color or sequence of color, optional, default: None
-            If None, defaults to 'face'
+            If ``None``, defaults to 'face'.
 
             If 'face', the edge color will always be the same as
             the face color.
 
-            If it is 'none', the patch boundary will not
+            If 'none', the patch boundary will not
             be drawn.
 
-            For non-filled markers, the `edgecolors` kwarg
+            For non-filled markers, the *edgecolors* kwarg
             is ignored and forced to 'face' internally.
 
         Returns
@@ -3882,8 +3883,8 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        plot : to plot scatter plots when markers are identical in size and
-            color
+        plot : To plot scatter plots when markers are identical in size and
+            color.
 
         Notes
         -----
@@ -3891,14 +3892,14 @@ class Axes(_AxesBase):
         * The `plot` function will be faster for scatterplots where markers
           don't vary in size or color.
 
-        * Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in which
+        * Any or all of *x*, *y*, *s*, and *c* may be masked arrays, in which
           case all masks will be combined and only unmasked points will be
           plotted.
 
-          Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`, and `c`
+          Fundamentally, scatter works with 1-D arrays; *x*, *y*, *s*, and *c*
           may be input as 2-D arrays, but within scatter they will be
-          flattened. The exception is `c`, which will be flattened only if its
-          size matches the size of `x` and `y`.
+          flattened. The exception is *c*, which will be flattened only if its
+          size matches the size of *x* and *y*.
 
         """
 
