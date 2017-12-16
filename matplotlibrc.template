@@ -63,10 +63,6 @@ backend      : $TEMPLATE_BACKEND
 # When True, open the webbrowser to the plot that is shown
 # webagg.open_in_browser : True
 
-# When True, the figures rendered in the nbagg backend are created with
-# a transparent background.
-# nbagg.transparent : False
-
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
 # you if backend_fallback is True
