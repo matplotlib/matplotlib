@@ -1336,17 +1336,17 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
             if type(f_h) != type(h):
                 continue
             try:
-                if f_h.get_color() != h.get_color():
+                if (f_h.get_color() != h.get_color()).any():
                     continue
             except AttributeError:
                 pass
             try:
-                if f_h.get_facecolor() != h.get_facecolor():
+                if (f_h.get_facecolor() != h.get_facecolor()).any():
                     continue
             except AttributeError:
                 pass
             try:
-                if f_h.get_edgecolor() != h.get_edgecolor():
+                if (f_h.get_edgecolor() != h.get_edgecolor()).any():
                     continue
             except AttributeError:
                 pass
