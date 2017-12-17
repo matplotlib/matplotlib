@@ -125,7 +125,7 @@ def same_color(c1, c2):
     bool
         ``True`` if *c1* and *c2* are the same color, otherwise ``False``.
     """
-    return to_rgba(c1) == to_rgba(c2)
+    return (to_rgba_array(c1) == to_rgba_array(c2)).all()
 
 
 def to_rgba(c, alpha=None):
