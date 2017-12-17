@@ -1351,20 +1351,20 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
             if type(f_h) != type(h):
                 continue
             try:
-                if (colors.to_rgba(f_h.get_color()) !=
-                        colors.to_rgba(h.get_color())):
+                if (colors.to_rgba_array(f_h.get_color()) !=
+                        colors.to_rgba_array(h.get_color())).any():
                     continue
             except AttributeError:
                 pass
             try:
-                if (colors.to_rgba(f_h.get_facecolor()) !=
-                        colors.to_rgba(h.get_facecolor())):
+                if (colors.to_rgba_array(f_h.get_facecolor()) !=
+                        colors.to_rgba_array(h.get_facecolor())).any():
                     continue
             except AttributeError:
                 pass
             try:
-                if (colors.to_rgba(f_h.get_edgecolor()) !=
-                        colors.to_rgba(h.get_edgecolor())):
+                if (colors.to_rgba_array(f_h.get_edgecolor()) !=
+                        colors.to_rgba_array(h.get_edgecolor())).any():
                     continue
             except AttributeError:
                 pass
