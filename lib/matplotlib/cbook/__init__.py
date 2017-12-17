@@ -2167,7 +2167,7 @@ def pts_to_prestep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2177,7 +2177,8 @@ def pts_to_prestep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
@@ -2204,7 +2205,7 @@ def pts_to_poststep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2214,7 +2215,8 @@ def pts_to_poststep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
@@ -2239,7 +2241,7 @@ def pts_to_midstep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
