@@ -112,11 +112,38 @@ def is_color_like(c):
         return True
 
 
-def to_rgba(c, alpha=None):
-    """Convert *c* to an RGBA color.
+def same_color(c1, c2):
+    """
+    Compare two colors to see if they are the same.
 
-    If *alpha* is not *None*, it forces the alpha value, except if *c* is
-    ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+    Parameters
+    ----------
+    c1, c2 : Matplotlib colors
+
+    Returns
+    -------
+    bool
+        ``True`` if *c1* and *c2* are the same color, otherwise ``Fase``.
+    """
+    return to_rgba(c1) == to_rgba(c2)
+
+
+def to_rgba(c, alpha=None):
+    """
+    Convert *c* to an RGBA color.
+
+    Parameters
+    ----------
+    c : Matplotlib color
+
+    alpha : scalar, optional
+        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+
+    Returns
+    -------
+    tuple
+        Tuple of ``(r, g, b, a)`` scalars.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
