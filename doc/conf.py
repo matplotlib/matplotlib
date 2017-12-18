@@ -241,10 +241,9 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['badgesidebar.html','donate_sidebar.html',
-              'indexsidebar.html', 'searchbox.html'],
-    '**': ['badgesidebar.html', 'localtoc.html',
-           'relations.html', 'sourcelink.html', 'searchbox.html']
+    'index': ['donate_sidebar.html', 'searchbox.html'],
+    '**': ['localtoc.html', 'relations.html',
+           'sourcelink.html', 'searchbox.html']
 }
 
 # If false, no module index is generated.
