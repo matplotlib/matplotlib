@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 try:
     # mock in python 3.3+
@@ -89,7 +88,7 @@ def test_various_labels():
     fig = plt.figure()
     ax = fig.add_subplot(121)
     ax.plot(np.arange(4), 'o', label=1)
-    ax.plot(np.linspace(4, 4.1), 'o', label='D\xe9velopp\xe9s')
+    ax.plot(np.linspace(4, 4.1), 'o', label=u'D\xe9velopp\xe9s')
     ax.plot(np.arange(4, 1, -1), 'o', label='__nolegend__')
     ax.legend(numpoints=1, loc=0)
 

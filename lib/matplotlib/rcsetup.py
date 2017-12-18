@@ -13,8 +13,7 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -97,11 +96,10 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
         else:
             raise ValueError("{!r} must be of type: string or non-dictionary "
                              "iterable".format(s))
-    # Cast `str` to keep Py2 happy despite `unicode_literals`.
     try:
-        f.__name__ = str("{}list".format(scalar_validator.__name__))
+        f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
-        f.__name__ = str("{}List".format(type(scalar_validator).__name__))
+        f.__name__ = "{}List".format(type(scalar_validator).__name__)
     f.__doc__ = scalar_validator.__doc__
     return f
 
@@ -185,7 +183,7 @@ def validate_string_or_None(s):
     if s is None:
         return None
     try:
-        return six.text_type(s)
+        return validate_string(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
@@ -409,7 +407,15 @@ def deprecate_axes_colorcycle(value):
 validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
-validate_stringlist = _listify_validator(six.text_type)
+def validate_string(s):
+    if isinstance(s, str):  # Always leave str as str
+        return s
+    elif isinstance(s, six.text_type):
+        return s
+    else:
+        return str(s)
+
+validate_stringlist = _listify_validator(str)
 validate_stringlist.__doc__ = 'return a list'
 
 validate_orientation = ValidateInStrings(
@@ -483,7 +489,7 @@ def validate_whiskers(s):
 def update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
-    value = six.text_type(value)
+    value = validate_string(value)
     if value == 'auto':
         value = 'png'
     return value
@@ -962,17 +968,17 @@ defaultParams = {
     'datapath':          [None, validate_path_exists],  # handled by
                                                         # _get_data_path_cached
     'interactive':       [False, validate_bool],
-    'timezone':          ['UTC', six.text_type],
+    'timezone':          ['UTC', validate_string],
 
     # the verbosity setting
     'verbose.level': ['silent', validate_verbose],
-    'verbose.fileo': ['sys.stdout', six.text_type],
+    'verbose.fileo': ['sys.stdout', validate_string],
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
-    'lines.marker':          ['None', six.text_type],  # marker name
+    'lines.marker':          ['None', validate_string],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
@@ -1016,7 +1022,7 @@ defaultParams = {
     'boxplot.meanline': [False, validate_bool],
 
     'boxplot.flierprops.color': ['k', validate_color],
-    'boxplot.flierprops.marker': ['o', six.text_type],
+    'boxplot.flierprops.marker': ['o', validate_string],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
@@ -1040,7 +1046,7 @@ defaultParams = {
     'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
-    'boxplot.meanprops.marker': ['^', six.text_type],
+    'boxplot.meanprops.marker': ['^', validate_string],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
@@ -1049,10 +1055,10 @@ defaultParams = {
 
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
-    'font.style':      ['normal', six.text_type],
-    'font.variant':    ['normal', six.text_type],
-    'font.stretch':    ['normal', six.text_type],
-    'font.weight':     ['normal', six.text_type],
+    'font.style':      ['normal', validate_string],
+    'font.variant':    ['normal', validate_string],
+    'font.stretch':    ['normal', validate_string],
+    'font.weight':     ['normal', validate_string],
     'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'Computer Modern Roman',
@@ -1100,10 +1106,10 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['nearest', six.text_type],
-    'image.cmap':          ['viridis', six.text_type],        # one of gray, jet, etc
+    'image.interpolation': ['nearest', validate_string],
+    'image.cmap':          ['viridis', validate_string],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', six.text_type],  # lookup table
+    'image.origin':        ['upper', validate_string],  # lookup table
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
@@ -1130,7 +1136,7 @@ defaultParams = {
 
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
-    'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
+    'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
@@ -1142,7 +1148,7 @@ defaultParams = {
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float], # space between label and axis
-    'axes.labelweight':      ['normal', six.text_type],  # fontsize of the x any y labels
+    'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
     'axes.labelcolor':       ['k', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
@@ -1187,16 +1193,16 @@ defaultParams = {
     'axes3d.grid': [True, validate_bool],  # display 3d grid
 
     # scatter props
-    'scatter.marker': ['o', six.text_type],
+    'scatter.marker': ['o', validate_string],
 
     # TODO validate that these are valid datetime format strings
-    'date.autoformatter.year': ['%Y', six.text_type],
-    'date.autoformatter.month': ['%Y-%m', six.text_type],
-    'date.autoformatter.day': ['%Y-%m-%d', six.text_type],
-    'date.autoformatter.hour': ['%m-%d %H', six.text_type],
-    'date.autoformatter.minute': ['%d %H:%M', six.text_type],
-    'date.autoformatter.second': ['%H:%M:%S', six.text_type],
-    'date.autoformatter.microsecond': ['%M:%S.%f', six.text_type],
+    'date.autoformatter.year': ['%Y', validate_string],
+    'date.autoformatter.month': ['%Y-%m', validate_string],
+    'date.autoformatter.day': ['%Y-%m-%d', validate_string],
+    'date.autoformatter.hour': ['%m-%d %H', validate_string],
+    'date.autoformatter.minute': ['%d %H:%M', validate_string],
+    'date.autoformatter.second': ['%H:%M:%S', validate_string],
+    'date.autoformatter.microsecond': ['%M:%S.%f', validate_string],
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
@@ -1249,7 +1255,7 @@ defaultParams = {
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
-    'xtick.direction':   ['out', six.text_type],            # direction of xticks
+    'xtick.direction':   ['out', validate_string],            # direction of xticks
     'xtick.alignment': ["center", _validate_alignment],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
@@ -1269,7 +1275,7 @@ defaultParams = {
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
-    'ytick.direction':   ['out', six.text_type],            # direction of yticks
+    'ytick.direction':   ['out', validate_string],            # direction of yticks
     'ytick.alignment': ["center_baseline", _validate_alignment],
 
 
@@ -1282,7 +1288,7 @@ defaultParams = {
     ## figure props
     # figure title
     'figure.titlesize':   ['large', validate_fontsize],
-    'figure.titleweight': ['normal', six.text_type],
+    'figure.titleweight': ['normal', validate_string],
 
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
@@ -1320,7 +1326,7 @@ defaultParams = {
     'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
     # default directory in savefig dialog box
-    'savefig.directory': ['~', six.text_type],
+    'savefig.directory': ['~', validate_string],
     'savefig.transparent': [False, validate_bool],
 
     # Maintain shell focus for TkAgg
@@ -1361,7 +1367,7 @@ defaultParams = {
     # set this when you want to generate hardcopy docstring
     'docstring.hardcopy': [False, validate_bool],
     # where plugin directory is locate
-    'plugins.directory':  ['.matplotlib_plugins', six.text_type],
+    'plugins.directory':  ['.matplotlib_plugins', validate_string],
 
     'path.simplify': [True, validate_bool],
     'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
@@ -1387,7 +1393,7 @@ defaultParams = {
     'keymap.all_axes':     [['a'], validate_stringlist],
 
     # sample data
-    'examples.directory': ['', six.text_type],
+    'examples.directory': ['', validate_string],
 
     # Animation settings
     'animation.html':         ['none', validate_movie_html_fmt],
@@ -1395,7 +1401,7 @@ defaultParams = {
     # (i.e. IPython notebook)
     'animation.embed_limit':  [20, validate_float],
     'animation.writer':       ['ffmpeg', validate_movie_writer],
-    'animation.codec':        ['h264', six.text_type],
+    'animation.codec':        ['h264', validate_string],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],

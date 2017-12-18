@@ -99,8 +99,7 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -277,10 +276,7 @@ def _parse_commandline():
               'info', 'warning')
 
     for arg in sys.argv[1:]:
-        # cast to str because we are using unicode_literals,
-        # and argv is always str
-
-        if arg.startswith(str('--verbose-')):
+        if arg.startswith('--verbose-'):
             level_str = arg[10:]
             # If it doesn't match one of ours, then don't even
             # bother noting it, we are just a 3rd-party library
@@ -305,9 +301,7 @@ class Verbose(object):
     _commandLineVerbose = None
 
     for arg in sys.argv[1:]:
-        # cast to str because we are using unicode_literals,
-        # and argv is always str
-        if not arg.startswith(str('--verbose-')):
+        if not arg.startswith('--verbose-'):
             continue
         level_str = arg[10:]
         # If it doesn't match one of ours, then don't even

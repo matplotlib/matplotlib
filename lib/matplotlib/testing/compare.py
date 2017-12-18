@@ -2,8 +2,7 @@
 Provides a collection of utilities for comparing (image) results.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 

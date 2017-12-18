@@ -5,8 +5,7 @@ financial data.
 This module is deprecated in 2.0 and has been moved to a module called
 `mpl_finance`.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange, zip
@@ -57,31 +56,31 @@ else:
 
 
 stock_dt_ohlc = np.dtype([
-    (str('date'), object),
-    (str('year'), np.int16),
-    (str('month'), np.int8),
-    (str('day'), np.int8),
-    (str('d'), float),     # mpl datenum
-    (str('open'), float),
-    (str('high'), float),
-    (str('low'), float),
-    (str('close'), float),
-    (str('volume'), float),
-    (str('aclose'), float)])
+    ('date', object),
+    ('year', np.int16),
+    ('month', np.int8),
+    ('day', np.int8),
+    ('d', float),     # mpl datenum
+    ('open', float),
+    ('high', float),
+    ('low', float),
+    ('close', float),
+    ('volume', float),
+    ('aclose', float)])
 
 
 stock_dt_ochl = np.dtype(
-    [(str('date'), object),
-     (str('year'), np.int16),
-     (str('month'), np.int8),
-     (str('day'), np.int8),
-     (str('d'), float),     # mpl datenum
-     (str('open'), float),
-     (str('close'), float),
-     (str('high'), float),
-     (str('low'), float),
-     (str('volume'), float),
-     (str('aclose'), float)])
+    [('date', object),
+     ('year', np.int16),
+     ('month', np.int8),
+     ('day', np.int8),
+     ('d', float),     # mpl datenum
+     ('open', float),
+     ('close', float),
+     ('high', float),
+     ('low', float),
+     ('volume', float),
+     ('aclose', float)])
 
 
 def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):

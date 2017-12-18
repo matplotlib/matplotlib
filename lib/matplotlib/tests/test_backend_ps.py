@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import io
 import re
@@ -59,7 +58,7 @@ def test_savefig_to_stringio(format, use_log, rcParams):
         ax.set_yscale('log')
 
     ax.plot([1, 2], [1, 2])
-    ax.set_title("Déjà vu")
+    ax.set_title(u"Déjà vu")
     for buffer in buffers:
         fig.savefig(buffer, format=format)
 

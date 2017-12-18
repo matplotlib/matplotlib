@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -74,8 +73,7 @@ def test_RcParams_class():
                        'font.weight': 'normal',
                        'font.size': 12})
 
-    if six.PY3:
-        expected_repr = """
+    expected_repr = """
 RcParams({'font.cursive': ['Apple Chancery',
                            'Textile',
                            'Zapf Chancery',
@@ -83,28 +81,12 @@ RcParams({'font.cursive': ['Apple Chancery',
           'font.family': ['sans-serif'],
           'font.size': 12.0,
           'font.weight': 'normal'})""".lstrip()
-    else:
-        expected_repr = """
-RcParams({u'font.cursive': [u'Apple Chancery',
-                            u'Textile',
-                            u'Zapf Chancery',
-                            u'cursive'],
-          u'font.family': [u'sans-serif'],
-          u'font.size': 12.0,
-          u'font.weight': u'normal'})""".lstrip()
 
     assert expected_repr == repr(rc)
 
-    if six.PY3:
-        expected_str = """
+    expected_str = """
 font.cursive: ['Apple Chancery', 'Textile', 'Zapf Chancery', 'cursive']
 font.family: ['sans-serif']
-font.size: 12.0
-font.weight: normal""".lstrip()
-    else:
-        expected_str = """
-font.cursive: [u'Apple Chancery', u'Textile', u'Zapf Chancery', u'cursive']
-font.family: [u'sans-serif']
 font.size: 12.0
 font.weight: normal""".lstrip()
 
