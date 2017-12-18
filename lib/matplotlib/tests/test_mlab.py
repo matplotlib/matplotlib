@@ -2136,6 +2136,20 @@ class TestSpectral(object):
         assert_allclose(speca, specb, atol=1e-08)
 
 
+# extra test for cohere...
+def test_cohere():
+    N = 1024
+    np.random.seed(19680801)
+    x = np.random.randn(N)
+    # phase offset
+    y = np.roll(x, 20)
+    # high-freq roll-off
+    y = np.convolve(y, np.ones(20) / 20., mode='same')
+    cohsq, f = mlab.cohere(x, y, NFFT=256, Fs=2, noverlap=128)
+    assert_allclose(np.mean(cohsq), 0.837, atol=1.e-3)
+    assert np.isreal(np.mean(cohsq))
+
+
 def test_griddata_linear():
     # z is a linear function of x and y.
     def get_z(x, y):
