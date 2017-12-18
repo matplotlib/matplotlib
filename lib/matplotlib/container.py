@@ -117,7 +117,7 @@ class ErrorbarContainer(Container):
     '''
     Container for errobars.
 
-    Atributes
+    Attributes
     ----------
     lines : tuple
         Tuple of ``(data_line, caplines, barlinecols)``.
