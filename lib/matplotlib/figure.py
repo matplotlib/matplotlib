@@ -1909,7 +1909,12 @@ class Figure(Artist):
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
         cax._hold = True
-        cb = cbar.colorbar_factory(cax, mappable, **kw)
+
+        # need to remove kws that cannot be passed to Colorbar
+        NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
+                             'panchor']
+        cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
+        cb = cbar.colorbar_factory(cax, mappable, **cb_kw)
 
         self.sca(current_ax)
         self.stale = True
