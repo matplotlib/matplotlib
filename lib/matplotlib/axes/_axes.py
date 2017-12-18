@@ -2738,7 +2738,7 @@ class Axes(_AxesBase):
             releases.
 
         barsabove : bool, optional, default: False
-            if True , will plot the errorbars above the plot
+            If True , will plot the errorbars above the plot
             symbols. Default is below.
 
         lolims / uplims / xlolims / xuplims : bool, optional, default:None
@@ -2750,18 +2750,22 @@ class Axes(_AxesBase):
             before :meth:`errorbar`.
 
         errorevery : positive integer, optional, default:1
-            subsamples the errorbars. e.g., if errorevery=5, errorbars for
+            Subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
 
         Returns
         -------
-        plotline : :class:`~matplotlib.lines.Line2D` instance
-            x, y plot markers and/or line
-        caplines : list of :class:`~matplotlib.lines.Line2D` instances
-            error bar cap
-        barlinecols : list of :class:`~matplotlib.collections.LineCollection`
-            horizontal and vertical error ranges.
+        :class:`~.container.ErrorbarContainer`
+            The container contains:
+
+            - plotline: :class:`~matplotlib.lines.Line2D` instance of
+              x, y plot markers and/or line.
+            - caplines: A tuple of :class:`~matplotlib.lines.Line2D` instances
+              of the error bar caps.
+            - barlinecols: A tuple of
+              :class:`~matplotlib.collections.LineCollection` with the
+              horizontal and vertical error ranges.
 
         Other Parameters
         ----------------
