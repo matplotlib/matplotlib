@@ -1145,6 +1145,7 @@ You have the following UNSUPPORTED LaTeX preamble customizations:
 Please do not ask for support with these customizations active.
 *****************************************************************
 """, '\n'.join(config['text.latex.preamble']))
+
     _log.info('loaded rc file %s', fname)
 
     return config
@@ -1180,6 +1181,9 @@ rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
+
+_log.debug('rcParams: ')
+_log.debug(rcParams)
 
 
 def rc(group, **kwargs):
