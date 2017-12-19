@@ -67,8 +67,8 @@ def _get_xdg_cache_dir():
 # lib/matplotlib.__init__.py and also needs to be changed below in the
 # embedded windows build script (grep for "REMINDER" in this file)
 LOCAL_FREETYPE_VERSION = '2.6.1'
-# md5 hash of the freetype tarball
-LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
+# SHA256 hash of the freetype tarball
+LOCAL_FREETYPE_HASH = '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014'
 
 if sys.platform != 'win32':
     if not PY3min:
@@ -294,11 +294,11 @@ def make_extension(name, files, *args, **kwargs):
 
 def get_file_hash(filename):
     """
-    Get the MD5 hash of a given filename.
+    Get the SHA256 hash of a given filename.
     """
     import hashlib
     BLOCKSIZE = 1 << 16
-    hasher = hashlib.md5()
+    hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
         buf = fd.read(BLOCKSIZE)
         while len(buf) > 0:
