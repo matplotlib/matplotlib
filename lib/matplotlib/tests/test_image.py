@@ -179,12 +179,13 @@ def test_imsave_color_alpha():
 def test_imsave_format(tmpdir):
     # Test imsave output format based on the input filename
     # (i.e. when the "format" keyword is None).
-    import imghdr
 
-    filename = str(tmpdir.join('test_imsave.jpg'))
+    filename = str(tmpdir.join('test_imsave.svg'))
     plt.imsave(filename, np.zeros((10, 10)))
 
-    assert imghdr.what(filename) == 'jpeg'
+    lines = open(filename).readlines()
+    assert lines[0].startswith('<?xml')
+    assert lines[1].startswith('<!DOCTYPE svg')
 
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
