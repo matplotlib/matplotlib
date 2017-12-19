@@ -861,6 +861,8 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
 %s
 %s
+\\usepackage{graphicx}
+\\usepackage{color}
 \\usepackage{pgf}
 
 \\begin{document}

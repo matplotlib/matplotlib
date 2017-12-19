@@ -282,6 +282,8 @@ Could not rename old TeX cache dir "%s": a suitable configuration
 %s
 %s
 \\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
+\\usepackage[dvips]{graphicx}
+\\usepackage{color}
 \\pagestyle{empty}
 \\begin{document}
 \\fontsize{%f}{%f}%s
