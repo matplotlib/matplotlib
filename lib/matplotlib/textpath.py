@@ -67,9 +67,9 @@ class TextToPath(object):
         """
         sfnt = font.get_sfnt()
         try:
-            ps_name = sfnt[(1, 0, 0, 6)].decode('macroman')
+            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
         except KeyError:
-            ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
+            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
         char_id = urllib_quote('%s-%x' % (ps_name, ccode))
         return char_id
 
