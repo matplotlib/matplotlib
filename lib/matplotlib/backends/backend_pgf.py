@@ -252,6 +252,8 @@ class LatexManager(object):
         latex_header = [r"\documentclass{minimal}",
                         latex_preamble,
                         latex_fontspec,
+                        r"\usepackage{graphicx}",
+                        r"\usepackage{color}",
                         r"\begin{document}",
                         r"text $math \mu$",  # force latex to load fonts now
                         r"\typeout{pgf_backend_query_start}"]
