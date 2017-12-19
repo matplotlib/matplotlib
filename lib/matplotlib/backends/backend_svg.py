@@ -506,7 +506,7 @@ class RendererSVG(RendererBase):
             font = get_font(font_fname)
             font.set_size(72, 72)
             sfnt = font.get_sfnt()
-            writer.start('font', id=sfnt[(1, 0, 0, 4)])
+            writer.start('font', id=sfnt[1, 0, 0, 4].decode("macroman"))
             writer.element(
                 'font-face',
                 attrib={
