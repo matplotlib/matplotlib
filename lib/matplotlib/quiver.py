@@ -457,6 +457,7 @@ class Quiver(mcollections.PolyCollection):
         self.angles = kw.pop('angles', 'uv')
         self.width = kw.pop('width', None)
         self.color = kw.pop('color', 'k')
+        self.dotsize = kw.pop('dotsize', 0.5)
 
         pivot = kw.pop('pivot', 'tail').lower()
         # validate pivot
@@ -734,8 +735,8 @@ class Quiver(mcollections.PolyCollection):
         if tooshort.any():
             # Use a heptagonal dot:
             th = np.arange(0, 8, 1, np.float64) * (np.pi / 3.0)
-            x1 = np.cos(th) * self.minlength * 0.5
-            y1 = np.sin(th) * self.minlength * 0.5
+            x1 = np.cos(th) * self.minlength * self.dotsize
+            y1 = np.sin(th) * self.minlength * self.dotsize
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
             Y1 = np.repeat(y1[np.newaxis, :], N, axis=0)
             tooshort = np.repeat(tooshort, 8, 1)
