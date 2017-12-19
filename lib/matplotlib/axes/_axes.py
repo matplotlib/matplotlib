@@ -3841,7 +3841,7 @@ class Axes(_AxesBase):
         norm : `~matplotlib.colors.Normalize`, optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
             luminance data to 0, 1. *norm* is only used if *c* is an array of
-            floats. If ``None``, use the default :func:`normalize`.
+            floats. If ``None``, use the default `.colors.Normalize`.
 
         vmin, vmax : scalar, optional, default: None
             *vmin* and *vmax* are used in conjunction with *norm* to normalize
