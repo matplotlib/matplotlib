@@ -710,7 +710,7 @@ get_cachedir = _wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _decode_filesystem_path(path):
-    if isinstance(path, bytes):
+    if not isinstance(path, str):
         return path.decode(sys.getfilesystemencoding())
     else:
         return path
