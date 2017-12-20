@@ -31,7 +31,7 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import silent_list, is_hashable
+from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
 import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
@@ -1155,6 +1155,12 @@ class Legend(Artist):
         when dragged. If update is "loc", the *loc* parameter of the legend
         is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
+        warn_deprecated("2.2",
+                        message="Legend.draggable() is drepecated in "
+                                "favor of Legend.set_draggable(). "
+                                "Legend.draggable may be reintroduced as a "
+                                "property in future releases.")
+
         if state is None:
             state = not self.get_draggable()  # toggle state
 
