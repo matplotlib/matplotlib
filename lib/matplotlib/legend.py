@@ -52,11 +52,17 @@ from . import legend_handler
 class DraggableLegend(DraggableOffsetBox):
     def __init__(self, legend, use_blit=False, update="loc"):
         """
+        Wrapper around a `.Legend` to support mouse dragging.
+
         Parameters
         ----------
-        update : string
-            If "loc", update *loc* parameter of legend upon finalizing.
-            If "bbox", update *bbox_to_anchor* parameter.
+        legend : `.Legend`
+            The `.Legend` instance to wrap.
+        use_blit : bool, optional
+
+        update : ['loc' | 'bbox'], optional
+            If "loc", update the *loc* parameter of the legend upon finalizing.
+            If "bbox", update the *bbox_to_anchor* parameter.
         """
         self.legend = legend
 
@@ -1096,6 +1102,41 @@ class Legend(Artist):
     def contains(self, event):
         return self.legendPatch.contains(event)
 
+    def set_draggable(self, state, use_blit=False, update='loc'):
+        """
+        Enable or disable mouse dragging support of the legend.
+
+        Parameters
+        ----------
+        state : bool
+            ``True`` / ``False`` enables / disables mouse dragging.
+        use_blit : bool, optional
+
+        update_loc : ['loc' | 'bbox'], optional
+            The legend parameter to be changed when dragged:
+
+            - 'loc': update the *loc* parameter of the legend
+            - 'bbox': update the *bbox_to_anchor* parameter of the legend
+
+        Returns
+        -------
+        If *state* is ``True`` this returns the `~.DraggableLegend` helper
+        instance. Otherwise this returns ``None``.
+        """
+        if state:
+            if self._draggable is None:
+                self._draggable = DraggableLegend(self,
+                                                  use_blit,
+                                                  update=update)
+        else:
+            if self._draggable is not None:
+                self._draggable.disconnect()
+            self._draggable = None
+
+    def get_draggable(self):
+        """Return ``True`` if the legend is draggable, ``False`` otherwise."""
+        return self._draggable is not None
+
     def draggable(self, state=None, use_blit=False, update="loc"):
         """
         Set the draggable state -- if state is
@@ -1114,21 +1155,10 @@ class Legend(Artist):
         when dragged. If update is "loc", the *loc* parameter of the legend
         is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
-        is_draggable = self._draggable is not None
-
-        # if state is None we'll toggle
         if state is None:
-            state = not is_draggable
+            state = not self.get_draggable()  # toggle state
 
-        if state:
-            if self._draggable is None:
-                self._draggable = DraggableLegend(self,
-                                                  use_blit,
-                                                  update=update)
-        else:
-            if self._draggable is not None:
-                self._draggable.disconnect()
-            self._draggable = None
+        self.set_draggable(state, use_blit, update)
 
         return self._draggable
 
