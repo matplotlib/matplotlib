@@ -16,6 +16,7 @@ import matplotlib as mpl
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
+import matplotlib.legend as mlegend
 import inspect
 
 
@@ -421,6 +422,22 @@ def test_nanscatter():
 
     ax.legend()
     ax.grid(True)
+
+
+def test_legend_repeatcheckok():
+    fig, ax = plt.subplots()
+    ax.scatter(0.0, 1.0, color='k', marker='o', label='test')
+    ax.scatter(0.5, 0.0, color='r', marker='v', label='test')
+    hl = ax.legend()
+    hand, lab = mlegend._get_legend_handles_labels([ax])
+    assert len(lab) == 2
+    fig, ax = plt.subplots()
+    ax.scatter(0.0, 1.0, color='k', marker='o', label='test')
+    ax.scatter(0.5, 0.0, color='k', marker='v', label='test')
+    hl = ax.legend()
+    hand, lab = mlegend._get_legend_handles_labels([ax])
+    assert len(lab) == 1
+
 
 
 @image_comparison(baseline_images=['not_covering_scatter'], extensions=['png'])
