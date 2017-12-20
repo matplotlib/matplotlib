@@ -37,6 +37,7 @@ from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list, is_hashable
+import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -1325,7 +1326,7 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     labels = []
 
     def _in_handles(h, l):
-         # Method to check if we already have a given handle and label.
+        # Method to check if we already have a given handle and label.
         # Consider two handles to be the same if they share a label,
         # color, facecolor, and edgecolor.
 
@@ -1336,17 +1337,20 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
             if type(f_h) != type(h):
                 continue
             try:
-                if f_h.get_color() != h.get_color():
+                if (colors.to_rgba_array(f_h.get_color()) !=
+                        colors.to_rgba_array(h.get_color())).any():
                     continue
             except AttributeError:
                 pass
             try:
-                if f_h.get_facecolor() != h.get_facecolor():
+                if (colors.to_rgba_array(f_h.get_facecolor()) !=
+                        colors.to_rgba_array(h.get_facecolor())).any():
                     continue
             except AttributeError:
                 pass
             try:
-                if f_h.get_edgecolor() != h.get_edgecolor():
+                if (colors.to_rgba_array(f_h.get_edgecolor()) !=
+                        colors.to_rgba_array(h.get_edgecolor())).any():
                     continue
             except AttributeError:
                 pass
@@ -1355,9 +1359,9 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
 
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if (label
-                and not label.startswith('_')
-                and not _in_handles(handle, label)):
+        if (label and
+                not label.startswith('_') and
+                not _in_handles(handle, label)):
             handles.append(handle)
             labels.append(label)
     return handles, labels
