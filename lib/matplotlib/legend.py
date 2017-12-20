@@ -59,8 +59,9 @@ class DraggableLegend(DraggableOffsetBox):
         legend : `.Legend`
             The `.Legend` instance to wrap.
         use_blit : bool, optional
-
-        update : ['loc' | 'bbox'], optional
+            Use blitting for faster image composition. For details see
+            :ref:`func-animation`.
+        update : {'loc', 'bbox'}, optional
             If "loc", update the *loc* parameter of the legend upon finalizing.
             If "bbox", update the *bbox_to_anchor* parameter.
         """
@@ -1111,8 +1112,9 @@ class Legend(Artist):
         state : bool
             ``True`` / ``False`` enables / disables mouse dragging.
         use_blit : bool, optional
-
-        update_loc : ['loc' | 'bbox'], optional
+            Use blitting for faster image composition. For details see
+            :ref:`func-animation`.
+        update : ['loc' | 'bbox'], optional
             The legend parameter to be changed when dragged:
 
             - 'loc': update the *loc* parameter of the legend
@@ -1132,6 +1134,7 @@ class Legend(Artist):
             if self._draggable is not None:
                 self._draggable.disconnect()
             self._draggable = None
+        return self._draggable
 
     def get_draggable(self):
         """Return ``True`` if the legend is draggable, ``False`` otherwise."""
