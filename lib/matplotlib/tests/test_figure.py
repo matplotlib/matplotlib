@@ -90,7 +90,7 @@ def test_figure_legend():
     axes[0].plot([0, 1], [0, 1], label='y', color='r')
     axes[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
 
-    axes[1].plot([0, 1], [1, 0], label='y', color='r')
+    axes[1].plot([0, 1], [1, 0], label='_y', color='r')
     axes[1].plot([0, 1], [0, 1], label='z', color='b')
     fig.legend()
 
