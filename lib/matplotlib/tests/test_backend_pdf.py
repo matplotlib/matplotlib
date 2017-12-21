@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -35,7 +34,7 @@ def test_use14corefonts():
     rcParams['font.sans-serif'] = ['Helvetica']
     rcParams['pdf.compression'] = 0
 
-    text = '''A three-line text positioned just above a blue line
+    text = u'''A three-line text positioned just above a blue line
 and containing some French characters and the euro symbol:
 "Merci pépé pour les 10 €"'''
 

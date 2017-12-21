@@ -17,8 +17,7 @@ Interface::
               ...
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange
@@ -764,13 +763,13 @@ class Tfm(object):
         with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
-                struct.unpack(str('!6H'), header1[2:14])
+                struct.unpack('!6H', header1[2:14])
             _log.debug(
                 'lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d' % (
                     lh, bc, ec, nw, nh, nd))
             header2 = file.read(4*lh)
             self.checksum, self.design_size = \
-                struct.unpack(str('!2I'), header2[:8])
+                struct.unpack('!2I', header2[:8])
             # there is also encoding information etc.
             char_info = file.read(4*(ec-bc+1))
             widths = file.read(4*nw)
@@ -779,7 +778,7 @@ class Tfm(object):
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
-            [struct.unpack(str('!%dI') % (len(x)/4), x)
+            [struct.unpack('!%dI' % (len(x)/4), x)
              for x in (widths, heights, depths)]
         for idx, char in enumerate(xrange(bc, ec+1)):
             byte0 = ord(char_info[4*idx])
@@ -1040,7 +1039,7 @@ def find_tex_file(filename, format=None):
         if isinstance(format, bytes):
             format = format.decode('utf-8', errors='replace')
 
-    cmd = [str('kpsewhich')]
+    cmd = ['kpsewhich']
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
