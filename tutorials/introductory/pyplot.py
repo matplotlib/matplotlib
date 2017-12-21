@@ -267,7 +267,7 @@ plt.show()
 # ``figure(1)`` will be created by default, just as a ``subplot(111)``
 # will be created by default if you don't manually specify any axes.  The
 # :func:`~matplotlib.pyplot.subplot` command specifies ``numrows,
-# numcols, fignum`` where ``fignum`` ranges from 1 to
+# numcols, plot_number`` where ``plot_number`` ranges from 1 to
 # ``numrows*numcols``.  The commas in the ``subplot`` command are
 # optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
 # to ``subplot(2, 1, 1)``.
