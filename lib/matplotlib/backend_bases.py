@@ -66,6 +66,7 @@ import matplotlib.textpath as textpath
 from matplotlib.path import Path
 from matplotlib.cbook import mplDeprecation, warn_deprecated
 import matplotlib.backend_tools as tools
+import itertools
 
 try:
     from PIL import Image
@@ -2275,7 +2276,6 @@ class FigureCanvasBase(object):
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
             self._is_saving = False
-            #self.figure.canvas.draw() ## seems superfluous
         return result
 
     @classmethod
@@ -2296,32 +2296,32 @@ class FigureCanvasBase(object):
             return self.manager.get_window_title()
 
     def set_window_title(self, title):
-        """
-        Set the title text of the window containing the figure.  Note that
-        this has no effect if there is no window (e.g., a PS backend).
+        """Set the title text of the window containing the figure.
+
+        This has no effect if there is no window (e.g., a PS backend).
         """
         if hasattr(self, "manager"):
             self.manager.set_window_title(title)
 
     def get_default_filename(self):
+        """Return a suitable default filename, including the extension.
         """
-        Return a string, which includes extension, suitable for use as
-        a default filename.
-        """
-        default_basename = self.get_window_title() or 'image'
-        default_basename = default_basename.replace(' ', '_')
+        default_basename = self.get_window_title() or "image"
+        # Characters to be avoided in a NT path:
+        # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
+        # plus ' '
+        removed_chars = r'<>:"/\|?*\0 '
+        default_basename = default_basename.translate(
+            {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
-        default_filename = default_basename + '.' + default_filetype
-
-        save_dir = os.path.expanduser(rcParams['savefig.directory'])
-
-        # ensure non-existing filename in save dir
-        i = 1
-        while os.path.isfile(os.path.join(save_dir, default_filename)):
-            # attach numerical count to basename
-            default_filename = '{0}-{1}.{2}'.format(default_basename, i, default_filetype)
-            i += 1
-
+        save_dir = os.path.expanduser(rcParams.get("savefig.directory", ""))
+        # Ensure non-existing filename in save dir.
+        default_filename = next(
+            filename for filename in itertools.chain(
+                ["{}.{}".format(default_basename, default_filetype)],
+                ("{}-{}.{}".format(default_basename, i, default_filetype)
+                 for i in itertools.count(1)))
+            if not os.path.isfile(os.path.join(save_dir, filename)))
         return default_filename
 
     def switch_backends(self, FigureCanvasClass):
