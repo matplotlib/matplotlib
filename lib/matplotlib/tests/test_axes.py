@@ -589,8 +589,8 @@ def test_polar_units():
     units.register()
 
     pi = np.pi
-    deg = units.UnitDbl(1.0, "deg")
-    km = units.UnitDbl(1.0, "km")
+    deg = units.deg
+    km = units.km
 
     x1 = [pi/6.0, pi/4.0, pi/3.0, pi/2.0]
     x2 = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
