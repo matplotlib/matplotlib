@@ -408,9 +408,8 @@ validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
 def validate_string(s):
-    if isinstance(s, str):  # Always leave str as str
-        return s
-    elif isinstance(s, six.text_type):
+    if isinstance(s, (str, six.text_type)):
+        # Always leave str as str and unicode as unicode
         return s
     else:
         return str(s)
