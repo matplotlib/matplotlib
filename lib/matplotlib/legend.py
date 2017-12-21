@@ -1325,43 +1325,9 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     handles = []
     labels = []
 
-    def _in_handles(h, l):
-        # Method to check if we already have a given handle and label.
-        # Consider two handles to be the same if they share a label,
-        # color, facecolor, and edgecolor.
-
-        # Loop through each handle and label already collected
-        for f_h, f_l in zip(handles, labels):
-            if f_l != l:
-                continue
-            if type(f_h) != type(h):
-                continue
-            try:
-                if (colors.to_rgba_array(f_h.get_color()) !=
-                        colors.to_rgba_array(h.get_color())).any():
-                    continue
-            except AttributeError:
-                pass
-            try:
-                if (colors.to_rgba_array(f_h.get_facecolor()) !=
-                        colors.to_rgba_array(h.get_facecolor())).any():
-                    continue
-            except AttributeError:
-                pass
-            try:
-                if (colors.to_rgba_array(f_h.get_edgecolor()) !=
-                        colors.to_rgba_array(h.get_edgecolor())).any():
-                    continue
-            except AttributeError:
-                pass
-            return True
-        return False
-
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if (label and
-                not label.startswith('_') and
-                not _in_handles(handle, label)):
+        if (label and not label.startswith('_')):
             handles.append(handle)
             labels.append(label)
     return handles, labels
