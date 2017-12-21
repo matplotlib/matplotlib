@@ -19,8 +19,7 @@ the advantage that it is the standard way to look up fonts on X11
 platforms, so if a font is installed, it is much more likely to be
 found.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import cPickle as pickle

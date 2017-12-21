@@ -37,6 +37,7 @@ from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list, is_hashable
+import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -1345,40 +1346,9 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     handles = []
     labels = []
 
-    def _in_handles(h, l):
-         # Method to check if we already have a given handle and label.
-        # Consider two handles to be the same if they share a label,
-        # color, facecolor, and edgecolor.
-
-        # Loop through each handle and label already collected
-        for f_h, f_l in zip(handles, labels):
-            if f_l != l:
-                continue
-            if type(f_h) != type(h):
-                continue
-            try:
-                if f_h.get_color() != h.get_color():
-                    continue
-            except AttributeError:
-                pass
-            try:
-                if f_h.get_facecolor() != h.get_facecolor():
-                    continue
-            except AttributeError:
-                pass
-            try:
-                if f_h.get_edgecolor() != h.get_edgecolor():
-                    continue
-            except AttributeError:
-                pass
-            return True
-        return False
-
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if (label
-                and not label.startswith('_')
-                and not _in_handles(handle, label)):
+        if (label and not label.startswith('_')):
             handles.append(handle)
             labels.append(label)
     return handles, labels

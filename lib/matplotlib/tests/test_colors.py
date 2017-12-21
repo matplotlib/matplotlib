@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import copy
 import six
@@ -715,3 +714,8 @@ def test_ndarray_subclass_norm(recwarn):
         else:
             assert len(recwarn) == 0
         recwarn.clear()
+
+
+def test_same_color():
+    assert mcolors.same_color('k', (0, 0, 0))
+    assert not mcolors.same_color('w', (1, 1, 0))
