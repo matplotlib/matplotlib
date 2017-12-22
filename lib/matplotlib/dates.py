@@ -1511,7 +1511,23 @@ class SecondLocator(RRuleLocator):
 
 class MicrosecondLocator(DateLocator):
     """
-    Make ticks on occurances of each microsecond.
+    Make ticks on regular intervals of one or more microsecond(s).
+
+    .. note::
+
+        Due to the floating point representation of time in days since
+        0001-01-01 UTC (plus 1), plotting data with microsecond time
+        resolution does not work with arbitrary dates.
+
+        If you want microsecond resolution time plots, we recommend
+        using floating point seconds or milliseconds, not datetime-like
+        time representation.
+
+        If you still want to use datetime.datetime() and the likes, be
+        sure to use very early years; year 0001 will give highest
+        precision.  But be warned that you may still run into issues
+        with tick positioning and labeling.  Be careful to check your
+        plots!
 
     """
     def __init__(self, interval=1, tz=None):
