@@ -100,7 +100,7 @@ Here are all the date tickers:
       locations.  If called with ``interval_multiples=True`` it will
       make ticks line up with sensible multiples of the tick intervals.  E.g.
       if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
-      This behaviour is not garaunteed by default.
+      This behaviour is not guaranteed by default.
 
 Date formatters
 ---------------
