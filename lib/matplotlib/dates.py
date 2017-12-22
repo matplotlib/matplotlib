@@ -96,7 +96,7 @@ Here are all the date tickers:
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`RRuleLocator` to set the view limits and the tick
+      :class:`DateLocator` to set the view limits and the tick
       locations.  If called with ``interval_multiples=True`` it will
       make ticks line up with sensible multiples of the tick intervals.  E.g.
       if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
