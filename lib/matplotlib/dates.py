@@ -806,7 +806,8 @@ class AutoDateFormatter(ticker.Formatter):
                    self.defaultfmt)
 
         if isinstance(fmt, six.string_types):
-            self._formatter = DateFormatter(fmt, self._tz)
+            musec_prec = 1 if fmt.endswith('%f') else 20
+            self._formatter = DateFormatter(fmt, self._tz, musec_prec)
             result = self._formatter(x, pos)
         elif callable(fmt):
             result = fmt(x, pos)
@@ -952,7 +953,7 @@ class DateLocator(ticker.Locator):
         if dmin > dmax:
             dmin, dmax = dmax, dmin
 
-        return num2date(dmin, self.tz), num2date(dmax, self.tz)
+        return num2date(dmin, self.tz, 1), num2date(dmax, self.tz, 1)
 
     def viewlim_to_dt(self):
         """
@@ -962,7 +963,7 @@ class DateLocator(ticker.Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        return num2date(vmin, self.tz), num2date(vmax, self.tz)
+        return num2date(vmin, self.tz, 1), num2date(vmax, self.tz, 1)
 
     def _get_unit(self):
         """
