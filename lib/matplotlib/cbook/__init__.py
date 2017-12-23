@@ -2166,7 +2166,7 @@ def pts_to_prestep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2176,13 +2176,14 @@ def pts_to_prestep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
@@ -2203,7 +2204,7 @@ def pts_to_poststep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2213,13 +2214,14 @@ def pts_to_poststep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 2::2]
     steps[1:, 0::2] = args
@@ -2238,7 +2240,7 @@ def pts_to_midstep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2257,7 +2259,8 @@ def pts_to_midstep(x, *args):
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
     steps[0, 1:-1:2] = steps[0, 2::2] = (x[:-1] + x[1:]) / 2
-    steps[0, 0], steps[0, -1] = x[0], x[-1]
+    steps[0, :1] = x[:1]  # Also works for zero-sized input.
+    steps[0, -1:] = x[-1:]
     steps[1:, 0::2] = args
     steps[1:, 1::2] = steps[1:, 0::2]
     return steps

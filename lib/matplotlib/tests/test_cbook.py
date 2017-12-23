@@ -391,6 +391,11 @@ def test_to_prestep():
     assert_array_equal(y1_target, y1s)
 
 
+def test_to_prestep_empty():
+    steps = cbook.pts_to_prestep([], [])
+    assert steps.shape == (2, 0)
+
+
 def test_to_poststep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -411,6 +416,11 @@ def test_to_poststep():
     assert_array_equal(y1_target, y1s)
 
 
+def test_to_poststep_empty():
+    steps = cbook.pts_to_poststep([], [])
+    assert steps.shape == (2, 0)
+
+
 def test_to_midstep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -429,6 +439,11 @@ def test_to_midstep():
     xs, y1s = cbook.pts_to_midstep(x, y1)
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
+
+
+def test_to_midstep_empty():
+    steps = cbook.pts_to_midstep([], [])
+    assert steps.shape == (2, 0)
 
 
 @pytest.mark.parametrize(
