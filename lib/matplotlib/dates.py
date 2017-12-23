@@ -268,7 +268,7 @@ def _dt64_to_ordinalf(d):
     return dt
 
 
-def _from_ordinalf(x, tz=None):
+def _from_ordinalf(x, tz=None, musec_prec=20):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
     seconds and microseconds.  Return value is a :class:`datetime`.
@@ -277,6 +277,10 @@ def _from_ordinalf(x, tz=None):
     be the specified :class:`datetime` object corresponding to that time in
     timezone `tz`, or if `tz` is `None`, in the timezone specified in
     `rcParams['timezone']`.
+
+    Since the input date `x` float is unable to preserve microsecond
+    precision of time representation in non-antique years, the resulting
+    datetime is rounded to the nearest multiple of `musec_prec`.
     """
     if tz is None:
         tz = _get_rc_timezone()
@@ -291,10 +295,11 @@ def _from_ordinalf(x, tz=None):
             microseconds=int(round(remainder * MUSECONDS_PER_DAY)))
 
     # Compensate for rounding errors
-    if dt.microsecond < 10:
-        dt = dt.replace(microsecond=0)
-    elif dt.microsecond > 999990:
-        dt += datetime.timedelta(microseconds=1e6 - dt.microsecond)
+    if musec_prec > 1:
+        musec = datetime.timedelta(
+                    microseconds=round(
+                        dt.microsecond / float(musec_prec)) * musec_prec)
+        dt = dt.replace(microsecond=0) + musec
 
     return dt.astimezone(tz)
 
@@ -446,7 +451,7 @@ def num2julian(n):
     return n + JULIAN_OFFSET
 
 
-def num2date(x, tz=None):
+def num2date(x, tz=None, musec_prec=20):
     """
     Parameters
     ----------
@@ -455,6 +460,8 @@ def num2date(x, tz=None):
         since 0001-01-01 00:00:00 UTC, plus one.
     tz : string, optional
         Timezone of *x* (defaults to rcparams TZ value).
+    musec_prec : int, optional
+        Microsecond precision of return value
 
     Returns
     -------
@@ -473,12 +480,12 @@ def num2date(x, tz=None):
     if tz is None:
         tz = _get_rc_timezone()
     if not cbook.iterable(x):
-        return _from_ordinalf(x, tz)
+        return _from_ordinalf(x, tz, musec_prec)
     else:
         x = np.asarray(x)
         if not x.size:
             return x
-        return _from_ordinalf_np_vectorized(x, tz).tolist()
+        return _from_ordinalf_np_vectorized(x, tz, musec_prec).tolist()
 
 
 def _ordinalf_to_timedelta(x):
@@ -554,15 +561,17 @@ class DateFormatter(ticker.Formatter):
 
     illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
 
-    def __init__(self, fmt, tz=None):
+    def __init__(self, fmt, tz=None, musec_prec=20):
         """
         *fmt* is a :func:`strftime` format string; *tz* is the
-         :class:`tzinfo` instance.
+         :class:`tzinfo` instance, *musec_prec* is the microsecond
+         rounding precision.
         """
         if tz is None:
             tz = _get_rc_timezone()
         self.fmt = fmt
         self.tz = tz
+        self.musec_prec = musec_prec
 
     def __call__(self, x, pos=0):
         if x == 0:
@@ -570,7 +579,7 @@ class DateFormatter(ticker.Formatter):
                              'an illegal date.  This usually occurs because '
                              'you have not informed the axis that it is '
                              'plotting dates, e.g., with ax.xaxis_date()')
-        dt = num2date(x, self.tz)
+        dt = num2date(x, self.tz, self.musec_prec)
         return self.strftime(dt, self.fmt)
 
     def set_tzinfo(self, tz):
