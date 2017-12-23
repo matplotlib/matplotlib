@@ -172,9 +172,13 @@ parents[-1].link|e }}" />
 {%- endif %}
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
 {%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
-<a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.png", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+<a href="{{ pathto('index') }}">
+    <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version {{ version|e }}</span></div>
+    <img src="{{pathto("_static/logo2.png", 1) }}" height="125px" border="0" alt="matplotlib"/></a>
 {%- else %}
-<a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.svg", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+<a href="{{ pathto('index') }}">
+    <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version {{ version|e }}</span></div>
+    <img src="{{pathto("_static/logo2.png", 1) }}" height="125px" border="0" alt="matplotlib"/></a>
 {%- endif %}
 
 <!-- The "Fork me on github" ribbon -->
