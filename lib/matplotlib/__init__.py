@@ -851,7 +851,7 @@ _deprecated_map = {
     'svg.image_noscale': ('image.interpolation', None, None),
     }
 
-_deprecated_ignore_map = {}
+_deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 
 _obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
 
@@ -877,7 +877,7 @@ class RcParams(MutableMapping, dict):
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_set = ("%s is deprecated. Please remove it from your "
                     "matplotlibrc and/or style files.")
-    msg_depr_ignore = "%s is deprecated and ignored. Use %s"
+    msg_depr_ignore = "%s is deprecated and ignored. Use %s instead."
     msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
                     "and/or style files.")
 
