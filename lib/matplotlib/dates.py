@@ -1535,10 +1535,7 @@ class MicrosecondLocator(DateLocator):
         time representation.
 
         If you still want to use datetime.datetime() and the likes, be
-        sure to use very early years; year 0001 will give highest
-        precision.  But be warned that you may still run into issues
-        with tick positioning and labeling.  Be careful to check your
-        plots!
+        sure to use very early years; using year 0001 is recommended.
 
     """
     def __init__(self, interval=1, tz=None):
