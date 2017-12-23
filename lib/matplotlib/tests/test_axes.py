@@ -1198,7 +1198,8 @@ def test_pcolorargs():
     x[0] = np.NaN
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
-    x = np.ma.array(x, mask=(x < 0))
+    with np.errstate(invalid='ignore'):
+        x = np.ma.array(x, mask=(x < 0))
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
 
