@@ -14,9 +14,9 @@ delta = 0.025
 
 x = y = np.arange(-3.0, 3.01, delta)
 X, Y = np.meshgrid(x, y)
-Z1 = plt.mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-Z2 = plt.mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = 10 * (Z1 - Z2)
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
 
 nr, nc = Z.shape
 
