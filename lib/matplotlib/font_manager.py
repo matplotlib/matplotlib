@@ -1331,7 +1331,7 @@ class FontManager(object):
                     UserWarning)
                 result = self.defaultFont[fontext]
         else:
-            _log.info(
+            _log.debug(
                 'findfont: Matching %s to %s (%s) with score of %f' %
                 (prop, best_font.name, repr(best_font.fname), best_score))
             result = best_font.fname
