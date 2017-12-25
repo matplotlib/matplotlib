@@ -24,6 +24,7 @@ import os
 import warnings
 import re
 
+from matplotlib import cbook
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -570,8 +571,15 @@ validate_legend_loc = ValidateInStrings(
      'center'], ignorecase=True)
 
 
-validate_svg_fonttype = ValidateInStrings('svg.fonttype',
-                                          ['none', 'path', 'svgfont'])
+def validate_svg_fonttype(s):
+    if s in ["none", "path"]:
+        return s
+    if s == "svgfont":
+        cbook.warn_deprecated(
+            "2.2", "'svgfont' support for svg.fonttype is deprecated.")
+        return s
+    raise ValueError("Unrecognized svg.fonttype string '{}'; "
+                     "valid strings are 'none', 'path'")
 
 
 def validate_hinting(s):
