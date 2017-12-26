@@ -718,7 +718,7 @@ class RadialAxis(maxis.YAxis):
     axis_name = 'radius'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(RadialAxis, self).__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
 
     def _get_tick(self, major):
