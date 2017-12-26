@@ -548,13 +548,6 @@ def validate_negative_linestyle_legacy(s):
         return (0, dashes)  # (offset, (solid, blank))
 
 
-def validate_corner_mask(s):
-    if s == 'legacy':
-        return s
-    else:
-        return validate_bool(s)
-
-
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
     ['best',
@@ -587,7 +580,6 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
 validate_movie_writer = ValidateInStrings('animation.writer',
     ['ffmpeg', 'ffmpeg_file',
      'avconv', 'avconv_file',
-     'mencoder', 'mencoder_file',
      'imagemagick', 'imagemagick_file',
      'html'])
 
@@ -1097,7 +1089,7 @@ defaultParams = {
 
     # contour props
     'contour.negative_linestyle': ['dashed', _validate_linestyle],
-    'contour.corner_mask':        [True, validate_corner_mask],
+    'contour.corner_mask':        [True, validate_bool],
 
     # errorbar props
     'errorbar.capsize':      [0, validate_float],
@@ -1378,23 +1370,17 @@ defaultParams = {
     'animation.frame_format': ['png', validate_movie_frame_fmt],
     # Additional arguments for HTML writer
     'animation.html_args':    [[], validate_stringlist],
-    # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
+    # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_path':  ['ffmpeg', validate_animation_writer_path],
-
     # Additional arguments for ffmpeg movie writer (using pipes)
     'animation.ffmpeg_args':   [[], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
     'animation.avconv_path':   ['avconv', validate_animation_writer_path],
     # Additional arguments for avconv movie writer (using pipes)
     'animation.avconv_args':   [[], validate_stringlist],
-    # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
-    'animation.mencoder_path': ['mencoder', validate_animation_writer_path],
-    # Additional arguments for mencoder movie writer (using pipes)
-    'animation.mencoder_args': [[], validate_stringlist],
-     # Path to convert binary. If just binary name, subprocess uses $PATH
+     # Path to convert binary. If just binary name, subprocess uses $PATH.
     'animation.convert_path':  ['convert', validate_animation_writer_path],
-     # Additional arguments for mencoder movie writer (using pipes)
-
+     # Additional arguments for convert movie writer (using pipes)
     'animation.convert_args':  [[], validate_stringlist],
 
     # Classic (pre 2.0) compatibility mode

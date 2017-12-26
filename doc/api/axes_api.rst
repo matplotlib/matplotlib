@@ -192,7 +192,6 @@ Clearing
    Axes.clear
 
 
-
 Appearance
 ==========
 
@@ -214,14 +213,11 @@ Appearance
 
    Axes.grid
 
-   Axes.get_axis_bgcolor
    Axes.get_facecolor
    Axes.get_fc
 
    Axes.set_facecolor
    Axes.set_fc
-   Axes.set_axis_bgcolor
-
 
 
 Property cycle

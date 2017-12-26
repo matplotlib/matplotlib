@@ -702,86 +702,7 @@ class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
-
     '''
-
-
-# Base class of mencoder information. Contains configuration key information
-# as well as arguments for controlling *output*
-class MencoderBase(object):
-    exec_key = 'animation.mencoder_path'
-    args_key = 'animation.mencoder_args'
-
-    # Mencoder only allows certain keys, other ones cause the program
-    # to fail.
-    allowed_metadata = ['name', 'artist', 'genre', 'subject', 'copyright',
-                        'srcform', 'comment']
-
-    # Mencoder mandates using name, but 'title' works better with ffmpeg.
-    # If we find it, just put it's value into name
-    def _remap_metadata(self):
-        if 'title' in self.metadata:
-            self.metadata['name'] = self.metadata['title']
-
-    @property
-    def output_args(self):
-        self._remap_metadata()
-        lavcopts = {'vcodec': self.codec}
-        if self.bitrate > 0:
-            lavcopts.update(vbitrate=self.bitrate)
-        args = ['-o', self.outfile, '-ovc', 'lavc', '-lavcopts',
-                ':'.join(itertools.starmap('{0}={1}'.format,
-                                           lavcopts.items()))]
-        if self.extra_args:
-            args.extend(self.extra_args)
-        if self.metadata:
-            args.extend(['-info', ':'.join('%s=%s' % (k, v)
-                         for k, v in six.iteritems(self.metadata)
-                         if k in self.allowed_metadata)])
-        return args
-
-
-# The message must be a single line; internal newlines cause sphinx failure.
-mencoder_dep = ("Support for mencoder is only partially functional, "
-                "and will be removed entirely in 2.2. "
-                "Please use ffmpeg instead.")
-
-
-@writers.register('mencoder')
-class MencoderWriter(MovieWriter, MencoderBase):
-
-    @deprecated('2.0', message=mencoder_dep)
-    def __init__(self, *args, **kwargs):
-        with rc_context(rc={'animation.codec': 'mpeg4'}):
-            super(MencoderWriter, self).__init__(*args, **kwargs)
-
-    def _args(self):
-        # Returns the command line parameters for subprocess to use
-        # mencoder to create a movie
-        return [self.bin_path(), '-', '-demuxer', 'rawvideo', '-rawvideo',
-                ('w=%i:h=%i:' % self.frame_size +
-                'fps=%i:format=%s' % (self.fps,
-                                      self.frame_format))] + self.output_args
-
-
-# Combine Mencoder options with temp file-based writing
-@writers.register('mencoder_file')
-class MencoderFileWriter(FileMovieWriter, MencoderBase):
-    supported_formats = ['png', 'jpeg', 'tga', 'sgi']
-
-    @deprecated('2.0', message=mencoder_dep)
-    def __init__(self, *args, **kwargs):
-        with rc_context(rc={'animation.codec': 'mpeg4'}):
-            super(MencoderFileWriter, self).__init__(*args, **kwargs)
-
-    def _args(self):
-        # Returns the command line parameters for subprocess to use
-        # mencoder to create a movie
-        return [self.bin_path(),
-                'mf://%s*.%s' % (self.temp_prefix, self.frame_format),
-                '-frames', str(self._frame_counter), '-mf',
-                'type=%s:fps=%d' % (self.frame_format,
-                                    self.fps)] + self.output_args
 
 
 # Base class for animated GIFs with convert utility
@@ -1102,8 +1023,8 @@ class Animation(object):
 
         writer : :class:`MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
-            class to use, such as 'ffmpeg' or 'mencoder'. If ``None``,
-            defaults to ``rcParams['animation.writer']``.
+            class to use, such as 'ffmpeg'. If ``None``, defaults to
+            ``rcParams['animation.writer']``.
 
         fps : number, optional
            Frames per second in the movie. Defaults to ``None``, which will use

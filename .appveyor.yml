@@ -101,7 +101,7 @@ test_script:
 
   # this are optional dependencies so that we don't skip so many tests...
   - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex pillow
-  # missing packages on conda-forge for avconv mencoder imagemagick
+  # missing packages on conda-forge for avconv imagemagick
   # This install sometimes failed randomly :-(
   #- choco install imagemagick
 

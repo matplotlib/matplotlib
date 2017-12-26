@@ -845,29 +845,6 @@ class Bbox(BboxBase):
         """
         self._ignore = value
 
-    @cbook.deprecated('2.0', alternative='update_from_data_xy')
-    def update_from_data(self, x, y, ignore=None):
-        """
-        Update the bounds of the :class:`Bbox` based on the passed in
-        data.  After updating, the bounds will have positive *width*
-        and *height*; *x0* and *y0* will be the minimal values.
-
-        *x*: a numpy array of *x*-values
-
-        *y*: a numpy array of *y*-values
-
-        *ignore*:
-           - when True, ignore the existing bounds of the :class:`Bbox`.
-           - when False, include the existing bounds of the :class:`Bbox`.
-           - when None, use the last value passed to :meth:`ignore`.
-        """
-        warnings.warn(
-            "update_from_data requires a memory copy -- please replace with "
-            "update_from_data_xy")
-
-        xy = np.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
-        return self.update_from_data_xy(xy, ignore)
-
     def update_from_path(self, path, ignore=None, updatex=True, updatey=True):
         """
         Update the bounds of the :class:`Bbox` based on the passed in
@@ -2656,8 +2633,8 @@ class BboxTransform(Affine2DBase):
             if DEBUG and (x_scale == 0 or y_scale == 0):
                 raise ValueError("Transforming from or to a singular bounding box.")
             self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
-                                   [0.0   , y_scale, (-inb*y_scale+outb)],
-                                   [0.0   , 0.0    , 1.0        ]],
+                                  [0.0    , y_scale, (-inb*y_scale+outb)],
+                                  [0.0    , 0.0    , 1.0        ]],
                                  float)
             self._inverted = None
             self._invalid = 0

@@ -84,8 +84,7 @@ To run the test suite:
    :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
  * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
    `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-   ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-   <https://inkscape.org/>`_;
+   ffmpeg, avconv, ImageMagick, and `Inkscape <https://inkscape.org/>`_;
  * run ``py.test path\to\tests\directory``.
 
 

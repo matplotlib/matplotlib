@@ -2857,13 +2857,6 @@ class Axes(_AxesBase):
         holdstate = self._hold
         self._hold = True
 
-        if fmt is None:
-            fmt = 'none'
-            msg = ('Use of None object as fmt keyword argument to ' +
-                   'suppress plotting of data values is deprecated ' +
-                   'since 1.4; use the string "none" instead.')
-            warnings.warn(msg, mplDeprecation, stacklevel=1)
-
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 

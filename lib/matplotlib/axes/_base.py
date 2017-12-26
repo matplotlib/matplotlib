@@ -429,7 +429,6 @@ class _AxesBase(martist.Artist):
                  label='',
                  xscale=None,
                  yscale=None,
-                 axisbg=None,  # This will be removed eventually
                  **kwargs
                  ):
         """
@@ -521,14 +520,6 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-        if axisbg is not None and facecolor is not None:
-            raise TypeError('Both axisbg and facecolor are not None. '
-                            'These keywords are aliases, only one may be '
-                            'provided.')
-        if axisbg is not None:
-            cbook.warn_deprecated(
-                '2.0', name='axisbg', alternative='facecolor')
-            facecolor = axisbg
         if facecolor is None:
             facecolor = rcParams['axes.facecolor']
         self._facecolor = facecolor
@@ -1822,9 +1813,9 @@ class _AxesBase(martist.Artist):
         """Add any :class:`~matplotlib.artist.Artist` to the axes.
 
         Use `add_artist` only for artists for which there is no dedicated
-        "add" method; and if necessary, use a method such as
-        `update_datalim` or `update_datalim_numerix` to manually update the
-        dataLim if the artist is to be included in autoscaling.
+        "add" method; and if necessary, use a method such as `update_datalim`
+        to manually update the dataLim if the artist is to be included in
+        autoscaling.
 
         Returns the artist.
         """
@@ -2062,20 +2053,6 @@ class _AxesBase(martist.Artist):
             return
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
                                          updatex=updatex, updatey=updatey)
-        self.ignore_existing_data_limits = False
-
-    @cbook.deprecated('2.0', alternative='update_datalim')
-    def update_datalim_numerix(self, x, y):
-        """
-        Update the data lim bbox with seq of xy tups
-        """
-        # if no data is set currently, the bbox will ignore it's
-        # limits and set the bound to be the bounds of the xydata.
-        # Otherwise, it will compute the bounds of it's current data
-        # and the data in xydata
-        if iterable(x) and not len(x):
-            return
-        self.dataLim.update_from_data(x, y, self.ignore_existing_data_limits)
         self.ignore_existing_data_limits = False
 
     def update_datalim_bounds(self, bounds):
@@ -2899,29 +2876,15 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_tick_params(**ykw)
 
     def set_axis_off(self):
-        """turn off the axis"""
+        """Turn off the axis."""
         self.axison = False
         self.stale = True
 
     def set_axis_on(self):
-        """turn on the axis"""
+        """Turn on the axis."""
         self.axison = True
         self.stale = True
 
-    @cbook.deprecated('2.0', alternative='get_facecolor')
-    def get_axis_bgcolor(self):
-        """Return the axis background color"""
-        return self.get_facecolor()
-
-    @cbook.deprecated('2.0', alternative='set_facecolor')
-    def set_axis_bgcolor(self, color):
-        """
-        set the axes background color
-
-        ACCEPTS: any matplotlib color - see
-        :func:`~matplotlib.pyplot.colors`
-        """
-        return self.set_facecolor(color)
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):

@@ -1876,10 +1876,6 @@ class MaxNLocator(Locator):
             self._nbins = kwargs['nbins']
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
-        if 'trim' in kwargs:
-            warnings.warn(
-                "The 'trim' keyword has no effect since version 2.0.",
-                mplDeprecation)
         if 'symmetric' in kwargs:
             self._symmetric = kwargs['symmetric']
         if 'prune' in kwargs:
@@ -1946,10 +1942,6 @@ class MaxNLocator(Locator):
             if nticks >= self._min_n_ticks:
                 break
         return ticks
-
-    @cbook.deprecated("2.0")
-    def bin_boundaries(self, vmin, vmax):
-        return self._raw_ticks(vmin, vmax)
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()

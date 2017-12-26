@@ -15,11 +15,12 @@ from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
-from matplotlib._cm import datad, _deprecation_datad
-from matplotlib._cm import cubehelix
+from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
-cmap_d = _deprecation_datad()
+
+cmap_d = {}
+
 
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
@@ -68,8 +69,7 @@ def _generate_cmap(name, lutsize):
     """Generates the requested cmap from its *name*.  The lut size is
     *lutsize*."""
 
-    # Use superclass method to avoid deprecation warnings during initial load.
-    spec = dict.__getitem__(datad, name)
+    spec = datad[name]
 
     # Generate the colormap object.
     if 'red' in spec:

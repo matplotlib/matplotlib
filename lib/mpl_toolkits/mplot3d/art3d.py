@@ -755,11 +755,6 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-@cbook.deprecated('2.0', alternative='matplotlib.colors.is_color_like')
-def iscolor(c):
-    return mcolors.is_color_like(c)
-
-
 def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
     return _backports.broadcast_to(
