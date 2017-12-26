@@ -717,6 +717,10 @@ class RadialAxis(maxis.YAxis):
     __name__ = 'radialaxis'
     axis_name = 'radius'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sticky_edges.y.append(0)
+
     def _get_tick(self, major):
         if major:
             tick_kw = self._major_tick_kw
@@ -849,6 +853,7 @@ class PolarAxes(Axes):
             kwargs.pop('rlabel_position', 22.5))
 
         Axes.__init__(self, *args, **kwargs)
+        self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
     __init__.__doc__ = Axes.__init__.__doc__
