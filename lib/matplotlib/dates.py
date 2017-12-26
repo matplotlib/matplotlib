@@ -953,7 +953,10 @@ class DateLocator(ticker.Locator):
         if dmin > dmax:
             dmin, dmax = dmax, dmin
 
-        return num2date(dmin, self.tz, 1), num2date(dmax, self.tz, 1)
+        mup = 20
+        if abs(dmax - dmin) < 1000. / MUSECONDS_PER_DAY:
+            mup = 1
+        return num2date(dmin, self.tz, mup), num2date(dmax, self.tz, mup)
 
     def viewlim_to_dt(self):
         """
@@ -963,7 +966,11 @@ class DateLocator(ticker.Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        return num2date(vmin, self.tz, 1), num2date(vmax, self.tz, 1)
+        mup = 20
+        if abs(vmax - vmin) < 1000. / MUSECONDS_PER_DAY:
+            mup = 1
+
+        return num2date(vmin, self.tz, mup), num2date(vmax, self.tz, mup)
 
     def _get_unit(self):
         """
