@@ -2018,6 +2018,8 @@ class RectangleSelector(_SelectorWidget):
         a box or nothing between click and actual position by setting
 
         ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
+        Drawing a line would result in a line from vertex A to vertex C in
+        a rectangle ABCD.
 
         *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
         and *minspanx* will be interpreted in the same coordinates as
