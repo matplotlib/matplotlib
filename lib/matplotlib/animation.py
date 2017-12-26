@@ -326,7 +326,7 @@ class MovieWriter(AbstractMovieWriter):
                           'from %s x %s to %s x %s', wo, ho, w, h)
         else:
             w, h = self.fig.get_size_inches()
-        _log.debug('frame size in pixels is %s x %s' % self.frame_size)
+        _log.debug('frame size in pixels is %s x %s', *self.frame_size)
         return w, h
 
     def setup(self, fig, outfile, dpi=None):
@@ -409,10 +409,8 @@ class MovieWriter(AbstractMovieWriter):
         '''Clean-up and collect the process used to write the movie file.'''
         out, err = self._proc.communicate()
         self._frame_sink().close()
-        _log.debug('MovieWriter -- '
-                       'Command stdout:\n%s' % out)
-        _log.debug('MovieWriter -- '
-                       'Command stderr:\n%s' % err)
+        _log.debug('MovieWriter -- Command stdout:\n%s', out)
+        _log.debug('MovieWriter -- Command stderr:\n%s', err)
 
     @classmethod
     def bin_path(cls):
@@ -521,9 +519,8 @@ class FileMovieWriter(MovieWriter):
 
         # Save the filename so we can delete it later if necessary
         self._temp_names.append(fname)
-        _log.debug(
-            'FileMovieWriter.frame_sink: saving frame %d to fname=%s' %
-            (self._frame_counter, fname))
+        _log.debug('FileMovieWriter.frame_sink: saving frame %d to fname=%s',
+                   self._frame_counter, fname)
         self._frame_counter += 1  # Ensures each created name is 'unique'
 
         # This file returned here will be closed once it's used by savefig()
@@ -567,18 +564,16 @@ class FileMovieWriter(MovieWriter):
                 _log.info("MovieWriter.finish: stderr: %s", stderr)
             except Exception as e:
                 pass
-            msg = ('Error creating movie, return code: ' +
-                   str(self._proc.returncode))
-            raise RuntimeError(msg)
+            raise RuntimeError('Error creating movie, return code: {}'
+                               .format(self._proc.returncode))
 
     def cleanup(self):
         MovieWriter.cleanup(self)
 
         # Delete temporary files
         if self.clear_temp:
-            _log.debug(
-                'MovieWriter: clearing temporary fnames=%s' %
-                str(self._temp_names))
+            _log.debug('MovieWriter: clearing temporary fnames=%s',
+                       self._temp_names)
             for fname in self._temp_names:
                 os.remove(fname)
 
@@ -881,13 +876,12 @@ class HTMLWriter(FileMovieWriter):
             imgdata64 = encodebytes(f.getvalue()).decode('ascii')
             self._total_bytes += len(imgdata64)
             if self._total_bytes >= self._bytes_limit:
-                _log.warning("Animation size has reached {0._total_bytes} "
-                              "bytes, exceeding the limit of "
-                              "{0._bytes_limit}. If you're sure you want "
-                              "a larger animation embedded, set the "
-                              "animation.embed_limit rc parameter to a "
-                              "larger value (in MB). This and further frames"
-                              " will be dropped.".format(self))
+                _log.warning(
+                    "Animation size has reached %s bytes, exceeding the limit "
+                    "of %s. If you're sure you want a larger animation "
+                    "embedded, set the animation.embed_limit rc parameter to "
+                    "a larger value (in MB). This and further frames will be "
+                    "dropped.", self._total_bytes, self._bytes_limit)
                 self._hit_limit = True
             else:
                 self._saved_frames.append(imgdata64)
@@ -1132,7 +1126,7 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                _log.warning("MovieWriter %s unavailable" % writer)
+                _log.warning("MovieWriter %s unavailable.", writer)
 
                 try:
                     writer = writers[writers.list()[0]](fps, codec, bitrate,
@@ -1140,8 +1134,8 @@ class Animation(object):
                                                         metadata=metadata)
                 except IndexError:
                     raise ValueError("Cannot save animation: no writers are "
-                                     "available. Please install "
-                                     "ffmpeg to save animations.")
+                                     "available. Please install ffmpeg to "
+                                     "save animations.")
         _log.info('Animation.save using %s', type(writer))
 
         if 'bbox_inches' in savefig_kwargs:
@@ -1331,12 +1325,11 @@ class Animation(object):
                 vid64 = encodebytes(video.read())
                 vid_len = len(vid64)
                 if vid_len >= embed_limit:
-                    _log.warning("Animation movie is {} bytes, exceeding "
-                                  "the limit of {}. If you're sure you want a "
-                                  "large animation embedded, set the "
-                                  "animation.embed_limit rc parameter to a "
-                                  "larger value (in MB).".format(vid_len,
-                                                                 embed_limit))
+                    _log.warning(
+                        "Animation movie is %s bytes, exceeding the limit of "
+                        "%s. If you're sure you want a large animation "
+                        "embedded, set the animation.embed_limit rc parameter "
+                        "to a larger value (in MB).", vid_len, embed_limit)
                 else:
                     self._base64_video = vid64.decode('ascii')
                     self._video_size = 'width="{}" height="{}"'.format(

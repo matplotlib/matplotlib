@@ -207,7 +207,7 @@ class Dvi(object):
         *dpi* only sets the units and does not limit the resolution.
         Use None to return TeX's internal units.
         """
-        _log.debug('Dvi: ' + filename)
+        _log.debug('Dvi: %s', filename)
         self.file = open(filename, 'rb')
         self.dpi = dpi
         self.fonts = {}
@@ -454,10 +454,9 @@ class Dvi(object):
             def chr_(x):
                 return x
         _log.debug(
-            'Dvi._xxx: encountered special: %s'
-            % ''.join([(32 <= ord(ch) < 127) and chr_(ch)
-                       or '<%02x>' % ord(ch)
-                       for ch in special]))
+            'Dvi._xxx: encountered special: %s',
+            ''.join([chr_(ch) if 32 <= ord(ch) < 127 else '<%02x>' % ord(ch)
+                     for ch in special]))
 
     @dispatch(min=243, max=246, args=('olen1', 'u4', 'u4', 'u4', 'u1', 'u1'))
     def _fnt_def(self, k, c, s, d, a, l):
@@ -582,8 +581,7 @@ class DviFont(object):
         width = self._tfm.width.get(char, None)
         if width is not None:
             return _mul2012(width, self._scale)
-        _log.debug(
-            'No width for char %d in font %s' % (char, self.texname))
+        _log.debug('No width for char %d in font %s.', char, self.texname)
         return 0
 
     def _height_depth_of(self, char):
@@ -596,9 +594,8 @@ class DviFont(object):
                              (self._tfm.depth, "depth")):
             value = metric.get(char, None)
             if value is None:
-                _log.debug(
-                    'No %s for char %d in font %s' % (
-                        name, char, self.texname))
+                _log.debug('No %s for char %d in font %s',
+                           name, char, self.texname)
                 result.append(0)
             else:
                 result.append(_mul2012(value, self._scale))
@@ -711,7 +708,7 @@ class Vf(Dvi):
         if i != 202:
             raise ValueError("Unknown vf format %d" % i)
         if len(x):
-            _log.debug('vf file comment: ' + x)
+            _log.debug('vf file comment: %s', x)
         self.state = _dvistate.outer
         # cs = checksum, ds = design size
 
@@ -759,14 +756,13 @@ class Tfm(object):
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
     def __init__(self, filename):
-        _log.debug('opening tfm file ' + filename)
+        _log.debug('opening tfm file %s', filename)
         with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
                 struct.unpack('!6H', header1[2:14])
-            _log.debug(
-                'lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d' % (
-                    lh, bc, ec, nw, nh, nd))
+            _log.debug('lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d',
+                       lh, bc, ec, nw, nh, nd)
             header2 = file.read(4*lh)
             self.checksum, self.design_size = \
                 struct.unpack('!2I', header2[:8])
@@ -936,9 +932,8 @@ class PsfontsMap(object):
                        w.group('enc2') or w.group('enc1'))
                 if enc:
                     if encoding is not None:
-                        _log.debug(
-                            'Multiple encodings for %s = %s'
-                            % (texname, psname))
+                        _log.debug('Multiple encodings for %s = %s',
+                                   texname, psname)
                     encoding = enc
                     continue
                 # File names are probably unquoted:
@@ -981,9 +976,9 @@ class Encoding(object):
 
     def __init__(self, filename):
         with open(filename, 'rb') as file:
-            _log.debug('Parsing TeX encoding ' + filename)
+            _log.debug('Parsing TeX encoding %s', filename)
             self.encoding = self._parse(file)
-            _log.debug('Result: ' + repr(self.encoding))
+            _log.debug('Result: %s', self.encoding)
 
     def __iter__(self):
         for name in self.encoding:
@@ -1043,8 +1038,7 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    _log.debug('find_tex_file(%s): %s'
-                              % (filename, cmd))
+    _log.debug('find_tex_file(%s): %s', filename, cmd)
     # stderr is unused, but reading it avoids a subprocess optimization
     # that breaks EINTR handling in some Python versions:
     # http://bugs.python.org/issue12493
@@ -1052,7 +1046,7 @@ def find_tex_file(filename, format=None):
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
-    _log.debug('find_tex_file result: %s' % result)
+    _log.debug('find_tex_file result: %s', result)
     return result.decode('ascii')
 
 

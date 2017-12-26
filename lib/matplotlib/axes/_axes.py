@@ -75,11 +75,11 @@ def _plot_args_replacer(args, data):
         except ValueError:
             pass
         else:
-            msg = "Second argument '{}' is ambiguous: could be a color spec " \
-                  "but is in data. Using as data.\nEither rename the " \
-                  "entry in data or use three arguments " \
-                  "to plot.".format(args[1])
-            warnings.warn(msg, RuntimeWarning, stacklevel=3)
+            warnings.warn(
+                "Second argument {!r} is ambiguous: could be a color spec but "
+                "is in data; using as data.  Either rename the entry in data "
+                "or use three arguments to plot.".format(args[1]),
+                RuntimeWarning, stacklevel=3)
         return ["x", "y"]
     elif len(args) == 3:
         return ["x", "y", "c"]
@@ -3391,8 +3391,7 @@ class Axes(_AxesBase):
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
                     np.shape(usermedians)[0] != len(bxpstats)):
-                medmsg = 'usermedians length not compatible with x'
-                raise ValueError(medmsg)
+                raise ValueError('usermedians length not compatible with x')
             else:
                 # reassign medians as necessary
                 for stats, med in zip(bxpstats, usermedians):
@@ -4032,9 +4031,9 @@ class Axes(_AxesBase):
                 colors = mcolors.to_rgba_array(c)
             except ValueError:
                 # c not acceptable as PathCollection facecolor
-                msg = ("c of shape {0} not acceptable as a color sequence "
-                       "for x with size {1}, y with size {2}")
-                raise ValueError(msg.format(c.shape, x.size, y.size))
+                raise ValueError("c of shape {} not acceptable as a color "
+                                 "sequence for x with size {}, y with size {}"
+                                 .format(c.shape, x.size, y.size))
         else:
             colors = None  # use cmap, norm after collection is created
 
@@ -4082,8 +4081,8 @@ class Axes(_AxesBase):
 
         if colors is None:
             if norm is not None and not isinstance(norm, mcolors.Normalize):
-                msg = "'norm' must be an instance of 'mcolors.Normalize'"
-                raise ValueError(msg)
+                raise ValueError(
+                    "'norm' must be an instance of 'mcolors.Normalize'")
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -4441,8 +4440,8 @@ class Axes(_AxesBase):
             accum = bins.searchsorted(accum)
 
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -5184,8 +5183,8 @@ class Axes(_AxesBase):
             self.cla()
 
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
@@ -5507,8 +5506,8 @@ class Axes(_AxesBase):
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5656,8 +5655,8 @@ class Axes(_AxesBase):
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5780,8 +5779,8 @@ class Axes(_AxesBase):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
 
         C = args[-1]
         nr, nc = C.shape

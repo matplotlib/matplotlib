@@ -1022,12 +1022,11 @@ class TransformedBbox(BboxBase):
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
         if not isinstance(transform, Transform):
-            msg = ("'transform' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'transform' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         if transform.input_dims != 2 or transform.output_dims != 2:
-            msg = "The input and output dimensions of 'transform' must be 2"
-            raise ValueError(msg)
+            raise ValueError(
+                "The input and output dimensions of 'transform' must be 2")
 
         BboxBase.__init__(self, **kwargs)
         self._bbox = bbox
@@ -1506,8 +1505,7 @@ class Transform(TransformNode):
         :attr:`output_dims`.
         """
         if len(point) != self.input_dims:
-            msg = "The length of 'point' must be 'self.input_dims'"
-            raise ValueError(msg)
+            raise ValueError("The length of 'point' must be 'self.input_dims'")
         return self.transform(np.asarray([point]))[0]
 
     def transform_path(self, path):
@@ -1581,9 +1579,8 @@ class Transform(TransformNode):
             raise ValueError("'pts' must be array with 2 columns for x,y")
 
         if angles.ndim != 1 or angles.shape[0] != pts.shape[0]:
-            msg = "'angles' must be a column vector and have same number of"
-            msg += " rows as 'pts'"
-            raise ValueError(msg)
+            raise ValueError("'angles' must be a column vector and have same "
+                             "number of rows as 'pts'")
 
         # Convert to radians if desired
         if not radians:
@@ -1644,9 +1641,8 @@ class TransformWrapper(Transform):
         be replaced with :meth:`set`.
         """
         if not isinstance(child, Transform):
-            msg = ("'child' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'child' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         self._init(child)
         self.set_children(child)
 
@@ -1720,9 +1716,9 @@ class TransformWrapper(Transform):
         """
         if (child.input_dims != self.input_dims or
                 child.output_dims != self.output_dims):
-            msg = ("The new child must have the same number of input and"
-                   " output dimensions as the current child.")
-            raise ValueError(msg)
+            raise ValueError(
+                "The new child must have the same number of input and output "
+                "dimensions as the current child")
 
         self.set_children(child)
         self._set(child)
@@ -1965,9 +1961,8 @@ class Affine2D(Affine2DBase):
         :class:`Affine2DBase` object.
         """
         if not isinstance(other, Affine2DBase):
-            msg = ("'other' must be an instance of"
-                   " 'matplotlib.transform.Affine2DBase'")
-            raise ValueError(msg)
+            raise ValueError("'other' must be an instance of "
+                             "'matplotlib.transform.Affine2DBase'")
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -2306,9 +2301,8 @@ class BlendedAffine2D(Affine2DBase):
         is_separable = x_transform.is_separable and y_transform.is_separable
         is_correct = is_affine and is_separable
         if not is_correct:
-            msg = ("Both *x_transform* and *y_transform* must be 2D affine"
-                   " transforms.")
-            raise ValueError(msg)
+            raise ValueError("Both *x_transform* and *y_transform* must be 2D "
+                             "affine transforms")
 
         Transform.__init__(self, **kwargs)
         self._x = x_transform
@@ -2391,9 +2385,8 @@ class CompositeGenericTransform(Transform):
         transform instance to create.
         """
         if a.output_dims != b.input_dims:
-            msg = ("The output dimension of 'a' must be equal to the input"
-                   " dimensions of 'b'")
-            raise ValueError(msg)
+            raise ValueError("The output dimension of 'a' must be equal to "
+                             "the input dimensions of 'b'")
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
@@ -2522,9 +2515,8 @@ class CompositeAffine2D(Affine2DBase):
         if not a.is_affine or not b.is_affine:
             raise ValueError("'a' and 'b' must be affine transforms")
         if a.output_dims != b.input_dims:
-            msg = ("The output dimension of 'a' must be equal to the input"
-                   " dimensions of 'b'")
-            raise ValueError(msg)
+            raise ValueError("The output dimension of 'a' must be equal to "
+                             "the input dimensions of 'b'")
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
@@ -2603,8 +2595,7 @@ class BboxTransform(Affine2DBase):
         points from *boxin* to *boxout*.
         """
         if not boxin.is_bbox or not boxout.is_bbox:
-            msg = "'boxin' and 'boxout' must be bbox"
-            raise ValueError(msg)
+            raise ValueError("'boxin' and 'boxout' must be bbox")
 
         Affine2DBase.__init__(self, **kwargs)
         self._boxin = boxin
@@ -2794,9 +2785,8 @@ class TransformedPath(TransformNode):
         :class:`~matplotlib.path.Path` and :class:`Transform`.
         """
         if not isinstance(transform, Transform):
-            msg = ("'transform' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'transform' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         TransformNode.__init__(self)
 
         self._path = path

@@ -23,8 +23,8 @@ from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
-from matplotlib.testing.compare import comparable_formats, compare_images, \
-     make_test_filename
+from matplotlib.testing.compare import (
+    comparable_formats, compare_images, make_test_filename)
 from . import _copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 

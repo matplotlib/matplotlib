@@ -369,8 +369,8 @@ class LatexManager(object):
         try:
             self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s"
-            raise ValueError(msg % (text, e.latex_output))
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, e.latex_output))
 
         # typeout width, height and text offset of the last textbox
         self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
@@ -378,15 +378,15 @@ class LatexManager(object):
         try:
             answer = self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s"
-            raise ValueError(msg % (text, e.latex_output))
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, e.latex_output))
 
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
         except:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
-            raise ValueError(msg)
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, answer))
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
 
         # the height returned from LaTeX goes from base to top.

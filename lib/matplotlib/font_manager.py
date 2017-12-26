@@ -545,7 +545,7 @@ def createFontList(fontfiles, fontext='ttf'):
     #  Add fonts from list of known font files.
     seen = set()
     for fpath in fontfiles:
-        _log.debug('createFontDict: %s' % (fpath))
+        _log.debug('createFontDict: %s', fpath)
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
@@ -1058,7 +1058,7 @@ class FontManager(object):
         self.defaultFont = {}
 
         for fname in self.ttffiles:
-            _log.debug('trying fontname %s' % fname)
+            _log.debug('trying fontname %s', fname)
             if fname.lower().find('DejaVuSans.ttf')>=0:
                 self.defaultFont['ttf'] = fname
                 break
@@ -1068,8 +1068,8 @@ class FontManager(object):
 
         self.ttflist = createFontList(self.ttffiles)
 
-        self.afmfiles = findSystemFonts(paths, fontext='afm') + \
-            findSystemFonts(fontext='afm')
+        self.afmfiles = (findSystemFonts(paths, fontext='afm')
+                         + findSystemFonts(fontext='afm'))
         self.afmlist = createFontList(self.afmfiles, fontext='afm')
         if len(self.afmfiles):
             self.defaultFont['afm'] = self.afmfiles[0]
@@ -1280,7 +1280,7 @@ class FontManager(object):
         fname = prop.get_file()
 
         if fname is not None:
-            _log.debug('findfont returning %s'%fname)
+            _log.debug('findfont returning %s', fname)
             return fname
 
         if fontext == 'afm':

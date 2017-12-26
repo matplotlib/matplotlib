@@ -1751,8 +1751,7 @@ class SpanSelector(_SelectorWidget):
         rectprops['animated'] = self.useblit
 
         if direction not in ['horizontal', 'vertical']:
-            msg = "direction must be in [ 'horizontal' | 'vertical' ]"
-            raise ValueError(msg)
+            raise ValueError("direction must be 'horizontal' or 'vertical'")
         self.direction = direction
 
         self.rect = None
@@ -2094,8 +2093,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspany = minspany
 
         if spancoords not in ('data', 'pixels'):
-            msg = "'spancoords' must be one of [ 'data' | 'pixels' ]"
-            raise ValueError(msg)
+            raise ValueError("'spancoords' must be 'data' or 'pixels'")
 
         self.spancoords = spancoords
         self.drawtype = drawtype

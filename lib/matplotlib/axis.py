@@ -1827,8 +1827,7 @@ class XAxis(Axis):
         elif position == 'bottom':
             self.label.set_verticalalignment('top')
         else:
-            msg = "Position accepts only [ 'top' | 'bottom' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only 'top' or 'bottom'")
         self.label_position = position
         self.stale = True
 
@@ -2173,8 +2172,7 @@ class YAxis(Axis):
         elif position == 'right':
             self.label.set_verticalalignment('top')
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only 'left' or 'right'")
         self.label_position = position
         self.stale = True
 

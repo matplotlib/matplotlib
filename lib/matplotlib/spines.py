@@ -73,8 +73,8 @@ class Spine(mpatches.Patch):
         # them pass through the spines machinery without errors.)
         self._position = None
         if not isinstance(path, matplotlib.path.Path):
-            msg = "'path' must be an instance of 'matplotlib.path.Path'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'path' must be an instance of 'matplotlib.path.Path'")
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -420,9 +420,8 @@ class Spine(mpatches.Patch):
             if len(position) != 2:
                 raise ValueError("position should be 'center' or 2-tuple")
             if position[0] not in ['outward', 'axes', 'data']:
-                msg = ("position[0] should be in [ 'outward' | 'axes' |"
-                       " 'data' ]")
-                raise ValueError(msg)
+                raise ValueError("position[0] should be one of 'outward', "
+                                 "'axes', or 'data' ")
         self._position = position
         self._calc_offset_transform()
 

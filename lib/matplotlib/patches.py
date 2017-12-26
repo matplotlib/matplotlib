@@ -2021,7 +2021,6 @@ class BoxStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (BoxStyle, self.__class__.__name__),
                     self.__dict__
@@ -2808,7 +2807,6 @@ class ConnectionStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (ConnectionStyle, self.__class__.__name__),
                     self.__dict__
@@ -3198,9 +3196,6 @@ class ArrowStyle(_Style):
         # w/o arguments, i.e., all its argument (except self) must have
         # the default values.
 
-        def __init__(self):
-            super(ArrowStyle._Base, self).__init__()
-
         @staticmethod
         def ensure_quadratic_bezier(path):
             """ Some ArrowStyle class only wokrs with a simple
@@ -3210,10 +3205,10 @@ class ArrowStyle(_Style):
             its control points if true.
             """
             segments = list(path.iter_segments())
-            if ((len(segments) != 2) or (segments[0][1] != Path.MOVETO) or
-                    (segments[1][1] != Path.CURVE3)):
-                msg = "'path' it's not a valid quadratic bezier curve"
-                raise ValueError(msg)
+            if (len(segments) != 2 or segments[0][1] != Path.MOVETO or
+                    segments[1][1] != Path.CURVE3):
+                raise ValueError(
+                    "'path' it's not a valid quadratic Bezier curve")
 
             return list(segments[0][0]) + list(segments[1][0])
 
@@ -3269,7 +3264,6 @@ class ArrowStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (ArrowStyle, self.__class__.__name__),
                     self.__dict__
