@@ -734,13 +734,6 @@ class Sankey(object):
             vertices = translate(rotate(vertices))
             kwds = dict(s=patchlabel, ha='center', va='center')
             text = self.ax.text(*offset, **kwds)
-        if False:  # Debug
-            print("llpath\n", llpath)
-            print("ulpath\n", self._revert(ulpath))
-            print("urpath\n", urpath)
-            print("lrpath\n", self._revert(lrpath))
-            xs, ys = list(zip(*vertices))
-            self.ax.plot(xs, ys, 'go-')
         if rcParams['_internal.classic_mode']:
             fc = kwargs.pop('fc', kwargs.pop('facecolor', '#bfd1d4'))
             lw = kwargs.pop('lw', kwargs.pop('linewidth', 0.5))

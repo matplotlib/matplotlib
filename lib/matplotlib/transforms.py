@@ -1909,9 +1909,6 @@ class Affine2D(Affine2DBase):
         Affine2DBase.__init__(self, **kwargs)
         if matrix is None:
             matrix = np.identity(3)
-        elif DEBUG:
-            matrix = np.asarray(matrix, float)
-            assert matrix.shape == (3, 3)
         self._mtx = matrix
         self._invalid = 0
 

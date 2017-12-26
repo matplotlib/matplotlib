@@ -34,7 +34,6 @@ from matplotlib import rcParams
 
 from matplotlib import docstring
 
-#from bboximage import BboxImage
 from matplotlib.image import BboxImage
 
 from matplotlib.patches import bbox_artist as mbbox_artist
