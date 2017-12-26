@@ -297,8 +297,8 @@ def _from_ordinalf(x, tz=None, musec_prec=20):
     # Compensate for rounding errors
     if musec_prec > 1:
         musec = datetime.timedelta(
-                    microseconds=round(
-                        dt.microsecond / float(musec_prec)) * musec_prec)
+                    microseconds=int(round(
+                        dt.microsecond / float(musec_prec)) * musec_prec))
         dt = dt.replace(microsecond=0) + musec
 
     return dt.astimezone(tz)
