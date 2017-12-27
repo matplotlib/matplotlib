@@ -2451,7 +2451,8 @@ class EllipseSelector(RectangleSelector):
 
 
 class LassoSelector(_SelectorWidget):
-    """Selection curve of an arbitrary shape.
+    """
+    Selection curve of an arbitrary shape.
 
     For the selector to remain responsive you must keep a reference to
     it.
@@ -2464,14 +2465,6 @@ class LassoSelector(_SelectorWidget):
     similar to :class:`RectangleSelector` and :class:`SpanSelector` and will
     continue to interact with the axes until disconnected.
 
-    Parameters:
-
-    *ax* : :class:`~matplotlib.axes.Axes`
-        The parent axes for the widget.
-    *onselect* : function
-        Whenever the lasso is released, the `onselect` function is called and
-        passed the vertices of the selected path.
-
     Example usage::
 
         ax = subplot(111)
@@ -2481,15 +2474,24 @@ class LassoSelector(_SelectorWidget):
             print(verts)
         lasso = LassoSelector(ax, onselect)
 
-     *button* is a list of integers indicating which mouse buttons should
-        be used for rectangle selection.  You can also specify a single
-        integer if only a single button is desired.  Default is *None*,
-        which does not limit which button can be used.
+    Parameters
+    ----------
+    ax : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    onselect : function
+        Whenever the lasso is released, the *onselect* function is called and
+        passed the vertices of the selected path.
+    button : list[Int], optional
+        A list of integers indicating which mouse buttons should be used for
+        rectangle selection. You can also specify a single integer if only a
+        single button is desired.  Default is ``None``, which does not limit
+        which button can be used.
 
         Note, typically:
-         1 = left mouse button
-         2 = center mouse button (scroll wheel)
-         3 = right mouse button
+
+            - 1 = left mouse button
+            - 2 = center mouse button (scroll wheel)
+            - 3 = right mouse button
 
     """
 
