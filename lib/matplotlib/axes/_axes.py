@@ -3013,8 +3013,18 @@ class Axes(_AxesBase):
                 if (len(err) != len(data) or np.size(fe) > 1):
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
-            low = data - err
-            high = data + err
+            try:
+                low = data - err
+            except TypeError:
+                # using list comps rather than arrays to preserve units
+                low = [thisx - thiserr for (thisx, thiserr)
+                       in cbook.safezip(data, err)]
+            try:
+                high = data + err
+            except TypeError:
+                # using list comps rather than arrays to preserve units
+                high = [thisx + thiserr for (thisx, thiserr)
+                       in cbook.safezip(data, err)]
             return low, high
 
         if xerr is not None:
