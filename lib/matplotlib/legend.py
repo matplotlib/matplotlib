@@ -713,7 +713,7 @@ class Legend(Artist):
             self.get_frame().set_alpha(framealpha)
 
         self._loc = loc
-        self.set_title(title)
+        self.set_title(title, prop={"size": rcParams["legend.titlesize"]})
         self._last_fontsize_points = self._fontsize
         self._draggable = None
 
