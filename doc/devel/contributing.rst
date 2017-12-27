@@ -19,26 +19,26 @@ welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
- 1. A short, top-level summary of the bug. In most cases, this should be 1-2
-    sentences.
+1. A short, top-level summary of the bug. In most cases, this should be 1-2
+   sentences.
 
- 2. A short, self-contained code snippet to reproduce the bug, ideally allowing
-    a simple copy and paste to reproduce. Please do your best to reduce the code
-    snippet to the minimum required.
+2. A short, self-contained code snippet to reproduce the bug, ideally allowing
+   a simple copy and paste to reproduce. Please do your best to reduce the code
+   snippet to the minimum required.
 
- 3. The actual outcome of the code snippet
+3. The actual outcome of the code snippet.
 
- 4. The expected outcome of the code snippet
+4. The expected outcome of the code snippet.
 
- 5. The Matplotlib version, Python version and platform that you are using. You
-    can grab the version with the following commands::
+5. The Matplotlib version, Python version and platform that you are using. You
+   can grab the version with the following commands::
 
-        >>> import matplotlib
-        >>> matplotlib.__version__
-        '1.5.3'
-        >>> import platform
-        >>> platform.python_version()
-        '2.7.12'
+      >>> import matplotlib
+      >>> matplotlib.__version__
+      '1.5.3'
+      >>> import platform
+      >>> platform.python_version()
+      '2.7.12'
 
 We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
@@ -175,39 +175,36 @@ documented in the :ref:`development-workflow` section.
 
 A brief overview is:
 
- 1. `Create an account <https://github.com/join>`_ on
-    GitHub if you do not already have one.
+1. `Create an account <https://github.com/join>`_ on GitHub if you do not
+   already have one.
 
- 2. Fork the `project repository
-    <https://github.com/matplotlib/matplotlib>`__: click on the 'Fork' button
-    near the top of the page. This creates a copy of the code under your
-    account on the GitHub server.
+2. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_:
+   click on the 'Fork' button near the top of the page. This creates a copy of
+   the code under your account on the GitHub server.
 
- 3. Clone this copy to your local disk::
+3. Clone this copy to your local disk::
 
-        $ git clone https://github.com/YourLogin/matplotlib.git
+      $ git clone https://github.com/YourLogin/matplotlib.git
 
- 4. Create a branch to hold your changes::
+4. Create a branch to hold your changes::
 
-        $ git checkout -b my-feature origin/master
+      $ git checkout -b my-feature origin/master
 
-    and start making changes. Never work in the ``master`` branch!
+   and start making changes. Never work in the ``master`` branch!
 
- 5. Work on this copy, on your computer, using Git to do the version
-    control. When you're done editing e.g., ``lib/matplotlib/collections.py``,
-    do::
+5. Work on this copy, on your computer, using Git to do the version control.
+   When you're done editing e.g., ``lib/matplotlib/collections.py``, do::
 
-        $ git add lib/matplotlib/collections.py
-        $ git commit
+      $ git add lib/matplotlib/collections.py
+      $ git commit
 
-    to record your changes in Git, then push them to GitHub with::
+   to record your changes in Git, then push them to GitHub with::
 
-        $ git push -u origin my-feature
+      $ git push -u origin my-feature
 
-Finally, go to the web page of your fork of the Matplotlib repo,
-and click 'Pull request' to send your changes to the maintainers for review.
-You may want to consider sending an email to the mailing list for more
-visibility.
+Finally, go to the web page of your fork of the Matplotlib repo, and click
+'Pull request' to send your changes to the maintainers for review.  You may
+want to consider sending an email to the mailing list for more visibility.
 
 .. seealso::
 
@@ -221,62 +218,60 @@ Contributing pull requests
 It is recommended to check that your contribution complies with the following
 rules before submitting a pull request:
 
-  * If your pull request addresses an issue, please use the title to describe
-    the issue and mention the issue number in the pull request description
-    to ensure a link is created to the original issue.
+* If your pull request addresses an issue, please use the title to describe the
+  issue and mention the issue number in the pull request description to ensure
+  that a link is created to the original issue.
 
-  * All public methods should have informative docstrings with sample
-    usage when appropriate. Use the
-    `numpy docstring standard <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
+* All public methods should have informative docstrings with sample usage when
+  appropriate. Use the `numpy docstring standard
+  <https://numpydoc.readthedocs.io/en/latest/format.html>`_.
 
-  * Formatting should follow `PEP8 recommendation
-    <https://www.python.org/dev/peps/pep-0008/>`_. You should consider
-    installing/enabling automatic PEP8 checking in your editor.  Part of the
-    test suite is checking PEP8 compliance, things go smoother if the code is
-    mostly PEP8 compliant to begin with.
+* Formatting should follow the recommendations of `PEP8
+  <https://www.python.org/dev/peps/pep-0008/>`__. You should consider
+  installing/enabling automatic PEP8 checking in your editor.  Part of the test
+  suite is checking PEP8 compliance, things go smoother if the code is mostly
+  PEP8 compliant to begin with.
 
-  * Each high-level plotting function should have a simple example in
-    the ``Example`` section of the docstring.  This should be as simple as
-    possible to demonstrate the method.  More complex examples should go
-    in the ``examples`` tree.
+* Each high-level plotting function should have a simple example in the
+  ``Example`` section of the docstring.  This should be as simple as possible
+  to demonstrate the method.  More complex examples should go in the
+  ``examples`` tree.
 
-  * Changes (both new features and bugfixes) should be tested. See
-    :ref:`testing` for more details.
+* Changes (both new features and bugfixes) should be tested. See :ref:`testing`
+  for more details.
 
-  * Import the following modules using the standard scipy conventions::
+* Import the following modules using the standard scipy conventions::
 
-      import numpy as np
-      import numpy.ma as ma
-      import matplotlib as mpl
-      import matplotlib.pyplot as plt
-      import matplotlib.cbook as cbook
-      import matplotlib.patches as mpatches
+     import numpy as np
+     import numpy.ma as ma
+     import matplotlib as mpl
+     import matplotlib.pyplot as plt
+     import matplotlib.cbook as cbook
+     import matplotlib.patches as mpatches
 
-  * If your change is a major new feature, add an entry to the ``What's new``
-    section by adding a new file in ``doc/users/whats_new`` (see
-    :file:`doc/users/whats_new/README` for more information).
+* If your change is a major new feature, add an entry to the ``What's new``
+  section by adding a new file in ``doc/users/next_whats_new`` (see
+  :file:`doc/users/next_whats_new/README.rst` for more information).
 
-  * If you change the API in a backward-incompatible way, please
-    document it in `doc/api/api_changes`, by adding a new file describing your
-    changes (see :file:`doc/api/api_changes/README` for more information)
+* If you change the API in a backward-incompatible way, please document it in
+  `doc/api/api_changes`, by adding a new file describing your changes (see
+  :file:`doc/api/api_changes/README.rst` for more information)
 
-  * See below for additional points about
-    :ref:`keyword-argument-processing`, if code in your pull request
-    does that.
+* See below for additional points about :ref:`keyword-argument-processing`, if
+  applicable for your pull request.
 
 In addition, you can check for common programming errors with the following
 tools:
 
-    * Code with a good unittest coverage (at least 70%, better 100%), check
-      with::
+* Code with a good unittest coverage (at least 70%, better 100%), check with::
 
-        python -mpip install coverage
-        python tests.py --with-coverage
+   python -mpip install coverage
+   python tests.py --with-coverage
 
-    * No pyflakes warnings, check with::
+* No pyflakes warnings, check with::
 
-        python -mpip install pyflakes
-        pyflakes path/to/module.py
+   python -mpip install pyflakes
+   pyflakes path/to/module.py
 
 .. note::
 
