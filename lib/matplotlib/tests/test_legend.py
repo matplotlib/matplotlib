@@ -190,6 +190,16 @@ def test_rc():
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
 
+def test_rc_title_size():
+    test_legend_title_size = 18.0
+    mpl.rcParams['legend.titlesize'] = test_legend_title_size
+    plt.figure()
+    ax = plt.subplot(121)
+    ax.scatter(np.arange(10), np.arange(10, 0, -1), label='two')
+    leg = ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
+                title="My legend")
+    assert leg._legend_title_box._text.get_fontsize() == test_legend_title_size
+
 
 @image_comparison(baseline_images=['legend_expand'], remove_text=True)
 def test_legend_expand():
