@@ -214,7 +214,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     top=("lat_lines0", 1))[self._side]
 
         xx, yy = self.grid_info[k][v]
-        return Path(list(zip(xx, yy)))
+        return Path(np.column_stack([xx, yy]))
 
 
 

@@ -136,7 +136,7 @@ for i in range(numBoxes):
     for j in range(5):
         boxX.append(box.get_xdata()[j])
         boxY.append(box.get_ydata()[j])
-    boxCoords = list(zip(boxX, boxY))
+    boxCoords = np.column_stack([boxX, boxY])
     # Alternate between Dark Khaki and Royal Blue
     k = i % 2
     boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])

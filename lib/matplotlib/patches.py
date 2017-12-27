@@ -1357,7 +1357,7 @@ class YAArrow(Patch):
         xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
         ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
-        return Path(list(zip(xs, ys)), closed=True)
+        return Path(np.column_stack([xs, ys]), closed=True)
 
     def get_patch_transform(self):
         return transforms.IdentityTransform()

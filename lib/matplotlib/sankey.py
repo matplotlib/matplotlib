@@ -704,7 +704,7 @@ class Sankey(object):
                 [(Path.CLOSEPOLY, urpath[0][1])])
 
         # Create a patch with the Sankey outline.
-        codes, vertices = list(zip(*path))
+        codes, vertices = zip(*path)
         vertices = np.array(vertices)
 
         def _get_angle(a, r):
