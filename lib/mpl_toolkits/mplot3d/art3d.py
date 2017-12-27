@@ -166,6 +166,12 @@ class Line3D(lines.Line2D):
         self.set_ydata(y)
         self.set_3d_properties(zs=z)
 
+    def get_data_3d(self):
+        """
+        Return the xdata, ydata, zdata.
+        """
+        return self._verts3d
+
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
