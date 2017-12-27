@@ -1178,6 +1178,7 @@ defaultParams = {
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [1, validate_int],
     'legend.fontsize': ['medium', validate_fontsize],
+    'legend.titlesize': ['medium', validate_fontsize],
      # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
