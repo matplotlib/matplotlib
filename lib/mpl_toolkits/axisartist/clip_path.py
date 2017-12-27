@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     ccc = iter(["ro", "go", "rx", "bx"])
     for ttt in ticks:
-        cc = six.next(ccc)
+        cc = next(ccc)
         for (xx, yy), aa in ttt:
             plt.plot([xx], [yy], cc)
 

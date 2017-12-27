@@ -2631,7 +2631,7 @@ class Axes(_AxesBase):
             color_cycle = itertools.cycle(colors)
 
             def get_next_color():
-                return six.next(color_cycle)
+                return next(color_cycle)
 
         if radius is None:
             radius = 1
@@ -2873,7 +2873,7 @@ class Axes(_AxesBase):
             if 'color' in kwargs:
                 base_style['color'] = kwargs.pop('color')
         else:
-            base_style = six.next(self._get_lines.prop_cycler)
+            base_style = next(self._get_lines.prop_cycler)
 
         base_style['label'] = '_nolegend_'
         base_style.update(fmt_style_kwargs)
