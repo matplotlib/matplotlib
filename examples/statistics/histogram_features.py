@@ -20,7 +20,6 @@ http://docs.astropy.org/en/stable/visualization/histogram.html
 """
 
 import numpy as np
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 np.random.seed(19680801)
@@ -35,10 +34,11 @@ num_bins = 50
 fig, ax = plt.subplots()
 
 # the histogram of the data
-n, bins, patches = ax.hist(x, num_bins, normed=1)
+n, bins, patches = ax.hist(x, num_bins, density=1)
 
 # add a 'best fit' line
-y = mlab.normpdf(bins, mu, sigma)
+y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
+     np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
 ax.plot(bins, y, '--')
 ax.set_xlabel('Smarts')
 ax.set_ylabel('Probability density')
