@@ -2965,13 +2965,21 @@ class Axes(_AxesBase):
 
         def xywhere(xs, ys, mask):
             """
-            return xs[mask], ys[mask] where mask is True but xs and
-            ys are not arrays
+            Return xs[mask], ys[mask] where mask is True but xs and
+            ys are not arrays.
+
+            If they are arrays, just return xs[mask] and ys[mask].
             """
             assert len(xs) == len(ys)
             assert len(xs) == len(mask)
-            xs = [thisx for thisx, b in zip(xs, mask) if b]
-            ys = [thisy for thisy, b in zip(ys, mask) if b]
+            try:
+                xs = xs[mask]
+            except TypeError:
+                xs = [thisx for thisx, b in zip(xs, mask) if b]
+            try:
+                ys = ys[mask]
+            except TypeError:
+                ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
 
         def extract_err(err, data):
@@ -3005,11 +3013,8 @@ class Axes(_AxesBase):
                 if (len(err) != len(data) or np.size(fe) > 1):
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
-            # using list comps rather than arrays to preserve units
-            low = [thisx - thiserr for (thisx, thiserr)
-                   in cbook.safezip(data, err)]
-            high = [thisx + thiserr for (thisx, thiserr)
-                    in cbook.safezip(data, err)]
+            low = data - err
+            high = data + err
             return low, high
 
         if xerr is not None:
