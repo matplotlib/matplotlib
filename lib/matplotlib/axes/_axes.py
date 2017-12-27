@@ -2972,14 +2972,17 @@ class Axes(_AxesBase):
             """
             assert len(xs) == len(ys)
             assert len(xs) == len(mask)
-            try:
+
+            if isinstance(xs, np.ndarray):
                 xs = xs[mask]
-            except TypeError:
+            else:
                 xs = [thisx for thisx, b in zip(xs, mask) if b]
-            try:
+
+            if isinstance(ys, np.ndarray):
                 ys = ys[mask]
-            except TypeError:
+            else:
                 ys = [thisy for thisy, b in zip(ys, mask) if b]
+
             return xs, ys
 
         def extract_err(err, data):
@@ -3013,18 +3016,18 @@ class Axes(_AxesBase):
                 if (len(err) != len(data) or np.size(fe) > 1):
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
-            try:
+            if isinstance(data, np.ndarray):
                 low = data - err
-            except TypeError:
+            else:
                 # using list comps rather than arrays to preserve units
                 low = [thisx - thiserr for (thisx, thiserr)
                        in cbook.safezip(data, err)]
-            try:
+            if isinstance(data, np.ndarray):
                 high = data + err
-            except TypeError:
+            else:
                 # using list comps rather than arrays to preserve units
                 high = [thisx + thiserr for (thisx, thiserr)
-                       in cbook.safezip(data, err)]
+                        in cbook.safezip(data, err)]
             return low, high
 
         if xerr is not None:
