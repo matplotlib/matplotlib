@@ -487,24 +487,19 @@ class Colormap(object):
             xa = xa.byteswap().newbyteorder()
 
         if xa.dtype.kind == "f":
-            # Treat 1.0 as slightly less than 1.
-            vals = np.array([1, 0], dtype=xa.dtype)
-            almost_one = np.nextafter(*vals)
-            np.copyto(xa, almost_one, where=xa == 1.0)
-            # The following clip is fast, and prevents possible
-            # conversion of large positive values to negative integers.
-
             xa *= self.N
+            # Negative values are out of range, but astype(int) would truncate
+            # them towards zero.
+            xa[xa < 0] = -1
+            # xa == 1 (== N after multiplication) is not out of range.
+            xa[xa == self.N] = self.N - 1
+            # Avoid converting large positive values to negative integers.
             np.clip(xa, -1, self.N, out=xa)
-
-            # ensure that all 'under' values will still have negative
-            # value after casting to int
-            np.copyto(xa, -1, where=xa < 0.0)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
-        np.copyto(xa, self._i_over, where=xa > self.N - 1)
-        np.copyto(xa, self._i_under, where=xa < 0)
+        xa[xa > self.N - 1] = self._i_over
+        xa[xa < 0] = self._i_under
         if mask_bad is not None:
             if mask_bad.shape == xa.shape:
                 np.copyto(xa, self._i_bad, where=mask_bad)
