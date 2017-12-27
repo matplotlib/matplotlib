@@ -141,22 +141,18 @@ class Button(AxesWidget):
     A GUI neutral button.
 
     For the button to remain responsive you must keep a reference to it.
+    Call :meth:`on_clicked` to connect to the button.
 
-    The following attributes are accessible
-
-      *ax*
+    Attributes
+    ----------
+    ax :
         The :class:`matplotlib.axes.Axes` the button renders into.
-
-      *label*
+    label :
         A :class:`matplotlib.text.Text` instance.
-
-      *color*
+    color :
         The color of the button when not hovering.
-
-      *hovercolor*
+    hovercolor :
         The color of the button when hovering.
-
-    Call :meth:`on_clicked` to connect to the button
     """
 
     def __init__(self, ax, label, image=None,
