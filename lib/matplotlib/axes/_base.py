@@ -2618,8 +2618,7 @@ class _AxesBase(martist.Artist):
         """
         Turn the axes grids on or off.
 
-        Set the axes grids on or off; *b* is a boolean.  (For MATLAB
-        compatibility, *b* may also be a string, 'on' or 'off'.)
+        Set the axes grids on or off; *b* is a boolean.
 
         If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
         *kwargs* are supplied, it is assumed that you want a grid and *b*
@@ -2834,12 +2833,11 @@ class _AxesBase(martist.Artist):
         zorder : float
             Tick and label zorder.
 
-        bottom, top, left, right : bool or  {'on', 'off'}
-            controls whether to draw the respective ticks.
+        bottom, top, left, right : bool
+            Whether to draw the respective ticks.
 
-        labelbottom, labeltop, labelleft, labelright : bool or  {'on', 'off'}
-            controls whether to draw the
-            respective tick labels.
+        labelbottom, labeltop, labelleft, labelright : bool
+            Whether to draw the respective tick labels.
 
         labelrotation : float
             Tick label rotation
