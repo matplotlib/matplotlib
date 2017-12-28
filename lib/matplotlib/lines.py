@@ -861,7 +861,7 @@ class Line2D(Artist):
 
     def get_markeredgecolor(self):
         mec = self._markeredgecolor
-        if isinstance(mec, six.string_types) and mec == 'auto':
+        if cbook._str_equal(mec, 'auto'):
             if rcParams['_internal.classic_mode']:
                 if self._marker.get_marker() in ('.', ','):
                     return self._color
@@ -1125,8 +1125,8 @@ class Line2D(Artist):
         """
         if ec is None:
             ec = 'auto'
-        if self._markeredgecolor is None or \
-           np.any(self._markeredgecolor != ec):
+        if (self._markeredgecolor is None
+                or np.any(self._markeredgecolor != ec)):
             self.stale = True
         self._markeredgecolor = ec
 

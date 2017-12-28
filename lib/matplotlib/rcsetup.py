@@ -882,7 +882,7 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    if isinstance(s, six.string_types) and s == 'auto':
+    if cbook._str_equal(s, "auto"):
         return s
     try:
         return int(s)
