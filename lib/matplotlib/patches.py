@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import map, zip
@@ -1488,7 +1485,7 @@ class Circle(Ellipse):
         """
         Create true circle at center *xy* = (*x*, *y*) with given
         *radius*.  Unlike :class:`~matplotlib.patches.CirclePolygon`
-        which is a polygonal approximation, this uses Bézier splines
+        which is a polygonal approximation, this uses Bezier splines
         and is much closer to a scale-free circle.
 
         Valid kwargs are:

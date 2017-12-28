@@ -2835,7 +2835,7 @@ def _define_aliases(local_d, alias_d):
                 exists = True
                 for alias in aliases:
                     method = make_alias(prefix + prop)
-                    method.__name__ = str(prefix + alias)  # Py2 compat.
+                    method.__name__ = prefix + alias
                     method.__doc__ = "alias for `{}`".format(prefix + prop)
                     local_d[prefix + alias] = method
         if not exists:
