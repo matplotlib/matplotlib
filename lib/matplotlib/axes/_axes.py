@@ -6158,14 +6158,14 @@ class Axes(_AxesBase):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        if normed is not None:
-            warnings.warn("The 'normed' kwarg is deprecated, and has been "
-                          "replaced by the 'density' kwarg.")
         if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used "
                              "simultaneously. "
                              "Please only use 'density', since 'normed'"
                              "is deprecated.")
+        if normed is not None:
+            warnings.warn("The 'normed' kwarg is deprecated, and has been "
+                          "replaced by the 'density' kwarg.")
 
         # basic input validation
         input_empty = np.size(x) == 0
