@@ -14,13 +14,13 @@ import weakref
 
 import numpy as np
 
-from matplotlib import artist, cbook, docstring, rcParams
-from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.font_manager import FontProperties
-from matplotlib.lines import Line2D
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
-from matplotlib.textpath import TextPath  # Unused, but imported by others.
-from matplotlib.transforms import (
+from . import artist, cbook, docstring, rcParams
+from .artist import Artist
+from .font_manager import FontProperties
+from .lines import Line2D
+from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
+from .textpath import TextPath  # Unused, but imported by others.
+from .transforms import (
     Affine2D, Bbox, BboxBase, BboxTransformTo, IdentityTransform, Transform)
 
 
@@ -690,7 +690,7 @@ class Text(Artist):
 
         return wrapped_str + line
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         """
         Draws the :class:`Text` object to the given *renderer*.
@@ -2276,7 +2276,7 @@ class Annotation(Text, _AnnotationBase):
 
                     self.arrow_patch.set_patchA(r)
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         """
         Draw the :class:`Annotation` object to the given *renderer*.

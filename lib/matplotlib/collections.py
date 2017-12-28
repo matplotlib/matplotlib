@@ -23,17 +23,8 @@ except ImportError:
 
 import numpy as np
 import matplotlib as mpl
-import matplotlib.cbook as cbook
-import matplotlib.colors as mcolors
-import matplotlib.cm as cm
-from matplotlib import docstring
-import matplotlib.transforms as transforms
-import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
-import matplotlib.path as mpath
-from matplotlib import _path
-import matplotlib.mlab as mlab
-import matplotlib.lines as mlines
+from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
+               lines as mlines, mlab, path as mpath, transforms)
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 
@@ -264,7 +255,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         return transform, transOffset, offsets, paths
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             return
@@ -917,7 +908,7 @@ class _CollectionWithSizes(Collection):
             self._transforms[:, 2, 2] = 1.0
         self.stale = True
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
         Collection.draw(self, renderer)
@@ -1118,7 +1109,7 @@ class RegularPolyCollection(_CollectionWithSizes):
     def get_rotation(self):
         return self._rotation
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
         self._transforms = [
@@ -1691,7 +1682,7 @@ class EllipseCollection(Collection):
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         self._set_transforms()
         Collection.draw(self, renderer)
@@ -1797,7 +1788,7 @@ class TriMesh(Collection):
                                 tri.y[triangles][..., np.newaxis]), axis=2)
         return [Path(x) for x in verts]
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             return
@@ -1949,7 +1940,7 @@ class QuadMesh(Collection):
 
         return triangles, colors
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             return

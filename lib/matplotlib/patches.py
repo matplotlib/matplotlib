@@ -5,27 +5,19 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import map, zip
-import warnings
 
 import math
+import warnings
+
+import numpy as np
 
 import matplotlib as mpl
-import numpy as np
-import matplotlib.cbook as cbook
-import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
-import matplotlib.colors as colors
-from matplotlib import docstring
-import matplotlib.transforms as transforms
-from matplotlib.path import Path
-import matplotlib.lines as mlines
-
-from matplotlib.bezier import split_bezier_intersecting_with_closedpath
-from matplotlib.bezier import get_intersection, inside_circle, get_parallels
-from matplotlib.bezier import make_wedged_bezier2
-from matplotlib.bezier import split_path_inout, get_cos_sin
-from matplotlib.bezier import make_path_regular, concatenate_paths
-
+from . import artist, cbook, colors, docstring, lines as mlines, transforms
+from .bezier import (
+    concatenate_paths, get_cos_sin, get_intersection, get_parallels,
+    inside_circle, make_path_regular, make_wedged_bezier2,
+    split_bezier_intersecting_with_closedpath, split_path_inout)
+from .path import Path
 
 _patch_alias_map = {
         'antialiased': ['aa'],
@@ -490,7 +482,7 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
         if not self.get_visible():
@@ -1579,7 +1571,7 @@ class Arc(Ellipse):
         self.theta1 = theta1
         self.theta2 = theta2
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         """
         Ellipses are normally drawn using an approximation that uses
