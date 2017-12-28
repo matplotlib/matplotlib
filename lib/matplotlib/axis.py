@@ -6,6 +6,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
+
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
@@ -21,6 +23,8 @@ import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
 import warnings
+
+_log = logging.getLogger(__name__)
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 

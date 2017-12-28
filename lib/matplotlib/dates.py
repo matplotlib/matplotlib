@@ -120,7 +120,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import zip
-from matplotlib import rcParams
 import re
 import time
 import math
@@ -129,20 +128,22 @@ import functools
 
 import warnings
 
-
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
                             SECONDLY)
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
+import logging
 import numpy as np
 
 
 import matplotlib
+from matplotlib import rcParams
 import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
+_log = logging.getLogger(__name__)
 
 __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'num2epoch', 'mx2num', 'DateFormatter',
@@ -282,6 +283,11 @@ def _from_ordinalf(x, tz=None):
         tz = _get_rc_timezone()
 
     ix = int(x)
+    if ix < 1:
+        raise ValueError('cannot convert {} to a date.  This '
+                         'often happens if non-datetime values are passed to '
+                         'an axis that expects datetime objects. '
+                         .format(ix))
     dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
 
     remainder = float(x) - ix
@@ -941,7 +947,12 @@ class DateLocator(ticker.Locator):
         dmin, dmax = self.axis.get_data_interval()
         if dmin > dmax:
             dmin, dmax = dmax, dmin
-
+        if dmin < 1:
+            raise ValueError('datalim minimum {} is less than 1 and '
+                             'is an invalid Matplotlib date value. This often '
+                             'happens if you pass a non-datetime '
+                             'value to an axis that has datetime units'
+                             .format(dmin))
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
@@ -951,7 +962,12 @@ class DateLocator(ticker.Locator):
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin, vmax = vmax, vmin
-
+        if vmin < 1:
+            raise ValueError('view limit minimum {} is less than 1 and '
+                             'is an invalid Matplotlib date value. This '
+                             'often happens if you pass a non-datetime '
+                             'value to an axis that has datetime units'
+                             .format(vmin))
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
     def _get_unit(self):
