@@ -10,8 +10,9 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
 
     def paintEvent(self, event):
         self._update_dpi()
-        width = self.width()
-        height = self.height()
+        dpi_ratio = self._dpi_ratio
+        width = dpi_ratio * self.width()
+        height = dpi_ratio * self.height()
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         self._renderer.set_ctx_from_surface(surface)
         self._renderer.set_width_height(width, height)
@@ -23,6 +24,9 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
         # QImage under PySide on Python 3.
         if QT_API == 'PySide' and six.PY3:
             ctypes.c_long.from_address(id(buf)).value = 1
+        if hasattr(qimage, 'setDevicePixelRatio'):
+            # Not available on Qt4 or some older Qt5.
+            qimage.setDevicePixelRatio(dpi_ratio)
         painter = QtGui.QPainter(self)
         painter.drawImage(0, 0, qimage)
         self._draw_rect_callback(painter)
