@@ -3,20 +3,17 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
-
 import numpy as np
-import numpy.ma as ma
 
 import matplotlib
-rcParams = matplotlib.rcParams
+from matplotlib import rcParams
 from matplotlib.axes import Axes
-from matplotlib import cbook
+import matplotlib.axis as maxis
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 import matplotlib.spines as mspines
-import matplotlib.axis as maxis
-from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, NullFormatter
+from matplotlib.ticker import (
+    Formatter, NullLocator, FixedLocator, NullFormatter)
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 
 

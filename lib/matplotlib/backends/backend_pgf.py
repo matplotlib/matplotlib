@@ -3,32 +3,28 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import atexit
+import codecs
+import errno
 import math
 import os
-import sys
-import errno
 import re
 import shutil
+import sys
 import tempfile
-import codecs
-import atexit
-import weakref
 import warnings
-
-import numpy as np
+import weakref
 
 import matplotlib as mpl
+from matplotlib import _png, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.figure import Figure
-from matplotlib.text import Text
-from matplotlib.path import Path
-from matplotlib import _png, rcParams
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
+from matplotlib.path import Path
 
 
 ###############################################################################

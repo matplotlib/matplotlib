@@ -29,26 +29,25 @@ import traceback
 import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 import numpy as np
 
+import matplotlib
+from .deprecation import deprecated, warn_deprecated
+from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
-# On some systems, locale.getpreferredencoding returns None,
-# which can break unicode; and the sage project reports that
-# some systems have incorrect locale specifications, e.g.,
-# an encoding instead of a valid locale name.  Another
-# pathological case that has been reported is an empty string.
-
-# On some systems, getpreferredencoding sets the locale, which has
-# side effects.  Passing False eliminates those side effects.
 
 def unicode_safe(s):
-    import matplotlib
 
     if isinstance(s, bytes):
         try:
+            # On some systems, locale.getpreferredencoding returns None,
+            # which can break unicode; and the sage project reports that
+            # some systems have incorrect locale specifications, e.g.,
+            # an encoding instead of a valid locale name.  Another
+            # pathological case that has been reported is an empty string.
+            # On some systems, getpreferredencoding sets the locale, which has
+            # side effects.  Passing False eliminates those side effects.
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
             if not preferredencoding:
@@ -647,8 +646,6 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    import matplotlib
-
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:

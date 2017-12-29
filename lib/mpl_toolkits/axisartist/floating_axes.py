@@ -8,25 +8,22 @@ import six
 from six.moves import zip
 
 # TODO :
+# see if tick_iterator method can be simplified by reusing the parent method.
 
-# *. see if tick_iterator method can be simplified by reusing the parent method.
-
-from itertools import chain
-from .grid_finder import GridFinder
-
-from  .axislines import AxisArtistHelper, GridHelperBase
-from  .axis_artist import AxisArtist
-from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
-
+from matplotlib.transforms import Affine2D, IdentityTransform
 from . import grid_helper_curvelinear
+from .axislines import AxisArtistHelper, GridHelperBase
+from .axis_artist import AxisArtist
+from .grid_finder import GridFinder
+
 
 class FloatingAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
     pass
 
-class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
+class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
     def __init__(self, grid_helper, side, nth_coord_ticks=None):
         """

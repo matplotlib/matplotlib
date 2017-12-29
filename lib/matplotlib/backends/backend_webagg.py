@@ -15,6 +15,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from contextlib import contextmanager
 import errno
 import json
 import os
@@ -23,7 +24,6 @@ import sys
 import signal
 import socket
 import threading
-from contextlib import contextmanager
 
 try:
     import tornado
@@ -34,11 +34,8 @@ import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-import matplotlib
 from matplotlib import rcParams
-from matplotlib import backend_bases
 from matplotlib.backend_bases import _Backend
-from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 from .backend_webagg_core import TimerTornado

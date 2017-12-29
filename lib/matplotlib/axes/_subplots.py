@@ -9,9 +9,6 @@ from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 
-import warnings
-from matplotlib.cbook import mplDeprecation
-
 
 class SubplotBase(object):
     """

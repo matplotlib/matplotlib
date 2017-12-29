@@ -46,30 +46,18 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib.axes as maxes
-import matplotlib.artist as martist
-import matplotlib.text as mtext
-import matplotlib.font_manager as font_manager
-
-from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, ScaledTranslation, \
-     IdentityTransform, TransformedPath, Bbox
-from matplotlib.collections import LineCollection
-
-from matplotlib import rcParams
-
-from matplotlib.artist import allow_rasterization
-
 import warnings
 
 import numpy as np
 
-
-import matplotlib.lines as mlines
+from matplotlib import rcParams
+import matplotlib.artist as martist
+import matplotlib.axes as maxes
+from matplotlib.path import Path
+from matplotlib.transforms import Bbox
 from .axisline_style import AxislineStyle
-
-
 from .axis_artist import AxisArtist, GridlinesCollection
+
 
 class AxisArtistHelper(object):
     """

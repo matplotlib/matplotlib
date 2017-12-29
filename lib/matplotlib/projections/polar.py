@@ -7,7 +7,6 @@ from collections import OrderedDict
 
 import numpy as np
 
-import matplotlib.artist as martist
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook

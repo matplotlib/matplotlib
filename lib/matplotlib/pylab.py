@@ -217,7 +217,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import sys, warnings
+import warnings
 
 from matplotlib.cbook import (
     flatten, exception_to_str, silent_list, iterable, dedent)

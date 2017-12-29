@@ -12,20 +12,18 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import zip
 
+import math
+
+import numpy as np
+
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.cbook import _backports
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection,
     PathCollection)
-from matplotlib.cm import ScalarMappable
-from matplotlib.patches import Patch
 from matplotlib.colors import Normalize
-from matplotlib.cbook import iterable
-
-import warnings
-import numpy as np
-import math
+from matplotlib.patches import Patch
 from . import proj3d
 
 
@@ -54,7 +52,7 @@ def get_dir_vector(zdir):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
-    elif iterable(zdir) and len(zdir) == 3:
+    elif cbook.iterable(zdir) and len(zdir) == 3:
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")

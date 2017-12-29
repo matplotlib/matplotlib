@@ -6,13 +6,11 @@ import six
 import numpy as np
 from numpy import ma
 
-from matplotlib.cbook import dedent
-from matplotlib.ticker import (NullFormatter, ScalarFormatter,
-                               LogFormatterSciNotation, LogitFormatter)
-from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator,
-                               SymmetricalLogLocator, LogitLocator)
+from matplotlib import cbook, docstring
+from matplotlib.ticker import (
+    NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
+    NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
-from matplotlib import docstring
 
 
 class ScaleBase(object):
@@ -551,7 +549,7 @@ def scale_factory(scale, axis, **kwargs):
         raise ValueError("Unknown scale type '%s'" % scale)
 
     return _scale_mapping[scale](axis, **kwargs)
-scale_factory.__doc__ = dedent(scale_factory.__doc__) % \
+scale_factory.__doc__ = cbook.dedent(scale_factory.__doc__) % \
     {'names': " | ".join(get_scale_names())}
 
 
@@ -573,7 +571,7 @@ def get_scale_docs():
         scale_class = _scale_mapping[name]
         docs.append("    '%s'" % name)
         docs.append("")
-        class_docs = dedent(scale_class.__init__.__doc__)
+        class_docs = cbook.dedent(scale_class.__init__.__doc__)
         class_docs = "".join(["        %s\n" %
                               x for x in class_docs.split("\n")])
         docs.append(class_docs)

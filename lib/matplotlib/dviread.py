@@ -23,20 +23,17 @@ import six
 from six.moves import xrange
 
 from collections import namedtuple
-import errno
 from functools import partial, wraps
 import logging
 import numpy as np
+import os
 import re
 import struct
 import sys
 import textwrap
-import os
 
-import matplotlib
-import matplotlib.cbook as mpl_cbook
+from matplotlib import cbook, rcParams
 from matplotlib.compat import subprocess
-from matplotlib import rcParams
 
 try:
     from functools import lru_cache
@@ -65,7 +62,7 @@ _log = logging.getLogger(__name__)
 #              just stops reading)
 #   finale:    the finale (unimplemented in our current implementation)
 
-_dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
+_dvistate = cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
