@@ -1,6 +1,6 @@
-======================
- ``animation`` module
-======================
+*********
+animation
+*********
 
 .. automodule:: matplotlib.animation
    :no-members:
@@ -10,7 +10,6 @@
    :depth: 1
    :local:
    :backlinks: entry
-
 
 Animation
 =========
@@ -37,7 +36,6 @@ To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
 See :ref:`ani_writer_classes` below for details about what movie formats are
 supported.
 
-
 ``FuncAnimation``
 -----------------
 
@@ -47,7 +45,6 @@ The inner workings of `FuncAnimation` is more-or-less::
      artists = func(d, *fargs)
      fig.canvas.draw_idle()
      fig.canvas.start_event_loop(interval)
-
 
 with details to handle 'blitting' (to dramatically improve the live
 performance), to be non-blocking, not repeatedly start/stop the GUI
@@ -122,13 +119,9 @@ artist at a global scope and let Python sort things out.  For example ::
                        init_func=init, blit=True)
    plt.show()
 
-
 The second method is to us `functools.partial` to 'bind' artists to
 function.  A third method is to use closures to build up the required
 artists and functions.  A fourth method is to create a class.
-
-
-
 
 Examples
 ~~~~~~~~
@@ -136,39 +129,29 @@ Examples
 .. toctree::
    :maxdepth: 1
 
-   ../gallery/animation/animate_decay
-   ../gallery/animation/bayes_update_sgskip
-   ../gallery/animation/double_pendulum_animated_sgskip
+   ../gallery/animation/bayes_update
+   ../gallery/animation/double_pendulum_sgskip
    ../gallery/animation/dynamic_image
    ../gallery/animation/histogram
    ../gallery/animation/rain
-   ../gallery/animation/random_data
-   ../gallery/animation/simple_3danim
+   ../gallery/animation/random_walk
    ../gallery/animation/simple_anim
-   ../gallery/animation/strip_chart_demo
+   ../gallery/animation/strip_chart
    ../gallery/animation/unchained
 
 ``ArtistAnimation``
 -------------------
 
-
 Examples
 ~~~~~~~~
 
 .. toctree::
    :maxdepth: 1
 
-   ../gallery/animation/basic_example
-   ../gallery/animation/basic_example_writer_sgskip
    ../gallery/animation/dynamic_image2
-
-
-
 
 Writer Classes
 ==============
-
-
 
 The provided writers fall into two broad categories: pipe-based and
 file-based.  The pipe-based writers stream the captured frames over a
@@ -178,7 +161,6 @@ performant, but may not work on all systems.
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
-
 
    FFMpegWriter
    ImageMagickFileWriter
@@ -195,7 +177,6 @@ slower, these writers can be easier to debug.
    FFMpegFileWriter
    ImageMagickWriter
    AVConvFileWriter
-
 
 Fundamentally, a `MovieWriter` provides a way to grab sequential frames
 from the same underlying `~matplotlib.figure.Figure` object.  The base
@@ -215,31 +196,31 @@ file to disk.  For example ::
        moviewriter.grab_frame()
    moviewriter.finish()
 
-
-If using the writer classes directly (not through `Animation.save`), it is strongly encouraged
-to use the `~MovieWriter.saving` context manager ::
+If using the writer classes directly (not through `Animation.save`), it is
+strongly encouraged to use the `~MovieWriter.saving` context manager ::
 
   with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
       for j in range(n):
           update_figure(n)
           moviewriter.grab_frame()
 
-
 to ensures that setup and cleanup are performed as necessary.
 
+Examples
+--------
 
-:ref:`sphx_glr_gallery_animation_moviewriter_sgskip.py`
+.. toctree::
+   :maxdepth: 1
 
+   ../gallery/animation/frame_grabbing_sgskip
 
 .. _ani_writer_classes:
 
 Helper Classes
 ==============
 
-
 Animation Base Classes
 ----------------------
-
 
 .. autosummary::
    :toctree: _as_gen
@@ -247,12 +228,6 @@ Animation Base Classes
 
    Animation
    TimedAnimation
-
-
-Custom Animation classes
-------------------------
-
-:ref:`sphx_glr_gallery_animation_subplots.py`
 
 Writer Registry
 ---------------
@@ -280,7 +255,7 @@ To reduce code duplication base classes
    MovieWriter
    FileMovieWriter
 
-and mixins are provided
+and mixins
 
 .. autosummary::
    :toctree: _as_gen
@@ -290,9 +265,9 @@ and mixins are provided
    FFMpegBase
    ImageMagickBase
 
-See the source code for how to easily implement new `MovieWriter`
-classes.
+are provided.
 
+See the source code for how to easily implement new `MovieWriter` classes.
 
 Inheritance Diagrams
 ====================

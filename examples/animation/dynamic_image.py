@@ -1,10 +1,10 @@
 """
-=================
-An animated image
-=================
+==============
+Animated image
+==============
 
-Animation of an image.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -29,4 +29,15 @@ def updatefig(*args):
     return im,
 
 ani = animation.FuncAnimation(fig, updatefig, interval=50, blit=True)
+
+# To save the animation, use e.g.
+#
+# ani.save("movie.mp4")
+#
+# or
+#
+# from matplotlib.animation import FFMpegWriter
+# writer = FFMpegWriter(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+# ani.save("movie.mp4", writer=writer)
+
 plt.show()

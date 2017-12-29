@@ -1,10 +1,10 @@
 """
-========================================
-An animated image using a list of images
-========================================
+=================================================
+Animated image using a precomputed list of images
+=================================================
 
-Animate an image from a list of images (or Artists).
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -30,6 +30,14 @@ for i in range(60):
 ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
                                 repeat_delay=1000)
 
-# ani.save('dynamic_images.mp4')
+# To save the animation, use e.g.
+#
+# ani.save("movie.mp4")
+#
+# or
+#
+# from matplotlib.animation import FFMpegWriter
+# writer = FFMpegWriter(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+# ani.save("movie.mp4", writer=writer)
 
 plt.show()

@@ -4,8 +4,8 @@ Animated histogram
 ==================
 
 Use a path patch to draw a bunch of rectangles for an animated histogram.
-
 """
+
 import numpy as np
 
 import matplotlib.pyplot as plt
