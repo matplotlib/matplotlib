@@ -395,6 +395,11 @@ class Figure(Artist):
             python script, you should use `matplotlib.pyplot.show` instead,
             which takes care of managing the event loop for you.
 
+        .. warning
+
+           If the GUI event loop is not running the figure will be shown,
+           but will not be responsive and may not draw.
+
         Parameters
         ----------
         warn : bool, default: True
