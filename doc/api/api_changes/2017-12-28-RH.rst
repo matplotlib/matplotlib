@@ -1,0 +1,4 @@
+New rcParam for Legend Title Font Size
+``````````````````````````````````````
+
+The introduction of a new rcParam for legend title font size (``legend.titlesize``) deprecates the previous usage of the ``font.size`` rcParam for modification of the legend title font size.
