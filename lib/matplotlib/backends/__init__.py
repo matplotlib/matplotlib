@@ -25,7 +25,8 @@ def _get_current_event_loop():
     Returns
     -------
     Optional[str]
-        A value in {"qt5", "qt4", "gtk3", "gtk2", "tk", "headless", None}
+        One of the following values: "qt5", "qt4", "gtk3", "gtk2", "tk",
+        "macosx", "headless", ``None``.
     """
     QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
                  or sys.modules.get("PySide2.QtWidgets"))
@@ -48,6 +49,16 @@ def _get_current_event_loop():
                        and frame.f_code.co_name == "mainloop"
                        for frame in sys._current_frames().values()):
         return "tk"
+    try:
+        from matplotlib.backends import _macosx
+    except ImportError:
+        pass
+    else:
+        # Note that the NSApp event loop is also running when a non-native
+        # toolkit (e.g. Qt5) is active, but in that case we want to report the
+        # other toolkit; thus, this check comes after the other toolkits.
+        if _macosx.event_loop_is_running():
+            return "macosx"
     if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
         return "headless"
 
