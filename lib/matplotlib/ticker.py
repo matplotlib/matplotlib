@@ -1063,6 +1063,7 @@ class LogFormatterMathtext(LogFormatter):
     """
     Format values for log axis using ``exponent = log_base(value)``.
     """
+    _min_zero_pos = None
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
         'Return string for non-decade locations'
@@ -1076,16 +1077,21 @@ class LogFormatterMathtext(LogFormatter):
         """
         Return the format for tick value `x`.
 
-        The position `pos` is ignored.
+        The position `pos` is used for SymLogNorm for ensuring
+        only one zero entry is present.
         """
         usetex = rcParams['text.usetex']
         min_exp = rcParams['axes.formatter.min_exponent']
 
         if x == 0:  # Symlog
-            if usetex:
-                return '$0$'
+            if self._min_zero_pos is None:
+                self._min_zero_pos = pos
+                if usetex:
+                    return '$0$'
+                else:
+                    return '$%s$' % _mathdefault('0')
             else:
-                return '$%s$' % _mathdefault('0')
+                return ''
 
         sign_string = '-' if x < 0 else ''
         x = abs(x)
