@@ -190,6 +190,7 @@ def test_rc():
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
 
+
 def test_rc_title_size():
     test_legend_title_size = 18.0
     mpl.rcParams['legend.titlesize'] = test_legend_title_size
