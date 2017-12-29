@@ -414,6 +414,7 @@ backend      : $TEMPLATE_BACKEND
 #legend.scatterpoints : 1        # number of scatter points
 #legend.markerscale   : 1.0      # the relative size of legend markers vs. original
 #legend.fontsize      : medium
+#legend.titlesize     : medium    # fontsize of the legend title
 # Dimensions as fraction of fontsize:
 #legend.borderpad     : 0.4      # border whitespace
 #legend.labelspacing  : 0.5      # the vertical space between the legend entries
