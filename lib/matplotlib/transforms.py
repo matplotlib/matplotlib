@@ -1119,8 +1119,7 @@ class LockableBbox(BboxBase):
         self._points = None
         fp = [x0, y0, x1, y1]
         mask = [val is None for val in fp]
-        self._locked_points = np.ma.array(fp, np.float_,
-                                          mask=mask).reshape((2, 2))
+        self._locked_points = np.ma.array(fp, float, mask=mask).reshape((2, 2))
 
     def __str__(self):
         return ("{}(\n"
