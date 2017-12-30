@@ -364,17 +364,25 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
                 # TODO slice input array first
                 inp_dtype = A.dtype
+                a_min = A.min()
+                a_max = A.max()
+                # figure out the type we should scale to.  For floats,
+                # leave as is.  For integers cast to an appropriate-sized
+                # float.  Small integers get smaller floats in an attempt
+                # to keep the memory footprint reasonable.
+                if a_min is np.ma.masked:
+                    # all masked, so values don't matter
+                    a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
                     scaled_dtype = A.dtype
                 else:
-                    scaled_dtype = np.float32
-
-                a_min = A.min()
-                if a_min is np.ma.masked:
-                    a_min, a_max = 0, 1  # all masked, so values don't matter
-                else:
-                    a_min = a_min.astype(scaled_dtype)
-                    a_max = A.max().astype(scaled_dtype)
+                    # probably an integer of some type.
+                    da = a_max.astype(np.float64) - a_min.astype(np.float64)
+                    if da > 1e8:
+                        # give more breathing room if a big dynamic range
+                        scaled_dtype = np.float64
+                    else:
+                        scaled_dtype = np.float32
 
                 # scale the input data to [.1, .9].  The Agg
                 # interpolators clip to [0, 1] internally, use a
@@ -386,6 +394,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 A_scaled = np.empty(A.shape, dtype=scaled_dtype)
                 A_scaled[:] = A
                 A_scaled -= a_min
+                a_min = a_min.astype(scaled_dtype)
+                a_max = a_max.astype(scaled_dtype)
+
                 if a_min != a_max:
                     A_scaled /= ((a_max - a_min) / 0.8)
                 A_scaled += 0.1
