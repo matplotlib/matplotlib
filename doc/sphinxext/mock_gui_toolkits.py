@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 
 class MyCairoCffi(MagicMock):
-    version_info = (1, 4, 0)
+    pass
 
 
 class MyPyQt4(MagicMock):
