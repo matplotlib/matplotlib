@@ -604,8 +604,7 @@ def _azimuth2math(azimuth, elevation):
     return theta, phi
 
 
-def test_pandas_iterable():
-    pd = pytest.importorskip('pandas')
+def test_pandas_iterable(pd):
     # Using a list or series yields equivalent
     # color maps, i.e the series isn't seen as
     # a single color

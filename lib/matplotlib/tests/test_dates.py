@@ -552,12 +552,9 @@ def test_date2num_dst():
     _test_date2num_dst(date_range, tz_convert)
 
 
-def test_date2num_dst_pandas():
+def test_date2num_dst_pandas(pd):
     # Test for github issue #3896, but in date2num around DST transitions
     # with a timezone-aware pandas date_range object.
-    pd = pytest.importorskip('pandas')
-    from pandas.tseries import converter
-    converter.register()
 
     def tz_convert(*args):
         return pd.DatetimeIndex.tz_convert(*args).astype(object)
