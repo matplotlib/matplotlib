@@ -450,6 +450,8 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
 class FigureCanvasCairo(FigureCanvasBase):
+    supports_blit = False
+
     def print_png(self, fobj, *args, **kwargs):
         width, height = self.get_width_height()
 
