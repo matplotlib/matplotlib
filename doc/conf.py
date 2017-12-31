@@ -11,6 +11,7 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+import matplotlib
 import os
 import sys
 import sphinx
@@ -63,7 +64,6 @@ def _check_deps():
 
 _check_deps()
 
-import matplotlib
 try:
     from unittest.mock import MagicMock
 except ImportError:
