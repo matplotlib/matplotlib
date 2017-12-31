@@ -5091,27 +5091,7 @@ def test_broken_barh_empty():
     ax.broken_barh([], (.1, .5))
 
 
-def _pandas_wrapper(func):
-    '''Decorator to centralize pandas setup / conditional import'''
-    import functools
-
-    @functools.wraps(func)
-    def wrapped_for_pandas(*args, **kwargs):
-        pytest.importorskip('pandas')
-        try:
-            from pandas.plotting import (
-                register_matplotlib_converters as register)
-        except ImportError:
-            from pandas.tseries.converter import register
-        register()
-        return func(*args, **kwargs)
-
-    return wrapped_for_pandas
-
-
-@_pandas_wrapper
-def test_pandas_pcolormesh():
-    import pandas as pd
+def test_pandas_pcolormesh(pd):
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
     data = np.random.rand(20, 10)
@@ -5120,10 +5100,7 @@ def test_pandas_pcolormesh():
     ax.pcolormesh(time, depth, data)
 
 
-@_pandas_wrapper
-def test_pandas_indexing_dates():
-    import pandas as pd
-
+def test_pandas_indexing_dates(pd):
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
     df = pd.DataFrame({'dates': dates, 'values': values})
@@ -5134,10 +5111,7 @@ def test_pandas_indexing_dates():
     ax.plot('dates', 'values', data=without_zero_index)
 
 
-@_pandas_wrapper
-def test_pandas_errorbar_indexing():
-    import pandas as pd
-
+def test_pandas_errorbar_indexing(pd):
     df = pd.DataFrame(np.random.uniform(size=(5, 4)),
                       columns=['x', 'y', 'xe', 'ye'],
                       index=[1, 2, 3, 4, 5])
@@ -5145,21 +5119,15 @@ def test_pandas_errorbar_indexing():
     ax.errorbar('x', 'y', xerr='xe', yerr='ye', data=df)
 
 
-@_pandas_wrapper
-def test_pandas_indexing_hist():
-    import pandas as pd
-
+def test_pandas_indexing_hist(pd):
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
     fig, axes = plt.subplots()
     axes.hist(ser_2)
 
 
-@_pandas_wrapper
-def test_pandas_bar_align_center():
+def test_pandas_bar_align_center(pd):
     # Tests fix for issue 8767
-    import pandas as pd
-
     df = pd.DataFrame({'a': range(2), 'b': range(2)})
 
     fig, ax = plt.subplots(1)
