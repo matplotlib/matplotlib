@@ -141,22 +141,18 @@ class Button(AxesWidget):
     A GUI neutral button.
 
     For the button to remain responsive you must keep a reference to it.
+    Call :meth:`on_clicked` to connect to the button.
 
-    The following attributes are accessible
-
-      *ax*
+    Attributes
+    ----------
+    ax :
         The :class:`matplotlib.axes.Axes` the button renders into.
-
-      *label*
+    label :
         A :class:`matplotlib.text.Text` instance.
-
-      *color*
+    color :
         The color of the button when not hovering.
-
-      *hovercolor*
+    hovercolor :
         The color of the button when hovering.
-
-    Call :meth:`on_clicked` to connect to the button
     """
 
     def __init__(self, ax, label, image=None,
@@ -1751,8 +1747,7 @@ class SpanSelector(_SelectorWidget):
         rectprops['animated'] = self.useblit
 
         if direction not in ['horizontal', 'vertical']:
-            msg = "direction must be in [ 'horizontal' | 'vertical' ]"
-            raise ValueError(msg)
+            raise ValueError("direction must be 'horizontal' or 'vertical'")
         self.direction = direction
 
         self.rect = None
@@ -2026,6 +2021,8 @@ class RectangleSelector(_SelectorWidget):
         a box or nothing between click and actual position by setting
 
         ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
+        Drawing a line would result in a line from vertex A to vertex C in
+        a rectangle ABCD.
 
         *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
         and *minspanx* will be interpreted in the same coordinates as
@@ -2092,8 +2089,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspany = minspany
 
         if spancoords not in ('data', 'pixels'):
-            msg = "'spancoords' must be one of [ 'data' | 'pixels' ]"
-            raise ValueError(msg)
+            raise ValueError("'spancoords' must be 'data' or 'pixels'")
 
         self.spancoords = spancoords
         self.drawtype = drawtype
@@ -2451,7 +2447,8 @@ class EllipseSelector(RectangleSelector):
 
 
 class LassoSelector(_SelectorWidget):
-    """Selection curve of an arbitrary shape.
+    """
+    Selection curve of an arbitrary shape.
 
     For the selector to remain responsive you must keep a reference to
     it.
@@ -2464,14 +2461,6 @@ class LassoSelector(_SelectorWidget):
     similar to :class:`RectangleSelector` and :class:`SpanSelector` and will
     continue to interact with the axes until disconnected.
 
-    Parameters:
-
-    *ax* : :class:`~matplotlib.axes.Axes`
-        The parent axes for the widget.
-    *onselect* : function
-        Whenever the lasso is released, the `onselect` function is called and
-        passed the vertices of the selected path.
-
     Example usage::
 
         ax = subplot(111)
@@ -2481,15 +2470,24 @@ class LassoSelector(_SelectorWidget):
             print(verts)
         lasso = LassoSelector(ax, onselect)
 
-     *button* is a list of integers indicating which mouse buttons should
-        be used for rectangle selection.  You can also specify a single
-        integer if only a single button is desired.  Default is *None*,
-        which does not limit which button can be used.
+    Parameters
+    ----------
+    ax : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    onselect : function
+        Whenever the lasso is released, the *onselect* function is called and
+        passed the vertices of the selected path.
+    button : list[Int], optional
+        A list of integers indicating which mouse buttons should be used for
+        rectangle selection. You can also specify a single integer if only a
+        single button is desired.  Default is ``None``, which does not limit
+        which button can be used.
 
         Note, typically:
-         1 = left mouse button
-         2 = center mouse button (scroll wheel)
-         3 = right mouse button
+
+            - 1 = left mouse button
+            - 2 = center mouse button (scroll wheel)
+            - 3 = right mouse button
 
     """
 

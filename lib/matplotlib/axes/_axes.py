@@ -75,11 +75,11 @@ def _plot_args_replacer(args, data):
         except ValueError:
             pass
         else:
-            msg = "Second argument '{}' is ambiguous: could be a color spec " \
-                  "but is in data. Using as data.\nEither rename the " \
-                  "entry in data or use three arguments " \
-                  "to plot.".format(args[1])
-            warnings.warn(msg, RuntimeWarning, stacklevel=3)
+            warnings.warn(
+                "Second argument {!r} is ambiguous: could be a color spec but "
+                "is in data; using as data.  Either rename the entry in data "
+                "or use three arguments to plot.".format(args[1]),
+                RuntimeWarning, stacklevel=3)
         return ["x", "y"]
     elif len(args) == 3:
         return ["x", "y", "c"]
@@ -2631,7 +2631,7 @@ class Axes(_AxesBase):
             color_cycle = itertools.cycle(colors)
 
             def get_next_color():
-                return six.next(color_cycle)
+                return next(color_cycle)
 
         if radius is None:
             radius = 1
@@ -2857,13 +2857,6 @@ class Axes(_AxesBase):
         holdstate = self._hold
         self._hold = True
 
-        if fmt is None:
-            fmt = 'none'
-            msg = ('Use of None object as fmt keyword argument to ' +
-                   'suppress plotting of data values is deprecated ' +
-                   'since 1.4; use the string "none" instead.')
-            warnings.warn(msg, mplDeprecation, stacklevel=1)
-
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 
@@ -2880,7 +2873,7 @@ class Axes(_AxesBase):
             if 'color' in kwargs:
                 base_style['color'] = kwargs.pop('color')
         else:
-            base_style = six.next(self._get_lines.prop_cycler)
+            base_style = next(self._get_lines.prop_cycler)
 
         base_style['label'] = '_nolegend_'
         base_style.update(fmt_style_kwargs)
@@ -3398,8 +3391,7 @@ class Axes(_AxesBase):
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
                     np.shape(usermedians)[0] != len(bxpstats)):
-                medmsg = 'usermedians length not compatible with x'
-                raise ValueError(medmsg)
+                raise ValueError('usermedians length not compatible with x')
             else:
                 # reassign medians as necessary
                 for stats, med in zip(bxpstats, usermedians):
@@ -3682,12 +3674,11 @@ class Axes(_AxesBase):
             final_meanprops.update(meanprops)
 
         def to_vc(xs, ys):
-            # convert arguments to verts and codes
-            verts = list(zip(xs, ys))
-            verts.append((0, 0))  # ignored
-            codes = [mpath.Path.MOVETO] + \
-                    [mpath.Path.LINETO] * (len(verts) - 2) + \
-                    [mpath.Path.CLOSEPOLY]
+            # convert arguments to verts and codes, append (0, 0) (ignored).
+            verts = np.append(np.column_stack([xs, ys]), [(0, 0)], 0)
+            codes = ([mpath.Path.MOVETO]
+                     + [mpath.Path.LINETO] * (len(verts) - 2)
+                     + [mpath.Path.CLOSEPOLY])
             return verts, codes
 
         def patch_list(xs, ys, **kwargs):
@@ -4039,9 +4030,9 @@ class Axes(_AxesBase):
                 colors = mcolors.to_rgba_array(c)
             except ValueError:
                 # c not acceptable as PathCollection facecolor
-                msg = ("c of shape {0} not acceptable as a color sequence "
-                       "for x with size {1}, y with size {2}")
-                raise ValueError(msg.format(c.shape, x.size, y.size))
+                raise ValueError("c of shape {} not acceptable as a color "
+                                 "sequence for x with size {}, y with size {}"
+                                 .format(c.shape, x.size, y.size))
         else:
             colors = None  # use cmap, norm after collection is created
 
@@ -4089,8 +4080,8 @@ class Axes(_AxesBase):
 
         if colors is None:
             if norm is not None and not isinstance(norm, mcolors.Normalize):
-                msg = "'norm' must be an instance of 'mcolors.Normalize'"
-                raise ValueError(msg)
+                raise ValueError(
+                    "'norm' must be an instance of 'mcolors.Normalize'")
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -4448,8 +4439,8 @@ class Axes(_AxesBase):
             accum = bins.searchsorted(accum)
 
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -5191,8 +5182,8 @@ class Axes(_AxesBase):
             self.cla()
 
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
@@ -5514,8 +5505,8 @@ class Axes(_AxesBase):
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5663,8 +5654,8 @@ class Axes(_AxesBase):
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5787,8 +5778,8 @@ class Axes(_AxesBase):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+            raise ValueError(
+                "'norm' must be an instance of 'mcolors.Normalize'")
 
         C = args[-1]
         nr, nc = C.shape
@@ -6167,14 +6158,14 @@ class Axes(_AxesBase):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        if normed is not None:
-            warnings.warn("The 'normed' kwarg is deprecated, and has been "
-                          "replaced by the 'density' kwarg.")
         if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used "
                              "simultaneously. "
                              "Please only use 'density', since 'normed'"
                              "is deprecated.")
+        if normed is not None:
+            warnings.warn("The 'normed' kwarg is deprecated, and has been "
+                          "replaced by the 'density' kwarg.")
 
         # basic input validation
         input_empty = np.size(x) == 0

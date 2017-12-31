@@ -664,20 +664,16 @@ class HandlerTuple(HandlerBase):
             pad = self._pad * fontsize
 
         if ndivide > 1:
-            width = (width - pad*(ndivide - 1)) / ndivide
+            width = (width - pad * (ndivide - 1)) / ndivide
 
-        xds = [xdescent - (width + pad) * i for i in range(ndivide)]
-        xds_cycle = cycle(xds)
+        xds_cycle = cycle(xdescent - (width + pad) * np.arange(ndivide))
 
         a_list = []
         for handle1 in orig_handle:
             handler = legend.get_legend_handler(handler_map, handle1)
-            _a_list = handler.create_artists(legend, handle1,
-                                             six.next(xds_cycle),
-                                             ydescent,
-                                             width, height,
-                                             fontsize,
-                                             trans)
+            _a_list = handler.create_artists(
+                legend, handle1,
+                next(xds_cycle), ydescent, width, height, fontsize, trans)
             a_list.extend(_a_list)
 
         return a_list

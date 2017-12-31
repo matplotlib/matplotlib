@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import datetime
 
@@ -304,32 +303,6 @@ def test_contourf_decreasing_levels():
     plt.figure()
     with pytest.raises(ValueError):
         plt.contourf(z, [1.0, 0.0])
-    # Legacy contouring algorithm gives a warning rather than raising an error,
-    # plus a DeprecationWarning.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        plt.contourf(z, [1.0, 0.0], corner_mask='legacy')
-        assert len(w) == 2
-
-
-def test_vminvmax_warning():
-    z = [[0.1, 0.3], [0.5, 0.7]]
-    plt.figure()
-    cs = plt.contourf(z, [0.0, 1.0])
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        cs.vmin
-        assert len(w) == 1
-        msg = "vmin is deprecated and will be removed in 2.2 "
-        assert str(w[0].message).startswith(msg)
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        cs.vmax
-        assert len(w) == 1
-        msg = "vmax is deprecated and will be removed in 2.2 "
-        assert str(w[0].message).startswith(msg)
 
 
 def test_contourf_symmetric_locator():

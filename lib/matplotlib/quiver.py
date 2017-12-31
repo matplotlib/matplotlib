@@ -18,6 +18,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+
+import math
 import weakref
 
 import numpy as np
@@ -29,10 +31,8 @@ import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
-import matplotlib.cbook as cbook
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
-import math
 
 
 _quiver_doc = """

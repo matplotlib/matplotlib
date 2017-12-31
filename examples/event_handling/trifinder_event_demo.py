@@ -20,7 +20,7 @@ def update_polygon(tri):
         points = triang.triangles[tri]
     xs = triang.x[points]
     ys = triang.y[points]
-    polygon.set_xy(list(zip(xs, ys)))
+    polygon.set_xy(np.column_stack([xs, ys]))
 
 
 def motion_notify(event):

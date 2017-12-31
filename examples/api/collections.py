@@ -30,16 +30,13 @@ r = np.arange(nverts)
 theta = np.linspace(0, 2*np.pi, nverts)
 xx = r * np.sin(theta)
 yy = r * np.cos(theta)
-spiral = list(zip(xx, yy))
+spiral = np.column_stack([xx, yy])
 
-# Make some offsets
 # Fixing random state for reproducibility
 rs = np.random.RandomState(19680801)
 
-
-xo = rs.randn(npts)
-yo = rs.randn(npts)
-xyo = list(zip(xo, yo))
+# Make some offsets
+xyo = rs.randn(npts, 2)
 
 # Make a list of colors cycling through the default series.
 colors = [colors.to_rgba(c)
@@ -109,11 +106,11 @@ offs = (0.1, 0.0)
 
 yy = np.linspace(0, 2*np.pi, nverts)
 ym = np.max(yy)
-xx = (0.2 + (ym - yy)/ym)**2 * np.cos(yy - 0.4)*0.5
+xx = (0.2 + (ym - yy) / ym) ** 2 * np.cos(yy - 0.4) * 0.5
 segs = []
 for i in range(ncurves):
     xxx = xx + 0.02*rs.randn(nverts)
-    curve = list(zip(xxx, yy*100))
+    curve = np.column_stack([xxx, yy * 100])
     segs.append(curve)
 
 col = collections.LineCollection(segs, offsets=offs)

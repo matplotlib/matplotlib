@@ -979,8 +979,8 @@ class Figure(Artist):
         if isinstance(args[0], Axes):
             a = args[0]
             if a.get_figure() is not self:
-                msg = "The Axes must have been created in the present figure"
-                raise ValueError(msg)
+                raise ValueError(
+                    "The Axes must have been created in the present figure")
         else:
             rect = args[0]
             if not np.isfinite(rect).all():
@@ -1075,9 +1075,8 @@ class Figure(Artist):
 
             a = args[0]
             if a.get_figure() is not self:
-                msg = ("The Subplot must have been created in the present "
-                       "figure")
-                raise ValueError(msg)
+                raise ValueError(
+                    "The Subplot must have been created in the present figure")
             # make a key for the subplot (which includes the axes object id
             # in the hash)
             key = self._make_key(*args, **kwargs)
@@ -1341,9 +1340,8 @@ class Figure(Artist):
         this is available only after the figure is drawn
         """
         if self._cachedRenderer is None:
-            msg = ('draw_artist can only be used after an initial draw which'
-                   ' caches the render')
-            raise AttributeError(msg)
+            raise AttributeError("draw_artist can only be used after an "
+                                 "initial draw which caches the renderer")
         a.draw(self._cachedRenderer)
 
     def get_axes(self):

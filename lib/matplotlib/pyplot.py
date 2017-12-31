@@ -24,7 +24,6 @@ import six
 
 import sys
 import time
-import types
 import warnings
 
 from cycler import cycler
@@ -1372,10 +1371,12 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
 
 def box(on=None):
     """
-    Turn the axes box on or off.  *on* may be a boolean or a string,
-    'on' or 'off'.
+    Turn the axes box on or off.
 
-    If *on* is *None*, toggle state.
+    Parameters
+    ----------
+    on : bool or None
+        The new axes box state.  If ``None``, toggle the state.
     """
     ax = gca()
     on = _string_to_bool(on)

@@ -23,33 +23,31 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip
 
-import numpy as np
+import abc
+import contextlib
+import itertools
+import logging
 import os
 import platform
 import sys
-import itertools
-try:
-    # python3
-    from base64 import encodebytes
-except ImportError:
-    # python2
-    from base64 import encodestring as encodebytes
-import abc
-import contextlib
 import tempfile
 import uuid
-import warnings
-import logging
+
+import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
 from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
 from matplotlib import rcParams, rcParamsDefault, rc_context
-if sys.version_info < (3, 0):
-    from cStringIO import StringIO as InMemory
+
+if six.PY2:
+    from base64 import encodestring as encodebytes
+    from cStringIO import StringIO as BytesIO
 else:
-    from io import BytesIO as InMemory
+    from base64 import encodebytes
+    from io import BytesIO
+
 
 _log = logging.getLogger(__name__)
 
@@ -326,7 +324,7 @@ class MovieWriter(AbstractMovieWriter):
                           'from %s x %s to %s x %s', wo, ho, w, h)
         else:
             w, h = self.fig.get_size_inches()
-        _log.debug('frame size in pixels is %s x %s' % self.frame_size)
+        _log.debug('frame size in pixels is %s x %s', *self.frame_size)
         return w, h
 
     def setup(self, fig, outfile, dpi=None):
@@ -409,10 +407,8 @@ class MovieWriter(AbstractMovieWriter):
         '''Clean-up and collect the process used to write the movie file.'''
         out, err = self._proc.communicate()
         self._frame_sink().close()
-        _log.debug('MovieWriter -- '
-                       'Command stdout:\n%s' % out)
-        _log.debug('MovieWriter -- '
-                       'Command stderr:\n%s' % err)
+        _log.debug('MovieWriter -- Command stdout:\n%s', out)
+        _log.debug('MovieWriter -- Command stderr:\n%s', err)
 
     @classmethod
     def bin_path(cls):
@@ -521,9 +517,8 @@ class FileMovieWriter(MovieWriter):
 
         # Save the filename so we can delete it later if necessary
         self._temp_names.append(fname)
-        _log.debug(
-            'FileMovieWriter.frame_sink: saving frame %d to fname=%s' %
-            (self._frame_counter, fname))
+        _log.debug('FileMovieWriter.frame_sink: saving frame %d to fname=%s',
+                   self._frame_counter, fname)
         self._frame_counter += 1  # Ensures each created name is 'unique'
 
         # This file returned here will be closed once it's used by savefig()
@@ -567,18 +562,16 @@ class FileMovieWriter(MovieWriter):
                 _log.info("MovieWriter.finish: stderr: %s", stderr)
             except Exception as e:
                 pass
-            msg = ('Error creating movie, return code: ' +
-                   str(self._proc.returncode))
-            raise RuntimeError(msg)
+            raise RuntimeError('Error creating movie, return code: {}'
+                               .format(self._proc.returncode))
 
     def cleanup(self):
         MovieWriter.cleanup(self)
 
         # Delete temporary files
         if self.clear_temp:
-            _log.debug(
-                'MovieWriter: clearing temporary fnames=%s' %
-                str(self._temp_names))
+            _log.debug('MovieWriter: clearing temporary fnames=%s',
+                       self._temp_names)
             for fname in self._temp_names:
                 os.remove(fname)
 
@@ -702,86 +695,7 @@ class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
-
     '''
-
-
-# Base class of mencoder information. Contains configuration key information
-# as well as arguments for controlling *output*
-class MencoderBase(object):
-    exec_key = 'animation.mencoder_path'
-    args_key = 'animation.mencoder_args'
-
-    # Mencoder only allows certain keys, other ones cause the program
-    # to fail.
-    allowed_metadata = ['name', 'artist', 'genre', 'subject', 'copyright',
-                        'srcform', 'comment']
-
-    # Mencoder mandates using name, but 'title' works better with ffmpeg.
-    # If we find it, just put it's value into name
-    def _remap_metadata(self):
-        if 'title' in self.metadata:
-            self.metadata['name'] = self.metadata['title']
-
-    @property
-    def output_args(self):
-        self._remap_metadata()
-        lavcopts = {'vcodec': self.codec}
-        if self.bitrate > 0:
-            lavcopts.update(vbitrate=self.bitrate)
-        args = ['-o', self.outfile, '-ovc', 'lavc', '-lavcopts',
-                ':'.join(itertools.starmap('{0}={1}'.format,
-                                           lavcopts.items()))]
-        if self.extra_args:
-            args.extend(self.extra_args)
-        if self.metadata:
-            args.extend(['-info', ':'.join('%s=%s' % (k, v)
-                         for k, v in six.iteritems(self.metadata)
-                         if k in self.allowed_metadata)])
-        return args
-
-
-# The message must be a single line; internal newlines cause sphinx failure.
-mencoder_dep = ("Support for mencoder is only partially functional, "
-                "and will be removed entirely in 2.2. "
-                "Please use ffmpeg instead.")
-
-
-@writers.register('mencoder')
-class MencoderWriter(MovieWriter, MencoderBase):
-
-    @deprecated('2.0', message=mencoder_dep)
-    def __init__(self, *args, **kwargs):
-        with rc_context(rc={'animation.codec': 'mpeg4'}):
-            super(MencoderWriter, self).__init__(*args, **kwargs)
-
-    def _args(self):
-        # Returns the command line parameters for subprocess to use
-        # mencoder to create a movie
-        return [self.bin_path(), '-', '-demuxer', 'rawvideo', '-rawvideo',
-                ('w=%i:h=%i:' % self.frame_size +
-                'fps=%i:format=%s' % (self.fps,
-                                      self.frame_format))] + self.output_args
-
-
-# Combine Mencoder options with temp file-based writing
-@writers.register('mencoder_file')
-class MencoderFileWriter(FileMovieWriter, MencoderBase):
-    supported_formats = ['png', 'jpeg', 'tga', 'sgi']
-
-    @deprecated('2.0', message=mencoder_dep)
-    def __init__(self, *args, **kwargs):
-        with rc_context(rc={'animation.codec': 'mpeg4'}):
-            super(MencoderFileWriter, self).__init__(*args, **kwargs)
-
-    def _args(self):
-        # Returns the command line parameters for subprocess to use
-        # mencoder to create a movie
-        return [self.bin_path(),
-                'mf://%s*.%s' % (self.temp_prefix, self.frame_format),
-                '-frames', str(self._frame_counter), '-mf',
-                'type=%s:fps=%d' % (self.frame_format,
-                                    self.fps)] + self.output_args
 
 
 # Base class for animated GIFs with convert utility
@@ -954,19 +868,18 @@ class HTMLWriter(FileMovieWriter):
             if self._hit_limit:
                 return
             suffix = '.' + self.frame_format
-            f = InMemory()
+            f = BytesIO()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
             imgdata64 = encodebytes(f.getvalue()).decode('ascii')
             self._total_bytes += len(imgdata64)
             if self._total_bytes >= self._bytes_limit:
-                _log.warning("Animation size has reached {0._total_bytes} "
-                              "bytes, exceeding the limit of "
-                              "{0._bytes_limit}. If you're sure you want "
-                              "a larger animation embedded, set the "
-                              "animation.embed_limit rc parameter to a "
-                              "larger value (in MB). This and further frames"
-                              " will be dropped.".format(self))
+                _log.warning(
+                    "Animation size has reached %s bytes, exceeding the limit "
+                    "of %s. If you're sure you want a larger animation "
+                    "embedded, set the animation.embed_limit rc parameter to "
+                    "a larger value (in MB). This and further frames will be "
+                    "dropped.", self._total_bytes, self._bytes_limit)
                 self._hit_limit = True
             else:
                 self._saved_frames.append(imgdata64)
@@ -1102,8 +1015,8 @@ class Animation(object):
 
         writer : :class:`MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
-            class to use, such as 'ffmpeg' or 'mencoder'. If ``None``,
-            defaults to ``rcParams['animation.writer']``.
+            class to use, such as 'ffmpeg'. If ``None``, defaults to
+            ``rcParams['animation.writer']``.
 
         fps : number, optional
            Frames per second in the movie. Defaults to ``None``, which will use
@@ -1211,7 +1124,7 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                _log.warning("MovieWriter %s unavailable" % writer)
+                _log.warning("MovieWriter %s unavailable.", writer)
 
                 try:
                     writer = writers[writers.list()[0]](fps, codec, bitrate,
@@ -1219,8 +1132,8 @@ class Animation(object):
                                                         metadata=metadata)
                 except IndexError:
                     raise ValueError("Cannot save animation: no writers are "
-                                     "available. Please install "
-                                     "ffmpeg to save animations.")
+                                     "available. Please install ffmpeg to "
+                                     "save animations.")
         _log.info('Animation.save using %s', type(writer))
 
         if 'bbox_inches' in savefig_kwargs:
@@ -1410,12 +1323,11 @@ class Animation(object):
                 vid64 = encodebytes(video.read())
                 vid_len = len(vid64)
                 if vid_len >= embed_limit:
-                    _log.warning("Animation movie is {} bytes, exceeding "
-                                  "the limit of {}. If you're sure you want a "
-                                  "large animation embedded, set the "
-                                  "animation.embed_limit rc parameter to a "
-                                  "larger value (in MB).".format(vid_len,
-                                                                 embed_limit))
+                    _log.warning(
+                        "Animation movie is %s bytes, exceeding the limit of "
+                        "%s. If you're sure you want a large animation "
+                        "embedded, set the animation.embed_limit rc parameter "
+                        "to a larger value (in MB).", vid_len, embed_limit)
                 else:
                     self._base64_video = vid64.decode('ascii')
                     self._video_size = 'width="{}" height="{}"'.format(

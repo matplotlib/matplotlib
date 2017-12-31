@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import numpy as np
-import matplotlib.cbook as mcbook
 from matplotlib.transforms import Bbox
 from . import clip_path
 clip_line_to_rect = clip_path.clip_line_to_rect

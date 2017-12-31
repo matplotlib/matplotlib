@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange
@@ -1198,7 +1197,8 @@ def test_pcolorargs():
     x[0] = np.NaN
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
-    x = np.ma.array(x, mask=(x < 0))
+    with np.errstate(invalid='ignore'):
+        x = np.ma.array(x, mask=(x < 0))
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
 
@@ -1706,7 +1706,8 @@ def test_scatter_marker():
     rx, ry = 3, 1
     area = rx * ry * np.pi
     theta = np.linspace(0, 2 * np.pi, 21)
-    verts = list(zip(np.cos(theta) * rx / area, np.sin(theta) * ry / area))
+    verts = np.column_stack([np.cos(theta) * rx / area,
+                             np.sin(theta) * ry / area])
     ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
                 c=[(1, 0, 0), 'y', 'b', 'lime'],
                 s=[60, 50, 40, 30],
@@ -4901,16 +4902,6 @@ def test_errorbar_inputs_shotgun(kwargs):
     ax = plt.gca()
     eb = ax.errorbar(**kwargs)
     eb.remove()
-
-
-def test_axisbg_warning():
-    fig = plt.figure()
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
-        assert len(w) == 1
-        msg = "The axisbg attribute was deprecated in version 2.0."
-        assert str(w[0].message).startswith(msg)
 
 
 @image_comparison(baseline_images=["dash_offset"], remove_text=True)

@@ -3,20 +3,17 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
-
 import numpy as np
-import numpy.ma as ma
 
 import matplotlib
-rcParams = matplotlib.rcParams
+from matplotlib import rcParams
 from matplotlib.axes import Axes
-from matplotlib import cbook
+import matplotlib.axis as maxis
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 import matplotlib.spines as mspines
-import matplotlib.axis as maxis
-from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, NullFormatter
+from matplotlib.ticker import (
+    Formatter, NullLocator, FixedLocator, NullFormatter)
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 
 
@@ -127,9 +124,9 @@ class GeoAxes(Axes):
             .translate(0.5, 0.5)
 
     def get_xaxis_transform(self,which='grid'):
-        if which not in ['tick1','tick2','grid']:
-            msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+        if which not in ['tick1', 'tick2', 'grid']:
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -139,9 +136,9 @@ class GeoAxes(Axes):
         return self._xaxis_text2_transform, 'top', 'center'
 
     def get_yaxis_transform(self,which='grid'):
-        if which not in ['tick1','tick2','grid']:
-            msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+        if which not in ['tick1', 'tick2', 'grid']:
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):

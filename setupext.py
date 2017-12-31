@@ -1033,7 +1033,7 @@ class LibAgg(SetupPackage):
         if self.found_external:
             pkg_config.setup_extension(ext, 'libagg')
         else:
-            ext.include_dirs.append('extern/agg24-svn/include')
+            ext.include_dirs.insert(0, 'extern/agg24-svn/include')
             if add_sources:
                 agg_sources = [
                     'agg_bezier_arc.cpp',
@@ -1348,23 +1348,15 @@ class Qhull(SetupPackage):
                 'libqhull', 'libqhull/qhull_a.h', min_version='2015.2')
         except CheckFailed as e:
             self.__class__.found_pkgconfig = False
-            # Qhull may not be in the pkg-config system but may still be
-            # present on this system, so check if the header files can be
-            # found.
-            include_dirs = [
-                os.path.join(x, 'libqhull') for x in get_include_dirs()]
-            if has_include_file(include_dirs, 'qhull_a.h'):
-                return 'Using system Qhull (version unknown, no pkg-config info)'
-            else:
-                self.__class__.found_external = False
-                return str(e) + ' Using local copy.'
+            self.__class__.found_external = False
+            return str(e) + ' Using local copy.'
 
     def add_flags(self, ext):
         if self.found_external:
             pkg_config.setup_extension(ext, 'qhull',
                                        default_libraries=['qhull'])
         else:
-            ext.include_dirs.append('extern')
+            ext.include_dirs.insert(0, 'extern')
             ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
 
 
@@ -1380,7 +1372,7 @@ class TTConv(SetupPackage):
             ]
         ext = make_extension('matplotlib.ttconv', sources)
         Numpy().add_flags(ext)
-        ext.include_dirs.append('extern')
+        ext.include_dirs.insert(0, 'extern')
         return ext
 
 
@@ -1413,18 +1405,6 @@ class Image(SetupPackage):
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
 
-        return ext
-
-
-class ContourLegacy(SetupPackage):
-    name = "contour_legacy"
-
-    def get_extension(self):
-        sources = [
-            "src/cntr.c"
-            ]
-        ext = make_extension('matplotlib._cntr', sources)
-        Numpy().add_flags(ext)
         return ext
 
 
@@ -1536,7 +1516,7 @@ class BackendTkAgg(OptionalBackendPackage):
         return ext
 
     def add_flags(self, ext):
-        ext.include_dirs.extend(['src'])
+        ext.include_dirs.insert(0, 'src')
         if sys.platform == 'win32':
             # PSAPI library needed for finding Tcl / Tk at run time
             ext.libraries.extend(['psapi'])

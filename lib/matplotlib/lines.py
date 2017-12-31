@@ -24,7 +24,6 @@ from .transforms import Bbox, TransformedPath, IdentityTransform
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
-from numpy import ma
 from . import _path
 from .markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,

@@ -7,7 +7,6 @@ from collections import OrderedDict
 
 import numpy as np
 
-import matplotlib.artist as martist
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
@@ -717,6 +716,10 @@ class RadialAxis(maxis.YAxis):
     __name__ = 'radialaxis'
     axis_name = 'radius'
 
+    def __init__(self, *args, **kwargs):
+        super(RadialAxis, self).__init__(*args, **kwargs)
+        self.sticky_edges.y.append(0)
+
     def _get_tick(self, major):
         if major:
             tick_kw = self._major_tick_kw
@@ -849,6 +852,7 @@ class PolarAxes(Axes):
             kwargs.pop('rlabel_position', 22.5))
 
         Axes.__init__(self, *args, **kwargs)
+        self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
     __init__.__doc__ = Axes.__init__.__doc__
@@ -971,8 +975,8 @@ class PolarAxes(Axes):
 
     def get_xaxis_transform(self, which='grid'):
         if which not in ['tick1', 'tick2', 'grid']:
-            msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -987,8 +991,8 @@ class PolarAxes(Axes):
         elif which == 'grid':
             return self._yaxis_transform
         else:
-            msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx

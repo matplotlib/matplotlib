@@ -5,13 +5,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-import sys
-import gc
+
 import atexit
-
-
-def error_msg(msg):
-    print(msg, file=sys.stderr)
+import gc
+import sys
 
 
 class Gcf(object):
@@ -58,15 +55,7 @@ class Gcf(object):
             return
         manager = cls.figs[num]
         manager.canvas.mpl_disconnect(manager._cidgcf)
-
-        # There must be a good reason for the following careful
-        # rebuilding of the activeQue; what is it?
-        oldQue = cls._activeQue[:]
-        cls._activeQue = []
-        for f in oldQue:
-            if f != manager:
-                cls._activeQue.append(f)
-
+        cls._activeQue.remove(manager)
         del cls.figs[num]
         manager.destroy()
         gc.collect(1)
@@ -74,11 +63,8 @@ class Gcf(object):
     @classmethod
     def destroy_fig(cls, fig):
         "*fig* is a Figure instance"
-        num = None
-        for manager in six.itervalues(cls.figs):
-            if manager.canvas.figure == fig:
-                num = manager.num
-                break
+        num = next((manager.num for manager in six.itervalues(cls.figs)
+                    if manager.canvas.figure == fig), None)
         if num is not None:
             cls.destroy(num)
 

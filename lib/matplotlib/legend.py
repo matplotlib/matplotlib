@@ -26,7 +26,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 import logging
 import warnings
@@ -907,14 +906,12 @@ class Legend(Artist):
 
         text_list = []  # the list of text instances
         handle_list = []  # the list of text instances
+        handles_and_labels = []
 
         label_prop = dict(verticalalignment='baseline',
                           horizontalalignment='left',
                           fontproperties=self.prop,
                           )
-
-        labelboxes = []
-        handleboxes = []
 
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
@@ -948,26 +945,23 @@ class Legend(Artist):
                 textbox = TextArea(lab, textprops=label_prop,
                                    multilinebaseline=True,
                                    minimumdescent=True)
-                text_list.append(textbox._text)
-
-                labelboxes.append(textbox)
-
                 handlebox = DrawingArea(width=self.handlelength * fontsize,
                                         height=height,
                                         xdescent=0., ydescent=descent)
-                handleboxes.append(handlebox)
 
+                text_list.append(textbox._text)
                 # Create the artist for the legend which represents the
                 # original artist/handle.
                 handle_list.append(handler.legend_artist(self, orig_handle,
                                                          fontsize, handlebox))
+                handles_and_labels.append((handlebox, textbox))
 
-        if handleboxes:
+        if handles_and_labels:
             # We calculate number of rows in each column. The first
             # (num_largecol) columns will have (nrows+1) rows, and remaining
             # (num_smallcol) columns will have (nrows) rows.
-            ncol = min(self._ncol, len(handleboxes))
-            nrows, num_largecol = divmod(len(handleboxes), ncol)
+            ncol = min(self._ncol, len(handles_and_labels))
+            nrows, num_largecol = divmod(len(handles_and_labels), ncol)
             num_smallcol = ncol - num_largecol
             # starting index of each column and number of rows in it.
             rows_per_col = [nrows + 1] * num_largecol + [nrows] * num_smallcol
@@ -976,7 +970,6 @@ class Legend(Artist):
         else:
             cols = []
 
-        handle_label = list(zip(handleboxes, labelboxes))
         columnbox = []
         for i0, di in cols:
             # pack handleBox and labelBox into itemBox
@@ -984,7 +977,7 @@ class Legend(Artist):
                                  sep=self.handletextpad * fontsize,
                                  children=[h, t] if markerfirst else [t, h],
                                  align="baseline")
-                         for h, t in handle_label[i0:i0 + di]]
+                         for h, t in handles_and_labels[i0:i0 + di]]
             # minimumdescent=False for the text of the last row of the column
             if markerfirst:
                 itemBoxes[-1].get_children()[1].set_minimumdescent(False)
@@ -1207,7 +1200,7 @@ class Legend(Artist):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = list(xrange(11))
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",

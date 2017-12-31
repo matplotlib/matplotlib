@@ -181,13 +181,11 @@ class CustomCell(Cell):
         else:
             for edge in value:
                 if edge not in self._edges:
-                    msg = ('Invalid edge param {0}, must only be one of'
-                           ' {1} or string of {2}.').format(
-                                   value,
-                                   ", ".join(self._edge_aliases),
-                                   ", ".join(self._edges),
-                                   )
-                    raise ValueError(msg)
+                    raise ValueError('Invalid edge param {}, must only be one '
+                                     'of {} or string of {}'.format(
+                                         value,
+                                         ", ".join(self._edge_aliases),
+                                         ", ".join(self._edges)))
             self._visible_edges = value
         self.stale = True
 
@@ -585,16 +583,16 @@ def table(ax,
     cols = len(cellText[0])
     for row in cellText:
         if len(row) != cols:
-            msg = "Each row in 'cellText' must have {0} columns"
-            raise ValueError(msg.format(cols))
+            raise ValueError("Each row in 'cellText' must have {} columns"
+                             .format(cols))
 
     if cellColours is not None:
         if len(cellColours) != rows:
-            raise ValueError("'cellColours' must have {0} rows".format(rows))
+            raise ValueError("'cellColours' must have {} rows".format(rows))
         for row in cellColours:
             if len(row) != cols:
-                msg = "Each row in 'cellColours' must have {0} columns"
-                raise ValueError(msg.format(cols))
+                raise ValueError("Each row in 'cellColours' must have {} "
+                                 "columns".format(cols))
     else:
         cellColours = ['w' * cols] * rows
 

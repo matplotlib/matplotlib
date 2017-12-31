@@ -34,7 +34,6 @@ from matplotlib import rcParams
 
 from matplotlib import docstring
 
-#from bboximage import BboxImage
 from matplotlib.image import BboxImage
 
 from matplotlib.patches import bbox_artist as mbbox_artist
@@ -398,7 +397,6 @@ class VPacker(PackerBase):
         ydescent = height - yoffsets[0]
         yoffsets = height - yoffsets
 
-        #w, h, xd, h_yd = whd_list[-1]
         yoffsets = yoffsets - ydescent
 
         return width + 2 * pad, height + 2 * pad, \

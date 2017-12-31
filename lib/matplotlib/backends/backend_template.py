@@ -67,12 +67,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (
+     FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
 from matplotlib.figure import Figure
-from matplotlib.transforms import Bbox
 
 
 class RendererTemplate(RendererBase):
@@ -176,10 +174,9 @@ def draw_if_interactive():
     For GUI backends - this should be overridden if drawing should be done in
     interactive python mode
     """
-    # May be implemented via the `_draw_if_interactive_template` helper.
 
 
-def show():
+def show(block=None):
     """
     For image backends - is not required
     For GUI backends - show() is usually the last line of a pylab script and

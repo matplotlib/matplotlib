@@ -26,15 +26,14 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six import unichr
 
 import binascii
 import io
 import itertools
-import numpy as np
 import re
 import struct
-import sys
+
+import numpy as np
 
 if six.PY3:
     def ord(x):

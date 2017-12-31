@@ -1081,10 +1081,9 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     '''
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
-        msg = ('position and orientation are mutually exclusive. '
-               'Consider setting the position to any of '
-               '{0}'.format(', '.join(locations)))
-        raise TypeError(msg)
+        raise TypeError('position and orientation are mutually exclusive. '
+                        'Consider setting the position to any of {}'
+                        .format(', '.join(locations)))
 
     # provide a default location
     if location is None and orientation is None:

@@ -11,7 +11,6 @@ import warnings
 import matplotlib as mpl
 import numpy as np
 from numpy import ma
-import matplotlib._cntr as _cntr
 import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -26,7 +25,6 @@ import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
-from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -176,10 +174,8 @@ class ContourLabeler(object):
                     indices.append(i)
                     levels.append(lev)
             if len(levels) < len(levlabs):
-                msg = "Specified levels " + str(levlabs)
-                msg += "\n don't match available levels "
-                msg += str(self.levels)
-                raise ValueError(msg)
+                raise ValueError("Specified levels {} don't match available "
+                                 "levels {}".format(levlabs, self.levels))
         else:
             raise TypeError("Illegal arguments to clabel, see help(clabel)")
         self.labelLevelList = levels
@@ -1171,24 +1167,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError("Filled contours require at least 2 levels.")
 
         if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
-            if hasattr(self, '_corner_mask') and self._corner_mask == 'legacy':
-                warnings.warn("Contour levels are not increasing")
-            else:
-                raise ValueError("Contour levels must be increasing")
-
-    @property
-    def vmin(self):
-        warnings.warn("vmin is deprecated and will be removed in 2.2 "
-                      "and not replaced.",
-                      mplDeprecation)
-        return getattr(self, '_vmin', None)
-
-    @property
-    def vmax(self):
-        warnings.warn("vmax is deprecated and will be removed in 2.2 "
-                      "and not replaced.",
-                      mplDeprecation)
-        return getattr(self, '_vmax', None)
+            raise ValueError("Contour levels must be increasing")
 
     def _process_levels(self):
         """
@@ -1199,10 +1178,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         a line is a thin layer.  No extended levels are needed
         with line contours.
         """
-        # following are deprecated and will be removed in 2.2
-        self._vmin = np.min(self.levels)
-        self._vmax = np.max(self.levels)
-
         # Make a private _levels to include extended regions; we
         # want to leave the original levels attribute unchanged.
         # (Colorbar needs this even for line contours.)
@@ -1419,10 +1394,7 @@ class QuadContourSet(ContourSet):
             self.zmin = args[0].zmin
             self.zmax = args[0].zmax
             self._corner_mask = args[0]._corner_mask
-            if self._corner_mask == 'legacy':
-                contour_generator = args[0].Cntr
-            else:
-                contour_generator = args[0]._contour_generator
+            contour_generator = args[0]._contour_generator
             self._mins = args[0]._mins
             self._maxs = args[0]._maxs
         else:
@@ -1436,14 +1408,8 @@ class QuadContourSet(ContourSet):
             if _mask is ma.nomask or not _mask.any():
                 _mask = None
 
-            if self._corner_mask == 'legacy':
-                cbook.warn_deprecated('1.5',
-                                      name="corner_mask='legacy'",
-                                      alternative='corner_mask=False or True')
-                contour_generator = _cntr.Cntr(x, y, z.filled(), _mask)
-            else:
-                contour_generator = _contour.QuadContourGenerator(
-                    x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
+            contour_generator = _contour.QuadContourGenerator(
+                x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
 
             t = self.get_transform()
 
@@ -1460,43 +1426,26 @@ class QuadContourSet(ContourSet):
             self._mins = [ma.min(x), ma.min(y)]
             self._maxs = [ma.max(x), ma.max(y)]
 
-        if self._corner_mask == 'legacy':
-            self.Cntr = contour_generator
-        else:
-            self._contour_generator = contour_generator
+        self._contour_generator = contour_generator
 
         return kwargs
 
     def _get_allsegs_and_allkinds(self):
-        """
-        Create and return allsegs and allkinds by calling underlying C code.
-        """
+        """Compute ``allsegs`` and ``allkinds`` using C extension."""
         allsegs = []
         if self.filled:
             lowers, uppers = self._get_lowers_and_uppers()
             allkinds = []
             for level, level_upper in zip(lowers, uppers):
-                if self._corner_mask == 'legacy':
-                    nlist = self.Cntr.trace(level, level_upper,
-                                            nchunk=self.nchunk)
-                    nseg = len(nlist) // 2
-                    vertices = nlist[:nseg]
-                    kinds = nlist[nseg:]
-                else:
-                    vertices, kinds = \
-                        self._contour_generator.create_filled_contour(
-                                                           level, level_upper)
+                vertices, kinds = \
+                    self._contour_generator.create_filled_contour(
+                        level, level_upper)
                 allsegs.append(vertices)
                 allkinds.append(kinds)
         else:
             allkinds = None
             for level in self.levels:
-                if self._corner_mask == 'legacy':
-                    nlist = self.Cntr.trace(level)
-                    nseg = len(nlist) // 2
-                    vertices = nlist[:nseg]
-                else:
-                    vertices = self._contour_generator.create_contour(level)
+                vertices = self._contour_generator.create_contour(level)
                 allsegs.append(vertices)
         return allsegs, allkinds
 
@@ -1687,19 +1636,15 @@ class QuadContourSet(ContourSet):
 
         Optional keyword arguments:
 
-          *corner_mask*: [ *True* | *False* | 'legacy' ]
+          *corner_mask*: bool, optional
             Enable/disable corner masking, which only has an effect if *Z* is
-            a masked array.  If *False*, any quad touching a masked point is
-            masked out.  If *True*, only the triangular corners of quads
+            a masked array.  If ``False``, any quad touching a masked point is
+            masked out.  If ``True``, only the triangular corners of quads
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
-            If 'legacy', the old contouring algorithm is used, which is
-            equivalent to *False* and is deprecated, only remaining whilst the
-            new algorithm is tested fully.
 
-            If not specified, the default is taken from
-            rcParams['contour.corner_mask'], which is True unless it has
-            been modified.
+            Defaults to ``rcParams['contour.corner_mask']``, which defaults to
+            ``True``.
 
           *colors*: [ *None* | string | (mpl_colors) ]
             If *None*, the colormap specified by cmap will be used.

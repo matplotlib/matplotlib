@@ -3,11 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib as mpl
 import matplotlib.axes as maxes
 import matplotlib.cbook as cbook
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 

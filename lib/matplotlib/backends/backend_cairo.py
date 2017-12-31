@@ -24,7 +24,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import gzip
-import os
 import sys
 import warnings
 
@@ -54,10 +53,9 @@ del _version_required
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox, Affine2D
+from matplotlib.transforms import Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
 
@@ -232,11 +230,9 @@ class RendererCairo(RendererBase):
             # the array.array functionality here to get cross version support.
             imbuffer = ArrayWrapper(im.flatten())
         else:
-            # py2cairo uses PyObject_AsWriteBuffer
-            # to get a pointer to the numpy array this works correctly
-            # on a regular numpy array but not on a memory view.
-            # At the time of writing the latest release version of
-            # py3cairo still does not support create_for_data
+            # pycairo uses PyObject_AsWriteBuffer to get a pointer to the
+            # numpy array; this works correctly on a regular numpy array but
+            # not on a py2 memoryview.
             imbuffer = im.flatten()
         surface = cairo.ImageSurface.create_for_data(
             imbuffer, cairo.FORMAT_ARGB32,
@@ -277,7 +273,7 @@ class RendererCairo(RendererBase):
                 if not isinstance(s, six.text_type):
                     s = six.text_type(s)
             else:
-                if not six.PY3 and isinstance(s, six.text_type):
+                if six.PY2 and isinstance(s, six.text_type):
                     s = s.encode("utf-8")
 
             ctx.show_text(s)
@@ -328,8 +324,8 @@ class RendererCairo(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
-            width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
-               s, self.dpi, prop)
+            width, height, descent, fonts, used_characters = \
+                self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
         ctx = self.text_ctx
@@ -354,7 +350,7 @@ class RendererCairo(RendererBase):
 
     def new_gc(self):
         self.gc.ctx.save()
-        self.gc._alpha = 1.0
+        self.gc._alpha = 1
         self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
         return self.gc
 
@@ -391,8 +387,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         else:
             self.ctx.set_source_rgba(rgb[0], rgb[1], rgb[2], rgb[3])
 
-    #def set_antialiased(self, b):
-        # enable/disable anti-aliasing is not (yet) supported by Cairo
+    # def set_antialiased(self, b):
+        # cairo has many antialiasing modes, we need to pick one for True and
+        # one for False.
 
     def set_capstyle(self, cs):
         if cs in ('butt', 'round', 'projecting'):
@@ -404,9 +401,7 @@ class GraphicsContextCairo(GraphicsContextBase):
     def set_clip_rectangle(self, rectangle):
         if not rectangle:
             return
-        x, y, w, h = rectangle.bounds
-        # pixel-aligned clip-regions are faster
-        x,y,w,h = np.round(x), np.round(y), np.round(w), np.round(h)
+        x, y, w, h = np.round(rectangle.bounds)
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle(x, self.renderer.height - h - y, w, h)
@@ -522,14 +517,9 @@ class FigureCanvasCairo(FigureCanvasBase):
         ctx = renderer.gc.ctx
 
         if orientation == 'landscape':
-            ctx.rotate(np.pi/2)
+            ctx.rotate(np.pi / 2)
             ctx.translate(0, -height_in_points)
-            # cairo/src/cairo_ps_surface.c
-            # '%%Orientation: Portrait' is always written to the file header
-            # '%%Orientation: Landscape' would possibly cause problems
-            # since some printers would rotate again ?
-            # TODO:
-            # add portrait/landscape checkbox to FileChooser
+            # Perhaps add an '%%Orientation: Landscape' comment?
 
         self.figure.draw(renderer)
 

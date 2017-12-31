@@ -22,7 +22,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import re
-import sys
 from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
                        ParseException, Suppress)
 

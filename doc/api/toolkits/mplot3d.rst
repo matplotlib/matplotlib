@@ -77,7 +77,6 @@ Art3D Utility Functions
    art3d.get_colors
    art3d.get_dir_vector
    art3d.get_patch_verts
-   art3d.iscolor
    art3d.juggle_axes
    art3d.line_2d_to_3d
    art3d.line_collection_2d_to_3d

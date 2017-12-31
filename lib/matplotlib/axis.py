@@ -6,6 +6,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
+
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
@@ -21,6 +23,8 @@ import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
 import warnings
+
+_log = logging.getLogger(__name__)
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -1827,8 +1831,7 @@ class XAxis(Axis):
         elif position == 'bottom':
             self.label.set_verticalalignment('top')
         else:
-            msg = "Position accepts only [ 'top' | 'bottom' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only 'top' or 'bottom'")
         self.label_position = position
         self.stale = True
 
@@ -2173,8 +2176,7 @@ class YAxis(Axis):
         elif position == 'right':
             self.label.set_verticalalignment('top')
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only 'left' or 'right'")
         self.label_position = position
         self.stale = True
 

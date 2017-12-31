@@ -5,27 +5,19 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import map, zip
-import warnings
 
 import math
+import warnings
+
+import numpy as np
 
 import matplotlib as mpl
-import numpy as np
-import matplotlib.cbook as cbook
-import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
-import matplotlib.colors as colors
-from matplotlib import docstring
-import matplotlib.transforms as transforms
-from matplotlib.path import Path
-import matplotlib.lines as mlines
-
-from matplotlib.bezier import split_bezier_intersecting_with_closedpath
-from matplotlib.bezier import get_intersection, inside_circle, get_parallels
-from matplotlib.bezier import make_wedged_bezier2
-from matplotlib.bezier import split_path_inout, get_cos_sin
-from matplotlib.bezier import make_path_regular, concatenate_paths
-
+from . import artist, cbook, colors, docstring, lines as mlines, transforms
+from .bezier import (
+    concatenate_paths, get_cos_sin, get_intersection, get_parallels,
+    inside_circle, make_path_regular, make_wedged_bezier2,
+    split_bezier_intersecting_with_closedpath, split_path_inout)
+from .path import Path
 
 _patch_alias_map = {
         'antialiased': ['aa'],
@@ -490,7 +482,7 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
         if not self.get_visible():
@@ -1357,7 +1349,7 @@ class YAArrow(Patch):
         xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
         ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
-        return Path(list(zip(xs, ys)), closed=True)
+        return Path(np.column_stack([xs, ys]), closed=True)
 
     def get_patch_transform(self):
         return transforms.IdentityTransform()
@@ -1579,7 +1571,7 @@ class Arc(Ellipse):
         self.theta1 = theta1
         self.theta2 = theta2
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         """
         Ellipses are normally drawn using an approximation that uses
@@ -2021,7 +2013,6 @@ class BoxStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (BoxStyle, self.__class__.__name__),
                     self.__dict__
@@ -2808,7 +2799,6 @@ class ConnectionStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (ConnectionStyle, self.__class__.__name__),
                     self.__dict__
@@ -3198,9 +3188,6 @@ class ArrowStyle(_Style):
         # w/o arguments, i.e., all its argument (except self) must have
         # the default values.
 
-        def __init__(self):
-            super(ArrowStyle._Base, self).__init__()
-
         @staticmethod
         def ensure_quadratic_bezier(path):
             """ Some ArrowStyle class only wokrs with a simple
@@ -3210,10 +3197,10 @@ class ArrowStyle(_Style):
             its control points if true.
             """
             segments = list(path.iter_segments())
-            if ((len(segments) != 2) or (segments[0][1] != Path.MOVETO) or
-                    (segments[1][1] != Path.CURVE3)):
-                msg = "'path' it's not a valid quadratic bezier curve"
-                raise ValueError(msg)
+            if (len(segments) != 2 or segments[0][1] != Path.MOVETO or
+                    segments[1][1] != Path.CURVE3):
+                raise ValueError(
+                    "'path' it's not a valid quadratic Bezier curve")
 
             return list(segments[0][0]) + list(segments[1][0])
 
@@ -3269,7 +3256,6 @@ class ArrowStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (ArrowStyle, self.__class__.__name__),
                     self.__dict__

@@ -96,6 +96,22 @@ def test_contourf3d_fill():
     ax.set_zlim(-1, 1)
 
 
+@image_comparison(baseline_images=['tricontour'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_tricontour():
+    fig = plt.figure()
+
+    np.random.seed(19680801)
+    x = np.random.rand(1000) - 0.5
+    y = np.random.rand(1000) - 0.5
+    z = -(x**2 + y**2)
+
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.tricontour(x, y, z)
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.tricontourf(x, y, z)
+
+
 @image_comparison(baseline_images=['lines3d'], remove_text=True)
 def test_lines3d():
     fig = plt.figure()

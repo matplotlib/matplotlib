@@ -318,7 +318,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         x, y = self.grid_info["line_xy"]
 
         if self._get_line_path is None:
-            return Path(list(zip(x, y)))
+            return Path(np.column_stack([x, y]))
         else:
             return self._get_line_path(axes, x, y)
 

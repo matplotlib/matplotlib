@@ -18,16 +18,14 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import zip
 
 import copy
 import warnings
 
-import matplotlib
+import numpy as np
+
 from matplotlib import rcParams
 import matplotlib.transforms as mtransforms
-
-import numpy as np
 
 
 class GridSpecBase(object):

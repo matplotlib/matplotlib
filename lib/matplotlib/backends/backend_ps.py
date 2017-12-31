@@ -22,7 +22,6 @@ from matplotlib.backend_bases import (
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
 from matplotlib.compat.subprocess import subprocess
-from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
@@ -1104,11 +1103,10 @@ class FigureCanvasPS(FigureCanvasBase):
                         # STIX fonts).  This will simply turn that off to avoid
                         # errors.
                         if is_opentype_cff_font(font_filename):
-                            msg = ("OpenType CFF fonts can not be saved "
-                                   "using the internal Postscript backend "
-                                   "at this time.\nConsider using the "
-                                   "Cairo backend.")
-                            raise RuntimeError(msg)
+                            raise RuntimeError(
+                                "OpenType CFF fonts can not be saved using "
+                                "the internal Postscript backend at this "
+                                "time; consider using the Cairo backend")
                         else:
                             fh.flush()
                             convert_ttf_to_ps(
@@ -1345,18 +1343,13 @@ class FigureCanvasPS(FigureCanvasBase):
                                              paperHeight,
                                              orientation)
 
-            if rcParams['ps.usedistiller'] == 'ghostscript':
+            if (rcParams['ps.usedistiller'] == 'ghostscript'
+                    or rcParams['text.usetex']):
                 gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                            rotated=psfrag_rotated)
             elif rcParams['ps.usedistiller'] == 'xpdf':
                 xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
-            elif rcParams['text.usetex']:
-                if False:
-                    pass  # for debugging
-                else:
-                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                               rotated=psfrag_rotated)
 
             if is_writable_file_like(outfile):
                 if file_requires_unicode(outfile):

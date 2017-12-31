@@ -7,31 +7,30 @@ import six
 from six import unichr
 from six.moves import xrange
 
-import os, base64, tempfile, gzip, io, sys, codecs, re
+import base64
+import codecs
+import gzip
+import hashlib
+import io
+import logging
+import re
+import uuid
 
 import numpy as np
-import logging
-
-from hashlib import md5
-import uuid
 
 from matplotlib import __version__, rcParams
 from matplotlib.backend_bases import (
-     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.colors import rgb2hex
-from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, FontProperties, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.font_manager import findfont, get_font
+from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
-
-from xml.sax.saxutils import escape as escape_xml_text
 
 _log = logging.getLogger(__name__)
 
@@ -325,7 +324,7 @@ class RendererSVG(RendererBase):
         if six.PY3:
             content = content.encode('utf8')
             salt = salt.encode('utf8')
-        m = md5()
+        m = hashlib.md5()
         m.update(salt)
         m.update(content)
         return '%s%s' % (type, m.hexdigest()[:10])

@@ -3,32 +3,28 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import atexit
+import codecs
+import errno
 import math
 import os
-import sys
-import errno
 import re
 import shutil
+import sys
 import tempfile
-import codecs
-import atexit
-import weakref
 import warnings
-
-import numpy as np
+import weakref
 
 import matplotlib as mpl
+from matplotlib import _png, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.figure import Figure
-from matplotlib.text import Text
-from matplotlib.path import Path
-from matplotlib import _png, rcParams
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
+from matplotlib.path import Path
 
 
 ###############################################################################
@@ -369,8 +365,8 @@ class LatexManager(object):
         try:
             self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s"
-            raise ValueError(msg % (text, e.latex_output))
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, e.latex_output))
 
         # typeout width, height and text offset of the last textbox
         self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
@@ -378,15 +374,15 @@ class LatexManager(object):
         try:
             answer = self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s"
-            raise ValueError(msg % (text, e.latex_output))
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, e.latex_output))
 
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
         except:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
-            raise ValueError(msg)
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, answer))
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
 
         # the height returned from LaTeX goes from base to top.
