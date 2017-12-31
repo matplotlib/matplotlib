@@ -177,7 +177,7 @@ class HandlerNpoints(HandlerBase):
 
 class HandlerNpointsYoffsets(HandlerNpoints):
     """
-    A legend handler that shows *numpoints in the legend, and allows them to
+    A legend handler that shows *numpoints* in the legend, and allows them to
     be individually offest in the y-direction.
     """
     def __init__(self, numpoints=None, yoffsets=None, **kw):
@@ -269,14 +269,14 @@ class HandlerPatch(HandlerBase):
         ----------
         patch_func : callable, optional
             The function that creates the legend key artist.
-            *patch_func*should have the signature::
+            *patch_func* should have the signature::
 
                 def patch_func(legend=legend, orig_handle=orig_handle,
                                xdescent=xdescent, ydescent=ydescent,
                                width=width, height=height, fontsize=fontsize)
 
-        Subsequently the created artist will have its `update_prop` method
-        called and the appropriate transform will be applied.
+            Subsequently the created artist will have its `update_prop` method
+            called and the appropriate transform will be applied.
 
         Notes
         -----
