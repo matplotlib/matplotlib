@@ -129,9 +129,9 @@ Examples
 .. toctree::
    :maxdepth: 1
 
+   ../gallery/animation/animate_decay
    ../gallery/animation/bayes_update
    ../gallery/animation/double_pendulum_sgskip
-   ../gallery/animation/dynamic_image
    ../gallery/animation/histogram
    ../gallery/animation/rain
    ../gallery/animation/random_walk
@@ -148,7 +148,7 @@ Examples
 .. toctree::
    :maxdepth: 1
 
-   ../gallery/animation/dynamic_image2
+   ../gallery/animation/dynamic_image
 
 Writer Classes
 ==============
