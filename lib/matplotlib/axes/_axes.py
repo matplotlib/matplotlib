@@ -706,7 +706,7 @@ class Axes(_AxesBase):
         if "transform" in kwargs:
             raise ValueError(
                 "'transform' is not allowed as a kwarg;"
-                + "axhline generates its own transform.")
+                " axhline generates its own transform.")
         ymin, ymax = self.get_ybound()
 
         # We need to strip away the units for comparison with
@@ -715,6 +715,10 @@ class Axes(_AxesBase):
         yy = self.convert_yunits(y)
         scaley = (yy < ymin) or (yy > ymax)
 
+        xunits = self.xaxis.get_units()
+        if xunits is not None:
+            xmin = xmin * xunits
+            xmax = xmax * xunits
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
@@ -775,7 +779,7 @@ class Axes(_AxesBase):
         if "transform" in kwargs:
             raise ValueError(
                 "'transform' is not allowed as a kwarg;"
-                + "axvline generates its own transform.")
+                " axvline generates its own transform.")
         xmin, xmax = self.get_xbound()
 
         # We need to strip away the units for comparison with
@@ -784,6 +788,10 @@ class Axes(_AxesBase):
         xx = self.convert_xunits(x)
         scalex = (xx < xmin) or (xx > xmax)
 
+        xunits = self.yaxis.get_units()
+        if xunits is not None:
+            ymin = ymin * xunits
+            ymax = ymax * xunits
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
