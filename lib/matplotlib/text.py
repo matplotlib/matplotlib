@@ -116,6 +116,19 @@ def _get_textbox(text, renderer):
     return x_box, y_box, w_box, h_box
 
 
+@cbook._define_aliases({
+    "family": ["fontfamily"],
+    "fontproperties": ["font_properties"],
+    "horizontalalignment": ["ha"],
+    "multialignment": ["ma"],
+    "name": ["fontname"],
+    "size": ["fontsize"],
+    "stretch": ["fontstretch"],
+    "style": ["fontstyle"],
+    "variant": ["fontvariant"],
+    "verticalalignment": ["va"],
+    "weight": ["fontweight"],
+})
 class Text(Artist):
     """
     Handle storing and drawing of text in window or data coordinates.
@@ -1154,19 +1167,6 @@ class Text(Artist):
         """alias for set_family"""
         return self.set_family(fontname)
 
-    cbook._define_aliases(locals(), {
-        "family": ["fontfamily"],
-        "fontproperties": ["font_properties"],
-        "horizontalalignment": ["ha"],
-        "multialignment": ["ma"],
-        "name": ["fontname"],
-        "size": ["fontsize"],
-        "stretch": ["fontstretch"],
-        "style": ["fontstyle"],
-        "variant": ["fontvariant"],
-        "verticalalignment": ["va"],
-        "weight": ["fontweight"],
-    })
 
 docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)

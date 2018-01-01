@@ -229,15 +229,25 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'markevery=%s' % (markevery,))
 
 
+@cbook._define_aliases({
+    "antialiased": ["aa"],
+    "color": ["c"],
+    "linestyle": ["ls"],
+    "linewidth": ["lw"],
+    "markeredgecolor": ["mec"],
+    "markeredgewidth": ["mew"],
+    "markerfacecolor": ["mfc"],
+    "markerfacecoloralt": ["mfcalt"],
+    "markersize": ["ms"],
+})
 class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
     the vertices, and a marker at each vertex.  Additionally, the
     drawing of the solid line is influenced by the drawstyle, e.g., one
     can create "stepped" lines in various styles.
-
-
     """
+
     lineStyles = _lineStyles = {  # hidden names deprecated
         '-':    '_draw_solid',
         '--':   '_draw_dashed',
@@ -1346,18 +1356,6 @@ class Line2D(Artist):
     def is_dashed(self):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
-
-    cbook._define_aliases(locals(), {
-        "antialiased": ["aa"],
-        "color": ["c"],
-        "linestyle": ["ls"],
-        "linewidth": ["lw"],
-        "markeredgecolor": ["mec"],
-        "markeredgewidth": ["mew"],
-        "markerfacecolor": ["mfc"],
-        "markerfacecoloralt": ["mfcalt"],
-        "markersize": ["ms"],
-    })
 
 
 class VertexSelector(object):

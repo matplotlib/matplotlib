@@ -2805,14 +2805,13 @@ def _str_lower_equal(obj, s):
     return isinstance(obj, six.string_types) and obj.lower() == s
 
 
-def _define_aliases(local_d, alias_d):
-    """Define property aliases.
+def _define_aliases(alias_d, cls=None):
+    """Class decorator for defining property aliases.
 
-    Use in a class definition as ::
+    Use as ::
 
-        cbook._define_aliases(locals(), {
-            "property": ["alias", ...], ...
-        })
+        @cbook._define_aliases({"property": ["alias", ...], ...})
+        class C: ...
 
     For each property, if the corresponding ``get_property`` is defined in the
     class so far, an alias named ``get_alias`` will be defined; the same will
@@ -2822,6 +2821,8 @@ def _define_aliases(local_d, alias_d):
     The alias map is stored as the ``_alias_map`` attribute on the class and
     can be used by `~.normalize_kwargs`.
     """
+    if cls is None:
+        return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enfore a closure over *name*.
         def method(self, *args, **kwargs):
@@ -2831,14 +2832,15 @@ def _define_aliases(local_d, alias_d):
     for prop, aliases in alias_d.items():
         exists = False
         for prefix in ["get_", "set_"]:
-            if prefix + prop in local_d:
+            if prefix + prop in vars(cls):
                 exists = True
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
                     method.__doc__ = "alias for `{}`".format(prefix + prop)
-                    local_d[prefix + alias] = method
+                    setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError("property {} does not exist".format(prop))
 
-    local_d["_alias_map"] = alias_d
+    cls._alias_map = alias_d
+    return cls

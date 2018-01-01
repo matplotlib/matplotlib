@@ -28,6 +28,13 @@ from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 
 
+@cbook._define_aliases({
+    "antialiased": ["antialiaseds"],
+    "edgecolor": ["edgecolors"],
+    "facecolor": ["facecolors"],
+    "linestyle": ["linestyles", "dashes"],
+    "linewidth": ["linewidths", "lw"],
+})
 class Collection(artist.Artist, cm.ScalarMappable):
     """
     Base class for Collections.  Must be subclassed to be usable.
@@ -799,13 +806,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
         self.stale = True
 
-    cbook._define_aliases(locals(), {
-        "antialiased": ["antialiaseds"],
-        "edgecolor": ["edgecolors"],
-        "facecolor": ["facecolors"],
-        "linestyle": ["linestyles", "dashes"],
-        "linewidth": ["linewidths", "lw"],
-    })
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
