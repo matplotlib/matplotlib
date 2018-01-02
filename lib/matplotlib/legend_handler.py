@@ -414,7 +414,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
     """
-    Handler for `.PathCollections`, which are used by `.scatter`.
+    Handler for `.PathCollections`, which are used by `Axes.scatter`.
     """
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)([orig_handle.get_paths()[0]],
