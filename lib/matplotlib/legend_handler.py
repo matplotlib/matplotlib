@@ -209,7 +209,7 @@ class HandlerNpointsYoffsets(HandlerNpoints):
 
 class HandlerLine2D(HandlerNpoints):
     """
-    Handler for Line2D instances.
+    Handler for `.Line2D` instances.
     """
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
         """
@@ -261,7 +261,7 @@ class HandlerLine2D(HandlerNpoints):
 
 class HandlerPatch(HandlerBase):
     """
-    Handler for Patch instances.
+    Handler for `.Patch` instances.
     """
     def __init__(self, patch_func=None, **kw):
         """
@@ -307,7 +307,7 @@ class HandlerPatch(HandlerBase):
 
 class HandlerLineCollection(HandlerLine2D):
     """
-    Handler for LineCollection instances.
+    Handler for `.LineCollection` instances.
     """
     def get_numpoints(self, legend):
         if self._numpoints is None:
@@ -339,7 +339,7 @@ class HandlerLineCollection(HandlerLine2D):
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     """
-    Handler for RegularPolyCollections.
+    Handler for `.RegularPolyCollections`.
     """
     def __init__(self, yoffsets=None, sizes=None, **kw):
         HandlerNpointsYoffsets.__init__(self, yoffsets=yoffsets, **kw)
@@ -414,7 +414,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
     """
-    Handler for PathCollections, which are used by `scatter`.
+    Handler for `.PathCollections`, which are used by `.scatter`.
     """
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)([orig_handle.get_paths()[0]],
@@ -427,7 +427,7 @@ class HandlerPathCollection(HandlerRegularPolyCollection):
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     """
-    Handler for CircleCollections.
+    Handler for `.CircleCollections`.
     """
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)(sizes,
@@ -552,7 +552,7 @@ class HandlerErrorbar(HandlerLine2D):
 
 class HandlerStem(HandlerNpointsYoffsets):
     """
-    Handler for plots produced by `stem`.
+    Handler for plots produced by `.stem`.
     """
     def __init__(self, marker_pad=0.3, numpoints=None,
                  bottom=None, yoffsets=None, **kw):
@@ -690,7 +690,7 @@ class HandlerTuple(HandlerBase):
 
 class HandlerPolyCollection(HandlerBase):
     """
-    Handler for PolyCollection used in `fill_between` and `stackplot`.
+    Handler for `.PolyCollection` used in `.fill_between` and `.stackplot`.
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):
