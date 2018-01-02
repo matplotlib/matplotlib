@@ -275,7 +275,7 @@ class HandlerPatch(HandlerBase):
                                xdescent=xdescent, ydescent=ydescent,
                                width=width, height=height, fontsize=fontsize)
 
-            Subsequently the created artist will have its `update_prop` method
+            Subsequently the created artist will have its ``update_prop`` method
             called and the appropriate transform will be applied.
 
         Notes
@@ -414,7 +414,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
     """
-    Handler for `.PathCollections`, which are used by `Axes.scatter`.
+    Handler for `.PathCollections`, which are used by `~.Axes.scatter`.
     """
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)([orig_handle.get_paths()[0]],
@@ -552,7 +552,7 @@ class HandlerErrorbar(HandlerLine2D):
 
 class HandlerStem(HandlerNpointsYoffsets):
     """
-    Handler for plots produced by `.stem`.
+    Handler for plots produced by `~.Axes.stem`.
     """
     def __init__(self, marker_pad=0.3, numpoints=None,
                  bottom=None, yoffsets=None, **kw):
@@ -647,7 +647,7 @@ class HandlerTuple(HandlerBase):
 
 
     pad : float, optional
-        If None, fall back to `legend.borderpad` as the default.
+        If None, fall back to ``legend.borderpad`` as the default.
         In units of fraction of font size. Default is None.
     """
     def __init__(self, ndivide=1, pad=None, **kwargs):
