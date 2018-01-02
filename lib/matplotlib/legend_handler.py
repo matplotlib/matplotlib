@@ -690,7 +690,7 @@ class HandlerTuple(HandlerBase):
 
 class HandlerPolyCollection(HandlerBase):
     """
-    Handler for `.PolyCollection` used in `.fill_between` and `.stackplot`.
+    Handler for `.PolyCollection` used in `~.Axes.fill_between` and `~.Axes.stackplot`.
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):
