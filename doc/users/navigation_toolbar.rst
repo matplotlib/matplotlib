@@ -53,13 +53,12 @@ The ``Pan/Zoom`` button
 .. image:: ../../lib/matplotlib/mpl-data/images/zoom_to_rect_large.png
 
 The ``Zoom-to-rectangle`` button
-    Click this toolbar button to activate this mode.  Put your mouse
-    somewhere over an axes and press the left mouse button.  Drag the
-    mouse while holding the button to a new location and release.  The
-    axes view limits will be zoomed to the rectangle you have defined.
-    There is also an experimental 'zoom out to rectangle' in this mode
-    with the right button, which will place your entire axes in the
-    region defined by the zoom out rectangle.
+    Click this toolbar button to activate this mode.  Put your mouse somewhere
+    over an axes and press a mouse button.  Define a rectangular region by
+    dragging the mouse while holding the button to a new location.  When using
+    the left mouse button, the axes view limits will be zoomed to the defined
+    region.  When using the right mouse button, the axes view limits will be
+    zoomed out, placing the original axes in the defined region.
 
 .. image:: ../../lib/matplotlib/mpl-data/images/subplots_large.png
 
