@@ -2819,12 +2819,13 @@ def _define_aliases(alias_d, cls=None):
     exception will be raised.
 
     The alias map is stored as the ``_alias_map`` attribute on the class and
-    can be used by `~.normalize_kwargs`.
+    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    aliases come last).
     """
     if cls is None:
         return functools.partial(_define_aliases, alias_d)
 
-    def make_alias(name):  # Enfore a closure over *name*.
+    def make_alias(name):  # Enforce a closure over *name*.
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
         return method
@@ -2840,7 +2841,11 @@ def _define_aliases(alias_d, cls=None):
                     method.__doc__ = "alias for `{}`".format(prefix + prop)
                     setattr(cls, prefix + alias, method)
         if not exists:
-            raise ValueError("property {} does not exist".format(prop))
+            raise ValueError(
+                "Neither getter nor setter exists for {!r}".format(prop))
 
+    if hasattr(cls, "_alias_map"):
+        # Need to decide on conflict resolution policy.
+        raise NotImplementedError("Parent class already defines aliases")
     cls._alias_map = alias_d
     return cls
