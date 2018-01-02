@@ -155,20 +155,32 @@ class Line3D(lines.Line2D):
         """
         Set the x, y and z data
 
-        ACCEPTS: 3D array (rows are x, y, z) or three 1D arrays
+        Parameters
+        ----------
+        x : array_like
+            The x-data to be plotted
+        y : array_like
+            The y-data to be plotted
+        z : array_like
+            The z-data to be plotted
+
+        Notes
+        -----
+        Accepts x, y, z arguments or a single array_like (x, y, z)
         """
         if len(args) == 1:
-            x, y, z = args[0]
+            self._verts3d = args[0]
         else:
-            x, y, z = args
-
-        self.set_xdata(x)
-        self.set_ydata(y)
-        self.set_3d_properties(zs=z)
+            self._verts3d = args
 
     def get_data_3d(self):
         """
-        Return the xdata, ydata, zdata.
+        Get the current data
+
+        Returns
+        -------
+        verts3d : length-3 tuple or array_likes
+            The current data as a tuple or array_likes
         """
         return self._verts3d
 
