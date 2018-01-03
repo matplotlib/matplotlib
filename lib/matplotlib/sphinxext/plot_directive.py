@@ -670,7 +670,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     #Ensure that the outname is unique, otherwise copied images will
     #not be what user expects
-    if outname in outname_list:
+    if outname and outname in outname_list:
       raise Exception("The outname '{0}' is not unique!".format(outname))
     else:
       outname_list.add(outname)
