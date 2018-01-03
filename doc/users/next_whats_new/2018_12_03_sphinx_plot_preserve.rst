@@ -4,6 +4,8 @@ Plot Directive `outname` and `plot_preserve_dir`
 The Sphinx plot directive can be used to automagically generate figures for
 documentation like so:
 
+.. code-block:: rst
+
     .. plot::
 
        import matplotlib.pyplot as plt
@@ -27,6 +29,8 @@ The `:outname:` property
 
 These problems are addressed through two new features in the plot directive. The
 first is the introduction of the `:outname:` property. It is used like so:
+
+.. code-block:: rst
 
     .. plot::
        :outname: stinkbug_plot
