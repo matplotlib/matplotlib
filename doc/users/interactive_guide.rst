@@ -61,6 +61,13 @@ references to trackdown:
  - curio / trio / asycio / twisted / tornado event loops
  - Beazly talk or two on asyncio
 
+
+
+Interactive Mode
+================
+
+.. _cp_integration:
+
 Command Prompt Integration
 ==========================
 
@@ -198,6 +205,8 @@ The third case you will have to integrate updating the ``Aritist``
 instances, calling ``draw_idle``, and the GUI event loop with your
 data I/O.
 
+.. _stale_artists:
+
 Stale Artists
 =============
 
@@ -210,9 +219,10 @@ displayed on the screen.  This is intended to be used to determine if
 ``draw_idle`` should be called to schedule a re-rendering of the
 figure.
 
+TODO:
 
-Interactive Mode
-================
+- notes about callbacks
+-
 
 
 Draw Idle
