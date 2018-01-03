@@ -4695,22 +4695,26 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        args : a variable length argument
-            It allowing for multiple
-            *x*, *y* pairs with an optional color format string; see
-            :func:`~matplotlib.pyplot.plot` for details on the argument
-            parsing.  For example, each of the following is legal::
+        args : sequence of x, y, [color]
+            Each polygon is defined by the lists of *x* and *y* positions of
+            its nodes, optionally followed by by a *color* specifier. See
+            :mod:`matplotlib.colors` for supported color specifiers. The
+            standard color cycle is used for polygons without a color
+            specifier.
 
-                ax.fill(x, y)
-                ax.fill(x, y, "b")
-                ax.fill(x, y, "b", x, y, "r")
+            You can plot multiple polygons by providing multiple *x*, *y*,
+            *[color]* groups.
 
-            An arbitrary number of *x*, *y*, *color* groups can be specified::
-            ax.fill(x1, y1, 'g', x2, y2, 'r')
+            For example, each of the following is legal::
+
+                ax.fill(x, y)                    # a polygon with default color
+                ax.fill(x, y, "b")               # a blue polygon
+                ax.fill(x, y, x2, y2)            # two polygons
+                ax.fill(x, y, "b", x2, y2, "r")  # a blue and a red polygon
 
         Returns
         -------
-        a list of :class:`~matplotlib.patches.Patch`
+        a list of :class:`~matplotlib.patches.Polygon`
 
         Other Parameters
         ----------------
@@ -4718,11 +4722,8 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        The same color strings that :func:`~matplotlib.pyplot.plot`
-        supports are supported by the fill format string.
-
-        If you would like to fill below a curve, e.g., shade a region
-        between 0 and *y* along *x*, use :meth:`fill_between`
+        Use :meth:`fill_between` if you would like to fill the region between
+        two curves.
 
 
         """
