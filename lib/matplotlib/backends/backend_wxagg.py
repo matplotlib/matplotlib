@@ -92,7 +92,8 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
 
 class NavigationController2WxAgg(NavigationController2Wx):
     def get_canvas(self, frame, fig):
-        return FigureCanvasWxAgg(frame, -1, fig)    
+        return FigureCanvasWxAgg(frame, -1, fig)
+
 
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
