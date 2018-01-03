@@ -772,7 +772,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     #this copies them into the build directory so that they will
     #not be remade
     if config.plot_preserve_dir and outname:
-      outfiles = glob.glob(os.path.join(config.plot_preserve_dir,outname) + '*')
+      outfiles = glob.glob(os.path.join(config.plot_preserve_dir, outname) + '*')
       for of in outfiles:
         _log.info("Copying preserved copy of '{0}' into '{1}'".format(of, build_dir))
         shutil.copy2(of, build_dir)
