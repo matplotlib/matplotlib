@@ -1438,6 +1438,13 @@ class Axis(artist.Artist):
         if converter is None:
             return False
 
+        if (self.converter is not None) and (self.converter != converter):
+            raise TypeError('Attempting to plot data that is '
+                            'registered to be converted with %s but '
+                            'is incompatible with existing axis data '
+                            'converter %s' % (converter.__class__,
+                                self.converter.__class__))
+
         neednew = self.converter != converter
         self.converter = converter
         default = self.converter.default_units(data, self)

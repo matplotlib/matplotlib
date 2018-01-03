@@ -607,3 +607,14 @@ def test_tz_utc():
 def test_num2timedelta(x, tdelta):
     dt = mdates.num2timedelta(x)
     assert dt == tdelta
+
+
+def test_one_non_None_converter():
+    # test that we only allow one non-None converter at once:
+    base = datetime.datetime(2017, 1, 1, 0, 10, 0)
+    time = [base - datetime.timedelta(days=x) for x in range(0, 3)]
+    data = [0., 2., 4.]
+    fig, ax = plt.subplots()
+    ax.plot(time, data)
+    with pytest.raises(TypeError):
+        ax.plot(['a', 'b'], [1., 2.])
