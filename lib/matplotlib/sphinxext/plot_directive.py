@@ -154,6 +154,7 @@ import io
 import re
 import textwrap
 import glob
+import logging
 from os.path import relpath
 from pathlib import Path
 import re
@@ -176,10 +177,12 @@ align = Image.align
 
 __version__ = 2
 
+_log = logging.getLogger(__name__)
+
 #Outnames must be unique. This variable stores the outnames that
 #have been seen so we can guarantee this and warn the user if a
 #duplicate is encountered.
-outname_list = set()
+_outname_list = set()
 
 #------------------------------------------------------------------------------
 # Registration hook
@@ -636,7 +639,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
                 try:
                     figman.canvas.figure.savefig(img.filename(fmt), dpi=dpi)
                     if config.plot_preserve_dir and outname:
-                      print("Preserving '{0}' into '{1}'".format(img.filename(format), config.plot_preserve_dir))
+                      _log.info("Preserving '{0}' into '{1}'".format(img.filename(format), config.plot_preserve_dir))
                       shutil.copy2(img.filename(format), config.plot_preserve_dir)
                 except Exception as err:
                     raise PlotError(traceback.format_exc())
@@ -670,10 +673,10 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     #Ensure that the outname is unique, otherwise copied images will
     #not be what user expects
-    if outname and outname in outname_list:
+    if outname and outname in _outname_list:
       raise Exception("The outname '{0}' is not unique!".format(outname))
     else:
-      outname_list.add(outname)
+      _outname_list.add(outname)
 
     if config.plot_preserve_dir:
       #Ensure `preserve_dir` ends with a slash, otherwise `copy2` will misbehave
@@ -771,7 +774,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     if config.plot_preserve_dir and outname:
       outfiles = glob.glob(os.path.join(config.plot_preserve_dir,outname) + '*')
       for of in outfiles:
-        print("Copying preserved copy of '{0}' into '{1}'".format(of, build_dir))
+        _log.info("Copying preserved copy of '{0}' into '{1}'".format(of, build_dir))
         shutil.copy2(of, build_dir)
 
     # make figures
