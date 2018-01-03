@@ -70,9 +70,17 @@ The ``plot`` directive supports the following options:
         If specified, the code block will be run, but no figures will be
         inserted.  This is usually useful with the ``:context:`` option.
 
+    outname : str
+        If specified, the names of the generated plots will start with the value
+        of `:outname:`. This is handy for preserving output results if code is
+        reordered between runs. The value of `:outname:` must be unique across
+        the generated documentation.
+
 Additionally, this directive supports all of the options of the `image`
 directive, except for *target* (since plot will add its own target).  These
 include `alt`, `height`, `width`, `scale`, `align` and `class`.
+
+
 
 Configuration options
 ---------------------
@@ -129,12 +137,23 @@ The plot directive has the following configuration options:
 
     plot_template
         Provide a customized template for preparing restructured text.
+
+    plot_preserve_dir
+        Files with outnames are copied to this directory and files in this
+        directory are copied back from into the build directory prior to the
+        build beginning.
 """
 
 import contextlib
 from io import StringIO
 import itertools
 import os
+import sys
+import shutil
+import io
+import re
+import textwrap
+import glob
 from os.path import relpath
 from pathlib import Path
 import re
@@ -157,8 +176,12 @@ align = Image.align
 
 __version__ = 2
 
+#Outnames must be unique. This variable stores the outnames that
+#have been seen so we can guarantee this and warn the user if a
+#duplicate is encountered.
+outname_list = set()
 
-# -----------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Registration hook
 # -----------------------------------------------------------------------------
 
@@ -252,6 +275,7 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'encoding': directives.encoding,
+        'outname': str
         }
 
     def run(self):
@@ -276,6 +300,7 @@ def setup(app):
     app.add_config_value('plot_apply_rcparams', False, True)
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
+    app.add_config_value('plot_preserve_dir',          '',    True)
 
     app.connect('doctree-read', mark_plot_labels)
 
@@ -519,7 +544,7 @@ def get_plot_formats(config):
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
-                   close_figs=False):
+                   close_figs=False, outname=''):
     """
     Run a pyplot script and save the images in *output_dir*.
 
@@ -610,7 +635,10 @@ def render_figures(code, code_path, output_dir, output_base, context,
             for fmt, dpi in formats:
                 try:
                     figman.canvas.figure.savefig(img.filename(fmt), dpi=dpi)
-                except Exception:
+                    if config.plot_preserve_dir and outname:
+                      print("Preserving '{0}' into '{1}'".format(img.filename(format), config.plot_preserve_dir))
+                      shutil.copy2(img.filename(format), config.plot_preserve_dir)
+                except Exception as err:
                     raise PlotError(traceback.format_exc())
                 img.formats.append(fmt)
 
@@ -636,6 +664,20 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     rst_file = document.attributes['source']
     rst_dir = os.path.dirname(rst_file)
+
+    #Get output name of the images, if the option was provided
+    outname = options.get('outname', '')
+
+    #Ensure that the outname is unique, otherwise copied images will
+    #not be what user expects
+    if outname in outname_list:
+      raise Exception("The outname '{0}' is not unique!".format(outname))
+    else:
+      outname_list.add(outname)
+
+    if config.plot_preserve_dir:
+      #Ensure `preserve_dir` ends with a slash, otherwise `copy2` will misbehave
+      config.plot_preserve_dir = os.path.join(config.plot_preserve_dir, '')
 
     if len(arguments):
         if not config.plot_basedir:
@@ -671,6 +713,11 @@ def run(arguments, content, options, state_machine, state, lineno):
         output_base = base
     else:
         source_ext = ''
+
+    #outname, if present, overrides output_base, but preserve
+    #numbering of multi-figure code snippets
+    if outname:
+      output_base = re.sub('^[^-]*', outname, output_base)
 
     # ensure that LaTeX includegraphics doesn't choke in foo.bar.pdf filenames
     output_base = output_base.replace('.', '-')
@@ -718,6 +765,15 @@ def run(arguments, content, options, state_machine, state, lineno):
         build_dir_link = build_dir
     source_link = dest_dir_link + '/' + output_base + source_ext
 
+    #If we previously preserved copies of the generated figures
+    #this copies them into the build directory so that they will
+    #not be remade
+    if config.plot_preserve_dir and outname:
+      outfiles = glob.glob(os.path.join(config.plot_preserve_dir,outname) + '*')
+      for of in outfiles:
+        print("Copying preserved copy of '{0}' into '{1}'".format(of, build_dir))
+        shutil.copy2(of, build_dir)
+
     # make figures
     try:
         results = render_figures(code,
@@ -728,7 +784,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                                  function_name,
                                  config,
                                  context_reset=context_opt == 'reset',
-                                 close_figs=context_opt == 'close-figs')
+                                 close_figs=context_opt == 'close-figs',
+                                 outname = outname)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
