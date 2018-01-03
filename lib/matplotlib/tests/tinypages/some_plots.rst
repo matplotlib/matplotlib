@@ -126,4 +126,11 @@ Plot 16 uses a specific function in a file with plot commands:
 
 .. plot:: range6.py range6
 
+Plot 17 has an outname
 
+.. plot::
+    :context: close-figs
+    :outname: plot17out
+
+    plt.figure()
+    plt.plot(range(4))
