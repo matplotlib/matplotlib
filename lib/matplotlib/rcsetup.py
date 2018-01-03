@@ -440,6 +440,13 @@ def validate_fontsize(s):
 validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
+def validate_fontsize_or_inherit(s):
+    'return a valid fontsize arg'
+    if s == 'inherit':
+        return s
+    return validate_fontsize(s)
+
+
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
@@ -1178,7 +1185,7 @@ defaultParams = {
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [1, validate_int],
     'legend.fontsize': ['medium', validate_fontsize],
-    'legend.titlesize': ['medium', validate_fontsize],
+    'legend.titlesize': ['inherit', validate_fontsize_or_inherit],
      # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],

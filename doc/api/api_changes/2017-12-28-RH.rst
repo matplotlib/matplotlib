@@ -1,4 +1,0 @@
-New rcParam for Legend Title Font Size
-``````````````````````````````````````
-
-The introduction of a new rcParam for legend title font size (``legend.titlesize``) replaces the previous usage of the ``font.size`` rcParam for modification of the legend title font size. The default is ``medium`` which is also the default of ``font.size``. Any code which uses ``font.size`` to change the size of the legend title will now need to also modify ``legend.titlesize`` to achieve the same outcome.
