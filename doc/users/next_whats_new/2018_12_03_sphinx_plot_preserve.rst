@@ -25,7 +25,7 @@ generated imagery to be used on services like ReadTheDocs.
 The `:outname:` property
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-These problems are address through two new features in the plot directive. The
+These problems are addressed through two new features in the plot directive. The
 first is the introduction of the `:outname:` property. It is used like so:
 
     .. plot::
