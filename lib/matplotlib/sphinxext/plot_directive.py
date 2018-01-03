@@ -785,7 +785,7 @@ def run(arguments, content, options, state_machine, state, lineno):
                                  config,
                                  context_reset=context_opt == 'reset',
                                  close_figs=context_opt == 'close-figs',
-                                 outname = outname)
+                                 outname=outname)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
