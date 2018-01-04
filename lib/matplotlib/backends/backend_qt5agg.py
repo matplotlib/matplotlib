@@ -156,6 +156,8 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         except Exception:
             # Uncaught exceptions are fatal for PyQt5, so catch them instead.
             traceback.print_exc()
+        finally:
+            self._agg_draw_pending = False
 
     def blit(self, bbox=None):
         """Blit the region in bbox.
