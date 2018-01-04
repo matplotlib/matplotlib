@@ -222,7 +222,7 @@ class RendererAgg(RendererBase):
         to the baseline), in display coords, of the string *s* with
         :class:`~matplotlib.font_manager.FontProperties` *prop*
         """
-        if rcParams['text.usetex']:
+        if rcParams['text.usetex'] or ismath=='TeX' or ismath=='TeX!':
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
