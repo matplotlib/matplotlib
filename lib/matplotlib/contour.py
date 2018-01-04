@@ -1719,7 +1719,7 @@ class QuadContourSet(ContourSet):
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
-          *antialiased*: [ *True* | *False* ]
+          *antialiased*: bool
             enable antialiasing, overriding the defaults.  For
             filled contours, the default is *True*.  For line contours,
             it is taken from rcParams['lines.antialiased'].

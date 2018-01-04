@@ -256,23 +256,20 @@ class SubplotParams(object):
 class Figure(Artist):
 
     """
-    The Figure instance supports callbacks through a *callbacks*
-    attribute which is a :class:`matplotlib.cbook.CallbackRegistry`
-    instance.  The events you can connect to are 'dpi_changed', and
-    the callback will be called with ``func(fig)`` where fig is the
-    :class:`Figure` instance.
+    The Figure instance supports callbacks through a *callbacks* attribute
+    which is a `~.CallbackRegistry` instance.  The events you can connect to
+    are 'dpi_changed', and the callback will be called with ``func(fig)`` where
+    fig is the `Figure` instance.
 
     Attributes
     ----------
     patch
-        The figure patch is drawn by a
-        :class:`matplotlib.patches.Rectangle` instance
+        The `~.Rectangle` instance representing the figure patch.
 
     suppressComposite
         For multiple figure images, the figure will make composite images
-        depending on the renderer option_image_nocomposite function.
-        If *suppressComposite* is ``True`` or ``False``, this will override
-        the renderer.
+        depending on the renderer option_image_nocomposite function.  If
+        *suppressComposite* is a boolean, this will override the renderer.
     """
 
     def __str__(self):
@@ -321,10 +318,10 @@ class Figure(Artist):
 
         tight_layout : bool
             If ``False`` use *subplotpars*; if ``True`` adjust subplot
-            parameters using :meth:`tight_layout` with default padding.
+            parameters using `~.tight_layout` with default padding.
             When providing a dict containing the keys
             ``pad``, ``w_pad``, ``h_pad``, and ``rect``, the default
-            :meth:`tight_layout` paddings will be overridden.
+            `~.tight_layout` paddings will be overridden.
             Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
@@ -466,20 +463,26 @@ class Figure(Artist):
 
     def get_tight_layout(self):
         """
-        Return whether the figure uses :meth:`tight_layout` when drawing.
+        Return whether and how `~.tight_layout` is called when drawing.
         """
         return self._tight
 
     def set_tight_layout(self, tight):
         """
-        Set whether :meth:`tight_layout` is used upon drawing.
-        If None, the rcParams['figure.autolayout'] value will be set.
+        Set whether and how `~.tight_layout` is called when drawing.
 
-        When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
-        and `rect`, the default :meth:`tight_layout` paddings will be
-        overridden.
+        Parameters
+        ----------
+        tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
+            If a bool, sets whether to call `~.tight_layout` upon drawing.
+            If ``None``, use the ``figure.autolayout`` rcparam instead.
+            If a dict, pass it as kwargs to `~.tight_layout`, overriding the
+            default paddings.
 
-        ACCEPTS: [True | False | dict | None ]
+            ..
+                ACCEPTS: [ bool
+                         | dict with keys "pad", "w_pad", "h_pad", "rect"
+                         | None ]
         """
         if tight is None:
             tight = rcParams['figure.autolayout']

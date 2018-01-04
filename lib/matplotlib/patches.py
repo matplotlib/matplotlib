@@ -254,9 +254,13 @@ class Patch(artist.Artist):
 
     def set_antialiased(self, aa):
         """
-        Set whether to use antialiased rendering
+        Set whether to use antialiased rendering.
 
-        ACCEPTS: [True | False]  or None for default
+        Parameters
+        ----------
+        b : bool or None
+            ..
+                ACCEPTS: bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -413,9 +417,13 @@ class Patch(artist.Artist):
 
     def set_fill(self, b):
         """
-        Set whether to fill the patch
+        Set whether to fill the patch.
 
-        ACCEPTS: [True | False]
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)
@@ -1211,7 +1219,7 @@ class FancyArrow(Polygon):
           *width*: float (default: 0.001)
             width of full arrow tail
 
-          *length_includes_head*: [True | False] (default: False)
+          *length_includes_head*: bool (default: False)
             True if head is to be counted in calculating the length.
 
           *head_width*: float or None (default: 3*width)
@@ -1227,7 +1235,7 @@ class FancyArrow(Polygon):
             fraction that the arrow is swept back (0 overhang means
             triangular shape). Can be negative or greater than one.
 
-          *head_starts_at_zero*: [True | False] (default: False)
+          *head_starts_at_zero*: bool (default: False)
             if True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 

@@ -966,9 +966,13 @@ class Line2D(Artist):
 
     def set_antialiased(self, b):
         """
-        True if line should be drawin with antialiased rendering
+        Set whether to use antialiased rendering.
 
-        ACCEPTS: [True | False]
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         if self._antialiased != b:
             self.stale = True
