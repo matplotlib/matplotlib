@@ -1300,11 +1300,11 @@ defaultParams = {
 
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],
-    'ps.useafm':        [False, validate_bool],  # Set PYTHONINSPECT
+    'ps.useafm':        [True, validate_bool],  # Set PYTHONINSPECT
     # use ghostscript or xpdf to distill ps output
     'ps.usedistiller':  [False, validate_ps_distiller],
     'ps.distiller.res': [6000, validate_int],     # dpi
-    'ps.fonttype':      [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
+    'ps.fonttype':      [42, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
     # compression level from 0 to 9; 0 to disable
     'pdf.compression':  [6, validate_int],
     # ignore any color-setting commands from the frontend
