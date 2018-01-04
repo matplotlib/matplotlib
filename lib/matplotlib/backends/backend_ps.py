@@ -631,12 +631,15 @@ grestore
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
-        draw a Text instance
+        Draw a Text instance.
         """
         # local to avoid repeated attribute lookups
         write = self._pswriter.write
         if debugPS:
             write("% text\n")
+
+        if len(gc.get_rgb()) == 4 and gc.get_rgb()[3] == 0:
+            return  # Special handling for fully transparent.
 
         if ismath=='TeX':
             return self.draw_tex(gc, x, y, s, prop, angle)
