@@ -111,9 +111,7 @@ class Container(tuple):
 
 class BarContainer(Container):
     """
-    Container for the artists of bar plots.
-
-    E.g. created in a :meth:`.Axes.bar` plot.
+    Container for the artists of bar plots (e.g. created by `.Axes.bar`).
 
     The container can be treated as a tuple of the *patches* themselves.
     Additionally, you can access these and further parameters by the
@@ -138,9 +136,7 @@ class BarContainer(Container):
 
 class ErrorbarContainer(Container):
     """
-    Container for the artists of error bars.
-
-    E.g. created in a :meth:`.Axes.errorbar` plot.
+    Container for the artists of error bars (e.g. created by `.Axes.errorbar`).
 
     The container can be treated as the *lines* tuple itself.
     Additionally, you can access these and further parameters by the

@@ -2391,19 +2391,19 @@ class Axes(_AxesBase):
         return col
 
     @_preprocess_data(replace_all_args=True, label_namer=None)
-    def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, **kwargs):
+    def stem(self, *args, **kwargs):
         """
         Create a stem plot.
-
-        Call signatures::
-
-          stem(y)
-          stem(x, y)
 
         A stem plot plots vertical lines at each *x* location from the baseline
         to *y*, and places a marker there.
 
+        Call signature::
+
+          stem([x,] y, linefmt=None, markerfmt=None, basefmt=None)
+
+        The x-positions are optional. The formats may be provided either as
+        positional or as keyword-arguments.
 
         Parameters
         ----------
@@ -2462,11 +2462,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        a :class:`~matplotlib.container.StemContainer`
+        :class:`~matplotlib.container.StemContainer`
+            The stemcontainer may be treated like a tuple
+            (*markerline*, *stemlines*, *baseline*)
 
-        The stemcontainer may be treated like a tuple
-        (*markerline*, *stemlines*, *baseline*)
 
+        Notes
+        -----
 
         .. seealso::
             The MATLAB function
@@ -2474,13 +2476,25 @@ class Axes(_AxesBase):
             which inspired this method.
 
         """
+
+        # kwargs handling
+        # We would like to have a signature with explicit kewords:
+        # stem(*args, linefmt=None, markerfmt=None, basefmt=None,
+        #      bottom=0, label=None)
+        # Unfortunately,  this is not supported in Python 2.x. There, *args
+        # can only exist after keyword arguments.
+        linefmt = kwargs.pop('linefmt', None)
+        markerfmt = kwargs.pop('markerfmt', None)
+        basefmt = kwargs.pop('basefmt', None)
+        bottom = kwargs.pop('bottom', None)
+        if bottom is None:
+            bottom = 0
+        label = kwargs.pop('label', None)
         if kwargs:
-            # TODO: to remove the deprecated behavior, simply remove **kwargs
-            #       from the function signature and remove this warning.
             warn_deprecated(since='2.2',
-                            message = "stem() got an unexpected keyword "
-                                      "argument '%s'. This will raise a "
-                                      "TypeError in future versions." % (
+                            message="stem() got an unexpected keyword "
+                                    "argument '%s'. This will raise a "
+                                    "TypeError in future versions." % (
                                 next(k for k in kwargs), )
                             )
 
@@ -2503,7 +2517,7 @@ class Axes(_AxesBase):
             second = np.arange(len(y))
             x = second
 
-        # Popping some defaults
+        # defaults for formats
         if linefmt is None:
             try:
                 # fallback to positional argument
@@ -2549,9 +2563,6 @@ class Axes(_AxesBase):
                     _process_plot_format(basefmt)
         else:
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
-
-        if bottom is None:
-            bottom = 0
 
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
