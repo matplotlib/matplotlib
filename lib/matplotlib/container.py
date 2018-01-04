@@ -10,6 +10,9 @@ import matplotlib.artist as martist
 class Container(tuple):
     """
     Base class for containers.
+
+    Containers are classes that collect semantically related Artists such as
+    the bars of a bar plot.
     """
 
     def __repr__(self):
@@ -107,6 +110,25 @@ class Container(tuple):
 
 
 class BarContainer(Container):
+    """
+    Container for the artists of bar plots.
+
+    E.g. created in a :meth:`.Axes.bar` plot.
+
+    The container can be treated as a tuple of the *patches* themselves.
+    Additionally, you can access these and further parameters by the
+    attributes.
+
+    Attributes
+    ----------
+    patches : list of :class:`~matplotlib.patches.Rectangle`
+        The artists of the bars.
+
+    errorbar : None or :class:`~matplotlib.container.ErrorbarContainer`
+        A container for the error bar artists if error bars are present.
+        *None* otherwise.
+
+    """
 
     def __init__(self, patches, errorbar=None, **kwargs):
         self.patches = patches
@@ -115,8 +137,14 @@ class BarContainer(Container):
 
 
 class ErrorbarContainer(Container):
-    '''
-    Container for errobars.
+    """
+    Container for the artists of error bars.
+
+    E.g. created in a :meth:`.Axes.errorbar` plot.
+
+    The container can be treated as the *lines* tuple itself.
+    Additionally, you can access these and further parameters by the
+    attributes.
 
     Attributes
     ----------
@@ -132,7 +160,8 @@ class ErrorbarContainer(Container):
 
     has_xerr, has_yerr : bool
         ``True`` if the errorbar has x/y errors.
-    '''
+
+    """
 
     def __init__(self, lines, has_xerr=False, has_yerr=False, **kwargs):
         self.lines = lines
@@ -142,6 +171,24 @@ class ErrorbarContainer(Container):
 
 
 class StemContainer(Container):
+    """
+    Container for the artists created in a :meth:`.Axes.stem` plot.
+
+    The container can be treated like a namedtuple ``(markerline, stemlines,
+    baseline)``.
+
+    Attributes
+    ----------
+    markerline :  :class:`~matplotlib.lines.Line2D`
+        The artist of the markers at the stem heads.
+
+    stemlines : list of :class:`~matplotlib.lines.Line2D`
+        The artists of the vertical lines for all stems.
+
+    baseline : :class:`~matplotlib.lines.Line2D`
+        The artist of the horizontal baseline.
+
+    """
 
     def __init__(self, markerline_stemlines_baseline, **kwargs):
         markerline, stemlines, baseline = markerline_stemlines_baseline

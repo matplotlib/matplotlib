@@ -2396,23 +2396,71 @@ class Axes(_AxesBase):
 
         Call signatures::
 
-          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
-          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
+          stem(y)
+          stem(x, y)
 
-        A stem plot plots vertical lines (using *linefmt*) at each *x*
-        location from the baseline to *y*, and places a marker there
-        using *markerfmt*.  A horizontal line at 0 is plotted using
-        *basefmt*.
+        A stem plot plots vertical lines at each *x* location from the baseline
+        to *y*, and places a marker there.
 
-        If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
-        Return value is a tuple (*markerline*, *stemlines*,
-        *baseline*). See :class:`~matplotlib.container.StemContainer`
+        Parameters
+        ----------
+        x : array-like, optional
+            The x-positions of the stems. Default: (0, 1, ..., len(y) - 1).
+
+        y : array-like
+            The y-values of the stem heads.
+
+        linefmt : str, optional
+            A string defining the properties of the vertical lines. Usually,
+            this will be a color or a color and a linestyle:
+
+            =========  =============
+            Character  Line Style
+            =========  =============
+            ``'-'``    solid line
+            ``'--'``   dashed line
+            ``'-.'``   dash-dot line
+            ``':'``    dotted line
+            =========  =============
+
+            Default: 'C0-', i.e. solid line with the first color of the color
+            cycle.
+
+            Note: While it is technically possible to specify valid formats
+            other than color or color and linestyle (e.g. 'rx' or '-.'), this
+            is beyond the intention of the method and will most likely not
+            result in a reasonable reasonable plot.
+
+        markerfmt : str, optional
+            A string defining the properties of the markers at the stem heads.
+            Default: 'C0o', i.e. filled circles with the first color of the
+            color cycle.
+
+        basefmt : str, optional
+            A format string defining the properties of the baseline.
+
+            Default: 'C3-' ('C2-' in classic mode).
+
+        bottom : float, optional, default: 0
+            The y-position of the baseline.
+
+        label : str, optional, default: None
+            The label to use for the stems in legends.
+
+
+        Returns
+        -------
+        a :class:`~matplotlib.container.StemContainer`
+
+        The stemcontainer may be treated like a tuple
+        (*markerline*, *stemlines*, *baseline*)
+
 
         .. seealso::
-            This
-            `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
-            for details.
+            The MATLAB function
+            `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
+            which inspired this method.
 
         """
         remember_hold = self._hold
