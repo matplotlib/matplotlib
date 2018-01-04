@@ -39,7 +39,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    _backports, mplDeprecation, STEP_LOOKUP_MAP, iterable, safe_first_element)
+    _backports, mplDeprecation, warn_deprecated,
+    STEP_LOOKUP_MAP, iterable, safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -2473,6 +2474,16 @@ class Axes(_AxesBase):
             which inspired this method.
 
         """
+        if kwargs:
+            # TODO: to remove the deprecated behavior, simply remove **kwargs
+            #       from the function signature and remove this warning.
+            warn_deprecated(since='2.2',
+                            message = "stem() got an unexpected keyword "
+                                      "argument '%s'. This will raise a "
+                                      "TypeError in future versions." % (
+                                next(k for k in kwargs), )
+                            )
+
         remember_hold = self._hold
         if not self._hold:
             self.cla()
