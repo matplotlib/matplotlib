@@ -2340,33 +2340,53 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
-        Plot horizontal bars.
+        Plot a horizontal sequence of rectangles.
 
-        A collection of horizontal bars spanning *yrange* with a sequence of
-        *xranges*.
+        A rectangle is drawn for each element of *xranges*. All rectangles
+        have the same vertical position and size defined by *yrange*.
 
-        Required arguments:
+        This is a convenience function for instantiating a
+        `.BrokenBarHCollection`, adding it to the axes and autoscaling the
+        view.
 
-          =========   ==============================
-          Argument    Description
-          =========   ==============================
-          *xranges*   sequence of (*xmin*, *xwidth*)
-          *yrange*    sequence of (*ymin*, *ywidth*)
-          =========   ==============================
+        Parameters
+        ----------
+        xranges : sequence of tuples (*xmin*, *xwidth*)
+            The x-positions and extends of the rectangles. For each tuple
+            (*xmin*, *xwidth*) a rectangle is drawn from *xmin* to *xmin* +
+            *xwidth*.
+        yranges : (*ymin*, *ymax*)
+            The y-position and extend for all the rectangles.
 
-        kwargs are
+        Other Parameters
+        ----------------
+        **kwargs : :class:`~.BrokenBarHCollection` properties
+
+            Each *kwarg* can be either a single argument applying to all
+            rectangles, e.g.::
+
+                facecolors='black'
+
+            or a sequence of arguments over which is cycled, e.g.::
+
+                facecolors=('black', 'blue')
+
+            would create interleaving black and blue rectangles.
+
+            Supported keywords:
+
+            %(BrokenBarHCollection)s
+
+        Returns
+        -------
         :class:`matplotlib.collections.BrokenBarHCollection`
-        properties:
 
-        %(BrokenBarHCollection)s
+        Notes
+        -----
+        ..
+            [Empty notes is a workaround to prevent the data note from being
+            injected into the  Returns section.]
 
-        these can either be a single argument, i.e.,::
-
-          facecolors = 'black'
-
-        or a sequence of arguments for the various bars, i.e.,::
-
-          facecolors = ('black', 'red', 'green')
         """
         # process the unit information
         if len(xranges):
