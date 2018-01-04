@@ -2346,7 +2346,10 @@ class SymmetricalLogLocator(Locator):
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * decade)
+                if decade == 0:
+                    ticklocs.append(decade)
+                else:
+                    ticklocs.extend(subs * decade)
         else:
             ticklocs = decades
 

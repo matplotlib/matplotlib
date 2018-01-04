@@ -247,6 +247,18 @@ def test_SymLogNorm_colorbar():
     plt.close(fig)
 
 
+def test_SymLogNorm_single_zero():
+    """
+    Test SymLogNorm to ensure it is not adding sub-ticks to zero label
+    """
+    fig = plt.figure()
+    norm = mcolors.SymLogNorm(1e-5, vmin=-1, vmax=1)
+    cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    ticks = cbar.get_ticks()
+    assert sum(ticks == 0) == 1
+    plt.close(fig)
+
+
 def _inverse_tester(norm_instance, vals):
     """
     Checks if the inverse of the given normalization is working.
