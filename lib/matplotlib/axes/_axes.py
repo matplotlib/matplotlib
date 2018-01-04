@@ -2390,7 +2390,8 @@ class Axes(_AxesBase):
         return col
 
     @_preprocess_data(replace_all_args=True, label_namer=None)
-    def stem(self, *args, **kwargs):
+    def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
+             label=None, **kwargs):
         """
         Create a stem plot.
 
@@ -2449,6 +2450,15 @@ class Axes(_AxesBase):
             The label to use for the stems in legends.
 
 
+        Other Parameters
+        ----------------
+        **kwargs
+            No other parameters are supported. They are currently ignored
+            silently for backward compatibility. This behavior is deprecated.
+            Future versions will not accept any other parameters and will
+            raise a TypeError instead.
+
+
         Returns
         -------
         a :class:`~matplotlib.container.StemContainer`
@@ -2483,10 +2493,9 @@ class Axes(_AxesBase):
             x = second
 
         # Popping some defaults
-        try:
-            linefmt = kwargs['linefmt']
-        except KeyError:
+        if linefmt is None:
             try:
+                # fallback to positional argument
                 linefmt = args[0]
             except IndexError:
                 linecolor = 'C0'
@@ -2497,10 +2506,10 @@ class Axes(_AxesBase):
                     _process_plot_format(linefmt)
         else:
             linestyle, linemarker, linecolor = _process_plot_format(linefmt)
-        try:
-            markerfmt = kwargs['markerfmt']
-        except KeyError:
+
+        if markerfmt is None:
             try:
+                # fallback to positional argument
                 markerfmt = args[1]
             except IndexError:
                 markercolor = 'C0'
@@ -2512,10 +2521,10 @@ class Axes(_AxesBase):
         else:
             markerstyle, markermarker, markercolor = \
                 _process_plot_format(markerfmt)
-        try:
-            basefmt = kwargs['basefmt']
-        except KeyError:
+
+        if basefmt is None:
             try:
+                # fallback to positional argument
                 basefmt = args[2]
             except IndexError:
                 if rcParams['_internal.classic_mode']:
@@ -2530,14 +2539,11 @@ class Axes(_AxesBase):
         else:
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
-        bottom = kwargs.pop('bottom', None)
-        label = kwargs.pop('label', None)
+        if bottom is None:
+            bottom = 0
 
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
-
-        if bottom is None:
-            bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
