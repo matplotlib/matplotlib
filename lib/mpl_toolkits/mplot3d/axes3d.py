@@ -21,6 +21,7 @@ import warnings
 
 import numpy as np
 
+from matplotlib import artist
 import matplotlib.axes as maxes
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
@@ -250,6 +251,7 @@ class Axes3D(Axes):
                  (tc[7], tc[4])]
         return edges
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         # draw the background patch
         self.patch.draw(renderer)
