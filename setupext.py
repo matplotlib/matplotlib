@@ -788,7 +788,7 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.0.0'
+    pytest_min_version = '3.1'
     default_config = False
 
     def check(self):
@@ -1510,7 +1510,7 @@ class Cycler(SetupPackage):
 class Dateutil(SetupPackage):
     name = "dateutil"
 
-    def __init__(self, version='>=2.0'):
+    def __init__(self, version='>=2.1'):
         self.version = version
 
     def check(self):
