@@ -18,7 +18,7 @@ def f(t):
 t1 = np.arange(0.0, 5.0, .2)
 
 l = plt.plot(t1, f(t1), 'ro')
-plt.setp(l, 'markersize', 30)
-plt.setp(l, 'markerfacecolor', 'C0')
+plt.setp(l, markersize=30)
+plt.setp(l, markerfacecolor='C0')
 
 plt.show()
