@@ -810,7 +810,7 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.0.0'
+    pytest_min_version = '3.1'
     default_config = False
 
     def check(self):
@@ -1457,7 +1457,7 @@ class InstallRequires(SetupPackage):
         install_requires = [
             "cycler>=0.10",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
-            "python-dateutil>=2.0",
+            "python-dateutil>=2.1",
             "pytz",
             "six>=1.10",
         ]
