@@ -775,7 +775,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 level0kinds = [polygon0kinds, ...]
                 polygon0kinds = [vertexcode0, vertexcode1, ...]
 
-            If *allkinds* is not ``None``, usually all polygons for a 
+            If *allkinds* is not ``None``, usually all polygons for a
             particular contour level are grouped together so that
             ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
 
