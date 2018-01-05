@@ -1860,6 +1860,10 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return image
 
+    def _update_image_limits(self, image):
+        xmin, xmax, ymin, ymax = image.get_extent()
+        self.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
+
     def add_line(self, line):
         """
         Add a :class:`~matplotlib.lines.Line2D` to the list of plot
@@ -2035,6 +2039,10 @@ class _AxesBase(martist.Artist):
         for p in self.patches:
             if not visible_only or p.get_visible():
                 self._update_patch_limits(p)
+
+        for image in self.images:
+            if not visible_only or image.get_visible():
+                self._update_image_limits(image)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
