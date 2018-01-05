@@ -148,3 +148,12 @@ def test_determinism_all():
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""
     _determinism_check(format="ps", usetex=True)
+
+
+@needs_usetex
+def test_partial_usetex():
+    """Test that one can set usetex on just one artist (#7741)."""
+    fig = plt.figure()
+    plt.text(0.5, 0.5, 'some text, $math mode$',
+             ha='center', va='center', usetex=True)
+    fig.savefig('test.ps')

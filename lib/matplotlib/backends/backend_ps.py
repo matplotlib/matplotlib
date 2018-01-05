@@ -182,10 +182,12 @@ class RendererPS(RendererBase):
         self.width = width
         self.height = height
         self._pswriter = pswriter
-        if rcParams['text.usetex']:
-            self.textcnt = 0
-            self.psfrag = []
+
         self.imagedpi = imagedpi
+
+        # Only used by usetex elements.
+        self.textcnt = 0
+        self.psfrag = []
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -314,7 +316,7 @@ class RendererPS(RendererBase):
         with FontPropertry prop
 
         """
-        if rcParams['text.usetex']:
+        if ismath == "TeX":
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
