@@ -88,7 +88,8 @@ def plot_histograms(ax, prng, nb_samples=10000):
     params = ((10, 10), (4, 12), (50, 12), (6, 55))
     for a, b in params:
         values = prng.beta(a, b, size=nb_samples)
-        ax.hist(values, histtype="stepfilled", bins=30, alpha=0.8, normed=True)
+        ax.hist(values, histtype="stepfilled", bins=30,
+                alpha=0.8, density=True)
     # Add a small annotation.
     ax.annotate('Annotation', xy=(0.25, 4.25), xycoords='data',
                 xytext=(0.9, 0.9), textcoords='axes fraction',
