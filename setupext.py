@@ -1279,6 +1279,20 @@ if errorlevel 1 (
             subprocess.check_call([cmdfile], shell=True)
 
 
+    def get_extension(self):
+        sources = []
+        include_dirs = ['include/freetype2', 'freetype2',
+                'lib/freetype2/include',
+                'lib/freetype2/include/freetype2',
+                '/opt/X11/include/freetype2',   # mac osx X window installation
+                '/usr/local/include/freetype2'  # ref : http://stackoverflow.com/questions/4092994/unable-to-install-matplotlib-on-mac-os-x
+                ]
+        ext = make_extension('matplotlib.freetype', sources,
+                             include_dirs = include_dirs)
+        Numpy().add_flags(ext)
+        return ext
+
+
 class FT2Font(SetupPackage):
     name = 'ft2font'
 
