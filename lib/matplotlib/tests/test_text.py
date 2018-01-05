@@ -14,6 +14,11 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
+needs_usetex = pytest.mark.xfail(
+    not matplotlib.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
+
+
 @image_comparison(baseline_images=['font_styles'])
 def test_font_styles():
     from matplotlib import _get_data_path
@@ -459,3 +464,13 @@ def test_hinting_factor_backends():
     # Backends should apply hinting_factor consistently (within 10%).
     np.testing.assert_allclose(t.get_window_extent().intervalx, expected,
                                rtol=0.1)
+
+
+@needs_usetex
+def test_single_artist_usetex():
+    # Check that a single artist marked with usetex does not get passed through
+    # the mathtext parser at all (for the Agg backend) (the mathtext parser
+    # currently fails to parse \frac12, requiring \frac{1}{2} instead).
+    fig, ax = plt.subplots()
+    ax.text(.5, .5, r"$\frac12$", usetex=True)
+    fig.canvas.draw()
