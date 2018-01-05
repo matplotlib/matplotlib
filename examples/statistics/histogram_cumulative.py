@@ -49,7 +49,7 @@ x = np.random.normal(mu, sigma, size=100)
 fig, ax = plt.subplots(figsize=(8, 4))
 
 # plot the cumulative histogram
-n, bins, patches = ax.hist(x, n_bins, normed=1, histtype='step',
+n, bins, patches = ax.hist(x, n_bins, density=True, histtype='step',
                            cumulative=True, label='Empirical')
 
 # Add a line showing the expected distribution.
@@ -59,7 +59,7 @@ y /= y[-1]
 ax.plot(bins, y, 'k--', linewidth=1.5, label='Theoretical')
 
 # Overlay a reversed cumulative histogram.
-ax.hist(x, bins=bins, normed=1, histtype='step', cumulative=-1,
+ax.hist(x, bins=bins, density=True, histtype='step', cumulative=-1,
         label='Reversed emp.')
 
 # tidy up the figure
