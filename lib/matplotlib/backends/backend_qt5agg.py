@@ -124,6 +124,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         """
         # The Agg draw is done here; delaying causes problems with code that
         # uses the result of the draw() to update plot elements.
+
         super(FigureCanvasQTAggBase, self).draw()
         self.update()
 
@@ -135,9 +136,11 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # current event loop in order to ensure thread affinity and to
         # accumulate multiple draw requests from event handling.
         # TODO: queued signal connection might be safer than singleShot
+
         if not self._agg_draw_pending:
             self._agg_draw_pending = True
             QtCore.QTimer.singleShot(0, self.__draw_idle_agg)
+
 
     def __draw_idle_agg(self, *args):
         # if nothing to do, bail
@@ -158,6 +161,10 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             traceback.print_exc()
         finally:
             self._agg_draw_pending = False
+            # self.draw_idle() sets this to True, so we need to set to False
+            # or all of self.paintEvent gets called again despite the fact
+            # nothing has changed.
+
 
     def blit(self, bbox=None):
         """Blit the region in bbox.

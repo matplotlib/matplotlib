@@ -424,7 +424,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.renderer = self.get_renderer(cleared=True)
         # acquire a lock on the shared font cache
         RendererAgg.lock.acquire()
-
         toolbar = self.toolbar
         try:
             if toolbar:
