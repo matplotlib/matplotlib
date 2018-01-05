@@ -162,7 +162,6 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
             # or all of self.paintEvent gets called again despite the fact
             # nothing has changed.
 
-
     def blit(self, bbox=None):
         """Blit the region in bbox.
         """
