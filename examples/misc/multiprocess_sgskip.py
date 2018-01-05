@@ -19,7 +19,13 @@ from multiprocessing import Process, Pipe
 # Uncomment the following lines to use the qt5 backend instead.
 #
 # import matplotlib
-# matplotlib.use('qt5Agg')
+# matplotlib.use('qt5agg')
+#
+# Alternatively, with Python 3.4+ you may add the line
+#
+# import multiprocessing as mp; mp.set_start_method("forkserver")
+#
+# immediately after the ``if __name__ == "__main__"`` check.
 
 import matplotlib.pyplot as plt
 
@@ -43,22 +49,18 @@ class ProcessPlotter(object):
     def terminate(self):
         plt.close('all')
 
-    def poll_draw(self):
-
-        def call_back():
-            while self.pipe.poll():
-                command = self.pipe.recv()
-                if command is None:
-                    self.terminate()
-                    return False
-                else:
-                    self.x.append(command[0])
-                    self.y.append(command[1])
-                    self.ax.plot(self.x, self.y, 'ro')
-            self.fig.canvas.draw()
-            return True
-
-        return call_back
+    def call_back(self):
+        while self.pipe.poll():
+            command = self.pipe.recv()
+            if command is None:
+                self.terminate()
+                return False
+            else:
+                self.x.append(command[0])
+                self.y.append(command[1])
+                self.ax.plot(self.x, self.y, 'ro')
+        self.fig.canvas.draw()
+        return True
 
     def __call__(self, pipe):
         print('starting plotter...')
@@ -66,7 +68,7 @@ class ProcessPlotter(object):
         self.pipe = pipe
         self.fig, self.ax = plt.subplots()
         timer = self.fig.canvas.new_timer(interval=1000)
-        timer.add_callback(self.poll_draw())
+        timer.add_callback(self.call_back)
         timer.start()
 
         print('...done')
