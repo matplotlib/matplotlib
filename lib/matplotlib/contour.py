@@ -744,25 +744,26 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     User-callable method: clabel
 
-    Useful attributes:
-      ax:
-        The axes object in which the contours are drawn
+    Attributes
+    ----------
+    ax:
+        The axes object in which the contours are drawn.
 
-      collections:
-        a silent_list of LineCollections or PolyCollections
+    collections:
+        A silent_list of LineCollections or PolyCollections.
 
-      levels:
-        contour levels
+    levels:
+        Contour levels.
 
-      layers:
-        same as levels for line contours; half-way between
+    layers:
+        Same as levels for line contours; half-way between
         levels for filled contours.  See :meth:`_process_colors`.
     """
 
     def __init__(self, ax, *args, **kwargs):
         """
         Draw contour lines or filled regions, depending on
-        whether keyword arg 'filled' is *False* (default) or *True*.
+        whether keyword arg *filled* is ``False`` (default) or ``True``.
 
         The first three arguments must be:
 
@@ -775,26 +776,25 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
           *allsegs*: [level0segs, level1segs, ...]
             List of all the polygon segments for all the *levels*.
             For contour lines ``len(allsegs) == len(levels)``, and for
-            filled contour regions ``len(allsegs) = len(levels)-1``.
+            filled contour regions ``len(allsegs) = len(levels)-1``. The lists
+            should look like::
 
-            level0segs = [polygon0, polygon1, ...]
-
-            polygon0 = array_like [[x0,y0], [x1,y1], ...]
+                level0segs = [polygon0, polygon1, ...]
+                polygon0 = array_like [[x0,y0], [x1,y1], ...]
 
           *allkinds*: *None* or [level0kinds, level1kinds, ...]
             Optional list of all the polygon vertex kinds (code types), as
-            described and used in Path.   This is used to allow multiply-
+            described and used in Path. This is used to allow multiply-
             connected paths such as holes within filled polygons.
-            If not *None*, len(allkinds) == len(allsegs).
+            If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
+            should look like::
 
-            level0kinds = [polygon0kinds, ...]
+                level0kinds = [polygon0kinds, ...]
+                polygon0kinds = [vertexcode0, vertexcode1, ...]
 
-            polygon0kinds = [vertexcode0, vertexcode1, ...]
-
-            If *allkinds* is not *None*, usually all polygons for a particular
-            contour level are grouped together so that
-
-            level0segs = [polygon0] and level0kinds = [polygon0kinds].
+            If *allkinds* is not ``None``, usually all polygons for a
+            particular contour level are grouped together so that
+            ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
 
         Keyword arguments are as described in
         :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
@@ -1407,19 +1407,20 @@ class QuadContourSet(ContourSet):
 
     User-callable method: :meth:`clabel`
 
-    Useful attributes:
-      ax:
-        The axes object in which the contours are drawn
+    Attributes
+    ----------
+    ax:
+        The axes object in which the contours are drawn.
 
-      collections:
-        A silent_list of LineCollections or PolyCollections
+    collections:
+        A silent_list of LineCollections or PolyCollections.
 
-      levels:
-        Contour levels
+    levels:
+        Contour levels.
 
-      layers:
+    layers:
         Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors` method.
+        levels for filled contours. See :meth:`_process_colors` method.
     """
 
     def _process_args(self, *args, **kwargs):
