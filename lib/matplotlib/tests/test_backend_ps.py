@@ -157,3 +157,16 @@ def test_transparency():
     ax.set_axis_off()
     ax.plot([0, 1], color="r", alpha=0)
     ax.text(.5, .5, "foo", color="r", alpha=0)
+
+
+@needs_usetex
+def test_failing_latex(tmpdir):
+    """Test failing latex subprocess call"""
+    path = str(tmpdir.join("tmpoutput.ps"))
+
+    matplotlib.rcParams['text.usetex'] = True
+
+    # This fails with "Double subscript"
+    plt.xlabel("$22_2_2$")
+    with pytest.raises(RuntimeError):
+        plt.savefig(path)
