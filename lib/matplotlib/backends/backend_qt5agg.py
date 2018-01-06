@@ -35,6 +35,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         super(FigureCanvasQTAggBase, self).__init__(figure=figure)
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         self._agg_draw_pending = False
+        self._agg_is_drawing = False
         self._bbox_queue = []
         self._drawRect = None
 
@@ -124,7 +125,14 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         """
         # The Agg draw is done here; delaying causes problems with code that
         # uses the result of the draw() to update plot elements.
-        super(FigureCanvasQTAggBase, self).draw()
+        if self._agg_is_drawing:
+            return
+
+        self._agg_is_drawing = True
+        try:
+            super(FigureCanvasQTAggBase, self).draw()
+        finally:
+            self._agg_is_drawing = False
         self.update()
 
     def draw_idle(self):
@@ -135,7 +143,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # current event loop in order to ensure thread affinity and to
         # accumulate multiple draw requests from event handling.
         # TODO: queued signal connection might be safer than singleShot
-        if not self._agg_draw_pending:
+        if not (self._agg_draw_pending or self._agg_is_drawing):
             self._agg_draw_pending = True
             QtCore.QTimer.singleShot(0, self.__draw_idle_agg)
 
@@ -146,6 +154,7 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         # we have now tried this function at least once, do not run
         # again until re-armed.  Doing this here rather than after
         # protects against recursive calls triggered through self.draw
+        # The recursive call is via `repaintEvent`
         self._agg_draw_pending = False
         # if negative size, bail
         if self.height() < 0 or self.width() < 0:
