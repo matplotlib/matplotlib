@@ -11,7 +11,7 @@ import six
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import patheffects, rcParams
+from matplotlib import patheffects
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
@@ -162,11 +162,11 @@ def test_transparency():
 @needs_usetex
 def test_failing_latex(tmpdir):
     """Test failing latex subprocess call"""
-    path = tmpdir.join("tmpoutput.ps")
+    path = str(tmpdir.join("tmpoutput.ps"))
 
-    rcParams['text.usetex'] = True
+    matplotlib.rcParams['text.usetex'] = True
 
-    # This failes with "Double subscript"
-    plt.xlabel("$%f_2_2$" % np.random.random())
-    with pytest.raises(RuntimeError) as excinfo:
+    # This fails with "Double subscript"
+    plt.xlabel("$22_2_2$")
+    with pytest.raises(RuntimeError):
         plt.savefig(path)

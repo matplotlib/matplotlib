@@ -220,13 +220,14 @@ def test_pdf_savefig_when_color_is_none(tmpdir):
     assert result is None
 
 
+@needs_usetex
 def test_failing_latex(tmpdir):
     """Test failing latex subprocess call"""
-    path = tmpdir.join("tmpoutput.pdf")
+    path = str(tmpdir.join("tmpoutput.pdf"))
 
     rcParams['text.usetex'] = True
 
-    # This failes with "Double subscript"
-    plt.xlabel("$%f_2_2$" % np.random.random())
-    with pytest.raises(RuntimeError) as excinfo:
+    # This fails with "Double subscript"
+    plt.xlabel("$22_2_2$")
+    with pytest.raises(RuntimeError):
         plt.savefig(path)
