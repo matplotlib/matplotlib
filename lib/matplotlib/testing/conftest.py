@@ -79,23 +79,22 @@ def mpl_image_comparison_parameters(request, extension):
 
 
 @pytest.fixture
-def pd(request):
-    '''fixture to import and configure pandas'''
-
+def pd():
+    """Fixture to import and configure pandas."""
     pd = pytest.importorskip('pandas')
-    if pd:
-        try:
-            from pandas.plotting import (
-                register_matplotlib_converters as register)
-        except ImportError:
-            from pandas.tseries.converter import register
-        register()
-
+    try:
+        from pandas.plotting import (
+            register_matplotlib_converters as register)
+    except ImportError:
+        from pandas.tseries.converter import register
+    register()
+    try:
+        yield pd
+    finally:
         try:
             from pandas.plotting import (
                 deregister_matplotlib_converters as deregister)
-            request.addfinalizer(deregister)
         except ImportError:
             pass
-
-    return pd
+        else:
+            deregister()
