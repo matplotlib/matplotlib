@@ -12,6 +12,7 @@ import six
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import patheffects
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
@@ -148,3 +149,11 @@ def test_determinism_all():
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""
     _determinism_check(format="ps", usetex=True)
+
+
+@image_comparison(baseline_images=["empty"], extensions=["eps"])
+def test_transparency():
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    ax.plot([0, 1], color="r", alpha=0)
+    ax.text(.5, .5, "foo", color="r", alpha=0)
