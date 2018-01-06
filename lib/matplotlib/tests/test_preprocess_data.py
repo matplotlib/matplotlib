@@ -162,10 +162,8 @@ def test_function_call_with_dict_data_not_in_data(func):
 
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
-def test_function_call_with_pandas_data(func):
+def test_function_call_with_pandas_data(func, pd):
     """test with pandas dataframe -> label comes from data["col"].name """
-    pd = pytest.importorskip('pandas')
-
     data = pd.DataFrame({"a": np.array([1, 2], dtype=np.int32),
                          "b": np.array([8, 9], dtype=np.int32),
                          "w": ["NOT", "NOT"]})
