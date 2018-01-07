@@ -55,7 +55,7 @@ performance), to be non-blocking, not repeatedly start/stop the GUI
 event loop, handle repeats, multiple animated axes, and easily save
 the animation to a movie file.
 
-'Blitting' is a `old technique
+'Blitting' is a `standard technique
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in computer graphics.  The
 general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
