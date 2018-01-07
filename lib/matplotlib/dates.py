@@ -1530,14 +1530,15 @@ class MicrosecondLocator(DateLocator):
 
         Due to the floating point representation of time in days since
         0001-01-01 UTC (plus 1), plotting data with microsecond time
-        resolution does not work with arbitrary dates.
+        resolution does not work well with current dates.
 
-        If you want microsecond resolution time plots, we recommend
-        using floating point seconds or milliseconds, not datetime-like
+        If you want microsecond resolution time plots, it is strongly
+        recommended to use floating point seconds, not datetime-like
         time representation.
 
-        If you still want to use datetime.datetime() and the likes, be
-        sure to use very early years; using year 0001 is recommended.
+        If you really must use datetime.datetime() or similar and still
+        need microsecond precision, your only chance is to use very
+        early years; using year 0001 is recommended.
 
     """
     def __init__(self, interval=1, tz=None):
