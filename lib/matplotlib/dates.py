@@ -128,6 +128,7 @@ import datetime
 import functools
 
 import warnings
+import logging
 
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
@@ -155,6 +156,9 @@ __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
            'seconds', 'minutes', 'hours', 'weeks')
+
+
+_log = logging.getLogger(__name__)
 
 
 # Make a simple UTC instance so we don't always have to import
@@ -1305,10 +1309,10 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if dmin.year > 20 and interval < 1000:
-                warnings.warn('Plotting microsecond time intervals is not'
-                              ' well supported. Please see the'
-                              ' MicrosecondLocator documentation'
-                              ' for details.')
+                _log.warn('Plotting microsecond time intervals is not'
+                          ' well supported. Please see the'
+                          ' MicrosecondLocator documentation'
+                          ' for details.')
 
         locator.set_axis(self.axis)
 
