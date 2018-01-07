@@ -1314,10 +1314,11 @@ class AutoDateLocator(DateLocator):
             locator = RRuleLocator(rrule, self.tz)
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
-            if dmin.year > 20:
-                warnings.warn('The MicrosecondLocator needs early years'
-                              ' to work really well. Please see the'
-                              ' documentation for details.')
+            if dmin.year > 20 and interval < 1000:
+                warnings.warn('Plotting microsecond time intervals is not'
+                              ' well supported. Please see the'
+                              ' MicrosecondLocator documentation'
+                              ' for details.')
 
         locator.set_axis(self.axis)
 
