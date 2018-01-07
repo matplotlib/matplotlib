@@ -1564,7 +1564,7 @@ class Annulus(Patch):
             pars = (self.center[0], self.center[1],
                     self.a, self.width, self.angle)
         else:
-            fmt = "Annulus(xy=(%s, %s), a=%s, b=%s, width=%s, angle=%s)"
+            fmt = "Annulus(xy=(%s, %s), r=(%s, %s), width=%s, angle=%s)"
             pars = (self.center[0], self.center[1],
                     self.a, self.b, self.width, self.angle)
         return fmt % pars
@@ -1572,20 +1572,20 @@ class Annulus(Patch):
     @docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
-        *xy*
-          center of annulus
+        xy : array_like
+            center of annulus
 
-        *r*
-          if float:
-            radius of the outer circle
-          if array-like of size 2:
-            semi-major and -minor axes of outer ellipse
+        r : scalar or 1D array_like
+            The radius, or semi-major axes
+                - If float: radius of the outer circle
+                - If array_like of size 2: semi-major and -minor axes of outer ellipse
 
-        *width*
+        width : float
           width of the annulus
 
-        *angle*
-          rotation in degrees (anti-clockwise)
+        angle: float, optional
+          rotation in degrees (anti-clockwise). Ignored for circular annuli (`r` is a scalar)
+
 
         Valid kwargs are:
         %(Patch)s
@@ -1602,7 +1602,7 @@ class Annulus(Patch):
 
         if min(self.a, self.b) <= width:
             raise ValueError(
-                'Width should be smaller than semi-minor axis')
+                'Width of annulus should be smaller than semi-minor axis')
 
         self.center = xy
         self.width = width
