@@ -268,7 +268,7 @@ def _dt64_to_ordinalf(d):
     return dt
 
 
-def _from_ordinalf(x, tz=None, musec_prec=20):
+def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
     seconds and microseconds.  Return value is a :class:`datetime`.
@@ -277,10 +277,6 @@ def _from_ordinalf(x, tz=None, musec_prec=20):
     be the specified :class:`datetime` object corresponding to that time in
     timezone `tz`, or if `tz` is `None`, in the timezone specified in
     `rcParams['timezone']`.
-
-    Since the input date `x` float is unable to preserve microsecond
-    precision of time representation in non-antique years, the resulting
-    datetime is rounded to the nearest multiple of `musec_prec`.
     """
     if tz is None:
         tz = _get_rc_timezone()
@@ -295,7 +291,13 @@ def _from_ordinalf(x, tz=None, musec_prec=20):
             microseconds=int(round(remainder * MUSECONDS_PER_DAY)))
 
     # Compensate for rounding errors
-    if musec_prec > 1:
+    if x > 30 * 365:
+        # Since the input date `x` float is unable to preserve
+        # microsecond precision of time representation in non-antique
+        # years, the resulting datetime is rounded to the nearest
+        # multiple of `musec_prec`. A value of 20 is appropriate for
+        # current dates.
+        musec_prec = 20
         musec = datetime.timedelta(
                     microseconds=int(round(
                         dt.microsecond / float(musec_prec)) * musec_prec))
@@ -451,7 +453,7 @@ def num2julian(n):
     return n + JULIAN_OFFSET
 
 
-def num2date(x, tz=None, musec_prec=20):
+def num2date(x, tz=None):
     """
     Parameters
     ----------
@@ -460,8 +462,6 @@ def num2date(x, tz=None, musec_prec=20):
         since 0001-01-01 00:00:00 UTC, plus one.
     tz : string, optional
         Timezone of *x* (defaults to rcparams TZ value).
-    musec_prec : int, optional
-        Microsecond precision of return value
 
     Returns
     -------
@@ -480,12 +480,12 @@ def num2date(x, tz=None, musec_prec=20):
     if tz is None:
         tz = _get_rc_timezone()
     if not cbook.iterable(x):
-        return _from_ordinalf(x, tz, musec_prec)
+        return _from_ordinalf(x, tz)
     else:
         x = np.asarray(x)
         if not x.size:
             return x
-        return _from_ordinalf_np_vectorized(x, tz, musec_prec).tolist()
+        return _from_ordinalf_np_vectorized(x, tz).tolist()
 
 
 def _ordinalf_to_timedelta(x):
@@ -561,17 +561,15 @@ class DateFormatter(ticker.Formatter):
 
     illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
 
-    def __init__(self, fmt, tz=None, musec_prec=20):
+    def __init__(self, fmt, tz=None):
         """
         *fmt* is a :func:`strftime` format string; *tz* is the
-         :class:`tzinfo` instance, *musec_prec* is the microsecond
-         rounding precision.
+         :class:`tzinfo` instance.
         """
         if tz is None:
             tz = _get_rc_timezone()
         self.fmt = fmt
         self.tz = tz
-        self.musec_prec = musec_prec
 
     def __call__(self, x, pos=0):
         if x == 0:
@@ -579,7 +577,7 @@ class DateFormatter(ticker.Formatter):
                              'an illegal date.  This usually occurs because '
                              'you have not informed the axis that it is '
                              'plotting dates, e.g., with ax.xaxis_date()')
-        dt = num2date(x, self.tz, self.musec_prec)
+        dt = num2date(x, self.tz)
         return self.strftime(dt, self.fmt)
 
     def set_tzinfo(self, tz):
@@ -806,8 +804,7 @@ class AutoDateFormatter(ticker.Formatter):
                    self.defaultfmt)
 
         if isinstance(fmt, six.string_types):
-            musec_prec = 1 if fmt.endswith('%f') else 20
-            self._formatter = DateFormatter(fmt, self._tz, musec_prec)
+            self._formatter = DateFormatter(fmt, self._tz)
             result = self._formatter(x, pos)
         elif callable(fmt):
             result = fmt(x, pos)
@@ -953,10 +950,7 @@ class DateLocator(ticker.Locator):
         if dmin > dmax:
             dmin, dmax = dmax, dmin
 
-        mup = 20
-        if abs(dmax - dmin) < 1000. / MUSECONDS_PER_DAY:
-            mup = 1
-        return num2date(dmin, self.tz, mup), num2date(dmax, self.tz, mup)
+        return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
         """
@@ -966,11 +960,7 @@ class DateLocator(ticker.Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        mup = 20
-        if abs(vmax - vmin) < 1000. / MUSECONDS_PER_DAY:
-            mup = 1
-
-        return num2date(vmin, self.tz, mup), num2date(vmax, self.tz, mup)
+        return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
     def _get_unit(self):
         """
