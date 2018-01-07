@@ -594,11 +594,20 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # Then look for multi-figure output files
     results = []
     all_exists = True
-    for i, code_piece in enumerate(code_pieces):
+    n_shows = -1
+    for code_piece in code_pieces:
+        if len(code_pieces) > 1:
+            if 'plt.show()' in code_piece:
+                n_shows += 1
+            else:
+                # We don't want to inspect whether an image exists for a code
+                # piece without a show.
+                continue
+
         images = []
         for j in xrange(1000):
             if len(code_pieces) > 1:
-                img = ImageFile('%s_%02d_%02d' % (output_base, i, j), output_dir)
+                img = ImageFile('%s_%02d_%02d' % (output_base, n_shows, j), output_dir)
             else:
                 img = ImageFile('%s_%02d' % (output_base, j), output_dir)
             for format, dpi in formats:
@@ -632,8 +641,10 @@ def render_figures(code, code_path, output_dir, output_base, context,
         plot_context.clear()
 
     close_figs = not context or close_figs
-
-    for i, code_piece in enumerate(code_pieces):
+    n_shows = -1
+    for code_piece in code_pieces:
+        if len(code_pieces) > 1 and 'plt.show()' in code_piece:
+            n_shows += 1
 
         if not context or config.plot_apply_rcparams:
             clear_state(config.plot_rcparams, close_figs)
@@ -650,7 +661,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
             elif len(code_pieces) == 1:
                 img = ImageFile("%s_%02d" % (output_base, j), output_dir)
             else:
-                img = ImageFile("%s_%02d_%02d" % (output_base, i, j),
+                img = ImageFile("%s_%02d_%02d" % (output_base, n_shows, j),
                                 output_dir)
             images.append(img)
             for format, dpi in formats:
