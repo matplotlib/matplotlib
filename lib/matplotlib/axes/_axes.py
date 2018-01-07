@@ -1288,132 +1288,232 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
-        Plot lines and/or markers to the
-        :class:`~matplotlib.axes.Axes`.  *args* is a variable length
-        argument, allowing for multiple *x*, *y* pairs with an
-        optional format string.  For example, each of the following is
-        legal::
+        Plot y versus x as lines and/or markers.
 
-            plot(x, y)        # plot x and y using default line style and color
-            plot(x, y, 'bo')  # plot x and y using blue circle markers
-            plot(y)           # plot y using x as index array 0..N-1
-            plot(y, 'r+')     # ditto, but with red plusses
+        Call signatures::
 
-        If *x* and/or *y* is 2-dimensional, then the corresponding columns
-        will be plotted.
+            plot([x], y, [fmt], data=None, **kwargs)
+            plot([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
 
-        If used with labeled data, make sure that the color spec is not
-        included as an element in data, as otherwise the last case
-        ``plot("v","r", data={"v":..., "r":...)``
-        can be interpreted as the first case which would do ``plot(v, r)``
-        using the default line style and color.
+        The coordinates of the points or line nodes are given by *x*, *y*.
 
-        If not used with labeled data (i.e., without a data argument),
-        an arbitrary number of *x*, *y*, *fmt* groups can be specified, as in::
+        The optional parameter *fmt* is a convenient way for defining basic
+        formatting like color, marker and linestyle. It's a shortcut string
+        notation described in the *Notes* section below.
 
-            a.plot(x1, y1, 'g^', x2, y2, 'g-')
+        >>> plot(x, y)        # plot x and y using default line style and color
+        >>> plot(x, y, 'bo')  # plot x and y using blue circle markers
+        >>> plot(y)           # plot y using x as index array 0..N-1
+        >>> plot(y, 'r+')     # ditto, but with red plusses
 
-        Return value is a list of lines that were added.
+        You can use `~.Line2D` properties as keyword arguments for more
+        control on the  appearance. Line properties and *fmt* can be mixed.
+        The following two calls yield identical results:
+
+        >>> plot(x, y, 'go--', linewidth=2, markersize=12)
+        >>> plot(x, y, color='green', marker='o', linestyle='dashed', \
+linewidth=2, markersize=12)
+
+        When conflicting with *fmt*, the *\*\*kwargs* properties are taking
+        precedence.
+
+
+        **Plotting labelled data**
+
+        There's a convenient way for plotting objects with labelled data (i.e.
+        data that can be accessed by index ``obj['y']``). Instead of giving
+        the data in *x* and *y*, you can provide the object in the *data*
+        parameter and just give the labels for *x* and *y*::
+
+        >>> plot('xlabel', 'ylabel', data=obj)
+
+        All indexable objects are supported. This could e.g. be a `dict`, a
+        `pandas.DataFame` or a structured numpy array.
+
+
+        **Plotting multiple sets of data**
+
+        There are various ways to plot multiple sets of data.
+
+        - The most straight forward way is just to call `plot` multiple times.
+          Example:
+
+          >>> plot(x1, y1, 'bo')
+          >>> plot(x2, y2, 'go')
+
+        - Alternatively, if your data is already a 2d array, you can pass it
+          directly to *x*, *y*. A separate data set will be drawn for every
+          column.
+
+          Example: an array ``a`` where the first column represents the *x*
+          values and the other columns are the *y* columns::
+
+          >>> plot(a[0], a[1:])
+
+        - The third way is to specify multiple sets of *[x]*, *y*, *[fmt]*
+          groups::
+
+          >>> plot(x1, y1, 'g^', x2, y2, 'g-')
+
+          In this case, any additional keyword argument applies to all
+          datasets. Also this syntax cannot be combined with the *data*
+          parameter.
 
         By default, each line is assigned a different style specified by a
-        'style cycle'.  To change this behavior, you can edit the
-        axes.prop_cycle rcParam.
+        'style cycle'. The *fmt* and line property parameters are only
+        neccessary if you want explicit deviations from these defaults.
+        Alternatively, you can also change the style cycle using the
+        'axes.prop_cycle' rcParam.
 
-        The following format string characters are accepted to control
-        the line style or marker:
+        Parameters
+        ----------
+        x, y : array-like or scalar
+            The horizontal / vertical coordinates of the data points.
+            *x* values are optional. If not given, they default to
+            ``[0, ..., N-1]``.
 
-        ================    ===============================
-        character           description
-        ================    ===============================
-        ``'-'``             solid line style
-        ``'--'``            dashed line style
-        ``'-.'``            dash-dot line style
-        ``':'``             dotted line style
-        ``'.'``             point marker
-        ``','``             pixel marker
-        ``'o'``             circle marker
-        ``'v'``             triangle_down marker
-        ``'^'``             triangle_up marker
-        ``'<'``             triangle_left marker
-        ``'>'``             triangle_right marker
-        ``'1'``             tri_down marker
-        ``'2'``             tri_up marker
-        ``'3'``             tri_left marker
-        ``'4'``             tri_right marker
-        ``'s'``             square marker
-        ``'p'``             pentagon marker
-        ``'*'``             star marker
-        ``'h'``             hexagon1 marker
-        ``'H'``             hexagon2 marker
-        ``'+'``             plus marker
-        ``'x'``             x marker
-        ``'D'``             diamond marker
-        ``'d'``             thin_diamond marker
-        ``'|'``             vline marker
-        ``'_'``             hline marker
-        ================    ===============================
+            Commonly, these parameters are arrays of length N. However,
+            scalars are supported as well (equivalent to an array with
+            constant value).
 
+            The parameters can also be 2-dimensional. Then, the columns
+            represent separate data sets.
+
+        fmt : str, optional
+            A format string, e.g. 'ro' for red circles. See the *Notes*
+            section for a full description of the format strings.
+
+            Format strings are just an abbreviation for quickly setting
+            basic line properties. All of these and more can also be
+            controlled by keyword arguments.
+
+        data : indexable object, optional
+            An object with labelled data. If given, provide the label names to
+            plot in *x* and *y*.
+
+            .. note::
+                Technically there's a slight ambiguity in calls where the
+                second label is a valid *fmt*. `plot('n', 'o', data=obj)`
+                could be `plt(x, y)` or `plt(y, fmt)`. In such cases,
+                the former interpretation is chosen, but a warning is issued.
+                You may suppress the warning by adding an empty format string
+                `plot('n', 'o', '', data=obj)`.
+
+
+        Other Parameters
+        ----------------
+        scalex, scaley : bool, optional, default: True
+            These parameters determined if the view limits are adapted to
+            the data limits. The values are passed on to `autoscale_view`.
+
+        **kwargs : `~.Line2D` properties, optional
+            *kwargs* are used to specify properties like a line label (for
+            auto legends), linewidth, antialiasing, marker face color.
+            Example::
+
+            >>> plot([1,2,3], [1,2,3], 'go-', label='line 1', linewidth=2)
+            >>> plot([1,2,3], [1,4,9], 'rs',  label='line 2')
+
+            If you make multiple lines with one plot command, the kwargs
+            apply to all those lines.
+
+            Here is a list of available `~.Line2D` properties:
+
+            %(Line2D)s
+
+        Returns
+        -------
+        lines
+            A list of `~.Line2D` objects that were added.
+
+
+        See Also
+        --------
+        scatter : XY scatter plot with markers of variing size and/or color (
+            sometimes also called bubble chart).
+
+
+        Notes
+        -----
+        **Format Strings**
+
+        A format string consists of a part for color, marker and line::
+
+            fmt = '[color][marker][line]'
+
+        Each of them is optional. If not provided, the value from the style
+        cycle is used. Exception: If ``line`` is given, but no ``marker``,
+        the data will be a line without markers.
+
+        **Colors**
 
         The following color abbreviations are supported:
 
-        ==========  ========
-        character   color
-        ==========  ========
-        'b'         blue
-        'g'         green
-        'r'         red
-        'c'         cyan
-        'm'         magenta
-        'y'         yellow
-        'k'         black
-        'w'         white
-        ==========  ========
+        =============    ===============================
+        character        color
+        =============    ===============================
+        ``'b'``          blue
+        ``'g'``          green
+        ``'r'``          red
+        ``'c'``          cyan
+        ``'m'``          magenta
+        ``'y'``          yellow
+        ``'k'``          black
+        ``'w'``          white
+        =============    ===============================
 
-        In addition, you can specify colors in many weird and
-        wonderful ways, including full names (``'green'``), hex
-        strings (``'#008000'``), RGB or RGBA tuples (``(0,1,0,1)``) or
-        grayscale intensities as a string (``'0.8'``).  Of these, the
-        string specifications can be used in place of a ``fmt`` group,
-        but the tuple forms can be used only as ``kwargs``.
+        If the color is the only part of the format string, you can
+        additionally use any  `matplotlib.colors` spec, e.g. full names
+        (``'green'``) or hex strings (``'#008000'``).
 
-        Line styles and colors are combined in a single format string, as in
-        ``'bo'`` for blue circles.
+        **Markers**
 
-        The *kwargs* can be used to set line properties (any property that has
-        a ``set_*`` method).  You can use this to set a line label (for auto
-        legends), linewidth, antialiasing, marker face color, etc.  Here is an
-        example::
+        =============    ===============================
+        character        description
+        =============    ===============================
+        ``'.'``          point marker
+        ``','``          pixel marker
+        ``'o'``          circle marker
+        ``'v'``          triangle_down marker
+        ``'^'``          triangle_up marker
+        ``'<'``          triangle_left marker
+        ``'>'``          triangle_right marker
+        ``'1'``          tri_down marker
+        ``'2'``          tri_up marker
+        ``'3'``          tri_left marker
+        ``'4'``          tri_right marker
+        ``'s'``          square marker
+        ``'p'``          pentagon marker
+        ``'*'``          star marker
+        ``'h'``          hexagon1 marker
+        ``'H'``          hexagon2 marker
+        ``'+'``          plus marker
+        ``'x'``          x marker
+        ``'D'``          diamond marker
+        ``'d'``          thin_diamond marker
+        ``'|'``          vline marker
+        ``'_'``          hline marker
+        =============    ===============================
 
-            plot([1,2,3], [1,2,3], 'go-', label='line 1', linewidth=2)
-            plot([1,2,3], [1,4,9], 'rs',  label='line 2')
-            axis([0, 4, 0, 10])
-            legend()
+        **Line Styles**
 
-        If you make multiple lines with one plot command, the kwargs
-        apply to all those lines, e.g.::
+        =============    ===============================
+        character        description
+        =============    ===============================
+        ``'-'``          solid line style
+        ``'--'``         dashed line style
+        ``'-.'``         dash-dot line style
+        ``':'``          dotted line style
+        =============    ===============================
 
-            plot(x1, y1, x2, y2, antialiased=False)
+        Example format strings::
 
-        Neither line will be antialiased.
+            'b'    # blue markers with default shape
+            'ro'   # red circles
+            'g-'   # green solid line
+            '--'   # dashed line with default color
+            'k^:'  # black triangle_up markers connected by a dotted line
 
-        You do not need to use format strings, which are just
-        abbreviations.  All of the line properties can be controlled
-        by keyword arguments.  For example, you can set the color,
-        marker, linestyle, and markercolor with::
-
-            plot(x, y, color='green', linestyle='dashed', marker='o',
-                 markerfacecolor='blue', markersize=12).
-
-        See :class:`~matplotlib.lines.Line2D` for details.
-
-        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
-
-        %(Line2D)s
-
-        kwargs *scalex* and *scaley*, if defined, are passed on to
-        :meth:`~matplotlib.axes.Axes.autoscale_view` to determine
-        whether the *x* and *y* axes are autoscaled; the default is
-        *True*.
         """
         scalex = kwargs.pop('scalex', True)
         scaley = kwargs.pop('scaley', True)
