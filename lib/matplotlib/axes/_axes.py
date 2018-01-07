@@ -4742,64 +4742,86 @@ class Axes(_AxesBase):
                       label_namer=None)
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
-                     step=None,
-                     **kwargs):
+                     step=None, **kwargs):
         """
-        Make filled polygons between two curves.
+        Fill the area between two horizontal curves.
 
+        The curves are defined by the points (*x*, *y1*) and (*x*, *y2*). This
+        creates one or multiple polygons describing the filled area.
 
-        Create a :class:`~matplotlib.collections.PolyCollection`
-        filling the regions between *y1* and *y2* where
-        ``where==True``
+        You may exclude some horizontal sections from filling using *where*.
+
+        By default, the edges connect the given points directly. Use *step* if
+        the filling should be a step function, i.e. constant in between *x*.
+
 
         Parameters
         ----------
-        x : array
-            An N-length array of the x data
+        x : array (length N)
+            The x coordinates of the nodes defining the curves.
 
-        y1 : array
-            An N-length array (or scalar) of the y data
+        y1 : array (length N) or scalar
+            The y coordinates of the nodes defining the first curve.
 
-        y2 : array
-            An N-length array (or scalar) of the y data
+        y2 : array (length N) or scalar, optional, default: 0
+            The y coordinates of the nodes defining the second curve.
 
-        where : array, optional
-            If `None`, default to fill between everywhere.  If not `None`,
-            it is an N-length numpy boolean array and the fill will
-            only happen over the regions where ``where==True``.
+        where : array of bool (length N), optional, default: None
+            Define *where* to exclude some horizontal regions from being
+            filled. The filled regions are defined by the coordinates
+            ``x[where]``.  More precisely, fill between ``x[i]`` and ``x[i+1]``
+            if ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in
+            *where* will not result in filling.  Both sides of the *True*
+            position remain unfilled due to the adjacent *False* values.
 
         interpolate : bool, optional
-            If `True`, interpolate between the two lines to find the
-            precise point of intersection.  Otherwise, the start and
-            end points of the filled region will only occur on explicit
-            values in the *x* array.
+            This option is only relvant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *y1* > *y2* or similar.
+            By default, the nodes of the polygon defining the filled region
+            will only be placed at the positions in the *x* array.  Such a
+            polygon cannot describe the above semantics close to the
+            intersection.  The x-sections containing the intersecion are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            interscection point and extend the filled region up to this point.
 
         step : {'pre', 'post', 'mid'}, optional
-            If not None, fill with step logic.
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *x*. The value determines where the
+            step will occur:
+
+            - 'pre': The y value is continued constantly to the left from
+              every *x* position.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position.
+            - 'mid': Steps occur in the middle between the *x* positions.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other keyword arguments are passed on to `~.PolyCollection`.
+            They control the `~.Polygon` properties:
+
+            %(PolyCollection)s
 
         Returns
         -------
-        `PolyCollection`
-            Plotted polygon collection
-
-        Notes
-        -----
-
-        Additional Keyword args passed on to the
-        :class:`~matplotlib.collections.PolyCollection`.
-
-        kwargs control the :class:`~matplotlib.patches.Polygon` properties:
-
-        %(PolyCollection)s
+        `~.PolyCollection`
+            A `~.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
+        fill_betweenx : Fill between two sets of x-values.
 
-            :meth:`fill_betweenx`
-                for filling between two sets of x-values
+        Notes
+        -----
+        .. [notes section required to get data note injection right]
 
         """
-
         if not rcParams['_internal.classic_mode']:
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
@@ -4904,62 +4926,84 @@ class Axes(_AxesBase):
     def fill_betweenx(self, y, x1, x2=0, where=None,
                       step=None, interpolate=False, **kwargs):
         """
-        Make filled polygons between two horizontal curves.
+        Fill the area between two vertical curves.
 
+        The curves are defined by the points (*x1*, *y*) and (*x2*, *y*). This
+        creates one or multiple polygons describing the filled area.
 
-        Create a :class:`~matplotlib.collections.PolyCollection`
-        filling the regions between *x1* and *x2* where
-        ``where==True``
+        You may exclude some vertical sections from filling using *where*.
+
+        By default, the edges connect the given points directly. Use *step* if
+        the filling should be a step function, i.e. constant in between *y*.
+
 
         Parameters
         ----------
-        y : array
-            An N-length array of the y data
+        y : array (length N)
+            The y coordinates of the nodes defining the curves.
 
-        x1 : array
-            An N-length array (or scalar) of the x data
+        x1 : array (length N) or scalar
+            The x coordinates of the nodes defining the first curve.
 
-        x2 : array, optional
-            An N-length array (or scalar) of the x data
+        x2 : array (length N) or scalar, optional, default: 0
+            The x coordinates of the nodes defining the second curve.
 
-        where : array, optional
-            If *None*, default to fill between everywhere.  If not *None*,
-            it is a N length numpy boolean array and the fill will
-            only happen over the regions where ``where==True``
-
-        step : {'pre', 'post', 'mid'}, optional
-            If not None, fill with step logic.
+        where : array of bool (length N), optional, default: None
+            Define *where* to exclude some vertical regions from being
+            filled. The filled regions are defined by the coordinates
+            ``y[where]``.  More precisely, fill between ``y[i]`` and ``y[i+1]``
+            if ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in
+            *where* will not result in filling.  Both sides of the *True*
+            position remain unfilled due to the adjacent *False* values.
 
         interpolate : bool, optional
-            If `True`, interpolate between the two lines to find the
-            precise point of intersection.  Otherwise, the start and
-            end points of the filled region will only occur on explicit
-            values in the *x* array.
+            This option is only relvant if *where* is used and the two curves
+            are crossing each other.
 
+            Semantically, *where* is often used for *x1* > *x2* or similar.
+            By default, the nodes of the polygon defining the filled region
+            will only be placed at the positions in the *y* array.  Such a
+            polygon cannot describe the above semantics close to the
+            intersection.  The y-sections containing the intersecion are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            interscection point and extend the filled region up to this point.
+
+        step : {'pre', 'post', 'mid'}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *y*. The value determines where the
+            step will occur:
+
+            - 'pre': The y value is continued constantly below every *y*
+              position.
+            - 'post': The y value is continued constantly above every *y*
+              position.
+            - 'mid': Steps occur in the middle between the *y* positions.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other keyword arguments are passed on to `~.PolyCollection`.
+            They control the `~.Polygon` properties:
+
+            %(PolyCollection)s
 
         Returns
         -------
-        `PolyCollection`
-            Plotted polygon collection
-
-        Notes
-        -----
-
-        keyword args passed on to the
-            :class:`~matplotlib.collections.PolyCollection`
-
-        kwargs control the :class:`~matplotlib.patches.Polygon` properties:
-
-        %(PolyCollection)s
+        `~.PolyCollection`
+            A `~.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
+        fill_between : Fill between two sets of y-values.
 
-            :meth:`fill_between`
-                for filling between two sets of y-values
+        Notes
+        -----
+        .. [notes section required to get data note injection right]
 
         """
-
         if not rcParams['_internal.classic_mode']:
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
