@@ -5152,6 +5152,18 @@ def test_axis_set_tick_params_labelsize_labelcolor():
     assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
 
 
+def test_axes_tick_params_gridlines():
+    # Now treating grid params like other Tick params
+    ax = plt.subplot()
+    ax.tick_params(grid_color='b', grid_linewidth=5, grid_alpha=0.5,
+                   grid_linestyle='dashdot')
+    for axis in ax.xaxis, ax.yaxis:
+        assert axis.majorTicks[0]._grid_color == 'b'
+        assert axis.majorTicks[0]._grid_linewidth == 5
+        assert axis.majorTicks[0]._grid_alpha == 0.5
+        assert axis.majorTicks[0]._grid_linestyle == 'dashdot'
+
+
 def test_none_kwargs():
     fig, ax = plt.subplots()
     ln, = ax.plot(range(32), linestyle=None)
