@@ -6508,7 +6508,15 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        The return value is ``(counts, xedges, yedges, Image)``.
+        h : 2D array
+            The bi-dimensional histogram of samples x and y. Values in x are
+            histogrammed along the first dimension and values in y are
+            histogrammed along the second dimension.
+        xedges : 1D array
+            The bin edges along the x axis.
+        yedges : 1D array
+            The bin edges along the y axis.
+        image : AxesImage
 
         Other Parameters
         ----------------
