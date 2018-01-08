@@ -395,7 +395,7 @@ class HostAxesBase(object):
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
 
-        bbs = [ax.get_tightbbox(renderer, call_axes_locator) \
+        bbs = [ax.get_tightbbox(renderer, call_axes_locator)
                for ax in self.parasites]
         get_tightbbox = self._get_base_axes_attr("get_tightbbox")
         bbs.append(get_tightbbox(self, renderer, call_axes_locator))

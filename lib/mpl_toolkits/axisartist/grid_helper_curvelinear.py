@@ -28,9 +28,7 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
 
-        super(FixedAxisArtistHelper, self).__init__( \
-            loc=side,
-            )
+        super(FixedAxisArtistHelper, self).__init__(loc=side)
 
         self.grid_helper = grid_helper
         if nth_coord_ticks is None:
@@ -412,7 +410,7 @@ class GridHelperCurveLinear(GridHelperBase):
         if axes is None:
             axes = self.axes
 
-        _helper = FloatingAxisArtistHelper( \
+        _helper = FloatingAxisArtistHelper(
             self, nth_coord, value, axis_direction)
 
         axisline = AxisArtist(axes, _helper)
