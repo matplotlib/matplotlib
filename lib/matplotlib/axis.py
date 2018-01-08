@@ -813,7 +813,7 @@ class Axis(artist.Artist):
 
     def set_tick_params(self, which='major', reset=False, **kw):
         """
-        Set appearance parameters for ticks and ticklabels.
+        Set appearance parameters for ticks, ticklabels, and gridlines.
 
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.

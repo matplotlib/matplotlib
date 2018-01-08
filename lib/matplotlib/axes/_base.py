@@ -2790,7 +2790,7 @@ class _AxesBase(martist.Artist):
         self.autoscale_view(tight=tight, scalex=_x, scaley=_y)
 
     def tick_params(self, axis='both', **kwargs):
-        """Change the appearance of ticks and tick labels.
+        """Change the appearance of ticks, tick labels, and gridlines.
 
         Parameters
         ----------
@@ -2848,16 +2848,29 @@ class _AxesBase(martist.Artist):
         labelrotation : float
             Tick label rotation
 
+        grid_color : color
+            Changes the gridline color to the given mpl color spec.
+
+        grid_alpha : float
+            Transparency of gridlines: 0 (transparent) to 1 (opaque).
+
+        grid_linewidth : float
+            Width of gridlines in points.
+
+        grid_linestyle : string
+            Any valid :class:`~matplotlib.lines.Line2D` line style spec.
+
         Examples
         --------
 
         Usage ::
 
-            ax.tick_params(direction='out', length=6, width=2, colors='r')
+            ax.tick_params(direction='out', length=6, width=2, colors='r',
+                           grid_color='r', grid_alpha=0.5)
 
         This will make all major ticks be red, pointing out of the box,
         and with dimensions 6 points by 2 points.  Tick labels will
-        also be red.
+        also be red.  Gridlines will be red and translucent.
 
         """
         if axis in ['x', 'both']:
