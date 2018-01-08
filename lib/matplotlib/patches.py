@@ -1560,14 +1560,12 @@ class Annulus(Patch):
 
     def __str__(self):
         if self.a == self.b:
-            fmt = "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)"
-            pars = (self.center[0], self.center[1],
-                    self.a, self.width, self.angle)
+            r = str(self.a)
         else:
-            fmt = "Annulus(xy=(%s, %s), r=(%s, %s), width=%s, angle=%s)"
-            pars = (self.center[0], self.center[1],
-                    self.a, self.b, self.width, self.angle)
-        return fmt % pars
+            r = '(%s, %s)' % (self.a, self.b)
+
+        return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
+                (self.center[0], self.center[1], r, self.width, self.angle)
 
     @docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
@@ -1598,7 +1596,7 @@ class Annulus(Patch):
             self.a = self.b = float(r)
         else:
             raise ValueError(
-                'r parameter should be either float, or sequence of size 2')
+                'r parameter should be either float, or array_like of size 2')
 
         if min(self.a, self.b) <= width:
             raise ValueError(
