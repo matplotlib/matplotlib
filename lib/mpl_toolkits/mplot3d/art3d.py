@@ -81,8 +81,8 @@ class Text3D(mtext.Text):
         self.stale = True
 
     def draw(self, renderer):
-        proj = proj3d.proj_trans_points([self._position3d, \
-                self._position3d + self._dir_vec], renderer.M)
+        proj = proj3d.proj_trans_points(
+            [self._position3d, self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         if dx==0. and dy==0.:

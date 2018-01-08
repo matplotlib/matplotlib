@@ -282,15 +282,15 @@ class FormatterDMS(object):
             if number_fraction is None:
                 return [self.fmt_d % (s*int(v),) for (s, v) in zip(ss, values)]
             else:
-                return [self.fmt_ds % (s*int(v), f1) for (s, v, f1) in \
-                        zip(ss, values, frac_str)]
+                return [self.fmt_ds % (s*int(v), f1)
+                        for (s, v, f1) in zip(ss, values, frac_str)]
         elif factor == 60:
             deg_part, min_part = divmod(values, 60)
             if number_fraction is None:
-                return [self.fmt_d_m % (s1, d1, m1) \
+                return [self.fmt_d_m % (s1, d1, m1)
                         for s1, d1, m1 in zip(signs, deg_part, min_part)]
             else:
-                return [self.fmt_d_ms % (s, d1, m1, f1) \
+                return [self.fmt_d_ms % (s, d1, m1, f1)
                         for s, d1, m1, f1 in zip(signs, deg_part, min_part, frac_str)]
 
         elif factor == 3600:

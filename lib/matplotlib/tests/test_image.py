@@ -450,8 +450,8 @@ def test_get_window_extent_for_AxisImage():
     # object at a given location and check that get_window_extent()
     # returns the correct bounding box values (in pixels).
 
-    im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4], \
-        [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
+    im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4],
+                   [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
     fig = plt.figure(figsize=(10, 10), dpi=100)
     ax = plt.subplot()
     ax.set_position([0, 0, 1, 1])

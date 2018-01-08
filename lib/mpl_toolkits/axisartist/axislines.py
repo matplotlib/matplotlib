@@ -233,20 +233,14 @@ class AxisArtistHelperRectlinear(object):
 
     class Fixed(AxisArtistHelper.Fixed):
 
-        def __init__(self,
-                     axes, loc, nth_coord=None,
-                     ):
+        def __init__(self, axes, loc, nth_coord=None):
             """
             nth_coord = along which coordinate value varies
             in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
-
-            super(AxisArtistHelperRectlinear.Fixed, self).__init__( \
-                     loc, nth_coord)
-
+            super(AxisArtistHelperRectlinear.Fixed, self).__init__(
+                loc, nth_coord)
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
-
-
 
         # TICK
 
@@ -293,13 +287,10 @@ class AxisArtistHelperRectlinear(object):
     class Floating(AxisArtistHelper.Floating):
         def __init__(self, axes, nth_coord,
                      passingthrough_point, axis_direction="bottom"):
-
-            super(AxisArtistHelperRectlinear.Floating, self).__init__( \
+            super(AxisArtistHelperRectlinear.Floating, self).__init__(
                 nth_coord, passingthrough_point)
             self._axis_direction = axis_direction
-
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
-
 
         def get_line(self, axes):
             _verts = np.array([[0., 0.],
@@ -498,13 +489,14 @@ class GridHelperRectlinear(GridHelperBase):
                           ):
 
         if axes is None:
-            warnings.warn("'new_floating_axis' explicitly requires the axes keyword.")
+            warnings.warn(
+                "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
         passthrough_point = (value, value)
         transform = axes.transData
 
-        _helper = AxisArtistHelperRectlinear.Floating( \
+        _helper = AxisArtistHelperRectlinear.Floating(
             axes, nth_coord, value, axis_direction)
 
         axisline = AxisArtist(axes, _helper)
