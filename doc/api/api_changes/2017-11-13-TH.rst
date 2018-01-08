@@ -1,0 +1,13 @@
+Internal handling of axis ticks optimized
+-----------------------------------------
+
+No officially documented parts of the API have changed. However, you may have
+implicitly relied on a certain behavior.
+
+`Axis.majorTicks` and `Axis.minorTicks` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The undocumented attributes `majorTicks` and `minorTicks` of
+:class:`matplotlib.axis.Axis` are now explicitly considered private and may be
+removed in the future. Please uses :meth:`matplotlib.axis.Axis.get_major_ticks`
+and :meth:`matplotlib.axis.Axis.get_minor_ticks` only.

@@ -23,6 +23,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
 import warnings
+import itertools
 
 _log = logging.getLogger(__name__)
 
@@ -629,6 +630,40 @@ class Ticker(object):
     formatter = None
 
 
+class _LazyDefaultTickList(object):
+    """
+    A lazy evaluating placeholder for the default tick list.
+
+    On access the class replaces itself with the default 1-element list. We
+    use the lazy evaluation so that :meth:`matplotlib.axis.Axis.reset_ticks`
+    can be called multiple times without the overhead of initialzing every
+    time.
+
+    https://github.com/matplotlib/matplotlib/issues/6664
+    """
+    def __init__(self, axis, major=True):
+        self.axis = axis
+        self.major = major
+
+    def _instantiate_list(self):
+        if self.major:
+            self.axis.majorTicks = [self.axis._get_tick(major=True)]
+            return self.axis.majorTicks
+        else:
+            self.axis.minorTicks = [self.axis._get_tick(major=False)]
+            return self.axis.minorTicks
+
+    def __iter__(self):
+        return iter(self._instantiate_list())
+
+    def __len__(self):
+        return len(self._instantiate_list())
+
+    def __getitem__(self, key):
+        l = self._instantiate_list()
+        return l[key]
+
+
 class Axis(artist.Artist):
     """
     Public attributes
@@ -785,13 +820,12 @@ class Axis(artist.Artist):
         # build a few default ticks; grow as necessary later; only
         # define 1 so properties set on ticks will be copied as they
         # grow
-        del self.majorTicks[:]
-        del self.minorTicks[:]
-
-        self.majorTicks.extend([self._get_tick(major=True)])
-        self.minorTicks.extend([self._get_tick(major=False)])
-        self._lastNumMajorTicks = 1
-        self._lastNumMinorTicks = 1
+        if not isinstance(self.majorTicks, _LazyDefaultTickList):
+            del self.majorTicks[:]
+            self.majorTicks = _LazyDefaultTickList(self, major=True)
+        if not isinstance(self.minorTicks, _LazyDefaultTickList):
+            del self.minorTicks[:]
+            self.minorTicks = _LazyDefaultTickList(self, major=False)
 
     def set_tick_params(self, which='major', reset=False, **kw):
         """
@@ -876,7 +910,8 @@ class Axis(artist.Artist):
 
     def set_clip_path(self, clippath, transform=None):
         artist.Artist.set_clip_path(self, clippath, transform)
-        for child in self.majorTicks + self.minorTicks:
+        for child in itertools.chain(iter(self.majorTicks),
+                                     iter(self.minorTicks)):
             child.set_clip_path(clippath, transform)
         self.stale = True
 
@@ -1344,22 +1379,15 @@ class Axis(artist.Artist):
             numticks = len(self.get_major_locator()())
         if len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
+            protoTick = self.majorTicks[0]
             for i in range(numticks - len(self.majorTicks)):
                 tick = self._get_tick(major=True)
-                self.majorTicks.append(tick)
-
-        if self._lastNumMajorTicks < numticks:
-            protoTick = self.majorTicks[0]
-            for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
-                tick = self.majorTicks[i]
                 if self._gridOnMajor:
                     tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
+                self.majorTicks.append(tick)
 
-        self._lastNumMajorTicks = numticks
-        ticks = self.majorTicks[:numticks]
-
-        return ticks
+        return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
@@ -1368,22 +1396,15 @@ class Axis(artist.Artist):
 
         if len(self.minorTicks) < numticks:
             # update the new tick label properties from the old
+            protoTick = self.minorTicks[0]
             for i in range(numticks - len(self.minorTicks)):
                 tick = self._get_tick(major=False)
-                self.minorTicks.append(tick)
-
-        if self._lastNumMinorTicks < numticks:
-            protoTick = self.minorTicks[0]
-            for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
-                tick = self.minorTicks[i]
                 if self._gridOnMinor:
                     tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
+                self.minorTicks.append(tick)
 
-        self._lastNumMinorTicks = numticks
-        ticks = self.minorTicks[:numticks]
-
-        return ticks
+        return self.minorTicks[:numticks]
 
     def grid(self, b=None, which='major', **kwargs):
         """
