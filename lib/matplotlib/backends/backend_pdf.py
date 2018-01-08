@@ -686,8 +686,8 @@ class PdfFile(object):
         psfont = self.texFontMap[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(
-                ("No usable font file found for {0} (TeX: {1}). "
-                 "The font may lack a Type-1 version.")
+                "No usable font file found for {} (TeX: {}); "
+                "the font may lack a Type-1 version"
                 .format(psfont.psname, dvifont.texname))
 
         pdfname = Name('F%d' % self.nextFont)
