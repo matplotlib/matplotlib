@@ -1443,7 +1443,7 @@ class _AnnotationBase:
             elif isinstance(tr, Transform):
                 return tr
             else:
-                raise RuntimeError("unknown return type ...")
+                raise RuntimeError("Unknown return type")
         elif isinstance(s, Artist):
             bbox = s.get_window_extent(renderer)
             return BboxTransformTo(bbox)
@@ -1452,7 +1452,7 @@ class _AnnotationBase:
         elif isinstance(s, Transform):
             return s
         elif not isinstance(s, str):
-            raise RuntimeError("unknown coordinate type : %s" % s)
+            raise RuntimeError(f"Unknown coordinate type: {s!r}")
 
         if s == 'data':
             return self.axes.transData

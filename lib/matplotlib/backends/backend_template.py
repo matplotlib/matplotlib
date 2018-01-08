@@ -108,7 +108,7 @@ class RendererTemplate(RendererBase):
 
 class GraphicsContextTemplate(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...  See the cairo
+    The graphics context provides the color, line styles, etc.  See the cairo
     and postscript backends for examples of mapping the graphics context
     attributes (cap styles, join styles, line widths, colors) to a particular
     backend.  In cairo this is done by wrapping a cairo.Context object and
@@ -131,7 +131,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
 ########################################################################
 #
 # The following functions and classes are for pyplot and implement
-# window/figure managers, etc...
+# window/figure managers, etc.
 #
 ########################################################################
 

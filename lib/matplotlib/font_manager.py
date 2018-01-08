@@ -1051,7 +1051,7 @@ def json_load(filename):
     --------
     json_dump
     """
-    with open(filename, 'r') as fh:
+    with open(filename) as fh:
         return json.load(fh, object_hook=_json_decode)
 
 

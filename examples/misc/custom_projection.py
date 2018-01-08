@@ -270,14 +270,8 @@ class GeoAxes(Axes):
         In this case, we want them to be displayed in degrees N/S/E/W.
         """
         lon, lat = np.rad2deg([lon, lat])
-        if lat >= 0.0:
-            ns = 'N'
-        else:
-            ns = 'S'
-        if lon >= 0.0:
-            ew = 'E'
-        else:
-            ew = 'W'
+        ns = 'N' if lat >= 0.0 else 'S'
+        ew = 'E' if lon >= 0.0 else 'W'
         return ('%f\N{DEGREE SIGN}%s, %f\N{DEGREE SIGN}%s'
                 % (abs(lat), ns, abs(lon), ew))
 

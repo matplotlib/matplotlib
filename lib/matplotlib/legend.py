@@ -558,8 +558,7 @@ class Legend(Artist):
                                        colors.to_rgba_array(labelcolor))):
                 text.set_color(color)
         else:
-            raise ValueError("Invalid argument for labelcolor : %s" %
-                             str(labelcolor))
+            raise ValueError(f"Invalid labelcolor: {labelcolor!r}")
 
     def _set_artist_props(self, a):
         """
@@ -943,8 +942,7 @@ class Legend(Artist):
             try:
                 l = len(bbox)
             except TypeError as err:
-                raise ValueError("Invalid argument for bbox : %s" %
-                                 str(bbox)) from err
+                raise ValueError(f"Invalid bbox: {bbox}") from err
 
             if l == 2:
                 bbox = [bbox[0], bbox[1], 0, 0]

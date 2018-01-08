@@ -459,10 +459,7 @@ class RendererSVG(RendererBase):
         return '%s%s' % (type, m.hexdigest()[:10])
 
     def _make_flip_transform(self, transform):
-        return (transform +
-                Affine2D()
-                .scale(1.0, -1.0)
-                .translate(0.0, self.height))
+        return transform + Affine2D().scale(1, -1).translate(0, self.height)
 
     def _get_font(self, prop):
         fname = fm.findfont(prop)

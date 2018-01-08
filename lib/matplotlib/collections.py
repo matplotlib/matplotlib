@@ -1129,9 +1129,9 @@ class PathCollection(_CollectionWithSizes):
             ix = np.argsort(xarr)
             values = np.interp(label_values, xarr[ix], yarr[ix])
 
-        kw = dict(markeredgewidth=self.get_linewidths()[0],
-                  alpha=self.get_alpha())
-        kw.update(kwargs)
+        kw = {"markeredgewidth": self.get_linewidths()[0],
+              "alpha": self.get_alpha(),
+              **kwargs}
 
         for val, lab in zip(values, label_values):
             if prop == "colors":

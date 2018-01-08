@@ -4,8 +4,8 @@ Pick Event Demo
 ===============
 
 You can enable picking by setting the "picker" property of an artist
-(for example, a matplotlib Line2D, Text, Patch, Polygon, AxesImage,
-etc...)
+(for example, a Matplotlib Line2D, Text, Patch, Polygon, AxesImage,
+etc.)
 
 There are a variety of meanings of the picker property:
 
