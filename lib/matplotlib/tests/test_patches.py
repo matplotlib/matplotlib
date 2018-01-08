@@ -626,3 +626,16 @@ def test_default_capstyle():
 def test_default_joinstyle():
     patch = Patch()
     assert patch.get_joinstyle() == 'miter'
+
+
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus():
+    from matplotlib.patches import Annulus
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0.5, 0.5), 0.2, 0.05, fc='g')        # circular annulus
+    ell = Annulus((0.5, 0.5), (0.5, 0.3), 0.1, 45,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
