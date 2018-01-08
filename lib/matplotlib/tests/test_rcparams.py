@@ -417,7 +417,8 @@ def test_rcparams_reset_after_fail():
         assert mpl.rcParams['text.usetex'] is False
 
         with pytest.raises(KeyError):
-            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
+            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
+                                                ('test.blah', True)])):
                 pass
 
         assert mpl.rcParams['text.usetex'] is False

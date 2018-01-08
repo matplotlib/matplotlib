@@ -90,15 +90,16 @@ class RendererTemplate(RendererBase):
     # draw_markers is optional, and we get more correct relative
     # timings by leaving it out.  backend implementers concerned with
     # performance will probably want to implement it
-#     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+#     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
+#                      rgbFace=None):
 #         pass
 
     # draw_path_collection is optional, and we get more correct
     # relative timings by leaving it out. backend implementers concerned with
     # performance will probably want to implement it
 #     def draw_path_collection(self, gc, master_transform, paths,
-#                              all_transforms, offsets, offsetTrans, facecolors,
-#                              edgecolors, linewidths, linestyles,
+#                              all_transforms, offsets, offsetTrans,
+#                              facecolors, edgecolors, linewidths, linestyles,
 #                              antialiaseds):
 #         pass
 

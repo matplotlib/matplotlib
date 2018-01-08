@@ -182,9 +182,9 @@ if __name__ == '__main__':
                         required_failed.append(package)
                 else:
                     good_packages.append(package)
-                    if (isinstance(package, setupext.OptionalBackendPackage) and
-                            package.runtime_check() and
-                            default_backend is None):
+                    if (isinstance(package, setupext.OptionalBackendPackage)
+                            and package.runtime_check()
+                            and default_backend is None):
                         default_backend = package.name
         print_raw('')
 
@@ -224,7 +224,8 @@ if __name__ == '__main__':
             template = fd.read()
         template = Template(template)
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
+            fd.write(
+                template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
         # Build in verbose mode if requested
         if setupext.options['verbose']:

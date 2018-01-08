@@ -243,7 +243,8 @@ class Type1Font(object):
         if 'FullName' not in prop:
             prop['FullName'] = prop['FontName']
         if 'FamilyName' not in prop:
-            extras = r'(?i)([ -](regular|plain|italic|oblique|(semi)?bold|(ultra)?light|extra|condensed))+$'
+            extras = ('(?i)([ -](regular|plain|italic|oblique|(semi)?bold|'
+                      '(ultra)?light|extra|condensed))+$')
             prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
 
         self.prop = prop
@@ -253,13 +254,14 @@ class Type1Font(object):
         def fontname(name):
             result = name
             if slant:
-                result += b'_Slant_' + str(int(1000 * slant)).encode('latin-1')
+                result += b'_Slant_' + str(int(1000 * slant)).encode('ascii')
             if extend != 1.0:
-                result += b'_Extend_' + str(int(1000 * extend)).encode('latin-1')
+                result += b'_Extend_' + str(int(1000 * extend)).encode('ascii')
             return result
 
         def italicangle(angle):
-            return str(float(angle) - np.arctan(slant) / np.pi * 180).encode('latin-1')
+            return (str(float(angle) - np.arctan(slant) / np.pi * 180)
+                    .encode('ascii'))
 
         def fontmatrix(array):
             array = array.lstrip(b'[').rstrip(b']').strip().split()

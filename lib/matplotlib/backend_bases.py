@@ -1070,7 +1070,8 @@ class GraphicsContextBase(object):
         if dash_list is not None:
             dl = np.asarray(dash_list)
             if np.any(dl < 0.0):
-                raise ValueError("All values in the dash list must be positive")
+                raise ValueError(
+                    "All values in the dash list must be positive")
         self._dashes = dash_offset, dash_list
 
     def set_foreground(self, fg, isRGBA=False):
@@ -2308,7 +2309,8 @@ class FigureCanvasBase(object):
         i = 1
         while os.path.isfile(os.path.join(save_dir, default_filename)):
             # attach numerical count to basename
-            default_filename = '{0}-{1}.{2}'.format(default_basename, i, default_filetype)
+            default_filename = (
+                '{}-{}.{}'.format(default_basename, i, default_filetype))
             i += 1
 
         return default_filename
