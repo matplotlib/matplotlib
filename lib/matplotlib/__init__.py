@@ -1545,6 +1545,41 @@ _DATA_DOC_APPENDIX = """
 """
 
 
+def _add_data_doc(docstring, replace_names, replace_all_args):
+    """Add documentation for a *data* field to the given docstring.
+
+    Parameters
+    ----------
+    docstring : str
+        The input docstring.
+    replace_names : list of strings or None
+        The list of parameter names which arguments should be replaced by
+        `data[name]`. If None, all arguments are replaced if they are
+        included in `data`.
+    replace_all_args : bool
+        If True, all arguments in *args get replaced, even if they are not
+        in replace_names.
+
+    Returns
+    -------
+        The augmented docstring.
+    """
+    if docstring is None:
+        docstring = ''
+    else:
+        docstring = dedent(docstring)
+    _repl = ""
+    if replace_names is None:
+        _repl = "* All positional and all keyword arguments."
+    else:
+        if len(replace_names) != 0:
+            _repl = "* All arguments with the following names: '{names}'."
+        if replace_all_args:
+            _repl += "\n    * All positional arguments."
+        _repl = _repl.format(names="', '".join(sorted(replace_names)))
+    return docstring + _DATA_DOC_APPENDIX.format(replaced=_repl)
+
+
 def _preprocess_data(replace_names=None, replace_all_args=False,
                      label_namer=None, positional_parameter_names=None):
     """
@@ -1789,27 +1824,15 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                         "the Matplotlib list!)" % (label_namer, func.__name__),
                         RuntimeWarning, stacklevel=2)
             return func(ax, *args, **kwargs)
-        pre_doc = inner.__doc__
-        if pre_doc is None:
-            pre_doc = ''
-        else:
-            pre_doc = dedent(pre_doc)
-        _repl = ""
-        if replace_names is None:
-            _repl = "* All positional and all keyword arguments."
-        else:
-            if len(replace_names) != 0:
-                _repl = "* All arguments with the following names: '{names}'."
-            if replace_all_args:
-                _repl += "\n    * All positional arguments."
-            _repl = _repl.format(names="', '".join(sorted(replace_names)))
-        inner.__doc__ = (pre_doc +
-                         _DATA_DOC_APPENDIX.format(replaced=_repl))
+
+        inner.__doc__ = _add_data_doc(inner.__doc__,
+                                      replace_names, replace_all_args)
         if not python_has_wrapped:
             inner.__wrapped__ = func
         if new_sig is not None:
             inner.__signature__ = new_sig
         return inner
+
     return param
 
 _log.info('matplotlib version %s', __version__)
