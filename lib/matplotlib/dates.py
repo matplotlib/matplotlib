@@ -96,7 +96,8 @@ Here are all the date tickers:
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`DateLocator` to set the view limits and the tick
+      :class:`DateLocator` (e.g., :class:`RRuleLocator`)
+      to set the view limits and the tick
       locations.  If called with ``interval_multiples=True`` it will
       make ticks line up with sensible multiples of the tick intervals.  E.g.
       if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
@@ -290,22 +291,21 @@ def _from_ordinalf(x, tz=None):
 
     remainder = float(x) - ix
 
-    # Round to the nearest microsecond.
-    dt += datetime.timedelta(
-            microseconds=int(round(remainder * MUSECONDS_PER_DAY)))
+    # Since the input date `x` float is unable to preserve microsecond
+    # precision of time representation in non-antique years, the
+    # resulting datetime is rounded to the nearest multiple of
+    # `musec_prec`. A value of 20 is appropriate for current dates.
+    musec_prec = 20
+    remainder_musec = int(round(remainder * MUSECONDS_PER_DAY /
+                                float(musec_prec)) * musec_prec)
 
-    # Compensate for rounding errors
-    if x > 30 * 365:
-        # Since the input date `x` float is unable to preserve
-        # microsecond precision of time representation in non-antique
-        # years, the resulting datetime is rounded to the nearest
-        # multiple of `musec_prec`. A value of 20 is appropriate for
-        # current dates.
-        musec_prec = 20
-        musec = datetime.timedelta(
-                    microseconds=int(round(
-                        dt.microsecond / float(musec_prec)) * musec_prec))
-        dt = dt.replace(microsecond=0) + musec
+    # For people trying to plot with full microsecond precision, enable
+    # an early-year workaround
+    if x < 30 * 365:
+        remainder_musec = int(round(remainder * MUSECONDS_PER_DAY))
+
+    # add hours, minutes, seconds, microseconds
+    dt += datetime.timedelta(microseconds=remainder_musec)
 
     return dt.astimezone(tz)
 
