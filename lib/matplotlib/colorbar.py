@@ -1217,48 +1217,38 @@ def make_axes_gridspec(parent, **kw):
     shrink = kw.pop('shrink', 1.0)
     aspect = kw.pop('aspect', 20)
 
-    x1 = 1.0 - fraction
+    x1 = 1 - fraction
 
     # for shrinking
-    pad_s = (1. - shrink) * 0.5
+    pad_s = (1 - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         wh_space = 2 * pad / (1 - pad)
-
         gs = gs_from_subplotspec(1, 2,
                                  subplot_spec=parent.get_subplotspec(),
                                  wspace=wh_space,
-                                 width_ratios=[x1 - pad, fraction]
-                                 )
-
+                                 width_ratios=[x1 - pad, fraction])
         gs2 = gs_from_subplotspec(3, 1,
                                   subplot_spec=gs[1],
                                   hspace=0.,
-                                  height_ratios=wh_ratios,
-                                  )
-
+                                  height_ratios=wh_ratios)
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
     else:
         pad = kw.pop('pad', 0.15)
         wh_space = 2 * pad / (1 - pad)
-
         gs = gs_from_subplotspec(2, 1,
                                  subplot_spec=parent.get_subplotspec(),
                                  hspace=wh_space,
-                                 height_ratios=[x1 - pad, fraction]
-                                 )
-
+                                 height_ratios=[x1 - pad, fraction])
         gs2 = gs_from_subplotspec(1, 3,
                                   subplot_spec=gs[1],
                                   wspace=0.,
-                                  width_ratios=wh_ratios,
-                                  )
-
-        aspect = 1.0 / aspect
+                                  width_ratios=wh_ratios)
+        aspect = 1 / aspect
         anchor = (0.5, 1.0)
         panchor = (0.5, 0.0)
 
