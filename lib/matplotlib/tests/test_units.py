@@ -34,7 +34,7 @@ class Quantity(object):
         if iterable(self.magnitude):
             return Quantity(self.magnitude[item], self.units)
         else:
-            return Quantity(self.magnitude[item], self.units)
+            return Quantity(self.magnitude, self.units)
 
     def __array__(self):
         return np.asarray(self.magnitude)
