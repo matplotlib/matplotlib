@@ -1498,6 +1498,10 @@ class Axis(artist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
+        # If x is already a number, doesn't need converting
+        if munits.ConversionInterface.is_numlike(x):
+            return x
+
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
 

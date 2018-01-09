@@ -1738,8 +1738,6 @@ class DateConverter(units.ConversionInterface):
 
         The *unit* and *axis* arguments are not used.
         """
-        if units.ConversionInterface.is_numlike(value):
-            return value
         return date2num(value)
 
     @staticmethod
