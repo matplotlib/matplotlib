@@ -2930,9 +2930,9 @@ def test_hist_stacked_normed():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.hist((d1, d2), stacked=True, normed=True)
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning):
+        ax.hist((d1, d2), stacked=True, normed=True)
 
 
 @image_comparison(baseline_images=['hist_stacked_normed'], extensions=['png'])
