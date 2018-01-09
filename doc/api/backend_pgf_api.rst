@@ -1,8 +1,8 @@
 
-:mod:`matplotlib.backends.backend_svg`
+:mod:`matplotlib.backends.backend_pgf`
 ======================================
 
-.. automodule:: matplotlib.backends.backend_svg
+.. automodule:: matplotlib.backends.backend_pgf
    :members:
    :undoc-members:
    :show-inheritance:

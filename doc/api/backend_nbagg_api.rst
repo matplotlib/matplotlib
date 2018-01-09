@@ -1,8 +1,8 @@
 
-:mod:`matplotlib.backends.backend_mixed`
+:mod:`matplotlib.backends.backend_nbagg`
 ========================================
 
-.. automodule:: matplotlib.backends.backend_mixed
+.. automodule:: matplotlib.backends.backend_nbagg
    :members:
    :undoc-members:
    :show-inheritance:
