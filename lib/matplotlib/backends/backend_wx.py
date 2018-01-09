@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from six.moves import xrange
+import six
 
 import sys
 import os
@@ -37,7 +38,7 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
-from matplotlib import cbook, rcParams
+from matplotlib import cbook, rcParams, backend_tools
 
 from . import wx_compat as wxc
 import wx
@@ -1714,6 +1715,145 @@ class StatusBarWx(wx.StatusBar):
 
     # def set_measurement(self, string):
     #    self.SetStatusText("Measurement: %s" % string, 2)
+
+
+# tools for matplotlib.backend_managers.ToolManager:
+# for now only SaveFigure, SetCursor and Rubberband are implemented
+# once a ToolbarWx is implemented, also FigureManagerWx needs to be
+# modified, similar to pull request #9934
+
+class SaveFigureWx(backend_tools.SaveFigureBase):
+    def trigger(self, *args):
+        # Fetch the required filename and file type.
+        filetypes, exts, filter_index = self.canvas._get_imagesave_wildcards()
+        default_dir = os.path.expanduser(
+            matplotlib.rcParams['savefig.directory'])
+        default_file = self.canvas.get_default_filename()
+        dlg = wx.FileDialog(self.canvas.GetTopLevelParent(), "Save to file",
+                            default_dir, default_file, filetypes,
+                            wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        dlg.SetFilterIndex(filter_index)
+        if dlg.ShowModal() != wx.ID_OK:
+            return
+
+        dirname = dlg.GetDirectory()
+        filename = dlg.GetFilename()
+        DEBUG_MSG( 'Save file dir:%s name:%s' % (dirname, filename), 3, self)
+        format = exts[dlg.GetFilterIndex()]
+        basename, ext = os.path.splitext(filename)
+        if ext.startswith('.'):
+            ext = ext[1:]
+        if ext in ('svg', 'pdf', 'ps', 'eps', 'png') and format != ext:
+            # looks like they forgot to set the image type drop
+            # down, going with the extension.
+            warnings.warn(
+                'extension %s did not match the selected '
+                'image type %s; going with %s' %
+                (ext, format, ext), stacklevel=0)
+            format = ext
+        if default_dir != "":
+            matplotlib.rcParams['savefig.directory'] = dirname
+        try:
+            self.canvas.figure.savefig(
+                os.path.join(dirname, filename), format=format)
+        except Exception as e:
+            error_msg_wx(str(e))
+
+
+class SetCursorWx(backend_tools.SetCursorBase):
+    def set_cursor(self, cursor):
+        cursor = wxc.Cursor(cursord[cursor])
+        self.canvas.SetCursor(cursor)
+        self.canvas.Update()
+
+
+if not 'wxMac' in wx.PlatformInfo:
+    # on most platforms, use overlay
+    class RubberbandWx(backend_tools.RubberbandBase):
+        def __init__(self, *args, **kwargs):
+            backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
+            self.wxoverlay = None
+
+        def draw_rubberband(self, x0, y0, x1, y1):
+            # Use an Overlay to draw a rubberband-like bounding box.
+            if self.wxoverlay is None:
+                self.wxoverlay = wx.Overlay()
+            dc = wx.ClientDC(self.canvas)
+            odc = wx.DCOverlay(self.wxoverlay, dc)
+            odc.Clear()
+
+            dc = wx.GCDC(dc)
+
+            height = self.canvas.figure.bbox.height
+            y1 = height - y1
+            y0 = height - y0
+
+            if y1 < y0:
+                y0, y1 = y1, y0
+            if x1 < y0:
+                x0, x1 = x1, x0
+
+            w = x1 - x0
+            h = y1 - y0
+            rect = wx.Rect(x0, y0, w, h)
+
+            rubberBandColor = '#C0C0FF'  # or load from config?
+
+            # Set a pen for the border
+            color = wxc.NamedColour(rubberBandColor)
+            dc.SetPen(wx.Pen(color, 1))
+
+            # use the same color, plus alpha for the brush
+            r, g, b, a = color.Get(True)
+            color.Set(r, g, b, 0x60)
+            dc.SetBrush(wx.Brush(color))
+            if wxc.is_phoenix:
+                dc.DrawRectangle(rect)
+            else:
+                dc.DrawRectangleRect(rect)
+
+        def remove_rubberband(self):
+            if self.wxoverlay is None: return
+            self.wxoverlay.Reset()
+            self.wxoverlay = None
+
+else:
+    # on Mac OS retina displays DCOverlay does not work
+    class RubberbandWx(backend_tools.RubberbandBase):
+        def __init__(self, *args, **kwargs):
+            backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
+            self._rect = None
+
+        def remove_rubberband(self):
+            self.draw_rubberband(None,None,None,None,False)
+
+        def draw_rubberband(self, x0, y0, x1, y1, draw_new=True):
+
+            dc = wx.ClientDC(self.canvas)
+            # this would be required if the Canvas is a ScrolledWindow,
+            # which is not the case for now
+            # self.PrepareDC(_dc)
+
+            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.SOLID)) 
+            dc.SetLogicalFunction(wx.INVERT)
+            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+
+            if self._rect:
+                dc.DrawRectangle(self._rect)
+    
+            if draw_new:
+                self._rect = (x0,self.canvas._height-y0, x1-x0, -y1+y0)
+                dc.DrawRectangle(self._rect)
+            else:
+                self._rect = None
+
+            dc.SetLogicalFunction(wx.COPY)
+
+
+backend_tools.ToolSaveFigure = SaveFigureWx
+backend_tools.ToolSetCursor = SetCursorWx
+backend_tools.ToolRubberband = RubberbandWx
+
 
 
 #< Additions for printing support: Matt Newville
