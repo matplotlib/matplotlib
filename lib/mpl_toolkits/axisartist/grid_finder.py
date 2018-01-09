@@ -169,7 +169,8 @@ class GridFinderBase(object):
             gi["levels"].append(v)
             gi["lines"].append(xy)
 
-            for tck, direction in zip(tcks, ["left", "bottom", "right", "top"]):
+            for tck, direction in zip(tcks,
+                                      ["left", "bottom", "right", "top"]):
                 for t in tck:
                     tck_levels[direction].append(lev)
                     tck_locs[direction].append(t)
@@ -298,7 +299,8 @@ class FixedLocator(object):
 
 class FormatterPrettyPrint(object):
     def __init__(self, useMathText=True):
-        self._fmt = mticker.ScalarFormatter(useMathText=useMathText, useOffset=False)
+        self._fmt = mticker.ScalarFormatter(
+            useMathText=useMathText, useOffset=False)
         self._fmt.create_dummy_axis()
         self._ignore_factor = True
 
@@ -328,7 +330,8 @@ class DictFormatter(object):
         """
 
         if self._fallback_formatter:
-            fallback_strings = self._fallback_formatter(direction, factor, values)
+            fallback_strings = self._fallback_formatter(
+                direction, factor, values)
         else:
             fallback_strings = [""]*len(values)
 

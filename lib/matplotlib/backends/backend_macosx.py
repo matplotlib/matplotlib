@@ -106,7 +106,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        Creates a new backend-specific subclass of `backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 

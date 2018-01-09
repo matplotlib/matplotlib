@@ -132,7 +132,7 @@ class UnitDblConverter( units.ConversionInterface ):
          unit = UnitDblConverter.default_units( value, axis )
 
       # Convert the incoming UnitDbl value/values to float/floats
-      if isinstance( axis.axes, polar.PolarAxes ) and (value.type() == "angle"):
+      if isinstance( axis.axes, polar.PolarAxes ) and value.type() == "angle":
          # Guarantee that units are radians for polar plots.
          return value.convert( "rad" )
 

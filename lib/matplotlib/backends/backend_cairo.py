@@ -168,8 +168,8 @@ class RendererCairo(RendererBase):
         self._fill_and_stroke(
             ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
-    def draw_markers(
-            self, gc, marker_path, marker_trans, path, transform, rgbFace=None):
+    def draw_markers(self, gc, marker_path, marker_trans, path, transform,
+                     rgbFace=None):
         ctx = gc.ctx
 
         ctx.new_path()
