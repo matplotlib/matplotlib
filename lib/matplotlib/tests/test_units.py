@@ -31,7 +31,10 @@ class Quantity(object):
         return getattr(self.magnitude, attr)
 
     def __getitem__(self, item):
-        return Quantity(self.magnitude[item], self.units)
+        if iterable(self.magnitude):
+            return Quantity(self.magnitude[item], self.units)
+        else:
+            return Quantity(self.magnitude[item], self.units)
 
     def __array__(self):
         return np.asarray(self.magnitude)
