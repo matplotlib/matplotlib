@@ -1877,102 +1877,88 @@ class Axes(_AxesBase):
            bar(x, height, width, *, align='center', **kwargs)
            bar(x, height, width, bottom, *, align='center', **kwargs)
 
-        Make a bar plot with rectangles bounded by
+        The bars are positioned at *x* with the given *align*\ ment. Their
+        dimensions are given by *width* and *height*. The vertical baseline
+        is *bottom* (default 0).
 
-        .. math::
+        Each of *x*, *height*, *width*, and *bottom* may either be a scalar
+        applying to all bars, or it may be a sequence of length N providing a
+        separate value for each bar.
 
-           (x - width/2, x + width/2, bottom, bottom + height)
-
-        (left, right, bottom and top edges) by default.  *x*,
-        *height*, *width*, and *bottom* can be either scalars or
-        sequences.
-
-        The *align* and *orientation* kwargs control the interpretation of *x*
-        and *bottom*
-
-        The *align* keyword-only argument controls if *x* is interpreted
-        as the center or the left edge of the rectangle.
 
         Parameters
         ----------
         x : sequence of scalars
-            the x coordinates of the bars.
-
-            *align* controls if *x* is the bar center (default) or
-            left edge.
+            The x coordinates of the bars. See also *align* for the
+            alignment of the bars to the coordinates.
 
         height : scalar or sequence of scalars
-            the height(s) of the bars
+            The height(s) of the bars.
 
         width : scalar or array-like, optional
-            the width(s) of the bars
-            default: 0.8
+            The width(s) of the bars (default: 0.8).
 
         bottom : scalar or array-like, optional
-            the y coordinate(s) of the bars
-            default: None
+            The y coordinate(s) of the bars bases (default: 0).
 
         align : {'center', 'edge'}, optional, default: 'center'
-            If 'center', interpret the *x* argument as the coordinates
-            of the centers of the bars.  If 'edge', aligns bars by
-            their left edges
+            Alignment of the bars to the *x* coordinates:
 
-            To align the bars on the right edge pass a negative
-            *width* and ``align='edge'``
+            - 'center': Center the base on the *x* positions.
+            - 'edge': Align the left edges of the bars with the *x* positions.
+
+            To align the bars on the right edge pass a negative *width* and
+            ``align='edge'``.
 
         Returns
         -------
-        bars : matplotlib.container.BarContainer
-            Container with all of the bars + errorbars
+        `~.BarContainer`
+            Container with all the bars and optionally errorbars.
 
         Other Parameters
         ----------------
         color : scalar or array-like, optional
-            the colors of the bar faces
+            The colors of the bar faces.
 
         edgecolor : scalar or array-like, optional
-            the colors of the bar edges
+            The colors of the bar edges.
 
         linewidth : scalar or array-like, optional
-            width of bar edge(s). If None, use default
-            linewidth; If 0, don't draw edges.
-            default: None
+            Width of the bar edge(s). If 0, don't draw edges.
 
         tick_label : string or array-like, optional
-            the tick labels of the bars
-            default: None
+            The tick labels of the bars.
+            Default: None (Use default numeric labels.)
 
-        xerr : scalar or array-like, optional
-            if not None, will be used to generate errorbar(s) on the bar chart
-            default: None
+        xerr, yerr : scalar or array-like of shape(N,) or shape(2,N), optional
+            If not *None*, add horizontal / vertical errorbars to the bar tips.
+            The values are +/- sizes relative to the data:
 
-        yerr : scalar or array-like, optional
-            if not None, will be used to generate errorbar(s) on the bar chart
-            default: None
+            - scalar: symmetric +/- values for all bars
+            - shape(N,): symmetric +/- values for each bar
+            - shape(2,N): separate + and - values for each bar
 
-        ecolor : scalar or array-like, optional
-            specifies the color of errorbar(s)
-            default: None
+            Default: None
+
+        ecolor : scalar or array-like, optional, default: 'black'
+            The line color of the errorbars.
 
         capsize : scalar, optional
-           determines the length in points of the error bar caps
-           default: None, which will take the value from the
+           The length of the error bar caps in points.
+           Default: None, which will take the value from the
            ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
 
         error_kw : dict, optional
-            dictionary of kwargs to be passed to errorbar method. *ecolor* and
-            *capsize* may be specified here rather than as independent kwargs.
+            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
+            method. Values of *ecolor* or *capsize* defined here take
+            precedence over the independent kwargs.
 
-        log : boolean, optional
-            If true, sets the axis to be log scale.
-            default: False
+        log : bool, optional, default: False
+            If *True*, set the y-axis to be log scale.
 
         orientation : {'vertical',  'horizontal'}, optional
-
-            This is for internal use, please do not directly use this,
-            call `barh` instead.
-
-            The orientation of the bars.
+            *This is for internal use only.* Please use `barh` for
+            horizontal bar plots. Default: 'vertical'.
 
         See also
         --------
@@ -2208,83 +2194,85 @@ class Axes(_AxesBase):
            bar(y, width, height, *, align='center', **kwargs)
            bar(y, width, height, left, *, align='center', **kwargs)
 
-        Make a horizontal bar plot with rectangles by default bounded by
+        The bars are positioned at *y* with the given *align*\ ment. Their
+        dimensions are given by *width* and *height*. The horizontal baseline
+        is *left* (default 0).
 
-        .. math::
-
-           (left, left + width, y - height/2, y + height/2)
-
-        (left, right, bottom and top edges) by default.  *y*, *width*,
-        *height*, and *left* can be either scalars or sequences.
-
-        The *align* keyword-only argument controls if *y* is interpreted
-        as the center or the bottom edge of the rectangle.
+        Each of *y*, *width*, *height*, and *left* may either be a scalar
+        applying to all bars, or it may be a sequence of length N providing a
+        separate value for each bar.
 
 
         Parameters
         ----------
         y : scalar or array-like
-            the y coordinate(s) of the bars
-
-            *align* controls if *y* is the bar center (default)
-            or bottom edge.
+            The y coordinates of the bars. See also *align* for the
+            alignment of the bars to the coordinates.
 
         width : scalar or array-like
-            the width(s) of the bars
+            The width(s) of the bars.
 
         height : sequence of scalars, optional, default: 0.8
-            the heights of the bars
+            The heights of the bars.
 
         left : sequence of scalars
-            the x coordinates of the left sides of the bars
+            The x coordinates of the left sides of the bars (default: 0).
 
         align : {'center', 'edge'}, optional, default: 'center'
-            If 'center', interpret the *y* argument as the coordinates
-            of the centers of the bars.  If 'edge', aligns bars by
-            their bottom edges
+            Alignment of the base to the *y* coordinates*:
 
-            To align the bars on the top edge pass a negative
-            *height* and ``align='edge'``
+            - 'center': Center the bars on the *y* positions.
+            - 'edge': Align the bottom edges of the bars with the *y*
+              positions.
+
+            To align the bars on the top edge pass a negative *height* and
+            ``align='edge'``.
 
         Returns
         -------
-        `matplotlib.patches.Rectangle` instances.
+        `~.BarContainer`
+            Container with all the bars and optionally errorbars.
 
         Other Parameters
         ----------------
         color : scalar or array-like, optional
-            the colors of the bars
+            The colors of the bar faces.
 
         edgecolor : scalar or array-like, optional
-            the colors of the bar edges
+            The colors of the bar edges.
 
-        linewidth : scalar or array-like, optional, default: None
-            width of bar edge(s). If None, use default
-            linewidth; If 0, don't draw edges.
+        linewidth : scalar or array-like, optional
+            Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : string or array-like, optional, default: None
-            the tick labels of the bars
+        tick_label : string or array-like, optional
+            The tick labels of the bars.
+            Default: None (Use default numeric labels.)
 
-        xerr : scalar or array-like, optional, default: None
-            if not None, will be used to generate errorbar(s) on the bar chart
+        xerr, yerr : scalar or array-like of shape(N,) or shape(2,N), optional
+            If not *None*, add horizontal / vertical errorbars to the bar tips.
+            The values are +/- sizes relative to the data:
 
-        yerr : scalar or array-like, optional, default: None
-            if not None, will be used to generate errorbar(s) on the bar chart
+            - scalar: symmetric +/- values for all bars
+            - shape(N,): symmetric +/- values for each bar
+            - shape(2,N): separate + and - values for each bar
 
-        ecolor : scalar or array-like, optional, default: None
-            specifies the color of errorbar(s)
+            Default: None
+
+        ecolor : scalar or array-like, optional, default: 'black'
+            The line color of the errorbars.
 
         capsize : scalar, optional
-           determines the length in points of the error bar caps
-           default: None, which will take the value from the
+           The length of the error bar caps in points.
+           Default: None, which will take the value from the
            ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
 
-        error_kw :
-            dictionary of kwargs to be passed to errorbar method. `ecolor` and
-            `capsize` may be specified here rather than as independent kwargs.
+        error_kw : dict, optional
+            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
+            method. Values of *ecolor* or *capsize* defined here take
+            precedence over the independent kwargs.
 
-        log : boolean, optional, default: False
-            If true, sets the axis to be log scale
+        log : bool, optional, default: False
+            If *True*, set the x-axis to be log scale.
 
         See also
         --------
