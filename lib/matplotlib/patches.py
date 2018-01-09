@@ -1560,9 +1560,9 @@ class Annulus(Patch):
 
     def __str__(self):
         if self.a == self.b:
-            r = str(self.a)
+            r = self.a
         else:
-            r = '(%s, %s)' % (self.a, self.b)
+            r = (self.a, self.b)
 
         return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
                 (self.center[0], self.center[1], r, self.width, self.angle)
@@ -1576,23 +1576,24 @@ class Annulus(Patch):
         r : scalar or 1D array_like
             The radius, or semi-major axes
                 - If float: radius of the outer circle
-                - If array_like of size 2: semi-major and -minor axes of outer ellipse
+                - If array_like of size 2: semi-major and -minor axes of outer
+                  ellipse
 
         width : float
-          width of the annulus
+            width of the annulus
 
         angle: float, optional
-          rotation in degrees (anti-clockwise). Ignored for circular annuli (`r` is a scalar)
-
+            rotation in degrees (anti-clockwise). Ignored for circular annuli
+            (`r` is a scalar)
 
         Valid kwargs are:
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
 
-        if np.size(r) == 2:
+        if np.shape(r) == (2,):
             self.a, self.b = r
-        elif np.size(r) == 1:
+        elif np.shape(r) == ():
             self.a = self.b = float(r)
         else:
             raise ValueError(
