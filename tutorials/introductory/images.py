@@ -79,7 +79,7 @@ import numpy as np
 # And here we go...
 
 img = mpimg.imread('../../doc/_static/stinkbug.png')
-print(img)
+img
 
 ###############################################################################
 # Note the dtype there - float32.  Matplotlib has rescaled the 8 bit
