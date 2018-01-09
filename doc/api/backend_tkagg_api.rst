@@ -1,8 +1,8 @@
 
-:mod:`matplotlib.backends.backend_mixed`
+:mod:`matplotlib.backends.backend_tkagg`
 ========================================
 
-.. automodule:: matplotlib.backends.backend_mixed
+.. automodule:: matplotlib.backends.backend_tkagg
    :members:
    :undoc-members:
    :show-inheritance:

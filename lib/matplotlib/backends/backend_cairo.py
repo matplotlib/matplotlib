@@ -1,21 +1,10 @@
 """
 A Cairo backend for matplotlib
-Author: Steve Chaplin
+==============================
+:Author: Steve Chaplin and others
 
-Cairo is a vector graphics library with cross-device output support.
-Features of Cairo:
- * anti-aliasing
- * alpha channel
- * saves image files as PNG, PostScript, PDF
-
-http://cairographics.org
-Requires (in order, all available from Cairo website):
-    cairo, pycairo
-
-Naming Conventions
-  * classes MixedUpperCase
-  * varables lowerUpper
-  * functions underscore_separated
+This backend depends on `cairo <http://cairographics.org>`_, and either on
+cairocffi, or (Python 2 only) on pycairo.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -29,26 +18,29 @@ import warnings
 
 import numpy as np
 
-try:
-    import cairocffi as cairo
-except ImportError:
+# In order to make it possible to pick the binding, use whichever has already
+# been imported, if any.
+cairo = next(
+    (mod for mod in (
+        sys.modules.get(name) for name in ["cairocffi", "cairo"]) if mod),
+    None)
+if cairo is None:
     try:
-        import cairo
+        import cairocffi as cairo
     except ImportError:
-        raise ImportError("Cairo backend requires that cairocffi or pycairo "
-                          "is installed.")
-    else:
-        HAS_CAIRO_CFFI = False
-else:
-    HAS_CAIRO_CFFI = True
+        try:
+            import cairo
+        except ImportError:
+            raise ImportError(
+                "The cairo backend requires cairocffi or pycairo")
+# cairocffi can install itself as cairo (`install_as_pycairo`) -- don't get
+# fooled!
+HAS_CAIRO_CFFI = cairo.__name__ == "cairocffi"
 
-_version_required = (1, 2, 0)
-if cairo.version_info < _version_required:
-    raise ImportError("Pycairo %d.%d.%d is installed\n"
-                      "Pycairo %d.%d.%d or later is required"
-                      % (cairo.version_info + _version_required))
+if cairo.version_info < (1, 2, 0):
+    raise ImportError("cairo {} is installed; "
+                      "cairo>=1.2.0 is required".format(cairo.version))
 backend_version = cairo.version
-del _version_required
 
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -113,14 +105,14 @@ class RendererCairo(RendererBase):
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
+        # Although it may appear natural to automatically call
+        # `self.set_width_height(surface.get_width(), surface.get_height())`
+        # here (instead of having the caller do so separately), this would fail
+        # for PDF/PS/SVG surfaces, which have no way to report their extents.
 
     def set_width_height(self, width, height):
         self.width  = width
         self.height = height
-        self.matrix_flipy = cairo.Matrix(yy=-1, y0=self.height)
-        # use matrix_flipy for ALL rendering?
-        # - problem with text? - will need to switch matrix_flipy off, or do a
-        # font transform?
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
@@ -314,11 +306,6 @@ class RendererCairo(RendererBase):
 
         ctx.restore()
 
-    def flipy(self):
-        return True
-        #return False # tried - all draw objects ok except text (and images?)
-        # which comes out mirrored!
-
     def get_canvas_width_height(self):
         return self.width, self.height
 
@@ -456,9 +443,9 @@ class FigureCanvasCairo(FigureCanvasBase):
         width, height = self.get_width_height()
 
         renderer = RendererCairo(self.figure.dpi)
-        renderer.set_width_height(width, height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         renderer.set_ctx_from_surface(surface)
+        renderer.set_width_height(width, height)
 
         self.figure.draw(renderer)
         surface.write_to_png(fobj)
@@ -514,8 +501,8 @@ class FigureCanvasCairo(FigureCanvasBase):
 
         # surface.set_dpi() can be used
         renderer = RendererCairo(self.figure.dpi)
-        renderer.set_width_height(width_in_points, height_in_points)
         renderer.set_ctx_from_surface(surface)
+        renderer.set_width_height(width_in_points, height_in_points)
         ctx = renderer.gc.ctx
 
         if orientation == 'landscape':
