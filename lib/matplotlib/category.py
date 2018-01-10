@@ -20,7 +20,7 @@ import numpy as np
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Use axis.units mapping tncode data as floats."""
+        """Use axis.units mapping to map categorical data to floats."""
 
         # We also need to pass numbers through.
         if np.issubdtype(np.asarray(value).dtype.type, np.number):
