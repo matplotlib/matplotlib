@@ -16,7 +16,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.backends.windowing as windowing
 
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
