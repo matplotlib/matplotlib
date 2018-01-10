@@ -20,8 +20,12 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   pytest $PYTEST_ARGS $RUN_PEP8
   exit $?
 else
-  python $PYTHON_ARGS -m pytest $PYTEST_ARGS $RUN_PEP8
+  gdb -return-child-result -batch \
+      -ex 'set disable-randomization off' \
+      -ex r \
+      -ex bt \
+      --args python $PYTHON_ARGS -m pytest $PYTEST_ARGS $RUN_PEP8
   exit_val=$?
-  echo "pytest exited with result $exit_val"
+  echo "gdb exited with result $exit_val"
   exit $exit_val
 fi
