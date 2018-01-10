@@ -151,10 +151,17 @@ source_encoding = "utf-8"
 master_doc = 'contents'
 
 # General substitutions.
+from matplotlib.compat.subprocess import check_output
+SHA = check_output(['git', 'describe', '--dirty']).decode('utf-8').strip()
+
+html_context = {'sha': SHA}
+
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
              'team; 2012 - 2017 The Matplotlib development team')
+
+
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
