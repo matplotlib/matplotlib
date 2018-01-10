@@ -1314,9 +1314,7 @@ class Axes(_AxesBase):
         >>> plot(x, y, color='green', marker='o', linestyle='dashed', \
 linewidth=2, markersize=12)
 
-        When conflicting with *fmt*, the *\*\*kwargs* properties are taking
-        precedence.
-
+        When conflicting with *fmt*, keyword arguments take precedence.
 
         **Plotting labelled data**
 
@@ -1968,7 +1966,7 @@ linewidth=2, markersize=12)
                       )
     @docstring.dedent_interpd
     def bar(self, *args, **kwargs):
-        """
+        r"""
         Make a bar plot.
 
         Call signatures::
@@ -2285,7 +2283,7 @@ linewidth=2, markersize=12)
 
     @docstring.dedent_interpd
     def barh(self, *args, **kwargs):
-        """
+        r"""
         Make a horizontal bar plot.
 
         Call signatures::
