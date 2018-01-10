@@ -16,16 +16,6 @@ if [[ $DELETE_FONT_CACHE == 1 ]]; then
 fi
 
 echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
-if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-  pytest $PYTEST_ARGS $RUN_PEP8
-  exit $?
-else
-  gdb -return-child-result -batch \
-      -ex 'set disable-randomization off' \
-      -ex r \
-      -ex bt \
-      --args python $PYTHON_ARGS -m pytest $PYTEST_ARGS $RUN_PEP8
-  exit_val=$?
-  echo "gdb exited with result $exit_val"
-  exit $exit_val
-fi
+
+pytest $PYTEST_ARGS $RUN_PEP8
+exit $?
