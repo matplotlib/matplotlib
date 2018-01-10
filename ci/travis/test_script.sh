@@ -21,5 +21,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   exit $?
 else
   gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS -m pytest $PYTEST_ARGS $RUN_PEP8
-  exit $?
+  exit_val=$?
+  echo "gdb exited with result $exit_val"
+  exit $exit_val
 fi
