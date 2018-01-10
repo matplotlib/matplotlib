@@ -385,16 +385,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         Draw the figure using the renderer.
         """
         self.renderer = self.get_renderer(cleared=True)
-        # acquire a lock on the shared font cache
-        RendererAgg.lock.acquire()
-
-        try:
+        with RendererAgg.lock:
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
             # don't forget to call the superclass.
             super().draw()
-        finally:
-            RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):
         l, b, w, h = self.figure.bbox.bounds

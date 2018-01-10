@@ -1,19 +1,17 @@
-import math
+from contextlib import contextmanager
 import logging
+import math
 import os.path
 import sys
 import tkinter as tk
 from tkinter.simpledialog import SimpleDialog
 import tkinter.filedialog
 import tkinter.messagebox
-from contextlib import contextmanager
 
 import numpy as np
 
-from . import _tkagg
-
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -21,6 +19,7 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from . import _tkagg
 
 try:
     from ._tkagg import Win32_GetForegroundWindow, Win32_SetForegroundWindow
@@ -54,18 +53,6 @@ cursord = {
     cursors.SELECT_REGION: "tcross",
     cursors.WAIT: "watch",
     }
-
-
-def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
-    if not isinstance(msg, str):
-        msg = '\n'.join(map(str, msg))
-    return msg
-
-
-def error_msg_tkpaint(msg, parent=None):
-    import tkinter.messagebox
-    tkinter.messagebox.showerror("matplotlib", msg)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):

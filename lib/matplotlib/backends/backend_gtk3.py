@@ -293,11 +293,8 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         pass
 
     def draw(self):
-        if self.get_visible() and self.get_mapped():
+        if self.is_drawable():
             self.queue_draw()
-            # do a synchronous draw (its less efficient than an async draw,
-            # but is required if/when animation is used)
-            self.get_property("window").process_updates(False)
 
     def draw_idle(self):
         if self._idle_draw_id != 0:
