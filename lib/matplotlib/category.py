@@ -1,5 +1,3 @@
-# -*- coding: utf-8 OA -*-
-
 """
 catch all for categorical functions
 """
