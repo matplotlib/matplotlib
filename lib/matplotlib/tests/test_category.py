@@ -61,6 +61,8 @@ class TestStrCategoryConverter(object):
     test_cases = [("unicode", {u"Здравствуйте мир": 42}),
                   ("ascii", {"hello world": 42}),
                   ("single", {'a': 0, 'b': 1, 'c': 2}),
+                  ("single bytes", {b'a': 0, b'b': 1, b'c': 2}),
+                  ("mixed bytes", {b'a': 0, 'b': 1, b'c': 2}),
                   ("single + values>10", {'A': 0, 'B': 1, 'C': 2,
                                           'D': 3, 'E': 4, 'F': 5,
                                           'G': 6, 'H': 7, 'I': 8,
@@ -111,11 +113,11 @@ class TestStrCategoryFormatter(object):
         assert labels(1, 1) == "world"
 
     def test_StrCategoryFormatterUnicode(self):
-        seq = ["Здравствуйте", "привет"]
+        seq = [u"Здравствуйте", u"привет"]
         u = cat.UnitData()
         u.update(seq)
         labels = cat.StrCategoryFormatter(u)
-        assert labels(1, 1) == "привет"
+        assert labels(1, 1) == u"привет"
 
 
 def lt(tl):
@@ -130,6 +132,8 @@ def axis_test(axis, ticks, labels, unit_data):
 
 class TestBarsBytes(object):
     bytes_cases = [('string list', ['a', 'b', 'c']),
+                   ('bytes list', [b'a', b'b', b'c']),
+                   ('mixed list', [b'a', 'b', b'c']),
                    ]
 
     bytes_ids, bytes_data = zip(*bytes_cases)
@@ -232,6 +236,7 @@ def ax():
     [([u"Здравствуйте мир"], [0], [u"Здравствуйте мир"]),
      (["a", "b", "b", "a", "c", "c"], [0, 1, 1, 0, 2, 2], ["a", "b", "c"]),
      (["foo", "bar"], range(2), ["foo", "bar"]),
+     ([b"foo", "bar"], range(2), ["foo", "bar"]),
      (np.array(["1", "11", "3"]), range(3), ["1", "11", "3"])])
 def test_simple(ax, data, expected_indices, expected_labels):
     l, = ax.plot(data)

@@ -17,14 +17,16 @@ class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
         """Use axis.units mapping to map categorical data to floats."""
-
+        def getter(k):
+            if not isinstance(k, six.text_type):
+                k = k.decode('utf-8')
+            return axis.units._mapping[k]
         # We also need to pass numbers through.
         if np.issubdtype(np.asarray(value).dtype.type, np.number):
             return value
         else:
             axis.units.update(value)
-            str2idx = np.vectorize(axis.units._mapping.__getitem__,
-                                   otypes=[float])
+            str2idx = np.vectorize(getter, otypes=[float])
             return str2idx(value)
 
     @staticmethod
@@ -61,6 +63,9 @@ class StrCategoryFormatter(ticker.Formatter):
 
 
 class UnitData(object):
+    valid_types = tuple(set(six.string_types +
+                            (bytes, six.text_type, np.str_, np.bytes_)))
+
     def __init__(self, data=None):
         """Create mapping between unique categorical values and numerical id.
 
@@ -73,10 +78,12 @@ class UnitData(object):
         self._vals = []
         if data is None:
             data = ()
-        self._mapping = OrderedDict(data)
-        for k, v in self._mapping.items():
-            if not isinstance(k, six.text_type):
+        self._mapping = OrderedDict()
+        for k, v in OrderedDict(data).items():
+            if not isinstance(k, self.valid_types):
                 raise TypeError("{val!r} is not a string".format(val=k))
+            if not isinstance(k, six.text_type):
+                k = k.decode('utf-8')
             self._mapping[k] = int(v)
         if self._mapping:
             start = max(self._mapping.values()) + 1
@@ -85,19 +92,22 @@ class UnitData(object):
         self._counter = itertools.count(start=start)
 
     def update(self, data):
-        if isinstance(data, six.string_types):
+        if isinstance(data, self.valid_types):
             data = [data]
         sorted_unique = OrderedDict.fromkeys(data)
         for val in sorted_unique:
+            if not isinstance(val, self.valid_types):
+                raise TypeError("{val!r} is not a string".format(val=val))
+            if not isinstance(val, six.text_type):
+                val = val.decode('utf-8')
             if val in self._mapping:
                 continue
-            if not isinstance(val, six.text_type):
-                raise TypeError("{val!r} is not a string".format(val=val))
             self._vals.append(val)
             self._mapping[val] = next(self._counter)
 
 
 # Connects the convertor to matplotlib
+
 units.registry[str] = StrCategoryConverter()
 units.registry[bytes] = StrCategoryConverter()
 units.registry[np.str_] = StrCategoryConverter()
