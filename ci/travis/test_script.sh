@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -v
+set -ex
 
 # This script is meant to be called by the "script" step defined in
 # .travis.yml. See http://docs.travis-ci.com/ for more details.
@@ -18,4 +18,3 @@ fi
 echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
 
 pytest $PYTEST_ARGS $RUN_PEP8
-exit $?
