@@ -229,7 +229,7 @@ def ax():
 
 @pytest.mark.parametrize(
     "data, expected_indices, expected_labels",
-    [(["Здравствуйте мир"], [0], ["Здравствуйте мир"]),
+    [([u"Здравствуйте мир"], [0], [u"Здравствуйте мир"]),
      (["a", "b", "b", "a", "c", "c"], [0, 1, 1, 0, 2, 2], ["a", "b", "c"]),
      (["foo", "bar"], range(2), ["foo", "bar"]),
      (np.array(["1", "11", "3"]), range(3), ["1", "11", "3"])])
@@ -266,9 +266,9 @@ def test_StrCategoryLocator(ax, plotter):
 
 @pytest.mark.parametrize("plotter", [Axes.plot, Axes.scatter, Axes.bar])
 def test_StrCategoryFormatter(ax, plotter):
-    plotter(ax, range(2), ["hello", "мир"])
+    plotter(ax, range(2), ["hello", u"мир"])
     assert ax.yaxis.major.formatter(0, 0) == "hello"
-    assert ax.yaxis.major.formatter(1, 1) == "мир"
+    assert ax.yaxis.major.formatter(1, 1) == u"мир"
     assert ax.yaxis.major.formatter(2, 2) == ""
     assert ax.yaxis.major.formatter(0, None) == ""
 
