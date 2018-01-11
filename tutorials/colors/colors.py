@@ -6,7 +6,7 @@ Specifying Colors
 Matplotlib recognizes the following formats to specify a color:
 
 * an RGB or RGBA tuple of float values in ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)``
-  or  ``(0.1, 0.2, 0.5, 0.3)``);
+  or  ``(0.1, 0.2, 0.5, 0.3)``).  RGBA is short for Red, Green, Blue, Alpha;
 * a hex RGB or RGBA string (e.g., ``'#0F0F0F'`` or ``'#0F0F0F0F'``);
 * a string representation of a float value in ``[0, 1]`` inclusive for gray
   level (e.g., ``'0.5'``);
@@ -22,6 +22,19 @@ Matplotlib recognizes the following formats to specify a color:
   into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
   the indexing occurs at artist creation time and defaults to black if the
   cycle does not include color.
+
+"Red", "Green" and "Blue", are the intensities of those colors, the combination
+of which span the colorspace.
+
+How "Alpha" behaves depends on the ``zorder`` of the Artist.  Higher
+``zorder`` Artists are drawn on top of lower Artists, and "Alpha" determines
+whether the lower artist is covered by the higher.
+If the old RGB of a pixel is ``RGBold`` and the RGB of the
+pixel of the Artist being added is ``RGBnew`` with Alpha ``alpha``,
+then the RGB of the pixel is updated to:
+``RGB = RGBOld * (1 - Alpha) + RGBnew * Alpha``.  Alpha
+of 1 means the old color is completely covered by the new Artist, Alpha of 0
+means that pixel of the Artist is transparent.
 
 All string specifications of color, other than "CN", are case-insensitive.
 

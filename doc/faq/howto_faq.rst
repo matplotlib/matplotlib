@@ -19,10 +19,11 @@ Plotting: howto
 Plot `numpy.datetime64` values
 ------------------------------
 
-For Matplotlib to plot dates (or any scalar with units) a converter
-to float needs to be registered with the `matplolib.units` module.  The
-current best converters for `datetime64` values are in `pandas`. To enable the
-converter, import it from pandas::
+As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
+as `datetime.datetime` objects.
+
+If you prefer the pandas converters and locators, you can register their
+converter with the `matplolib.units` module::
 
   from pandas.tseries import converter as pdtc
   pdtc.register()
@@ -170,10 +171,10 @@ The other parameters you can configure are, with their defaults
 *top* = 0.9
     the top of the subplots of the figure
 *wspace* = 0.2
-    the amount of width reserved for blank space between subplots,
+    the amount of width reserved for space between subplots,
     expressed as a fraction of the average axis width
 *hspace* = 0.2
-    the amount of height reserved for white space between subplots,
+    the amount of height reserved for space between subplots,
     expressed as a fraction of the average axis height
 
 If you want additional control, you can create an

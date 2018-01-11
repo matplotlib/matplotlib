@@ -3,17 +3,14 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import wx
+
 import matplotlib
-from matplotlib.figure import Figure
-
-from .backend_agg import FigureCanvasAgg
-
 from . import wx_compat as wxc
 from . import backend_wx
-from .backend_wx import (_BackendWx, FigureManagerWx, FigureCanvasWx,
-    FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, Toolbar)
-
-import wx
+from .backend_agg import FigureCanvasAgg
+from .backend_wx import (
+    _BackendWx, FigureCanvasWx, FigureFrameWx, NavigationToolbar2Wx, DEBUG_MSG)
 
 
 class FigureFrameWxAgg(FigureFrameWx):

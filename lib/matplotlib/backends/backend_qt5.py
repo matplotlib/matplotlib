@@ -76,10 +76,10 @@ MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
 if sys.platform == 'darwin':
     # in OSX, the control and super (aka cmd/apple) keys are switched, so
     # switch them back.
-    SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'super',  # cmd/apple key
+    SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'cmd',  # cmd/apple key
                          QtCore.Qt.Key_Meta: 'control',
                          })
-    MODIFIER_KEYS[0] = ('super', QtCore.Qt.ControlModifier,
+    MODIFIER_KEYS[0] = ('cmd', QtCore.Qt.ControlModifier,
                         QtCore.Qt.Key_Control)
     MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier,
                         QtCore.Qt.Key_Meta)
@@ -316,15 +316,27 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.button_release_event(self, x, y, button,
                                                   guiEvent=event)
 
-    def wheelEvent(self, event):
-        x, y = self.mouseEventCoords(event)
-        # from QWheelEvent::delta doc
-        if event.pixelDelta().x() == 0 and event.pixelDelta().y() == 0:
-            steps = event.angleDelta().y() / 120
-        else:
-            steps = event.pixelDelta().y()
-        if steps:
-            FigureCanvasBase.scroll_event(self, x, y, steps, guiEvent=event)
+    if is_pyqt5():
+        def wheelEvent(self, event):
+            x, y = self.mouseEventCoords(event)
+            # from QWheelEvent::delta doc
+            if event.pixelDelta().x() == 0 and event.pixelDelta().y() == 0:
+                steps = event.angleDelta().y() / 120
+            else:
+                steps = event.pixelDelta().y()
+            if steps:
+                FigureCanvasBase.scroll_event(
+                    self, x, y, steps, guiEvent=event)
+    else:
+        def wheelEvent(self, event):
+            x = event.x()
+            # flipy so y=0 is bottom of canvas
+            y = self.figure.bbox.height - event.y()
+            # from QWheelEvent::delta doc
+            steps = event.delta() / 120
+            if event.orientation() == QtCore.Qt.Vertical:
+                FigureCanvasBase.scroll_event(
+                    self, x, y, steps, guiEvent=event)
 
     def keyPressEvent(self, event):
         key = self._get_key(event)

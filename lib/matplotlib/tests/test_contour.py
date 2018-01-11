@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import datetime
 
@@ -10,8 +9,6 @@ from matplotlib import pyplot as plt
 from numpy.testing import assert_array_almost_equal
 import pytest
 import warnings
-
-import re
 
 
 def test_contour_shape_1d_valid():
@@ -173,20 +170,21 @@ def test_contour_uniform_z():
     assert len(record) == 1
 
 
-@image_comparison(baseline_images=['contour_manual_labels'])
+@image_comparison(baseline_images=['contour_manual_labels'],
+    savefig_kwarg={'dpi': 200}, remove_text=True, style='mpl20')
 def test_contour_manual_labels():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
-    plt.figure(figsize=(6, 2))
+    plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
     pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
     plt.clabel(cs, manual=pts)
 
 
 @image_comparison(baseline_images=['contour_labels_size_color'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_contour_labels_size_color():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
@@ -305,32 +303,6 @@ def test_contourf_decreasing_levels():
     plt.figure()
     with pytest.raises(ValueError):
         plt.contourf(z, [1.0, 0.0])
-    # Legacy contouring algorithm gives a warning rather than raising an error,
-    # plus a DeprecationWarning.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        plt.contourf(z, [1.0, 0.0], corner_mask='legacy')
-        assert len(w) == 2
-
-
-def test_vminvmax_warning():
-    z = [[0.1, 0.3], [0.5, 0.7]]
-    plt.figure()
-    cs = plt.contourf(z, [0.0, 1.0])
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        cs.vmin
-        assert len(w) == 1
-        msg = "vmin is deprecated and will be removed in 2.2 "
-        assert str(w[0].message).startswith(msg)
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        cs.vmax
-        assert len(w) == 1
-        msg = "vmax is deprecated and will be removed in 2.2 "
-        assert str(w[0].message).startswith(msg)
 
 
 def test_contourf_symmetric_locator():

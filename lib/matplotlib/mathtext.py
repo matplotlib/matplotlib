@@ -18,9 +18,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
-import os, sys
 from six import unichr
+
+import os
 from math import ceil
 import unicodedata
 from warnings import warn
@@ -30,29 +30,23 @@ try:
 except ImportError:  # Py2
     from backports.functools_lru_cache import lru_cache
 
-from numpy import inf, isinf
 import numpy as np
 
-import pyparsing
-from pyparsing import (Combine, Group, Optional, Forward,
-     Literal, OneOrMore, ZeroOrMore, ParseException, Empty,
-     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException,
-     FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException)
+from pyparsing import (
+    Combine, Empty, FollowedBy, Forward, Group, Literal, oneOf, OneOrMore,
+    Optional, ParseBaseException, ParseFatalException, ParserElement,
+    QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
 
 ParserElement.enablePackrat()
 
+from matplotlib import _png, colors as mcolors, get_data_path, rcParams
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat
-from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
-                                LOAD_NO_HINTING)
+from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
                                        tex2uni, latex_to_cmex,
                                        stix_virtual_fonts)
-from matplotlib import get_data_path, rcParams
-
-import matplotlib.colors as mcolors
-import matplotlib._png as _png
 
 ####################
 
@@ -999,7 +993,10 @@ class StixFonts(UnicodeFonts):
 
         if mapping is not None:
             if isinstance(mapping, dict):
-                mapping = mapping.get(font_class, 'rm')
+                try:
+                    mapping = mapping[font_class]
+                except KeyError:
+                    mapping = mapping['rm']
 
             # Binary search for the source glyph
             lo = 0
@@ -1688,7 +1685,7 @@ class Hlist(List):
                 d = max(d, p.depth)
             elif isinstance(p, Box):
                 x += p.width
-                if not isinf(p.height) and not isinf(p.depth):
+                if not np.isinf(p.height) and not np.isinf(p.depth):
                     s = getattr(p, 'shift_amount', 0.)
                     h = max(h, p.height - s)
                     d = max(d, p.depth + s)
@@ -1725,7 +1722,7 @@ class Vlist(List):
         List.__init__(self, elements)
         self.vpack()
 
-    def vpack(self, h=0., m='additional', l=float(inf)):
+    def vpack(self, h=0., m='additional', l=np.inf):
         """
         The main duty of :meth:`vpack` is to compute the dimensions of
         the resulting boxes, and to adjust the glue if one of those
@@ -1752,7 +1749,7 @@ class Vlist(List):
             if isinstance(p, Box):
                 x += d + p.height
                 d = p.depth
-                if not isinf(p.width):
+                if not np.isinf(p.width):
                     s = getattr(p, 'shift_amount', 0.)
                     w = max(w, p.width + s)
             elif isinstance(p, Glue):
@@ -1817,7 +1814,7 @@ class Hrule(Rule):
             thickness = state.font_output.get_underline_thickness(
                 state.font, state.fontsize, state.dpi)
         height = depth = thickness * 0.5
-        Rule.__init__(self, inf, height, depth, state)
+        Rule.__init__(self, np.inf, height, depth, state)
 
 class Vrule(Rule):
     """
@@ -1826,7 +1823,7 @@ class Vrule(Rule):
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        Rule.__init__(self, thickness, inf, inf, state)
+        Rule.__init__(self, thickness, np.inf, np.inf, state)
 
 class Glue(Node):
     """
@@ -2048,6 +2045,7 @@ class AutoWidthChar(Hlist):
         Hlist.__init__(self, [char])
         self.width = char.width
 
+
 class Ship(object):
     """
     Once the boxes have been set up, this sends them to output.  Since
@@ -2111,16 +2109,16 @@ class Ship(object):
                 rule_height = p.height
                 rule_depth  = p.depth
                 rule_width  = p.width
-                if isinf(rule_height):
+                if np.isinf(rule_height):
                     rule_height = box.height
-                if isinf(rule_depth):
+                if np.isinf(rule_depth):
                     rule_depth = box.depth
                 if rule_height > 0 and rule_width > 0:
-                    self.cur_v = baseline + rule_depth
+                    self.cur_v = base_line + rule_depth
                     p.render(self.cur_h + self.off_h,
                              self.cur_v + self.off_v,
                              rule_width, rule_height)
-                    self.cur_v = baseline
+                    self.cur_v = base_line
                 self.cur_h += rule_width
             elif isinstance(p, Glue):
                 # node625
@@ -2171,7 +2169,7 @@ class Ship(object):
                 rule_height = p.height
                 rule_depth = p.depth
                 rule_width = p.width
-                if isinf(rule_width):
+                if np.isinf(rule_width):
                     rule_width = box.width
                 rule_height += rule_depth
                 if rule_height > 0 and rule_depth > 0:
@@ -2195,6 +2193,7 @@ class Ship(object):
             elif isinstance(p, Char):
                 raise RuntimeError("Internal mathtext error: Char node found in vlist")
         self.cur_s -= 1
+
 
 ship = Ship()
 

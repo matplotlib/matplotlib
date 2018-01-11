@@ -6,8 +6,7 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange, zip
@@ -30,26 +29,25 @@ import traceback
 import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 import numpy as np
 
+import matplotlib
+from .deprecation import deprecated, warn_deprecated
+from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
-# On some systems, locale.getpreferredencoding returns None,
-# which can break unicode; and the sage project reports that
-# some systems have incorrect locale specifications, e.g.,
-# an encoding instead of a valid locale name.  Another
-# pathological case that has been reported is an empty string.
-
-# On some systems, getpreferredencoding sets the locale, which has
-# side effects.  Passing False eliminates those side effects.
 
 def unicode_safe(s):
-    import matplotlib
 
     if isinstance(s, bytes):
         try:
+            # On some systems, locale.getpreferredencoding returns None,
+            # which can break unicode; and the sage project reports that
+            # some systems have incorrect locale specifications, e.g.,
+            # an encoding instead of a valid locale name.  Another
+            # pathological case that has been reported is an empty string.
+            # On some systems, getpreferredencoding sets the locale, which has
+            # side effects.  Passing False eliminates those side effects.
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
             if not preferredencoding:
@@ -624,6 +622,9 @@ def _string_to_bool(s):
     """Parses the string argument as a boolean"""
     if not isinstance(s, six.string_types):
         return bool(s)
+    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
+                    "boolean is deprecated; use an actual boolean "
+                    "(True/False) instead.")
     if s.lower() in ['on', 'true']:
         return True
     if s.lower() in ['off', 'false']:
@@ -645,8 +646,6 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    import matplotlib
-
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
@@ -1847,9 +1846,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                 loval = np.min(x)
                 hival = np.max(x)
             else:
-                whismsg = ('whis must be a float, valid string, or '
-                           'list of percentiles')
-                raise ValueError(whismsg)
+                raise ValueError('whis must be a float, valid string, or list '
+                                 'of percentiles')
         else:
             loval = np.percentile(x, whis[0])
             hival = np.percentile(x, whis[1])
@@ -2167,7 +2165,7 @@ def pts_to_prestep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2177,13 +2175,14 @@ def pts_to_prestep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
@@ -2204,7 +2203,7 @@ def pts_to_poststep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2214,13 +2213,14 @@ def pts_to_poststep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 2::2]
     steps[1:, 0::2] = args
@@ -2239,7 +2239,7 @@ def pts_to_midstep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2258,7 +2258,8 @@ def pts_to_midstep(x, *args):
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
     steps[0, 1:-1:2] = steps[0, 2::2] = (x[:-1] + x[1:]) / 2
-    steps[0, 0], steps[0, -1] = x[0], x[-1]
+    steps[0, :1] = x[:1]  # Also works for zero-sized input.
+    steps[0, -1:] = x[-1:]
     steps[1:, 0::2] = args
     steps[1:, 1::2] = steps[1:, 0::2]
     return steps

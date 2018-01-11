@@ -1459,10 +1459,9 @@ class Locator(TickHelper):
         """raise a RuntimeError if Locator attempts to create more than
            MAXTICKS locs"""
         if len(locs) >= self.MAXTICKS:
-            msg = ('Locator attempting to generate %d ticks from %s to %s: ' +
-                   'exceeds Locator.MAXTICKS') % (len(locs), locs[0], locs[-1])
-            raise RuntimeError(msg)
-
+            raise RuntimeError("Locator attempting to generate {} ticks from "
+                               "{} to {}: exceeds Locator.MAXTICKS".format(
+                                   len(locs), locs[0], locs[-1]))
         return locs
 
     def view_limits(self, vmin, vmax):
@@ -1876,10 +1875,6 @@ class MaxNLocator(Locator):
             self._nbins = kwargs['nbins']
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
-        if 'trim' in kwargs:
-            warnings.warn(
-                "The 'trim' keyword has no effect since version 2.0.",
-                mplDeprecation)
         if 'symmetric' in kwargs:
             self._symmetric = kwargs['symmetric']
         if 'prune' in kwargs:
@@ -1946,10 +1941,6 @@ class MaxNLocator(Locator):
             if nticks >= self._min_n_ticks:
                 break
         return ticks
-
-    @cbook.deprecated("2.0")
-    def bin_boundaries(self, vmin, vmax):
-        return self._raw_ticks(vmin, vmax)
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
@@ -2355,7 +2346,10 @@ class SymmetricalLogLocator(Locator):
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * decade)
+                if decade == 0:
+                    ticklocs.append(decade)
+                else:
+                    ticklocs.extend(subs * decade)
         else:
             ticklocs = decades
 

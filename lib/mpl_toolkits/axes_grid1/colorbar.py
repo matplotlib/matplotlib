@@ -76,8 +76,8 @@ colormap_kw_doc = '''
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
-    *drawedges*   [ False | True ] If true, draw lines at color
-                  boundaries.
+    *drawedges*   bool
+                  Whether to draw lines at color boundaries.
     ===========   ====================================================
 
     The following will probably be useful only in the context of

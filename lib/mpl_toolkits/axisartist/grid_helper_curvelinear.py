@@ -28,9 +28,7 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
 
-        super(FixedAxisArtistHelper, self).__init__( \
-            loc=side,
-            )
+        super(FixedAxisArtistHelper, self).__init__(loc=side)
 
         self.grid_helper = grid_helper
         if nth_coord_ticks is None:
@@ -318,7 +316,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         x, y = self.grid_info["line_xy"]
 
         if self._get_line_path is None:
-            return Path(list(zip(x, y)))
+            return Path(np.column_stack([x, y]))
         else:
             return self._get_line_path(axes, x, y)
 
@@ -412,7 +410,7 @@ class GridHelperCurveLinear(GridHelperBase):
         if axes is None:
             axes = self.axes
 
-        _helper = FloatingAxisArtistHelper( \
+        _helper = FloatingAxisArtistHelper(
             self, nth_coord, value, axis_direction)
 
         axisline = AxisArtist(axes, _helper)

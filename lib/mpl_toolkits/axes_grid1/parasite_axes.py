@@ -3,24 +3,14 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import warnings
-
-import matplotlib
-rcParams = matplotlib.rcParams
-import matplotlib.artist as martist
-import matplotlib.transforms as mtransforms
-import matplotlib.collections as mcoll
-import matplotlib.legend as mlegend
-
+from matplotlib import (
+    artist as martist, collections as mcoll, transforms as mtransforms,
+    rcParams)
 from matplotlib.axes import subplot_class_factory
+from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
 
-from matplotlib.transforms import Bbox
-
 import numpy as np
-
-import matplotlib.cbook as cbook
-is_string_like = cbook.is_string_like
 
 
 class ParasiteAxesBase(object):
@@ -405,7 +395,7 @@ class HostAxesBase(object):
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
 
-        bbs = [ax.get_tightbbox(renderer, call_axes_locator) \
+        bbs = [ax.get_tightbbox(renderer, call_axes_locator)
                for ax in self.parasites]
         get_tightbbox = self._get_base_axes_attr("get_tightbbox")
         bbs.append(get_tightbbox(self, renderer, call_axes_locator))

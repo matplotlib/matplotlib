@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange
@@ -51,7 +50,8 @@ def test_acorr():
     x = np.random.normal(0, 1, n).cumsum()
 
     fig, ax = plt.subplots()
-    ax.acorr(x, maxlags=n - 1)
+    ax.acorr(x, maxlags=n - 1, label='acorr')
+    ax.legend()
 
 
 @image_comparison(baseline_images=['spy'], extensions=['png'], style='mpl20')
@@ -630,8 +630,8 @@ def test_polar_units():
     units.register()
 
     pi = np.pi
-    deg = units.UnitDbl(1.0, "deg")
-    km = units.UnitDbl(1.0, "km")
+    deg = units.deg
+    km = units.km
 
     x1 = [pi/6.0, pi/4.0, pi/3.0, pi/2.0]
     x2 = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
@@ -1197,7 +1197,8 @@ def test_pcolorargs():
     x[0] = np.NaN
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
-    x = np.ma.array(x, mask=(x < 0))
+    with np.errstate(invalid='ignore'):
+        x = np.ma.array(x, mask=(x < 0))
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
 
@@ -1705,7 +1706,8 @@ def test_scatter_marker():
     rx, ry = 3, 1
     area = rx * ry * np.pi
     theta = np.linspace(0, 2 * np.pi, 21)
-    verts = list(zip(np.cos(theta) * rx / area, np.sin(theta) * ry / area))
+    verts = np.column_stack([np.cos(theta) * rx / area,
+                             np.sin(theta) * ry / area])
     ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
                 c=[(1, 0, 0), 'y', 'b', 'lime'],
                 s=[60, 50, 40, 30],
@@ -3445,7 +3447,7 @@ def test_mixed_collection():
 def test_subplot_key_hash():
     ax = plt.subplot(np.float64(5.5), np.int64(1), np.float64(1.2))
     ax.twinx()
-    assert (5, 1, 0, None) == ax.get_subplotspec().get_geometry()
+    assert ax.get_subplotspec().get_geometry() == (5, 1, 0, 0)
 
 
 @image_comparison(baseline_images=['specgram_freqs',
@@ -4902,16 +4904,6 @@ def test_errorbar_inputs_shotgun(kwargs):
     eb.remove()
 
 
-def test_axisbg_warning():
-    fig = plt.figure()
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
-        assert len(w) == 1
-        msg = "The axisbg attribute was deprecated in version 2.0."
-        assert str(w[0].message).startswith(msg)
-
-
 @image_comparison(baseline_images=["dash_offset"], remove_text=True)
 def test_dash_offset():
     fig, ax = plt.subplots()
@@ -4961,6 +4953,24 @@ def test_loglog():
     ax.loglog(x, x**3, lw=5)
     ax.tick_params(length=25, width=2)
     ax.tick_params(length=15, width=2, which='minor')
+
+
+@image_comparison(baseline_images=["test_loglog_nonpos"],
+                  remove_text=True, extensions=['png'], style='mpl20')
+def test_loglog_nonpos():
+    fig, ax = plt.subplots(3, 3)
+    x = np.arange(1, 11)
+    y = x**3
+    y[7] = -3.
+    x[4] = -10
+    for nn, mcx in enumerate(['mask', 'clip', '']):
+        for mm, mcy in enumerate(['mask', 'clip', '']):
+            kws = {}
+            if mcx:
+                kws['nonposx'] = mcx
+            if mcy:
+                kws['nonposy'] = mcy
+            ax[mm, nn].loglog(x, y**3, lw=2, **kws)
 
 
 @pytest.mark.style('default')
@@ -5081,11 +5091,7 @@ def test_broken_barh_empty():
     ax.broken_barh([], (.1, .5))
 
 
-def test_pandas_pcolormesh():
-    pd = pytest.importorskip('pandas')
-    from pandas.tseries import converter
-    converter.register()
-
+def test_pandas_pcolormesh(pd):
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
     data = np.random.rand(20, 10)
@@ -5094,11 +5100,7 @@ def test_pandas_pcolormesh():
     ax.pcolormesh(time, depth, data)
 
 
-def test_pandas_indexing_dates():
-    pd = pytest.importorskip('pandas')
-    from pandas.tseries import converter
-    converter.register()
-
+def test_pandas_indexing_dates(pd):
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
     df = pd.DataFrame({'dates': dates, 'values': values})
@@ -5109,11 +5111,7 @@ def test_pandas_indexing_dates():
     ax.plot('dates', 'values', data=without_zero_index)
 
 
-def test_pandas_errorbar_indexing():
-    pd = pytest.importorskip('pandas')
-    from pandas.tseries import converter
-    converter.register()
-
+def test_pandas_errorbar_indexing(pd):
     df = pd.DataFrame(np.random.uniform(size=(5, 4)),
                       columns=['x', 'y', 'xe', 'ye'],
                       index=[1, 2, 3, 4, 5])
@@ -5121,30 +5119,22 @@ def test_pandas_errorbar_indexing():
     ax.errorbar('x', 'y', xerr='xe', yerr='ye', data=df)
 
 
-def test_pandas_indexing_hist():
-    pd = pytest.importorskip('pandas')
-    from pandas.tseries import converter
-    converter.register()
-
+def test_pandas_indexing_hist(pd):
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
     fig, axes = plt.subplots()
     axes.hist(ser_2)
 
 
-def test_pandas_bar_align_center():
+def test_pandas_bar_align_center(pd):
     # Tests fix for issue 8767
-    pd = pytest.importorskip('pandas')
-    from pandas.tseries import converter
-    converter.register()
-
     df = pd.DataFrame({'a': range(2), 'b': range(2)})
 
     fig, ax = plt.subplots(1)
 
-    rect = ax.bar(df.loc[df['a'] == 1, 'b'],
-                  df.loc[df['a'] == 1, 'b'],
-                  align='center')
+    ax.bar(df.loc[df['a'] == 1, 'b'],
+           df.loc[df['a'] == 1, 'b'],
+           align='center')
 
     fig.canvas.draw()
 
@@ -5160,6 +5150,18 @@ def test_axis_set_tick_params_labelsize_labelcolor():
     assert axis_1.yaxis.majorTicks[0]._color == 'k'
     assert axis_1.yaxis.majorTicks[0]._labelsize == 30.0
     assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
+
+
+def test_axes_tick_params_gridlines():
+    # Now treating grid params like other Tick params
+    ax = plt.subplot()
+    ax.tick_params(grid_color='b', grid_linewidth=5, grid_alpha=0.5,
+                   grid_linestyle='dashdot')
+    for axis in ax.xaxis, ax.yaxis:
+        assert axis.majorTicks[0]._grid_color == 'b'
+        assert axis.majorTicks[0]._grid_linewidth == 5
+        assert axis.majorTicks[0]._grid_alpha == 0.5
+        assert axis.majorTicks[0]._grid_linestyle == 'dashdot'
 
 
 def test_none_kwargs():

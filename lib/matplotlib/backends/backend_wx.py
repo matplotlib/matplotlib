@@ -25,8 +25,6 @@ import math
 import weakref
 import warnings
 
-import numpy as np
-
 import matplotlib
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -112,7 +110,7 @@ def error_msg_wx(msg, parent=None):
 
 
 def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
+    """msg is a return arg from a raise.  Join with new lines."""
     if not isinstance(msg, six.string_types):
         msg = '\n'.join(map(str, msg))
     return msg
@@ -939,7 +937,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             self.draw(drawDC=drawDC)
         else:
             self.gui_repaint(drawDC=drawDC)
-        evt.Skip()
 
     def _onSize(self, evt):
         """

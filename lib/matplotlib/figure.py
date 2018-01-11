@@ -193,11 +193,11 @@ class SubplotParams(object):
             The top of the subplots of the figure
 
         wspace : 0.2
-            The amount of width reserved for blank space between subplots,
+            The amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width
 
         hspace : 0.2
-            The amount of height reserved for white space between subplots,
+            The amount of height reserved for space between subplots,
             expressed as a fraction of the average axis height
         """
 
@@ -256,23 +256,20 @@ class SubplotParams(object):
 class Figure(Artist):
 
     """
-    The Figure instance supports callbacks through a *callbacks*
-    attribute which is a :class:`matplotlib.cbook.CallbackRegistry`
-    instance.  The events you can connect to are 'dpi_changed', and
-    the callback will be called with ``func(fig)`` where fig is the
-    :class:`Figure` instance.
+    The Figure instance supports callbacks through a *callbacks* attribute
+    which is a `~.CallbackRegistry` instance.  The events you can connect to
+    are 'dpi_changed', and the callback will be called with ``func(fig)`` where
+    fig is the `Figure` instance.
 
     Attributes
     ----------
     patch
-        The figure patch is drawn by a
-        :class:`matplotlib.patches.Rectangle` instance
+        The `~.Rectangle` instance representing the figure patch.
 
     suppressComposite
         For multiple figure images, the figure will make composite images
-        depending on the renderer option_image_nocomposite function.
-        If *suppressComposite* is ``True`` or ``False``, this will override
-        the renderer.
+        depending on the renderer option_image_nocomposite function.  If
+        *suppressComposite* is a boolean, this will override the renderer.
     """
 
     def __str__(self):
@@ -321,10 +318,10 @@ class Figure(Artist):
 
         tight_layout : bool
             If ``False`` use *subplotpars*; if ``True`` adjust subplot
-            parameters using :meth:`tight_layout` with default padding.
+            parameters using `~.tight_layout` with default padding.
             When providing a dict containing the keys
             ``pad``, ``w_pad``, ``h_pad``, and ``rect``, the default
-            :meth:`tight_layout` paddings will be overridden.
+            `~.tight_layout` paddings will be overridden.
             Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
@@ -466,20 +463,26 @@ class Figure(Artist):
 
     def get_tight_layout(self):
         """
-        Return whether the figure uses :meth:`tight_layout` when drawing.
+        Return whether and how `~.tight_layout` is called when drawing.
         """
         return self._tight
 
     def set_tight_layout(self, tight):
         """
-        Set whether :meth:`tight_layout` is used upon drawing.
-        If None, the rcParams['figure.autolayout'] value will be set.
+        Set whether and how `~.tight_layout` is called when drawing.
 
-        When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
-        and `rect`, the default :meth:`tight_layout` paddings will be
-        overridden.
+        Parameters
+        ----------
+        tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
+            If a bool, sets whether to call `~.tight_layout` upon drawing.
+            If ``None``, use the ``figure.autolayout`` rcparam instead.
+            If a dict, pass it as kwargs to `~.tight_layout`, overriding the
+            default paddings.
 
-        ACCEPTS: [True | False | dict | None ]
+            ..
+                ACCEPTS: [ bool
+                         | dict with keys "pad", "w_pad", "h_pad", "rect"
+                         | None ]
         """
         if tight is None:
             tight = rcParams['figure.autolayout']
@@ -864,9 +867,11 @@ class Figure(Artist):
         self.frameon = b
         self.stale = True
 
-    def delaxes(self, a):
-        'remove a from the figure and update the current axes'
-        self._axstack.remove(a)
+    def delaxes(self, ax):
+        """
+        Remove the `~.Axes` *ax* from the figure and update the current axes.
+        """
+        self._axstack.remove(ax)
         for func in self._axobservers:
             func(self)
         self.stale = True
@@ -977,8 +982,8 @@ class Figure(Artist):
         if isinstance(args[0], Axes):
             a = args[0]
             if a.get_figure() is not self:
-                msg = "The Axes must have been created in the present figure"
-                raise ValueError(msg)
+                raise ValueError(
+                    "The Axes must have been created in the present figure")
         else:
             rect = args[0]
             if not np.isfinite(rect).all():
@@ -1073,9 +1078,8 @@ class Figure(Artist):
 
             a = args[0]
             if a.get_figure() is not self:
-                msg = ("The Subplot must have been created in the present "
-                       "figure")
-                raise ValueError(msg)
+                raise ValueError(
+                    "The Subplot must have been created in the present figure")
             # make a key for the subplot (which includes the axes object id
             # in the hash)
             key = self._make_key(*args, **kwargs)
@@ -1339,9 +1343,8 @@ class Figure(Artist):
         this is available only after the figure is drawn
         """
         if self._cachedRenderer is None:
-            msg = ('draw_artist can only be used after an initial draw which'
-                   ' caches the render')
-            raise AttributeError(msg)
+            raise AttributeError("draw_artist can only be used after an "
+                                 "initial draw which caches the renderer")
         a.draw(self._cachedRenderer)
 
     def get_axes(self):
@@ -1370,6 +1373,24 @@ class Figure(Artist):
 
         Parameters
         ----------
+
+        handles : sequence of `~.Artist`, optional
+            A list of Artists (lines, patches) to be added to the legend.
+            Use this together with *labels*, if you need full control on what
+            is shown in the legend and the automatic mechanism described above
+            is not sufficient.
+
+            The length of handles and labels should be the same in this
+            case. If they are not, they are truncated to the smaller length.
+
+        labels : sequence of strings, optional
+            A list of labels to show next to the artists.
+            Use this together with *handles*, if you need full control on what
+            is shown in the legend and the automatic mechanism described above
+            is not sufficient.
+
+        Other Parameters
+        ----------------
 
         loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
@@ -1889,7 +1910,12 @@ class Figure(Artist):
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
         cax._hold = True
-        cb = cbar.colorbar_factory(cax, mappable, **kw)
+
+        # need to remove kws that cannot be passed to Colorbar
+        NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
+                             'panchor']
+        cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
+        cb = cbar.colorbar_factory(cax, mappable, **cb_kw)
 
         self.sca(current_ax)
         self.stale = True

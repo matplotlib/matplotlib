@@ -8,8 +8,8 @@ Glossary
 .. glossary::
 
   AGG
-      The Anti-Grain Geometry (`Agg <http://antigrain.com/>`_) rendering engine, capable of rendering
-      high-quality images
+      The Anti-Grain Geometry (`Agg <http://antigrain.com/>`_) rendering
+      engine, capable of rendering high-quality images
 
   Cairo
       The `Cairo graphics <https://cairographics.org>`_ engine
@@ -20,7 +20,8 @@ Glossary
       provides extensions to the standard datetime module
 
   EPS
-      Encapsulated Postscript (`EPS <https://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
+      Encapsulated Postscript (`EPS
+      <https://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
   FreeType
       `FreeType <https://www.freetype.org/>`_ is a font rasterization
@@ -32,7 +33,8 @@ Glossary
       The Gimp Drawing Kit for GTK+
 
   GTK
-      The GIMP Toolkit (`GTK <https://www.gtk.org/>`_) graphical user interface library
+      The GIMP Toolkit (`GTK <https://www.gtk.org/>`_) graphical user interface
+      library
 
   JPG
       The Joint Photographic Experts Group (`JPEG
@@ -47,13 +49,14 @@ Glossary
       deviation, fourier transforms, and convolutions.
 
   PDF
-      Adobe's Portable Document Format (`PDF <https://en.wikipedia.org/wiki/Portable_Document_Format>`_)
+      Adobe's Portable Document Format (`PDF
+      <https://en.wikipedia.org/wiki/Portable_Document_Format>`_)
 
   PNG
       Portable Network Graphics (`PNG
-      <https://en.wikipedia.org/wiki/Portable_Network_Graphics>`_), a raster graphics format
-      that employs lossless data compression which is more suitable
-      for line art than the lossy jpg format. Unlike the gif format,
+      <https://en.wikipedia.org/wiki/Portable_Network_Graphics>`_), a raster
+      graphics format that employs lossless data compression which is more
+      suitable for line art than the lossy jpg format. Unlike the gif format,
       png is not encumbered by requirements for a patent license.
 
   PS
@@ -64,11 +67,23 @@ Glossary
       channel.  PDF was designed in part as a next-generation document
       format to replace postscript
 
+  pgi
+      `pgi <https://pypi.python.org/pypi/pgi/>` exists as a relatively
+      new Python wrapper to GTK3 and acts as a pure python alternative to
+      PyGObject.  pgi still exists in its infancy, currently missing many
+      features of PyGObject.  However Matplotlib does not use any of these
+      missing features.
+
   pygtk
       `pygtk <http://www.pygtk.org/>`_ provides python wrappers for
       the :term:`GTK` widgets library for use with the GTK or GTKAgg
       backend.  Widely used on linux, and is often packages as
       'python-gtk2'
+
+  PyGObject
+      Like :term:`pygtk`, `PyGObject <http://www.pygtk.org/>` provides
+      python wrappers for the :term:`GTK` widgets library; unlike pygtk,
+      PyGObject wraps GTK3 instead of the now obsolete GTK2.
 
   pyqt
       `pyqt <https://wiki.python.org/moin/PyQt>`_ provides python
@@ -82,13 +97,11 @@ Glossary
       language widely used for scripting, application development, web
       application servers, scientific computing and more.
 
-
   pytz
       `pytz <http://pythonhosted.org/pytz/>`_ provides the Olson tz
       database in Python. it allows accurate and cross platform
       timezone calculations and solves the issue of ambiguous times at
       the end of daylight savings
-
 
   Qt
       `Qt <https://www.qt.io/>`__ is a cross-platform

@@ -3,20 +3,17 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
-
 import numpy as np
-import numpy.ma as ma
 
 import matplotlib
-rcParams = matplotlib.rcParams
+from matplotlib import rcParams
 from matplotlib.axes import Axes
-from matplotlib import cbook
+import matplotlib.axis as maxis
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 import matplotlib.spines as mspines
-import matplotlib.axis as maxis
-from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, NullFormatter
+from matplotlib.ticker import (
+    Formatter, NullLocator, FixedLocator, NullFormatter)
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 
 
@@ -85,23 +82,23 @@ class GeoAxes(Axes):
         # This is the transform for longitude ticks.
         self._xaxis_pretransform = \
             Affine2D() \
-            .scale(1.0, self._longitude_cap * 2.0) \
-            .translate(0.0, -self._longitude_cap)
+            .scale(1, self._longitude_cap * 2) \
+            .translate(0, -self._longitude_cap)
         self._xaxis_transform = \
             self._xaxis_pretransform + \
             self.transData
         self._xaxis_text1_transform = \
-            Affine2D().scale(1.0, 0.0) + \
+            Affine2D().scale(1, 0) + \
             self.transData + \
-            Affine2D().translate(0.0, 4.0)
+            Affine2D().translate(0, 4)
         self._xaxis_text2_transform = \
-            Affine2D().scale(1.0, 0.0) + \
+            Affine2D().scale(1, 0) + \
             self.transData + \
-            Affine2D().translate(0.0, -4.0)
+            Affine2D().translate(0, -4)
 
         # This is the transform for latitude ticks.
-        yaxis_stretch = Affine2D().scale(np.pi * 2.0, 1.0).translate(-np.pi, 0.0)
-        yaxis_space = Affine2D().scale(1.0, 1.1)
+        yaxis_stretch = Affine2D().scale(np.pi * 2, 1).translate(-np.pi, 0)
+        yaxis_space = Affine2D().scale(1, 1.1)
         self._yaxis_transform = \
             yaxis_stretch + \
             self.transData
@@ -113,23 +110,23 @@ class GeoAxes(Axes):
              self.transAxes)
         self._yaxis_text1_transform = \
             yaxis_text_base + \
-            Affine2D().translate(-8.0, 0.0)
+            Affine2D().translate(-8, 0)
         self._yaxis_text2_transform = \
             yaxis_text_base + \
-            Affine2D().translate(8.0, 0.0)
+            Affine2D().translate(8, 0)
 
     def _get_affine_transform(self):
         transform = self._get_core_transform(1)
         xscale, _ = transform.transform_point((np.pi, 0))
-        _, yscale = transform.transform_point((0, np.pi / 2.0))
+        _, yscale = transform.transform_point((0, np.pi / 2))
         return Affine2D() \
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
 
     def get_xaxis_transform(self,which='grid'):
-        if which not in ['tick1','tick2','grid']:
-            msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+        if which not in ['tick1', 'tick2', 'grid']:
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -139,9 +136,9 @@ class GeoAxes(Axes):
         return self._xaxis_text2_transform, 'top', 'center'
 
     def get_yaxis_transform(self,which='grid'):
-        if which not in ['tick1','tick2','grid']:
-            msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+        if which not in ['tick1', 'tick2', 'grid']:
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):
@@ -269,7 +266,8 @@ class _GeoTransform(Transform):
         vertices = path.vertices
         ipath = path.interpolated(self._resolution)
         return Path(self.transform(ipath.vertices), ipath.codes)
-    transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
+    transform_path_non_affine.__doc__ = \
+        Transform.transform_path_non_affine.__doc__
 
 
 class AitoffAxes(GeoAxes):
@@ -380,7 +378,8 @@ class MollweideAxes(GeoAxes):
 
         def transform_non_affine(self, ll):
             def d(theta):
-                delta = -(theta + np.sin(theta) - pi_sin_l) / (1 + np.cos(theta))
+                delta = (-(theta + np.sin(theta) - pi_sin_l)
+                         / (1 + np.cos(theta)))
                 return delta, np.abs(delta) > 0.001
 
             longitude = ll[:, 0]

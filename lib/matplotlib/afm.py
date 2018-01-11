@@ -41,7 +41,6 @@ import six
 from six.moves import map
 
 import sys
-import os
 import re
 from ._mathtext_data import uni2type1
 

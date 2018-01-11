@@ -63,10 +63,6 @@ backend      : $TEMPLATE_BACKEND
 # When True, open the webbrowser to the plot that is shown
 # webagg.open_in_browser : True
 
-# When True, the figures rendered in the nbagg backend are created with
-# a transparent background.
-# nbagg.transparent : False
-
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
 # you if backend_fallback is True
@@ -446,9 +442,9 @@ backend      : $TEMPLATE_BACKEND
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
 #figure.subplot.bottom  : 0.11    # the bottom of the subplots of the figure
 #figure.subplot.top     : 0.88    # the top of the subplots of the figure
-#figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots,
+#figure.subplot.wspace  : 0.2    # the amount of width reserved for space between subplots,
                                  # expressed as a fraction of the average axis width
-#figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots,
+#figure.subplot.hspace  : 0.2    # the amount of height reserved for space between subplots,
                                  # expressed as a fraction of the average axis height
 
 
@@ -594,10 +590,7 @@ backend      : $TEMPLATE_BACKEND
 #animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
                                    # $PATH is searched
 #animation.avconv_args: ''         # Additional arguments to pass to avconv
-#animation.mencoder_path: 'mencoder'
-                                   # Path to mencoder binary. Without full path
-                                   # $PATH is searched
-#animation.mencoder_args: ''       # Additional arguments to pass to mencoder
 #animation.convert_path: 'convert' # Path to ImageMagick's convert binary.
                                    # On Windows use the full path since convert
                                    # is also the name of a system tool.
+#animation.convert_args: ''        # Additional arguments to pass to convert

@@ -1,8 +1,7 @@
 """
 Testing that skewed axes properly work
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import itertools
 
@@ -189,7 +188,7 @@ def test_set_line_coll_dash_image():
 
 
 @image_comparison(baseline_images=['skew_rects'], remove_text=True)
-def test_skew_rectange():
+def test_skew_rectangle():
 
     fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(16, 12))
     axes = axes.flat

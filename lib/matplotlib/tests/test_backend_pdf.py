@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -10,19 +9,16 @@ import os
 import sys
 import tempfile
 
+import numpy as np
 import pytest
 
-import numpy as np
-from matplotlib import checkdep_usetex, cm, rcParams
+from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib import pyplot as plt
+from matplotlib.testing.compare import compare_images
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
-from matplotlib.testing.decorators import image_comparison
-from matplotlib import dviread
-from matplotlib.testing.compare import compare_images
 
-import matplotlib as mpl
 
 needs_usetex = pytest.mark.xfail(
     not checkdep_usetex(True),
@@ -38,7 +34,7 @@ def test_use14corefonts():
     rcParams['font.sans-serif'] = ['Helvetica']
     rcParams['pdf.compression'] = 0
 
-    text = '''A three-line text positioned just above a blue line
+    text = u'''A three-line text positioned just above a blue line
 and containing some French characters and the euro symbol:
 "Merci pépé pour les 10 €"'''
 
@@ -222,3 +218,16 @@ def test_pdf_savefig_when_color_is_none(tmpdir):
     fig.savefig(str(expected_image), format='eps')
     result = compare_images(str(actual_image), str(expected_image), 0)
     assert result is None
+
+
+@needs_usetex
+def test_failing_latex(tmpdir):
+    """Test failing latex subprocess call"""
+    path = str(tmpdir.join("tmpoutput.pdf"))
+
+    rcParams['text.usetex'] = True
+
+    # This fails with "Double subscript"
+    plt.xlabel("$22_2_2$")
+    with pytest.raises(RuntimeError):
+        plt.savefig(path)

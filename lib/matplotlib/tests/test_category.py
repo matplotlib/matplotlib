@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Catch all for categorical functions"""
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import pytest
 import numpy as np
@@ -14,7 +13,7 @@ import unittest
 
 class TestUnitData(object):
     testdata = [("hello world", ["hello world"], [0]),
-                ("Здравствуйте мир", ["Здравствуйте мир"], [0]),
+                (u"Здравствуйте мир", [u"Здравствуйте мир"], [0]),
                 (['A', 'A', np.nan, 'B', -np.inf, 3.14, np.inf],
                  ['-inf', '3.14', 'A', 'B', 'inf', 'nan'],
                  [-3.0, 0, 1, 2, -2.0, -1.0])]
@@ -63,7 +62,7 @@ class TestStrCategoryConverter(object):
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize
     """
-    testdata = [("Здравствуйте мир", [("Здравствуйте мир", 42)], 42),
+    testdata = [(u"Здравствуйте мир", [(u"Здравствуйте мир", 42)], 42),
                 ("hello world", [("hello world", 42)], 42),
                 (['a', 'b', 'b', 'a', 'a', 'c', 'c', 'c'],
                  [('a', 0), ('b', 1), ('c', 2)],
@@ -163,7 +162,7 @@ class TestPlot(object):
         assert axis.unit_data.seq == unit_data.seq
 
     def test_plot_unicode(self):
-        words = ['Здравствуйте', 'привет']
+        words = [u'Здравствуйте', u'привет']
         locs = [0.0, 1.0]
         unit_data = MockUnitData(zip(words, locs))
 
@@ -240,7 +239,7 @@ class TestPlot(object):
 
         labels = ['a', 'b', 'd', 'c']
         ticks = [0, 1, 2, 3]
-        unit_data = MockUnitData(list(zip(labels, ticks)))
+        unit_data = MockUnitData(zip(labels, ticks))
 
         self.axis_test(ax.yaxis, ticks, labels, unit_data)
 

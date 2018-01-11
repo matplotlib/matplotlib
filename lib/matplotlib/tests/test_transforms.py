@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 from six.moves import zip
 
@@ -198,7 +197,7 @@ def test_clipping_of_log():
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
 
-    tpoints, tcodes = list(zip(*result))
+    tpoints, tcodes = zip(*result)
     assert_allclose(tcodes, [M, L, L, L, C])
 
 

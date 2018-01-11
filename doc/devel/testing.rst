@@ -26,14 +26,14 @@ local FreeType build
 
 The following software is required to run the tests:
 
-  - pytest_, version 3.0.0 or later
-  - mock_, when running Python versions < 3.3
+  - pytest_ (>=3.1)
+  - mock_, when running Python 2
   - Ghostscript_ (to render PDF files)
   - Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
-  - pytest-cov_ to collect coverage information
+  - pytest-cov_ (>=2.3.1) to collect coverage information
   - pytest-pep8_ to test coding standards
   - pytest-timeout_ to limit runtime in case of stuck tests
   - pytest-xdist_ to run tests in parallel

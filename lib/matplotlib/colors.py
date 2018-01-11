@@ -112,11 +112,38 @@ def is_color_like(c):
         return True
 
 
-def to_rgba(c, alpha=None):
-    """Convert *c* to an RGBA color.
+def same_color(c1, c2):
+    """
+    Compare two colors to see if they are the same.
 
-    If *alpha* is not *None*, it forces the alpha value, except if *c* is
-    ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+    Parameters
+    ----------
+    c1, c2 : Matplotlib colors
+
+    Returns
+    -------
+    bool
+        ``True`` if *c1* and *c2* are the same color, otherwise ``False``.
+    """
+    return (to_rgba_array(c1) == to_rgba_array(c2)).all()
+
+
+def to_rgba(c, alpha=None):
+    """
+    Convert *c* to an RGBA color.
+
+    Parameters
+    ----------
+    c : Matplotlib color
+
+    alpha : scalar, optional
+        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+
+    Returns
+    -------
+    tuple
+        Tuple of ``(r, g, b, a)`` scalars.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
@@ -460,24 +487,19 @@ class Colormap(object):
             xa = xa.byteswap().newbyteorder()
 
         if xa.dtype.kind == "f":
-            # Treat 1.0 as slightly less than 1.
-            vals = np.array([1, 0], dtype=xa.dtype)
-            almost_one = np.nextafter(*vals)
-            np.copyto(xa, almost_one, where=xa == 1.0)
-            # The following clip is fast, and prevents possible
-            # conversion of large positive values to negative integers.
-
             xa *= self.N
+            # Negative values are out of range, but astype(int) would truncate
+            # them towards zero.
+            xa[xa < 0] = -1
+            # xa == 1 (== N after multiplication) is not out of range.
+            xa[xa == self.N] = self.N - 1
+            # Avoid converting large positive values to negative integers.
             np.clip(xa, -1, self.N, out=xa)
-
-            # ensure that all 'under' values will still have negative
-            # value after casting to int
-            np.copyto(xa, -1, where=xa < 0.0)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
-        np.copyto(xa, self._i_over, where=xa > self.N - 1)
-        np.copyto(xa, self._i_under, where=xa < 0)
+        xa[xa > self.N - 1] = self._i_over
+        xa[xa < 0] = self._i_under
         if mask_bad is not None:
             if mask_bad.shape == xa.shape:
                 np.copyto(xa, self._i_bad, where=mask_bad)
@@ -1793,8 +1815,8 @@ class LightSource(object):
             try:
                 blend = blend_mode(rgb, intensity, **kwargs)
             except TypeError:
-                msg = '"blend_mode" must be callable or one of {0}'
-                raise ValueError(msg.format(lookup.keys))
+                raise ValueError('"blend_mode" must be callable or one of {}'
+                                 .format(lookup.keys))
 
         # Only apply result where hillshade intensity isn't masked
         if hasattr(intensity, 'mask'):

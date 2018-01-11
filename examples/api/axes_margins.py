@@ -3,9 +3,10 @@
 Zooming in and out using Axes.margins
 =====================================
 
-This example shows how to zoom in and out of a plot using Axes.margins
-instead of Axes.set_xlim and Axes.set_ylim.
+This example shows how to zoom in and out of a plot using `~.Axes.margins`
+instead of `~.Axes.set_xlim` and `~.Axes.set_ylim`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 

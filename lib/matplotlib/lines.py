@@ -24,7 +24,6 @@ from .transforms import Bbox, TransformedPath, IdentityTransform
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
-from numpy import ma
 from . import _path
 from .markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
@@ -967,9 +966,13 @@ class Line2D(Artist):
 
     def set_antialiased(self, b):
         """
-        True if line should be drawin with antialiased rendering
+        Set whether to use antialiased rendering.
 
-        ACCEPTS: [True | False]
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         if self._antialiased != b:
             self.stale = True

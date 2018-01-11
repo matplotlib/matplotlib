@@ -84,8 +84,7 @@ To run the test suite:
    :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
  * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
    `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-   ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-   <https://inkscape.org/>`_;
+   ffmpeg, avconv, ImageMagick, and `Inkscape <https://inkscape.org/>`_;
  * run ``py.test path\to\tests\directory``.
 
 
@@ -171,7 +170,7 @@ Matplotlib requires a large number of dependencies:
   * `Python <https://www.python.org/downloads/>`_ (>= 2.7 or >= 3.4)
   * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
   * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
-  * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.0)
+  * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
   * `pyparsing <https://pyparsing.wikispaces.com/>`__
   * `libpng <http://www.libpng.org>`__ (>= 1.2)
   * `pytz <http://pytz.sourceforge.net/>`__

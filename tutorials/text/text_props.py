@@ -17,7 +17,7 @@ alpha                       `float`
 backgroundcolor             any matplotlib :ref:`color <sphx_glr_tutorials_colors_colors.py>`
 bbox                        `~matplotlib.patches.Rectangle` prop dict plus key ``'pad'`` which is a pad in points
 clip_box                    a matplotlib.transform.Bbox instance
-clip_on                     [True | False]
+clip_on                     bool
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
 color                       any matplotlib :ref:`color <sphx_glr_tutorials_colors_colors.py>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
@@ -36,7 +36,7 @@ text                        string or anything printable with '%s' conversion
 transform                   a `~matplotlib.transforms.Transform` instance
 variant                     [ ``'normal'`` | ``'small-caps'`` ]
 verticalalignment or va     [ ``'center'`` | ``'top'`` | ``'bottom'`` | ``'baseline'`` ]
-visible                     [True | False]
+visible                     bool
 weight or fontweight        [ ``'normal'`` | ``'bold'`` | ``'heavy'`` | ``'light'`` | ``'ultrabold'`` | ``'ultralight'``]
 x                           `float`
 y                           `float`

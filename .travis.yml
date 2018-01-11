@@ -19,22 +19,24 @@ addons:
     - result_images.tar.bz2
   apt:
     packages:
+      - cm-super
+      - dvipng
+      - gdb
+      - gir1.2-gtk-3.0
+      - graphviz
       - inkscape
       - libav-tools
-      - gdb
-      - mencoder
-      - dvipng
-      - pgf
+      - libcairo2
+      - libgeos-dev
+      - libgirepository-1.0.1
       - lmodern
-      - cm-super
+      - otf-freefont
+      - pgf
+      - texlive-fonts-recommended
       - texlive-latex-base
       - texlive-latex-extra
-      - texlive-fonts-recommended
       - texlive-latex-recommended
       - texlive-xetex
-      - graphviz
-      - libgeos-dev
-      - otf-freefont
 
 env:
   global:
@@ -43,13 +45,20 @@ env:
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
-    - NUMPY=numpy
-    - OPENBLAS_NUM_THREADS=1
-    - PANDAS=
-    - NPROC=2
-    - INSTALL_PEP8=
-    - RUN_PEP8=
+    - CYCLER=cycler
+    - DATEUTIL=python-dateutil
+    - MOCK=
     - NOSE=
+    - NUMPY=numpy
+    - PANDAS=
+    - PYPARSING=pyparsing
+    - PYTEST=pytest!=3.3.0
+    - PYTEST_COV=pytest-cov
+    - PYTEST_PEP8=
+    - SPHINX=sphinx
+    - OPENBLAS_NUM_THREADS=1
+    - NPROC=2
+    - RUN_PEP8=
     - PYTEST_ARGS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
@@ -57,11 +66,22 @@ env:
 matrix:
   include:
     - python: 2.7
-      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas NOSE=nose
+      # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
+      env:
+        - CYCLER=cycler==0.10
+        - DATEUTIL=python-dateutil==2.1
+        - MOCK=mock
+        - NOSE=nose
+        - NUMPY=numpy==1.7.1
+        - PANDAS='pandas<0.21.0'
+        - PYPARSING=pyparsing==2.0.1
+        - PYTEST=pytest==3.1.0
+        - PYTEST_COV=pytest-cov==2.3.1
+        - SPHINX=sphinx==1.3
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas
+      env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -108,8 +128,11 @@ install:
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
     pip install --upgrade pip setuptools wheel
   - |
-    # Install dependencies from pypi
+    # Install dependencies from PyPI
     pip install --upgrade $PRE \
+        codecov \
+        coverage \
+        $CYCLER \
         $MOCK \
         $NOSE \
         $NUMPY \
@@ -117,12 +140,18 @@ install:
         codecov \
         coverage \
         pillow \
-        sphinx
+        $PYPARSING \
+        $DATEUTIL \
+        $SPHINX
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
+    pip install cairocffi pgi &&
+      python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
+      echo 'pgi is available' ||
+      echo 'pgi is not available'
     pip install pyqt5 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
@@ -134,15 +163,14 @@ install:
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
     pip install $PRE \
-        pytest!=3.3.0 \
-        pytest-cov>=2.3.1 \
+        $PYTEST \
+        $PYTEST_COV \
         pytest-faulthandler \
+        $PYTEST_PEP8 \
         pytest-rerunfailures \
         pytest-timeout \
-        pytest-xdist \
-        $INSTALL_PEP8
+        pytest-xdist
 
     # Use the special local version of freetype for testing
     cp ci/travis/setup.cfg .

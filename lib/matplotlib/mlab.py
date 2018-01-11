@@ -1344,7 +1344,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
                  scale_by_freq)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
                  scale_by_freq)
-    Cxy = np.abs(Pxy) ** 2 / (Pxx * Pxy)
+    Cxy = np.abs(Pxy) ** 2 / (Pxx * Pyy)
     return Cxy, f
 
 
@@ -2522,9 +2522,8 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
 
         dt2 = r2.dtype[name]
         if dt1 != dt2:
-            msg = "The '{0}' fields in arrays 'r1' and 'r2' must have the same"
-            msg += " dtype."
-            raise ValueError(msg.format(name))
+            raise ValueError("The '{}' fields in arrays 'r1' and 'r2' must "
+                             "have the same dtype".format(name))
         if dt1.num > dt2.num:
             return (name, dt1.descr[0][1])
         else:
@@ -3653,9 +3652,8 @@ class GaussianKDE(object):
             self._bw_method = bw_method
             self.covariance_factor = lambda: self._bw_method(self)
         else:
-            msg = "`bw_method` should be 'scott', 'silverman', a scalar " \
-                  "or a callable."
-            raise ValueError(msg)
+            raise ValueError("`bw_method` should be 'scott', 'silverman', a "
+                             "scalar or a callable")
 
         # Computes the covariance matrix for each Gaussian kernel using
         # covariance_factor().
@@ -3710,9 +3708,8 @@ class GaussianKDE(object):
 
         dim, num_m = np.array(points).shape
         if dim != self.dim:
-            msg = "points have dimension %s, dataset has dimension %s" % (
-                dim, self.dim)
-            raise ValueError(msg)
+            raise ValueError("points have dimension {}, dataset has dimension "
+                             "{}".format(dim, self.dim))
 
         result = np.zeros((num_m,), dtype=float)
 

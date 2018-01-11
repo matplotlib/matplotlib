@@ -342,10 +342,14 @@ class Axes3D(Axes):
         """
         Set whether autoscaling is applied on plot commands
 
-        accepts: [ *True* | *False* ]
-
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
+
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         super(Axes3D, self).set_autoscale_on(b)
         self.set_autoscalez_on(b)
@@ -354,10 +358,14 @@ class Axes3D(Axes):
         """
         Set whether autoscaling for the z-axis is applied on plot commands
 
-        accepts: [ *True* | *False* ]
-
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
+
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         self._autoscaleZon = b
 
@@ -1059,7 +1067,9 @@ class Axes3D(Axes):
             c3 = canv.mpl_connect('button_release_event', self._button_release)
             self._cids = [c1, c2, c3]
         else:
-            warnings.warn('Axes3D.figure.canvas is \'None\', mouse rotation disabled.  Set canvas then call Axes3D.mouse_init().')
+            warnings.warn(
+                "Axes3D.figure.canvas is 'None', mouse rotation disabled.  "
+                "Set canvas then call Axes3D.mouse_init().")
 
         # coerce scalars into array-like, then convert into
         # a regular list to avoid comparisons against None
@@ -1252,7 +1262,7 @@ class Axes3D(Axes):
 
     def get_frame_on(self):
         """
-        Get whether the 3D axes panels are drawn
+        Get whether the 3D axes panels are drawn.
 
         .. versionadded :: 1.1.0
         """
@@ -1260,11 +1270,15 @@ class Axes3D(Axes):
 
     def set_frame_on(self, b):
         """
-        Set whether the 3D axes panels are drawn
-
-        ACCEPTS: [ *True* | *False* ]
+        Set whether the 3D axes panels are drawn.
 
         .. versionadded :: 1.1.0
+
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         self._frameon = bool(b)
         self.stale = True
@@ -1282,15 +1296,18 @@ class Axes3D(Axes):
 
     def set_axisbelow(self, b):
         """
-        Set whether the axis ticks and gridlines are above or below
-        most artists
+        Set whether axis ticks and gridlines are above or below most artists.
 
         For axes3d objects, this will ignore any settings and just use *True*
 
-        ACCEPTS: [ *True* | *False* ]
-
         .. versionadded :: 1.1.0
             This function was added for completeness.
+
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         self._axisbelow = True
         self.stale = True
@@ -1887,7 +1904,7 @@ class Axes3D(Axes):
 
         # If the inputs were empty, then just
         # reset everything.
-        if Z.size == 0 :
+        if Z.size == 0:
             rii = []
             cii = []
 
@@ -1899,10 +1916,10 @@ class Axes3D(Axes):
         tylines = [tY[i] for i in cii]
         tzlines = [tZ[i] for i in cii]
 
-        lines = [list(zip(xl, yl, zl)) for xl, yl, zl in \
-                 zip(xlines, ylines, zlines)]
-        lines += [list(zip(xl, yl, zl)) for xl, yl, zl in \
-                  zip(txlines, tylines, tzlines)]
+        lines = ([list(zip(xl, yl, zl))
+                  for xl, yl, zl in zip(xlines, ylines, zlines)]
+                + [list(zip(xl, yl, zl))
+                   for xl, yl, zl in zip(txlines, tylines, tzlines)])
 
         linec = art3d.Line3DCollection(lines, *args, **kwargs)
         self.add_collection(linec)
@@ -2588,7 +2605,7 @@ class Axes3D(Axes):
                 rotates about this point, hence the name *pivot*.
                 Default is 'tail'
 
-            *normalize*: [False | True]
+            *normalize*: bool
                 When True, all of the arrows will be the same length. This
                 defaults to False, where the arrows will be different lengths
                 depending on the values of u,v,w.

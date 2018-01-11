@@ -172,9 +172,13 @@ parents[-1].link|e }}" />
 {%- endif %}
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
 {%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
-<a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.png", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+<a href="{{ pathto('index') }}">
+    <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version {{ version|e }}</span></div>
+    <img src="{{pathto("_static/logo2.png", 1) }}" height="125px" border="0" alt="matplotlib"/></a>
 {%- else %}
-<a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.svg", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+<a href="{{ pathto('index') }}">
+    <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version {{ version|e }}</span></div>
+    <img src="{{pathto("_static/logo2.png", 1) }}" height="125px" border="0" alt="matplotlib"/></a>
 {%- endif %}
 
 <!-- The "Fork me on github" ribbon -->
@@ -339,52 +343,6 @@ position:fixed; z-index:999999; overflow: auto;
 }
 
 </style>
-
-<script>
-
-function open_window(cause_id) {
-var  protocol=String(document.location.protocol);
-var new_url;
-if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
-new_url="https://www.flipcause.com/widget/"+cause_id
-window.open(new_url);
-}
-
-else {
-document.getElementById("fc-fade").style.display = "block";
-document.getElementById("fc-fade").style.webkitAnimation = "backfadesin 1s";
-document.getElementById("fc-fade").style.animation = "backfadesin 1s";
-document.getElementById("fc-fade").style.mozAnimation = "backfadesin 1s";
-document.getElementById("fc-light").style.display = "block";
-document.getElementById("fc-light").style.webkitAnimation = "fadesin 1.5s";
-document.getElementById("fc-light").style.animation = "fadesin 1.5s";
-document.getElementById("fc-light").style.mozAnimation = "fadesin 1.5s";
-document.getElementById("fc-main").style.display = "block";
-document.getElementById("fc-main").style.webkitAnimation = "fadesin 1.5s";
-document.getElementById("fc-main").style.animation = "fadesin 1.5s";
-document.getElementById("fc-main").style.mozAnimation = "fadesin 1.5s";
-document.getElementById("fc-close").style.display = "block";
-document.getElementById("fc-close").style.webkitAnimation = "fadesin 1.5s";
-document.getElementById("fc-close").style.animation = "fadesin 1.5s";
-document.getElementById("fc-close").style.mozAnimation = "fadesin 1.5s";
-document.getElementById("fc-myFrame").style.display = "block";
-document.getElementById("fc-myFrame").style.webkitAnimation = "fadesin 1.5s";
-document.getElementById("fc-myFrame").style.animation = "fadesin 1.5s";
-document.getElementById("fc-myFrame").style.mozAnimation = "fadesin 1.5s";
-document.getElementById("fc-myFrame").src="https://www.flipcause.com/widget/"+cause_id;
-}
-}
-
-
-function close_window() {
-document.getElementById("fc-fade").style.display="none";
-document.getElementById("fc-light").style.display="none";
-document.getElementById("fc-main").style.display="none";
-document.getElementById("fc-close").style.display="none";
-document.getElementById("fc-myFrame").style.display="none";
-}
-
-</script>
 
 <div id="fc-fade" class="fc-black_overlay" onclick="close_window()"></div>
 <div id="fc-light" class="fc-white_content">

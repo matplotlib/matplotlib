@@ -4,16 +4,17 @@ Embedding In Tk
 ===============
 
 """
-import matplotlib
-matplotlib.use('TkAgg')
 
-import numpy as np
+from six.moves import tkinter as Tk
+
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2TkAgg)
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 from six.moves import tkinter as Tk
+
+import numpy as np
 
 
 root = Tk.Tk()
@@ -31,16 +32,20 @@ toolbar = NavigationToolbar2TkAgg(canvas, root)
 toolbar.update()
 canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-canvas.mpl_connect(
-    "key_press_event", lambda event: print("you pressed {}".format(event.key)))
-canvas.mpl_connect(
-    "key_press_event", lambda event: key_press_handler(event, canvas, toolbar))
+
+def on_key_press(event):
+    print("you pressed {}".format(event.key))
+    key_press_handler(event, canvas, toolbar)
+
+
+canvas.mpl_connect("key_press_event", on_key_press)
 
 
 def _quit():
     root.quit()     # stops mainloop
     root.destroy()  # this is necessary on Windows to prevent
                     # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+
 
 button = Tk.Button(master=root, text="Quit", command=_quit)
 button.pack(side=Tk.BOTTOM)

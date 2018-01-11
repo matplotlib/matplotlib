@@ -44,8 +44,6 @@ from __future__ import (absolute_import, division, print_function,
 __version__ = '1.0.10'
 __license__ = __doc__
 
-DEBUG = False
-
 import copy
 import datetime
 import warnings
@@ -222,12 +220,6 @@ class FormWidget(QtWidgets.QWidget):
         if comment:
             self.formlayout.addRow(QtWidgets.QLabel(comment))
             self.formlayout.addRow(QtWidgets.QLabel(" "))
-        if DEBUG:
-            print("\n"+("*"*80))
-            print("DATA:", self.data)
-            print("*"*80)
-            print("COMMENT:", comment)
-            print("*"*80)
 
     def get_dialog(self):
         """Return FormDialog instance"""
@@ -238,8 +230,6 @@ class FormWidget(QtWidgets.QWidget):
 
     def setup(self):
         for label, value in self.data:
-            if DEBUG:
-                print("value:", value)
             if label is None and value is None:
                 # Separator: (None, None)
                 self.formlayout.addRow(QtWidgets.QLabel(" "), QtWidgets.QLabel(" "))

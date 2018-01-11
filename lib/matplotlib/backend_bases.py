@@ -49,23 +49,13 @@ import warnings
 from weakref import WeakKeyDictionary
 
 import numpy as np
-import matplotlib.cbook as cbook
-import matplotlib.colors as colors
-import matplotlib.transforms as transforms
-import matplotlib.widgets as widgets
-from matplotlib import rcParams
-from matplotlib import is_interactive
-from matplotlib import get_backend
-from matplotlib import lines
+
+from matplotlib import (
+    backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
+    widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
-
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
-
-import matplotlib.tight_bbox as tight_bbox
-import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from matplotlib.cbook import mplDeprecation, warn_deprecated
-import matplotlib.backend_tools as tools
 
 try:
     from PIL import Image
@@ -1057,11 +1047,10 @@ class GraphicsContextBase(object):
         Set the clip path and transformation.  Path should be a
         :class:`~matplotlib.transforms.TransformedPath` instance.
         """
-        if path is not None and not isinstance(path,
-                transforms.TransformedPath):
-            msg = ("Path should be a matplotlib.transforms.TransformedPath"
-                   "instance.")
-            raise ValueError(msg)
+        if (path is not None
+                and not isinstance(path, transforms.TransformedPath)):
+            raise ValueError("Path should be a "
+                             "matplotlib.transforms.TransformedPath instance")
         self._clippath = path
 
     def set_dashes(self, dash_offset, dash_list):
@@ -1081,7 +1070,8 @@ class GraphicsContextBase(object):
         if dash_list is not None:
             dl = np.asarray(dash_list)
             if np.any(dl < 0.0):
-                raise ValueError("All values in the dash list must be positive")
+                raise ValueError(
+                    "All values in the dash list must be positive")
         self._dashes = dash_offset, dash_list
 
     def set_foreground(self, fg, isRGBA=False):
@@ -1278,10 +1268,10 @@ class TimerBase(object):
         Boolean flag indicating whether this timer should operate as single
         shot (run once and then stop). Defaults to `False`.
 
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
+    callbacks : List[Tuple[callable, Tuple, Dict]]
+        Stores list of (func, args, kwargs) tuples that will be called upon
+        timer events. This list can be manipulated directly, or the
+        functions `add_callback` and `remove_callback` can be used.
 
     '''
     def __init__(self, interval=None, callbacks=None):
@@ -1381,9 +1371,12 @@ class TimerBase(object):
         '''
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
-            # docstring above explains why we use `if ret == False` here,
+            # docstring above explains why we use `if ret == 0` here,
             # instead of `if not ret`.
-            if ret == False:
+            # This will also catch `ret == False` as `False == 0`
+            # but does not annoy the linters
+            # https://docs.python.org/3/library/stdtypes.html#boolean-values
+            if ret == 0:
                 self.callbacks.remove((func, args, kwargs))
 
         if len(self.callbacks) == 0:
@@ -2319,7 +2312,8 @@ class FigureCanvasBase(object):
         i = 1
         while os.path.isfile(os.path.join(save_dir, default_filename)):
             # attach numerical count to basename
-            default_filename = '{0}-{1}.{2}'.format(default_basename, i, default_filetype)
+            default_filename = (
+                '{}-{}.{}'.format(default_basename, i, default_filetype))
             i += 1
 
         return default_filename
@@ -2384,7 +2378,7 @@ class FigureCanvasBase(object):
 
         """
         if s == 'idle_event':
-            warn_deprecated(1.5,
+            cbook.warn_deprecated(1.5,
                 "idle_event is only implemented for the wx backend, and will "
                 "be removed in matplotlib 2.1. Use the animations module "
                 "instead.")
@@ -2416,9 +2410,18 @@ class FigureCanvasBase(object):
         ----------------
         interval : scalar
             Timer interval in milliseconds
-        callbacks : list
+
+        callbacks : List[Tuple[callable, Tuple, Dict]]
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
+
+            callbacks which return ``False`` or ``0`` will be removed from the
+            timer.
+
+        Examples
+        --------
+
+        >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
 
         """
         return TimerBase(*args, **kwargs)
@@ -2697,6 +2700,7 @@ class FigureManagerBase(object):
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
 
+    @cbook.deprecated("2.2")
     def show_popup(self, msg):
         """Display message in a popup -- GUI only."""
 
@@ -2800,15 +2804,6 @@ class NavigationToolbar2(object):
 
         self.mode = ''  # a mode string for the status bar
         self.set_history_buttons()
-
-        @partial(canvas.mpl_connect, 'draw_event')
-        def update_stack(event):
-            nav_info = self._nav_stack()
-            if (nav_info is None  # True initial navigation info.
-                    # An axes has been added or removed, so update the
-                    # navigation info too.
-                    or set(nav_info) != set(self.canvas.figure.axes)):
-                self.push_current()
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar."""
@@ -2954,6 +2949,10 @@ class NavigationToolbar2(object):
             self._button_pressed = None
             return
 
+        if self._nav_stack() is None:
+            # set the home button to this view
+            self.push_current()
+
         x, y = event.x, event.y
         self._xypress = []
         for i, a in enumerate(self.canvas.figure.get_axes()):
@@ -2988,6 +2987,10 @@ class NavigationToolbar2(object):
         else:
             self._button_pressed = None
             return
+
+        if self._nav_stack() is None:
+            # set the home button to this view
+            self.push_current()
 
         x, y = event.x, event.y
         self._xypress = []

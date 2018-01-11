@@ -11,6 +11,7 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+import matplotlib
 import os
 import sys
 import sphinx
@@ -63,7 +64,6 @@ def _check_deps():
 
 _check_deps()
 
-import matplotlib
 try:
     from unittest.mock import MagicMock
 except ImportError:
@@ -241,16 +241,10 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['badgesidebar.html','donate_sidebar.html',
-              'indexsidebar.html', 'searchbox.html'],
-    '**': ['badgesidebar.html', 'localtoc.html',
-           'relations.html', 'sourcelink.html', 'searchbox.html']
+    'index': ['donate_sidebar.html', 'searchbox.html'],
+    '**': ['localtoc.html', 'relations.html',
+           'sourcelink.html', 'searchbox.html']
 }
-
-# Additional templates that should be rendered to pages, maps page names to
-# template names.
-html_additional_pages = {'index': 'index.html',
-                         'citing': 'citing.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True

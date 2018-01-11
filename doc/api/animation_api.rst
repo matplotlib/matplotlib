@@ -302,17 +302,3 @@ Inheritance Diagrams
 
 .. inheritance-diagram:: matplotlib.animation.AVConvFileWriter matplotlib.animation.AVConvWriter matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
    :private-bases:
-
-
-
-Deprecated
-==========
-
-
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-   MencoderBase
-   MencoderFileWriter
-   MencoderWriter

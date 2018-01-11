@@ -13,7 +13,8 @@ class Container(tuple):
     """
 
     def __repr__(self):
-        return "<Container object of %d artists>" % (len(self))
+        return ("<{} object of {} artists>"
+                .format(type(self).__name__, len(self)))
 
     def __new__(cls, *kl, **kwargs):
         return tuple.__new__(cls, kl[0])
@@ -114,6 +115,24 @@ class BarContainer(Container):
 
 
 class ErrorbarContainer(Container):
+    '''
+    Container for errobars.
+
+    Attributes
+    ----------
+    lines : tuple
+        Tuple of ``(data_line, caplines, barlinecols)``.
+
+        - data_line : :class:`~matplotlib.lines.Line2D` instance of
+          x, y plot markers and/or line.
+        - caplines : tuple of :class:`~matplotlib.lines.Line2D` instances of
+          the error bar caps.
+        - barlinecols : list of :class:`~matplotlib.collections.LineCollection`
+          with the horizontal and vertical error ranges.
+
+    has_xerr, has_yerr : bool
+        ``True`` if the errorbar has x/y errors.
+    '''
 
     def __init__(self, lines, has_xerr=False, has_yerr=False, **kwargs):
         self.lines = lines

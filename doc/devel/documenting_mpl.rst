@@ -189,6 +189,9 @@ guide:
      'polar' | 'rectilinear'], optional
              The projection type of the axes.
 
+         ...
+         """
+
   Alternatively, you can describe the valid parameter values in a dedicated
   section of the docstring.
 
@@ -202,8 +205,6 @@ guide:
      Returns
      -------
      lines : `~matplotlib.collections.LineCollection`
-
-
 
 Linking to other code
 ---------------------
@@ -322,6 +323,7 @@ calls in `matplotlib.patches`.
 
 Adding figures
 ==============
+
 Figures in the documentation are automatically generated from scripts.
 It is not necessary to explicitly save the figure from the script; this will be
 done automatically when the docs are built to ensure that the code that is

@@ -2,32 +2,29 @@
 :mod:`~matplotlib.gridspec` is a module which specifies the location
 of the subplot in the figure.
 
-    ``GridSpec``
+    `GridSpec`
         specifies the geometry of the grid that a subplot will be
         placed. The number of rows and number of columns of the grid
         need to be set. Optionally, the subplot layout parameters
         (e.g., left, right, etc.) can be tuned.
 
-    ``SubplotSpec``
-        specifies the location of the subplot in the given *GridSpec*.
-
+    `SubplotSpec`
+        specifies the location of the subplot in the given `GridSpec`.
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
-from six.moves import zip
 
 import copy
 import warnings
 
-import matplotlib
-from matplotlib import rcParams
-import matplotlib.transforms as mtransforms
-
 import numpy as np
+
+import matplotlib as mpl
+from matplotlib import _pylab_helpers, tight_layout, rcParams
+from matplotlib.transforms import Bbox
 
 
 class GridSpecBase(object):
@@ -93,85 +90,61 @@ class GridSpecBase(object):
         top = subplot_params.top
         wspace = subplot_params.wspace
         hspace = subplot_params.hspace
-        totWidth = right - left
-        totHeight = top - bottom
+        tot_width = right - left
+        tot_height = top - bottom
 
         # calculate accumulated heights of columns
-        cellH = totHeight / (nrows + hspace*(nrows-1))
-        sepH = hspace * cellH
+        cell_h = tot_height / (nrows + hspace*(nrows-1))
+        sep_h = hspace * cell_h
         if self._row_height_ratios is not None:
-            netHeight = cellH * nrows
-            tr = float(sum(self._row_height_ratios))
-            cellHeights = [netHeight * r / tr for r in self._row_height_ratios]
+            norm = cell_h * nrows / sum(self._row_height_ratios)
+            cell_heights = [r * norm for r in self._row_height_ratios]
         else:
-            cellHeights = [cellH] * nrows
-        sepHeights = [0] + ([sepH] * (nrows-1))
-        cellHs = np.cumsum(np.column_stack([sepHeights, cellHeights]).flat)
+            cell_heights = [cell_h] * nrows
+        sep_heights = [0] + ([sep_h] * (nrows-1))
+        cell_hs = np.cumsum(np.column_stack([sep_heights, cell_heights]).flat)
 
         # calculate accumulated widths of rows
-        cellW = totWidth/(ncols + wspace*(ncols-1))
-        sepW = wspace*cellW
+        cell_w = tot_width / (ncols + wspace*(ncols-1))
+        sep_w = wspace * cell_w
         if self._col_width_ratios is not None:
-            netWidth = cellW * ncols
-            tr = float(sum(self._col_width_ratios))
-            cellWidths = [netWidth*r/tr for r in self._col_width_ratios]
+            norm = cell_w * ncols / sum(self._col_width_ratios)
+            cell_widths = [r * norm for r in self._col_width_ratios]
         else:
-            cellWidths = [cellW] * ncols
-        sepWidths = [0] + ([sepW] * (ncols-1))
-        cellWs = np.cumsum(np.column_stack([sepWidths, cellWidths]).flat)
+            cell_widths = [cell_w] * ncols
+        sep_widths = [0] + ([sep_w] * (ncols-1))
+        cell_ws = np.cumsum(np.column_stack([sep_widths, cell_widths]).flat)
 
-        figTops = [top - cellHs[2*rowNum] for rowNum in range(nrows)]
-        figBottoms = [top - cellHs[2*rowNum+1] for rowNum in range(nrows)]
-        figLefts = [left + cellWs[2*colNum] for colNum in range(ncols)]
-        figRights = [left + cellWs[2*colNum+1] for colNum in range(ncols)]
-
-        return figBottoms, figTops, figLefts, figRights
+        fig_tops, fig_bottoms = (top - cell_hs).reshape((-1, 2)).T
+        fig_lefts, fig_rights = (left + cell_ws).reshape((-1, 2)).T
+        return fig_bottoms, fig_tops, fig_lefts, fig_rights
 
     def __getitem__(self, key):
-        """
-        create and return a SuplotSpec instance.
+        """Create and return a SuplotSpec instance.
         """
         nrows, ncols = self.get_geometry()
-        total = nrows*ncols
+
+        def _normalize(key, size):  # Includes last index.
+            if isinstance(key, slice):
+                start, stop, _ = key.indices(size)
+                if stop > start:
+                    return start, stop - 1
+            else:
+                if key < 0:
+                    key += size
+                if 0 <= key < size:
+                    return key, key
+            raise IndexError("invalid index")
 
         if isinstance(key, tuple):
             try:
                 k1, k2 = key
             except ValueError:
                 raise ValueError("unrecognized subplot spec")
-
-            if isinstance(k1, slice):
-                row1, row2, _ = k1.indices(nrows)
-            else:
-                if k1 < 0:
-                    k1 += nrows
-                if k1 >= nrows or k1 < 0 :
-                    raise IndexError("index out of range")
-                row1, row2 = k1, k1+1
-
-            if isinstance(k2, slice):
-                col1, col2, _ = k2.indices(ncols)
-            else:
-                if k2 < 0:
-                    k2 += ncols
-                if k2 >= ncols or k2 < 0 :
-                    raise IndexError("index out of range")
-                col1, col2 = k2, k2+1
-
-            num1 = row1*ncols + col1
-            num2 = (row2-1)*ncols + (col2-1)
-
-        # single key
-        else:
-            if isinstance(key, slice):
-                num1, num2, _ = key.indices(total)
-                num2 -= 1
-            else:
-                if key < 0:
-                    key += total
-                if key >= total or key < 0 :
-                    raise IndexError("index out of range")
-                num1, num2 = key, None
+            num1, num2 = np.ravel_multi_index(
+                [_normalize(k1, nrows), _normalize(k2, ncols)], (nrows, ncols))
+        else:  # Single key
+            num1, num2 = _normalize(key, nrows * ncols)
 
         return SubplotSpec(self, num1, num2)
 
@@ -210,7 +183,6 @@ class GridSpec(GridSpecBase):
         self.top = top
         self.wspace = wspace
         self.hspace = hspace
-
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
@@ -229,18 +201,16 @@ class GridSpec(GridSpecBase):
             else:
                 raise AttributeError("%s is unknown keyword" % (k,))
 
-        from matplotlib import _pylab_helpers
-        from matplotlib.axes import SubplotBase
         for figmanager in six.itervalues(_pylab_helpers.Gcf.figs):
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
-                if not isinstance(ax, SubplotBase):
+                if not isinstance(ax, mpl.axes.SubplotBase):
                     # Check if sharing a subplots axis
-                    if isinstance(ax._sharex, SubplotBase):
+                    if isinstance(ax._sharex, mpl.axes.SubplotBase):
                         if ax._sharex.get_subplotspec().get_gridspec() == self:
                             ax._sharex.update_params()
                             ax.set_position(ax._sharex.figbox)
-                    elif isinstance(ax._sharey, SubplotBase):
+                    elif isinstance(ax._sharey, mpl.axes.SubplotBase):
                         if ax._sharey.get_subplotspec().get_gridspec() == self:
                             ax._sharey.update_params()
                             ax.set_position(ax._sharey.figbox)
@@ -255,10 +225,9 @@ class GridSpec(GridSpecBase):
         Return a dictionary of subplot layout parameters. The default
         parameters are from rcParams unless a figure attribute is set.
         """
-        from matplotlib.figure import SubplotParams
         if fig is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
-            subplotpars = SubplotParams(**kw)
+            subplotpars = mpl.figure.SubplotParams(**kw)
         else:
             subplotpars = copy.copy(fig.subplotpars)
 
@@ -290,18 +259,16 @@ class GridSpec(GridSpecBase):
             fit into.  Default is (0, 0, 1, 1).
         """
 
-        from .tight_layout import (
-            get_renderer, get_subplotspec_list, get_tight_layout_figure)
-
-        subplotspec_list = get_subplotspec_list(fig.axes, grid_spec=self)
+        subplotspec_list = tight_layout.get_subplotspec_list(
+            fig.axes, grid_spec=self)
         if None in subplotspec_list:
             warnings.warn("This figure includes Axes that are not compatible "
                           "with tight_layout, so results might be incorrect.")
 
         if renderer is None:
-            renderer = get_renderer(fig)
+            renderer = tight_layout.get_renderer(fig)
 
-        kwargs = get_tight_layout_figure(
+        kwargs = tight_layout.get_tight_layout_figure(
             fig, fig.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         self.update(**kwargs)
@@ -326,42 +293,27 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         self._wspace = wspace
         self._hspace = hspace
         self._subplot_spec = subplot_spec
-
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
-
 
     def get_subplot_params(self, fig=None):
         """Return a dictionary of subplot layout parameters.
         """
 
-        if fig is None:
-            hspace = rcParams["figure.subplot.hspace"]
-            wspace = rcParams["figure.subplot.wspace"]
-        else:
-            hspace = fig.subplotpars.hspace
-            wspace = fig.subplotpars.wspace
+        hspace = (self._hspace if self._hspace is not None
+                  else fig.subplotpars.hspace if fig is not None
+                  else rcParams["figure.subplot.hspace"])
+        wspace = (self._wspace if self._wspace is not None
+                  else fig.subplotpars.wspace if fig is not None
+                  else rcParams["figure.subplot.wspace"])
 
-        if self._hspace is not None:
-            hspace = self._hspace
-
-        if self._wspace is not None:
-            wspace = self._wspace
-
-        figbox = self._subplot_spec.get_position(fig, return_all=False)
+        figbox = self._subplot_spec.get_position(fig)
         left, bottom, right, top = figbox.extents
 
-        from matplotlib.figure import SubplotParams
-        sp = SubplotParams(left=left,
-                           right=right,
-                           bottom=bottom,
-                           top=top,
-                           wspace=wspace,
-                           hspace=hspace)
-
-        return sp
-
+        return mpl.figure.SubplotParams(left=left, right=right,
+                                        bottom=bottom, top=top,
+                                        wspace=wspace, hspace=hspace)
 
     def get_topmost_subplotspec(self):
         """Get the topmost SubplotSpec instance associated with the subplot."""
@@ -380,17 +332,12 @@ class SubplotSpec(object):
 
         The index starts from 0.
         """
-
-        rows, cols = gridspec.get_geometry()
-        total = rows * cols
-
         self._gridspec = gridspec
         self.num1 = num1
         self.num2 = num2
 
     def get_gridspec(self):
         return self._gridspec
-
 
     def get_geometry(self):
         """Get the subplot geometry (``n_rows, n_cols, row, col``).
@@ -400,41 +347,25 @@ class SubplotSpec(object):
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
 
-
     def get_position(self, fig, return_all=False):
         """Update the subplot position from ``fig.subplotpars``.
         """
-
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
-
-        figBottoms, figTops, figLefts, figRights = \
+        rows, cols = np.unravel_index(
+            [self.num1] if self.num2 is None else [self.num1, self.num2],
+            (nrows, ncols))
+        fig_bottoms, fig_tops, fig_lefts, fig_rights = \
             gridspec.get_grid_positions(fig)
 
-        rowNum, colNum =  divmod(self.num1, ncols)
-        figBottom = figBottoms[rowNum]
-        figTop = figTops[rowNum]
-        figLeft = figLefts[colNum]
-        figRight = figRights[colNum]
-
-        if self.num2 is not None:
-
-            rowNum2, colNum2 =  divmod(self.num2, ncols)
-            figBottom2 = figBottoms[rowNum2]
-            figTop2 = figTops[rowNum2]
-            figLeft2 = figLefts[colNum2]
-            figRight2 = figRights[colNum2]
-
-            figBottom = min(figBottom, figBottom2)
-            figLeft = min(figLeft, figLeft2)
-            figTop = max(figTop, figTop2)
-            figRight = max(figRight, figRight2)
-
-        figbox = mtransforms.Bbox.from_extents(figLeft, figBottom,
-                                               figRight, figTop)
+        fig_bottom = fig_bottoms[rows].min()
+        fig_top = fig_tops[rows].max()
+        fig_left = fig_lefts[cols].min()
+        fig_right = fig_rights[cols].max()
+        figbox = Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
 
         if return_all:
-            return figbox, rowNum, colNum, nrows, ncols
+            return figbox, rows[0], cols[0], nrows, ncols
         else:
             return figbox
 

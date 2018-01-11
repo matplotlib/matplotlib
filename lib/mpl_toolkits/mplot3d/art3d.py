@@ -12,20 +12,18 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import zip
 
+import math
+
+import numpy as np
+
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.cbook import _backports
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection,
     PathCollection)
-from matplotlib.cm import ScalarMappable
-from matplotlib.patches import Patch
 from matplotlib.colors import Normalize
-from matplotlib.cbook import iterable
-
-import warnings
-import numpy as np
-import math
+from matplotlib.patches import Patch
 from . import proj3d
 
 
@@ -54,7 +52,7 @@ def get_dir_vector(zdir):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
-    elif iterable(zdir) and len(zdir) == 3:
+    elif cbook.iterable(zdir) and len(zdir) == 3:
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
@@ -83,8 +81,8 @@ class Text3D(mtext.Text):
         self.stale = True
 
     def draw(self, renderer):
-        proj = proj3d.proj_trans_points([self._position3d, \
-                self._position3d + self._dir_vec], renderer.M)
+        proj = proj3d.proj_trans_points(
+            [self._position3d, self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         if dx==0. and dy==0.:
@@ -226,12 +224,12 @@ class Line3DCollection(LineCollection):
         xyslist = [
             proj3d.proj_trans_points(points, renderer.M) for points in
             self._segments3d]
-        segments_2d = [list(zip(xs, ys)) for (xs, ys, zs) in xyslist]
+        segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyslist]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
         minz = 1e9
-        for (xs, ys, zs) in xyslist:
+        for xs, ys, zs in xyslist:
             minz = min(minz, min(zs))
         return minz
 
@@ -273,9 +271,9 @@ class Patch3D(Patch):
 
     def do_3d_projection(self, renderer):
         s = self._segment3d
-        xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)))
+        xs, ys, zs = zip(*s)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
         return min(vzs)
@@ -301,9 +299,9 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self, renderer):
         s = self._segment3d
-        xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)), self._code3d)
+        xs, ys, zs = zip(*s)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
         return min(vzs)
@@ -375,7 +373,7 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = list(zip(*offsets))
+            xs, ys = zip(*offsets)
         else:
             xs = []
             ys = []
@@ -397,7 +395,7 @@ class Patch3DCollection(PatchCollection):
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
+        PatchCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -443,7 +441,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = list(zip(*offsets))
+            xs, ys = zip(*offsets)
         else:
             xs = []
             ys = []
@@ -465,7 +463,7 @@ class Path3DCollection(PathCollection):
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, list(zip(vxs, vys)))
+        PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0 :
             return min(vzs)
@@ -558,12 +556,12 @@ class Poly3DCollection(PolyCollection):
         points = []
         for p in segments3d:
             points.extend(p)
-            ei = si+len(p)
+            ei = si + len(p)
             segis.append((si, ei))
             si = ei
 
-        if len(segments3d) > 0 :
-            xs, ys, zs = list(zip(*points))
+        if len(segments3d):
+            xs, ys, zs = zip(*points)
         else :
             # We need this so that we can skip the bad unpacking from zip()
             xs, ys, zs = [], [], []
@@ -630,7 +628,7 @@ class Poly3DCollection(PolyCollection):
         # if required sort by depth (furthest drawn first)
         if self._zsort:
             z_segments_2d = sorted(
-                ((self._zsortfunc(zs), list(zip(xs, ys)), fc, ec, idx)
+                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
                  for idx, ((xs, ys, zs), fc, ec)
                  in enumerate(zip(xyzlist, cface, cedge))),
                 key=lambda x: x[0], reverse=True)
@@ -753,11 +751,6 @@ def rotate_axes(xs, ys, zs, zdir):
 
     else:
         return xs, ys, zs
-
-
-@cbook.deprecated('2.0', alternative='matplotlib.colors.is_color_like')
-def iscolor(c):
-    return mcolors.is_color_like(c)
 
 
 def get_colors(c, num):

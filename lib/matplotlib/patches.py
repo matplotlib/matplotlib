@@ -5,27 +5,19 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import map, zip
-import warnings
 
 import math
+import warnings
+
+import numpy as np
 
 import matplotlib as mpl
-import numpy as np
-import matplotlib.cbook as cbook
-import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
-import matplotlib.colors as colors
-from matplotlib import docstring
-import matplotlib.transforms as transforms
-from matplotlib.path import Path
-import matplotlib.lines as mlines
-
-from matplotlib.bezier import split_bezier_intersecting_with_closedpath
-from matplotlib.bezier import get_intersection, inside_circle, get_parallels
-from matplotlib.bezier import make_wedged_bezier2
-from matplotlib.bezier import split_path_inout, get_cos_sin
-from matplotlib.bezier import make_path_regular, concatenate_paths
-
+from . import artist, cbook, colors, docstring, lines as mlines, transforms
+from .bezier import (
+    concatenate_paths, get_cos_sin, get_intersection, get_parallels,
+    inside_circle, make_path_regular, make_wedged_bezier2,
+    split_bezier_intersecting_with_closedpath, split_path_inout)
+from .path import Path
 
 _patch_alias_map = {
         'antialiased': ['aa'],
@@ -151,13 +143,29 @@ class Patch(artist.Artist):
 
     def contains_point(self, point, radius=None):
         """
-        Returns *True* if the given point is inside the path
+        Returns ``True`` if the given *point* is inside the path
         (transformed with its transform attribute).
+
+        *radius* allows the path to be made slightly larger or smaller.
         """
         radius = self._process_radius(radius)
         return self.get_path().contains_point(point,
                                               self.get_transform(),
                                               radius)
+
+    def contains_points(self, points, radius=None):
+        """
+        Returns a bool array which is ``True`` if the (closed) path
+        contains the corresponding point.
+        (transformed with its transform attribute).
+
+        *points* must be Nx2 array.
+        *radius* allows the path to be made slightly larger or smaller.
+        """
+        radius = self._process_radius(radius)
+        return self.get_path().contains_points(points,
+                                               self.get_transform(),
+                                               radius)
 
     def update_from(self, other):
         """
@@ -246,9 +254,13 @@ class Patch(artist.Artist):
 
     def set_antialiased(self, aa):
         """
-        Set whether to use antialiased rendering
+        Set whether to use antialiased rendering.
 
-        ACCEPTS: [True | False]  or None for default
+        Parameters
+        ----------
+        b : bool or None
+            ..
+                ACCEPTS: bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -405,9 +417,13 @@ class Patch(artist.Artist):
 
     def set_fill(self, b):
         """
-        Set whether to fill the patch
+        Set whether to fill the patch.
 
-        ACCEPTS: [True | False]
+        Parameters
+        ----------
+        b : bool
+            ..
+                ACCEPTS: bool
         """
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)
@@ -490,7 +506,7 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
         if not self.get_visible():
@@ -643,29 +659,43 @@ class Rectangle(Patch):
     """
 
     def __str__(self):
-        pars = self._x, self._y, self._width, self._height, self.angle
+        pars = self._x0, self._y0, self._width, self._height, self.angle
         fmt = "Rectangle(xy=(%g, %g), width=%g, height=%g, angle=%g)"
         return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
+        Parameters
+        ----------
+        xy: length-2 tuple
+            The bottom and left rectangle coordinates
+        width:
+            Rectangle width
+        height:
+            Rectangle height
+        angle: float, optional
+          rotation in degrees anti-clockwise about *xy* (default is 0.0)
+        fill: bool, optional
+            Whether to fill the rectangle (default is ``True``)
 
-        *angle*
-          rotation in degrees (anti-clockwise)
-
-        *fill* is a boolean indicating whether to fill the rectangle
-
+        Notes
+        -----
         Valid kwargs are:
         %(Patch)s
         """
 
         Patch.__init__(self, **kwargs)
 
-        self._x = xy[0]
-        self._y = xy[1]
+        self._x0 = xy[0]
+        self._y0 = xy[1]
+
         self._width = width
         self._height = height
+
+        self._x1 = self._x0 + self._width
+        self._y1 = self._y0 + self._height
+
         self.angle = float(angle)
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
@@ -682,15 +712,28 @@ class Rectangle(Patch):
                  makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
-        x = self.convert_xunits(self._x)
-        y = self.convert_yunits(self._y)
-        width = self.convert_xunits(self._width)
-        height = self.convert_yunits(self._height)
-        bbox = transforms.Bbox.from_bounds(x, y, width, height)
+        x0, y0, x1, y1 = self._convert_units()
+        bbox = transforms.Bbox.from_extents(x0, y0, x1, y1)
         rot_trans = transforms.Affine2D()
-        rot_trans.rotate_deg_around(x, y, self.angle)
+        rot_trans.rotate_deg_around(x0, y0, self.angle)
         self._rect_transform = transforms.BboxTransformTo(bbox)
         self._rect_transform += rot_trans
+
+    def _update_x1(self):
+        self._x1 = self._x0 + self._width
+
+    def _update_y1(self):
+        self._y1 = self._y0 + self._height
+
+    def _convert_units(self):
+        '''
+        Convert bounds of the rectangle
+        '''
+        x0 = self.convert_xunits(self._x0)
+        y0 = self.convert_yunits(self._y0)
+        x1 = self.convert_xunits(self._x1)
+        y1 = self.convert_yunits(self._y1)
+        return x0, y0, x1, y1
 
     def get_patch_transform(self):
         self._update_patch_transform()
@@ -698,18 +741,18 @@ class Rectangle(Patch):
 
     def get_x(self):
         "Return the left coord of the rectangle"
-        return self._x
+        return self._x0
 
     def get_y(self):
         "Return the bottom coord of the rectangle"
-        return self._y
+        return self._y0
 
     def get_xy(self):
         "Return the left and bottom coords of the rectangle"
-        return self._x, self._y
+        return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the  rectangle"
+        "Return the width of the rectangle"
         return self._width
 
     def get_height(self):
@@ -717,21 +760,15 @@ class Rectangle(Patch):
         return self._height
 
     def set_x(self, x):
-        """
-        Set the left coord of the rectangle
-
-        ACCEPTS: float
-        """
-        self._x = x
+        "Set the left coord of the rectangle"
+        self._x0 = x
+        self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        """
-        Set the bottom coord of the rectangle
-
-        ACCEPTS: float
-        """
-        self._y = y
+        "Set the bottom coord of the rectangle"
+        self._y0 = y
+        self._update_y1()
         self.stale = True
 
     def set_xy(self, xy):
@@ -740,25 +777,21 @@ class Rectangle(Patch):
 
         ACCEPTS: 2-item sequence
         """
-        self._x, self._y = xy
+        self._x0, self._y0 = xy
+        self._update_x1()
+        self._update_y1()
         self.stale = True
 
     def set_width(self, w):
-        """
-        Set the width rectangle
-
-        ACCEPTS: float
-        """
+        "Set the width of the rectangle"
         self._width = w
+        self._update_x1()
         self.stale = True
 
     def set_height(self, h):
-        """
-        Set the width rectangle
-
-        ACCEPTS: float
-        """
+        "Set the height of the rectangle"
         self._height = h
+        self._update_y1()
         self.stale = True
 
     def set_bounds(self, *args):
@@ -771,15 +804,17 @@ class Rectangle(Patch):
             l, b, w, h = args[0]
         else:
             l, b, w, h = args
-        self._x = l
-        self._y = b
+        self._x0 = l
+        self._y0 = b
         self._width = w
         self._height = h
+        self._update_x1()
+        self._update_y1()
         self.stale = True
 
     def get_bbox(self):
-        return transforms.Bbox.from_bounds(self._x, self._y,
-                                           self._width, self._height)
+        x0, y0, x1, y1 = self._convert_units()
+        return transforms.Bbox.from_extents(x0, y0, x1, y1)
 
     xy = property(get_xy, set_xy)
 
@@ -1184,7 +1219,7 @@ class FancyArrow(Polygon):
           *width*: float (default: 0.001)
             width of full arrow tail
 
-          *length_includes_head*: [True | False] (default: False)
+          *length_includes_head*: bool (default: False)
             True if head is to be counted in calculating the length.
 
           *head_width*: float or None (default: 3*width)
@@ -1200,7 +1235,7 @@ class FancyArrow(Polygon):
             fraction that the arrow is swept back (0 overhang means
             triangular shape). Can be negative or greater than one.
 
-          *head_starts_at_zero*: [True | False] (default: False)
+          *head_starts_at_zero*: bool (default: False)
             if True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 
@@ -1338,7 +1373,7 @@ class YAArrow(Patch):
         xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
         ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
-        return Path(list(zip(xs, ys)), closed=True)
+        return Path(np.column_stack([xs, ys]), closed=True)
 
     def get_patch_transform(self):
         return transforms.IdentityTransform()
@@ -1560,7 +1595,7 @@ class Arc(Ellipse):
         self.theta1 = theta1
         self.theta2 = theta2
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         """
         Ellipses are normally drawn using an approximation that uses
@@ -2002,7 +2037,6 @@ class BoxStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (BoxStyle, self.__class__.__name__),
                     self.__dict__
@@ -2789,7 +2823,6 @@ class ConnectionStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (ConnectionStyle, self.__class__.__name__),
                     self.__dict__
@@ -3179,9 +3212,6 @@ class ArrowStyle(_Style):
         # w/o arguments, i.e., all its argument (except self) must have
         # the default values.
 
-        def __init__(self):
-            super(ArrowStyle._Base, self).__init__()
-
         @staticmethod
         def ensure_quadratic_bezier(path):
             """ Some ArrowStyle class only wokrs with a simple
@@ -3191,10 +3221,10 @@ class ArrowStyle(_Style):
             its control points if true.
             """
             segments = list(path.iter_segments())
-            if ((len(segments) != 2) or (segments[0][1] != Path.MOVETO) or
-                    (segments[1][1] != Path.CURVE3)):
-                msg = "'path' it's not a valid quadratic bezier curve"
-                raise ValueError(msg)
+            if (len(segments) != 2 or segments[0][1] != Path.MOVETO or
+                    segments[1][1] != Path.CURVE3):
+                raise ValueError(
+                    "'path' it's not a valid quadratic Bezier curve")
 
             return list(segments[0][0]) + list(segments[1][0])
 
@@ -3250,7 +3280,6 @@ class ArrowStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
                     (ArrowStyle, self.__class__.__name__),
                     self.__dict__

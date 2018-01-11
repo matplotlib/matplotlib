@@ -1,8 +1,7 @@
 """
 Tests specific to the collections module.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import io
 
@@ -594,8 +593,7 @@ def test_size_in_xy():
     ax.set_ylim(0, 30)
 
 
-def test_pandas_indexing():
-    pd = pytest.importorskip('pandas')
+def test_pandas_indexing(pd):
 
     # Should not fail break when faced with a
     # non-zero indexed series
