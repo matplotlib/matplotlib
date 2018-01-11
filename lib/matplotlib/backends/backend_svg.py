@@ -18,11 +18,10 @@ import uuid
 
 import numpy as np
 
-from matplotlib import __version__, rcParams
+from matplotlib import cbook, __version__, rcParams
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_writable_file_like
 from matplotlib.colors import rgb2hex
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING
@@ -1189,61 +1188,49 @@ class FigureCanvasSVG(FigureCanvasBase):
     fixed_dpi = 72
 
     def print_svg(self, filename, *args, **kwargs):
-        if isinstance(filename, six.string_types):
-            with io.open(filename, 'w', encoding='utf-8') as svgwriter:
-                return self._print_svg(filename, svgwriter, **kwargs)
+        with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
 
-        if not is_writable_file_like(filename):
-            raise ValueError("filename must be a path or a file-like object")
+            filename = getattr(fh, 'name', '')
+            if not isinstance(filename, six.string_types):
+                filename = ''
 
-        svgwriter = filename
-        filename = getattr(svgwriter, 'name', '')
-        if not isinstance(filename, six.string_types):
-            filename = ''
-
-        if not isinstance(svgwriter, io.TextIOBase):
-            if six.PY3:
-                svgwriter = io.TextIOWrapper(svgwriter, 'utf-8')
+            if cbook.file_requires_unicode(fh):
+                detach = False
             else:
-                svgwriter = codecs.getwriter('utf-8')(svgwriter)
-            detach = True
-        else:
-            detach = False
+                if six.PY3:
+                    fh = io.TextIOWrapper(fh, 'utf-8')
+                else:
+                    fh = codecs.getwriter('utf-8')(fh)
+                detach = True
 
-        result = self._print_svg(filename, svgwriter, **kwargs)
+            result = self._print_svg(filename, fh, **kwargs)
 
-        # Detach underlying stream from wrapper so that it remains open in the
-        # caller.
-        if detach:
-            if six.PY3:
-                svgwriter.detach()
-            else:
-                svgwriter.reset()
-                svgwriter.stream = io.BytesIO()
+            # Detach underlying stream from wrapper so that it remains open in
+            # the caller.
+            if detach:
+                if six.PY3:
+                    fh.detach()
+                else:
+                    fh.reset()
+                    fh.stream = io.BytesIO()
 
         return result
 
     def print_svgz(self, filename, *args, **kwargs):
-        if isinstance(filename, six.string_types):
-            options = dict(filename=filename)
-        elif is_writable_file_like(filename):
-            options = dict(fileobj=filename)
-        else:
-            raise ValueError("filename must be a path or a file-like object")
-
-        with gzip.GzipFile(mode='w', **options) as gzipwriter:
+        with cbook.open_file_cm(filename, "wb") as fh, \
+                gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter)
 
-    def _print_svg(self, filename, svgwriter, **kwargs):
+    def _print_svg(self, filename, fh, **kwargs):
         image_dpi = kwargs.pop("dpi", 72)
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
-        w, h = width*72, height*72
+        w, h = width * 72, height * 72
 
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(
-            self.figure,
-            width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
+            self.figure, width, height, image_dpi,
+            RendererSVG(w, h, fh, filename, image_dpi),
             bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)

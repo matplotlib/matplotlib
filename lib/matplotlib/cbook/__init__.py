@@ -10,7 +10,9 @@ from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange, zip
+import bz2
 import collections
+import contextlib
 import datetime
 import errno
 import functools
@@ -584,12 +586,16 @@ def is_numlike(obj):
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False):
+def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     """
-    *fname* can be a filename or a file handle.  Support for gzipped
+    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
+    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
+        return to_filehandle(
+            os.fspath(fname),
+            flag=flag, return_opened=return_opened, encoding=encoding)
     if isinstance(fname, six.string_types):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
@@ -598,19 +604,29 @@ def to_filehandle(fname, flag='rU', return_opened=False):
         elif fname.endswith('.bz2'):
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
-            import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = open(fname, flag)
+            fh = io.open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
         opened = False
     else:
-        raise ValueError('fname must be a string or file handle')
+        raise ValueError('fname must be a PathLike or file handle')
     if return_opened:
         return fh, opened
     return fh
+
+
+@contextlib.contextmanager
+def open_file_cm(path_or_file, mode="r", encoding=None):
+    r"""Pass through file objects and context-manage `~.PathLike`\s."""
+    fh, opened = to_filehandle(path_or_file, mode, True, encoding)
+    if opened:
+        with fh:
+            yield fh
+    else:
+        yield fh
 
 
 def is_scalar_or_string(val):

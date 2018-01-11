@@ -358,8 +358,7 @@ class MovieWriter(AbstractMovieWriter):
         # from a few configuration options.
         command = self._args()
         output = subprocess.PIPE
-        _log.info('MovieWriter.run: running command: %s',
-                       ' '.join(command))
+        _log.info('MovieWriter.run: running command: %s', command)
         self._proc = subprocess.Popen(command, shell=False,
                                       stdout=output, stderr=output,
                                       stdin=subprocess.PIPE,
@@ -847,12 +846,13 @@ class HTMLWriter(FileMovieWriter):
                                          extra_args, metadata)
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
-        if os.path.splitext(outfile)[-1] not in ['.html', '.htm']:
+        root, ext = os.path.splitext(outfile)
+        if ext not in ['.html', '.htm']:
             raise ValueError("outfile must be *.htm or *.html")
 
         if not self.embed_frames:
             if frame_dir is None:
-                frame_dir = outfile.rstrip('.html') + '_frames'
+                frame_dir = root + '_frames'
             if not os.path.exists(frame_dir):
                 os.makedirs(frame_dir)
             frame_prefix = os.path.join(frame_dir, 'frame')

@@ -13,7 +13,7 @@ import io
 import logging
 
 from tempfile import mkstemp
-from matplotlib import __version__, rcParams, checkdep_ghostscript
+from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -961,9 +961,10 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        passed_in_file_object = False
-        if isinstance(outfile, six.string_types):
-            title = outfile
+        if isinstance(outfile,
+                      (six.string_types, getattr(os, "PathLike", ()),)):
+            outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
+            passed_in_file_object = False
         elif is_writable_file_like(outfile):
             title = None
             passed_in_file_object = True

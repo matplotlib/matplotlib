@@ -5,6 +5,7 @@ import six
 from copy import copy
 import io
 import os
+import sys
 import warnings
 
 import numpy as np
@@ -121,6 +122,16 @@ def test_imread_pil_uint16():
     assert np.sum(img) == 134184960
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+@needs_pillow
+def test_imread_fspath():
+    from pathlib import Path
+    img = plt.imread(
+        Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
+    assert img.dtype == np.uint16
+    assert np.sum(img) == 134184960
+
+
 def test_imsave():
     # The goal here is that the user can specify an output logical DPI
     # for the image, but this will not actually add any extra pixels
@@ -150,6 +161,14 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+@pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
+def test_imsave_fspath(fmt):
+    Path = pytest.importorskip("pathlib").Path
+    plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
+
+
 def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is
@@ -160,7 +179,7 @@ def test_imsave_color_alpha():
     for origin in ['lower', 'upper']:
         data = random.rand(16, 16, 4)
         buff = io.BytesIO()
-        plt.imsave(buff, data, origin=origin)
+        plt.imsave(buff, data, origin=origin, format="png")
 
         buff.seek(0)
         arr_buf = plt.imread(buff)
@@ -174,6 +193,7 @@ def test_imsave_color_alpha():
         arr_buf = (255*arr_buf).astype('uint8')
 
         assert_array_equal(data, arr_buf)
+
 
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
@@ -652,7 +672,7 @@ def test_image_preserve_size():
     buff = io.BytesIO()
 
     im = np.zeros((481, 321))
-    plt.imsave(buff, im)
+    plt.imsave(buff, im, format="png")
 
     buff.seek(0)
     img = plt.imread(buff)

@@ -27,7 +27,7 @@ import zlib
 
 import numpy as np
 
-from matplotlib import __version__, rcParams
+from matplotlib import cbook, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -435,9 +435,8 @@ class PdfFile(object):
         self.passed_in_file_object = False
         self.original_file_like = None
         self.tell_base = 0
-        if isinstance(filename, six.string_types):
-            fh = open(filename, 'wb')
-        elif is_writable_file_like(filename):
+        fh, opened = cbook.to_filehandle(filename, "wb", return_opened=True)
+        if not opened:
             try:
                 self.tell_base = filename.tell()
             except IOError:
@@ -446,8 +445,6 @@ class PdfFile(object):
             else:
                 fh = filename
                 self.passed_in_file_object = True
-        else:
-            raise ValueError("filename must be a path or a file-like object")
 
         self._core14fontdir = os.path.join(
             rcParams['datapath'], 'fonts', 'pdfcorefonts')
