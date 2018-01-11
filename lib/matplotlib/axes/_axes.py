@@ -111,7 +111,8 @@ class Axes(_AxesBase):
     aname = 'Axes'
 
     def get_title(self, loc="center"):
-        """Get an axes title.
+        """
+        Get an axes title.
 
         Get one of the three available axes titles. The available titles
         are positioned above the axes in the center, flush with the left
@@ -120,11 +121,11 @@ class Axes(_AxesBase):
         Parameters
         ----------
         loc : {'center', 'left', 'right'}, str, optional
-            Which title to get, defaults to 'center'
+            Which title to get, defaults to 'center'.
 
         Returns
         -------
-        title: str
+        title : str
             The title text string.
 
         """
@@ -916,7 +917,7 @@ class Axes(_AxesBase):
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
-        Plot horizontal lines at each `y` from `xmin` to `xmax`.
+        Plot horizontal lines at each *y* from *xmin* to *xmax*.
 
         Parameters
         ----------
@@ -994,7 +995,7 @@ class Axes(_AxesBase):
         """
         Plot vertical lines.
 
-        Plot vertical lines at each `x` from `ymin` to `ymax`.
+        Plot vertical lines at each *x* from *ymin* to *ymax*.
 
         Parameters
         ----------
@@ -1619,25 +1620,28 @@ linewidth=2, markersize=12)
         :meth:`matplotlib.axes.Axes.set_xscale` /
         :meth:`matplotlib.axes.Axes.set_yscale`.
 
-        Notable keyword arguments:
+        Parameters
+        ----------
+        basex, basey : scalar
+            Base of the x/y logarithm. Must be > 1.
 
-          *basex*/*basey*: scalar > 1
-            Base of the *x*/*y* logarithm
+        subsx, subsy : sequence
+            The location of the minor x/y ticks; ``None`` defaults to autosubs,
+            which depend on the number of decades in the plot;
+            see :meth:`matplotlib.axes.Axes.set_xscale` /
+            :meth:`matplotlib.axes.Axes.set_yscale` for details.
 
-          *subsx*/*subsy*: [ *None* | sequence ]
-            The location of the minor *x*/*y* ticks; *None* defaults
-            to autosubs, which depend on the number of decades in the
-            plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
-            :meth:`matplotlib.axes.Axes.set_yscale` for details
+        nonposx, nonposy : ['mask' | 'clip' ]
+            Non-positive values in x or y can be masked as invalid, or clipped
+            to a very small positive number.
 
-          *nonposx*/*nonposy*: ['mask' | 'clip' ]
-            Non-positive values in *x* or *y* can be masked as
-            invalid, or clipped to a very small positive number
+        Other Parameters
+        ----------------
+        **kwargs :
+            The remaining valid kwargs are :class:`~matplotlib.lines.Line2D`
+            properties:
 
-        The remaining valid kwargs are
-        :class:`~matplotlib.lines.Line2D` properties:
-
-        %(Line2D)s
+            %(Line2D)s
 
         """
         if not self._hold:
@@ -1662,28 +1666,27 @@ linewidth=2, markersize=12)
     @docstring.dedent_interpd
     def semilogx(self, *args, **kwargs):
         """
-        Make a plot with log scaling on the *x* axis.
+        Make a plot with log scaling on the x axis.
 
         Parameters
         ----------
         basex : float, optional
-            Base of the *x* logarithm. The scalar should be larger
-            than 1.
+            Base of the x logarithm. The scalar should be larger than 1.
 
         subsx : array_like, optional
-            The location of the minor xticks; *None* defaults to
+            The location of the minor xticks; ``None`` defaults to
             autosubs, which depend on the number of decades in the
             plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
             details.
 
         nonposx : string, optional, {'mask', 'clip'}
-            Non-positive values in *x* can be masked as
+            Non-positive values in x can be masked as
             invalid, or clipped to a very small positive number.
 
         Returns
         -------
         `~matplotlib.pyplot.plot`
-            Log-scaled plot on the *x* axis.
+            Log-scaled plot on the x axis.
 
         Other Parameters
         ----------------
@@ -1715,16 +1718,15 @@ linewidth=2, markersize=12)
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
         """
-        Make a plot with log scaling on the *y* axis.
+        Make a plot with log scaling on the y axis.
 
         Parameters
         ----------
         basey : float, optional
-            Base of the *y* logarithm. The scalar should be larger
-            than 1.
+            Base of the y logarithm. The scalar should be larger than 1.
 
         subsy : array_like, optional
-            The location of the minor yticks; *None* defaults to
+            The location of the minor yticks; ``None`` defaults to
             autosubs, which depend on the number of decades in the
             plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
             details.
@@ -1768,51 +1770,56 @@ linewidth=2, markersize=12)
     @_preprocess_data(replace_names=["x"], label_namer="x")
     def acorr(self, x, **kwargs):
         """
-        Plot the autocorrelation of `x`.
+        Plot the autocorrelation of *x*.
 
         Parameters
         ----------
 
         x : sequence of scalar
 
-        hold : boolean, optional, *deprecated*, default: True
+        hold : bool, optional, *deprecated*, default: True
 
         detrend : callable, optional, default: `mlab.detrend_none`
-            x is detrended by the `detrend` callable. Default is no
+            *x* is detrended by the *detrend* callable. Default is no
             normalization.
 
-        normed : boolean, optional, default: True
-            if True, input vectors are normalised to unit length.
+        normed : bool, optional, default: True
+            If ``True``, input vectors are normalised to unit length.
 
-        usevlines : boolean, optional, default: True
-            if True, Axes.vlines is used to plot the vertical lines from the
-            origin to the acorr. Otherwise, Axes.plot is used.
+        usevlines : bool, optional, default: True
+            If ``True``, `Axes.vlines` is used to plot the vertical lines from
+            the origin to the acorr. Otherwise, `Axes.plot` is used.
 
         maxlags : integer, optional, default: 10
-            number of lags to show. If None, will return all 2 * len(x) - 1
-            lags.
+            Number of lags to show. If ``None``, will return all
+            ``2 * len(x) - 1`` lags.
 
         Returns
         -------
-        (lags, c, line, b) : where:
+        lags : array (lenth ``2*maxlags+1``)
+            lag vector.
+        c : array  (length ``2*maxlags+1``)
+            auto correlation vector.
+        line : `~.LineCollection` or `~.Line2D`
+            `~.Artist` added to the axes of the correlation.
 
-          - `lags` are a length 2`maxlags+1 lag vector.
-          - `c` is the 2`maxlags+1 auto correlation vectorI
-          - `line` is a `~matplotlib.lines.Line2D` instance returned by
-            `plot`.
-          - `b` is the x-axis.
+             `~.LineCollection` if *usevlines* is True
+             `~.Line2D` if *usevlines* is False
+        b : `~.Line2D` or None
+            Horizontal line at 0 if *usevlines* is True
+            None *usevlines* is False
 
         Other Parameters
         ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
-            Only used if usevlines is False.
+            Only used if usevlines is ``False``.
 
         marker : string, optional, default: 'o'
 
         Notes
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
-        `mode` = 2.
+        ``mode = 2``.
         """
         if "hold" in kwargs:
             warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
@@ -1832,44 +1839,50 @@ linewidth=2, markersize=12)
 
         y : sequence of scalars of length n
 
-        hold : boolean, optional, *deprecated*, default: True
+        hold : bool, optional, *deprecated*, default: True
 
         detrend : callable, optional, default: `mlab.detrend_none`
-            x is detrended by the `detrend` callable. Default is no
+            *x* is detrended by the *detrend* callable. Default is no
             normalization.
 
-        normed : boolean, optional, default: True
-            if True, input vectors are normalised to unit length.
+        normed : bool, optional, default: True
+            If ``True``, input vectors are normalised to unit length.
 
-        usevlines : boolean, optional, default: True
-            if True, Axes.vlines is used to plot the vertical lines from the
-            origin to the acorr. Otherwise, Axes.plot is used.
+        usevlines : bool, optional, default: True
+            If ``True``, `Axes.vlines` is used to plot the vertical lines from
+            the origin to the acorr. Otherwise, `Axes.plot` is used.
 
-        maxlags : integer, optional, default: 10
-            number of lags to show. If None, will return all 2 * len(x) - 1
-            lags.
+        maxlags : int, optional
+            Number of lags to show. If None, will return all ``2 * len(x) - 1``
+            lags. Default is 10.
 
         Returns
         -------
-        (lags, c, line, b) : where:
+        lags : array (lenth ``2*maxlags+1``)
+            lag vector.
+        c : array  (length ``2*maxlags+1``)
+            auto correlation vector.
+        line : `~.LineCollection` or `~.Line2D`
+            `~.Artist` added to the axes of the correlation
 
-          - `lags` are a length 2`maxlags+1 lag vector.
-          - `c` is the 2`maxlags+1 auto correlation vectorI
-          - `line` is a `~matplotlib.lines.Line2D` instance returned by
-            `plot`.
-          - `b` is the x-axis (none, if plot is used).
+             `~.LineCollection` if *usevlines* is True
+             `~.Line2D` if *usevlines* is False
+        b : `~.Line2D` or None
+            Horizontal line at 0 if *usevlines* is True
+            None *usevlines* is False
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
-            Only used if usevlines is False.
+        linestyle : `~matplotlib.lines.Line2D` property, optional
+            Only used if usevlines is ``False``.
 
-        marker : string, optional, default: 'o'
+        marker : string, optional
+            Default is 'o'.
 
         Notes
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
-        `mode` = 2.
+        ``mode = 2``.
         """
         if "hold" in kwargs:
             warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
@@ -1922,7 +1935,7 @@ linewidth=2, markersize=12)
             that it is uniformly increasing.
 
         y : array_like
-            1-D sequence
+            1-D sequence.
 
         Returns
         -------
@@ -2347,8 +2360,8 @@ linewidth=2, markersize=12)
             Default: None (Use default numeric labels.)
 
         xerr, yerr : scalar or array-like of shape(N,) or shape(2,N), optional
-            If not *None*, add horizontal / vertical errorbars to the bar tips.
-            The values are +/- sizes relative to the data:
+            If not ``None``, add horizontal / vertical errorbars to the
+            bar tips. The values are +/- sizes relative to the data:
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
@@ -2370,7 +2383,7 @@ linewidth=2, markersize=12)
             precedence over the independent kwargs.
 
         log : bool, optional, default: False
-            If *True*, set the x-axis to be log scale.
+            If ``True``, set the x-axis to be log scale.
 
         See also
         --------
@@ -4831,8 +4844,6 @@ linewidth=2, markersize=12)
         -----
         Use :meth:`fill_between` if you would like to fill the region between
         two curves.
-
-
         """
         if not self._hold:
             self.cla()
@@ -5721,58 +5732,56 @@ linewidth=2, markersize=12)
         contrast, :func:`~matplotlib.pyplot.pcolor` simply does not
         draw quadrilaterals with masked colors or vertices.
 
-        Keyword arguments:
-
-          *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance. If *None*, use
+        Other Parameters
+        ----------------
+        cmap : Colormap, optional
+            A :class:`matplotlib.colors.Colormap` instance. If ``None``, use
             rc settings.
 
-          *norm*: [ *None* | Normalize ]
+        norm : Normalize, optional
             A :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to 0,1. If *None*, defaults to
+            scale luminance data to 0,1. If ``None``, defaults to
             :func:`normalize`.
 
-          *vmin*/*vmax*: [ *None* | scalar ]
+        vmin, vmax : scalar, optional
             *vmin* and *vmax* are used in conjunction with *norm* to
-            normalize luminance data.  If either is *None*, it
-            is autoscaled to the respective min or max
-            of the color array *C*.  If not *None*, *vmin* or
-            *vmax* passed in here override any pre-existing values
-            supplied in the *norm* instance.
+            normalize luminance data. If either is ``None``, it is autoscaled
+            to the respective min or max of the color array *C*.
+            If not ``None``, *vmin* or *vmax* passed in here override any
+            pre-existing values supplied in the *norm* instance.
 
-          *shading*: [ 'flat' | 'gouraud' ]
-            'flat' indicates a solid color for each quad.  When
-            'gouraud', each quad will be Gouraud shaded.  When gouraud
-            shading, edgecolors is ignored.
+        shading : [ 'flat' | 'gouraud' ], optional
+            'flat' indicates a solid color for each quad. When
+            'gouraud', each quad will be Gouraud shaded. When gouraud
+            shading, *edgecolors* is ignored.
 
-          *edgecolors*: [*None* | ``'None'`` | ``'face'`` | color |
-                         color sequence]
+        edgecolors : string, color, color sequence, optional
+            - If ``None``, the rc setting is used by default.
+            - If ``'None'``, edges will not be visible.
+            - If ``'face'``, edges will have the same color as the faces.
 
-            If *None*, the rc setting is used by default.
+            An mpl color or sequence of colors will also set the edge color.
 
-            If ``'None'``, edges will not be visible.
+        alpha : scalar, optional
+            Alpha blending value. Must be between 0 and 1.
 
-            If ``'face'``, edges will have the same color as the faces.
+        Returns
+        -------
+        matplotlib.collections.QuadMesh
 
-            An mpl color or sequence of colors will set the edge color
+        See Also
+        --------
+        matplotlib.pyplot.pcolor :
+            For an explanation of the grid orientation
+            (:ref:`Grid Orientation <axes-pcolor-grid-orientation>`)
+            and the expansion of 1-D *X* and/or *Y* to 2-D arrays.
 
-          *alpha*: ``0 <= scalar <= 1``  or *None*
-            the alpha blending value
-
-        Return value is a :class:`matplotlib.collections.QuadMesh`
-        object.
-
+        Notes
+        -----
         kwargs can be used to control the
         :class:`matplotlib.collections.QuadMesh` properties:
 
         %(QuadMesh)s
-
-        .. seealso::
-
-            :func:`~matplotlib.pyplot.pcolor`
-                For an explanation of the grid orientation
-                (:ref:`Grid Orientation <axes-pcolor-grid-orientation>`)
-                and the expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
         if not self._hold:
             self.cla()
