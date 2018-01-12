@@ -12,6 +12,7 @@ from matplotlib.backends.backend_tkagg import (
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+from six.moves import tkinter as Tk
 
 import numpy as np
 
