@@ -13,6 +13,8 @@ Only labels that have the same subplot locations are aligned.  i.e. the
 ylabels are aligned only if the subplots are in the same column of the
 subplot layout.
 
+Alignemnt is persistent and automatic after these are called.
+
 A convenience wrapper `Figure.align_labels` calls both functions at once.
 
 .. plot::

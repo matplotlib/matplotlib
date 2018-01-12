@@ -2084,9 +2084,13 @@ class Figure(Artist):
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         self.subplots_adjust(**kwargs)
 
-    def align_xlabels(self, axs=None, renderer=None):
+    def align_xlabels(self, axs=None):
         """
-        Align the xlabels of subplots in this figure.
+        Align the ylabels of subplots in the same subplot column if label
+        alignment is being done automatically (i.e. the label position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
 
         If a label is on the bottom, it is aligned with labels on axes that
         also have their label on the bottom and that have the same
@@ -2096,11 +2100,8 @@ class Figure(Artist):
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes` (None)
-            Optional list of `~matplotlib.axes.Axes` to align
-            the xlabels.
-
-        renderer : (None)
-            Optional renderer to do the adjustment on.
+            Optional list of (or ndarray) `~matplotlib.axes.Axes` to align
+            the xlabels.  Default is to align all axes on the figure.
 
         See Also
         --------
@@ -2121,11 +2122,6 @@ class Figure(Artist):
 
         """
 
-        from .tight_layout import get_renderer
-
-        if renderer is None:
-            renderer = get_renderer(self)
-
         if axs is None:
             axs = self.axes
 
@@ -2135,25 +2131,30 @@ class Figure(Artist):
             _log.debug(' Working on: %s', ax.get_xlabel())
             ss = ax.get_subplotspec()
             nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-            same = [ax]
-            labpo = ax.xaxis.get_label_position()
+            labpo = ax.xaxis.get_label_position()  # top or bottom
+
+            # loop through other axes, and search for label positions
+            # that are same as this one, and that share the appropriate
+            # row number.
+            #  Add to a list associated with each axes of sibblings.
+            # This list is inspected in `axis.draw` by
+            # `axis._update_label_position`.
             for axc in axs:
                 if axc.xaxis.get_label_position() == labpo:
                     ss = axc.get_subplotspec()
                     nrows, ncols, rowc0, rowc1, colc, col1 = \
                             ss.get_rows_columns()
-                    if (labpo == 'bottom') and (rowc1 == row1):
-                        same += [axc]
-                    elif (labpo == 'top') and (rowc0 == row0):
-                        same += [axc]
+                    if (labpo == 'bottom' and rowc1 == row1 or
+                        labpo == 'top' and rowc0 == row0):
+                        axc.xaxis._align_label_siblings += [ax.xaxis]
 
-            for axx in same:
-                _log.debug(' Same: %s', axx.xaxis.label)
-                axx.xaxis._align_label_siblings += [ax.xaxis]
-
-    def align_ylabels(self, axs=None, renderer=None):
+    def align_ylabels(self, axs=None):
         """
-        Align the ylabels of subplots in this figure.
+        Align the ylabels of subplots in the same subplot column if label
+        alignment is being done automatically (i.e. the label position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
 
         If a label is on the left, it is aligned with labels on axes that
         also have their label on the left and that have the same
@@ -2163,11 +2164,8 @@ class Figure(Artist):
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes` (None)
-            Optional list of `~matplotlib.axes.Axes` to align
-            the ylabels.
-
-        renderer : (None)
-            Optional renderer to do the adjustment on.
+            Optional list (or ndarray) of `~matplotlib.axes.Axes` to align
+            the ylabels. Default is to align all axes on the figure.
 
         See Also
         --------
@@ -2187,11 +2185,6 @@ class Figure(Artist):
 
         """
 
-        from .tight_layout import get_renderer
-
-        if renderer is None:
-            renderer = get_renderer(self)
-
         if axs is None:
             axs = self.axes
 
@@ -2201,88 +2194,36 @@ class Figure(Artist):
             ss = ax.get_subplotspec()
             nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
             same = [ax]
-            labpo = ax.yaxis.get_label_position()
+            labpo = ax.yaxis.get_label_position()  # left or right
+            # loop through other axes, and search for label positions
+            # that are same as this one, and that share the appropriate
+            # column number.
+            # Add to a list associated with each axes of sibblings.
+            # This list is inspected in `axis.draw` by
+            # `axis._update_label_position`.
             for axc in axs:
                 if axc != ax:
                     if axc.yaxis.get_label_position() == labpo:
                         ss = axc.get_subplotspec()
                         nrows, ncols, row0, row1, colc0, colc1 = \
                                 ss.get_rows_columns()
-                        if (labpo == 'left') and (colc0 == col0):
-                            same += [axc]
-                        elif (labpo == 'right') and (colc1 == col1):
-                            same += [axc]
-            for axx in same:
-                _log.debug(' Same: %s', axx.yaxis.label)
-                axx.yaxis._align_label_siblings += [ax.yaxis]
+                        if (labpo == 'left' and colc0 == col0 or
+                            labpo == 'right' and colc1 == col1):
+                            axc.yaxis._align_label_siblings += [ax.yaxis]
 
-    # place holder until #9498 is merged...
-    def align_titles(self, axs=None, renderer=None):
-        """
-        Align the titles of subplots in this figure.
-
-        Parameters
-        ----------
-        axs : list of `~matplotlib.axes.Axes` (None)
-            Optional list of axes to align the xlabels.
-
-        renderer : (None)
-            Optional renderer to do the adjustment on.
-
-        See Also
-        --------
-        matplotlib.figure.Figure.align_xlabels
-
-        matplotlib.figure.Figure.align_ylabels
-        """
-
-        from .tight_layout import get_renderer
-
-        if renderer is None:
-            renderer = get_renderer(self)
-
-        if axs is None:
-            axs = self.axes
-
-        while len(axs):
-            ax = axs.pop()
-            ax._update_title_position(renderer)
-            same = [ax]
-            if ax._autolabelpos:
-                ss = ax.get_subplotspec()
-                nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-                labpo = ax.xaxis.get_label_position()
-                for axc in axs:
-                    axc._update_title_position(renderer)
-                    if axc._autolabelpos:
-                        ss = axc.get_subplotspec()
-                        nrows, ncols, rowc0, rowc1, colc, col1 = \
-                                ss.get_rows_columns()
-                        if (rowc0 == row0):
-                            same += [axc]
-
-            x0, y0 = ax.title.get_position()
-            for axx in same:
-                x, y = axx.title.get_position()
-                if y > y0:
-                    ax.title.set_position(x0, y)
-                    y0 = y
-                elif y0 > y:
-                    axx.title.set_positions(x, y0)
-
-    def align_labels(self, axs=None, renderer=None):
+    def align_labels(self, axs=None):
         """
         Align the xlabels and ylabels of subplots with the same subplots
-        row or column (respectively).
+        row or column (respectively) if label alignment is being
+        done automatically (i.e. the label position is not manually set).
+
+        Alignment persists for draw events after this is called.
 
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes` (None)
             Optional list (or ndarray) of `~matplotlib.axes.Axes` to
-            align the labels.
-
-        renderer : (None)
-            Optional renderer to do the adjustment on.
+            align the labels.  Default is to align all axes on the figure.
 
         See Also
         --------
@@ -2290,9 +2231,8 @@ class Figure(Artist):
 
         matplotlib.figure.Figure.align_ylabels
         """
-        self.align_xlabels(axs=axs, renderer=renderer)
-        self.align_ylabels(axs=axs, renderer=renderer)
-        # self.align_titles(axs=axs, renderer=renderer)
+        self.align_xlabels(axs=axs)
+        self.align_ylabels(axs=axs)
 
 
 def figaspect(arg):

@@ -1675,8 +1675,8 @@ class Axis(artist.Artist):
 
     def _get_tick_boxes_siblings(self, renderer):
         """
-        Get the bounding boxes for this axis and its sibblings
-        as set by `Figure.align_xlabels` or  ``Figure.align_ylables`.
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
 
         By default it just gets bboxes for self.
         """
