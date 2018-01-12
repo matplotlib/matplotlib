@@ -171,8 +171,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
 class Dvi(object):
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
-    The current implementation can only iterate through pages in order,
-    and does not even attempt to verify the postamble.
+    The current implementation can only iterate through pages in order.
 
     This class can be used as a context manager to close the underlying
     file upon exit. Pages can be read via iteration. Here is an overly
@@ -180,13 +179,26 @@ class Dvi(object):
 
     >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
     >>>     for page in dvi:
-    >>>         print(''.join(unichr(t.glyph) for t in page.text))
+    >>>         print(''.join(chr(t.glyph) for t in page.text))
+
+    Parameters
+    ----------
+
+    filename : str
+        dvi file to read
+    dpi : number or None
+        Dots per inch, can be floating-point; this affects the
+        coordinates returned. Use None to get TeX's internal units
+        which are likely only useful for debugging.
+    cache : TeXSupportCache instance, optional
+        Support file cache instance, defaults to the TeXSupportCache
+        singleton.
     """
     # dispatch table
     _dtable = [None] * 256
     _dispatch = partial(_dispatch, _dtable)
 
-    def __init__(self, filename, dpi):
+    def __init__(self, filename, dpi, cache=None):
         """
         Read the data from the file named *filename* and convert
         TeX's internal units to units of *dpi* per inch.
@@ -194,11 +206,20 @@ class Dvi(object):
         Use None to return TeX's internal units.
         """
         _log.debug('Dvi: %s', filename)
+        if cache is None:
+            cache = TeXSupportCache.get_cache()
+        self.cache = cache
         self.file = open(filename, 'rb')
         self.dpi = dpi
         self.fonts = {}
         self.state = _dvistate.pre
         self.baseline = self._get_baseline(filename)
+        self.fontnames = sorted(set(self._read_fonts()))
+        # populate kpsewhich cache with font pathnames
+        find_tex_files([x + suffix for x in self.fontnames
+                        for suffix in ('.tfm', '.vf', '.pfb')],
+                       cache)
+        cache.optimize()
 
     def _get_baseline(self, filename):
         if rcParams['text.latex.preview']:
@@ -206,8 +227,8 @@ class Dvi(object):
             baseline_filename = base + ".baseline"
             if os.path.exists(baseline_filename):
                 with open(baseline_filename, 'rb') as fd:
-                    l = fd.read().split()
-                height, depth, width = l
+                    line = fd.read().split()
+                height, depth, width = line
                 return float(depth)
         return None
 
@@ -293,6 +314,61 @@ class Dvi(object):
 
         return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
                     height=(maxy_pure-miny)*d, descent=descent)
+
+    def _read_fonts(self):
+        """Read the postamble of the file and return a list of fonts used."""
+
+        file = self.file
+        offset = -1
+        while offset > -100:
+            file.seek(offset, 2)
+            byte = file.read(1)[0]
+            if byte != 223:
+                break
+            offset -= 1
+        if offset >= -4:
+            raise ValueError(
+                "malformed dvi file %s: too few 223 bytes" % file.name)
+        if byte != 2:
+            raise ValueError(
+                ("malformed dvi file %s: post-postamble "
+                 "identification byte not 2") % file.name)
+        file.seek(offset - 4, 2)
+        offset = struct.unpack('!I', file.read(4))[0]
+        file.seek(offset, 0)
+        try:
+            byte = file.read(1)[0]
+        except IndexError:
+            raise ValueError(
+                "malformed dvi file %s: postamble offset %d out of range"
+                % (file.name, offset))
+        if byte != 248:
+            raise ValueError(
+                "malformed dvi file %s: postamble not found at offset %d"
+                % (file.name, offset))
+
+        fonts = []
+        file.seek(28, 1)
+        while True:
+            byte = file.read(1)[0]
+            if 243 <= byte <= 246:
+                _, _, _, _, a, length = (
+                    _arg_olen1(self, byte-243),
+                    _arg(4, False, self, None),
+                    _arg(4, False, self, None),
+                    _arg(4, False, self, None),
+                    _arg(1, False, self, None),
+                    _arg(1, False, self, None))
+                fontname = file.read(a + length)[-length:].decode('ascii')
+                fonts.append(fontname)
+            elif byte == 249:
+                break
+            else:
+                raise ValueError(
+                    "malformed dvi file %s: opcode %d in postamble"
+                    % (file.name, byte))
+        file.seek(0, 0)
+        return fonts
 
     def _read(self):
         """
@@ -593,6 +669,10 @@ class Vf(Dvi):
     ----------
 
     filename : string or bytestring
+        vf file to read
+    cache : TeXSupportCache instance, optional
+        Support file cache instance, defaults to the TeXSupportCache
+        singleton.
 
     Notes
     -----
@@ -603,8 +683,8 @@ class Vf(Dvi):
     but replaces the `_read` loop and dispatch mechanism.
     """
 
-    def __init__(self, filename):
-        Dvi.__init__(self, filename, 0)
+    def __init__(self, filename, cache=None):
+        Dvi.__init__(self, filename, dpi=0, cache=cache)
         try:
             self._first_font = None
             self._chars = {}
@@ -614,6 +694,27 @@ class Vf(Dvi):
 
     def __getitem__(self, code):
         return self._chars[code]
+
+    def _read_fonts(self):
+        """Read through the font-definition section of the vf file
+        and return the list of font names."""
+        fonts = []
+        self.file.seek(0, 0)
+        while True:
+            byte = self.file.read(1)[0]
+            if byte <= 242 or byte >= 248:
+                break
+            elif 243 <= byte <= 246:
+                _ = self._arg(byte - 242)
+                _, _, _, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                fontname = self.file.read(a + length)[-length:].decode('ascii')
+                fonts.append(fontname)
+            elif byte == 247:
+                _, k = self._arg(1), self._arg(1)
+                _ = self.file.read(k)
+                _, _ = self._arg(4), self._arg(4)
+        self.file.seek(0, 0)
+        return fonts
 
     def _read(self):
         """
@@ -652,8 +753,8 @@ class Vf(Dvi):
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
                 k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
-                self._fnt_def_real(k, c, s, d, a, l)
+                c, s, d, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                self._fnt_def_real(k, c, s, d, a, length)
                 if self._first_font is None:
                     self._first_font = k
             elif byte == 247:       # preamble

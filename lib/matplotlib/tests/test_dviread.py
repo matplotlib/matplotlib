@@ -77,6 +77,28 @@ def test_dviread():
     assert data == correct
 
 
+@skip_if_command_unavailable(["kpsewhich", "-version"])
+def test_dviread_get_fonts():
+    dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
+    with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
+        assert dvi.fontnames == \
+            ['cmex10', 'cmmi10', 'cmmi5', 'cmr10', 'cmr5', 'cmr7']
+    with dr.Vf(os.path.join(dir, 'virtual.vf')) as vf:
+        assert vf.fontnames == ['cmex10', 'cmr10']
+
+
+def test_dviread_get_fonts_error_handling():
+    dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
+    for n, message in [(1, "too few 223 bytes"),
+                       (2, "post-postamble identification"),
+                       (3, "postamble offset"),
+                       (4, "postamble not found"),
+                       (5, "opcode 127 in postamble")]:
+        with pytest.raises(ValueError) as e:
+            dr.Dvi(os.path.join(dir, "broken%d.dvi" % n), None)
+        assert message in str(e.value)
+
+
 def test_TeXSupportCache(tmpdir):
     dbfile = str(tmpdir / "test.db")
     cache = dr.TeXSupportCache(filename=dbfile)
