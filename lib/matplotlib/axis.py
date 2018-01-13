@@ -1866,9 +1866,10 @@ class XAxis(Axis):
         """
         bboxes = []
         bboxes2 = []
+        # get the Grouper that keeps track of x-label groups for this figure
         grp = self.figure._align_xlabel_grp
         # if we want to align labels from other axes:
-        for axx in grp.get_siblings(self.axes):
+        for nn, axx in enumerate(grp.get_siblings(self.axes)):
             ticks_to_draw = axx.xaxis._update_ticks(renderer)
             tlb, tlb2 = axx.xaxis._get_tick_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
@@ -2234,6 +2235,7 @@ class YAxis(Axis):
         """
         bboxes = []
         bboxes2 = []
+        # get the Grouper that keeps track of y-label groups for this figure
         grp = self.figure._align_ylabel_grp
         # if we want to align labels from other axes:
         for axx in grp.get_siblings(self.axes):

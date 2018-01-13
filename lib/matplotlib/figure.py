@@ -381,6 +381,8 @@ class Figure(Artist):
         self._cachedRenderer = None
 
         # groupers to keep track of x and y labels we want to align.
+        # see self.align_xlabels and self.align_ylabels and
+        # axis._get_tick_boxes_siblings
         self._align_xlabel_grp = cbook.Grouper()
         self._align_ylabel_grp = cbook.Grouper()
 
@@ -2133,8 +2135,7 @@ class Figure(Artist):
 
         if axs is None:
             axs = self.axes
-        axs = np.asarray(np.array(axs)).flatten().tolist()
-
+        axs = np.asarray(axs).ravel()
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
             ss = ax.get_subplotspec()
@@ -2201,7 +2202,7 @@ class Figure(Artist):
 
         if axs is None:
             axs = self.axes
-        axs = np.asarray(np.array(axs)).flatten().tolist()
+        axs = np.asarray(axs).ravel()
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
             ss = ax.get_subplotspec()
