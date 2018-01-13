@@ -77,7 +77,8 @@ def test_extra_kwargs_raise():
 def test_logscale_invert_transform():
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    tform = ax.transData.inverted()
+    # get transformation from data to axes
+    tform = (ax.transAxes + ax.transData.inverted()).inverted()
 
 def test_logscale_transform_repr():
     fig, ax = plt.subplots()
