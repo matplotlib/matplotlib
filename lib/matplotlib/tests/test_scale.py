@@ -74,6 +74,17 @@ def test_extra_kwargs_raise():
         ax.set_yscale('log', nonpos='mask')
 
 
+def test_logscale_invert_transform():
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    tform = ax.transData.inverted()
+
+def test_logscale_transform_repr():
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    s = repr(ax.transData)
+
+
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
                   extensions=['png'], style='mpl20')
 def test_logscale_nonpos_values():
