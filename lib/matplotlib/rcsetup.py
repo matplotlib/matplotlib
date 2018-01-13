@@ -931,6 +931,21 @@ def _validate_linestyle(ls):
         raise ValueError("linestyle {!r} is not a valid on-off ink "
                          "sequence.".format(ls))
 
+def _validate_linewidth(w):
+    try:
+        w=float(w)
+    except (ValueError, TypeError):
+        if w not in ['xx-thin','x-thin','thin','thinner','medium','thick','thicker','x-thick','xx-thick',None]:
+            raise ValueError("width {!r} is not a valid float or string.".format(w))
+    return w
+
+def _validate_markersize(sz):
+    try:
+        sz=float(sz)
+    except (ValueError, TypeError):
+        if sz not in ['xx-small','x-small','small','smaller','medium','large','larger','x-large','xx-large',None]:
+            raise ValueError("marker size {!r} is not a valid float or string.".format(w))
+    return sz
 
 # a map from key -> value, converter
 defaultParams = {
@@ -959,7 +974,7 @@ defaultParams = {
     'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', validate_string],  # marker name
-    'lines.markeredgewidth': [1.0, validate_float],
+    'lines.markeredgewidth': [1.0, _validate_linewidth], # width in points, or relative to lines.linewidth
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
     'lines.dash_joinstyle':  ['round', validate_joinstyle],
@@ -976,7 +991,7 @@ defaultParams = {
     'markers.fillstyle': ['full', validate_fillstyle],
 
     ## patch props
-    'patch.linewidth':   [1.0, validate_float],     # line width in points
+    'patch.linewidth':   [1.0, _validate_linewidth],     # line width in points, or relative to lines.linewidth
     'patch.edgecolor':   ['k', validate_color],
     'patch.force_edgecolor' : [False, validate_bool],
     'patch.facecolor':   ['C0', validate_color],    # first color in cycle
@@ -1005,33 +1020,33 @@ defaultParams = {
     'boxplot.flierprops.marker': ['o', validate_string],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
-    'boxplot.flierprops.markersize': [6, validate_float],
+    'boxplot.flierprops.markersize': [6, _validate_markersize],
     'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
-    'boxplot.flierprops.linewidth': [1.0, validate_float],
+    'boxplot.flierprops.linewidth': [1.0, _validate_linewidth],
 
     'boxplot.boxprops.color': ['k', validate_color],
-    'boxplot.boxprops.linewidth': [1.0, validate_float],
+    'boxplot.boxprops.linewidth': [1.0, _validate_linewidth],
     'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.whiskerprops.color': ['k', validate_color],
-    'boxplot.whiskerprops.linewidth': [1.0, validate_float],
+    'boxplot.whiskerprops.linewidth': [1.0, _validate_linewidth],
     'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.capprops.color': ['k', validate_color],
-    'boxplot.capprops.linewidth': [1.0, validate_float],
+    'boxplot.capprops.linewidth': [1.0, _validate_linewidth],
     'boxplot.capprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.medianprops.color': ['C1', validate_color],
-    'boxplot.medianprops.linewidth': [1.0, validate_float],
+    'boxplot.medianprops.linewidth': [1.0, _validate_linewidth],
     'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
     'boxplot.meanprops.marker': ['^', validate_string],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
-    'boxplot.meanprops.markersize': [6, validate_float],
+    'boxplot.meanprops.markersize': [6, _validate_markersize],
     'boxplot.meanprops.linestyle': ['--', _validate_linestyle],
-    'boxplot.meanprops.linewidth': [1.0, validate_float],
+    'boxplot.meanprops.linewidth': [1.0, _validate_linewidth],
 
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
@@ -1107,7 +1122,7 @@ defaultParams = {
     'axes.hold':             [None, deprecate_axes_hold],
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
-    'axes.linewidth':        [0.8, validate_float],  # edge linewidth
+    'axes.linewidth':        [0.8, _validate_linewidth],  # edge linewidth
 
     'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
     'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
@@ -1216,8 +1231,8 @@ defaultParams = {
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
     'xtick.major.size':  [3.5, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
-    'xtick.major.width': [0.8, validate_float],  # major xtick width in points
-    'xtick.minor.width': [0.6, validate_float],  # minor xtick width in points
+    'xtick.major.width': [0.8, _validate_linewidth],  # major xtick width in points
+    'xtick.minor.width': [0.6, _validate_linewidth],  # minor xtick width in points
     'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
     'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
@@ -1236,8 +1251,8 @@ defaultParams = {
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
     'ytick.major.size':  [3.5, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
-    'ytick.major.width': [0.8, validate_float],   # major ytick width in points
-    'ytick.minor.width': [0.6, validate_float],   # minor ytick width in points
+    'ytick.major.width': [0.8, _validate_linewidth],   # major ytick width in points
+    'ytick.minor.width': [0.6, _validate_linewidth],   # minor ytick width in points
     'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
     'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
@@ -1255,7 +1270,7 @@ defaultParams = {
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', _validate_linestyle],  # solid
-    'grid.linewidth':    [0.8, validate_float],     # in points
+    'grid.linewidth':    [0.8, _validate_linewidth],     # in points
     'grid.alpha':        [1.0, validate_float],
 
 

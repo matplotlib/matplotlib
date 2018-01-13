@@ -73,6 +73,64 @@ def _scale_dashes(offset, dashes, lw):
     return scaled_offset, scaled_dashes
 
 
+def _convert2points(val, default, lut):
+    """
+    Convert relative size to points, using `default` as the base value and
+    `lut` as the look-up table for qualitative size names.
+    """
+    if val is None:
+        return default
+
+    try:
+        return default*lut[val]
+    except KeyError:
+        pts = float(val)
+        # do not use relative fraction as string, because when loading styles from file
+        # there is no way to distinguish between a proper float and its string equivalent
+        #if isinstance(val, six.string_types):
+        #    pts *= default
+        return pts
+
+def _build_qualitative_scaling(labels, comparative=None, base=1.2):
+
+    a, b = labels
+    if comparative is None:
+        ca, cb = a+"er", b+"er"
+    else:
+        ca, cb = comparative
+
+    d = {None: 1., 'medium': 1., ca:base**-1, cb:base}
+    for k,m in enumerate(('', 'x-', 'xx-')):
+        d['{}{}'.format(m,a)] = base**(-k-1)
+        d['{}{}'.format(m,b)] = base**(k+1)
+
+    return d
+
+linewidth_scaling = _build_qualitative_scaling(('thin', 'thick'), ('thinner', 'thicker'), 1.5)
+markersize_scaling = _build_qualitative_scaling(('small', 'large'), ('smaller', 'larger'), 1.5)
+
+def linewidth2points(w, default=None):
+    """
+    Convert a line width specification to points.
+    Line width can be either specified as float (absolute width in points),
+    a string representing a fraction of the default width in rcParams
+    or a string representing a relative qualitative width (e.g. 'x-thin')
+    """
+    # the default value may be relative as well! (e.g. for markeredgewidth)
+    default = _convert2points(default, rcParams['lines.linewidth'], linewidth_scaling)
+    return _convert2points(w, default, linewidth_scaling)
+
+def markersize2points(s, default=None):
+    """
+    Convert a marker size specification to points.
+    Marker size can be either specified as float (absolute size in points),
+    a string representing a fraction of the default size in rcParams
+    or a string representing a relative qualitative size (e.g. 'x-large')
+    """
+    default = _convert2points(default, rcParams['lines.markersize'], markersize_scaling)
+    return _convert2points(s, default, markersize_scaling)
+
+
 def segment_hits(cx, cy, x, y, radius):
     """
     Determine if any line segments are within radius of a
@@ -1008,11 +1066,12 @@ class Line2D(Artist):
 
     def set_linewidth(self, w):
         """
-        Set the line width in points
+        Set the line width, either absolute width in points or width relative to rc default.
 
-        ACCEPTS: float value in points
+        ACCEPTS: [float value in points | fraction as string | None | 'xx-thin' | 'x-thin' |
+                'thin' | 'thinner' | 'medium' | 'thicker' | 'thick' | 'x-thick' | 'xx-thick']
         """
-        w = float(w)
+        w = linewidth2points(w)
 
         if self._linewidth != w:
             self.stale = True
@@ -1156,12 +1215,14 @@ class Line2D(Artist):
 
     def set_markeredgewidth(self, ew):
         """
-        Set the marker edge width in points
+        Set the marker edge width, either absolute width in points or
+        width relative to rc default.
 
-        ACCEPTS: float value in points
+        ACCEPTS: [float value in points | fraction as string | None | 'xx-thin' | 'x-thin' |
+                'thin' | 'thinner' | 'medium' | 'thicker' | 'thick' | 'x-thick' | 'xx-thick']
         """
-        if ew is None:
-            ew = rcParams['lines.markeredgewidth']
+        ew = linewidth2points(ew, rcParams['lines.markeredgewidth'])
+
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew
@@ -1192,11 +1253,13 @@ class Line2D(Artist):
 
     def set_markersize(self, sz):
         """
-        Set the marker size in points
+        Set the line width, either absolute width in points or width relative to rc default.
 
-        ACCEPTS: float
+        ACCEPTS: [float value in points | fraction as string | None | 'xx-small' | 'x-small' |
+                'small' | 'smaller' | 'medium' | 'larger' | 'large' | 'x-large' | 'xx-large']
         """
-        sz = float(sz)
+        sz = markersize2points(sz)
+
         if self._markersize != sz:
             self.stale = True
         self._markersize = sz
