@@ -264,7 +264,7 @@ class Type1Font(object):
                     .encode('ascii'))
 
         def fontmatrix(array):
-            array = array.lstrip(b'[').rstrip(b']').strip().split()
+            array = array.lstrip(b'[').rstrip(b']').split()
             array = [float(x) for x in array]
             oldmatrix = np.eye(3, 3)
             oldmatrix[0:3, 0] = array[::2]

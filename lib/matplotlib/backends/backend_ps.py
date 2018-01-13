@@ -1154,12 +1154,11 @@ class FigureCanvasPS(FigureCanvasBase):
                     xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
                 if passed_in_file_object:
-                    if file_requires_unicode(outfile):
-                        with io.open(tmpfile, 'rb') as fh:
-                            outfile.write(fh.read().decode('latin-1'))
-                    else:
-                        with io.open(tmpfile, 'rb') as fh:
-                            outfile.write(fh.read())
+                    fh = (io.open(tmpfile, 'r', encoding='latin-1')
+                          if file_requires_unicode(outfile)
+                          else io.open(tmpfile, 'rb'))
+                    with fh:
+                        shutil.copyfileobj(fh, outfile)
                 else:
                     with io.open(outfile, 'w') as fh:
                         pass
@@ -1354,12 +1353,10 @@ class FigureCanvasPS(FigureCanvasBase):
                              rotated=psfrag_rotated)
 
             if is_writable_file_like(outfile):
-                if file_requires_unicode(outfile):
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read().decode('latin-1'))
-                else:
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read())
+                with (io.open(tmpfile, 'r', encoding='latin-1')
+                        if file_requires_unicode(outfile)
+                        else io.open(tmpfile, 'rb')) as fh:
+                    shutil.copyfileobj(fh, outfile)
             else:
                 with io.open(outfile, 'wb') as fh:
                     pass
