@@ -380,6 +380,10 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+        # groupers to keep track of x and y labels we want to align.
+        self._align_xlabel_grp = cbook.Grouper()
+        self._align_ylabel_grp = cbook.Grouper()
+
     @property
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
@@ -2103,6 +2107,11 @@ class Figure(Artist):
             Optional list of (or ndarray) `~matplotlib.axes.Axes` to align
             the xlabels.  Default is to align all axes on the figure.
 
+        Note
+        ----
+        This assumes that ``axs`` are from the same `~.GridSpec`, so that
+        their `~.SubplotSpec` positions correspond to figure positions.
+
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
@@ -2124,7 +2133,6 @@ class Figure(Artist):
 
         if axs is None:
             axs = self.axes
-
         axs = np.asarray(np.array(axs)).flatten().tolist()
 
         for ax in axs:
@@ -2136,7 +2144,7 @@ class Figure(Artist):
             # loop through other axes, and search for label positions
             # that are same as this one, and that share the appropriate
             # row number.
-            #  Add to a list associated with each axes of sibblings.
+            #  Add to a grouper associated with each axes of sibblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
@@ -2146,7 +2154,8 @@ class Figure(Artist):
                             ss.get_rows_columns()
                     if (labpo == 'bottom' and rowc1 == row1 or
                         labpo == 'top' and rowc0 == row0):
-                        axc.xaxis._align_label_siblings += [ax.xaxis]
+                        # grouper for groups of xlabels to align
+                        self._align_xlabel_grp.join(ax, axc)
 
     def align_ylabels(self, axs=None):
         """
@@ -2166,6 +2175,11 @@ class Figure(Artist):
         axs : list of `~matplotlib.axes.Axes` (None)
             Optional list (or ndarray) of `~matplotlib.axes.Axes` to align
             the ylabels. Default is to align all axes on the figure.
+
+        Note
+        ----
+        This assumes that ``axs`` are from the same `~.GridSpec`, so that
+        their `~.SubplotSpec` positions correspond to figure positions.
 
         See Also
         --------
@@ -2187,7 +2201,6 @@ class Figure(Artist):
 
         if axs is None:
             axs = self.axes
-
         axs = np.asarray(np.array(axs)).flatten().tolist()
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
@@ -2209,7 +2222,8 @@ class Figure(Artist):
                                 ss.get_rows_columns()
                         if (labpo == 'left' and colc0 == col0 or
                             labpo == 'right' and colc1 == col1):
-                            axc.yaxis._align_label_siblings += [ax.yaxis]
+                            # grouper for groups of ylabels to align
+                            self._align_ylabel_grp.join(ax, axc)
 
     def align_labels(self, axs=None):
         """
