@@ -184,3 +184,49 @@ def test_nan_is_sorted():
     assert line._is_sorted(np.array([1, 2, 3]))
     assert line._is_sorted(np.array([1, np.nan, 3]))
     assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+
+def test_relative_sizes():
+    line = mlines.Line2D([0,1],[0,1])
+
+    base = matplotlib.rcParams['lines.linewidth']
+
+    # use default line with from rcParams
+    line.set_linewidth(None)
+    assert line.get_linewidth() == base
+
+    line.set_linewidth('auto')
+    assert line.get_linewidth() == base
+
+    # set qualitative relative widths
+    for w in ('xx-thin', 'x-thin', 'thin', 'thinner',
+                  'medium', 'thick', 'thicker', 'x-thick', 'xx-thick'):
+        line.set_linewidth(w)
+        assert line.get_linewidth() == mlines.linewidth_scaling[w]*base
+
+        line.set_markeredgewidth(w)
+        assert line.get_markeredgewidth() == mlines.linewidth_scaling[w]*base
+
+    base = matplotlib.rcParams['lines.markersize']
+
+    # use default marker size
+    line.set_markersize(None)
+    assert line.get_markersize() == base
+
+    line.set_markersize('auto')
+    assert line.get_markersize() == base
+
+    # set qualitative relative size
+    for sz in ('xx-small', 'x-small', 'small', 'smaller',
+                  'medium', 'large', 'larger', 'x-large', 'xx-large'):
+        line.set_markersize(sz)
+        assert line.get_markersize() == mlines.markersize_scaling[sz]*base
+
+    
+    with pytest.raises(ValueError):
+        line.set_linewidth('large')
+
+    with pytest.raises(ValueError):
+        line.set_markeredgewidth('six')
+
+    with pytest.raises(ValueError):
+        line.set_markersize('tall')
