@@ -5,6 +5,11 @@ Customizing Figure Layouts Using GridSpec and Other Functions
 
 How to create grid-shaped combinations of axes.
 
+    :func:`~matplotlib.pyplot.subplots`
+        Perhaps the primary function used to create figures and axes.
+        It's also similar to :func:`~matplotlib.pyplot.subplot`,
+        but creates and places all axes on the figure at once.
+
     :class:`~matplotlib.gridspec.GridSpec`
         Specifies the geometry of the grid that a subplot will be
         placed. The number of rows and number of columns of the grid
@@ -17,11 +22,7 @@ How to create grid-shaped combinations of axes.
     :func:`~matplotlib.pyplot.subplot2grid`
         A helper function that is similar to :func:`~matplotlib.pyplot.subplot`,
         but uses 0-based indexing and let subplot to occupy multiple cells.
-
-    :func:`~matplotlib.pyplot.subplots`
-        perhaps the primary function used to create figures and axes.
-        It's also similar to :func:`~matplotlib.pyplot.subplot`,
-        but creates and places all axes on the figure at once.
+        This function is not covered in this tutorial.
 
 """
 
@@ -88,7 +89,7 @@ fig3.tight_layout()
 # matter.
 # That means that ``width_ratios=[2, 4, 8]`` is equivalent to
 # ``width_ratios=[1, 2, 4]`` within equally wide figures.
-# For the sake of demonstration, we'll blindly create the axes within 
+# For the sake of demonstration, we'll blindly create the axes within
 # ``for`` loops since we won't need them later.
 
 fig4 = plt.figure()
@@ -107,7 +108,7 @@ fig4.tight_layout()
 ############################################################################
 # Learning to use ``width_ratios`` and ``height_ratios`` is particularly
 # useful since the top-level function :func:`~matplotlib.pyplot.subplots`
-#  accepts them within the ``gridspec_kw`` parameter.
+# accepts them within the ``gridspec_kw`` parameter.
 # For that matter, any parameter accepted by
 # :class:`~matplotlib.gridspec.GridSpec` can be passed to
 # :func:`~matplotlib.pyplot.subplots` via the ``gridspec_kw`` parameter.
