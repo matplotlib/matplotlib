@@ -4,7 +4,7 @@ shoulders of python :mod:`datetime`, the add-on modules :mod:`pytz` and
 :mod:`dateutil`.
 
 
-.. date-format:
+.. _date-format:
 
 Matplotlib date format
 ----------------------
@@ -12,8 +12,21 @@ Matplotlib represents dates using floating point numbers specifying the number
 of days since 0001-01-01 UTC, plus 1.  For example, 0001-01-01, 06:00 is 1.25,
 not 0.25. Values < 1, i.e. dates before 0001-01-01 UTC are not supported.
 
-The helper functions :func:`date2num`, :func:`num2date` and :func:`drange` are
-used for easy conversion between :mod:`datetime` objects and Matplotlib dates.
+There are a number of helper functions to convert between :mod:`datetime`
+objects and Matplotlib dates:
+
+.. currentmodule:: matplotlib.dates
+
+.. autosummary::
+   :nosignatures:
+
+   date2num
+   num2date
+   num2timedelta
+   epoch2num
+   num2epoch
+   mx2num
+   drange
 
 .. note::
 
@@ -28,7 +41,7 @@ used for easy conversion between :mod:`datetime` objects and Matplotlib dates.
    732403, whereas using the Gregorian calendar via the datetime
    module we find::
 
-     In [1]: date(2006,4,1).toordinal() - date(1,1,1).toordinal()
+     In [1]: date(2006, 4, 1).toordinal() - date(1, 1, 1).toordinal()
      Out[1]: 732401
 
 All the Matplotlib date converters, tickers and formatters are timezone aware.
@@ -467,9 +480,9 @@ _ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
 
 def num2timedelta(x):
     """
-    Convert number of days to a :class:`timdelta` object.
+    Convert number of days to a `~datetime.timedelta` object.
 
-    If *x* is a sequence, a sequence of :class:`timedelta` objects will
+    If *x* is a sequence, a sequence of `~datetime.timedelta` objects will
     be returned.
 
     Parameters
@@ -479,7 +492,7 @@ def num2timedelta(x):
 
     Returns
     -------
-    `.timedelta` or list[:class:`.timedelta`]
+    `datetime.timedelta` or list[`datetime.timedelta`]
 
     """
     if not cbook.iterable(x):
