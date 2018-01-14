@@ -675,10 +675,46 @@ def validate_hatch(s):
 validate_hatchlist = _listify_validator(validate_hatch)
 validate_dashlist = _listify_validator(validate_nseq_float(allow_none=True))
 
+
+def _validate_linewidth(w):
+    try:
+        w = float(w)
+    except (ValueError, TypeError):
+        if w in ['xx-thin', 'x-thin', 'thin', 'thinner', 'medium', 'thick',
+                    'thicker', 'x-thick', 'xx-thick']:
+            return w
+        else:
+            val, u = cbook.parse_measurement(w)
+            if u not in ['x', '%']:
+                raise ValueError("value {!r} is not a valid absolute"
+                                          "or relative width.".format(w))
+
+    return w
+
+
+def _validate_markersize(sz):
+    try:
+        sz = float(sz)
+    except (ValueError, TypeError):
+        if sz in ['xx-small', 'x-small', 'small', 'smaller', 'medium',
+                    'large', 'larger', 'x-large', 'xx-large']:
+            return sz
+        else:
+            val, u = cbook.parse_measurement(sz)
+            if u not in ['x', '%']:
+                raise ValueError("value {!r} is not a valid absolute"
+                                          "or relative size.".format(sz))
+
+    return sz
+
+
+validate_linewidthlist = _listify_validator(_validate_linewidth)
+validate_markersizelist = _listify_validator(_validate_markersize)
+
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
                                     allow_stringlist=True),
-        'linewidth': validate_floatlist,
+        'linewidth': validate_linewidthlist,
         'linestyle': validate_stringlist,
         'facecolor': validate_colorlist,
         'edgecolor': validate_colorlist,
@@ -686,8 +722,8 @@ _prop_validators = {
         'capstyle': validate_capstylelist,
         'fillstyle': validate_fillstylelist,
         'markerfacecolor': validate_colorlist,
-        'markersize': validate_floatlist,
-        'markeredgewidth': validate_floatlist,
+        'markersize': validate_markersizelist,
+        'markeredgewidth': validate_linewidthlist,
         'markeredgecolor': validate_colorlist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
@@ -931,21 +967,6 @@ def _validate_linestyle(ls):
         raise ValueError("linestyle {!r} is not a valid on-off ink "
                          "sequence.".format(ls))
 
-def _validate_linewidth(w):
-    try:
-        w=float(w)
-    except (ValueError, TypeError):
-        if w not in ['xx-thin','x-thin','thin','thinner','medium','thick','thicker','x-thick','xx-thick',None]:
-            raise ValueError("width {!r} is not a valid float or string.".format(w))
-    return w
-
-def _validate_markersize(sz):
-    try:
-        sz=float(sz)
-    except (ValueError, TypeError):
-        if sz not in ['xx-small','x-small','small','smaller','medium','large','larger','x-large','xx-large',None]:
-            raise ValueError("marker size {!r} is not a valid float or string.".format(w))
-    return sz
 
 # a map from key -> value, converter
 defaultParams = {

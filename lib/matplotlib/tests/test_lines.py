@@ -185,48 +185,78 @@ def test_nan_is_sorted():
     assert line._is_sorted(np.array([1, np.nan, 3]))
     assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
 
+
 def test_relative_sizes():
-    line = mlines.Line2D([0,1],[0,1])
+    line = mlines.Line2D([0, 1], [0, 1])
 
-    base = matplotlib.rcParams['lines.linewidth']
+    reference = 1.
+    with matplotlib.rc_context(
+        rc={'lines.linewidth': reference,
+                'lines.markersize': reference,
+                'lines.markeredgewidth': reference}):
 
-    # use default line with from rcParams
-    line.set_linewidth(None)
-    assert line.get_linewidth() == base
+        # use default line with from rcParams
+        line.set(linewidth=None, markeredgewidth=None, markersize=None)
+        assert line.get_linewidth() == reference
+        assert line.get_markeredgewidth() == reference
+        assert line.get_markersize() == reference
 
-    line.set_linewidth('auto')
-    assert line.get_linewidth() == base
+        line.set(linewidth='2x', markeredgewidth='0.5x', markersize='2e1x')
+        assert line.get_linewidth() == 2*reference
+        assert line.get_markeredgewidth() == 0.5*reference
+        assert line.get_markersize() == 2e1*reference
 
-    # set qualitative relative widths
-    for w in ('xx-thin', 'x-thin', 'thin', 'thinner',
-                  'medium', 'thick', 'thicker', 'x-thick', 'xx-thick'):
-        line.set_linewidth(w)
-        assert line.get_linewidth() == mlines.linewidth_scaling[w]*base
+        line.set(linewidth='50%', markeredgewidth='2e2 %', markersize='250%')
+        assert line.get_linewidth() == 0.5*reference
+        assert line.get_markeredgewidth() == 2*reference
+        assert line.get_markersize() == 2.5*reference
 
-        line.set_markeredgewidth(w)
-        assert line.get_markeredgewidth() == mlines.linewidth_scaling[w]*base
+        # set qualitative relative widths
+        for w in ('xx-thin', 'x-thin', 'thin', 'thinner',
+                      'medium', 'thick', 'thicker', 'x-thick', 'xx-thick'):
+            line.set(linewidth=w, markeredgewidth=w)
+            assert (line.get_linewidth() ==
+                        mlines.linewidth_scaling[w]*reference)
+            assert (line.get_markeredgewidth() ==
+                        mlines.linewidth_scaling[w]*reference)
 
-    base = matplotlib.rcParams['lines.markersize']
+        # set qualitative relative size
+        for sz in ('xx-small', 'x-small', 'small', 'smaller',
+                      'medium', 'large', 'larger', 'x-large', 'xx-large'):
+            line.set_markersize(sz)
+            assert (line.get_markersize() ==
+                        mlines.markersize_scaling[sz]*reference)
 
-    # use default marker size
-    line.set_markersize(None)
-    assert line.get_markersize() == base
+        with pytest.raises(ValueError):
+            line.set_linewidth('large')
 
-    line.set_markersize('auto')
-    assert line.get_markersize() == base
+        with pytest.raises(ValueError):
+            line.set_markeredgewidth('six')
 
-    # set qualitative relative size
-    for sz in ('xx-small', 'x-small', 'small', 'smaller',
-                  'medium', 'large', 'larger', 'x-large', 'xx-large'):
-        line.set_markersize(sz)
-        assert line.get_markersize() == mlines.markersize_scaling[sz]*base
+        with pytest.raises(ValueError):
+            line.set_markersize('tall')
 
+
+def test_relative_sizes_rc():
+
+    # only absolute width for lines.linewidth
+    matplotlib.rcParams['lines.linewidth'] = 1.
+    matplotlib.rcParams['lines.markersize'] = 1.
+
+    with pytest.raises(ValueError):
+        matplotlib.rcParams['lines.linewidth'] = '2x'
+
+    with pytest.raises(ValueError):
+        matplotlib.rcParams['lines.markersize'] = '100%'
+
+    # relative width/size
+    matplotlib.rcParams['lines.markeredgewidth'] = '0.5x'
+    matplotlib.rcParams['xtick.major.width'] = '2x'
+    matplotlib.rcParams['ytick.minor.width'] = '50%'
+
+    with pytest.raises(ValueError):
+        matplotlib.rcParams['xtick.minor.width'] = 'big'
+
+    with pytest.raises(ValueError):
+        matplotlib.rcParams['ytick.major.width'] = 'microscopic'
     
-    with pytest.raises(ValueError):
-        line.set_linewidth('large')
-
-    with pytest.raises(ValueError):
-        line.set_markeredgewidth('six')
-
-    with pytest.raises(ValueError):
-        line.set_markersize('tall')
