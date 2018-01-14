@@ -73,16 +73,17 @@ def _scale_dashes(offset, dashes, lw):
     return scaled_offset, scaled_dashes
 
 
-def _convert2points(val, default, lut):
+def _convert2points(val, default, reference, lut):
     """
-    Convert relative size to points, using `default` as the base value and
-    `lut` as the look-up table for qualitative size names.
+    Convert relative size to points, using `reference` as the base value and
+    `lut` as the look-up table for qualitative size names. If `val` is None or 'auto',
+    then the `default` is returned
     """
-    if val is None:
+    if val is None or val=='auto':
         return default
 
     try:
-        return default*lut[val]
+        return reference*lut[val]
     except KeyError:
         pts = float(val)
         # do not use relative fraction as string, because when loading styles from file
@@ -99,7 +100,7 @@ def _build_qualitative_scaling(labels, comparative=None, base=1.2):
     else:
         ca, cb = comparative
 
-    d = {None: 1., 'medium': 1., ca:base**-1, cb:base}
+    d = {'medium': 1., ca:base**-1, cb:base}
     for k,m in enumerate(('', 'x-', 'xx-')):
         d['{}{}'.format(m,a)] = base**(-k-1)
         d['{}{}'.format(m,b)] = base**(k+1)
@@ -117,8 +118,9 @@ def linewidth2points(w, default=None):
     or a string representing a relative qualitative width (e.g. 'x-thin')
     """
     # the default value may be relative as well! (e.g. for markeredgewidth)
-    default = _convert2points(default, rcParams['lines.linewidth'], linewidth_scaling)
-    return _convert2points(w, default, linewidth_scaling)
+    default = _convert2points(default, rcParams['lines.linewidth'],
+        rcParams['lines.linewidth'], linewidth_scaling)
+    return _convert2points(w, default, rcParams['lines.linewidth'], linewidth_scaling)
 
 def markersize2points(s, default=None):
     """
@@ -127,8 +129,9 @@ def markersize2points(s, default=None):
     a string representing a fraction of the default size in rcParams
     or a string representing a relative qualitative size (e.g. 'x-large')
     """
-    default = _convert2points(default, rcParams['lines.markersize'], markersize_scaling)
-    return _convert2points(s, default, markersize_scaling)
+    default = _convert2points(default, rcParams['lines.markersize'],
+        rcParams['lines.markersize'], markersize_scaling)
+    return _convert2points(s, default, rcParams['lines.markersize'], markersize_scaling)
 
 
 def segment_hits(cx, cy, x, y, radius):
