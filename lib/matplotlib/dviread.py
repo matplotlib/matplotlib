@@ -195,7 +195,7 @@ class Dvi(object):
     """
     # dispatch table
     _dtable = [None for _ in xrange(256)]
-    dispatch = partial(_dispatch, _dtable)
+    _dispatch = partial(_dispatch, _dtable)
 
     def __init__(self, filename, dpi):
         """
@@ -332,22 +332,22 @@ class Dvi(object):
             value = 0x100*value + ord(str[i])
         return value
 
-    @dispatch(min=0, max=127, state=_dvistate.inpage)
+    @_dispatch(min=0, max=127, state=_dvistate.inpage)
     def _set_char_immediate(self, char):
         self._put_char_real(char)
         self.h += self.fonts[self.f]._width_of(char)
 
-    @dispatch(min=128, max=131, state=_dvistate.inpage, args=('olen1',))
+    @_dispatch(min=128, max=131, state=_dvistate.inpage, args=('olen1',))
     def _set_char(self, char):
         self._put_char_real(char)
         self.h += self.fonts[self.f]._width_of(char)
 
-    @dispatch(132, state=_dvistate.inpage, args=('s4', 's4'))
+    @_dispatch(132, state=_dvistate.inpage, args=('s4', 's4'))
     def _set_rule(self, a, b):
         self._put_rule_real(a, b)
         self.h += b
 
-    @dispatch(min=133, max=136, state=_dvistate.inpage, args=('olen1',))
+    @_dispatch(min=133, max=136, state=_dvistate.inpage, args=('olen1',))
     def _put_char(self, char):
         self._put_char_real(char)
 
@@ -369,7 +369,7 @@ class Dvi(object):
                                    _mul2012(a, scale), _mul2012(b, scale))
                                for x, y, a, b in font._vf[char].boxes])
 
-    @dispatch(137, state=_dvistate.inpage, args=('s4', 's4'))
+    @_dispatch(137, state=_dvistate.inpage, args=('s4', 's4'))
     def _put_rule(self, a, b):
         self._put_rule_real(a, b)
 
@@ -377,11 +377,11 @@ class Dvi(object):
         if a > 0 and b > 0:
             self.boxes.append(Box(self.h, self.v, a, b))
 
-    @dispatch(138)
+    @_dispatch(138)
     def _nop(self, _):
         pass
 
-    @dispatch(139, state=_dvistate.outer, args=('s4',)*11)
+    @_dispatch(139, state=_dvistate.outer, args=('s4',)*11)
     def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         self.state = _dvistate.inpage
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
@@ -389,60 +389,60 @@ class Dvi(object):
         self.text = []          # list of Text objects
         self.boxes = []         # list of Box objects
 
-    @dispatch(140, state=_dvistate.inpage)
+    @_dispatch(140, state=_dvistate.inpage)
     def _eop(self, _):
         self.state = _dvistate.outer
         del self.h, self.v, self.w, self.x, self.y, self.z, self.stack
 
-    @dispatch(141, state=_dvistate.inpage)
+    @_dispatch(141, state=_dvistate.inpage)
     def _push(self, _):
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
 
-    @dispatch(142, state=_dvistate.inpage)
+    @_dispatch(142, state=_dvistate.inpage)
     def _pop(self, _):
         self.h, self.v, self.w, self.x, self.y, self.z = self.stack.pop()
 
-    @dispatch(min=143, max=146, state=_dvistate.inpage, args=('slen1',))
+    @_dispatch(min=143, max=146, state=_dvistate.inpage, args=('slen1',))
     def _right(self, b):
         self.h += b
 
-    @dispatch(min=147, max=151, state=_dvistate.inpage, args=('slen',))
+    @_dispatch(min=147, max=151, state=_dvistate.inpage, args=('slen',))
     def _right_w(self, new_w):
         if new_w is not None:
             self.w = new_w
         self.h += self.w
 
-    @dispatch(min=152, max=156, state=_dvistate.inpage, args=('slen',))
+    @_dispatch(min=152, max=156, state=_dvistate.inpage, args=('slen',))
     def _right_x(self, new_x):
         if new_x is not None:
             self.x = new_x
         self.h += self.x
 
-    @dispatch(min=157, max=160, state=_dvistate.inpage, args=('slen1',))
+    @_dispatch(min=157, max=160, state=_dvistate.inpage, args=('slen1',))
     def _down(self, a):
         self.v += a
 
-    @dispatch(min=161, max=165, state=_dvistate.inpage, args=('slen',))
+    @_dispatch(min=161, max=165, state=_dvistate.inpage, args=('slen',))
     def _down_y(self, new_y):
         if new_y is not None:
             self.y = new_y
         self.v += self.y
 
-    @dispatch(min=166, max=170, state=_dvistate.inpage, args=('slen',))
+    @_dispatch(min=166, max=170, state=_dvistate.inpage, args=('slen',))
     def _down_z(self, new_z):
         if new_z is not None:
             self.z = new_z
         self.v += self.z
 
-    @dispatch(min=171, max=234, state=_dvistate.inpage)
+    @_dispatch(min=171, max=234, state=_dvistate.inpage)
     def _fnt_num_immediate(self, k):
         self.f = k
 
-    @dispatch(min=235, max=238, state=_dvistate.inpage, args=('olen1',))
+    @_dispatch(min=235, max=238, state=_dvistate.inpage, args=('olen1',))
     def _fnt_num(self, new_f):
         self.f = new_f
 
-    @dispatch(min=239, max=242, args=('ulen1',))
+    @_dispatch(min=239, max=242, args=('ulen1',))
     def _xxx(self, datalen):
         special = self.file.read(datalen)
         if six.PY3:
@@ -455,7 +455,7 @@ class Dvi(object):
             ''.join([chr_(ch) if 32 <= ord(ch) < 127 else '<%02x>' % ord(ch)
                      for ch in special]))
 
-    @dispatch(min=243, max=246, args=('olen1', 'u4', 'u4', 'u4', 'u1', 'u1'))
+    @_dispatch(min=243, max=246, args=('olen1', 'u4', 'u4', 'u4', 'u1', 'u1'))
     def _fnt_def(self, k, c, s, d, a, l):
         self._fnt_def_real(k, c, s, d, a, l)
 
@@ -476,7 +476,7 @@ class Dvi(object):
 
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
-    @dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
+    @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
     def _pre(self, i, num, den, mag, k):
         comment = self.file.read(k)
         if i != 2:
@@ -494,17 +494,17 @@ class Dvi(object):
             # I think we can assume this is constant
         self.state = _dvistate.outer
 
-    @dispatch(248, state=_dvistate.outer)
+    @_dispatch(248, state=_dvistate.outer)
     def _post(self, _):
         self.state = _dvistate.post_post
         # TODO: actually read the postamble and finale?
         # currently post_post just triggers closing the file
 
-    @dispatch(249)
+    @_dispatch(249)
     def _post_post(self, _):
         raise NotImplementedError
 
-    @dispatch(min=250, max=255)
+    @_dispatch(min=250, max=255)
     def _malformed(self, offset):
         raise ValueError("unknown command: byte %d", 250 + offset)
 

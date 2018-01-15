@@ -6041,7 +6041,7 @@ linewidth=2, markersize=12)
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self.autoscale_view()
         return contours
-    contour.__doc__ = mcontour.QuadContourSet.contour_doc
+    contour.__doc__ = mcontour.QuadContourSet._contour_doc
 
     @_preprocess_data()
     def contourf(self, *args, **kwargs):
@@ -6051,7 +6051,7 @@ linewidth=2, markersize=12)
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self.autoscale_view()
         return contours
-    contourf.__doc__ = mcontour.QuadContourSet.contour_doc
+    contourf.__doc__ = mcontour.QuadContourSet._contour_doc
 
     def clabel(self, CS, *args, **kwargs):
         return CS.clabel(*args, **kwargs)
@@ -7865,11 +7865,11 @@ linewidth=2, markersize=12)
 
     def tricontour(self, *args, **kwargs):
         return mtri.tricontour(self, *args, **kwargs)
-    tricontour.__doc__ = mtri.TriContourSet.tricontour_doc
+    tricontour.__doc__ = mtri.tricontour.__doc__
 
     def tricontourf(self, *args, **kwargs):
         return mtri.tricontourf(self, *args, **kwargs)
-    tricontourf.__doc__ = mtri.TriContourSet.tricontour_doc
+    tricontourf.__doc__ = mtri.tricontour.__doc__
 
     def tripcolor(self, *args, **kwargs):
         return mtri.tripcolor(self, *args, **kwargs)

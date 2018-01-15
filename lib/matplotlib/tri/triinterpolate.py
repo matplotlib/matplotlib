@@ -66,7 +66,7 @@ class TriInterpolator(object):
     # (except, if needed, relevant additions).
     # However these methods are only implemented in subclasses to avoid
     # confusion in the documentation.
-    docstring__call__ = """
+    _docstring__call__ = """
         Returns a masked array containing interpolated values at the specified
         x,y points.
 
@@ -85,7 +85,7 @@ class TriInterpolator(object):
 
         """
 
-    docstringgradient = """
+    _docstringgradient = """
         Returns a list of 2 masked arrays containing interpolated derivatives
         at the specified x,y points.
 
@@ -274,12 +274,12 @@ class LinearTriInterpolator(TriInterpolator):
     def __call__(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('z',))[0]
-    __call__.__doc__ = TriInterpolator.docstring__call__
+    __call__.__doc__ = TriInterpolator._docstring__call__
 
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient
+    gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         if return_key == 'z':
@@ -433,12 +433,12 @@ class CubicTriInterpolator(TriInterpolator):
     def __call__(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('z',))[0]
-    __call__.__doc__ = TriInterpolator.docstring__call__
+    __call__.__doc__ = TriInterpolator._docstring__call__
 
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient
+    gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         tris_pts = self._tris_pts[tri_index]
