@@ -1595,7 +1595,6 @@ linewidth=2, markersize=12)
         `.DateLocator` instance) and the default tick formatter to
         `.AutoDateFormatter` (if the tick formatter is not already set to a
         `.DateFormatter` instance).
-        
         """
 
         if not self._hold:
