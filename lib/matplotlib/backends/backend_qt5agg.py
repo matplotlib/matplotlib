@@ -165,6 +165,11 @@ class FigureCanvasQTAggBase(FigureCanvasAgg):
         except Exception:
             # Uncaught exceptions are fatal for PyQt5, so catch them instead.
             traceback.print_exc()
+        finally:
+            self._agg_draw_pending = False
+            # self.draw_idle() sets this to True, so we need to set to False
+            # or all of self.paintEvent gets called again despite the fact
+            # nothing has changed.
 
     def blit(self, bbox=None):
         """Blit the region in bbox.
