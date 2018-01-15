@@ -1,11 +1,32 @@
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
 shoulders of python :mod:`datetime`, the add-on modules :mod:`pytz` and
-:mod:`dateutil`.  :class:`datetime` objects are converted to floating point
-numbers which represent time in days since 0001-01-01 UTC, plus 1.  For
-example, 0001-01-01, 06:00 is 1.25, not 0.25.  The helper functions
-:func:`date2num`, :func:`num2date` and :func:`drange` are used to facilitate
-easy conversion to and from :mod:`datetime` and numeric ranges.
+:mod:`dateutil`.
+
+
+.. _date-format:
+
+Matplotlib date format
+----------------------
+Matplotlib represents dates using floating point numbers specifying the number
+of days since 0001-01-01 UTC, plus 1.  For example, 0001-01-01, 06:00 is 1.25,
+not 0.25. Values < 1, i.e. dates before 0001-01-01 UTC are not supported.
+
+There are a number of helper functions to convert between :mod:`datetime`
+objects and Matplotlib dates:
+
+.. currentmodule:: matplotlib.dates
+
+.. autosummary::
+   :nosignatures:
+
+   date2num
+   num2date
+   num2timedelta
+   epoch2num
+   num2epoch
+   mx2num
+   drange
 
 .. note::
 
@@ -20,24 +41,22 @@ easy conversion to and from :mod:`datetime` and numeric ranges.
    732403, whereas using the Gregorian calendar via the datetime
    module we find::
 
-     In [31]:date(2006,4,1).toordinal() - date(1,1,1).toordinal()
-     Out[31]:732401
+     In [1]: date(2006, 4, 1).toordinal() - date(1, 1, 1).toordinal()
+     Out[1]: 732401
 
+All the Matplotlib date converters, tickers and formatters are timezone aware.
+If no explicit timezone is provided, the rcParam ``timezone`` is assumend.  If
+you want to use a custom time zone, pass a :class:`pytz.timezone` instance
+with the tz keyword argument to :func:`num2date`, :func:`.plot_date`, and any
+custom date tickers or locators you create.
+See `pytz <http://pythonhosted.org/pytz/>`_ for information on :mod:`pytz` and
+timezone handling.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
 :mod:`matplotlib.ticker` for general information on tick locators
 and formatters.  These are described below.
 
-All the matplotlib date converters, tickers and formatters are
-timezone aware, and the default timezone is given by the timezone
-parameter in your :file:`matplotlibrc` file.  If you leave out a
-:class:`tz` timezone instance, the default from your rc file will be
-assumed.  If you want to use a custom time zone, pass a
-:class:`pytz.timezone` instance with the tz keyword argument to
-:func:`num2date`, :func:`plot_date`, and any custom date tickers or
-locators you create.  See `pytz <http://pythonhosted.org/pytz/>`_ for
-information on :mod:`pytz` and timezone handling.
 
 The `dateutil module <https://dateutil.readthedocs.io/en/stable/>`_ provides
 additional code to handle date ticking, making it easy to place ticks
@@ -350,11 +369,11 @@ def datestr2num(d, default=None):
 
 def date2num(d):
     """
-    Converts datetime objects to Matplotlib dates.
+    Convert datetime objects to Matplotlib dates.
 
     Parameters
     ----------
-    d : :class:`datetime` or sequence of :class:`datetime`
+    d : `datetime.datetime` or `numpy.datetime64` or sequences of these
 
     Returns
     -------
@@ -379,11 +398,11 @@ def date2num(d):
 
 def julian2num(j):
     """
-    Convert a Julian date (or sequence) to a matplotlib date (or sequence).
+    Convert a Julian date (or sequence) to a Matplotlib date (or sequence).
 
     Parameters
     ----------
-    k : float or sequence of floats
+    j : float or sequence of floats
         Julian date(s)
 
     Returns
@@ -417,21 +436,23 @@ def num2julian(n):
 
 def num2date(x, tz=None):
     """
+    Convert Matplotlib dates to `~datetime.datetime` objects.
+
     Parameters
     ----------
     x : float or sequence of floats
         Number of days (fraction part represents hours, minutes, seconds)
         since 0001-01-01 00:00:00 UTC, plus one.
     tz : string, optional
-        Timezone of *x* (defaults to rcparams TZ value).
+        Timezone of *x* (defaults to rcparams ``timezone``).
 
     Returns
     -------
-    :class:`datetime` or sequence of :class:`datetime`
-        Dates are returned in timezone *tz*
+    `~datetime.datetime` or sequence of `~datetime.datetime`
+        Dates are returned in timezone *tz*.
 
-    If *x* is a sequence, a sequence of :class:`datetime` objects will
-    be returned.
+        If *x* is a sequence, a sequence of :class:`datetime` objects will
+        be returned.
 
     Notes
     -----
@@ -459,18 +480,19 @@ _ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
 
 def num2timedelta(x):
     """
-    Converts number of days to a :class:`timdelta` object.
-    If *x* is a sequence, a sequence of :class:`timedelta` objects will
+    Convert number of days to a `~datetime.timedelta` object.
+
+    If *x* is a sequence, a sequence of `~datetime.timedelta` objects will
     be returned.
 
     Parameters
     ----------
     x : float, sequence of floats
-        Number of days (fraction part represents hours, minutes, seconds)
+        Number of days. The fraction part represents hours, minutes, seconds.
 
     Returns
     -------
-    :class:`timedelta` or list[:class:`timedelta`]
+    `datetime.timedelta` or list[`datetime.timedelta`]
 
     """
     if not cbook.iterable(x):
@@ -484,9 +506,23 @@ def num2timedelta(x):
 
 def drange(dstart, dend, delta):
     """
-    Return a date range as float Gregorian ordinals.  *dstart* and
-    *dend* are :class:`datetime` instances.  *delta* is a
-    :class:`datetime.timedelta` instance.
+    Return a sequence of equally spaced Matplotlib dates.
+
+    The dates start at *dstart* and reach up to, but not including *dend*.
+    They are spaced by *delta*.
+
+    Parameters
+    ----------
+    dstart, dend : `~datetime.datetime`
+        The date limits.
+    delta : `datetime.timedelta`
+        Spacing of the dates.
+
+    Returns
+    -------
+    drange : `numpy.array`
+        A list floats representing Matplotlib dates.
+
     """
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
