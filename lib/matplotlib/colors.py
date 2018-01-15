@@ -1175,8 +1175,8 @@ class SymLogNorm(Normalize):
 
 class PowerNorm(Normalize):
     """
-    Normalize a given value to the ``[0, 1]`` interval with a power-law
-    scaling.
+    Linearly map a given value to the 0-1 range and then apply
+    a power-law normalization over that range.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         Normalize.__init__(self, vmin, vmax, clip)
