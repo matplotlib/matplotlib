@@ -1547,7 +1547,7 @@ class BackendGtk(OptionalBackendPackage):
                 # If Gtk+ is installed, pkg-config is required to be installed
                 os.environ['PKG_CONFIG_PATH'] = 'C:\\GTK\\lib\\pkgconfig'
 
-                # popen broken on my win32 plaform so I can't use pkgconfig
+                # popen broken on my win32 platform so I can't use pkgconfig
                 ext.library_dirs.extend(
                     ['C:/GTK/bin', 'C:/GTK/lib'])
 
@@ -1660,7 +1660,7 @@ class BackendGtk3Agg(OptionalBackendPackage):
             success, msg = res.get(timeout=10)[0]
         except multiprocessing.TimeoutError:
             p.terminate()
-            # No result returned. Probaly hanging, terminate the process.
+            # No result returned. Probably hanging, terminate the process.
             success = False
             raise CheckFailed("Check timed out")
         except:
@@ -1734,7 +1734,7 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             success, msg = res.get(timeout=10)[0]
         except multiprocessing.TimeoutError:
             p.terminate()
-            # No result returned. Probaly hanging, terminate the process.
+            # No result returned. Probably hanging, terminate the process.
             success = False
             raise CheckFailed("Check timed out")
         except:
@@ -1869,7 +1869,7 @@ class BackendQtBase(OptionalBackendPackage):
                 msg = res.get(timeout=10)[0]
             except multiprocessing.TimeoutError:
                 p.terminate()
-                # No result returned. Probaly hanging, terminate the process.
+                # No result returned. Probably hanging, terminate the process.
                 raise CheckFailed("Check timed out")
             except:
                 # Some other error.

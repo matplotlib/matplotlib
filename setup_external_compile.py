@@ -1,4 +1,4 @@
-# This file is coppied from https://github.com/jbmohler/matplotlib-winbuild
+# This file is copied from https://github.com/jbmohler/matplotlib-winbuild
 # Only the needed functions were kept.
 """
 This file extracts and builds library dependencies libpng, zlib, & freetype2 on

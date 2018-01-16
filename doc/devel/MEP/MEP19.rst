@@ -34,7 +34,7 @@ has a number of shortcomings:
 - It often fails for inexplicable reasons.
 
 - build or test products can only be saved from build off of branches
-  on the main repo, not pull requsts, so it is often difficult to
+  on the main repo, not pull requests, so it is often difficult to
   "post mortem" analyse what went wrong.  This is particularly
   frustrating when the failure can not be subsequently reproduced
   locally.
@@ -114,7 +114,7 @@ This section outlines the requirements that we would like to have.
    (This would not replace the static documentation for stable
    releases as a default).
 
-#. The test systems should be managable by multiple developers, so
+#. The test systems should be manageable by multiple developers, so
    that no single person becomes a bottleneck.  (Travis-CI's design
    does this well -- storing build configuration in the git
    repository, rather than elsewhere, is a very good design.)
