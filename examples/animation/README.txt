@@ -2,5 +2,5 @@
 
 .. _animation-examples-index:
 
-Animation Examples
-==================
+Animation
+=========
