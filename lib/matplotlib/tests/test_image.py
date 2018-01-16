@@ -806,6 +806,19 @@ def test_imshow_flatfield():
     im.set_clim(.5, 1.5)
 
 
+@image_comparison(baseline_images=['imshow_bignumbers'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_bignumbers():
+    # putting a big number in an array of integers shouldn't
+    # ruin the dynamic range of the resolved bits.
+    fig, ax = plt.subplots()
+    img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
+    pc = ax.imshow(img)
+    pc.set_clim(0, 5)
+    plt.show()
+
+
 @pytest.mark.parametrize(
     "make_norm",
     [colors.Normalize,
