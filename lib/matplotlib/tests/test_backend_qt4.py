@@ -12,10 +12,8 @@ try:
 except ImportError:
     import mock
 
-with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
-    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-from matplotlib.backends.backend_qt4 import (
-    MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
+pytest.importorskip('PyQt4')
+qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
 
 QtCore = qt_compat.QtCore
 _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]

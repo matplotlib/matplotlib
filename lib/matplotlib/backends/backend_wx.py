@@ -1814,6 +1814,7 @@ Toolbar = NavigationToolbar2Wx
 
 @_Backend.export
 class _BackendWx(_Backend):
+    required_event_loop = "wx"
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
     _frame_class = FigureFrameWx

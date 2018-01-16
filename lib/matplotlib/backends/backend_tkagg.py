@@ -1042,6 +1042,7 @@ Toolbar = ToolbarTk
 
 @_Backend.export
 class _BackendTkAgg(_Backend):
+    required_event_loop = "tk"
     FigureCanvas = FigureCanvasTkAgg
     FigureManager = FigureManagerTkAgg
 

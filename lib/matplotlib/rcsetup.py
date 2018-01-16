@@ -21,8 +21,9 @@ from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
-import warnings
 import re
+import sys
+import warnings
 
 from matplotlib import cbook
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
@@ -255,15 +256,36 @@ def validate_fonttype(s):
         return fonttype
 
 
-_validate_standard_backends = ValidateInStrings(
-    'backend', all_backends, ignorecase=True)
-
-
 def validate_backend(s):
-    if s.startswith('module://'):
-        return s
+    candidates = _listify_validator(
+        lambda s:
+        s if s.startswith("module://")
+        else ValidateInStrings('backend', all_backends, ignorecase=True)(s))(s)
+    pyplot = sys.modules.get("matplotlib.pyplot")
+    if len(candidates) == 1:
+        backend, = candidates
+        if pyplot:
+            # This import needs to be delayed (below too) because it is not
+            # available at first import.
+            from matplotlib import rcParams
+            # Don't recurse.
+            old_backend = rcParams["backend"]
+            if old_backend == backend:
+                return backend
+            dict.__setitem__(rcParams, "backend", backend)
+            try:
+                pyplot.switch_backend(backend)
+            except Exception:
+                dict.__setitem__(rcParams, "backend", old_backend)
+                raise
+        return backend
     else:
-        return _validate_standard_backends(s)
+        if pyplot:
+            from matplotlib import rcParams
+            pyplot.switch_backend(candidates)  # Actually resolves the backend.
+            return rcParams["backend"]
+        else:
+            return candidates
 
 
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])
@@ -934,9 +956,13 @@ def _validate_linestyle(ls):
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend':           ['Agg', validate_backend],  # agg is certainly
-                                                      # present
-    'backend_fallback':  [True, validate_bool],  # agg is certainly present
+    'backend':           [["macosx",
+                           "qt5agg", "qt4agg",
+                           "gtk3agg", "gtk3cairo", "gtkagg",
+                           "tkagg",
+                           "wxagg",
+                           "agg", "cairo"], validate_backend],
+    'backend_fallback':  [True, validate_bool],
     'backend.qt4':       ['PyQt4', validate_qt4],
     'backend.qt5':       ['PyQt5', validate_qt5],
     'webagg.port':       [8988, validate_int],

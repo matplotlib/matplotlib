@@ -15,9 +15,10 @@ try:
 except ImportError:
     import mock
 
-with matplotlib.rc_context(rc={'backend': 'Qt5Agg'}):
-    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat',
-                                    minversion='5')
+pytest.importorskip('PyQt5')
+qt_compat = pytest.importorskip('matplotlib.backends.qt_compat',
+                                minversion='5')
+
 from matplotlib.backends.backend_qt5 import (
     MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
 

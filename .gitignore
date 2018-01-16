@@ -50,11 +50,6 @@ ehthumbs.db
 Icon?
 Thumbs.db
 
-# Things specific to this project #
-###################################
-lib/matplotlib/mpl-data/matplotlib.conf
-lib/matplotlib/mpl-data/matplotlibrc
-
 # Documentation generated files #
 #################################
 # sphinx build directory

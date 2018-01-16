@@ -7,7 +7,6 @@ from distutils import version
 from distutils.core import Extension
 import distutils.command.build_ext
 import glob
-import multiprocessing
 import os
 import platform
 import re
@@ -721,34 +720,13 @@ class Matplotlib(SetupPackage):
         return ['pylab']
 
     def get_package_data(self):
-        return {
-            'matplotlib':
-            [
-                'mpl-data/fonts/afm/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.txt',
-                'mpl-data/fonts/ttf/*.ttf',
-                'mpl-data/fonts/ttf/LICENSE_STIX',
-                'mpl-data/fonts/ttf/COPYRIGHT.TXT',
-                'mpl-data/fonts/ttf/README.TXT',
-                'mpl-data/fonts/ttf/RELEASENOTES.TXT',
-                'mpl-data/images/*.xpm',
-                'mpl-data/images/*.svg',
-                'mpl-data/images/*.gif',
-                'mpl-data/images/*.pdf',
-                'mpl-data/images/*.png',
-                'mpl-data/images/*.ppm',
-                'mpl-data/example/*.npy',
-                'mpl-data/matplotlibrc',
-                'backends/web_backend/*.*',
-                'backends/web_backend/js/*.*',
-                'backends/web_backend/jquery/js/*.min.js',
-                'backends/web_backend/jquery/css/themes/base/*.min.css',
-                'backends/web_backend/jquery/css/themes/base/images/*',
-                'backends/web_backend/css/*.*',
-                'backends/Matplotlib.nib/*',
-                'mpl-data/stylelib/*.mplstyle',
-             ]}
+        return {'matplotlib': [
+            # Work around lack of rglob on Py2.
+            os.path.relpath(os.path.join(dirpath, filename), "lib/matplotlib")
+            for data_dir in ["lib/matplotlib/mpl-data",
+                             "lib/matplotlib/backends/web_backend"]
+            for dirpath, _, filenames in os.walk(data_dir)
+            for filename in filenames]}
 
 
 class SampleData(OptionalPackage):
@@ -1525,9 +1503,6 @@ class BackendGtk(OptionalBackendPackage):
             ".".join(str(x) for x in gtk.gtk_version),
             ".".join(str(x) for x in gtk.pygtk_version))
 
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
     def get_extension(self):
         sources = [
             'src/_backend_gdk.c'
@@ -1617,178 +1592,6 @@ class BackendGtkAgg(BackendGtk):
         return ext
 
 
-def backend_gtk3agg_internal_check(x):
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (ImportError, RuntimeError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
-class BackendGtk3Agg(OptionalBackendPackage):
-    name = "gtk3agg"
-
-    def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
-
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
-        try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3agg_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probaly hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            # Some other error.
-            success = False
-            msg = "Could not determine"
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
-
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-def backend_gtk3cairo_internal_check(x):
-    try:
-        import cairocffi
-    except ImportError:
-        try:
-            import cairo
-        except ImportError:
-            return (False, "Requires cairocffi or pycairo to be installed.")
-
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (RuntimeError, ImportError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
-class BackendGtk3Cairo(OptionalBackendPackage):
-    name = "gtk3cairo"
-
-    def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
-
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
-        try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3cairo_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probaly hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            success = False
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
-
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-class BackendWxAgg(OptionalBackendPackage):
-    name = "wxagg"
-
-    def check_requirements(self):
-        wxversioninstalled = True
-        try:
-            import wxversion
-        except ImportError:
-            wxversioninstalled = False
-
-        if wxversioninstalled:
-            try:
-                _wx_ensure_failed = wxversion.AlreadyImportedError
-            except AttributeError:
-                _wx_ensure_failed = wxversion.VersionError
-
-            try:
-                wxversion.ensureMinimal('2.9')
-            except _wx_ensure_failed:
-                pass
-
-        try:
-            import wx
-            backend_version = wx.VERSION_STRING
-        except ImportError:
-            raise CheckFailed("requires wxPython")
-
-        if not is_min_version(backend_version, "2.9"):
-            raise CheckFailed(
-                "Requires wxPython 2.9, found %s" % backend_version)
-
-        return "version %s" % backend_version
-
-
 class BackendMacOSX(OptionalBackendPackage):
     name = 'macosx'
 
@@ -1832,174 +1635,6 @@ class Windowing(OptionalBackendPackage):
         ext.library_dirs.extend(['C:/lib'])
         ext.extra_link_args.append("-mwindows")
         return ext
-
-
-class BackendQtBase(OptionalBackendPackage):
-
-    def convert_qt_version(self, version):
-        version = '%x' % version
-        temp = []
-        while len(version) > 0:
-            version, chunk = version[:-2], version[-2:]
-            temp.insert(0, str(int(chunk, 16)))
-        return '.'.join(temp)
-
-    def check_requirements(self):
-        '''
-        If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
-        so we need to test in a subprocess (as for Gtk3).
-        '''
-        try:
-            p = multiprocessing.Pool()
-
-        except:
-            # Can't do multiprocessing, fall back to normal approach
-            # (this will fail if importing both PyQt4 and PyQt5).
-            try:
-                # Try in-process
-                msg = self.callback(self)
-            except RuntimeError:
-                raise CheckFailed(
-                    "Could not import: are PyQt4 & PyQt5 both installed?")
-
-        else:
-            # Multiprocessing OK
-            try:
-                res = p.map_async(self.callback, [self])
-                msg = res.get(timeout=10)[0]
-            except multiprocessing.TimeoutError:
-                p.terminate()
-                # No result returned. Probaly hanging, terminate the process.
-                raise CheckFailed("Check timed out")
-            except:
-                # Some other error.
-                p.close()
-                raise
-            else:
-                # Clean exit
-                p.close()
-            finally:
-                # Tidy up multiprocessing
-                p.join()
-
-        return msg
-
-
-def backend_pyside_internal_check(self):
-    try:
-        from PySide import __version__
-        from PySide import QtCore
-    except ImportError:
-        raise CheckFailed("PySide not found")
-    else:
-        return ("Qt: %s, PySide: %s" %
-                (QtCore.__version__, __version__))
-
-
-def backend_pyqt4_internal_check(self):
-    try:
-        from PyQt4 import QtCore
-    except ImportError:
-        raise CheckFailed("PyQt4 not found")
-
-    try:
-        qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.PYQT_VERSION_STR
-    except AttributeError:
-        raise CheckFailed('PyQt4 not correctly imported')
-    else:
-        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
-
-
-def backend_qt4_internal_check(self):
-    successes = []
-    failures = []
-    try:
-        successes.append(backend_pyside_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    try:
-        successes.append(backend_pyqt4_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    if len(successes) == 0:
-        raise CheckFailed('; '.join(failures))
-    return '; '.join(successes + failures)
-
-
-class BackendQt4(BackendQtBase):
-    name = "qt4agg"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_qt4_internal_check
-
-def backend_pyside2_internal_check(self):
-    try:
-        from PySide2 import __version__
-        from PySide2 import QtCore
-    except ImportError:
-        raise CheckFailed("PySide2 not found")
-    else:
-        return ("Qt: %s, PySide2: %s" %
-                (QtCore.__version__, __version__))
-
-def backend_pyqt5_internal_check(self):
-    try:
-        from PyQt5 import QtCore
-    except ImportError:
-        raise CheckFailed("PyQt5 not found")
-
-    try:
-        qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.PYQT_VERSION_STR
-    except AttributeError:
-        raise CheckFailed('PyQt5 not correctly imported')
-    else:
-        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
-
-def backend_qt5_internal_check(self):
-    successes = []
-    failures = []
-    try:
-        successes.append(backend_pyside2_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    try:
-        successes.append(backend_pyqt5_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    if len(successes) == 0:
-        raise CheckFailed('; '.join(failures))
-    return '; '.join(successes + failures)
-
-class BackendQt5(BackendQtBase):
-    name = "qt5agg"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_qt5_internal_check
-
-
-class BackendCairo(OptionalBackendPackage):
-    name = "cairo"
-
-    def check_requirements(self):
-        try:
-            import cairocffi
-        except ImportError:
-            try:
-                import cairo
-            except ImportError:
-                raise CheckFailed("cairocffi or pycairo not found")
-            else:
-                return "pycairo version %s" % cairo.version
-        else:
-            return "cairocffi version %s" % cairocffi.version
 
 
 class DviPng(SetupPackage):

@@ -29,7 +29,7 @@ import warnings
 from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
-from matplotlib import style
+from matplotlib import backends, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_numlike
 from matplotlib.cbook import _string_to_bool
@@ -70,7 +70,53 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
 
+
+def close(*args):
+    """
+    Close a figure window.
+
+    ``close()`` by itself closes the current figure
+
+    ``close(fig)`` closes the `~.Figure` instance *fig*
+
+    ``close(num)`` closes the figure number *num*
+
+    ``close(name)`` where *name* is a string, closes figure with that label
+
+    ``close('all')`` closes all the figure windows
+    """
+
+    if len(args) == 0:
+        figManager = _pylab_helpers.Gcf.get_active()
+        if figManager is None:
+            return
+        else:
+            _pylab_helpers.Gcf.destroy(figManager.num)
+    elif len(args) == 1:
+        arg = args[0]
+        if arg == 'all':
+            _pylab_helpers.Gcf.destroy_all()
+        elif isinstance(arg, six.integer_types):
+            _pylab_helpers.Gcf.destroy(arg)
+        elif hasattr(arg, 'int'):
+            # if we are dealing with a type UUID, we
+            # can use its integer representation
+            _pylab_helpers.Gcf.destroy(arg.int)
+        elif isinstance(arg, six.string_types):
+            allLabels = get_figlabels()
+            if arg in allLabels:
+                num = get_fignums()[allLabels.index(arg)]
+                _pylab_helpers.Gcf.destroy(num)
+        elif isinstance(arg, Figure):
+            _pylab_helpers.Gcf.destroy_fig(arg)
+        else:
+            raise TypeError('Unrecognized argument type %s to close' % type(arg))
+    else:
+        raise TypeError('close takes 0 or 1 arguments')
+
+
 ## Backend detection ##
+
 def _backend_selection():
     """ If rcParams['backend_fallback'] is true, check to see if the
         current backend is compatible with the current running event
@@ -79,40 +125,44 @@ def _backend_selection():
     backend = rcParams['backend']
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
         return
-    is_agg_backend = rcParams['backend'].endswith('Agg')
-    if 'wx' in sys.modules and not backend in ('WX', 'WXAgg'):
-        import wx
-        if wx.App.IsMainLoopRunning():
-            rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
-    elif 'PyQt4.QtCore' in sys.modules and not backend == 'Qt4Agg':
-        import PyQt4.QtGui
-        if not PyQt4.QtGui.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt4Agg'
-    elif 'PyQt5.QtCore' in sys.modules and not backend == 'Qt5Agg':
-        import PyQt5.QtWidgets
-        if not PyQt5.QtWidgets.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules and
-          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
-        if 'gi' in sys.modules:
-            from gi.repository import GObject
-            ml = GObject.MainLoop
-        else:
-            import gobject
-            ml = gobject.MainLoop
-        if ml().is_running():
-            rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
-    elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
-        # import Tkinter
-        pass  # what if anything do we need to do for tkinter?
+    current_event_loop = backends._get_current_event_loop()
+    if current_event_loop == "qt5":
+        rcParams["backend"] = "qt5agg"
+    elif current_event_loop == "qt4":
+        rcParams["backend"] = "qt4agg"
+    elif current_event_loop == "gtk3":
+        rcParams["backend"] = ("gtk3agg" if rcParams["backend"].endswith("agg")
+                               else "gtk3cairo")
+    elif current_event_loop == "gtk2":
+        rcParams["backend"] = "gtkagg"
+    elif current_event_loop == "tk":
+        rcParams["backend"] = "tkagg"
 
 _backend_selection()
 
-## Global ##
+def switch_backend(newbackend):
+    """
+    Close all open figures and set the Matplotlib backend.
 
-_backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+    The argument is case-insensitive.  Switching to an interactive backend is
+    only safe if no event loop for another interactive backend has started.
+    Switching to and from non-interactive backends is safe.
+
+    Parameters
+    ----------
+    newbackend : str or List[str]
+        The name of the backend to use.  If a list of backends, they will be
+        tried in order until one successfully loads.
+    """
+    close("all")
+    global _backend_mod, new_figure_manager, draw_if_interactive, _show
+    _backend_mod, new_figure_manager, draw_if_interactive, _show = \
+        backends.pylab_setup(newbackend)
+
+switch_backend(rcParams["backend"])
+
+
+## Global ##
 
 _IP_REGISTERED = None
 _INSTALL_FIG_OBSERVER = False
@@ -212,25 +262,6 @@ def findobj(o=None, match=None, include_self=True):
     if o is None:
         o = gcf()
     return o.findobj(match, include_self=include_self)
-
-
-def switch_backend(newbackend):
-    """
-    Switch the default backend.  This feature is **experimental**, and
-    is only expected to work switching to an image backend.  e.g., if
-    you have a bunch of PostScript scripts that you want to run from
-    an interactive ipython session, you may want to switch to the PS
-    backend before running them to avoid having a bunch of GUI windows
-    popup.  If you try to interactively switch from one GUI backend to
-    another, you will explode.
-
-    Calling this command will close all open windows.
-    """
-    close('all')
-    global _backend_mod, new_figure_manager, draw_if_interactive, _show
-    matplotlib.use(newbackend, warn=False, force=True)
-    from matplotlib.backends import pylab_setup
-    _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
 def show(*args, **kw):
@@ -633,50 +664,6 @@ def connect(s, func):
 @docstring.copy_dedent(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
-
-
-def close(*args):
-    """
-    Close a figure window.
-
-    ``close()`` by itself closes the current figure
-
-    ``close(fig)`` closes the `~.Figure` instance *fig*
-
-    ``close(num)`` closes the figure number *num*
-
-    ``close(name)`` where *name* is a string, closes figure with that label
-
-    ``close('all')`` closes all the figure windows
-    """
-
-    if len(args) == 0:
-        figManager = _pylab_helpers.Gcf.get_active()
-        if figManager is None:
-            return
-        else:
-            _pylab_helpers.Gcf.destroy(figManager.num)
-    elif len(args) == 1:
-        arg = args[0]
-        if arg == 'all':
-            _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, six.integer_types):
-            _pylab_helpers.Gcf.destroy(arg)
-        elif hasattr(arg, 'int'):
-            # if we are dealing with a type UUID, we
-            # can use its integer representation
-            _pylab_helpers.Gcf.destroy(arg.int)
-        elif isinstance(arg, six.string_types):
-            allLabels = get_figlabels()
-            if arg in allLabels:
-                num = get_fignums()[allLabels.index(arg)]
-                _pylab_helpers.Gcf.destroy(num)
-        elif isinstance(arg, Figure):
-            _pylab_helpers.Gcf.destroy_fig(arg)
-        else:
-            raise TypeError('Unrecognized argument type %s to close' % type(arg))
-    else:
-        raise TypeError('close takes 0 or 1 arguments')
 
 
 def clf():

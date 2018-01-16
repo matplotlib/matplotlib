@@ -75,20 +75,11 @@ mpl_packages = [
     setupext.Tests(),
     setupext.Toolkits_Tests(),
     'Optional backend extensions',
-    # These backends are listed in order of preference, the first
-    # being the most preferred.  The first one that looks like it will
-    # work will be selected as the default backend.
     setupext.BackendMacOSX(),
-    setupext.BackendQt5(),
-    setupext.BackendQt4(),
-    setupext.BackendGtk3Agg(),
-    setupext.BackendGtk3Cairo(),
     setupext.BackendGtkAgg(),
     setupext.BackendTkAgg(),
-    setupext.BackendWxAgg(),
     setupext.BackendGtk(),
     setupext.BackendAgg(),
-    setupext.BackendCairo(),
     setupext.Windowing(),
     'Optional LaTeX dependencies',
     setupext.DviPng(),
@@ -132,9 +123,7 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
-# One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
-# however, this is needed on Windows to avoid creating infinite subprocesses
-# when using multiprocessing.
+
 if __name__ == '__main__':
     # These are distutils.setup parameters that the various packages add
     # things to.
@@ -146,7 +135,6 @@ if __name__ == '__main__':
     package_dir = {'': 'lib'}
     install_requires = []
     setup_requires = []
-    default_backend = None
 
     # If the user just queries for information, don't bother figuring out which
     # packages to build or install.
@@ -182,10 +170,6 @@ if __name__ == '__main__':
                         required_failed.append(package)
                 else:
                     good_packages.append(package)
-                    if (isinstance(package, setupext.OptionalBackendPackage)
-                            and package.runtime_check()
-                            and default_backend is None):
-                        default_backend = package.name
         print_raw('')
 
         # Abort if any of the required packages can not be built.
@@ -215,18 +199,6 @@ if __name__ == '__main__':
             install_requires.extend(package.get_install_requires())
             setup_requires.extend(package.get_setup_requires())
 
-        # Write the default matplotlibrc file
-        if default_backend is None:
-            default_backend = 'svg'
-        if setupext.options['backend']:
-            default_backend = setupext.options['backend']
-        with open('matplotlibrc.template') as fd:
-            template = fd.read()
-        template = Template(template)
-        with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(
-                template.safe_substitute(TEMPLATE_BACKEND=default_backend))
-
         # Build in verbose mode if requested
         if setupext.options['verbose']:
             for mod in ext_modules:
@@ -237,10 +209,8 @@ if __name__ == '__main__':
         for mod in ext_modules:
             mod.finalize()
 
-    extra_args = {}
-
     # Finally, pass this all along to distutils to do the heavy lifting.
-    distrib = setup(
+    setup(
         name="matplotlib",
         version=__version__,
         description="Python plotting package",
@@ -274,5 +244,4 @@ if __name__ == '__main__':
         # check for zip safety.
         zip_safe=False,
         cmdclass=cmdclass,
-        **extra_args
     )

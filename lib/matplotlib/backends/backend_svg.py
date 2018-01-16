@@ -1252,8 +1252,8 @@ class FigureCanvasSVG(FigureCanvasBase):
     def get_default_filetype(self):
         return 'svg'
 
-class FigureManagerSVG(FigureManagerBase):
-    pass
+
+FigureManagerSVG = FigureManagerBase
 
 
 svgProlog = """\
@@ -1267,4 +1267,3 @@ svgProlog = """\
 @_Backend.export
 class _BackendSVG(_Backend):
     FigureCanvas = FigureCanvasSVG
-    FigureManager = FigureManagerSVG

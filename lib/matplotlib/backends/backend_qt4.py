@@ -12,4 +12,4 @@ from .backend_qt5 import FigureCanvasQT as FigureCanvasQT5
 
 @_BackendQT5.export
 class _BackendQT4(_BackendQT5):
-    pass
+    required_event_loop = "qt4"
