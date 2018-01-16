@@ -599,7 +599,7 @@ class Legend(Artist):
             else:
                 _lab.append(label)
                 _hand.append(handle)
-        label, handle = _lab, _hand
+        labels, handles = _lab, _hand
 
         handles = list(handles)
         if len(handles) < 2:
