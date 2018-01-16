@@ -2,5 +2,5 @@
 
 .. _mplot3d-examples-index:
 
-mplot3d toolkit
-===============
+3D plotting
+===========
