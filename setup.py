@@ -194,7 +194,7 @@ if __name__ == '__main__':
             print_message("The following required packages can not be built: "
                           "%s" % ", ".join(x.name for x in required_failed))
             for pkg in required_failed:
-                msg = pkg.install_get_help()
+                msg = pkg.install_help_msg()
                 if msg:
                     print_message(msg)
             sys.exit(1)
