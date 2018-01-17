@@ -581,14 +581,17 @@ class Legend(Artist):
             setattr(self, name, value)
         del locals_view
         # trim handles and labels if illegal label...
-        for label, handle in zip(labels[:], handles[:]):
-                if (isinstance(label, six.string_types)
-                        and label.startswith('_')):
-                    warnings.warn('The handle {!r} has a label of {!r} which '
-                                  'cannot be automatically added to the '
-                                  'legend.'.format(handle, label))
-                    labels.remove(label)
-                    handles.remove(handle)
+        _lab, _hand = [], []
+        for label, handle in zip(labels, handles):
+            if (isinstance(label, six.string_types) and
+                    label.startswith('_')):
+                warnings.warn('The handle {!r} has a label of {!r} which '
+                              'cannot be automatically added to the '
+                              'legend.'.format(handle, label))
+            else:
+                _lab.append(label)
+                _hand.append(handle)
+        labels, handles = _lab, _hand
 
         handles = list(handles)
         if len(handles) < 2:

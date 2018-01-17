@@ -6,6 +6,7 @@ try:
     from unittest import mock
 except ImportError:
     import mock
+import collections
 import numpy as np
 import pytest
 
@@ -47,6 +48,23 @@ def test_legend_kwdocstrings():
     assert stleg == stax
     assert stfig == stax
     assert stleg == stfig
+
+
+def test_legend_ordereddict():
+    # smoketest that ordereddict inputs work...
+
+    X = np.random.randn(10)
+    Y = np.random.randn(10)
+    labels = ['a'] * 5 + ['b'] * 5
+    colors = ['r'] * 5 + ['g'] * 5
+
+    fig, ax = plt.subplots()
+    for x, y, label, color in zip(X, Y, labels, colors):
+        ax.scatter(x, y, label=label, c=color)
+
+    handles, labels = ax.get_legend_handles_labels()
+    legend = collections.OrderedDict(zip(labels, handles))
+    ax.legend(legend.values(), legend.keys(), loc=6, bbox_to_anchor=(1, .5))
 
 
 @image_comparison(baseline_images=['legend_auto1'], remove_text=True)
