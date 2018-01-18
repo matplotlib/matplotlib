@@ -2936,7 +2936,7 @@ class NavigationToolbar2(object):
         self.set_message(self.mode)
 
     def press(self, event):
-        """Called whenver a mouse button is pressed."""
+        """Called whenever a mouse button is pressed."""
 
     def press_pan(self, event):
         """Callback for mouse button press in pan/zoom mode."""

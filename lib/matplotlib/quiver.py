@@ -793,13 +793,13 @@ Keyword arguments:
 
   *barbcolor*: [ color | color sequence ]
     Specifies the color all parts of the barb except any flags.  This
-    parameter is analagous to the *edgecolor* parameter for polygons,
+    parameter is analogous to the *edgecolor* parameter for polygons,
     which can be used instead. However this parameter will override
     facecolor.
 
   *flagcolor*: [ color | color sequence ]
     Specifies the color of any flags on the barb.  This parameter is
-    analagous to the *facecolor* parameter for polygons, which can be
+    analogous to the *facecolor* parameter for polygons, which can be
     used instead. However this parameter will override facecolor.  If
     this is not set (and *C* has not either) then *flagcolor* will be
     set to match *barbcolor* so that the barb has a uniform color. If

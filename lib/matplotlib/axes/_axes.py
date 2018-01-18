@@ -1361,7 +1361,7 @@ linewidth=2, markersize=12)
 
         By default, each line is assigned a different style specified by a
         'style cycle'. The *fmt* and line property parameters are only
-        neccessary if you want explicit deviations from these defaults.
+        necessary if you want explicit deviations from these defaults.
         Alternatively, you can also change the style cycle using the
         'axes.prop_cycle' rcParam.
 
@@ -6279,7 +6279,7 @@ linewidth=2, markersize=12)
             The type of histogram to draw.
 
             - 'bar' is a traditional bar-type histogram.  If multiple data
-              are given the bars are aranged side by side.
+              are given the bars are arranged side by side.
 
             - 'barstacked' is a bar-type histogram where multiple
               data are stacked on top of each other.
@@ -6338,7 +6338,7 @@ linewidth=2, markersize=12)
 
         stacked : boolean, optional
             If ``True``, multiple data are stacked on top of each other If
-            ``False`` multiple data are aranged side by side if histtype is
+            ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
 
             Default is ``False``

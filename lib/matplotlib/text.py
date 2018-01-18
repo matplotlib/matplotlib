@@ -843,7 +843,7 @@ class Text(Artist):
     def get_unitless_position(self):
         "Return the unitless position of the text as a tuple (*x*, *y*)"
         # This will get the position with all unit information stripped away.
-        # This is here for convienience since it is done in several locations.
+        # This is here for convenience since it is done in several locations.
         x = float(self.convert_xunits(self._x))
         y = float(self.convert_yunits(self._y))
         return x, y
@@ -1347,7 +1347,7 @@ class TextWithDash(Text):
     def get_unitless_position(self):
         "Return the unitless position of the text as a tuple (*x*, *y*)"
         # This will get the position with all unit information stripped away.
-        # This is here for convienience since it is done in several locations.
+        # This is here for convenience since it is done in several locations.
         x = float(self.convert_xunits(self._dashx))
         y = float(self.convert_yunits(self._dashy))
         return x, y
@@ -2245,7 +2245,7 @@ class Annotation(Text, _AnnotationBase):
 
             # The arrow will be drawn from (ox0, oy0) to (ox1,
             # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrunk by shirnkA and shrinkB
+            # Then it will be shrunk by shrinkA and shrinkB
             # (in points). If patch A is not set, self.bbox_patch
             # is used.
 

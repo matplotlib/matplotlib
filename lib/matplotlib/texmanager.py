@@ -475,7 +475,7 @@ class TexManager(object):
         return Z
 
     def get_text_width_height_descent(self, tex, fontsize, renderer=None):
-        """Return width, heigth and descent of the text."""
+        """Return width, height and descent of the text."""
         if tex.strip() == '':
             return 0, 0, 0
 

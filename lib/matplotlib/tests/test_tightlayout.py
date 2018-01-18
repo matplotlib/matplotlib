@@ -30,7 +30,7 @@ def test_tight_layout1():
 
 @image_comparison(baseline_images=['tight_layout2'])
 def test_tight_layout2():
-    'Test tight_layout for mutiple subplots'
+    'Test tight_layout for multiple subplots'
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
     example_plot(ax1)
     example_plot(ax2)
@@ -41,7 +41,7 @@ def test_tight_layout2():
 
 @image_comparison(baseline_images=['tight_layout3'])
 def test_tight_layout3():
-    'Test tight_layout for mutiple subplots'
+    'Test tight_layout for multiple subplots'
 
     fig = plt.figure()
 

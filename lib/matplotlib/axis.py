@@ -714,7 +714,7 @@ class Axis(artist.Artist):
         coordinate of the y label is determined by the tick label
         bounding boxes, but this can lead to poor alignment of
         multiple ylabels if there are multiple axes.  Ditto for the y
-        coodinate of the x label.
+        coordinate of the x label.
 
         You can also specify the coordinate system of the label with
         the transform.  If None, the default coordinate system will be

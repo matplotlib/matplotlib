@@ -54,7 +54,7 @@ class ToolBase(object):
     Keymap to associate with this tool
 
     **String**: List of comma separated keys that will be used to call this
-    tool when the keypress event of *self.figure.canvas* is emited
+    tool when the keypress event of *self.figure.canvas* is emitted
     """
 
     description = None
@@ -154,7 +154,7 @@ class ToolToggleBase(ToolBase):
     ``*args``
         Variable length argument to be used by the Tool
     ``**kwargs``
-        `toggled` if present and True, sets the initial state ot the Tool
+        `toggled` if present and True, sets the initial state of the Tool
         Arbitrary keyword arguments to be consumed by the Tool
     """
 
@@ -228,7 +228,7 @@ class ToolToggleBase(ToolBase):
             if figure:
                 self.trigger(self, None)
             else:
-                # if there is no figure, triggen wont change the internal state
+                # if there is no figure, trigger wont change the internal state
                 # we change it back
                 self._toggled = True
 

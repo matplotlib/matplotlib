@@ -56,7 +56,7 @@ Naming Conventions
 
   * classes Upper or MixedUpperCase
 
-  * varables lower or lowerUpper
+  * variables lower or lowerUpper
 
   * functions lower or underscore_separated
 

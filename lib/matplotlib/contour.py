@@ -547,7 +547,7 @@ class ContourLabeler(object):
         paths = self.collections[conmin].get_paths()
         # grab the correct segment
         active_path = paths[segmin]
-        # grab it's verticies
+        # grab its vertices
         lc = active_path.vertices
         # sort out where the new vertex should be added data-units
         xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])

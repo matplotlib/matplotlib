@@ -269,7 +269,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         #
         # 2) call enter/leave events explicitly.  The downside of this
         #    in the impl below is that enter could be repeatedly
-        #    triggered if thes  mouse is over the axes and one is
+        #    triggered if the mouse is over the axes and one is
         #    resizing with the keyboard.  This is not entirely bad,
         #    because the mouse position relative to the canvas is
         #    changing, but it may be surprising to get repeated entries

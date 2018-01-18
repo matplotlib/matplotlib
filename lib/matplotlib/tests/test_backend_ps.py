@@ -94,7 +94,7 @@ def test_patheffects():
 @needs_usetex
 @needs_ghostscript
 def test_tilde_in_tempfilename():
-    # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP oder TEMP on windows
+    # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP or TEMP on windows
     # when the username is very long and windows uses a short name) breaks
     # latex before https://github.com/matplotlib/matplotlib/pull/5928
     import tempfile
@@ -125,7 +125,7 @@ def test_tilde_in_tempfilename():
             try:
                 shutil.rmtree(tempdir)
             except Exception as e:
-                # do not break if this is not removeable...
+                # do not break if this is not removable...
                 print(e)
 
 

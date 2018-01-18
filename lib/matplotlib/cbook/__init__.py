@@ -1451,7 +1451,7 @@ class Grouper(object):
     would be overkill.
 
     Objects can be joined using :meth:`join`, tested for connectedness
-    using :meth:`joined`, and all disjoint sets can be retreived by
+    using :meth:`joined`, and all disjoint sets can be retrieved by
     using the object as an iterator.
 
     The objects being joined must be hashable and weak-referenceable.

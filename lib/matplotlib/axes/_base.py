@@ -3117,7 +3117,7 @@ class _AxesBase(martist.Artist):
 
         See also
         --------
-        matplotlib.scale.LinearScale : linear transfrom
+        matplotlib.scale.LinearScale : linear transform
 
         matplotlib.scale.LogTransform : log transform
 
@@ -3442,7 +3442,7 @@ class _AxesBase(martist.Artist):
 
         See also
         --------
-        matplotlib.scale.LinearScale : linear transfrom
+        matplotlib.scale.LinearScale : linear transform
 
         matplotlib.scale.LogTransform : log transform
 

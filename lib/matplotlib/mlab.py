@@ -1,6 +1,6 @@
 """
 
-Numerical python functions written for compatability with MATLAB
+Numerical python functions written for compatibility with MATLAB
 commands with the same names.
 
 MATLAB compatible functions
@@ -1377,7 +1377,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     False, limits the caching by only making one, rather than two,
     complex cache arrays. This is useful if memory becomes critical.
     Even when *preferSpeedOverMemory* is False, :func:`cohere_pairs`
-    will still give significant performace gains over calling
+    will still give significant performance gains over calling
     :func:`cohere` for each pair, and will use subtantially less
     memory than if *preferSpeedOverMemory* is True.  In my tests with
     a 43000,64 array over all nonredundant pairs,
@@ -1449,7 +1449,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     else:
         numFreqs = NFFT//2+1
 
-    # cache the FFT of every windowed, detrended NFFT length segement
+    # cache the FFT of every windowed, detrended NFFT length segment
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
     if cbook.iterable(window):
@@ -2910,7 +2910,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             break
 
     # iterate over the remaining rows and convert the data to date
-    # objects, ints, or floats as approriate
+    # objects, ints, or floats as appropriate
     rows = []
     rowmasks = []
     for i, row in enumerate(reader):

@@ -54,7 +54,7 @@ class PsBackendHelper(object):
     @property
     def gs_exe(self):
         """
-        excutable name of ghostscript.
+        executable name of ghostscript.
         """
         try:
             return self._cached["gs_exe"]
@@ -536,7 +536,7 @@ grestore
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
 
         # construct the generic marker command:
-        ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
+        ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # don't want the translate to be global
 
         lw = gc.get_linewidth()
         stroke = lw != 0.0
