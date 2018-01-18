@@ -80,6 +80,7 @@ def test_logscale_invert_transform():
     # get transformation from data to axes
     tform = (ax.transAxes + ax.transData.inverted()).inverted()
 
+
 def test_logscale_transform_repr():
     fig, ax = plt.subplots()
     ax.set_yscale('log')

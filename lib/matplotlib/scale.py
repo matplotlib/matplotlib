@@ -93,7 +93,7 @@ class LogTransformBase(Transform):
     is_separable = True
     has_inverse = True
 
-    def __init__(self, nonpos='mask'):
+    def __init__(self, nonpos='clip'):
         Transform.__init__(self)
         self._clip = {"clip": True, "mask": False}[nonpos]
 
@@ -115,7 +115,9 @@ class LogTransformBase(Transform):
         return out
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, "clip" if self._clip else "mask")
+        return "{}({!r})".format(type(self).__name__,
+            "clip" if self._clip else "mask")
+
 
 class InvertedLogTransformBase(Transform):
     input_dims = 1
@@ -173,7 +175,7 @@ class InvertedNaturalLogTransform(InvertedLogTransformBase):
 
 
 class LogTransform(LogTransformBase):
-    def __init__(self, base, nonpos='mask'):
+    def __init__(self, base, nonpos='clip'):
         LogTransformBase.__init__(self, nonpos)
         self.base = base
 
@@ -471,7 +473,8 @@ class LogitTransform(Transform):
         return LogisticTransform(self._nonpos)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, "clip" if self._clip else "mask")
+        return "{}({!r})".format(type(self).__name__,
+            "clip" if self._clip else "mask")
 
 
 class LogisticTransform(Transform):
