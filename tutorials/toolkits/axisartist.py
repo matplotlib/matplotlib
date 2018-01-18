@@ -86,7 +86,7 @@ horizontal axis at y=0 (in data coordinate). ::
 
 Or a fixed axis with some offset ::
 
-    # make new (right-side) yaxis, but wth some offset
+    # make new (right-side) yaxis, but with some offset
     ax.axis["right2"] = ax.new_fixed_axis(loc="right",
                   offset=(20, 0))
 

@@ -67,7 +67,7 @@ development environment, using the something like `virtual environments in pytho
 `conda environment <http://conda.pydata.org/docs/using/envs.html>`_.
 
 If you choose to use an already existing environment, and not a clean virtual or
-conda environment, uninstall the current version of Matplotlib in that enviroment
+conda environment, uninstall the current version of Matplotlib in that environment
 using the same method used to install it.
 
 If working on Matplotlib documentation only, the above steps are *not* absolutely

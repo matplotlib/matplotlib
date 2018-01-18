@@ -109,8 +109,8 @@ implemented the **MultiFigure** magic yet.
 Alternatives
 ============
 
-Insted of modifing the `FigureManagerBase` it could be possible to add
+Insted of modifying the `FigureManagerBase` it could be possible to add
 a parallel class, that handles the cases where
 `rcParams['backend.multifigure'] = True`.  This will warranty that
 there won't be any problems with custom made backends, but also makes
-bigger the code, and more things to mantain.
+bigger the code, and more things to maintain.

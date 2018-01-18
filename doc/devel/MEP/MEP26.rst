@@ -39,7 +39,7 @@ on the artist object, which is quite laborious, especially if no
 reference to the artist(s) has been stored.  The new style sheets
 introduced in 1.4 allow styling before a plot is created, but do not
 offer any means to dynamically update plots or distinguish between
-artists of the same type (i.e. to specifiy the `line color` and `line
+artists of the same type (i.e. to specify the `line color` and `line
 style` separately for differing `Line2D` objects).
 
 The initial development should concentrate on allowing styling of

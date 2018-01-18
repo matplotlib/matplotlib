@@ -195,7 +195,7 @@ def getsubset(subset, font_in):
     latin += [0x02da] # ring
     latin += [0x02dc] # tilde
     latin += [0x2074] # foursuperior
-    latin += [0x2215] # divison slash
+    latin += [0x2215] # division slash
     latin += [0x2044] # fraction slash
     latin += [0xe0ff] # PUA: Font logo
     latin += [0xeffd] # PUA: Font version number
