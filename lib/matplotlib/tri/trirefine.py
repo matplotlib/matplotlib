@@ -285,7 +285,7 @@ class UniformTriRefiner(TriRefiner):
 
         # Now dealing with slave elems.
         # for each slave element we identify the master and then the inode
-        # onces slave_masters is identified, slave_masters_apex is such that:
+        # once slave_masters is identified, slave_masters_apex is such that:
         # neighbors[slaves_masters, slave_masters_apex] == slaves
         mask_slaves = np.logical_not(mask_masters)
         slaves = edge_elems[mask_slaves]

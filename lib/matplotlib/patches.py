@@ -2831,7 +2831,7 @@ class ConnectionStyle(_Style):
     class Arc3(_Base):
         """
         Creates a simple quadratic bezier curve between two
-        points. The curve is created so that the middle control points
+        points. The curve is created so that the middle control point
         (C1) is located at the same distance from the start (C0) and
         end points(C2) and the distance of the C1 to the line
         connecting C0-C2 is *rad* times the distance of C0-C2.

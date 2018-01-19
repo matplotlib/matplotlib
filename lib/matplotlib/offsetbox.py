@@ -626,7 +626,7 @@ class DrawingArea(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y coordinate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -915,7 +915,7 @@ class AuxTransformBox(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y coordinate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -1318,7 +1318,7 @@ class OffsetImage(OffsetBox):
 #         """
 #         set offset of the container.
 
-#         Accept : tuple of x,y coordinate in disokay units.
+#         Accept : tuple of x,y coordinate in display units.
 #         """
 #         self._offset = xy
 

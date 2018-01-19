@@ -1439,7 +1439,7 @@ class YearLocator(DateLocator):
 
 class MonthLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each month month, e.g., 1, 3, 12.
+    Make ticks on occurrences of each month, e.g., 1, 3, 12.
     """
     def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
