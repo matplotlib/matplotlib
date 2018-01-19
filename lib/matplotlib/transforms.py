@@ -571,15 +571,15 @@ class BboxBase(TransformNode):
         c :
             May be either:
 
-              * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
-                to 1, where 0 is left or bottom and 1 is right or top
+            * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
+              to 1, where 0 is left or bottom and 1 is right or top
 
-              * a string:
-                - 'C' for centered
-                - 'S' for bottom-center
-                - 'SE' for bottom-left
-                - 'E' for left
-                - etc.
+            * a string:
+              - 'C' for centered
+              - 'S' for bottom-center
+              - 'SE' for bottom-left
+              - 'E' for left
+              - etc.
 
         container : Bbox, optional
             The box within which the :class:`Bbox` is positioned; it defaults
