@@ -108,7 +108,7 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
-    __init__.__doc__ = Axes.__init__.__doc__
+    __init__.__doc__ = AxesBase.__init__.__doc__
 
     aname = 'Axes'
 
