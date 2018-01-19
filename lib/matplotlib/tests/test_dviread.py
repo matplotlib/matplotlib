@@ -80,11 +80,11 @@ def test_dviread():
 @skip_if_command_unavailable(["kpsewhich", "-version"])
 def test_dviread_get_fonts():
     dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
-    with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
-        assert dvi.fontnames == \
-            ['cmex10', 'cmmi10', 'cmmi5', 'cmr10', 'cmr5', 'cmr7']
-    with dr.Vf(os.path.join(dir, 'virtual.vf')) as vf:
-        assert vf.fontnames == ['cmex10', 'cmr10']
+    dvi = dr._DviReader(os.path.join(dir, 'test.dvi'), None)
+    assert dvi.fontnames == \
+        {'cmex10', 'cmmi10', 'cmmi5', 'cmr10', 'cmr5', 'cmr7'}
+    vf = dr.Vf(os.path.join(dir, 'virtual.vf'))
+    assert vf.fontnames == {'cmex10', 'cmr10'}
 
 
 def test_dviread_get_fonts_error_handling():

@@ -20,6 +20,7 @@ Interface::
 from collections import namedtuple
 import enum
 from functools import lru_cache, partial, wraps
+from itertools import chain
 import logging
 import os
 import re
@@ -168,28 +169,23 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     return decorate
 
 
-class Dvi(object):
+def _keep(func, keys):
+    """Return mapping from each k in keys to func(k)
+    such that func(k) is not None"""
+    return dict((k, v) for k, v in zip(keys, map(func, keys)) if v is not None)
+
+
+class _DviReader(object):
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
-    The current implementation can only iterate through pages in order.
-
-    This class can be used as a context manager to close the underlying
-    file upon exit. Pages can be read via iteration. Here is an overly
-    simple way to extract text without trying to detect whitespace::
-
-    >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
-    >>>     for page in dvi:
-    >>>         print(''.join(chr(t.glyph) for t in page.text))
+    This implementation is only used to store the file in a cache, from
+    which it is read by Dvi.
 
     Parameters
     ----------
 
     filename : str
         dvi file to read
-    dpi : number or None
-        Dots per inch, can be floating-point; this affects the
-        coordinates returned. Use None to get TeX's internal units
-        which are likely only useful for debugging.
     cache : TeXSupportCache instance, optional
         Support file cache instance, defaults to the TeXSupportCache
         singleton.
@@ -198,28 +194,28 @@ class Dvi(object):
     _dtable = [None] * 256
     _dispatch = partial(_dispatch, _dtable)
 
-    def __init__(self, filename, dpi, cache=None):
-        """
-        Read the data from the file named *filename* and convert
-        TeX's internal units to units of *dpi* per inch.
-        *dpi* only sets the units and does not limit the resolution.
-        Use None to return TeX's internal units.
-        """
+    def __init__(self, filename, cache=None):
         _log.debug('Dvi: %s', filename)
         if cache is None:
             cache = TeXSupportCache.get_cache()
         self.cache = cache
         self.file = open(filename, 'rb')
-        self.dpi = dpi
         self.fonts = {}
+        self.recursive_fonts = set()
         self.state = _dvistate.pre
         self.baseline = self._get_baseline(filename)
-        self.fontnames = sorted(set(self._read_fonts()))
+        self.fontnames = set(self._read_fonts())
         # populate kpsewhich cache with font pathnames
         find_tex_files([x + suffix for x in self.fontnames
                         for suffix in ('.tfm', '.vf', '.pfb')],
                        cache)
-        cache.optimize()
+        self._tfm = _keep(_tfmfile, self.fontnames)
+        self._vf = _keep(_vffile, self.fontnames)
+        for vf in self._vf.values():
+            self.fontnames.update(vf.fontnames)
+
+    def close(self):
+        self.file.close()
 
     def _get_baseline(self, filename):
         if rcParams['text.latex.preview']:
@@ -232,88 +228,32 @@ class Dvi(object):
                 return float(depth)
         return None
 
-    def __enter__(self):
-        """
-        Context manager enter method, does nothing.
-        """
-        return self
+    def store(self):
+        c = self.cache
+        with c.connection as t:
+            fileid = c.dvi_new_file(self.file.name, t)
+            _log.debug('fontnames is %s', self.fontnames)
+            fontid = c.dvi_font_sync_ids(self.fontnames, t)
 
-    def __exit__(self, etype, evalue, etrace):
-        """
-        Context manager exit method, closes the underlying file if it is open.
-        """
-        self.close()
+            pageno = 0
+            while True:
+                if not self._read():
+                    break
+                for seq, elt in enumerate(self.text + self.boxes):
+                    if isinstance(elt, Box):
+                        c.dvi_add_box(elt, fileid, pageno, seq, t)
+                    else:
+                        texname = elt.font.texname.decode('ascii')
+                        c.dvi_add_text(elt, fileid, pageno, seq,
+                                       fontid[texname], t)
+                pageno += 1
 
-    def __iter__(self):
-        """
-        Iterate through the pages of the file.
-
-        Yields
-        ------
-        Page
-            Details of all the text and box objects on the page.
-            The Page tuple contains lists of Text and Box tuples and
-            the page dimensions, and the Text and Box tuples contain
-            coordinates transformed into a standard Cartesian
-            coordinate system at the dpi value given when initializing.
-            The coordinates are floating point numbers, but otherwise
-            precision is not lost and coordinate values are not clipped to
-            integers.
-        """
-        while True:
-            have_page = self._read()
-            if have_page:
-                yield self._output()
-            else:
-                break
-
-    def close(self):
-        """
-        Close the underlying file if it is open.
-        """
-        if not self.file.closed:
-            self.file.close()
-
-    def _output(self):
-        """
-        Output the text and boxes belonging to the most recent page.
-        page = dvi._output()
-        """
-        minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
-        maxy_pure = -np.inf
-        for elt in self.text + self.boxes:
-            if isinstance(elt, Box):
-                x, y, h, w = elt
-                e = 0           # zero depth
-            else:               # glyph
-                x, y, font, g, w = elt
-                h, e = font._height_depth_of(g)
-            minx = min(minx, x)
-            miny = min(miny, y - h)
-            maxx = max(maxx, x + w)
-            maxy = max(maxy, y + e)
-            maxy_pure = max(maxy_pure, y)
-
-        if self.dpi is None:
-            # special case for ease of debugging: output raw dvi coordinates
-            return Page(text=self.text, boxes=self.boxes,
-                        width=maxx-minx, height=maxy_pure-miny,
-                        descent=maxy-maxy_pure)
-
-        # convert from TeX's "scaled points" to dpi units
-        d = self.dpi / (72.27 * 2**16)
-        if self.baseline is None:
-            descent = (maxy - maxy_pure) * d
-        else:
-            descent = self.baseline
-
-        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
-                for (x, y, f, g, w) in self.text]
-        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
-                 for (x, y, h, w) in self.boxes]
-
-        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
-                    height=(maxy_pure-miny)*d, descent=descent)
+            for dvifont in chain(self.recursive_fonts, self.fonts.values()):
+                c.dvi_font_sync_metrics(dvifont, t)
+            if self.baseline is not None:
+                c.dvi_add_baseline(fileid, 0, self.baseline, t)
+        c.optimize()
+        return fileid
 
     def _read_fonts(self):
         """Read the postamble of the file and return a list of fonts used."""
@@ -360,6 +300,8 @@ class Dvi(object):
                     _arg(1, False, self, None),
                     _arg(1, False, self, None))
                 fontname = file.read(a + length)[-length:].decode('ascii')
+                _log.debug('dvi._read_fonts(%s): encountered %s',
+                           self.file.name, fontname)
                 fonts.append(fontname)
             elif byte == 249:
                 break
@@ -426,6 +368,7 @@ class Dvi(object):
             for x, y, f, g, w in font._vf[char].text:
                 newf = DviFont(scale=_mul2012(scale, f.scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
+                self.recursive_fonts.add(newf)
                 self.text.append(Text(self.h + _mul2012(x, scale),
                                       self.v + _mul2012(y, scale),
                                       newf, g, newf._width_of(g)))
@@ -522,14 +465,12 @@ class Dvi(object):
     def _fnt_def_real(self, k, c, s, d, a, l):
         n = self.file.read(a + l)
         fontname = n[-l:].decode('ascii')
-        tfm = _tfmfile(fontname)
+        tfm = self._tfm.get(fontname)
         if tfm is None:
             raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
-
-        vf = _vffile(fontname)
-
+        vf = self._vf.get(fontname)
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
@@ -669,7 +610,89 @@ class DviFont(object):
         return result
 
 
-class Vf(Dvi):
+class Dvi(object):
+    """
+    A representation of a dvi ("device-independent") file, as produced by TeX.
+
+    Parameters
+    ----------
+
+    filename : str
+    dpi : float or None
+    cache : TeXSupportCache, optional
+
+    Attributes
+    ----------
+
+    filename : str
+    dpi : float or None
+    cache : TeXSupportCache
+
+
+    """
+    def __init__(self, filename, dpi, cache=None):
+        if cache is None:
+            cache = TeXSupportCache.get_cache()
+        self.cache = cache
+        self.filename = filename
+        self.dpi = dpi
+        self._filename_id = cache.dvi_id(filename)
+        if self._filename_id is None:
+            self._filename_id = _DviReader(filename, cache).store()
+        self._fonts = cache.dvi_fonts(self._filename_id)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, etype, evalue, etrace):
+        pass
+
+    def __getitem__(self, pageno):
+        if self.cache.dvi_page_exists(self._filename_id, pageno):
+            return self._output(pageno)
+        raise IndexError
+
+    def _output(self, page):
+        extrema = self.cache.dvi_page_boundingbox(self._filename_id, page)
+        min_x, min_y, max_x, max_y, max_y_pure = (
+            extrema[n] for n in ('min_x', 'min_y', 'max_x',
+                                 'max_y', 'max_y_pure'))
+        boxes = self.cache.dvi_page_boxes(self._filename_id, page)
+        text = self.cache.dvi_page_text(self._filename_id, page)
+        baseline = self.cache.dvi_get_baseline(self._filename_id, page)
+        if self.dpi is None:
+            return Page(text=[Text(x=row['x'], y=row['y'],
+                                   font=self._fonts[(row['texname'],
+                                                     row['fontscale'])],
+                                   glyph=row['glyph'], width=row['width'])
+                              for row in text],
+                        boxes=[Box(x=row['x'], y=row['y'],
+                                   height=row['height'], width=row['width'])
+                               for row in boxes],
+                        width=max_x-min_x,
+                        height=max_y_pure-min_y,
+                        descent=max_y-max_y_pure)
+        d = self.dpi / (72.27 * 2**16)
+        descent = \
+            baseline if baseline is not None else (max_y - max_y_pure) * d
+
+        return Page(text=[Text((row['x'] - min_x) * d,
+                               (max_y - row['y']) * d - descent,
+                               self._fonts[(row['texname'], row['fontscale'])],
+                               row['glyph'],
+                               row['width'] * d)
+                          for row in text],
+                    boxes=[Box((row['x'] - min_x) * d,
+                               (max_y - row['y']) * d - descent,
+                               row['height'] * d,
+                               row['width'] * d)
+                           for row in boxes],
+                    width=(max_x - min_x) * d,
+                    height=(max_y_pure - min_y) * d,
+                    descent=descent)
+
+
+class Vf(_DviReader):
     """
     A virtual font (\\*.vf file) containing subroutines for dvi files.
 
@@ -693,12 +716,12 @@ class Vf(Dvi):
 
     The virtual font format is a derivative of dvi:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
-    This class reuses some of the machinery of `Dvi`
+    This class reuses some of the machinery of `_DviReader`
     but replaces the `_read` loop and dispatch mechanism.
     """
 
     def __init__(self, filename, cache=None):
-        Dvi.__init__(self, filename, dpi=0, cache=cache)
+        _DviReader.__init__(self, filename, cache=cache)
         try:
             self._first_font = None
             self._chars = {}
@@ -723,6 +746,8 @@ class Vf(Dvi):
                 _, _, _, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
                 fontname = self.file.read(a + length)[-length:].decode('ascii')
                 fonts.append(fontname)
+                _log.debug('Vf._read_fonts(%s): encountered %s',
+                           self.file.name, fontname)
             elif byte == 247:
                 _, k = self._arg(1), self._arg(1)
                 _ = self.file.read(k)
@@ -752,7 +777,7 @@ class Vf(Dvi):
                     if byte in (139, 140) or byte >= 243:
                         raise ValueError(
                             "Inappropriate opcode %d in vf file" % byte)
-                    Dvi._dtable[byte](self, byte)
+                    _DviReader._dtable[byte](self, byte)
                     continue
 
             # We are outside a packet
