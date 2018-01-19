@@ -106,7 +106,8 @@ class Axes(_AxesBase):
     instance.  The events you can connect to are 'xlim_changed' and
     'ylim_changed' and the callback will be called with func(*ax*)
     where *ax* is the :class:`Axes` instance.
-    """
+    """ + _AxesBase.__init__.__doc__
+
     ### Labelling, legend and texts
 
     aname = 'Axes'
