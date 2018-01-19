@@ -422,9 +422,9 @@ class Dvi(object):
             self.text.append(Text(self.h, self.v, font, char,
                                   font._width_of(char)))
         else:
-            scale = font._scale
+            scale = font.scale
             for x, y, f, g, w in font._vf[char].text:
-                newf = DviFont(scale=_mul2012(scale, f._scale),
+                newf = DviFont(scale=_mul2012(scale, f.scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
                 self.text.append(Text(self.h + _mul2012(x, scale),
                                       self.v + _mul2012(y, scale),
@@ -580,16 +580,19 @@ class DviFont(object):
     ----------
 
     scale : float
-        Factor by which the font is scaled from its natural size.
-    tfm : Tfm
-        TeX font metrics for this font
+       Factor by which the font is scaled from its natural size,
+       represented as an integer in 20.12 fixed-point format.
+    tfm : Tfm, may be None if widths given
+       TeX Font Metrics file for this font
     texname : bytes
        Name of the font as used internally by TeX and friends, as an
        ASCII bytestring. This is usually very different from any external
        font names, and :class:`dviread.PsfontsMap` can be used to find
        the external name of the font.
-    vf : Vf
+    vf : Vf or None
        A TeX "virtual font" file, or None if this font is not virtual.
+    widths : list of integers, optional
+       Widths for this font. Overrides the widths read from the tfm file.
 
     Attributes
     ----------
@@ -598,26 +601,37 @@ class DviFont(object):
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
+    scale : int
+       Factor by which the font is scaled from its natural size,
+       represented as an integer in 20.12 fixed-point format.
     widths : list
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
 
     """
-    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', 'widths', 'scale', '_vf', '_tfm')
 
-    def __init__(self, scale, tfm, texname, vf):
+    def __init__(self, scale, tfm, texname, vf, widths=None):
         if not isinstance(texname, bytes):
             raise ValueError("texname must be a bytestring, got %s"
                              % type(texname))
-        self._scale, self._tfm, self.texname, self._vf = \
-            scale, tfm, texname, vf
+        self.scale, self._tfm, self.texname, self._vf, self.widths = \
+            scale, tfm, texname, vf, widths
         self.size = scale * (72.0 / (72.27 * 2**16))
-        try:
-            nchars = max(tfm.width) + 1
-        except ValueError:
-            nchars = 0
-        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in range(nchars)]
+
+        if self.widths is None:
+            try:
+                nchars = max(tfm.width) + 1
+            except ValueError:
+                nchars = 0
+            self.widths = [(1000*tfm.width.get(char, 0)) >> 20
+                           for char in range(nchars)]
+
+    def __repr__(self):
+        return '<DviFont %s *%f>' % (self.texname, self.scale / 2**20)
+
+    def __hash__(self):
+        return 1001 * hash(self.texname) + hash(self.size)
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -633,7 +647,7 @@ class DviFont(object):
 
         width = self._tfm.width.get(char, None)
         if width is not None:
-            return _mul2012(width, self._scale)
+            return _mul2012(width, self.scale)
         _log.debug('No width for char %d in font %s.', char, self.texname)
         return 0
 
@@ -651,7 +665,7 @@ class DviFont(object):
                            name, char, self.texname)
                 result.append(0)
             else:
-                result.append(_mul2012(value, self._scale))
+                result.append(_mul2012(value, self.scale))
         return result
 
 
@@ -1374,7 +1388,7 @@ if __name__ == '__main__':
             fPrev = None
             for x, y, f, c, w in page.text:
                 if f != fPrev:
-                    print('font', f.texname, 'scaled', f._scale/pow(2.0, 20))
+                    print('font', f.texname, 'scaled', f.scale/pow(2.0, 20))
                     fPrev = f
                 print(x, y, c, 32 <= c < 128 and chr(c) or '.', w)
             for x, y, w, h in page.boxes:
