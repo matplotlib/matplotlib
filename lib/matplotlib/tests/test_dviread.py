@@ -111,6 +111,23 @@ def test_TeXSupportCache(tmpdir):
     assert cache.get_pathnames(['xyzzy', 'fontfile']) == \
         {'xyzzy': '/xyzzy.dat', 'fontfile': None}
 
+    # check that modifying a dvi file invalidates the cache
+    filename = str(tmpdir / "file.dvi")
+    with open(filename, "wb") as f:
+        f.write(b'qwerty')
+    os.utime(filename, (0, 0))
+    with cache.connection as t:
+        id1 = cache.dvi_new_file(filename, t)
+    assert cache.dvi_id(filename) == id1
+
+    with open(filename, "wb") as f:
+        f.write(b'asfdg')
+    os.utime(filename, (0, 0))
+    assert cache.dvi_id(filename) is None
+    with cache.connection as t:
+        id2 = cache.dvi_new_file(filename, t)
+    assert cache.dvi_id(filename) == id2
+
 
 def test_TeXSupportCache_versioning(tmpdir):
     dbfile = str(tmpdir / "test.db")

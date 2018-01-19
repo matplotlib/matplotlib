@@ -27,8 +27,8 @@ import struct
 import sqlite3
 import sys
 import textwrap
-
 import numpy as np
+import zlib
 
 from matplotlib import cbook, get_cachedir, rcParams
 from matplotlib.compat import subprocess
@@ -1102,13 +1102,16 @@ class TeXSupportCacheError(Exception):
 
 class TeXSupportCache:
     """A persistent cache of data related to support files related to dvi
-    files produced by TeX. Currently holds results from :program:`kpsewhich`,
-    in future versions could hold pre-parsed font data etc.
+    files produced by TeX. Currently holds results from :program:`kpsewhich`
+    and the contents of parsed dvi files, in future versions could include
+    pre-parsed font data etc.
 
     Usage::
 
       # create or get the singleton instance
       cache = TeXSupportCache.get_cache()
+
+      # insert and query some pathnames
       with cache.connection as transaction:
           cache.update_pathnames(
               {"pdftex.map": "/usr/local/pdftex.map",
@@ -1119,6 +1122,25 @@ class TeXSupportCache:
 
       # optional after inserting new data, may improve query performance:
       cache.optimize()
+
+      # insert and query some dvi file contents
+      with cache.connection as transaction:
+          id = cache.dvi_new_file("/path/to/foobar.dvi", transaction)
+          font_ids = cache.dvi_font_sync_ids(['font1', 'font2'], transaction)
+          cache.dvi_font_sync_metrics(DviFont1, transaction)
+          cache.dvi_font_sync_metrics(DviFont2, transaction)
+          for i, box in enumerate(boxes):
+               cache.dvi_add_box(box, id, 0, i, transaction)
+          for i, text in enumerate(texts):
+               cache.dvi_add_text(text, id, 0, i, font_ids['font1'],
+                                  transaction)
+      fonts = cache.dvi_fonts(id)
+      assert cache.dvi_page_exists(id, 0)
+      bbox = cache.dvi_page_boundingbox(id, 0)
+      for box in dvi_page_boxes(id, 0):
+          handle_box(box)
+      for text in dvi_page_texts(id, 0):
+          handle_text(text)
 
     Parameters
     ----------
@@ -1137,7 +1159,7 @@ class TeXSupportCache:
     """
 
     __slots__ = ('connection')
-    schema_version = 1  # should match PRAGMA user_version in _create
+    schema_version = 2  # should match PRAGMA user_version in _create
     instance = None
 
     @classmethod
@@ -1177,6 +1199,7 @@ class TeXSupportCache:
     def _create(self):
         """Create the database."""
         with self.connection as conn:
+            # kpsewhich results
             conn.executescript(
                 """
                 PRAGMA page_size=4096;
@@ -1184,7 +1207,50 @@ class TeXSupportCache:
                     filename TEXT PRIMARY KEY NOT NULL,
                     pathname TEXT
                 ) WITHOUT ROWID;
-                PRAGMA user_version=1;
+                """)
+            # dvi files
+            conn.executescript(
+                """
+                CREATE TABLE dvi_file(
+                    id INTEGER PRIMARY KEY,
+                    name UNIQUE NOT NULL,
+                    mtime INTEGER,
+                    size INTEGER
+                );
+                CREATE TABLE dvi_font(
+                    id INTEGER PRIMARY KEY,
+                    texname UNIQUE NOT NULL
+                );
+                CREATE TABLE dvi_font_metrics(
+                    id INTEGER NOT NULL
+                        REFERENCES dvi_font(id) ON DELETE CASCADE,
+                    scale INTEGER NOT NULL,
+                    widths BLOB NOT NULL,
+                    PRIMARY KEY (id, scale)
+                );
+                CREATE TABLE dvi(
+                    fileid INTEGER NOT NULL
+                        REFERENCES dvi_file(id) ON DELETE CASCADE,
+                    pageno INTEGER NOT NULL,
+                    seq INTEGER NOT NULL,
+                    x INTEGER NOT NULL,
+                    y INTEGER NOT NULL,
+                    height INTEGER NOT NULL,
+                    width INTEGER NOT NULL,
+                    depth INTEGER NOT NULL,
+                    fontid INTEGER,
+                    fontscale INTEGER,
+                    glyph INTEGER,
+                    PRIMARY KEY (fileid, pageno, seq)
+                ) WITHOUT ROWID;
+                CREATE TABLE dvi_baseline(
+                    fileid INTEGER NOT NULL
+                        REFERENCES dvi_file(id) ON DELETE CASCADE,
+                    pageno INTEGER NOT NULL,
+                    baseline REAL NOT NULL,
+                    PRIMARY KEY (fileid, pageno)
+                ) WITHOUT ROWID;
+                PRAGMA user_version=2;
                 """)
 
     def optimize(self):
@@ -1230,6 +1296,320 @@ class TeXSupportCache:
             "INSERT OR REPLACE INTO file_path (filename, pathname) "
             "VALUES (?, ?)",
             mapping.items())
+
+    # Dvi files
+
+    def dvi_new_file(self, name, transaction):
+        """Record a dvi file in the cache.
+
+        Parameters
+        ----------
+        name : str
+            Name of the file to add.
+        transaction : obtained via the context manager of self.connection
+        """
+
+        stat = os.stat(name)
+        transaction.execute("DELETE FROM dvi_file WHERE name=?", (name,))
+        transaction.execute(
+            "INSERT INTO dvi_file (name, mtime, size) VALUES (?, ?, ?)",
+            (name, int(stat.st_mtime), int(stat.st_size)))
+        return transaction.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    def dvi_id(self, name):
+        """Query the database identifier of a given dvi file.
+
+        Parameters
+        ----------
+        name : str
+            Name of the file to query.
+
+        Returns
+        -------
+        int or None
+        """
+
+        rows = self.connection.execute(
+            "SELECT id, mtime, size FROM dvi_file WHERE name=? LIMIT 1",
+            (name,)).fetchall()
+        if rows:
+            id, mtime, size = rows[0]
+            stat = os.stat(name)
+            if mtime == int(stat.st_mtime) and size == stat.st_size:
+                return id
+
+    def dvi_font_sync_ids(self, fontnames, transaction):
+        """Record dvi fonts in the cache and return their database
+        identifiers.
+
+        Parameters
+        ----------
+        fontnames : list of str
+            TeX names of fonts
+        transaction : obtained via the context manager of self.connection
+
+        Returns
+        -------
+        mapping from texname to int
+        """
+
+        transaction.executemany(
+            "INSERT OR IGNORE INTO dvi_font (texname) VALUES (?)",
+            ((name,) for name in fontnames))
+        fontid = {}
+        for name in fontnames:
+            fontid[name], = transaction.execute(
+                "SELECT id FROM dvi_font WHERE texname=?",
+                (name,)).fetchone()
+        return fontid
+
+    def dvi_font_sync_metrics(self, dvifont, transaction):
+        """Record dvi font metrics in the cache.
+
+        Parameters
+        ----------
+        dvifont : DviFont
+        transaction : obtained via the context manager of self.connection
+        """
+
+        exists = bool(transaction.execute("""
+            SELECT 1 FROM dvi_font_metrics m, dvi_font f
+            WHERE m.id=f.id AND f.texname=:texname
+            AND m.scale=:scale LIMIT 1
+        """, {
+            "texname": dvifont.texname.decode('ascii'),
+            "scale": dvifont.scale
+        }).fetchall())
+
+        if not exists:
+            # Widths are given in 32-bit words in tfm, although the normal
+            # range is around 1000 units. This and the repetition of values
+            # make the width data very compressible.
+            widths = struct.pack('<{}I'.format(len(dvifont.widths)),
+                                 *dvifont.widths)
+            widths = zlib.compress(widths, 9)
+            transaction.execute("""
+                INSERT INTO dvi_font_metrics (id, scale, widths)
+                SELECT id, :scale, :widths FROM dvi_font WHERE texname=:texname
+            """, {
+                "texname": dvifont.texname.decode('ascii'),
+                "scale": dvifont.scale,
+                "widths": widths
+            })
+
+    def dvi_fonts(self, fileid):
+        """Query the dvi fonts of a given dvi file.
+
+        Parameters
+        ----------
+        fileid : int
+            File identifier as returned by dvi_id
+
+        Returns
+        -------
+        mapping from (str, float) to DviFont
+            Maps from (TeX name, scale) to DviFont objects.
+        """
+
+        rows = self.connection.execute("""
+            SELECT texname, fontscale, widths FROM
+            (SELECT DISTINCT fontid, fontscale FROM dvi WHERE fileid=?) d
+            JOIN dvi_font f ON (d.fontid=f.id)
+            JOIN dvi_font_metrics m ON (d.fontid=m.id AND d.fontscale=m.scale)
+        """, (fileid,)).fetchall()
+
+        def decode(widths):
+            data = zlib.decompress(widths)
+            n = len(data) // 4
+            return struct.unpack('<{}I'.format(n), data)
+
+        return {(row['texname'], row['fontscale']):
+                DviFont(texname=row['texname'].encode('ascii'),
+                        scale=row['fontscale'],
+                        widths=decode(row['widths']),
+                        tfm=None, vf=None)
+                for row in rows}
+
+    def dvi_add_box(self, box, fileid, pageno, seq, transaction):
+        """Record a box object of a dvi file.
+
+        Parameters
+        ----------
+        box : Box
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+        seq : int
+            Used to order the boxes
+        transaction : obtained via the context manager of self.connection
+        """
+
+        transaction.execute("""
+            INSERT INTO dvi (
+                fileid, pageno, seq, x, y, height, width, depth
+            ) VALUES (:fileid, :pageno, :seq, :x, :y, :height, :width, 0)
+        """, {
+            "fileid": fileid, "pageno": pageno, "seq": seq,
+            "x": box.x, "y": box.y, "height": box.height, "width": box.width
+        })
+
+    def dvi_add_text(self, text, fileid, pageno, seq, fontid, transaction):
+        """Record a box object of a dvi file.
+
+        Parameters
+        ----------
+        box : Text
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+        seq : int
+            Used to order the boxes
+        fontid : int
+            As returned by dvi_font_sync_ids
+        transaction : obtained via the context manager of self.connection
+        """
+
+        height, depth = text.font._height_depth_of(text.glyph)
+        transaction.execute("""
+            INSERT INTO dvi (
+                fileid, pageno, seq,
+                x, y, height, width, depth, fontid, fontscale, glyph
+            ) VALUES (
+                :fileid, :pageno, :seq,
+                :x, :y, :height, :width, :depth, :fontid, :fontscale, :glyph
+            )
+        """, {
+            "fileid": fileid, "pageno": pageno, "seq": seq,
+            "x": text.x, "y": text.y, "width": text.width,
+            "height": height, "depth": depth,
+            "fontid": fontid, "fontscale": text.font.scale, "glyph": text.glyph
+        })
+
+    def dvi_page_exists(self, fileid, pageno):
+        """Query if a page exists in the dvi file.
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+
+        Returns
+        -------
+        boolean
+        """
+        return bool(self.connection.execute(
+            "SELECT 1 FROM dvi WHERE fileid=? AND pageno=? LIMIT 1",
+            (fileid, pageno)).fetchall())
+
+    def dvi_page_boundingbox(self, fileid, pageno):
+        """Query the bounding box of a page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno
+            Page number
+
+        Returns
+        -------
+        A namedtuple-like object with fields min_x, min_y, max_x,
+        max_y and max_y_pure (like max_y but ignores depth).
+        """
+
+        return self.connection.execute("""
+                SELECT min(x)          min_x,
+                       min(y - height) min_y,
+                       max(x + width)  max_x,
+                       max(y + depth)  max_y,
+                       max(y)          max_y_pure
+                FROM dvi WHERE fileid=? AND pageno=?
+                """, (fileid, pageno)).fetchone()
+
+    def dvi_page_boxes(self, fileid, pageno):
+        """Query the boxes of a page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno
+            Page number
+
+        Returns
+        -------
+        An iterator of (x, y, height, width) tuples of boxes
+        """
+
+        return self.connection.execute("""
+            SELECT x, y, height, width FROM dvi
+            WHERE fileid=? AND pageno=? AND fontid IS NULL ORDER BY seq
+        """, (fileid, pageno)).fetchall()
+
+    def dvi_page_text(self, fileid, pageno):
+        """Query the text of a page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno
+            Page number
+
+        Returns
+        -------
+        An iterator of (x, y, height, width, depth, texname, fontscale)
+        tuples of text
+        """
+
+        return self.connection.execute("""
+            SELECT x, y, height, width, depth, f.texname, fontscale, glyph
+            FROM dvi JOIN dvi_font f ON (dvi.fontid=f.id)
+            WHERE fileid=? AND pageno=? AND fontid IS NOT NULL ORDER BY seq
+        """, (fileid, pageno)).fetchall()
+
+    def dvi_add_baseline(self, fileid, pageno, baseline, transaction):
+        """Record the baseline of a dvi page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+        baseline : float
+        transaction : obtained via the context manager of self.connection
+        """
+
+        transaction.execute("""
+            INSERT INTO dvi_baseline (fileid, pageno, baseline)
+            VALUES (:fileid, :pageno, :baseline)
+        """, {"fileid": fileid, "pageno": pageno, "baseline": baseline})
+
+    def dvi_get_baseline(self, fileid, pageno):
+        """Query the baseline of a dvi page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+
+        Returns
+        -------
+        float
+        """
+
+        rows = self.connection.execute(
+            "SELECT baseline FROM dvi_baseline WHERE fileid=? AND pageno=?",
+            (fileid, pageno)).fetchall()
+        if rows:
+            return rows[0][0]
 
 
 def find_tex_files(filenames, cache=None):
