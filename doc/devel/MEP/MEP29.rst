@@ -58,7 +58,7 @@ Problems
 --------
 
 * One serious problem is how to deal with text having both latex and
-  html-like tags. For example, consider the follwing::
+  html-like tags. For example, consider the following::
 
      $<b>Bold$</b>
 

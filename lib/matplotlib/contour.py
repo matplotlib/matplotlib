@@ -779,8 +779,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             particular contour level are grouped together so that
             ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
 
-        Keyword arguments are as described in
-        :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
+        Keyword arguments are as described in the docstring of
+        `~.Axes.contour`.
         """
         self.ax = ax
         self.levels = kwargs.pop('levels', None)
@@ -1571,7 +1571,7 @@ class QuadContourSet(ContourSet):
             y = y[::-1]
         return np.meshgrid(x, y)
 
-    contour_doc = """
+    _contour_doc = """
         Plot contours.
 
         :func:`~matplotlib.pyplot.contour` and

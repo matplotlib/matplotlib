@@ -58,7 +58,7 @@ the shortcuts out of the `Canvas`.  This actions and shortcuts will be
 in the form of `Tools`.
 
 A new class `Navigation` will be the bridge between the events from
-the `Canvas` and `Toolbar` and redirect them to the appropiate `Tool`.
+the `Canvas` and `Toolbar` and redirect them to the appropriate `Tool`.
 
 At the end the user interaction will be divided into three classes:
 
@@ -170,7 +170,7 @@ ToolbarBase
 Methods for **Backend implementation**
  * add_toolitem(self, name, group, position, image, description,
    toggle): Add a toolitem to the toolbar. This method is a callback
-   from `tool_added_event` (emited by navigation)
+   from `tool_added_event` (emitted by navigation)
  * set_message(self, s): Display a message on toolbar or in status bar
  * toggle_toolitem(self, name): Toggle the toolitem without firing
    event.

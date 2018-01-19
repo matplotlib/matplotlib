@@ -486,8 +486,11 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK and Cairo
 # -------------
 #
-# Both `GTK2` and `GTK3` depend on a Cairo wrapper (PyCairo or cairocffi) even
-# if the Agg renderer is used.  On Python3, only cairocffi is supported.
+# Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
+# specific Matplotlib backend used. Unfortunately the latest release of PyCairo
+# for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
+# backend. `Cairocffi` can be used as a replacement which implements the correct
+# wrapper.
 #
 # How do I select PyQt4 or PySide?
 # --------------------------------
@@ -647,7 +650,7 @@ for i in range(3):
 # Performance
 # ===========
 #
-# Whether exploring data in interactive mode or programatically
+# Whether exploring data in interactive mode or programmatically
 # saving lots of plots, rendering performance can be a painful
 # bottleneck in your pipeline. Matplotlib provides a couple
 # ways to greatly reduce rendering time at the cost of a slight

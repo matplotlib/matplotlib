@@ -186,7 +186,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #
 # Here "s" and "t" are variable in italics font (default), "sin" is in
 # Roman font, and the amplitude "A" is in calligraphy font.  Note in the
-# example above the caligraphy ``A`` is squished into the ``sin``.  You
+# example above the calligraphy ``A`` is squished into the ``sin``.  You
 # can use a spacing command to add a little whitespace between them::
 #
 #     s(t) = \mathcal{A}\/\sin(2 \omega t)

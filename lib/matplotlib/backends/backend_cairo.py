@@ -18,26 +18,25 @@ import warnings
 
 import numpy as np
 
+# cairocffi is more widely compatible than pycairo (in particular pgi only
+# works with cairocffi) so try it first.
 try:
     import cairocffi as cairo
 except ImportError:
     try:
         import cairo
     except ImportError:
-        raise ImportError("Cairo backend requires that cairocffi or pycairo "
-                          "is installed.")
+        raise ImportError("cairo backend requires that cairocffi or pycairo "
+                          "is installed")
     else:
         HAS_CAIRO_CFFI = False
 else:
     HAS_CAIRO_CFFI = True
 
-_version_required = (1, 2, 0)
-if cairo.version_info < _version_required:
-    raise ImportError("Pycairo %d.%d.%d is installed\n"
-                      "Pycairo %d.%d.%d or later is required"
-                      % (cairo.version_info + _version_required))
+if cairo.version_info < (1, 4, 0):
+    raise ImportError("cairo {} is installed; "
+                      "cairo>=1.4.0 is required".format(cairo.version))
 backend_version = cairo.version
-del _version_required
 
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -102,14 +101,14 @@ class RendererCairo(RendererBase):
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
+        # Although it may appear natural to automatically call
+        # `self.set_width_height(surface.get_width(), surface.get_height())`
+        # here (instead of having the caller do so separately), this would fail
+        # for PDF/PS/SVG surfaces, which have no way to report their extents.
 
     def set_width_height(self, width, height):
         self.width  = width
         self.height = height
-        self.matrix_flipy = cairo.Matrix(yy=-1, y0=self.height)
-        # use matrix_flipy for ALL rendering?
-        # - problem with text? - will need to switch matrix_flipy off, or do a
-        # font transform?
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
@@ -302,11 +301,6 @@ class RendererCairo(RendererBase):
             ctx.fill_preserve()
 
         ctx.restore()
-
-    def flipy(self):
-        return True
-        #return False # tried - all draw objects ok except text (and images?)
-        # which comes out mirrored!
 
     def get_canvas_width_height(self):
         return self.width, self.height

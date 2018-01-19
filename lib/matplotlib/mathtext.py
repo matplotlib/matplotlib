@@ -1146,7 +1146,7 @@ class StandardPsFonts(Fonts):
             num = ord(glyph)
             found_symbol = True
         else:
-            warn("No TeX to built-in Postscript mapping for '%s'" % sym,
+            warn("No TeX to built-in Postscript mapping for {!r}".format(sym),
                  MathTextWarning)
 
         slanted = (fontname == 'it')
@@ -1156,9 +1156,8 @@ class StandardPsFonts(Fonts):
             try:
                 symbol_name = font.get_name_char(glyph)
             except KeyError:
-                warn("No glyph in standard Postscript font '%s' for '%s'" %
-                     (font.postscript_name, sym),
-                     MathTextWarning)
+                warn("No glyph in standard Postscript font {!r} for {!r}"
+                     .format(font.get_fontname(), sym), MathTextWarning)
                 found_symbol = False
 
         if not found_symbol:

@@ -31,7 +31,7 @@ np.random.seed(19680801)
 # Processing Class
 # ================
 #
-# This class plots data it recieves from a pipe.
+# This class plots data it receives from a pipe.
 #
 
 

@@ -35,8 +35,8 @@ Ryan May has written a backend-independent framework for creating
 animated figures. The :mod:`~matplotlib.animation` module is intended
 to replace the backend-specific examples formerly in the
 :ref:`examples-index` listings.  Examples using the new framework are
-in :ref:`animation-examples-index`; see the entrancing :ref:`double
-pendulum <sphx_glr_gallery_animation_double_pendulum_animated_sgskip.py>` which uses
+in :ref:`animation-examples-index`; see the entrancing :file:`double
+pendulum <gallery/animation/double_pendulum_sgskip.py>` which uses
 :meth:`matplotlib.animation.Animation.save` to create the movie below.
 
 .. raw:: html

@@ -19,7 +19,7 @@ API Changes in 2.1.2
 `matplotlib.Figure.legend` used to check if a line had the
 same label as an existing legend entry. If it also had the same line color
 or marker color legend didn't add a new entry for that line. However, the
-list of conditions was incomplete, didn't handle RGB tupples,
+list of conditions was incomplete, didn't handle RGB tuples,
 didn't handle linewidths or linestyles etc.
 
 This logic did not exist in `Axes.legend`.  It was included (erroneously)
@@ -781,7 +781,7 @@ Default Behavior Changes
 Changed default ``autorange`` behavior in boxplots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Prior to v1.5.2, the whiskers of boxplots would extend to the mininum
+Prior to v1.5.2, the whiskers of boxplots would extend to the minimum
 and maximum values if the quartiles were all equal (i.e., Q1 = median
 = Q3). This behavior has been disabled by default to restore consistency
 with other plotting packages.
@@ -3452,7 +3452,7 @@ Changes for 0.40
   - Patches
      * Initialized with a transx, transy which are Transform instances
 
-  - FigureBase attributes dpi is a DPI intance rather than scalar and
+  - FigureBase attributes dpi is a DPI instance rather than scalar and
     new attribute bbox is a Bound2D in display coords, and I got rid
     of the left, width, height, etc... attributes.  These are now
     accessible as, for example, bbox.x.min is left, bbox.x.interval()

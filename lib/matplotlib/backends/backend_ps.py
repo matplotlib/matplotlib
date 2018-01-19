@@ -164,6 +164,25 @@ def quote_ps_string(s):
     return s.decode('ascii')
 
 
+def _move_path_to_path_or_stream(src, dst):
+    """Move the contents of file at *src* to path-or-filelike *dst*.
+
+    If *dst* is a path, the metadata of *src* are *not* copied.
+    """
+    if is_writable_file_like(dst):
+        fh = (io.open(src, 'r', encoding='latin-1')
+              if file_requires_unicode(dst)
+              else io.open(src, 'rb'))
+        with fh:
+            shutil.copyfileobj(fh, dst)
+    else:
+        # Py3: shutil.move(src, dst, copy_function=shutil.copyfile)
+        open(dst, 'w').close()
+        mode = os.stat(dst).st_mode
+        shutil.move(src, dst)
+        os.chmod(dst, mode)
+
+
 class RendererPS(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -1153,19 +1172,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 elif rcParams['ps.usedistiller'] == 'xpdf':
                     xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
-                if passed_in_file_object:
-                    if file_requires_unicode(outfile):
-                        with io.open(tmpfile, 'rb') as fh:
-                            outfile.write(fh.read().decode('latin-1'))
-                    else:
-                        with io.open(tmpfile, 'rb') as fh:
-                            outfile.write(fh.read())
-                else:
-                    with io.open(outfile, 'w') as fh:
-                        pass
-                    mode = os.stat(outfile).st_mode
-                    shutil.move(tmpfile, outfile)
-                    os.chmod(outfile, mode)
+                _move_path_to_path_or_stream(tmpfile, outfile)
             finally:
                 if os.path.isfile(tmpfile):
                     os.unlink(tmpfile)
@@ -1330,10 +1337,9 @@ class FigureCanvasPS(FigureCanvasBase):
                     paperWidth, paperHeight = papersize[papertype]
                     if (width > paperWidth or height > paperHeight) and isEPSF:
                         paperWidth, paperHeight = papersize[temp_papertype]
-                        _log.info(
-                            ('Your figure is too big to fit on %s paper. %s '
-                             'paper will be used to prevent clipping.'
-                             ) % (papertype, temp_papertype))
+                        _log.info('Your figure is too big to fit on %s paper. '
+                                  '%s paper will be used to prevent clipping.',
+                                  papertype, temp_papertype)
 
             texmanager = ps_renderer.get_texmanager()
             font_preamble = texmanager.get_font_preamble()
@@ -1353,19 +1359,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
-            if is_writable_file_like(outfile):
-                if file_requires_unicode(outfile):
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read().decode('latin-1'))
-                else:
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read())
-            else:
-                with io.open(outfile, 'wb') as fh:
-                    pass
-                mode = os.stat(outfile).st_mode
-                shutil.move(tmpfile, outfile)
-                os.chmod(outfile, mode)
+            _move_path_to_path_or_stream(tmpfile, outfile)
         finally:
             if os.path.isfile(tmpfile):
                 os.unlink(tmpfile)
@@ -1485,6 +1479,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
             os.remove(fname)
 
     return psfrag_rotated
+
 
 def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """

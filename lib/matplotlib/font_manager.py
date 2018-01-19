@@ -875,6 +875,10 @@ class FontProperties(object):
                     + ", ".join(map(str, font_scalings)))
             else:
                 size = scale * FontManager.get_default_size()
+        if size < 1.0:
+            _log.info('Fontsize %1.2f < 1.0 pt not allowed by FreeType. '
+                      'Setting fontsize = 1 pt', size)
+            size = 1.0
         self._size = size
 
     def set_file(self, file):
