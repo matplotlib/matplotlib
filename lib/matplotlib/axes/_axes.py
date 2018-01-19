@@ -39,7 +39,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    _backports, mplDeprecation, STEP_LOOKUP_MAP, iterable, safe_first_element)
+    _backports, mplDeprecation, warn_deprecated,
+    STEP_LOOKUP_MAP, iterable, safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -2515,27 +2516,109 @@ linewidth=2, markersize=12)
         """
         Create a stem plot.
 
-        Call signatures::
+        A stem plot plots vertical lines at each *x* location from the baseline
+        to *y*, and places a marker there.
 
-          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
-          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
+        Call signature::
 
-        A stem plot plots vertical lines (using *linefmt*) at each *x*
-        location from the baseline to *y*, and places a marker there
-        using *markerfmt*.  A horizontal line at 0 is plotted using
-        *basefmt*.
+          stem([x,] y, linefmt=None, markerfmt=None, basefmt=None)
 
-        If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
+        The x-positions are optional. The formats may be provided either as
+        positional or as keyword-arguments.
 
-        Return value is a tuple (*markerline*, *stemlines*,
-        *baseline*). See :class:`~matplotlib.container.StemContainer`
+        Parameters
+        ----------
+        x : array-like, optional
+            The x-positions of the stems. Default: (0, 1, ..., len(y) - 1).
+
+        y : array-like
+            The y-values of the stem heads.
+
+        linefmt : str, optional
+            A string defining the properties of the vertical lines. Usually,
+            this will be a color or a color and a linestyle:
+
+            =========  =============
+            Character  Line Style
+            =========  =============
+            ``'-'``    solid line
+            ``'--'``   dashed line
+            ``'-.'``   dash-dot line
+            ``':'``    dotted line
+            =========  =============
+
+            Default: 'C0-', i.e. solid line with the first color of the color
+            cycle.
+
+            Note: While it is technically possible to specify valid formats
+            other than color or color and linestyle (e.g. 'rx' or '-.'), this
+            is beyond the intention of the method and will most likely not
+            result in a reasonable reasonable plot.
+
+        markerfmt : str, optional
+            A string defining the properties of the markers at the stem heads.
+            Default: 'C0o', i.e. filled circles with the first color of the
+            color cycle.
+
+        basefmt : str, optional
+            A format string defining the properties of the baseline.
+
+            Default: 'C3-' ('C2-' in classic mode).
+
+        bottom : float, optional, default: 0
+            The y-position of the baseline.
+
+        label : str, optional, default: None
+            The label to use for the stems in legends.
+
+
+        Other Parameters
+        ----------------
+        **kwargs
+            No other parameters are supported. They are currently ignored
+            silently for backward compatibility. This behavior is deprecated.
+            Future versions will not accept any other parameters and will
+            raise a TypeError instead.
+
+
+        Returns
+        -------
+        :class:`~matplotlib.container.StemContainer`
+            The stemcontainer may be treated like a tuple
+            (*markerline*, *stemlines*, *baseline*)
+
+
+        Notes
+        -----
 
         .. seealso::
-            This
-            `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
-            for details.
+            The MATLAB function
+            `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
+            which inspired this method.
 
         """
+
+        # kwargs handling
+        # We would like to have a signature with explicit kewords:
+        # stem(*args, linefmt=None, markerfmt=None, basefmt=None,
+        #      bottom=0, label=None)
+        # Unfortunately,  this is not supported in Python 2.x. There, *args
+        # can only exist after keyword arguments.
+        linefmt = kwargs.pop('linefmt', None)
+        markerfmt = kwargs.pop('markerfmt', None)
+        basefmt = kwargs.pop('basefmt', None)
+        bottom = kwargs.pop('bottom', None)
+        if bottom is None:
+            bottom = 0
+        label = kwargs.pop('label', None)
+        if kwargs:
+            warn_deprecated(since='2.2',
+                            message="stem() got an unexpected keyword "
+                                    "argument '%s'. This will raise a "
+                                    "TypeError in future versions." % (
+                                next(k for k in kwargs), )
+                            )
+
         remember_hold = self._hold
         if not self._hold:
             self.cla()
@@ -2555,11 +2638,10 @@ linewidth=2, markersize=12)
             second = np.arange(len(y))
             x = second
 
-        # Popping some defaults
-        try:
-            linefmt = kwargs['linefmt']
-        except KeyError:
+        # defaults for formats
+        if linefmt is None:
             try:
+                # fallback to positional argument
                 linefmt = args[0]
             except IndexError:
                 linecolor = 'C0'
@@ -2570,10 +2652,10 @@ linewidth=2, markersize=12)
                     _process_plot_format(linefmt)
         else:
             linestyle, linemarker, linecolor = _process_plot_format(linefmt)
-        try:
-            markerfmt = kwargs['markerfmt']
-        except KeyError:
+
+        if markerfmt is None:
             try:
+                # fallback to positional argument
                 markerfmt = args[1]
             except IndexError:
                 markercolor = 'C0'
@@ -2585,10 +2667,10 @@ linewidth=2, markersize=12)
         else:
             markerstyle, markermarker, markercolor = \
                 _process_plot_format(markerfmt)
-        try:
-            basefmt = kwargs['basefmt']
-        except KeyError:
+
+        if basefmt is None:
             try:
+                # fallback to positional argument
                 basefmt = args[2]
             except IndexError:
                 if rcParams['_internal.classic_mode']:
@@ -2603,14 +2685,8 @@ linewidth=2, markersize=12)
         else:
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
-        bottom = kwargs.pop('bottom', None)
-        label = kwargs.pop('label', None)
-
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
-
-        if bottom is None:
-            bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
