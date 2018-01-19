@@ -63,7 +63,7 @@ for thisfrac, thispatch in zip(fracs, patches):
     thispatch.set_facecolor(color)
 
 # We can also normalize our inputs by the total number of counts
-axs[1].hist(x, bins=n_bins, normed=True)
+axs[1].hist(x, bins=n_bins, density=True)
 
 # Now we format the y-axis to display percentage
 axs[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))

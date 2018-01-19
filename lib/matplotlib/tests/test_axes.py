@@ -2932,7 +2932,7 @@ def test_hist_stacked_normed():
     d2 = np.linspace(0, 10, 50)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist((d1, d2), stacked=True, normed=True)
+    ax.hist((d1, d2), stacked=True, density=True)
 
 
 @image_comparison(baseline_images=['hist_stacked_normed'], extensions=['png'])
