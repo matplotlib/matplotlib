@@ -108,6 +108,8 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
+    __init__.__doc__ = Axes.__init__.__doc__
+
     aname = 'Axes'
 
     def get_title(self, loc="center"):
