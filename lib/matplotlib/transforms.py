@@ -89,10 +89,12 @@ class TransformNode(object):
         """
         Creates a new :class:`TransformNode`.
 
-        **shorthand_name** - a string representing the "name" of this
-                             transform. The name carries no significance
-                             other than to improve the readability of
-                             ``str(transform)`` when DEBUG=True.
+        Parameters
+        ----------
+        shorthand_name : str
+            A string representing the "name" of the transform. The name carries
+            no significance other than to improve the readability of
+            ``str(transform)`` when DEBUG=True.
         """
         self._parents = {}
 
@@ -294,7 +296,7 @@ class BboxBase(TransformNode):
     @property
     def x0(self):
         """
-        (property) :attr:`x0` is the first of the pair of *x* coordinates that
+        :attr:`x0` is the first of the pair of *x* coordinates that
         define the bounding box. :attr:`x0` is not guaranteed to be less than
         :attr:`x1`.  If you require that, use :attr:`xmin`.
         """
@@ -303,7 +305,7 @@ class BboxBase(TransformNode):
     @property
     def y0(self):
         """
-        (property) :attr:`y0` is the first of the pair of *y* coordinates that
+        :attr:`y0` is the first of the pair of *y* coordinates that
         define the bounding box. :attr:`y0` is not guaranteed to be less than
         :attr:`y1`.  If you require that, use :attr:`ymin`.
         """
@@ -312,7 +314,7 @@ class BboxBase(TransformNode):
     @property
     def x1(self):
         """
-        (property) :attr:`x1` is the second of the pair of *x* coordinates that
+        :attr:`x1` is the second of the pair of *x* coordinates that
         define the bounding box. :attr:`x1` is not guaranteed to be greater
         than :attr:`x0`.  If you require that, use :attr:`xmax`.
         """
@@ -321,7 +323,7 @@ class BboxBase(TransformNode):
     @property
     def y1(self):
         """
-        (property) :attr:`y1` is the second of the pair of *y* coordinates that
+        :attr:`y1` is the second of the pair of *y* coordinates that
         define the bounding box. :attr:`y1` is not guaranteed to be greater
         than :attr:`y0`.  If you require that, use :attr:`ymax`.
         """
@@ -330,7 +332,7 @@ class BboxBase(TransformNode):
     @property
     def p0(self):
         """
-        (property) :attr:`p0` is the first pair of (*x*, *y*) coordinates that
+        :attr:`p0` is the first pair of (*x*, *y*) coordinates that
         define the bounding box.  It is not guaranteed to be the bottom-left
         corner.  For that, use :attr:`min`.
         """
@@ -339,7 +341,7 @@ class BboxBase(TransformNode):
     @property
     def p1(self):
         """
-        (property) :attr:`p1` is the second pair of (*x*, *y*) coordinates that
+        :attr:`p1` is the second pair of (*x*, *y*) coordinates that
         define the bounding box.  It is not guaranteed to be the top-right
         corner.  For that, use :attr:`max`.
         """
@@ -348,49 +350,49 @@ class BboxBase(TransformNode):
     @property
     def xmin(self):
         """
-        (property) :attr:`xmin` is the left edge of the bounding box.
+        :attr:`xmin` is the left edge of the bounding box.
         """
         return np.min(self.get_points()[:, 0])
 
     @property
     def ymin(self):
         """
-        (property) :attr:`ymin` is the bottom edge of the bounding box.
+        :attr:`ymin` is the bottom edge of the bounding box.
         """
         return np.min(self.get_points()[:, 1])
 
     @property
     def xmax(self):
         """
-        (property) :attr:`xmax` is the right edge of the bounding box.
+        :attr:`xmax` is the right edge of the bounding box.
         """
         return np.max(self.get_points()[:, 0])
 
     @property
     def ymax(self):
         """
-        (property) :attr:`ymax` is the top edge of the bounding box.
+        :attr:`ymax` is the top edge of the bounding box.
         """
         return np.max(self.get_points()[:, 1])
 
     @property
     def min(self):
         """
-        (property) :attr:`min` is the bottom-left corner of the bounding box.
+        :attr:`min` is the bottom-left corner of the bounding box.
         """
         return np.min(self.get_points(), axis=0)
 
     @property
     def max(self):
         """
-        (property) :attr:`max` is the top-right corner of the bounding box.
+        :attr:`max` is the top-right corner of the bounding box.
         """
         return np.max(self.get_points(), axis=0)
 
     @property
     def intervalx(self):
         """
-        (property) :attr:`intervalx` is the pair of *x* coordinates that define
+        :attr:`intervalx` is the pair of *x* coordinates that define
         the bounding box. It is not guaranteed to be sorted from left to right.
         """
         return self.get_points()[:, 0]
@@ -398,7 +400,7 @@ class BboxBase(TransformNode):
     @property
     def intervaly(self):
         """
-        (property) :attr:`intervaly` is the pair of *y* coordinates that define
+        :attr:`intervaly` is the pair of *y* coordinates that define
         the bounding box.  It is not guaranteed to be sorted from bottom to
         top.
         """
@@ -407,7 +409,7 @@ class BboxBase(TransformNode):
     @property
     def width(self):
         """
-        (property) The width of the bounding box.  It may be negative if
+        The width of the bounding box.  It may be negative if
         :attr:`x1` < :attr:`x0`.
         """
         points = self.get_points()
@@ -416,7 +418,7 @@ class BboxBase(TransformNode):
     @property
     def height(self):
         """
-        (property) The height of the bounding box.  It may be negative if
+        The height of the bounding box.  It may be negative if
         :attr:`y1` < :attr:`y0`.
         """
         points = self.get_points()
@@ -425,7 +427,7 @@ class BboxBase(TransformNode):
     @property
     def size(self):
         """
-        (property) The width and height of the bounding box.  May be negative,
+        The width and height of the bounding box.  May be negative,
         in the same way as :attr:`width` and :attr:`height`.
         """
         points = self.get_points()
@@ -434,7 +436,7 @@ class BboxBase(TransformNode):
     @property
     def bounds(self):
         """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
+        Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
         :attr:`height`).
         """
         x0, y0, x1, y1 = self.get_points().flatten()
@@ -443,7 +445,7 @@ class BboxBase(TransformNode):
     @property
     def extents(self):
         """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`,
+        Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`,
         :attr:`y1`).
         """
         return self.get_points().flatten().copy()
@@ -453,27 +455,31 @@ class BboxBase(TransformNode):
 
     def containsx(self, x):
         """
-        Returns whether `x` is in the closed (:attr:`x0`, :attr:`x1`) interval.
+        Returns whether *x* is in the closed (:attr:`x0`, :attr:`x1`) interval.
         """
         x0, x1 = self.intervalx
         return x0 <= x <= x1 or x0 >= x >= x1
 
     def containsy(self, y):
         """
-        Returns whether `y` is in the closed (:attr:`y0`, :attr:`y1`) interval.
+        Returns whether *y* is in the closed (:attr:`y0`, :attr:`y1`) interval.
         """
         y0, y1 = self.intervaly
         return y0 <= y <= y1 or y0 >= y >= y1
 
     def contains(self, x, y):
         """
-        Returns whether `x, y` is in the bounding box or on its edge.
+        Returns whether ``(x, y)`` is in the bounding box or on its edge.
         """
         return self.containsx(x) and self.containsy(y)
 
     def overlaps(self, other):
         """
         Returns whether this bounding box overlaps with the other bounding box.
+
+        Parameters
+        ----------
+        other : BboxBase
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -489,21 +495,21 @@ class BboxBase(TransformNode):
 
     def fully_containsx(self, x):
         """
-        Returns whether `x` is in the open (:attr:`x0`, :attr:`x1`) interval.
+        Returns whether *x* is in the open (:attr:`x0`, :attr:`x1`) interval.
         """
         x0, x1 = self.intervalx
         return x0 < x < x1 or x0 > x > x1
 
     def fully_containsy(self, y):
         """
-        Returns whether `y` is in the open (:attr:`y0`, :attr:`y1`) interval.
+        Returns whether *y* is in the open (:attr:`y0`, :attr:`y1`) interval.
         """
         y0, y1 = self.intervaly
         return y0 < y < y1 or y0 > y > y1
 
     def fully_contains(self, x, y):
         """
-        Returns whether `x, y` is in the bounding box, but not on its edge.
+        Returns whether ``x, y`` is in the bounding box, but not on its edge.
         """
         return self.fully_containsx(x) and self.fully_containsy(y)
 
@@ -511,6 +517,10 @@ class BboxBase(TransformNode):
         """
         Returns whether this bounding box overlaps with the other bounding box,
         not including the edges.
+
+        Parameters
+        ----------
+        other : BboxBase
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -556,21 +566,24 @@ class BboxBase(TransformNode):
         Return a copy of the :class:`Bbox`, shifted to position *c*
         within a container.
 
-        *c*: may be either:
+        Parameters
+        ----------
+        c :
+            May be either:
 
-          * a sequence (*cx*, *cy*) where *cx* and *cy* range from 0
-            to 1, where 0 is left or bottom and 1 is right or top
+            * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
+              to 1, where 0 is left or bottom and 1 is right or top
 
-          * a string:
-            - 'C' for centered
-            - 'S' for bottom-center
-            - 'SE' for bottom-left
-            - 'E' for left
-            - etc.
+            * a string:
+              - 'C' for centered
+              - 'S' for bottom-center
+              - 'SE' for bottom-left
+              - 'E' for left
+              - etc.
 
-        Optional argument *container* is the box within which the
-        :class:`Bbox` is positioned; it defaults to the initial
-        :class:`Bbox`.
+        container : Bbox, optional
+            The box within which the :class:`Bbox` is positioned; it defaults
+            to the initial :class:`Bbox`.
         """
         if container is None:
             container = self
@@ -652,7 +665,9 @@ class BboxBase(TransformNode):
         Count the number of vertices contained in the :class:`Bbox`.
         Any vertices with a non-finite x or y value are ignored.
 
-        *vertices* is a Nx2 Numpy array.
+        Parameters
+        ----------
+        vertices : Nx2 Numpy array.
         """
         if len(vertices) == 0:
             return 0
@@ -665,7 +680,9 @@ class BboxBase(TransformNode):
         """
         Count the number of bounding boxes that overlap this one.
 
-        bboxes is a sequence of :class:`BboxBase` objects
+        Parameters
+        ----------
+        bboxes : sequence of :class:`BboxBase` objects
         """
         return count_bboxes_overlapping_bbox(
             self, np.atleast_3d([np.array(x) for x in bboxes]))
@@ -753,8 +770,13 @@ class Bbox(BboxBase):
 
     def __init__(self, points, **kwargs):
         """
-        *points*: a 2x2 numpy array of the form [[x0, y0], [x1, y1]]
+        Parameters
+        ----------
+        points : ndarray
+            A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
 
+        Notes
+        -----
         If you need to create a :class:`Bbox` object from another form
         of data, consider the static methods :meth:`unit`,
         :meth:`from_bounds` and :meth:`from_extents`.
@@ -835,12 +857,11 @@ class Bbox(BboxBase):
         Set whether the existing bounds of the box should be ignored
         by subsequent calls to :meth:`update_from_data_xy`.
 
-        *value*:
-
-           - When True, subsequent calls to :meth:`update_from_data_xy`
+        value : bool
+           - When ``True``, subsequent calls to :meth:`update_from_data_xy`
              will ignore the existing bounds of the :class:`Bbox`.
 
-           - When False, subsequent calls to :meth:`update_from_data_xy`
+           - When ``False``, subsequent calls to :meth:`update_from_data_xy`
              will include the existing bounds of the :class:`Bbox`.
         """
         self._ignore = value
@@ -851,17 +872,17 @@ class Bbox(BboxBase):
         data.  After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
-        *path*: a :class:`~matplotlib.path.Path` instance
+        Parameters
+        ----------
+        path : :class:`~matplotlib.path.Path`
 
-        *ignore*:
-           - when True, ignore the existing bounds of the :class:`Bbox`.
-           - when False, include the existing bounds of the :class:`Bbox`.
-           - when None, use the last value passed to :meth:`ignore`.
+        ignore : bool, optional
+           - when ``True``, ignore the existing bounds of the :class:`Bbox`.
+           - when ``False``, include the existing bounds of the :class:`Bbox`.
+           - when ``None``, use the last value passed to :meth:`ignore`.
 
-        *updatex*: when True, update the x values
-
-        *updatey*: when True, update the y values
-
+        updatex, updatey : bool, optional
+            When ``True``, update the x/y values.
         """
         if ignore is None:
             ignore = self._ignore
@@ -887,16 +908,18 @@ class Bbox(BboxBase):
         data.  After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
-        *xy*: a numpy array of 2D points
+        Parameters
+        ----------
+        xy : ndarray
+            A numpy array of 2D points.
 
-        *ignore*:
-           - when True, ignore the existing bounds of the :class:`Bbox`.
-           - when False, include the existing bounds of the :class:`Bbox`.
-           - when None, use the last value passed to :meth:`ignore`.
+        ignore : bool, optional
+           - When ``True``, ignore the existing bounds of the :class:`Bbox`.
+           - When ``False``, include the existing bounds of the :class:`Bbox`.
+           - When ``None``, use the last value passed to :meth:`ignore`.
 
-        *updatex*: when True, update the x values
-
-        *updatey*: when True, update the y values
+        updatex, updatey : bool, optional
+            When ``True``, update the x/y values.
         """
         if len(xy) == 0:
             return
@@ -968,7 +991,7 @@ class Bbox(BboxBase):
     def get_points(self):
         """
         Get the points of the bounding box directly as a numpy array
-        of the form: [[x0, y0], [x1, y1]].
+        of the form: ``[[x0, y0], [x1, y1]]``.
         """
         self._invalid = 0
         return self._points
@@ -976,7 +999,7 @@ class Bbox(BboxBase):
     def set_points(self, points):
         """
         Set the points of the bounding box directly from a numpy array
-        of the form: [[x0, y0], [x1, y1]].  No error checking is
+        of the form: ``[[x0, y0], [x1, y1]]``.  No error checking is
         performed, as this method is mainly for internal use.
         """
         if np.any(self._points != points):
@@ -993,16 +1016,16 @@ class Bbox(BboxBase):
             self.invalidate()
 
     def mutated(self):
-        'return whether the bbox has changed since init'
+        'Return whether the bbox has changed since init.'
         return self.mutatedx() or self.mutatedy()
 
     def mutatedx(self):
-        'return whether the x-limits have changed since init'
+        'Return whether the x-limits have changed since init.'
         return (self._points[0, 0] != self._points_orig[0, 0] or
                 self._points[1, 0] != self._points_orig[1, 0])
 
     def mutatedy(self):
-        'return whether the y-limits have changed since init'
+        'Return whether the y-limits have changed since init.'
         return (self._points[0, 1] != self._points_orig[0, 1] or
                 self._points[1, 1] != self._points_orig[1, 1])
 
@@ -1015,9 +1038,11 @@ class TransformedBbox(BboxBase):
     """
     def __init__(self, bbox, transform, **kwargs):
         """
-        *bbox*: a child :class:`Bbox`
+        Parameters
+        ----------
+        bbox : :class:`Bbox`
 
-        *transform*: a 2D :class:`Transform`
+        transform : :class:`Transform`
         """
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
