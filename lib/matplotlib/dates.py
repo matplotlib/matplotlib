@@ -115,11 +115,12 @@ Here are all the date tickers:
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`RRuleLocator` to set the view limits and the tick
+      :class:`DateLocator` (e.g., :class:`RRuleLocator`)
+      to set the view limits and the tick
       locations.  If called with ``interval_multiples=True`` it will
       make ticks line up with sensible multiples of the tick intervals.  E.g.
       if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
-      This behaviour is not garaunteed by default.
+      This behaviour is not guaranteed by default.
 
 Date formatters
 ---------------
@@ -146,6 +147,7 @@ import datetime
 import functools
 
 import warnings
+import logging
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -175,6 +177,9 @@ __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
            'seconds', 'minutes', 'hours', 'weeks')
+
+
+_log = logging.getLogger(__name__)
 
 
 # Make a simple UTC instance so we don't always have to import
@@ -311,14 +316,21 @@ def _from_ordinalf(x, tz=None):
 
     remainder = float(x) - ix
 
-    # Round down to the nearest microsecond.
-    dt += datetime.timedelta(microseconds=int(remainder * MUSECONDS_PER_DAY))
+    # Since the input date `x` float is unable to preserve microsecond
+    # precision of time representation in non-antique years, the
+    # resulting datetime is rounded to the nearest multiple of
+    # `musec_prec`. A value of 20 is appropriate for current dates.
+    musec_prec = 20
+    remainder_musec = int(round(remainder * MUSECONDS_PER_DAY /
+                                float(musec_prec)) * musec_prec)
 
-    # Compensate for rounding errors
-    if dt.microsecond < 10:
-        dt = dt.replace(microsecond=0)
-    elif dt.microsecond > 999990:
-        dt += datetime.timedelta(microseconds=1e6 - dt.microsecond)
+    # For people trying to plot with full microsecond precision, enable
+    # an early-year workaround
+    if x < 30 * 365:
+        remainder_musec = int(round(remainder * MUSECONDS_PER_DAY))
+
+    # add hours, minutes, seconds, microseconds
+    dt += datetime.timedelta(microseconds=remainder_musec)
 
     return dt.astimezone(tz)
 
@@ -1347,6 +1359,11 @@ class AutoDateLocator(DateLocator):
             locator = RRuleLocator(rrule, self.tz)
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
+            if dmin.year > 20 and interval < 1000:
+                _log.warn('Plotting microsecond time intervals is not'
+                          ' well supported. Please see the'
+                          ' MicrosecondLocator documentation'
+                          ' for details.')
 
         locator.set_axis(self.axis)
 
@@ -1562,7 +1579,21 @@ class SecondLocator(RRuleLocator):
 
 class MicrosecondLocator(DateLocator):
     """
-    Make ticks on occurances of each microsecond.
+    Make ticks on regular intervals of one or more microsecond(s).
+
+    .. note::
+
+        Due to the floating point representation of time in days since
+        0001-01-01 UTC (plus 1), plotting data with microsecond time
+        resolution does not work well with current dates.
+
+        If you want microsecond resolution time plots, it is strongly
+        recommended to use floating point seconds, not datetime-like
+        time representation.
+
+        If you really must use datetime.datetime() or similar and still
+        need microsecond precision, your only chance is to use very
+        early years; using year 0001 is recommended.
 
     """
     def __init__(self, interval=1, tz=None):
