@@ -83,11 +83,9 @@ fig3.tight_layout()
 
 ############################################################################
 # Other option is to use the ``width_ratios`` and ``height_ratios``
-# parameters.
-# These keyword arguments are lists of numbers.
+# parameters. These keyword arguments are lists of numbers.
 # Note that absolute values are meaningless, only their relative ratios
-# matter.
-# That means that ``width_ratios=[2, 4, 8]`` is equivalent to
+# matter. That means that ``width_ratios=[2, 4, 8]`` is equivalent to
 # ``width_ratios=[1, 2, 4]`` within equally wide figures.
 # For the sake of demonstration, we'll blindly create the axes within
 # ``for`` loops since we won't need them later.
