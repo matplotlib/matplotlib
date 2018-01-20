@@ -179,7 +179,7 @@ The ``SOURCE_DATE_EPOCH`` environment variable can now be used to set
 the timestamp value in the PS and PDF outputs. See `source date epoch
 <https://reproducible-builds.org/specs/source-date-epoch/>`__.
 
-Alternatively, calling ``savefig`` with ``metadata={'creationDate': None}``
+Alternatively, calling ``savefig`` with ``metadata={'CreationDate': None}``
 will omit the timestamp altogether for the PDF backend.
 
 The reproducibility of the output from the PS and PDF backends has so
