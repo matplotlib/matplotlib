@@ -1150,7 +1150,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: mpl_examples/lines_bars_and_markers/eventplot_demo.py
+        .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
         """
         self._process_unit_info(xdata=positions,
                                 ydata=[lineoffsets, linelengths],

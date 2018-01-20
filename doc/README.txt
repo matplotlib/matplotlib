@@ -36,6 +36,3 @@ python documentation system built on top of ReST.  This directory contains
 * _templates - used by the sphinx build system
 
 * sphinxext - Sphinx extensions for the mpl docs
-
-* mpl_examples - a link to the Matplotlib examples in case any
-  documentation wants to literal include them
