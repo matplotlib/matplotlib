@@ -513,13 +513,13 @@ grestore
         """
         Draws a Path instance using the given affine transform.
         """
-        clip = (rgbFace is None and gc.get_hatch_path() is None)
+        clip = rgbFace is None and gc.get_hatch_path() is None
         simplify = path.should_simplify and clip
-        ps = self._convert_path(
-            path, transform, clip=clip, simplify=simplify)
+        ps = self._convert_path(path, transform, clip=clip, simplify=simplify)
         self._draw_ps(ps, gc, rgbFace)
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+    def draw_markers(
+            self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
@@ -528,7 +528,9 @@ grestore
         if debugPS: self._pswriter.write('% draw_markers \n')
 
         if rgbFace:
-            if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
+            if len(rgbFace) == 4 and rgbFace[3] == 0:
+                return
+            if rgbFace[0] == rgbFace[1] == rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
