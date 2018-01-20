@@ -354,10 +354,8 @@ class Line2D(Artist):
         if isinstance(linestyle, six.string_types):
             ds, ls = self._split_drawstyle_linestyle(linestyle)
             if ds is not None and drawstyle is not None and ds != drawstyle:
-                raise ValueError("Inconsistent drawstyle ({0!r}) and "
-                                 "linestyle ({1!r})".format(drawstyle,
-                                                            linestyle)
-                                 )
+                raise ValueError("Inconsistent drawstyle ({!r}) and linestyle "
+                                 "({!r})".format(drawstyle, linestyle))
             linestyle = ls
 
             if ds is not None:
@@ -1088,10 +1086,9 @@ class Line2D(Artist):
                 try:
                     ls = ls_mapper_r[ls]
                 except KeyError:
-                    raise ValueError(("You passed in an invalid linestyle, "
-                                      "`{0}`.  See "
-                                      "docs of Line2D.set_linestyle for "
-                                      "valid values.").format(ls))
+                    raise ValueError("Invalid linestyle {!r}; see docs of "
+                                     "Line2D.set_linestyle for valid values"
+                                     .format(ls))
             self._linestyle = ls
         else:
             self._linestyle = '--'

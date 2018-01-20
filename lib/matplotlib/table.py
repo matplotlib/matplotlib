@@ -241,13 +241,13 @@ class Table(Artist):
 
         Artist.__init__(self)
 
-        if isinstance(loc, str) and loc not in self.codes:
-            warnings.warn('Unrecognized location %s. Falling back on '
-                          'bottom; valid locations are\n%s\t' %
-                          (loc, '\n\t'.join(self.codes)))
-            loc = 'bottom'
         if isinstance(loc, str):
-            loc = self.codes.get(loc, 1)
+            if loc not in self.codes:
+                warnings.warn('Unrecognized location %s. Falling back on '
+                              'bottom; valid locations are\n%s\t' %
+                              (loc, '\n\t'.join(self.codes)))
+                loc = 'bottom'
+            loc = self.codes[loc]
         self.set_figure(ax.figure)
         self._axes = ax
         self._loc = loc
