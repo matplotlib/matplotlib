@@ -1637,24 +1637,63 @@ def yscale(*args, **kwargs):
 
 def xticks(*args, **kwargs):
     """
-    Get or set the *x*-limits of the current tick locations and labels.
+    Get or set the current tick locations and labels of the x-axis.
 
-    ::
+    Call signatures::
 
-      # return locs, labels where locs is an array of tick locations and
-      # labels is an array of tick labels.
-      locs, labels = xticks()
+        locs, labels = xticks()           # Get locations and labels
 
-      # set the locations of the xticks
-      xticks( arange(6) )
+        xticks(locs, [labels], **kwargs)  # Set locations and labels
 
-      # set the locations and labels of the xticks
-      xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+    Parameters
+    ----------
+    locs : array_like
+        A list of positions at which ticks should be placed. You can pass an
+        empty list to disable xticks.
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties. For example, to rotate long labels::
+    labels : array_like, optional
+        A list of explicit labels to place at the given *locs*.
 
-      xticks( arange(12), calendar.month_name[1:13], rotation=17 )
+    **kwargs
+        :class:`.Text` properties can be used to control the appearance of
+        the labels.
+
+    Returns
+    -------
+    locs
+        An array of label locations.
+    labels
+        A list of `.Text` objects.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``xticks()``) is the pyplot
+    equivalent of calling `~.Axes.get_xticks` and `~.Axes.get_xticklabels` on
+    the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_xticks` and `~.Axes.set_xticklabels` on the current axes.
+
+    Examples
+    --------
+    Get the current locations and labels:
+
+        >>> locs, labels = xticks()
+
+    Set label locations:
+
+        >>> xticks(np.arange(0, 1, step=0.2))
+
+    Set text labels:
+
+        >>> xticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
+
+    Set text labels and properties:
+
+        >>> xticks(np.arange(12), calendar.month_name[1:13], rotation=20)
+
+    Disable xticks:
+
+        >>> xticks([])
     """
     ax = gca()
 
@@ -1677,24 +1716,63 @@ def xticks(*args, **kwargs):
 
 def yticks(*args, **kwargs):
     """
-    Get or set the *y*-limits of the current tick locations and labels.
+    Get or set the current tick locations and labels of the y-axis.
 
-    ::
+    Call signatures::
 
-      # return locs, labels where locs is an array of tick locations and
-      # labels is an array of tick labels.
-      locs, labels = yticks()
+        locs, labels = yticks()           # Get locations and labels
 
-      # set the locations of the yticks
-      yticks( arange(6) )
+        yticks(locs, [labels], **kwargs)  # Set locations and labels
 
-      # set the locations and labels of the yticks
-      yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+    Parameters
+    ----------
+    locs : array_like
+        A list of positions at which ticks should be placed. You can pass an
+        empty list to disable yticks.
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties. For example, to rotate long labels::
+    labels : array_like, optional
+        A list of explicit labels to place at the given *locs*.
 
-      yticks( arange(12), calendar.month_name[1:13], rotation=45 )
+    **kwargs
+        :class:`.Text` properties can be used to control the appearance of
+        the labels.
+
+    Returns
+    -------
+    locs
+        An array of label locations.
+    labels
+        A list of `.Text` objects.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``yticks()``) is the pyplot
+    equivalent of calling `~.Axes.get_yticks` and `~.Axes.get_yticklabels` on
+    the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_yticks` and `~.Axes.set_yticklabels` on the current axes.
+
+    Examples
+    --------
+    Get the current locations and labels:
+
+        >>> locs, labels = yticks()
+
+    Set label locations:
+
+        >>> yticks(np.arange(0, 1, step=0.2))
+
+    Set text labels:
+
+        >>> yticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
+
+    Set text labels and properties:
+
+        >>> yticks(np.arange(12), calendar.month_name[1:13], rotation=45)
+
+    Disable yticks:
+
+        >>> yticks([])
     """
     ax = gca()
 
