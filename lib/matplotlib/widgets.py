@@ -1447,12 +1447,35 @@ class MultiCursor(Widget):
             self.canvas.draw_idle()
 
 
-
 class MultiAxesCrossCursor(MultiCursor):
     """
-    Provide a vertical default and/or a horizontal line cursor shared between
-    multiple axes.
-    The difference from MultiCursor is only one horizontal line in figure
+    Provide a vertical (default)  and/or a horizontal line cursor shared
+    between multiple axes.
+    Tt's similar to MultiCursor,but only one horizontal line in figure.
+
+    For the cursor to remain responsive you must keep a reference to
+    it.
+
+    Example usage::
+
+        from matplotlib.widgets import MultiAxesCrossCursor
+        from pylab import figure, show, np
+
+        t = np.arange(0.0, 2.0, 0.01)
+        s1 = np.sin(2*np.pi*t)
+        s2 = np.sin(4*np.pi*t)
+        fig = figure()
+        ax1 = fig.add_subplot(211)
+        ax1.plot(t, s1)
+
+
+        ax2 = fig.add_subplot(212, sharex=ax1)
+        ax2.plot(t, s2)
+
+        multi = MultiAxesCrossCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
+                                     horizOn=False, vertOn=True)
+        show()
+
     """
 
     def onmove(self, event):
