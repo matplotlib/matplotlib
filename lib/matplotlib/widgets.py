@@ -1332,37 +1332,47 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
 
-    For the cursor to remain responsive you must keep a reference to
-    it.
+    You can turn on/off one horizontal or one vertical in axes under the mouse
+    respectively with the following attributes:
+
+      *oneHoriz*
+        Draw horizontal line in axes under the mouse only
+
+      *oneVert*
+        Draw vertical line in axes under the mouse only
 
     Example usage::
 
-        from matplotlib.widgets import MultiCursor
-        from pylab import figure, show, np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import MultiAxesCrossCursor
+        import numpy as np
 
         t = np.arange(0.0, 2.0, 0.01)
         s1 = np.sin(2*np.pi*t)
         s2 = np.sin(4*np.pi*t)
-        fig = figure()
+        fig = plt.figure()
+
         ax1 = fig.add_subplot(211)
         ax1.plot(t, s1)
-
-
         ax2 = fig.add_subplot(212, sharex=ax1)
         ax2.plot(t, s2)
 
-        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
-                            horizOn=False, vertOn=True)
-        show()
+        multi = MultiAxesCrossCursor(fig.canvas, (ax1, ax2),
+                                     color='green', lw=1, oneHoriz=True)
+        plt.show()
 
     """
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
-                 **lineprops):
+                 oneHoriz=False, oneVert=False, **lineprops):
 
         self.canvas = canvas
         self.axes = axes
         self.horizOn = horizOn
         self.vertOn = vertOn
+        self.current_ax = None  # the axes under mouse
+        self.oneHoriz = oneHoriz
+        self.oneVert = oneVert
+        self.lineprops = lineprops
 
         xmin, xmax = axes[-1].get_xlim()
         ymin, ymax = axes[-1].get_ylim()
@@ -1423,13 +1433,31 @@ class MultiCursor(Widget):
         if not self.visible:
             return
         if self.vertOn:
-            for line in self.vlines:
-                line.set_xdata((event.xdata, event.xdata))
-                line.set_visible(self.visible)
+            if self.oneVert:
+                # for one vertical line
+                self.current_ax = event.inaxes  # use the axes under mouse
+                ax_vline = self.current_ax.axvline(**self.lineprops)
+                ax_vline.set_xdata((event.xdata, event.xdata))
+                ax_vline.set_visible(self.visible)
+                self.vlines = [ax_vline]  # only one vertical line
+            else:
+                # for multi vertical line
+                for line in self.vlines:
+                    line.set_xdata((event.xdata, event.xdata))
+                    line.set_visible(self.visible)
         if self.horizOn:
-            for line in self.hlines:
-                line.set_ydata((event.ydata, event.ydata))
-                line.set_visible(self.visible)
+            if self.oneHoriz:
+                # for one horizontal line
+                self.current_ax = event.inaxes  # use the axes under mouse
+                ax_hline = self.current_ax.axhline(**self.lineprops)
+                ax_hline.set_ydata((event.ydata, event.ydata))
+                ax_hline.set_visible(self.visible)
+                self.hlines = [ax_hline]  # only one horizontal line
+            else:
+                # for multi horizontal line
+                for line in self.hlines:
+                    line.set_ydata((event.ydata, event.ydata))
+                    line.set_visible(self.visible)
         self._update()
 
     def _update(self):
@@ -1442,82 +1470,6 @@ class MultiCursor(Widget):
             if self.horizOn:
                 for ax, line in zip(self.axes, self.hlines):
                     ax.draw_artist(line)
-            self.canvas.blit(self.canvas.figure.bbox)
-        else:
-            self.canvas.draw_idle()
-
-
-class MultiAxesCrossCursor(MultiCursor):
-    """
-    Provide a vertical (default) and/or a horizontal (default) cursor
-    shared between multiple axes.
-    
-    Tt's similar to MultiCursor,but only one horizontal line in figure.
-
-    For the cursor to remain responsive you must keep a reference to
-    it.
-
-    Example usage::
-
-        import matplotlib.pyplot as plt
-        from matplotlib.widgets import MultiAxesCrossCursor
-        import numpy as np
-
-        t = np.arange(0.0, 2.0, 0.01)
-        s1 = np.sin(2*np.pi*t)
-        s2 = np.sin(4*np.pi*t)
-        fig = plt.figure()
-
-        ax1 = fig.add_subplot(211)
-        ax1.plot(t, s1)
-        ax2 = fig.add_subplot(212, sharex=ax1)
-        ax2.plot(t, s2)
-
-        multi = MultiAxesCrossCursor(fig.canvas, (ax1, ax2),
-                                     color='green', lw=1)
-        plt.show()
-
-    """
-
-    def __init__(self, canvas, axes, useblit=True, horizOn=True, vertOn=True,
-                 **lineprops):
-        super().__init__(canvas, axes, useblit=useblit, horizOn=horizOn,
-                         vertOn=vertOn, **lineprops)
-        self.lineprops = lineprops
-        self.current_ax = None  # the axes under mouse
-
-    def onmove(self, event):
-        if self.ignore(event):
-            return
-        if event.inaxes is None:
-            return
-        if not self.canvas.widgetlock.available(self):
-            return
-        self.needclear = True
-        if not self.visible:
-            return
-        if self.vertOn:
-            for line in self.vlines:
-                line.set_xdata((event.xdata, event.xdata))
-                line.set_visible(self.visible)
-        if self.horizOn:
-            self.current_ax = event.inaxes  # use the axes under mouse
-            axhline = self.current_ax.axhline(**self.lineprops)
-            axhline.set_ydata((event.ydata, event.ydata))
-            axhline.set_visible(self.visible)
-            self.hlines = [axhline]  # only one horizontal line
-        self._update()
-
-    def _update(self):
-        if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
-            if self.vertOn:
-                for ax, line in zip(self.axes, self.vlines):
-                    ax.draw_artist(line)
-            if self.horizOn:
-                # only one horizontal line
-                self.current_ax.draw_artist(self.hlines[0])
             self.canvas.blit(self.canvas.figure.bbox)
         else:
             self.canvas.draw_idle()
