@@ -1447,6 +1447,53 @@ class MultiCursor(Widget):
             self.canvas.draw_idle()
 
 
+
+class MultiAxesCrossCursor(MultiCursor):
+    """
+    Provide a vertical default) and/or a horizontal line cursor shared between
+    multiple axes.
+    The difference from MultiCursor is only one horizontal line in figure
+    """
+
+    def onmove(self, event):
+        if self.ignore(event):
+            return
+        if event.inaxes is None:
+            return
+        if not self.canvas.widgetlock.available(self):
+            return
+        self.needclear = True
+        if not self.visible:
+            return
+        if self.vertOn:
+            for line in self.vlines:
+                line.set_xdata((event.xdata, event.xdata))
+                line.set_visible(self.visible)
+        if self.horizOn:
+            ax = event.inaxes  # use the axes under mouse
+            setattr(self, "current_ax", ax)
+            xmin, xmax = ax.get_xlim()
+            axhline = ax.axhline(xmin=xmin, xmax=xmax, color="red")
+            axhline.set_ydata((event.ydata, event.ydata))
+            axhline.set_visible(self.visible)
+            self.hlines = [axhline]  # only one horizontal line
+        self._update()
+
+    def _update(self):
+        if self.useblit:
+            if self.background is not None:
+                self.canvas.restore_region(self.background)
+            if self.vertOn:
+                for ax, line in zip(self.axes, self.vlines):
+                    ax.draw_artist(line)
+            if self.horizOn:
+                ax = self.current_ax  # use the axes under mouse
+                ax.draw_artist(self.hlines[0])  # only one horizontal line
+            self.canvas.blit(self.canvas.figure.bbox)
+        else:
+            self.canvas.draw_idle()
+
+
 class _SelectorWidget(AxesWidget):
 
     def __init__(self, ax, onselect, useblit=False, button=None,
