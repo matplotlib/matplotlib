@@ -1930,37 +1930,63 @@ linewidth=2, markersize=12)
         """
         Make a step plot.
 
+        Call signatures::
+
+            step(x, y, [fmt], *, data=None, where='pre', **kwargs)
+            step(x, y, [fmt], x2, y2, [fmt2], ..., *, where='pre', **kwargs)
+
+        This is just a thin wrapper around `.plot` which changes some
+        formatting options. Most of the concepts and parameters of plot can be
+        used here as well.
+
         Parameters
         ----------
         x : array_like
-            1-D sequence, and it is assumed, but not checked,
-            that it is uniformly increasing.
+            1-D sequence of x positions. It is assumed, but not checked, that
+            it is uniformly increasing.
 
         y : array_like
-            1-D sequence.
+            1-D sequence of y levels.
+
+        fmt : str, optional
+            A format string, e.g. 'g' for a green line. See `.plot` for a more
+            detailed description.
+
+            Note: While full format strings are accepted, it is recommended to
+            only specify the color. Line styles are currently ignored (use
+            the keyword argument *linestyle* instead). Markers are accepted
+            and plotted on the given positions, however, this is a rarely
+            needed feature for step plots.
+
+        data : indexable object, optional
+            An object with labelled data. If given, provide the label names to
+            plot in *x* and *y*.
+
+        where : {'pre', 'post', 'mid'}, optional, default 'pre'
+            Define where the steps should be placed:
+
+            - 'pre': The y value is continued constantly to the left from
+              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
+              value ``y[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
+              value ``y[i]``.
+            - 'mid': Steps occur half-way between the *x* positions.
 
         Returns
         -------
-        list
-            List of lines that were added.
+        lines
+            A list of `.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
-        where : [ 'pre' | 'post' | 'mid'  ]
-            If 'pre' (the default), the interval from
-            ``x[i]`` to ``x[i+1]`` has level ``y[i+1]``.
-
-            If 'post', that interval has level ``y[i]``.
-
-            If 'mid', the jumps in *y* occur half-way between the
-            *x*-values.
+        **kwargs
+            Additional parameters are the same as those for `.plot`.
 
         Notes
         -----
-        Additional parameters are the same as those for
-        :func:`~matplotlib.pyplot.plot`.
+        .. [notes section required to get data note injection right]
         """
-
         where = kwargs.pop('where', 'pre')
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
@@ -4997,10 +5023,12 @@ linewidth=2, markersize=12)
             step will occur:
 
             - 'pre': The y value is continued constantly to the left from
-              every *x* position.
+              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
+              value ``y[i]``.
             - 'post': The y value is continued constantly to the right from
-              every *x* position.
-            - 'mid': Steps occur in the middle between the *x* positions.
+              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
+              value ``y[i]``.
+            - 'mid': Steps occur half-way between the *x* positions.
 
         Other Parameters
         ----------------
@@ -5178,11 +5206,13 @@ linewidth=2, markersize=12)
             i.e. constant in between *y*. The value determines where the
             step will occur:
 
-            - 'pre': The y value is continued constantly below every *y*
-              position.
-            - 'post': The y value is continued constantly above every *y*
-              position.
-            - 'mid': Steps occur in the middle between the *y* positions.
+            - 'pre': The y value is continued constantly to the left from
+              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
+              value ``y[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
+              value ``y[i]``.
+            - 'mid': Steps occur half-way between the *x* positions.
 
         Other Parameters
         ----------------
