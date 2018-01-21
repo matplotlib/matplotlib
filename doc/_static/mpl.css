@@ -582,6 +582,20 @@ table.docutils {
     background-color: #eff3f4;
 }
 
+/* tables inside parameter descriptions */
+td.field-body table.docutils {
+    width: 100%;
+}
+
+td.field-body table.docutils th {
+    padding: 2px 10px;
+    border: 0;
+}
+
+td.field-body table.docutils td {
+    padding: 2px 10px;
+}
+
 /* function and class description */
 .descclassname {
     color: #aaa;
