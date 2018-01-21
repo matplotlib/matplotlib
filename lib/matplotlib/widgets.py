@@ -1449,9 +1449,8 @@ class MultiCursor(Widget):
 
 class MultiAxesCrossCursor(MultiCursor):
     """
-    Provide a vertical (default)  and/or a horizontal line cursor shared
-    between multiple axes.
-
+    Provide a vertical default and/or a horizontal line cursor shared between
+    multiple axes.
     Tt's similar to MultiCursor,but only one horizontal line in figure.
 
     For the cursor to remain responsive you must keep a reference to
@@ -1479,6 +1478,13 @@ class MultiAxesCrossCursor(MultiCursor):
 
     """
 
+    def __init__(self, canvas, axes, useblit=True, horizOn=True, vertOn=True,
+                 **lineprops):
+        super().__init__(canvas, axes, useblit=useblit, horizOn=horizOn,
+                         vertOn=vertOn, **lineprops)
+        self.lineprops = lineprops
+        self.current_ax = None  # the axes under mouse
+
     def onmove(self, event):
         if self.ignore(event):
             return
@@ -1494,10 +1500,8 @@ class MultiAxesCrossCursor(MultiCursor):
                 line.set_xdata((event.xdata, event.xdata))
                 line.set_visible(self.visible)
         if self.horizOn:
-            ax = event.inaxes  # use the axes under mouse
-            setattr(self, "current_ax", ax)
-            xmin, xmax = ax.get_xlim()
-            axhline = ax.axhline(xmin=xmin, xmax=xmax, color="red")
+            self.current_ax = event.inaxes  # use the axes under mouse
+            axhline = self.current_ax.axhline(**self.lineprops)
             axhline.set_ydata((event.ydata, event.ydata))
             axhline.set_visible(self.visible)
             self.hlines = [axhline]  # only one horizontal line
@@ -1511,8 +1515,8 @@ class MultiAxesCrossCursor(MultiCursor):
                 for ax, line in zip(self.axes, self.vlines):
                     ax.draw_artist(line)
             if self.horizOn:
-                ax = self.current_ax  # use the axes under mouse
-                ax.draw_artist(self.hlines[0])  # only one horizontal line
+                # only one horizontal line
+                self.current_ax.draw_artist(self.hlines[0])
             self.canvas.blit(self.canvas.figure.bbox)
         else:
             self.canvas.draw_idle()
