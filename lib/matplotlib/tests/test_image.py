@@ -175,6 +175,17 @@ def test_imsave_color_alpha():
 
         assert_array_equal(data, arr_buf)
 
+def test_imsave_format(tmpdir):
+    # Test imsave output format based on the input filename
+    # (i.e. when the "format" keyword is None).
+
+    filename = str(tmpdir.join('test_imsave.svg'))
+    plt.imsave(filename, np.zeros((10, 10)))
+
+    lines = open(filename).readlines()
+    assert lines[0].startswith('<?xml')
+    assert lines[1].startswith('<!DOCTYPE svg')
+
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
     plt.figure()

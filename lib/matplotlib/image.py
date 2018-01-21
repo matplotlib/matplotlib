@@ -1362,9 +1362,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     from matplotlib.figure import Figure
 
     # Fast path for saving to PNG
-    if (format == 'png' or format is None or
-            isinstance(fname, six.string_types) and
-            fname.lower().endswith('.png')):
+    if (format == 'png' or (format is None and
+                            isinstance(fname, six.string_types) and
+                            fname.lower().endswith('.png'))):
         image = AxesImage(None, cmap=cmap, origin=origin)
         image.set_data(arr)
         image.set_clim(vmin, vmax)
