@@ -1546,24 +1546,32 @@ def ylabel(s, *args, **kwargs):
 
 def xlim(*args, **kwargs):
     """
-    Get or set the *x* limits of the current axes.
+    Get or set the x limits of the current axes.
 
-    ::
+    Call signatures::
 
-      xmin, xmax = xlim()   # return the current xlim
-      xlim( (xmin, xmax) )  # set the xlim to xmin, xmax
-      xlim( xmin, xmax )    # set the xlim to xmin, xmax
+        xmin, xmax = xlim()  # return the current xlim
+        xlim((xmin, xmax))   # set the xlim to xmin, xmax
+        xlim(xmin, xmax)     # set the xlim to xmin, xmax
 
-    If you do not specify args, you can pass the xmin and xmax as
-    kwargs, e.g.::
+    If you do not specify args, you can pass *xmin* or *xmax* as kwargs, i.e.::
 
-      xlim(xmax=3) # adjust the max leaving min unchanged
-      xlim(xmin=1) # adjust the min leaving max unchanged
+        xlim(xmax=3)  # adjust the max leaving min unchanged
+        xlim(xmin=1)  # adjust the min leaving max unchanged
 
     Setting limits turns autoscaling off for the x-axis.
 
-    The new axis limits are returned as a length 2 tuple.
+    Returns
+    -------
+    xmin, xmax
+        A tuple of the new x-axis limits.
 
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``xlim()``) is the pyplot
+    equivalent of calling `~.Axes.get_xlim` on the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_xlim` on the current axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -1574,23 +1582,33 @@ def xlim(*args, **kwargs):
 
 def ylim(*args, **kwargs):
     """
-    Get or set the *y*-limits of the current axes.
+    Get or set the y-limits of the current axes.
 
-    ::
+    Call signatures::
 
-      ymin, ymax = ylim()   # return the current ylim
-      ylim( (ymin, ymax) )  # set the ylim to ymin, ymax
-      ylim( ymin, ymax )    # set the ylim to ymin, ymax
+        ymin, ymax = ylim()  # return the current ylim
+        ylim((ymin, ymax))   # set the ylim to ymin, ymax
+        ylim(ymin, ymax)     # set the ylim to ymin, ymax
 
-    If you do not specify args, you can pass the *ymin* and *ymax* as
-    kwargs, e.g.::
+    If you do not specify args, you can alternatively pass *ymin* or *ymax* as
+    kwargs, i.e.::
 
-      ylim(ymax=3) # adjust the max leaving min unchanged
-      ylim(ymin=1) # adjust the min leaving max unchanged
+        ylim(ymax=3)  # adjust the max leaving min unchanged
+        ylim(ymin=1)  # adjust the min leaving max unchanged
 
     Setting limits turns autoscaling off for the y-axis.
 
-    The new axis limits are returned as a length 2 tuple.
+    Returns
+    -------
+    ymin, ymax
+        A tuple of the new y-axis limits.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``ylim()``) is the pyplot
+    equivalent of calling `~.Axes.get_ylim` on the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_ylim` on the current axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
