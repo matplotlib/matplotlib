@@ -135,6 +135,13 @@ def test_composite_image():
         assert len(pdf._file._images) == 2
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+def test_pdfpages_fspath():
+    from pathlib import Path
+    with PdfPages(Path(os.devnull)) as pdf:
+        pdf.savefig(plt.figure())
+
+
 def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PDF output"""
     _determinism_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")

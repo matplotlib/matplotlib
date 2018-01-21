@@ -510,11 +510,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        if isinstance(filename_or_obj, six.string_types):
-            filename_or_obj = open(filename_or_obj, 'wb')
-            close = True
-        else:
-            close = False
 
         version_str = 'matplotlib version ' + __version__ + \
             ', http://matplotlib.org/'
@@ -524,11 +519,10 @@ class FigureCanvasAgg(FigureCanvasBase):
             metadata.update(user_metadata)
 
         try:
-            _png.write_png(renderer._renderer, filename_or_obj,
-                           self.figure.dpi, metadata=metadata)
+            with cbook.open_file_cm(filename_or_obj, "wb") as fh:
+                _png.write_png(renderer._renderer, fh,
+                               self.figure.dpi, metadata=metadata)
         finally:
-            if close:
-                filename_or_obj.close()
             renderer.dpi = original_dpi
 
     def print_to_buffer(self):
