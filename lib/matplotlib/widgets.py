@@ -1451,7 +1451,7 @@ class MultiAxesCrossCursor(MultiCursor):
     """
     Provide a vertical (default)  and/or a horizontal line cursor shared
     between multiple axes.
-    
+
     Tt's similar to MultiCursor,but only one horizontal line in figure.
 
     For the cursor to remain responsive you must keep a reference to
