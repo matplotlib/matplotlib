@@ -559,6 +559,10 @@ class _AxesBase(martist.Artist):
             bottom=rcParams['xtick.bottom'] and rcParams['xtick.minor.bottom'],
             left=rcParams['ytick.left'] and rcParams['ytick.minor.left'],
             right=rcParams['ytick.right'] and rcParams['ytick.minor.right'],
+            labelleft=rcParams['ytick.labelleft'] and
+            rcParams['ytick.minor.left'],
+            labelright=rcParams['ytick.labelright'] and
+            rcParams['ytick.minor.right'],
             which='minor')
 
         self.tick_params(
@@ -566,6 +570,10 @@ class _AxesBase(martist.Artist):
             bottom=rcParams['xtick.bottom'] and rcParams['xtick.major.bottom'],
             left=rcParams['ytick.left'] and rcParams['ytick.major.left'],
             right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
+            labelleft=rcParams['ytick.labelleft'] and
+            rcParams['ytick.major.left'],
+            labelright=rcParams['ytick.labelright'] and
+            rcParams['ytick.major.right'],
             which='major')
 
     def __getstate__(self):

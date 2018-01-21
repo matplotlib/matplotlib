@@ -1234,6 +1234,8 @@ defaultParams = {
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
+    'ytick.labelleft':   [True, validate_bool],  # draw tick labels on the left side
+    'ytick.labelright':  [False, validate_bool],  # draw tick labels on the right side
     'ytick.major.size':  [3.5, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
     'ytick.major.width': [0.8, validate_float],   # major ytick width in points

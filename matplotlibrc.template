@@ -379,6 +379,8 @@ backend      : $TEMPLATE_BACKEND
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : False  # draw ticks on the right side
+#ytick.labelleft      : True  # draw tick labels on the left side
+#ytick.labelright     : False  # draw tick labels on the right side
 #ytick.major.size     : 3.5      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
 #ytick.major.width    : 0.8    # major tick width in points
