@@ -1450,7 +1450,7 @@ class MultiCursor(Widget):
 
 class MultiAxesCrossCursor(MultiCursor):
     """
-    Provide a vertical default) and/or a horizontal line cursor shared between
+    Provide a vertical default and/or a horizontal line cursor shared between
     multiple axes.
     The difference from MultiCursor is only one horizontal line in figure
     """
