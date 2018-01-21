@@ -652,6 +652,9 @@ dl.class {
     font-family: monospace;
 }
 
+table.docutils.field-list {
+    width: 100%;
+}
 
 .docutils.field-list th {
     background-color: #eee;
