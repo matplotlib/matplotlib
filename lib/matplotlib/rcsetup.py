@@ -266,8 +266,20 @@ def validate_backend(s):
         return _validate_standard_backends(s)
 
 
-validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])
-validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5', 'PySide2'])
+@deprecated("2.2",
+            "The backend.qt4 rcParam was deprecated in version 2.2.  In order "
+            "to force the use of a specific Qt4 binding, either import that "
+            "binding first, or set the QT_API environment variable.")
+def validate_qt4(s):
+    return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
+
+
+@deprecated("2.2",
+            "The backend.qt5 rcParam was deprecated in version 2.2.  In order "
+            "to force the use of a specific Qt5 binding, either import that "
+            "binding first, or set the QT_API environment variable.")
+def validate_qt5(s):
+    return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 
 def validate_toolbar(s):

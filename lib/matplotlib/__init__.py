@@ -1116,8 +1116,10 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = six.iteritems(defaultParams)
-    config = RcParams([(key, default) for key, (default, _) in iter_params
-                                      if key not in _all_deprecated])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        config = RcParams([(key, default) for key, (default, _) in iter_params
+                           if key not in _all_deprecated])
     config.update(config_from_file)
 
     if config['datapath'] is None:
@@ -1155,9 +1157,11 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                            six.iteritems(defaultParams)
-                            if key not in _all_deprecated])
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", mplDeprecation)
+    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
+                                six.iteritems(defaultParams)
+                                if key not in _all_deprecated])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
