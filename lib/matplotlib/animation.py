@@ -25,6 +25,7 @@ from six.moves import xrange, zip
 
 import abc
 import contextlib
+from io import BytesIO
 import itertools
 import logging
 import os
@@ -43,10 +44,8 @@ from matplotlib import rcParams, rcParamsDefault, rc_context
 
 if six.PY2:
     from base64 import encodestring as encodebytes
-    from cStringIO import StringIO as BytesIO
 else:
     from base64 import encodebytes
-    from io import BytesIO
 
 
 _log = logging.getLogger(__name__)
@@ -573,6 +572,45 @@ class FileMovieWriter(MovieWriter):
                        self._temp_names)
             for fname in self._temp_names:
                 os.remove(fname)
+
+
+@writers.register('pillow')
+class PillowWriter(MovieWriter):
+    @classmethod
+    def isAvailable(cls):
+        try:
+            import PIL
+        except ImportError:
+            return False
+        return True
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("extra_args") is None:
+            kwargs["extra_args"] = ()
+        super(PillowWriter, self).__init__(*args, **kwargs)
+
+    def setup(self, fig, outfile, dpi=None):
+        self._frames = []
+        self._outfile = outfile
+        self._dpi = dpi
+        self._fig = fig
+
+    def grab_frame(self, **savefig_kwargs):
+        from PIL import Image
+        buf = BytesIO()
+        self._fig.savefig(buf, **dict(savefig_kwargs, format="rgba"))
+        renderer = self._fig.canvas.get_renderer()
+        # Using frombuffer / getbuffer may be slightly more efficient, but
+        # Py3-only.
+        self._frames.append(Image.frombytes(
+            "RGBA",
+            (int(renderer.width), int(renderer.height)),
+            buf.getvalue()))
+
+    def finish(self):
+        self._frames[0].save(
+            self._outfile, save_all=True, append_images=self._frames[1:],
+            duration=int(1000 / self.fps))
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
@@ -1138,8 +1176,8 @@ class Animation(object):
 
         if 'bbox_inches' in savefig_kwargs:
             _log.warning("Warning: discarding the 'bbox_inches' argument in "
-                          "'savefig_kwargs' as it may cause frame size "
-                          "to vary, which is inappropriate for animation.")
+                         "'savefig_kwargs' as it may cause frame size "
+                         "to vary, which is inappropriate for animation.")
             savefig_kwargs.pop('bbox_inches')
 
         # Create a new sequence of frames for saved data. This is different
@@ -1150,16 +1188,15 @@ class Animation(object):
         # allow for this non-existent use case or find a way to make it work.
         with rc_context():
             if rcParams['savefig.bbox'] == 'tight':
-                _log.info("Disabling savefig.bbox = 'tight', as it "
-                               "may cause frame size to vary, which "
-                               "is inappropriate for animation.")
+                _log.info("Disabling savefig.bbox = 'tight', as it may cause "
+                          "frame size to vary, which is inappropriate for "
+                          "animation.")
                 rcParams['savefig.bbox'] = None
             with writer.saving(self._fig, filename, dpi):
                 for anim in all_anim:
                     # Clear the initial frame
                     anim._init_draw()
-                for data in zip(*[a.new_saved_frame_seq()
-                                  for a in all_anim]):
+                for data in zip(*[a.new_saved_frame_seq() for a in all_anim]):
                     for anim, d in zip(all_anim, data):
                         # TODO: See if turning off blit is really necessary
                         anim._draw_next_frame(d, blit=False)

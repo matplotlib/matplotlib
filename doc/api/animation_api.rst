@@ -153,10 +153,20 @@ Examples
 Writer Classes
 ==============
 
-The provided writers fall into two broad categories: pipe-based and
-file-based.  The pipe-based writers stream the captured frames over a
-pipe to an external process.  The pipe-based variants tend to be more
-performant, but may not work on all systems.
+The provided writers fall into a few broad categories.
+
+The Pillow writer relies on the Pillow library to write the animation, keeping
+all data in memory.
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   PillowWriter
+
+The pipe-based writers stream the captured frames over a pipe to an external
+process.  The pipe-based variants tend to be more performant, but may not work
+on all systems.
 
 .. autosummary::
    :toctree: _as_gen
@@ -166,9 +176,9 @@ performant, but may not work on all systems.
    ImageMagickFileWriter
    AVConvWriter
 
-Alternatively the file-based writers save temporary files for each
-frame which are stitched into a single file at the end.  Although
-slower, these writers can be easier to debug.
+The file-based writers save temporary files for each frame which are stitched
+into a single file at the end.  Although slower, these writers can be easier to
+debug.
 
 .. autosummary::
    :toctree: _as_gen
