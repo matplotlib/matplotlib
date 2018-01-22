@@ -1332,19 +1332,19 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
 
-    You can turn on/off one horizontal or one vertical in axes under the mouse
-    respectively with the following attributes:
+    You can turn on/off drawing one horizontal line or one vertical line in
+    the axes under the mouse only respectively with the following attributes:
 
       *oneHoriz*
-        Draw horizontal line in axes under the mouse only
+        switch to drawing one horizontal line in the axes under mouse only.
 
       *oneVert*
-        Draw vertical line in axes under the mouse only
+        switch to drawing one vertical line in the axes under mouse only.
 
     Example usage::
 
         import matplotlib.pyplot as plt
-        from matplotlib.widgets import MultiAxesCrossCursor
+        from matplotlib.widgets import MultiCursor
         import numpy as np
 
         t = np.arange(0.0, 2.0, 0.01)
@@ -1357,8 +1357,28 @@ class MultiCursor(Widget):
         ax2 = fig.add_subplot(212, sharex=ax1)
         ax2.plot(t, s2)
 
-        multi = MultiAxesCrossCursor(fig.canvas, (ax1, ax2),
-                                     color='green', lw=1, oneHoriz=True)
+        # basic usage:
+        # draw horizontal and vertical line in each axes
+        multi = MultiCursor(fig.canvas, (ax1, ax2),
+                                     color='green')
+        # other usage:
+        # only draw horizontal and vertical line in the axes under mouse
+        # multi1 = MultiCursor(fig.canvas, (ax1, ax2),
+        #                      color='green', horizOn=True, vertOn=True,
+        #                      oneHoriz=True, oneVert=True)
+        # only draw horizontal in the axes under mouse,vertical line in multi
+        # axes,like MetaTrader
+        # multi2 = MultiCursor(fig.canvas, (ax1, ax2),
+        #                      color='green', horizOn=True, vertOn=True,
+        #                      oneHoriz=True, oneVert=False)
+        # only draw horizontal line in the axes under mouse,no vertical line
+        # multi3 = MultiCursor(fig.canvas, (ax1, ax2),
+        #                      color='green', horizOn=True, vertOn=False,
+        #                      oneHoriz=True, oneVert=False)
+        # only draw vertical line in the axes under mouse,no horizontal line
+        # multi4 = MultiCursor(fig.canvas, (ax1, ax2),
+        #                      color='green', horizOn=False, vertOn=True,
+        #                      oneHoriz=False, oneVert=True)
         plt.show()
 
     """
@@ -1369,10 +1389,6 @@ class MultiCursor(Widget):
         self.axes = axes
         self.horizOn = horizOn
         self.vertOn = vertOn
-        self.current_ax = None  # the axes under mouse
-        self.oneHoriz = oneHoriz
-        self.oneVert = oneVert
-        self.lineprops = lineprops
 
         xmin, xmax = axes[-1].get_xlim()
         ymin, ymax = axes[-1].get_ylim()
@@ -1398,6 +1414,19 @@ class MultiCursor(Widget):
                            for ax in axes]
         else:
             self.hlines = []
+
+        self.lineprops = lineprops
+        self.oneHoriz = oneHoriz
+        self.oneVert = oneVert
+        if any((oneVert, oneHoriz)):
+            # placeholder data,use the last axes and line
+            self.current_ax = axes[-1]
+            if oneVert:
+                self.vlines = [self.vlines[-1]]
+            if oneHoriz:
+                self.hlines = [self.hlines[-1]]
+        else:
+            self.current_ax = None
 
         self.connect()
 
@@ -1432,6 +1461,19 @@ class MultiCursor(Widget):
         self.needclear = True
         if not self.visible:
             return
+
+        # redraw line when mouse on different axes
+        if any((self.oneVert, self.oneHoriz)):
+            current_ax = event.inaxes
+            if current_ax != self.current_ax:
+                if self.oneVert:
+                    self.vlines = [current_ax.axvline(**self.lineprops)]
+
+                if self.oneHoriz:
+                    self.hlines = [current_ax.axhline(**self.lineprops)]
+
+            self.current_ax = current_ax
+
         if self.vertOn:
             if self.oneVert:
                 # for one vertical line
