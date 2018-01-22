@@ -1474,31 +1474,13 @@ class MultiCursor(Widget):
             self.current_ax = current_ax
 
         if self.vertOn:
-            if self.oneVert:
-                # for one vertical line
-                self.current_ax = event.inaxes  # use the axes under mouse
-                ax_vline = self.current_ax.axvline(**self.lineprops)
-                ax_vline.set_xdata((event.xdata, event.xdata))
-                ax_vline.set_visible(self.visible)
-                self.vlines = [ax_vline]  # only one vertical line
-            else:
-                # for multi vertical line
-                for line in self.vlines:
-                    line.set_xdata((event.xdata, event.xdata))
-                    line.set_visible(self.visible)
+            for line in self.vlines:
+                line.set_xdata((event.xdata, event.xdata))
+                line.set_visible(self.visible)
         if self.horizOn:
-            if self.oneHoriz:
-                # for one horizontal line
-                self.current_ax = event.inaxes  # use the axes under mouse
-                ax_hline = self.current_ax.axhline(**self.lineprops)
-                ax_hline.set_ydata((event.ydata, event.ydata))
-                ax_hline.set_visible(self.visible)
-                self.hlines = [ax_hline]  # only one horizontal line
-            else:
-                # for multi horizontal line
-                for line in self.hlines:
-                    line.set_ydata((event.ydata, event.ydata))
-                    line.set_visible(self.visible)
+            for line in self.hlines:
+                line.set_ydata((event.ydata, event.ydata))
+                line.set_visible(self.visible)
         self._update()
 
     def _update(self):
