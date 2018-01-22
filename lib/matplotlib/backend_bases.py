@@ -2149,6 +2149,15 @@ class FigureCanvasBase(object):
 
         """
         self._is_saving = True
+        # Remove the figure manager, if any, to avoid resizing the GUI widget.
+        # Having *no* manager and a *None* manager are currently different (see
+        # Figure.show); should probably be normalized to None at some point.
+        _no_manager = object()
+        if hasattr(self, 'manager'):
+            manager = self.manager
+            del self.manager
+        else:
+            manager = _no_manager
 
         if format is None:
             # get format from filename, or from backend's default filetype
@@ -2267,8 +2276,9 @@ class FigureCanvasBase(object):
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
+            if manager is not _no_manager:
+                self.manager = manager
             self._is_saving = False
-            #self.figure.canvas.draw() ## seems superfluous
         return result
 
     @classmethod
