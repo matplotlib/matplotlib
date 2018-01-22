@@ -1332,6 +1332,8 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
 
+    For the cursor to remain responsive you must keep a reference to it.
+
     You can turn on/off drawing one horizontal line or one vertical line in
     the axes under the mouse only respectively with the following attributes:
 
@@ -1359,24 +1361,25 @@ class MultiCursor(Widget):
 
         # basic usage:
         # draw horizontal and vertical line in each axes
-        multi = MultiCursor(fig.canvas, (ax1, ax2), color='green')
+        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
+                            horizOn=False, vertOn=True)
         # other usage:
         # only draw horizontal and vertical line in the axes under mouse
         # multi1 = MultiCursor(fig.canvas, (ax1, ax2),
-        #                      color='green', horizOn=True, vertOn=True,
+        #                      color='r', horizOn=True, vertOn=True,
         #                      oneHoriz=True, oneVert=True)
         # only draw horizontal in the axes under mouse,vertical line in multi
         # axes,like MetaTrader
         # multi2 = MultiCursor(fig.canvas, (ax1, ax2),
-        #                      color='green', horizOn=True, vertOn=True,
+        #                      color='r', horizOn=True, vertOn=True,
         #                      oneHoriz=True, oneVert=False)
         # only draw horizontal line in the axes under mouse,no vertical line
         # multi3 = MultiCursor(fig.canvas, (ax1, ax2),
-        #                      color='green', horizOn=True, vertOn=False,
+        #                      color='r', horizOn=True, vertOn=False,
         #                      oneHoriz=True, oneVert=False)
         # only draw vertical line in the axes under mouse,no horizontal line
         # multi4 = MultiCursor(fig.canvas, (ax1, ax2),
-        #                      color='green', horizOn=False, vertOn=True,
+        #                      color='r', horizOn=False, vertOn=True,
         #                      oneHoriz=False, oneVert=True)
         plt.show()
 
