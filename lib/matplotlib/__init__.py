@@ -845,7 +845,7 @@ _deprecated_map = {}
 
 _deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 
-_obsolete_set = {'text.dvipnghack'}
+_obsolete_set = {'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
 _deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
