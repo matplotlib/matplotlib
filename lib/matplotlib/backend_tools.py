@@ -228,8 +228,8 @@ class ToolToggleBase(ToolBase):
             if figure:
                 self.trigger(self, None)
             else:
-                # if there is no figure, trigger won't change the internal state
-                # we change it back
+                # if there is no figure, trigger won't change the internal
+                # state we change it back
                 self._toggled = True
 
 
