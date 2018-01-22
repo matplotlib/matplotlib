@@ -337,7 +337,7 @@ An example docstring looks like:
 
         colors : array_like of colors, optional, default: 'k'
 
-        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
         label : string, optional, default: ''
 
@@ -389,10 +389,9 @@ to keep in mind:
          Parameters
          ----------
          projection :
-             ['aitoff' | 'hammer' | 'lambert' | 'mollweide' | \
-     'polar' | 'rectilinear'], optional
+             {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
+     'rectilinear'}, optional
              The projection type of the axes.
-        """
 
          ...
          """
@@ -410,6 +409,14 @@ to keep in mind:
      Returns
      -------
      lines : `~matplotlib.collections.LineCollection`
+
+
+Deprecated formatting conventions
+---------------------------------
+* Formerly, we have used square brackets for explicit parameter lists
+  ``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
+  standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
+
 
 Linking to other code
 ---------------------
