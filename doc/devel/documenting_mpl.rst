@@ -478,6 +478,22 @@ acceptable values in the docs; it can also be displayed using, e.g.,
 ``plt.setp(Line2D)`` (all properties) or ``plt.setp(Line2D, 'linestyle')``
 (just one property).
 
+There are cases in which the ACCEPTS string is not useful in the
+generated Sphinx documentation, e.g. if the valid parameters are already
+defined in the numpydoc parameter list. You can hide the ACCEPTS string from
+Sphinx by making it a ReST comment (i.e. use ``.. ACCEPTS:``):
+
+.. code-block:: python
+
+   def set_linestyle(self, linestyle):
+       """
+       An ACCEPTS string invisible to Sphinx.
+
+       .. ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       """
+
+
+
 Keyword arguments
 -----------------
 

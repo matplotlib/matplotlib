@@ -1133,7 +1133,7 @@ class ArtistInspector(object):
         return aliases
 
     _get_valid_values_regex = re.compile(
-        r"\n\s*ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))"
+        r"\n\s*(?:\.\.\s+)?ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))"
     )
 
     def get_valid_values(self, attr):
@@ -1141,7 +1141,7 @@ class ArtistInspector(object):
         Get the legal arguments for the setter associated with *attr*.
 
         This is done by querying the docstring of the function *set_attr*
-        for a line that begins with ACCEPTS:
+        for a line that begins with "ACCEPTS" or ".. ACCEPTS":
 
         e.g., for a line linestyle, return
         "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'``
