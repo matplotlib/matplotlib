@@ -1359,8 +1359,7 @@ class MultiCursor(Widget):
 
         # basic usage:
         # draw horizontal and vertical line in each axes
-        multi = MultiCursor(fig.canvas, (ax1, ax2),
-                                     color='green')
+        multi = MultiCursor(fig.canvas, (ax1, ax2), color='green')
         # other usage:
         # only draw horizontal and vertical line in the axes under mouse
         # multi1 = MultiCursor(fig.canvas, (ax1, ax2),
