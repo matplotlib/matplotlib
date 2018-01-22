@@ -1633,7 +1633,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         basex, basey : scalar, optional, default 10
-            Base of the x/y logarithm. Must be > 1.
+            Base of the x/y logarithm.
 
         subsx, subsy : sequence, optional
             The location of the minor x/y ticks. If *None*, reasonable
@@ -1694,7 +1694,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         basex : scalar, optional, default 10
-            Base of the x logarithm. The value should be larger than 1.
+            Base of the x logarithm.
 
         subsx : array_like, optional
             The location of the minor xticks. If *None*, reasonable locations
@@ -1748,7 +1748,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         basey : scalar, optional, default 10
-            Base of the y logarithm. The value should be larger than 1.
+            Base of the y logarithm.
 
         subsy : array_like, optional
             The location of the minor yticks. If *None*, reasonable locations
