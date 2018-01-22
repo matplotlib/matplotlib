@@ -60,7 +60,8 @@ env:
     - NPROC=2
     - RUN_PEP8=
     - PYTEST_ARGS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
-    - PYTHON_ARGS=
+    - PYTHONFAULTHANDLER=1
+    # - PYTHONOPTIMIZE=
     - DELETE_FONT_CACHE=
 
 matrix:
@@ -79,7 +80,7 @@ matrix:
         - PYTEST_COV=pytest-cov==2.3.1
         - SPHINX=sphinx==1.3
     - python: 3.4
-      env: PYTHON_ARGS=-OO
+      # env: PYTHONOPTIMIZE=2  # Needs to be restored but currently breaks tests.
     - python: 3.6
       env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: "nightly"
