@@ -1544,7 +1544,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
-    
+
     if eps:
         paper_option = "-dEPSCrop"
     else:
@@ -1557,7 +1557,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         command = [str("ps2pdf"), "-dAutoFilterColorImages#false",
                    "-dAutoFilterGrayImages#false",
                    "-sGrayImageFilter#FlateEncode",
-                   "-dAutoRotatePages=false",
+                   "-dAutoRotatePages#false",
                    "-sColorImageFilter#FlateEncode", paper_option, tmpfile,
                    pdffile]
     else:
