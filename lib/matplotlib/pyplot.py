@@ -1607,13 +1607,23 @@ def ylim(*args, **kwargs):
 @docstring.dedent_interpd
 def xscale(*args, **kwargs):
     """
-    Set the scaling of the *x*-axis.
+    Set the scaling of the x-axis.
 
-    call signature::
+    Call signature::
 
-      xscale(scale, **kwargs)
+        xscale(scale, **kwargs)
 
-    The available scales are: %(scale)s
+    Parameters
+    ----------
+    scale : [%(scale)s]
+        The scaling type.
+    **kwargs
+        Additional parameters depend on *scale*. See Notes.
+
+    Notes
+    -----
+    This is the pyplot equivalent of calling `~.Axes.set_xscale` on the
+    current axes.
 
     Different keywords may be accepted, depending on the scale:
 
@@ -1625,13 +1635,23 @@ def xscale(*args, **kwargs):
 @docstring.dedent_interpd
 def yscale(*args, **kwargs):
     """
-    Set the scaling of the *y*-axis.
+    Set the scaling of the y-axis.
 
-    call signature::
+    Call signature::
 
-      yscale(scale, **kwargs)
+        yscale(scale, **kwargs)
 
-    The available scales are: %(scale)s
+    Parameters
+    ----------
+    scale : [%(scale)s]
+        The scaling type.
+    **kwargs
+        Additional parameters depend on *scale*. See Notes.
+
+    Notes
+    -----
+    This is the pyplot equivalent of calling `~.Axes.set_yscale` on the
+    current axes.
 
     Different keywords may be accepted, depending on the scale:
 
