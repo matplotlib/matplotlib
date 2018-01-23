@@ -2218,7 +2218,7 @@ def test_griddata_nn():
 
 #*****************************************************************
 # These Tests where taken from SCIPY with some minor modifications
-# this can be retreived from:
+# this can be retrieved from:
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
 #*****************************************************************
 

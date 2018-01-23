@@ -463,7 +463,7 @@ class Axes3D(Axes):
         Convenience method for simple axis view autoscaling.
         See :meth:`matplotlib.axes.Axes.autoscale` for full explanation.
         Note that this function behaves the same, but for all
-        three axes.  Therfore, 'z' can be passed for *axis*,
+        three axes.  Therefore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
 
         .. versionadded :: 1.1.0
@@ -956,7 +956,7 @@ class Axes3D(Axes):
         """
         Set the elevation and azimuth of the axes.
 
-        This can be used to rotate the axes programatically.
+        This can be used to rotate the axes programmatically.
 
         'elev' stores the elevation angle in the z plane.
         'azim' stores the azimuth angle in the x,y plane.

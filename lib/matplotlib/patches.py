@@ -2035,7 +2035,7 @@ class BoxStyle(_Style):
                 return self.transmute(x0, y0, width, height, mutation_size)
 
         def __reduce__(self):
-            # because we have decided to nest thes classes, we need to
+            # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
             return (cbook._NestedClassGetter(),
                     (BoxStyle, self.__class__.__name__),
@@ -2831,7 +2831,7 @@ class ConnectionStyle(_Style):
     class Arc3(_Base):
         """
         Creates a simple quadratic bezier curve between two
-        points. The curve is created so that the middle contol points
+        points. The curve is created so that the middle control point
         (C1) is located at the same distance from the start (C0) and
         end points(C2) and the distance of the C1 to the line
         connecting C0-C2 is *rad* times the distance of C0-C2.
@@ -3278,7 +3278,7 @@ class ArrowStyle(_Style):
                 return self.transmute(path, mutation_size, linewidth)
 
         def __reduce__(self):
-            # because we have decided to nest thes classes, we need to
+            # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
             return (cbook._NestedClassGetter(),
                     (ArrowStyle, self.__class__.__name__),
@@ -4531,7 +4531,7 @@ class ConnectionPatch(FancyArrowPatch):
 
     def _get_xy(self, x, y, s, axes=None):
         """
-        caculate the pixel position of given point
+        calculate the pixel position of given point
         """
 
         if axes is None:

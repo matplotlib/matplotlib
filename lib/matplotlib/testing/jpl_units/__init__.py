@@ -10,7 +10,7 @@ a float without specific units given).
 UnitDbl is essentially a unitized floating point number.  It has a
 minimal set of supported units (enough for testing purposes).  All
 of the mathematical operation are provided to fully test any behaviour
-that might occur with unitized data.  Remeber that unitized data has
+that might occur with unitized data.  Remember that unitized data has
 rules as to how it can be applied to one another (a value of distance
 cannot be added to a value of time).  Thus we need to guard against any
 accidental "default" conversion that will strip away the meaning of the

@@ -167,7 +167,7 @@ inline double conv(long v)
 
 int FT2Font::get_path_count()
 {
-    // get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
+    // get the glyph as a path, a list of (COMMAND, *args) as described in matplotlib.path
     // this code is from agg's decompose_ft_outline with minor modifications
 
     if (!face->glyph) {

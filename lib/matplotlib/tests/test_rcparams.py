@@ -125,7 +125,7 @@ def test_Bug_2543():
     # accept None as an argument.
     # https://github.com/matplotlib/matplotlib/issues/2543
     # We filter warnings at this stage since a number of them are raised
-    # for deprecated rcparams as they should. We dont want these in the
+    # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',

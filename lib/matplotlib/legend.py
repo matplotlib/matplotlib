@@ -1196,7 +1196,7 @@ class Legend(Artist):
           This corresponds to the possible values for self._loc, excluding
           "best".
 
-        - bbox: bbox to be placed, display coodinate units.
+        - bbox: bbox to be placed, display coordinate units.
         - parentbbox: a parent box which will contain the bbox. In
             display coordinates.
         """

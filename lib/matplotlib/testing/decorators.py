@@ -298,7 +298,7 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     Nose-based image comparison class
 
     This class generates tests for a nose-based testing framework. Ideally,
-    this class would not be public, and the only publically visible API would
+    this class would not be public, and the only publicly visible API would
     be the :func:`image_comparison` decorator. Unfortunately, there are
     existing downstream users of this class (e.g., pytest-mpl) so it cannot yet
     be removed.

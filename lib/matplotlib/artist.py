@@ -1245,8 +1245,8 @@ class ArtistInspector(object):
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
-        If *prop* is *None*, return a list of strings of all settable properies
-        and their valid values.
+        If *prop* is *None*, return a list of strings of all settable
+        properties and their valid values.
 
         If *prop* is not *None*, it is a valid property name and that
         property will be returned as a string of property : valid
@@ -1273,8 +1273,8 @@ class ArtistInspector(object):
 
     def pprint_setters_rest(self, prop=None, leadingspace=2):
         """
-        If *prop* is *None*, return a list of strings of all settable properies
-        and their valid values.  Format the output for ReST
+        If *prop* is *None*, return a list of strings of all settable
+        properties and their valid values.  Format the output for ReST
 
         If *prop* is not *None*, it is a valid property name and that
         property will be returned as a string of property : valid

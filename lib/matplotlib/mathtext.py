@@ -709,7 +709,7 @@ class BakomaFonts(TruetypeFonts):
         '}'          : [('cal', '}'), ('ex', '\xaa'), ('ex', '\x6f'),
                         ('ex', '\xbe'), ('ex', '\x29')],
         # The fourth size of '[' is mysteriously missing from the BaKoMa
-        # font, so I've ommitted it for both '[' and ']'
+        # font, so I've omitted it for both '[' and ']'
         '['          : [('rm', '['), ('ex', '\xa3'), ('ex', '\x68'),
                         ('ex', '\x22')],
         ']'          : [('rm', ']'), ('ex', '\xa4'), ('ex', '\x69'),

@@ -1486,7 +1486,7 @@ class VertexSelector(object):
         pass
 
     def onpick(self, event):
-        """When the line is picked, update the set of selected indicies."""
+        """When the line is picked, update the set of selected indices."""
         if event.artist is not self.line:
             return
         self.ind ^= set(event.ind)

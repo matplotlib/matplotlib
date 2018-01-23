@@ -80,7 +80,7 @@ The base matplotlib namespace includes:
 
     :data:`~matplotlib.rcParams`
         a global dictionary of default configuration settings.  It is
-        initialized by code which may be overridded by a matplotlibrc
+        initialized by code which may be overridden by a matplotlibrc
         file.
 
     :func:`~matplotlib.rc`
@@ -775,7 +775,7 @@ def get_py2exe_datafiles():
     d = {}
     for root, _, files in os.walk(datapath):
         # Need to explicitly remove cocoa_agg files or py2exe complains
-        # NOTE I dont know why, but do as previous version
+        # NOTE I don't know why, but do as previous version
         if 'Matplotlib.nib' in files:
             files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
@@ -1147,7 +1147,7 @@ if rcParams['examples.directory']:
     if not os.path.isabs(rcParams['examples.directory']):
         _basedir, _fname = os.path.split(matplotlib_fname())
         # Sometimes matplotlib_fname() can return relative paths,
-        # Also, using realpath() guarentees that Sphinx will use
+        # Also, using realpath() guarantees that Sphinx will use
         # the same path that matplotlib sees (in case of weird symlinks).
         _basedir = os.path.realpath(_basedir)
         _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
