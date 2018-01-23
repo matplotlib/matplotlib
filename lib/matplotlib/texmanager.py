@@ -126,9 +126,9 @@ class TexManager(object):
         'computer modern typewriter': ('cmtt', '')}
 
     _rc_cache = None
-    _rc_cache_keys = (('text.latex.preamble', ) +
-                      tuple(['font.' + n for n in ('family', ) +
-                             font_families]))
+    _rc_cache_keys = (
+        ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
+         'font.family') + tuple('font.' + n for n in font_families))
 
     def __init__(self):
 
