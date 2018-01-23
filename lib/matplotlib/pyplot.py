@@ -1505,41 +1505,28 @@ def axis(*v, **kwargs):
 
 def xlabel(s, *args, **kwargs):
     """
-    Set the *x* axis label of the current axis.
+    Set the x-axis label of the current axes.
 
-    Default override is::
+    Call signature::
 
-      override = {
-          'fontsize'            : 'small',
-          'verticalalignment'   : 'top',
-          'horizontalalignment' : 'center'
-          }
+        xlabel(label, fontdict=None, labelpad=None, **kwargs)
 
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args work
+    This is the pyplot equivalent of calling `.set_xlabel` on the current axes.
+    See there for a full parameter description.
     """
     return gca().set_xlabel(s, *args, **kwargs)
 
 
 def ylabel(s, *args, **kwargs):
     """
-    Set the *y* axis label of the current axis.
+    Set the y-axis label of the current axes.
 
-    Defaults override is::
+    Call signature::
 
-        override = {
-           'fontsize'            : 'small',
-           'verticalalignment'   : 'center',
-           'horizontalalignment' : 'right',
-           'rotation'='vertical' : }
+        ylabel(label, fontdict=None, labelpad=None, **kwargs)
 
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args
-            work.
+    This is the pyplot equivalent of calling `.set_ylabel` on the current axes.
+    See there for a full parameter description.
     """
     return gca().set_ylabel(s, *args, **kwargs)
 

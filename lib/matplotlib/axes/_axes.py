@@ -211,19 +211,20 @@ class Axes(_AxesBase):
 
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set the label for the xaxis.
+        Set the label for the x-axis.
 
         Parameters
         ----------
-        xlabel : string
-            x label
+        xlabel : str
+            The label text.
 
         labelpad : scalar, optional, default: None
-            spacing in points between the label and the x-axis
+            Spacing in points between the label and the x-axis.
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `.Text` properties
+            `.Text` properties control the appearance of the label.
 
         See also
         --------
@@ -242,19 +243,20 @@ class Axes(_AxesBase):
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set the label for the yaxis
+        Set the label for the y-axis.
 
         Parameters
         ----------
-        ylabel : string
-            y label
+        ylabel : str
+            The label text.
 
         labelpad : scalar, optional, default: None
-            spacing in points between the label and the y-axis
+            Spacing in points between the label and the y-axis.
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `.Text` properties
+            `.Text` properties control the appearance of the label.
 
         See also
         --------
