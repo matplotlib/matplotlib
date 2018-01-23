@@ -803,8 +803,6 @@ class Axis(artist.Artist):
 
         self.majorTicks.extend([self._get_tick(major=True)])
         self.minorTicks.extend([self._get_tick(major=False)])
-        self._lastNumMajorTicks = 1
-        self._lastNumMinorTicks = 1
 
         try:
             self.set_clip_path(self.axes.patch)
@@ -1362,48 +1360,31 @@ class Axis(artist.Artist):
         'get the tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_major_locator()())
-        if len(self.majorTicks) < numticks:
+
+        while len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
-            for i in range(numticks - len(self.majorTicks)):
-                tick = self._get_tick(major=True)
-                self.majorTicks.append(tick)
+            tick = self._get_tick(major=True)
+            self.majorTicks.append(tick)
+            if self._gridOnMajor:
+                tick.gridOn = True
+            self._copy_tick_props(self.majorTicks[0], tick)
 
-        if self._lastNumMajorTicks < numticks:
-            protoTick = self.majorTicks[0]
-            for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
-                tick = self.majorTicks[i]
-                if self._gridOnMajor:
-                    tick.gridOn = True
-                self._copy_tick_props(protoTick, tick)
-
-        self._lastNumMajorTicks = numticks
-        ticks = self.majorTicks[:numticks]
-
-        return ticks
+        return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_minor_locator()())
 
-        if len(self.minorTicks) < numticks:
+        while len(self.minorTicks) < numticks:
             # update the new tick label properties from the old
-            for i in range(numticks - len(self.minorTicks)):
-                tick = self._get_tick(major=False)
-                self.minorTicks.append(tick)
+            tick = self._get_tick(major=False)
+            self.minorTicks.append(tick)
+            if self._gridOnMinor:
+                tick.gridOn = True
+            self._copy_tick_props(self.minorTicks[0], tick)
 
-        if self._lastNumMinorTicks < numticks:
-            protoTick = self.minorTicks[0]
-            for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
-                tick = self.minorTicks[i]
-                if self._gridOnMinor:
-                    tick.gridOn = True
-                self._copy_tick_props(protoTick, tick)
-
-        self._lastNumMinorTicks = numticks
-        ticks = self.minorTicks[:numticks]
-
-        return ticks
+        return self.minorTicks[:numticks]
 
     def grid(self, b=None, which='major', **kwargs):
         """
