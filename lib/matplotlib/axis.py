@@ -662,6 +662,29 @@ class Ticker(object):
     formatter = None
 
 
+class _LazyTickList(object):
+    """
+    A descriptor for lazy instantiation of tick lists.
+
+    See comment above definition of the ``majorTicks`` and ``minorTicks``
+    attributes.
+    """
+
+    def __init__(self, major):
+        self._major = major
+
+    def __get__(self, instance, cls):
+        if instance is None:
+            return self
+        else:
+            if self._major:
+                instance.majorTicks = [instance._get_tick(major=True)]
+                return instance.majorTicks
+            else:
+                instance.minorTicks = [instance._get_tick(major=False)]
+                return instance.minorTicks
+
+
 class Axis(artist.Artist):
     """
     Public attributes
@@ -696,8 +719,6 @@ class Axis(artist.Artist):
         self.label = self._get_label()
         self.labelpad = rcParams['axes.labelpad']
         self.offsetText = self._get_offset_text()
-        self.majorTicks = []
-        self.minorTicks = []
         self.unit_data = None
         self.pickradius = pickradius
 
@@ -707,6 +728,12 @@ class Axis(artist.Artist):
 
         self.cla()
         self._set_scale('linear')
+
+    # During initialization, Axis objects often create ticks that are later
+    # unused; this turns out to be a very slow step.  Instead, use a custom
+    # descriptor to make the tick lists lazy and instantiate them as needed.
+    majorTicks = _LazyTickList(major=True)
+    minorTicks = _LazyTickList(major=False)
 
     def set_label_coords(self, x, y, transform=None):
         """
@@ -798,12 +825,15 @@ class Axis(artist.Artist):
 
         Each list starts with a single fresh Tick.
         """
-        del self.majorTicks[:]
-        del self.minorTicks[:]
-
-        self.majorTicks.extend([self._get_tick(major=True)])
-        self.minorTicks.extend([self._get_tick(major=False)])
-
+        # Restore the lazy tick lists.
+        try:
+            del self.majorTicks
+        except AttributeError:
+            pass
+        try:
+            del self.minorTicks
+        except AttributeError:
+            pass
         try:
             self.set_clip_path(self.axes.patch)
         except AttributeError:
