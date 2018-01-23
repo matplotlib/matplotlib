@@ -7,9 +7,10 @@ import six
 from six.moves import xrange
 
 import itertools
-import warnings
+import logging
 import math
 from operator import attrgetter
+import warnings
 
 import numpy as np
 
@@ -37,6 +38,8 @@ from matplotlib.legend import Legend
 
 from matplotlib.rcsetup import cycler
 from matplotlib.rcsetup import validate_axisbelow
+
+_log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
@@ -1000,7 +1003,7 @@ class _AxesBase(martist.Artist):
         else:
             self.xaxis._set_scale('linear')
             try:
-                self.set_xlim(0, 1)
+                self.set_xlim(0, 1, _converter=False)
             except TypeError:
                 pass
 
@@ -1014,7 +1017,7 @@ class _AxesBase(martist.Artist):
         else:
             self.yaxis._set_scale('linear')
             try:
-                self.set_ylim(0, 1)
+                self.set_ylim(0, 1, _converter=False)
             except TypeError:
                 pass
 
@@ -2383,6 +2386,7 @@ class _AxesBase(martist.Artist):
         case, use :meth:`matplotlib.axes.Axes.relim` prior to calling
         autoscale_view.
         """
+        _log.debug('Autoscaling x: %s y: %s', scalex, scaley)
         if tight is not None:
             self._tight = bool(tight)
 
@@ -2452,6 +2456,7 @@ class _AxesBase(martist.Artist):
 
             if not self._tight:
                 x0, x1 = locator.view_limits(x0, x1)
+            _log.debug('Autolims: %e %e', x0, x1)
             set_bound(x0, x1)
             # End of definition of internal function 'handle_single_axis'.
 
@@ -2942,6 +2947,7 @@ class _AxesBase(martist.Artist):
                 self.set_xlim(upper, lower, auto=None)
             else:
                 self.set_xlim(lower, upper, auto=None)
+                self.set_xlim(lower, upper, auto=None)
         else:
             if lower < upper:
                 self.set_xlim(lower, upper, auto=None)
@@ -3047,15 +3053,19 @@ class _AxesBase(martist.Artist):
             left = kw.pop('xmin')
         if 'xmax' in kw:
             right = kw.pop('xmax')
+        # _converter is private, usually True, but can be false
+        _converter = kw.pop('_converter', True)
         if kw:
             raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if right is None and iterable(left):
             left, right = left
 
-        self._process_unit_info(xdata=(left, right))
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
+        if _converter:
+            _log.debug('Converting xlim %s %s', left, right)
+            self._process_unit_info(xdata=(left, right))
+            left = self._validate_converted_limits(left, self.convert_xunits)
+            right = self._validate_converted_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -3371,14 +3381,20 @@ class _AxesBase(martist.Artist):
             bottom = kw.pop('ymin')
         if 'ymax' in kw:
             top = kw.pop('ymax')
+        _converter = kw.pop('_converter', True)
         if kw:
             raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if top is None and iterable(bottom):
             bottom, top = bottom
 
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        if _converter:
+            _log.debug('Converting ylim %s %s', bottom, top)
+            self._process_unit_info(ydata=(bottom, top))
+            bottom = self._validate_converted_limits(bottom,
+                                                     self.convert_yunits)
+            top = self._validate_converted_limits(top,
+                                                  self.convert_yunits)
 
         old_bottom, old_top = self.get_ylim()
 

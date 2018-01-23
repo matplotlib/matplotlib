@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import logging
+import warnings
 
 from matplotlib import rcParams
 import matplotlib.artist as artist
@@ -22,7 +23,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
-import warnings
+
+_log = logging.getLogger(__name__)
 
 _log = logging.getLogger(__name__)
 
@@ -1445,9 +1447,24 @@ class Axis(artist.Artist):
         if *data* is registered for unit conversion.
         """
 
+        _log.debug('update_units converter due to %s %s',
+                    data, data.__class__,)
         converter = munits.registry.get_converter(data)
+        _log.debug('new converter: %s', converter)
         if converter is None:
+            _log.info('No converter found for this data')
             return False
+
+        if self.converter is not None:
+            if self.converter == converter:
+                _log.debug('Axis already has a converter that matches '
+                           'data units')
+                return True
+            else:
+                _log.info('Axis already has a converter, but it does '
+                          'not match new data units.')
+                return False
+
 
         neednew = self.converter != converter
         self.converter = converter
@@ -1498,6 +1515,10 @@ class Axis(artist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
+        """
+        convert the units given
+        """
+
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
 

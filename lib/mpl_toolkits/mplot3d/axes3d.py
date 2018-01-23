@@ -620,15 +620,17 @@ class Axes3D(Axes):
             left = kw.pop('xmin')
         if 'xmax' in kw:
             right = kw.pop('xmax')
+        _converter = kw.pop('_converter', True)
         if kw:
             raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if right is None and cbook.iterable(left):
             left, right = left
 
-        self._process_unit_info(xdata=(left, right))
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
+        if _converter:
+            self._process_unit_info(xdata=(left, right))
+            left = self._validate_converted_limits(left, self.convert_xunits)
+            right = self._validate_converted_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -672,15 +674,18 @@ class Axes3D(Axes):
             bottom = kw.pop('ymin')
         if 'ymax' in kw:
             top = kw.pop('ymax')
+        _converter = kw.pop('_converter', True)
         if kw:
             raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if top is None and cbook.iterable(bottom):
             bottom, top = bottom
 
-        self._process_unit_info(ydata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        if _converter:
+            self._process_unit_info(ydata=(bottom, top))
+            bottom = self._validate_converted_limits(bottom,
+                                                     self.convert_yunits)
+            top = self._validate_converted_limits(top, self.convert_yunits)
 
         old_bottom, old_top = self.get_ylim()
         if bottom is None:
