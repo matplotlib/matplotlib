@@ -26,7 +26,7 @@ def animate(i):
 
 
 ani = animation.FuncAnimation(
-    fig, animate, init_func=init, interval=2, blit=True)
+    fig, animate, init_func=init, interval=2, blit=True, save_count=50)
 
 # To save the animation, use e.g.
 #
