@@ -1,5 +1,5 @@
 Writing animations with Pillow
-``````````````````````````````
+------------------------------
 It is now possible to use Pillow as an animation writer.  Supported output
 formats are currently gif (Pillow>=3.4) and webp (Pillow>=5.0).  Use e.g. as ::
 

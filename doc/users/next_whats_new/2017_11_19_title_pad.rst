@@ -1,5 +1,5 @@
-Add *pad* kwarg to ax.set_title
--------------------------------
+*pad* kwarg added to ax.set_title
+---------------------------------
 
 The method `axes.set_title` now has a *pad* kwarg, that specifies the
 distance from the top of an axes to where the title is drawn.  The units
