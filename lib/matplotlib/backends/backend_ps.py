@@ -1546,26 +1546,16 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
 
-    if eps:
-        paper_option = "-dEPSCrop"
-    else:
-        if sys.platform == "win32":
-            paper_option = "-sPAPERSIZE#%s" % ptype
-        else:
-            paper_option = "-sPAPERSIZE=%s" % ptype
-
-    if sys.platform == "win32":
-        command = [str("ps2pdf"), "-dAutoFilterColorImages#false",
-                   "-dAutoFilterGrayImages#false",
-                   "-sGrayImageFilter#FlateEncode",
-                   "-sColorImageFilter#FlateEncode", paper_option, tmpfile,
-                   pdffile]
-    else:
-        command = [str("ps2pdf"), "-dAutoFilterColorImages=false",
-                   "-dAutoFilterGrayImages=false",
-                   "-sGrayImageFilter=FlateEncode",
-                   "-sColorImageFilter=FlateEncode", paper_option, tmpfile,
-                   pdffile]
+    # Pass options as `-foo#bar` instead of `-foo=bar` to keep Windows happy
+    # (https://www.ghostscript.com/doc/9.22/Use.htm#MS_Windows).
+    command = [str("ps2pdf"),
+               "-dAutoFilterColorImages#false",
+               "-dAutoFilterGrayImages#false",
+               "-dAutoRotatePages#false",
+               "-sGrayImageFilter#FlateEncode",
+               "-sColorImageFilter#FlateEncode",
+               "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
+               tmpfile, pdffile]
     _log.debug(command)
 
     try:
@@ -1624,7 +1614,7 @@ def get_bbox(tmpfile, bbox):
     """
 
     gs_exe = ps_backend_helper.gs_exe
-    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox" "%s" % tmpfile]
+    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox", "%s" % tmpfile]
     _log.debug(command)
     p = subprocess.Popen(command, stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
