@@ -2485,9 +2485,7 @@ linewidth=2, markersize=12)
 
         Notes
         -----
-        ..
-            [Empty notes is a workaround to prevent the data note from being
-            injected into the  Returns section.]
+        .. [Notes section required for data comment. See #10189.]
 
         """
         # process the unit information
@@ -2941,68 +2939,65 @@ linewidth=2, markersize=12)
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
         """
-        Plot an errorbar graph.
+        Plot y versus x as lines and/or markers with attached errorbars.
 
-        Plot x versus y with error deltas in yerr and xerr.
-        Vertical errorbars are plotted if yerr is not None.
-        Horizontal errorbars are plotted if xerr is not None.
-
-        x, y, xerr, and yerr can all be scalars, which plots a
-        single error bar at x, y.
+        *x*, *y* define the data locations, *xerr*, *yerr* define the errorbar
+        sizes. By default, this draws the data markers/lines as well the
+        errorbars. Use fmt='none' to draw errorbars without any data markers.
 
         Parameters
         ----------
-        x : scalar or array-like
-        y : scalar or array-like
+        x, y : scalar or array-like
+            The data positions.
 
-        xerr/yerr : scalar or array-like, shape(N,) or shape(2,N), optional
-            If a scalar number, len(N) array-like object, or a N-element
-            array-like object, errorbars are drawn at +/-value relative
-            to the data. Default is None.
+        xerr, yerr : scalar or array-like, shape(N,) or shape(2,N), optional
+            The errorbar sizes:
 
-            If a sequence of shape 2xN, errorbars are drawn at -row1
-            and +row2 relative to the data.
+            - scalar: Symmetric +/- values for all data points.
+            - shape(N,): Symmetric +/-values for each data point.
+            - shape(2,N): Separate + and - values for each data point.
+            - *None*: No errorbar.
 
-        fmt : plot format string, optional, default: None
-            The plot format symbol. If fmt is 'none' (case-insensitive),
-            only the errorbars are plotted.  This is used for adding
-            errorbars to a bar plot, for example.  Default is '',
-            an empty plot format string; properties are
-            then identical to the defaults for :meth:`plot`.
+        fmt : plot format string, optional, default: ''
+            The format for the data points / data lines. See `~.plot` for
+            details.
+
+            Use 'none' (case insensitive) to plot errorbars without any data
+            markers.
 
         ecolor : mpl color, optional, default: None
-            A matplotlib color arg which gives the color the errorbar lines;
-            if None, use the color of the line connecting the markers.
+            A matplotlib color arg which gives the color the errorbar lines.
+            If None, use the color of the line connecting the markers.
 
         elinewidth : scalar, optional, default: None
-            The linewidth of the errorbar lines. If None, use the linewidth.
+            The linewidth of the errorbar lines. If None, the linewidth of
+            the current style is used.
 
         capsize : scalar, optional, default: None
-            The length of the error bar caps in points; if None, it will
+            The length of the error bar caps in points. If None, it will
             take the value from ``errorbar.capsize``
             :data:`rcParam<matplotlib.rcParams>`.
 
         capthick : scalar, optional, default: None
-            An alias kwarg to markeredgewidth (a.k.a. - mew). This
-            setting is a more sensible name for the property that
+            An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
+            This setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
-            backwards compatibility, if mew or markeredgewidth are given,
-            then they will over-ride capthick. This may change in future
+            backwards compatibility, if *mew* or *markeredgewidth* are given,
+            then they will over-ride *capthick*. This may change in future
             releases.
 
         barsabove : bool, optional, default: False
-            If True , will plot the errorbars above the plot
+            If True, will plot the errorbars above the plot
             symbols. Default is below.
 
-        lolims / uplims / xlolims / xuplims : bool, optional, default:None
-            These arguments can be used to indicate that a value gives
-            only upper/lower limits. In that case a caret symbol is
-            used to indicate this. lims-arguments may be of the same
-            type as *xerr* and *yerr*.  To use limits with inverted
-            axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
-            before :meth:`errorbar`.
+        lolims, uplims, xlolims, xuplims : bool, optional, default: None
+            These arguments can be used to indicate that a value gives only
+            upper/lower limits. In that case a caret symbol is used to
+            indicate this. *lims*-arguments may be of the same type as *xerr*
+            and *yerr*.  To use limits with inverted axes, :meth:`set_xlim`
+            or :meth:`set_ylim` must be called before :meth:`errorbar`.
 
-        errorevery : positive integer, optional, default:1
+        errorevery : positive integer, optional, default: 1
             Subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
@@ -3031,13 +3026,18 @@ linewidth=2, markersize=12)
                 errorbar(x, y, yerr, marker='s', mfc='red',
                          mec='green', ms=20, mew=4)
 
-            where mfc, mec, ms and mew are aliases for the longer
-            property names, markerfacecolor, markeredgecolor, markersize
-            and markeredgewidth.
+            where *mfc*, *mec*, *ms* and *mew* are aliases for the longer
+            property names, *markerfacecolor*, *markeredgecolor*, *markersize*
+            and *markeredgewidth*.
 
-            Valid kwargs for the marker properties are
+            Valid kwargs for the marker properties are `~.Lines2D` properties:
 
             %(Line2D)s
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
