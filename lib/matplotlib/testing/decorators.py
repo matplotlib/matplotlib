@@ -116,8 +116,7 @@ def cleanup(style=None):
                 try:
                     yield from func(*args, **kwargs)
                 finally:
-                    _do_cleanup(original_units_registry,
-                                original_settings)
+                    _do_cleanup(original_units_registry, original_settings)
         else:
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
@@ -127,8 +126,7 @@ def cleanup(style=None):
                 try:
                     func(*args, **kwargs)
                 finally:
-                    _do_cleanup(original_units_registry,
-                                original_settings)
+                    _do_cleanup(original_units_registry, original_settings)
 
         return wrapped_callable
 

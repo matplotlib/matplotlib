@@ -875,11 +875,8 @@ def test_inverted_limits():
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
     # silence divide by zero warning from log(0)
-    olderr = np.seterr(divide='ignore')
-    try:
+    with np.errstate(divide='ignore'):
         y = np.log(x)
-    finally:
-        np.seterr(**olderr)
     x[len(x)//2] = np.nan
     fig = plt.figure()
     ax = fig.add_subplot(111)

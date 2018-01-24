@@ -880,13 +880,8 @@ class Artist(object):
                     raise AttributeError('Unknown property %s' % k)
                 return func(v)
 
-        store = self.eventson
-        self.eventson = False
-        try:
-            ret = [_update_property(self, k, v)
-                   for k, v in props.items()]
-        finally:
-            self.eventson = store
+        with cbook._setattr_cm(self, eventson=False):
+            ret = [_update_property(self, k, v) for k, v in props.items()]
 
         if len(ret):
             self.pchanged()

@@ -218,11 +218,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     direc = os.path.abspath(direc).lower()
                     if os.path.splitext(direc)[1][1:] in fontext:
                         items.add(direc)
-                except EnvironmentError:
-                    continue
-                except WindowsError:
-                    continue
-                except MemoryError:
+                except (EnvironmentError, MemoryError, WindowsError):
                     continue
             return list(items)
         finally:
@@ -520,17 +516,14 @@ def createFontList(fontfiles, fontext='ttf'):
             seen.add(fname)
         if fontext == 'afm':
             try:
-                fh = open(fpath, 'rb')
+                with open(fpath, 'rb') as fh:
+                    font = afm.AFM(fh)
             except EnvironmentError:
                 _log.info("Could not open font file %s", fpath)
                 continue
-            try:
-                font = afm.AFM(fh)
             except RuntimeError:
                 _log.info("Could not parse font file %s", fpath)
                 continue
-            finally:
-                fh.close()
             try:
                 prop = afmFontProperty(fpath, font)
             except KeyError:
