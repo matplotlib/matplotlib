@@ -22,13 +22,14 @@ t = np.arange(0.01, 10.0, 0.01)
 data1 = np.exp(t)
 data2 = np.sin(2 * np.pi * t)
 
-# Create twin axes and plot the mock data onto them
+# Create a pair of twin axes (ax1 and ax2) that share the same x-axis
 fig, ax1 = plt.subplots()
-ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+ax2 = ax1.twinx()  # create the second `Axes` instance
 
+# Plot a different set of data on each axes
 for ax, data, c in ((ax1, data1, "red"), (ax2, data2, "blue")):
     ax.plot(t, data, color=c)
-    # Color the y-axis (both label and tick labels)
+    # Color the y-axis (both label and tick labels) accordingly to the data
     ax.yaxis.label.set_color(c)
     for tl in ax.get_yticklabels():
         tl.set_color(c)
