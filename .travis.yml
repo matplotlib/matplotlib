@@ -152,7 +152,7 @@ install:
       python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
       echo 'pgi is available' ||
       echo 'pgi is not available'
-    pip install pyqt5 &&
+    pip install pyqt5==5.9 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
