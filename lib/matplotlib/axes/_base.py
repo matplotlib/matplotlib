@@ -610,8 +610,7 @@ class _AxesBase(martist.Artist):
         """
         Set the `~.Figure` for this `~.Axes`.
 
-        ..
-            ACCEPTS: `~.Figure`
+        .. ACCEPTS: `~.Figure`
 
         Parameters
         ----------
@@ -902,9 +901,8 @@ class _AxesBase(martist.Artist):
         """
         Set the axes locator.
 
-        ..
-            ACCEPTS: a callable object which takes an axes instance and
-            renderer and returns a bbox.
+        .. ACCEPTS: a callable object which takes an axes instance and
+           renderer and returns a bbox.
 
         Parameters
         ----------
@@ -1125,8 +1123,7 @@ class _AxesBase(martist.Artist):
     def set_facecolor(self, color):
         """Set the Axes facecolor.
 
-        ..
-            ACCEPTS: color
+        .. ACCEPTS: color
 
         Parameters
         ----------
@@ -1342,8 +1339,7 @@ class _AxesBase(martist.Artist):
         unintended side effect. For cases when sharing axes is
         fine, use 'box-forced'.
 
-        ..
-            ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
+        .. ACCEPTS: [ 'box' | 'datalim' | 'box-forced' ]
 
         See Also
         --------
@@ -1382,9 +1378,7 @@ class _AxesBase(martist.Artist):
         anchor defines where the drawing area will be located within the
         available space.
 
-        ..
-            ACCEPTS:
-            [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
+        .. ACCEPTS: [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
 
         Parameters
         ----------
@@ -2134,8 +2128,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling is applied on plot commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2148,8 +2141,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the x-axis is applied on plot commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2161,8 +2153,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the y-axis is applied on plot commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2205,8 +2196,7 @@ class _AxesBase(martist.Artist):
         I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
         a range [0.2, 1.8].
 
-        ..
-            ACCEPTS: float greater than -0.5
+        .. ACCEPTS: float greater than -0.5
 
         Parameters
         ----------
@@ -2230,8 +2220,7 @@ class _AxesBase(martist.Artist):
         I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
         a range [0.2, 1.8].
 
-        ..
-            ACCEPTS: float greater than -0.5
+        .. ACCEPTS: float greater than -0.5
 
         Parameters
         ----------
@@ -2307,8 +2296,7 @@ class _AxesBase(martist.Artist):
             zorder below which artists are rasterized.  ``None`` means that
             artists do not get rasterized based on zorder.
 
-            ..
-                ACCEPTS: float or None
+            .. ACCEPTS: float or None
         """
         self._rasterization_zorder = z
         self.stale = True
@@ -2589,8 +2577,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether the axes rectangle patch is drawn.
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2609,8 +2596,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether axis ticks and gridlines are above or below most artists.
 
-        ..
-            ACCEPTS: [ bool | 'line' ]
+        .. ACCEPTS: [ bool | 'line' ]
 
         Parameters
         ----------
@@ -2924,8 +2910,7 @@ class _AxesBase(martist.Artist):
         This method will honor axes inversion regardless of parameter order.
         It will not change the _autoscaleXon attribute.
 
-        ..
-            ACCEPTS: (lower: float, upper: float)
+        .. ACCEPTS: (lower: float, upper: float)
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -2989,8 +2974,7 @@ class _AxesBase(martist.Artist):
         """
         Set the data limits for the x-axis
 
-        ..
-            ACCEPTS: (left: float, right: float)
+        .. ACCEPTS: (left: float, right: float)
 
         Parameters
         ----------
@@ -3102,8 +3086,7 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis scale.
 
-        ..
-            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
+        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Parameters
         ----------
@@ -3141,8 +3124,7 @@ class _AxesBase(martist.Artist):
         """
         Set the x ticks with list of *ticks*
 
-        ..
-            ACCEPTS: list of tick locations.
+        .. ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3210,8 +3192,7 @@ class _AxesBase(martist.Artist):
         """
         Set the x-tick labels with list of string labels.
 
-        ..
-            ACCEPTS: list of string labels
+        .. ACCEPTS: list of string labels
 
         Parameters
         ----------
@@ -3268,8 +3249,7 @@ class _AxesBase(martist.Artist):
         This method will honor axes inversion regardless of parameter order.
         It will not change the _autoscaleYon attribute.
 
-        ..
-            ACCEPTS: (lower: float, upper: float)
+        .. ACCEPTS: (lower: float, upper: float)
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -3314,8 +3294,7 @@ class _AxesBase(martist.Artist):
         """
         Set the data limits for the y-axis
 
-        ..
-            ACCEPTS: (bottom: float, top: float)
+        .. ACCEPTS: (bottom: float, top: float)
 
         Parameters
         ----------
@@ -3427,8 +3406,7 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis scale.
 
-        ..
-            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
+        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Parameters
         ----------
@@ -3465,8 +3443,7 @@ class _AxesBase(martist.Artist):
         """
         Set the y ticks with list of *ticks*
 
-        ..
-            ACCEPTS: list of tick locations.
+        .. ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3533,8 +3510,7 @@ class _AxesBase(martist.Artist):
         """
         Set the y-tick labels with list of strings labels.
 
-        ..
-            ACCEPTS: list of string labels
+        .. ACCEPTS: list of string labels
 
         Parameters
         ----------
@@ -3671,8 +3647,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether the axes responds to navigation toolbar commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------

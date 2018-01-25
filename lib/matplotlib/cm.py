@@ -278,8 +278,7 @@ class ScalarMappable(object):
     def set_array(self, A):
         """Set the image array from numpy array *A*.
 
-        ..
-            ACCEPTS: ndarray
+        .. ACCEPTS: ndarray
 
         Parameters
         ----------
@@ -332,8 +331,7 @@ class ScalarMappable(object):
     def set_norm(self, norm):
         """Set the normalization instance.
 
-        ..
-            ACCEPTS: `~.Normalize`
+        .. ACCEPTS: `~.Normalize`
 
         Parameters
         ----------

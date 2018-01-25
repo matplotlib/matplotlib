@@ -1139,8 +1139,7 @@ class Legend(Artist):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._drawFrame = b
         self.stale = True

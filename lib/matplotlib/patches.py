@@ -259,8 +259,7 @@ class Patch(artist.Artist):
         Parameters
         ----------
         b : bool or None
-            ..
-                ACCEPTS: bool or None
+            .. ACCEPTS: bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -422,8 +421,7 @@ class Patch(artist.Artist):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)

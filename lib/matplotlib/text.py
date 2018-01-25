@@ -241,8 +241,7 @@ class Text(Artist):
         """
         Set text rotation mode.
 
-        ..
-            ACCEPTS: [ None | "default" | "anchor" ]
+        .. ACCEPTS: [ None | "default" | "anchor" ]
 
         Parameters
         ----------
@@ -573,8 +572,7 @@ class Text(Artist):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         super(Text, self).set_clip_on(b)
         self._update_clip_properties()
@@ -589,8 +587,7 @@ class Text(Artist):
         Parameters
         ----------
         wrap : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._wrap = wrap
 
@@ -1217,8 +1214,7 @@ class Text(Artist):
             Whether to render using TeX, ``None`` means to use the
             ``rcParams['text.usetex']``.
 
-            ..
-                ACCEPTS: bool or None
+            .. ACCEPTS: bool or None
         """
         if usetex is None:
             self._usetex = rcParams['text.usetex']

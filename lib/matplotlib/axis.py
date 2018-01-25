@@ -2315,8 +2315,7 @@ class YAxis(Axis):
 
     def set_offset_position(self, position):
         """
-        ..
-            ACCEPTS: [ 'left' | 'right' ]
+        .. ACCEPTS: [ 'left' | 'right' ]
         """
         x, y = self.offsetText.get_position()
         if position == 'left':

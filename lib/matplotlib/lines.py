@@ -513,8 +513,7 @@ class Line2D(Artist):
     def set_pickradius(self, d):
         """Set the pick radius used for containment tests.
 
-        ..
-            ACCEPTS: float distance in points
+        .. ACCEPTS: float distance in points
 
         Parameters
         ----------
@@ -971,8 +970,7 @@ class Line2D(Artist):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         if self._antialiased != b:
             self.stale = True
