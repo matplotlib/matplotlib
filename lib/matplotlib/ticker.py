@@ -727,7 +727,7 @@ class ScalarFormatter(Formatter):
                 oom = 0
             else:
                 oom = math.floor(math.log10(val))
-        if self._powerlimits[0]==self._powerlimits[1] and self._powerlimits[0] != 0:
+        if self._powerlimits[0] == self._powerlimits[1] != 0:
             # fixed scaling when lower power limit = upper <> 0.
             self.orderOfMagnitude = self._powerlimits[0]
         elif oom <= self._powerlimits[0]:
