@@ -23,15 +23,16 @@ def _get_testable_interactive_backends():
                           (["PyQt5"], "qt5agg"),
                           (["tkinter"], "tkagg"),
                           (["wx"], "wxagg")]:
-        reason = None
+        mark = lambda backend: backend
         if sys.version_info < (3,):
-            reason = "Py3-only test"
+            mark = pytest.mark.skip(reason="Py3-only test")
         elif not os.environ.get("DISPLAY"):
-            reason = "No $DISPLAY"
+            mark = pytest.mark.skip(reason="No $DISPLAY")
         elif any(importlib.util.find_spec(dep) is None for dep in deps):
-            reason = "Missing dependency"
-        backends.append(pytest.mark.skip(reason=reason)(backend) if reason
-                        else backend)
+            mark = pytest.mark.skip(reason="Missing dependency")
+        elif backend == "qt5agg":
+            mark = pytest.mark.xfail(reason="Currently broken on Travis")
+        backends.append(mark(backend))
     return backends
 
 
