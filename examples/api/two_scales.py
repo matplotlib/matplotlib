@@ -20,10 +20,9 @@ import matplotlib.pyplot as plt
 
 def two_scales(ax1, time, data1, data2, c1, c2):
     """
-
     Parameters
     ----------
-    ax : axis
+    ax1 : axis
         Axis to put two scales on
 
     time : array-like
@@ -43,10 +42,11 @@ def two_scales(ax1, time, data1, data2, c1, c2):
 
     Returns
     -------
-    ax : axis
+    ax1 : axis
         Original axis
     ax2 : axis
         New twin axis
+
     """
     ax2 = ax1.twinx()
 
@@ -56,8 +56,8 @@ def two_scales(ax1, time, data1, data2, c1, c2):
 
     ax2.plot(time, data2, color=c2)
     ax2.set_ylabel('sin')
-    return ax1, ax2
 
+    return ax1, ax2
 
 # Create some mock data
 t = np.arange(0.01, 10.0, 0.01)
@@ -68,7 +68,6 @@ s2 = np.sin(2 * np.pi * t)
 fig, ax = plt.subplots()
 ax1, ax2 = two_scales(ax, t, s1, s2, 'r', 'b')
 
-
 # Change color of each axis
 def color_y_axis(ax, color):
     """Color your axes."""
@@ -77,4 +76,6 @@ def color_y_axis(ax, color):
     return None
 color_y_axis(ax1, 'r')
 color_y_axis(ax2, 'b')
+
+fig.tight_layout()  # otherwise y-labels are slightly clipped
 plt.show()
