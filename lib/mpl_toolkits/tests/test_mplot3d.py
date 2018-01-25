@@ -154,7 +154,7 @@ def test_mixedsubplots():
 
     ax = fig.add_subplot(2, 1, 2, projection='3d')
     X, Y = np.meshgrid(np.arange(-5, 5, 0.25), np.arange(-5, 5, 0.25))
-    R = np.sqrt(X ** 2 + Y ** 2)
+    R = np.hypot(X, Y)
     Z = np.sin(R)
 
     surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40,
@@ -202,7 +202,7 @@ def test_surface3d():
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
     X, Y = np.meshgrid(X, Y)
-    R = np.sqrt(X ** 2 + Y ** 2)
+    R = np.hypot(X, Y)
     Z = np.sin(R)
     surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap=cm.coolwarm,
                            lw=0, antialiased=False)

@@ -291,7 +291,7 @@ def test_corner_mask():
     np.random.seed([1])
     x, y = np.meshgrid(np.linspace(0, 2.0, n), np.linspace(0, 2.0, n))
     z = np.cos(7*x)*np.sin(8*y) + noise_amp*np.random.rand(n, n)
-    mask = np.where(np.random.rand(n, n) >= mask_level, True, False)
+    mask = np.random.rand(n, n) >= mask_level
     z = np.ma.array(z, mask=mask)
 
     for corner_mask in [False, True]:
@@ -362,7 +362,7 @@ def test_circular_contour_warning():
     # Check that almost circular contours don't throw a warning
     with pytest.warns(None) as record:
         x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
-        r = np.sqrt(x ** 2 + y ** 2)
+        r = np.hypot(x, y)
 
         plt.figure()
         cs = plt.contour(x, y, r)

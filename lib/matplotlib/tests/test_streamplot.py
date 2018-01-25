@@ -53,9 +53,9 @@ def test_colormap():
                   remove_text=True, style='mpl20')
 def test_linewidth():
     X, Y, U, V = velocity_field()
-    speed = np.sqrt(U*U + V*V)
-    lw = 5*speed/speed.max()
-    df = 25. / 30.   # Compatibility factor for old test image
+    speed = np.hypot(U, V)
+    lw = 5 * speed / speed.max()
+    df = 25 / 30   # Compatibility factor for old test image
     plt.streamplot(X, Y, U, V, density=[0.5 * df, 1. * df], color='k',
                    linewidth=lw)
 

@@ -1173,7 +1173,7 @@ def test_pcolorargs():
     x = np.linspace(-1.5, 1.5, n)
     y = np.linspace(-1.5, 1.5, n*2)
     X, Y = np.meshgrid(x, y)
-    Z = np.sqrt(X**2 + Y**2)/5
+    Z = np.hypot(X, Y) / 5
 
     _, ax = plt.subplots()
     with pytest.raises(TypeError):
