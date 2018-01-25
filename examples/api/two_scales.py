@@ -23,39 +23,31 @@ def two_scales(ax1, time, data1, data2, c1, c2):
     Parameters
     ----------
     ax1 : axis
-        Axis to put two scales on
+        Axis to share a second scale with.
 
     time : array-like
-        x-axis values for both datasets
+        x-axis values for both datasets.
 
-    data1: array-like
-        Data for left hand scale
+    data1, data2: array-like
+        Data for respectively the left and the right hand scale.
 
-    data2 : array-like
-        Data for right hand scale
-
-    c1 : color
-        Color for line 1
-
-    c2 : color
-        Color for line 2
+    c1, c2 : color
+        Color for respectively the left and the right hand scale.
 
     Returns
     -------
-    ax1 : axis
-        Original axis
-    ax2 : axis
-        New twin axis
+    ax1, ax2 : tuple of axis instances
+        Respectively the original axis and its new twin axis.
 
     """
-    ax2 = ax1.twinx()
+    ax2 = ax1.twinx()  # create a second axes that shares the same x-axis
 
-    ax1.plot(time, data1, color=c1)
-    ax1.set_xlabel('time (s)')
-    ax1.set_ylabel('exp')
-
-    ax2.plot(time, data2, color=c2)
-    ax2.set_ylabel('sin')
+    for ax, data, c in ((ax1, data1, c1), (ax2, data2, c2)):
+        ax.plot(time, data, color=c)
+        # Color the y-axis (both label and tick labels)
+        ax.yaxis.label.set_color(c)
+        for t in ax.get_yticklabels():
+            t.set_color(c)
 
     return ax1, ax2
 
@@ -64,18 +56,14 @@ t = np.arange(0.01, 10.0, 0.01)
 s1 = np.exp(t)
 s2 = np.sin(2 * np.pi * t)
 
-# Create axes
+# Create axes and plot the mock data onto them
 fig, ax = plt.subplots()
 ax1, ax2 = two_scales(ax, t, s1, s2, 'r', 'b')
 
-# Change color of each axis
-def color_y_axis(ax, color):
-    """Color your axes."""
-    for t in ax.get_yticklabels():
-        t.set_color(color)
-    return None
-color_y_axis(ax1, 'r')
-color_y_axis(ax2, 'b')
+# Label both axes
+ax1.set_xlabel('time (s)')
+ax1.set_ylabel('exp')
+ax2.set_ylabel('sin')  # NB: we already took care of the x-label with ax1
 
-fig.tight_layout()  # otherwise y-labels are slightly clipped
+fig.tight_layout()  # otherwise the y-labels are slightly clipped
 plt.show()
