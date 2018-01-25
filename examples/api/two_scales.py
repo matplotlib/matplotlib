@@ -22,22 +22,20 @@ t = np.arange(0.01, 10.0, 0.01)
 data1 = np.exp(t)
 data2 = np.sin(2 * np.pi * t)
 
-# Create a pair of twin axes (ax1 and ax2) that share the same x-axis
 fig, ax1 = plt.subplots()
-ax2 = ax1.twinx()  # create the second `Axes` instance
 
-# Plot a different set of data on each axes
-for ax, data, c in ((ax1, data1, "red"), (ax2, data2, "blue")):
-    ax.plot(t, data, color=c)
-    # Color the y-axis (both label and tick labels) accordingly to the data
-    ax.yaxis.label.set_color(c)
-    for tl in ax.get_yticklabels():
-        tl.set_color(c)
-
-# Label both axes
+color = 'tab:red'
 ax1.set_xlabel('time (s)')
-ax1.set_ylabel('exp')
-ax2.set_ylabel('sin')  # NB: we already took care of the x-label with ax1
+ax1.set_ylabel('exp', color=color)
+ax1.plot(t, data1, color=color)
+ax1.tick_params(axis='y', labelcolor=color)
+
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:blue'
+ax2.set_ylabel('sin', color=color)  # we already handled the x-label with ax1
+ax2.plot(t, data2, color=color)
+ax2.tick_params(axis='y', labelcolor=color)
 
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
