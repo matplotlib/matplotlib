@@ -711,9 +711,13 @@ class ScalarFormatter(Formatter):
     def _set_orderOfMagnitude(self, range):
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the
-        # offset
+        # offset. When lower power limit = upper <> 0, use provided exponent.
         if not self._scientific:
             self.orderOfMagnitude = 0
+            return
+        if self._powerlimits[0] == self._powerlimits[1] != 0:
+            # fixed scaling when lower power limit = upper <> 0.
+            self.orderOfMagnitude = self._powerlimits[0]
             return
         locs = np.abs(self.locs)
         if self.offset:
@@ -727,10 +731,7 @@ class ScalarFormatter(Formatter):
                 oom = 0
             else:
                 oom = math.floor(math.log10(val))
-        if self._powerlimits[0] == self._powerlimits[1] != 0:
-            # fixed scaling when lower power limit = upper <> 0.
-            self.orderOfMagnitude = self._powerlimits[0]
-        elif oom <= self._powerlimits[0]:
+        if oom <= self._powerlimits[0]:
             self.orderOfMagnitude = oom
         elif oom >= self._powerlimits[1]:
             self.orderOfMagnitude = oom
