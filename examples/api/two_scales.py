@@ -17,53 +17,26 @@ have different top and bottom scales.
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-def two_scales(ax1, time, data1, data2, c1, c2):
-    """
-    Parameters
-    ----------
-    ax1 : axis
-        Axis to share a second scale with.
-
-    time : array-like
-        x-axis values for both datasets.
-
-    data1, data2: array-like
-        Data for respectively the left and the right hand scale.
-
-    c1, c2 : color
-        Color for respectively the left and the right hand scale.
-
-    Returns
-    -------
-    ax1, ax2 : tuple of axis instances
-        Respectively the original axis and its new twin axis.
-
-    """
-    ax2 = ax1.twinx()  # create a second axes that shares the same x-axis
-
-    for ax, data, c in ((ax1, data1, c1), (ax2, data2, c2)):
-        ax.plot(time, data, color=c)
-        # Color the y-axis (both label and tick labels)
-        ax.yaxis.label.set_color(c)
-        for t in ax.get_yticklabels():
-            t.set_color(c)
-
-    return ax1, ax2
-
 # Create some mock data
 t = np.arange(0.01, 10.0, 0.01)
-s1 = np.exp(t)
-s2 = np.sin(2 * np.pi * t)
+data1 = np.exp(t)
+data2 = np.sin(2 * np.pi * t)
 
-# Create axes and plot the mock data onto them
-fig, ax = plt.subplots()
-ax1, ax2 = two_scales(ax, t, s1, s2, 'r', 'b')
+# Create twin axes and plot the mock data onto them
+fig, ax1 = plt.subplots()
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+for ax, data, c in ((ax1, data1, "red"), (ax2, data2, "blue")):
+    ax.plot(t, data, color=c)
+    # Color the y-axis (both label and tick labels)
+    ax.yaxis.label.set_color(c)
+    for tl in ax.get_yticklabels():
+        tl.set_color(c)
 
 # Label both axes
 ax1.set_xlabel('time (s)')
 ax1.set_ylabel('exp')
 ax2.set_ylabel('sin')  # NB: we already took care of the x-label with ax1
 
-fig.tight_layout()  # otherwise the y-labels are slightly clipped
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
