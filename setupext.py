@@ -1437,7 +1437,10 @@ class InstallRequires(SetupPackage):
             "six>=1.10",
         ]
         if sys.version_info < (3,):
-            install_requires += ["backports.functools_lru_cache"]
+            install_requires += [
+                "backports.functools_lru_cache",
+                "funcsigs",
+            ]
         if sys.version_info < (3,) and os.name == "posix":
             install_requires += ["subprocess32"]
         return install_requires

@@ -1606,44 +1606,39 @@ class _AxesBase(martist.Artist):
                 self.set_xbound((x0, x1))
 
     def axis(self, *v, **kwargs):
-        """Set axis properties.
+        """Convenience method to get or set axis properties.
 
         Valid signatures::
 
-          xmin, xmax, ymin, ymax = axis()
-          xmin, xmax, ymin, ymax = axis(list_arg)
-          xmin, xmax, ymin, ymax = axis(string_arg)
-          xmin, xmax, ymin, ymax = axis(**kwargs)
+          xmin, xmax, ymin, ymax = axis(*, emit=True)
+          xmin, xmax, ymin, ymax = axis(_string_arg_, *, emit=True)
+          xmin, xmax, ymin, ymax = axis([xmin, ymin, xmax, ymax], *, emit=True)
 
         Parameters
         ----------
-        v : list of float or {'on', 'off', 'equal', 'tight', 'scaled',\
-            'normal', 'auto', 'image', 'square'}
-            Optional positional argument
+        _string_arg_ : str, optional
 
-            Axis data limits set from a list; or a command relating to axes:
+            The following values are allowed:
 
-                ========== ================================================
-                Value      Description
-                ========== ================================================
-                'on'       Toggle axis lines and labels on
-                'off'      Toggle axis lines and labels off
-                'equal'    Equal scaling by changing limits
-                'scaled'   Equal scaling by changing box dimensions
-                'tight'    Limits set such that all data is shown
-                'auto'     Automatic scaling, fill rectangle with data
-                'normal'   Same as 'auto'; deprecated
-                'image'    'scaled' with axis limits equal to data limits
-                'square'   Square plot; similar to 'scaled', but initially\
-                           forcing xmax-xmin = ymax-ymin
-                ========== ================================================
-
-        emit : bool, optional
-            Passed to set_{x,y}lim functions, if observers
-            are notified of axis limit change
+            ========== =======================================================
+            Value      Description
+            ========== =======================================================
+            'on'       Toggle axis lines and labels on
+            'off'      Toggle axis lines and labels off
+            'equal'    Equal scaling by changing limits
+            'scaled'   Equal scaling by changing box dimensions
+            'tight'    Limits set such that all data is shown
+            'auto'     Automatic scaling, fill rectangle with data
+            'image'    'scaled' with axis limits equal to data limits
+            'square'   Square plot; similar to 'scaled', but initially forcing
+                       ``xmax-xmin = ymax-ymin``
+            ========== =======================================================
 
         xmin, ymin, xmax, ymax : float, optional
             The axis limits to be set
+
+        emit : bool, optional
+            Whether observers are notified of axes limit changes.
 
         Returns
         -------
@@ -1665,17 +1660,15 @@ class _AxesBase(martist.Artist):
                 self.set_axis_on()
             elif s == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'normal',
-                       'auto', 'image', 'square'):
+            elif s in ['equal', 'tight', 'scaled', 'auto', 'image', 'square']:
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
-                # self.apply_aspect()
                 if s == 'equal':
                     self.set_aspect('equal', adjustable='datalim')
                 elif s == 'scaled':
                     self.set_aspect('equal', adjustable='box', anchor='C')
-                    self.set_autoscale_on(False)  # Req. by Mark Bakker
+                    self.set_autoscale_on(False)
                 elif s == 'tight':
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
@@ -1770,18 +1763,19 @@ class _AxesBase(martist.Artist):
     # Adding and tracking artists
 
     def _sci(self, im):
-        """
-        helper for :func:`~matplotlib.pyplot.sci`;
-        do not use elsewhere.
+        """Set the current image.
+
+        This image will be the target of colormap functions like
+        `~matplotlib.pyplot.viridis`, and other functions such as
+        `~matplotlib.pyplot.hot` or `~matplotlib.pyplot.clim`.  The current
+        image is an attribute of the current axes.
         """
         if isinstance(im, matplotlib.contour.ContourSet):
             if im.collections[0] not in self.collections:
-                raise ValueError(
-                    "ContourSet must be in current Axes")
+                raise ValueError("ContourSet must be in current Axes")
         elif im not in self.images and im not in self.collections:
-            raise ValueError(
-                "Argument must be an image, collection, or ContourSet in "
-                "this Axes")
+            raise ValueError("Argument must be an image, collection, or "
+                             "ContourSet in this Axes")
         self._current_image = im
 
     def _gci(self):
@@ -3102,13 +3096,13 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis scale.
 
-        ..
-            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
-
         Parameters
         ----------
         value : {"linear", "log", "symlog", "logit"}
             scaling strategy to apply
+
+            ..
+                ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Notes
         -----
@@ -3427,13 +3421,13 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis scale.
 
-        ..
-            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
-
         Parameters
         ----------
         value : {"linear", "log", "symlog", "logit"}
             scaling strategy to apply
+
+            ..
+                ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Notes
         -----
