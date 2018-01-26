@@ -1928,7 +1928,8 @@ class Affine2D(Affine2DBase):
         """
         Affine2DBase.__init__(self, **kwargs)
         if matrix is None:
-            matrix = np.identity(3)
+            # A bit faster than np.identity(3).
+            matrix = IdentityTransform._mtx.copy()
         self._mtx = matrix
         self._invalid = 0
 
@@ -1999,13 +2000,14 @@ class Affine2D(Affine2DBase):
         Unless this transform will be mutated later on, consider using
         the faster :class:`IdentityTransform` class instead.
         """
-        return Affine2D(np.identity(3))
+        return Affine2D()
 
     def clear(self):
         """
         Reset the underlying matrix to the identity transform.
         """
-        self._mtx = np.identity(3)
+        # A bit faster than np.identity(3).
+        self._mtx = IdentityTransform._mtx.copy()
         self.invalidate()
         return self
 
