@@ -5,13 +5,13 @@ Interp Demo
 
 """
 import matplotlib.pyplot as plt
-from numpy import pi, sin, linspace
+import numpy as np
 from matplotlib.mlab import stineman_interp
 
-x = linspace(0, 2*pi, 20)
-y = sin(x)
+x = np.linspace(0, 2*np.pi, 20)
+y = np.sin(x)
 yp = None
-xi = linspace(x[0], x[-1], 100)
+xi = np.linspace(x[0], x[-1], 100)
 yi = stineman_interp(xi, x, y, yp)
 
 fig, ax = plt.subplots()

@@ -13,19 +13,18 @@ formatting and axis labeling.
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
+
+import matplotlib.pyplot as plt
 import numpy as np
+
 from basic_units import radians, degrees, cos
-from matplotlib.pyplot import figure, show
 
 x = [val*radians for val in np.arange(0, 15, 0.01)]
 
-fig = figure()
-fig.subplots_adjust(hspace=0.3)
+fig, axs = plt.subplots(2)
 
-ax = fig.add_subplot(211)
-line1, = ax.plot(x, cos(x), xunits=radians)
+axs[0].plot(x, cos(x), xunits=radians)
+axs[1].plot(x, cos(x), xunits=degrees)
 
-ax = fig.add_subplot(212)
-line2, = ax.plot(x, cos(x), xunits=degrees)
-
-show()
+fig.tight_layout()
+plt.show()

@@ -12,7 +12,6 @@ import pytz
 
 import numpy as np
 from numpy import ma
-from numpy import arange
 from cycler import cycler
 import pytest
 
@@ -4606,10 +4605,10 @@ def test_set_get_ticklabels():
     fig, ax = plt.subplots(2)
     ha = ['normal', 'set_x/yticklabels']
 
-    ax[0].plot(arange(10))
+    ax[0].plot(np.arange(10))
     ax[0].set_title(ha[0])
 
-    ax[1].plot(arange(10))
+    ax[1].plot(np.arange(10))
     ax[1].set_title(ha[1])
 
     # set ticklabel to 1 plot in normal way

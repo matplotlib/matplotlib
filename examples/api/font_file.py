@@ -15,7 +15,8 @@ For a more flexible solution, see :doc:`/gallery/api/font_family_rc_sgskip` and
 """
 
 import os
-from matplotlib import font_manager as fm, pyplot as plt, rcParams
+from matplotlib import font_manager as fm, rcParams
+import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 

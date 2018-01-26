@@ -7,7 +7,7 @@ This shows an example of the "fivethirtyeight" styling, which
 tries to replicate the styles from FiveThirtyEight.com.
 """
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 
 
