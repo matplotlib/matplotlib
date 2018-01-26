@@ -259,7 +259,7 @@ class ScalarMappable(object):
                         xx = (xx * 255).astype(np.uint8)
                 elif xx.dtype == np.uint8:
                     if not bytes:
-                        xx = xx.astype(float) / 255
+                        xx = xx.astype(np.float32) / 255
                 else:
                     raise ValueError("Image RGB array must be uint8 or "
                                      "floating point; found %s" % xx.dtype)
