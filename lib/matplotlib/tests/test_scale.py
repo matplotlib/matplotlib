@@ -84,6 +84,7 @@ def test_logscale_invert_transform():
     # direct test of log transform inversion
     assert isinstance(Log10Transform().inverted(), InvertedLog10Transform)
 
+
 def test_logscale_transform_repr():
     # check that repr of log transform succeeds
     fig, ax = plt.subplots()
@@ -92,7 +93,7 @@ def test_logscale_transform_repr():
 
     # check that repr of log transform returns correct string
     s = repr(Log10Transform(nonpos='clip'))
-    assert s == "Log10Transform('clip')"
+    assert s == "Log10Transform({!r})".format('clip')
 
 
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
