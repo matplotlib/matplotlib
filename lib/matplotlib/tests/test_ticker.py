@@ -227,6 +227,17 @@ class TestScalarFormatter(object):
     ]
 
     use_offset_data = [True, False]
+    
+    scilimits_data = [
+        (False, (0, 0), (10.0, 20.0), 0),
+        (True, (-2, 2), (-10, 20), 0),
+        (True, (-2, 2), (-20, 10), 0),
+        (True, (-2, 2), (-110, 120), 2),
+        (True, (-2, 2), (-120, 110), 2),
+        (True, (-2, 2), (-.001, 0.002), -3),
+        (True, (0, 0), (-1e5, 1e5), 5),
+        (True, (6, 6), (-1e5, 1e5), 6),
+    ]
 
     @pytest.mark.parametrize('left, right, offset', offset_data)
     def test_offset_value(self, left, right, offset):
@@ -257,7 +268,17 @@ class TestScalarFormatter(object):
             tmp_form = mticker.ScalarFormatter()
             assert use_offset == tmp_form.get_useOffset()
 
-
+    @pytest.mark.parametrize('sci_type, scilimits, lim, orderOfMag', scilimits_data)
+    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag):
+        tmp_form = mticker.ScalarFormatter()
+        tmp_form.set_scientific(sci_type)
+        tmp_form.set_powerlimits(scilimits)
+        fig, ax = plt.subplots()
+        ax.yaxis.set_major_formatter(tmp_form)
+        ax.set_ylim(*lim)
+        tmp_form.set_locs(ax.yaxis.get_majorticklocs())
+        assert orderOfMag == tmp_form.orderOfMagnitude
+            
 class FakeAxis(object):
     """Allow Formatter to be called without having a "full" plot set up."""
     def __init__(self, vmin=1, vmax=10):
