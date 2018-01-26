@@ -2431,7 +2431,7 @@ class EllipseSelector(RectangleSelector):
             self.to_draw.width = 2 * a
             self.to_draw.height = 2 * b
         else:
-            rad = np.arange(31) * 12 * np.pi / 180
+            rad = np.deg2rad(np.arange(31) * 12)
             x = a * np.cos(rad) + center[0]
             y = b * np.sin(rad) + center[1]
             self.to_draw.set_data(x, y)
