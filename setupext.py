@@ -1493,6 +1493,8 @@ class BackendTkAgg(OptionalBackendPackage):
         if sys.platform == 'win32':
             # PSAPI library needed for finding Tcl / Tk at run time
             ext.libraries.extend(['psapi'])
+        elif sys.platform.startswith('linux'):
+            ext.libraries.extend(['dl'])
 
 
 class BackendGtk(OptionalBackendPackage):
