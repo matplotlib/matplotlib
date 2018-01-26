@@ -234,13 +234,6 @@ class Tick(artist.Artist):
                     self.gridline, self.label1, self.label2]
         return children
 
-    def set_clip_path(self, clippath, transform=None):
-        artist.Artist.set_clip_path(self, clippath, transform)
-        self.gridline.set_clip_path(clippath, transform)
-        self.stale = True
-
-    set_clip_path.__doc__ = artist.Artist.set_clip_path.__doc__
-
     def get_pad_pixels(self):
         return self.figure.dpi * self._base_pad / 72.0
 
@@ -492,7 +485,6 @@ class XTick(Tick):
                           markersize=self._size,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
-
         l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
         self._set_artist_props(l)
         return l
@@ -510,7 +502,6 @@ class XTick(Tick):
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
-
         return l
 
     def update_position(self, loc):
@@ -834,10 +825,6 @@ class Axis(artist.Artist):
             del self.minorTicks
         except AttributeError:
             pass
-        try:
-            self.set_clip_path(self.axes.patch)
-        except AttributeError:
-            pass
 
     def set_tick_params(self, which='major', reset=False, **kw):
         """
@@ -921,12 +908,6 @@ class Axis(artist.Artist):
         else:
             raise NotImplementedError("Inverse translation is deferred")
         return kwtrans
-
-    def set_clip_path(self, clippath, transform=None):
-        artist.Artist.set_clip_path(self, clippath, transform)
-        for child in self.majorTicks + self.minorTicks:
-            child.set_clip_path(clippath, transform)
-        self.stale = True
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
