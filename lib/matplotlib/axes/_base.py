@@ -2667,12 +2667,14 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
           *style*          [ 'sci' (or 'scientific') | 'plain' ]
                            plain turns off scientific notation
-          *scilimits*      (m, n), pair of integers; if *style*
+          *scilimits*      [ (m, n) | m ], a pair of integers or 
+                           a single integer; if *style*
                            is 'sci', scientific notation will
                            be used for numbers outside the range
                            10`m`:sup: to 10`n`:sup:.
                            Use (0,0) to include all numbers.
-                           Use (m,m) to fix scaling to 10`m`:sup:.
+                           Use a single integer m, or equivalently
+                           (m,m) to fix the scale to 10`m`:sup:.
           *useOffset*      [ bool | offset ]; if True,
                            the offset will be calculated as needed;
                            if False, no offset will be used; if a
@@ -2704,11 +2706,17 @@ class _AxesBase(martist.Artist):
         useMathText = kwargs.pop('useMathText', None)
         axis = kwargs.pop('axis', 'both').lower()
         if scilimits is not None:
-            try:
-                m, n = scilimits
-                m + n + 1  # check that both are numbers
-            except (ValueError, TypeError):
-                raise ValueError("scilimits must be a sequence of 2 integers")
+            if type(scilimits) == int:
+                m = n = scilimits
+            else:
+                try:
+                    m, n = scilimits
+                    m + n + 1  # check that both are numbers
+                except (ValueError, TypeError):
+                    raise ValueError(
+                        "scilimits must be a single integer or " +
+                        "a sequence of 2 integers"
+                    )
         if style[:3] == 'sci':
             sb = True
         elif style == 'plain':
