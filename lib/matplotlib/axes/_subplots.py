@@ -144,9 +144,11 @@ class SubplotBase(object):
 
     def _make_twin_axes(self, *kl, **kwargs):
         """
-        make a twinx axes of self. This is used for twinx and twiny.
+        Make a twinx axes of self. This is used for twinx and twiny.
         """
         from matplotlib.projections import process_projection_requirements
+        if 'sharex' in kwargs and 'sharey' in kwargs:
+            raise ValueError("Twinned Axes may share only one axis.")
         kl = (self.get_subplotspec(),) + kl
         projection_class, kwargs, key = process_projection_requirements(
             self.figure, *kl, **kwargs)
@@ -154,6 +156,9 @@ class SubplotBase(object):
         ax2 = subplot_class_factory(projection_class)(self.figure,
                                                       *kl, **kwargs)
         self.figure.add_subplot(ax2)
+        self.set_adjustable('datalim')
+        ax2.set_adjustable('datalim')
+        self._twinned_axes.join(self, ax2)
         return ax2
 
 _subplot_classes = {}
