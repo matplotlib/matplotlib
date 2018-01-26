@@ -604,22 +604,18 @@ def test_const_xy():
 @image_comparison(baseline_images=['polar_wrap_180', 'polar_wrap_360'],
                   style='default')
 def test_polar_wrap():
-    D2R = np.pi / 180.0
-
     fig = plt.figure()
-
     plt.subplot(111, polar=True)
-
-    plt.polar([179*D2R, -179*D2R], [0.2, 0.1], "b.-")
-    plt.polar([179*D2R,  181*D2R], [0.2, 0.1], "g.-")
+    plt.polar(np.deg2rad([179, -179]), [0.2, 0.1], "b.-")
+    plt.polar(np.deg2rad([179,  181]), [0.2, 0.1], "g.-")
     plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
     assert len(fig.axes) == 1, 'More than one polar axes created.'
-    fig = plt.figure()
 
+    fig = plt.figure()
     plt.subplot(111, polar=True)
-    plt.polar([2*D2R, -2*D2R], [0.2, 0.1], "b.-")
-    plt.polar([2*D2R,  358*D2R], [0.2, 0.1], "g.-")
-    plt.polar([358*D2R,  2*D2R], [0.2, 0.1], "r.-")
+    plt.polar(np.deg2rad([2, -2]), [0.2, 0.1], "b.-")
+    plt.polar(np.deg2rad([2, 358]), [0.2, 0.1], "g.-")
+    plt.polar(np.deg2rad([358, 2]), [0.2, 0.1], "r.-")
     plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
 
 
@@ -1253,11 +1249,11 @@ def test_arc_ellipse():
     width, height = 1e-1, 3e-1
     angle = -30
 
-    theta = np.arange(0.0, 360.0, 1.0) * np.pi / 180.0
+    theta = np.deg2rad(np.arange(360))
     x = width / 2. * np.cos(theta)
     y = height / 2. * np.sin(theta)
 
-    rtheta = angle * np.pi / 180.
+    rtheta = np.deg2rad(angle)
     R = np.array([
         [np.cos(rtheta), -np.sin(rtheta)],
         [np.sin(rtheta), np.cos(rtheta)]])

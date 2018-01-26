@@ -203,7 +203,7 @@ class GeoAxes(Axes):
         """
         Set the latitude(s) at which to stop drawing the longitude grids.
         """
-        self._longitude_cap = degrees * (np.pi / 180.0)
+        self._longitude_cap = np.deg2rad(degrees)
         self._xaxis_pretransform \
             .clear() \
             .scale(1.0, self._longitude_cap * 2.0) \

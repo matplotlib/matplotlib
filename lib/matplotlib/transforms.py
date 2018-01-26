@@ -1623,7 +1623,7 @@ class Transform(TransformNode):
 
         # Convert back to degrees if desired
         if not radians:
-            a = a * 180.0 / np.pi
+            a = np.rad2deg(a)
 
         return a
 
@@ -2033,7 +2033,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.rotate(degrees * np.pi / 180.)
+        return self.rotate(np.deg2rad(degrees))
 
     def rotate_around(self, x, y, theta):
         """
