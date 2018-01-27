@@ -2667,7 +2667,7 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
           *style*          [ 'sci' (or 'scientific') | 'plain' ]
                            plain turns off scientific notation
-          *scilimits*      [ (m, n) | m ], a pair of integers or 
+          *scilimits*      [ (m, n) | m ], a pair of integers or
                            a single integer; if *style*
                            is 'sci', scientific notation will
                            be used for numbers outside the range
