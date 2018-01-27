@@ -43,7 +43,7 @@ def layers(n, m):
         y = 2 * np.random.random() - .5
         z = 10 / (.1 + np.random.random())
         for i in range(m):
-            w = (i / float(m) - y) * z
+            w = (i / m - y) * z
             a[i] += x * np.exp(-w * w)
     a = np.zeros((m, n))
     for i in range(n):

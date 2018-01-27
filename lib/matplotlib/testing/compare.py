@@ -367,12 +367,8 @@ def calculate_rms(expectedImage, actualImage):
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {0} "
             "actual size {1}".format(expectedImage.shape, actualImage.shape))
-    num_values = expectedImage.size
-    abs_diff_image = abs(expectedImage - actualImage)
-    histogram = np.bincount(abs_diff_image.ravel(), minlength=256)
-    sum_of_squares = np.sum(histogram * np.arange(len(histogram)) ** 2)
-    rms = np.sqrt(float(sum_of_squares) / num_values)
-    return rms
+    # Convert to float to avoid overflowing finite integer types.
+    return np.sqrt(((expectedImage - actualImage).astype(float) ** 2).mean())
 
 
 def compare_images(expected, actual, tol, in_decorator=False):

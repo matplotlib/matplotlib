@@ -44,8 +44,9 @@ def run_memleak_test(bench, iterations, report):
         nobjs = len(gc.get_objects())
         garbage = len(gc.garbage)
         open_files = len(p.open_files())
-        print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, garbage {4: 4d}, files: {5: 4d}".format(
-            i, malloc, rss, nobjs, garbage, open_files))
+        print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, "
+              "garbage {4: 4d}, files: {5: 4d}".format(
+                  i, malloc, rss, nobjs, garbage, open_files))
 
         malloc_arr[i] = malloc
         rss_arr[i] = rss
@@ -56,8 +57,8 @@ def run_memleak_test(bench, iterations, report):
         garbage_arr[i] = garbage
         open_files_arr[i] = open_files
 
-    print('Average memory consumed per loop: %1.4f bytes\n' %
-          (np.sum(rss_peaks[starti+1:] - rss_peaks[starti:-1]) / float(endi - starti)))
+    print('Average memory consumed per loop: {:1.4f} bytes\n'.format(
+        np.sum(rss_peaks[starti+1:] - rss_peaks[starti:-1]) / (endi - starti)))
 
     from matplotlib import pyplot as plt
     fig, (ax1, ax2, ax3) = plt.subplots(3)
@@ -142,4 +143,5 @@ if __name__ == '__main__':
         from matplotlib import pyplot as plt
         plt.ion()
 
-    run_memleak_test(MemleakTest(args.empty), args.iterations[0], args.report[0])
+    run_memleak_test(
+        MemleakTest(args.empty), args.iterations[0], args.report[0])

@@ -1686,8 +1686,8 @@ class Axes3D(Axes):
         polys = []
         # Only need these vectors to shade if there is no cmap
         if cmap is None and shade :
-            totpts = int(np.ceil(float(rows - 1) / rstride) *
-                         np.ceil(float(cols - 1) / cstride))
+            totpts = int(np.ceil((rows - 1) / rstride) *
+                         np.ceil((cols - 1) / cstride))
             v1 = np.empty((totpts, 3))
             v2 = np.empty((totpts, 3))
             # This indexes the vertex points

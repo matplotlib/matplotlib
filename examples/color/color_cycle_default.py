@@ -13,7 +13,7 @@ prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
 
 lwbase = plt.rcParams['lines.linewidth']
-thin = float('%.1f' % (lwbase / 2))
+thin = lwbase / 2
 thick = lwbase * 3
 
 fig, axs = plt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
@@ -29,7 +29,7 @@ for icol in range(2):
 
     axs[1, icol].set_facecolor('k')
     axs[1, icol].xaxis.set_ticks(np.arange(0, 10, 2))
-    axs[0, icol].set_title('line widths (pts): %.1f, %.1f' % (lwx, lwy),
+    axs[0, icol].set_title('line widths (pts): %g, %g' % (lwx, lwy),
                            fontsize='medium')
 
 for irow in range(2):

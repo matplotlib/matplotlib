@@ -6490,7 +6490,7 @@ linewidth=2, markersize=12)
         if stacked and density:
             db = np.diff(bins)
             for m in tops:
-                m[:] = (m.astype(float) / db) / tops[-1].sum()
+                m[:] = (m / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:

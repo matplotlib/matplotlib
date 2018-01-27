@@ -1573,7 +1573,7 @@ class FixedLocator(Locator):
         """
         if self.nbins is None:
             return self.locs
-        step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
+        step = max(int(np.ceil(len(self.locs) / self.nbins)), 1)
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]
@@ -2323,7 +2323,7 @@ class SymmetricalLogLocator(Locator):
         total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
         if has_b:
             total_ticks += 1
-        stride = max(np.floor(float(total_ticks) / (self.numticks - 1)), 1)
+        stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:

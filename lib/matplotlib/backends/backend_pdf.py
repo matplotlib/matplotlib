@@ -1282,7 +1282,7 @@ end"""
             flat_colors = colors.reshape((shape[0] * shape[1], 4))
             points_min = np.min(flat_points, axis=0) - (1 << 8)
             points_max = np.max(flat_points, axis=0) + (1 << 8)
-            factor = float(0xffffffff) / (points_max - points_min)
+            factor = 0xffffffff / (points_max - points_min)
 
             self.beginStream(
                 ob.id, None,
