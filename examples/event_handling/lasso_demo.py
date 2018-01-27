@@ -10,13 +10,12 @@ selected points
 This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API.
 """
-from matplotlib.widgets import Lasso
-from matplotlib.collections import RegularPolyCollection
-from matplotlib import colors as mcolors, path
 
+from matplotlib import colors as mcolors, path
+from matplotlib.collections import RegularPolyCollection
 import matplotlib.pyplot as plt
-from numpy import nonzero
-from numpy.random import rand
+from matplotlib.widgets import Lasso
+import numpy as np
 
 
 class Datum(object):
@@ -77,9 +76,12 @@ class LassoManager(object):
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
 
+
 if __name__ == '__main__':
 
-    data = [Datum(*xy) for xy in rand(100, 2)]
+    np.random.seed(19680801)
+
+    data = [Datum(*xy) for xy in np.random.rand(100, 2)]
     ax = plt.axes(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
     ax.set_title('Lasso points using left mouse button')
 

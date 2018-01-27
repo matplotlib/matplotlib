@@ -3,12 +3,12 @@
 Evans test
 ==========
 
-A mockup "Foo" units class which supports
-conversion and different tick formatting depending on the "unit".
-Here the "unit" is just a scalar conversion factor, but this example shows mpl
-is entirely agnostic to what kind of units client packages use.
-
+A mockup "Foo" units class which supports conversion and different tick
+formatting depending on the "unit".  Here the "unit" is just a scalar
+conversion factor, but this example shows that Matplotlib is entirely agnostic
+to what kind of units client packages use.
 """
+
 from matplotlib.cbook import iterable
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -75,24 +75,18 @@ for val in range(0, 50, 2):
 y = [i for i in range(len(x))]
 
 
-# plot specifying units
-fig = plt.figure()
+fig, (ax1, ax2) = plt.subplots(1, 2)
 fig.suptitle("Custom units")
 fig.subplots_adjust(bottom=0.2)
-ax = fig.add_subplot(1, 2, 2)
-ax.plot(x, y, 'o', xunits=2.0)
-for label in ax.get_xticklabels():
-    label.set_rotation(30)
-    label.set_ha('right')
-ax.set_title("xunits = 2.0")
 
+# plot specifying units
+ax2.plot(x, y, 'o', xunits=2.0)
+ax2.set_title("xunits = 2.0")
+plt.setp(ax2.get_xticklabels(), rotation=30, ha='right')
 
 # plot without specifying units; will use the None branch for axisinfo
-ax = fig.add_subplot(1, 2, 1)
-ax.plot(x, y)  # uses default units
-ax.set_title('default units')
-for label in ax.get_xticklabels():
-    label.set_rotation(30)
-    label.set_ha('right')
+ax1.plot(x, y)  # uses default units
+ax1.set_title('default units')
+plt.setp(ax1.get_xticklabels(), rotation=30, ha='right')
 
 plt.show()

@@ -140,9 +140,8 @@ def test_imsave():
     # So we do the traditional case (dpi == 1), and the new case (dpi
     # == 100) and read the resulting PNG files back in and make sure
     # the data is 100% identical.
-    from numpy import random
-    random.seed(1)
-    data = random.rand(256, 128)
+    np.random.seed(1)
+    data = np.random.rand(256, 128)
 
     buff_dpi1 = io.BytesIO()
     plt.imsave(buff_dpi1, data, dpi=1)
@@ -173,11 +172,10 @@ def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is
     # acceptably preserved through a save/read roundtrip.
-    from numpy import random
-    random.seed(1)
+    np.random.seed(1)
 
     for origin in ['lower', 'upper']:
-        data = random.rand(16, 16, 4)
+        data = np.random.rand(16, 16, 4)
         buff = io.BytesIO()
         plt.imsave(buff, data, origin=origin, format="png")
 

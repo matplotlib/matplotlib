@@ -37,3 +37,5 @@ ax1.plot(x)
 # new style method 2; use an axes array
 fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 axs[0, 0].plot(x)
+
+plt.show()

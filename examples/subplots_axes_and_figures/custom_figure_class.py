@@ -6,7 +6,8 @@ Custom Figure Class
 You can pass a custom Figure constructor to figure if you want to derive from
 the default Figure.  This simple example creates a figure with a figure title.
 """
-from matplotlib.pyplot import figure, show
+
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 
@@ -20,8 +21,8 @@ class MyFigure(Figure):
         self.text(0.5, 0.95, figtitle, ha='center')
 
 
-fig = figure(FigureClass=MyFigure, figtitle='my title')
-ax = fig.add_subplot(111)
+fig = plt.figure(FigureClass=MyFigure, figtitle='my title')
+ax = fig.subplots()
 ax.plot([1, 2, 3])
 
-show()
+plt.show()

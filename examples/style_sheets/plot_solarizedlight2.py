@@ -20,7 +20,7 @@ ToDo:
     - Create alpha values for bar and stacked charts. .33 or .5
     - Apply Layout Rules
 """
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 x = np.linspace(0, 10)
 with plt.style.context('Solarize_Light2'):
