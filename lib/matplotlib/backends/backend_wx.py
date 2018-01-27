@@ -998,7 +998,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     def _onKeyUp(self, evt):
         """Release key."""
         key = self._get_key(evt)
-        # print 'release key', key
         evt.Skip()
         FigureCanvasBase.key_release_event(self, key, guiEvent=evt)
 
@@ -1059,7 +1058,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
-        # print 'release button', 1
         evt.Skip()
         self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
@@ -1086,7 +1084,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
-        # print 'release button', 1
         evt.Skip()
         self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 2, guiEvent=evt)
@@ -1102,7 +1099,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         delta = evt.GetWheelDelta()
         rotation = evt.GetWheelRotation()
         rate = evt.GetLinesPerAction()
-        # print "delta,rotation,rate",delta,rotation,rate
         step = rate * float(rotation) / delta
 
         # Done handling event

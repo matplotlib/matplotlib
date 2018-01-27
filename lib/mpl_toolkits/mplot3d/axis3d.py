@@ -26,7 +26,6 @@ def get_flip_min_max(coord, index, mins, maxs):
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
     coord = copy.copy(coord)
-    #print coord, centers, deltas, axmask
     for i in range(3):
         if not axmask[i]:
             continue

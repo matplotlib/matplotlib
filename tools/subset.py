@@ -301,7 +301,6 @@ def getsubset(subset, font_in):
             if glyph.glyphname.endswith('.display'):
                 result.append(glyph.glyphname)
 
-    # print(result)
     return result
 
 # code for extracting vertical metrics from a TrueType font

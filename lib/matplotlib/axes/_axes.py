@@ -1049,7 +1049,6 @@ class Axes(_AxesBase):
 
         verts = [((thisx, thisymin), (thisx, thisymax))
                  for thisx, thisymin, thisymax in zip(x, ymin, ymax)]
-        #print 'creating line collection'
         lines = mcoll.LineCollection(verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
