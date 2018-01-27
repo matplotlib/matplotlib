@@ -2199,16 +2199,9 @@ class FigureCanvasBase(object):
         if bbox_inches:
             # call adjust_bbox to save only the given area
             if bbox_inches == "tight":
-                # when bbox_inches == "tight", it saves the figure
-                # twice. The first save command is just to estimate
-                # the bounding box of the figure. A stringIO object is
-                # used as a temporary file object, but it causes a
-                # problem for some backends (ps backend with
-                # usetex=True) if they expect a filename, not a
-                # file-like object. As I think it is best to change
-                # the backend to support file-like object, i'm going
-                # to leave it as it is. However, a better solution
-                # than stringIO seems to be needed. -JJL
+                # When bbox_inches == "tight", it saves the figure twice.  The
+                # first save command (to a BytesIO) is just to estimate the
+                # bounding box of the figure.
                 result = print_method(
                     io.BytesIO(),
                     dpi=dpi,
