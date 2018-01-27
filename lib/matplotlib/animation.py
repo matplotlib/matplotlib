@@ -842,11 +842,9 @@ def _included_frames(frame_list, frame_format):
 def _embedded_frames(frame_list, frame_format):
     """frame_list should be a list of base64-encoded png files"""
     template = '  frames[{0}] = "data:image/{1};base64,{2}"\n'
-    embedded = "\n"
-    for i, frame_data in enumerate(frame_list):
-        embedded += template.format(i, frame_format,
-                                    frame_data.replace('\n', '\\\n'))
-    return embedded
+    return "\n" + "".join(
+        template.format(i, frame_format, frame_data.replace('\n', '\\\n'))
+        for i, frame_data in enumerate(frame_list))
 
 
 @writers.register('html')

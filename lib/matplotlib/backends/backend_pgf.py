@@ -582,11 +582,10 @@ class RendererPgf(RendererBase):
         if dash_list is None:
             writeln(self.fh, r"\pgfsetdash{}{0pt}")
         else:
-            dash_str = r"\pgfsetdash{"
-            for dash in dash_list:
-                dash_str += r"{%fpt}" % dash
-            dash_str += r"}{%fpt}" % dash_offset
-            writeln(self.fh, dash_str)
+            writeln(self.fh,
+                    r"\pgfsetdash{%s}{%fpt}"
+                    % ("".join(r"{%fpt}" % dash for dash in dash_list),
+                       dash_offset))
 
     def _print_pgf_path(self, gc, path, transform, rgbFace=None):
         f = 1. / self.dpi
