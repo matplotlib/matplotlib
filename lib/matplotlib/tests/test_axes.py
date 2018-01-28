@@ -226,20 +226,20 @@ def test_inverted_cla():
     fig = plt.figure(0)
     ax = fig.gca()
     # 1. test that a new axis is not inverted per default
-    assert not(ax.xaxis_inverted())
-    assert not(ax.yaxis_inverted())
+    assert not ax.xaxis_inverted()
+    assert not ax.yaxis_inverted()
     img = np.random.random((100, 100))
     ax.imshow(img)
     # 2. test that a image axis is inverted
-    assert not(ax.xaxis_inverted())
+    assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
     # 3. test that clearing and plotting a line, axes are
     # not inverted
     ax.cla()
     x = np.linspace(0, 2*np.pi, 100)
     ax.plot(x, np.cos(x))
-    assert not(ax.xaxis_inverted())
-    assert not(ax.yaxis_inverted())
+    assert not ax.xaxis_inverted()
+    assert not ax.yaxis_inverted()
 
     # 4. autoscaling should not bring back axes to normal
     ax.cla()
@@ -5494,7 +5494,7 @@ def test_twinx_knows_limits():
     ax2.axvspan(1, 2)
     ax2.plot([0, 0.5], [1, 2])
 
-    assert((xtwin.viewLim.intervalx == ax2.viewLim.intervalx).all())
+    assert_array_equal(xtwin.viewLim.intervalx, ax2.viewLim.intervalx)
 
 
 @pytest.mark.style('mpl20')

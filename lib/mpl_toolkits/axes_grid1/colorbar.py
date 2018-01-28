@@ -747,7 +747,6 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
     def update_bruteforce(self, mappable):

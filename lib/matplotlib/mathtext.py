@@ -2582,21 +2582,17 @@ class Parser(object):
         self._state_stack.append(self.get_state().copy())
 
     def main(self, s, loc, toks):
-        #~ print "finish", toks
         return [Hlist(toks)]
 
     def math_string(self, s, loc, toks):
-        # print "math_string", toks[0][1:-1]
         return self._math_expression.parseString(toks[0][1:-1])
 
     def math(self, s, loc, toks):
-        #~ print "math", toks
         hlist = Hlist(toks)
         self.pop_state()
         return [hlist]
 
     def non_math(self, s, loc, toks):
-        #~ print "non_math", toks
         s = toks[0].replace(r'\$', '$')
         symbols = [Char(c, self.get_state(), math=False) for c in s]
         hlist = Hlist(symbols)
@@ -2630,7 +2626,7 @@ class Parser(object):
                       r'\!'         : -0.16667, # -3/18 em = -3 mu
                       }
     def space(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
         num = self._space_widths[toks[0]]
         box = self._make_space(num)
         return [box]
@@ -2639,7 +2635,6 @@ class Parser(object):
         return [self._make_space(float(toks[0]))]
 
     def symbol(self, s, loc, toks):
-        # print "symbol", toks
         c = toks[0]
         try:
             char = Char(c, self.get_state())
@@ -2691,7 +2686,6 @@ class Parser(object):
     snowflake = symbol
 
     def unknown_symbol(self, s, loc, toks):
-        # print "symbol", toks
         c = toks[0]
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
@@ -2768,7 +2762,7 @@ class Parser(object):
                   ) (set(_accent_map))
 
     def accent(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2792,7 +2786,6 @@ class Parser(object):
                 ])
 
     def function(self, s, loc, toks):
-        #~ print "function", toks
         self.push_state()
         state = self.get_state()
         state.font = 'rm'
@@ -2830,7 +2823,7 @@ class Parser(object):
         return []
 
     def font(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
         name = toks[0]
         self.get_state().font = name
         return []
@@ -2856,7 +2849,7 @@ class Parser(object):
         return False
 
     def subsuper(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
 
         nucleus = None
         sub = None
@@ -3086,14 +3079,14 @@ class Parser(object):
         return result
 
     def genfrac(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 6)
+        assert len(toks) == 1
+        assert len(toks[0]) == 6
 
         return self._genfrac(*tuple(toks[0]))
 
     def frac(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
@@ -3104,8 +3097,8 @@ class Parser(object):
                              self._math_style_dict['textstyle'], num, den)
 
     def dfrac(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
@@ -3116,23 +3109,22 @@ class Parser(object):
                              self._math_style_dict['displaystyle'], num, den)
 
     def stackrel(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         num, den = toks[0]
 
         return self._genfrac('', '', 0.0,
                              self._math_style_dict['textstyle'], num, den)
 
     def binom(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         num, den = toks[0]
 
         return self._genfrac('(', ')', 0.0,
                              self._math_style_dict['textstyle'], num, den)
 
     def sqrt(self, s, loc, toks):
-        #~ print "sqrt", toks
         root, body = toks[0]
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
@@ -3177,8 +3169,8 @@ class Parser(object):
         return [hlist]
 
     def overline(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==1)
+        assert len(toks)==1
+        assert len(toks[0])==1
 
         body = toks[0][0]
 
@@ -3222,7 +3214,6 @@ class Parser(object):
         return hlist
 
     def auto_delim(self, s, loc, toks):
-        #~ print "auto_delim", toks
         front, middle, back = toks
 
         return self._auto_sized_delimiter(front, middle.asList(), back)
@@ -3320,7 +3311,7 @@ class MathTextParser(object):
           - depth is the offset of the baseline from the bottom of the
             image in pixels.
         """
-        assert(self._output=="bitmap")
+        assert self._output == "bitmap"
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
 
@@ -3402,7 +3393,7 @@ class MathTextParser(object):
         *fontsize*
             The font size in points
         """
-        assert(self._output=="bitmap")
+        assert self._output=="bitmap"
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
         return depth

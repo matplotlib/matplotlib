@@ -389,9 +389,9 @@ def test_triinterp():
     diff_lin = np.abs(linear_interp(xs, ys) - zs)
     for interp in (cubic_min_E, cubic_geom):
         diff_cubic = np.abs(interp(xs, ys) - zs)
-        assert(np.max(diff_lin) >= 10.*np.max(diff_cubic))
-        assert(np.dot(diff_lin, diff_lin) >=
-               100.*np.dot(diff_cubic, diff_cubic))
+        assert np.max(diff_lin) >= 10 * np.max(diff_cubic)
+        assert (np.dot(diff_lin, diff_lin) >=
+                100 * np.dot(diff_cubic, diff_cubic))
 
 
 def test_triinterpcubic_C1_continuity():

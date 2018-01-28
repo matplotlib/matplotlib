@@ -67,7 +67,6 @@ def test_colormap_endian():
     for dt in ["f2", "f4", "f8"]:
         anative = np.ma.masked_invalid(np.array(a, dtype=dt))
         aforeign = anative.byteswap().newbyteorder()
-        #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
 
 

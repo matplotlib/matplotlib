@@ -364,7 +364,6 @@ class RendererPS(RendererBase):
         h /= 64.0
         d = font.get_descent()
         d /= 64.0
-        #print s, w, h
         return w, h, d
 
     def flipy(self):
@@ -456,7 +455,6 @@ class RendererPS(RendererBase):
             yscale = 1.0
 
         figh = self.height * 72
-        #print 'values', origin, flipud, figh, h, y
 
         bbox = gc.get_clip_rectangle()
         clippath, clippath_trans = gc.get_clip_path()
@@ -470,7 +468,6 @@ class RendererPS(RendererBase):
             clip.append('%s' % id)
         clip = '\n'.join(clip)
 
-        #y = figh-(y+h)
         ps = """gsave
 %(clip)s
 %(x)s %(y)s translate
@@ -726,7 +723,6 @@ grestore
             self.set_font(ps_name, prop.get_size_in_points())
 
             lastgind = None
-            #print 'text', s
             lines = []
             thisx = 0
             thisy = 0

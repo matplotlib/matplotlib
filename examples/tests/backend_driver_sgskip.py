@@ -467,8 +467,7 @@ def parse_options():
         switches=switches)
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
-    #print(result)
-    return (result)
+    return result
 
 if __name__ == '__main__':
     times = {}
@@ -507,9 +506,8 @@ if __name__ == '__main__':
         failures[backend] = \
             drive(backend, options.dirs, python, options.switches)
         t1 = time.time()
-        times[backend] = (t1 - t0)/60.0
+        times[backend] = (t1 - t0) / 60
 
-    #print(times)
     for backend, elapsed in times.items():
         print('Backend %s took %1.2f minutes to complete' % (backend, elapsed))
         failed = failures[backend]

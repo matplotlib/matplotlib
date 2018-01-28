@@ -12,8 +12,7 @@ DATA = ((1, 3),
         (4, 2))
 # dash_style =
 #     direction, length, (text)rotation, dashrotation, push
-# (The parameters are varied to show their effects,
-# not for visual appeal).
+# (The parameters are varied to show their effects, not for visual appeal).
 dash_style = (
     (0, 20, -15, 30, 10),
     (1, 30, 0, 15, 10),
@@ -27,7 +26,6 @@ ax.plot(x, y, marker='o')
 for i in range(len(DATA)):
     (x, y) = DATA[i]
     (dd, dl, r, dr, dp) = dash_style[i]
-    # print('dashlen call %d' % dl)
     t = ax.text(x, y, str((x, y)), withdash=True,
                 dashdirection=dd,
                 dashlength=dl,
@@ -36,7 +34,7 @@ for i in range(len(DATA)):
                 dashpush=dp,
                 )
 
-ax.set_xlim((0.0, 5.0))
-ax.set_ylim((0.0, 5.0))
+ax.set_xlim((0, 5))
+ax.set_ylim((0, 5))
 
 plt.show()
