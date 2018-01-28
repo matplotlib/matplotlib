@@ -19,20 +19,16 @@ import numpy as np
 
 cms = cm * np.arange(0, 10, 2)
 
-fig = plt.figure()
+fig, axs = plt.subplots(2, 2)
 
-ax1 = fig.add_subplot(2, 2, 1)
-ax1.plot(cms, cms)
+axs[0, 0].plot(cms, cms)
 
-ax2 = fig.add_subplot(2, 2, 2)
-ax2.plot(cms, cms, xunits=cm, yunits=inch)
+axs[0, 1].plot(cms, cms, xunits=cm, yunits=inch)
 
-ax3 = fig.add_subplot(2, 2, 3)
-ax3.plot(cms, cms, xunits=inch, yunits=cm)
-ax3.set_xlim(3, 6)  # scalars are interpreted in current units
+axs[1, 0].plot(cms, cms, xunits=inch, yunits=cm)
+axs[1, 0].set_xlim(3, 6)  # scalars are interpreted in current units
 
-ax4 = fig.add_subplot(2, 2, 4)
-ax4.plot(cms, cms, xunits=inch, yunits=inch)
-ax4.set_xlim(3*cm, 6*cm)  # cm are converted to inches
+axs[1, 1].plot(cms, cms, xunits=inch, yunits=inch)
+axs[1, 1].set_xlim(3*cm, 6*cm)  # cm are converted to inches
 
 plt.show()

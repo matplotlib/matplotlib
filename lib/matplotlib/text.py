@@ -241,8 +241,7 @@ class Text(Artist):
         """
         Set text rotation mode.
 
-        ..
-            ACCEPTS: [ None | "default" | "anchor" ]
+        .. ACCEPTS: [ None | "default" | "anchor" ]
 
         Parameters
         ----------
@@ -573,8 +572,7 @@ class Text(Artist):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         super(Text, self).set_clip_on(b)
         self._update_clip_properties()
@@ -589,8 +587,7 @@ class Text(Artist):
         Parameters
         ----------
         wrap : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._wrap = wrap
 
@@ -843,7 +840,7 @@ class Text(Artist):
     def get_unitless_position(self):
         "Return the unitless position of the text as a tuple (*x*, *y*)"
         # This will get the position with all unit information stripped away.
-        # This is here for convienience since it is done in several locations.
+        # This is here for convenience since it is done in several locations.
         x = float(self.convert_xunits(self._x))
         y = float(self.convert_yunits(self._y))
         return x, y
@@ -1217,8 +1214,7 @@ class Text(Artist):
             Whether to render using TeX, ``None`` means to use the
             ``rcParams['text.usetex']``.
 
-            ..
-                ACCEPTS: bool or None
+            .. ACCEPTS: bool or None
         """
         if usetex is None:
             self._usetex = rcParams['text.usetex']
@@ -1347,7 +1343,7 @@ class TextWithDash(Text):
     def get_unitless_position(self):
         "Return the unitless position of the text as a tuple (*x*, *y*)"
         # This will get the position with all unit information stripped away.
-        # This is here for convienience since it is done in several locations.
+        # This is here for convenience since it is done in several locations.
         x = float(self.convert_xunits(self._dashx))
         y = float(self.convert_yunits(self._dashy))
         return x, y
@@ -2245,7 +2241,7 @@ class Annotation(Text, _AnnotationBase):
 
             # The arrow will be drawn from (ox0, oy0) to (ox1,
             # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrunk by shirnkA and shrinkB
+            # Then it will be shrunk by shrinkA and shrinkB
             # (in points). If patch A is not set, self.bbox_patch
             # is used.
 

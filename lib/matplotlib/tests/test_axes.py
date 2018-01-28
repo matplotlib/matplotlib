@@ -12,7 +12,6 @@ import pytz
 
 import numpy as np
 from numpy import ma
-from numpy import arange
 from cycler import cycler
 import pytest
 
@@ -227,20 +226,20 @@ def test_inverted_cla():
     fig = plt.figure(0)
     ax = fig.gca()
     # 1. test that a new axis is not inverted per default
-    assert not(ax.xaxis_inverted())
-    assert not(ax.yaxis_inverted())
+    assert not ax.xaxis_inverted()
+    assert not ax.yaxis_inverted()
     img = np.random.random((100, 100))
     ax.imshow(img)
     # 2. test that a image axis is inverted
-    assert not(ax.xaxis_inverted())
+    assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
     # 3. test that clearing and plotting a line, axes are
     # not inverted
     ax.cla()
     x = np.linspace(0, 2*np.pi, 100)
     ax.plot(x, np.cos(x))
-    assert not(ax.xaxis_inverted())
-    assert not(ax.yaxis_inverted())
+    assert not ax.xaxis_inverted()
+    assert not ax.yaxis_inverted()
 
     # 4. autoscaling should not bring back axes to normal
     ax.cla()
@@ -604,22 +603,18 @@ def test_const_xy():
 @image_comparison(baseline_images=['polar_wrap_180', 'polar_wrap_360'],
                   style='default')
 def test_polar_wrap():
-    D2R = np.pi / 180.0
-
     fig = plt.figure()
-
     plt.subplot(111, polar=True)
-
-    plt.polar([179*D2R, -179*D2R], [0.2, 0.1], "b.-")
-    plt.polar([179*D2R,  181*D2R], [0.2, 0.1], "g.-")
+    plt.polar(np.deg2rad([179, -179]), [0.2, 0.1], "b.-")
+    plt.polar(np.deg2rad([179,  181]), [0.2, 0.1], "g.-")
     plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
     assert len(fig.axes) == 1, 'More than one polar axes created.'
-    fig = plt.figure()
 
+    fig = plt.figure()
     plt.subplot(111, polar=True)
-    plt.polar([2*D2R, -2*D2R], [0.2, 0.1], "b.-")
-    plt.polar([2*D2R,  358*D2R], [0.2, 0.1], "g.-")
-    plt.polar([358*D2R,  2*D2R], [0.2, 0.1], "r.-")
+    plt.polar(np.deg2rad([2, -2]), [0.2, 0.1], "b.-")
+    plt.polar(np.deg2rad([2, 358]), [0.2, 0.1], "g.-")
+    plt.polar(np.deg2rad([358, 2]), [0.2, 0.1], "r.-")
     plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
 
 
@@ -1253,11 +1248,11 @@ def test_arc_ellipse():
     width, height = 1e-1, 3e-1
     angle = -30
 
-    theta = np.arange(0.0, 360.0, 1.0) * np.pi / 180.0
+    theta = np.deg2rad(np.arange(360))
     x = width / 2. * np.cos(theta)
     y = height / 2. * np.sin(theta)
 
-    rtheta = angle * np.pi / 180.
+    rtheta = np.deg2rad(angle)
     R = np.array([
         [np.cos(rtheta), -np.sin(rtheta)],
         [np.sin(rtheta), np.cos(rtheta)]])
@@ -2717,7 +2712,7 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-    # Reuse te first testcase from above for a labeled data test
+    # Reuse the first testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()
     ax = fig.gca()
@@ -4439,6 +4434,61 @@ def test_empty_shared_subplots():
     assert y1 >= 6
 
 
+def test_shared_with_aspect_1():
+    # allow sharing one axis
+    for adjustable in ['box', 'datalim']:
+        fig, axes = plt.subplots(nrows=2, sharex=True)
+        axes[0].set_aspect(2, adjustable=adjustable, share=True)
+        assert axes[1].get_aspect() == 2
+        assert axes[1].get_adjustable() == adjustable
+
+        fig, axes = plt.subplots(nrows=2, sharex=True)
+        axes[0].set_aspect(2, adjustable=adjustable)
+        assert axes[1].get_aspect() == 'auto'
+
+
+def test_shared_with_aspect_2():
+    # Share 2 axes only with 'box':
+    fig, axes = plt.subplots(nrows=2, sharex=True, sharey=True)
+    axes[0].set_aspect(2, share=True)
+    axes[0].plot([1, 2], [3, 4])
+    axes[1].plot([3, 4], [1, 2])
+    plt.draw()  # Trigger apply_aspect().
+    assert axes[0].get_xlim() == axes[1].get_xlim()
+    assert axes[0].get_ylim() == axes[1].get_ylim()
+
+
+def test_shared_with_aspect_3():
+    # Different aspect ratios:
+    for adjustable in ['box', 'datalim']:
+        fig, axes = plt.subplots(nrows=2, sharey=True)
+        axes[0].set_aspect(2, adjustable=adjustable)
+        axes[1].set_aspect(0.5, adjustable=adjustable)
+        axes[0].plot([1, 2], [3, 4])
+        axes[1].plot([3, 4], [1, 2])
+        plt.draw()  # Trigger apply_aspect().
+        assert axes[0].get_xlim() != axes[1].get_xlim()
+        assert axes[0].get_ylim() == axes[1].get_ylim()
+        fig_aspect = fig.bbox_inches.height / fig.bbox_inches.width
+        for ax in axes:
+            p = ax.get_position()
+            box_aspect = p.height / p.width
+            lim_aspect = ax.viewLim.height / ax.viewLim.width
+            expected = fig_aspect * box_aspect / lim_aspect
+            assert round(expected, 4) == round(ax.get_aspect(), 4)
+
+
+@pytest.mark.parametrize('twin', ('x', 'y'))
+def test_twin_with_aspect(twin):
+    fig, ax = plt.subplots()
+    # test twinx or twiny
+    ax_twin = getattr(ax, 'twin{}'.format(twin))()
+    ax.set_aspect(5)
+    ax_twin.set_aspect(2)
+    assert_array_equal(ax.bbox.extents,
+                       ax_twin.bbox.extents)
+
+
 def test_relim_visible_only():
     x1 = (0., 10.)
     y1 = (0., 10.)
@@ -4606,10 +4656,10 @@ def test_set_get_ticklabels():
     fig, ax = plt.subplots(2)
     ha = ['normal', 'set_x/yticklabels']
 
-    ax[0].plot(arange(10))
+    ax[0].plot(np.arange(10))
     ax[0].set_title(ha[0])
 
-    ax[1].plot(arange(10))
+    ax[1].plot(np.arange(10))
     ax[1].set_title(ha[1])
 
     # set ticklabel to 1 plot in normal way
@@ -5444,7 +5494,7 @@ def test_twinx_knows_limits():
     ax2.axvspan(1, 2)
     ax2.plot([0, 0.5], [1, 2])
 
-    assert((xtwin.viewLim.intervalx == ax2.viewLim.intervalx).all())
+    assert_array_equal(xtwin.viewLim.intervalx, ax2.viewLim.intervalx)
 
 
 @pytest.mark.style('mpl20')

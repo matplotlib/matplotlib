@@ -66,7 +66,7 @@ class EpochConverter( units.ConversionInterface ):
       - unit     The unit system to use for the Epoch.
 
       = RETURN VALUE
-      - Returns the value converted to an Epoch in the sepcified time system.
+      - Returns the value converted to an Epoch in the specified time system.
       """
       # Delay-load due to circular dependencies.
       import matplotlib.testing.jpl_units as U

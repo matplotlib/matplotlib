@@ -56,7 +56,6 @@ class CbarAxesBase(object):
         self._config_axes()
 
         def on_changed(m):
-            #print 'calling on changed', m.get_cmap().name
             cb.set_cmap(m.get_cmap())
             cb.set_clim(m.get_clim())
             cb.update_bruteforce(m)

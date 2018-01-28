@@ -1428,7 +1428,6 @@ class AxisArtist(martist.Artist):
 
         #pad_points = self.major_tick_pad
 
-        #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
         if self._ticklabel_add_angle != self._axislabel_add_angle:
             if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
@@ -1473,7 +1472,6 @@ class AxisArtist(martist.Artist):
 
         #pad_points = self.major_tick_pad
 
-        #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
         if self._ticklabel_add_angle != self._axislabel_add_angle:
             if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \

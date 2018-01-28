@@ -414,6 +414,7 @@ class _AxesBase(martist.Artist):
 
     _shared_x_axes = cbook.Grouper()
     _shared_y_axes = cbook.Grouper()
+    _twinned_axes = cbook.Grouper()
 
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
@@ -440,7 +441,7 @@ class _AxesBase(martist.Artist):
           ================   =========================================
           Keyword            Description
           ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' | 'box-forced']
+          *adjustable*       [ 'box' | 'datalim' ]
           *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
@@ -488,25 +489,15 @@ class _AxesBase(martist.Artist):
         self._originalPosition = self._position.frozen()
         # self.set_axes(self)
         self.axes = self
-        self.set_aspect('auto')
+        self._aspect = 'auto'
         self._adjustable = 'box'
-        self.set_anchor('C')
+        self._anchor = 'C'
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
             self._shared_x_axes.join(self, sharex)
-            if sharex._adjustable == 'box':
-                sharex._adjustable = 'datalim'
-                # warnings.warn(
-                #    'shared axes: "adjustable" is being changed to "datalim"')
-            self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
-            if sharey._adjustable == 'box':
-                sharey._adjustable = 'datalim'
-                # warnings.warn(
-                #    'shared axes: "adjustable" is being changed to "datalim"')
-            self._adjustable = 'datalim'
         self.set_label(label)
         self.set_figure(fig)
 
@@ -530,6 +521,7 @@ class _AxesBase(martist.Artist):
 
         self._connected = {}  # a dict from events to (id, func)
         self.cla()
+
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
         self.fmt_ydata = None
@@ -618,8 +610,7 @@ class _AxesBase(martist.Artist):
         """
         Set the `~.Figure` for this `~.Axes`.
 
-        ..
-            ACCEPTS: `~.Figure`
+        .. ACCEPTS: `~.Figure`
 
         Parameters
         ----------
@@ -639,8 +630,7 @@ class _AxesBase(martist.Artist):
 
     def _set_lim_and_transforms(self):
         """
-        set the *dataLim* and *viewLim*
-        :class:`~matplotlib.transforms.Bbox` attributes and the
+        set the *_xaxis_transform*, *_yaxis_transform*,
         *transScale*, *transData*, *transLimits* and *transAxes*
         transformations.
 
@@ -890,10 +880,11 @@ class _AxesBase(martist.Artist):
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
-        if which in ('both', 'active'):
-            self._position.set(pos)
-        if which in ('both', 'original'):
-            self._originalPosition.set(pos)
+        for ax in self._twinned_axes.get_siblings(self):
+            if which in ('both', 'active'):
+                ax._position.set(pos)
+            if which in ('both', 'original'):
+                ax._originalPosition.set(pos)
         self.stale = True
 
     def reset_position(self):
@@ -903,16 +894,16 @@ class _AxesBase(martist.Artist):
         This resets the a possible position change due to aspect constraints.
         For an explanation of the positions see `.set_position`.
         """
-        pos = self.get_position(original=True)
-        self.set_position(pos, which='active')
+        for ax in self._twinned_axes.get_siblings(self):
+            pos = ax.get_position(original=True)
+            ax.set_position(pos, which='active')
 
     def set_axes_locator(self, locator):
         """
         Set the axes locator.
 
-        ..
-            ACCEPTS: a callable object which takes an axes instance and
-            renderer and returns a bbox.
+        .. ACCEPTS: a callable object which takes an axes instance and
+           renderer and returns a bbox.
 
         Parameters
         ----------
@@ -990,6 +981,7 @@ class _AxesBase(martist.Artist):
 
         self.xaxis.cla()
         self.yaxis.cla()
+
         for name, spine in six.iteritems(self.spines):
             spine.cla()
 
@@ -997,7 +989,7 @@ class _AxesBase(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         if self._sharex is not None:
-            # major and minor are class instances with
+            # major and minor are axis.Ticker class instances with
             # locator and formatter attributes
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor
@@ -1025,7 +1017,6 @@ class _AxesBase(martist.Artist):
                 self.set_ylim(0, 1)
             except TypeError:
                 pass
-
         # update the minor locator for x and y axis based on rcParams
         if (rcParams['xtick.minor.visible']):
             self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
@@ -1133,8 +1124,7 @@ class _AxesBase(martist.Artist):
     def set_facecolor(self, color):
         """Set the Axes facecolor.
 
-        ..
-            ACCEPTS: color
+        .. ACCEPTS: color
 
         Parameters
         ----------
@@ -1268,7 +1258,7 @@ class _AxesBase(martist.Artist):
     def get_aspect(self):
         return self._aspect
 
-    def set_aspect(self, aspect, adjustable=None, anchor=None):
+    def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
         Set the aspect of the axis scaling, i.e. the ratio of y-unit to x-unit.
 
@@ -1287,7 +1277,7 @@ class _AxesBase(martist.Artist):
                        aspect='equal'.
             ========   ================================================
 
-        adjustable : None or ['box' | 'datalim' | 'box-forced'], optional
+        adjustable : None or ['box' | 'datalim'], optional
             If not ``None``, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
@@ -1309,6 +1299,10 @@ class _AxesBase(martist.Artist):
 
             See `.set_anchor` for further details.
 
+        share : bool, optional
+            If ``True``, apply the settings to all shared Axes.
+            Default is ``False``.
+
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
@@ -1317,55 +1311,73 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_anchor
             defining the position in case of extra space.
         """
-        if (isinstance(aspect, six.string_types)
+        if not (isinstance(aspect, six.string_types)
                 and aspect in ('equal', 'auto')):
-            self._aspect = aspect
+            aspect = float(aspect)  # raise ValueError if necessary
+        if share:
+            axes = set(self._shared_x_axes.get_siblings(self)
+                       + self._shared_y_axes.get_siblings(self))
         else:
-            self._aspect = float(aspect)  # raise ValueError if necessary
+            axes = [self]
+        for ax in axes:
+            ax._aspect = aspect
 
-        if adjustable is not None:
-            self.set_adjustable(adjustable)
+        if adjustable is None:
+            adjustable = self._adjustable
+        self.set_adjustable(adjustable, share=share)  # Handle sharing.
+
         if anchor is not None:
-            self.set_anchor(anchor)
+            self.set_anchor(anchor, share=share)
         self.stale = True
 
     def get_adjustable(self):
         return self._adjustable
 
-    def set_adjustable(self, adjustable):
+    def set_adjustable(self, adjustable, share=False):
         """
         Define which parameter the Axes will change to achieve a given aspect.
 
-        Possible values are:
+        Parameters
+        ----------
+        adjustable : ['box' | 'datalim']
+            If 'box', change the physical dimensions of the Axes.
+            If 'datalim', change the ``x`` or ``y`` data limits.
 
-        ============   =====================================
-        value          description
-        ============   =====================================
-        'box'          change the physical size of the Axes
-        'datalim'      change xlim or ylim
-        'box-forced'   same as 'box', but axes can be shared
-        ============   =====================================
+        share : bool, optional
+            If ``True``, apply the settings to all shared Axes.
+            Default is ``False``.
 
-        'box' does not allow axes sharing, as this can cause
-        unintended side effect. For cases when sharing axes is
-        fine, use 'box-forced'.
-
-        ..
-            ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
+        .. ACCEPTS: [ 'box' | 'datalim']
 
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
             for a description of aspect handling.
+
+        Notes
+        -----
+        Shared Axes (of which twinned Axes are a special case)
+        impose restrictions on how aspect ratios can be imposed.
+        For twinned Axes, use 'datalim'.  For Axes that share both
+        x and y, use 'box'.  Otherwise, either 'datalim' or 'box'
+        may be used.  These limitations are partly a requirement
+        to avoid over-specification, and partly a result of the
+        particular implementation we are currently using, in
+        which the adjustments for aspect ratios are done sequentially
+        and independently on each Axes as it is drawn.
         """
-        if adjustable in ('box', 'datalim', 'box-forced'):
-            if self in self._shared_x_axes or self in self._shared_y_axes:
-                if adjustable == 'box':
-                    raise ValueError(
-                        'adjustable must be "datalim" for shared axes')
-            self._adjustable = adjustable
+        if adjustable == 'box-forced':
+            warnings.warn("The 'box-forced' keyword argument is deprecated"
+                          " since 2.2.", cbook.mplDeprecation)
+        if adjustable not in ('box', 'datalim', 'box-forced'):
+            raise ValueError("argument must be 'box', or 'datalim'")
+        if share:
+            axes = set(self._shared_x_axes.get_siblings(self)
+                       + self._shared_y_axes.get_siblings(self))
         else:
-            raise ValueError('argument must be "box", or "datalim"')
+            axes = [self]
+        for ax in axes:
+            ax._adjustable = adjustable
         self.stale = True
 
     def get_anchor(self):
@@ -1381,7 +1393,7 @@ class _AxesBase(martist.Artist):
         """
         return self._anchor
 
-    def set_anchor(self, anchor):
+    def set_anchor(self, anchor, share=False):
         """
         Define the anchor location.
 
@@ -1390,9 +1402,7 @@ class _AxesBase(martist.Artist):
         anchor defines where the drawing area will be located within the
         available space.
 
-        ..
-            ACCEPTS:
-            [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
+        .. ACCEPTS: [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
 
         Parameters
         ----------
@@ -1419,16 +1429,26 @@ class _AxesBase(martist.Artist):
               | 'SW' | 'S'  | 'SE' |
               +------+------+------+
 
+        share : bool, optional
+            If ``True``, apply the settings to all shared Axes.
+            Default is ``False``.
+
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
             for a description of aspect handling.
         """
-        if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
-            self._anchor = anchor
-        else:
+        if not (anchor in mtransforms.Bbox.coefs or len(anchor) == 2):
             raise ValueError('argument must be among %s' %
                              ', '.join(mtransforms.Bbox.coefs))
+        if share:
+            axes = set(self._shared_x_axes.get_siblings(self)
+                       + self._shared_y_axes.get_siblings(self))
+        else:
+            axes = [self]
+        for ax in axes:
+            ax._anchor = anchor
+
         self.stale = True
 
     def get_data_ratio(self):
@@ -1461,21 +1481,22 @@ class _AxesBase(martist.Artist):
 
     def apply_aspect(self, position=None):
         """
-        Adjust the Axes so that it fulfills its aspect setting.
+        Adjust the Axes for a specified data aspect ratio.
 
-        Depending on `.get_adjustable` and `.get_anchor` this will either
-        modify the Axes box or the view limits.
+        Depending on `.get_adjustable` this will modify either the Axes box
+        (position) or the view limits. In the former case, `.get_anchor`
+        will affect the position.
 
         Notes
         -----
-        This is automatically called on draw. So you won't need to call this
-        yourself in most cases. One exception may be if you need to update the
-        Axes before drawing.
+        This is called automatically when each Axes is drawn.  You may need
+        to call it yourself if you need to update the Axes position and/or
+        view limits before the Figure is drawn.
 
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect handling.
+            for a description of aspect ratio handling.
         matplotlib.axes.Axes.set_adjustable
             defining the parameter to adjust in order to meet the required
             aspect.
@@ -1514,17 +1535,12 @@ class _AxesBase(martist.Artist):
         else:
             A = aspect
 
-        # Ensure at drawing time that any Axes involved in axis-sharing
-        # does not have its position changed.
-        if self in self._shared_x_axes or self in self._shared_y_axes:
-            if self._adjustable == 'box':
-                self._adjustable = 'datalim'
-                warnings.warn(
-                    'shared axes: "adjustable" is being changed to "datalim"')
-
         figW, figH = self.get_figure().get_size_inches()
         fig_aspect = figH / figW
         if self._adjustable in ['box', 'box-forced']:
+            if self in self._twinned_axes:
+                raise RuntimeError("Adjustable 'box' is not allowed in a"
+                                   " twinned Axes.  Use 'datalim' instead.")
             if aspect_scale_mode == "log":
                 box_aspect = A * self.get_data_ratio_log()
             else:
@@ -1579,15 +1595,15 @@ class _AxesBase(martist.Artist):
         xm = 0
         ym = 0
 
-        changex = (self in self._shared_y_axes and
-                   self not in self._shared_x_axes)
-        changey = (self in self._shared_x_axes and
-                   self not in self._shared_y_axes)
-        if changex and changey:
-            warnings.warn("adjustable='datalim' cannot work with shared "
-                          "x and y axes")
-            return
-        if changex:
+        shared_x = self in self._shared_x_axes
+        shared_y = self in self._shared_y_axes
+        # Not sure whether we need this check:
+        if shared_x and shared_y:
+            raise RuntimeError("adjustable='datalim' is not allowed when both"
+                               " axes are shared.")
+
+        # If y is shared, then we are only allowed to change x, etc.
+        if shared_y:
             adjust_y = False
         else:
             if xmarg > xm and ymarg > ym:
@@ -1595,7 +1611,8 @@ class _AxesBase(martist.Artist):
                         (Xmarg < 0 and y_expander > 0))
             else:
                 adjy = y_expander > 0
-            adjust_y = changey or adjy  # (Ymarg > xmarg)
+            adjust_y = shared_x or adjy  # (Ymarg > xmarg)
+
         if adjust_y:
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
@@ -2142,8 +2159,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling is applied on plot commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2156,8 +2172,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the x-axis is applied on plot commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2169,8 +2184,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the y-axis is applied on plot commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2213,8 +2227,7 @@ class _AxesBase(martist.Artist):
         I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
         a range [0.2, 1.8].
 
-        ..
-            ACCEPTS: float greater than -0.5
+        .. ACCEPTS: float greater than -0.5
 
         Parameters
         ----------
@@ -2238,8 +2251,7 @@ class _AxesBase(martist.Artist):
         I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
         a range [0.2, 1.8].
 
-        ..
-            ACCEPTS: float greater than -0.5
+        .. ACCEPTS: float greater than -0.5
 
         Parameters
         ----------
@@ -2315,8 +2327,7 @@ class _AxesBase(martist.Artist):
             zorder below which artists are rasterized.  ``None`` means that
             artists do not get rasterized based on zorder.
 
-            ..
-                ACCEPTS: float or None
+            .. ACCEPTS: float or None
         """
         self._rasterization_zorder = z
         self.stale = True
@@ -2597,8 +2608,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether the axes rectangle patch is drawn.
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2617,8 +2627,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether axis ticks and gridlines are above or below most artists.
 
-        ..
-            ACCEPTS: [ bool | 'line' ]
+        .. ACCEPTS: [ bool | 'line' ]
 
         Parameters
         ----------
@@ -2932,8 +2941,7 @@ class _AxesBase(martist.Artist):
         This method will honor axes inversion regardless of parameter order.
         It will not change the _autoscaleXon attribute.
 
-        ..
-            ACCEPTS: (lower: float, upper: float)
+        .. ACCEPTS: (lower: float, upper: float)
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -2997,8 +3005,7 @@ class _AxesBase(martist.Artist):
         """
         Set the data limits for the x-axis
 
-        ..
-            ACCEPTS: (left: float, right: float)
+        .. ACCEPTS: (left: float, right: float)
 
         Parameters
         ----------
@@ -3110,8 +3117,7 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis scale.
 
-        ..
-            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
+        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Parameters
         ----------
@@ -3125,7 +3131,7 @@ class _AxesBase(martist.Artist):
 
         See also
         --------
-        matplotlib.scale.LinearScale : linear transfrom
+        matplotlib.scale.LinearScale : linear transform
 
         matplotlib.scale.LogTransform : log transform
 
@@ -3149,8 +3155,7 @@ class _AxesBase(martist.Artist):
         """
         Set the x ticks with list of *ticks*
 
-        ..
-            ACCEPTS: list of tick locations.
+        .. ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3218,8 +3223,7 @@ class _AxesBase(martist.Artist):
         """
         Set the x-tick labels with list of string labels.
 
-        ..
-            ACCEPTS: list of string labels
+        .. ACCEPTS: list of string labels
 
         Parameters
         ----------
@@ -3276,8 +3280,7 @@ class _AxesBase(martist.Artist):
         This method will honor axes inversion regardless of parameter order.
         It will not change the _autoscaleYon attribute.
 
-        ..
-            ACCEPTS: (lower: float, upper: float)
+        .. ACCEPTS: (lower: float, upper: float)
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -3322,8 +3325,7 @@ class _AxesBase(martist.Artist):
         """
         Set the data limits for the y-axis
 
-        ..
-            ACCEPTS: (bottom: float, top: float)
+        .. ACCEPTS: (bottom: float, top: float)
 
         Parameters
         ----------
@@ -3435,8 +3437,7 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis scale.
 
-        ..
-            ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
+        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
 
         Parameters
         ----------
@@ -3450,7 +3451,7 @@ class _AxesBase(martist.Artist):
 
         See also
         --------
-        matplotlib.scale.LinearScale : linear transfrom
+        matplotlib.scale.LinearScale : linear transform
 
         matplotlib.scale.LogTransform : log transform
 
@@ -3473,8 +3474,7 @@ class _AxesBase(martist.Artist):
         """
         Set the y ticks with list of *ticks*
 
-        ..
-            ACCEPTS: list of tick locations.
+        .. ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3541,8 +3541,7 @@ class _AxesBase(martist.Artist):
         """
         Set the y-tick labels with list of strings labels.
 
-        ..
-            ACCEPTS: list of string labels
+        .. ACCEPTS: list of string labels
 
         Parameters
         ----------
@@ -3679,8 +3678,7 @@ class _AxesBase(martist.Artist):
         """
         Set whether the axes responds to navigation toolbar commands
 
-        ..
-            ACCEPTS: bool
+        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -4151,9 +4149,17 @@ class _AxesBase(martist.Artist):
 
     def _make_twin_axes(self, *kl, **kwargs):
         """
-        make a twinx axes of self. This is used for twinx and twiny.
+        Make a twinx axes of self. This is used for twinx and twiny.
         """
+        # Typically, SubplotBase._make_twin_axes is called instead of this.
+        # There is also an override in axes_grid1/axes_divider.py.
+        if 'sharex' in kwargs and 'sharey' in kwargs:
+            raise ValueError("Twinned Axes may share only one axis.")
         ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
+        ## do not touch every thing shared, just this and it's twin.
+        self.set_adjustable('datalim')
+        ax2.set_adjustable('datalim')
+        self._twinned_axes.join(self, ax2)
         return ax2
 
     def twinx(self):
@@ -4216,9 +4222,9 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def get_shared_x_axes(self):
-        """Return a copy of the shared axes Grouper object for x axes."""
+        """Return a reference to the shared axes Grouper object for x axes."""
         return self._shared_x_axes
 
     def get_shared_y_axes(self):
-        """Return a copy of the shared axes Grouper object for y axes."""
+        """Return a reference to the shared axes Grouper object for y axes."""
         return self._shared_y_axes

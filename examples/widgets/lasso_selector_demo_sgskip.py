@@ -9,9 +9,8 @@ This examples plots a scatter plot. You can then select a few points by drawing
 a lasso loop around the points on the graph. To draw, just click
 on the graph, hold, and drag it around the points you need to select.
 """
-from __future__ import print_function
 
-from six.moves import input
+from __future__ import print_function
 
 import numpy as np
 
@@ -79,7 +78,6 @@ class SelectFromCollection(object):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    plt.ion()
     # Fixing random state for reproducibility
     np.random.seed(19680801)
 
@@ -91,11 +89,15 @@ if __name__ == '__main__':
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
     selector = SelectFromCollection(ax, pts)
 
-    plt.draw()
-    input('Press Enter to accept selected points')
-    print("Selected points:")
-    print(selector.xys[selector.ind])
-    selector.disconnect()
+    def accept(event):
+        if event.key == "enter":
+            print("Selected points:")
+            print(selector.xys[selector.ind])
+            selector.disconnect()
+            ax.set_title("")
+            fig.canvas.draw()
 
-    # Block end of script so you can check that the lasso is disconnected.
-    input('Press Enter to quit')
+    fig.canvas.mpl_connect("key_press_event", accept)
+    ax.set_title("Press enter to accept selected points.")
+
+    plt.show()

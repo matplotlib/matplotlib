@@ -43,7 +43,7 @@ from matplotlib.text import _AnnotationBase
 DEBUG = False
 
 
-# for debuging use
+# for debugging use
 def bbox_artist(*args, **kwargs):
     if DEBUG:
         mbbox_artist(*args, **kwargs)
@@ -57,7 +57,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     """
     Geiven a list of (width, xdescent) of each boxes, calculate the
     total width and the x-offset positions of each items according to
-    *mode*. xdescent is analagous to the usual descent, but along the
+    *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
 
     *wd_list* : list of (width, xdescent) of boxes to be packed.
@@ -626,7 +626,7 @@ class DrawingArea(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y cooridnate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -915,7 +915,7 @@ class AuxTransformBox(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y coordinate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -1318,7 +1318,7 @@ class OffsetImage(OffsetBox):
 #         """
 #         set offset of the container.
 
-#         Accept : tuple of x,y coordinate in disokay units.
+#         Accept : tuple of x,y coordinate in display units.
 #         """
 #         self._offset = xy
 
@@ -1564,7 +1564,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
             # The arrow will be drawn from (ox0, oy0) to (ox1,
             # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrinked by shirnkA and shrinkB
+            # Then it will be shrunk by shrinkA and shrinkB
             # (in points). If patch A is not set, self.bbox_patch
             # is used.
 

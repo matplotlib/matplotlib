@@ -766,7 +766,7 @@ class ColorbarBase(cm.ScalarMappable):
             try:
                 # Try to set min and max extension fractions directly.
                 extendlength[:] = frac
-                # If frac is a sequence contaning None then NaN may
+                # If frac is a sequence containing None then NaN may
                 # be encountered. This is an error.
                 if np.isnan(extendlength).any():
                     raise ValueError()
@@ -974,7 +974,6 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
                                erase=erase)
 
@@ -1295,7 +1294,7 @@ class ColorbarPatch(Colorbar):
 
         n_segments = len(C)
 
-        # ensure there are sufficent hatches
+        # ensure there are sufficient hatches
         hatches = self.mappable.hatches * n_segments
 
         patches = []

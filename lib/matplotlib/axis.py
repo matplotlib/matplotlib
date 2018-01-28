@@ -662,6 +662,29 @@ class Ticker(object):
     formatter = None
 
 
+class _LazyTickList(object):
+    """
+    A descriptor for lazy instantiation of tick lists.
+
+    See comment above definition of the ``majorTicks`` and ``minorTicks``
+    attributes.
+    """
+
+    def __init__(self, major):
+        self._major = major
+
+    def __get__(self, instance, cls):
+        if instance is None:
+            return self
+        else:
+            if self._major:
+                instance.majorTicks = [instance._get_tick(major=True)]
+                return instance.majorTicks
+            else:
+                instance.minorTicks = [instance._get_tick(major=False)]
+                return instance.minorTicks
+
+
 class Axis(artist.Artist):
     """
     Public attributes
@@ -696,8 +719,6 @@ class Axis(artist.Artist):
         self.label = self._get_label()
         self.labelpad = rcParams['axes.labelpad']
         self.offsetText = self._get_offset_text()
-        self.majorTicks = []
-        self.minorTicks = []
         self.unit_data = None
         self.pickradius = pickradius
 
@@ -708,13 +729,19 @@ class Axis(artist.Artist):
         self.cla()
         self._set_scale('linear')
 
+    # During initialization, Axis objects often create ticks that are later
+    # unused; this turns out to be a very slow step.  Instead, use a custom
+    # descriptor to make the tick lists lazy and instantiate them as needed.
+    majorTicks = _LazyTickList(major=True)
+    minorTicks = _LazyTickList(major=False)
+
     def set_label_coords(self, x, y, transform=None):
         """
         Set the coordinates of the label.  By default, the x
         coordinate of the y label is determined by the tick label
         bounding boxes, but this can lead to poor alignment of
         multiple ylabels if there are multiple axes.  Ditto for the y
-        coodinate of the x label.
+        coordinate of the x label.
 
         You can also specify the coordinate system of the label with
         the transform.  If None, the default coordinate system will be
@@ -798,14 +825,15 @@ class Axis(artist.Artist):
 
         Each list starts with a single fresh Tick.
         """
-        del self.majorTicks[:]
-        del self.minorTicks[:]
-
-        self.majorTicks.extend([self._get_tick(major=True)])
-        self.minorTicks.extend([self._get_tick(major=False)])
-        self._lastNumMajorTicks = 1
-        self._lastNumMinorTicks = 1
-
+        # Restore the lazy tick lists.
+        try:
+            del self.majorTicks
+        except AttributeError:
+            pass
+        try:
+            del self.minorTicks
+        except AttributeError:
+            pass
         try:
             self.set_clip_path(self.axes.patch)
         except AttributeError:
@@ -1113,10 +1141,12 @@ class Axis(artist.Artist):
             return
 
         ticks_to_draw = self._update_ticks(renderer)
-        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
-                                                                renderer)
 
-        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(renderer)
+
+        # go back to just this axis's tick labels
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(
+                    ticks_to_draw, renderer)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text(self.major.formatter.get_offset())
@@ -1167,7 +1197,7 @@ class Axis(artist.Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
 
-        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(renderer)
 
         self.label.draw(renderer)
 
@@ -1362,48 +1392,31 @@ class Axis(artist.Artist):
         'get the tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_major_locator()())
-        if len(self.majorTicks) < numticks:
+
+        while len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
-            for i in range(numticks - len(self.majorTicks)):
-                tick = self._get_tick(major=True)
-                self.majorTicks.append(tick)
+            tick = self._get_tick(major=True)
+            self.majorTicks.append(tick)
+            if self._gridOnMajor:
+                tick.gridOn = True
+            self._copy_tick_props(self.majorTicks[0], tick)
 
-        if self._lastNumMajorTicks < numticks:
-            protoTick = self.majorTicks[0]
-            for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
-                tick = self.majorTicks[i]
-                if self._gridOnMajor:
-                    tick.gridOn = True
-                self._copy_tick_props(protoTick, tick)
-
-        self._lastNumMajorTicks = numticks
-        ticks = self.majorTicks[:numticks]
-
-        return ticks
+        return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_minor_locator()())
 
-        if len(self.minorTicks) < numticks:
+        while len(self.minorTicks) < numticks:
             # update the new tick label properties from the old
-            for i in range(numticks - len(self.minorTicks)):
-                tick = self._get_tick(major=False)
-                self.minorTicks.append(tick)
+            tick = self._get_tick(major=False)
+            self.minorTicks.append(tick)
+            if self._gridOnMinor:
+                tick.gridOn = True
+            self._copy_tick_props(self.minorTicks[0], tick)
 
-        if self._lastNumMinorTicks < numticks:
-            protoTick = self.minorTicks[0]
-            for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
-                tick = self.minorTicks[i]
-                if self._gridOnMinor:
-                    tick.gridOn = True
-                self._copy_tick_props(protoTick, tick)
-
-        self._lastNumMinorTicks = numticks
-        ticks = self.minorTicks[:numticks]
-
-        return ticks
+        return self.minorTicks[:numticks]
 
     def grid(self, b=None, which='major', **kwargs):
         """
@@ -1498,6 +1511,10 @@ class Axis(artist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
+        # If x is already a number, doesn't need converting
+        if munits.ConversionInterface.is_numlike(x):
+            return x
+
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
 
@@ -1670,7 +1687,16 @@ class Axis(artist.Artist):
             self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, xdir, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+
+        By default it just gets bboxes for self.
+        """
+        raise NotImplementedError('Derived must override')
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
@@ -1846,13 +1872,37 @@ class XAxis(Axis):
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+
+        By default it just gets bboxes for self.
+        """
+        bboxes = []
+        bboxes2 = []
+        # get the Grouper that keeps track of x-label groups for this figure
+        grp = self.figure._align_xlabel_grp
+        # if we want to align labels from other axes:
+        for nn, axx in enumerate(grp.get_siblings(self.axes)):
+            ticks_to_draw = axx.xaxis._update_ticks(renderer)
+            tlb, tlb2 = axx.xaxis._get_tick_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
             return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+
         x, y = self.label.get_position()
         if self.label_position == 'bottom':
             try:
@@ -2191,13 +2241,37 @@ class YAxis(Axis):
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+
+        By default it just gets bboxes for self.
+        """
+        bboxes = []
+        bboxes2 = []
+        # get the Grouper that keeps track of y-label groups for this figure
+        grp = self.figure._align_ylabel_grp
+        # if we want to align labels from other axes:
+        for axx in grp.get_siblings(self.axes):
+            ticks_to_draw = axx.yaxis._update_ticks(renderer)
+            tlb, tlb2 = axx.yaxis._get_tick_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
             return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_ylabels()`
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+
         x, y = self.label.get_position()
         if self.label_position == 'left':
             try:
@@ -2209,7 +2283,6 @@ class YAxis(Axis):
                 spinebbox = self.axes.bbox
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             left = bbox.x0
-
             self.label.set_position(
                 (left - self.labelpad * self.figure.dpi / 72.0, y)
             )
@@ -2242,8 +2315,7 @@ class YAxis(Axis):
 
     def set_offset_position(self, position):
         """
-        ..
-            ACCEPTS: [ 'left' | 'right' ]
+        .. ACCEPTS: [ 'left' | 'right' ]
         """
         x, y = self.offsetText.get_position()
         if position == 'left':

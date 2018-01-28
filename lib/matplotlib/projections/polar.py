@@ -1016,9 +1016,7 @@ class PolarAxes(Axes):
         return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def draw(self, *args, **kwargs):
-        thetamin, thetamax = self._realViewLim.intervalx
-        thetamin *= 180 / np.pi
-        thetamax *= 180 / np.pi
+        thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
         rmin, rmax = self._realViewLim.intervaly - self.get_rorigin()
@@ -1260,8 +1258,8 @@ class PolarAxes(Axes):
 
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
-        angles = np.asarray(angles, float)
-        self.set_xticks(angles * (np.pi / 180.0))
+        angles = np.deg2rad(angles)
+        self.set_xticks(angles)
         if labels is not None:
             self.set_xticklabels(labels)
         elif fmt is not None:

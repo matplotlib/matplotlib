@@ -9,10 +9,10 @@ controls on wxPython.
 
 import matplotlib
 matplotlib.use("WxAgg")
-from numpy import arange, sin, pi, cos, log
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx, wxc
 from matplotlib.figure import Figure
+import numpy as np
 
 import wx
 
@@ -33,10 +33,10 @@ def mathtext_to_wxbitmap(s):
 ############################################################
 
 functions = [
-    (r'$\sin(2 \pi x)$', lambda x: sin(2*pi*x)),
-    (r'$\frac{4}{3}\pi x^3$', lambda x: (4.0/3.0)*pi*x**3),
-    (r'$\cos(2 \pi x)$', lambda x: cos(2*pi*x)),
-    (r'$\log(x)$', lambda x: log(x))
+    (r'$\sin(2 \pi x)$', lambda x: np.sin(2*np.pi*x)),
+    (r'$\frac{4}{3}\pi x^3$', lambda x: (4.0/3.0)*np.pi*x**3),
+    (r'$\cos(2 \pi x)$', lambda x: np.cos(2*np.pi*x)),
+    (r'$\log(x)$', lambda x: np.log(x))
 ]
 
 
@@ -107,7 +107,7 @@ class CanvasFrame(wx.Frame):
         self.change_plot(event.GetId() - 1000)
 
     def change_plot(self, plot_number):
-        t = arange(1.0, 3.0, 0.01)
+        t = np.arange(1.0, 3.0, 0.01)
         s = functions[plot_number][1](t)
         self.axes.clear()
         self.axes.plot(t, s)

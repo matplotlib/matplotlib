@@ -1139,8 +1139,7 @@ class Legend(Artist):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._drawFrame = b
         self.stale = True
@@ -1196,7 +1195,7 @@ class Legend(Artist):
           This corresponds to the possible values for self._loc, excluding
           "best".
 
-        - bbox: bbox to be placed, display coodinate units.
+        - bbox: bbox to be placed, display coordinate units.
         - parentbbox: a parent box which will contain the bbox. In
             display coordinates.
         """
@@ -1312,12 +1311,12 @@ def _get_legend_handles(axs, legend_handler_map=None):
     handles_original = []
     for ax in axs:
         handles_original += (ax.lines + ax.patches +
-                        ax.collections + ax.containers)
+                             ax.collections + ax.containers)
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += (axx.lines + axx.patches +
-                        axx.collections + axx.containers)
+                                     axx.collections + axx.containers)
 
     handler_map = Legend.get_default_handler_map()
 

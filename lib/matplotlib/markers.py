@@ -170,7 +170,7 @@ class MarkerStyle(object):
 
         Attributes
         ----------
-        markers : list of known markes
+        markers : list of known marks
 
         fillstyles : list of known fillstyles
 

@@ -7,7 +7,7 @@ Various normalization on a multivariate normal distribution.
 
 """
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
 from numpy.random import multivariate_normal

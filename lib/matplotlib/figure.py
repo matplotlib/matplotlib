@@ -380,6 +380,12 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+        # groupers to keep track of x and y labels we want to align.
+        # see self.align_xlabels and self.align_ylabels and
+        # axis._get_tick_boxes_siblings
+        self._align_xlabel_grp = cbook.Grouper()
+        self._align_ylabel_grp = cbook.Grouper()
+
     @property
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
@@ -2083,6 +2089,165 @@ class Figure(Artist):
             self, self.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         self.subplots_adjust(**kwargs)
+
+    def align_xlabels(self, axs=None):
+        """
+        Align the ylabels of subplots in the same subplot column if label
+        alignment is being done automatically (i.e. the label position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        If a label is on the bottom, it is aligned with labels on axes that
+        also have their label on the bottom and that have the same
+        bottom-most subplot row.  If the label is on the top,
+        it is aligned with labels on axes with the same top-most row.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes` (None)
+            Optional list of (or ndarray) `~matplotlib.axes.Axes` to align
+            the xlabels.  Default is to align all axes on the figure.
+
+        Note
+        ----
+        This assumes that ``axs`` are from the same `~.GridSpec`, so that
+        their `~.SubplotSpec` positions correspond to figure positions.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_ylabels
+
+        matplotlib.figure.Figure.align_labels
+
+        Example
+        -------
+        Example with rotated xtick labels::
+
+            fig, axs = plt.subplots(1, 2)
+            for tick in axs[0].get_xticklabels():
+                tick.set_rotation(55)
+            axs[0].set_xlabel('XLabel 0')
+            axs[1].set_xlabel('XLabel 1')
+            fig.align_xlabels()
+
+        """
+
+        if axs is None:
+            axs = self.axes
+        axs = np.asarray(axs).ravel()
+        for ax in axs:
+            _log.debug(' Working on: %s', ax.get_xlabel())
+            ss = ax.get_subplotspec()
+            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
+            labpo = ax.xaxis.get_label_position()  # top or bottom
+
+            # loop through other axes, and search for label positions
+            # that are same as this one, and that share the appropriate
+            # row number.
+            #  Add to a grouper associated with each axes of sibblings.
+            # This list is inspected in `axis.draw` by
+            # `axis._update_label_position`.
+            for axc in axs:
+                if axc.xaxis.get_label_position() == labpo:
+                    ss = axc.get_subplotspec()
+                    nrows, ncols, rowc0, rowc1, colc, col1 = \
+                            ss.get_rows_columns()
+                    if (labpo == 'bottom' and rowc1 == row1 or
+                        labpo == 'top' and rowc0 == row0):
+                        # grouper for groups of xlabels to align
+                        self._align_xlabel_grp.join(ax, axc)
+
+    def align_ylabels(self, axs=None):
+        """
+        Align the ylabels of subplots in the same subplot column if label
+        alignment is being done automatically (i.e. the label position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        If a label is on the left, it is aligned with labels on axes that
+        also have their label on the left and that have the same
+        left-most subplot column.  If the label is on the right,
+        it is aligned with labels on axes with the same right-most column.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes` (None)
+            Optional list (or ndarray) of `~matplotlib.axes.Axes` to align
+            the ylabels. Default is to align all axes on the figure.
+
+        Note
+        ----
+        This assumes that ``axs`` are from the same `~.GridSpec`, so that
+        their `~.SubplotSpec` positions correspond to figure positions.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_xlabels
+
+        matplotlib.figure.Figure.align_labels
+
+        Example
+        -------
+        Example with large yticks labels::
+
+            fig, axs = plt.subplots(2, 1)
+            axs[0].plot(np.arange(0, 1000, 50))
+            axs[0].set_ylabel('YLabel 0')
+            axs[1].set_ylabel('YLabel 1')
+            fig.align_ylabels()
+
+        """
+
+        if axs is None:
+            axs = self.axes
+        axs = np.asarray(axs).ravel()
+        for ax in axs:
+            _log.debug(' Working on: %s', ax.get_ylabel())
+            ss = ax.get_subplotspec()
+            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
+            same = [ax]
+            labpo = ax.yaxis.get_label_position()  # left or right
+            # loop through other axes, and search for label positions
+            # that are same as this one, and that share the appropriate
+            # column number.
+            # Add to a list associated with each axes of sibblings.
+            # This list is inspected in `axis.draw` by
+            # `axis._update_label_position`.
+            for axc in axs:
+                if axc != ax:
+                    if axc.yaxis.get_label_position() == labpo:
+                        ss = axc.get_subplotspec()
+                        nrows, ncols, row0, row1, colc0, colc1 = \
+                                ss.get_rows_columns()
+                        if (labpo == 'left' and colc0 == col0 or
+                            labpo == 'right' and colc1 == col1):
+                            # grouper for groups of ylabels to align
+                            self._align_ylabel_grp.join(ax, axc)
+
+    def align_labels(self, axs=None):
+        """
+        Align the xlabels and ylabels of subplots with the same subplots
+        row or column (respectively) if label alignment is being
+        done automatically (i.e. the label position is not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes` (None)
+            Optional list (or ndarray) of `~matplotlib.axes.Axes` to
+            align the labels.  Default is to align all axes on the figure.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_xlabels
+
+        matplotlib.figure.Figure.align_ylabels
+        """
+        self.align_xlabels(axs=axs)
+        self.align_ylabels(axs=axs)
 
 
 def figaspect(arg):

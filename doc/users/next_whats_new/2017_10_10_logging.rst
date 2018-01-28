@@ -1,5 +1,5 @@
-Logging for debug output
-------------------------
+Python logging library used for debug output
+--------------------------------------------
 
 Matplotlib has in the past (sporadically) used an internal
 verbose-output reporter.  This version converts those calls to using the

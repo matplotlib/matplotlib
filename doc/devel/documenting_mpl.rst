@@ -337,7 +337,7 @@ An example docstring looks like:
 
         colors : array_like of colors, optional, default: 'k'
 
-        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
         label : string, optional, default: ''
 
@@ -389,10 +389,9 @@ to keep in mind:
          Parameters
          ----------
          projection :
-             ['aitoff' | 'hammer' | 'lambert' | 'mollweide' | \
-     'polar' | 'rectilinear'], optional
+             {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
+     'rectilinear'}, optional
              The projection type of the axes.
-        """
 
          ...
          """
@@ -410,6 +409,14 @@ to keep in mind:
      Returns
      -------
      lines : `~matplotlib.collections.LineCollection`
+
+
+Deprecated formatting conventions
+---------------------------------
+* Formerly, we have used square brackets for explicit parameter lists
+  ``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
+  standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
+
 
 Linking to other code
 ---------------------
@@ -477,6 +484,22 @@ The ACCEPTS block is used to render a table of all properties and their
 acceptable values in the docs; it can also be displayed using, e.g.,
 ``plt.setp(Line2D)`` (all properties) or ``plt.setp(Line2D, 'linestyle')``
 (just one property).
+
+There are cases in which the ACCEPTS string is not useful in the
+generated Sphinx documentation, e.g. if the valid parameters are already
+defined in the numpydoc parameter list. You can hide the ACCEPTS string from
+Sphinx by making it a ReST comment (i.e. use ``.. ACCEPTS:``):
+
+.. code-block:: python
+
+   def set_linestyle(self, linestyle):
+       """
+       An ACCEPTS string invisible to Sphinx.
+
+       .. ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       """
+
+
 
 Keyword arguments
 -----------------

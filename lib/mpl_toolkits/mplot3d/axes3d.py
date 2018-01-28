@@ -348,8 +348,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         super(Axes3D, self).set_autoscale_on(b)
         self.set_autoscalez_on(b)
@@ -364,8 +363,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._autoscaleZon = b
 
@@ -463,7 +461,7 @@ class Axes3D(Axes):
         Convenience method for simple axis view autoscaling.
         See :meth:`matplotlib.axes.Axes.autoscale` for full explanation.
         Note that this function behaves the same, but for all
-        three axes.  Therfore, 'z' can be passed for *axis*,
+        three axes.  Therefore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
 
         .. versionadded :: 1.1.0
@@ -956,7 +954,7 @@ class Axes3D(Axes):
         """
         Set the elevation and azimuth of the axes.
 
-        This can be used to rotate the axes programatically.
+        This can be used to rotate the axes programmatically.
 
         'elev' stores the elevation angle in the z plane.
         'azim' stores the azimuth angle in the x,y plane.
@@ -1277,8 +1275,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._frameon = bool(b)
         self.stale = True
@@ -1306,8 +1303,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._axisbelow = True
         self.stale = True

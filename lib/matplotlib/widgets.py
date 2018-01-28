@@ -262,10 +262,14 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    Create a slider from `valmin` to `valmax` in axes `ax`. For the slider to
-    remain responsive you must maintain a reference to it.
+    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
+    remain responsive you must maintain a reference to it. Call
+    :meth:`on_changed` to connect to the slider event.
 
-    Call :meth:`on_changed` to connect to the slider event
+    Attributes
+    ----------
+    val : float
+        Slider value.
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
@@ -887,7 +891,7 @@ class TextBox(AxesWidget):
             return
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
-        if not(self.capturekeystrokes):
+        if not self.capturekeystrokes:
             self.begin_typing(event.x)
         self.position_cursor(event.x)
 
@@ -2427,7 +2431,7 @@ class EllipseSelector(RectangleSelector):
             self.to_draw.width = 2 * a
             self.to_draw.height = 2 * b
         else:
-            rad = np.arange(31) * 12 * np.pi / 180
+            rad = np.deg2rad(np.arange(31) * 12)
             x = a * np.cos(rad) + center[0]
             y = b * np.sin(rad) + center[1]
             self.to_draw.set_data(x, y)

@@ -273,7 +273,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
             Defaults to 0.1.
 
         sep : int or float, optional
-            Seperation between the label and the size bar, in points.
+            Separation between the label and the size bar, in points.
             Defaults to 2.
 
         frameon : bool, optional

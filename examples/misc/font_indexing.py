@@ -12,7 +12,6 @@ import matplotlib
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, KERNING_UNFITTED, KERNING_UNSCALED
 
 
-#fname = '/usr/share/fonts/sfd/FreeSans.ttf'
 fname = matplotlib.get_data_path() + '/fonts/ttf/DejaVuSans.ttf'
 font = FT2Font(fname)
 font.set_charmap(0)
@@ -36,7 +35,7 @@ for ccode, glyphind in codes:
 
 code = coded['A']
 glyph = font.load_char(code)
-#print(glyph.bbox)
+print(glyph.bbox)
 print(glyphd['A'], glyphd['V'], coded['A'], coded['V'])
 print('AV', font.get_kerning(glyphd['A'], glyphd['V'], KERNING_DEFAULT))
 print('AV', font.get_kerning(glyphd['A'], glyphd['V'], KERNING_UNFITTED))

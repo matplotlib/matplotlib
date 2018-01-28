@@ -84,8 +84,6 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
                 a = degrees(atan2(ysign*dy, xsign*dx))
                 _pos_angles.append((x0, y0, a))
 
-                #print x[i], x[i+1]
-
         if ns != -1:
             clipped_xlines.append(np.concatenate([segx, x[ns:]]))
             clipped_ylines.append(np.concatenate([segy, y[ns:]]))

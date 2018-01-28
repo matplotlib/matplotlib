@@ -13,7 +13,7 @@ argument takes a dictionary with keys that are Patch properties.
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(1234)
+np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 x = 30*np.random.randn(10000)
@@ -29,3 +29,5 @@ props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 # place a text box in upper left in axes coords
 ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14,
         verticalalignment='top', bbox=props)
+
+plt.show()

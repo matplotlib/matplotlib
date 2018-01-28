@@ -190,7 +190,7 @@ class CustomCell(Cell):
         self.stale = True
 
     def get_path(self):
-        'Return a path where the edges specificed by _visible_edges are drawn'
+        'Return a path where the edges specified by _visible_edges are drawn'
 
         codes = [Path.MOVETO]
 

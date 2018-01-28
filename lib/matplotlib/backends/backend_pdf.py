@@ -2364,8 +2364,8 @@ class GraphicsContextPdf(GraphicsContextBase):
                 ours = getattr(self, p)
                 theirs = getattr(other, p)
                 try:
-                    if (ours is None or theirs is None):
-                        different = bool(not(ours is theirs))
+                    if ours is None or theirs is None:
+                        different = ours is not theirs
                     else:
                         different = bool(ours != theirs)
                 except ValueError:

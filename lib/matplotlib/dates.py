@@ -1439,7 +1439,7 @@ class YearLocator(DateLocator):
 
 class MonthLocator(RRuleLocator):
     """
-    Make ticks on occurances of each month month, e.g., 1, 3, 12.
+    Make ticks on occurrences of each month, e.g., 1, 3, 12.
     """
     def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
@@ -1447,7 +1447,7 @@ class MonthLocator(RRuleLocator):
         sequence.  Default is ``range(1,13)``, i.e. every month.
 
         *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second occurance.
+        example, if ``interval=2``, mark every second occurrence.
         """
         if bymonth is None:
             bymonth = range(1, 13)
@@ -1464,7 +1464,7 @@ class MonthLocator(RRuleLocator):
 
 class WeekdayLocator(RRuleLocator):
     """
-    Make ticks on occurances of each weekday.
+    Make ticks on occurrences of each weekday.
     """
 
     def __init__(self, byweekday=1, interval=1, tz=None):
@@ -1492,7 +1492,7 @@ class WeekdayLocator(RRuleLocator):
 
 class DayLocator(RRuleLocator):
     """
-    Make ticks on occurances of each day of the month.  For example,
+    Make ticks on occurrences of each day of the month.  For example,
     1, 15, 30.
     """
     def __init__(self, bymonthday=None, interval=1, tz=None):
@@ -1519,7 +1519,7 @@ class DayLocator(RRuleLocator):
 
 class HourLocator(RRuleLocator):
     """
-    Make ticks on occurances of each hour.
+    Make ticks on occurrences of each hour.
     """
     def __init__(self, byhour=None, interval=1, tz=None):
         """
@@ -1539,7 +1539,7 @@ class HourLocator(RRuleLocator):
 
 class MinuteLocator(RRuleLocator):
     """
-    Make ticks on occurances of each minute.
+    Make ticks on occurrences of each minute.
     """
     def __init__(self, byminute=None, interval=1, tz=None):
         """
@@ -1559,7 +1559,7 @@ class MinuteLocator(RRuleLocator):
 
 class SecondLocator(RRuleLocator):
     """
-    Make ticks on occurances of each second.
+    Make ticks on occurrences of each second.
     """
     def __init__(self, bysecond=None, interval=1, tz=None):
         """
@@ -1804,8 +1804,6 @@ class DateConverter(units.ConversionInterface):
 
         The *unit* and *axis* arguments are not used.
         """
-        if units.ConversionInterface.is_numlike(value):
-            return value
         return date2num(value)
 
     @staticmethod

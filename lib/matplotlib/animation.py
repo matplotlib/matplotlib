@@ -25,6 +25,7 @@ from six.moves import xrange, zip
 
 import abc
 import contextlib
+from io import BytesIO
 import itertools
 import logging
 import os
@@ -37,16 +38,13 @@ import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
-from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
-from matplotlib import rcParams, rcParamsDefault, rc_context
+from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 if six.PY2:
     from base64 import encodestring as encodebytes
-    from cStringIO import StringIO as BytesIO
 else:
     from base64 import encodebytes
-    from io import BytesIO
 
 
 _log = logging.getLogger(__name__)
@@ -575,6 +573,45 @@ class FileMovieWriter(MovieWriter):
                 os.remove(fname)
 
 
+@writers.register('pillow')
+class PillowWriter(MovieWriter):
+    @classmethod
+    def isAvailable(cls):
+        try:
+            import PIL
+        except ImportError:
+            return False
+        return True
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("extra_args") is None:
+            kwargs["extra_args"] = ()
+        super(PillowWriter, self).__init__(*args, **kwargs)
+
+    def setup(self, fig, outfile, dpi=None):
+        self._frames = []
+        self._outfile = outfile
+        self._dpi = dpi
+        self._fig = fig
+
+    def grab_frame(self, **savefig_kwargs):
+        from PIL import Image
+        buf = BytesIO()
+        self._fig.savefig(buf, **dict(savefig_kwargs, format="rgba"))
+        renderer = self._fig.canvas.get_renderer()
+        # Using frombuffer / getbuffer may be slightly more efficient, but
+        # Py3-only.
+        self._frames.append(Image.frombytes(
+            "RGBA",
+            (int(renderer.width), int(renderer.height)),
+            buf.getvalue()))
+
+    def finish(self):
+        self._frames[0].save(
+            self._outfile, save_all=True, append_images=self._frames[1:],
+            duration=int(1000 / self.fps))
+
+
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
 class FFMpegBase(object):
@@ -804,11 +841,9 @@ def _included_frames(frame_list, frame_format):
 def _embedded_frames(frame_list, frame_format):
     """frame_list should be a list of base64-encoded png files"""
     template = '  frames[{0}] = "data:image/{1};base64,{2}"\n'
-    embedded = "\n"
-    for i, frame_data in enumerate(frame_list):
-        embedded += template.format(i, frame_format,
-                                    frame_data.replace('\n', '\\\n'))
-    return embedded
+    return "\n" + "".join(
+        template.format(i, frame_format, frame_data.replace('\n', '\\\n'))
+        for i, frame_data in enumerate(frame_list))
 
 
 @writers.register('html')
@@ -1138,8 +1173,8 @@ class Animation(object):
 
         if 'bbox_inches' in savefig_kwargs:
             _log.warning("Warning: discarding the 'bbox_inches' argument in "
-                          "'savefig_kwargs' as it may cause frame size "
-                          "to vary, which is inappropriate for animation.")
+                         "'savefig_kwargs' as it may cause frame size "
+                         "to vary, which is inappropriate for animation.")
             savefig_kwargs.pop('bbox_inches')
 
         # Create a new sequence of frames for saved data. This is different
@@ -1150,16 +1185,15 @@ class Animation(object):
         # allow for this non-existent use case or find a way to make it work.
         with rc_context():
             if rcParams['savefig.bbox'] == 'tight':
-                _log.info("Disabling savefig.bbox = 'tight', as it "
-                               "may cause frame size to vary, which "
-                               "is inappropriate for animation.")
+                _log.info("Disabling savefig.bbox = 'tight', as it may cause "
+                          "frame size to vary, which is inappropriate for "
+                          "animation.")
                 rcParams['savefig.bbox'] = None
             with writer.saving(self._fig, filename, dpi):
                 for anim in all_anim:
                     # Clear the initial frame
                     anim._init_draw()
-                for data in zip(*[a.new_saved_frame_seq()
-                                  for a in all_anim]):
+                for data in zip(*[a.new_saved_frame_seq() for a in all_anim]):
                     for anim, d in zip(all_anim, data):
                         # TODO: See if turning off blit is really necessary
                         anim._draw_next_frame(d, blit=False)
@@ -1644,7 +1678,7 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = itertools.count
         elif callable(frames):
             self._iter_gen = frames
-        elif iterable(frames):
+        elif cbook.iterable(frames):
             self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
@@ -1686,7 +1720,26 @@ class FuncAnimation(TimedAnimation):
             self._old_saved_seq = list(self._save_seq)
             return iter(self._old_saved_seq)
         else:
-            return itertools.islice(self.new_frame_seq(), self.save_count)
+            if self.save_count is not None:
+                return itertools.islice(self.new_frame_seq(), self.save_count)
+
+            else:
+                frame_seq = self.new_frame_seq()
+
+                def gen():
+                    try:
+                        for _ in range(100):
+                            yield next(frame_seq)
+                    except StopIteration:
+                        pass
+                    else:
+                        cbook.warn_deprecated(
+                            "2.2", "FuncAnimation.save has truncated your "
+                            "animation to 100 frames.  In the future, no such "
+                            "truncation will occur; please pass 'save_count' "
+                            "accordingly.")
+
+                return gen()
 
     def _init_draw(self):
         # Initialize the drawing either using the given init_func or by

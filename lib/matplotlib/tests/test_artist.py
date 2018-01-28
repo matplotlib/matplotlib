@@ -6,6 +6,8 @@ from itertools import chain
 
 import numpy as np
 
+import pytest
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
@@ -255,3 +257,26 @@ def test_None_zorder():
     assert ln.get_zorder() == 123456
     ln.set_zorder(None)
     assert ln.get_zorder() == mlines.Line2D.zorder
+
+
+@pytest.mark.parametrize('accept_clause, expected', [
+    ('', 'unknown'),
+    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ] "),
+    ('ACCEPTS: Some description.', 'Some description. '),
+    ('.. ACCEPTS: Some description.', 'Some description. '),
+])
+def test_artist_inspector_get_valid_values(accept_clause, expected):
+    class TestArtist(martist.Artist):
+        def set_f(self):
+            pass
+
+    func = TestArtist.set_f
+    if hasattr(func, '__func__'):
+        func = func.__func__  # python 2 must write via __func__.__doc__
+    func.__doc__ = """
+    Some text.
+
+    %s
+    """ % accept_clause
+    valid_values = martist.ArtistInspector(TestArtist).get_valid_values('f')
+    assert valid_values == expected

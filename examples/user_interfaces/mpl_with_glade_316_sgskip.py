@@ -4,12 +4,14 @@ Matplotlib With Glade 316
 =========================
 
 """
+
 from gi.repository import Gtk
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
-from numpy import arange, sin, pi
-from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
+from matplotlib.backends.backend_gtk3agg import (
+    FigureCanvasGTK3Agg as FigureCanvas)
+import numpy as np
 
 
 class Window1Signals(object):
@@ -27,8 +29,8 @@ def main():
     # Start of Matplotlib specific code
     figure = Figure(figsize=(8, 6), dpi=71)
     axis = figure.add_subplot(111)
-    t = arange(0.0, 3.0, 0.01)
-    s = sin(2*pi*t)
+    t = np.arange(0.0, 3.0, 0.01)
+    s = np.sin(2*np.pi*t)
     axis.plot(t, s)
 
     axis.set_xlabel('time [s]')

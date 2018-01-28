@@ -377,7 +377,7 @@ def makeMappingArray(N, data, gamma=1.0):
     try:
         adata = np.array(data)
     except Exception:
-        raise TypeError("data must be convertable to an array")
+        raise TypeError("data must be convertible to an array")
     shape = adata.shape
     if len(shape) != 2 or shape[1] != 3:
         raise ValueError("data must be nx3 format")
@@ -462,7 +462,7 @@ class Colormap(object):
 
         Returns
         -------
-        Tuple of RGBA values if X is scalar, othewise an array of
+        Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
 
         """
@@ -1427,7 +1427,7 @@ def hsv_to_rgb(hsv):
         raise ValueError("Last dimension of input array must be 3; "
                          "shape {shp} was found.".format(shp=hsv.shape))
 
-    # if we got pased a 1D array, try to treat as
+    # if we got passed a 1D array, try to treat as
     # a single color and reshape as needed
     in_ndim = hsv.ndim
     if in_ndim == 1:

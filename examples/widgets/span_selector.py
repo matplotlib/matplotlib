@@ -13,17 +13,17 @@ from matplotlib.widgets import SpanSelector
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(211, facecolor='#FFFFCC')
+fig, (ax1, ax2) = plt.subplots(2, figsize=(8, 6))
+ax1.set(facecolor='#FFFFCC')
 
 x = np.arange(0.0, 5.0, 0.01)
 y = np.sin(2*np.pi*x) + 0.5*np.random.randn(len(x))
 
-ax.plot(x, y, '-')
-ax.set_ylim(-2, 2)
-ax.set_title('Press left mouse button and drag to test')
+ax1.plot(x, y, '-')
+ax1.set_ylim(-2, 2)
+ax1.set_title('Press left mouse button and drag to test')
 
-ax2 = fig.add_subplot(212, facecolor='#FFFFCC')
+ax2.set(facecolor='#FFFFCC')
 line2, = ax2.plot(x, y, '-')
 
 
@@ -39,7 +39,7 @@ def onselect(xmin, xmax):
     fig.canvas.draw()
 
 # set useblit True on gtkagg for enhanced performance
-span = SpanSelector(ax, onselect, 'horizontal', useblit=True,
+span = SpanSelector(ax1, onselect, 'horizontal', useblit=True,
                     rectprops=dict(alpha=0.5, facecolor='red'))
 
 
