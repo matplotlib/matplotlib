@@ -1311,12 +1311,12 @@ def _get_legend_handles(axs, legend_handler_map=None):
     handles_original = []
     for ax in axs:
         handles_original += (ax.lines + ax.patches +
-                        ax.collections + ax.containers)
+                             ax.collections + ax.containers)
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += (axx.lines + axx.patches +
-                        axx.collections + axx.containers)
+                                     axx.collections + axx.containers)
 
     handler_map = Legend.get_default_handler_map()
 

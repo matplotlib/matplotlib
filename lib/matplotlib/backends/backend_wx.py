@@ -1446,12 +1446,9 @@ class MenuButtonWx(wx.Button):
         return active
 
     def updateButtonText(self, lst):
-        """Update the list of selected axes in the menu button"""
-        axis_txt = ''
-        for e in lst:
-            axis_txt += '%d,' % (e + 1)
-        # remove trailing ',' and add to button string
-        self.SetLabel("Axes: %s" % axis_txt[:-1])
+        """Update the list of selected axes in the menu button."""
+        self.SetLabel(
+            'Axes: ' + ','.join('%d' % (e + 1) for e in lst))
 
 
 cursord = {
