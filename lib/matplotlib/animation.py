@@ -38,9 +38,8 @@ import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
-from matplotlib.cbook import iterable, deprecated
 from matplotlib.compat import subprocess
-from matplotlib import rcParams, rcParamsDefault, rc_context
+from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 if six.PY2:
     from base64 import encodestring as encodebytes
@@ -1679,7 +1678,7 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = itertools.count
         elif callable(frames):
             self._iter_gen = frames
-        elif iterable(frames):
+        elif cbook.iterable(frames):
             self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
@@ -1721,7 +1720,26 @@ class FuncAnimation(TimedAnimation):
             self._old_saved_seq = list(self._save_seq)
             return iter(self._old_saved_seq)
         else:
-            return itertools.islice(self.new_frame_seq(), self.save_count)
+            if self.save_count is not None:
+                return itertools.islice(self.new_frame_seq(), self.save_count)
+
+            else:
+                frame_seq = self.new_frame_seq()
+
+                def gen():
+                    try:
+                        for _ in range(100):
+                            yield next(frame_seq)
+                    except StopIteration:
+                        pass
+                    else:
+                        cbook.warn_deprecated(
+                            "2.2", "FuncAnimation.save has truncated your "
+                            "animation to 100 frames.  In the future, no such "
+                            "truncation will occur; please pass 'save_count' "
+                            "accordingly.")
+
+                return gen()
 
     def _init_draw(self):
         # Initialize the drawing either using the given init_func or by
