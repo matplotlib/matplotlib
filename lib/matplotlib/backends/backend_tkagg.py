@@ -582,6 +582,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.attributes('-fullscreen', not is_fullscreen)
 
 
+@cbook.deprecated("2.2")
 class AxisMenu(object):
     def __init__(self, master, naxes):
         self._master = master
