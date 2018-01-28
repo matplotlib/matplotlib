@@ -2,6 +2,7 @@
 These are classes to support contour plotting and labelling for the Axes class.
 """
 
+from numbers import Integral
 import warnings
 
 import numpy as np
@@ -1205,7 +1206,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             else:
                 level_arg = args[0]
                 try:
-                    if type(level_arg) == int:
+                    if isinstance(level_arg, Integral):
                         lev = self._autolev(level_arg)
                     else:
                         lev = np.asarray(level_arg).astype(np.float64)

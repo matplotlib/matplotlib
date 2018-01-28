@@ -4,7 +4,7 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from numbers import Number
+from numbers import Integral, Number, Real
 import warnings
 
 import numpy as np
@@ -127,41 +127,37 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             return None
         return in_v[slc]
 
-    # if just a float, assume starting at 0.0 and make a tuple
-    if isinstance(markevery, float):
-        markevery = (0.0, markevery)
     # if just an int, assume starting at 0 and make a tuple
-    elif isinstance(markevery, int):
+    if isinstance(markevery, Integral):
         markevery = (0, markevery)
-    # if just an numpy int, assume starting at 0 and make a tuple
-    elif isinstance(markevery, np.integer):
-        markevery = (0, markevery.item())
+    # if just a float, assume starting at 0.0 and make a tuple
+    elif isinstance(markevery, Real):
+        markevery = (0.0, markevery)
 
     if isinstance(markevery, tuple):
         if len(markevery) != 2:
-            raise ValueError('`markevery` is a tuple but its '
-                'len is not 2; '
-                'markevery=%s' % (markevery,))
+            raise ValueError('`markevery` is a tuple but its len is not 2; '
+                             'markevery={}'.format(markevery))
         start, step = markevery
         # if step is an int, old behavior
-        if isinstance(step, int):
-            #tuple of 2 int is for backwards compatibility,
-            if not(isinstance(start, int)):
-                raise ValueError('`markevery` is a tuple with '
-                    'len 2 and second element is an int, but '
-                    'the first element is not an int; '
-                    'markevery=%s' % (markevery,))
+        if isinstance(step, Integral):
+            # tuple of 2 int is for backwards compatibility,
+            if not isinstance(start, Integral):
+                raise ValueError(
+                    '`markevery` is a tuple with len 2 and second element is '
+                    'an int, but the first element is not an int; markevery={}'
+                    .format(markevery))
             # just return, we are done here
 
             return Path(verts[slice(start, None, step)],
                         _slice_or_none(codes, slice(start, None, step)))
 
-        elif isinstance(step, float):
-            if not isinstance(start, (int, float)):
+        elif isinstance(step, Real):
+            if not isinstance(start, Real):
                 raise ValueError(
                     '`markevery` is a tuple with len 2 and second element is '
                     'a float, but the first element is not a float or an int; '
-                    'markevery=%s' % (markevery,))
+                    'markevery={}'.format(markevery))
             # calc cumulative distance along path (in display coords):
             disp_coords = affine.transform(tpath.vertices)
             delta = np.empty((len(disp_coords), 2))
@@ -192,14 +188,12 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return
-        return Path(verts[markevery],
-                    _slice_or_none(codes, markevery))
+        return Path(verts[markevery], _slice_or_none(codes, markevery))
 
     elif iterable(markevery):
         #fancy indexing
         try:
-            return Path(verts[markevery],
-                    _slice_or_none(codes, markevery))
+            return Path(verts[markevery], _slice_or_none(codes, markevery))
 
         except (ValueError, IndexError):
             raise ValueError('`markevery` is iterable but '
@@ -822,7 +816,7 @@ class Line2D(Artist):
                     subsampled = tpath
 
                 snap = marker.get_snap_threshold()
-                if type(snap) == float:
+                if isinstance(snap, Real):
                     snap = renderer.points_to_pixels(self._markersize) >= snap
                 gc.set_snap(snap)
                 gc.set_joinstyle(marker.get_joinstyle())

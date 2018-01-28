@@ -2,6 +2,7 @@ from collections import OrderedDict
 import itertools
 import logging
 import math
+from numbers import Real
 from operator import attrgetter
 import types
 import warnings
@@ -10,7 +11,7 @@ import numpy as np
 
 import matplotlib
 
-from matplotlib import cbook
+from matplotlib import cbook, rcParams
 from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
                               index_of, get_label)
 from matplotlib import docstring
@@ -30,12 +31,9 @@ from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.legend import Legend
 
-from matplotlib.rcsetup import cycler
-from matplotlib.rcsetup import validate_axisbelow
+from matplotlib.rcsetup import cycler, validate_axisbelow
 
 _log = logging.getLogger(__name__)
-
-rcParams = matplotlib.rcParams
 
 
 def _process_plot_format(fmt):
@@ -3009,9 +3007,8 @@ class _AxesBase(martist.Artist):
         """
         if limit is not None:
             converted_limit = convert(limit)
-            if (isinstance(converted_limit, float) and
-                    (not np.isreal(converted_limit) or
-                        not np.isfinite(converted_limit))):
+            if (isinstance(converted_limit, Real)
+                    and not np.isfinite(converted_limit)):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
