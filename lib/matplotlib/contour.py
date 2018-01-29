@@ -1563,8 +1563,8 @@ class QuadContourSet(ContourSet):
             x0, x1, y0, y1 = (0, Nx, 0, Ny)
         else:
             x0, x1, y0, y1 = self.extent
-        dx = float(x1 - x0) / Nx
-        dy = float(y1 - y0) / Ny
+        dx = (x1 - x0) / Nx
+        dy = (y1 - y0) / Ny
         x = x0 + (np.arange(Nx) + 0.5) * dx
         y = y0 + (np.arange(Ny) + 0.5) * dy
         if self.origin == 'upper':

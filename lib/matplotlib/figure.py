@@ -726,7 +726,7 @@ class Figure(Artist):
 
         if resize:
             dpi = self.get_dpi()
-            figsize = [x / float(dpi) for x in (X.shape[1], X.shape[0])]
+            figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
             self.set_size_inches(figsize, forward=True)
 
         im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
@@ -2288,9 +2288,9 @@ def figaspect(arg):
     # Extract the aspect ratio of the array
     if isarray:
         nr, nc = arg.shape[:2]
-        arr_ratio = float(nr) / nc
+        arr_ratio = nr / nc
     else:
-        arr_ratio = float(arg)
+        arr_ratio = arg
 
     # Height of user figure defaults
     fig_height = rcParams['figure.figsize'][1]

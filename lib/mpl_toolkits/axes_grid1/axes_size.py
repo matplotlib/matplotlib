@@ -268,7 +268,7 @@ def from_any(size, fraction_ref=None):
         return Fixed(size)
     elif isinstance(size, six.string_types):
         if size[-1] == "%":
-            return Fraction(float(size[:-1])/100., fraction_ref)
+            return Fraction(float(size[:-1]) / 100, fraction_ref)
 
     raise ValueError("Unknown format")
 

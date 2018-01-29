@@ -453,8 +453,8 @@ def test_EllipseCollection():
     X, Y = np.meshgrid(x, y)
     XY = np.vstack((X.ravel(), Y.ravel())).T
 
-    ww = X/float(x[-1])
-    hh = Y/float(y[-1])
+    ww = X / x[-1]
+    hh = Y / y[-1]
     aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
 
     ec = mcollections.EllipseCollection(ww, hh, aa,

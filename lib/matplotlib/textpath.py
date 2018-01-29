@@ -99,7 +99,7 @@ class TextToPath(object):
             return w, h, d
 
         fontsize = prop.get_size_in_points()
-        scale = float(fontsize) / self.FONT_SCALE
+        scale = fontsize / self.FONT_SCALE
 
         if ismath:
             prop = prop.copy()

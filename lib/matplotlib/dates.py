@@ -306,23 +306,21 @@ def _from_ordinalf(x, tz=None):
     if tz is None:
         tz = _get_rc_timezone()
 
-    ix = int(x)
+    ix, remainder = divmod(x, 1)
+    ix = int(ix)
     if ix < 1:
-        raise ValueError('cannot convert {} to a date.  This '
-                         'often happens if non-datetime values are passed to '
-                         'an axis that expects datetime objects. '
-                         .format(ix))
+        raise ValueError('Cannot convert {} to a date.  This often happens if '
+                         'non-datetime values are passed to an axis that '
+                         'expects datetime objects.'.format(ix))
     dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
-
-    remainder = float(x) - ix
 
     # Since the input date `x` float is unable to preserve microsecond
     # precision of time representation in non-antique years, the
     # resulting datetime is rounded to the nearest multiple of
     # `musec_prec`. A value of 20 is appropriate for current dates.
     musec_prec = 20
-    remainder_musec = int(round(remainder * MUSECONDS_PER_DAY /
-                                float(musec_prec)) * musec_prec)
+    remainder_musec = int(round(remainder * MUSECONDS_PER_DAY / musec_prec)
+                          * musec_prec)
 
     # For people trying to plot with full microsecond precision, enable
     # an early-year workaround
@@ -1287,10 +1285,10 @@ class AutoDateLocator(DateLocator):
         # these similar functions, and it's best to avoid doing our own math
         # whenever possible.
         numYears = float(delta.years)
-        numMonths = (numYears * MONTHS_PER_YEAR) + delta.months
+        numMonths = numYears * MONTHS_PER_YEAR + delta.months
         numDays = tdelta.days   # Avoids estimates of days/month, days/year
-        numHours = (numDays * HOURS_PER_DAY) + delta.hours
-        numMinutes = (numHours * MIN_PER_HOUR) + delta.minutes
+        numHours = numDays * HOURS_PER_DAY + delta.hours
+        numMinutes = numHours * MIN_PER_HOUR + delta.minutes
         numSeconds = np.floor(tdelta.total_seconds())
         numMicroseconds = np.floor(tdelta.total_seconds() * 1e6)
 
@@ -1745,14 +1743,14 @@ def seconds(s):
     """
     Return seconds as days.
     """
-    return float(s) / SEC_PER_DAY
+    return s / SEC_PER_DAY
 
 
 def minutes(m):
     """
     Return minutes as days.
     """
-    return float(m) / MINUTES_PER_DAY
+    return m / MINUTES_PER_DAY
 
 
 def hours(h):
