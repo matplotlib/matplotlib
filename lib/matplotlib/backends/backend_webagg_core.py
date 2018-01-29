@@ -121,7 +121,7 @@ def _handle_key(key):
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
-    supports_blit = False
+    supports_blit = True
 
     def __init__(self, *args, **kwargs):
         backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
@@ -162,8 +162,16 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Swap the frames
             self.manager.refresh_all()
 
+    def blit(self, bbox=None):
+        self._png_is_old = True
+        self.manager.refresh_all()
+
     def draw_idle(self):
         self.send_event("draw")
+
+    def copy_from_bbox(self, bbox):
+        renderer = self._last_renderer
+        return renderer.copy_from_bbox(bbox)
 
     def set_image_mode(self, mode):
         """
@@ -215,6 +223,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Swap the renderer frames
             self._renderer, self._last_renderer = (
                 self._last_renderer, renderer)
+
+            self.figure._cachedRenderer = self._renderer
+            for ax in self.figure.axes:
+                ax._cachedRenderer = self._renderer
+
             self._force_full = False
             self._png_is_old = False
             return buff
@@ -392,6 +405,9 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         if cursor != self.cursor:
             self.canvas.send_event("cursor", cursor=cursor)
         self.cursor = cursor
+
+    def dynamic_update(self):
+        self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.send_event(
