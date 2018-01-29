@@ -129,7 +129,7 @@ def test_valid_drawstyles():
     with pytest.raises(ValueError):
         line.set_drawstyle('foobar')
 
-        
+
 def test_set_drawstyle():
     x = np.linspace(0, 2*np.pi, 10)
     y = np.sin(x)
@@ -138,9 +138,10 @@ def test_set_drawstyle():
     line, = ax.plot(x, y)
     line.set_drawstyle("steps-pre")
     assert len(line.get_path().vertices) == 2*len(x)-1
-    
+
     line.set_drawstyle("default")
     assert len(line.get_path().vertices) == len(x)
+
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
 def test_set_line_coll_dash_image():
