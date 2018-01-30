@@ -271,6 +271,8 @@ def validate_qt4(s):
     # reset.  While it may seem better to use filterwarnings from within the
     # test suite, pytest 3.1+ explicitly disregards warnings filters (pytest
     # issue #2430).
+    if s is None:
+        return 'PyQt4'
     if not testing.is_called_from_pytest():
         cbook.warn_deprecated(
             "2.2",
@@ -282,6 +284,8 @@ def validate_qt4(s):
 
 def validate_qt5(s):
     # See comment re: validate_qt4.
+    if s is None:
+        return 'PyQt5'
     if not testing.is_called_from_pytest():
         cbook.warn_deprecated(
             "2.2",
@@ -958,8 +962,8 @@ defaultParams = {
     'backend':           ['Agg', validate_backend],  # agg is certainly
                                                       # present
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
-    'backend.qt4':       ['PyQt4', validate_qt4],
-    'backend.qt5':       ['PyQt5', validate_qt5],
+    'backend.qt4':       [None, validate_qt4],
+    'backend.qt5':       [None, validate_qt5],
     'webagg.port':       [8988, validate_int],
     'webagg.address':    ['127.0.0.1', validate_webagg_address],
     'webagg.open_in_browser': [True, validate_bool],
