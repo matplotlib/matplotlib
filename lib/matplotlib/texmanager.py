@@ -361,7 +361,8 @@ class TexManager(object):
             texfile = self.make_tex(tex, fontsize)
             with Locked(self.texcache):
                 self._run_checked_subprocess(
-                    ["latex", "-interaction=nonstopmode", texfile], tex)
+                    ["latex", "-interaction=nonstopmode", "--halt-on-error",
+                     texfile], tex)
             for fname in glob.glob(basefile + '*'):
                 if not fname.endswith(('dvi', 'tex')):
                     try:
@@ -387,7 +388,8 @@ class TexManager(object):
         if not os.path.exists(dvifile) or not os.path.exists(baselinefile):
             texfile = self.make_tex_preview(tex, fontsize)
             report = self._run_checked_subprocess(
-                ["latex", "-interaction=nonstopmode", texfile], tex)
+                ["latex", "-interaction=nonstopmode", "--halt-on-error",
+                 texfile], tex)
 
             # find the box extent information in the latex output
             # file and store them in ".baseline" file
