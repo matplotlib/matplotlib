@@ -382,7 +382,7 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
-def _wrap(fmt, func, level='INFO', always=True):
+def _wrap(fmt, func, level='DEBUG', always=True):
     """
     return a callable function that wraps func and reports its
     output through logger
@@ -1116,8 +1116,10 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = six.iteritems(defaultParams)
-    config = RcParams([(key, default) for key, (default, _) in iter_params
-                                      if key not in _all_deprecated])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        config = RcParams([(key, default) for key, (default, _) in iter_params
+                           if key not in _all_deprecated])
     config.update(config_from_file)
 
     if config['datapath'] is None:
@@ -1131,7 +1133,7 @@ You have the following UNSUPPORTED LaTeX preamble customizations:
 Please do not ask for support with these customizations active.
 *****************************************************************
 """, '\n'.join(config['text.latex.preamble']))
-    _log.info('loaded rc file %s', fname)
+    _log.debug('loaded rc file %s', fname)
 
     return config
 
@@ -1155,9 +1157,11 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                            six.iteritems(defaultParams)
-                            if key not in _all_deprecated])
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", mplDeprecation)
+    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
+                                six.iteritems(defaultParams)
+                                if key not in _all_deprecated])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
@@ -1839,7 +1843,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
 
     return param
 
-_log.info('matplotlib version %s', __version__)
-_log.info('interactive is %s', is_interactive())
-_log.info('platform is %s', sys.platform)
+_log.debug('matplotlib version %s', __version__)
+_log.debug('interactive is %s', is_interactive())
+_log.debug('platform is %s', sys.platform)
 _log.debug('loaded modules: %s', list(sys.modules))

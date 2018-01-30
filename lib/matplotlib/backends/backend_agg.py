@@ -146,7 +146,7 @@ class RendererAgg(RendererBase):
 
         if (nmax > 100 and npts > nmax and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
-            nch = np.ceil(npts / float(nmax))
+            nch = np.ceil(npts / nmax)
             chsize = int(np.ceil(npts / nch))
             i0 = np.arange(0, npts, chsize)
             i1 = np.zeros_like(i0)

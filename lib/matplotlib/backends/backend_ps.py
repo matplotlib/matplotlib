@@ -800,7 +800,7 @@ grestore
         flat_colors = colors.reshape((shape[0] * shape[1], 4))
         points_min = np.min(flat_points, axis=0) - (1 << 12)
         points_max = np.max(flat_points, axis=0) + (1 << 12)
-        factor = np.ceil(float(2 ** 32 - 1) / (points_max - points_min))
+        factor = np.ceil((2 ** 32 - 1) / (points_max - points_min))
 
         xmin, ymin = points_min
         xmax, ymax = points_max

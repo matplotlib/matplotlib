@@ -61,7 +61,7 @@ def line2d_seg_dist(p1, p2, p0):
     x01 = np.asarray(p0[0]) - p1[0]
     y01 = np.asarray(p0[1]) - p1[1]
 
-    u = (x01*x21 + y01*y21)/float(abs(x21**2 + y21**2))
+    u = (x01*x21 + y01*y21) / (x21**2 + y21**2)
     u = np.clip(u, 0, 1)
     d = np.sqrt((x01 - u*x21)**2 + (y01 - u*y21)**2)
 

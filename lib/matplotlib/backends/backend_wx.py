@@ -1099,7 +1099,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         delta = evt.GetWheelDelta()
         rotation = evt.GetWheelRotation()
         rate = evt.GetLinesPerAction()
-        step = rate * float(rotation) / delta
+        step = rate * rotation / delta
 
         # Done handling event
         evt.Skip()

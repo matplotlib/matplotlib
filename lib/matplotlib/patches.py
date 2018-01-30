@@ -1085,7 +1085,7 @@ class Wedge(Patch):
             # Partial annulus needs to draw the outer ring
             # followed by a reversed and scaled inner ring
             v1 = arc.vertices
-            v2 = arc.vertices[::-1] * float(self.r - self.width) / self.r
+            v2 = arc.vertices[::-1] * (self.r - self.width) / self.r
             v = np.vstack([v1, v2, v1[0, :], (0, 0)])
             c = np.hstack([arc.codes, arc.codes, connector, Path.CLOSEPOLY])
             c[len(arc.codes)] = connector
@@ -1179,8 +1179,8 @@ class Arrow(Patch):
         L = np.hypot(dx, dy)
 
         if L != 0:
-            cx = float(dx) / L
-            sx = float(dy) / L
+            cx = dx / L
+            sx = dy / L
         else:
             # Account for division by zero
             cx, sx = 0, 1
@@ -1286,12 +1286,12 @@ class FancyArrow(Polygon):
                 else:
                     raise ValueError("Got unknown shape: %s" % shape)
             if distance != 0:
-                cx = float(dx) / distance
-                sx = float(dy) / distance
+                cx = dx / distance
+                sx = dy / distance
             else:
-                #Account for division by zero
+                # Account for division by zero
                 cx, sx = 0, 1
-            M = np.array([[cx, sx], [-sx, cx]])
+            M = [[cx, sx], [-sx, cx]]
             verts = np.dot(coords, M) + (x + dx, y + dy)
 
         Polygon.__init__(self, list(map(tuple, verts)), closed=True, **kwargs)

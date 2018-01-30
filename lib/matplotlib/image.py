@@ -1453,8 +1453,8 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     # need it for the mpl API
     dpi = 100
 
-    height = float(rows)/dpi*scale
-    width = float(cols)/dpi*scale
+    height = rows / dpi * scale
+    width = cols / dpi * scale
 
     extension = extout.lower()
 

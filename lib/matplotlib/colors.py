@@ -1315,7 +1315,7 @@ class BoundaryNorm(Normalize):
         for i, b in enumerate(self.boundaries):
             iret[xx >= b] = i
         if self._interp:
-            scalefac = float(self.Ncmap - 1) / (self.N - 2)
+            scalefac = (self.Ncmap - 1) / (self.N - 2)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col

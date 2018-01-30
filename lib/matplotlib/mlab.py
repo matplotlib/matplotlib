@@ -1667,7 +1667,7 @@ class PCA(object):
         self.s = s**2
 
         # and now the contribution of the individual components
-        vars = self.s/float(len(s))
+        vars = self.s / len(s)
         self.fracs = vars/vars.sum()
 
     def project(self, x, minfrac=0.):
@@ -2172,7 +2172,7 @@ def frange(xini, xfin=None, delta=None, **kw):
     # compute # of points, spacing and return final list
     try:
         npts = kw['npts']
-        delta = (xfin-xini)/float(npts-endpoint)
+        delta = (xfin-xini) / (npts-endpoint)
     except KeyError:
         npts = int(np.round((xfin-xini)/delta)) + endpoint
         # round finds the nearest, so the endpoint can be up to

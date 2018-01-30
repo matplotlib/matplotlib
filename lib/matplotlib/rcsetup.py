@@ -24,7 +24,7 @@ import os
 import warnings
 import re
 
-from matplotlib import cbook
+from matplotlib import cbook, testing
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -266,8 +266,29 @@ def validate_backend(s):
         return _validate_standard_backends(s)
 
 
-validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])
-validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5', 'PySide2'])
+def validate_qt4(s):
+    # Don't spam the test suite with warnings every time the rcparams are
+    # reset.  While it may seem better to use filterwarnings from within the
+    # test suite, pytest 3.1+ explicitly disregards warnings filters (pytest
+    # issue #2430).
+    if not testing.is_called_from_pytest():
+        cbook.warn_deprecated(
+            "2.2",
+            "The backend.qt4 rcParam was deprecated in version 2.2.  In order "
+            "to force the use of a specific Qt4 binding, either import that "
+            "binding first, or set the QT_API environment variable.")
+    return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
+
+
+def validate_qt5(s):
+    # See comment re: validate_qt4.
+    if not testing.is_called_from_pytest():
+        cbook.warn_deprecated(
+            "2.2",
+            "The backend.qt5 rcParam was deprecated in version 2.2.  In order "
+            "to force the use of a specific Qt5 binding, either import that "
+            "binding first, or set the QT_API environment variable.")
+    return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 
 def validate_toolbar(s):

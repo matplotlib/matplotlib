@@ -1388,9 +1388,9 @@ class PercentFormatter(Formatter):
         """
         The configured percent symbol as a string.
 
-        If LaTeX is enabled via ``rcParams['text.usetex']``, the special
-        characters `{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`
-        are automatically escaped in the string.
+        If LaTeX is enabled via :rc:`text.usetex`, the special characters
+        ``{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`` are
+        automatically escaped in the string.
         """
         symbol = self._symbol
         if not symbol:
@@ -1573,7 +1573,7 @@ class FixedLocator(Locator):
         """
         if self.nbins is None:
             return self.locs
-        step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
+        step = max(int(np.ceil(len(self.locs) / self.nbins)), 1)
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]
@@ -1819,14 +1819,13 @@ class MaxNLocator(Locator):
 
         *prune*
             ['lower' | 'upper' | 'both' | None]
-            Remove edge ticks -- useful for stacked or ganged plots
-            where the upper tick of one axes overlaps with the lower
-            tick of the axes above it, primarily when
-            `rcParams['axes.autolimit_mode']` is `'round_numbers'`.
-            If `prune=='lower'`, the smallest tick will
-            be removed.  If `prune=='upper'`, the largest tick will be
-            removed.  If `prune=='both'`, the largest and smallest ticks
-            will be removed.  If `prune==None`, no ticks will be removed.
+            Remove edge ticks -- useful for stacked or ganged plots where
+            the upper tick of one axes overlaps with the lower tick of the
+            axes above it, primarily when :rc:`axes.autolimit_mode` is
+            ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
+            be removed.  If ``prune == 'upper'``, the largest tick will be
+            removed.  If ``prune == 'both'``, the largest and smallest ticks
+            will be removed.  If ``prune == None``, no ticks will be removed.
 
         *min_n_ticks*
             Relax `nbins` and `integer` constraints if necessary to
@@ -2323,7 +2322,7 @@ class SymmetricalLogLocator(Locator):
         total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
         if has_b:
             total_ticks += 1
-        stride = max(np.floor(float(total_ticks) / (self.numticks - 1)), 1)
+        stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:

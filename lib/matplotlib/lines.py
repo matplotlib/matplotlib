@@ -1002,6 +1002,8 @@ class Line2D(Artist):
             raise ValueError('Unrecognized drawstyle {!r}'.format(drawstyle))
         if self._drawstyle != drawstyle:
             self.stale = True
+            # invalidate to trigger a recache of the path
+            self._invalidx = True
         self._drawstyle = drawstyle
 
     def set_linewidth(self, w):
