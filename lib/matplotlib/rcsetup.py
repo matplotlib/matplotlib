@@ -286,7 +286,7 @@ def validate_qt5(s):
         cbook.warn_deprecated(
             "2.2",
             "The backend.qt5 rcParam was deprecated in version 2.2.  In order "
-            "to force the use of a specific Qt4 binding, either import that "
+            "to force the use of a specific Qt5 binding, either import that "
             "binding first, or set the QT_API environment variable.")
     return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
