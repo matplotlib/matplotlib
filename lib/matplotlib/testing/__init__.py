@@ -4,8 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 import functools
 import warnings
 
-import matplotlib
-from matplotlib import cbook, rcParams, rcdefaults, use
+import matplotlib as mpl
+from matplotlib import cbook
 
 
 def _is_list_like(obj):
@@ -15,7 +15,7 @@ def _is_list_like(obj):
 
 def is_called_from_pytest():
     """Returns whether the call was done from pytest"""
-    return getattr(matplotlib, '_called_from_pytest', False)
+    return getattr(mpl, '_called_from_pytest', False)
 
 
 def _copy_metadata(src_func, tgt_func):
@@ -26,13 +26,13 @@ def _copy_metadata(src_func, tgt_func):
 
 
 def set_font_settings_for_testing():
-    rcParams['font.family'] = 'DejaVu Sans'
-    rcParams['text.hinting'] = False
-    rcParams['text.hinting_factor'] = 8
+    mpl.rcParams['font.family'] = 'DejaVu Sans'
+    mpl.rcParams['text.hinting'] = False
+    mpl.rcParams['text.hinting_factor'] = 8
 
 
 def set_reproducibility_for_testing():
-    rcParams['svg.hashsalt'] = 'matplotlib'
+    mpl.rcParams['svg.hashsalt'] = 'matplotlib'
 
 
 def setup():
@@ -51,12 +51,12 @@ def setup():
                 "Could not set locale to English/United States. "
                 "Some date-related tests may fail")
 
-    use('Agg', warn=False)  # use Agg backend for these tests
+    mpl.use('Agg', warn=False)  # use Agg backend for these tests
 
     # These settings *must* be hardcoded for running the comparison
     # tests and are not necessarily the default values as specified in
     # rcsetup.py
-    rcdefaults()  # Start with all defaults
+    mpl.rcdefaults()  # Start with all defaults
 
     set_font_settings_for_testing()
     set_reproducibility_for_testing()
