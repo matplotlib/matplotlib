@@ -410,13 +410,14 @@ to keep in mind:
      -------
      lines : `~matplotlib.collections.LineCollection`
 
+* rcParams can be referenced with the custom ``:rc:`` role:
+  :literal:`:rc:\`foo\`` yields ``rcParams["foo"]``.
 
 Deprecated formatting conventions
 ---------------------------------
 * Formerly, we have used square brackets for explicit parameter lists
   ``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
   standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
-
 
 Linking to other code
 ---------------------
