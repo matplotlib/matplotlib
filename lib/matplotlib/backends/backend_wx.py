@@ -937,6 +937,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             self.draw(drawDC=drawDC)
         else:
             self.gui_repaint(drawDC=drawDC)
+        drawDC.Destroy()
 
     def _onSize(self, evt):
         """
