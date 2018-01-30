@@ -16,20 +16,18 @@ ytick.labelleft
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-x = np.array([x for x in range(10)])
-
-_, ax = plt.subplots(3, 1, sharex=True, figsize=(6, 6))
-
-ax[0].plot(x)
-ax[0].yaxis.tick_right()
-
-ax[1].plot(x)
-ax[1].yaxis.tick_left()
-
 plt.rcParams['ytick.right'], plt.rcParams['ytick.labelright'] = True, True
 plt.rcParams['ytick.left'], plt.rcParams['ytick.labelleft'] = False, False
 
-ax[2].plot(x)
+
+x = np.array([x for x in range(10)])
+
+_, ax = plt.subplots(2, 1, sharex=True, figsize=(6, 6))
+
+ax[0].plot(x)
+ax[0].yaxis.tick_left()
+
+# use default parameter in rcParams, not calling tick_right()
+ax[1].plot(x)
 
 plt.show()
