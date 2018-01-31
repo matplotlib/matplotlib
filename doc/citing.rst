@@ -7,7 +7,7 @@ If Matplotlib contributes to a project that leads to a scientific
 publication, please acknowledge this fact by citing `Hunter et al (2007)
 <http://doi.org/10.1109/MCSE.2007.55>`_ using this ready-made BibTeX entry:
 
-.. code:: bibtex
+.. code-block:: bibtex
 
    @Article{Hunter:2007,
      Author    = {Hunter, J. D.},
