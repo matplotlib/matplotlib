@@ -7,6 +7,7 @@ Working with Matplotlib on OSX
 .. contents::
    :backlinks: none
 
+.. highlight:: bash
 
 .. _osxframework_introduction:
 
@@ -77,9 +78,7 @@ Until this is fixed, one of the following workarounds can be used:
 
 The best known work around is to use the non
 virtualenv python along with the PYTHONHOME environment variable.
-This can be done by defining a function in your ``.bashrc`` using
-
-.. code:: bash
+This can be done by defining a function in your ``.bashrc`` using ::
 
   function frameworkpython {
       if [[ ! -z "$VIRTUAL_ENV" ]]; then
@@ -115,9 +114,7 @@ An alternative work around borrowed from the `WX wiki
 virtualenv python along with the PYTHONHOME environment variable.  This can be
 implemented in a script as below. To use this modify ``PYVER`` and
 ``PATHTOPYTHON`` and put the script in the virtualenv bin directory i.e.
-``PATHTOVENV/bin/frameworkpython``
-
-.. code:: bash
+``PATHTOVENV/bin/frameworkpython`` ::
 
   #!/bin/bash
 
