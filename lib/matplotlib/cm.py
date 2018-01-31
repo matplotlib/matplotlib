@@ -305,7 +305,8 @@ class ScalarMappable(object):
         sequence, interpret it as ``(vmin, vmax)`` which is used to
         support setp
 
-        ACCEPTS: a length 2 sequence of floats
+        ACCEPTS: a length 2 sequence of floats; may be overridden in methods
+        that have ``vmin`` and ``vmax`` kwargs.
         """
         if vmax is None:
             try:
