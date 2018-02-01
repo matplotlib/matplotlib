@@ -676,6 +676,11 @@ class Axes(_AxesBase):
 
             %(Line2D)s
 
+        See also
+        --------
+        hlines : add horizontal lines in data coordinates
+        axhspan : add a horizontal span (rectangle) across the axis
+
         Notes
         -----
         kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
@@ -697,12 +702,7 @@ class Axes(_AxesBase):
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
 
-        See also
-        --------
-        hlines : add horizontal lines in data coordinates
-        axhspan : add a horizontal span (rectangle) across the axis
         """
-
         if "transform" in kwargs:
             raise ValueError(
                 "'transform' is not allowed as a kwarg;"
@@ -2800,10 +2800,7 @@ linewidth=2, markersize=12)
         -----
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
-
-
         """
-
         x = np.array(x, np.float32)
 
         sx = x.sum()
@@ -4431,7 +4428,7 @@ linewidth=2, markersize=12)
             to the return collection as attributes *hbar* and *vbar*.
 
         Notes
-        --------
+        -----
         The standard descriptions of all the
         :class:`~matplotlib.collections.Collection` parameters:
 
@@ -6853,17 +6850,6 @@ linewidth=2, markersize=12)
 
             %(Line2D)s
 
-        Notes
-        -----
-        For plotting, the power is plotted as
-        :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
-        is returned.
-
-        References
-        ----------
-        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
-        John Wiley & Sons (1986)
-
         See Also
         --------
         :func:`specgram`
@@ -6876,6 +6862,17 @@ linewidth=2, markersize=12)
 
         :func:`csd`
             :func:`csd` plots the spectral density between two signals.
+
+        Notes
+        -----
+        For plotting, the power is plotted as
+        :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
+        is returned.
+
+        References
+        ----------
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
         """
         if not self._hold:
             self.cla()
@@ -6981,6 +6978,11 @@ linewidth=2, markersize=12)
 
             %(Line2D)s
 
+        See Also
+        --------
+        :func:`psd`
+            :func:`psd` is the equivalent to setting y=x.
+
         Notes
         -----
         For plotting, the power is plotted as
@@ -6991,11 +6993,6 @@ linewidth=2, markersize=12)
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        See Also
-        --------
-        :func:`psd`
-            :func:`psd` is the equivalent to setting y=x.
         """
         if not self._hold:
             self.cla()
@@ -7440,11 +7437,6 @@ linewidth=2, markersize=12)
             Additional kwargs are passed on to imshow which makes the
             specgram image
 
-        Notes
-        -----
-            *detrend* and *scale_by_freq* only apply when *mode* is set to
-            'psd'
-
         Returns
         -------
         spectrum : 2-D array
@@ -7478,6 +7470,11 @@ linewidth=2, markersize=12)
         :func:`phase_spectrum`
             A single spectrum, similar to having a single segment when *mode*
             is 'phase'. Plots a line instead of a colormap.
+
+        Notes
+        -----
+        The parameters *detrend* and *scale_by_freq* do only apply when *mode*
+        is set to 'psd'.
         """
         if not self._hold:
             self.cla()
