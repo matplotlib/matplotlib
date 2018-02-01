@@ -1281,6 +1281,12 @@ class ArtistInspector(object):
 
         col0_len = max(len(n) for n in names)
         col1_len = max(len(a) for a in accepts)
+
+        lines.append('')
+        lines.append(pad + '.. table::')
+        lines.append(pad + '   :class: property-table')
+        pad += '   '
+
         table_formatstr = pad + '=' * col0_len + '   ' + '=' * col1_len
 
         lines.append('')

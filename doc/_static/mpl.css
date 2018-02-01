@@ -583,16 +583,16 @@ table.docutils {
 }
 
 /* tables inside parameter descriptions */
-td.field-body table.docutils {
+td.field-body table.property-table {
     width: 100%;
 }
 
-td.field-body table.docutils th {
+td.field-body table.property-table th {
     padding: 2px 10px;
     border: 0;
 }
 
-td.field-body table.docutils td {
+td.field-body table.property-table td {
     padding: 2px 10px;
 }
 
