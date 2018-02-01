@@ -24,9 +24,9 @@ except ImportError:
     raise ImportError(missingwx)
     
 try:
-    wx_version = StrictVersion(wx.VERSIONSTRING)
+    wx_version = StrictVersion(wx.VERSION_STRING)
 except ValueError:
-    wx_version = LooseVersion(wx.VERSIONSTRING)
+    wx_version = LooseVersion(wx.VERSION_STRING)
 
 # Ensure we have the correct version imported
 if wx_version < str("2.9"):
