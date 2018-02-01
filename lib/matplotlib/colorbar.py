@@ -237,20 +237,19 @@ class ColorbarBase(cm.ScalarMappable):
 
         norm=colors.NoNorm.
 
-    Useful attributes:
-
-        :attr:`ax`
-            the Axes instance in which the colorbar is drawn
-
-        :attr:`lines`
-            a list of LineCollection if lines were drawn, otherwise
-            an empty list
-
-        :attr:`dividers`
-            a LineCollection if *drawedges* is True, otherwise None
-
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
+    Attributes
+    ----------
+    ax : Axes
+        The `Axes` instance in which the colorbar is drawn.
+
+    lines : list
+        A list of `LineCollection` if lines were drawn, otherwise
+        an empty list.
+
+    dividers : LineCollection
+        A LineCollection if *drawedges* is ``True``, otherwise ``None``.
     '''
     _slice_dict = {'neither': slice(0, None),
                    'both': slice(1, -1),
