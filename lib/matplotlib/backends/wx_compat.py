@@ -22,7 +22,7 @@ try:
     is_phoenix = 'phoenix' in wx.PlatformInfo
 except ImportError:
     raise ImportError(missingwx)
-    
+
 try:
     wx_version = StrictVersion(wx.VERSION_STRING)
 except ValueError:
