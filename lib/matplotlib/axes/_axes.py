@@ -6370,6 +6370,10 @@ linewidth=2, markersize=12)
         --------
         hist2d : 2D histograms
 
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         # Avoid shadowing the builtin.
         bin_range = range
@@ -7094,6 +7098,11 @@ linewidth=2, markersize=12)
         :func:`specgram`
             :func:`specgram` can plot the magnitude spectrum of segments within
             the signal in a colormap.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         if not self._hold:
             self.cla()
@@ -7186,6 +7195,11 @@ linewidth=2, markersize=12)
         :func:`specgram`
             :func:`specgram` can plot the angle spectrum of segments within the
             signal in a colormap.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         if not self._hold:
             self.cla()
@@ -7265,6 +7279,11 @@ linewidth=2, markersize=12)
         :func:`specgram`
             :func:`specgram` can plot the phase spectrum of segments within the
             signal in a colormap.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         if not self._hold:
             self.cla()
@@ -7753,6 +7772,11 @@ linewidth=2, markersize=12)
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
 
         def _kde_method(X, coords):
