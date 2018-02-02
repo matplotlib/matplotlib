@@ -17,7 +17,7 @@ from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, iterable, is_numlike, ls_mapper, ls_mapper_r,
-    STEP_LOOKUP_MAP)
+    STEP_LOOKUP_MAP, parse_measurement)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -71,6 +71,75 @@ def _scale_dashes(offset, dashes, lw):
                          for x in dashes]
 
     return scaled_offset, scaled_dashes
+
+
+def _convert2points(val, reference, lut):
+    """
+    Convert relative size to points, using `reference` as the base value and
+    `lut` as the look-up table for qualitative size names. If `val` is None or
+    'auto', then the `default` is returned.
+    """
+
+    try:
+        pts = reference*lut[val]
+    except KeyError:
+        try:
+            pts = float(val)
+        except (ValueError, TypeError):
+            pts, u = parse_measurement(val)
+            if u not in ['x', '%']:
+                raise ValueError('Unrecognized relative size value '
+                                          '{!r}'.format(val))
+            if u == '%':
+                pts /= 100.
+
+            pts *= reference
+
+    return pts
+
+
+def _build_qualitative_scaling(labels, comparative=None, base=1.2):
+
+    a, b = labels
+    if comparative is None:
+        ca, cb = a+"er", b+"er"
+    else:
+        ca, cb = comparative
+
+    d = {'medium': 1., ca: base**-1, cb: base}
+    for k, m in enumerate(('', 'x-', 'xx-')):
+        d['{}{}'.format(m, a)] = base**(-k-1)
+        d['{}{}'.format(m, b)] = base**(k+1)
+
+    return d
+
+
+linewidth_scaling = _build_qualitative_scaling(
+    ('thin', 'thick'), ('thinner', 'thicker'), 1.5)
+markersize_scaling = _build_qualitative_scaling(
+    ('small', 'large'), ('smaller', 'larger'), 1.5)
+
+
+def linewidth2points(w):
+    """
+    Convert a line width specification to points.
+    Line width can be either specified as float (absolute width in points),
+    a string representing a fraction of the default width in rcParams
+    or a string representing a relative qualitative width (e.g. 'x-thin')
+    """
+    reference = rcParams['lines.linewidth']
+    return _convert2points(w, reference, linewidth_scaling)
+
+
+def markersize2points(s, default=None):
+    """
+    Convert a marker size specification to points.
+    Marker size can be either specified as float (absolute size in points),
+    a string representing a fraction of the default size in rcParams
+    or a string representing a relative qualitative size (e.g. 'x-large')
+    """
+    reference = rcParams['lines.markersize']
+    return _convert2points(s, reference, markersize_scaling)
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -1008,11 +1077,17 @@ class Line2D(Artist):
 
     def set_linewidth(self, w):
         """
-        Set the line width in points
+        Set the line width, either absolute width in points or
+        width relative to rc default.
 
-        ACCEPTS: float value in points
+        ACCEPTS: [float value in points | fraction as string | None |
+                         'xx-thin' | 'x-thin' | 'thin' | 'thinner' | 'medium' |
+                         'thicker' | 'thick' | 'x-thick' | 'xx-thick']
         """
-        w = float(w)
+        if w is None:
+            w = rcParams['lines.linewidth']
+
+        w = linewidth2points(w)
 
         if self._linewidth != w:
             self.stale = True
@@ -1156,12 +1231,18 @@ class Line2D(Artist):
 
     def set_markeredgewidth(self, ew):
         """
-        Set the marker edge width in points
+        Set the marker edge width, either absolute width in points or
+        width relative to lines.linewidth rc default.
 
-        ACCEPTS: float value in points
+        ACCEPTS: [float value in points | fraction as string | None |
+                         'xx-thin' | 'x-thin' | 'thin' | 'thinner' | 'medium' |
+                         'thicker' | 'thick' | 'x-thick' | 'xx-thick']
         """
         if ew is None:
             ew = rcParams['lines.markeredgewidth']
+
+        ew = linewidth2points(ew)
+
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew
@@ -1192,11 +1273,19 @@ class Line2D(Artist):
 
     def set_markersize(self, sz):
         """
-        Set the marker size in points
+        Set the line width, either absolute width in points or
+        width relative to rc default.
 
-        ACCEPTS: float
+        ACCEPTS: [float value in points | fraction as string | None |
+                         'xx-small' | 'x-small' | 'small' | 'smaller' |
+                         'medium' | 'larger' | 'large' | 'x-large' |
+                         'xx-large']
         """
-        sz = float(sz)
+        if sz is None:
+            sz = rcParams['lines.markersize']
+
+        sz = markersize2points(sz)
+
         if self._markersize != sz:
             self.stale = True
         self._markersize = sz

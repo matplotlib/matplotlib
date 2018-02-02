@@ -2288,6 +2288,27 @@ STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
                    'steps-mid': pts_to_midstep}
 
 
+MEASUREMENT = re.compile(
+    r'''(                    # group match like scanf() token %e, %E, %f, %g
+    [-+]?                 # +/- or nothing for positive
+    (\d+(\.\d*)?|\.\d+)      # match numbers: 1, 1., 1.1, .1
+    ([eE][-+]?\d+)?          # scientific notation: e(+/-)2 (*10^2)
+    )
+    (\s*)                  # separator: white space or nothing
+    (                       # unit of measure: like GB. also works for no units
+    \S*)''',    re.VERBOSE)
+
+
+def parse_measurement(value_sep_units):
+    measurement = re.match(MEASUREMENT, value_sep_units)
+    if measurement is None:
+        raise ValueError("Not a valid measurement value:"
+                                  " {!r}".format(value_sep_units))
+    value = float(measurement.groups()[0])
+    units = measurement.groups()[5]
+    return value, units
+
+
 def index_of(y):
     """
     A helper function to get the index of an input to plot

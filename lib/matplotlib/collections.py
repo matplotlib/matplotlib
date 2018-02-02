@@ -491,7 +491,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         or a sequence; if it is a sequence the patches will cycle
         through the sequence
 
-        ACCEPTS: float or sequence of floats
+        ACCEPTS: float, string, or sequence of floats/strings
         """
         if lw is None:
             lw = mpl.rcParams['patch.linewidth']
@@ -499,6 +499,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 lw = mpl.rcParams['lines.linewidth']
         # get the un-scaled/broadcast lw
         self._us_lw = np.atleast_1d(np.asarray(lw))
+
+        # convert line widths to points
+        self._us_lw = np.array([mlines.linewidth2points(x)
+                                            for x in self._us_lw])
 
         # scale all of the dash patterns.
         self._linewidths, self._linestyles = self._bcast_lwls(
@@ -835,6 +839,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
         self.stale = True
+
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
