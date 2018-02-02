@@ -6,7 +6,7 @@ Constrained Layout Guide
 How to use constrained-layout to fit plots within your figure cleanly.
 
 *constrained_layout* automatically adjusts subplots and decorations like
-legends and colorbars so that they fit in the figure window wihile still
+legends and colorbars so that they fit in the figure window while still
 preserving, as best they can, the logical layout requested by the user.
 
 *constrained_layout* is similar to *tight_layout*, but uses a constraint
@@ -24,7 +24,7 @@ solver to determine the size of axes that allows them to fit.
 Simple Example
 ==============
 
-In matplotlib, the location of axes (including subplots) are specified in
+In Matplotlib, the location of axes (including subplots) are specified in
 normalized figure coordinates. It can happen that your axis labels or
 titles (or sometimes even ticklabels) go outside the figure area, and are thus
 clipped.
@@ -152,7 +152,7 @@ axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.9, 0.5))
 # Padding and Spacing
 # ===================
 #
-# For constrained_layout, we have implimented a padding around the edge of
+# For constrained_layout, we have implemented a padding around the edge of
 # each axes.  This padding sets the distance from the edge of the plot,
 # and the minimum distance between adjacent plots.  It is specified in
 # inches by the keyword arguments `w_pad` and `h_pad` to the function
@@ -234,7 +234,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 #  - `w_pad`, `h_pad`    Padding around axes objects.
 #     Float representing inches.  Default is 3./72. inches (3 pts)
 #  - `wspace`, `hspace`  Space between subplot groups.
-#     Float representing a fraction of the suplot widths being separated.
+#     Float representing a fraction of the subplot widths being separated.
 #     Default is 0.02.
 
 plt.rcParams['figure.constrained_layout.use'] = True
@@ -472,7 +472,7 @@ example_plot(ax4)
 #      https://github.com/matplotlib/matplotlib/issues.
 #
 # If there is a bug, please report with a self-contained example that does
-# not require outside data or dependencies (other than perhaps numpy).
+# not require outside data or dependencies (other than numpy).
 
 ###########################################################
 # Notes on the algorithm
@@ -515,7 +515,7 @@ example_plot(ax4)
 # `ax.position`, which sets where in the figure the spines are placed.
 #
 # Why so many stacked containers?  Ideally, all that would be needed are the
-# Axes layotu boxes. For the Gridspec case, a container is
+# Axes layout boxes. For the Gridspec case, a container is
 # needed if the Gridspec is nested via `~.GridSpecFromSubplotSpec`.  At the
 # top level, it is desirable for symmetry, but it also makes room for
 # `~.Figure.suptitle`.
@@ -529,8 +529,8 @@ example_plot(ax4)
 # ---------------------
 #
 # For a single Axes the layout is straight forward.  The Figure and
-# outer Gridspec layoutboxes co-incide.  The Subplotspec and Axes
-# boxes also co-incide because the Axes has no colorbar.  Note
+# outer Gridspec layoutboxes coincide.  The Subplotspec and Axes
+# boxes also coincide because the Axes has no colorbar.  Note
 # the difference between the red ``pos`` box and the green ``ax`` box
 # is set by the size of the decorations around the Axes.
 #
@@ -584,7 +584,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 #
 # Adding a colorbar makes it clear why the Subplotspec layoutboxes must
 # be different from the axes layoutboxes.  Here we see the left-hand
-# subplotspec has more room to accomodate the `~.Figure.colorbar`, and
+# subplotspec has more room to accommodate the `~.Figure.colorbar`, and
 # that there are two green ``ax`` boxes inside the ``ss`` box.
 #
 # Note that the width of the ``pos`` boxes is still the same because of the
@@ -629,7 +629,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 # The first method is used here.  The constraint that makes the heights
 # be correct is in the code where ``drowsC < drows0`` which in
 # this case would be 1 is less than 2.  So we constrain the
-# the height of the 1-row Axes to be less than half the height of the
+# height of the 1-row Axes to be less than half the height of the
 # 2-row Axes.
 #
 # ..note::
@@ -650,7 +650,7 @@ im = ax.pcolormesh(arr, rasterized=True)
 plot_children(fig, fig._layoutbox, printit=False)
 
 #######################################################################
-# Height and width ratios are accomodated with the same part of
+# Height and width ratios are accommodated with the same part of
 # the code with the smaller axes always constrained to be less in size
 # than the larger.
 
@@ -675,7 +675,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 # The final piece of the code that has not been explained is what happens if
 # there is an empty gridspec opening.  In that case a fake invisible axes is
 # added and we proceed as before.  The empty gridspec has no decorations, but
-# the axes postion in made the same size as the occupied Axes positions.
+# the axes position in made the same size as the occupied Axes positions.
 #
 # This is done at the start of
 # `~._constrained_layout.do_constrained_layout` (``hassubplotspec``).
