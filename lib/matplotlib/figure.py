@@ -47,6 +47,7 @@ from matplotlib.projections import (get_projection_names,
 from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
+import matplotlib._layoutbox as layoutbox
 from matplotlib.backend_bases import NonGuiException
 
 _log = logging.getLogger(__name__)
@@ -291,6 +292,8 @@ class Figure(Artist):
                  frameon=None,  # whether or not to draw the figure frame
                  subplotpars=None,  # default to rc
                  tight_layout=None,  # default to rc figure.autolayout
+                 constrained_layout=None,  # default to rc
+                                          #figure.constrained_layout.use
                  ):
         """
         Parameters
@@ -323,6 +326,15 @@ class Figure(Artist):
             ``pad``, ``w_pad``, ``h_pad``, and ``rect``, the default
             `~.tight_layout` paddings will be overridden.
             Defaults to rc ``figure.autolayout``.
+
+        constrained_layout : bool
+            If ``True`` use constrained layout to adjust positioning of plot
+            elements.  Like ``tight_layout``, but designed to be more
+            flexible.  See
+            :doc:`/tutorials/intermediate/constrainedlayout_guide`
+            for examples.  (Note: does not work with :meth:`.subplot` or
+            :meth:`.subplot2grid`.)
+            Defaults to rc ``figure.constrained_layout.use``.
         """
         Artist.__init__(self)
         # remove the non-figure artist _axes property
@@ -374,6 +386,11 @@ class Figure(Artist):
             subplotpars = SubplotParams()
 
         self.subplotpars = subplotpars
+        # constrained_layout:
+        self._layoutbox = None
+        # set in set_constrained_layout_pads()
+        self.set_constrained_layout(constrained_layout)
+
         self.set_tight_layout(tight_layout)
 
         self._axstack = AxesStack()  # track all figure axes and current axes
@@ -495,6 +512,106 @@ class Figure(Artist):
         self._tight = bool(tight)
         self._tight_parameters = tight if isinstance(tight, dict) else {}
         self.stale = True
+
+    def get_constrained_layout(self):
+        """
+        Return a boolean: True means constrained layout is being used.
+
+        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        """
+        return self._constrained
+
+    def set_constrained_layout(self, constrained):
+        """
+        Set whether ``constrained_layout`` is used upon drawing. If None,
+        the rcParams['figure.constrained_layout.use'] value will be used.
+
+        When providing a dict containing the keys `w_pad`, `h_pad`
+        the default ``constrained_layout`` paddings will be
+        overridden.  These pads are in inches and default to 3.0/72.0.
+        ``w_pad`` is the width padding and ``h_pad`` is the height padding.
+
+        ACCEPTS: [True | False | dict | None ]
+
+        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        """
+        self._constrained_layout_pads = dict()
+        self._constrained_layout_pads['w_pad'] = None
+        self._constrained_layout_pads['h_pad'] = None
+        self._constrained_layout_pads['wspace'] = None
+        self._constrained_layout_pads['hspace'] = None
+        if constrained is None:
+            constrained = rcParams['figure.constrained_layout.use']
+        self._constrained = bool(constrained)
+        if isinstance(constrained, dict):
+            self.set_constrained_layout_pads(**constrained)
+        else:
+            self.set_constrained_layout_pads()
+
+        self.stale = True
+
+    def set_constrained_layout_pads(self, **kwargs):
+        """
+        Set padding for ``constrained_layout``.  Note the kwargs can be passed
+        as a dictionary ``fig.set_constrained_layout(**paddict)``.
+
+        Parameters:
+        -----------
+
+        w_pad : scalar
+            Width padding in inches.  This is the pad around axes
+            and is meant to make sure there is enough room for fonts to
+            look good.  Defaults to 3 pts = 0.04167 inches
+
+        h_pad : scalar
+            Height padding in inches. Defaults to 3 pts.
+
+        wspace: scalar
+            Width padding between subplots, expressed as a fraction of the
+            subplot width.  The total padding ends up being w_pad + wspace.
+
+        hspace: scalar
+            Height padding between subplots, expressed as a fraction of the
+            subplot width. The total padding ends up being h_pad + hspace.
+
+        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        """
+
+        todo = ['w_pad', 'h_pad', 'wspace', 'hspace']
+        for td in todo:
+            if td in kwargs and kwargs[td] is not None:
+                self._constrained_layout_pads[td] = kwargs[td]
+            else:
+                self._constrained_layout_pads[td] = (
+                    rcParams['figure.constrained_layout.' + td])
+
+    def get_constrained_layout_pads(self, relative=False):
+        """
+        Get padding for ``constrained_layout``.
+
+        Returns a list of `w_pad, h_pad` in inches and
+        `wspace` and `hspace` as fractions of the subplot.
+
+        Parameter:
+        -----------
+
+        relative : boolean
+            If `True`, then convert from inches to figure relative.
+
+        See: :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        """
+        w_pad = self._constrained_layout_pads['w_pad']
+        h_pad = self._constrained_layout_pads['h_pad']
+        wspace = self._constrained_layout_pads['wspace']
+        hspace = self._constrained_layout_pads['hspace']
+
+        if relative and ((w_pad is not None) or (h_pad is not None)):
+            renderer0 = layoutbox.get_renderer(self)
+            dpi = renderer0.dpi
+            w_pad = w_pad * dpi / renderer0.width
+            h_pad = h_pad * dpi / renderer0.height
+
+        return w_pad, h_pad, wspace, hspace
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right', which=None):
         """
@@ -623,7 +740,19 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
-
+        if self._layoutbox is not None:
+            # assign a layout box to the suptitle...
+            figlb = self._layoutbox
+            self._suptitle._layoutbox = layoutbox.LayoutBox(
+                                            parent=figlb,
+                                            name=figlb.name+'.suptitle')
+            for child in figlb.children:
+                if not (child == self._suptitle._layoutbox):
+                    w_pad, h_pad, wspace, hspace =  \
+                            self.get_constrained_layout_pads(
+                                    relative=True)
+                    layoutbox.vstack([self._suptitle._layoutbox, child],
+                                     padding=h_pad*2., strength='required')
         self.stale = True
         return self._suptitle
 
@@ -886,7 +1015,7 @@ class Figure(Artist):
         'make a hashable key out of args and kwargs'
 
         def fixitems(items):
-            #items may have arrays and lists in them, so convert them
+            # items may have arrays and lists in them, so convert them
             # to tuples for the key
             ret = []
             for k, v in items:
@@ -1110,7 +1239,6 @@ class Figure(Artist):
                     self._axstack.remove(ax)
 
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
-
         self._axstack.add(key, a)
         self.sca(a)
         a._remove_method = self.__remove_ax
@@ -1208,7 +1336,11 @@ class Figure(Artist):
         if gridspec_kw is None:
             gridspec_kw = {}
 
-        gs = GridSpec(nrows, ncols, **gridspec_kw)
+        if self.get_constrained_layout():
+            gs = GridSpec(nrows, ncols, figure=self, **gridspec_kw)
+        else:
+            # this should turn constrained_layout off if we don't want it
+            gs = GridSpec(nrows, ncols, figure=None, **gridspec_kw)
 
         # Create array to hold all axes.
         axarr = np.empty((nrows, ncols), dtype=object)
@@ -1323,9 +1455,15 @@ class Figure(Artist):
 
         try:
             renderer.open_group('figure')
+            if self.get_constrained_layout() and self.axes:
+                if True:
+                    self.execute_constrained_layout(renderer)
+                else:
+                    pass
             if self.get_tight_layout() and self.axes:
                 try:
-                    self.tight_layout(renderer, **self._tight_parameters)
+                    self.tight_layout(renderer,
+                                      **self._tight_parameters)
                 except ValueError:
                     pass
                     # ValueError can occur when resizing a window.
@@ -1709,6 +1847,8 @@ class Figure(Artist):
 
     def __getstate__(self):
         state = super(Figure, self).__getstate__()
+
+        # print('\n\n\nStarting pickle')
         # the axobservers cannot currently be pickled.
         # Additionally, the canvas cannot currently be pickled, but this has
         # the benefit of meaning that a figure can be detached from one canvas,
@@ -1729,6 +1869,14 @@ class Figure(Artist):
                     matplotlib._pylab_helpers.Gcf.figs)):
                 state['_restore_to_pylab'] = True
 
+        # set all the layoutbox information to None.  kiwisolver
+        # objects can't be pickeled, so we lose the layout options
+        # at this point.
+        state.pop('_layoutbox', None)
+        # suptitle:
+        if self._suptitle is not None:
+            self._suptitle._layoutbox = None
+
         return state
 
     def __setstate__(self, state):
@@ -1746,6 +1894,7 @@ class Figure(Artist):
         # re-initialise some of the unstored state information
         self._axobservers = []
         self.canvas = None
+        self._layoutbox = None
 
         if restore_to_pylab:
             # lazy import to avoid circularity
@@ -1909,7 +2058,8 @@ class Figure(Artist):
         current_ax = self.gca()
 
         if cax is None:
-            if use_gridspec and isinstance(ax, SubplotBase):
+            if use_gridspec and isinstance(ax, SubplotBase)  \
+                     and (not self.get_constrained_layout()):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
@@ -2049,6 +2199,45 @@ class Figure(Artist):
                                       Affine2D().scale(1. / self.dpi))
 
         return bbox_inches
+
+    def init_layoutbox(self):
+        """
+        initilaize the layoutbox for use in constrained_layout.
+        """
+        if self._layoutbox is None:
+            self._layoutbox = layoutbox.LayoutBox(parent=None,
+                                     name='figlb',
+                                     artist=self)
+            self._layoutbox.constrain_geometry(0., 0., 1., 1.)
+
+    def execute_constrained_layout(self, renderer=None):
+        """
+        Use ``layoutbox`` to determine pos positions within axes.
+
+        See also set_constrained_layout_pads
+        """
+
+        from matplotlib._constrained_layout import (do_constrained_layout)
+
+        _log.debug('Executing constrainedlayout')
+        if self._layoutbox is None:
+            warnings.warn("Calling figure.constrained_layout, but figure "
+                          "not setup to do constrained layout.  "
+                          "   You either called GridSpec without the "
+                          "fig keyword, you are using plt.subplot, "
+                          "or you need to call figure or subplots"
+                          "with the constrained_layout=True kwarg.")
+            return
+        w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
+        # convert to unit-relative lengths
+
+        fig = self
+        width, height = fig.get_size_inches()
+        w_pad = w_pad / width
+        h_pad = h_pad / height
+        if renderer is None:
+            renderer = layoutbox.get_renderer(fig)
+        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):

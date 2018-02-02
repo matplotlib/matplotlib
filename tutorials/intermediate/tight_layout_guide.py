@@ -21,6 +21,8 @@ clipped.
 
 """
 
+# sphinx_gallery_thumbnail_number = 7
+
 import matplotlib.pyplot as plt
 import numpy as np
 
