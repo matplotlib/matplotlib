@@ -394,18 +394,18 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                     if height0 > heightC:
                         if in_same_column(ss0, ssc):
                             ax._poslayoutbox.constrain_height_min(
-                                axc._poslayoutbox.height  * height0 /
-                                heightC)
+                                axc._poslayoutbox.height * height0 / heightC)
+                            # these constraints stop the smaller axes from
+                            # being allowed to go to zero height...
                             axc._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height  * heightC /
+                                ax._poslayoutbox.height * heightC /
                                 (height0*1.8))
                     else:
                         if in_same_column(ss0, ssc):
                             axc._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height * heightC /
-                                (height0))
+                                ax._poslayoutbox.height * heightC / height0)
                             ax._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height  * height0 /
+                                ax._poslayoutbox.height * height0 /
                                 (heightC*1.8))
                     if drows0 == drowsC:
                         ax._poslayoutbox.constrain_height(
