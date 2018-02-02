@@ -507,7 +507,6 @@ class Figure(Artist):
 
         Parameters
         ----------
-
         bottom : scalar
             The bottom of the subplots for :meth:`subplots_adjust`
 
@@ -543,7 +542,7 @@ class Figure(Artist):
         self.stale = True
 
     def get_children(self):
-        'get a list of artists contained in the figure'
+        """Get a list of artists contained in the figure."""
         children = [self.patch]
         children.extend(self.artists)
         children.extend(self.axes)
@@ -566,9 +565,9 @@ class Figure(Artist):
         return inside, {}
 
     def get_window_extent(self, *args, **kwargs):
-        ''''
+        """
         Return figure bounding box in display space; arguments are ignored.
-        '''
+        """
         return self.bbox
 
     def suptitle(self, t, **kwargs):
@@ -757,7 +756,6 @@ class Figure(Artist):
 
         See Also
         --------
-
         matplotlib.Figure.get_size_inches
         """
 
@@ -794,33 +792,32 @@ class Figure(Artist):
 
         See Also
         --------
-
         matplotlib.Figure.set_size_inches
         """
         return np.array(self.bbox_inches.p1)
 
     def get_edgecolor(self):
-        'Get the edge color of the Figure rectangle'
+        """Get the edge color of the Figure rectangle."""
         return self.patch.get_edgecolor()
 
     def get_facecolor(self):
-        'Get the face color of the Figure rectangle'
+        """Get the face color of the Figure rectangle."""
         return self.patch.get_facecolor()
 
     def get_figwidth(self):
-        'Return the figwidth as a float'
+        """Return the figwidth as a float."""
         return self.bbox_inches.width
 
     def get_figheight(self):
-        'Return the figheight as a float'
+        """Return the figheight as a float."""
         return self.bbox_inches.height
 
     def get_dpi(self):
-        'Return the dpi as a float'
+        """Return the dpi as a float."""
         return self.dpi
 
     def get_frameon(self):
-        'get the boolean indicating frameon'
+        """Get the boolean indicating frameon."""
         return self.frameon
 
     def set_edgecolor(self, color):
@@ -883,7 +880,7 @@ class Figure(Artist):
         self.stale = True
 
     def _make_key(self, *args, **kwargs):
-        'make a hashable key out of args and kwargs'
+        """Make a hashable key out of args and kwargs."""
 
         def fixitems(items):
             #items may have arrays and lists in them, so convert them
@@ -1345,8 +1342,8 @@ class Figure(Artist):
 
     def draw_artist(self, a):
         """
-        draw :class:`matplotlib.artist.Artist` instance *a* only --
-        this is available only after the figure is drawn
+        Draw :class:`matplotlib.artist.Artist` instance *a* only.
+        This is available only after the figure is drawn.
         """
         if self._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
@@ -1679,7 +1676,7 @@ class Figure(Artist):
         return self.add_subplot(1, 1, 1, **kwargs)
 
     def sca(self, a):
-        'Set the current axes to be a and return a'
+        """Set the current axes to be a and return a."""
         self._axstack.bubble(a)
         for func in self._axobservers:
             func(self)
@@ -1687,8 +1684,7 @@ class Figure(Artist):
 
     def _gci(self):
         """
-        helper for :func:`~matplotlib.pyplot.gci`;
-        do not use elsewhere.
+        Helper for :func:`~matplotlib.pyplot.gci`. Do not use elsewhere.
         """
         # Look first for an image in the current Axes:
         cax = self._axstack.current_key_axes()[1]
@@ -1775,7 +1771,7 @@ class Figure(Artist):
         self.stale = True
 
     def add_axobserver(self, func):
-        'whenever the axes state change, ``func(self)`` will be called'
+        """Whenever the axes state change, ``func(self)`` will be called."""
         self._axobservers.append(func)
 
     def savefig(self, fname, **kwargs):
@@ -1933,7 +1929,7 @@ class Figure(Artist):
                               wspace=None, hspace=None)
 
         Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
-        *None*) and update the subplot locations
+        *None*) and update the subplot locations.
 
         """
         self.subplotpars.update(*args, **kwargs)
@@ -2057,7 +2053,6 @@ class Figure(Artist):
 
         Parameters
         ----------
-
         pad : float
             padding between the figure edge and the edges of subplots,
             as a fraction of the font-size.
@@ -2107,19 +2102,19 @@ class Figure(Artist):
             Optional list of (or ndarray) `~matplotlib.axes.Axes` to align
             the xlabels.  Default is to align all axes on the figure.
 
-        Note
-        ----
-        This assumes that ``axs`` are from the same `~.GridSpec`, so that
-        their `~.SubplotSpec` positions correspond to figure positions.
-
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
 
         matplotlib.figure.Figure.align_labels
 
-        Example
-        -------
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `~.GridSpec`, so that
+        their `~.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
         Example with rotated xtick labels::
 
             fig, axs = plt.subplots(1, 2)
@@ -2175,19 +2170,19 @@ class Figure(Artist):
             Optional list (or ndarray) of `~matplotlib.axes.Axes` to align
             the ylabels. Default is to align all axes on the figure.
 
-        Note
-        ----
-        This assumes that ``axs`` are from the same `~.GridSpec`, so that
-        their `~.SubplotSpec` positions correspond to figure positions.
-
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
 
         matplotlib.figure.Figure.align_labels
 
-        Example
-        -------
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `~.GridSpec`, so that
+        their `~.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
         Example with large yticks labels::
 
             fig, axs = plt.subplots(2, 1)
