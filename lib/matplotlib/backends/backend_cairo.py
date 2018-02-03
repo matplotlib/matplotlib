@@ -94,15 +94,6 @@ _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CURVE_TO] = 4
 _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
 
 
-def _convert_path(ctx, path, transform, clip=None):
-    return _convert_paths(ctx, [path], [transform], clip)
-
-
-def _convert_paths(ctx, paths, transforms, clip=None):
-    return (_convert_paths_fast if HAS_CAIRO_CFFI else _convert_paths_slow)(
-        ctx, paths, transforms, clip)
-
-
 def _convert_paths_slow(ctx, paths, transforms, clip=None):
     for path, transform in zip(paths, transforms):
         for points, code in path.iter_segments(transform, clip=clip):
@@ -123,7 +114,7 @@ def _convert_paths_slow(ctx, paths, transforms, clip=None):
 
 def _convert_paths_fast(ctx, paths, transforms, clip=None):
     # We directly convert to the internal representation used by cairo, for
-    # which ABI compatibility is guaranteed.  The layout is for each item is
+    # which ABI compatibility is guaranteed.  The layout for each item is
     # --CODE(4)--  -LENGTH(4)-  ---------PAD(8)---------
     # ----------X(8)----------  ----------Y(8)----------
     # with the size in bytes in parentheses, and (X, Y) repeated as many times
@@ -154,10 +145,10 @@ def _convert_paths_fast(ctx, paths, transforms, clip=None):
     # Fill the buffer.
     buf = np.empty(cairo_num_data * 16, np.uint8)
     as_int = np.frombuffer(buf.data, np.int32)
-    as_float = np.frombuffer(buf.data, np.float64)
-    mask = np.ones_like(as_float, bool)
     as_int[::4][cairo_type_positions] = codes
     as_int[1::4][cairo_type_positions] = cairo_type_sizes
+    as_float = np.frombuffer(buf.data, np.float64)
+    mask = np.ones_like(as_float, bool)
     mask[::2][cairo_type_positions] = mask[1::2][cairo_type_positions] = False
     as_float[mask] = vertices.ravel()
 
@@ -167,6 +158,13 @@ def _convert_paths_fast(ctx, paths, transforms, clip=None):
     ptr.data = ffi.cast("cairo_path_data_t *", ffi.from_buffer(buf))
     ptr.num_data = cairo_num_data
     cairo.cairo.cairo_append_path(ctx._pointer, ptr)
+
+
+_convert_paths = _convert_paths_fast if HAS_CAIRO_CFFI else _convert_paths_slow
+
+
+def _convert_path(ctx, path, transform, clip=None):
+    return _convert_paths(ctx, [path], [transform], clip)
 
 
 class RendererCairo(RendererBase):
@@ -247,8 +245,7 @@ class RendererCairo(RendererBase):
 
         ctx.new_path()
         # Create the path for the marker; it needs to be flipped here already!
-        _convert_path(
-            ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
+        _convert_path(ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
         marker_path = ctx.copy_path_flat()
 
         # Figure out whether the path has a fill
@@ -312,7 +309,7 @@ class RendererCairo(RendererBase):
             for k, v in gc_vars.items():
                 try:
                     getattr(gc, "set" + k)(v)
-                except (AttributeError, TypeError):
+                except (AttributeError, TypeError) as e:
                     pass
             gc.ctx.new_path()
             paths, transforms = zip(*grouped_draw)
@@ -326,8 +323,8 @@ class RendererCairo(RendererBase):
                 offsetTrans, facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             path, transform = path_id
-            transform = (Affine2D(transform.get_matrix()).translate(xo, yo)
-                         + Affine2D().scale(1, -1).translate(0, self.height))
+            transform = (Affine2D(transform.get_matrix())
+                         .translate(xo, yo - self.height).scale(1, -1))
             # rgb_fc could be a ndarray, for which equality is elementwise.
             new_key = vars(gc0), tuple(rgb_fc) if rgb_fc is not None else None
             if new_key == reuse_key:
