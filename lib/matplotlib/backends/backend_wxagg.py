@@ -9,8 +9,8 @@ import matplotlib
 from . import wx_compat as wxc
 from . import backend_wx
 from .backend_agg import FigureCanvasAgg
-from .backend_wx import (
-    _BackendWx, FigureCanvasWx, FigureFrameWx, NavigationToolbar2Wx, DEBUG_MSG)
+from .backend_wx import (_BackendWx, FigureCanvasWx, FigureFrameWx,
+    NavigationToolbar2Wx, NavigationController2Wx, DEBUG_MSG)
 
 
 class FigureFrameWxAgg(FigureFrameWx):
@@ -88,6 +88,11 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         # bounding boxes.
         if self._isDrawn:
             self.draw()
+
+
+class NavigationController2WxAgg(NavigationController2Wx):
+    def get_canvas(self, frame, fig):
+        return FigureCanvasWxAgg(frame, -1, fig)
 
 
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):

@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from six.moves import xrange
+import six
 
 import sys
 import os
@@ -947,8 +948,19 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """
 
         DEBUG_MSG("_onSize()", 2, self)
+        sz = self.GetParent().GetSizer()
+        if sz: si = sz.GetItem(self)
+        if not sz or not si or (not si.Proportion and not si.Flag & wx.EXPAND):
+            # not managed by a sizer at all or with a constant size
+            size = self.GetMinSize()
+        else:
+            # variable size, managed by a wx.Sizer
+            size = self.GetClientSize()
+        if getattr(self, "_width", None) and size==(self._width,self._height):
+            # no change in size
+            return
+        self._width, self._height = size
         # Create a new, correctly sized bitmap
-        self._width, self._height = self.GetClientSize()
         self.bitmap = wxc.EmptyBitmap(self._width, self._height)
 
         self._isDrawn = False
@@ -1475,9 +1487,13 @@ class SubplotToolWX(wx.Frame):
         tool = SubplotTool(targetfig, toolfig)
 
 
-class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
+class NavigationController2Wx(NavigationToolbar2):
+    """
+    The parts from NavigationToolbar2Wx that are not specific to wx.ToolBar;
+    so this functionality can be used without adding a toolbar.
+    """
+
     def __init__(self, canvas):
-        wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
@@ -1493,32 +1509,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return FigureCanvasWx(frame, -1, fig)
 
     def _init_toolbar(self):
-        DEBUG_MSG("_init_toolbar", 1, self)
-
         self._parent = self.canvas.GetParent()
-
-        self.wx_ids = {}
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                self.AddSeparator()
-                continue
-            self.wx_ids[text] = wx.NewId()
-            wxc._AddTool(self, self.wx_ids, text,
-                        _load_bitmap(image_file + '.png'),
-                        tooltip_text)
-
-            self.Bind(wx.EVT_TOOL, getattr(self, callback),
-                      id=self.wx_ids[text])
-
-        self.Realize()
-
-    def zoom(self, *args):
-        self.ToggleTool(self.wx_ids['Pan'], False)
-        NavigationToolbar2.zoom(self, *args)
-
-    def pan(self, *args):
-        self.ToggleTool(self.wx_ids['Zoom'], False)
-        NavigationToolbar2.pan(self, *args)
 
     def configure_subplots(self, evt):
         frame = wx.Frame(None, -1, "Configure subplots")
@@ -1679,6 +1670,40 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def set_message(self, s):
         if self.statbar is not None:
             self.statbar.set_function(s)
+
+
+class NavigationToolbar2Wx(NavigationController2Wx, wx.ToolBar):
+    def __init__(self, canvas):
+        wx.ToolBar.__init__(self, canvas.GetParent(), -1)
+        NavigationController2Wx.__init__(self, canvas)
+
+    def _init_toolbar(self):
+        DEBUG_MSG("_init_toolbar", 1, self)
+
+        self._parent = self.canvas.GetParent()
+
+        self.wx_ids = {}
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.AddSeparator()
+                continue
+            self.wx_ids[text] = wx.NewId()
+            wxc._AddTool(self, self.wx_ids, text,
+                        _load_bitmap(image_file + '.png'),
+                        tooltip_text)
+
+            self.Bind(wx.EVT_TOOL, getattr(self, callback),
+                      id=self.wx_ids[text])
+
+        self.Realize()
+
+    def zoom(self, *args):
+        self.ToggleTool(self.wx_ids['Pan'], False)
+        NavigationToolbar2.zoom(self, *args)
+
+    def pan(self, *args):
+        self.ToggleTool(self.wx_ids['Zoom'], False)
+        NavigationToolbar2.pan(self, *args)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
