@@ -11,7 +11,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from distutils.version import LooseVersion
+from distutils.version import StrictVersion, LooseVersion
 
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython>=2.9"
 
@@ -23,8 +23,13 @@ try:
 except ImportError:
     raise ImportError(missingwx)
 
+try:
+    wx_version = StrictVersion(wx.VERSION_STRING)
+except ValueError:
+    wx_version = LooseVersion(wx.VERSION_STRING)
+
 # Ensure we have the correct version imported
-if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.9"):
+if wx_version < str("2.9"):
     raise ImportError(missingwx)
 
 if is_phoenix:
@@ -152,7 +157,7 @@ def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
     else:
         add_tool = parent.DoAddTool
 
-    if not is_phoenix or LooseVersion(wx.VERSION_STRING) >= str("4.0.0b2"):
+    if not is_phoenix or wx_version >= str("4.0.0b2"):
         # NOTE: when support for Phoenix prior to 4.0.0b2 is dropped then
         # all that is needed is this clause, and the if and else clause can
         # be removed.

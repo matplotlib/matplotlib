@@ -568,11 +568,17 @@ class _AxesBase(martist.Artist):
                         rcParams['ytick.major.right']),
             which='major')
 
+        self._layoutbox = None
+        self._poslayoutbox = None
+
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super(_AxesBase, self).__getstate__()
         state['_cachedRenderer'] = None
+        state.pop('_layoutbox')
+        state.pop('_poslayoutbox')
+
         return state
 
     def __setstate__(self, state):
@@ -584,6 +590,8 @@ class _AxesBase(martist.Artist):
             for artist in container:
                 artist._remove_method = container.remove
         self._stale = True
+        self._layoutbox = None
+        self._poslayoutbox = None
 
     def get_window_extent(self, *args, **kwargs):
         """
@@ -877,6 +885,19 @@ class _AxesBase(martist.Artist):
         which : ['both' | 'active' | 'original'], optional
             Determines which position variables to change.
 
+        """
+        self._set_position(pos, which='both')
+        # because this is being called externally to the library we
+        # zero the constrained layout parts.
+        self._layoutbox = None
+        self._poslayoutbox = None
+
+    def _set_position(self, pos, which='both'):
+        """
+        private version of set_position.  Call this internally
+        to get the same functionality of `get_position`, but not
+        to take the axis out of the constrained_layout
+        hierarchy.
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
@@ -1527,7 +1548,7 @@ class _AxesBase(martist.Artist):
             aspect_scale_mode = "linear"
 
         if aspect == 'auto':
-            self.set_position(position, which='active')
+            self._set_position(position, which='active')
             return
 
         if aspect == 'equal':
@@ -1547,12 +1568,12 @@ class _AxesBase(martist.Artist):
                 box_aspect = A * self.get_data_ratio()
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
-            self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+            self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
 
         # reset active to original in case it had been changed
         # by prior use of 'box'
-        self.set_position(position, which='active')
+        self._set_position(position, which='active')
 
         xmin, xmax = self.get_xbound()
         ymin, ymax = self.get_ybound()
@@ -4156,10 +4177,25 @@ class _AxesBase(martist.Artist):
         if 'sharex' in kwargs and 'sharey' in kwargs:
             raise ValueError("Twinned Axes may share only one axis.")
         ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
-        ## do not touch every thing shared, just this and it's twin.
+
         self.set_adjustable('datalim')
         ax2.set_adjustable('datalim')
         self._twinned_axes.join(self, ax2)
+        # check if we have a layoutbox.  If so, then set this axis
+        # gets the same poslayoutbox and layoutbox...
+        if self._layoutbox is not None:
+            name = self._layoutbox.name + 'twin' + layoutbox.seq_id()
+            ax2._layoutbox = layoutbox.LayoutBox(
+                    parent=self._subplotspec._layoutbox,
+                    name=name,
+                    artist=ax2)
+            ax2._poslayoutbox = layoutbox.LayoutBox(
+                    parent=ax2._layoutbox,
+                    name=ax2._layoutbox.name+'.pos',
+                    pos=True, subplot=True, artist=ax2)
+            # make the layout boxes be the same
+            ax2._layoutbox.constrain_same(self._layoutbox)
+            ax2._poslayoutbox.constrain_same(self._poslayoutbox)
         return ax2
 
     def twinx(self):

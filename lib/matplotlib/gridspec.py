@@ -18,6 +18,7 @@ from __future__ import absolute_import, division, print_function
 import six
 
 import copy
+import logging
 import warnings
 
 import numpy as np
@@ -25,6 +26,10 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
+import matplotlib._layoutbox as layoutbox
+from matplotlib.cbook import mplDeprecation
+
+_log = logging.getLogger(__name__)
 
 
 class GridSpecBase(object):
@@ -47,7 +52,7 @@ class GridSpecBase(object):
         'get the geometry of the grid, e.g., 2,3'
         return self._nrows, self._ncols
 
-    def get_subplot_params(self, fig=None):
+    def get_subplot_params(self, figure=None, fig=None):
         pass
 
     def new_subplotspec(self, loc, rowspan=1, colspan=1):
@@ -76,20 +81,31 @@ class GridSpecBase(object):
     def get_height_ratios(self):
         return self._row_height_ratios
 
-    def get_grid_positions(self, fig):
+    def get_grid_positions(self, fig, raw=False):
         """
         return lists of bottom and top position of rows, left and
         right positions of columns.
+
+        If raw=True, then these are all in units relative to the container
+        with no margins.  (used for constrained_layout).
         """
         nrows, ncols = self.get_geometry()
 
-        subplot_params = self.get_subplot_params(fig)
-        left = subplot_params.left
-        right = subplot_params.right
-        bottom = subplot_params.bottom
-        top = subplot_params.top
-        wspace = subplot_params.wspace
-        hspace = subplot_params.hspace
+        if raw:
+            left = 0.
+            right = 1.
+            bottom = 0.
+            top = 1.
+            wspace = 0.
+            hspace = 0.
+        else:
+            subplot_params = self.get_subplot_params(fig)
+            left = subplot_params.left
+            right = subplot_params.right
+            bottom = subplot_params.bottom
+            top = subplot_params.top
+            wspace = subplot_params.wspace
+            hspace = subplot_params.hspace
         tot_width = right - left
         tot_height = top - bottom
 
@@ -156,7 +172,7 @@ class GridSpec(GridSpecBase):
     as the SubplotParams.
     """
 
-    def __init__(self, nrows, ncols,
+    def __init__(self, nrows, ncols, figure=None,
                  left=None, bottom=None, right=None, top=None,
                  wspace=None, hspace=None,
                  width_ratios=None, height_ratios=None):
@@ -183,11 +199,40 @@ class GridSpec(GridSpecBase):
         self.top = top
         self.wspace = wspace
         self.hspace = hspace
+        self.figure = figure
+
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
 
+        if (self.figure is None) or not self.figure.get_constrained_layout():
+            _log.info("GridSpec must be called with the fig keyword if "
+                    "constrained_layout is used")
+            self._layoutbox = None
+        else:
+            self.figure.init_layoutbox()
+            self._layoutbox = layoutbox.LayoutBox(
+                parent=self.figure._layoutbox,
+                name='gridspec' + layoutbox.seq_id(),
+                artist=self)
+        # by default the layoutbox for a gridsepc will fill a figure.
+        # but this can change below if the gridspec is created from a
+        # subplotspec. (GridSpecFromSubplotSpec)
+
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+
+    def __getstate__(self):
+        state = self.__dict__
+        try:
+            state.pop('_layoutbox')
+        except KeyError:
+            pass
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        # layoutboxes don't survive pickling...
+        self._layoutbox = None
 
     def update(self, **kwargs):
         """
@@ -209,27 +254,33 @@ class GridSpec(GridSpecBase):
                     if isinstance(ax._sharex, mpl.axes.SubplotBase):
                         if ax._sharex.get_subplotspec().get_gridspec() == self:
                             ax._sharex.update_params()
-                            ax.set_position(ax._sharex.figbox)
+                            ax._set_position(ax._sharex.figbox)
                     elif isinstance(ax._sharey, mpl.axes.SubplotBase):
                         if ax._sharey.get_subplotspec().get_gridspec() == self:
                             ax._sharey.update_params()
-                            ax.set_position(ax._sharey.figbox)
+                            ax._set_position(ax._sharey.figbox)
                 else:
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
                         ax.update_params()
-                        ax.set_position(ax.figbox)
+                        ax._set_position(ax.figbox)
 
-    def get_subplot_params(self, fig=None):
+    def get_subplot_params(self, figure=None, fig=None):
         """
         Return a dictionary of subplot layout parameters. The default
         parameters are from rcParams unless a figure attribute is set.
         """
-        if fig is None:
+        if fig is not None:
+            warnings.warn("the 'fig' kwarg is deprecated "
+                          "use 'figure' instead", mplDeprecation)
+        if figure is None:
+            figure = fig
+
+        if figure is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
             subplotpars = mpl.figure.SubplotParams(**kw)
         else:
-            subplotpars = copy.copy(fig.subplotpars)
+            subplotpars = copy.copy(figure.subplotpars)
 
         update_kw = {k: getattr(self, k) for k in self._AllowedKeys}
         subplotpars.update(**update_kw)
@@ -239,7 +290,7 @@ class GridSpec(GridSpecBase):
     def locally_modified_subplot_params(self):
         return [k for k in self._AllowedKeys if getattr(self, k)]
 
-    def tight_layout(self, fig, renderer=None,
+    def tight_layout(self, figure, renderer=None,
                      pad=1.08, h_pad=None, w_pad=None, rect=None):
         """
         Adjust subplot parameters to give specified padding.
@@ -260,16 +311,16 @@ class GridSpec(GridSpecBase):
         """
 
         subplotspec_list = tight_layout.get_subplotspec_list(
-            fig.axes, grid_spec=self)
+            figure.axes, grid_spec=self)
         if None in subplotspec_list:
             warnings.warn("This figure includes Axes that are not compatible "
                           "with tight_layout, so results might be incorrect.")
 
         if renderer is None:
-            renderer = tight_layout.get_renderer(fig)
+            renderer = tight_layout.get_renderer(figure)
 
         kwargs = tight_layout.get_tight_layout_figure(
-            fig, fig.axes, subplotspec_list, renderer,
+            figure, figure.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         self.update(**kwargs)
 
@@ -296,19 +347,34 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
+        # do the layoutboxes
+        subspeclb = subplot_spec._layoutbox
+        if subspeclb is None:
+            self._layoutbox = None
+        else:
+            # OK, this is needed to divide the figure.
+            self._layoutbox = subspeclb.layout_from_subplotspec(
+                    subplot_spec,
+                    name=subspeclb.name + '.gridspec' + layoutbox.seq_id(),
+                    artist=self)
 
-    def get_subplot_params(self, fig=None):
+    def get_subplot_params(self, figure=None, fig=None):
         """Return a dictionary of subplot layout parameters.
         """
+        if fig is not None:
+            warnings.warn("the 'fig' kwarg is deprecated "
+                          "use 'figure' instead", mplDeprecation)
+        if figure is None:
+            figure = fig
 
         hspace = (self._hspace if self._hspace is not None
-                  else fig.subplotpars.hspace if fig is not None
+                  else figure.subplotpars.hspace if figure is not None
                   else rcParams["figure.subplot.hspace"])
         wspace = (self._wspace if self._wspace is not None
-                  else fig.subplotpars.wspace if fig is not None
+                  else figure.subplotpars.wspace if figure is not None
                   else rcParams["figure.subplot.wspace"])
 
-        figbox = self._subplot_spec.get_position(fig)
+        figbox = self._subplot_spec.get_position(figure)
         left, bottom, right, top = figbox.extents
 
         return mpl.figure.SubplotParams(left=left, right=right,
@@ -335,6 +401,31 @@ class SubplotSpec(object):
         self._gridspec = gridspec
         self.num1 = num1
         self.num2 = num2
+        if gridspec._layoutbox is not None:
+            glb = gridspec._layoutbox
+            # So note that here we don't assign any layout yet,
+            # just make the layoutbox that will conatin all items
+            # associated w/ this axis.  This can include other axes like
+            # a colorbar or a legend.
+            self._layoutbox = layoutbox.LayoutBox(
+                    parent=glb,
+                    name=glb.name + '.ss' + layoutbox.seq_id(),
+                    artist=self)
+        else:
+            self._layoutbox = None
+
+    def __getstate__(self):
+        state = self.__dict__
+        try:
+            state.pop('_layoutbox')
+        except KeyError:
+            pass
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        # layoutboxes don't survive pickling...
+        self._layoutbox = None
 
     def get_gridspec(self):
         return self._gridspec
@@ -364,8 +455,8 @@ class SubplotSpec(object):
             col_stop = col_start
         return nrows, ncols, row_start, row_stop, col_start, col_stop
 
-    def get_position(self, fig, return_all=False):
-        """Update the subplot position from ``fig.subplotpars``.
+    def get_position(self, figure, return_all=False):
+        """Update the subplot position from ``figure.subplotpars``.
         """
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
@@ -373,7 +464,7 @@ class SubplotSpec(object):
             [self.num1] if self.num2 is None else [self.num1, self.num2],
             (nrows, ncols))
         fig_bottoms, fig_tops, fig_lefts, fig_rights = \
-            gridspec.get_grid_positions(fig)
+            gridspec.get_grid_positions(figure)
 
         fig_bottom = fig_bottoms[rows].min()
         fig_top = fig_tops[rows].max()
