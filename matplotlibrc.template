@@ -357,6 +357,8 @@ backend      : $TEMPLATE_BACKEND
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 #xtick.top            : False   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
+#xtick.labeltop       : False  # draw label on the top
+#xtick.labelbottom    : True  # draw label on the bottom
 #xtick.major.size     : 3.5      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
 #xtick.major.width    : 0.8    # major tick width in points

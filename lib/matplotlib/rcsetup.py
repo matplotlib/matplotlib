@@ -1234,6 +1234,8 @@ defaultParams = {
     # tick properties
     'xtick.top':         [False, validate_bool],   # draw ticks on the top side
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
+    'xtick.labeltop':    [False, validate_bool],  # draw label on the top
+    'xtick.labelbottom': [True, validate_bool],  # draw label on the bottom
     'xtick.major.size':  [3.5, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
     'xtick.major.width': [0.8, validate_float],  # major xtick width in points
