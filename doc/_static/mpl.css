@@ -232,9 +232,6 @@ div.sphinxsidebar {
     text-align: left;
 /*    margin-left: -100%; */
 }
-div.sphinxsidebarwrapper {
-    padding-top: 28px
-}
 
 div.sphinxsidebar h4, div.sphinxsidebar h3 {
     margin: 1em 0 0.5em 0;
@@ -243,6 +240,11 @@ div.sphinxsidebar h4, div.sphinxsidebar h3 {
     color: white;
     border: 1px solid #86989B;
     background-color: #AFC1C4;
+}
+
+div.sphinxsidebar h3 a {
+    /* workaround for table of contents heading, which is a link */
+    color: white !important;
 }
 
 div.sphinxsidebar ul {
@@ -256,6 +258,11 @@ div.sphinxsidebar ul {
 div.sphinxsidebar ul ul {
     list-style: square;
     margin-left: 20px;
+}
+
+#searchbox input[type=text] {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 p {
@@ -811,6 +818,10 @@ figcaption {
     -o-transform:rotate(45deg);
     box-shadow:4px 4px 10px rgba(0,0,0,0.8);
   }
+}
+
+#sidebar-donations {
+    margin-top: 28px;
 }
 
 .donate_button {
