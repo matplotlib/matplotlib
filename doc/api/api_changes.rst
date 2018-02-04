@@ -10,6 +10,16 @@ out what caused the breakage and how to fix it by updating your code.
 For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
+API Changes in 2.2.0
+====================
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   next_api_changes/*
+
+
 API Changes in 2.1.2
 ====================
 
