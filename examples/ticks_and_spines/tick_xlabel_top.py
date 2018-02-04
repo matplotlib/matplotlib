@@ -19,7 +19,7 @@ import numpy as np
 plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = False
 plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
 
-x = np.array([x for x in np.arange(10)])
+x = np.arange(10)
 
 plt.plot(x)
 plt.title('xlabel top')

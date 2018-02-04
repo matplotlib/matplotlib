@@ -18,7 +18,7 @@ plt.rcParams['ytick.right'] = plt.rcParams['ytick.labelright'] = True
 plt.rcParams['ytick.left'] = plt.rcParams['ytick.labelleft'] = False
 
 
-x = np.array([x for x in np.arange(10)])
+x = np.arange(10)
 
 _, ax = plt.subplots(2, 1, sharex=True, figsize=(6, 6))
 
