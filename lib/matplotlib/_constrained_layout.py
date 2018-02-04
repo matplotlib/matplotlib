@@ -361,15 +361,19 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                                         'bottom')
 
                     ###########
-                    # Now we make the widths and heights similar.
+                    # Now we make the widths and heights of position boxes
+                    # similar. (i.e the spine locations)
                     # This allows vertically stacked subplots to have
-                    # different sizes if they occupy different ammounts
+                    # different sizes if they occupy different amounts
                     # of the gridspec:  i.e.
                     # gs = gridspec.GridSpec(3,1)
                     # ax1 = gs[0,:]
                     # ax2 = gs[1:,:]
                     # then drows0 = 1, and drowsC = 2, and ax2
                     # should be at least twice as large as ax1.
+                    # But it can be more than twice as large because
+                    # it needs less room for the labeling.
+                    #
                     # For height, this only needs to be done if the
                     # subplots share a column.  For width if they
                     # share a row.
@@ -387,31 +391,41 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                     dcolsC = (colnumCmax - colnumCmin + 1)
                     dcols0 = (colnum0max - colnum0min + 1)
 
-                    if drowsC > drows0:
+                    if height0 > heightC:
                         if in_same_column(ss0, ssc):
                             ax._poslayoutbox.constrain_height_min(
-                                axc._poslayoutbox.height * drows0 * height0
-                                / drowsC / heightC)
-                    elif drowsC < drows0:
+                                axc._poslayoutbox.height * height0 / heightC)
+                            # these constraints stop the smaller axes from
+                            # being allowed to go to zero height...
+                            axc._poslayoutbox.constrain_height_min(
+                                ax._poslayoutbox.height * heightC /
+                                (height0*1.8))
+                    else:
                         if in_same_column(ss0, ssc):
                             axc._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height * drowsC * heightC
-                                / drows0 / drowsC)
-                    else:
+                                ax._poslayoutbox.height * heightC / height0)
+                            ax._poslayoutbox.constrain_height_min(
+                                ax._poslayoutbox.height * height0 /
+                                (heightC*1.8))
+                    if drows0 == drowsC:
                         ax._poslayoutbox.constrain_height(
                                 axc._poslayoutbox.height * height0 / heightC)
                     # widths...
-                    if dcolsC > dcols0:
+                    if width0 > widthC:
                         if in_same_row(ss0, ssc):
                             ax._poslayoutbox.constrain_width_min(
-                                    axc._poslayoutbox.width * dcols0 * width0
-                                    / dcolsC / widthC)
-                    elif dcolsC < dcols0:
+                                    axc._poslayoutbox.width * width0 / widthC)
+                            axc._poslayoutbox.constrain_width_min(
+                                    ax._poslayoutbox.width * widthC /
+                                    (width0*1.8))
+                    else:
                         if in_same_row(ss0, ssc):
                             axc._poslayoutbox.constrain_width_min(
-                                    ax._poslayoutbox.width * dcolsC * widthC
-                                    / dcols0 / width0)
-                    else:
+                                    ax._poslayoutbox.width * widthC / width0)
+                            ax._poslayoutbox.constrain_width_min(
+                                    axc._poslayoutbox.width * width0 /
+                                    (widthC*1.8))
+                    if dcols0 == dcolsC:
                         ax._poslayoutbox.constrain_width(
                                 axc._poslayoutbox.width * width0 / widthC)
 
