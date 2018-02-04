@@ -61,14 +61,14 @@ class AxisInfo(object):
         """
         Parameters
         ----------
-        majloc, minloc :
+        majloc, minloc
             TickLocators for the major and minor ticks.
-        majfmt, minfmt :
+        majfmt, minfmt
             TickFormatters for the major and minor ticks.
-        label :
-            The default axis label
-        default_limits :
-            The default min, max of the axis if no data is present
+        label
+            The default axis label.
+        default_limits
+            The default min, max of the axis if no data is present.
 
         Notes
         -----
@@ -90,14 +90,17 @@ class ConversionInterface(object):
     """
     @staticmethod
     def axisinfo(unit, axis):
-        '''
-        Return an `~units.AxisInfo` instance for axis with the specified units.
-        '''
+        """
+        Return an `~units.AxisInfo` instance for the axis with the
+        specified units.
+        """
         return None
 
     @staticmethod
     def default_units(x, axis):
-        'Return the default unit for *x* or ``None`` for the given axis.'
+        """
+        Return the default unit for *x* or ``None`` for the given axis.
+        """
         return None
 
     @staticmethod
@@ -134,7 +137,9 @@ class Registry(dict):
         self._cached = {}
 
     def get_converter(self, x):
-        'Get the converter interface instance for *x*, or ``None``.'
+        """
+        Get the converter interface instance for *x*, or ``None``.
+        """
 
         if not len(self):
             return None  # nothing registered
