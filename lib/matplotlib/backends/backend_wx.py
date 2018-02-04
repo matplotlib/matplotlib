@@ -948,16 +948,18 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         DEBUG_MSG("_onSize()", 2, self)
         sz = self.GetParent().GetSizer()
-        if sz: si = sz.GetItem(self)
+        if sz:
+            si = sz.GetItem(self)
         if sz and si and not si.Proportion and not si.Flag & wx.EXPAND:
             # managed by a sizer, but with a fixed size
             size = self.GetMinSize()
         else:
             # variable size
             size = self.GetClientSize()
-        if getattr(self, "_width", None) and size==(self._width,self._height):
-            # no change in size
-            return
+        if getattr(self, "_width", None):
+            if size == (self._width, self._height):
+                # no change in size
+                return
         self._width, self._height = size
         # Create a new, correctly sized bitmap
         self.bitmap = wxc.EmptyBitmap(self._width, self._height)
