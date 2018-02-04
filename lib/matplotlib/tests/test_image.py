@@ -620,7 +620,7 @@ def test_minimized_rasterized():
 def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
-    Z = plt.imread(req)
+    plt.imread(req)
 
 
 @image_comparison(baseline_images=['log_scale_image'],
@@ -811,6 +811,27 @@ def test_imshow_no_warn_invalid():
         warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
+
+
+@pytest.mark.parametrize(
+    'dtype', [np.dtype(s) for s in 'u2 u4 i2 i4 i8 f4 f8'.split()])
+def test_imshow_clips_rgb_to_valid_range(dtype):
+    arr = np.arange(300, dtype=dtype).reshape((10, 10, 3))
+    if dtype.kind != 'u':
+        arr -= 10
+    too_low = arr < 0
+    too_high = arr > 255
+    if dtype.kind == 'f':
+        arr = arr / 255
+    _, ax = plt.subplots()
+    out = ax.imshow(arr).get_array()
+    assert (out[too_low] == 0).all()
+    if dtype.kind == 'f':
+        assert (out[too_high] == 1).all()
+        assert out.dtype.kind == 'f'
+    else:
+        assert (out[too_high] == 255).all()
+        assert out.dtype == np.uint8
 
 
 @image_comparison(baseline_images=['imshow_flatfield'],

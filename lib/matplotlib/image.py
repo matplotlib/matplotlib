@@ -13,6 +13,7 @@ from io import BytesIO
 
 from math import ceil
 import os
+import logging
 
 import numpy as np
 
@@ -33,6 +34,8 @@ from matplotlib._image import *
 
 from matplotlib.transforms import (Affine2D, BboxBase, Bbox, BboxTransform,
                                    IdentityTransform, TransformedBbox)
+
+_log = logging.getLogger(__name__)
 
 # map interpolation strings to module constants
 _interpd_ = {
@@ -622,6 +625,23 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not (self._A.ndim == 2
                 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
             raise TypeError("Invalid dimensions for image data")
+
+        if self._A.ndim == 3:
+            # If the input data has values outside the valid range (after
+            # normalisation), we issue a warning and then clip X to the bounds
+            # - otherwise casting wraps extreme values, hiding outliers and
+            # making reliable interpretation impossible.
+            high = 255 if np.issubdtype(self._A.dtype, np.integer) else 1
+            if self._A.min() < 0 or high < self._A.max():
+                _log.warning(
+                    'Clipping input data to the valid range for imshow with '
+                    'RGB data ([0..1] for floats or [0..255] for integers).'
+                )
+                self._A = np.clip(self._A, 0, high)
+            # Cast unsupported integer types to uint8
+            if self._A.dtype != np.uint8 and np.issubdtype(self._A.dtype,
+                                                           np.integer):
+                self._A = self._A.astype(np.uint8)
 
         self._imcache = None
         self._rgbacache = None

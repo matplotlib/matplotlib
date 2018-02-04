@@ -5319,10 +5319,14 @@ class Axes(_AxesBase):
             - MxNx3 -- RGB (float or uint8)
             - MxNx4 -- RGBA (float or uint8)
 
-            The value for each component of MxNx3 and MxNx4 float arrays
-            should be in the range 0.0 to 1.0. MxN arrays are mapped
-            to colors based on the `norm` (mapping scalar to scalar)
-            and the `cmap` (mapping the normed scalar to a color).
+            MxN arrays are mapped to colors based on the `norm` (mapping
+            scalar to scalar) and the `cmap` (mapping the normed scalar to
+            a color).
+
+            Elements of RGB and RGBA arrays represent pixels of an MxN image.
+            All values should be in the range [0 .. 1] for floats or
+            [0 .. 255] for integers.  Out-of-range values will be clipped to
+            these bounds.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             If None, default to rc `image.cmap` value. `cmap` is ignored
@@ -5364,7 +5368,8 @@ class Axes(_AxesBase):
             settings for `vmin` and `vmax` will be ignored.
 
         alpha : scalar, optional, default: None
-            The alpha blending value, between 0 (transparent) and 1 (opaque)
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
+            The ``alpha`` argument is ignored for RGBA input data.
 
         origin : ['upper' | 'lower'], optional, default: None
             Place the [0,0] index of the array in the upper left or lower left
