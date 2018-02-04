@@ -5232,10 +5232,10 @@ def test_axes_tick_params_ylabelside():
     ax.tick_params(labelleft=False, labelright=True,
                    which='minor')
     # expects left false, right true
-    assert(ax.yaxis.majorTicks[0].label1On is False)
-    assert(ax.yaxis.majorTicks[0].label2On is True)
-    assert(ax.yaxis.minorTicks[0].label1On is False)
-    assert(ax.yaxis.minorTicks[0].label2On is True)
+    assert ax.yaxis.majorTicks[0].label1On is False
+    assert ax.yaxis.majorTicks[0].label2On is True
+    assert ax.yaxis.minorTicks[0].label1On is False
+    assert ax.yaxis.minorTicks[0].label2On is True
 
 
 def test_axes_tick_params_xlabelside():
@@ -5248,10 +5248,10 @@ def test_axes_tick_params_xlabelside():
     # expects top True, bottom False
     # label1On mapped to labelbottom
     # label2On mapped to labeltop
-    assert(ax.xaxis.majorTicks[0].label1On is False)
-    assert(ax.xaxis.majorTicks[0].label2On is True)
-    assert(ax.xaxis.minorTicks[0].label1On is False)
-    assert(ax.xaxis.minorTicks[0].label2On is True)
+    assert ax.xaxis.majorTicks[0].label1On is False
+    assert ax.xaxis.majorTicks[0].label2On is True
+    assert ax.xaxis.minorTicks[0].label1On is False
+    assert ax.xaxis.minorTicks[0].label2On is True
 
 
 def test_none_kwargs():

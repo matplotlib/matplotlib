@@ -16,10 +16,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-plt.rcParams['xtick.bottom'], plt.rcParams['xtick.labelbottom'] = False, False
-plt.rcParams['xtick.top'], plt.rcParams['xtick.labeltop'] = True, True
+plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = False
+plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
 
-x = np.array([x for x in range(10)])
+x = np.array([x for x in np.range(10)])
 
 plt.plot(x)
 plt.title('xlabel top')

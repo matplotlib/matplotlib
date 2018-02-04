@@ -14,11 +14,11 @@ These properties can also be set in the ``.matplotlib/matplotlibrc``.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams['ytick.right'], plt.rcParams['ytick.labelright'] = True, True
-plt.rcParams['ytick.left'], plt.rcParams['ytick.labelleft'] = False, False
+plt.rcParams['ytick.right'] = plt.rcParams['ytick.labelright'] = True
+plt.rcParams['ytick.left'] = plt.rcParams['ytick.labelleft'] = False
 
 
-x = np.array([x for x in range(10)])
+x = np.array([x for x in np.range(10)])
 
 _, ax = plt.subplots(2, 1, sharex=True, figsize=(6, 6))
 
