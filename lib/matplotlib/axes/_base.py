@@ -214,10 +214,24 @@ class _process_plot_var_args(object):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
-            if bx:
-                x = self.axes.convert_xunits(x)
-            if by:
-                y = self.axes.convert_yunits(y)
+
+            if self.command != 'plot':
+                # the Line2D class can handle unitized data, with
+                # support for post hoc unit changes etc.  Other mpl
+                # artists, e.g., Polygon which _process_plot_var_args
+                # also serves on calls to fill, cannot.  So this is a
+                # hack to say: if you are not "plot", which is
+                # creating Line2D, then convert the data now to
+                # floats.  If you are plot, pass the raw data through
+                # to Line2D which will handle the conversion.  So
+                # polygons will not support post hoc conversions of
+                # the unit type since they are not storing the orig
+                # data.  Hopefully we can rationalize this at a later
+                # date - JDH
+                if bx:
+                    x = self.axes.convert_xunits(x)
+                if by:
+                    y = self.axes.convert_yunits(y)
 
         # like asanyarray, but converts scalar to array, and doesn't change
         # existing compatible sequences
@@ -360,48 +374,26 @@ class _process_plot_var_args(object):
         if 'label' not in kwargs or kwargs['label'] is None:
             kwargs['label'] = get_label(tup[-1], None)
 
-        if len(tup) == 1:
-            x, y = index_of(tup[0])
-        elif len(tup) == 2:
-            x, y = tup
+        if len(tup) == 2:
+            x = _check_1d(tup[0])
+            y = _check_1d(tup[-1])
         else:
-            assert False
+            x, y = index_of(tup[-1])
 
-        deunitized_x, deunitized_y = self._xy_from_xy(x, y)
-        # The previous call has registered the converters, if any, on the axes.
-        # This check will need to be replaced by a comparison with the
-        # DefaultConverter when that PR goes in.
-        if self.axes.xaxis.converter is None or self.command is not "plot":
-            xt, yt = deunitized_x.T, deunitized_y.T
+        x, y = self._xy_from_xy(x, y)
+
+        if self.command == 'plot':
+            func = self._makeline
         else:
-            # np.asarray would destroy unit information so we need to construct
-            # the 1D arrays to pass to Line2D.set_xdata manually... (but this
-            # is only relevant if the command is "plot").
+            kw['closed'] = kwargs.get('closed', True)
+            func = self._makefill
 
-            def to_list_of_lists(data):
-                ndim = np.ndim(data)
-                if ndim == 0:
-                    return [[data]]
-                elif ndim == 1:
-                    return [data]
-                elif ndim == 2:
-                    return zip(*data)  # Transpose it.
-
-            xt, yt = map(to_list_of_lists, [x, y])
-
-        ncx, ncy = deunitized_x.shape[1], deunitized_y.shape[1]
+        ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
             cbook.warn_deprecated("2.2", "cycling among columns of inputs "
                                   "with non-matching shapes is deprecated.")
-
         for j in xrange(max(ncx, ncy)):
-            if self.command == "plot":
-                seg = self._makeline(xt[j % ncx], yt[j % ncy], kw, kwargs)
-            else:
-                kw['closed'] = kwargs.get('closed', True)
-                seg = self._makefill(deunitized_x[:, j % ncx],
-                                     deunitized_y[:, j % ncy],
-                                     kw, kwargs)
+            seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
         return ret
 
