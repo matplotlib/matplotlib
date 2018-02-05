@@ -19,7 +19,6 @@ from six.moves import zip
 import numpy as np
 from matplotlib import rcParams
 
-from .mlab import dist
 from .patches import Circle, Rectangle, Ellipse
 from .lines import Line2D
 from .transforms import blended_transform_factory
@@ -1032,7 +1031,8 @@ class RadioButtons(AxesWidget):
 
         def inside(p):
             pcirc = np.array([p.center[0], p.center[1]])
-            return dist(pclicked, pcirc) < p.radius
+            d = pclicked - pcirc
+            return np.sqrt(np.dot(d, d)) < p.radius
 
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if t.get_window_extent().contains(event.x, event.y) or inside(p):

@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 import datetime
 
 import numpy as np
-from matplotlib import mlab
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 from numpy.testing import assert_array_almost_equal
@@ -260,8 +259,10 @@ def test_labels():
     x = np.arange(-3.0, 3.0, delta)
     y = np.arange(-2.0, 2.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
+
     # difference of Gaussians
     Z = 10.0 * (Z2 - Z1)
 
