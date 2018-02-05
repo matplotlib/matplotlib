@@ -83,16 +83,16 @@ _fallback_to_qt4 = False
 if QT_API is None:
     # No ETS environment or incompatible so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
-        QT_API = rcParams['backend.qt5']
+        QT_API = QT_API_PYQT5
     elif rcParams['backend'] == 'Qt4Agg':
-        QT_API = rcParams['backend.qt4']
+        QT_API = QT_API_PYQT
     else:
         # A non-Qt backend was specified, no version of the Qt
         # bindings is imported, but we still got here because a Qt
         # related file was imported. This is allowed, fall back to Qt5
         # using which ever binding the rparams ask for.
         _fallback_to_qt4 = True
-        QT_API = rcParams['backend.qt5']
+        QT_API = QT_API_PYQT5
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
@@ -142,7 +142,7 @@ if _sip_imported:
         except ImportError:
             if _fallback_to_qt4:
                 # fell through, tried PyQt5, failed fall back to PyQt4
-                QT_API = rcParams['backend.qt4']
+                QT_API = QT_API_PYQT
                 QT_RC_MAJOR_VERSION = 4
             else:
                 raise
