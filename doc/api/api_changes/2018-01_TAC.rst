@@ -2,7 +2,4 @@
 Simplify String Categorical handling
 ------------------------------------
 
- - Only handling `str` (not `bytes` in pyhon3).  This disallows using integers or
-   floats as category labels.  If you wish to have integer category labels, convert
-   to string before plotting.
- - Do not allow missing data.  This is a consequence of the first change.
+ - Do not allow missing data.
