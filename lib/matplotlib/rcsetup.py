@@ -268,25 +268,13 @@ def validate_backend(s):
 
 def validate_qt4(s):
     if s is None:
-        # return a reasonable default for deprecation period
-        return 'PyQt4'
-    cbook.warn_deprecated(
-        "2.2",
-        "The backend.qt4 rcParam was deprecated in version 2.2.  In order "
-        "to force the use of a specific Qt4 binding, either import that "
-        "binding first, or set the QT_API environment variable.")
+        return None
     return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
 
 
 def validate_qt5(s):
     if s is None:
-        # return a reasonable default for deprecation period
-        return 'PyQt5'
-    cbook.warn_deprecated(
-        "2.2",
-        "The backend.qt5 rcParam was deprecated in version 2.2.  In order "
-        "to force the use of a specific Qt5 binding, either import that "
-        "binding first, or set the QT_API environment variable.")
+        return None
     return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 

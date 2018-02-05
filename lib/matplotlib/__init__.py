@@ -848,7 +848,10 @@ _deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 _obsolete_set = {'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
-_deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
+# do NOT include in _all_deprecated
+_deprecated_set = {'axes.hold',
+                   'backend.qt4',
+                   'backend.qt5'}
 
 _all_deprecated = set(itertools.chain(
     _deprecated_ignore_map, _deprecated_map, _obsolete_set))
@@ -872,6 +875,10 @@ class RcParams(MutableMapping, dict):
     msg_depr_ignore = "%s is deprecated and ignored. Use %s instead."
     msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
                     "and/or style files.")
+    msg_backend_obsolete = ("The {} rcParam was deprecated in version 2.2.  In"
+                            " order to force the use of a specific Qt binding,"
+                            " either import that binding first, or set the "
+                            "QT_API environment variable.")
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -886,8 +893,12 @@ class RcParams(MutableMapping, dict):
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_set and val is not None:
-                warnings.warn(self.msg_depr_set % key,
-                              mplDeprecation)
+                if key.startswith('backend'):
+                    warnings.warn(self.msg_backend_obsolete.format(key),
+                                  mplDeprecation)
+                else:
+                    warnings.warn(self.msg_depr_set % key,
+                                  mplDeprecation)
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt),
