@@ -63,7 +63,7 @@ extern "C" int add_dict_int(PyObject *dict, const char *key, long val);
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 namespace std {
-  inline bool isfinite(double num) { return _finite(num); }
+  inline bool isfinite(double num) { return _finite(num) != 0; }
 }
 #endif
 
