@@ -1229,7 +1229,7 @@ int convert_to_string(PathIterator &path,
     }
 
     if (sketch_params.scale != 0.0) {
-        *buffersize *= 10.0;
+        *buffersize *= 10;
     }
 
     *buffer = (char *)malloc(*buffersize);

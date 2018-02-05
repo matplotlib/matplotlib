@@ -173,7 +173,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     png_uint_32 width = (png_uint_32)buffer.dim(1);
     png_uint_32 height = (png_uint_32)buffer.dim(0);
-    int channels = buffer.dim(2);
+    npy_intp channels = buffer.dim(2);
     std::vector<png_bytep> row_pointers(height);
     for (png_uint_32 row = 0; row < (png_uint_32)height; ++row) {
         row_pointers[row] = (png_bytep)&buffer(row, 0, 0);
