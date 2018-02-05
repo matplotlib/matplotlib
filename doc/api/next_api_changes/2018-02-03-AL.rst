@@ -14,7 +14,7 @@ the instance is also a :class:`QWidget` so to use
 :class:`FigureCanvasQTAggBase` it was required to multiple inherit
 from a :class:`QWidget` sub-class.
 
-Having moved all of it's methods either up or down the class hierarchy
+Having moved all of its methods either up or down the class hierarchy
 :class:`FigureCanvasQTAggBase` has been deprecated.  To do this with
 out warning and to preserve as much API as possible,
 :class:`.backend_qt5.FigureCanvasQTAggBase` now inherits from
