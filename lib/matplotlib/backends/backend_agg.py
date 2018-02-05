@@ -429,6 +429,9 @@ class FigureCanvasAgg(FigureCanvasBase):
             # if toolbar:
             #     toolbar.set_cursor(cursors.WAIT)
             self.figure.draw(self.renderer)
+            # A GUI class may be need to update a window using this draw, so
+            # don't forget to call the superclass.
+            super(FigureCanvasAgg, self).draw()
         finally:
             # if toolbar:
             #     toolbar.set_cursor(toolbar._lastCursor)

@@ -19,7 +19,9 @@ backends
    backend_pgf_api.rst
    backend_ps_api.rst
    backend_qt4agg_api.rst
+   backend_qt4cairo_api.rst
    backend_qt5agg_api.rst
+   backend_qt5cairo_api.rst
    backend_svg_api.rst
    backend_tkagg_api.rst
    backend_webagg_api.rst
