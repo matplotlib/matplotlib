@@ -412,7 +412,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                                 t,
                                 _interpd_[self.get_interpolation()],
                                 self.get_resample(), 1.0,
-                                self.get_filternorm() or 0.0,
+                                self.get_filternorm(),
                                 self.get_filterrad() or 0.0)
 
                 # we are done with A_scaled now, remove from namespace
@@ -447,7 +447,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                                 t,
                                 _interpd_[self.get_interpolation()],
                                 True, 1,
-                                self.get_filternorm() or 0.0,
+                                self.get_filternorm(),
                                 self.get_filterrad() or 0.0)
                 # we are done with the mask, delete from namespace to be sure!
                 del mask
@@ -481,7 +481,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 _image.resample(
                     A, output, t, _interpd_[self.get_interpolation()],
                     self.get_resample(), alpha,
-                    self.get_filternorm() or 0.0, self.get_filterrad() or 0.0)
+                    self.get_filternorm(), self.get_filterrad() or 0.0)
 
             # at this point output is either a 2D array of normed data
             # (of int or float)
