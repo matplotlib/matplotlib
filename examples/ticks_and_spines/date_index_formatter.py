@@ -12,15 +12,19 @@ Formatter to get the appropriate date string for a given index.
 """
 
 from __future__ import print_function
+
 import numpy as np
-from matplotlib.mlab import csv2rec
+
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
+from matplotlib.dates import bytespdate2num, num2date
 from matplotlib.ticker import Formatter
+
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
 print('loading %s' % datafile)
-r = csv2rec(datafile)[-40:]
+msft_data = np.genfromtxt(datafile, delimiter=',', names=True,
+                          converters={0: bytespdate2num('%d-%b-%y')})[-40:]
 
 
 class MyFormatter(Formatter):
@@ -34,12 +38,12 @@ class MyFormatter(Formatter):
         if ind >= len(self.dates) or ind < 0:
             return ''
 
-        return self.dates[ind].strftime(self.fmt)
+        return num2date(self.dates[ind]).strftime(self.fmt)
 
-formatter = MyFormatter(r.date)
+formatter = MyFormatter(msft_data['Date'])
 
 fig, ax = plt.subplots()
 ax.xaxis.set_major_formatter(formatter)
-ax.plot(np.arange(len(r)), r.close, 'o-')
+ax.plot(np.arange(len(msft_data)), msft_data['Close'], 'o-')
 fig.autofmt_xdate()
 plt.show()

@@ -10,12 +10,14 @@ Also demonstrates the custom placement of text labels along the right edge
 as an alternative to a conventional legend.
 """
 
+import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.mlab import csv2rec
 from matplotlib.cbook import get_sample_data
 
-with get_sample_data('percent_bachelors_degrees_women_usa.csv') as fname:
-    gender_degree_data = csv2rec(fname)
+
+fname = get_sample_data('percent_bachelors_degrees_women_usa.csv',
+                        asfileobj=False)
+gender_degree_data = np.genfromtxt(fname, delimiter=',', names=True)
 
 # These are the colors that will be used in the plot
 color_sequence = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
@@ -59,8 +61,8 @@ plt.grid(True, 'major', 'y', ls='--', lw=.5, c='k', alpha=.3)
 
 # Remove the tick marks; they are unnecessary with the tick lines we just
 # plotted.
-plt.tick_params(axis='both', which='both', bottom='off', top='off',
-                labelbottom='on', left='off', right='off', labelleft='on')
+plt.tick_params(axis='both', which='both', bottom=False, top=False,
+                labelbottom=True, left=False, right=False, labelleft=True)
 
 # Now that the plot is prepared, it's time to actually plot the data!
 # Note that I plotted the majors in order of the highest % in the final year.
@@ -80,9 +82,9 @@ y_offsets = {'Foreign Languages': 0.5, 'English': -0.5,
 
 for rank, column in enumerate(majors):
     # Plot each line separately with its own color.
-    column_rec_name = column.replace('\n', '_').replace(' ', '_').lower()
+    column_rec_name = column.replace('\n', '_').replace(' ', '_')
 
-    line = plt.plot(gender_degree_data.year,
+    line = plt.plot(gender_degree_data['Year'],
                     gender_degree_data[column_rec_name],
                     lw=2.5,
                     color=color_sequence[rank])
