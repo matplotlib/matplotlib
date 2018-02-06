@@ -3,4 +3,4 @@ from mpl_toolkits.axes_grid1.axes_divider import (
     make_axes_locatable)
 
 from mpl_toolkits.axisartist.axislines import Axes
-LocatableAxes = locatable_axes_factory(Axes)
+LocatableAxes = Axes

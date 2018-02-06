@@ -872,18 +872,15 @@ class LocatableAxesBase(object):
     pass
 
 
-@functools.lru_cache(None)
+@cbook.deprecated('3.0',
+                  addendum=' There is no alternative. Classes derived from '
+                           'matplotlib.axes.Axes provide this functionality '
+                           'already.')
 def locatable_axes_factory(axes_class):
-    return type("Locatable%s" % axes_class.__name__,
-                (axes_class, ),
-                {'_axes_class': axes_class})
+    return axes_class
 
 
 def make_axes_locatable(axes):
-    if not hasattr(axes, "set_axes_locator"):
-        new_class = locatable_axes_factory(type(axes))
-        axes.__class__ = new_class
-
     divider = AxesDivider(axes)
     locator = divider.new_locator(nx=0, ny=0)
     axes.set_axes_locator(locator)
@@ -906,4 +903,4 @@ def make_axes_area_auto_adjustable(ax,
 
 #from matplotlib.axes import Axes
 from .mpl_axes import Axes
-LocatableAxes = locatable_axes_factory(Axes)
+LocatableAxes = Axes
