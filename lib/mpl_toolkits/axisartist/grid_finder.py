@@ -338,12 +338,3 @@ class DictFormatter(object):
         r = [self._format_dict.get(k, v) for k, v in zip(values,
                                                          fallback_strings)]
         return r
-
-
-if __name__ == "__main__":
-    locator = MaxNLocator()
-    locs, nloc, factor = locator(0, 100)
-
-    fmt = FormatterPrettyPrint()
-
-    print(fmt("left", None, locs))
