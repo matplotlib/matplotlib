@@ -301,7 +301,7 @@ class Table(Artist):
         Set a customcell in a given position
         """
         if not isinstance(cell, CustomCell):
-            raise ValueError('Table only accepts CustomCell')
+            raise TypeError('Table only accepts CustomCell')
         try:
             row, col = position[0], position[1]
         except Exception:
