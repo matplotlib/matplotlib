@@ -307,6 +307,8 @@ class RendererCairo(RendererBase):
             # We actually need to call the setters to reset the internal state.
             vars(gc).update(gc_vars)
             for k, v in gc_vars.items():
+                if k == "_linestyle":  # Deprecated, no effect.
+                    continue
                 try:
                     getattr(gc, "set" + k)(v)
                 except (AttributeError, TypeError) as e:
