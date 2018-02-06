@@ -901,6 +901,17 @@ def make_axes_area_auto_adjustable(ax,
     divider.add_auto_adjustable_area(use_axes=use_axes, pad=pad,
                                      adjust_dirs=adjust_dirs)
 
-#from matplotlib.axes import Axes
-from .mpl_axes import Axes
-LocatableAxes = Axes
+
+from .mpl_axes import Axes as _Axes
+
+
+@cbook.deprecated('3.0',
+                  alternative='mpl_toolkits.axes_grid1.mpl_axes.Axes')
+class Axes(_Axes):
+    pass
+
+
+@cbook.deprecated('3.0',
+                  alternative='mpl_toolkits.axes_grid1.mpl_axes.Axes')
+class LocatableAxes(_Axes):
+    pass
