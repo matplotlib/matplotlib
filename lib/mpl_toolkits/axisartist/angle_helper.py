@@ -218,7 +218,7 @@ class FormatterDMS(object):
     fmt_d = "$%d" + deg_mark + "$"
     fmt_ds = r"$%d.%s" + deg_mark + "$"
 
-    # %s for signe
+    # %s for sign
     fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark + "$"
     fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark + "$"
 
@@ -324,7 +324,7 @@ class FormatterHMS(FormatterDMS):
     fmt_d = "$%d" + deg_mark + "$"
     fmt_ds = r"$%d.%s" + deg_mark + "$"
 
-    # %s for signe
+    # %s for sign
     fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark+"$"
     fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark+"$"
 
