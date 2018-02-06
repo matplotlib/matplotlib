@@ -2411,8 +2411,11 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = dict()
-    r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
-                     checkrows=checkrows, delimiter=delimiter, names=names)
+    from matplotlib.cbook import mplDeprecation
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', mplDeprecation)
+        r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
+                         checkrows=checkrows, delimiter=delimiter, names=names)
 
     def getname_val(identifier):
         'return the name and column data for identifier'
