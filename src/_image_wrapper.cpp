@@ -119,8 +119,6 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyObject *py_output_array = NULL;
     PyObject *py_transform = NULL;
     resample_params_t params;
-    int resample_;
-    int norm_;
 
     PyArrayObject *input_array = NULL;
     PyArrayObject *output_array = NULL;
@@ -133,10 +131,10 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         "resample", "alpha", "norm", "radius", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwargs, "OOO|iidid:resample", (char **)kwlist,
+            args, kwargs, "OOO|iO&dO&d:resample", (char **)kwlist,
             &py_input_array, &py_output_array, &py_transform,
-            &params.interpolation, &resample_, &params.alpha, &norm_,
-            &params.radius)) {
+            &params.interpolation, &convert_bool, &params.resample,
+            &params.alpha, &convert_bool, &params.norm, &params.radius)) {
         return NULL;
     }
 
@@ -145,9 +143,6 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
                      params.interpolation);
         goto error;
     }
-
-    params.resample = (resample_ != 0);
-    params.norm = (norm_ != 0);
 
     input_array = (PyArrayObject *)PyArray_FromAny(
         py_input_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);

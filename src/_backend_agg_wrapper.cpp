@@ -396,11 +396,11 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
     numpy::array_view<const double, 2> facecolors;
-    int antialiased;
+    bool antialiased;
     numpy::array_view<const double, 2> edgecolors;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&IIO&O&O&O&iO&:draw_quad_mesh",
+                          "O&O&IIO&O&O&O&O&O&:draw_quad_mesh",
                           &convert_gcagg,
                           &gc,
                           &convert_trans_affine,
@@ -415,6 +415,7 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
                           &offset_trans,
                           &convert_colors,
                           &facecolors,
+                          &convert_bool,
                           &antialiased,
                           &convert_colors,
                           &edgecolors)) {
