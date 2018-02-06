@@ -278,7 +278,7 @@ inline bool point_in_path(
 
     points_in_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 template <class PathIterator, class PointArray, class ResultArray>
@@ -320,7 +320,7 @@ inline bool point_on_path(
 
     points_on_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 struct extent_limits
