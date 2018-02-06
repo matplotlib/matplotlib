@@ -4,7 +4,9 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import warnings
 
+
 import numpy as np
+import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -155,29 +157,19 @@ def test_constrained_layout8():
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
-@image_comparison(baseline_images=['constrained_layout7'],
-        extensions=['png'])
 def test_constrained_layout7():
     'Test for proper warning if fig not set in GridSpec'
-    fig = plt.figure(tight_layout=True)
-    gs = gridspec.GridSpec(1, 2)
-    gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
-    gsr = gridspec.GridSpecFromSubplotSpec(1, 2, gs[1])
-    axsl = []
-    for gs in gsl:
-        ax = fig.add_subplot(gs)
-        axsl += [ax]
-        example_plot(ax, fontsize=12)
-    ax.set_xlabel('x-label\nMultiLine')
-    axsr = []
-    for gs in gsr:
-        ax = fig.add_subplot(gs)
-        axsr += [ax]
-        pcm = example_pcolor(ax, fontsize=12)
-
-    fig.colorbar(pcm, ax=axsr, pad=0.01,
-                 shrink=0.99, location='bottom',
-                 ticks=ticker.MaxNLocator(nbins=5))
+    with pytest.warns(UserWarning, match='Calling figure.constrained_layout, '
+                            'but figure not setup to do constrained layout'):
+        fig = plt.figure(constrained_layout=True)
+        gs = gridspec.GridSpec(1, 2)
+        gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
+        gsr = gridspec.GridSpecFromSubplotSpec(1, 2, gs[1])
+        axsl = []
+        for gs in gsl:
+            ax = fig.add_subplot(gs)
+        # need to trigger a draw to get warning
+        fig.draw(fig.canvas.get_renderer())
 
 
 @image_comparison(baseline_images=['constrained_layout8'],
