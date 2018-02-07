@@ -549,15 +549,31 @@ class _AxesBase(martist.Artist):
         self.tick_params(
             top=rcParams['xtick.top'] and rcParams['xtick.minor.top'],
             bottom=rcParams['xtick.bottom'] and rcParams['xtick.minor.bottom'],
+            labeltop=(rcParams['xtick.labeltop'] and
+                      rcParams['xtick.minor.top']),
+            labelbottom=(rcParams['xtick.labelbottom'] and
+                         rcParams['xtick.minor.bottom']),
             left=rcParams['ytick.left'] and rcParams['ytick.minor.left'],
             right=rcParams['ytick.right'] and rcParams['ytick.minor.right'],
+            labelleft=(rcParams['ytick.labelleft'] and
+                       rcParams['ytick.minor.left']),
+            labelright=(rcParams['ytick.labelright'] and
+                        rcParams['ytick.minor.right']),
             which='minor')
 
         self.tick_params(
             top=rcParams['xtick.top'] and rcParams['xtick.major.top'],
             bottom=rcParams['xtick.bottom'] and rcParams['xtick.major.bottom'],
+            labeltop=(rcParams['xtick.labeltop'] and
+                      rcParams['xtick.major.top']),
+            labelbottom=(rcParams['xtick.labelbottom'] and
+                         rcParams['xtick.major.bottom']),
             left=rcParams['ytick.left'] and rcParams['ytick.major.left'],
             right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
+            labelleft=(rcParams['ytick.labelleft'] and
+                       rcParams['ytick.major.left']),
+            labelright=(rcParams['ytick.labelright'] and
+                        rcParams['ytick.major.right']),
             which='major')
 
         self._layoutbox = None

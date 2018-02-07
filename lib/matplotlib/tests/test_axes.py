@@ -5224,6 +5224,36 @@ def test_axes_tick_params_gridlines():
         assert axis.majorTicks[0]._grid_linestyle == 'dashdot'
 
 
+def test_axes_tick_params_ylabelside():
+    # Tests fix for issue 10267
+    ax = plt.subplot()
+    ax.tick_params(labelleft=False, labelright=True,
+                   which='major')
+    ax.tick_params(labelleft=False, labelright=True,
+                   which='minor')
+    # expects left false, right true
+    assert ax.yaxis.majorTicks[0].label1On is False
+    assert ax.yaxis.majorTicks[0].label2On is True
+    assert ax.yaxis.minorTicks[0].label1On is False
+    assert ax.yaxis.minorTicks[0].label2On is True
+
+
+def test_axes_tick_params_xlabelside():
+    # Tests fix for issue 10267
+    ax = plt.subplot()
+    ax.tick_params(labeltop=True, labelbottom=False,
+                   which='major')
+    ax.tick_params(labeltop=True, labelbottom=False,
+                   which='minor')
+    # expects top True, bottom False
+    # label1On mapped to labelbottom
+    # label2On mapped to labeltop
+    assert ax.xaxis.majorTicks[0].label1On is False
+    assert ax.xaxis.majorTicks[0].label2On is True
+    assert ax.xaxis.minorTicks[0].label1On is False
+    assert ax.xaxis.minorTicks[0].label2On is True
+
+
 def test_none_kwargs():
     fig, ax = plt.subplots()
     ln, = ax.plot(range(32), linestyle=None)
