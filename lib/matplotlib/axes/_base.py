@@ -2021,10 +2021,17 @@ class _AxesBase(martist.Artist):
 
     def add_table(self, tab):
         """
-        Add a :class:`~matplotlib.tables.Table` instance to the
+        Add a :class:`~matplotlib.table.Table` instance to the
         list of axes tables
 
-        Returns the table.
+        Parameters
+        ----------
+        tab: `matplotlib.table.Table`
+            Table instance
+
+        Returns
+        -------
+        `matplotlib.table.Table`: the table.
         """
         self._set_artist_props(tab)
         self.tables.append(tab)

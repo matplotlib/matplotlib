@@ -276,16 +276,51 @@ class Table(Artist):
         self.set_clip_on(False)
 
     def add_cell(self, row, col, *args, **kwargs):
-        """ Add a cell to the table. """
-        xy = (0, 0)
+        """
+        Add a cell to the table.
 
+        Parameters
+        ----------
+        row : int
+            Row index
+        col : int
+            Column index
+
+        Returns
+        -------
+        `CustomCell`: Automatically created cell
+
+        """
+        xy = (0, 0)
         cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
+        self[row, col] = cell
+        return cell
+
+    def __setitem__(self, position, cell):
+        """
+        Set a customcell in a given position
+        """
+        if not isinstance(cell, CustomCell):
+            raise TypeError('Table only accepts CustomCell')
+        try:
+            row, col = position[0], position[1]
+        except Exception:
+            raise KeyError('Only tuples length 2 are accepted as coordinates')
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
-
         cell.set_clip_on(False)
         self._cells[row, col] = cell
         self.stale = True
+
+    def __getitem__(self, position):
+        """
+        Retreive a custom cell from a given position
+        """
+        try:
+            row, col = position[0], position[1]
+        except Exception:
+            raise KeyError('Only tuples length 2 are accepted as coordinates')
+        return self._cells[row, col]
 
     @property
     def edges(self):
