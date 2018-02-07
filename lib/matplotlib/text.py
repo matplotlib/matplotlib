@@ -158,6 +158,7 @@ class Text(Artist):
         elif isinstance(fontproperties, six.string_types):
             fontproperties = FontProperties(fontproperties)
 
+        self._text = ''
         self.set_text(text)
         self.set_color(color)
         self.set_usetex(usetex)
@@ -1158,14 +1159,18 @@ class Text(Artist):
 
     def set_text(self, s):
         """
-        Set the text string *s*
+        Set the text string *s*.
 
         It may contain newlines (``\\n``) or math in LaTeX syntax.
 
-        ACCEPTS: string or anything printable with '%s' conversion.
+        ACCEPTS: string or anything printable with '%s' conversion, except
+        ``None``, which leaves the text string empty:
         """
-        self._text = '%s' % (s,)
-        self.stale = True
+        if s is None:
+            s = ''
+        if s != self._text:
+            self._text = '%s' % (s,)
+            self.stale = True
 
     @staticmethod
     def is_math_text(s, usetex=None):
