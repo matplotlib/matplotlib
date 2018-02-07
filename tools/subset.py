@@ -59,7 +59,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         # and invert comments on following 2 lines
         # nam_fn = opts['--namelist']
         nam_fn = font_out + '.nam'
-        nam = opentype(nam_fn, 'w')
+        nam = open(nam_fn, 'w')
     else:
         nam = None
     if '--script' in opts:
