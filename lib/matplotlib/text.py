@@ -1169,7 +1169,7 @@ class Text(Artist):
         if s is None:
             s = ''
         if s != self._text:
-            self._text = str(s)
+            self._text = '%s' % (s,)
             self.stale = True
 
     @staticmethod
