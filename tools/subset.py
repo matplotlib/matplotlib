@@ -24,12 +24,15 @@
 # TODO 2013-04-08 ensure the menu files are as compact as possible by default, similar to subset.pl
 # TODO 2013-05-22 in Arimo, the latin subset doesn't include ; but the greek does. why on earth is this happening?
 from __future__ import print_function
-import fontforge
-import sys
+
 import getopt
 import os
-import subprocess
 import struct
+import subprocess
+import sys
+
+import fontforge
+
 
 def log_namelist(nam, unicode):
     if nam and isinstance(unicode, int):
@@ -46,7 +49,7 @@ def select_with_refs(font, unicode, newfont, pe = None, nam = None):
             log_namelist(nam, ref[0])
             if pe:
                 print('SelectMore("%s")' % ref[0], file=pe)
-    except:
+    except Exception:
         print('Resolving references on u+%04x failed' % unicode)
 
 def subset_font_raw(font_in, font_out, unicodes, opts):
@@ -56,18 +59,18 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         # and invert comments on following 2 lines
         # nam_fn = opts['--namelist']
         nam_fn = font_out + '.nam'
-        nam = file(nam_fn, 'w')
+        nam = open(nam_fn, 'w')
     else:
         nam = None
     if '--script' in opts:
         pe_fn = "/tmp/script.pe"
-        pe = file(pe_fn, 'w')
+        pe = open(pe_fn, 'w')
     else:
         pe = None
     font = fontforge.open(font_in)
     if pe:
-      print('Open("' + font_in + '")', file=pe)
-      extract_vert_to_script(font_in, pe)
+        print('Open("' + font_in + '")', file=pe)
+        extract_vert_to_script(font_in, pe)
     for i in unicodes:
         select_with_refs(font, i, font, pe, nam)
 
@@ -161,7 +164,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
 def subset_font(font_in, font_out, unicodes, opts):
     font_out_raw = font_out
     if not font_out_raw.endswith('.ttf'):
-        font_out_raw += '.ttf';
+        font_out_raw += '.ttf'
     subset_font_raw(font_in, font_out_raw, unicodes, opts)
     if font_out != font_out_raw:
         os.rename(font_out_raw, font_out)
@@ -340,7 +343,8 @@ def set_os2_vert(pe, name, val):
 # http://sourceforge.net/mailarchive/forum.php?thread_name=20100906085718.GB1907%40khaled-laptop&forum_name=fontforge-users
 
 def extract_vert_to_script(font_in, pe):
-    data = file(font_in, 'rb').read()
+    with open(font_in, 'rb') as in_file:
+        data = in_file.read()
     sfnt = Sfnt(data)
     hhea = sfnt.hhea()
     os2 = sfnt.os2()

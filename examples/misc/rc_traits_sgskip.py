@@ -107,7 +107,7 @@ Color = traits.Trait(RGBA(), float_to_rgba, colorname_to_rgba, RGBA,
 
 
 def file_exists(ob, name, val):
-    fh = file(val, 'r')
+    fh = open(val, 'r')
     return val
 
 linestyles = ('-', '--', '-.', ':', 'steps', 'None')
