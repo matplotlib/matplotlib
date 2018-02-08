@@ -16,11 +16,13 @@ Using `matplotlib.backend_managers.ToolManager`
 
 from __future__ import print_function
 import matplotlib
+# Change to the desired backend
 matplotlib.use('GTK3Cairo')
+# matplotlib.use('TkAgg')
+# matplotlib.use('QT5Agg')
 matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
-from gi.repository import Gtk, Gdk
 
 
 class ListTools(ToolBase):

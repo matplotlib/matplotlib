@@ -4,11 +4,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import tkinter as Tk
-from six.moves import tkinter_filedialog as FileDialog
 
-import os, sys, math
-import os.path
 import logging
+import os.path
+import sys
 
 # Paint image to Tk photo blitter extension
 import matplotlib.backends.tkagg as tkagg
@@ -17,23 +16,17 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.backends.windowing as windowing
 
 import matplotlib
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
-    ToolContainerBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
-from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
-
 from matplotlib.figure import Figure
-
 from matplotlib.widgets import SubplotTool
 
-import matplotlib.cbook as cbook
 
 _log = logging.getLogger(__name__)
-
-rcParams = matplotlib.rcParams
 
 backend_version = Tk.TkVersion
 
@@ -208,6 +201,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # to the window and filter.
         def filter_destroy(evt):
             if evt.widget is self._tkcanvas:
+                self._master.update_idletasks()
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
 
@@ -231,7 +225,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             master=self._tkcanvas, width=int(width), height=int(height))
         self._tkcanvas.create_image(int(width/2),int(height/2),image=self._tkphoto)
         self.resize_event()
-        self.show()
+        self.draw()
 
         # a resizing will in general move the pointer position
         # relative to the canvas, so process it as a motion notify
@@ -275,7 +269,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         #
         # 2) call enter/leave events explicitly.  The downside of this
         #    in the impl below is that enter could be repeatedly
-        #    triggered if thes  mouse is over the axes and one is
+        #    triggered if the mouse is over the axes and one is
         #    resizing with the keyboard.  This is not entirely bad,
         #    because the mouse position relative to the canvas is
         #    changing, but it may be surprising to get repeated entries
@@ -307,10 +301,12 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._master.update_idletasks()
 
     def blit(self, bbox=None):
-        tkagg.blit(self._tkphoto, self.renderer._renderer, bbox=bbox, colormode=2)
+        tkagg.blit(
+            self._tkphoto, self.renderer._renderer, bbox=bbox, colormode=2)
         self._master.update_idletasks()
 
-    show = draw
+    show = cbook.deprecated("2.2", name="FigureCanvasTkAgg.show",
+                            alternative="FigureCanvasTkAgg.draw")(draw)
 
     def draw_idle(self):
         'update drawing area only if idle'
@@ -536,6 +532,8 @@ class FigureManagerTkAgg(FigureManagerBase):
 
         # when a single parameter is given, consider it as a event
         if height is None:
+            cbook.warn_deprecated("2.2", "FigureManagerTkAgg.resize now takes "
+                                  "width and height as separate arguments")
             width = width.width
         else:
             self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
@@ -555,8 +553,6 @@ class FigureManagerTkAgg(FigureManagerBase):
                 Gcf.destroy(self._num)
             self.canvas._tkcanvas.bind("<Destroy>", destroy)
             self.window.deiconify()
-            # anim.py requires this
-            self.window.update()
         else:
             self.canvas.draw_idle()
         # Raise the new window.
@@ -586,6 +582,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.attributes('-fullscreen', not is_fullscreen)
 
 
+@cbook.deprecated("2.2")
 class AxisMenu(object):
     def __init__(self, master, naxes):
         self._master = master
@@ -735,12 +732,13 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6,3))
-        window = Tk.Tk()
+        window = Tk.Toplevel()
         canvas = FigureCanvasTkAgg(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
-        canvas.show()
+        canvas.tool = SubplotTool(self.canvas.figure, toolfig)
+        canvas.draw()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        window.grab_set()
 
     def save_figure(self, *args):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
@@ -868,6 +866,7 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
+    _icon_extension = '.gif'
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
@@ -911,9 +910,16 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
             b = Tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
                           command=lambda: self._button_click(text))
         else:
+            # There is a bug in tkinter included in some python 3.6 versions
+            # that without this variable, produces a "visual" toggling of
+            # other near checkbuttons
+            # https://bugs.python.org/issue29402
+            # https://bugs.python.org/issue25684
+            var = Tk.IntVar()
             b = Tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
                                image=im, indicatoron=False,
-                               command=lambda: self._button_click(text))
+                               command=lambda: self._button_click(text),
+                               variable=var)
         b._ntimage = im
         b.pack(side=Tk.LEFT)
         return b
@@ -1019,7 +1025,7 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
         canvas = FigureCanvasTkAgg(toolfig, master=self.window)
         toolfig.subplots_adjust(top=0.9)
         _tool = SubplotTool(self.figure, toolfig)
-        canvas.show()
+        canvas.draw()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self.window.protocol("WM_DELETE_WINDOW", self.destroy)
 

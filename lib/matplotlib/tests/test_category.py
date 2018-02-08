@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Catch all for categorical functions"""
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import pytest
 import numpy as np
@@ -16,7 +15,6 @@ class TestUnitData(object):
                   ('unicode', (["Здравствуйте мир"], [0])),
                   ('mixed', (['A', "np.nan", 'B', "3.14", "мир"],
                              [0, 1, 2, 3, 4]))]
-
     ids, data = zip(*test_cases)
 
     @pytest.mark.parametrize("data, locs", data, ids=ids)
@@ -69,7 +67,6 @@ class TestStrCategoryConverter(object):
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize
     """
-
     test_cases = [("unicode", ["Здравствуйте мир"]),
                   ("ascii", ["hello world"]),
                   ("single", ['a', 'b', 'c']),
@@ -124,15 +121,12 @@ class TestStrCategoryConverter(object):
     def test_default_units(self):
         assert isinstance(self.cc.default_units(["a"], self.ax), cat.UnitData)
 
-
 @pytest.fixture
 def ax():
     return plt.figure().subplots()
 
-
 PLOT_LIST = [Axes.scatter, Axes.plot, Axes.bar]
 PLOT_IDS = ["scatter", "plot", "bar"]
-
 
 class TestStrCategoryLocator(object):
     def test_StrCategoryLocator(self):
@@ -199,7 +193,6 @@ class TestPlotNumlike(object):
                      ('string ndarray', np.array(['1', '11', '3'])),
                      ('bytes list', [b'1', b'11', b'3']),
                      ('bytes ndarray', np.array([b'1', b'11', b'3']))]
-
     numlike_ids, numlike_data = zip(*numlike_cases)
 
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)

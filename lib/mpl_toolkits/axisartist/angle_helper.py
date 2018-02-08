@@ -3,12 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-from math import floor
-
 import numpy as np
 import math
-
-A = np.array
 
 from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple
 
@@ -21,10 +17,10 @@ def select_step_degree(dv):
     minsec_limits_ = [1.5, 2.5, 3.5, 8, 11, 18, 25, 45]
     minsec_steps_  = [1,   2,   3,   5, 10, 15, 20, 30]
 
-    minute_limits_ = A(minsec_limits_)*(1./60.)
+    minute_limits_ = np.array(minsec_limits_) / 60
     minute_factors = [60.] * len(minute_limits_)
 
-    second_limits_ = A(minsec_limits_)*(1./3600.)
+    second_limits_ = np.array(minsec_limits_) / 3600
     second_factors = [3600.] * len(second_limits_)
 
     degree_limits = np.concatenate([second_limits_,
@@ -56,10 +52,10 @@ def select_step_hour(dv):
     minsec_limits_ = [1.5, 2.5, 3.5, 4.5, 5.5, 8, 11, 14, 18, 25, 45]
     minsec_steps_  = [1,   2,   3,   4,   5,   6, 10, 12, 15, 20, 30]
 
-    minute_limits_ = A(minsec_limits_)*(1./60.)
+    minute_limits_ = np.array(minsec_limits_) / 60
     minute_factors = [60.] * len(minute_limits_)
 
-    second_limits_ = A(minsec_limits_)*(1./3600.)
+    second_limits_ = np.array(minsec_limits_) / 3600
     second_factors = [3600.] * len(second_limits_)
 
     hour_limits = np.concatenate([second_limits_,
@@ -107,7 +103,7 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
     if v1 > v2:
         v1, v2 = v2, v1
 
-    dv = float(v2 - v1) / nv
+    dv = (v2 - v1) / nv
 
     if hour:
         _select_step = select_step_hour
@@ -128,8 +124,7 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
 
 
     f1, f2, fstep = v1*factor, v2*factor, step/factor
-    levs = np.arange(math.floor(f1/step), math.ceil(f2/step)+0.5,
-                     1, dtype="i") * step
+    levs = np.arange(np.floor(f1/step), np.ceil(f2/step)+0.5, dtype=int) * step
 
     # n : number of valid levels. If there is a cycle, e.g., [0, 90, 180,
     # 270, 360], the grid line needs to be extended from 0 to 360, so
@@ -250,8 +245,8 @@ class FormatterDMS(object):
                 break
 
             d = factor // threshold
-            int_log_d = int(floor(math.log10(d)))
-            if 10**int_log_d == d and d!=1:
+            int_log_d = int(np.floor(np.log10(d)))
+            if 10**int_log_d == d and d != 1:
                 number_fraction = int_log_d
                 factor = factor // 10**int_log_d
                 return factor, number_fraction
@@ -282,15 +277,15 @@ class FormatterDMS(object):
             if number_fraction is None:
                 return [self.fmt_d % (s*int(v),) for (s, v) in zip(ss, values)]
             else:
-                return [self.fmt_ds % (s*int(v), f1) for (s, v, f1) in \
-                        zip(ss, values, frac_str)]
+                return [self.fmt_ds % (s*int(v), f1)
+                        for (s, v, f1) in zip(ss, values, frac_str)]
         elif factor == 60:
             deg_part, min_part = divmod(values, 60)
             if number_fraction is None:
-                return [self.fmt_d_m % (s1, d1, m1) \
+                return [self.fmt_d_m % (s1, d1, m1)
                         for s1, d1, m1 in zip(signs, deg_part, min_part)]
             else:
-                return [self.fmt_d_ms % (s, d1, m1, f1) \
+                return [self.fmt_d_ms % (s, d1, m1, f1)
                         for s, d1, m1, f1 in zip(signs, deg_part, min_part, frac_str)]
 
         elif factor == 3600:

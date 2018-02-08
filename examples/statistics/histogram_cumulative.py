@@ -5,8 +5,7 @@ Using histograms to plot a cumulative distribution
 
 This shows how to plot a cumulative, normalized histogram as a
 step function in order to visualize the empirical cumulative
-distribution function (CDF) of a sample. We also use the ``mlab``
-module to show the theoretical CDF.
+distribution function (CDF) of a sample. We also show the theoretical CDF.
 
 A couple of other options to the ``hist`` function are demonstrated.
 Namely, we use the ``normed`` parameter to normalize the histogram and
@@ -37,7 +36,6 @@ http://docs.astropy.org/en/stable/visualization/histogram.html
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import mlab
 
 np.random.seed(19680801)
 
@@ -49,17 +47,19 @@ x = np.random.normal(mu, sigma, size=100)
 fig, ax = plt.subplots(figsize=(8, 4))
 
 # plot the cumulative histogram
-n, bins, patches = ax.hist(x, n_bins, normed=1, histtype='step',
+n, bins, patches = ax.hist(x, n_bins, density=True, histtype='step',
                            cumulative=True, label='Empirical')
 
 # Add a line showing the expected distribution.
-y = mlab.normpdf(bins, mu, sigma).cumsum()
+y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
+     np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
+y = y.cumsum()
 y /= y[-1]
 
 ax.plot(bins, y, 'k--', linewidth=1.5, label='Theoretical')
 
 # Overlay a reversed cumulative histogram.
-ax.hist(x, bins=bins, normed=1, histtype='step', cumulative=-1,
+ax.hist(x, bins=bins, density=True, histtype='step', cumulative=-1,
         label='Reversed emp.')
 
 # tidy up the figure

@@ -397,11 +397,11 @@ to plot the spectrogram of one of the EEG channels.
 
 For examples of how to embed Matplotlib in different toolkits, see:
 
-   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_gtk2_sgskip.py`
-   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_wx2_sgskip.py`
-   * :ref:`sphx_glr_gallery_user_interfaces_mpl_with_glade_sgskip.py`
-   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_qt4_sgskip.py`
-   * :ref:`sphx_glr_gallery_user_interfaces_embedding_in_tk_sgskip.py`
+   * :doc:`/gallery/user_interfaces/embedding_in_gtk2_sgskip`
+   * :doc:`/gallery/user_interfaces/embedding_in_wx2_sgskip`
+   * :doc:`/gallery/user_interfaces/mpl_with_glade_sgskip`
+   * :doc:`/gallery/user_interfaces/embedding_in_qt_sgskip`
+   * :doc:`/gallery/user_interfaces/embedding_in_tk_sgskip`
 
 XKCD-style sketch plots
 =======================

@@ -342,10 +342,13 @@ class Axes3D(Axes):
         """
         Set whether autoscaling is applied on plot commands
 
-        accepts: [ *True* | *False* ]
-
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
+
+        Parameters
+        ----------
+        b : bool
+            .. ACCEPTS: bool
         """
         super(Axes3D, self).set_autoscale_on(b)
         self.set_autoscalez_on(b)
@@ -354,10 +357,13 @@ class Axes3D(Axes):
         """
         Set whether autoscaling for the z-axis is applied on plot commands
 
-        accepts: [ *True* | *False* ]
-
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
+
+        Parameters
+        ----------
+        b : bool
+            .. ACCEPTS: bool
         """
         self._autoscaleZon = b
 
@@ -455,7 +461,7 @@ class Axes3D(Axes):
         Convenience method for simple axis view autoscaling.
         See :meth:`matplotlib.axes.Axes.autoscale` for full explanation.
         Note that this function behaves the same, but for all
-        three axes.  Therfore, 'z' can be passed for *axis*,
+        three axes.  Therefore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
 
         .. versionadded :: 1.1.0
@@ -948,7 +954,7 @@ class Axes3D(Axes):
         """
         Set the elevation and azimuth of the axes.
 
-        This can be used to rotate the axes programatically.
+        This can be used to rotate the axes programmatically.
 
         'elev' stores the elevation angle in the z plane.
         'azim' stores the azimuth angle in the x,y plane.
@@ -1059,7 +1065,9 @@ class Axes3D(Axes):
             c3 = canv.mpl_connect('button_release_event', self._button_release)
             self._cids = [c1, c2, c3]
         else:
-            warnings.warn('Axes3D.figure.canvas is \'None\', mouse rotation disabled.  Set canvas then call Axes3D.mouse_init().')
+            warnings.warn(
+                "Axes3D.figure.canvas is 'None', mouse rotation disabled.  "
+                "Set canvas then call Axes3D.mouse_init().")
 
         # coerce scalars into array-like, then convert into
         # a regular list to avoid comparisons against None
@@ -1252,7 +1260,7 @@ class Axes3D(Axes):
 
     def get_frame_on(self):
         """
-        Get whether the 3D axes panels are drawn
+        Get whether the 3D axes panels are drawn.
 
         .. versionadded :: 1.1.0
         """
@@ -1260,11 +1268,14 @@ class Axes3D(Axes):
 
     def set_frame_on(self, b):
         """
-        Set whether the 3D axes panels are drawn
-
-        ACCEPTS: [ *True* | *False* ]
+        Set whether the 3D axes panels are drawn.
 
         .. versionadded :: 1.1.0
+
+        Parameters
+        ----------
+        b : bool
+            .. ACCEPTS: bool
         """
         self._frameon = bool(b)
         self.stale = True
@@ -1282,15 +1293,17 @@ class Axes3D(Axes):
 
     def set_axisbelow(self, b):
         """
-        Set whether the axis ticks and gridlines are above or below
-        most artists
+        Set whether axis ticks and gridlines are above or below most artists.
 
         For axes3d objects, this will ignore any settings and just use *True*
 
-        ACCEPTS: [ *True* | *False* ]
-
         .. versionadded :: 1.1.0
             This function was added for completeness.
+
+        Parameters
+        ----------
+        b : bool
+            .. ACCEPTS: bool
         """
         self._axisbelow = True
         self.stale = True
@@ -1673,8 +1686,8 @@ class Axes3D(Axes):
         polys = []
         # Only need these vectors to shade if there is no cmap
         if cmap is None and shade :
-            totpts = int(np.ceil(float(rows - 1) / rstride) *
-                         np.ceil(float(cols - 1) / cstride))
+            totpts = int(np.ceil((rows - 1) / rstride) *
+                         np.ceil((cols - 1) / cstride))
             v1 = np.empty((totpts, 3))
             v2 = np.empty((totpts, 3))
             # This indexes the vertex points
@@ -1887,7 +1900,7 @@ class Axes3D(Axes):
 
         # If the inputs were empty, then just
         # reset everything.
-        if Z.size == 0 :
+        if Z.size == 0:
             rii = []
             cii = []
 
@@ -1899,10 +1912,10 @@ class Axes3D(Axes):
         tylines = [tY[i] for i in cii]
         tzlines = [tZ[i] for i in cii]
 
-        lines = [list(zip(xl, yl, zl)) for xl, yl, zl in \
-                 zip(xlines, ylines, zlines)]
-        lines += [list(zip(xl, yl, zl)) for xl, yl, zl in \
-                  zip(txlines, tylines, tzlines)]
+        lines = ([list(zip(xl, yl, zl))
+                  for xl, yl, zl in zip(xlines, ylines, zlines)]
+                + [list(zip(xl, yl, zl))
+                   for xl, yl, zl in zip(txlines, tylines, tzlines)])
 
         linec = art3d.Line3DCollection(lines, *args, **kwargs)
         self.add_collection(linec)
@@ -1984,47 +1997,30 @@ class Axes3D(Axes):
             args = args[1:]
 
         triangles = tri.get_masked_triangles()
-        xt = tri.x[triangles][..., np.newaxis]
-        yt = tri.y[triangles][..., np.newaxis]
-        zt = z[triangles][..., np.newaxis]
+        xt = tri.x[triangles]
+        yt = tri.y[triangles]
+        zt = z[triangles]
 
-        verts = np.concatenate((xt, yt, zt), axis=2)
-
-        # Only need these vectors to shade if there is no cmap
-        if cmap is None and shade:
-            totpts = len(verts)
-            v1 = np.empty((totpts, 3))
-            v2 = np.empty((totpts, 3))
-            # This indexes the vertex points
-            which_pt = 0
-
-        colset = []
-        for i in xrange(len(verts)):
-            avgzsum = verts[i,0,2] + verts[i,1,2] + verts[i,2,2]
-            colset.append(avgzsum / 3.0)
-
-            # Only need vectors to shade if no cmap
-            if cmap is None and shade:
-                v1[which_pt] = np.array(verts[i,0]) - np.array(verts[i,1])
-                v2[which_pt] = np.array(verts[i,1]) - np.array(verts[i,2])
-                which_pt += 1
-
-        if cmap is None and shade:
-            normals = np.cross(v1, v2)
-        else:
-            normals = []
+        # verts = np.stack((xt, yt, zt), axis=-1)
+        verts = np.concatenate((
+            xt[..., np.newaxis], yt[..., np.newaxis], zt[..., np.newaxis]
+        ), axis=-1)
 
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
         if cmap:
-            colset = np.array(colset)
-            polyc.set_array(colset)
+            # average over the three points of each triangle
+            avg_z = verts[:, :, 2].mean(axis=1)
+            polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
             if norm is not None:
                 polyc.set_norm(norm)
         else:
             if shade:
+                v1 = verts[:, 0, :] - verts[:, 1, :]
+                v2 = verts[:, 1, :] - verts[:, 2, :]
+                normals = np.cross(v1, v2)
                 colset = self._shade_colors(color, normals)
             else:
                 colset = color
@@ -2588,7 +2584,7 @@ class Axes3D(Axes):
                 rotates about this point, hence the name *pivot*.
                 Default is 'tail'
 
-            *normalize*: [False | True]
+            *normalize*: bool
                 When True, all of the arrows will be the same length. This
                 defaults to False, where the arrows will be different lengths
                 depending on the values of u,v,w.
@@ -2939,20 +2935,18 @@ def get_test_data(delta=0.05):
     '''
     Return a tuple X, Y, Z with a test data set.
     '''
-
-    from matplotlib.mlab import  bivariate_normal
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
 
-    Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = Z2 - Z1
 
     X = X * 10
     Y = Y * 10
     Z = Z * 500
     return X, Y, Z
-
 
 
 ########################################################

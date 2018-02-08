@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import copy
 
@@ -161,3 +160,23 @@ def test_dpi_ratio_change():
         assert size.height() == 240
         assert_equal(qt_canvas.get_width_height(), (600, 240))
         assert_equal(fig.get_size_inches(), (5, 2))
+
+
+@pytest.mark.backend('Qt5Agg')
+def test_subplottool():
+    fig, ax = plt.subplots()
+    with mock.patch(
+            "matplotlib.backends.backend_qt5.SubplotToolQt.exec_",
+            lambda self: None):
+        fig.canvas.manager.toolbar.configure_subplots()
+
+
+@pytest.mark.backend('Qt5Agg')
+def test_figureoptions():
+    fig, ax = plt.subplots()
+    ax.plot([1, 2])
+    ax.imshow([[1]])
+    with mock.patch(
+            "matplotlib.backends.qt_editor.formlayout.FormDialog.exec_",
+            lambda self: None):
+        fig.canvas.manager.toolbar.edit_parameters()

@@ -9,7 +9,6 @@ Demonstration of using norm to map colormaps onto data in non-linear ways.
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-from matplotlib.mlab import bivariate_normal
 
 N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]

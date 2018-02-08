@@ -14,7 +14,7 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 from matplotlib.widgets import SpanSelector
 
-from numpy import arange, sin, pi
+import numpy as np
 import gtk
 import gtk.glade
 
@@ -52,8 +52,8 @@ class WidgetsWrapper(object):
         self.figure = Figure(figsize=(8, 6), dpi=72)
         self.axis = self.figure.add_subplot(111)
 
-        t = arange(0.0, 3.0, 0.01)
-        s = sin(2*pi*t)
+        t = np.arange(0.0, 3.0, 0.01)
+        s = np.sin(2*np.pi*t)
         self.axis.plot(t, s)
         self.axis.set_xlabel('time (s)')
         self.axis.set_ylabel('voltage')

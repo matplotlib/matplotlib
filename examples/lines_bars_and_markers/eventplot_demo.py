@@ -32,18 +32,15 @@ colors1 = np.array([[1, 0, 0],
 lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
 linelengths1 = [5, 2, 1, 1, 3, 1.5]
 
-fig = plt.figure()
+fig, axs = plt.subplots(2, 2)
 
 # create a horizontal plot
-ax1 = fig.add_subplot(221)
-ax1.eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
-              linelengths=linelengths1)
-
+axs[0, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
+                    linelengths=linelengths1)
 
 # create a vertical plot
-ax2 = fig.add_subplot(223)
-ax2.eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
-              linelengths=linelengths1, orientation='vertical')
+axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
+                    linelengths=linelengths1, orientation='vertical')
 
 # create another set of random data.
 # the gamma distribution is only used fo aesthetic purposes
@@ -57,14 +54,12 @@ lineoffsets2 = 1
 linelengths2 = 1
 
 # create a horizontal plot
-ax1 = fig.add_subplot(222)
-ax1.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-              linelengths=linelengths2)
+axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+                    linelengths=linelengths2)
 
 
 # create a vertical plot
-ax2 = fig.add_subplot(224)
-ax2.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-              linelengths=linelengths2, orientation='vertical')
+axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+                    linelengths=linelengths2, orientation='vertical')
 
 plt.show()

@@ -25,8 +25,6 @@ import math
 import weakref
 import warnings
 
-import numpy as np
-
 import matplotlib
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -112,7 +110,7 @@ def error_msg_wx(msg, parent=None):
 
 
 def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
+    """msg is a return arg from a raise.  Join with new lines."""
     if not isinstance(msg, six.string_types):
         msg = '\n'.join(map(str, msg))
     return msg
@@ -939,7 +937,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             self.draw(drawDC=drawDC)
         else:
             self.gui_repaint(drawDC=drawDC)
-        evt.Skip()
 
     def _onSize(self, evt):
         """
@@ -1001,7 +998,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     def _onKeyUp(self, evt):
         """Release key."""
         key = self._get_key(evt)
-        # print 'release key', key
         evt.Skip()
         FigureCanvasBase.key_release_event(self, key, guiEvent=evt)
 
@@ -1062,7 +1058,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
-        # print 'release button', 1
         evt.Skip()
         self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
@@ -1089,7 +1084,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
-        # print 'release button', 1
         evt.Skip()
         self._set_capture(False)
         FigureCanvasBase.button_release_event(self, x, y, 2, guiEvent=evt)
@@ -1105,8 +1099,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         delta = evt.GetWheelDelta()
         rotation = evt.GetWheelRotation()
         rate = evt.GetLinesPerAction()
-        # print "delta,rotation,rate",delta,rotation,rate
-        step = rate * float(rotation) / delta
+        step = rate * rotation / delta
 
         # Done handling event
         evt.Skip()
@@ -1449,12 +1442,9 @@ class MenuButtonWx(wx.Button):
         return active
 
     def updateButtonText(self, lst):
-        """Update the list of selected axes in the menu button"""
-        axis_txt = ''
-        for e in lst:
-            axis_txt += '%d,' % (e + 1)
-        # remove trailing ',' and add to button string
-        self.SetLabel("Axes: %s" % axis_txt[:-1])
+        """Update the list of selected axes in the menu button."""
+        self.SetLabel(
+            'Axes: ' + ','.join('%d' % (e + 1) for e in lst))
 
 
 cursord = {

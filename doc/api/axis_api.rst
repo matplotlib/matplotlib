@@ -388,7 +388,7 @@ YAxis
    YAxis.update_units
    YAxis.zoom
 
-``YAxis``
+XAxis
 ---------
 
 .. autosummary::
@@ -502,7 +502,6 @@ Ticks
    Tick.get_window_extent
    Tick.get_zorder
    Tick.have_units
-   Tick.hitlist
    Tick.is_transform_set
    Tick.mouseover
    Tick.pchanged
@@ -569,7 +568,6 @@ Ticks
    XTick.get_window_extent
    XTick.get_zorder
    XTick.have_units
-   XTick.hitlist
    XTick.is_transform_set
    XTick.mouseover
    XTick.pchanged
@@ -636,7 +634,6 @@ Ticks
    YTick.get_window_extent
    YTick.get_zorder
    YTick.have_units
-   YTick.hitlist
    YTick.is_transform_set
    YTick.mouseover
    YTick.pchanged
@@ -713,7 +710,6 @@ Axis
    Axis.get_window_extent
    Axis.get_zorder
    Axis.have_units
-   Axis.hitlist
    Axis.is_transform_set
    Axis.mouseover
    Axis.pchanged
@@ -780,7 +776,6 @@ Axis
    XAxis.get_window_extent
    XAxis.get_zorder
    XAxis.have_units
-   XAxis.hitlist
    XAxis.is_transform_set
    XAxis.mouseover
    XAxis.pchanged
@@ -847,7 +842,6 @@ Axis
    YAxis.get_window_extent
    YAxis.get_zorder
    YAxis.have_units
-   YAxis.hitlist
    YAxis.is_transform_set
    YAxis.mouseover
    YAxis.pchanged

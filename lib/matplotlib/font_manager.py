@@ -19,11 +19,9 @@ the advantage that it is the standard way to look up fonts on X11
 platforms, so if a font is installed, it is much more likely to be
 found.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
-from six.moves import cPickle as pickle
 
 """
 KNOWN ISSUES
@@ -32,7 +30,6 @@ KNOWN ISSUES
   - font variant is untested
   - font stretch is incomplete
   - font size is incomplete
-  - font size_adjust is incomplete
   - default font algorithm needs improvement and testing
   - setWeights function needs improvement
   - 'light' is an invalid weight value, remove it.
@@ -55,7 +52,6 @@ from threading import Timer
 import warnings
 import logging
 
-import matplotlib
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
@@ -412,11 +408,11 @@ def ttfFontProperty(font):
     sfnt2 = sfnt.get((1,0,0,2))
     sfnt4 = sfnt.get((1,0,0,4))
     if sfnt2:
-        sfnt2 = sfnt2.decode('macroman').lower()
+        sfnt2 = sfnt2.decode('mac_roman').lower()
     else:
         sfnt2 = ''
     if sfnt4:
-        sfnt4 = sfnt4.decode('macroman').lower()
+        sfnt4 = sfnt4.decode('mac_roman').lower()
     else:
         sfnt4 = ''
     if sfnt4.find('oblique') >= 0:
@@ -469,14 +465,9 @@ def ttfFontProperty(font):
     #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
-    #  !!!!  Incomplete
-    if font.scalable:
-        size = 'scalable'
-    else:
-        size = str(float(font.get_fontsize()))
-
-    #  !!!!  Incomplete
-    size_adjust = None
+    if not font.scalable:
+        raise NotImplementedError("Non-scalable fonts are not supported")
+    size = 'scalable'
 
     return FontEntry(font.fname, name, style, variant, weight, stretch, size)
 
@@ -538,9 +529,6 @@ def afmFontProperty(fontpath, font):
 
     size = 'scalable'
 
-    # !!!!  Incomplete
-    size_adjust = None
-
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
@@ -555,7 +543,7 @@ def createFontList(fontfiles, fontext='ttf'):
     #  Add fonts from list of known font files.
     seen = set()
     for fpath in fontfiles:
-        _log.debug('createFontDict: %s' % (fpath))
+        _log.debug('createFontDict: %s', fpath)
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
@@ -592,7 +580,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError):
+            except (KeyError, RuntimeError, ValueError, NotImplementedError):
                 continue
 
         fontlist.append(prop)
@@ -887,6 +875,10 @@ class FontProperties(object):
                     + ", ".join(map(str, font_scalings)))
             else:
                 size = scale * FontManager.get_default_size()
+        if size < 1.0:
+            _log.info('Fontsize %1.2f < 1.0 pt not allowed by FreeType. '
+                      'Setting fontsize = 1 pt', size)
+            size = 1.0
         self._size = size
 
     def set_file(self, file):
@@ -1068,7 +1060,7 @@ class FontManager(object):
         self.defaultFont = {}
 
         for fname in self.ttffiles:
-            _log.debug('trying fontname %s' % fname)
+            _log.debug('trying fontname %s', fname)
             if fname.lower().find('DejaVuSans.ttf')>=0:
                 self.defaultFont['ttf'] = fname
                 break
@@ -1078,8 +1070,8 @@ class FontManager(object):
 
         self.ttflist = createFontList(self.ttffiles)
 
-        self.afmfiles = findSystemFonts(paths, fontext='afm') + \
-            findSystemFonts(fontext='afm')
+        self.afmfiles = (findSystemFonts(paths, fontext='afm')
+                         + findSystemFonts(fontext='afm'))
         self.afmlist = createFontList(self.afmfiles, fontext='afm')
         if len(self.afmfiles):
             self.defaultFont['afm'] = self.afmfiles[0]
@@ -1290,7 +1282,7 @@ class FontManager(object):
         fname = prop.get_file()
 
         if fname is not None:
-            _log.debug('findfont returning %s'%fname)
+            _log.debug('findfont returning %s', fname)
             return fname
 
         if fontext == 'afm':
@@ -1341,7 +1333,7 @@ class FontManager(object):
                     UserWarning)
                 result = self.defaultFont[fontext]
         else:
-            _log.info(
+            _log.debug(
                 'findfont: Matching %s to %s (%s) with score of %f' %
                 (prop, best_font.name, repr(best_font.fname), best_score))
             result = best_font.fname
@@ -1385,7 +1377,6 @@ def get_font(filename, hinting_factor=None):
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
-    import re
 
     def fc_match(pattern, fontext):
         fontexts = get_fontext_synonyms(fontext)

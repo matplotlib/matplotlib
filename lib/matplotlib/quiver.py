@@ -18,6 +18,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+
+import math
 import weakref
 
 import numpy as np
@@ -29,10 +31,8 @@ import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
-import matplotlib.cbook as cbook
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
-import math
 
 
 _quiver_doc = """
@@ -793,13 +793,13 @@ Keyword arguments:
 
   *barbcolor*: [ color | color sequence ]
     Specifies the color all parts of the barb except any flags.  This
-    parameter is analagous to the *edgecolor* parameter for polygons,
+    parameter is analogous to the *edgecolor* parameter for polygons,
     which can be used instead. However this parameter will override
     facecolor.
 
   *flagcolor*: [ color | color sequence ]
     Specifies the color of any flags on the barb.  This parameter is
-    analagous to the *facecolor* parameter for polygons, which can be
+    analogous to the *facecolor* parameter for polygons, which can be
     used instead. However this parameter will override facecolor.  If
     this is not set (and *C* has not either) then *flagcolor* will be
     set to match *barbcolor* so that the barb has a uniform color. If

@@ -49,8 +49,6 @@ class TestMlab(unittest.TestCase):
             fh.seek(0)
         ra2 = mlab.csv2rec(fh)
         fh.close()
-        #print 'ra', ra
-        #print 'ra2', ra2
         for name in ra.dtype.names:
             if 0:
                 print(name, repr(ra[name]), repr(ra2[name]))

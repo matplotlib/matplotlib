@@ -3,32 +3,28 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import atexit
+import codecs
+import errno
 import math
 import os
-import sys
-import errno
 import re
 import shutil
+import sys
 import tempfile
-import codecs
-import atexit
-import weakref
 import warnings
-
-import numpy as np
+import weakref
 
 import matplotlib as mpl
+from matplotlib import _png, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.figure import Figure
-from matplotlib.text import Text
-from matplotlib.path import Path
-from matplotlib import _png, rcParams
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
+from matplotlib.path import Path
 
 
 ###############################################################################
@@ -195,9 +191,11 @@ def make_pdf_to_png_converter():
         return cairo_convert
     elif "gs" in tools_available:
         def gs_convert(pdffile, pngfile, dpi):
-            cmd = [str(gs), '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
-                   '-sDEVICE=png16m', '-dUseCIEColor', '-dTextAlphaBits=4',
-                   '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE', '-sOutputFile=%s' % pngfile,
+            cmd = [str(gs),
+                   '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
+                   '-dUseCIEColor', '-dTextAlphaBits=4',
+                   '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
+                   '-sDEVICE=png16m', '-sOutputFile=%s' % pngfile,
                    '-r%d' % dpi, pdffile]
             check_output(cmd, stderr=subprocess.STDOUT)
         return gs_convert
@@ -246,8 +244,8 @@ class LatexManager(object):
     def _build_latex_header():
         latex_preamble = get_preamble()
         latex_fontspec = get_fontspec()
-        # Create LaTeX header with some content, else LaTeX will load some
-        # math fonts later when we don't expect the additional output on stdout.
+        # Create LaTeX header with some content, else LaTeX will load some math
+        # fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
         latex_header = [r"\documentclass{minimal}",
                         latex_preamble,
@@ -304,16 +302,17 @@ class LatexManager(object):
                                      cwd=self.tmpdir)
         except OSError as e:
             if e.errno == errno.ENOENT:
-                raise RuntimeError("Latex command not found. "
-                    "Install '%s' or change pgf.texsystem to the desired command."
-                    % self.texcommand
-                )
+                raise RuntimeError(
+                    "Latex command not found. Install %r or change "
+                    "pgf.texsystem to the desired command." % self.texcommand)
             else:
-                raise RuntimeError("Error starting process '%s'" % self.texcommand)
+                raise RuntimeError(
+                    "Error starting process %r" % self.texcommand)
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
-            raise LatexError("LaTeX returned an error, probably missing font or error in preamble:\n%s" % stdout)
+            raise LatexError("LaTeX returned an error, probably missing font "
+                             "or error in preamble:\n%s" % stdout)
 
         # open LaTeX process for real work
         latex = subprocess.Popen([str(self.texcommand), "-halt-on-error"],
@@ -369,8 +368,8 @@ class LatexManager(object):
         try:
             self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s"
-            raise ValueError(msg % (text, e.latex_output))
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, e.latex_output))
 
         # typeout width, height and text offset of the last textbox
         self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
@@ -378,15 +377,15 @@ class LatexManager(object):
         try:
             answer = self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s"
-            raise ValueError(msg % (text, e.latex_output))
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, e.latex_output))
 
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
         except:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
-            raise ValueError(msg)
+            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
+                             .format(text, answer))
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
 
         # the height returned from LaTeX goes from base to top.
@@ -433,7 +432,8 @@ class RendererPgf(RendererBase):
                               UserWarning)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans,
+                     rgbFace=None):
         writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
@@ -446,7 +446,9 @@ class RendererPgf(RendererBase):
         # build marker definition
         bl, tr = marker_path.get_extents(marker_trans).get_points()
         coords = bl[0] * f, bl[1] * f, tr[0] * f, tr[1] * f
-        writeln(self.fh, r"\pgfsys@defobject{currentmarker}{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
+        writeln(self.fh,
+                r"\pgfsys@defobject{currentmarker}"
+                r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
         self._print_pgf_path(None, marker_path, marker_trans)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
@@ -483,9 +485,13 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfusepath{clip}")
 
             # build pattern definition
-            writeln(self.fh, r"\pgfsys@defobject{currentpattern}{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
+            writeln(self.fh,
+                    r"\pgfsys@defobject{currentpattern}"
+                    r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
             writeln(self.fh, r"\begin{pgfscope}")
-            writeln(self.fh, r"\pgfpathrectangle{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
+            writeln(self.fh,
+                    r"\pgfpathrectangle"
+                    r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
@@ -494,11 +500,13 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
             f = 1. / self.dpi
-            (xmin, ymin), (xmax, ymax) = path.get_extents(transform).get_points()
+            (xmin, ymin), (xmax, ymax) = \
+                path.get_extents(transform).get_points()
             xmin, xmax = f * xmin, f * xmax
             ymin, ymax = f * ymin, f * ymax
             repx, repy = int(math.ceil(xmax-xmin)), int(math.ceil(ymax-ymin))
-            writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
+            writeln(self.fh,
+                    r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):
                 for ix in range(repx):
                     writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
@@ -516,7 +524,10 @@ class RendererPgf(RendererBase):
             p1, p2 = bbox.get_points()
             w, h = p2 - p1
             coords = p1[0] * f, p1[1] * f, w * f, h * f
-            writeln(self.fh, r"\pgfpathrectangle{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}} " % coords)
+            writeln(self.fh,
+                    r"\pgfpathrectangle"
+                    r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
+                    % coords)
             writeln(self.fh, r"\pgfusepath{clip}")
 
         # check for clip path
@@ -548,7 +559,9 @@ class RendererPgf(RendererBase):
             fillopacity = rgbFace[3] if has_fill and len(rgbFace) > 3 else 1.0
 
         if has_fill:
-            writeln(self.fh, r"\definecolor{currentfill}{rgb}{%f,%f,%f}" % tuple(rgbFace[:3]))
+            writeln(self.fh,
+                    r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
+                    % tuple(rgbFace[:3]))
             writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
         if has_fill and fillopacity != 1.0:
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
@@ -557,7 +570,9 @@ class RendererPgf(RendererBase):
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
         stroke_rgba = gc.get_rgb()
         writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
-        writeln(self.fh, r"\definecolor{currentstroke}{rgb}{%f,%f,%f}" % stroke_rgba[:3])
+        writeln(self.fh,
+                r"\definecolor{currentstroke}{rgb}{%f,%f,%f}"
+                % stroke_rgba[:3])
         writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
         if strokeopacity != 1.0:
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
@@ -567,11 +582,10 @@ class RendererPgf(RendererBase):
         if dash_list is None:
             writeln(self.fh, r"\pgfsetdash{}{0pt}")
         else:
-            dash_str = r"\pgfsetdash{"
-            for dash in dash_list:
-                dash_str += r"{%fpt}" % dash
-            dash_str += r"}{%fpt}" % dash_offset
-            writeln(self.fh, dash_str)
+            writeln(self.fh,
+                    r"\pgfsetdash{%s}{%fpt}"
+                    % ("".join(r"{%fpt}" % dash for dash in dash_list),
+                       dash_offset))
 
     def _print_pgf_path(self, gc, path, transform, rgbFace=None):
         f = 1. / self.dpi
@@ -586,22 +600,32 @@ class RendererPgf(RendererBase):
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 x, y = tuple(points)
-                writeln(self.fh, r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
+                writeln(self.fh,
+                        r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
                         (f * x, f * y))
             elif code == Path.CLOSEPOLY:
                 writeln(self.fh, r"\pgfpathclose")
             elif code == Path.LINETO:
                 x, y = tuple(points)
-                writeln(self.fh, r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
+                writeln(self.fh,
+                        r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
                         (f * x, f * y))
             elif code == Path.CURVE3:
                 cx, cy, px, py = tuple(points)
                 coords = cx * f, cy * f, px * f, py * f
-                writeln(self.fh, r"\pgfpathquadraticcurveto{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}" % coords)
+                writeln(self.fh,
+                        r"\pgfpathquadraticcurveto"
+                        r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
+                        % coords)
             elif code == Path.CURVE4:
                 c1x, c1y, c2x, c2y, px, py = tuple(points)
                 coords = c1x * f, c1y * f, c2x * f, c2y * f, px * f, py * f
-                writeln(self.fh, r"\pgfpathcurveto{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}" % coords)
+                writeln(self.fh,
+                        r"\pgfpathcurveto"
+                        r"{\pgfqpoint{%fin}{%fin}}"
+                        r"{\pgfqpoint{%fin}{%fin}}"
+                        r"{\pgfqpoint{%fin}{%fin}}"
+                        % coords)
 
     def _pgf_path_draw(self, stroke=True, fill=False):
         actions = []
@@ -809,7 +833,9 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\begingroup")
         writeln(fh, r"\makeatletter")
         writeln(fh, r"\begin{pgfpicture}")
-        writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w, h))
+        writeln(fh,
+                r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
+                % (w, h))
         writeln(fh, r"\pgfusepath{use as bounding box, clip}")
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(self.figure, w, h, dpi,
@@ -876,7 +902,9 @@ class FigureCanvasPgf(FigureCanvasBase):
             try:
                 check_output(cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
             except subprocess.CalledProcessError as e:
-                raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, e.output))
+                raise RuntimeError(
+                    "%s was not able to process your file.\n\nFull log:\n%s"
+                    % (texcommand, e.output))
 
             # copy file contents to target
             with open(fname_pdf, "rb") as fh_src:

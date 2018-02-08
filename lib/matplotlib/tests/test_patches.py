@@ -1,8 +1,7 @@
 """
 Tests specific to the patches module.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -362,3 +361,52 @@ def test_connection_patch():
                                    axesA=ax2, axesB=ax1,
                                    arrowstyle="->")
     ax2.add_artist(con)
+
+
+def test_datetime_rectangle():
+    # Check that creating a rectangle with timedeltas doesn't fail
+    from datetime import datetime, timedelta
+
+    start = datetime(2017, 1, 1, 0, 0, 0)
+    delta = timedelta(seconds=16)
+    patch = mpatches.Rectangle((start, 0), delta, 1)
+
+    fig, ax = plt.subplots()
+    ax.add_patch(patch)
+
+
+def test_datetime_datetime_fails():
+    from datetime import datetime
+
+    start = datetime(2017, 1, 1, 0, 0, 0)
+    dt_delta = datetime(1970, 1, 5)    # Will be 5 days if units are done wrong
+
+    with pytest.raises(TypeError):
+        mpatches.Rectangle((start, 0), dt_delta, 1)
+
+    with pytest.raises(TypeError):
+        mpatches.Rectangle((0, start), 1, dt_delta)
+
+
+def test_contains_point():
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
+    path = ell.get_path()
+    transform = ell.get_transform()
+    radius = ell._process_radius(None)
+    expected = np.array([path.contains_point(point,
+                                             transform,
+                                             radius) for point in points])
+    result = np.array([ell.contains_point(point) for point in points])
+    assert np.all(result == expected)
+
+
+def test_contains_points():
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
+    path = ell.get_path()
+    transform = ell.get_transform()
+    radius = ell._process_radius(None)
+    expected = path.contains_points(points, transform, radius)
+    result = ell.contains_points(points)
+    assert np.all(result == expected)

@@ -40,11 +40,6 @@
 # non-interactive backend.
 backend      : $TEMPLATE_BACKEND
 
-# If you are using the Qt4Agg backend, you can choose here
-# to use the PyQt4 bindings or the newer PySide bindings to
-# the underlying Qt4 toolkit.
-#backend.qt4 : PyQt4        # PyQt4 | PySide
-
 # Note that this can be overridden by the environment variable
 # QT_API used by Enthought Tool Suite (ETS); valid values are
 # "pyqt" and "pyside".  The "pyqt" setting has the side effect of
@@ -62,10 +57,6 @@ backend      : $TEMPLATE_BACKEND
 
 # When True, open the webbrowser to the plot that is shown
 # webagg.open_in_browser : True
-
-# When True, the figures rendered in the nbagg backend are created with
-# a transparent background.
-# nbagg.transparent : False
 
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
@@ -366,6 +357,8 @@ backend      : $TEMPLATE_BACKEND
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 #xtick.top            : False   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
+#xtick.labeltop       : False  # draw label on the top
+#xtick.labelbottom    : True  # draw label on the bottom
 #xtick.major.size     : 3.5      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
 #xtick.major.width    : 0.8    # major tick width in points
@@ -383,6 +376,8 @@ backend      : $TEMPLATE_BACKEND
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : False  # draw ticks on the right side
+#ytick.labelleft      : True  # draw tick labels on the left side
+#ytick.labelright     : False  # draw tick labels on the right side
 #ytick.major.size     : 3.5      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
 #ytick.major.width    : 0.8    # major tick width in points
@@ -437,6 +432,10 @@ backend      : $TEMPLATE_BACKEND
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
                             # parameters to make the plot fit the figure
+                            # using `tight_layout`
+#figure.constrained_layout.use: False # When True, automatically make plot
+                                 # elements fit on the figure. (Not compatible
+                                 # with `autolayout`, above).
 #figure.max_open_warning : 20  # The maximum number of figures to open through
                                # the pyplot interface before emitting a warning.
                                # If less than one this feature is disabled.
@@ -446,9 +445,9 @@ backend      : $TEMPLATE_BACKEND
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
 #figure.subplot.bottom  : 0.11    # the bottom of the subplots of the figure
 #figure.subplot.top     : 0.88    # the top of the subplots of the figure
-#figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots,
+#figure.subplot.wspace  : 0.2    # the amount of width reserved for space between subplots,
                                  # expressed as a fraction of the average axis width
-#figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots,
+#figure.subplot.hspace  : 0.2    # the amount of height reserved for space between subplots,
                                  # expressed as a fraction of the average axis height
 
 
@@ -594,10 +593,7 @@ backend      : $TEMPLATE_BACKEND
 #animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
                                    # $PATH is searched
 #animation.avconv_args: ''         # Additional arguments to pass to avconv
-#animation.mencoder_path: 'mencoder'
-                                   # Path to mencoder binary. Without full path
-                                   # $PATH is searched
-#animation.mencoder_args: ''       # Additional arguments to pass to mencoder
 #animation.convert_path: 'convert' # Path to ImageMagick's convert binary.
                                    # On Windows use the full path since convert
                                    # is also the name of a system tool.
+#animation.convert_args: ''        # Additional arguments to pass to convert

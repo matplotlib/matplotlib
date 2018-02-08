@@ -3,8 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import warnings
-
 import matplotlib.axes as maxes
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
@@ -89,13 +87,13 @@ class SimpleAxisArtist(Artist):
 
     def _get_major_ticks(self):
         tickline = "tick%dline" % self._axisnum
-        return SimpleChainedObjects([getattr(tick, tickline) for tick \
-                                     in self._axis.get_major_ticks()])
+        return SimpleChainedObjects([getattr(tick, tickline)
+                                     for tick in self._axis.get_major_ticks()])
 
     def _get_major_ticklabels(self):
         label = "label%d" % self._axisnum
-        return SimpleChainedObjects([getattr(tick, label) for tick \
-                                     in self._axis.get_major_ticks()])
+        return SimpleChainedObjects([getattr(tick, label)
+                                     for tick in self._axis.get_major_ticks()])
 
     def _get_label(self):
         return self._axis.label

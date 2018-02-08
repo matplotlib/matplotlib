@@ -65,35 +65,30 @@ For example, you can hide the right and top spines using::
   ax.axis["right"].set_visible(False)
   ax.axis["top"].set_visible(False)
 
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axisline3_001.png
-   :target: ../../gallery/userdemo/simple_axisline3.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axisline3_001.png
+   :target: ../../gallery/axisartist/simple_axisline3.html
    :align: center
    :scale: 50
 
    Simple Axisline3
-
 
 It is also possible to add a horizontal axis. For example, you may have an
 horizontal axis at y=0 (in data coordinate). ::
 
     ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
 
-.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axisartist1_001.png
-   :target: ../../gallery/userdemo/simple_axisartist1.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axisartist1_001.png
+   :target: ../../gallery/axisartist/simple_axisartist1.html
    :align: center
    :scale: 50
 
    Simple Axisartist1
 
-
 Or a fixed axis with some offset ::
 
-    # make new (right-side) yaxis, but wth some offset
+    # make new (right-side) yaxis, but with some offset
     ax.axis["right2"] = ax.new_fixed_axis(loc="right",
                   offset=(20, 0))
-
-
 
 axisartist with ParasiteAxes
 ----------------------------
@@ -107,9 +102,7 @@ to create a host subplot with axisartist.Axes, ::
 
   host = host_subplot(111, axes_class=AA.Axes)
 
-
-Here is an example that uses parasiteAxes.
-
+Here is an example that uses ParasiteAxes.
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_parasite_axes2_001.png
    :target: ../../gallery/axisartist/demo_parasite_axes2.html
@@ -117,8 +110,6 @@ Here is an example that uses parasiteAxes.
    :scale: 50
 
    Demo Parasite Axes2
-
-
 
 Curvilinear Grid
 ----------------
@@ -133,7 +124,6 @@ and ticks.
 
    Demo Curvelinear Grid
 
-
 Floating Axes
 -------------
 
@@ -146,7 +136,6 @@ floating axis.
    :scale: 50
 
    Demo Floating Axes
-
 
 axisartist namespace
 ====================
@@ -183,7 +172,6 @@ In summary, all these changes was to support
 
    Demo Floating Axis
 
-
 *mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
 is a dictionary of AxisArtist instances. By default, the dictionary
 has 4 AxisArtist instances, responsible for drawing of left, right,
@@ -207,7 +195,6 @@ artist properties (e.g., color) will not work in general, although
 some effort has been made so that some often-change attributes (color,
 etc.) are respected.
 
-
 AxisArtist
 ==========
 
@@ -220,7 +207,6 @@ attributes which will draw ticks, labels, etc.
  * offsetText
  * label
 
-
 line
 ----
 
@@ -230,7 +216,6 @@ major_ticks, minor_ticks
 ------------------------
 
 Derived from Line2d class. Note that ticks are markers.
-
 
 major_ticklabels, minor_ticklabels
 ----------------------------------
@@ -242,7 +227,6 @@ axislabel
 ---------
 
 Derived from Text.
-
 
 Default AxisArtists
 ===================
@@ -280,7 +264,6 @@ To turn all on but (axis) label off ::
 
       ax.axis["bottom"].toggle(all=True, label=False))
 
-
 ax.axis's __getitem__ method can take multiple axis names. For
 example, to turn ticklabels of "top" and "right" axis on, ::
 
@@ -299,7 +282,6 @@ Like the list indexing ":" means all items, i.e., ::
       ax.axis[:].major_ticks.set_color("r")
 
 changes tick color in all axis.
-
 
 HowTo
 =====
@@ -336,7 +318,6 @@ HowTo
     To change the pad between ticklabels and axis label,
     axis.label.set_pad method.
 
-
 Rotation and Alignment of TickLabels
 ====================================
 
@@ -347,8 +328,8 @@ using "set_axis_direction" method. ::
   ax1.axis["left"].major_ticklabels.set_axis_direction("top")
   ax1.axis["right"].label.set_axis_direction("left")
 
-.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axis_direction01_001.png
-   :target: ../../gallery/userdemo/simple_axis_direction01.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_direction01_001.png
+   :target: ../../gallery/axisartist/simple_axis_direction01.html
    :align: center
    :scale: 50
 
@@ -363,8 +344,8 @@ You must understand some underlying concept of directions.
     of the axis line with increasing coordinate.  For example, the
     reference direction of the left x-axis is from bottom to top.
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step01_001.png
-       :target: ../../gallery/userdemo/axis_direction_demo_step01.html
+    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step01_001.png
+       :target: ../../gallery/axisartist/axis_direction_demo_step01.html
        :align: center
        :scale: 50
 
@@ -376,8 +357,8 @@ You must understand some underlying concept of directions.
  2. *ticklabel_direction* is either the right-hand side (+) of the
     reference direction or the left-hand side (-).
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step02_001.png
-       :target: ../../gallery/userdemo/axis_direction_demo_step02.html
+    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step02_001.png
+       :target: ../../gallery/axisartist/axis_direction_demo_step02.html
        :align: center
        :scale: 50
 
@@ -385,8 +366,8 @@ You must understand some underlying concept of directions.
 
  3. same for the *label_direction*
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step03_001.png
-       :target: ../../gallery/userdemo/axis_direction_demo_step03.html
+    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step03_001.png
+       :target: ../../gallery/axisartist/axis_direction_demo_step03.html
        :align: center
        :scale: 50
 
@@ -398,13 +379,12 @@ You must understand some underlying concept of directions.
     to the *ticklabel_direction* or *label_direction*,
     respectively. The rotation of ticklabels and label is anchored.
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_axis_direction_demo_step04_001.png
-       :target: ../../gallery/userdemo/axis_direction_demo_step04.html
+    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step04_001.png
+       :target: ../../gallery/axisartist/axis_direction_demo_step04.html
        :align: center
        :scale: 50
 
        Axis Direction Demo - Step 04
-
 
 On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
@@ -423,13 +403,12 @@ and "right" axis.
  ticklabel   va           center   baseline    center   baseline
  ========== =========== ========= ========== ========= ==========
 
-
 And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
 direction can be more clear with curved axis.
 
-.. figure:: ../../gallery/userdemo/images/sphx_glr_demo_axis_direction_001.png
-   :target: ../../gallery/userdemo/demo_axis_direction.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_axis_direction_001.png
+   :target: ../../gallery/axisartist/demo_axis_direction.html
    :align: center
    :scale: 50
 
@@ -451,7 +430,6 @@ ticklabel_direction and label_direction, while changing the
 axis_direction of ticks, ticklabels, and axis-label does not affect
 them.
 
-
 If you want to make ticks outward and ticklabels inside the axes,
 use invert_ticklabel_direction method. ::
 
@@ -463,13 +441,12 @@ default direction). ::
 
    ax.axis[:].major_ticks.set_tick_out(True)
 
-.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axis_direction03_001.png
-   :target: ../../gallery/userdemo/simple_axis_direction03.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_direction03_001.png
+   :target: ../../gallery/axisartist/simple_axis_direction03.html
    :align: center
    :scale: 50
 
    Simple Axis Direction03
-
 
 So, in summary,
 
@@ -490,15 +467,13 @@ So, in summary,
     * set_rotation : angle with respect to the reference direction
     * set_ha and set_va
 
-
-
 Adjusting ticklabels alignment
 ------------------------------
 
 Alignment of TickLabels are treated specially. See below
 
-.. figure:: ../../gallery/userdemo/images/sphx_glr_demo_ticklabel_alignment_001.png
-   :target: ../../gallery/userdemo/demo_ticklabel_alignment.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_ticklabel_alignment_001.png
+   :target: ../../gallery/axisartist/demo_ticklabel_alignment.html
    :align: center
    :scale: 50
 
@@ -515,14 +490,12 @@ Or ticklabels and axis-label ::
 
   ax.axis["left"].label.set_pad(10)
 
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_simple_axis_pad_001.png
-   :target: ../../gallery/userdemo/simple_axis_pad.html
+.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_pad_001.png
+   :target: ../../gallery/axisartist/simple_axis_pad.html
    :align: center
    :scale: 50
 
    Simple Axis Pad
-
 
 GridHelper
 ==========
@@ -535,7 +508,6 @@ from the curved coordinate to (rectilinear) image coordinate. Note that
 while ticks and grids are drawn for curved coordinate, the data
 transform of the axes itself (ax.transData) is still rectilinear
 (image) coordinate. ::
-
 
     from  mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
@@ -551,13 +523,11 @@ transform of the axes itself (ax.transData) is still rectilinear
         x, y = np.asarray(x), np.asarray(y)
         return x, y+x
 
-
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
     ax1 = Subplot(fig, 1, 1, 1, grid_helper=grid_helper)
 
     fig.add_subplot(ax1)
-
 
 You may use matplotlib's Transform instance instead (but a
 inverse transformation must be defined). Often, coordinate range in a
@@ -565,13 +535,11 @@ curved coordinate system may have a limited range, or may have
 cycles. In those cases, a more customized version of grid helper is
 required. ::
 
-
     import  mpl_toolkits.axisartist.angle_helper as angle_helper
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
-
 
     # extreme finder :  find a range of coordinate.
     # 20, 20 : number of sampling points along x, y direction
@@ -601,7 +569,6 @@ required. ::
                                         tick_formatter1=tick_formatter1
                                         )
 
-
 Again, the *transData* of the axes is still a rectilinear coordinate
 (image coordinate). You may manually do conversion between two
 coordinates, or you may use Parasite Axes for convenience.::
@@ -614,15 +581,12 @@ coordinates, or you may use Parasite Axes for convenience.::
     # Anthing you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
 
-
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
    :target: ../../gallery/axisartist/demo_curvelinear_grid.html
    :align: center
    :scale: 50
 
    Demo Curvelinear Grid
-
-
 
 FloatingAxis
 ============
@@ -640,7 +604,6 @@ way is to add it as an item of Axes's axis attribute.::
     ax1.axis["lat"] = axis = ax1.new_floating_axis(0, 60)
     axis.label.set_text(r"$\theta = 60^{\circ}$")
     axis.label.set_visible(True)
-
 
 See the first example of this page.
 

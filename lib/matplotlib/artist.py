@@ -307,8 +307,7 @@ class Artist(object):
         Parameters
         ----------
         t : `~.Transform`
-            ..
-                ACCEPTS: `~.Transform`
+            .. ACCEPTS: `~.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -327,6 +326,7 @@ class Artist(object):
             self._transform = self._transform._as_mpl_transform(self.axes)
         return self._transform
 
+    @cbook.deprecated("2.2")
     def hitlist(self, event):
         """
         List the children of the artist which contain the mouse event *event*.
@@ -379,8 +379,7 @@ class Artist(object):
         Parameters
         ----------
         picker : callable
-            ..
-                ACCEPTS: a callable function
+            .. ACCEPTS: a callable function
         """
         self._contains = picker
 
@@ -460,8 +459,7 @@ class Artist(object):
         Parameters
         ----------
         picker : None or bool or float or callable
-            ..
-                ACCEPTS: [None | bool | float | callable]
+            .. ACCEPTS: [None | bool | float | callable]
         """
         self._picker = picker
 
@@ -485,8 +483,7 @@ class Artist(object):
         Parameters
         ----------
         url : str
-            ..
-                ACCEPTS: a url string
+            .. ACCEPTS: a url string
         """
         self._url = url
 
@@ -501,8 +498,7 @@ class Artist(object):
         Parameters
         ----------
         gid : str
-            ..
-                ACCEPTS: an id string
+            .. ACCEPTS: an id string
         """
         self._gid = gid
 
@@ -540,8 +536,7 @@ class Artist(object):
         Parameters
         ----------
         snap : bool or None
-            ..
-                ACCEPTS: bool or None
+            .. ACCEPTS: bool or None
         """
         self._snap = snap
         self.stale = True
@@ -588,8 +583,7 @@ class Artist(object):
             The scale factor by which the length is shrunken or
             expanded (default 16.0)
 
-            ..
-                ACCEPTS: (scale: float, length: float, randomness: float)
+            .. ACCEPTS: (scale: float, length: float, randomness: float)
         """
         if scale is None:
             self._sketch = None
@@ -603,8 +597,7 @@ class Artist(object):
         Parameters
         ----------
         path_effects : `~.AbstractPathEffect`
-            ..
-                ACCEPTS: `~.AbstractPathEffect`
+            .. ACCEPTS: `~.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -623,8 +616,7 @@ class Artist(object):
         Parameters
         ----------
         fig : `~.Figure`
-            ..
-                ACCEPTS: a `~.Figure` instance
+            .. ACCEPTS: a `~.Figure` instance
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -649,8 +641,7 @@ class Artist(object):
         Parameters
         ----------
         clipbox : `~.Bbox`
-            ..
-                ACCEPTS: a `~.Bbox` instance
+            .. ACCEPTS: a `~.Bbox` instance
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -757,8 +748,7 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._clipon = b
         # This may result in the callbacks being hit twice, but ensures they
@@ -789,8 +779,7 @@ class Artist(object):
         Parameters
         ----------
         rasterized : bool or None
-            ..
-                ACCEPTS: bool or None
+            .. ACCEPTS: bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
@@ -810,8 +799,7 @@ class Artist(object):
             A filter function, which takes a (m, n, 3) float array and a dpi
             value, and returns a (m, n, 3) array.
 
-            ..
-                ACCEPTS: a filter function, which takes a (m, n, 3) float array
+            .. ACCEPTS: a filter function, which takes a (m, n, 3) float array
                 and a dpi value, and returns a (m, n, 3) array
         """
         self._agg_filter = filter_func
@@ -831,8 +819,7 @@ class Artist(object):
         Parameters
         ----------
         alpha : float
-            ..
-                ACCEPTS: float (0.0 transparent through 1.0 opaque)
+            .. ACCEPTS: float (0.0 transparent through 1.0 opaque)
         """
         self._alpha = alpha
         self.pchanged()
@@ -845,8 +832,7 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         self._visible = b
         self.pchanged()
@@ -859,8 +845,7 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            ..
-                ACCEPTS: bool
+            .. ACCEPTS: bool
         """
         if self._animated != b:
             self._animated = b
@@ -923,8 +908,7 @@ class Artist(object):
             *s* will be converted to a string by calling `str` (`unicode` on
             Py2).
 
-            ..
-                ACCEPTS: object
+            .. ACCEPTS: object
         """
         if s is not None:
             self._label = six.text_type(s)
@@ -945,9 +929,10 @@ class Artist(object):
         Parameters
         ----------
         level : float
-            ..
-                ACCEPTS: float
+            .. ACCEPTS: float
         """
+        if level is None:
+            level = self.__class__.zorder
         self.zorder = level
         self.pchanged()
         self.stale = True
@@ -1130,7 +1115,7 @@ class ArtistInspector(object):
         return aliases
 
     _get_valid_values_regex = re.compile(
-        r"\n\s*ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))"
+        r"\n\s*(?:\.\.\s+)?ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))"
     )
 
     def get_valid_values(self, attr):
@@ -1138,7 +1123,7 @@ class ArtistInspector(object):
         Get the legal arguments for the setter associated with *attr*.
 
         This is done by querying the docstring of the function *set_attr*
-        for a line that begins with ACCEPTS:
+        for a line that begins with "ACCEPTS" or ".. ACCEPTS":
 
         e.g., for a line linestyle, return
         "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'``
@@ -1242,8 +1227,8 @@ class ArtistInspector(object):
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
-        If *prop* is *None*, return a list of strings of all settable properies
-        and their valid values.
+        If *prop* is *None*, return a list of strings of all settable
+        properties and their valid values.
 
         If *prop* is not *None*, it is a valid property name and that
         property will be returned as a string of property : valid
@@ -1270,8 +1255,8 @@ class ArtistInspector(object):
 
     def pprint_setters_rest(self, prop=None, leadingspace=2):
         """
-        If *prop* is *None*, return a list of strings of all settable properies
-        and their valid values.  Format the output for ReST
+        If *prop* is *None*, return a list of strings of all settable
+        properties and their valid values.  Format the output for ReST
 
         If *prop* is not *None*, it is a valid property name and that
         property will be returned as a string of property : valid
@@ -1490,6 +1475,3 @@ def kwdoc(a):
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
 docstring.interpd.update(Artist=kwdoc(Artist))
-
-_get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
-axes property.  A removal date has not been set."""

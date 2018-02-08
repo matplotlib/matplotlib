@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -10,6 +9,7 @@ import warnings
 
 from numpy.testing import assert_almost_equal
 import pytest
+from pytest import approx
 
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories, image_comparison
@@ -20,7 +20,40 @@ baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
 
 # Tests of the image comparison algorithm.
-def image_comparison_expect_rms(im1, im2, tol, expect_rms):
+@pytest.mark.parametrize(
+    'im1, im2, tol, expect_rms',
+    [
+        # Comparison of an image and the same image with minor differences.
+        # This expects the images to compare equal under normal tolerance, and
+        # have a small RMS.
+        ('basn3p02.png', 'basn3p02-minorchange.png', 10, None),
+        # Now test with no tolerance.
+        ('basn3p02.png', 'basn3p02-minorchange.png', 0, 6.50646),
+        # Comparison with an image that is shifted by 1px in the X axis.
+        ('basn3p02.png', 'basn3p02-1px-offset.png', 0, 90.15611),
+        # Comparison with an image with half the pixels shifted by 1px in the X
+        # axis.
+        ('basn3p02.png', 'basn3p02-half-1px-offset.png', 0, 63.75),
+        # Comparison of an image and the same image scrambled.
+        # This expects the images to compare completely different, with a very
+        # large RMS.
+        # Note: The image has been scrambled in a specific way, by having
+        # each color component of each pixel randomly placed somewhere in the
+        # image. It contains exactly the same number of pixels of each color
+        # value of R, G and B, but in a totally different position.
+        # Test with no tolerance to make sure that we pick up even a very small
+        # RMS error.
+        ('basn3p02.png', 'basn3p02-scrambled.png', 0, 172.63582),
+        # Comparison of an image and a slightly brighter image.
+        # The two images are solid color, with the second image being exactly 1
+        # color value brighter.
+        # This expects the images to compare equal under normal tolerance, and
+        # have an RMS of exactly 1.
+        ('all127.png', 'all128.png', 0, 1),
+        # Now test the reverse comparison.
+        ('all128.png', 'all127.png', 0, 1),
+    ])
+def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
     """Compare two images, expecting a particular RMS error.
 
     im1 and im2 are filenames relative to the baseline_dir directory.
@@ -44,72 +77,13 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
         assert results is None
     else:
         assert results is not None
-        assert_almost_equal(expect_rms, results['rms'], decimal=4)
+        assert results['rms'] == approx(expect_rms, abs=1e-4)
 
 
-def test_image_compare_basic():
-    #: Test comparison of an image and the same image with minor differences.
-
-    # This expects the images to compare equal under normal tolerance, and have
-    # a small RMS.
-    im1 = 'basn3p02.png'
-    im2 = 'basn3p02-minorchange.png'
-    image_comparison_expect_rms(im1, im2, tol=10, expect_rms=None)
-
-    # Now test with no tolerance.
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=6.50646)
-
-
-def test_image_compare_1px_offset():
-    #: Test comparison with an image that is shifted by 1px in the X axis.
-    im1 = 'basn3p02.png'
-    im2 = 'basn3p02-1px-offset.png'
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=90.15611)
-
-
-def test_image_compare_half_1px_offset():
-    #: Test comparison with an image with half the pixels shifted by 1px in
-    #: the X axis.
-    im1 = 'basn3p02.png'
-    im2 = 'basn3p02-half-1px-offset.png'
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=63.75)
-
-
-def test_image_compare_scrambled():
-    #: Test comparison of an image and the same image scrambled.
-
-    # This expects the images to compare completely different, with a very
-    # large RMS.
-    # Note: The image has been scrambled in a specific way, by having each
-    # color component of each pixel randomly placed somewhere in the image. It
-    # contains exactly the same number of pixels of each color value of R, G
-    # and B, but in a totally different position.
-    im1 = 'basn3p02.png'
-    im2 = 'basn3p02-scrambled.png'
-    # Test with no tolerance to make sure that we pick up even a very small RMS
-    # error.
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=172.63582)
-
-
-def test_image_compare_shade_difference():
-    #: Test comparison of an image and a slightly brighter image.
-    # The two images are solid color, with the second image being exactly 1
-    # color value brighter.
-    # This expects the images to compare equal under normal tolerance, and have
-    # an RMS of exactly 1.
-    im1 = 'all127.png'
-    im2 = 'all128.png'
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=1.0)
-
-    # Now test the reverse comparison.
-    image_comparison_expect_rms(im2, im1, tol=0, expect_rms=1.0)
-
-
-#
 # The following tests are used by test_nose_image_comparison to ensure that the
 # image_comparison decorator continues to work with nose. They should not be
 # prefixed by test_ so they don't run with pytest.
-#
+
 
 def nosetest_empty():
     pass

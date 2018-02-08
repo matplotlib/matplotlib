@@ -324,7 +324,7 @@ can be obtained from the `TextSpan` instance::
 
       def get_path(self):
           """
-          Returns a single Path object of the entire layed out text.
+          Returns a single Path object of the entire laid out text.
 
           [Not strictly necessary, but might be useful for textpath
           functionality]

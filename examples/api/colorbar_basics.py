@@ -15,7 +15,7 @@ N = 37
 x, y = np.mgrid[:N, :N]
 Z = (np.cos(x*0.2) + np.sin(y*0.3))
 
-# mask out the negative and positve values, respectively
+# mask out the negative and positive values, respectively
 Zpos = np.ma.masked_less(Z, 0)
 Zneg = np.ma.masked_greater(Z, 0)
 

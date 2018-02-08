@@ -1,15 +1,12 @@
-"""
-A module for dealing with the polylines used throughout matplotlib.
+r"""
+A module for dealing with the polylines used throughout Matplotlib.
 
-The primary class for polyline handling in matplotlib is :class:`Path`.
-Almost all vector drawing makes use of Paths somewhere in the drawing
-pipeline.
+The primary class for polyline handling in Matplotlib is `Path`.  Almost all
+vector drawing makes use of `Path`\s somewhere in the drawing pipeline.
 
-Whilst a :class:`Path` instance itself cannot be drawn, there exists
-:class:`~matplotlib.artist.Artist` subclasses which can be used for
-convenient Path visualisation - the two most frequently used of these are
-:class:`~matplotlib.patches.PathPatch` and
-:class:`~matplotlib.collections.PathCollection`.
+Whilst a `Path` instance itself cannot be drawn, some `~.Artist` subclasses,
+such as `~.PathPatch` and `~.PathCollection`, can be used for convenient `Path`
+visualisation.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -17,7 +14,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
 from weakref import WeakValueDictionary
 
 try:
@@ -28,8 +24,7 @@ except ImportError:  # Py2
 import numpy as np
 
 from . import _path, rcParams
-from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
-                    maxdict)
+from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 
 class Path(object):
@@ -140,19 +135,17 @@ class Path(object):
         """
         vertices = _to_unmasked_float_array(vertices)
         if (vertices.ndim != 2) or (vertices.shape[1] != 2):
-            msg = "'vertices' must be a 2D list or array with shape Nx2"
-            raise ValueError(msg)
+            raise ValueError(
+                "'vertices' must be a 2D list or array with shape Nx2")
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
             if (codes.ndim != 1) or len(codes) != len(vertices):
-                msg = ("'codes' must be a 1D list or array with the same"
-                       " length of 'vertices'")
-                raise ValueError(msg)
+                raise ValueError("'codes' must be a 1D list or array with the "
+                                 "same length of 'vertices'")
             if len(codes) and codes[0] != self.MOVETO:
-                msg = ("The first element of 'code' must be equal to 'MOVETO':"
-                       " {0}")
-                raise ValueError(msg.format(self.MOVETO))
+                raise ValueError("The first element of 'code' must be equal "
+                                 "to 'MOVETO' ({})".format(self.MOVETO))
         elif closed:
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO

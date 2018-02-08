@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -24,8 +23,8 @@ from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
-from matplotlib.testing.compare import comparable_formats, compare_images, \
-     make_test_filename
+from matplotlib.testing.compare import (
+    comparable_formats, compare_images, make_test_filename)
 from . import _copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
@@ -260,8 +259,10 @@ class _ImageComparisonBase(object):
         orig_expected_fname = baseline_path + '.' + extension
         if extension == 'eps' and not os.path.exists(orig_expected_fname):
             orig_expected_fname = baseline_path + '.pdf'
-        expected_fname = make_test_filename(os.path.join(
-            self.result_dir, os.path.basename(orig_expected_fname)), 'expected')
+        expected_fname = make_test_filename(
+            os.path.join(self.result_dir,
+                         os.path.basename(orig_expected_fname)),
+            'expected')
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
@@ -279,7 +280,8 @@ class _ImageComparisonBase(object):
         if self.remove_text:
             remove_ticks_and_titles(fig)
 
-        actual_fname = os.path.join(self.result_dir, baseline) + '.' + extension
+        actual_fname = (
+            os.path.join(self.result_dir, baseline) + '.' + extension)
         kwargs = self.savefig_kwargs.copy()
         if extension == 'pdf':
             kwargs.setdefault('metadata',
@@ -296,7 +298,7 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     Nose-based image comparison class
 
     This class generates tests for a nose-based testing framework. Ideally,
-    this class would not be public, and the only publically visible API would
+    this class would not be public, and the only publicly visible API would
     be the :func:`image_comparison` decorator. Unfortunately, there are
     existing downstream users of this class (e.g., pytest-mpl) so it cannot yet
     be removed.
@@ -483,7 +485,8 @@ def _image_directories(func):
     module_name = func.__module__
     if module_name == '__main__':
         # FIXME: this won't work for nested packages in matplotlib.tests
-        warnings.warn('test module run as script. guessing baseline image locations')
+        warnings.warn(
+            'Test module run as script. Guessing baseline image locations.')
         script_name = sys.argv[0]
         basedir = os.path.abspath(os.path.dirname(script_name))
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
@@ -497,12 +500,13 @@ def _image_directories(func):
             # multiprocess plugin or as a specific test this may be
             # missing. See https://github.com/matplotlib/matplotlib/issues/3314
         if mods.pop(0) != 'tests':
-            warnings.warn(("Module '%s' does not live in a parent module "
-                "named 'tests'. This is probably ok, but we may not be able "
-                "to guess the correct subdirectory containing the baseline "
-                "images. If things go wrong please make sure that there is "
-                "a parent directory named 'tests' and that it contains a "
-                "__init__.py file (can be empty).") % module_name)
+            warnings.warn(
+                "Module {!r} does not live in a parent module named 'tests'. "
+                "This is probably ok, but we may not be able to guess the "
+                "correct subdirectory containing the baseline images. If "
+                "things go wrong please make sure that there is a parent "
+                "directory named 'tests' and that it contains a __init__.py "
+                "file (can be empty).".format(module_name))
         subdir = os.path.join(*mods)
 
         import imp

@@ -40,7 +40,8 @@ import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.transforms as mtransforms
-
+import matplotlib._layoutbox as layoutbox
+import matplotlib._constrained_layout as constrained_layout
 from matplotlib import docstring
 
 make_axes_kw_doc = '''
@@ -88,7 +89,7 @@ colormap_kw_doc = '''
                   be given, indicating the lengths of the minimum and
                   maximum colorbar extensions respectively as a
                   fraction of the interior colorbar length.
-    *extendrect*  [ *False* | *True* ]
+    *extendrect*  bool
                   If *False* the minimum and maximum colorbar extensions
                   will be triangular (the default). If *True* the
                   extensions will be rectangular.
@@ -106,8 +107,8 @@ colormap_kw_doc = '''
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
-    *drawedges*   [ False | True ] If true, draw lines at color
-                  boundaries.
+    *drawedges*   bool
+                  Whether to draw lines at color boundaries.
     ============  ====================================================
 
     The following will probably be useful only in the context of
@@ -237,20 +238,19 @@ class ColorbarBase(cm.ScalarMappable):
 
         norm=colors.NoNorm.
 
-    Useful attributes:
-
-        :attr:`ax`
-            the Axes instance in which the colorbar is drawn
-
-        :attr:`lines`
-            a list of LineCollection if lines were drawn, otherwise
-            an empty list
-
-        :attr:`dividers`
-            a LineCollection if *drawedges* is True, otherwise None
-
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
+    Attributes
+    ----------
+    ax : Axes
+        The `Axes` instance in which the colorbar is drawn.
+
+    lines : list
+        A list of `LineCollection` if lines were drawn, otherwise
+        an empty list.
+
+    dividers : LineCollection
+        A LineCollection if *drawedges* is ``True``, otherwise ``None``.
     '''
     _slice_dict = {'neither': slice(0, None),
                    'both': slice(1, -1),
@@ -532,9 +532,10 @@ class ColorbarBase(cm.ScalarMappable):
             self.dividers = None
         if self.drawedges:
             linewidths = (0.5 * mpl.rcParams['axes.linewidth'],)
-            self.dividers = collections.LineCollection(self._edges(X, Y),
-                                    colors=(mpl.rcParams['axes.edgecolor'],),
-                                    linewidths=linewidths)
+            self.dividers = collections.LineCollection(
+                    self._edges(X, Y),
+                    colors=(mpl.rcParams['axes.edgecolor'],),
+                    linewidths=linewidths)
             self.ax.add_collection(self.dividers)
         elif len(self._y) >= self.n_rasterize:
             self.solids.set_rasterized(True)
@@ -766,7 +767,7 @@ class ColorbarBase(cm.ScalarMappable):
             try:
                 # Try to set min and max extension fractions directly.
                 extendlength[:] = frac
-                # If frac is a sequence contaning None then NaN may
+                # If frac is a sequence containing None then NaN may
                 # be encountered. This is an error.
                 if np.isnan(extendlength).any():
                     raise ValueError()
@@ -974,7 +975,6 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
                                erase=erase)
 
@@ -1050,7 +1050,7 @@ class Colorbar(ColorbarBase):
         except AttributeError:
             # use_gridspec was False
             pos = ax.get_position(original=True)
-            ax.set_position(pos)
+            ax._set_position(pos)
         else:
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
@@ -1081,10 +1081,9 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     '''
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
-        msg = ('position and orientation are mutually exclusive. '
-               'Consider setting the position to any of '
-               '{0}'.format(', '.join(locations)))
-        raise TypeError(msg)
+        raise TypeError('position and orientation are mutually exclusive. '
+                        'Consider setting the position to any of {}'
+                        .format(', '.join(locations)))
 
     # provide a default location
     if location is None and orientation is None:
@@ -1126,12 +1125,20 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
-    pad = kw.pop('pad', loc_settings['pad'])
 
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
     parents = np.atleast_1d(parents).ravel()
+
+    # check if using constrained_layout:
+    gs = parents[0].get_subplotspec().get_gridspec()
+    using_constrained_layout = (gs._layoutbox is not None)
+    # defaults are not appropriate for constrained_layout:
+    pad0 = loc_settings['pad']
+    if using_constrained_layout:
+        pad0 = 0.02
+    pad = kw.pop('pad', pad0)
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
@@ -1167,12 +1174,37 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
         new_posn = mtransforms.Bbox(new_posn)
-        ax.set_position(new_posn)
+        ax._set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
     cax = fig.add_axes(pbcb)
-    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+
+    # OK, now make a layoutbox for the cb axis.  Later, we will use this
+    # to make the colorbar fit nicely.
+    if not using_constrained_layout:
+        # no layout boxes:
+        lb = None
+        lbpos = None
+        # and we need to set the aspect ratio by hand...
+        cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+    else:
+        if len(parents) == 1:
+            # this is a single axis...
+            ax = parents[0]
+            lb, lbpos = constrained_layout.layoutcolorbarsingle(
+                    ax, cax, shrink, aspect, location, pad=pad)
+        else:  # there is more than one parent, so lets use gridspec
+            # the colorbar will be a sibling of this gridspec, so the
+            # parent is the same parent as the gridspec.  Either the figure,
+            # or a subplotspec.
+
+            lb, lbpos = constrained_layout.layoutcolorbargridspec(
+                    parents, cax, shrink, aspect, location, pad)
+
+    cax._layoutbox = lb
+    cax._poslayoutbox = lbpos
+
     return cax, kw
 
 
@@ -1218,54 +1250,49 @@ def make_axes_gridspec(parent, **kw):
     shrink = kw.pop('shrink', 1.0)
     aspect = kw.pop('aspect', 20)
 
-    x1 = 1.0 - fraction
+    x1 = 1 - fraction
 
     # for shrinking
-    pad_s = (1. - shrink) * 0.5
+    pad_s = (1 - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
+    # we need to none the tree of layoutboxes because
+    # constrained_layout can't remove and replace the tree
+    # hierarchy w/o a seg fault.
+    gs = parent.get_subplotspec().get_gridspec()
+    layoutbox.nonetree(gs._layoutbox)
     gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         wh_space = 2 * pad / (1 - pad)
-
         gs = gs_from_subplotspec(1, 2,
                                  subplot_spec=parent.get_subplotspec(),
                                  wspace=wh_space,
-                                 width_ratios=[x1 - pad, fraction]
-                                 )
-
+                                 width_ratios=[x1 - pad, fraction])
         gs2 = gs_from_subplotspec(3, 1,
                                   subplot_spec=gs[1],
                                   hspace=0.,
-                                  height_ratios=wh_ratios,
-                                  )
-
+                                  height_ratios=wh_ratios)
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
     else:
         pad = kw.pop('pad', 0.15)
         wh_space = 2 * pad / (1 - pad)
-
         gs = gs_from_subplotspec(2, 1,
                                  subplot_spec=parent.get_subplotspec(),
                                  hspace=wh_space,
-                                 height_ratios=[x1 - pad, fraction]
-                                 )
-
+                                 height_ratios=[x1 - pad, fraction])
         gs2 = gs_from_subplotspec(1, 3,
                                   subplot_spec=gs[1],
                                   wspace=0.,
-                                  width_ratios=wh_ratios,
-                                  )
-
-        aspect = 1.0 / aspect
+                                  width_ratios=wh_ratios)
+        aspect = 1 / aspect
         anchor = (0.5, 1.0)
         panchor = (0.5, 0.0)
 
     parent.set_subplotspec(gs[0])
     parent.update_params()
-    parent.set_position(parent.figbox)
+    parent._set_position(parent.figbox)
     parent.set_anchor(panchor)
 
     fig = parent.get_figure()
@@ -1306,7 +1333,7 @@ class ColorbarPatch(Colorbar):
 
         n_segments = len(C)
 
-        # ensure there are sufficent hatches
+        # ensure there are sufficient hatches
         hatches = self.mappable.hatches * n_segments
 
         patches = []
@@ -1341,7 +1368,8 @@ class ColorbarPatch(Colorbar):
             self.dividers = None
 
         if self.drawedges:
-            self.dividers = collections.LineCollection(self._edges(X, Y),
+            self.dividers = collections.LineCollection(
+                    self._edges(X, Y),
                     colors=(mpl.rcParams['axes.edgecolor'],),
                     linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)

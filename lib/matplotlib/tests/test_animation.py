@@ -1,9 +1,7 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
-import os
 import sys
 import tempfile
 
@@ -113,24 +111,27 @@ class RegisteredNullMovieWriter(NullMovieWriter):
 
 
 WRITER_OUTPUT = [
-    ('ffmpeg', 'mp4'),
-    ('ffmpeg_file', 'mp4'),
-    ('mencoder', 'mp4'),
-    ('mencoder_file', 'mp4'),
-    ('avconv', 'mp4'),
-    ('avconv_file', 'mp4'),
-    ('imagemagick', 'gif'),
-    ('imagemagick_file', 'gif'),
-    ('html', 'html'),
-    ('null', 'null')
+    ('ffmpeg', 'movie.mp4'),
+    ('ffmpeg_file', 'movie.mp4'),
+    ('avconv', 'movie.mp4'),
+    ('avconv_file', 'movie.mp4'),
+    ('imagemagick', 'movie.gif'),
+    ('imagemagick_file', 'movie.gif'),
+    ('pillow', 'movie.gif'),
+    ('html', 'movie.html'),
+    ('null', 'movie.null')
 ]
+if sys.version_info >= (3, 6):
+    from pathlib import Path
+    WRITER_OUTPUT += [
+        (writer, Path(output)) for writer, output in WRITER_OUTPUT]
 
 
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
-def test_save_animation_smoketest(tmpdir, writer, extension):
+@pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
+def test_save_animation_smoketest(tmpdir, writer, output):
     try:
         # for ImageMagick the rcparams must be patched to account for
         # 'convert' being a built in MS tool, not the imagemagick
@@ -169,8 +170,8 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     with tmpdir.as_cwd():
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
         try:
-            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500,
-                      dpi=dpi, codec=codec)
+            anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
+                      codec=codec)
         except UnicodeDecodeError:
             pytest.xfail("There can be errors in the numpy import stack, "
                          "see issues #1891 and #2679")

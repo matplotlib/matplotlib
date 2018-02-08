@@ -168,24 +168,17 @@ class BezierSegment(object):
         """
         _o = len(control_points)
         self._orders = np.arange(_o)
+
         _coeff = BezierSegment._binom_coeff[_o - 1]
-
-        _control_points = np.asarray(control_points)
-        xx = _control_points[:, 0]
-        yy = _control_points[:, 1]
-
+        xx, yy = np.asarray(control_points).T
         self._px = xx * _coeff
         self._py = yy * _coeff
 
     def point_at_t(self, t):
         "evaluate a point at t"
-        one_minus_t_powers = np.power(1. - t, self._orders)[::-1]
-        t_powers = np.power(t, self._orders)
-
-        tt = one_minus_t_powers * t_powers
-        _x = sum(tt * self._px)
-        _y = sum(tt * self._py)
-
+        tt = ((1 - t) ** self._orders)[::-1] * t ** self._orders
+        _x = np.dot(tt, self._px)
+        _y = np.dot(tt, self._py)
         return _x, _y
 
 
@@ -245,7 +238,6 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     ctl_points, command = next(path_iter)
     begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
 
-    bezier_path = None
     ctl_points_old = ctl_points
 
     concat = np.concatenate
@@ -259,16 +251,13 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         if inside(ctl_points[-2:]) != begin_inside:
             bezier_path = concat([ctl_points_old[-2:], ctl_points])
             break
-
         ctl_points_old = ctl_points
+    else:
+        raise ValueError("The path does not intersect with the patch")
 
-    if bezier_path is None:
-        raise ValueError("The path does not seem to intersect with the patch")
-
-    bp = list(zip(bezier_path[::2], bezier_path[1::2]))
-    left, right = split_bezier_intersecting_with_closedpath(bp,
-                                                            inside,
-                                                            tolerence)
+    bp = bezier_path.reshape((-1, 2))
+    left, right = split_bezier_intersecting_with_closedpath(
+        bp, inside, tolerence)
     if len(left) == 2:
         codes_left = [Path.LINETO]
         codes_right = [Path.MOVETO, Path.LINETO]
@@ -279,7 +268,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         codes_left = [Path.CURVE4, Path.CURVE4, Path.CURVE4]
         codes_right = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
     else:
-        raise ValueError()
+        raise AssertionError("This should never be reached")
 
     verts_left = left[1:]
     verts_right = right[:]
@@ -346,7 +335,7 @@ def get_parallels(bezier2, width):
     """
 
     # The parallel bezier lines are constructed by following ways.
-    #  c1 and  c2 are contol points representing the begin and end of the
+    #  c1 and c2 are control points representing the begin and end of the
     #  bezier line.
     #  cm is the middle point
 
@@ -369,7 +358,7 @@ def get_parallels(bezier2, width):
         cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
 
     # find c1_left, c1_right which are located along the lines
-    # throught c1 and perpendicular to the tangential lines of the
+    # through c1 and perpendicular to the tangential lines of the
     # bezier path at a distance of width. Same thing for c2_left and
     # c2_right with respect to c2.
     c1x_left, c1y_left, c1x_right, c1y_right = (
@@ -380,7 +369,7 @@ def get_parallels(bezier2, width):
     )
 
     # find cm_left which is the intersectng point of a line through
-    # c1_left with angle t1 and a line throught c2_left with angle
+    # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
     if parallel_test != 0:
         # a special case for a straight line, i.e., angle between two
@@ -400,7 +389,7 @@ def get_parallels(bezier2, width):
                                                 sin_t1, c2x_right, c2y_right,
                                                 cos_t2, sin_t2)
 
-    # the parralel bezier lines are created with control points of
+    # the parallel bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
     path_left = [(c1x_left, c1y_left),
                  (cmx_left, cmy_left),
@@ -413,7 +402,7 @@ def get_parallels(bezier2, width):
 
 
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
-    """ Find control points of the bezier line throught c1, mm, c2. We
+    """ Find control points of the bezier line through c1, mm, c2. We
     simply assume that c1, mm, c2 which have parametric value 0, 0.5, and 1.
     """
 
@@ -426,7 +415,7 @@ def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
 def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     """
     Being similar to get_parallels, returns control points of two quadrativ
-    bezier lines having a width roughly parralel to given one separated by
+    bezier lines having a width roughly parallel to given one separated by
     *width*.
     """
 
@@ -435,13 +424,13 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     cmx, cmy = bezier2[1]
     c3x, c3y = bezier2[2]
 
-    # t1 and t2 is the anlge between c1 and cm, cm, c3.
+    # t1 and t2 is the angle between c1 and cm, cm, c3.
     # They are also a angle of the tangential line of the path at c1 and c3
     cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
     cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c3x, c3y)
 
     # find c1_left, c1_right which are located along the lines
-    # throught c1 and perpendicular to the tangential lines of the
+    # through c1 and perpendicular to the tangential lines of the
     # bezier path at a distance of width. Same thing for c3_left and
     # c3_right with respect to c3.
     c1x_left, c1y_left, c1x_right, c1y_right = (

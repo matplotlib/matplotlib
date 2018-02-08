@@ -1,11 +1,11 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
 from copy import copy
 import io
 import os
+import sys
 import warnings
 
 import numpy as np
@@ -13,7 +13,7 @@ from numpy import ma
 from numpy.testing import assert_array_equal
 
 from matplotlib import (
-    colors, image as mimage, mlab, patches, pyplot as plt,
+    colors, image as mimage, patches, pyplot as plt,
     rc_context, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
@@ -86,6 +86,7 @@ def do_figimage(suppressComposite):
     fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
     fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
+
 @image_comparison(baseline_images=['figimage-0'],
                   extensions=['png','pdf'])
 def test_figimage0():
@@ -121,6 +122,16 @@ def test_imread_pil_uint16():
     assert np.sum(img) == 134184960
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+@needs_pillow
+def test_imread_fspath():
+    from pathlib import Path
+    img = plt.imread(
+        Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
+    assert img.dtype == np.uint16
+    assert np.sum(img) == 134184960
+
+
 def test_imsave():
     # The goal here is that the user can specify an output logical DPI
     # for the image, but this will not actually add any extra pixels
@@ -129,9 +140,8 @@ def test_imsave():
     # So we do the traditional case (dpi == 1), and the new case (dpi
     # == 100) and read the resulting PNG files back in and make sure
     # the data is 100% identical.
-    from numpy import random
-    random.seed(1)
-    data = random.rand(256, 128)
+    np.random.seed(1)
+    data = np.random.rand(256, 128)
 
     buff_dpi1 = io.BytesIO()
     plt.imsave(buff_dpi1, data, dpi=1)
@@ -150,17 +160,24 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+@pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
+def test_imsave_fspath(fmt):
+    Path = pytest.importorskip("pathlib").Path
+    plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
+
+
 def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is
     # acceptably preserved through a save/read roundtrip.
-    from numpy import random
-    random.seed(1)
+    np.random.seed(1)
 
     for origin in ['lower', 'upper']:
-        data = random.rand(16, 16, 4)
+        data = np.random.rand(16, 16, 4)
         buff = io.BytesIO()
-        plt.imsave(buff, data, origin=origin)
+        plt.imsave(buff, data, origin=origin, format="png")
 
         buff.seek(0)
         arr_buf = plt.imread(buff)
@@ -174,6 +191,7 @@ def test_imsave_color_alpha():
         arr_buf = (255*arr_buf).astype('uint8')
 
         assert_array_equal(data, arr_buf)
+
 
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
@@ -450,8 +468,8 @@ def test_get_window_extent_for_AxisImage():
     # object at a given location and check that get_window_extent()
     # returns the correct bounding box values (in pixels).
 
-    im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4], \
-        [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
+    im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4],
+                   [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
     fig = plt.figure(figsize=(10, 10), dpi=100)
     ax = plt.subplot()
     ax.set_position([0, 0, 1, 1])
@@ -602,7 +620,7 @@ def test_minimized_rasterized():
 def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
-    Z = plt.imread(req)
+    plt.imread(req)
 
 
 @image_comparison(baseline_images=['log_scale_image'],
@@ -626,8 +644,9 @@ def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = Z2 - Z1  # difference of Gaussians
 
     fig, ax1 = plt.subplots(1, 1)
@@ -652,7 +671,7 @@ def test_image_preserve_size():
     buff = io.BytesIO()
 
     im = np.zeros((481, 321))
-    plt.imsave(buff, im)
+    plt.imsave(buff, im, format="png")
 
     buff.seek(0)
     img = plt.imread(buff)
@@ -688,8 +707,9 @@ def test_mask_image_over_under():
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
     palette = copy(plt.cm.gray)
@@ -795,6 +815,27 @@ def test_imshow_no_warn_invalid():
     assert len(warns) == 0
 
 
+@pytest.mark.parametrize(
+    'dtype', [np.dtype(s) for s in 'u2 u4 i2 i4 i8 f4 f8'.split()])
+def test_imshow_clips_rgb_to_valid_range(dtype):
+    arr = np.arange(300, dtype=dtype).reshape((10, 10, 3))
+    if dtype.kind != 'u':
+        arr -= 10
+    too_low = arr < 0
+    too_high = arr > 255
+    if dtype.kind == 'f':
+        arr = arr / 255
+    _, ax = plt.subplots()
+    out = ax.imshow(arr).get_array()
+    assert (out[too_low] == 0).all()
+    if dtype.kind == 'f':
+        assert (out[too_high] == 1).all()
+        assert out.dtype.kind == 'f'
+    else:
+        assert (out[too_high] == 255).all()
+        assert out.dtype == np.uint8
+
+
 @image_comparison(baseline_images=['imshow_flatfield'],
                   remove_text=True, style='mpl20',
                   extensions=['png'])
@@ -802,6 +843,19 @@ def test_imshow_flatfield():
     fig, ax = plt.subplots()
     im = ax.imshow(np.ones((5, 5)))
     im.set_clim(.5, 1.5)
+
+
+@image_comparison(baseline_images=['imshow_bignumbers'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_bignumbers():
+    # putting a big number in an array of integers shouldn't
+    # ruin the dynamic range of the resolved bits.
+    fig, ax = plt.subplots()
+    img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
+    pc = ax.imshow(img)
+    pc.set_clim(0, 5)
+    plt.show()
 
 
 @pytest.mark.parametrize(
@@ -849,3 +903,30 @@ def test_full_invalid():
     ax.imshow(x)
 
     f.canvas.draw()
+
+
+@pytest.mark.parametrize("fmt,counted",
+                         [("ps", b" colorimage"), ("svg", b"<image")])
+@pytest.mark.parametrize("composite_image,count", [(True, 1), (False, 2)])
+def test_composite(fmt, counted, composite_image, count):
+    # Test that figures can be saved with and without combining multiple images
+    # (on a single set of axes) into a single composite image.
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y ** 2)
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim(0, 3)
+    ax.imshow(Z, extent=[0, 1, 0, 1])
+    ax.imshow(Z[::-1], extent=[2, 3, 0, 1])
+    plt.rcParams['image.composite_image'] = composite_image
+    buf = io.BytesIO()
+    fig.savefig(buf, format=fmt)
+    assert buf.getvalue().count(counted) == count
+
+
+def test_relim():
+    fig, ax = plt.subplots()
+    ax.imshow([[0]], extent=(0, 1, 0, 1))
+    ax.relim()
+    ax.autoscale()
+    assert ax.get_xlim() == ax.get_ylim() == (0, 1)

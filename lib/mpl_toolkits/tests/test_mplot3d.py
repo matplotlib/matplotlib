@@ -96,6 +96,22 @@ def test_contourf3d_fill():
     ax.set_zlim(-1, 1)
 
 
+@image_comparison(baseline_images=['tricontour'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_tricontour():
+    fig = plt.figure()
+
+    np.random.seed(19680801)
+    x = np.random.rand(1000) - 0.5
+    y = np.random.rand(1000) - 0.5
+    z = -(x**2 + y**2)
+
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.tricontour(x, y, z)
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.tricontourf(x, y, z)
+
+
 @image_comparison(baseline_images=['lines3d'], remove_text=True)
 def test_lines3d():
     fig = plt.figure()
@@ -214,6 +230,25 @@ def test_trisurf3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+
+
+@image_comparison(baseline_images=['trisurf3d_shaded'], remove_text=True,
+                  tol=0.03, extensions=['png'])
+def test_trisurf3d_shaded():
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
 @image_comparison(baseline_images=['wireframe3d'], remove_text=True)

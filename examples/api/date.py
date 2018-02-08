@@ -7,13 +7,15 @@ Show how to make date plots in matplotlib using date tick locators and
 formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 
-All matplotlib date plotting is done by converting date instances into
-days since the 0001-01-01 UTC.  The conversion, tick locating and
-formatting is done behind the scenes so this is most transparent to
-you.  The dates module provides several converter functions date2num
-and num2date
-
+All matplotlib date plotting is done by converting date instances into days
+since 0001-01-01 00:00:00 UTC plus one day (for historical reasons).  The
+conversion, tick locating and formatting is done behind the scenes so this
+is most transparent to you.  The dates module provides several converter
+functions `matplotlib.dates.date2num` and `matplotlib.dates.num2date`.
+These can convert between `datetime.datetime` objects and
+:class:`numpy.datetime64` objects.
 """
+
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,21 +31,18 @@ yearsFmt = mdates.DateFormatter('%Y')
 # stores the date as an np.datetime64 with a day unit ('D') in the date column.
 with cbook.get_sample_data('goog.npz') as datafile:
     r = np.load(datafile)['price_data'].view(np.recarray)
-# Matplotlib works better with datetime.datetime than np.datetime64, but the
-# latter is more portable.
-date = r.date.astype('O')
 
 fig, ax = plt.subplots()
-ax.plot(date, r.adj_close)
-
+ax.plot(r.date, r.adj_close)
 
 # format the ticks
 ax.xaxis.set_major_locator(years)
 ax.xaxis.set_major_formatter(yearsFmt)
 ax.xaxis.set_minor_locator(months)
 
-datemin = datetime.date(date.min().year, 1, 1)
-datemax = datetime.date(date.max().year + 1, 1, 1)
+# round to nearest years...
+datemin = np.datetime64(r.date[0], 'Y')
+datemax = np.datetime64(r.date[-1], 'Y') + np.timedelta64(1, 'Y')
 ax.set_xlim(datemin, datemax)
 
 

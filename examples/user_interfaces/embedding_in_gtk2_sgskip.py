@@ -9,7 +9,7 @@ a toolbar to a gtk.Window
 import gtk
 
 from matplotlib.figure import Figure
-from numpy import arange, sin, pi
+import numpy as np
 
 # uncomment to select /GTK/GTKAgg/GTKCairo
 #from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
@@ -33,8 +33,8 @@ win.add(vbox)
 
 fig = Figure(figsize=(5, 4), dpi=100)
 ax = fig.add_subplot(111)
-t = arange(0.0, 3.0, 0.01)
-s = sin(2*pi*t)
+t = np.arange(0.0, 3.0, 0.01)
+s = np.sin(2*np.pi*t)
 
 ax.plot(t, s)
 

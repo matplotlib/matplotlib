@@ -1,8 +1,7 @@
 """
 Tests specific to the lines module.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import itertools
 import matplotlib.lines as mlines
@@ -129,6 +128,19 @@ def test_valid_drawstyles():
     line = mlines.Line2D([], [])
     with pytest.raises(ValueError):
         line.set_drawstyle('foobar')
+
+
+def test_set_drawstyle():
+    x = np.linspace(0, 2*np.pi, 10)
+    y = np.sin(x)
+
+    fig, ax = plt.subplots()
+    line, = ax.plot(x, y)
+    line.set_drawstyle("steps-pre")
+    assert len(line.get_path().vertices) == 2*len(x)-1
+
+    line.set_drawstyle("default")
+    assert len(line.get_path().vertices) == len(x)
 
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)

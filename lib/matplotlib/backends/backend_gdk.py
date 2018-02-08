@@ -3,9 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
-import os
-import sys
 import warnings
 
 import gobject
@@ -27,7 +24,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.cbook import warn_deprecated
-from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array

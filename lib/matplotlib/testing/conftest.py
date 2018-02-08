@@ -76,3 +76,25 @@ def mpl_image_comparison_parameters(request, extension):
         yield
     finally:
         delattr(func.__wrapped__, 'parameters')
+
+
+@pytest.fixture
+def pd():
+    """Fixture to import and configure pandas."""
+    pd = pytest.importorskip('pandas')
+    try:
+        from pandas.plotting import (
+            register_matplotlib_converters as register)
+    except ImportError:
+        from pandas.tseries.converter import register
+    register()
+    try:
+        yield pd
+    finally:
+        try:
+            from pandas.plotting import (
+                deregister_matplotlib_converters as deregister)
+        except ImportError:
+            pass
+        else:
+            deregister()

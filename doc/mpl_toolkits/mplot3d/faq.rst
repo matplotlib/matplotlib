@@ -8,7 +8,7 @@ How is mplot3d different from MayaVi?
 =====================================
 `MayaVi2 <http://code.enthought.com/projects/mayavi/documentation.php>`_
 is a very powerful and featureful 3D graphing library. For advanced
-3D scenes and excellent rendering capabilities, it is highly recomended to
+3D scenes and excellent rendering capabilities, it is highly recommended to
 use MayaVi2.
 
 mplot3d was intended to allow users to create simple 3D graphs with the same
@@ -24,7 +24,7 @@ is that -- from some viewing angles -- a 3D object would appear in front
 of another object, even though it is physically behind it. This can result in
 plots that do not look "physically correct."
 
-Unfortunately, while some work is being done to reduce the occurance of this
+Unfortunately, while some work is being done to reduce the occurrence of this
 artifact, it is currently an intractable problem, and can not be fully solved
 until matplotlib supports 3D graphics rendering at its core.
 

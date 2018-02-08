@@ -2373,10 +2373,10 @@ stix_virtual_fonts = {
             (0x0066, 0x0068, 'it', 0xe169),  # f-h
             (0x0069, 0x006a, 'it', 0x2148),  # i-j
             (0x006b, 0x007a, 'it', 0xe16c),  # k-z
-            (0x0393, 0x0393, 'it', 0x213e),  # \Gamma (missing in beta STIX fonts)
+            (0x0393, 0x0393, 'it', 0x213e),  # \Gamma (not in beta STIX fonts)
             (0x03a0, 0x03a0, 'it', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'it', 0x2140),  # \Sigma (missing in beta STIX fonts)
-            (0x03b3, 0x03b3, 'it', 0x213d),  # \gamma (missing in beta STIX fonts)
+            (0x03a3, 0x03a3, 'it', 0x2140),  # \Sigma (not in beta STIX fonts)
+            (0x03b3, 0x03b3, 'it', 0x213d),  # \gamma (not in beta STIX fonts)
             (0x03c0, 0x03c0, 'it', 0x213c),  # \pi
             ],
         'bf':

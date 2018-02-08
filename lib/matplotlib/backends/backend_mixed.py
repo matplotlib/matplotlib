@@ -139,8 +139,8 @@ class MixedModeRenderer(object):
                 #       backends support this.
                 self._renderer.draw_image(
                     gc,
-                    float(l) / self.dpi * self._figdpi,
-                    (float(height)-b-h) / self.dpi * self._figdpi,
+                    l * self._figdpi / self.dpi,
+                    (height-b-h) * self._figdpi / self.dpi,
                     image)
             self._raster_renderer = None
             self._rasterizing = False

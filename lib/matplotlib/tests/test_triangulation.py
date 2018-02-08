@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -390,9 +389,9 @@ def test_triinterp():
     diff_lin = np.abs(linear_interp(xs, ys) - zs)
     for interp in (cubic_min_E, cubic_geom):
         diff_cubic = np.abs(interp(xs, ys) - zs)
-        assert(np.max(diff_lin) >= 10.*np.max(diff_cubic))
-        assert(np.dot(diff_lin, diff_lin) >=
-               100.*np.dot(diff_cubic, diff_cubic))
+        assert np.max(diff_lin) >= 10 * np.max(diff_cubic)
+        assert (np.dot(diff_lin, diff_lin) >=
+                100 * np.dot(diff_cubic, diff_cubic))
 
 
 def test_triinterpcubic_C1_continuity():
@@ -785,7 +784,7 @@ def test_tri_smooth_contouring():
 
 
 @image_comparison(baseline_images=['tri_smooth_gradient'],
-                  extensions=['png'], remove_text=True, tol=0.035)
+                  extensions=['png'], remove_text=True, tol=0.092)
 def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 

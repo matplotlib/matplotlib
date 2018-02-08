@@ -166,7 +166,7 @@ class Duration(object):
       = RETURN VALUE
       - Returns the scaled Duration.
       """
-      return Duration( self._frame, self._seconds / float( rhs ) )
+      return Duration( self._frame, self._seconds / rhs )
 
    #-----------------------------------------------------------------------
    def __rdiv__( self, rhs ):
@@ -178,7 +178,7 @@ class Duration(object):
       = RETURN VALUE
       - Returns the scaled Duration.
       """
-      return Duration( self._frame, float( rhs ) / self._seconds )
+      return Duration( self._frame, rhs / self._seconds )
 
    #-----------------------------------------------------------------------
    def __str__( self ):

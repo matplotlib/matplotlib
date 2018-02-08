@@ -14,7 +14,6 @@ array
 """
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
-from matplotlib.mlab import normpdf
 import numpy as np
 
 fig = Figure(figsize=(5, 4), dpi=100)
@@ -26,10 +25,11 @@ mu, sigma = 100, 15
 x = mu + sigma * np.random.randn(10000)
 
 # the histogram of the data
-n, bins, patches = ax.hist(x, 50, normed=1)
+n, bins, patches = ax.hist(x, 50, density=True)
 
 # add a 'best fit' line
-y = normpdf(bins, mu, sigma)
+y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
+     np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
 line, = ax.plot(bins, y, 'r--')
 line.set_linewidth(1)
 

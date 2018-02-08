@@ -1,7 +1,8 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
+from matplotlib.scale import Log10Transform, InvertedLog10Transform
 import numpy as np
 import io
 import pytest
@@ -72,6 +73,27 @@ def test_extra_kwargs_raise():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.set_yscale('log', nonpos='mask')
+
+
+def test_logscale_invert_transform():
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    # get transformation from data to axes
+    tform = (ax.transAxes + ax.transData.inverted()).inverted()
+
+    # direct test of log transform inversion
+    assert isinstance(Log10Transform().inverted(), InvertedLog10Transform)
+
+
+def test_logscale_transform_repr():
+    # check that repr of log transform succeeds
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    s = repr(ax.transData)
+
+    # check that repr of log transform returns correct string
+    s = repr(Log10Transform(nonpos='clip'))
+    assert s == "Log10Transform({!r})".format('clip')
 
 
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,

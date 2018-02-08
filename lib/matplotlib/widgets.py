@@ -19,7 +19,6 @@ from six.moves import zip
 import numpy as np
 from matplotlib import rcParams
 
-from .mlab import dist
 from .patches import Circle, Rectangle, Ellipse
 from .lines import Line2D
 from .transforms import blended_transform_factory
@@ -141,22 +140,18 @@ class Button(AxesWidget):
     A GUI neutral button.
 
     For the button to remain responsive you must keep a reference to it.
+    Call :meth:`on_clicked` to connect to the button.
 
-    The following attributes are accessible
-
-      *ax*
+    Attributes
+    ----------
+    ax :
         The :class:`matplotlib.axes.Axes` the button renders into.
-
-      *label*
+    label :
         A :class:`matplotlib.text.Text` instance.
-
-      *color*
+    color :
         The color of the button when not hovering.
-
-      *hovercolor*
+    hovercolor :
         The color of the button when hovering.
-
-    Call :meth:`on_clicked` to connect to the button
     """
 
     def __init__(self, ax, label, image=None,
@@ -266,10 +261,14 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    Create a slider from `valmin` to `valmax` in axes `ax`. For the slider to
-    remain responsive you must maintain a reference to it.
+    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
+    remain responsive you must maintain a reference to it. Call
+    :meth:`on_changed` to connect to the slider event.
 
-    Call :meth:`on_changed` to connect to the slider event
+    Attributes
+    ----------
+    val : float
+        Slider value.
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
@@ -891,7 +890,7 @@ class TextBox(AxesWidget):
             return
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
-        if not(self.capturekeystrokes):
+        if not self.capturekeystrokes:
             self.begin_typing(event.x)
         self.position_cursor(event.x)
 
@@ -936,10 +935,11 @@ class TextBox(AxesWidget):
 
     def disconnect(self, cid):
         """remove the observer with connection id *cid*"""
-        try:
-            del self.observers[cid]
-        except KeyError:
-            pass
+        for reg in (self.change_observers, self.submit_observers):
+            try:
+                del reg[cid]
+            except KeyError:
+                pass
 
 
 class RadioButtons(AxesWidget):
@@ -1031,7 +1031,8 @@ class RadioButtons(AxesWidget):
 
         def inside(p):
             pcirc = np.array([p.center[0], p.center[1]])
-            return dist(pclicked, pcirc) < p.radius
+            d = pclicked - pcirc
+            return np.sqrt(np.dot(d, d)) < p.radius
 
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if t.get_window_extent().contains(event.x, event.y) or inside(p):
@@ -1750,8 +1751,7 @@ class SpanSelector(_SelectorWidget):
         rectprops['animated'] = self.useblit
 
         if direction not in ['horizontal', 'vertical']:
-            msg = "direction must be in [ 'horizontal' | 'vertical' ]"
-            raise ValueError(msg)
+            raise ValueError("direction must be 'horizontal' or 'vertical'")
         self.direction = direction
 
         self.rect = None
@@ -2025,6 +2025,8 @@ class RectangleSelector(_SelectorWidget):
         a box or nothing between click and actual position by setting
 
         ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
+        Drawing a line would result in a line from vertex A to vertex C in
+        a rectangle ABCD.
 
         *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
         and *minspanx* will be interpreted in the same coordinates as
@@ -2091,8 +2093,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspany = minspany
 
         if spancoords not in ('data', 'pixels'):
-            msg = "'spancoords' must be one of [ 'data' | 'pixels' ]"
-            raise ValueError(msg)
+            raise ValueError("'spancoords' must be 'data' or 'pixels'")
 
         self.spancoords = spancoords
         self.drawtype = drawtype
@@ -2430,7 +2431,7 @@ class EllipseSelector(RectangleSelector):
             self.to_draw.width = 2 * a
             self.to_draw.height = 2 * b
         else:
-            rad = np.arange(31) * 12 * np.pi / 180
+            rad = np.deg2rad(np.arange(31) * 12)
             x = a * np.cos(rad) + center[0]
             y = b * np.sin(rad) + center[1]
             self.to_draw.set_data(x, y)
@@ -2450,26 +2451,17 @@ class EllipseSelector(RectangleSelector):
 
 
 class LassoSelector(_SelectorWidget):
-    """Selection curve of an arbitrary shape.
+    """
+    Selection curve of an arbitrary shape.
 
-    For the selector to remain responsive you must keep a reference to
-    it.
+    For the selector to remain responsive you must keep a reference to it.
 
-    The selected path can be used in conjunction with
-    :func:`~matplotlib.path.Path.contains_point` to select
-    data points from an image.
+    The selected path can be used in conjunction with `~.Path.contains_point`
+    to select data points from an image.
 
-    In contrast to :class:`Lasso`, `LassoSelector` is written with an interface
-    similar to :class:`RectangleSelector` and :class:`SpanSelector` and will
-    continue to interact with the axes until disconnected.
-
-    Parameters:
-
-    *ax* : :class:`~matplotlib.axes.Axes`
-        The parent axes for the widget.
-    *onselect* : function
-        Whenever the lasso is released, the `onselect` function is called and
-        passed the vertices of the selected path.
+    In contrast to `Lasso`, `LassoSelector` is written with an interface
+    similar to `RectangleSelector` and `SpanSelector`, and will continue to
+    interact with the axes until disconnected.
 
     Example usage::
 
@@ -2480,15 +2472,24 @@ class LassoSelector(_SelectorWidget):
             print(verts)
         lasso = LassoSelector(ax, onselect)
 
-     *button* is a list of integers indicating which mouse buttons should
-        be used for rectangle selection.  You can also specify a single
-        integer if only a single button is desired.  Default is *None*,
-        which does not limit which button can be used.
+    Parameters
+    ----------
+    ax : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    onselect : function
+        Whenever the lasso is released, the *onselect* function is called and
+        passed the vertices of the selected path.
+    button : List[Int], optional
+        A list of integers indicating which mouse buttons should be used for
+        rectangle selection. You can also specify a single integer if only a
+        single button is desired.  Default is ``None``, which does not limit
+        which button can be used.
 
         Note, typically:
-         1 = left mouse button
-         2 = center mouse button (scroll wheel)
-         3 = right mouse button
+
+        - 1 = left mouse button
+        - 2 = center mouse button (scroll wheel)
+        - 3 = right mouse button
 
     """
 
@@ -2759,16 +2760,15 @@ class Lasso(AxesWidget):
     Unlike :class:`LassoSelector`, this must be initialized with a starting
     point `xy`, and the `Lasso` events are destroyed upon release.
 
-    Parameters:
-
-    *ax* : :class:`~matplotlib.axes.Axes`
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
-    *xy* : array
+    xy : array
         Coordinates of the start of the lasso.
-    *callback* : function
+    callback : callable
         Whenever the lasso is released, the `callback` function is called and
         passed the vertices of the selected path.
-
     """
 
     def __init__(self, ax, xy, callback=None, useblit=True):

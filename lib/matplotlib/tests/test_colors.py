@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import copy
 import six
@@ -68,7 +67,6 @@ def test_colormap_endian():
     for dt in ["f2", "f4", "f8"]:
         anative = np.ma.masked_invalid(np.array(a, dtype=dt))
         aforeign = anative.byteswap().newbyteorder()
-        #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
 
 
@@ -245,6 +243,18 @@ def test_SymLogNorm_colorbar():
     norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1)
     fig = plt.figure()
     cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    plt.close(fig)
+
+
+def test_SymLogNorm_single_zero():
+    """
+    Test SymLogNorm to ensure it is not adding sub-ticks to zero label
+    """
+    fig = plt.figure()
+    norm = mcolors.SymLogNorm(1e-5, vmin=-1, vmax=1)
+    cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    ticks = cbar.get_ticks()
+    assert sum(ticks == 0) == 1
     plt.close(fig)
 
 
@@ -605,8 +615,7 @@ def _azimuth2math(azimuth, elevation):
     return theta, phi
 
 
-def test_pandas_iterable():
-    pd = pytest.importorskip('pandas')
+def test_pandas_iterable(pd):
     # Using a list or series yields equivalent
     # color maps, i.e the series isn't seen as
     # a single color
@@ -621,13 +630,7 @@ def test_pandas_iterable():
 def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
-    should_have_warning = {'spectral', 'spectral_r', 'Vega10', 'Vega10_r',
-                           'Vega20', 'Vega20_r', 'Vega20b', 'Vega20b_r',
-                           'Vega20c', 'Vega20c_r'}
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
-        cmap = plt.get_cmap(name)
-    assert len(w) == (1 if name in should_have_warning else 0)
+    cmap = plt.get_cmap(name)
     cmap_r = cmap.reversed()
     if not cmap_r._isinit:
         cmap._init()
@@ -715,3 +718,8 @@ def test_ndarray_subclass_norm(recwarn):
         else:
             assert len(recwarn) == 0
         recwarn.clear()
+
+
+def test_same_color():
+    assert mcolors.same_color('k', (0, 0, 0))
+    assert not mcolors.same_color('w', (1, 1, 0))

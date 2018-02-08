@@ -9,17 +9,17 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os
 import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
-from matplotlib._cm import datad, _deprecation_datad
-from matplotlib._cm import cubehelix
+from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
-cmap_d = _deprecation_datad()
+
+cmap_d = {}
+
 
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
@@ -68,8 +68,7 @@ def _generate_cmap(name, lutsize):
     """Generates the requested cmap from its *name*.  The lut size is
     *lutsize*."""
 
-    # Use superclass method to avoid deprecation warnings during initial load.
-    spec = dict.__getitem__(datad, name)
+    spec = datad[name]
 
     # Generate the colormap object.
     if 'red' in spec:
@@ -260,7 +259,7 @@ class ScalarMappable(object):
                         xx = (xx * 255).astype(np.uint8)
                 elif xx.dtype == np.uint8:
                     if not bytes:
-                        xx = xx.astype(float) / 255
+                        xx = xx.astype(np.float32) / 255
                 else:
                     raise ValueError("Image RGB array must be uint8 or "
                                      "floating point; found %s" % xx.dtype)
@@ -279,8 +278,7 @@ class ScalarMappable(object):
     def set_array(self, A):
         """Set the image array from numpy array *A*.
 
-        ..
-            ACCEPTS: ndarray
+        .. ACCEPTS: ndarray
 
         Parameters
         ----------
@@ -307,7 +305,8 @@ class ScalarMappable(object):
         sequence, interpret it as ``(vmin, vmax)`` which is used to
         support setp
 
-        ACCEPTS: a length 2 sequence of floats
+        ACCEPTS: a length 2 sequence of floats; may be overridden in methods
+        that have ``vmin`` and ``vmax`` kwargs.
         """
         if vmax is None:
             try:
@@ -333,8 +332,7 @@ class ScalarMappable(object):
     def set_norm(self, norm):
         """Set the normalization instance.
 
-        ..
-            ACCEPTS: `~.Normalize`
+        .. ACCEPTS: `~.Normalize`
 
         Parameters
         ----------

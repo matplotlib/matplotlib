@@ -43,6 +43,7 @@ from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
+import re
 import weakref
 import warnings
 
@@ -50,6 +51,10 @@ from . import cbook
 from .path import Path
 
 DEBUG = False
+
+
+def _indent_str(obj):  # textwrap.indent(str(obj), 4) on Py3.
+    return re.sub("(^|\n)", r"\1    ", str(obj))
 
 
 class TransformNode(object):
@@ -84,10 +89,12 @@ class TransformNode(object):
         """
         Creates a new :class:`TransformNode`.
 
-        **shorthand_name** - a string representing the "name" of this
-                             transform. The name carries no significance
-                             other than to improve the readability of
-                             ``str(transform)`` when DEBUG=True.
+        Parameters
+        ----------
+        shorthand_name : str
+            A string representing the "name" of the transform. The name carries
+            no significance other than to improve the readability of
+            ``str(transform)`` when DEBUG=True.
         """
         self._parents = {}
 
@@ -117,7 +124,7 @@ class TransformNode(object):
 
     def __copy__(self, *args):
         raise NotImplementedError(
-            "TransformNode instances can not be copied. " +
+            "TransformNode instances can not be copied. "
             "Consider using frozen() instead.")
     __deepcopy__ = __copy__
 
@@ -289,7 +296,7 @@ class BboxBase(TransformNode):
     @property
     def x0(self):
         """
-        (property) :attr:`x0` is the first of the pair of *x* coordinates that
+        :attr:`x0` is the first of the pair of *x* coordinates that
         define the bounding box. :attr:`x0` is not guaranteed to be less than
         :attr:`x1`.  If you require that, use :attr:`xmin`.
         """
@@ -298,7 +305,7 @@ class BboxBase(TransformNode):
     @property
     def y0(self):
         """
-        (property) :attr:`y0` is the first of the pair of *y* coordinates that
+        :attr:`y0` is the first of the pair of *y* coordinates that
         define the bounding box. :attr:`y0` is not guaranteed to be less than
         :attr:`y1`.  If you require that, use :attr:`ymin`.
         """
@@ -307,7 +314,7 @@ class BboxBase(TransformNode):
     @property
     def x1(self):
         """
-        (property) :attr:`x1` is the second of the pair of *x* coordinates that
+        :attr:`x1` is the second of the pair of *x* coordinates that
         define the bounding box. :attr:`x1` is not guaranteed to be greater
         than :attr:`x0`.  If you require that, use :attr:`xmax`.
         """
@@ -316,7 +323,7 @@ class BboxBase(TransformNode):
     @property
     def y1(self):
         """
-        (property) :attr:`y1` is the second of the pair of *y* coordinates that
+        :attr:`y1` is the second of the pair of *y* coordinates that
         define the bounding box. :attr:`y1` is not guaranteed to be greater
         than :attr:`y0`.  If you require that, use :attr:`ymax`.
         """
@@ -325,7 +332,7 @@ class BboxBase(TransformNode):
     @property
     def p0(self):
         """
-        (property) :attr:`p0` is the first pair of (*x*, *y*) coordinates that
+        :attr:`p0` is the first pair of (*x*, *y*) coordinates that
         define the bounding box.  It is not guaranteed to be the bottom-left
         corner.  For that, use :attr:`min`.
         """
@@ -334,7 +341,7 @@ class BboxBase(TransformNode):
     @property
     def p1(self):
         """
-        (property) :attr:`p1` is the second pair of (*x*, *y*) coordinates that
+        :attr:`p1` is the second pair of (*x*, *y*) coordinates that
         define the bounding box.  It is not guaranteed to be the top-right
         corner.  For that, use :attr:`max`.
         """
@@ -343,49 +350,49 @@ class BboxBase(TransformNode):
     @property
     def xmin(self):
         """
-        (property) :attr:`xmin` is the left edge of the bounding box.
+        :attr:`xmin` is the left edge of the bounding box.
         """
         return np.min(self.get_points()[:, 0])
 
     @property
     def ymin(self):
         """
-        (property) :attr:`ymin` is the bottom edge of the bounding box.
+        :attr:`ymin` is the bottom edge of the bounding box.
         """
         return np.min(self.get_points()[:, 1])
 
     @property
     def xmax(self):
         """
-        (property) :attr:`xmax` is the right edge of the bounding box.
+        :attr:`xmax` is the right edge of the bounding box.
         """
         return np.max(self.get_points()[:, 0])
 
     @property
     def ymax(self):
         """
-        (property) :attr:`ymax` is the top edge of the bounding box.
+        :attr:`ymax` is the top edge of the bounding box.
         """
         return np.max(self.get_points()[:, 1])
 
     @property
     def min(self):
         """
-        (property) :attr:`min` is the bottom-left corner of the bounding box.
+        :attr:`min` is the bottom-left corner of the bounding box.
         """
         return np.min(self.get_points(), axis=0)
 
     @property
     def max(self):
         """
-        (property) :attr:`max` is the top-right corner of the bounding box.
+        :attr:`max` is the top-right corner of the bounding box.
         """
         return np.max(self.get_points(), axis=0)
 
     @property
     def intervalx(self):
         """
-        (property) :attr:`intervalx` is the pair of *x* coordinates that define
+        :attr:`intervalx` is the pair of *x* coordinates that define
         the bounding box. It is not guaranteed to be sorted from left to right.
         """
         return self.get_points()[:, 0]
@@ -393,7 +400,7 @@ class BboxBase(TransformNode):
     @property
     def intervaly(self):
         """
-        (property) :attr:`intervaly` is the pair of *y* coordinates that define
+        :attr:`intervaly` is the pair of *y* coordinates that define
         the bounding box.  It is not guaranteed to be sorted from bottom to
         top.
         """
@@ -402,7 +409,7 @@ class BboxBase(TransformNode):
     @property
     def width(self):
         """
-        (property) The width of the bounding box.  It may be negative if
+        The width of the bounding box.  It may be negative if
         :attr:`x1` < :attr:`x0`.
         """
         points = self.get_points()
@@ -411,7 +418,7 @@ class BboxBase(TransformNode):
     @property
     def height(self):
         """
-        (property) The height of the bounding box.  It may be negative if
+        The height of the bounding box.  It may be negative if
         :attr:`y1` < :attr:`y0`.
         """
         points = self.get_points()
@@ -420,7 +427,7 @@ class BboxBase(TransformNode):
     @property
     def size(self):
         """
-        (property) The width and height of the bounding box.  May be negative,
+        The width and height of the bounding box.  May be negative,
         in the same way as :attr:`width` and :attr:`height`.
         """
         points = self.get_points()
@@ -429,7 +436,7 @@ class BboxBase(TransformNode):
     @property
     def bounds(self):
         """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
+        Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
         :attr:`height`).
         """
         x0, y0, x1, y1 = self.get_points().flatten()
@@ -438,7 +445,7 @@ class BboxBase(TransformNode):
     @property
     def extents(self):
         """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`,
+        Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`,
         :attr:`y1`).
         """
         return self.get_points().flatten().copy()
@@ -448,27 +455,31 @@ class BboxBase(TransformNode):
 
     def containsx(self, x):
         """
-        Returns whether `x` is in the closed (:attr:`x0`, :attr:`x1`) interval.
+        Returns whether *x* is in the closed (:attr:`x0`, :attr:`x1`) interval.
         """
         x0, x1 = self.intervalx
         return x0 <= x <= x1 or x0 >= x >= x1
 
     def containsy(self, y):
         """
-        Returns whether `y` is in the closed (:attr:`y0`, :attr:`y1`) interval.
+        Returns whether *y* is in the closed (:attr:`y0`, :attr:`y1`) interval.
         """
         y0, y1 = self.intervaly
         return y0 <= y <= y1 or y0 >= y >= y1
 
     def contains(self, x, y):
         """
-        Returns whether `x, y` is in the bounding box or on its edge.
+        Returns whether ``(x, y)`` is in the bounding box or on its edge.
         """
         return self.containsx(x) and self.containsy(y)
 
     def overlaps(self, other):
         """
         Returns whether this bounding box overlaps with the other bounding box.
+
+        Parameters
+        ----------
+        other : BboxBase
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -484,21 +495,21 @@ class BboxBase(TransformNode):
 
     def fully_containsx(self, x):
         """
-        Returns whether `x` is in the open (:attr:`x0`, :attr:`x1`) interval.
+        Returns whether *x* is in the open (:attr:`x0`, :attr:`x1`) interval.
         """
         x0, x1 = self.intervalx
         return x0 < x < x1 or x0 > x > x1
 
     def fully_containsy(self, y):
         """
-        Returns whether `y` is in the open (:attr:`y0`, :attr:`y1`) interval.
+        Returns whether *y* is in the open (:attr:`y0`, :attr:`y1`) interval.
         """
         y0, y1 = self.intervaly
         return y0 < y < y1 or y0 > y > y1
 
     def fully_contains(self, x, y):
         """
-        Returns whether `x, y` is in the bounding box, but not on its edge.
+        Returns whether ``x, y`` is in the bounding box, but not on its edge.
         """
         return self.fully_containsx(x) and self.fully_containsy(y)
 
@@ -506,6 +517,10 @@ class BboxBase(TransformNode):
         """
         Returns whether this bounding box overlaps with the other bounding box,
         not including the edges.
+
+        Parameters
+        ----------
+        other : BboxBase
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -551,21 +566,24 @@ class BboxBase(TransformNode):
         Return a copy of the :class:`Bbox`, shifted to position *c*
         within a container.
 
-        *c*: may be either:
+        Parameters
+        ----------
+        c :
+            May be either:
 
-          * a sequence (*cx*, *cy*) where *cx* and *cy* range from 0
-            to 1, where 0 is left or bottom and 1 is right or top
+            * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
+              to 1, where 0 is left or bottom and 1 is right or top
 
-          * a string:
-            - 'C' for centered
-            - 'S' for bottom-center
-            - 'SE' for bottom-left
-            - 'E' for left
-            - etc.
+            * a string:
+              - 'C' for centered
+              - 'S' for bottom-center
+              - 'SE' for bottom-left
+              - 'E' for left
+              - etc.
 
-        Optional argument *container* is the box within which the
-        :class:`Bbox` is positioned; it defaults to the initial
-        :class:`Bbox`.
+        container : Bbox, optional
+            The box within which the :class:`Bbox` is positioned; it defaults
+            to the initial :class:`Bbox`.
         """
         if container is None:
             container = self
@@ -647,7 +665,9 @@ class BboxBase(TransformNode):
         Count the number of vertices contained in the :class:`Bbox`.
         Any vertices with a non-finite x or y value are ignored.
 
-        *vertices* is a Nx2 Numpy array.
+        Parameters
+        ----------
+        vertices : Nx2 Numpy array.
         """
         if len(vertices) == 0:
             return 0
@@ -660,7 +680,9 @@ class BboxBase(TransformNode):
         """
         Count the number of bounding boxes that overlap this one.
 
-        bboxes is a sequence of :class:`BboxBase` objects
+        Parameters
+        ----------
+        bboxes : sequence of :class:`BboxBase` objects
         """
         return count_bboxes_overlapping_bbox(
             self, np.atleast_3d([np.array(x) for x in bboxes]))
@@ -748,8 +770,13 @@ class Bbox(BboxBase):
 
     def __init__(self, points, **kwargs):
         """
-        *points*: a 2x2 numpy array of the form [[x0, y0], [x1, y1]]
+        Parameters
+        ----------
+        points : ndarray
+            A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
 
+        Notes
+        -----
         If you need to create a :class:`Bbox` object from another form
         of data, consider the static methods :meth:`unit`,
         :meth:`from_bounds` and :meth:`from_extents`.
@@ -830,38 +857,14 @@ class Bbox(BboxBase):
         Set whether the existing bounds of the box should be ignored
         by subsequent calls to :meth:`update_from_data_xy`.
 
-        *value*:
-
-           - When True, subsequent calls to :meth:`update_from_data_xy`
+        value : bool
+           - When ``True``, subsequent calls to :meth:`update_from_data_xy`
              will ignore the existing bounds of the :class:`Bbox`.
 
-           - When False, subsequent calls to :meth:`update_from_data_xy`
+           - When ``False``, subsequent calls to :meth:`update_from_data_xy`
              will include the existing bounds of the :class:`Bbox`.
         """
         self._ignore = value
-
-    @cbook.deprecated('2.0', alternative='update_from_data_xy')
-    def update_from_data(self, x, y, ignore=None):
-        """
-        Update the bounds of the :class:`Bbox` based on the passed in
-        data.  After updating, the bounds will have positive *width*
-        and *height*; *x0* and *y0* will be the minimal values.
-
-        *x*: a numpy array of *x*-values
-
-        *y*: a numpy array of *y*-values
-
-        *ignore*:
-           - when True, ignore the existing bounds of the :class:`Bbox`.
-           - when False, include the existing bounds of the :class:`Bbox`.
-           - when None, use the last value passed to :meth:`ignore`.
-        """
-        warnings.warn(
-            "update_from_data requires a memory copy -- please replace with "
-            "update_from_data_xy")
-
-        xy = np.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
-        return self.update_from_data_xy(xy, ignore)
 
     def update_from_path(self, path, ignore=None, updatex=True, updatey=True):
         """
@@ -869,17 +872,17 @@ class Bbox(BboxBase):
         data.  After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
-        *path*: a :class:`~matplotlib.path.Path` instance
+        Parameters
+        ----------
+        path : :class:`~matplotlib.path.Path`
 
-        *ignore*:
-           - when True, ignore the existing bounds of the :class:`Bbox`.
-           - when False, include the existing bounds of the :class:`Bbox`.
-           - when None, use the last value passed to :meth:`ignore`.
+        ignore : bool, optional
+           - when ``True``, ignore the existing bounds of the :class:`Bbox`.
+           - when ``False``, include the existing bounds of the :class:`Bbox`.
+           - when ``None``, use the last value passed to :meth:`ignore`.
 
-        *updatex*: when True, update the x values
-
-        *updatey*: when True, update the y values
-
+        updatex, updatey : bool, optional
+            When ``True``, update the x/y values.
         """
         if ignore is None:
             ignore = self._ignore
@@ -905,16 +908,18 @@ class Bbox(BboxBase):
         data.  After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
-        *xy*: a numpy array of 2D points
+        Parameters
+        ----------
+        xy : ndarray
+            A numpy array of 2D points.
 
-        *ignore*:
-           - when True, ignore the existing bounds of the :class:`Bbox`.
-           - when False, include the existing bounds of the :class:`Bbox`.
-           - when None, use the last value passed to :meth:`ignore`.
+        ignore : bool, optional
+           - When ``True``, ignore the existing bounds of the :class:`Bbox`.
+           - When ``False``, include the existing bounds of the :class:`Bbox`.
+           - When ``None``, use the last value passed to :meth:`ignore`.
 
-        *updatex*: when True, update the x values
-
-        *updatey*: when True, update the y values
+        updatex, updatey : bool, optional
+            When ``True``, update the x/y values.
         """
         if len(xy) == 0:
             return
@@ -986,7 +991,7 @@ class Bbox(BboxBase):
     def get_points(self):
         """
         Get the points of the bounding box directly as a numpy array
-        of the form: [[x0, y0], [x1, y1]].
+        of the form: ``[[x0, y0], [x1, y1]]``.
         """
         self._invalid = 0
         return self._points
@@ -994,7 +999,7 @@ class Bbox(BboxBase):
     def set_points(self, points):
         """
         Set the points of the bounding box directly from a numpy array
-        of the form: [[x0, y0], [x1, y1]].  No error checking is
+        of the form: ``[[x0, y0], [x1, y1]]``.  No error checking is
         performed, as this method is mainly for internal use.
         """
         if np.any(self._points != points):
@@ -1011,16 +1016,16 @@ class Bbox(BboxBase):
             self.invalidate()
 
     def mutated(self):
-        'return whether the bbox has changed since init'
+        'Return whether the bbox has changed since init.'
         return self.mutatedx() or self.mutatedy()
 
     def mutatedx(self):
-        'return whether the x-limits have changed since init'
+        'Return whether the x-limits have changed since init.'
         return (self._points[0, 0] != self._points_orig[0, 0] or
                 self._points[1, 0] != self._points_orig[1, 0])
 
     def mutatedy(self):
-        'return whether the y-limits have changed since init'
+        'Return whether the y-limits have changed since init.'
         return (self._points[0, 1] != self._points_orig[0, 1] or
                 self._points[1, 1] != self._points_orig[1, 1])
 
@@ -1033,19 +1038,20 @@ class TransformedBbox(BboxBase):
     """
     def __init__(self, bbox, transform, **kwargs):
         """
-        *bbox*: a child :class:`Bbox`
+        Parameters
+        ----------
+        bbox : :class:`Bbox`
 
-        *transform*: a 2D :class:`Transform`
+        transform : :class:`Transform`
         """
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
         if not isinstance(transform, Transform):
-            msg = ("'transform' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'transform' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         if transform.input_dims != 2 or transform.output_dims != 2:
-            msg = "The input and output dimensions of 'transform' must be 2"
-            raise ValueError(msg)
+            raise ValueError(
+                "The input and output dimensions of 'transform' must be 2")
 
         BboxBase.__init__(self, **kwargs)
         self._bbox = bbox
@@ -1053,8 +1059,15 @@ class TransformedBbox(BboxBase):
         self.set_children(bbox, transform)
         self._points = None
 
-    def __repr__(self):
-        return "TransformedBbox(%r, %r)" % (self._bbox, self._transform)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._bbox),
+                        _indent_str(self._transform)))
+
+    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1131,11 +1144,17 @@ class LockableBbox(BboxBase):
         self._points = None
         fp = [x0, y0, x1, y1]
         mask = [val is None for val in fp]
-        self._locked_points = np.ma.array(fp, np.float_,
-                                          mask=mask).reshape((2, 2))
+        self._locked_points = np.ma.array(fp, float, mask=mask).reshape((2, 2))
 
-    def __repr__(self):
-        return "LockableBbox(%r, %r)" % (self._bbox, self._locked_points)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._bbox),
+                        _indent_str(self._locked_points)))
+
+    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1341,7 +1360,7 @@ class Transform(TransformNode):
     def contains_branch_seperately(self, other_transform):
         """
         Returns whether the given branch is a sub-tree of this transform on
-        each seperate dimension.
+        each separate dimension.
 
         A common use for this method is to identify if a transform is a blended
         transform containing an axes' data transform. e.g.::
@@ -1352,7 +1371,7 @@ class Transform(TransformNode):
         if self.output_dims != 2:
             raise ValueError('contains_branch_seperately only supports '
                              'transforms with 2 output dimensions')
-        # for a non-blended transform each seperate dimension is the same, so
+        # for a non-blended transform each separate dimension is the same, so
         # just return the appropriate shape.
         return [self.contains_branch(other_transform)] * 2
 
@@ -1510,8 +1529,7 @@ class Transform(TransformNode):
         :attr:`output_dims`.
         """
         if len(point) != self.input_dims:
-            msg = "The length of 'point' must be 'self.input_dims'"
-            raise ValueError(msg)
+            raise ValueError("The length of 'point' must be 'self.input_dims'")
         return self.transform(np.asarray([point]))[0]
 
     def transform_path(self, path):
@@ -1585,9 +1603,8 @@ class Transform(TransformNode):
             raise ValueError("'pts' must be array with 2 columns for x,y")
 
         if angles.ndim != 1 or angles.shape[0] != pts.shape[0]:
-            msg = "'angles' must be a column vector and have same number of"
-            msg += " rows as 'pts'"
-            raise ValueError(msg)
+            raise ValueError("'angles' must be a column vector and have same "
+                             "number of rows as 'pts'")
 
         # Convert to radians if desired
         if not radians:
@@ -1606,7 +1623,7 @@ class Transform(TransformNode):
 
         # Convert back to degrees if desired
         if not radians:
-            a = a * 180.0 / np.pi
+            a = np.rad2deg(a)
 
         return a
 
@@ -1621,6 +1638,9 @@ class Transform(TransformNode):
         ``x === self.inverted().transform(self.transform(x))``
         """
         raise NotImplementedError()
+
+    def __repr__(self):
+        return str(self)
 
 
 class TransformWrapper(Transform):
@@ -1645,9 +1665,8 @@ class TransformWrapper(Transform):
         be replaced with :meth:`set`.
         """
         if not isinstance(child, Transform):
-            msg = ("'child' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'child' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         self._init(child)
         self.set_children(child)
 
@@ -1660,11 +1679,6 @@ class TransformWrapper(Transform):
 
     def __eq__(self, other):
         return self._child.__eq__(other)
-
-    if DEBUG:
-
-        def __str__(self):
-            return str(self._child)
 
     # NOTE: Transform.__[gs]etstate__ should be sufficient when using only
     # Python 3.4+.
@@ -1690,8 +1704,11 @@ class TransformWrapper(Transform):
         self._parents = dict((k, weakref.ref(v)) for (k, v) in
                              six.iteritems(state['parents']) if v is not None)
 
-    def __repr__(self):
-        return "TransformWrapper(%r)" % self._child
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._child)))
 
     def frozen(self):
         return self._child.frozen()
@@ -1723,9 +1740,9 @@ class TransformWrapper(Transform):
         """
         if (child.input_dims != self.input_dims or
                 child.output_dims != self.output_dims):
-            msg = ("The new child must have the same number of input and"
-                   " output dimensions as the current child.")
-            raise ValueError(msg)
+            raise ValueError(
+                "The new child must have the same number of input and output "
+                "dimensions as the current child")
 
         self.set_children(child)
         self._set(child)
@@ -1911,15 +1928,16 @@ class Affine2D(Affine2DBase):
         """
         Affine2DBase.__init__(self, **kwargs)
         if matrix is None:
-            matrix = np.identity(3)
-        elif DEBUG:
-            matrix = np.asarray(matrix, float)
-            assert matrix.shape == (3, 3)
+            # A bit faster than np.identity(3).
+            matrix = IdentityTransform._mtx.copy()
         self._mtx = matrix
         self._invalid = 0
 
-    def __repr__(self):
-        return "Affine2D(%s)" % repr(self._mtx)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._mtx)))
 
     @staticmethod
     def from_values(a, b, c, d, e, f):
@@ -1968,9 +1986,8 @@ class Affine2D(Affine2DBase):
         :class:`Affine2DBase` object.
         """
         if not isinstance(other, Affine2DBase):
-            msg = ("'other' must be an instance of"
-                   " 'matplotlib.transform.Affine2DBase'")
-            raise ValueError(msg)
+            raise ValueError("'other' must be an instance of "
+                             "'matplotlib.transform.Affine2DBase'")
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -1983,13 +2000,14 @@ class Affine2D(Affine2DBase):
         Unless this transform will be mutated later on, consider using
         the faster :class:`IdentityTransform` class instead.
         """
-        return Affine2D(np.identity(3))
+        return Affine2D()
 
     def clear(self):
         """
         Reset the underlying matrix to the identity transform.
         """
-        self._mtx = np.identity(3)
+        # A bit faster than np.identity(3).
+        self._mtx = IdentityTransform._mtx.copy()
         self.invalidate()
         return self
 
@@ -2017,7 +2035,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.rotate(degrees * np.pi / 180.)
+        return self.rotate(np.deg2rad(degrees))
 
     def rotate_around(self, x, y, theta):
         """
@@ -2123,8 +2141,9 @@ class IdentityTransform(Affine2DBase):
         return self
     frozen.__doc__ = Affine2DBase.frozen.__doc__
 
-    def __repr__(self):
-        return "IdentityTransform()"
+    def __str__(self):
+        return ("{}()"
+                .format(type(self).__name__))
 
     def get_matrix(self):
         return self._mtx
@@ -2223,8 +2242,13 @@ class BlendedGenericTransform(Transform):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
     frozen.__doc__ = Transform.frozen.__doc__
 
-    def __repr__(self):
-        return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._x),
+                        _indent_str(self._y)))
 
     def transform_non_affine(self, points):
         if self._x.is_affine and self._y.is_affine:
@@ -2303,9 +2327,8 @@ class BlendedAffine2D(Affine2DBase):
         is_separable = x_transform.is_separable and y_transform.is_separable
         is_correct = is_affine and is_separable
         if not is_correct:
-            msg = ("Both *x_transform* and *y_transform* must be 2D affine"
-                   " transforms.")
-            raise ValueError(msg)
+            raise ValueError("Both *x_transform* and *y_transform* must be 2D "
+                             "affine transforms")
 
         Transform.__init__(self, **kwargs)
         self._x = x_transform
@@ -2328,8 +2351,13 @@ class BlendedAffine2D(Affine2DBase):
         # Note, this is an exact copy of BlendedTransform.contains_branch_seperately
         return self._x.contains_branch(transform), self._y.contains_branch(transform)
 
-    def __repr__(self):
-        return "BlendedAffine2D(%s,%s)" % (self._x, self._y)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._x),
+                        _indent_str(self._y)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2383,9 +2411,8 @@ class CompositeGenericTransform(Transform):
         transform instance to create.
         """
         if a.output_dims != b.input_dims:
-            msg = ("The output dimension of 'a' must be equal to the input"
-                   " dimensions of 'b'")
-            raise ValueError(msg)
+            raise ValueError("The output dimension of 'a' must be equal to "
+                             "the input dimensions of 'b'")
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
@@ -2443,12 +2470,13 @@ class CompositeGenericTransform(Transform):
         return self._a.is_separable and self._b.is_separable
     is_separable = property(_get_is_separable)
 
-    if DEBUG:
-        def __str__(self):
-            return '(%s, %s)' % (self._a, self._b)
-
-    def __repr__(self):
-        return "CompositeGenericTransform(%r, %r)" % (self._a, self._b)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._a),
+                        _indent_str(self._b)))
 
     def transform_affine(self, points):
         return self.get_affine().transform(points)
@@ -2513,9 +2541,8 @@ class CompositeAffine2D(Affine2DBase):
         if not a.is_affine or not b.is_affine:
             raise ValueError("'a' and 'b' must be affine transforms")
         if a.output_dims != b.input_dims:
-            msg = ("The output dimension of 'a' must be equal to the input"
-                   " dimensions of 'b'")
-            raise ValueError(msg)
+            raise ValueError("The output dimension of 'a' must be equal to "
+                             "the input dimensions of 'b'")
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
@@ -2524,10 +2551,6 @@ class CompositeAffine2D(Affine2DBase):
         self._b = b
         self.set_children(a, b)
         self._mtx = None
-
-    if DEBUG:
-        def __str__(self):
-            return '(%s, %s)' % (self._a, self._b)
 
     @property
     def depth(self):
@@ -2539,8 +2562,13 @@ class CompositeAffine2D(Affine2DBase):
         for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
             yield self._a + lh_compliment, rh_compliment
 
-    def __repr__(self):
-        return "CompositeAffine2D(%r, %r)" % (self._a, self._b)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._a),
+                        _indent_str(self._b)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2593,8 +2621,7 @@ class BboxTransform(Affine2DBase):
         points from *boxin* to *boxout*.
         """
         if not boxin.is_bbox or not boxout.is_bbox:
-            msg = "'boxin' and 'boxout' must be bbox"
-            raise ValueError(msg)
+            raise ValueError("'boxin' and 'boxout' must be bbox")
 
         Affine2DBase.__init__(self, **kwargs)
         self._boxin = boxin
@@ -2603,8 +2630,13 @@ class BboxTransform(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "BboxTransform(%r, %r)" % (self._boxin, self._boxout)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._boxin),
+                        _indent_str(self._boxout)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2615,8 +2647,8 @@ class BboxTransform(Affine2DBase):
             if DEBUG and (x_scale == 0 or y_scale == 0):
                 raise ValueError("Transforming from or to a singular bounding box.")
             self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
-                                   [0.0   , y_scale, (-inb*y_scale+outb)],
-                                   [0.0   , 0.0    , 1.0        ]],
+                                  [0.0    , y_scale, (-inb*y_scale+outb)],
+                                  [0.0    , 0.0    , 1.0        ]],
                                  float)
             self._inverted = None
             self._invalid = 0
@@ -2646,8 +2678,11 @@ class BboxTransformTo(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "BboxTransformTo(%r)" % (self._boxout)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._boxout)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2670,9 +2705,6 @@ class BboxTransformToMaxOnly(BboxTransformTo):
     transforms points from the unit bounding box to a given
     :class:`Bbox` with a fixed upper left of (0, 0).
     """
-    def __repr__(self):
-        return "BboxTransformToMaxOnly(%r)" % (self._boxout)
-
     def get_matrix(self):
         if self._invalid:
             xmax, ymax = self._boxout.max
@@ -2705,8 +2737,11 @@ class BboxTransformFrom(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "BboxTransformFrom(%r)" % (self._boxin)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._boxin)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2738,8 +2773,11 @@ class ScaledTranslation(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __repr__(self):
-        return "ScaledTranslation(%r)" % (self._t,)
+    def __str__(self):
+        return ("{}(\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._t)))
 
     def get_matrix(self):
         if self._invalid:
@@ -2773,9 +2811,8 @@ class TransformedPath(TransformNode):
         :class:`~matplotlib.path.Path` and :class:`Transform`.
         """
         if not isinstance(transform, Transform):
-            msg = ("'transform' must be an instance of"
-                   " 'matplotlib.transform.Transform'")
-            raise ValueError(msg)
+            raise ValueError("'transform' must be an instance of "
+                             "'matplotlib.transform.Transform'")
         TransformNode.__init__(self)
 
         self._path = path

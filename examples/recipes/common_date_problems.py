@@ -55,9 +55,9 @@ with cbook.get_sample_data('goog.npz') as datafile:
 
 # Matplotlib prefers datetime instead of np.datetime64.
 date = r.date.astype('O')
-plt.figure()
-plt.plot(date, r.close)
-plt.title('Default date handling can cause overlapping labels')
+fig, ax = plt.subplots()
+ax.plot(date, r.close)
+ax.set_title('Default date handling can cause overlapping labels')
 
 ###############################################################################
 # Another annoyance is that if you hover the mouse over the window and
@@ -88,3 +88,5 @@ ax.set_title('fig.autofmt_xdate fixes the labels')
 ###############################################################################
 # Now when you hover your mouse over the plotted data, you'll see date
 # format strings like 2004-12-01 in the toolbar.
+
+plt.show()

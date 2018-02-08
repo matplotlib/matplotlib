@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pytest
@@ -306,3 +305,12 @@ def test_colorbar_lognorm_extension():
     cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
                       orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
+
+
+def test_colorbar_axes_kw():
+    # test fix for #8493: This does only test, that axes-related keywords pass
+    # and do not raise an exception.
+    plt.figure()
+    plt.imshow(([[1, 2], [3, 4]]))
+    plt.colorbar(orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
+                 aspect=10, anchor=(0., 0.), panchor=(0., 1.))

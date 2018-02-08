@@ -80,7 +80,7 @@ The base matplotlib namespace includes:
 
     :data:`~matplotlib.rcParams`
         a global dictionary of default configuration settings.  It is
-        initialized by code which may be overridded by a matplotlibrc
+        initialized by code which may be overridden by a matplotlibrc
         file.
 
     :func:`~matplotlib.rc`
@@ -99,11 +99,11 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
+import atexit
 from collections import MutableMapping
 import contextlib
 import distutils.version
@@ -116,6 +116,8 @@ import locale
 import logging
 import os
 import re
+import shutil
+import stat
 import sys
 import tempfile
 import warnings
@@ -275,10 +277,7 @@ def _parse_commandline():
               'info', 'warning')
 
     for arg in sys.argv[1:]:
-        # cast to str because we are using unicode_literals,
-        # and argv is always str
-
-        if arg.startswith(str('--verbose-')):
+        if arg.startswith('--verbose-'):
             level_str = arg[10:]
             # If it doesn't match one of ours, then don't even
             # bother noting it, we are just a 3rd-party library
@@ -303,9 +302,7 @@ class Verbose(object):
     _commandLineVerbose = None
 
     for arg in sys.argv[1:]:
-        # cast to str because we are using unicode_literals,
-        # and argv is always str
-        if not arg.startswith(str('--verbose-')):
+        if not arg.startswith('--verbose-'):
             continue
         level_str = arg[10:]
         # If it doesn't match one of ours, then don't even
@@ -385,7 +382,7 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
-def _wrap(fmt, func, level='INFO', always=True):
+def _wrap(fmt, func, level='DEBUG', always=True):
     """
     return a callable function that wraps func and reports its
     output through logger
@@ -605,6 +602,7 @@ def _create_tmp_config_dir():
     """
     configdir = os.environ['MPLCONFIGDIR'] = (
         tempfile.mkdtemp(prefix='matplotlib-'))
+    atexit.register(shutil.rmtree, configdir)
     return configdir
 
 
@@ -713,7 +711,7 @@ get_cachedir = _wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _decode_filesystem_path(path):
-    if isinstance(path, bytes):
+    if not isinstance(path, str):
         return path.decode(sys.getfilesystemencoding())
     else:
         return path
@@ -777,7 +775,7 @@ def get_py2exe_datafiles():
     d = {}
     for root, _, files in os.walk(datapath):
         # Need to explicitly remove cocoa_agg files or py2exe complains
-        # NOTE I dont know why, but do as previous version
+        # NOTE I don't know why, but do as previous version
         if 'Matplotlib.nib' in files:
             files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
@@ -795,7 +793,8 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - `$MATPLOTLIBRC` if it is a file
+    - `$MATPLOTLIBRC` if it is a file (or a named pipe, which can be created
+      e.g. by process substitution)
 
     - `$MATPLOTLIBRC/matplotlibrc`
 
@@ -830,8 +829,10 @@ def matplotlib_fname():
         yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
-        if os.path.isfile(fname):
-            break
+        if os.path.exists(fname):
+            st_mode = os.stat(fname).st_mode
+            if stat.S_ISREG(st_mode) or stat.S_ISFIFO(st_mode):
+                break
     # Return first candidate that is a file, or last candidate if none is
     # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
@@ -840,26 +841,17 @@ def matplotlib_fname():
 # names of keys to deprecate
 # the values are a tuple of (new_name, f_old_2_new, f_new_2_old)
 # the inverse function may be `None`
-_deprecated_map = {
-    'text.fontstyle':   ('font.style', lambda x: x, None),
-    'text.fontangle':   ('font.style', lambda x: x, None),
-    'text.fontvariant': ('font.variant', lambda x: x, None),
-    'text.fontweight':  ('font.weight', lambda x: x, None),
-    'text.fontsize':    ('font.size', lambda x: x, None),
-    'tick.size':        ('tick.major.size', lambda x: x, None),
-    'svg.embed_char_paths': ('svg.fonttype',
-                             lambda x: "path" if x else "none", None),
-    'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
-                         lambda x: [c.get('color', None) for c in x]),
-    'svg.image_noscale': ('image.interpolation', None, None),
-    }
+_deprecated_map = {}
 
-_deprecated_ignore_map = {}
+_deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 
-_obsolete_set = {'text.dvipnghack', 'legend.isaxes'}
+_obsolete_set = {'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
-_deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
+# do NOT include in _all_deprecated
+_deprecated_set = {'axes.hold',
+                   'backend.qt4',
+                   'backend.qt5'}
 
 _all_deprecated = set(itertools.chain(
     _deprecated_ignore_map, _deprecated_map, _obsolete_set))
@@ -880,9 +872,13 @@ class RcParams(MutableMapping, dict):
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_set = ("%s is deprecated. Please remove it from your "
                     "matplotlibrc and/or style files.")
-    msg_depr_ignore = "%s is deprecated and ignored. Use %s"
+    msg_depr_ignore = "%s is deprecated and ignored. Use %s instead."
     msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
                     "and/or style files.")
+    msg_backend_obsolete = ("The {} rcParam was deprecated in version 2.2.  In"
+                            " order to force the use of a specific Qt binding,"
+                            " either import that binding first, or set the "
+                            "QT_API environment variable.")
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -897,8 +893,12 @@ class RcParams(MutableMapping, dict):
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_set and val is not None:
-                warnings.warn(self.msg_depr_set % key,
-                              mplDeprecation)
+                if key.startswith('backend'):
+                    warnings.warn(self.msg_backend_obsolete.format(key),
+                                  mplDeprecation)
+                else:
+                    warnings.warn(self.msg_depr_set % key,
+                                  mplDeprecation)
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt),
@@ -1127,8 +1127,10 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = six.iteritems(defaultParams)
-    config = RcParams([(key, default) for key, (default, _) in iter_params
-                                      if key not in _all_deprecated])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        config = RcParams([(key, default) for key, (default, _) in iter_params
+                           if key not in _all_deprecated])
     config.update(config_from_file)
 
     if config['datapath'] is None:
@@ -1142,7 +1144,7 @@ You have the following UNSUPPORTED LaTeX preamble customizations:
 Please do not ask for support with these customizations active.
 *****************************************************************
 """, '\n'.join(config['text.latex.preamble']))
-    _log.info('loaded rc file %s', fname)
+    _log.debug('loaded rc file %s', fname)
 
     return config
 
@@ -1158,7 +1160,7 @@ if rcParams['examples.directory']:
     if not os.path.isabs(rcParams['examples.directory']):
         _basedir, _fname = os.path.split(matplotlib_fname())
         # Sometimes matplotlib_fname() can return relative paths,
-        # Also, using realpath() guarentees that Sphinx will use
+        # Also, using realpath() guarantees that Sphinx will use
         # the same path that matplotlib sees (in case of weird symlinks).
         _basedir = os.path.realpath(_basedir)
         _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
@@ -1166,9 +1168,11 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                            six.iteritems(defaultParams)
-                            if key not in _all_deprecated])
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", mplDeprecation)
+    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
+                                six.iteritems(defaultParams)
+                                if key not in _all_deprecated])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
@@ -1560,6 +1564,41 @@ _DATA_DOC_APPENDIX = """
 """
 
 
+def _add_data_doc(docstring, replace_names, replace_all_args):
+    """Add documentation for a *data* field to the given docstring.
+
+    Parameters
+    ----------
+    docstring : str
+        The input docstring.
+    replace_names : list of strings or None
+        The list of parameter names which arguments should be replaced by
+        `data[name]`. If None, all arguments are replaced if they are
+        included in `data`.
+    replace_all_args : bool
+        If True, all arguments in *args get replaced, even if they are not
+        in replace_names.
+
+    Returns
+    -------
+        The augmented docstring.
+    """
+    if docstring is None:
+        docstring = ''
+    else:
+        docstring = dedent(docstring)
+    _repl = ""
+    if replace_names is None:
+        _repl = "* All positional and all keyword arguments."
+    else:
+        if len(replace_names) != 0:
+            _repl = "* All arguments with the following names: '{names}'."
+        if replace_all_args:
+            _repl += "\n    * All positional arguments."
+        _repl = _repl.format(names="', '".join(sorted(replace_names)))
+    return docstring + _DATA_DOC_APPENDIX.format(replaced=_repl)
+
+
 def _preprocess_data(replace_names=None, replace_all_args=False,
                      label_namer=None, positional_parameter_names=None):
     """
@@ -1672,10 +1711,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                     # all to be replaced arguments are in the list
                     arg_names = _arg_names[1:]
                 else:
-                    msg = ("Got unknown 'replace_names' and wrapped function "
-                           "'%s' uses '*args', need "
-                           "'positional_parameter_names'!")
-                    raise AssertionError(msg % func.__name__)
+                    raise AssertionError(
+                        "Got unknown 'replace_names' and wrapped function "
+                        "{!r} uses '*args', need 'positional_parameter_names'"
+                        .format(func.__name__))
             else:
                 if positional_parameter_names is not None:
                     if callable(positional_parameter_names):
@@ -1689,11 +1728,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                     if replace_all_args:
                         arg_names = []
                     else:
-                        msg = ("Got 'replace_names' and wrapped function "
-                               "'%s' uses *args, need "
-                               "'positional_parameter_names' or "
-                               "'replace_all_args'!")
-                        raise AssertionError(msg % func.__name__)
+                        raise AssertionError(
+                            "Got 'replace_names' and wrapped function {!r} "
+                            "uses *args, need 'positional_parameter_names' or "
+                            "'replace_all_args'".format(func.__name__))
 
         # compute the possible label_namer and label position in positional
         # arguments
@@ -1712,13 +1750,13 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         # which might surprise the user :-(
         if label_namer and not arg_names_at_runtime and not _has_varkwargs:
             if not arg_names:
-                msg = ("label_namer '%s' can't be found as the parameter "
-                       "without 'positional_parameter_names'.")
-                raise AssertionError(msg % label_namer)
+                raise AssertionError(
+                    "label_namer {!r} can't be found as the parameter without "
+                    "'positional_parameter_names'".format(label_namer))
             elif label_namer not in arg_names:
-                msg = ("label_namer '%s' can't be found in the parameter "
-                       "names (known argnames: %s).")
-                raise AssertionError(msg % (label_namer, arg_names))
+                raise AssertionError(
+                    "label_namer {!r} can't be found in the parameter names "
+                    "(known argnames: %s).".format(label_namer, arg_names))
             else:
                 # this is the case when the name is in arg_names
                 pass
@@ -1798,37 +1836,25 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 elif label_namer in kwargs:
                     kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
-                    msg = ("Tried to set a label via parameter '%s' in "
-                           "func '%s' but couldn't find such an argument. \n"
-                           "(This is a programming error, please report to "
-                           "the matplotlib list!)")
-                    warnings.warn(msg % (label_namer, func.__name__),
-                                  RuntimeWarning, stacklevel=2)
+                    warnings.warn(
+                        "Tried to set a label via parameter %r in func %r but "
+                        "couldn't find such an argument.\n"
+                        "(This is a programming error, please report to "
+                        "the Matplotlib list!)" % (label_namer, func.__name__),
+                        RuntimeWarning, stacklevel=2)
             return func(ax, *args, **kwargs)
-        pre_doc = inner.__doc__
-        if pre_doc is None:
-            pre_doc = ''
-        else:
-            pre_doc = dedent(pre_doc)
-        _repl = ""
-        if replace_names is None:
-            _repl = "* All positional and all keyword arguments."
-        else:
-            if len(replace_names) != 0:
-                _repl = "* All arguments with the following names: '{names}'."
-            if replace_all_args:
-                _repl += "\n    * All positional arguments."
-            _repl = _repl.format(names="', '".join(sorted(replace_names)))
-        inner.__doc__ = (pre_doc +
-                         _DATA_DOC_APPENDIX.format(replaced=_repl))
+
+        inner.__doc__ = _add_data_doc(inner.__doc__,
+                                      replace_names, replace_all_args)
         if not python_has_wrapped:
             inner.__wrapped__ = func
         if new_sig is not None:
             inner.__signature__ = new_sig
         return inner
+
     return param
 
-_log.info('matplotlib version %s', __version__)
-_log.info('interactive is %s', is_interactive())
-_log.info('platform is %s', sys.platform)
+_log.debug('matplotlib version %s', __version__)
+_log.debug('interactive is %s', is_interactive())
+_log.debug('platform is %s', sys.platform)
 _log.debug('loaded modules: %s', list(sys.modules))

@@ -66,7 +66,6 @@ mpl_packages = [
     setupext.Image(),
     setupext.TTConv(),
     setupext.Path(),
-    setupext.ContourLegacy(),
     setupext.Contour(),
     setupext.QhullWrap(),
     setupext.Tri(),
@@ -183,9 +182,9 @@ if __name__ == '__main__':
                         required_failed.append(package)
                 else:
                     good_packages.append(package)
-                    if (isinstance(package, setupext.OptionalBackendPackage) and
-                            package.runtime_check() and
-                            default_backend is None):
+                    if (isinstance(package, setupext.OptionalBackendPackage)
+                            and package.runtime_check()
+                            and default_backend is None):
                         default_backend = package.name
         print_raw('')
 
@@ -195,7 +194,7 @@ if __name__ == '__main__':
             print_message("The following required packages can not be built: "
                           "%s" % ", ".join(x.name for x in required_failed))
             for pkg in required_failed:
-                msg = pkg.install_get_help()
+                msg = pkg.install_help_msg()
                 if msg:
                     print_message(msg)
             sys.exit(1)
@@ -225,7 +224,8 @@ if __name__ == '__main__':
             template = fd.read()
         template = Template(template)
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
+            fd.write(
+                template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
         # Build in verbose mode if requested
         if setupext.options['verbose']:

@@ -7,7 +7,6 @@ from collections import OrderedDict
 
 import numpy as np
 
-import matplotlib.artist as martist
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
@@ -38,6 +37,16 @@ class PolarTransform(mtransforms.Transform):
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
+
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                "    use_rmin={},\n"
+                "    _apply_theta_transforms={})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._axis),
+                        self._use_rmin,
+                        self._apply_theta_transforms))
 
     def transform_non_affine(self, tr):
         xy = np.empty(tr.shape, float)
@@ -95,6 +104,14 @@ class PolarAffine(mtransforms.Affine2DBase):
         self.set_children(scale_transform, limits)
         self._mtx = None
 
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._scale_transform),
+                        mtransforms._indent_str(self._limits)))
+
     def get_matrix(self):
         if self._invalid:
             limits_scaled = self._limits.transformed(self._scale_transform)
@@ -124,6 +141,16 @@ class InvertedPolarTransform(mtransforms.Transform):
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
+
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                "    use_rmin={},\n"
+                "    _apply_theta_transforms={})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._axis),
+                        self._use_rmin,
+                        self._apply_theta_transforms))
 
     def transform_non_affine(self, xy):
         x = xy[:, 0:1]
@@ -300,8 +327,9 @@ class ThetaTick(maxis.XTick):
     def update_position(self, loc):
         super(ThetaTick, self).update_position(loc)
         axes = self.axes
-        angle = (loc * axes.get_theta_direction() +
-                 axes.get_theta_offset() - np.pi / 2)
+        angle = loc * axes.get_theta_direction() + axes.get_theta_offset()
+        text_angle = np.rad2deg(angle) % 360 - 90
+        angle -= np.pi / 2
 
         if self.tick1On:
             marker = self.tick1line.get_marker()
@@ -326,17 +354,17 @@ class ThetaTick(maxis.XTick):
 
         mode, user_angle = self._labelrotation
         if mode == 'default':
-            angle = 0
+            text_angle = user_angle
         else:
-            if angle > np.pi / 2:
-                angle -= np.pi
-            elif angle < -np.pi / 2:
-                angle += np.pi
-        angle = np.rad2deg(angle) + user_angle
+            if text_angle > 90:
+                text_angle -= 180
+            elif text_angle < -90:
+                text_angle += 180
+            text_angle += user_angle
         if self.label1On:
-            self.label1.set_rotation(angle)
+            self.label1.set_rotation(text_angle)
         if self.label2On:
-            self.label2.set_rotation(angle)
+            self.label2.set_rotation(text_angle)
 
         # This extra padding helps preserve the look from previous releases but
         # is also needed because labels are anchored to their center.
@@ -459,6 +487,16 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         self.mode = mode
         self.pad = pad
 
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self.axes),
+                        mtransforms._indent_str(self.pad),
+                        mtransforms._indent_str(repr(self.mode))))
+
     def get_matrix(self):
         if self._invalid:
             if self.mode == 'rlabel':
@@ -504,17 +542,59 @@ class RadialTick(maxis.YTick):
         t.set_rotation_mode('anchor')
         return t
 
-    def _determine_anchor(self, angle, start):
-        if start:
-            if -90 <= angle <= 90:
-                return 'left', 'center'
+    def _determine_anchor(self, mode, angle, start):
+        # Note: angle is the (spine angle - 90) because it's used for the tick
+        # & text setup, so all numbers below are -90 from (normed) spine angle.
+        if mode == 'auto':
+            if start:
+                if -90 <= angle <= 90:
+                    return 'left', 'center'
+                else:
+                    return 'right', 'center'
             else:
-                return 'right', 'center'
+                if -90 <= angle <= 90:
+                    return 'right', 'center'
+                else:
+                    return 'left', 'center'
         else:
-            if -90 <= angle <= 90:
-                return 'right', 'center'
+            if start:
+                if angle < -68.5:
+                    return 'center', 'top'
+                elif angle < -23.5:
+                    return 'left', 'top'
+                elif angle < 22.5:
+                    return 'left', 'center'
+                elif angle < 67.5:
+                    return 'left', 'bottom'
+                elif angle < 112.5:
+                    return 'center', 'bottom'
+                elif angle < 157.5:
+                    return 'right', 'bottom'
+                elif angle < 202.5:
+                    return 'right', 'center'
+                elif angle < 247.5:
+                    return 'right', 'top'
+                else:
+                    return 'center', 'top'
             else:
-                return 'left', 'center'
+                if angle < -68.5:
+                    return 'center', 'bottom'
+                elif angle < -23.5:
+                    return 'right', 'bottom'
+                elif angle < 22.5:
+                    return 'right', 'center'
+                elif angle < 67.5:
+                    return 'right', 'top'
+                elif angle < 112.5:
+                    return 'center', 'top'
+                elif angle < 157.5:
+                    return 'left', 'top'
+                elif angle < 202.5:
+                    return 'left', 'center'
+                elif angle < 247.5:
+                    return 'left', 'bottom'
+                else:
+                    return 'center', 'bottom'
 
     def update_position(self, loc):
         super(RadialTick, self).update_position(loc)
@@ -527,7 +607,8 @@ class RadialTick(maxis.YTick):
         full = _is_full_circle_deg(thetamin, thetamax)
 
         if full:
-            angle = axes.get_rlabel_position() * direction + offset - 90
+            angle = (axes.get_rlabel_position() * direction +
+                     offset) % 360 - 90
             tick_angle = 0
             if angle > 90:
                 text_angle = angle - 180
@@ -536,7 +617,7 @@ class RadialTick(maxis.YTick):
             else:
                 text_angle = angle
         else:
-            angle = thetamin * direction + offset - 90
+            angle = (thetamin * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
@@ -557,7 +638,7 @@ class RadialTick(maxis.YTick):
                 ha = 'left'
                 va = 'bottom'
             else:
-                ha, va = self._determine_anchor(angle, True)
+                ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)
             self.label1.set_va(va)
             self.label1.set_rotation(text_angle)
@@ -584,7 +665,7 @@ class RadialTick(maxis.YTick):
             self.label2On = False
             self.tick2On = False
         else:
-            angle = thetamax * direction + offset - 90
+            angle = (thetamax * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
@@ -601,7 +682,7 @@ class RadialTick(maxis.YTick):
         else:
             text_angle = user_angle
         if self.label2On:
-            ha, va = self._determine_anchor(angle, False)
+            ha, va = self._determine_anchor(mode, angle, direction < 0)
             self.label2.set_ha(ha)
             self.label2.set_va(va)
             self.label2.set_rotation(text_angle)
@@ -634,6 +715,10 @@ class RadialAxis(maxis.YAxis):
     """
     __name__ = 'radialaxis'
     axis_name = 'radius'
+
+    def __init__(self, *args, **kwargs):
+        super(RadialAxis, self).__init__(*args, **kwargs)
+        self.sticky_edges.y.append(0)
 
     def _get_tick(self, major):
         if major:
@@ -697,9 +782,15 @@ class _WedgeBbox(mtransforms.Bbox):
         self._originLim = originLim
         self.set_children(viewLim, originLim)
 
-    def __repr__(self):
-        return "_WedgeBbox(%r, %r, %r)" % (self._center, self._viewLim,
-                                           self._originLim)
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        mtransforms._indent_str(self._center),
+                        mtransforms._indent_str(self._viewLim),
+                        mtransforms._indent_str(self._originLim)))
 
     def get_points(self):
         if self._invalid:
@@ -761,6 +852,7 @@ class PolarAxes(Axes):
             kwargs.pop('rlabel_position', 22.5))
 
         Axes.__init__(self, *args, **kwargs)
+        self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
     __init__.__doc__ = Axes.__init__.__doc__
@@ -883,21 +975,15 @@ class PolarAxes(Axes):
 
     def get_xaxis_transform(self, which='grid'):
         if which not in ['tick1', 'tick2', 'grid']:
-            msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
-        if _is_full_circle_rad(*self._realViewLim.intervalx):
-            return self._xaxis_text_transform, 'center', 'center'
-        else:
-            return self._xaxis_text_transform, 'bottom', 'center'
+        return self._xaxis_text_transform, 'center', 'center'
 
     def get_xaxis_text2_transform(self, pad):
-        if _is_full_circle_rad(*self._realViewLim.intervalx):
-            return self._xaxis_text_transform, 'center', 'center'
-        else:
-            return self._xaxis_text_transform, 'top', 'center'
+        return self._xaxis_text_transform, 'center', 'center'
 
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
@@ -905,8 +991,8 @@ class PolarAxes(Axes):
         elif which == 'grid':
             return self._yaxis_transform
         else:
-            msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
-            raise ValueError(msg)
+            raise ValueError(
+                "'which' must be one of 'tick1', 'tick2', or 'grid'")
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
@@ -930,9 +1016,7 @@ class PolarAxes(Axes):
         return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def draw(self, *args, **kwargs):
-        thetamin, thetamax = self._realViewLim.intervalx
-        thetamin *= 180 / np.pi
-        thetamax *= 180 / np.pi
+        thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
         rmin, rmax = self._realViewLim.intervaly - self.get_rorigin()
@@ -1072,10 +1156,6 @@ class PolarAxes(Axes):
             raise ValueError(
                 "direction must be 1, -1, clockwise or counterclockwise")
         self._direction.invalidate()
-        # FIXME: Why is this needed? Even though the tick label gets
-        # re-created, the alignment is not correctly updated without a reset.
-        self.yaxis.reset_ticks()
-        self.yaxis.set_clip_path(self.patch)
 
     def get_theta_direction(self):
         """
@@ -1132,8 +1212,6 @@ class PolarAxes(Axes):
             The angular position of the radius labels in degrees.
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
-        self.yaxis.reset_ticks()
-        self.yaxis.set_clip_path(self.patch)
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
@@ -1173,10 +1251,15 @@ class PolarAxes(Axes):
 
         ACCEPTS: sequence of floats
         """
+        if frac is not None:
+            cbook.warn_deprecated('2.1', name='frac', obj_type='parameter',
+                                  alternative='tick padding via '
+                                              'Axes.tick_params')
+
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
-        angles = np.asarray(angles, float)
-        self.set_xticks(angles * (np.pi / 180.0))
+        angles = np.deg2rad(angles)
+        self.set_xticks(angles)
         if labels is not None:
             self.set_xticklabels(labels)
         elif fmt is not None:

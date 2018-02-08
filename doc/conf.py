@@ -11,12 +11,12 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+import matplotlib
 import os
 import sys
 import sphinx
 import six
 from glob import glob
-from sphinx_gallery.sorting import ExplicitOrder
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -28,14 +28,25 @@ sys.path.append(os.path.abspath('.'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
-              'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
-              'sphinx.ext.doctest', 'sphinx.ext.autosummary',
-              'sphinx.ext.inheritance_diagram', 'sphinx.ext.intersphinx',
-              'sphinx_gallery.gen_gallery',
-              'matplotlib.sphinxext.plot_directive',
-              'sphinxext.github',
-              'numpydoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.doctest',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.intersphinx',
+    'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive',
+    'numpydoc',  # Needs to be loaded *after* autodoc.
+    'sphinx_gallery.gen_gallery',
+    'matplotlib.sphinxext.mathmpl',
+    'matplotlib.sphinxext.only_directives',
+    'matplotlib.sphinxext.plot_directive',
+    'sphinxext.custom_roles',
+    'sphinxext.github',
+    'sphinxext.math_symbol_table',
+    'sphinxext.mock_gui_toolkits',
+    'sphinxext.skip_deprecated',
+]
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
@@ -60,19 +71,10 @@ def _check_deps():
             "The following dependencies are missing to build the "
             "documentation: {}".format(", ".join(missing)))
 
-
 _check_deps()
 
-import matplotlib
-try:
-    from unittest.mock import MagicMock
-except ImportError:
-    from mock import MagicMock
-
-
-# Use IPython's console highlighting by default
-extensions.extend(['IPython.sphinxext.ipython_console_highlighting',
-                   'IPython.sphinxext.ipython_directive'])
+# Import only after checking for dependencies.
+from sphinx_gallery.sorting import ExplicitOrder
 
 if six.PY2:
     from distutils.spawn import find_executable
@@ -84,7 +86,6 @@ if not has_dot:
     raise OSError(
         "No binary named dot - you need to install the Graph Visualization "
         "software (usually packaged as 'graphviz') to build the documentation")
-
 
 autosummary_generate = True
 
@@ -241,16 +242,10 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['badgesidebar.html','donate_sidebar.html',
-              'indexsidebar.html', 'searchbox.html'],
-    '**': ['badgesidebar.html', 'localtoc.html',
-           'relations.html', 'sourcelink.html', 'searchbox.html']
+    'index': ['donate_sidebar.html', 'searchbox.html'],
+    '**': ['localtoc.html', 'relations.html',
+           'sourcelink.html', 'searchbox.html']
 }
-
-# Additional templates that should be rendered to pages, maps page names to
-# template names.
-html_additional_pages = {'index': 'index.html',
-                         'citing': 'citing.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True
@@ -340,144 +335,6 @@ texinfo_documents = [
      1),
 ]
 
-
-class MyWX(MagicMock):
-    class Panel(object):
-        pass
-
-    class ToolBar(object):
-        pass
-
-    class Frame(object):
-        pass
-
-    VERSION_STRING = '2.9'
-
-
-class MyPyQt4(MagicMock):
-    class QtGui(object):
-        # PyQt4.QtGui public classes.
-        # Generated with
-        # textwrap.fill([name for name in dir(PyQt4.QtGui)
-        #                if isinstance(getattr(PyQt4.QtGui, name), type)])
-        _QtGui_public_classes = """\
-        Display QAbstractButton QAbstractGraphicsShapeItem
-        QAbstractItemDelegate QAbstractItemView QAbstractPrintDialog
-        QAbstractProxyModel QAbstractScrollArea QAbstractSlider
-        QAbstractSpinBox QAbstractTextDocumentLayout QAction QActionEvent
-        QActionGroup QApplication QBitmap QBoxLayout QBrush QButtonGroup
-        QCalendarWidget QCheckBox QClipboard QCloseEvent QColor QColorDialog
-        QColumnView QComboBox QCommandLinkButton QCommonStyle QCompleter
-        QConicalGradient QContextMenuEvent QCursor QDataWidgetMapper QDateEdit
-        QDateTimeEdit QDesktopServices QDesktopWidget QDial QDialog
-        QDialogButtonBox QDirModel QDockWidget QDoubleSpinBox QDoubleValidator
-        QDrag QDragEnterEvent QDragLeaveEvent QDragMoveEvent QDropEvent
-        QErrorMessage QFileDialog QFileIconProvider QFileOpenEvent
-        QFileSystemModel QFocusEvent QFocusFrame QFont QFontComboBox
-        QFontDatabase QFontDialog QFontInfo QFontMetrics QFontMetricsF
-        QFormLayout QFrame QGesture QGestureEvent QGestureRecognizer QGlyphRun
-        QGradient QGraphicsAnchor QGraphicsAnchorLayout QGraphicsBlurEffect
-        QGraphicsColorizeEffect QGraphicsDropShadowEffect QGraphicsEffect
-        QGraphicsEllipseItem QGraphicsGridLayout QGraphicsItem
-        QGraphicsItemAnimation QGraphicsItemGroup QGraphicsLayout
-        QGraphicsLayoutItem QGraphicsLineItem QGraphicsLinearLayout
-        QGraphicsObject QGraphicsOpacityEffect QGraphicsPathItem
-        QGraphicsPixmapItem QGraphicsPolygonItem QGraphicsProxyWidget
-        QGraphicsRectItem QGraphicsRotation QGraphicsScale QGraphicsScene
-        QGraphicsSceneContextMenuEvent QGraphicsSceneDragDropEvent
-        QGraphicsSceneEvent QGraphicsSceneHelpEvent QGraphicsSceneHoverEvent
-        QGraphicsSceneMouseEvent QGraphicsSceneMoveEvent
-        QGraphicsSceneResizeEvent QGraphicsSceneWheelEvent
-        QGraphicsSimpleTextItem QGraphicsTextItem QGraphicsTransform
-        QGraphicsView QGraphicsWidget QGridLayout QGroupBox QHBoxLayout
-        QHeaderView QHelpEvent QHideEvent QHoverEvent QIcon QIconDragEvent
-        QIconEngine QIconEngineV2 QIdentityProxyModel QImage QImageIOHandler
-        QImageReader QImageWriter QInputContext QInputContextFactory
-        QInputDialog QInputEvent QInputMethodEvent QIntValidator QItemDelegate
-        QItemEditorCreatorBase QItemEditorFactory QItemSelection
-        QItemSelectionModel QItemSelectionRange QKeyEvent QKeyEventTransition
-        QKeySequence QLCDNumber QLabel QLayout QLayoutItem QLineEdit
-        QLinearGradient QListView QListWidget QListWidgetItem QMainWindow
-        QMatrix QMatrix2x2 QMatrix2x3 QMatrix2x4 QMatrix3x2 QMatrix3x3
-        QMatrix3x4 QMatrix4x2 QMatrix4x3 QMatrix4x4 QMdiArea QMdiSubWindow
-        QMenu QMenuBar QMessageBox QMimeSource QMouseEvent
-        QMouseEventTransition QMoveEvent QMovie QPageSetupDialog QPaintDevice
-        QPaintEngine QPaintEngineState QPaintEvent QPainter QPainterPath
-        QPainterPathStroker QPalette QPanGesture QPen QPicture QPictureIO
-        QPinchGesture QPixmap QPixmapCache QPlainTextDocumentLayout
-        QPlainTextEdit QPolygon QPolygonF QPrintDialog QPrintEngine
-        QPrintPreviewDialog QPrintPreviewWidget QPrinter QPrinterInfo
-        QProgressBar QProgressDialog QProxyModel QPushButton QPyTextObject
-        QQuaternion QRadialGradient QRadioButton QRawFont QRegExpValidator
-        QRegion QResizeEvent QRubberBand QScrollArea QScrollBar
-        QSessionManager QShortcut QShortcutEvent QShowEvent QSizeGrip
-        QSizePolicy QSlider QSortFilterProxyModel QSound QSpacerItem QSpinBox
-        QSplashScreen QSplitter QSplitterHandle QStackedLayout QStackedWidget
-        QStandardItem QStandardItemModel QStaticText QStatusBar
-        QStatusTipEvent QStringListModel QStyle QStyleFactory QStyleHintReturn
-        QStyleHintReturnMask QStyleHintReturnVariant QStyleOption
-        QStyleOptionButton QStyleOptionComboBox QStyleOptionComplex
-        QStyleOptionDockWidget QStyleOptionDockWidgetV2 QStyleOptionFocusRect
-        QStyleOptionFrame QStyleOptionFrameV2 QStyleOptionFrameV3
-        QStyleOptionGraphicsItem QStyleOptionGroupBox QStyleOptionHeader
-        QStyleOptionMenuItem QStyleOptionProgressBar QStyleOptionProgressBarV2
-        QStyleOptionRubberBand QStyleOptionSizeGrip QStyleOptionSlider
-        QStyleOptionSpinBox QStyleOptionTab QStyleOptionTabBarBase
-        QStyleOptionTabBarBaseV2 QStyleOptionTabV2 QStyleOptionTabV3
-        QStyleOptionTabWidgetFrame QStyleOptionTabWidgetFrameV2
-        QStyleOptionTitleBar QStyleOptionToolBar QStyleOptionToolBox
-        QStyleOptionToolBoxV2 QStyleOptionToolButton QStyleOptionViewItem
-        QStyleOptionViewItemV2 QStyleOptionViewItemV3 QStyleOptionViewItemV4
-        QStylePainter QStyledItemDelegate QSwipeGesture QSyntaxHighlighter
-        QSystemTrayIcon QTabBar QTabWidget QTableView QTableWidget
-        QTableWidgetItem QTableWidgetSelectionRange QTabletEvent
-        QTapAndHoldGesture QTapGesture QTextBlock QTextBlockFormat
-        QTextBlockGroup QTextBlockUserData QTextBrowser QTextCharFormat
-        QTextCursor QTextDocument QTextDocumentFragment QTextDocumentWriter
-        QTextEdit QTextFormat QTextFragment QTextFrame QTextFrameFormat
-        QTextImageFormat QTextInlineObject QTextItem QTextLayout QTextLength
-        QTextLine QTextList QTextListFormat QTextObject QTextObjectInterface
-        QTextOption QTextTable QTextTableCell QTextTableCellFormat
-        QTextTableFormat QTimeEdit QToolBar QToolBox QToolButton QToolTip
-        QTouchEvent QTransform QTreeView QTreeWidget QTreeWidgetItem
-        QTreeWidgetItemIterator QUndoCommand QUndoGroup QUndoStack QUndoView
-        QVBoxLayout QValidator QVector2D QVector3D QVector4D QWhatsThis
-        QWhatsThisClickedEvent QWheelEvent QWidget QWidgetAction QWidgetItem
-        QWindowStateChangeEvent QWizard QWizardPage QWorkspace
-        QX11EmbedContainer QX11EmbedWidget QX11Info
-        """
-        for _name in _QtGui_public_classes.split():
-            locals()[_name] = type(_name, (), {})
-        del _name
-
-
-class MySip(MagicMock):
-    def getapi(*args):
-        return 1
-
-
-mockwxversion = MagicMock()
-mockwx = MyWX()
-mocksip = MySip()
-mockpyqt4 = MyPyQt4()
-sys.modules['wxversion'] = mockwxversion
-sys.modules['wx'] = mockwx
-sys.modules['sip'] = mocksip
-sys.modules['PyQt4'] = mockpyqt4
-
 # numpydoc config
 
 numpydoc_show_class_members = False
-
-# Skip deprecated members
-
-def skip_deprecated(app, what, name, obj, skip, options):
-    if skip:
-        return skip
-    skipped = {"matplotlib.colors": ["ColorConverter", "hex2color", "rgb2hex"]}
-    skip_list = skipped.get(getattr(obj, "__module__", None))
-    if skip_list is not None:
-        return getattr(obj, "__name__", None) in skip_list
-
-def setup(app):
-    app.connect('autodoc-skip-member', skip_deprecated)

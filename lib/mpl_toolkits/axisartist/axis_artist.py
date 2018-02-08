@@ -89,18 +89,16 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 # FIXME :
+# angles are given in data coordinate - need to convert it to canvas coordinate
 
-# * : angles are given in data coordinate - need to convert it to canvas coordinate
 
-
-import matplotlib.axes as maxes
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import matplotlib.font_manager as font_manager
 
 from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, ScaledTranslation, \
-     IdentityTransform, TransformedPath, Bbox
+from matplotlib.transforms import (
+    Affine2D, Bbox, IdentityTransform, ScaledTranslation, TransformedPath)
 from matplotlib.collections import LineCollection
 
 from matplotlib import rcParams
@@ -1430,7 +1428,6 @@ class AxisArtist(martist.Artist):
 
         #pad_points = self.major_tick_pad
 
-        #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
         if self._ticklabel_add_angle != self._axislabel_add_angle:
             if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
@@ -1475,7 +1472,6 @@ class AxisArtist(martist.Artist):
 
         #pad_points = self.major_tick_pad
 
-        #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
         if self._ticklabel_add_angle != self._axislabel_add_angle:
             if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \

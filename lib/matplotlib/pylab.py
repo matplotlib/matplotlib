@@ -217,17 +217,12 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import sys, warnings
+import warnings
 
 from matplotlib.cbook import (
     flatten, exception_to_str, silent_list, iterable, dedent)
 
 import matplotlib as mpl
-# make mpl.finance module available for backwards compatability, in case folks
-# using pylab interface depended on not having to import it
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")  # deprecation: moved to a toolkit
-    import matplotlib.finance
 
 from matplotlib.dates import (
     date2num, num2date, datestr2num, strpdate2num, drange, epoch2num,

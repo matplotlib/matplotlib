@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import os
 import shutil
@@ -12,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.testing.decorators import _image_directories
+from matplotlib.testing.decorators import image_comparison, _image_directories
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -71,7 +70,7 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, u'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
@@ -82,20 +81,21 @@ def create_figure():
 
 # test compiling a figure to pdf with xelatex
 @needs_xelatex
-@pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+@image_comparison(baseline_images=['pgf_xelatex'], extensions=['pdf'],
+                  style='default')
 def test_xelatex():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
     create_figure()
-    compare_figure('pgf_xelatex.pdf', tol=0)
 
 
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
-@pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+@image_comparison(baseline_images=['pgf_pdflatex'], extensions=['pdf'],
+                  style='default')
 def test_pdflatex():
     import os
     if os.environ.get('APPVEYOR', False):
@@ -109,7 +109,6 @@ def test_pdflatex():
                                     '\\usepackage[T1]{fontenc}']}
     mpl.rcParams.update(rc_pdflatex)
     create_figure()
-    compare_figure('pgf_pdflatex.pdf', tol=0)
 
 
 # test updating the rc parameters for each figure
@@ -163,8 +162,9 @@ def test_pathclip():
 
 # test mixed mode rendering
 @needs_xelatex
-@pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+@image_comparison(baseline_images=['pgf_mixedmode'], extensions=['pdf'],
+                  style='default')
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -173,7 +173,6 @@ def test_mixedmode():
     Y, X = np.ogrid[-1:1:40j, -1:1:40j]
     plt.figure()
     plt.pcolor(X**2 + Y**2).set_rasterized(True)
-    compare_figure('pgf_mixedmode.pdf', tol=0)
 
 
 # test bbox_inches clipping

@@ -84,8 +84,6 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
                 a = degrees(atan2(ysign*dy, xsign*dx))
                 _pos_angles.append((x0, y0, a))
 
-                #print x[i], x[i+1]
-
         if ns != -1:
             clipped_xlines.append(np.concatenate([segx, x[ns:]]))
             clipped_ylines.append(np.concatenate([segy, y[ns:]]))
@@ -125,13 +123,13 @@ def clip_line_to_rect(xline, yline, bbox):
 
     #c_left = [((x, y), (a+90)%180-180) for (x, y, a) in c_left_ \
     #          if bbox.containsy(y)]
-    c_left = [((x, y), (a+90)%180-90) for (x, y, a) in c_left_ \
+    c_left = [((x, y), (a+90)%180-90) for (x, y, a) in c_left_
               if bbox.containsy(y)]
-    c_bottom = [((x, y), (90 - a)%180) for (y, x, a) in c_bottom_  \
+    c_bottom = [((x, y), (90 - a)%180) for (y, x, a) in c_bottom_
                 if bbox.containsx(x)]
-    c_right = [((x, y), (a+90)%180+90) for (x, y, a) in c_right_ \
+    c_right = [((x, y), (a+90)%180+90) for (x, y, a) in c_right_
                if bbox.containsy(y)]
-    c_top = [((x, y), (90 - a)%180+180) for (y, x, a) in c_top_ \
+    c_top = [((x, y), (90 - a)%180+180) for (y, x, a) in c_top_
              if bbox.containsx(x)]
 
     return list(zip(lx4, ly4)), [c_left, c_bottom, c_right, c_top]
@@ -156,7 +154,7 @@ if __name__ == "__main__":
 
     ccc = iter(["ro", "go", "rx", "bx"])
     for ttt in ticks:
-        cc = six.next(ccc)
+        cc = next(ccc)
         for (xx, yy), aa in ttt:
             plt.plot([xx], [yy], cc)
 

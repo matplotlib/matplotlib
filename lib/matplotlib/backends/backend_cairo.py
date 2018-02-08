@@ -1,21 +1,10 @@
 """
 A Cairo backend for matplotlib
-Author: Steve Chaplin
+==============================
+:Author: Steve Chaplin and others
 
-Cairo is a vector graphics library with cross-device output support.
-Features of Cairo:
- * anti-aliasing
- * alpha channel
- * saves image files as PNG, PostScript, PDF
-
-http://cairographics.org
-Requires (in order, all available from Cairo website):
-    cairo, pycairo
-
-Naming Conventions
-  * classes MixedUpperCase
-  * varables lowerUpper
-  * functions underscore_separated
+This backend depends on `cairo <http://cairographics.org>`_, and either on
+cairocffi, or (Python 2 only) on pycairo.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -24,40 +13,37 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import gzip
-import os
 import sys
 import warnings
 
 import numpy as np
 
+# cairocffi is more widely compatible than pycairo (in particular pgi only
+# works with cairocffi) so try it first.
 try:
     import cairocffi as cairo
 except ImportError:
     try:
         import cairo
     except ImportError:
-        raise ImportError("Cairo backend requires that cairocffi or pycairo "
-                          "is installed.")
+        raise ImportError("cairo backend requires that cairocffi or pycairo "
+                          "is installed")
     else:
         HAS_CAIRO_CFFI = False
 else:
     HAS_CAIRO_CFFI = True
 
-_version_required = (1, 2, 0)
-if cairo.version_info < _version_required:
-    raise ImportError("Pycairo %d.%d.%d is installed\n"
-                      "Pycairo %d.%d.%d or later is required"
-                      % (cairo.version_info + _version_required))
+if cairo.version_info < (1, 4, 0):
+    raise ImportError("cairo {} is installed; "
+                      "cairo>=1.4.0 is required".format(cairo.version))
 backend_version = cairo.version
-del _version_required
 
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox, Affine2D
+from matplotlib.transforms import Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
 
@@ -115,14 +101,14 @@ class RendererCairo(RendererBase):
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
+        # Although it may appear natural to automatically call
+        # `self.set_width_height(surface.get_width(), surface.get_height())`
+        # here (instead of having the caller do so separately), this would fail
+        # for PDF/PS/SVG surfaces, which have no way to report their extents.
 
     def set_width_height(self, width, height):
         self.width  = width
         self.height = height
-        self.matrix_flipy = cairo.Matrix(yy=-1, y0=self.height)
-        # use matrix_flipy for ALL rendering?
-        # - problem with text? - will need to switch matrix_flipy off, or do a
-        # font transform?
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
@@ -170,8 +156,8 @@ class RendererCairo(RendererBase):
         self._fill_and_stroke(
             ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
-    def draw_markers(
-            self, gc, marker_path, marker_trans, path, transform, rgbFace=None):
+    def draw_markers(self, gc, marker_path, marker_trans, path, transform,
+                     rgbFace=None):
         ctx = gc.ctx
 
         ctx.new_path()
@@ -232,11 +218,9 @@ class RendererCairo(RendererBase):
             # the array.array functionality here to get cross version support.
             imbuffer = ArrayWrapper(im.flatten())
         else:
-            # py2cairo uses PyObject_AsWriteBuffer
-            # to get a pointer to the numpy array this works correctly
-            # on a regular numpy array but not on a memory view.
-            # At the time of writing the latest release version of
-            # py3cairo still does not support create_for_data
+            # pycairo uses PyObject_AsWriteBuffer to get a pointer to the
+            # numpy array; this works correctly on a regular numpy array but
+            # not on a py2 memoryview.
             imbuffer = im.flatten()
         surface = cairo.ImageSurface.create_for_data(
             imbuffer, cairo.FORMAT_ARGB32,
@@ -277,7 +261,7 @@ class RendererCairo(RendererBase):
                 if not isinstance(s, six.text_type):
                     s = six.text_type(s)
             else:
-                if not six.PY3 and isinstance(s, six.text_type):
+                if six.PY2 and isinstance(s, six.text_type):
                     s = s.encode("utf-8")
 
             ctx.show_text(s)
@@ -318,18 +302,13 @@ class RendererCairo(RendererBase):
 
         ctx.restore()
 
-    def flipy(self):
-        return True
-        #return False # tried - all draw objects ok except text (and images?)
-        # which comes out mirrored!
-
     def get_canvas_width_height(self):
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
-            width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
-               s, self.dpi, prop)
+            width, height, descent, fonts, used_characters = \
+                self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
         ctx = self.text_ctx
@@ -354,7 +333,7 @@ class RendererCairo(RendererBase):
 
     def new_gc(self):
         self.gc.ctx.save()
-        self.gc._alpha = 1.0
+        self.gc._alpha = 1
         self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
         return self.gc
 
@@ -391,8 +370,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         else:
             self.ctx.set_source_rgba(rgb[0], rgb[1], rgb[2], rgb[3])
 
-    #def set_antialiased(self, b):
-        # enable/disable anti-aliasing is not (yet) supported by Cairo
+    # def set_antialiased(self, b):
+        # cairo has many antialiasing modes, we need to pick one for True and
+        # one for False.
 
     def set_capstyle(self, cs):
         if cs in ('butt', 'round', 'projecting'):
@@ -404,9 +384,7 @@ class GraphicsContextCairo(GraphicsContextBase):
     def set_clip_rectangle(self, rectangle):
         if not rectangle:
             return
-        x, y, w, h = rectangle.bounds
-        # pixel-aligned clip-regions are faster
-        x,y,w,h = np.round(x), np.round(y), np.round(w), np.round(h)
+        x, y, w, h = np.round(rectangle.bounds)
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle(x, self.renderer.height - h - y, w, h)
@@ -455,6 +433,8 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
 class FigureCanvasCairo(FigureCanvasBase):
+    supports_blit = False
+
     def print_png(self, fobj, *args, **kwargs):
         width, height = self.get_width_height()
 
@@ -522,14 +502,9 @@ class FigureCanvasCairo(FigureCanvasBase):
         ctx = renderer.gc.ctx
 
         if orientation == 'landscape':
-            ctx.rotate(np.pi/2)
+            ctx.rotate(np.pi / 2)
             ctx.translate(0, -height_in_points)
-            # cairo/src/cairo_ps_surface.c
-            # '%%Orientation: Portrait' is always written to the file header
-            # '%%Orientation: Landscape' would possibly cause problems
-            # since some printers would rotate again ?
-            # TODO:
-            # add portrait/landscape checkbox to FileChooser
+            # Perhaps add an '%%Orientation: Landscape' comment?
 
         self.figure.draw(renderer)
 

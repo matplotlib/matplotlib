@@ -32,7 +32,7 @@ This turns on inline plotting, where plot graphics will appear in your
 notebook.  This has important implications for interactivity.  For inline plotting, commands in
 cells below the cell that outputs a plot will not affect the plot.  For example,
 changing the color map is not possible from cells below the cell that creates a plot.
-However, for other backends, such as qt4, that open a separate window,
+However, for other backends, such as Qt5, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.
 
@@ -58,7 +58,7 @@ import numpy as np
 # ===============================================
 #
 # Loading image data is supported by the `Pillow
-# <http://python-imaging.github.io/>`_ library.  Natively, matplotlib only
+# <https://python-pillow.org/>`_ library.  Natively, matplotlib only
 # supports PNG images.  The commands shown below fall back on Pillow if the
 # native read fails.
 #
@@ -266,7 +266,7 @@ imgplot = plt.imshow(img)
 imgplot = plt.imshow(img, interpolation="nearest")
 
 ###############################################################################
-# and bucibic:
+# and bicubic:
 
 imgplot = plt.imshow(img, interpolation="bicubic")
 

@@ -26,7 +26,6 @@ def get_flip_min_max(coord, index, mins, maxs):
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
     coord = copy.copy(coord)
-    #print coord, centers, deltas, axmask
     for i in range(3):
         if not axmask[i]:
             continue
@@ -259,7 +258,8 @@ class Axis(maxis.XAxis):
         edgep2 = edgep1.copy()
         edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
         pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
-        centpt = proj3d.proj_transform(centers[0], centers[1], centers[2], renderer.M)
+        centpt = proj3d.proj_transform(
+            centers[0], centers[1], centers[2], renderer.M)
         self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
         self.line.draw(renderer)
 
@@ -319,7 +319,8 @@ class Axis(maxis.XAxis):
 
         pos = copy.copy(outeredgep)
         pos = move_from_center(pos, centers, labeldeltas, axmask)
-        olx, oly, olz = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+        olx, oly, olz = proj3d.proj_transform(
+            pos[0], pos[1], pos[2], renderer.M)
         self.offsetText.set_text( self.major.formatter.get_offset() )
         self.offsetText.set_position( (olx, oly) )
         angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
@@ -328,20 +329,20 @@ class Axis(maxis.XAxis):
         # the alignment point is used as the "fulcrum" for rotation.
         self.offsetText.set_rotation_mode('anchor')
 
-        #-----------------------------------------------------------------------
+        #----------------------------------------------------------------------
         # Note: the following statement for determining the proper alignment of
-        #       the offset text. This was determined entirely by trial-and-error
-        #       and should not be in any way considered as "the way".  There are
-        #       still some edge cases where alignment is not quite right, but
-        #       this seems to be more of a geometry issue (in other words, I
-        #       might be using the wrong reference points).
+        # the offset text. This was determined entirely by trial-and-error
+        # and should not be in any way considered as "the way".  There are
+        # still some edge cases where alignment is not quite right, but this
+        # seems to be more of a geometry issue (in other words, I might be
+        # using the wrong reference points).
         #
-        #   (TT, FF, TF, FT) are the shorthand for the tuple of
-        #     (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
-        #      centpt[index] <= peparray[index, outerindex])
+        # (TT, FF, TF, FT) are the shorthand for the tuple of
+        #   (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
+        #    centpt[index] <= peparray[index, outerindex])
         #
-        #   Three-letters (e.g., TFT, FTT) are short-hand for the array
-        #    of bools from the variable 'highs'.
+        # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
+        # from the variable 'highs'.
         # ---------------------------------------------------------------------
         if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex] :
             # if FT and if highs has an even number of Trues

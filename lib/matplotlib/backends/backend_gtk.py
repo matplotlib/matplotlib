@@ -393,8 +393,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         """Expose_event for all GTK backends. Should not be overridden.
         """
         toolbar = self.toolbar
-        if toolbar:
-            toolbar.set_cursor(cursors.WAIT)
+        # if toolbar:
+        #     toolbar.set_cursor(cursors.WAIT)
         if GTK_WIDGET_DRAWABLE(self):
             if self._need_redraw:
                 x, y, w, h = self.allocation
@@ -404,8 +404,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             x, y, w, h = event.area
             self.window.draw_drawable (self.style.fg_gc[self.state],
                                        self._pixmap, x, y, x, y, w, h)
-        if toolbar:
-            toolbar.set_cursor(toolbar._lastCursor)
+        # if toolbar:
+        #     toolbar.set_cursor(toolbar._lastCursor)
         return False  # finish event propagation?
 
     filetypes = FigureCanvasBase.filetypes.copy()
@@ -484,7 +484,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             gtk.main_iteration(True)
         gtk.gdk.flush()
         gtk.gdk.threads_leave()
-
 
 
 class FigureManagerGTK(FigureManagerBase):
@@ -576,7 +575,7 @@ class FigureManagerGTK(FigureManagerBase):
     def show(self):
         # show the figure window
         self.window.show()
-        # raise the window above others and relase the "above lock"
+        # raise the window above others and release the "above lock"
         self.window.set_keep_above(True)
         self.window.set_keep_above(False)
 
@@ -1012,7 +1011,7 @@ def error_msg_gtk(msg, parent=None):
             parent = None
 
     if not isinstance(msg, six.string_types):
-        msg = ','.join(map(str,msg))
+        msg = ','.join(map(str, msg))
 
     dialog = gtk.MessageDialog(
         parent         = parent,

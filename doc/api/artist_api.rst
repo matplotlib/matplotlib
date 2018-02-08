@@ -34,7 +34,6 @@ Interactive
    Artist.get_contains
    Artist.get_cursor_data
    Artist.get_picker
-   Artist.hitlist
    Artist.mouseover
    Artist.pchanged
    Artist.pick

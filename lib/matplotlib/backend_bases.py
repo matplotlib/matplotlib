@@ -49,23 +49,13 @@ import warnings
 from weakref import WeakKeyDictionary
 
 import numpy as np
-import matplotlib.cbook as cbook
-import matplotlib.colors as colors
-import matplotlib.transforms as transforms
-import matplotlib.widgets as widgets
-from matplotlib import rcParams
-from matplotlib import is_interactive
-from matplotlib import get_backend
-from matplotlib import lines
+
+from matplotlib import (
+    backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
+    widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
-
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
-
-import matplotlib.tight_bbox as tight_bbox
-import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from matplotlib.cbook import mplDeprecation, warn_deprecated
-import matplotlib.backend_tools as tools
 
 try:
     from PIL import Image
@@ -1057,11 +1047,10 @@ class GraphicsContextBase(object):
         Set the clip path and transformation.  Path should be a
         :class:`~matplotlib.transforms.TransformedPath` instance.
         """
-        if path is not None and not isinstance(path,
-                transforms.TransformedPath):
-            msg = ("Path should be a matplotlib.transforms.TransformedPath"
-                   "instance.")
-            raise ValueError(msg)
+        if (path is not None
+                and not isinstance(path, transforms.TransformedPath)):
+            raise ValueError("Path should be a "
+                             "matplotlib.transforms.TransformedPath instance")
         self._clippath = path
 
     def set_dashes(self, dash_offset, dash_list):
@@ -1081,7 +1070,8 @@ class GraphicsContextBase(object):
         if dash_list is not None:
             dl = np.asarray(dash_list)
             if np.any(dl < 0.0):
-                raise ValueError("All values in the dash list must be positive")
+                raise ValueError(
+                    "All values in the dash list must be positive")
         self._dashes = dash_offset, dash_list
 
     def set_foreground(self, fg, isRGBA=False):
@@ -1278,10 +1268,10 @@ class TimerBase(object):
         Boolean flag indicating whether this timer should operate as single
         shot (run once and then stop). Defaults to `False`.
 
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
+    callbacks : List[Tuple[callable, Tuple, Dict]]
+        Stores list of (func, args, kwargs) tuples that will be called upon
+        timer events. This list can be manipulated directly, or the
+        functions `add_callback` and `remove_callback` can be used.
 
     '''
     def __init__(self, interval=None, callbacks=None):
@@ -1381,9 +1371,12 @@ class TimerBase(object):
         '''
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
-            # docstring above explains why we use `if ret == False` here,
+            # docstring above explains why we use `if ret == 0` here,
             # instead of `if not ret`.
-            if ret == False:
+            # This will also catch `ret == False` as `False == 0`
+            # but does not annoy the linters
+            # https://docs.python.org/3/library/stdtypes.html#boolean-values
+            if ret == 0:
                 self.callbacks.remove((func, args, kwargs))
 
         if len(self.callbacks) == 0:
@@ -1804,6 +1797,7 @@ class FigureCanvasBase(object):
         """
         return self._is_saving
 
+    @cbook.deprecated("2.2")
     def onRemove(self, ev):
         """
         Mouse event processor which removes the top artist
@@ -2155,6 +2149,15 @@ class FigureCanvasBase(object):
 
         """
         self._is_saving = True
+        # Remove the figure manager, if any, to avoid resizing the GUI widget.
+        # Having *no* manager and a *None* manager are currently different (see
+        # Figure.show); should probably be normalized to None at some point.
+        _no_manager = object()
+        if hasattr(self, 'manager'):
+            manager = self.manager
+            del self.manager
+        else:
+            manager = _no_manager
 
         if format is None:
             # get format from filename, or from backend's default filetype
@@ -2196,16 +2199,9 @@ class FigureCanvasBase(object):
         if bbox_inches:
             # call adjust_bbox to save only the given area
             if bbox_inches == "tight":
-                # when bbox_inches == "tight", it saves the figure
-                # twice. The first save command is just to estimate
-                # the bounding box of the figure. A stringIO object is
-                # used as a temporary file object, but it causes a
-                # problem for some backends (ps backend with
-                # usetex=True) if they expect a filename, not a
-                # file-like object. As I think it is best to change
-                # the backend to support file-like object, i'm going
-                # to leave it as it is. However, a better solution
-                # than stringIO seems to be needed. -JJL
+                # When bbox_inches == "tight", it saves the figure twice.  The
+                # first save command (to a BytesIO) is just to estimate the
+                # bounding box of the figure.
                 result = print_method(
                     io.BytesIO(),
                     dpi=dpi,
@@ -2273,8 +2269,9 @@ class FigureCanvasBase(object):
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
+            if manager is not _no_manager:
+                self.manager = manager
             self._is_saving = False
-            #self.figure.canvas.draw() ## seems superfluous
         return result
 
     @classmethod
@@ -2318,7 +2315,8 @@ class FigureCanvasBase(object):
         i = 1
         while os.path.isfile(os.path.join(save_dir, default_filename)):
             # attach numerical count to basename
-            default_filename = '{0}-{1}.{2}'.format(default_basename, i, default_filetype)
+            default_filename = (
+                '{}-{}.{}'.format(default_basename, i, default_filetype))
             i += 1
 
         return default_filename
@@ -2383,7 +2381,7 @@ class FigureCanvasBase(object):
 
         """
         if s == 'idle_event':
-            warn_deprecated(1.5,
+            cbook.warn_deprecated(1.5,
                 "idle_event is only implemented for the wx backend, and will "
                 "be removed in matplotlib 2.1. Use the animations module "
                 "instead.")
@@ -2415,9 +2413,18 @@ class FigureCanvasBase(object):
         ----------------
         interval : scalar
             Timer interval in milliseconds
-        callbacks : list
+
+        callbacks : List[Tuple[callable, Tuple, Dict]]
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
+
+            callbacks which return ``False`` or ``0`` will be removed from the
+            timer.
+
+        Examples
+        --------
+
+        >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
 
         """
         return TimerBase(*args, **kwargs)
@@ -2696,6 +2703,7 @@ class FigureManagerBase(object):
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
 
+    @cbook.deprecated("2.2")
     def show_popup(self, msg):
         """Display message in a popup -- GUI only."""
 
@@ -2799,15 +2807,6 @@ class NavigationToolbar2(object):
 
         self.mode = ''  # a mode string for the status bar
         self.set_history_buttons()
-
-        @partial(canvas.mpl_connect, 'draw_event')
-        def update_stack(event):
-            nav_info = self._nav_stack()
-            if (nav_info is None  # True initial navigation info.
-                    # An axes has been added or removed, so update the
-                    # navigation info too.
-                    or set(nav_info) != set(self.canvas.figure.axes)):
-                self.push_current()
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar."""
@@ -2940,7 +2939,7 @@ class NavigationToolbar2(object):
         self.set_message(self.mode)
 
     def press(self, event):
-        """Called whenver a mouse button is pressed."""
+        """Called whenever a mouse button is pressed."""
 
     def press_pan(self, event):
         """Callback for mouse button press in pan/zoom mode."""
@@ -2952,6 +2951,10 @@ class NavigationToolbar2(object):
         else:
             self._button_pressed = None
             return
+
+        if self._nav_stack() is None:
+            # set the home button to this view
+            self.push_current()
 
         x, y = event.x, event.y
         self._xypress = []
@@ -2987,6 +2990,10 @@ class NavigationToolbar2(object):
         else:
             self._button_pressed = None
             return
+
+        if self._nav_stack() is None:
+            # set the home button to this view
+            self.push_current()
 
         x, y = event.x, event.y
         self._xypress = []
@@ -3152,8 +3159,8 @@ class NavigationToolbar2(object):
         for ax, (view, (pos_orig, pos_active)) in items:
             ax._set_view(view)
             # Restore both the original and modified positions
-            ax.set_position(pos_orig, 'original')
-            ax.set_position(pos_active, 'active')
+            ax._set_position(pos_orig, 'original')
+            ax._set_position(pos_active, 'active')
         self.canvas.draw_idle()
 
     def save_figure(self, *args):
@@ -3218,6 +3225,13 @@ class ToolContainerBase(object):
         The tools with which this `ToolContainer` wants to communicate.
     """
 
+    _icon_extension = '.png'
+    """
+    Toolcontainer button icon image format extension
+
+    **String**: Image extension
+    """
+
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_removed_event',
@@ -3262,14 +3276,19 @@ class ToolContainerBase(object):
 
     def _get_image_filename(self, image):
         """Find the image based on its name."""
-        # TODO: better search for images, they are not always in the
-        # datapath
+        if not image:
+            return None
+
         basedir = os.path.join(rcParams['datapath'], 'images')
-        if image is not None:
-            fname = os.path.join(basedir, image)
-        else:
-            fname = None
-        return fname
+        possible_images = (
+            image,
+            image + self._icon_extension,
+            os.path.join(basedir, image),
+            os.path.join(basedir, image) + self._icon_extension)
+
+        for fname in possible_images:
+            if os.path.isfile(fname):
+                return fname
 
     def trigger_tool(self, name):
         """

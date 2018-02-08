@@ -54,7 +54,7 @@ class ToolBase(object):
     Keymap to associate with this tool
 
     **String**: List of comma separated keys that will be used to call this
-    tool when the keypress event of *self.figure.canvas* is emited
+    tool when the keypress event of *self.figure.canvas* is emitted
     """
 
     description = None
@@ -154,7 +154,7 @@ class ToolToggleBase(ToolBase):
     ``*args``
         Variable length argument to be used by the Tool
     ``**kwargs``
-        `toggled` if present and True, sets the initial state ot the Tool
+        `toggled` if present and True, sets the initial state of the Tool
         Arbitrary keyword arguments to be consumed by the Tool
     """
 
@@ -228,8 +228,8 @@ class ToolToggleBase(ToolBase):
             if figure:
                 self.trigger(self, None)
             else:
-                # if there is no figure, triggen wont change the internal state
-                # we change it back
+                # if there is no figure, trigger won't change the internal
+                # state we change it back
                 self._toggled = True
 
 
@@ -622,8 +622,8 @@ class ToolViewsPositions(ToolBase):
         if set(all_axes).issubset(pos):
             for a in all_axes:
                 # Restore both the original and modified positions
-                a.set_position(pos[a][0], 'original')
-                a.set_position(pos[a][1], 'active')
+                a._set_position(pos[a][0], 'original')
+                a._set_position(pos[a][1], 'active')
 
         self.figure.canvas.draw_idle()
 
@@ -724,7 +724,7 @@ class ToolHome(ViewsPositionsBase):
     """Restore the original view lim"""
 
     description = 'Reset original view'
-    image = 'home.png'
+    image = 'home'
     default_keymap = rcParams['keymap.home']
     _on_trigger = 'home'
 
@@ -733,7 +733,7 @@ class ToolBack(ViewsPositionsBase):
     """Move back up the view lim stack"""
 
     description = 'Back to previous view'
-    image = 'back.png'
+    image = 'back'
     default_keymap = rcParams['keymap.back']
     _on_trigger = 'back'
 
@@ -742,7 +742,7 @@ class ToolForward(ViewsPositionsBase):
     """Move forward in the view lim stack"""
 
     description = 'Forward to next view'
-    image = 'forward.png'
+    image = 'forward'
     default_keymap = rcParams['keymap.forward']
     _on_trigger = 'forward'
 
@@ -751,14 +751,14 @@ class ConfigureSubplotsBase(ToolBase):
     """Base tool for the configuration of subplots"""
 
     description = 'Configure subplots'
-    image = 'subplots.png'
+    image = 'subplots'
 
 
 class SaveFigureBase(ToolBase):
     """Base tool for figure saving"""
 
     description = 'Save the figure'
-    image = 'filesave.png'
+    image = 'filesave'
     default_keymap = rcParams['keymap.save']
 
 
@@ -830,7 +830,7 @@ class ToolZoom(ZoomPanBase):
     """Zoom to rectangle"""
 
     description = 'Zoom to rectangle'
-    image = 'zoom_to_rect.png'
+    image = 'zoom_to_rect'
     default_keymap = rcParams['keymap.zoom']
     cursor = cursors.SELECT_REGION
     radio_group = 'default'
@@ -957,7 +957,7 @@ class ToolPan(ZoomPanBase):
 
     default_keymap = rcParams['keymap.pan']
     description = 'Pan axes with left mouse, zoom with right'
-    image = 'move.png'
+    image = 'move'
     cursor = cursors.MOVE
     radio_group = 'default'
 

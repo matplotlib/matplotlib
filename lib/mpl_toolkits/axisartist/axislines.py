@@ -46,30 +46,18 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib.axes as maxes
-import matplotlib.artist as martist
-import matplotlib.text as mtext
-import matplotlib.font_manager as font_manager
-
-from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, ScaledTranslation, \
-     IdentityTransform, TransformedPath, Bbox
-from matplotlib.collections import LineCollection
-
-from matplotlib import rcParams
-
-from matplotlib.artist import allow_rasterization
-
 import warnings
 
 import numpy as np
 
-
-import matplotlib.lines as mlines
+from matplotlib import rcParams
+import matplotlib.artist as martist
+import matplotlib.axes as maxes
+from matplotlib.path import Path
+from matplotlib.transforms import Bbox
 from .axisline_style import AxislineStyle
-
-
 from .axis_artist import AxisArtist, GridlinesCollection
+
 
 class AxisArtistHelper(object):
     """
@@ -245,20 +233,14 @@ class AxisArtistHelperRectlinear(object):
 
     class Fixed(AxisArtistHelper.Fixed):
 
-        def __init__(self,
-                     axes, loc, nth_coord=None,
-                     ):
+        def __init__(self, axes, loc, nth_coord=None):
             """
             nth_coord = along which coordinate value varies
             in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
-
-            super(AxisArtistHelperRectlinear.Fixed, self).__init__( \
-                     loc, nth_coord)
-
+            super(AxisArtistHelperRectlinear.Fixed, self).__init__(
+                loc, nth_coord)
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
-
-
 
         # TICK
 
@@ -305,13 +287,10 @@ class AxisArtistHelperRectlinear(object):
     class Floating(AxisArtistHelper.Floating):
         def __init__(self, axes, nth_coord,
                      passingthrough_point, axis_direction="bottom"):
-
-            super(AxisArtistHelperRectlinear.Floating, self).__init__( \
+            super(AxisArtistHelperRectlinear.Floating, self).__init__(
                 nth_coord, passingthrough_point)
             self._axis_direction = axis_direction
-
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
-
 
         def get_line(self, axes):
             _verts = np.array([[0., 0.],
@@ -510,13 +489,14 @@ class GridHelperRectlinear(GridHelperBase):
                           ):
 
         if axes is None:
-            warnings.warn("'new_floating_axis' explicitly requires the axes keyword.")
+            warnings.warn(
+                "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
         passthrough_point = (value, value)
         transform = axes.transData
 
-        _helper = AxisArtistHelperRectlinear.Floating( \
+        _helper = AxisArtistHelperRectlinear.Floating(
             axes, nth_coord, value, axis_direction)
 
         axisline = AxisArtist(axes, _helper)

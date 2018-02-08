@@ -134,3 +134,5 @@ ax.grid()
 # functions :meth:`~matplotlib.axes.Axes.axhspan` and
 # :meth:`~matplotlib.axes.Axes.axvspan` and example
 # :ref:`sphx_glr_gallery_subplots_axes_and_figures_axhspan_demo.py`.
+
+plt.show()

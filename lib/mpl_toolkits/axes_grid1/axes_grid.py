@@ -3,11 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib as mpl
 import matplotlib.axes as maxes
 import matplotlib.cbook as cbook
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
@@ -59,7 +56,6 @@ class CbarAxesBase(object):
         self._config_axes()
 
         def on_changed(m):
-            #print 'calling on changed', m.get_cmap().name
             cb.set_cmap(m.get_cmap())
             cb.set_clim(m.get_clim())
             cb.update_bruteforce(m)
@@ -169,10 +165,10 @@ class Grid(object):
           axes_pad          0.02      float| pad between axes given in inches
                                       or tuple-like of floats,
                                       (horizontal padding, vertical padding)
-          add_all           True      [ True | False ]
-          share_all         False     [ True | False ]
-          share_x           True      [ True | False ]
-          share_y           True      [ True | False ]
+          add_all           True      bool
+          share_all         False     bool
+          share_x           True      bool
+          share_y           True      bool
           label_mode        "L"       [ "L" | "1" | "all" ]
           axes_class        None      a type object which must be a subclass
                                       of :class:`~matplotlib.axes.Axes`
@@ -466,15 +462,15 @@ class ImageGrid(Grid):
           axes_pad          0.02      float| pad between axes given in inches
                                       or tuple-like of floats,
                                       (horizontal padding, vertical padding)
-          add_all           True      [ True | False ]
-          share_all         False     [ True | False ]
-          aspect            True      [ True | False ]
+          add_all           True      bool
+          share_all         False     bool
+          aspect            True      bool
           label_mode        "L"       [ "L" | "1" | "all" ]
           cbar_mode         None      [ "each" | "single" | "edge" ]
           cbar_location     "right"   [ "left" | "right" | "bottom" | "top" ]
           cbar_pad          None
           cbar_size         "5%"
-          cbar_set_cax      True      [ True | False ]
+          cbar_set_cax      True      bool
           axes_class        None      a type object which must be a subclass
                                       of axes_grid's subclass of
                                       :class:`~matplotlib.axes.Axes`
@@ -488,8 +484,8 @@ class ImageGrid(Grid):
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if (ngrids > self._nrows * self._ncols) or (ngrids <= 0):
-                raise Exception("")
+            if not 0 <= ngrids < self._nrows * self._ncols:
+                raise Exception
 
         self.ngrids = ngrids
 

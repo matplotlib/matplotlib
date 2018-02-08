@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 from numpy.testing import assert_almost_equal
 import numpy as np
@@ -579,7 +578,7 @@ class TestEngFormatter(object):
         (-0.0, ('0', '0', '0.00')),
         (-0, ('0', '0', '0.00')),
         (0, ('0', '0', '0.00')),
-        (1.23456789e-6, ('1.23457 \u03bc', '1 \u03bc', '1.23 \u03bc')),
+        (1.23456789e-6, (u'1.23457 \u03bc', u'1 \u03bc', u'1.23 \u03bc')),
         (0.123456789, ('123.457 m', '123 m', '123.46 m')),
         (0.1, ('100 m', '100 m', '100.00 m')),
         (1, ('1', '1', '1.00')),

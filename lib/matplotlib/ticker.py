@@ -475,7 +475,6 @@ class OldScalarFormatter(Formatter):
         else:
             fmt = '%1.3f'
         s = fmt % x
-        #print d, x, fmt, s
         tup = s.split('e')
         if len(tup) == 2:
             mantissa = tup[0].rstrip('0').rstrip('.')
@@ -1389,9 +1388,9 @@ class PercentFormatter(Formatter):
         """
         The configured percent symbol as a string.
 
-        If LaTeX is enabled via ``rcParams['text.usetex']``, the special
-        characters `{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`
-        are automatically escaped in the string.
+        If LaTeX is enabled via :rc:`text.usetex`, the special characters
+        ``{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`` are
+        automatically escaped in the string.
         """
         symbol = self._symbol
         if not symbol:
@@ -1459,10 +1458,9 @@ class Locator(TickHelper):
         """raise a RuntimeError if Locator attempts to create more than
            MAXTICKS locs"""
         if len(locs) >= self.MAXTICKS:
-            msg = ('Locator attempting to generate %d ticks from %s to %s: ' +
-                   'exceeds Locator.MAXTICKS') % (len(locs), locs[0], locs[-1])
-            raise RuntimeError(msg)
-
+            raise RuntimeError("Locator attempting to generate {} ticks from "
+                               "{} to {}: exceeds Locator.MAXTICKS".format(
+                                   len(locs), locs[0], locs[-1]))
         return locs
 
     def view_limits(self, vmin, vmax):
@@ -1575,7 +1573,7 @@ class FixedLocator(Locator):
         """
         if self.nbins is None:
             return self.locs
-        step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
+        step = max(int(np.ceil(len(self.locs) / self.nbins)), 1)
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]
@@ -1804,7 +1802,11 @@ class MaxNLocator(Locator):
 
         *steps*
             Sequence of nice numbers starting with 1 and ending with 10;
-            e.g., [1, 2, 4, 5, 10]
+            e.g., [1, 2, 4, 5, 10], where the values are acceptable
+            tick multiples.  i.e. for the example, 20, 40, 60 would be
+            an acceptable set of ticks, as would 0.4, 0.6, 0.8, because
+            they are multiples of 2.  However, 30, 60, 90 would not
+            be allowed because 3 does not appear in the list of steps.
 
         *integer*
             If True, ticks will take only integer values, provided
@@ -1817,14 +1819,13 @@ class MaxNLocator(Locator):
 
         *prune*
             ['lower' | 'upper' | 'both' | None]
-            Remove edge ticks -- useful for stacked or ganged plots
-            where the upper tick of one axes overlaps with the lower
-            tick of the axes above it, primarily when
-            `rcParams['axes.autolimit_mode']` is `'round_numbers'`.
-            If `prune=='lower'`, the smallest tick will
-            be removed.  If `prune=='upper'`, the largest tick will be
-            removed.  If `prune=='both'`, the largest and smallest ticks
-            will be removed.  If `prune==None`, no ticks will be removed.
+            Remove edge ticks -- useful for stacked or ganged plots where
+            the upper tick of one axes overlaps with the lower tick of the
+            axes above it, primarily when :rc:`axes.autolimit_mode` is
+            ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
+            be removed.  If ``prune == 'upper'``, the largest tick will be
+            removed.  If ``prune == 'both'``, the largest and smallest ticks
+            will be removed.  If ``prune == None``, no ticks will be removed.
 
         *min_n_ticks*
             Relax `nbins` and `integer` constraints if necessary to
@@ -1872,10 +1873,6 @@ class MaxNLocator(Locator):
             self._nbins = kwargs['nbins']
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
-        if 'trim' in kwargs:
-            warnings.warn(
-                "The 'trim' keyword has no effect since version 2.0.",
-                mplDeprecation)
         if 'symmetric' in kwargs:
             self._symmetric = kwargs['symmetric']
         if 'prune' in kwargs:
@@ -1942,10 +1939,6 @@ class MaxNLocator(Locator):
             if nticks >= self._min_n_ticks:
                 break
         return ticks
-
-    @cbook.deprecated("2.0")
-    def bin_boundaries(self, vmin, vmax):
-        return self._raw_ticks(vmin, vmax)
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
@@ -2329,7 +2322,7 @@ class SymmetricalLogLocator(Locator):
         total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
         if has_b:
             total_ticks += 1
-        stride = max(np.floor(float(total_ticks) / (self.numticks - 1)), 1)
+        stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:
@@ -2351,7 +2344,10 @@ class SymmetricalLogLocator(Locator):
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * decade)
+                if decade == 0:
+                    ticklocs.append(decade)
+                else:
+                    ticklocs.extend(subs * decade)
         else:
             ticklocs = decades
 

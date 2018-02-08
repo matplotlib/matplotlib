@@ -223,7 +223,7 @@ for cmap_category, cmap_list in cmaps.items():
     # Do subplots so that colormaps have enough space.
     # Default is 6 colormaps per subplot.
     dsub = _DSUBS.get(cmap_category, 6)
-    nsubplots = int(np.ceil(len(cmap_list) / float(dsub)))
+    nsubplots = int(np.ceil(len(cmap_list) / dsub))
 
     # squeeze=False to handle similarly the case of a single subplot
     fig, axes = plt.subplots(nrows=nsubplots, squeeze=False,
@@ -311,7 +311,7 @@ for cmap_category, cmap_list in cmaps.items():
 # have very little grayscale change. If a colormap like this was used in a plot
 # and then the plot was printed to grayscale, a lot of the information may map to
 # the same gray values. The Diverging colormaps mostly vary from darker gray on
-# the outer edges to white in the middle. Some (PuOr and seismic) have noticably
+# the outer edges to white in the middle. Some (PuOr and seismic) have noticeably
 # darker gray on one side than the other and therefore are not very symmetric.
 # coolwarm has little range of gray scale and would print to a more uniform plot,
 # losing a lot of detail. Note that overlaid, labeled contours could help

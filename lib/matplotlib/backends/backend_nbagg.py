@@ -3,15 +3,13 @@
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
 
-import datetime
-from base64 import b64encode
-import json
-import io
-import os
 import six
-from uuid import uuid4 as uuid
 
-import tornado.ioloop
+from base64 import b64encode
+import io
+import json
+import os
+import uuid
 
 from IPython.display import display, Javascript, HTML
 try:
@@ -23,19 +21,11 @@ except ImportError:
 
 from matplotlib import rcParams, is_interactive
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, NavigationToolbar2)
 from matplotlib.backends.backend_webagg_core import (
     FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
     TimerTornado)
-from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, NavigationToolbar2)
-from matplotlib.figure import Figure
-from matplotlib import is_interactive
-from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
-                                                     FigureCanvasWebAggCore,
-                                                     NavigationToolbar2WebAgg,
-                                                     TimerTornado)
-from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
-                                      FigureCanvasBase)
 
 
 def connection_info():
@@ -174,7 +164,7 @@ class CommSocket(object):
     def __init__(self, manager):
         self.supports_binary = None
         self.manager = manager
-        self.uuid = str(uuid())
+        self.uuid = str(uuid.uuid4())
         # Publish an output area with a unique ID. The javascript can then
         # hook into this area.
         display(HTML("<div id=%r></div>" % self.uuid))
@@ -244,8 +234,6 @@ class _BackendNbAgg(_Backend):
     @staticmethod
     def new_figure_manager_given_figure(num, figure):
         canvas = FigureCanvasNbAgg(figure)
-        if rcParams['nbagg.transparent']:
-            figure.patch.set_alpha(0)
         manager = FigureManagerNbAgg(canvas, num)
         if is_interactive():
             manager.show()

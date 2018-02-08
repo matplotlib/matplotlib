@@ -28,11 +28,11 @@ fig, axes = plt.subplots(nrows=2, ncols=2)
 ax0, ax1, ax2, ax3 = axes.flatten()
 
 colors = ['red', 'tan', 'lime']
-ax0.hist(x, n_bins, normed=1, histtype='bar', color=colors, label=colors)
+ax0.hist(x, n_bins, density=True, histtype='bar', color=colors, label=colors)
 ax0.legend(prop={'size': 10})
 ax0.set_title('bars with legend')
 
-ax1.hist(x, n_bins, normed=1, histtype='bar', stacked=True)
+ax1.hist(x, n_bins, density=True, histtype='bar', stacked=True)
 ax1.set_title('stacked bar')
 
 ax2.hist(x, n_bins, histtype='step', stacked=True, fill=False)

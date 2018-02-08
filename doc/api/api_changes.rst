@@ -10,6 +10,39 @@ out what caused the breakage and how to fix it by updating your code.
 For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
+API Changes in 2.2.0
+====================
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   next_api_changes/*
+
+
+API Changes in 2.1.2
+====================
+
+`Figure.legend` no longer checks for repeated lines to ignore
+-------------------------------------------------------------
+
+`matplotlib.Figure.legend` used to check if a line had the
+same label as an existing legend entry. If it also had the same line color
+or marker color legend didn't add a new entry for that line. However, the
+list of conditions was incomplete, didn't handle RGB tuples,
+didn't handle linewidths or linestyles etc.
+
+This logic did not exist in `Axes.legend`.  It was included (erroneously)
+in Matplotlib 2.1.1 when the legend argument parsing was unified
+[#9324](https://github.com/matplotlib/matplotlib/pull/9324).  This change
+removes that check in `Axes.legend` again to restore the old behavior.
+
+This logic has also been dropped from `.Figure.legend`, where it
+was previously undocumented. Repeated
+lines with the same label will now each have an entry in the legend.  If
+you do not want the duplicate entries, don't add a label to the line, or
+prepend the label with an underscore.
+
 API Changes in 2.1.1
 ====================
 
@@ -758,7 +791,7 @@ Default Behavior Changes
 Changed default ``autorange`` behavior in boxplots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Prior to v1.5.2, the whiskers of boxplots would extend to the mininum
+Prior to v1.5.2, the whiskers of boxplots would extend to the minimum
 and maximum values if the quartiles were all equal (i.e., Q1 = median
 = Q3). This behavior has been disabled by default to restore consistency
 with other plotting packages.
@@ -3429,7 +3462,7 @@ Changes for 0.40
   - Patches
      * Initialized with a transx, transy which are Transform instances
 
-  - FigureBase attributes dpi is a DPI intance rather than scalar and
+  - FigureBase attributes dpi is a DPI instance rather than scalar and
     new attribute bbox is a Bound2D in display coords, and I got rid
     of the left, width, height, etc... attributes.  These are now
     accessible as, for example, bbox.x.min is left, bbox.x.interval()

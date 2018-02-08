@@ -66,7 +66,7 @@ class TriInterpolator(object):
     # (except, if needed, relevant additions).
     # However these methods are only implemented in subclasses to avoid
     # confusion in the documentation.
-    docstring__call__ = """
+    _docstring__call__ = """
         Returns a masked array containing interpolated values at the specified
         x,y points.
 
@@ -85,7 +85,7 @@ class TriInterpolator(object):
 
         """
 
-    docstringgradient = """
+    _docstringgradient = """
         Returns a list of 2 masked arrays containing interpolated derivatives
         at the specified x,y points.
 
@@ -274,12 +274,12 @@ class LinearTriInterpolator(TriInterpolator):
     def __call__(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('z',))[0]
-    __call__.__doc__ = TriInterpolator.docstring__call__
+    __call__.__doc__ = TriInterpolator._docstring__call__
 
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient
+    gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         if return_key == 'z':
@@ -433,12 +433,12 @@ class CubicTriInterpolator(TriInterpolator):
     def __call__(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('z',))[0]
-    __call__.__doc__ = TriInterpolator.docstring__call__
+    __call__.__doc__ = TriInterpolator._docstring__call__
 
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient
+    gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         tris_pts = self._tris_pts[tri_index]
@@ -784,7 +784,7 @@ class _ReducedHCT_Element():
         dsdksi = _roll_vectorized(prod, 3*subtri, axis=0)
         dfdksi = _prod_vectorized(dofs, dsdksi)
         # In global coordinates:
-        # Here we try to deal with the simpliest colinear cases, returning a
+        # Here we try to deal with the simplest colinear cases, returning a
         # null matrix.
         J_inv = _safe_inv22_vectorized(J)
         dfdx = _prod_vectorized(J_inv, _transpose_vectorized(dfdksi))
@@ -925,7 +925,7 @@ class _ReducedHCT_Element():
         to global coordinates.
         if *return_area* is True, returns also the triangle area (0.5*det(J))
         """
-        # Here we try to deal with the simpliest colinear cases ; a null
+        # Here we try to deal with the simplest colinear cases ; a null
         # energy and area is imposed.
         J_inv = _safe_inv22_vectorized(J)
         Ji00 = J_inv[:, 0, 0]
@@ -1162,7 +1162,7 @@ class _DOF_estimator_geom(_DOF_estimator):
         dM1 = tris_pts[:, 1, :] - tris_pts[:, 0, :]
         dM2 = tris_pts[:, 2, :] - tris_pts[:, 0, :]
         dM = np.dstack([dM1, dM2])
-        # Here we try to deal with the simpliest colinear cases: a null
+        # Here we try to deal with the simplest colinear cases: a null
         # gradient is assumed in this case.
         dM_inv = _safe_inv22_vectorized(dM)
 

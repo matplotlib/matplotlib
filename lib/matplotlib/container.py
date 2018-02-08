@@ -10,10 +10,14 @@ import matplotlib.artist as martist
 class Container(tuple):
     """
     Base class for containers.
+
+    Containers are classes that collect semantically related Artists such as
+    the bars of a bar plot.
     """
 
     def __repr__(self):
-        return "<Container object of %d artists>" % (len(self))
+        return ("<{} object of {} artists>"
+                .format(type(self).__name__, len(self)))
 
     def __new__(cls, *kl, **kwargs):
         return tuple.__new__(cls, kl[0])
@@ -106,6 +110,23 @@ class Container(tuple):
 
 
 class BarContainer(Container):
+    """
+    Container for the artists of bar plots (e.g. created by `.Axes.bar`).
+
+    The container can be treated as a tuple of the *patches* themselves.
+    Additionally, you can access these and further parameters by the
+    attributes.
+
+    Attributes
+    ----------
+    patches : list of :class:`~matplotlib.patches.Rectangle`
+        The artists of the bars.
+
+    errorbar : None or :class:`~matplotlib.container.ErrorbarContainer`
+        A container for the error bar artists if error bars are present.
+        *None* otherwise.
+
+    """
 
     def __init__(self, patches, errorbar=None, **kwargs):
         self.patches = patches
@@ -114,6 +135,29 @@ class BarContainer(Container):
 
 
 class ErrorbarContainer(Container):
+    """
+    Container for the artists of error bars (e.g. created by `.Axes.errorbar`).
+
+    The container can be treated as the *lines* tuple itself.
+    Additionally, you can access these and further parameters by the
+    attributes.
+
+    Attributes
+    ----------
+    lines : tuple
+        Tuple of ``(data_line, caplines, barlinecols)``.
+
+        - data_line : :class:`~matplotlib.lines.Line2D` instance of
+          x, y plot markers and/or line.
+        - caplines : tuple of :class:`~matplotlib.lines.Line2D` instances of
+          the error bar caps.
+        - barlinecols : list of :class:`~matplotlib.collections.LineCollection`
+          with the horizontal and vertical error ranges.
+
+    has_xerr, has_yerr : bool
+        ``True`` if the errorbar has x/y errors.
+
+    """
 
     def __init__(self, lines, has_xerr=False, has_yerr=False, **kwargs):
         self.lines = lines
@@ -123,6 +167,24 @@ class ErrorbarContainer(Container):
 
 
 class StemContainer(Container):
+    """
+    Container for the artists created in a :meth:`.Axes.stem` plot.
+
+    The container can be treated like a namedtuple ``(markerline, stemlines,
+    baseline)``.
+
+    Attributes
+    ----------
+    markerline :  :class:`~matplotlib.lines.Line2D`
+        The artist of the markers at the stem heads.
+
+    stemlines : list of :class:`~matplotlib.lines.Line2D`
+        The artists of the vertical lines for all stems.
+
+    baseline : :class:`~matplotlib.lines.Line2D`
+        The artist of the horizontal baseline.
+
+    """
 
     def __init__(self, markerline_stemlines_baseline, **kwargs):
         markerline, stemlines, baseline = markerline_stemlines_baseline

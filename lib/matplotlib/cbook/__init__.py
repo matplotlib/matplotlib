@@ -6,12 +6,13 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange, zip
+import bz2
 import collections
+import contextlib
 import datetime
 import errno
 import functools
@@ -30,26 +31,25 @@ import traceback
 import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 import numpy as np
 
+import matplotlib
+from .deprecation import deprecated, warn_deprecated
+from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
-# On some systems, locale.getpreferredencoding returns None,
-# which can break unicode; and the sage project reports that
-# some systems have incorrect locale specifications, e.g.,
-# an encoding instead of a valid locale name.  Another
-# pathological case that has been reported is an empty string.
-
-# On some systems, getpreferredencoding sets the locale, which has
-# side effects.  Passing False eliminates those side effects.
 
 def unicode_safe(s):
-    import matplotlib
 
     if isinstance(s, bytes):
         try:
+            # On some systems, locale.getpreferredencoding returns None,
+            # which can break unicode; and the sage project reports that
+            # some systems have incorrect locale specifications, e.g.,
+            # an encoding instead of a valid locale name.  Another
+            # pathological case that has been reported is an empty string.
+            # On some systems, getpreferredencoding sets the locale, which has
+            # side effects.  Passing False eliminates those side effects.
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
             if not preferredencoding:
@@ -586,12 +586,16 @@ def is_numlike(obj):
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False):
+def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     """
-    *fname* can be a filename or a file handle.  Support for gzipped
+    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
+    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
+        return to_filehandle(
+            os.fspath(fname),
+            flag=flag, return_opened=return_opened, encoding=encoding)
     if isinstance(fname, six.string_types):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
@@ -600,19 +604,29 @@ def to_filehandle(fname, flag='rU', return_opened=False):
         elif fname.endswith('.bz2'):
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
-            import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = open(fname, flag)
+            fh = io.open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
         opened = False
     else:
-        raise ValueError('fname must be a string or file handle')
+        raise ValueError('fname must be a PathLike or file handle')
     if return_opened:
         return fh, opened
     return fh
+
+
+@contextlib.contextmanager
+def open_file_cm(path_or_file, mode="r", encoding=None):
+    r"""Pass through file objects and context-manage `~.PathLike`\s."""
+    fh, opened = to_filehandle(path_or_file, mode, True, encoding)
+    if opened:
+        with fh:
+            yield fh
+    else:
+        yield fh
 
 
 def is_scalar_or_string(val):
@@ -624,6 +638,9 @@ def _string_to_bool(s):
     """Parses the string argument as a boolean"""
     if not isinstance(s, six.string_types):
         return bool(s)
+    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
+                    "boolean is deprecated; use an actual boolean "
+                    "(True/False) instead.")
     if s.lower() in ['on', 'true']:
         return True
     if s.lower() in ['off', 'false']:
@@ -645,8 +662,6 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    import matplotlib
-
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
@@ -1436,7 +1451,7 @@ class Grouper(object):
     would be overkill.
 
     Objects can be joined using :meth:`join`, tested for connectedness
-    using :meth:`joined`, and all disjoint sets can be retreived by
+    using :meth:`joined`, and all disjoint sets can be retrieved by
     using the object as an iterator.
 
     The objects being joined must be hashable and weak-referenceable.
@@ -1557,24 +1572,26 @@ class Grouper(object):
 
 
 def simple_linear_interpolation(a, steps):
-    if steps == 1:
-        return a
+    """
+    Resample an array with ``steps - 1`` points between original point pairs.
 
-    steps = int(np.floor(steps))
-    new_length = ((len(a) - 1) * steps) + 1
-    new_shape = list(a.shape)
-    new_shape[0] = new_length
-    result = np.zeros(new_shape, a.dtype)
+    Parameters
+    ----------
+    a : array, shape (n, ...)
+    steps : int
 
-    result[0] = a[0]
-    a0 = a[0:-1]
-    a1 = a[1:]
-    delta = ((a1 - a0) / steps)
-    for i in range(1, steps):
-        result[i::steps] = delta * i + a0
-    result[steps::steps] = a1
+    Returns
+    -------
+    array, shape ``((n - 1) * steps + 1, ...)``
 
-    return result
+    Along each column of *a*, ``(steps - 1)`` points are introduced between
+    each original values; the values are linearly interpolated.
+    """
+    fps = a.reshape((len(a), -1))
+    xp = np.arange(len(a)) * steps
+    x = np.arange((len(a) - 1) * steps + 1)
+    return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
+            .reshape((len(x),) + a.shape[1:]))
 
 
 @deprecated('2.1', alternative='shutil.rmtree')
@@ -1845,9 +1862,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                 loval = np.min(x)
                 hival = np.max(x)
             else:
-                whismsg = ('whis must be a float, valid string, or '
-                           'list of percentiles')
-                raise ValueError(whismsg)
+                raise ValueError('whis must be a float, valid string, or list '
+                                 'of percentiles')
         else:
             loval = np.percentile(x, whis[0])
             hival = np.percentile(x, whis[1])
@@ -1936,6 +1952,7 @@ ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
 
 
+@deprecated('2.2')
 def align_iterators(func, *iterables):
     """
     This generator takes a bunch of iterables that are ordered by func
@@ -1978,6 +1995,32 @@ def align_iterators(func, *iterables):
             yield (minkey, [it(minkey) for it in iters])
         else:
             break
+
+
+def contiguous_regions(mask):
+    """
+    Return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
+    True and we cover all such regions
+    """
+    mask = np.asarray(mask, dtype=bool)
+
+    if not mask.size:
+        return []
+
+    # Find the indices of region changes, and correct offset
+    idx, = np.nonzero(mask[:-1] != mask[1:])
+    idx += 1
+
+    # List operations are faster for moderately sized arrays
+    idx = idx.tolist()
+
+    # Add first and/or last index if needed
+    if mask[0]:
+        idx = [0] + idx
+    if mask[-1]:
+        idx.append(len(mask))
+
+    return list(zip(idx[::2], idx[1::2]))
 
 
 def is_math_text(s):
@@ -2165,7 +2208,7 @@ def pts_to_prestep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2175,13 +2218,14 @@ def pts_to_prestep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
@@ -2202,7 +2246,7 @@ def pts_to_poststep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2212,13 +2256,14 @@ def pts_to_poststep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 2::2]
     steps[1:, 0::2] = args
@@ -2237,7 +2282,7 @@ def pts_to_midstep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2256,7 +2301,8 @@ def pts_to_midstep(x, *args):
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
     steps[0, 1:-1:2] = steps[0, 2::2] = (x[:-1] + x[1:]) / 2
-    steps[0, 0], steps[0, -1] = x[0], x[-1]
+    steps[0, :1] = x[:1]  # Also works for zero-sized input.
+    steps[0, -1:] = x[-1:]
     steps[1:, 0::2] = args
     steps[1:, 1::2] = steps[1:, 0::2]
     return steps
@@ -2764,3 +2810,23 @@ def _topmost_artist(
     in reverse order.
     """
     return _cached_max(reversed(artists))
+
+
+def _str_equal(obj, s):
+    """Return whether *obj* is a string equal to string *s*.
+
+    This helper solely exists to handle the case where *obj* is a numpy array,
+    because in such cases, a naive ``obj == s`` would yield an array, which
+    cannot be used in a boolean context.
+    """
+    return isinstance(obj, six.string_types) and obj == s
+
+
+def _str_lower_equal(obj, s):
+    """Return whether *obj* is a string equal, when lowercased, to string *s*.
+
+    This helper solely exists to handle the case where *obj* is a numpy array,
+    because in such cases, a naive ``obj == s`` would yield an array, which
+    cannot be used in a boolean context.
+    """
+    return isinstance(obj, six.string_types) and obj.lower() == s

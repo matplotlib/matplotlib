@@ -18,9 +18,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
-import os, sys
 from six import unichr
+
+import os
 from math import ceil
 import unicodedata
 from warnings import warn
@@ -30,29 +30,23 @@ try:
 except ImportError:  # Py2
     from backports.functools_lru_cache import lru_cache
 
-from numpy import inf, isinf
 import numpy as np
 
-import pyparsing
-from pyparsing import (Combine, Group, Optional, Forward,
-     Literal, OneOrMore, ZeroOrMore, ParseException, Empty,
-     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException,
-     FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException)
+from pyparsing import (
+    Combine, Empty, FollowedBy, Forward, Group, Literal, oneOf, OneOrMore,
+    Optional, ParseBaseException, ParseFatalException, ParserElement,
+    QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
 
 ParserElement.enablePackrat()
 
+from matplotlib import _png, colors as mcolors, get_data_path, rcParams
 from matplotlib.afm import AFM
-from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
-from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
-                                LOAD_NO_HINTING)
+from matplotlib.cbook import Bunch, get_realpath_and_stat
+from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
                                        tex2uni, latex_to_cmex,
                                        stix_virtual_fonts)
-from matplotlib import get_data_path, rcParams
-
-import matplotlib.colors as mcolors
-import matplotlib._png as _png
 
 ####################
 
@@ -715,7 +709,7 @@ class BakomaFonts(TruetypeFonts):
         '}'          : [('cal', '}'), ('ex', '\xaa'), ('ex', '\x6f'),
                         ('ex', '\xbe'), ('ex', '\x29')],
         # The fourth size of '[' is mysteriously missing from the BaKoMa
-        # font, so I've ommitted it for both '[' and ']'
+        # font, so I've omitted it for both '[' and ']'
         '['          : [('rm', '['), ('ex', '\xa3'), ('ex', '\x68'),
                         ('ex', '\x22')],
         ']'          : [('rm', ']'), ('ex', '\xa4'), ('ex', '\x69'),
@@ -999,7 +993,10 @@ class StixFonts(UnicodeFonts):
 
         if mapping is not None:
             if isinstance(mapping, dict):
-                mapping = mapping.get(font_class, 'rm')
+                try:
+                    mapping = mapping[font_class]
+                except KeyError:
+                    mapping = mapping['rm']
 
             # Binary search for the source glyph
             lo = 0
@@ -1149,7 +1146,7 @@ class StandardPsFonts(Fonts):
             num = ord(glyph)
             found_symbol = True
         else:
-            warn("No TeX to built-in Postscript mapping for '%s'" % sym,
+            warn("No TeX to built-in Postscript mapping for {!r}".format(sym),
                  MathTextWarning)
 
         slanted = (fontname == 'it')
@@ -1159,9 +1156,8 @@ class StandardPsFonts(Fonts):
             try:
                 symbol_name = font.get_name_char(glyph)
             except KeyError:
-                warn("No glyph in standard Postscript font '%s' for '%s'" %
-                     (font.postscript_name, sym),
-                     MathTextWarning)
+                warn("No glyph in standard Postscript font {!r} for {!r}"
+                     .format(font.get_fontname(), sym), MathTextWarning)
                 found_symbol = False
 
         if not found_symbol:
@@ -1688,7 +1684,7 @@ class Hlist(List):
                 d = max(d, p.depth)
             elif isinstance(p, Box):
                 x += p.width
-                if not isinf(p.height) and not isinf(p.depth):
+                if not np.isinf(p.height) and not np.isinf(p.depth):
                     s = getattr(p, 'shift_amount', 0.)
                     h = max(h, p.height - s)
                     d = max(d, p.depth + s)
@@ -1725,7 +1721,7 @@ class Vlist(List):
         List.__init__(self, elements)
         self.vpack()
 
-    def vpack(self, h=0., m='additional', l=float(inf)):
+    def vpack(self, h=0., m='additional', l=np.inf):
         """
         The main duty of :meth:`vpack` is to compute the dimensions of
         the resulting boxes, and to adjust the glue if one of those
@@ -1752,7 +1748,7 @@ class Vlist(List):
             if isinstance(p, Box):
                 x += d + p.height
                 d = p.depth
-                if not isinf(p.width):
+                if not np.isinf(p.width):
                     s = getattr(p, 'shift_amount', 0.)
                     w = max(w, p.width + s)
             elif isinstance(p, Glue):
@@ -1817,7 +1813,7 @@ class Hrule(Rule):
             thickness = state.font_output.get_underline_thickness(
                 state.font, state.fontsize, state.dpi)
         height = depth = thickness * 0.5
-        Rule.__init__(self, inf, height, depth, state)
+        Rule.__init__(self, np.inf, height, depth, state)
 
 class Vrule(Rule):
     """
@@ -1826,7 +1822,7 @@ class Vrule(Rule):
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        Rule.__init__(self, thickness, inf, inf, state)
+        Rule.__init__(self, thickness, np.inf, np.inf, state)
 
 class Glue(Node):
     """
@@ -2048,6 +2044,7 @@ class AutoWidthChar(Hlist):
         Hlist.__init__(self, [char])
         self.width = char.width
 
+
 class Ship(object):
     """
     Once the boxes have been set up, this sends them to output.  Since
@@ -2111,16 +2108,16 @@ class Ship(object):
                 rule_height = p.height
                 rule_depth  = p.depth
                 rule_width  = p.width
-                if isinf(rule_height):
+                if np.isinf(rule_height):
                     rule_height = box.height
-                if isinf(rule_depth):
+                if np.isinf(rule_depth):
                     rule_depth = box.depth
                 if rule_height > 0 and rule_width > 0:
-                    self.cur_v = baseline + rule_depth
+                    self.cur_v = base_line + rule_depth
                     p.render(self.cur_h + self.off_h,
                              self.cur_v + self.off_v,
                              rule_width, rule_height)
-                    self.cur_v = baseline
+                    self.cur_v = base_line
                 self.cur_h += rule_width
             elif isinstance(p, Glue):
                 # node625
@@ -2171,7 +2168,7 @@ class Ship(object):
                 rule_height = p.height
                 rule_depth = p.depth
                 rule_width = p.width
-                if isinf(rule_width):
+                if np.isinf(rule_width):
                     rule_width = box.width
                 rule_height += rule_depth
                 if rule_height > 0 and rule_depth > 0:
@@ -2195,6 +2192,7 @@ class Ship(object):
             elif isinstance(p, Char):
                 raise RuntimeError("Internal mathtext error: Char node found in vlist")
         self.cur_s -= 1
+
 
 ship = Ship()
 
@@ -2584,21 +2582,17 @@ class Parser(object):
         self._state_stack.append(self.get_state().copy())
 
     def main(self, s, loc, toks):
-        #~ print "finish", toks
         return [Hlist(toks)]
 
     def math_string(self, s, loc, toks):
-        # print "math_string", toks[0][1:-1]
         return self._math_expression.parseString(toks[0][1:-1])
 
     def math(self, s, loc, toks):
-        #~ print "math", toks
         hlist = Hlist(toks)
         self.pop_state()
         return [hlist]
 
     def non_math(self, s, loc, toks):
-        #~ print "non_math", toks
         s = toks[0].replace(r'\$', '$')
         symbols = [Char(c, self.get_state(), math=False) for c in s]
         hlist = Hlist(symbols)
@@ -2632,7 +2626,7 @@ class Parser(object):
                       r'\!'         : -0.16667, # -3/18 em = -3 mu
                       }
     def space(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
         num = self._space_widths[toks[0]]
         box = self._make_space(num)
         return [box]
@@ -2641,7 +2635,6 @@ class Parser(object):
         return [self._make_space(float(toks[0]))]
 
     def symbol(self, s, loc, toks):
-        # print "symbol", toks
         c = toks[0]
         try:
             char = Char(c, self.get_state())
@@ -2693,7 +2686,6 @@ class Parser(object):
     snowflake = symbol
 
     def unknown_symbol(self, s, loc, toks):
-        # print "symbol", toks
         c = toks[0]
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
@@ -2770,7 +2762,7 @@ class Parser(object):
                   ) (set(_accent_map))
 
     def accent(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2794,7 +2786,6 @@ class Parser(object):
                 ])
 
     def function(self, s, loc, toks):
-        #~ print "function", toks
         self.push_state()
         state = self.get_state()
         state.font = 'rm'
@@ -2832,7 +2823,7 @@ class Parser(object):
         return []
 
     def font(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
         name = toks[0]
         self.get_state().font = name
         return []
@@ -2858,7 +2849,7 @@ class Parser(object):
         return False
 
     def subsuper(self, s, loc, toks):
-        assert(len(toks)==1)
+        assert len(toks)==1
 
         nucleus = None
         sub = None
@@ -3088,14 +3079,14 @@ class Parser(object):
         return result
 
     def genfrac(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 6)
+        assert len(toks) == 1
+        assert len(toks[0]) == 6
 
         return self._genfrac(*tuple(toks[0]))
 
     def frac(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
@@ -3106,8 +3097,8 @@ class Parser(object):
                              self._math_style_dict['textstyle'], num, den)
 
     def dfrac(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
@@ -3118,23 +3109,22 @@ class Parser(object):
                              self._math_style_dict['displaystyle'], num, den)
 
     def stackrel(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         num, den = toks[0]
 
         return self._genfrac('', '', 0.0,
                              self._math_style_dict['textstyle'], num, den)
 
     def binom(self, s, loc, toks):
-        assert(len(toks) == 1)
-        assert(len(toks[0]) == 2)
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
         num, den = toks[0]
 
         return self._genfrac('(', ')', 0.0,
                              self._math_style_dict['textstyle'], num, den)
 
     def sqrt(self, s, loc, toks):
-        #~ print "sqrt", toks
         root, body = toks[0]
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
@@ -3179,8 +3169,8 @@ class Parser(object):
         return [hlist]
 
     def overline(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==1)
+        assert len(toks)==1
+        assert len(toks[0])==1
 
         body = toks[0][0]
 
@@ -3224,7 +3214,6 @@ class Parser(object):
         return hlist
 
     def auto_delim(self, s, loc, toks):
-        #~ print "auto_delim", toks
         front, middle, back = toks
 
         return self._auto_sized_delimiter(front, middle.asList(), back)
@@ -3322,7 +3311,7 @@ class MathTextParser(object):
           - depth is the offset of the baseline from the bottom of the
             image in pixels.
         """
-        assert(self._output=="bitmap")
+        assert self._output == "bitmap"
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
 
@@ -3404,7 +3393,7 @@ class MathTextParser(object):
         *fontsize*
             The font size in points
         """
-        assert(self._output=="bitmap")
+        assert self._output=="bitmap"
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
         return depth

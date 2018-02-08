@@ -13,7 +13,6 @@ matplotlib.interactive(False)
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
 from matplotlib.figure import Figure
-from matplotlib.pyplot import gcf, setp
 
 
 class Knob(object):
@@ -160,9 +159,9 @@ class FourierDemoWindow(wx.Window, Knob):
         self.canvas.SetSize(self.GetSize())
 
     def mouseDown(self, evt):
-        if self.lines[0] in self.figure.hitlist(evt):
+        if self.lines[0].contains(evt)[0]:
             self.state = 'frequency'
-        elif self.lines[1] in self.figure.hitlist(evt):
+        elif self.lines[1].contains(evt)[0]:
             self.state = 'time'
         else:
             self.state = ''
@@ -189,8 +188,7 @@ class FourierDemoWindow(wx.Window, Knob):
 
     def draw(self):
         if not hasattr(self, 'subplot1'):
-            self.subplot1 = self.figure.add_subplot(211)
-            self.subplot2 = self.figure.add_subplot(212)
+            self.subplot1, self.subplot2 = self.figure.subplots(2)
         x1, y1, x2, y2 = self.compute(self.f0.value, self.A.value)
         color = (1., 0., 0.)
         self.lines += self.subplot1.plot(x1, y1, color=color, linewidth=2)
@@ -230,8 +228,8 @@ class FourierDemoWindow(wx.Window, Knob):
     def setKnob(self, value):
         # Note, we ignore value arg here and just go by state of the params
         x1, y1, x2, y2 = self.compute(self.f0.value, self.A.value)
-        setp(self.lines[0], xdata=x1, ydata=y1)
-        setp(self.lines[1], xdata=x2, ydata=y2)
+        self.lines[0].set(xdata=x1, ydata=y1)
+        self.lines[1].set(xdata=x2, ydata=y2)
         self.repaint()
 
 

@@ -11,7 +11,6 @@ import warnings
 import matplotlib as mpl
 import numpy as np
 from numpy import ma
-import matplotlib._cntr as _cntr
 import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -21,12 +20,10 @@ import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
-import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
-from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -176,10 +173,8 @@ class ContourLabeler(object):
                     indices.append(i)
                     levels.append(lev)
             if len(levels) < len(levlabs):
-                msg = "Specified levels " + str(levlabs)
-                msg += "\n don't match available levels "
-                msg += str(self.levels)
-                raise ValueError(msg)
+                raise ValueError("Specified levels {} don't match available "
+                                 "levels {}".format(levlabs, self.levels))
         else:
             raise TypeError("Illegal arguments to clabel, see help(clabel)")
         self.labelLevelList = levels
@@ -289,6 +284,7 @@ class ContourLabeler(object):
 
         return lw
 
+    @cbook.deprecated("2.2")
     def get_real_label_width(self, lev, fmt, fsize):
         """
         This computes actual onscreen label width.
@@ -336,8 +332,7 @@ class ContourLabeler(object):
 
     def locate_label(self, linecontour, labelwidth):
         """
-        Find a good place to plot a label (relatively flat
-        part of the contour).
+        Find good place to draw a label (relatively flat part of the contour).
         """
 
         # Number of contour points
@@ -354,16 +349,15 @@ class ContourLabeler(object):
         XX = np.resize(linecontour[:, 0], (xsize, ysize))
         YY = np.resize(linecontour[:, 1], (xsize, ysize))
         # I might have fouled up the following:
-        yfirst = YY[:, 0].reshape(xsize, 1)
-        ylast = YY[:, -1].reshape(xsize, 1)
-        xfirst = XX[:, 0].reshape(xsize, 1)
-        xlast = XX[:, -1].reshape(xsize, 1)
+        yfirst = YY[:, :1]
+        ylast = YY[:, -1:]
+        xfirst = XX[:, :1]
+        xlast = XX[:, -1:]
         s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
-        L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
+        L = np.hypot(xlast - xfirst, ylast - yfirst)
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.add.reduce([(abs(s)[i] / L[i]) for i in range(xsize)],
-                                 -1)
+            dist = np.sum(np.abs(s) / L, axis=-1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
 
         # There must be a more efficient way...
@@ -382,7 +376,7 @@ class ContourLabeler(object):
         not empty (lc defaults to the empty list if None).  *spacing*
         is the space around the label in pixels to leave empty.
 
-        Do both of these tasks at once to avoid calling mlab.path_length
+        Do both of these tasks at once to avoid calculating path lengths
         multiple times, which is relatively costly.
 
         The method used here involves calculating the path length
@@ -397,7 +391,7 @@ class ContourLabeler(object):
         hlw = lw / 2.0
 
         # Check if closed and, if so, rotate contour so label is at edge
-        closed = mlab.is_closed_polygon(slc)
+        closed = _is_closed_polygon(slc)
         if closed:
             slc = np.r_[slc[ind:-1], slc[:ind + 1]]
 
@@ -406,8 +400,10 @@ class ContourLabeler(object):
 
             ind = 0
 
-        # Path length in pixel space
-        pl = mlab.path_length(slc)
+        # Calculate path lengths
+        pl = np.zeros(slc.shape[0], dtype=float)
+        dx = np.diff(slc, axis=0)
+        pl[1:] = np.cumsum(np.hypot(dx[:, 0], dx[:, 1]))
         pl = pl - pl[ind]
 
         # Use linear interpolation to get points around label
@@ -417,25 +413,15 @@ class ContourLabeler(object):
         else:
             dp = np.zeros_like(xi)
 
-        ll = mlab.less_simple_linear_interpolation(pl, slc, dp + xi,
-                                                   extrap=True)
-
-        # get vector in pixel space coordinates from one point to other
-        dd = np.diff(ll, axis=0).ravel()
-
-        # Get angle of vector - must be calculated in pixel space for
-        # text rotation to work correctly
-        if np.all(dd == 0):  # Must deal with case of zero length label
-            rotation = 0.0
-        else:
-            rotation = np.rad2deg(np.arctan2(dd[1], dd[0]))
+        # Get angle of vector between the two ends of the label - must be
+        # calculated in pixel space for text rotation to work correctly.
+        (dx,), (dy,) = (np.diff(np.interp(dp + xi, pl, slc_col))
+                        for slc_col in slc.T)
+        rotation = np.rad2deg(np.arctan2(dy, dx))
 
         if self.rightside_up:
             # Fix angle so text is never upside-down
-            if rotation > 90:
-                rotation = rotation - 180.0
-            if rotation < -90:
-                rotation = 180.0 + rotation
+            rotation = (rotation + 90) % 180 - 90
 
         # Break contour if desired
         nlc = []
@@ -443,37 +429,26 @@ class ContourLabeler(object):
             # Expand range by spacing
             xi = dp + xi + np.array([-spacing, spacing])
 
-            # Get indices near points of interest
-            I = mlab.less_simple_linear_interpolation(
-                pl, np.arange(len(pl)), xi, extrap=False)
-
-            # If those indices aren't beyond contour edge, find x,y
-            if (not np.isnan(I[0])) and int(I[0]) != I[0]:
-                xy1 = mlab.less_simple_linear_interpolation(
-                    pl, lc, [xi[0]])
-
-            if (not np.isnan(I[1])) and int(I[1]) != I[1]:
-                xy2 = mlab.less_simple_linear_interpolation(
-                    pl, lc, [xi[1]])
-
-            # Round to integer values but keep as float
-            # To allow check against nan below
-            # Ignore nans here to avoid throwing an error on Appveyor build
-            # (can possibly be removed when build uses numpy 1.13)
-            with np.errstate(invalid='ignore'):
-                I = [np.floor(I[0]), np.ceil(I[1])]
+            # Get (integer) indices near points of interest; use -1 as marker
+            # for out of bounds.
+            I = np.interp(xi, pl, np.arange(len(pl)), left=-1, right=-1)
+            I = [np.floor(I[0]).astype(int), np.ceil(I[1]).astype(int)]
+            if I[0] != -1:
+                xy1 = [np.interp(xi[0], pl, lc_col) for lc_col in lc.T]
+            if I[1] != -1:
+                xy2 = [np.interp(xi[1], pl, lc_col) for lc_col in lc.T]
 
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
-                if np.all(~np.isnan(I)):
-                    nlc.append(np.r_[xy2, lc[int(I[1]):int(I[0]) + 1], xy1])
+                if np.all(I != -1):
+                    nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
-                if not np.isnan(I[0]):
-                    nlc.append(np.r_[lc[:int(I[0]) + 1], xy1])
-                if not np.isnan(I[1]):
-                    nlc.append(np.r_[xy2, lc[int(I[1]):]])
+                if I[0] != -1:
+                    nlc.append(np.row_stack([lc[:I[0]+1], xy1]))
+                if I[1] != -1:
+                    nlc.append(np.row_stack([xy2, lc[I[1]:]]))
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
@@ -573,7 +548,7 @@ class ContourLabeler(object):
         paths = self.collections[conmin].get_paths()
         # grab the correct segment
         active_path = paths[segmin]
-        # grab it's verticies
+        # grab its vertices
         lc = active_path.vertices
         # sort out where the new vertex should be added data-units
         xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])
@@ -597,6 +572,9 @@ class ContourLabeler(object):
         # Get label width for rotating labels and breaking contours
         lw = self.get_label_width(self.labelLevelList[lmin],
                                   self.labelFmt, self.labelFontSizeList[lmin])
+        # lw is in points.
+        lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
+        # now lw in pixels
 
         # Figure out label rotation.
         if inline:
@@ -650,7 +628,7 @@ class ContourLabeler(object):
                 # zero in print_label and locate_label.  Other than these
                 # functions, this is not necessary and should probably be
                 # eventually removed.
-                if mlab.is_closed_polygon(lc):
+                if _is_closed_polygon(lc):
                     slc = np.r_[slc0, slc0[1:2, :]]
                 else:
                     slc = slc0
@@ -711,6 +689,15 @@ def _find_closest_point_on_leg(p1, p2, p0):
     return d, pc
 
 
+def _is_closed_polygon(X):
+    """
+    Tests whether first and last object in a sequence are the same.  These are
+    presumably coordinates on a polygonal curve, in which case this function
+    tests if that curve is closed.
+    """
+    return np.all(X[0] == X[-1])
+
+
 def _find_closest_point_on_path(lc, point):
     """
     lc: coordinates of vertices
@@ -725,7 +712,7 @@ def _find_closest_point_on_path(lc, point):
     xcmin = None
     legmin = (None, None)
 
-    closed = mlab.is_closed_polygon(lc)
+    closed = _is_closed_polygon(lc)
 
     # build list of legs before and after this vertex
     legs = []
@@ -750,25 +737,26 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     User-callable method: clabel
 
-    Useful attributes:
-      ax:
-        The axes object in which the contours are drawn
+    Attributes
+    ----------
+    ax:
+        The axes object in which the contours are drawn.
 
-      collections:
-        a silent_list of LineCollections or PolyCollections
+    collections:
+        A silent_list of LineCollections or PolyCollections.
 
-      levels:
-        contour levels
+    levels:
+        Contour levels.
 
-      layers:
-        same as levels for line contours; half-way between
+    layers:
+        Same as levels for line contours; half-way between
         levels for filled contours.  See :meth:`_process_colors`.
     """
 
     def __init__(self, ax, *args, **kwargs):
         """
         Draw contour lines or filled regions, depending on
-        whether keyword arg 'filled' is *False* (default) or *True*.
+        whether keyword arg *filled* is ``False`` (default) or ``True``.
 
         The first three arguments must be:
 
@@ -781,29 +769,28 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
           *allsegs*: [level0segs, level1segs, ...]
             List of all the polygon segments for all the *levels*.
             For contour lines ``len(allsegs) == len(levels)``, and for
-            filled contour regions ``len(allsegs) = len(levels)-1``.
+            filled contour regions ``len(allsegs) = len(levels)-1``. The lists
+            should look like::
 
-            level0segs = [polygon0, polygon1, ...]
-
-            polygon0 = array_like [[x0,y0], [x1,y1], ...]
+                level0segs = [polygon0, polygon1, ...]
+                polygon0 = array_like [[x0,y0], [x1,y1], ...]
 
           *allkinds*: *None* or [level0kinds, level1kinds, ...]
             Optional list of all the polygon vertex kinds (code types), as
-            described and used in Path.   This is used to allow multiply-
+            described and used in Path. This is used to allow multiply-
             connected paths such as holes within filled polygons.
-            If not *None*, len(allkinds) == len(allsegs).
+            If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
+            should look like::
 
-            level0kinds = [polygon0kinds, ...]
+                level0kinds = [polygon0kinds, ...]
+                polygon0kinds = [vertexcode0, vertexcode1, ...]
 
-            polygon0kinds = [vertexcode0, vertexcode1, ...]
+            If *allkinds* is not ``None``, usually all polygons for a
+            particular contour level are grouped together so that
+            ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
 
-            If *allkinds* is not *None*, usually all polygons for a particular
-            contour level are grouped together so that
-
-            level0segs = [polygon0] and level0kinds = [polygon0kinds].
-
-        Keyword arguments are as described in
-        :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
+        Keyword arguments are as described in the docstring of
+        `~.Axes.contour`.
         """
         self.ax = ax
         self.levels = kwargs.pop('levels', None)
@@ -1190,24 +1177,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError("Filled contours require at least 2 levels.")
 
         if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
-            if hasattr(self, '_corner_mask') and self._corner_mask == 'legacy':
-                warnings.warn("Contour levels are not increasing")
-            else:
-                raise ValueError("Contour levels must be increasing")
-
-    @property
-    def vmin(self):
-        warnings.warn("vmin is deprecated and will be removed in 2.2 "
-                      "and not replaced.",
-                      mplDeprecation)
-        return getattr(self, '_vmin', None)
-
-    @property
-    def vmax(self):
-        warnings.warn("vmax is deprecated and will be removed in 2.2 "
-                      "and not replaced.",
-                      mplDeprecation)
-        return getattr(self, '_vmax', None)
+            raise ValueError("Contour levels must be increasing")
 
     def _process_levels(self):
         """
@@ -1218,10 +1188,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         a line is a thin layer.  No extended levels are needed
         with line contours.
         """
-        # following are deprecated and will be removed in 2.2
-        self._vmin = np.min(self.levels)
-        self._vmax = np.max(self.levels)
-
         # Make a private _levels to include extended regions; we
         # want to leave the original levels attribute unchanged.
         # (Colorbar needs this even for line contours.)
@@ -1413,19 +1379,20 @@ class QuadContourSet(ContourSet):
 
     User-callable method: :meth:`clabel`
 
-    Useful attributes:
-      ax:
-        The axes object in which the contours are drawn
+    Attributes
+    ----------
+    ax:
+        The axes object in which the contours are drawn.
 
-      collections:
-        A silent_list of LineCollections or PolyCollections
+    collections:
+        A silent_list of LineCollections or PolyCollections.
 
-      levels:
-        Contour levels
+    levels:
+        Contour levels.
 
-      layers:
+    layers:
         Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors` method.
+        levels for filled contours. See :meth:`_process_colors` method.
     """
 
     def _process_args(self, *args, **kwargs):
@@ -1438,10 +1405,7 @@ class QuadContourSet(ContourSet):
             self.zmin = args[0].zmin
             self.zmax = args[0].zmax
             self._corner_mask = args[0]._corner_mask
-            if self._corner_mask == 'legacy':
-                contour_generator = args[0].Cntr
-            else:
-                contour_generator = args[0]._contour_generator
+            contour_generator = args[0]._contour_generator
             self._mins = args[0]._mins
             self._maxs = args[0]._maxs
         else:
@@ -1455,14 +1419,8 @@ class QuadContourSet(ContourSet):
             if _mask is ma.nomask or not _mask.any():
                 _mask = None
 
-            if self._corner_mask == 'legacy':
-                cbook.warn_deprecated('1.5',
-                                      name="corner_mask='legacy'",
-                                      alternative='corner_mask=False or True')
-                contour_generator = _cntr.Cntr(x, y, z.filled(), _mask)
-            else:
-                contour_generator = _contour.QuadContourGenerator(
-                    x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
+            contour_generator = _contour.QuadContourGenerator(
+                x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
 
             t = self.get_transform()
 
@@ -1479,43 +1437,26 @@ class QuadContourSet(ContourSet):
             self._mins = [ma.min(x), ma.min(y)]
             self._maxs = [ma.max(x), ma.max(y)]
 
-        if self._corner_mask == 'legacy':
-            self.Cntr = contour_generator
-        else:
-            self._contour_generator = contour_generator
+        self._contour_generator = contour_generator
 
         return kwargs
 
     def _get_allsegs_and_allkinds(self):
-        """
-        Create and return allsegs and allkinds by calling underlying C code.
-        """
+        """Compute ``allsegs`` and ``allkinds`` using C extension."""
         allsegs = []
         if self.filled:
             lowers, uppers = self._get_lowers_and_uppers()
             allkinds = []
             for level, level_upper in zip(lowers, uppers):
-                if self._corner_mask == 'legacy':
-                    nlist = self.Cntr.trace(level, level_upper,
-                                            nchunk=self.nchunk)
-                    nseg = len(nlist) // 2
-                    vertices = nlist[:nseg]
-                    kinds = nlist[nseg:]
-                else:
-                    vertices, kinds = \
-                        self._contour_generator.create_filled_contour(
-                                                           level, level_upper)
+                vertices, kinds = \
+                    self._contour_generator.create_filled_contour(
+                        level, level_upper)
                 allsegs.append(vertices)
                 allkinds.append(kinds)
         else:
             allkinds = None
             for level in self.levels:
-                if self._corner_mask == 'legacy':
-                    nlist = self.Cntr.trace(level)
-                    nseg = len(nlist) // 2
-                    vertices = nlist[:nseg]
-                else:
-                    vertices = self._contour_generator.create_contour(level)
+                vertices = self._contour_generator.create_contour(level)
                 allsegs.append(vertices)
         return allsegs, allkinds
 
@@ -1632,15 +1573,15 @@ class QuadContourSet(ContourSet):
             x0, x1, y0, y1 = (0, Nx, 0, Ny)
         else:
             x0, x1, y0, y1 = self.extent
-        dx = float(x1 - x0) / Nx
-        dy = float(y1 - y0) / Ny
+        dx = (x1 - x0) / Nx
+        dy = (y1 - y0) / Ny
         x = x0 + (np.arange(Nx) + 0.5) * dx
         y = y0 + (np.arange(Ny) + 0.5) * dy
         if self.origin == 'upper':
             y = y[::-1]
         return np.meshgrid(x, y)
 
-    contour_doc = """
+    _contour_doc = """
         Plot contours.
 
         :func:`~matplotlib.pyplot.contour` and
@@ -1706,19 +1647,15 @@ class QuadContourSet(ContourSet):
 
         Optional keyword arguments:
 
-          *corner_mask*: [ *True* | *False* | 'legacy' ]
+          *corner_mask*: bool, optional
             Enable/disable corner masking, which only has an effect if *Z* is
-            a masked array.  If *False*, any quad touching a masked point is
-            masked out.  If *True*, only the triangular corners of quads
+            a masked array.  If ``False``, any quad touching a masked point is
+            masked out.  If ``True``, only the triangular corners of quads
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
-            If 'legacy', the old contouring algorithm is used, which is
-            equivalent to *False* and is deprecated, only remaining whilst the
-            new algorithm is tested fully.
 
-            If not specified, the default is taken from
-            rcParams['contour.corner_mask'], which is True unless it has
-            been modified.
+            Defaults to ``rcParams['contour.corner_mask']``, which defaults to
+            ``True``.
 
           *colors*: [ *None* | string | (mpl_colors) ]
             If *None*, the colormap specified by cmap will be used.
@@ -1793,7 +1730,7 @@ class QuadContourSet(ContourSet):
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
-          *antialiased*: [ *True* | *False* ]
+          *antialiased*: bool
             enable antialiasing, overriding the defaults.  For
             filled contours, the default is *True*.  For line contours,
             it is taken from rcParams['lines.antialiased'].

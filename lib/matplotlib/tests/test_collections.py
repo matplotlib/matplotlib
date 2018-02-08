@@ -1,8 +1,7 @@
 """
 Tests specific to the collections module.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import io
 
@@ -454,8 +453,8 @@ def test_EllipseCollection():
     X, Y = np.meshgrid(x, y)
     XY = np.vstack((X.ravel(), Y.ravel())).T
 
-    ww = X/float(x[-1])
-    hh = Y/float(y[-1])
+    ww = X / x[-1]
+    hh = Y / y[-1]
     aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
 
     ec = mcollections.EllipseCollection(ww, hh, aa,
@@ -594,8 +593,7 @@ def test_size_in_xy():
     ax.set_ylim(0, 30)
 
 
-def test_pandas_indexing():
-    pd = pytest.importorskip('pandas')
+def test_pandas_indexing(pd):
 
     # Should not fail break when faced with a
     # non-zero indexed series
