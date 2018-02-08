@@ -6442,7 +6442,7 @@ class Axes(_AxesBase):
         if normed is not None:
             warnings.warn("The 'normed' kwarg is deprecated, and has been "
                           "replaced by the 'density' kwarg.")
-            
+
         # basic input validation
         input_empty = np.size(x) == 0
         # Massage 'x' for processing.

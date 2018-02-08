@@ -9,6 +9,9 @@ from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
 
+# Python2/3 text handling
+_to_str = cat.StrCategoryFormatter._text
+
 
 class TestUnitData(object):
     test_cases = [('single', (["hello world"], [0])),
@@ -86,53 +89,57 @@ class TestStrCategoryConverter(object):
     @pytest.fixture(autouse=True)
     def mock_axis(self, request):
         self.cc = cat.StrCategoryConverter()
-        # self.unit should be probably be  replaced with real mock unit
+        # self.unit should be probably be replaced with real mock unit
         self.unit = cat.UnitData()
         self.ax = FakeAxis(self.unit)
 
     @pytest.mark.parametrize("vals", values, ids=ids)
     def test_convert(self, vals):
-        np.testing.assert_allclose(self.cc.convert(vals, None, self.ax),
+        np.testing.assert_allclose(self.cc.convert(vals, self.ax.units,
+                                                   self.ax),
                                    range(len(vals)))
 
     @pytest.mark.parametrize("value", ["hi", "мир"], ids=["ascii", "unicode"])
     def test_convert_one_string(self, value):
-        assert self.cc.convert(value, None, self.ax) == 0
+        assert self.cc.convert(value, self.unit, self.ax) == 0
 
     def test_convert_one_number(self):
-        actual = self.cc.convert(0.0, None, self.ax)
+        actual = self.cc.convert(0.0, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([0.]))
 
     def test_convert_float_array(self):
         data = np.array([1, 2, 3], dtype=float)
-        actual = self.cc.convert(data, None, self.ax)
+        actual = self.cc.convert(data, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([1., 2., 3.]))
 
     @pytest.mark.parametrize("fvals", fvalues, ids=fids)
     def test_convert_fail(self, fvals):
         with pytest.raises(TypeError):
-            self.cc.convert(fvals, None, self.ax)
+            self.cc.convert(fvals, self.unit, self.ax)
 
     def test_axisinfo(self):
-        axis = self.cc.axisinfo(None, self.ax)
+        axis = self.cc.axisinfo(self.unit, self.ax)
         assert isinstance(axis.majloc, cat.StrCategoryLocator)
         assert isinstance(axis.majfmt, cat.StrCategoryFormatter)
 
     def test_default_units(self):
         assert isinstance(self.cc.default_units(["a"], self.ax), cat.UnitData)
 
+
 @pytest.fixture
 def ax():
     return plt.figure().subplots()
 
+
 PLOT_LIST = [Axes.scatter, Axes.plot, Axes.bar]
 PLOT_IDS = ["scatter", "plot", "bar"]
+
 
 class TestStrCategoryLocator(object):
     def test_StrCategoryLocator(self):
         locs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         unit = cat.UnitData([str(j) for j in locs])
-        ticks = cat.StrCategoryLocator(unit)
+        ticks = cat.StrCategoryLocator(unit._mapping)
         np.testing.assert_array_equal(ticks.tick_values(None, None), locs)
 
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
@@ -150,16 +157,16 @@ class TestStrCategoryFormatter(object):
     @pytest.mark.parametrize("ydata", cases, ids=ids)
     def test_StrCategoryFormatter(self, ax, ydata):
         unit = cat.UnitData(ydata)
-        labels = cat.StrCategoryFormatter(unit)
+        labels = cat.StrCategoryFormatter(unit._mapping)
         for i, d in enumerate(ydata):
-            assert labels(i, i) == d
+            assert labels(i, i) == _to_str(d)
 
     @pytest.mark.parametrize("ydata", cases, ids=ids)
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     def test_StrCategoryFormatterPlot(self, ax, ydata, plotter):
         plotter(ax, range(len(ydata)), ydata)
         for i, d in enumerate(ydata):
-            assert ax.yaxis.major.formatter(i, i) == d
+            assert ax.yaxis.major.formatter(i, i) == _to_str(d)
         assert ax.yaxis.major.formatter(i+1, i+1) == ""
         assert ax.yaxis.major.formatter(0, None) == ""
 
@@ -168,7 +175,7 @@ def axis_test(axis, labels):
     ticks = list(range(len(labels)))
     np.testing.assert_array_equal(axis.get_majorticklocs(), ticks)
     graph_labels = [axis.major.formatter(i, i) for i in ticks]
-    assert graph_labels == [cat.to_str(l) for l in labels]
+    assert graph_labels == [_to_str(l) for l in labels]
     assert list(axis.units._mapping.keys()) == [l for l in labels]
     assert list(axis.units._mapping.values()) == ticks
 
@@ -254,17 +261,18 @@ class TestPlotTypes(object):
     PLOT_BROKEN_LIST = [Axes.scatter,
                         pytest.param(Axes.plot, marks=pytest.mark.xfail),
                         pytest.param(Axes.bar, marks=pytest.mark.xfail)]
+
     PLOT_BROKEN_IDS = ["scatter", "plot", "bar"]
 
     @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
-    def test_plot_failures(self, ax, plotter, xdata):
+    def test_mixed_type_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
             plotter(ax, xdata, [1, 2])
 
     @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
-    def test_plot_failures_update(self, ax, plotter, xdata):
+    def test_mixed_type_update_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
             plotter(ax, [0, 3], [1, 3])
             plotter(ax, xdata, [1, 2])

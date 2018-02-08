@@ -52,7 +52,7 @@ env:
     - NUMPY=numpy
     - PANDAS=
     - PYPARSING=pyparsing
-    - PYTEST=pytest!=3.3.0
+    - PYTEST='pytest!=3.3.0,>=3.2.0'
     - PYTEST_COV=pytest-cov
     - PYTEST_PEP8=
     - SPHINX=sphinx

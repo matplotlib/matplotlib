@@ -720,9 +720,6 @@ class Axis(artist.Artist):
         self.labelpad = rcParams['axes.labelpad']
         self.offsetText = self._get_offset_text()
 
-        self.majorTicks = []
-        self.minorTicks = []
-
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API
@@ -780,14 +777,14 @@ class Axis(artist.Artist):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     @property
-    @cbook.deprecated("2.1.1")
+    @cbook.deprecated("2.2.0")
     def unit_data(self):
-        return self._units
+        return self.units
 
     @unit_data.setter
-    @cbook.deprecated("2.1.1")
+    @cbook.deprecated("2.2.0")
     def unit_data(self, unit_data):
-        self.set_units = unit_data
+        self.set_units(unit_data)
 
     def get_children(self):
         children = [self.label, self.offsetText]
