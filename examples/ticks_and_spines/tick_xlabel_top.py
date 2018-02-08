@@ -10,8 +10,6 @@ their labels appear.
 These properties can also be set in the ``.matplotlib/matplotlibrc``.
 
 """
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -21,6 +19,9 @@ plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
 
 x = np.arange(10)
 
-plt.plot(x)
-plt.title('xlabel top')
+fig, ax = plt.subplots()
+
+ax.plot(x)
+ax.set_title('xlabel top', pad=24)  # increase padding to make room for labels
+
 plt.show()
