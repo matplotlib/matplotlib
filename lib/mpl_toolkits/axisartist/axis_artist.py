@@ -1615,9 +1615,9 @@ class AxisArtist(martist.Artist):
 
 
 
-
 def test_axis_artist():
     global axisline
+    import matplotlib.pyplot as plt
 
     #self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes)
     from mpl_toolkits.axisartist import AxisArtistHelperRectlinear
@@ -1654,6 +1654,7 @@ def test_axis_artist():
 
 def test_axis_artist2():
     global axisline
+    import matplotlib.pyplot as plt
 
     #self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes)
     from mpl_toolkits.axislines import AxisArtistHelperRectlinear
