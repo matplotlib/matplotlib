@@ -1163,13 +1163,13 @@ class Text(Artist):
 
         It may contain newlines (``\\n``) or math in LaTeX syntax.
 
-        ACCEPTS: string or anything printable with '%s' conversion, except
+        ACCEPTS: string or object castable to string, except
         ``None``, which is set to an empty string.
         """
         if s is None:
             s = ''
         if s != self._text:
-            self._text = '%s' % (s,)
+            self._text = str(s)
             self.stale = True
 
     @staticmethod
