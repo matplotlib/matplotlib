@@ -1164,7 +1164,10 @@ class Text(Artist):
 
         ACCEPTS: string or anything printable with '%s' conversion.
         """
-        self._text = '%s' % (s,)
+        if s is not None:
+            self._text = '%s' % (s,)
+        else:
+            self._text = ''
         self.stale = True
 
     @staticmethod
