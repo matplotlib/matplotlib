@@ -1164,7 +1164,7 @@ class Text(Artist):
         It may contain newlines (``\\n``) or math in LaTeX syntax.
 
         ACCEPTS: string or anything printable with '%s' conversion, except
-        ``None``, which leaves the text string empty:
+        ``None``, which is set to an empty string.
         """
         if s is None:
             s = ''
