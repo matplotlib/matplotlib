@@ -133,29 +133,3 @@ def clip_line_to_rect(xline, yline, bbox):
              if bbox.containsx(x)]
 
     return list(zip(lx4, ly4)), [c_left, c_bottom, c_right, c_top]
-
-
-if __name__ == "__main__":
-
-    import matplotlib.pyplot as plt
-
-    x = np.array([-3, -2, -1, 0., 1, 2, 3, 2, 1, 0, -1, -2, -3, 5])
-    #x = np.array([-3, -2, -1, 0., 1, 2, 3])
-    y = np.arange(len(x))
-    #x0 = 2
-
-    plt.plot(x, y, lw=1)
-
-    from matplotlib.transforms import Bbox
-    bb = Bbox.from_extents(-2, 3, 2, 12.5)
-    lxy, ticks = clip_line_to_rect(x, y, bb)
-    for xx, yy in lxy:
-        plt.plot(xx, yy, lw=1, color="g")
-
-    ccc = iter(["ro", "go", "rx", "bx"])
-    for ttt in ticks:
-        cc = next(ccc)
-        for (xx, yy), aa in ttt:
-            plt.plot([xx], [yy], cc)
-
-    #xlim(

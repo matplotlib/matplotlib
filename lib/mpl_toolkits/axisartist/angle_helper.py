@@ -162,27 +162,22 @@ def select_step360(v1, v2, nv, include_last=True, threshold_factor=3600):
                        threshold_factor=threshold_factor)
 
 
-
 class LocatorBase(object):
     def __init__(self, den, include_last=True):
         self.den = den
         self._include_last = include_last
 
-    def _get_nbins(self):
+    @property
+    def nbins(self):
         return self.den
 
-    def _set_nbins(self, v):
+    @nbins.setter
+    def nbins(self, v):
         self.den = v
 
-    nbins = property(_get_nbins, _set_nbins)
-
-    def set_params(self, **kwargs):
-        if "nbins" in kwargs:
-            self.den = int(kwargs.pop("nbins"))
-
-        if kwargs:
-            raise ValueError("Following keys are not processed: %s"
-                             % ", ".join(kwargs))
+    def set_params(self, nbins=None):
+        if nbins is not None:
+            self.den = int(nbins)
 
 
 class LocatorHMS(LocatorBase):
@@ -215,25 +210,21 @@ class LocatorD(LocatorBase):
                               threshold_factor=1)
 
 
-
 class FormatterDMS(object):
-
     deg_mark = "^{\circ}"
     min_mark = "^{\prime}"
     sec_mark = "^{\prime\prime}"
 
-    fmt_d = "$%d"+deg_mark+"$"
-    fmt_ds = r"$%d.\!\!"+deg_mark+"%s$"
+    fmt_d = "$%d" + deg_mark + "$"
+    fmt_ds = r"$%d.%s" + deg_mark + "$"
 
-    # %s for signe
-    fmt_d_m = r"$%s%d"+deg_mark+"\,%02d"+min_mark+"$"
-    fmt_d_ms = r"$%s%d"+deg_mark+"\,%02d.\mkern-4mu"+min_mark+"%s$"
+    # %s for sign
+    fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark + "$"
+    fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark + "$"
 
-
-    fmt_d_m_partial = "$%s%d"+deg_mark+"\,%02d"+min_mark+"\,"
-    fmt_s_partial = "%02d"+sec_mark+"$"
-    fmt_ss_partial = "%02d.\!\!"+sec_mark+"%s$"
-
+    fmt_d_m_partial = "$%s%d" + deg_mark + "\,%02d" + min_mark + "\,"
+    fmt_s_partial = "%02d" + sec_mark + "$"
+    fmt_ss_partial = "%02d.%s" + sec_mark + "$"
 
     def _get_number_fraction(self, factor):
         ## check for fractional numbers
@@ -292,7 +283,7 @@ class FormatterDMS(object):
             if ss[-1] == -1:
                 inverse_order = True
                 values = values[::-1]
-                sings = signs[::-1]
+                signs = signs[::-1]
             else:
                 inverse_order = False
 
@@ -313,7 +304,7 @@ class FormatterDMS(object):
                     l_hm_old = l_hm
                     l = l_hm + s1 #l_s
                 else:
-                    l = "$"+s1 #l_s
+                    l = "$" + s + s1
                 r.append(l)
 
             if inverse_order:
@@ -324,23 +315,22 @@ class FormatterDMS(object):
         else: # factor > 3600.
             return [r"$%s^{\circ}$" % (str(v),) for v in ss*values]
 
+
 class FormatterHMS(FormatterDMS):
     deg_mark = "^\mathrm{h}"
     min_mark = "^\mathrm{m}"
     sec_mark = "^\mathrm{s}"
 
-    fmt_d = "$%d"+deg_mark+"$"
-    fmt_ds = r"$%d.\!\!"+deg_mark+"%s$"
+    fmt_d = "$%d" + deg_mark + "$"
+    fmt_ds = r"$%d.%s" + deg_mark + "$"
 
-    # %s for signe
-    fmt_d_m = r"$%s%d"+deg_mark+"\,%02d"+min_mark+"$"
-    fmt_d_ms = r"$%s%d"+deg_mark+"\,%02d.\!\!"+min_mark+"%s$"
+    # %s for sign
+    fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark+"$"
+    fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark+"$"
 
-
-    fmt_d_m_partial = "$%s%d"+deg_mark+"\,%02d"+min_mark+"\,"
-    fmt_s_partial = "%02d"+sec_mark+"$"
-    fmt_ss_partial = "%02d.\!\!"+sec_mark+"%s$"
-
+    fmt_d_m_partial = "$%s%d" + deg_mark + "\,%02d" + min_mark + "\,"
+    fmt_s_partial = "%02d" + sec_mark + "$"
+    fmt_ss_partial = "%02d.%s" + sec_mark + "$"
 
     def __call__(self, direction, factor, values): # hour
         return FormatterDMS.__call__(self, direction, factor, np.asarray(values)/15.)
@@ -426,50 +416,3 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
             lat_max = min(max0, lat_max)
 
         return lon_min, lon_max, lat_min, lat_max
-
-
-
-
-
-if __name__ == "__main__":
-    #test2()
-    #print select_step360(21.2, 33.3, 5)
-    #print select_step360(20+21.2/60., 21+33.3/60., 5)
-    #print select_step360(20.5+21.2/3600., 20.5+33.3/3600., 5)
-
-    # test threshold factor
-    print(select_step360(20.5+11.2/3600., 20.5+53.3/3600., 5,
-                         threshold_factor=60))
-
-    print(select_step360(20.5+11.2/3600., 20.5+53.3/3600., 5,
-                         threshold_factor=1))
-
-    fmt = FormatterDMS()
-    #print fmt("left", 60, [0, -30, -60])
-    print(fmt("left", 600, [12301, 12302, 12303]))
-
-    print(select_step360(20.5+21.2/3600., 20.5+21.4/3600., 5))
-    print(fmt("left", 36000, [738210, 738215, 738220]))
-    print(fmt("left", 360000, [7382120, 7382125, 7382130]))
-    print(fmt("left", 1., [45, 46, 47]))
-    print(fmt("left", 10., [452, 453, 454]))
-
-if 0:
-    print(select_step360(20+21.2/60., 21+33.3/60., 5))
-    print(select_step360(20.5+21.2/3600., 20.5+33.3/3600., 5))
-    print(select_step360(20+21.2/60., 20+53.3/60., 5))
-
-    ###
-    levs, n, factor = select_step360(20.5+21.2/3600., 20.5+27.25/3600., 5)
-    levs = levs * 0.1
-    fmt = FormatterDMS()
-    #print fmt("left", 60, [0, -30, -60])
-    print(fmt("left", factor, levs))
-
-
-    print(select_step(-180, 180, 10, hour=False))
-    print(select_step(-12, 12, 10, hour=True))
-
-    fmt = FormatterDMS()
-    #print fmt("left", 60, [0, -30, -60])
-    print(fmt("left", 3600, [0, -30, -60]))
