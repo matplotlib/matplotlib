@@ -36,7 +36,7 @@ ax2.set_ylim(0, .22)  # most of the data
 ax.spines['bottom'].set_visible(False)
 ax2.spines['top'].set_visible(False)
 ax.xaxis.tick_top()
-ax.tick_params(labeltop='off')  # don't put tick labels at the top
+ax.tick_params(labeltop=False)  # don't put tick labels at the top
 ax2.xaxis.tick_bottom()
 
 # This looks pretty good, and was fairly painless, but you can get that
