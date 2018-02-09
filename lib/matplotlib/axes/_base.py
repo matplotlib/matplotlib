@@ -4192,25 +4192,9 @@ class _AxesBase(martist.Artist):
         if 'sharex' in kwargs and 'sharey' in kwargs:
             raise ValueError("Twinned Axes may share only one axis.")
         ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
-
         self.set_adjustable('datalim')
         ax2.set_adjustable('datalim')
         self._twinned_axes.join(self, ax2)
-        # check if we have a layoutbox.  If so, then set this axis
-        # gets the same poslayoutbox and layoutbox...
-        if self._layoutbox is not None:
-            name = self._layoutbox.name + 'twin' + layoutbox.seq_id()
-            ax2._layoutbox = layoutbox.LayoutBox(
-                    parent=self._subplotspec._layoutbox,
-                    name=name,
-                    artist=ax2)
-            ax2._poslayoutbox = layoutbox.LayoutBox(
-                    parent=ax2._layoutbox,
-                    name=ax2._layoutbox.name+'.pos',
-                    pos=True, subplot=True, artist=ax2)
-            # make the layout boxes be the same
-            ax2._layoutbox.constrain_same(self._layoutbox)
-            ax2._poslayoutbox.constrain_same(self._poslayoutbox)
         return ax2
 
     def twinx(self):
@@ -4263,6 +4247,7 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most axes.
         """
+
         ax2 = self._make_twin_axes(sharey=self)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
