@@ -676,6 +676,11 @@ class Axes(_AxesBase):
 
             %(Line2D)s
 
+        See also
+        --------
+        hlines : add horizontal lines in data coordinates
+        axhspan : add a horizontal span (rectangle) across the axis
+
         Notes
         -----
         kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
@@ -697,12 +702,7 @@ class Axes(_AxesBase):
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
 
-        See also
-        --------
-        hlines : add horizontal lines in data coordinates
-        axhspan : add a horizontal span (rectangle) across the axis
         """
-
         if "transform" in kwargs:
             raise ValueError(
                 "'transform' is not allowed as a kwarg;"
@@ -2826,10 +2826,7 @@ class Axes(_AxesBase):
         -----
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
-
-
         """
-
         x = np.array(x, np.float32)
 
         sx = x.sum()
@@ -4457,7 +4454,7 @@ class Axes(_AxesBase):
             to the return collection as attributes *hbar* and *vbar*.
 
         Notes
-        --------
+        -----
         The standard descriptions of all the
         :class:`~matplotlib.collections.Collection` parameters:
 
@@ -6405,6 +6402,10 @@ class Axes(_AxesBase):
         --------
         hist2d : 2D histograms
 
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         # Avoid shadowing the builtin.
         bin_range = range
@@ -6884,17 +6885,6 @@ class Axes(_AxesBase):
 
             %(Line2D)s
 
-        Notes
-        -----
-        For plotting, the power is plotted as
-        :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
-        is returned.
-
-        References
-        ----------
-        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
-        John Wiley & Sons (1986)
-
         See Also
         --------
         :func:`specgram`
@@ -6907,6 +6897,17 @@ class Axes(_AxesBase):
 
         :func:`csd`
             :func:`csd` plots the spectral density between two signals.
+
+        Notes
+        -----
+        For plotting, the power is plotted as
+        :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
+        is returned.
+
+        References
+        ----------
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
         """
         if not self._hold:
             self.cla()
@@ -7012,6 +7013,11 @@ class Axes(_AxesBase):
 
             %(Line2D)s
 
+        See Also
+        --------
+        :func:`psd`
+            :func:`psd` is the equivalent to setting y=x.
+
         Notes
         -----
         For plotting, the power is plotted as
@@ -7022,11 +7028,6 @@ class Axes(_AxesBase):
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        See Also
-        --------
-        :func:`psd`
-            :func:`psd` is the equivalent to setting y=x.
         """
         if not self._hold:
             self.cla()
@@ -7129,6 +7130,11 @@ class Axes(_AxesBase):
         :func:`specgram`
             :func:`specgram` can plot the magnitude spectrum of segments within
             the signal in a colormap.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         if not self._hold:
             self.cla()
@@ -7221,6 +7227,11 @@ class Axes(_AxesBase):
         :func:`specgram`
             :func:`specgram` can plot the angle spectrum of segments within the
             signal in a colormap.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         if not self._hold:
             self.cla()
@@ -7300,6 +7311,11 @@ class Axes(_AxesBase):
         :func:`specgram`
             :func:`specgram` can plot the phase spectrum of segments within the
             signal in a colormap.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
         if not self._hold:
             self.cla()
@@ -7456,11 +7472,6 @@ class Axes(_AxesBase):
             Additional kwargs are passed on to imshow which makes the
             specgram image
 
-        Notes
-        -----
-            *detrend* and *scale_by_freq* only apply when *mode* is set to
-            'psd'
-
         Returns
         -------
         spectrum : 2-D array
@@ -7494,6 +7505,11 @@ class Axes(_AxesBase):
         :func:`phase_spectrum`
             A single spectrum, similar to having a single segment when *mode*
             is 'phase'. Plots a line instead of a colormap.
+
+        Notes
+        -----
+        The parameters *detrend* and *scale_by_freq* do only apply when *mode*
+        is set to 'psd'.
         """
         if not self._hold:
             self.cla()
@@ -7788,6 +7804,11 @@ class Axes(_AxesBase):
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
 
         def _kde_method(X, coords):
