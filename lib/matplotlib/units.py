@@ -19,12 +19,12 @@ datetime objects::
 
         @staticmethod
         def convert(value, unit, axis):
-            'convert value to a scalar or array'
+            'Convert a datetime value to a scalar or array'
             return dates.date2num(value)
 
         @staticmethod
         def axisinfo(unit, axis):
-            'return major and minor tick locators and formatters'
+            'Return major and minor tick locators and formatters'
             if unit!='date': return None
             majloc = dates.AutoDateLocator()
             majfmt = dates.AutoDateFormatter(majloc)
@@ -34,10 +34,10 @@ datetime objects::
 
         @staticmethod
         def default_units(x, axis):
-            'return the default unit for x or None'
+            'Return the default unit for x or None'
             return 'date'
 
-    # Finally we register our object type with a converter
+    # Finally we register our object type with the Matplotlib units registry.
     units.registry[datetime.date] = DateConverter()
 
 """
@@ -53,7 +53,8 @@ import numpy as np
 class AxisInfo(object):
     """
     Information to support default axis labeling, tick labeling, and
-    default limits.
+    default limits. An instance of this class must be returned by
+    :meth:`ConversionInterface.axisinfo`.
     """
     def __init__(self, majloc=None, minloc=None,
                  majfmt=None, minfmt=None, label=None,
@@ -61,14 +62,15 @@ class AxisInfo(object):
         """
         Parameters
         ----------
-        majloc, minloc
-            TickLocators for the major and minor ticks.
-        majfmt, minfmt
-            TickFormatters for the major and minor ticks.
-        label
+        majloc, minloc : Locator, optional
+            Tick locators for the major and minor ticks.
+        majfmt, minfmt : Formatter, optional
+            Tick formatters for the major and minor ticks.
+        label : str, optional
             The default axis label.
-        default_limits
-            The default min, max of the axis if no data is present.
+        default_limits : optional
+            The default min and max limits of the axis if no data has
+            been plotted.
 
         Notes
         -----
@@ -85,7 +87,7 @@ class AxisInfo(object):
 
 class ConversionInterface(object):
     """
-    The minimal interface for a converter to take custom instances (or
+    The minimal interface for a converter to take custom data types (or
     sequences) and convert them to values Matplotlib can use.
     """
     @staticmethod
@@ -130,7 +132,7 @@ class ConversionInterface(object):
 
 class Registry(dict):
     """
-    Register types with conversion interface.
+    A register that maps types to conversion interfaces.
     """
     def __init__(self):
         dict.__init__(self)
@@ -138,7 +140,8 @@ class Registry(dict):
 
     def get_converter(self, x):
         """
-        Get the converter interface instance for *x*, or ``None``.
+        Get the converter for data that has the same type as *x*. If no
+        converters are registered for *x*, returns ``None``.
         """
 
         if not len(self):
@@ -153,6 +156,7 @@ class Registry(dict):
         if classx is not None:
             converter = self.get(classx)
 
+        # If x is an array, look inside the array for data with units
         if isinstance(x, np.ndarray) and x.size:
             xravel = x.ravel()
             try:
@@ -174,6 +178,7 @@ class Registry(dict):
                     converter = self.get_converter(next_item)
                 return converter
 
+        # If we haven't found a converter yet, try to get the first element
         if converter is None:
             try:
                 thisx = safe_first_element(x)
