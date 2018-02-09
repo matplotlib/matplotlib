@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import functools
 import warnings
 
+import six
 import matplotlib as mpl
 from matplotlib import cbook
 

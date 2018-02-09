@@ -1,3 +1,6 @@
+
+import six
+
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_qt5 import QtCore, QtGui, _BackendQT5, FigureCanvasQT
 from .qt_compat import QT_API
