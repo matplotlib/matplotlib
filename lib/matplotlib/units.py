@@ -62,9 +62,9 @@ class AxisInfo(object):
         """
         Parameters
         ----------
-        majloc, minloc : TickLocator, optional
+        majloc, minloc : Locator, optional
             Tick locators for the major and minor ticks.
-        majfmt, minfmt : TickFormatter, optional
+        majfmt, minfmt : Formatter, optional
             Tick formatters for the major and minor ticks.
         label : str, optional
             The default axis label.
