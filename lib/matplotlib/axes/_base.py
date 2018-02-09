@@ -19,6 +19,7 @@ from matplotlib import cbook
 from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
                               index_of, get_label)
 from matplotlib import docstring
+import matplotlib._layoutbox as layoutbox
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
