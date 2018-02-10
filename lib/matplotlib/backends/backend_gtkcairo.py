@@ -33,6 +33,16 @@ class FigureCanvasGTKCairo(backend_cairo.FigureCanvasCairo, FigureCanvasGTK):
     filetypes = FigureCanvasGTK.filetypes.copy()
     filetypes.update(backend_cairo.FigureCanvasCairo.filetypes)
 
+    def __init__(self, *args, **kwargs):
+        warn_deprecated('2.2',
+                        message=('The GTKCairo backend is deprecated. It is '
+                                 'untested and will be removed in Matplotlib '
+                                 '3.0. Use the GTK3Cairo backend instead. See '
+                                 'Matplotlib usage FAQ for more info on '
+                                 'backends.'),
+                        alternative='GTK3Cairo')
+        super(FigureCanvasGTKCairo, self).__init__(*args, **kwargs)
+
     def _renderer_init(self):
         """Override to use cairo (rather than GDK) renderer"""
         self._renderer = RendererGTKCairo(self.figure.dpi)

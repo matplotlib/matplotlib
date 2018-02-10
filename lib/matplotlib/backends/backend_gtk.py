@@ -186,7 +186,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         if self.__class__ == matplotlib.backends.backend_gtk.FigureCanvasGTK:
             warn_deprecated('2.0', message="The GTK backend is "
                             "deprecated. It is untested, known to be "
-                            "broken and will be removed in Matplotlib 2.2. "
+                            "broken and will be removed in Matplotlib 3.0. "
                             "Use the GTKAgg backend instead. "
                             "See Matplotlib usage FAQ for"
                             " more info on backends.",
