@@ -192,7 +192,7 @@ class RendererWx(RendererBase):
         """
         warn_deprecated('2.0', message="The WX backend is "
                         "deprecated. It's untested "
-                        "and will be removed in Matplotlib 2.2. "
+                        "and will be removed in Matplotlib 3.0. "
                         "Use the WXAgg backend instead. "
                         "See Matplotlib usage FAQ for more info on backends.",
                         alternative='WXAgg')
