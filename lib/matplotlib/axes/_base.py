@@ -2118,15 +2118,16 @@ class _AxesBase(martist.Artist):
         """Look for unit *kwargs* and update the axis instances as necessary"""
 
         def _process_single_axis(data, axis, unit_name, kwargs):
+            # Return if there's no axis set
             if axis is None:
-                return
+                return kwargs
 
             if data is not None:
                 # We only need to update if there is nothing set yet.
                 if not axis.have_units():
                     axis.update_units(data)
 
-            # Process kwargs 2nd since these will override default units
+            # Check for units in the kwargs, and if present update axis
             if kwargs is not None:
                 units = kwargs.pop(unit_name, axis.units)
                 if self.name == 'polar':
