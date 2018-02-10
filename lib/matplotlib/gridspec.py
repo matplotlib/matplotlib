@@ -206,8 +206,6 @@ class GridSpec(GridSpecBase):
                               height_ratios=height_ratios)
 
         if (self.figure is None) or not self.figure.get_constrained_layout():
-            _log.info("GridSpec must be called with the fig keyword if "
-                    "constrained_layout is used")
             self._layoutbox = None
         else:
             self.figure.init_layoutbox()

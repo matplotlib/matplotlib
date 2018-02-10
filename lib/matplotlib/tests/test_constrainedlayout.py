@@ -355,3 +355,25 @@ def test_constrained_layout17():
     example_plot(ax2)
     example_plot(ax3)
     example_plot(ax4)
+
+
+def test_constrained_layout18():
+    'Test twinx'
+    fig, ax = plt.subplots(constrained_layout=True)
+    ax2 = ax.twinx()
+    example_plot(ax)
+    example_plot(ax2, fontsize=24)
+    fig.canvas.draw()
+    assert all(ax.get_position().extents == ax2.get_position().extents)
+
+
+def test_constrained_layout19():
+    'Test twiny'
+    fig, ax = plt.subplots(constrained_layout=True)
+    ax2 = ax.twiny()
+    example_plot(ax)
+    example_plot(ax2, fontsize=24)
+    ax2.set_title('')
+    ax.set_title('')
+    fig.canvas.draw()
+    assert all(ax.get_position().extents == ax2.get_position().extents)
