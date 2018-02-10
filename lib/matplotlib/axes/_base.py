@@ -3046,11 +3046,6 @@ class _AxesBase(martist.Artist):
         Raise ValueError if converted limits are non-finite.
 
         Note that this function also accepts None as a limit argument.
-
-        Returns
-        -------
-        The limit value after call to convert(), or None if limit is None.
-
         """
         if limit is not None:
             converted_limit = convert(limit)

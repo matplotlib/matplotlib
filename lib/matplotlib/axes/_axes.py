@@ -33,6 +33,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
+import matplotlib.units as munits
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -4006,6 +4007,7 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
+    @munits._accepts_units(convert_x=['x'], convert_y=['y'])
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
@@ -4148,10 +4150,6 @@ class Axes(_AxesBase):
 
         if edgecolors is None and not rcParams['_internal.classic_mode']:
             edgecolors = 'face'
-
-        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.

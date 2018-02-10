@@ -43,10 +43,82 @@ datetime objects::
 """
 
 from numbers import Number
+import inspect
+import functools
 
 import numpy as np
 
 from matplotlib import cbook
+
+
+def _accepts_units(convert_x, convert_y):
+    """
+    A decorator for functions and methods that accept units. The parameters
+    indicated in *convert_x* and *convert_y* are used to update the axis
+    unit information, are converted, and then handed on to the decorated
+    function.
+
+    Parameters
+    ----------
+    convert_x, convert_y : list
+        A list of integers or strings, indicating the arguments to be converted
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            axes = args[0]
+            # Bind the incoming arguments to the function signature
+            bound_args = inspect.signature(func).bind(*args, **kwargs)
+            # Get the original arguments - these will be modified later
+            arguments = bound_args.arguments
+            # Check for data kwarg
+            has_data = (('data' in arguments) and
+                        (arguments['data'] is not None))
+            if has_data:
+                data = arguments['data']
+
+            # Helper method to process unit info, and convert *original_data*
+            def _process_info(original_data, axis):
+                if original_data is None:
+                    return
+                if axis == 'x':
+                    axes._process_unit_info(xdata=original_data, kwargs=kwargs)
+                    converted_data = axes.convert_xunits(original_data)
+                elif axis == 'y':
+                    axes._process_unit_info(ydata=original_data, kwargs=kwargs)
+                    converted_data = axes.convert_yunits(original_data)
+                return converted_data
+
+            # Loop through each argument to be converted, update the axis
+            # unit info, convert argument, and replace in *arguments* with
+            # converted values
+            for arg in convert_x:
+                if has_data and arguments[arg] in data:
+                    data_arg = arguments[arg]
+                    data[data_arg] = _process_info(data[data_arg], 'x')
+                else:
+                    arguments[arg] = _process_info(arguments[arg], 'x')
+
+            for arg in convert_y:
+                if has_data and arguments[arg] in data:
+                    data_arg = arguments[arg]
+                    data[data_arg] = _process_info(data[data_arg], 'y')
+                else:
+                    arguments[arg] = _process_info(arguments[arg], 'y')
+
+            if has_data:
+                arguments['data'] = data
+            # Update the arguments with converted values
+            bound_args.arguments = arguments
+
+            # Give updated values to the original function
+            args = bound_args.args
+            kwargs = bound_args.kwargs
+            kwargs.pop('xunits', None)
+            kwargs.pop('yunits', None)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
 
 
 class AxisInfo(object):
