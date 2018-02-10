@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import matplotlib
+from matplotlib.cbook import warn_deprecated
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_gtk import (
     gtk, _BackendGTK, FigureCanvasGTK, FigureManagerGTK, NavigationToolbar2GTK,
@@ -33,6 +34,16 @@ class FigureManagerGTKAgg(FigureManagerGTK):
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
     filetypes = FigureCanvasGTK.filetypes.copy()
     filetypes.update(FigureCanvasAgg.filetypes)
+
+    def __init__(self, *args, **kwargs):
+        warn_deprecated('2.2',
+                        message=('The GTKAgg backend is deprecated. It is '
+                                 'untested and will be removed in Matplotlib '
+                                 '3.0. Use the GTK3Agg backend instead. See '
+                                 'Matplotlib usage FAQ for more info on '
+                                 'backends.'),
+                        alternative='GTK3Agg')
+        super(FigureCanvasGTKAgg, self).__init__(*args, **kwargs)
 
     def configure_event(self, widget, event=None):
 
