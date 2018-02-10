@@ -1,0 +1,7 @@
+GTKAgg and GTKCairo backends deprecated
+```````````````````````````````````````
+The GTKAgg and GTKCairo backends have been deprecated. These obsolete backends
+allow figures to be rendered via the GTK+ 2 toolkit. They are untested, known
+to be broken, will not work with Python 3, and their use has been discouraged
+for some time. Instead, use the `GTK3Agg` and `GTK3Cairo` backends for
+rendering to GTK+ 3 windows.
