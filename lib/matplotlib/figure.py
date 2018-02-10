@@ -555,8 +555,8 @@ class Figure(Artist):
         Set padding for ``constrained_layout``.  Note the kwargs can be passed
         as a dictionary ``fig.set_constrained_layout(**paddict)``.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
 
         w_pad : scalar
             Width padding in inches.  This is the pad around axes
@@ -592,8 +592,8 @@ class Figure(Artist):
         Returns a list of `w_pad, h_pad` in inches and
         `wspace` and `hspace` as fractions of the subplot.
 
-        Parameter:
-        -----------
+        Parameters
+        ----------
 
         relative : boolean
             If `True`, then convert from inches to figure relative.
