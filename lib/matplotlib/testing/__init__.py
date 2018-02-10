@@ -1,17 +1,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
+
 import functools
 import warnings
 
-import six
 import matplotlib as mpl
 from matplotlib import cbook
-
-
-def _is_list_like(obj):
-    """Returns whether the obj is iterable and not a string"""
-    return not isinstance(obj, six.string_types) and cbook.iterable(obj)
 
 
 def is_called_from_pytest():
