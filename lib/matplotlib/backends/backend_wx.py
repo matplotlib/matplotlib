@@ -548,7 +548,7 @@ class GraphicsContextWx(GraphicsContextBase):
                 alpha=int(a))
 
 
-class FigureCanvasWx(FigureCanvasBase, wx.Panel):
+class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -709,22 +709,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """
         DEBUG_MSG("draw_idle()", 1, self)
         self._isDrawn = False  # Force redraw
-
         # Triggering a paint event is all that is needed to defer drawing
         # until later. The platform will send the event when it thinks it is
         # a good time (usually as soon as there are no other events pending).
         self.Refresh(eraseBackground=False)
-
-    def draw(self, drawDC=None):
-        """
-        Render the figure using RendererWx instance renderer, or using a
-        previously defined renderer if none is specified.
-        """
-        DEBUG_MSG("draw()", 1, self)
-        self.renderer = RendererWx(self.bitmap, self.figure.dpi)
-        self.figure.draw(self.renderer)
-        self._isDrawn = True
-        self.gui_repaint(drawDC=drawDC)
 
     def new_timer(self, *args, **kwargs):
         """
@@ -838,94 +826,13 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     filetypes['xpm'] = 'X pixmap'
 
     def print_figure(self, filename, *args, **kwargs):
-        # Use pure Agg renderer to draw
-        FigureCanvasBase.print_figure(self, filename, *args, **kwargs)
-        # Restore the current view; this is needed because the
-        # artist contains methods rely on particular attributes
-        # of the rendered figure for determining things like
-        # bounding boxes.
+        super(_FigureCanvasWxBase, self).print_figure(
+            filename, *args, **kwargs)
+        # Restore the current view; this is needed because the artist contains
+        # methods rely on particular attributes of the rendered figure for
+        # determining things like bounding boxes.
         if self._isDrawn:
             self.draw()
-
-    def print_bmp(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
-
-    if not _has_pil:
-        def print_jpeg(self, filename, *args, **kwargs):
-            return self._print_image(filename, wx.BITMAP_TYPE_JPEG,
-                                     *args, **kwargs)
-        print_jpg = print_jpeg
-
-    def print_pcx(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_PCX, *args, **kwargs)
-
-    def print_png(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
-
-    if not _has_pil:
-        def print_tiff(self, filename, *args, **kwargs):
-            return self._print_image(filename, wx.BITMAP_TYPE_TIF,
-                                     *args, **kwargs)
-        print_tif = print_tiff
-
-    def print_xpm(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
-
-    def _print_image(self, filename, filetype, *args, **kwargs):
-        origBitmap = self.bitmap
-
-        l, b, width, height = self.figure.bbox.bounds
-        width = int(math.ceil(width))
-        height = int(math.ceil(height))
-
-        self.bitmap = wxc.EmptyBitmap(width, height)
-
-        renderer = RendererWx(self.bitmap, self.figure.dpi)
-
-        gc = renderer.new_gc()
-
-        self.figure.draw(renderer)
-
-        # image is the object that we call SaveFile on.
-        image = self.bitmap
-        # set the JPEG quality appropriately.  Unfortunately, it is only
-        # possible to set the quality on a wx.Image object.  So if we
-        # are saving a JPEG, convert the wx.Bitmap to a wx.Image,
-        # and set the quality.
-        if filetype == wx.BITMAP_TYPE_JPEG:
-            jpeg_quality = kwargs.get('quality',
-                                      rcParams['savefig.jpeg_quality'])
-            image = self.bitmap.ConvertToImage()
-            image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
-
-        # Now that we have rendered into the bitmap, save it
-        # to the appropriate file type and clean up
-        if isinstance(filename, six.string_types):
-            if not image.SaveFile(filename, filetype):
-                DEBUG_MSG('print_figure() file save error', 4, self)
-                raise RuntimeError(
-                    'Could not save figure to %s\n' %
-                    (filename))
-        elif is_writable_file_like(filename):
-            if not isinstance(image, wx.Image):
-                image = image.ConvertToImage()
-            if not image.SaveStream(filename, filetype):
-                DEBUG_MSG('print_figure() file save error', 4, self)
-                raise RuntimeError(
-                    'Could not save figure to %s\n' %
-                    (filename))
-
-        # Restore everything to normal
-        self.bitmap = origBitmap
-
-        # Note: draw is required here since bits of state about the
-        # last renderer are strewn about the artist draw methods.  Do
-        # not remove the draw without first verifying that these have
-        # been cleaned up.  The artist contains() methods will fail
-        # otherwise.
-        if self._isDrawn:
-            self.draw()
-        self.Refresh()
 
     def _onPaint(self, evt):
         """
@@ -1007,14 +914,16 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     def _onKeyDown(self, evt):
         """Capture key press."""
         key = self._get_key(evt)
-        evt.Skip()
         FigureCanvasBase.key_press_event(self, key, guiEvent=evt)
+        if self:
+            evt.Skip()
 
     def _onKeyUp(self, evt):
         """Release key."""
         key = self._get_key(evt)
-        evt.Skip()
         FigureCanvasBase.key_release_event(self, key, guiEvent=evt)
+        if self:
+            evt.Skip()
 
     def _set_capture(self, capture=True):
         """control wx mouse capture """
@@ -1152,6 +1061,101 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         FigureCanvasBase.enter_notify_event(self, guiEvent=evt)
 
 
+class FigureCanvasWx(_FigureCanvasWxBase):
+    # Rendering to a Wx canvas using the deprecated Wx renderer.
+
+    def draw(self, drawDC=None):
+        """
+        Render the figure using RendererWx instance renderer, or using a
+        previously defined renderer if none is specified.
+        """
+        DEBUG_MSG("draw()", 1, self)
+        self.renderer = RendererWx(self.bitmap, self.figure.dpi)
+        self.figure.draw(self.renderer)
+        self._isDrawn = True
+        self.gui_repaint(drawDC=drawDC)
+
+    def print_bmp(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
+
+    if not _has_pil:
+        def print_jpeg(self, filename, *args, **kwargs):
+            return self._print_image(filename, wx.BITMAP_TYPE_JPEG,
+                                     *args, **kwargs)
+        print_jpg = print_jpeg
+
+    def print_pcx(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_PCX, *args, **kwargs)
+
+    def print_png(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
+
+    if not _has_pil:
+        def print_tiff(self, filename, *args, **kwargs):
+            return self._print_image(filename, wx.BITMAP_TYPE_TIF,
+                                     *args, **kwargs)
+        print_tif = print_tiff
+
+    def print_xpm(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
+
+    def _print_image(self, filename, filetype, *args, **kwargs):
+        origBitmap = self.bitmap
+
+        l, b, width, height = self.figure.bbox.bounds
+        width = int(math.ceil(width))
+        height = int(math.ceil(height))
+
+        self.bitmap = wxc.EmptyBitmap(width, height)
+
+        renderer = RendererWx(self.bitmap, self.figure.dpi)
+
+        gc = renderer.new_gc()
+
+        self.figure.draw(renderer)
+
+        # image is the object that we call SaveFile on.
+        image = self.bitmap
+        # set the JPEG quality appropriately.  Unfortunately, it is only
+        # possible to set the quality on a wx.Image object.  So if we
+        # are saving a JPEG, convert the wx.Bitmap to a wx.Image,
+        # and set the quality.
+        if filetype == wx.BITMAP_TYPE_JPEG:
+            jpeg_quality = kwargs.get('quality',
+                                      rcParams['savefig.jpeg_quality'])
+            image = self.bitmap.ConvertToImage()
+            image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
+
+        # Now that we have rendered into the bitmap, save it
+        # to the appropriate file type and clean up
+        if isinstance(filename, six.string_types):
+            if not image.SaveFile(filename, filetype):
+                DEBUG_MSG('print_figure() file save error', 4, self)
+                raise RuntimeError(
+                    'Could not save figure to %s\n' %
+                    (filename))
+        elif is_writable_file_like(filename):
+            if not isinstance(image, wx.Image):
+                image = image.ConvertToImage()
+            if not image.SaveStream(filename, filetype):
+                DEBUG_MSG('print_figure() file save error', 4, self)
+                raise RuntimeError(
+                    'Could not save figure to %s\n' %
+                    (filename))
+
+        # Restore everything to normal
+        self.bitmap = origBitmap
+
+        # Note: draw is required here since bits of state about the
+        # last renderer are strewn about the artist draw methods.  Do
+        # not remove the draw without first verifying that these have
+        # been cleaned up.  The artist contains() methods will fail
+        # otherwise.
+        if self._isDrawn:
+            self.draw()
+        self.Refresh()
+
+
 ########################################################################
 #
 # The following functions and classes are for pylab compatibility
@@ -1228,7 +1232,7 @@ class FigureFrameWx(wx.Frame):
         return toolbar
 
     def get_canvas(self, fig):
-        return FigureCanvasWx(self, -1, fig)
+        return type(self.canvas)(self, -1, fig)
 
     def get_figure_manager(self):
         DEBUG_MSG("get_figure_manager()", 1, self)
