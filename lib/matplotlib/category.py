@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-StrCategorical module for facilitating natively plotting String/Text data.
-This module contains the conversion mechanism (a monotonic mapping from
-strings to integers), tick locator and formatter, and the class:`.UnitData`
-object that creates and stores the string to integer mapping.
+Module that allows plotting of string "category" data.  i.e.
+``plot(['d', 'f', 'a'],[1, 2, 3])`` will plot three points with x-axis
+values of 'd', 'f', 'a'.
+
+See :doc:`/gallery/lines_bars_and_markers/categorical_variables` for an
+example.
+
+The module uses Matplotlib's `matplotlib.units` mechanism to convert from
+strings to integers, provides a tick locator and formatter, and the
+class:`.UnitData` that creates and stores the string-to-integer mapping.   
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
