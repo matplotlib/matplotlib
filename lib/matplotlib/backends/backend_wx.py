@@ -61,7 +61,7 @@ def DEBUG_MSG(string, lvl=3, o=None):
         # Jeremy, often times the commented line won't print but the
         # one below does.  I think WX is redefining stderr, damned
         # beast
-        #print >>sys.stderr, "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
+        # print >>sys.stderr, "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
         print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls))
 
 
@@ -82,10 +82,6 @@ class fake_stderr(object):
     def write(self, msg):
         print("Stderr: %s\n\r" % msg)
 
-#if _DEBUG < 5:
-    #sys.excepthook = debug_on_error
-    #WxLogger =wx.LogStderr()
-    #sys.stderr = fake_stderr
 
 # the True dots per inch on the screen; should be display dependent
 # see
@@ -410,7 +406,7 @@ class GraphicsContextWx(GraphicsContextBase):
 
     def __init__(self, bitmap, renderer):
         GraphicsContextBase.__init__(self)
-        #assert self.Ok(), "wxMemoryDC not OK to use"
+        # assert self.Ok(), "wxMemoryDC not OK to use"
         DEBUG_MSG("__init__()", 1, self)
         DEBUG_MSG("__init__() 2: %s" % bitmap, 1, self)
 
@@ -1201,10 +1197,10 @@ class FigureFrameWx(wx.Frame):
         # This is not currently working on Linux and is untested elsewhere.
         # icon_path = os.path.join(matplotlib.rcParams['datapath'],
         #                         'images', 'matplotlib.png')
-        #icon = wx.IconFromBitmap(wx.Bitmap(icon_path))
-        # for xpm type icons try:
-        #icon = wx.Icon(icon_path, wx.BITMAP_TYPE_XPM)
-        # self.SetIcon(icon)
+        # icon = wx.IconFromBitmap(wx.Bitmap(icon_path))
+        #  for xpm type icons try:
+        # icon = wx.Icon(icon_path, wx.BITMAP_TYPE_XPM)
+        #  self.SetIcon(icon)
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
@@ -1308,7 +1304,8 @@ class FigureManagerWx(FigureManagerBase):
 # Identifiers for toolbar controls - images_wx contains bitmaps for the images
 # used in the controls. wxWindows does not provide any stock images, so I've
 # 'stolen' those from GTK2, and transformed them into the appropriate format.
-#import images_wx
+# import images_wx
+
 
 _NTB_AXISMENU = wx.NewId()
 _NTB_AXISMENU_BUTTON = wx.NewId()
@@ -1320,7 +1317,7 @@ _NTB_Y_PAN_UP = wx.NewId()
 _NTB_Y_PAN_DOWN = wx.NewId()
 _NTB_Y_ZOOMIN = wx.NewId()
 _NTB_Y_ZOOMOUT = wx.NewId()
-#_NTB_SUBPLOT            =wx.NewId()
+# _NTB_SUBPLOT            =wx.NewId()
 _NTB_SAVE = wx.NewId()
 _NTB_CLOSE = wx.NewId()
 
@@ -1513,8 +1510,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 continue
             self.wx_ids[text] = wx.NewId()
             wxc._AddTool(self, self.wx_ids, text,
-                        _load_bitmap(image_file + '.png'),
-                        tooltip_text)
+                         _load_bitmap(image_file + '.png'),
+                         tooltip_text)
 
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
@@ -1583,12 +1580,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         cursor = wxc.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
-
-    def release(self, event):
-        try:
-            del self.lastrect
-        except AttributeError:
-            pass
 
     @cbook.deprecated("2.1", alternative="canvas.draw_idle")
     def dynamic_update(self):
@@ -1707,7 +1698,7 @@ class StatusBarWx(wx.StatusBar):
         wx.StatusBar.__init__(self, parent, -1)
         self.SetFieldsCount(2)
         self.SetStatusText("None", 1)
-        #self.SetStatusText("Measurement: None", 2)
+        # self.SetStatusText("Measurement: None", 2)
         # self.Reposition()
 
     def set_function(self, string):
@@ -1767,7 +1758,7 @@ class SetCursorWx(backend_tools.SetCursorBase):
         self.canvas.Update()
 
 
-if not 'wxMac' in wx.PlatformInfo:
+if 'wxMac' not in wx.PlatformInfo:
     # on most platforms, use overlay
     class RubberbandWx(backend_tools.RubberbandBase):
         def __init__(self, *args, **kwargs):
@@ -1813,7 +1804,8 @@ if not 'wxMac' in wx.PlatformInfo:
                 dc.DrawRectangleRect(rect)
 
         def remove_rubberband(self):
-            if self.wxoverlay is None: return
+            if self.wxoverlay is None:
+                return
             self.wxoverlay.Reset()
             self.wxoverlay = None
 
@@ -1831,29 +1823,31 @@ else:
             # this would be required if the Canvas is a ScrolledWindow,
             # which is not the case for now
             # self.PrepareDC(dc)
-    
+
             # delete old rubberband
-            if self._rect: self.remove_rubberband(dc)
-    
+            if self._rect:
+                self.remove_rubberband(dc)
+
             # draw new rubberband
-            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.SOLID)) 
+            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.SOLID))
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
-            self._rect = (x0,self.canvas._height-y0, x1-x0, -y1+y0)
+            self._rect = (x0, self.canvas._height-y0, x1-x0, -y1+y0)
             if wxc.is_phoenix:
                 dc.DrawRectangle(self._rect)
             else:
                 dc.DrawRectangleRect(self._rect)
 
         def remove_rubberband(self, dc=None):
-            if not self._rect: return
+            if not self._rect:
+                return
             if self.canvas.bitmap:
                 if dc is None:
                     dc = wx.ClientDC(self.canvas)
                 dc.DrawBitmap(self.canvas.bitmap, 0, 0)
-                # for testing the method on Windows, use this code instead:
-                #img = self.canvas.bitmap.ConvertToImage()
-                #bmp = img.ConvertToBitmap()
-                #dc.DrawBitmap(bmp, 0, 0)
+                #  for testing the method on Windows, use this code instead:
+                # img = self.canvas.bitmap.ConvertToImage()
+                # bmp = img.ConvertToBitmap()
+                # dc.DrawBitmap(bmp, 0, 0)
             self._rect = None
 
 
@@ -1862,8 +1856,7 @@ backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
 
 
-
-#< Additions for printing support: Matt Newville
+# < Additions for printing support: Matt Newville
 
 class PrintoutWx(wx.Printout):
     """
@@ -1938,10 +1931,10 @@ class PrintoutWx(wx.Printout):
         # this cute little number avoid API inconsistencies in wx
         try:
             dc.DrawBitmap(self.canvas.bitmap, 0, 0)
-        except:
+        except Exception:
             try:
                 dc.DrawBitmap(self.canvas.bitmap, (0, 0))
-            except:
+            except Exception:
                 pass
 
         # restore original figure  resolution
@@ -1949,13 +1942,14 @@ class PrintoutWx(wx.Printout):
         self.canvas.figure.dpi = fig_dpi
         self.canvas.draw()
         return True
-#>
+# >
 
 ########################################################################
 #
 # Now just provide the standard names that backend.__init__ is expecting
 #
 ########################################################################
+
 
 Toolbar = NavigationToolbar2Wx
 
