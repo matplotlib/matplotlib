@@ -7,7 +7,7 @@ Example showing how to make shaded relief plots
 like Mathematica
 (http://reference.wolfram.com/mathematica/ref/ReliefPlot.html)
 or Generic Mapping Tools
-(http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/GMT_Docs/node145.html)
+(https://gmt.soest.hawaii.edu/)
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -15,11 +15,11 @@ the `API changes <../../api/api_changes.html>`_.
 
 2015-10-21 Added get_ticks_direction()
 
-2015-02-27 Added the rcParam 'image.composite_image' to permit users 
-		   to decide whether they want the vector graphics backends to combine 
-		   all images within a set of axes into a single composite image.  
-		   (If images do not get combined, users can open vector graphics files 
-		   in Adobe Illustrator or Inkscape and edit each image individually.)  
+2015-02-27 Added the rcParam 'image.composite_image' to permit users
+		   to decide whether they want the vector graphics backends to combine
+		   all images within a set of axes into a single composite image.
+		   (If images do not get combined, users can open vector graphics files
+		   in Adobe Illustrator or Inkscape and edit each image individually.)
 
 2015-02-19 Rewrite of C++ code that calculates contours to add support for
            corner masking.  This is controlled by the 'corner_mask' keyword
@@ -678,7 +678,7 @@ the `API changes <../../api/api_changes.html>`_.
            (with control of dimensions via squeeze keyword). FP.
 
 2010-03-13 Manually brought in commits from branch::
- 
+
     ------------------------------------------------------------------------
     r8191 | leejjoon | 2010-03-13 17:27:57 -0500 (Sat, 13 Mar 2010) | 1 line
 
@@ -1416,7 +1416,7 @@ the `API changes <../../api/api_changes.html>`_.
            and are somewhat out of date. If needed, install them
            independently, see:
 
-           http://code.enthought.com/projects/traits
+           http://code.enthought.com/pages/traits.html
 
            and:
 

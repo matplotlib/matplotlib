@@ -58,9 +58,9 @@ import numpy as np
 # ===============================================
 #
 # Loading image data is supported by the `Pillow
-# <https://python-pillow.org/>`_ library.  Natively, matplotlib only
-# supports PNG images.  The commands shown below fall back on Pillow if the
-# native read fails.
+# <https://pillow.readthedocs.io/en/latest/>`_ library.  Natively, Matplotlib
+# only supports PNG images.  The commands shown below fall back on Pillow if
+# the native read fails.
 #
 # The image used in this example is a PNG file, but keep that Pillow
 # requirement in mind for your own data.
