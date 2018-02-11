@@ -1007,14 +1007,16 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     def _onKeyDown(self, evt):
         """Capture key press."""
         key = self._get_key(evt)
-        evt.Skip()
         FigureCanvasBase.key_press_event(self, key, guiEvent=evt)
+        if self:
+            evt.Skip()
 
     def _onKeyUp(self, evt):
         """Release key."""
         key = self._get_key(evt)
-        evt.Skip()
         FigureCanvasBase.key_release_event(self, key, guiEvent=evt)
+        if self:
+            evt.Skip()
 
     def _set_capture(self, capture=True):
         """control wx mouse capture """
