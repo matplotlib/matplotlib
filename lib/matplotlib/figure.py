@@ -555,8 +555,10 @@ class Figure(Artist):
         Set padding for ``constrained_layout``.  Note the kwargs can be passed
         as a dictionary ``fig.set_constrained_layout(**paddict)``.
 
-        Parameters:
-        -----------
+        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+
+        Parameters
+        ----------
 
         w_pad : scalar
             Width padding in inches.  This is the pad around axes
@@ -574,7 +576,6 @@ class Figure(Artist):
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
         """
 
         todo = ['w_pad', 'h_pad', 'wspace', 'hspace']
@@ -592,13 +593,13 @@ class Figure(Artist):
         Returns a list of `w_pad, h_pad` in inches and
         `wspace` and `hspace` as fractions of the subplot.
 
-        Parameter:
-        -----------
+        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+
+        Parameters
+        ----------
 
         relative : boolean
             If `True`, then convert from inches to figure relative.
-
-        See: :doc:`/tutorials/intermediate/constrainedlayout_guide`
         """
         w_pad = self._constrained_layout_pads['w_pad']
         h_pad = self._constrained_layout_pads['h_pad']
