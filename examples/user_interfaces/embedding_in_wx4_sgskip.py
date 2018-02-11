@@ -74,8 +74,6 @@ class CanvasFrame(wx.Frame):
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
-        # Capture the paint message
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
 
         self.toolbar = MyNavigationToolbar(self.canvas, True)
         self.toolbar.Realize()
@@ -87,10 +85,6 @@ class CanvasFrame(wx.Frame):
         self.toolbar.update()
         self.SetSizer(self.sizer)
         self.Fit()
-
-    def OnPaint(self, event):
-        self.canvas.draw()
-        event.Skip()
 
 
 class App(wx.App):
