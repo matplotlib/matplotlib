@@ -1876,7 +1876,7 @@ Changes beyond 0.99.x
   date. If needed, install them independently.
 
 .. _configobj: http://www.voidspace.org.uk/python/configobj.html
-.. _`enthought.traits`: http://code.enthought.com/projects/traits
+.. _`enthought.traits`: http://code.enthought.com/pages/traits.html
 
 * The new rc parameter ``savefig.extension`` sets the filename extension
   that is used by :meth:`matplotlib.figure.Figure.savefig` if its *fname*

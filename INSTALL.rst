@@ -203,7 +203,7 @@ etc., you can install the following:
     <https://libav.org/avconv.html>`_: for saving movies;
   * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
     animated gifs;
-  * `Pillow <https://python-pillow.org/>`_ (>=2.0): for a larger selection of
+  * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=2.0): for a larger selection of
     image file formats: JPEG, BMP, and TIFF image files;
   * `LaTeX <https://miktex.org/>`_ and `GhostScript
     <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).
