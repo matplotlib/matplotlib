@@ -1738,7 +1738,7 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
 
         dirname = dlg.GetDirectory()
         filename = dlg.GetFilename()
-        DEBUG_MSG( 'Save file dir:%s name:%s' % (dirname, filename), 3, self)
+        DEBUG_MSG('Save file dir:%s name:%s' % (dirname, filename), 3, self)
         format = exts[dlg.GetFilterIndex()]
         basename, ext = os.path.splitext(filename)
         if ext.startswith('.'):
