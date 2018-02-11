@@ -12,6 +12,11 @@ from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
+try:  # https://docs.python.org/3/library/exceptions.html#RecursionError
+    RecursionError                 # Python 3.5+
+except NameError:
+    RecursionError = RuntimeError  # Python < 3.5
+
 
 def test_simple():
     fig = plt.figure()
