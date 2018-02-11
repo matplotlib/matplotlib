@@ -1,10 +1,15 @@
+:orphan:
+
 Adding API change notes
-```````````````````````
+=======================
 
+Please place new portions of `api_changes.rst` in the
+`next_api_changes` directory.
 
-For changes which require an entry in `api_changes.rst` please create
-a file in this folder with the name :file:`YYYY-MM-DD-[initials].rst`
-(ex :file:`2014-07-31-TAC.rst`) with contents following the form: ::
+When adding an entry please look at the currently existing files to
+see if you can extend any of them.  If you create a file, name it
+:file:`what_api_changes.rst` (ex :file:`deprecated_rcparams.rst`) with
+contents following the form: ::
 
     Brief description of change
     ---------------------------
