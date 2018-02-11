@@ -122,36 +122,36 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.showfliers  : True
 #boxplot.meanline    : False
 
-#boxplot.flierprops.color           : 'k'
-#boxplot.flierprops.marker          : 'o'
-#boxplot.flierprops.markerfacecolor : 'none'
-#boxplot.flierprops.markeredgecolor : 'k'
+#boxplot.flierprops.color           : k
+#boxplot.flierprops.marker          : o
+#boxplot.flierprops.markerfacecolor : none
+#boxplot.flierprops.markeredgecolor : k
 #boxplot.flierprops.markersize      : 6
-#boxplot.flierprops.linestyle       : 'none'
+#boxplot.flierprops.linestyle       : none
 #boxplot.flierprops.linewidth       : 1.0
 
-#boxplot.boxprops.color     : 'k'
+#boxplot.boxprops.color     : k
 #boxplot.boxprops.linewidth : 1.0
-#boxplot.boxprops.linestyle : '-'
+#boxplot.boxprops.linestyle : -
 
-#boxplot.whiskerprops.color     : 'k'
+#boxplot.whiskerprops.color     : k
 #boxplot.whiskerprops.linewidth : 1.0
-#boxplot.whiskerprops.linestyle : '-'
+#boxplot.whiskerprops.linestyle : -
 
-#boxplot.capprops.color     : 'k'
+#boxplot.capprops.color     : k
 #boxplot.capprops.linewidth : 1.0
-#boxplot.capprops.linestyle : '-'
+#boxplot.capprops.linestyle : -
 
-#boxplot.medianprops.color     : 'C1'
+#boxplot.medianprops.color     : C1
 #boxplot.medianprops.linewidth : 1.0
-#boxplot.medianprops.linestyle : '-'
+#boxplot.medianprops.linestyle : -
 
-#boxplot.meanprops.color           : 'C2'
-#boxplot.meanprops.marker          : '^'
-#boxplot.meanprops.markerfacecolor : 'C2'
-#boxplot.meanprops.markeredgecolor : 'C2'
+#boxplot.meanprops.color           : C2
+#boxplot.meanprops.marker          : ^
+#boxplot.meanprops.markerfacecolor : C2
+#boxplot.meanprops.markeredgecolor : C2
 #boxplot.meanprops.markersize      :  6
-#boxplot.meanprops.linestyle       : 'none'
+#boxplot.meanprops.linestyle       : none
 #boxplot.meanprops.linewidth       : 1.0
 
 ### FONT
@@ -291,7 +291,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.labelpad       : 4.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
-#axes.axisbelow      : 'line'  # draw axis gridlines and ticks below
+#axes.axisbelow      : line    # draw axis gridlines and ticks below
                                # patches (True); above patches but below
                                # lines ('line'); or above all (False)
 
@@ -538,14 +538,14 @@ backend      : $TEMPLATE_BACKEND
 #ps.distiller.res  : 6000      # dpi
 #ps.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 
-# pdf backend params
+## pdf backend params
 #pdf.compression   : 6 # integer from 0 to 9
                        # 0 disables compression (good for debugging)
 #pdf.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 
-# svg backend params
+## svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
-#svg.fonttype : 'path'         # How to handle SVG fonts:
+#svg.fonttype :   path         # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers
 #    'svgfont': Embed characters as SVG fonts -- supported only by Chrome,
@@ -578,14 +578,15 @@ backend      : $TEMPLATE_BACKEND
 #examples.directory : ''   # directory to look in for custom installation
 
 ###ANIMATION settings
-#animation.html : 'none'           # How to display the animation as HTML in
+#animation.html :  none            # How to display the animation as HTML in
                                    # the IPython notebook. 'html5' uses
-                                   # HTML5 video tag.
+                                   # HTML5 video tag; 'jshtml' creates a 
+								   # Javascript animation
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
 #animation.codec : h264            # Codec to use for writing movie
 #animation.bitrate: -1             # Controls size/quality tradeoff for movie.
                                    # -1 implies let utility auto-determine
-#animation.frame_format: 'png'     # Controls frame format used by temp files
+#animation.frame_format:  png      # Controls frame format used by temp files
 #animation.html_args: ''           # Additional arguments to pass to html writer
 #animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
