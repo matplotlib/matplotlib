@@ -181,7 +181,7 @@ Matplotlib requires a large number of dependencies:
     (for Python 2.7 only)
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
     2.7 only, on Linux and macOS only)
-
+  * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
@@ -193,8 +193,10 @@ optional Matplotlib backends and the capabilities they provide.
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
   * :term:`wxpython` (>= 2.9 or later): for the WX or WXAgg backend;
+  * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`__ (>=
+    v0.8): for cairo based backends;
   * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for GTK3Cairo;
-  * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
+  * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend;
 
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
