@@ -1,0 +1,5 @@
+
+Simplify String Categorical handling
+------------------------------------
+
+ - Do not allow missing data.

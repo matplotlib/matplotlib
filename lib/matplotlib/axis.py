@@ -719,7 +719,9 @@ class Axis(artist.Artist):
         self.label = self._get_label()
         self.labelpad = rcParams['axes.labelpad']
         self.offsetText = self._get_offset_text()
-        self.unit_data = None
+
+        self.majorTicks = []
+        self.minorTicks = []
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API
@@ -777,15 +779,14 @@ class Axis(artist.Artist):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     @property
+    @cbook.deprecated("2.2")
     def unit_data(self):
-        """Holds data that a ConversionInterface subclass uses
-        to convert between labels and indexes
-        """
-        return self._unit_data
+        return self.units
 
     @unit_data.setter
+    @cbook.deprecated("2.2")
     def unit_data(self, unit_data):
-        self._unit_data = unit_data
+        self.set_units(unit_data)
 
     def get_children(self):
         children = [self.label, self.offsetText]

@@ -57,6 +57,7 @@ to ``'mask'``.
 As a side effect of this change, error bars which go negative now work as expected
 on log scales.
 
+
 API Changes in 2.1.0
 ====================
 

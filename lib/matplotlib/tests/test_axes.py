@@ -5158,6 +5158,7 @@ def test_pandas_pcolormesh(pd):
 
     fig, ax = plt.subplots()
     ax.pcolormesh(time, depth, data)
+    fig.canvas.draw()
 
 
 def test_pandas_indexing_dates(pd):
@@ -5169,6 +5170,7 @@ def test_pandas_indexing_dates(pd):
 
     without_zero_index = df[np.array(df.index) % 2 == 1].copy()
     ax.plot('dates', 'values', data=without_zero_index)
+    ax.figure.canvas.draw()
 
 
 def test_pandas_errorbar_indexing(pd):
@@ -5177,6 +5179,7 @@ def test_pandas_errorbar_indexing(pd):
                       index=[1, 2, 3, 4, 5])
     fig, ax = plt.subplots()
     ax.errorbar('x', 'y', xerr='xe', yerr='ye', data=df)
+    fig.canvas.draw()
 
 
 def test_pandas_indexing_hist(pd):
@@ -5184,6 +5187,7 @@ def test_pandas_indexing_hist(pd):
     ser_2 = ser_1.iloc[1:]
     fig, axes = plt.subplots()
     axes.hist(ser_2)
+    fig.canvas.draw()
 
 
 def test_pandas_bar_align_center(pd):
