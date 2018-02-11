@@ -7,8 +7,6 @@ An example of how to use wxagg in an application with the new
 toolbar - comment out the add_toolbar line for no toolbar
 """
 
-import matplotlib
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure

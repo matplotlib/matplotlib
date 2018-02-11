@@ -28,7 +28,6 @@ import time
 import os
 import gc
 import matplotlib
-matplotlib.use('WXAgg')
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg

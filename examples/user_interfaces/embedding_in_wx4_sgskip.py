@@ -6,8 +6,6 @@ Embedding In Wx4
 An example of how to use wx or wxagg in an application with a custom toolbar.
 """
 
-import matplotlib
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
 from matplotlib.backends.backend_wx import _load_bitmap

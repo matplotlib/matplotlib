@@ -8,9 +8,6 @@ Fourier Demo WX
 import numpy as np
 
 import wx
-import matplotlib
-matplotlib.interactive(False)
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
 from matplotlib.figure import Figure
 
