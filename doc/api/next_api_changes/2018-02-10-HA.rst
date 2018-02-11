@@ -1,5 +1,5 @@
-Deprecated `Axis.unt_data`
-``````````````````````````
+Deprecated `Axis.unit_data`
+```````````````````````````
 
 Use `Axis.units` (which has long existed) instead.
 
