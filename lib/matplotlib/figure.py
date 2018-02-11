@@ -554,7 +554,7 @@ class Figure(Artist):
         """
         Set padding for ``constrained_layout``.  Note the kwargs can be passed
         as a dictionary ``fig.set_constrained_layout(**paddict)``.
-        
+
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`
 
         Parameters
@@ -592,9 +592,9 @@ class Figure(Artist):
 
         Returns a list of `w_pad, h_pad` in inches and
         `wspace` and `hspace` as fractions of the subplot.
-        
+
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`
-        
+
         Parameters
         ----------
 
