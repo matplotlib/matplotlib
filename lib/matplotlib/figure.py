@@ -598,7 +598,7 @@ class Figure(Artist):
         relative : boolean
             If `True`, then convert from inches to figure relative.
 
-        See: :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        See :doc:`/tutorials/intermediate/constrainedlayout_guide`
         """
         w_pad = self._constrained_layout_pads['w_pad']
         h_pad = self._constrained_layout_pads['h_pad']
