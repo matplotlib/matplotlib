@@ -582,6 +582,20 @@ table.docutils {
     background-color: #eff3f4;
 }
 
+/* tables inside parameter descriptions */
+td.field-body table.property-table {
+    width: 100%;
+}
+
+td.field-body table.property-table th {
+    padding: 2px 10px;
+    border: 0;
+}
+
+td.field-body table.property-table td {
+    padding: 2px 10px;
+}
+
 /* function and class description */
 .descclassname {
     color: #aaa;
@@ -638,6 +652,9 @@ dl.class {
     font-family: monospace;
 }
 
+table.docutils.field-list {
+    width: 100%;
+}
 
 .docutils.field-list th {
     background-color: #eee;
