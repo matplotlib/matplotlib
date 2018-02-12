@@ -4,7 +4,6 @@ Render to qt from agg
 
 import ctypes
 
-from matplotlib import cbook
 from matplotlib.transforms import Bbox
 
 from .backend_agg import FigureCanvasAgg
@@ -19,11 +18,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
     def __init__(self, figure):
         super().__init__(figure=figure)
         self._bbox_queue = []
-
-    @property
-    @cbook.deprecated("2.1")
-    def blitbox(self):
-        return self._bbox_queue
 
     def paintEvent(self, e):
         """Copy the image from the Agg canvas to the qt.drawable.
@@ -89,11 +83,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
     def print_figure(self, *args, **kwargs):
         super().print_figure(*args, **kwargs)
         self.draw()
-
-
-@cbook.deprecated("2.2")
-class FigureCanvasQTAggBase(FigureCanvasQTAgg):
-    pass
 
 
 @_BackendQT5.export

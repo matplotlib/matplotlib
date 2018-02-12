@@ -6,7 +6,6 @@ import six
 import wx
 
 import matplotlib
-from matplotlib import cbook
 from . import wx_compat as wxc
 from .backend_agg import FigureCanvasAgg
 from .backend_wx import (
@@ -70,11 +69,6 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         self.gui_repaint()
 
     filetypes = FigureCanvasAgg.filetypes
-
-
-@cbook.deprecated("2.2", alternative="NavigationToolbar2WxAgg")
-class Toolbar(NavigationToolbar2WxAgg):
-    pass
 
 
 # agg/wxPython image conversion functions (wxPython >= 2.8)

@@ -68,11 +68,6 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
 
-    @property
-    @cbook.deprecated("2.2")
-    def debug(self):
-        return 1
-
     # we want to cache the fonts at the class level so that when
     # multiple figures are created we can reuse them.  This helps with
     # a bug on windows where the creation of too many figures leads to
