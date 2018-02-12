@@ -99,6 +99,8 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
+# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# to ensure that we error out properly for existing editable installs.
 from __future__ import absolute_import, division, print_function
 
 import six
@@ -121,6 +123,17 @@ import stat
 import sys
 import tempfile
 import warnings
+
+if sys.version_info < (3, 5):  # noqa: E402
+    raise ImportError("""
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+See Matplotlib `INSTALL.rst` file for more information:
+
+    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
+
+""")
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.

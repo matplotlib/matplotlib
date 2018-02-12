@@ -1,3 +1,6 @@
+# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# to ensure that we error out properly for people with outdated setuptools
+# and/or pip.
 from __future__ import print_function, absolute_import
 
 from importlib import import_module
@@ -680,15 +683,16 @@ class Python(SetupPackage):
     def check(self):
         major, minor1, minor2, s, tmp = sys.version_info
 
-        if major < 2:
-            raise CheckFailed(
-                "Requires Python 2.7 or later")
-        elif major == 2 and minor1 < 7:
-            raise CheckFailed(
-                "Requires Python 2.7 or later (in the 2.x series)")
-        elif major == 3 and minor1 < 4:
-            raise CheckFailed(
-                "Requires Python 3.4 or later (in the 3.x series)")
+        if major < 3 or minor1 < 5:
+            error = """
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+This may be due to an out of date pip.
+
+Make sure you have pip >= 9.0.1.
+"""
+            raise CheckFailed(error)
 
         return sys.version
 
