@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from collections import OrderedDict
+import types
 
 import numpy as np
 
@@ -1362,7 +1363,7 @@ class PolarAxes(Axes):
         elif button == 3:
             mode = 'zoom'
 
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             rmax=self.get_rmax(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),

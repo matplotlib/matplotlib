@@ -6,10 +6,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import logging
+from types import SimpleNamespace
 from six.moves import zip
 import numpy as np
 
-from matplotlib.cbook import iterable, Bunch
+from matplotlib.cbook import iterable
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
@@ -780,8 +781,9 @@ class Sankey(object):
         # where either could determine the margins (e.g., arrow shoulders).
 
         # Add this diagram as a subdiagram.
-        self.diagrams.append(Bunch(patch=patch, flows=flows, angles=angles,
-                                   tips=tips, text=text, texts=texts))
+        self.diagrams.append(
+            SimpleNamespace(patch=patch, flows=flows, angles=angles, tips=tips,
+                            text=text, texts=texts))
 
         # Allow a daisy-chained call structure (see docstring for the class).
         return self
