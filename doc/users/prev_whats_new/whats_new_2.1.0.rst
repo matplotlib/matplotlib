@@ -68,7 +68,7 @@ method now has an optional :code:`offset` argument. This argument may be used
 to further specify the zero location based on the given anchor point.
 
 .. figure:: /gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_002.png
-   :target: ../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-with-offset-origin
+   :target: ../../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-with-offset-origin
    :align: center
    :scale: 70
 
@@ -79,7 +79,7 @@ The :meth:`~matplotlib.projections.polar.PolarAxes.set_thetamin` and
 be used to limit the range of angles plotted, producing sectors of a circle.
 
 .. figure:: /gallery/pie_and_polar_charts/images/sphx_glr_polar_scatter_003.png
-   :target: ../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-confined-to-a-sector
+   :target: ../../gallery/pie_and_polar_charts/polar_scatter.html#scatter-plot-on-polar-axis-confined-to-a-sector
    :align: center
    :scale: 70
 
@@ -218,7 +218,7 @@ data. Uses could include plotting a sparse 3D heat map, or visualizing a
 volumetric model.
 
 .. figure:: /gallery/mplot3d/images/sphx_glr_voxels_numpy_logo_001.png
-   :target: ../gallery/mplot3d/voxels_numpy_logo.html
+   :target: ../../gallery/mplot3d/voxels_numpy_logo.html
    :align: center
    :scale: 70
 
@@ -309,7 +309,7 @@ A legend entry can now contain more than one legend key. The extended
 ``pad`` changes the padding between the legend keys.
 
 .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
-   :target: ../gallery/text_labels_and_annotations/legend_demo.html
+   :target: ../../gallery/text_labels_and_annotations/legend_demo.html
    :align: center
    :scale: 70
 
