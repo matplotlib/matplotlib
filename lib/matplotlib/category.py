@@ -9,7 +9,7 @@ example.
 
 The module uses Matplotlib's `matplotlib.units` mechanism to convert from
 strings to integers, provides a tick locator and formatter, and the
-class:`.UnitData` that creates and stores the string-to-integer mapping.   
+class:`.UnitData` that creates and stores the string-to-integer mapping.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -124,7 +124,7 @@ class StrCategoryLocator(ticker.Locator):
         """
         Parameters
         -----------
-        units: dict
+        units_mapping : Dict[str, int]
              string:integer mapping
         """
         self._units = units_mapping
@@ -142,7 +142,7 @@ class StrCategoryFormatter(ticker.Formatter):
         """
         Parameters
         ----------
-        units: dict
+        units_mapping : Dict[Str, int]
             string:integer mapping
         """
         self._units = units_mapping
