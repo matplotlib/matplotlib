@@ -1,9 +1,11 @@
 """
-=========================
-Matplotlib With Glade 316
-=========================
+=======================
+Matplotlib With Glade 3
+=======================
 
 """
+
+import os
 
 from gi.repository import Gtk
 
@@ -21,7 +23,9 @@ class Window1Signals(object):
 
 def main():
     builder = Gtk.Builder()
-    builder.add_objects_from_file("mpl_with_glade_316.glade", ("window1", ""))
+    builder.add_objects_from_file(os.path.join(os.path.dirname(__file__),
+                                               "mpl_with_glade3.glade"),
+                                  ("window1", ""))
     builder.connect_signals(Window1Signals())
     window = builder.get_object("window1")
     sw = builder.get_object("scrolledwindow1")
