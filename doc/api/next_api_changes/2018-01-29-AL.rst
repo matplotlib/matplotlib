@@ -1,4 +1,0 @@
-Deprecation of backend_tkagg.AxisMenu
-`````````````````````````````````````
-The above-mentioned class is deprecated, as it has become unused since the
-removal of "classic" toolbars.

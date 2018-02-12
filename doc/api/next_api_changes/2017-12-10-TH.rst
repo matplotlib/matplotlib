@@ -1,6 +1,0 @@
-Deprecations
-````````````
-
-Using `.pyplot.axes` with an `.Axes` as argument is deprecated. This sets
-the current axes, i.e. it has the same effect as `.pyplot.sca`. For clarity
-``plt.sca(ax)`` should be preferred over ``plt.axes(ax)``.

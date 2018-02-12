@@ -1,2 +1,0 @@
-`~.tight_layout.auto_adjust_subplotpars` now raises `ValueError` instead of `RuntimeError` when sizes of input lists don't match
-````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
