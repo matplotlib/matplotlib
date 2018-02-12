@@ -7,6 +7,8 @@ Matplotlib With Glade 3
 
 import os
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from matplotlib.figure import Figure
