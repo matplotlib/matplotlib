@@ -128,7 +128,7 @@ jobs:
       - run:
           <<: *deps-install
           environment:
-            NUMPY_VERSION: "==1.7.1"
+            NUMPY_VERSION: "==1.10.0"
       - run: *mpl-install
 
       - run: *doc-build
