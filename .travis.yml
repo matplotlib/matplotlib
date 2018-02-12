@@ -113,7 +113,10 @@ before_install:
       brew tap homebrew/gui
       brew install python3 libpng ffmpeg imagemagick mplayer ccache
       # make 'python' mean 'python3'
-      ln -s /usr/local/bin/python3 /usr/local/bin/python
+      ln -sf /usr/local/bin/python3 /usr/local/bin/python
+      hash -r
+      which python
+      python --version
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
@@ -128,10 +131,10 @@ install:
     ccache -s
     git describe
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
-    pip install --upgrade pip setuptools wheel
+    python -mpip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from PyPI
-    pip install --upgrade $PRE \
+    python -mpip install --upgrade $PRE \
         codecov \
         coverage \
         $CYCLER \
@@ -150,22 +153,22 @@ install:
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    pip install cairocffi pgi &&
+    python -mpip install cairocffi pgi &&
       python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
       echo 'pgi is available' ||
       echo 'pgi is not available'
-    pip install pyqt5==5.9 &&
+    python -mpip install pyqt5==5.9 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
-    pip install -U --pre \
+    python -mpip install -U --pre \
       --no-index -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
       python -c 'import wx' &&
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    pip install $PRE \
+    python -mpip install $PRE \
         $PYTEST \
         $PYTEST_COV \
         pytest-faulthandler \
@@ -178,7 +181,7 @@ install:
     cp ci/travis/setup.cfg .
   - |
     # Install matplotlib
-    pip install -ve .
+    python -mpip install -ve .
 
 before_script:
   - |
