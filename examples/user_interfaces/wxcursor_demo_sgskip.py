@@ -6,8 +6,6 @@ WXcursor Demo
 Example to draw a cursor and report the data coords in wx.
 """
 
-import matplotlib
-matplotlib.use('WXAgg')
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx, wxc

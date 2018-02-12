@@ -8,9 +8,6 @@ Fourier Demo WX
 import numpy as np
 
 import wx
-import matplotlib
-matplotlib.interactive(False)
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
 from matplotlib.figure import Figure
 
@@ -108,30 +105,25 @@ class SliderGroup(Knob):
 class FourierDemoFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
         wx.Frame.__init__(self, *args, **kwargs)
+        panel = wx.Panel(self)
 
-        self.fourierDemoWindow = FourierDemoWindow(self)
-        self.frequencySliderGroup = SliderGroup(
-            self,
-            label='Frequency f0:',
-            param=self.fourierDemoWindow.f0)
-        self.amplitudeSliderGroup = SliderGroup(self, label=' Amplitude a:',
-                                                param=self.fourierDemoWindow.A)
+        # create the GUI elements
+        self.createCanvas(panel)
+        self.createSliders(panel)
 
+        # place them in a sizer for the Layout
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.fourierDemoWindow, 1, wx.EXPAND)
+        sizer.Add(self.canvas, 1, wx.EXPAND)
         sizer.Add(self.frequencySliderGroup.sizer, 0,
                   wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
         sizer.Add(self.amplitudeSliderGroup.sizer, 0,
                   wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
-        self.SetSizer(sizer)
+        panel.SetSizer(sizer)
 
-
-class FourierDemoWindow(wx.Window, Knob):
-    def __init__(self, *args, **kwargs):
-        wx.Window.__init__(self, *args, **kwargs)
+    def createCanvas(self, parent):
         self.lines = []
         self.figure = Figure()
-        self.canvas = FigureCanvasWxAgg(self, -1, self.figure)
+        self.canvas = FigureCanvasWxAgg(parent, -1, self.figure)
         self.canvas.callbacks.connect('button_press_event', self.mouseDown)
         self.canvas.callbacks.connect('motion_notify_event', self.mouseMotion)
         self.canvas.callbacks.connect('button_release_event', self.mouseUp)
@@ -139,7 +131,7 @@ class FourierDemoWindow(wx.Window, Knob):
         self.mouseInfo = (None, None, None, None)
         self.f0 = Param(2., minimum=0., maximum=6.)
         self.A = Param(1., minimum=0.01, maximum=2.)
-        self.draw()
+        self.createPlots()
 
         # Not sure I like having two params attached to the same Knob,
         # but that is what we have here... it works but feels kludgy -
@@ -147,16 +139,14 @@ class FourierDemoWindow(wx.Window, Knob):
         # at the same time (both f0 and A are affected during a drag)
         self.f0.attach(self)
         self.A.attach(self)
-        self.Bind(wx.EVT_SIZE, self.sizeHandler)
 
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-
-    def OnPaint(self, event):
-        self.canvas.draw()
-        event.Skip()
-
-    def sizeHandler(self, *args, **kwargs):
-        self.canvas.SetSize(self.GetSize())
+    def createSliders(self, panel):
+        self.frequencySliderGroup = SliderGroup(
+            panel,
+            label='Frequency f0:',
+            param=self.f0)
+        self.amplitudeSliderGroup = SliderGroup(panel, label=' Amplitude a:',
+                                                param=self.A)
 
     def mouseDown(self, evt):
         if self.lines[0].contains(evt)[0]:
@@ -186,7 +176,10 @@ class FourierDemoWindow(wx.Window, Knob):
     def mouseUp(self, evt):
         self.state = ''
 
-    def draw(self):
+    def createPlots(self):
+        # This method creates the subplots, waveforms and labels.
+        # Later, when the waveforms or sliders are dragged, only the
+        # waveform data will be updated (not here, but below in setKnob).
         if not hasattr(self, 'subplot1'):
             self.subplot1, self.subplot2 = self.figure.subplots(2)
         x1, y1, x2, y2 = self.compute(self.f0.value, self.A.value)
@@ -222,15 +215,14 @@ class FourierDemoWindow(wx.Window, Knob):
             (np.exp(-np.pi * (f - f0) ** 2) + np.exp(-np.pi * (f + f0) ** 2))
         return f, X, t, x
 
-    def repaint(self):
-        self.canvas.draw()
-
     def setKnob(self, value):
         # Note, we ignore value arg here and just go by state of the params
         x1, y1, x2, y2 = self.compute(self.f0.value, self.A.value)
+        # update the data of the two waveforms
         self.lines[0].set(xdata=x1, ydata=y1)
         self.lines[1].set(xdata=x2, ydata=y2)
-        self.repaint()
+        # make the canvas draw its contents again with the new data
+        self.canvas.draw()
 
 
 class App(wx.App):
