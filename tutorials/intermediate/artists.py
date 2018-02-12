@@ -304,7 +304,7 @@ plt.show()
 #     In [159]: ax1
 #     Out[159]: <matplotlib.axes.Subplot instance at 0xd54b26c>
 #
-#     In [160]: print fig.axes
+#     In [160]: print(fig.axes)
 #     [<matplotlib.axes.Subplot instance at 0xd54b26c>, <matplotlib.axes.Axes instance at 0xd3f0b2c>]
 #
 # Because the figure maintains the concept of the "current axes" (see
@@ -404,7 +404,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [229]: print ax.lines
+#     In [229]: print(ax.lines)
 #     [<matplotlib.lines.Line2D instance at 0xd378b0c>]
 #
 # Similarly, methods that create patches, like
@@ -419,7 +419,7 @@ plt.show()
 #     In [234]: rectangles
 #     Out[234]: <a list of 50 Patch objects>
 #
-#     In [235]: print len(ax.patches)
+#     In [235]: print(len(ax.patches))
 #
 # You should not add objects directly to the ``Axes.lines`` or
 # ``Axes.patches`` lists unless you know exactly what you are doing,
@@ -445,11 +445,11 @@ plt.show()
 #     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
 #
 #     # by default the axes instance is None
-#     In [264]: print rect.get_axes()
+#     In [264]: print(rect.get_axes())
 #     None
 #
 #     # and the transformation instance is set to the "identity transform"
-#     In [265]: print rect.get_transform()
+#     In [265]: print(rect.get_transform())
 #     <Affine object at 0x13695544>
 #
 #     # now we add the Rectangle to the Axes
@@ -457,30 +457,30 @@ plt.show()
 #
 #     # and notice that the ax.add_patch method has set the axes
 #     # instance
-#     In [267]: print rect.get_axes()
+#     In [267]: print(rect.get_axes())
 #     Axes(0.125,0.1;0.775x0.8)
 #
 #     # and the transformation has been set too
-#     In [268]: print rect.get_transform()
+#     In [268]: print(rect.get_transform())
 #     <Affine object at 0x15009ca4>
 #
 #     # the default axes transformation is ax.transData
-#     In [269]: print ax.transData
+#     In [269]: print(ax.transData)
 #     <Affine object at 0x15009ca4>
 #
 #     # notice that the xlimits of the Axes have not been changed
-#     In [270]: print ax.get_xlim()
+#     In [270]: print(ax.get_xlim())
 #     (0.0, 1.0)
 #
 #     # but the data limits have been updated to encompass the rectangle
-#     In [271]: print ax.dataLim.bounds
+#     In [271]: print(ax.dataLim.bounds)
 #     (1.0, 1.0, 5.0, 12.0)
 #
 #     # we can manually invoke the auto-scaling machinery
 #     In [272]: ax.autoscale_view()
 #
 #     # and now the xlim are updated to encompass the rectangle
-#     In [273]: print ax.get_xlim()
+#     In [273]: print(ax.get_xlim())
 #     (1.0, 6.0)
 #
 #     # we have to manually force a figure draw

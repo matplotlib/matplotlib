@@ -114,11 +114,9 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
 
     # for degree
     if dv > 1./threshold_factor:
-        #print "degree"
         step, factor = _select_step(dv)
     else:
         step, factor = select_step_sub(dv*threshold_factor)
-        #print "feac", step, factor
 
         factor = factor * threshold_factor
 
