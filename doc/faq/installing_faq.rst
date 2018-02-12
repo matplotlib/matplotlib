@@ -216,11 +216,6 @@ the disk image installer only works for Python.org Python, and will not get
 picked up by other Pythons.  If all these fail, please :ref:`let us know
 <reporting-problems>`.
 
-Windows Notes
-=============
-
-See :ref:`installing_windows`.
-
 .. _install-from-git:
 
 Install from source

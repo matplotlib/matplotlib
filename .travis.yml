@@ -65,7 +65,7 @@ env:
 
 matrix:
   include:
-    - python: 2.7
+    - python: 3.5
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
       env:
         - CYCLER=cycler==0.10
@@ -78,7 +78,7 @@ matrix:
         - PYTEST=pytest==3.1.0
         - PYTEST_COV=pytest-cov==2.3.1
         - SPHINX=sphinx==1.3
-    - python: 3.4
+    - python: 3.5
       env: PYTHON_ARGS=-OO
     - python: 3.6
       env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
@@ -111,7 +111,9 @@ before_install:
     else
       brew update
       brew tap homebrew/gui
-      brew install python libpng ffmpeg imagemagick mplayer ccache
+      brew install python3 libpng ffmpeg imagemagick mplayer ccache
+      # make 'python' mean 'python3'
+      ln -s /usr/local/bin/python3 /usr/local/bin/python
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
