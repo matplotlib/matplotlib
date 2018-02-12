@@ -159,7 +159,6 @@ optional Matplotlib backends and the capabilities they provide.
   * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
     `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
-  * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
   * :term:`wxpython` (>= 2.9 or later): for the WX or WXAgg backend;
   * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`__ (>=
     v0.8): for cairo based backends;
