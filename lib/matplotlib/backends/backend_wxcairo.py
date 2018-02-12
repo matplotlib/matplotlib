@@ -3,6 +3,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import sys
+
+import numpy as np
 import wx
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
@@ -41,8 +44,13 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
         self._renderer.set_ctx_from_surface(surface)
         self._renderer.set_width_height(width, height)
         self.figure.draw(self._renderer)
-        buf = surface.get_data()
-        self.bitmap = wxc.BitmapFromBuffer(width, height, buf)
+        buf = np.frombuffer(surface.get_data(), dtype="uint8").reshape((height, width, 4))
+        if sys.byteorder == "little":
+            b, g, r, a = np.rollaxis(buf, -1)
+        else:
+            a, r, g, b = np.rollaxis(buf, -1)
+        rgba8888 = np.dstack([r, g, b, a])
+        self.bitmap = wxc.BitmapFromBuffer(width, height, rgba8888)
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC, origin='WXCairo')
 
