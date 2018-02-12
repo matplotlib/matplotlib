@@ -62,7 +62,8 @@ def DEBUG_MSG(string, lvl=3, o=None):
         # Jeremy, often times the commented line won't print but the
         # one below does.  I think WX is redefining stderr, damned
         # beast
-        # print >>sys.stderr, "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
+        # print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls),
+        #       file=sys.stderr)
         print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls))
 
 
