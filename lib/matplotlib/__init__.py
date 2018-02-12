@@ -142,7 +142,7 @@ del get_versions
 
 _log = logging.getLogger(__name__)
 
-__version__numpy__ = str('1.7.1')  # minimum required numpy version
+__version__numpy__ = str('1.10.0')  # minimum required numpy version
 
 __bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
