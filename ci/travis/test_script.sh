@@ -17,4 +17,4 @@ fi
 
 echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
 
-pytest $PYTEST_ARGS $RUN_PEP8
+python -mpytest $PYTEST_ARGS $RUN_PEP8
