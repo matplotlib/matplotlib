@@ -93,25 +93,21 @@ def segment_hits(cx, cy, x, y, radius):
     Lnorm_sq = dx ** 2 + dy ** 2  # Possibly want to eliminate Lnorm==0
     u = ((cx - xr) * dx + (cy - yr) * dy) / Lnorm_sq
     candidates = (u >= 0) & (u <= 1)
-    #if any(candidates): print "candidates",xr[candidates]
 
     # Note that there is a little area near one side of each point
     # which will be near neither segment, and another which will
     # be near both, depending on the angle of the lines.  The
     # following radius test eliminates these ambiguities.
     point_hits = (cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2
-    #if any(point_hits): print "points",xr[candidates]
     candidates = candidates & ~(point_hits[:-1] | point_hits[1:])
 
     # For those candidates which remain, determine how far they lie away
     # from the line.
     px, py = xr + u * dx, yr + u * dy
     line_hits = (cx - px) ** 2 + (cy - py) ** 2 <= radius ** 2
-    #if any(line_hits): print "lines",xr[candidates]
     line_hits = line_hits & candidates
     points, = point_hits.ravel().nonzero()
     lines, = line_hits.ravel().nonzero()
-    #print points,lines
     return np.concatenate((points, lines))
 
 
