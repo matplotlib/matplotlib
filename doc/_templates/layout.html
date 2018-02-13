@@ -153,7 +153,9 @@ parents[-1].link|e }}" />
 }}" />
     {%- endif %}
 {%- endblock %}
-{%- block extrahead %} {% endblock %}
+{%- block extrahead %}
+  <link rel="canonical" href="https://matplotlib.org/{{pagename}}.html" />
+{% endblock %}
 
 
   </head>
