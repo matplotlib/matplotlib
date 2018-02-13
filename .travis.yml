@@ -110,7 +110,6 @@ before_install:
       export PATH=/usr/lib/ccache:$PATH
     else
       brew update
-      brew tap homebrew/gui
       brew install python3 libpng ffmpeg imagemagick mplayer ccache
       # make 'python' mean 'python3'
       ln -sf /usr/local/bin/python3 /usr/local/bin/python
