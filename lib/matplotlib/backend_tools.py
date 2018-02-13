@@ -1063,6 +1063,13 @@ class ToolHelpBase(ToolBase):
                 "<tbody>".join(rows[1:]) + "</tbody></table>")
 
 
+class ToolCopyToClipboardBase(ToolBase):
+    """Tool to copy the figure to the clipboard"""
+
+    description = 'Copy the canvas figure to clipboard'
+    default_keymap = rcParams['keymap.copy']
+
+
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': 'ToolConfigureSubplots',
@@ -1081,6 +1088,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'cursor': 'ToolSetCursor',
                  'rubberband': 'ToolRubberband',
                  'help': 'ToolHelp',
+                 'copy': 'ToolCopyToClipboard',
                  }
 """Default tools"""
 
