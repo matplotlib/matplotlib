@@ -679,10 +679,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         agg, ps and pdf backends and will fall back to 'nearest' mode
         for other backends.
 
-        ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
-          'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
-          'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
-          'sinc' | 'lanczos' | 'none' |]
+        .. ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
+           'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
+           'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
+           'sinc' | 'lanczos' | 'none' ]
 
         """
         if s is None:
