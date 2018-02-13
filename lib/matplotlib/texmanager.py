@@ -39,20 +39,20 @@ import six
 
 import copy
 import glob
+import hashlib
+import logging
 import os
+from pathlib import Path
 import shutil
 import sys
 import warnings
-import logging
-
-from hashlib import md5
 
 import distutils.version
 import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
-from matplotlib.cbook import mkdirs, Locked
+from matplotlib.cbook import Locked
 from matplotlib.compat.subprocess import subprocess, Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
 import re
@@ -88,7 +88,7 @@ class TexManager(object):
     cachedir = mpl.get_cachedir()
     if cachedir is not None:
         texcache = os.path.join(cachedir, 'tex.cache')
-        mkdirs(texcache)
+        Path(texcache).mkdir(parents=True, exist_ok=True)
     else:
         # Should only happen in a restricted environment (such as Google App
         # Engine). Deal with this gracefully by not creating a cache directory.
@@ -136,7 +136,7 @@ class TexManager(object):
             raise RuntimeError('Cannot create TexManager, as there is no '
                                'cache directory available')
 
-        mkdirs(self.texcache)
+        Path(self.texcache).mkdir(parents=True, exist_ok=True)
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
@@ -171,7 +171,7 @@ class TexManager(object):
         # correct png is selected for strings rendered with same font and dpi
         # even if the latex preamble changes within the session
         preamble_bytes = self.get_custom_preamble().encode('utf-8')
-        fontconfig.append(md5(preamble_bytes).hexdigest())
+        fontconfig.append(hashlib.md5(preamble_bytes).hexdigest())
         self._fontconfig = ''.join(fontconfig)
 
         # The following packages and commands need to be included in the latex
@@ -188,7 +188,8 @@ class TexManager(object):
         """
         s = ''.join([tex, self.get_font_config(), '%f' % fontsize,
                      self.get_custom_preamble(), str(dpi or '')])
-        return os.path.join(self.texcache, md5(s.encode('utf-8')).hexdigest())
+        return os.path.join(
+            self.texcache, hashlib.md5(s.encode('utf-8')).hexdigest())
 
     def get_font_config(self):
         """Reinitializes self if relevant rcParams on have changed."""

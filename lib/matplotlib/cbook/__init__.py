@@ -850,6 +850,7 @@ class Null(object):
         return self
 
 
+@deprecated("3.0")
 def mkdirs(newdir, mode=0o777):
     """
     make directory *newdir* recursively, and set *mode*.  Equivalent to ::
