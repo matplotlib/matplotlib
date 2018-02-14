@@ -1069,11 +1069,18 @@ class HelpQt(backend_tools.ToolHelpBase):
         QtWidgets.QMessageBox.information(None, "Help", self._get_help_html())
 
 
+class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        pixmap = self.canvas.grab()
+        qApp.clipboard().setPixmap(pixmap)
+
+
 backend_tools.ToolSaveFigure = SaveFigureQt
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
 backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
 backend_tools.ToolHelp = HelpQt
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 
 def error_msg_qt(msg, parent=None):
