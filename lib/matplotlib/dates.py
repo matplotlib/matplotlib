@@ -132,7 +132,8 @@ Here all all the date formatters:
 
     * :class:`DateFormatter`: use :func:`strftime` format strings
 
-    * :class:`IsoDateFormatter`: like :class:`DateFormatter`, but use :meth:`datetime.datetime.isoformat`.
+    * :class:`IsoDateFormatter`: like :class:`DateFormatter`,
+      but use :meth:`datetime.datetime.isoformat`.
 
     * :class:`IndexDateFormatter`: date plots with implicit *x*
       indexing.
@@ -629,7 +630,6 @@ class IsoDateFormatter(ticker.Formatter):
 
     def set_tzinfo(self, tz):
         self.tz = tz
-
 
     def isoformat(self, dt):
         """
