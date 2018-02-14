@@ -640,7 +640,8 @@ class Vf(Dvi):
         Read one page from the file. Return True if successful,
         False if there were no more pages.
         """
-        packet_char, packet_ends, packet_len, packet_width = None, None, None, None
+        packet_char, packet_ends = None, None
+        packet_len, packet_width = None, None
         while True:
             byte = ord(self.file.read(1)[0])
             # If we are in a packet, execute the dvi instructions
