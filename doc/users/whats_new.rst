@@ -272,7 +272,7 @@ The old behaviour, wrapping back in to the range, often hid outliers
 and made interpreting RGB images unreliable.
 
 
-Properties in `matplotlibrc` to place xasis and yaxis tick labels
+Properties in `matplotlibrc` to place xaxis and yaxis tick labels
 -----------------------------------------------------------------
 
 Introducing four new boolean properties in `.matplotlibrc` for default
