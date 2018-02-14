@@ -211,6 +211,25 @@ def test_DateFormatter():
     fig.autofmt_xdate()
 
 
+def test_iso_date_formatter_strftime():
+    """
+    Tests that IsoDateFormatter matches datetime.isoformat,
+    CHECK:
+    check microseconds for years before 1900 for bug #3179
+    as well as a few related issues for years before 1900.
+    """
+    def test_strftime_fields(dt):
+        """WRITEME"""
+        formatter = mdates.IsoDateFormatter()
+        # TODO: confirm pre 1900
+        assert formatter.isoformat(dt) == dt.isoformat
+
+    for year in range(1, 3000, 71):
+        # Iterate through random set of years
+        test_strftime_fields(datetime.datetime(year, 1, 1))
+        test_strftime_fields(datetime.datetime(year, 2, 3, 4, 5, 6, 12345))
+
+
 def test_date_formatter_strftime():
     """
     Tests that DateFormatter matches datetime.strftime,

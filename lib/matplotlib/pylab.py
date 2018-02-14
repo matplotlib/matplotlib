@@ -219,7 +219,7 @@ import matplotlib as mpl
 
 from matplotlib.dates import (
     date2num, num2date, datestr2num, strpdate2num, drange, epoch2num,
-    num2epoch, mx2num, DateFormatter, IndexDateFormatter, DateLocator,
+    num2epoch, mx2num, DateFormatter, IsoDateFormatter, IndexDateFormatter, DateLocator,
     RRuleLocator, YearLocator, MonthLocator, WeekdayLocator, DayLocator,
     HourLocator, MinuteLocator, SecondLocator, rrule, MO, TU, WE, TH, FR,
     SA, SU, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY,
