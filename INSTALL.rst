@@ -67,12 +67,13 @@ Third-party distributions of Matplotlib
 Scientific Python Distributions
 -------------------------------
 
-Both `Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
-<https://www.enthought.com/products/canopy/>`_ are both excellent
+`Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
+<https://www.enthought.com/products/canopy/>`_ and `ActiveState
+<https://www.activestate.com/activepython/downloads>`_ are excellent
 choices that "just work" out of the box for Windows, macOS and common
 Linux platforms. `WinPython <https://winpython.github.io/>`__ is an
 option for windows users.  All of these distributions include
-Matplotlib and *lots* of other useful tools.
+Matplotlib and *lots* of other useful (data) science tools.
 
 
 Linux : using your package manager
