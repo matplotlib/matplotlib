@@ -65,20 +65,20 @@ env:
 
 matrix:
   include:
-    - python: 2.7
+    - python: 3.5
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
       env:
         - CYCLER=cycler==0.10
         - DATEUTIL=python-dateutil==2.1
         - MOCK=mock
         - NOSE=nose
-        - NUMPY=numpy==1.7.1
+        - NUMPY=numpy==1.10.0
         - PANDAS='pandas<0.21.0'
         - PYPARSING=pyparsing==2.0.1
         - PYTEST=pytest==3.1.0
         - PYTEST_COV=pytest-cov==2.3.1
         - SPHINX=sphinx==1.3
-    - python: 3.4
+    - python: 3.5
       env: PYTHON_ARGS=-OO
     - python: 3.6
       env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
@@ -110,8 +110,12 @@ before_install:
       export PATH=/usr/lib/ccache:$PATH
     else
       brew update
-      brew tap homebrew/gui
-      brew install python libpng ffmpeg imagemagick mplayer ccache
+      brew install python3 libpng ffmpeg imagemagick mplayer ccache
+      # make 'python' mean 'python3'
+      ln -sf /usr/local/bin/python3 /usr/local/bin/python
+      hash -r
+      which python
+      python --version
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
@@ -126,10 +130,10 @@ install:
     ccache -s
     git describe
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
-    pip install --upgrade pip setuptools wheel
+    python -mpip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from PyPI
-    pip install --upgrade $PRE \
+    python -mpip install --upgrade $PRE \
         codecov \
         coverage \
         $CYCLER \
@@ -148,22 +152,22 @@ install:
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    pip install cairocffi pgi &&
+    python -mpip install cairocffi pgi &&
       python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
       echo 'pgi is available' ||
       echo 'pgi is not available'
-    pip install pyqt5==5.9 &&
+    python -mpip install pyqt5==5.9 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
-    pip install -U --pre \
+    python -mpip install -U --pre \
       --no-index -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
       python -c 'import wx' &&
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    pip install $PRE \
+    python -mpip install $PRE \
         $PYTEST \
         $PYTEST_COV \
         pytest-faulthandler \
@@ -176,7 +180,7 @@ install:
     cp ci/travis/setup.cfg .
   - |
     # Install matplotlib
-    pip install -ve .
+    python -mpip install -ve .
 
 before_script:
   - |

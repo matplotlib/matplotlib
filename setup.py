@@ -3,6 +3,9 @@ The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
 
+# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# to ensure that we error out properly for people with outdated setuptools
+# and/or pip.
 from __future__ import print_function, absolute_import
 from string import Template
 from setuptools import setup
@@ -265,6 +268,7 @@ if __name__ == '__main__':
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
 
+        python_requires='>=3.5',
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,
