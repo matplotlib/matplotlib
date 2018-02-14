@@ -222,7 +222,7 @@ def test_iso_date_formatter_strftime():
         """WRITEME"""
         formatter = mdates.IsoDateFormatter()
         # TODO: confirm pre 1900
-        assert formatter.isoformat(dt) == dt.isoformat
+        assert formatter.isoformat(dt) == dt.isoformat()
 
     for year in range(1, 3000, 71):
         # Iterate through random set of years
