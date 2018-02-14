@@ -608,12 +608,13 @@ def drange(dstart, dend, delta):
 
 class IsoDateFormatter(ticker.Formatter):
     """
-    WRITEME
+    Use ISO 8601 format for tick format.
     """
 
-    def __init__(self, tz=None):
+    def __init__(self, fmt=None, tz=None):
         """
         *tz* is the :class:`tzinfo` instance.
+        *fmt* is ignored and kept for compatibility with `DateFormatter`.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -633,19 +634,20 @@ class IsoDateFormatter(ticker.Formatter):
 
     def isoformat(self, dt):
         """
+        Return the isoformat() of a datetime object.
         Refer to documentation for :meth:`datetime.datetime.isoformat`
         """
-        if dt.year < 1900:
-            """
-            No idea if this needs special treatment
-            """
-            pass
+        # no special treatment for years before 1900 because isoformat appears
+        # to "just work" for datetimes before 1900.
 
         return cbook.unicode_safe(dt.isoformat())
 
-    def strftime(self, dt):
+    def strftime(self, dt, fmt=None):
         """
-        WRITEME
+        Print isoformat of datetime object
+        (for compatibility with `DateFormatter` interface)
+
+        *fmt* argument is ignored.
         """
         return self.isoformat(dt)
 
