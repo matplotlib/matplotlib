@@ -517,3 +517,14 @@ def test_shadow_framealpha():
     ax.plot(range(100), label="test")
     leg = ax.legend(shadow=True, facecolor='w')
     assert leg.get_frame().get_alpha() == 1
+
+
+def test_legend_title_empty():
+    # test that if we don't set the legend title, that
+    # it comes back as an empty string, and that it is not
+    # visible:
+    fig, ax = plt.subplots()
+    ax.plot(range(10))
+    leg = ax.legend()
+    assert leg.get_title().get_text() == ""
+    assert leg.get_title().get_visible() is False

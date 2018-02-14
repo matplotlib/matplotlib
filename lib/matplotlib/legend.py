@@ -1103,16 +1103,18 @@ class Legend(Artist):
         with *prop* parameter.
         """
         self._legend_title_box._text.set_text(title)
+        if title:
+            self._legend_title_box._text.set_visible(True)
+            self._legend_title_box.set_visible(True)
+        else:
+            self._legend_title_box._text.set_visible(False)
+            self._legend_title_box.set_visible(False)
 
         if prop is not None:
             if isinstance(prop, dict):
                 prop = FontProperties(**prop)
             self._legend_title_box._text.set_fontproperties(prop)
 
-        if title:
-            self._legend_title_box.set_visible(True)
-        else:
-            self._legend_title_box.set_visible(False)
         self.stale = True
 
     def get_title(self):
