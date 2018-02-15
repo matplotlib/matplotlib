@@ -858,11 +858,17 @@ class PolarAxes(Axes):
     __init__.__doc__ = Axes.__init__.__doc__
 
     def add_patch(self, patch):
-        # interpolation steps should be revised prior to drawing
+        """
+        Override the existing add_patch() method from _AxesBase class.
+        The _interpolation_steps field should be revised prior to drawing.
+
+        :param patch: `~matplotlib.patches.Patch`
+        :return: `~matplotlib.patches.Patch`
+        """
         patch.get_path()._interpolation_steps = \
             max(patch.get_path()._interpolation_steps,  # default 1
                 maxis.GRIDLINE_INTERPOLATION_STEPS)  # 180
-        super().add_patch(self, patch)
+        return super().add_patch(self, patch)
 
     def cla(self):
         Axes.cla(self)
