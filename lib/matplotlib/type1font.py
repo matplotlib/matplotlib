@@ -44,14 +44,15 @@ class Type1Font(object):
     """
     A class representing a Type-1 font, for use by backends.
 
-    .. attribute:: parts
+    Attributes
+    ----------
+    parts : tuple
+        A 3-tuple of the cleartext part, the encrypted part, and the finale of
+        zeros.
 
-       A 3-tuple of the cleartext part, the encrypted part, and the
-       finale of zeros.
+    prop : Dict[str, Any]
+        A dictionary of font properties.
 
-    .. attribute:: prop
-
-       A dictionary of font properties.
     """
     __slots__ = ('parts', 'prop')
 
