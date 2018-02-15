@@ -11,16 +11,13 @@ import multiprocessing
 import os
 import platform
 import re
+import shutil
 import subprocess
 from subprocess import check_output
 import sys
 import warnings
 from textwrap import fill
-import shutil
 import versioneer
-
-
-PY3min = (sys.version_info[0] >= 3)
 
 
 def _get_xdg_cache_dir():
@@ -57,16 +54,10 @@ LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 if sys.platform != 'win32':
-    if not PY3min:
-        from commands import getstatusoutput
-    else:
-        from subprocess import getstatusoutput
+    from subprocess import getstatusoutput
 
 
-if PY3min:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
 
 
 # matplotlib build options, which can be altered using setup.cfg
@@ -80,10 +71,7 @@ options = {
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
-    if PY3min:
-        config = configparser.ConfigParser()
-    else:
-        config = configparser.SafeConfigParser()
+    config = configparser.ConfigParser()
     config.read(setup_cfg)
 
     if config.has_option('status', 'suppress'):
@@ -564,11 +552,7 @@ class SetupPackage(object):
             for manager in managers:
                 pkg_name = self.pkg_names.get(manager, None)
                 if pkg_name:
-                    try:
-                        # `shutil.which()` can be used when Python 2.7 support
-                        # is dropped. It is available in Python 3.3+
-                        _ = check_output(["which", manager],
-                                         stderr=subprocess.STDOUT)
+                    if shutil.which(manager) is not None:
                         if manager == 'port':
                             pkgconfig = 'pkgconfig'
                         else:
@@ -577,8 +561,6 @@ class SetupPackage(object):
                                 'and pkg-config with `{1} install {3}`'
                                 .format(self.name, manager, pkg_name,
                                         pkgconfig))
-                    except subprocess.CalledProcessError:
-                        pass
 
         message = None
         if sys.platform == "win32":
@@ -809,15 +791,6 @@ class Tests(OptionalPackage):
         except ImportError:
             msgs += [bad_pytest]
 
-        if PY3min:
-            msgs += ['using unittest.mock']
-        else:
-            try:
-                import mock
-                msgs += ['using mock %s' % mock.__version__]
-            except ImportError:
-                msgs += [msg_template.format(package='mock')]
-
         return ' / '.join(msgs)
 
     def get_packages(self):
@@ -934,19 +907,12 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        if PY3min:
-            import builtins
-            if hasattr(builtins, '__NUMPY_SETUP__'):
-                del builtins.__NUMPY_SETUP__
-            import imp
-            import numpy
-            imp.reload(numpy)
-        else:
-            import __builtin__
-            if hasattr(__builtin__, '__NUMPY_SETUP__'):
-                del __builtin__.__NUMPY_SETUP__
-            import numpy
-            reload(numpy)
+        import builtins
+        if hasattr(builtins, '__NUMPY_SETUP__'):
+            del builtins.__NUMPY_SETUP__
+        import imp
+        import numpy
+        imp.reload(numpy)
 
         ext = Extension('test', [])
         ext.include_dirs.append(numpy.get_include())
@@ -1143,11 +1109,7 @@ class FreeType(SetupPackage):
             if (tarball_cache_path is not None and
                     os.path.isfile(tarball_cache_path)):
                 if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
-                    try:
-                        os.makedirs('build')
-                    except OSError:
-                        # Don't care if it exists.
-                        pass
+                    os.makedirs('build', exist_ok=True)
                     try:
                         shutil.copy(tarball_cache_path, tarball_path)
                         print('Using cached tarball: {}'
@@ -1157,10 +1119,7 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-                if PY3min:
-                    from urllib.request import urlretrieve
-                else:
-                    from urllib import urlretrieve
+                from urllib.request import urlretrieve
 
                 if not os.path.exists('build'):
                     os.makedirs('build')
@@ -1190,11 +1149,7 @@ class FreeType(SetupPackage):
                                   "You can download the file by "
                                   "alternative means and copy it "
                                   " to '{0}'".format(tarball_path))
-                try:
-                    os.makedirs(tarball_cache_dir)
-                except OSError:
-                    # Don't care if it exists.
-                    pass
+                os.makedirs(tarball_cache_dir, exist_ok=True)
                 try:
                     shutil.copy(tarball_path, tarball_cache_path)
                     print('Cached tarball at: {}'.format(tarball_cache_path))
@@ -1471,7 +1426,7 @@ class BackendTkAgg(OptionalBackendPackage):
     def runtime_check(self):
         """ Checks whether TkAgg runtime dependencies are met
         """
-        pkg_name = 'tkinter' if PY3min else 'Tkinter'
+        pkg_name = 'tkinter'
         try:
             import_module(pkg_name)
         except ImportError:
