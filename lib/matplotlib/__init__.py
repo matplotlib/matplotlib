@@ -117,6 +117,7 @@ import itertools
 import locale
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import stat
@@ -651,14 +652,10 @@ def _get_xdg_cache_dir():
 
 
 def _get_config_or_cache_dir(xdg_base):
-    from matplotlib.cbook import mkdirs
-
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         configdir = os.path.abspath(configdir)
-        if not os.path.exists(configdir):
-            mkdirs(configdir)
-
+        Path(configdir).mkdir(parents=True, exist_ok=True)
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
@@ -678,7 +675,7 @@ def _get_config_or_cache_dir(xdg_base):
                 return p
         else:
             try:
-                mkdirs(p)
+                Path(p).mkdir(parents=True, exist_ok=True)
             except OSError:
                 pass
             else:
