@@ -145,15 +145,6 @@ def validate_bool_maybe_none(b):
         raise ValueError('Could not convert "%s" to boolean' % b)
 
 
-def deprecate_axes_hold(value):
-    if value is None:
-        return None  # converted to True where accessed in figure.py,
-                     # axes/_base.py
-    warnings.warn("axes.hold is deprecated, will be removed in 3.0",
-                  mplDeprecation)
-    return validate_bool(value)
-
-
 def validate_float(s):
     """convert s to float or raise"""
     try:
@@ -1155,7 +1146,6 @@ defaultParams = {
 
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
-    'axes.hold':             [None, deprecate_axes_hold],
     'axes.facecolor':        ['white', validate_color],  # background color
     'axes.edgecolor':        ['black', validate_color],  # edge color
     'axes.linewidth':        [0.8, validate_float],  # edge linewidth

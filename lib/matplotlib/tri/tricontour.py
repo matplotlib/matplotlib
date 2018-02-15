@@ -265,15 +265,13 @@ def tricontour(ax, *args, **kwargs):
     the minimum value of the *z* array, then that minimum value
     will be included in the lowest interval.
     """
-    if not ax._hold:
-        ax.cla()
     kwargs['filled'] = False
     return TriContourSet(ax, *args, **kwargs)
 
 
 def tricontourf(ax, *args, **kwargs):
-    if not ax._hold:
-        ax.cla()
     kwargs['filled'] = True
     return TriContourSet(ax, *args, **kwargs)
+
+
 tricontourf.__doc__ = tricontour.__doc__

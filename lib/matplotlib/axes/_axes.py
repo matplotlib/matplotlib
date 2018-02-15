@@ -1343,9 +1343,6 @@ class Axes(_AxesBase):
         """
         scalex = kwargs.pop('scalex', True)
         scaley = kwargs.pop('scaley', True)
-
-        if not self._hold:
-            self.cla()
         lines = []
 
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
@@ -1423,10 +1420,6 @@ class Axes(_AxesBase):
         `.AutoDateFormatter` (if the tick formatter is not already set to a
         `.DateFormatter` instance).
         """
-
-        if not self._hold:
-            self.cla()
-
         if xdate:
             self.xaxis_date(tz)
         if ydate:
@@ -1482,9 +1475,6 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        if not self._hold:
-            self.cla()
-
         dx = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
                 if k in kwargs}
         dy = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
@@ -1493,11 +1483,7 @@ class Axes(_AxesBase):
         self.set_xscale('log', **dx)
         self.set_yscale('log', **dy)
 
-        b = self._hold
-        self._hold = True  # we've already processed the hold
         l = self.plot(*args, **kwargs)
-        self._hold = b  # restore the hold
-
         return l
 
     # @_preprocess_data() # let 'plot' do the unpacking..
@@ -1542,16 +1528,11 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        if not self._hold:
-            self.cla()
         d = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
                 if k in kwargs}
 
         self.set_xscale('log', **d)
-        b = self._hold
-        self._hold = True  # we've already processed the hold
         l = self.plot(*args, **kwargs)
-        self._hold = b  # restore the hold
         return l
 
     # @_preprocess_data() # let 'plot' do the unpacking..
@@ -1596,15 +1577,10 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        if not self._hold:
-            self.cla()
         d = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-                if k in kwargs}
+             if k in kwargs}
         self.set_yscale('log', **d)
-        b = self._hold
-        self._hold = True  # we've already processed the hold
         l = self.plot(*args, **kwargs)
-        self._hold = b  # restore the hold
 
         return l
 
@@ -1617,8 +1593,6 @@ class Axes(_AxesBase):
         ----------
 
         x : sequence of scalar
-
-        hold : bool, optional, *deprecated*, default: True
 
         detrend : callable, optional, default: `mlab.detrend_none`
             *x* is detrended by the *detrend* callable. Default is no
@@ -1662,8 +1636,6 @@ class Axes(_AxesBase):
         The cross correlation is performed with :func:`numpy.correlate` with
         ``mode = 2``.
         """
-        if "hold" in kwargs:
-            warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
         return self.xcorr(x, x, **kwargs)
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
@@ -1681,8 +1653,6 @@ class Axes(_AxesBase):
         x : sequence of scalars of length n
 
         y : sequence of scalars of length n
-
-        hold : bool, optional, *deprecated*, default: True
 
         detrend : callable, optional, default: `mlab.detrend_none`
             *x* is detrended by the *detrend* callable. Default is no
@@ -1727,9 +1697,6 @@ class Axes(_AxesBase):
         The cross correlation is performed with :func:`numpy.correlate` with
         ``mode = 2``.
         """
-        if "hold" in kwargs:
-            warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
-
         Nx = len(x)
         if Nx != len(y):
             raise ValueError('x and y must be equal length')
@@ -1987,8 +1954,6 @@ class Axes(_AxesBase):
                 "The *left* kwarg to `bar` is deprecated use *x* instead. "
                 "Support for *left* will be removed in Matplotlib 3.0",
                 mplDeprecation, stacklevel=2)
-        if not self._hold:
-            self.cla()
         color = kwargs.pop('color', None)
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
@@ -2114,9 +2079,6 @@ class Axes(_AxesBase):
             self.add_patch(r)
             patches.append(r)
 
-        holdstate = self._hold
-        self._hold = True  # ensure hold is on before plotting errorbars
-
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
                 # using list comps rather than arrays to preserve unit info
@@ -2135,8 +2097,6 @@ class Axes(_AxesBase):
                                      fmt='none', **error_kw)
         else:
             errorbar = None
-
-        self._hold = holdstate  # restore previous hold state
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
@@ -2485,11 +2445,6 @@ class Axes(_AxesBase):
                                 next(k for k in kwargs), )
                             )
 
-        remember_hold = self._hold
-        if not self._hold:
-            self.cla()
-        self._hold = True
-
         # Assume there's at least one data array
         y = np.asarray(args[0])
         args = args[1:]
@@ -2564,8 +2519,6 @@ class Axes(_AxesBase):
         baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
                               color=basecolor, linestyle=basestyle,
                               marker=basemarker, label="_nolegend_")
-
-        self._hold = remember_hold
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
@@ -2914,10 +2867,6 @@ class Axes(_AxesBase):
                 'errorevery has to be a strictly positive integer')
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        if not self._hold:
-            self.cla()
-        holdstate = self._hold
-        self._hold = True
 
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
@@ -3176,8 +3125,6 @@ class Axes(_AxesBase):
             self.add_line(l)
 
         self.autoscale_view()
-        self._hold = holdstate
-
         errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
                                                 tuple(barcols)),
                                                has_xerr=(xerr is not None),
@@ -3792,10 +3739,6 @@ class Axes(_AxesBase):
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        # check and save the `hold` state of the current axes
-        if not self._hold:
-            self.cla()
-        holdStatus = self._hold
         for pos, width, stats in zip(positions, widths, bxpstats):
             # try to find a new label
             datalabels.append(stats.get('label', pos))
@@ -3895,9 +3838,6 @@ class Axes(_AxesBase):
             setlim(newlimits)
             setticks(positions)
             setlabels(datalabels)
-
-        # reset hold status
-        self._hold = holdStatus
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
@@ -4009,12 +3949,7 @@ class Axes(_AxesBase):
           size matches the size of *x* and *y*.
 
         """
-
-        if not self._hold:
-            self.cla()
-
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-
         facecolors = None
         edgecolors = kwargs.pop('edgecolor', edgecolors)
         fc = kwargs.pop('facecolors', None)
@@ -4302,10 +4237,6 @@ class Axes(_AxesBase):
             %(Collection)s
 
         """
-
-        if not self._hold:
-            self.cla()
-
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
         x, y, C = cbook.delete_masked_points(x, y, C)
@@ -4684,9 +4615,6 @@ class Axes(_AxesBase):
     # args can by a combination if X, Y, U, V, C and all should be replaced
     @_preprocess_data(replace_all_args=True, label_namer=None)
     def quiver(self, *args, **kw):
-        if not self._hold:
-            self.cla()
-
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kw)
 
@@ -4710,8 +4638,6 @@ class Axes(_AxesBase):
                    minlength=0.1, transform=None, zorder=None,
                    start_points=None, maxlength=4.0,
                    integration_direction='both'):
-        if not self._hold:
-            self.cla()
         stream_container = mstream.streamplot(
             self, x, y, u, v,
             density=density,
@@ -4737,9 +4663,6 @@ class Axes(_AxesBase):
         """
         %(barbs_doc)s
         """
-        if not self._hold:
-            self.cla()
-
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kw)
 
@@ -4786,9 +4709,6 @@ class Axes(_AxesBase):
         Use :meth:`fill_between` if you would like to fill the region between
         two curves.
         """
-        if not self._hold:
-            self.cla()
-
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
@@ -5290,10 +5210,6 @@ class Axes(_AxesBase):
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
-
-        if not self._hold:
-            self.cla()
-
         if norm is not None and not isinstance(norm, mcolors.Normalize):
             raise ValueError(
                 "'norm' must be an instance of 'mcolors.Normalize'")
@@ -5539,10 +5455,6 @@ class Axes(_AxesBase):
         not specified, or if ``X`` and ``Y`` have one more row and column than
         ``C``.
         """
-
-        if not self._hold:
-            self.cla()
-
         alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
@@ -5726,9 +5638,6 @@ class Axes(_AxesBase):
 
         %(QuadMesh)s
         """
-        if not self._hold:
-            self.cla()
-
         alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
@@ -5872,10 +5781,6 @@ class Axes(_AxesBase):
         collection in the general quadrilateral case.
 
         """
-
-        if not self._hold:
-            self.cla()
-
         alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
@@ -5978,8 +5883,6 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def contour(self, *args, **kwargs):
-        if not self._hold:
-            self.cla()
         kwargs['filled'] = False
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self.autoscale_view()
@@ -5988,8 +5891,6 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def contourf(self, *args, **kwargs):
-        if not self._hold:
-            self.cla()
         kwargs['filled'] = True
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self.autoscale_view()
@@ -6244,9 +6145,6 @@ class Axes(_AxesBase):
         # Avoid shadowing the builtin.
         bin_range = range
         from builtins import range
-
-        if not self._hold:
-            self.cla()
 
         if np.isscalar(x):
             x = [x]
@@ -6743,9 +6641,6 @@ class Axes(_AxesBase):
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
         """
-        if not self._hold:
-            self.cla()
-
         if Fc is None:
             Fc = 0
 
@@ -6863,9 +6758,6 @@ class Axes(_AxesBase):
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
         """
-        if not self._hold:
-            self.cla()
-
         if Fc is None:
             Fc = 0
 
@@ -6970,9 +6862,6 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        if not self._hold:
-            self.cla()
-
         if Fc is None:
             Fc = 0
 
@@ -7067,9 +6956,6 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        if not self._hold:
-            self.cla()
-
         if Fc is None:
             Fc = 0
 
@@ -7151,9 +7037,6 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        if not self._hold:
-            self.cla()
-
         if Fc is None:
             Fc = 0
 
@@ -7220,8 +7103,6 @@ class Axes(_AxesBase):
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
         """
-        if not self._hold:
-            self.cla()
         cxy, freqs = mlab.cohere(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
                                  window=window, noverlap=noverlap,
                                  scale_by_freq=scale_by_freq)
@@ -7346,9 +7227,6 @@ class Axes(_AxesBase):
         The parameters *detrend* and *scale_by_freq* do only apply when *mode*
         is set to 'psd'.
         """
-        if not self._hold:
-            self.cla()
-
         if NFFT is None:
             NFFT = 256  # same default as in mlab.specgram()
         if Fc is None:

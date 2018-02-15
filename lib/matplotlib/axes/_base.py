@@ -34,10 +34,6 @@ from matplotlib.rcsetup import validate_axisbelow
 
 rcParams = matplotlib.rcParams
 
-_hold_msg = """axes.hold is deprecated.
-    See the API Changes document (http://matplotlib.org/api/api_changes.html)
-    for more details."""
-
 
 def _process_plot_format(fmt):
     """
@@ -502,11 +498,6 @@ class _AxesBase(martist.Artist):
         self._axisbelow = rcParams['axes.axisbelow']
 
         self._rasterization_zorder = None
-
-        self._hold = rcParams['axes.hold']
-        if self._hold is None:
-            self._hold = True
-
         self._connected = {}  # a dict from events to (id, func)
         self.cla()
 
@@ -1230,49 +1221,6 @@ class _AxesBase(martist.Artist):
             self.set_prop_cycle(None)
         else:
             self.set_prop_cycle('color', clist)
-
-    @cbook.deprecated("2.0")
-    def ishold(self):
-        """return the HOLD status of the axes
-
-        The `hold` mechanism is deprecated and will be removed in
-        v3.0.
-        """
-
-        return self._hold
-
-    @cbook.deprecated("2.0", message=_hold_msg)
-    def hold(self, b=None):
-        """
-        Set the hold state.
-
-        The ``hold`` mechanism is deprecated and will be removed in
-        v3.0.  The behavior will remain consistent with the
-        long-time default value of True.
-
-        If *hold* is *None* (default), toggle the *hold* state.  Else
-        set the *hold* state to boolean value *b*.
-
-        Examples::
-
-          # toggle hold
-          hold()
-
-          # turn hold on
-          hold(True)
-
-          # turn hold off
-          hold(False)
-
-        When hold is *True*, subsequent plot commands will be added to
-        the current axes.  When hold is *False*, the current axes and
-        figure will be cleared on the next plot command
-
-        """
-        if b is None:
-            self._hold = not self._hold
-        else:
-            self._hold = b
 
     def get_aspect(self):
         return self._aspect

@@ -367,10 +367,6 @@ class Figure(Artist):
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
 
-        self._hold = rcParams['axes.hold']
-        if self._hold is None:
-            self._hold = True
-
         self.canvas = None
         self._suptitle = None
 
@@ -780,25 +776,6 @@ default: 'top'
         """
         self.canvas = canvas
 
-    @cbook.deprecated("2.0")
-    def hold(self, b=None):
-        """
-        Set the hold state.  If hold is None (default), toggle the
-        hold state.  Else set the hold state to boolean value b.
-
-        e.g.::
-
-            hold()      # toggle hold
-            hold(True)  # hold is on
-            hold(False) # hold is off
-
-        All "hold" machinery is deprecated.
-        """
-        if b is None:
-            self._hold = not self._hold
-        else:
-            self._hold = b
-
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
                  vmin=None, vmax=None, origin=None, resize=False, **kwargs):
         """
@@ -868,10 +845,6 @@ default: 'top'
             plt.show()
 
         """
-
-        if not self._hold:
-            self.clf()
-
         if resize:
             dpi = self.get_dpi()
             figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
@@ -1922,7 +1895,6 @@ default: 'top'
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
-        cax._hold = True
 
         # need to remove kws that cannot be passed to Colorbar
         NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
