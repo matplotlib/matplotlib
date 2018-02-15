@@ -581,6 +581,7 @@ def is_scalar(obj):
     return not isinstance(obj, six.string_types) and not iterable(obj)
 
 
+@deprecated('3.0', 'isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
     return isinstance(obj, (numbers.Number, np.number))
