@@ -395,10 +395,18 @@ class FontEntry(object):
 
 def ttfFontProperty(font):
     """
-    A function for populating the :class:`FontKey` by extracting
-    information from the TrueType font file.
+    Extract information from a TrueType font file.
 
-    *font* is a :class:`FT2Font` instance.
+    Parameters
+    ----------
+    font : `.FT2Font`
+        The TrueType font file from which information will be extracted.
+
+    Returns
+    -------
+    `FontEntry`
+        The extracted font properties.
+
     """
     name = font.family_name
 
@@ -474,10 +482,18 @@ def ttfFontProperty(font):
 
 def afmFontProperty(fontpath, font):
     """
-    A function for populating a :class:`FontKey` instance by
-    extracting information from the AFM font file.
+    Extract information from an AFM font file.
 
-    *font* is a class:`AFM` instance.
+    Parameters
+    ----------
+    font : `.AFM`
+        The AFM font file from which information will be extracted.
+
+    Returns
+    -------
+    `FontEntry`
+        The extracted font properties.
+
     """
 
     name = font.get_familyname()
