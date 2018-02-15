@@ -14,6 +14,17 @@ from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 import sys
 
+if sys.version_info < (3, 5):
+    error = """
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+This may be due to an out of date pip.
+
+Make sure you have pip >= 9.0.1.
+"""
+    sys.exit(error)
+
 # distutils is breaking our sdists for files in symlinked dirs.
 # distutils will copy if os.link is not available, so this is a hack
 # to force copying

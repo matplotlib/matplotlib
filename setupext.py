@@ -1,6 +1,3 @@
-# NOTE: This file must remain Python 2 compatible for the forseeable future,
-# to ensure that we error out properly for people with outdated setuptools
-# and/or pip.
 from __future__ import print_function, absolute_import
 
 from importlib import import_module
