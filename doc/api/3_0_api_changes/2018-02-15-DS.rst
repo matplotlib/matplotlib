@@ -1,0 +1,7 @@
+Deprecated methods removed from `matplotlib.testing`
+----------------------------------------------------
+
+The deprecated methods `knownfailureif` and `remove_text` have been removed
+from :mod:`matplotlib.testing.decorators`.
+
+The entire contents of `testing.noseclasses` have also been removed.
