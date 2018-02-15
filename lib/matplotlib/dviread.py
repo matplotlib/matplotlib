@@ -23,7 +23,7 @@ import six
 from six.moves import xrange
 
 from collections import namedtuple
-from functools import partial, wraps
+from functools import lru_cache, partial, wraps
 import logging
 import numpy as np
 import os
@@ -34,11 +34,6 @@ import textwrap
 
 from matplotlib import cbook, rcParams
 from matplotlib.compat import subprocess
-
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
 
 if six.PY3:
     def ord(x):
