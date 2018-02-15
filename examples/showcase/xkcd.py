@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 with plt.xkcd():
+    
+###############################################################################    
     # Based on "Stove Ownership" from XKCD by Randall Monroe
     # http://xkcd.com/418/
 
@@ -36,6 +38,7 @@ with plt.xkcd():
         '"Stove Ownership" from xkcd by Randall Monroe',
         ha='center')
 
+###############################################################################    
     # Based on "The Data So Far" from XKCD by Randall Monroe
     # http://xkcd.com/373/
 
