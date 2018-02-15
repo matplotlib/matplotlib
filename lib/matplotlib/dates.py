@@ -725,7 +725,7 @@ class DateFormatter(ticker.Formatter):
         fmt = fmt.replace("%s", "s")
         if dt.year >= 1900:
             # Note: in python 3.3 this is okay for years >= 1000,
-            # refer to http://bugs.python.org/issue177742
+            # refer to http://bugs.python.org/issue1777412
             return cbook.unicode_safe(dt.strftime(fmt))
 
         return self.strftime_pre_1900(dt, fmt)
