@@ -18,7 +18,7 @@ interface toolkits.
           border="0" alt="screenshots"/>
          </div>
          <div class="responsive_subfig">
-         <img align="middle" src="_images/sphx_glr_histogram_thumb1.png"
+         <img align="middle" src="_images/sphx_glr_histogram_thumb.png"
           border="0" alt="screenshots"/>
          </div>
          <div class="responsive_subfig">
