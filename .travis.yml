@@ -85,7 +85,6 @@ matrix:
     - python: "nightly"
       env: PRE=--pre
     - os: osx
-      osx_image: xcode7.3
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       env: MOCK=mock
       only: master
@@ -109,8 +108,8 @@ before_install:
       export PATH=$PATH:/tmp/λ
       export PATH=/usr/lib/ccache:$PATH
     else
-      brew update
-      brew install python3 libpng ffmpeg imagemagick mplayer ccache
+      ci/travis/silence brew update
+      brew install python3 ffmpeg imagemagick mplayer ccache
       # make 'python' mean 'python3'
       ln -sf /usr/local/bin/python3 /usr/local/bin/python
       hash -r
