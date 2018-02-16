@@ -363,6 +363,16 @@ def test_connection_patch():
     ax2.add_artist(con)
 
 
+@image_comparison(baseline_images=['transform_rectangle'], extensions=['png'])
+def test_polar_rectangle_transform_patch():
+    # Rectangle patch not transformed correctly in polar plot (#8521)
+    rectangle = mpatches.Rectangle((0, 1), width=np.pi * 0.5, height=1)
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(1, 1, 1, polar=True)
+    ax.add_patch(rectangle)
+    ax.set_rmax(2.5)
+
+
 def test_datetime_rectangle():
     # Check that creating a rectangle with timedeltas doesn't fail
     from datetime import datetime, timedelta
