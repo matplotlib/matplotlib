@@ -180,7 +180,7 @@ class Dvi(object):
     >>>         print(''.join(unichr(t.glyph) for t in page.text))
     """
     # dispatch table
-    _dtable = [None for _ in range(256)]
+    _dtable = [None] * 256
     _dispatch = partial(_dispatch, _dtable)
 
     def __init__(self, filename, dpi):
