@@ -8,6 +8,7 @@ import functools
 import itertools
 import logging
 import math
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -6526,7 +6527,7 @@ class Axes(_AxesBase):
                 m[:] = (m / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
-            if cbook.is_numlike(cumulative) and cumulative < 0:
+            if isinstance(cumulative, Number) and cumulative < 0:
                 slc = slice(None, None, -1)
 
             if density:

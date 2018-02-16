@@ -22,6 +22,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from numbers import Number
 import sys
 import time
 import warnings
@@ -31,9 +32,8 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_numlike
-from matplotlib.cbook import _string_to_bool
-from matplotlib.cbook import deprecated, warn_deprecated
+from matplotlib.cbook import (
+    dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -2421,7 +2421,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
         'return the name and column data for identifier'
         if isinstance(identifier, six.string_types):
             return identifier, r[identifier]
-        elif is_numlike(identifier):
+        elif isinstance(identifier, Number):
             name = r.dtype.names[int(identifier)]
             return name, r[name]
         else:
