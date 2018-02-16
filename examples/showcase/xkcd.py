@@ -8,9 +8,9 @@ Shows how to create an xkcd-like plot.
 import matplotlib.pyplot as plt
 import numpy as np
 
-############################################################################### 
+###############################################################################
 
-with plt.xkcd():   
+with plt.xkcd():
     # Based on "Stove Ownership" from XKCD by Randall Monroe
     # http://xkcd.com/418/
 
