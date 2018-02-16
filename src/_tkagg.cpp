@@ -73,7 +73,7 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         TCL_APPEND_RESULT(interp, "destination photo must exist", (char *)NULL);
         return TCL_ERROR;
     }
-    /* get buffer from str which is "ptr height width" */
+    /* get buffer from str which is "height width ptr" */
     if (sscanf(argv[2], IMG_FORMAT, &hdata, &wdata, &pdata) != 3) {
         TCL_APPEND_RESULT(interp, 
                           "error reading data, expected height width ptr",
