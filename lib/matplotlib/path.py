@@ -16,10 +16,7 @@ import six
 
 from weakref import WeakValueDictionary
 
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache
 
 import numpy as np
 

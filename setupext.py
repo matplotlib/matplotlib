@@ -1441,8 +1441,6 @@ class InstallRequires(SetupPackage):
             "six>=1.10",
             "kiwisolver>=1.0.1",
         ]
-        if sys.version_info < (3,):
-            install_requires += ["backports.functools_lru_cache"]
         if sys.version_info < (3,) and os.name == "posix":
             install_requires += ["subprocess32"]
         return install_requires

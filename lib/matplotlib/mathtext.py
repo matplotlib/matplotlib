@@ -24,11 +24,7 @@ import os
 from math import ceil
 import unicodedata
 from warnings import warn
-
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache
 
 import numpy as np
 

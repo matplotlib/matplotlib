@@ -45,6 +45,7 @@ License   : matplotlib license (PSF compatible)
 """
 
 from collections import Iterable
+from functools import lru_cache
 import json
 import os
 import sys
@@ -56,11 +57,6 @@ from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
-
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 _log = logging.getLogger(__name__)
 
