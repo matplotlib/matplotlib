@@ -4014,7 +4014,7 @@ class _AxesBase(martist.Artist):
         p = self._pan_start
         dx = x - p.x
         dy = y - p.y
-        if dx == 0 and dy == 0:
+        if dx == dy == 0:
             return
         if button == 1:
             dx, dy = format_deltas(key, dx, dy)
@@ -4035,6 +4035,8 @@ class _AxesBase(martist.Artist):
             except OverflowError:
                 warnings.warn('Overflow while panning')
                 return
+        else:
+            return
 
         valid = np.isfinite(result.transformed(p.trans))
         points = result.get_points().astype(object)
