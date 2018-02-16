@@ -2366,10 +2366,26 @@ class Axes3D(Axes):
                                         depthshade=depthshade)
 
         def set_facecolor3d(self, c):
+            """
+            Set the facecolor of the scatter.  *c* can be a
+            matplotlib color spec, or a rgb/rgba array (eg:[1,0,0,1] for red);
+
+            If *c* is 'none', the patch will not be filled.
+
+            ACCEPTS: matplotlib color spec or rgb/rgba array
+            """
             self.set_facecolor2d(c)
             self._facecolor3d = self.get_facecolor()
 
         def set_edgecolor3d(self, c):
+            """
+            Set the edgecolor of the scatter.  *c* can be a
+            matplotlib color spec, or a rgb/rgba array (eg:[1,0,0,1] for red);
+
+            If *c* is 'none', the patch will not be filled.
+
+            ACCEPTS: matplotlib color spec or rgb/rgba array
+            """
             self.set_edgecolor2d(c)
             self._edgecolor3d = self.get_edgecolor()
 
