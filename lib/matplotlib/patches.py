@@ -7,6 +7,7 @@ import six
 from six.moves import map, zip
 
 import math
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -120,7 +121,7 @@ class Patch(artist.Artist):
     def _process_radius(self, radius):
         if radius is not None:
             return radius
-        if cbook.is_numlike(self._picker):
+        if isinstance(self._picker, Number):
             _radius = self._picker
         else:
             if self.get_edgecolor()[3] == 0:

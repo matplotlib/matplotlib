@@ -142,6 +142,7 @@ from six.moves import xrange
 
 import sys, os, shutil, io, re, textwrap
 from os.path import relpath
+from pathlib import Path
 import traceback
 import warnings
 
@@ -846,8 +847,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         state_machine.insert_input(total_lines, source=source_file_name)
 
     # copy image files to builder's output directory, if necessary
-    if not os.path.exists(dest_dir):
-        cbook.mkdirs(dest_dir)
+    Path(dest_dir).mkdir(parents=True, exist_ok=True)
 
     for code_piece, images in results:
         for img in images:

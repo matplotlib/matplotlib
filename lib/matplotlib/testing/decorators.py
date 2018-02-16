@@ -5,10 +5,11 @@ import six
 import functools
 import inspect
 import os
-import sys
+from pathlib import Path
 import shutil
-import warnings
+import sys
 import unittest
+import warnings
 
 # Note - don't import nose up here - import it only as needed in functions.
 # This allows other functions here to be used by pytest-based testing suites
@@ -532,9 +533,7 @@ def _image_directories(func):
 
     baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
     result_dir = os.path.abspath(os.path.join('result_images', subdir))
-
-    if not os.path.exists(result_dir):
-        cbook.mkdirs(result_dir)
+    Path(result_dir).mkdir(parents=True, exist_ok=True)
 
     return baseline_dir, result_dir
 

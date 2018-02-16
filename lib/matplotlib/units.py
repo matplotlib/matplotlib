@@ -46,8 +46,12 @@ from __future__ import (absolute_import, division, print_function,
 
 
 import six
-from matplotlib.cbook import iterable, is_numlike, safe_first_element
+
+from numbers import Number
+
 import numpy as np
+
+from matplotlib.cbook import iterable, safe_first_element
 
 
 class AxisInfo(object):
@@ -125,9 +129,9 @@ class ConversionInterface(object):
         """
         if iterable(x):
             for thisx in x:
-                return is_numlike(thisx)
+                return isinstance(thisx, Number)
         else:
-            return is_numlike(x)
+            return isinstance(x, Number)
 
 
 class Registry(dict):

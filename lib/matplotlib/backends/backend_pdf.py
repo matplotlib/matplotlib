@@ -4,11 +4,6 @@
 A PDF matplotlib backend
 Author: Jouni K Seppänen <jks@iki.fi>
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six import unichr
 
 import codecs
 import collections
@@ -160,11 +155,11 @@ def pdfRepr(obj):
         return [b'false', b'true'][obj]
 
     # Integers are written as such.
-    elif isinstance(obj, (six.integer_types, np.integer)):
+    elif isinstance(obj, (int, np.integer)):
         return ("%d" % obj).encode('ascii')
 
     # Unicode strings are encoded in UTF-16BE with byte-order mark.
-    elif isinstance(obj, six.text_type):
+    elif isinstance(obj, str):
         try:
             # But maybe it's really ASCII?
             s = obj.encode('ASCII')
@@ -269,7 +264,7 @@ class Name(object):
         return "<Name %s>" % self.name
 
     def __str__(self):
-        return '/' + six.text_type(self.name)
+        return '/' + str(self.name)
 
     def __eq__(self, other):
         return isinstance(other, Name) and self.name == other.name
@@ -325,7 +320,7 @@ _pdfops = dict(
     grestore=b'Q', textpos=b'Td', selectfont=b'Tf', textmatrix=b'Tm',
     show=b'Tj', showkern=b'TJ', setlinewidth=b'w', clip=b'W', shading=b'sh')
 
-Op = Bunch(**{name: Operator(value) for name, value in six.iteritems(_pdfops)})
+Op = Bunch(**{name: Operator(value) for name, value in _pdfops.items()})
 
 
 def _paint_path(fill, stroke):
@@ -576,14 +571,14 @@ class PdfFile(object):
         self.writeFonts()
         self.writeObject(
             self.alphaStateObject,
-            {val[0]: val[1] for val in six.itervalues(self.alphaStates)})
+            {val[0]: val[1] for val in self.alphaStates.values()})
         self.writeHatches()
         self.writeGouraudTriangles()
         xobjects = {
-            name: ob for image, name, ob in six.itervalues(self._images)}
-        for tup in six.itervalues(self.markers):
+            name: ob for image, name, ob in self._images.values()}
+        for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
-        for name, value in six.iteritems(self.multi_byte_charprocs):
+        for name, value in self.multi_byte_charprocs.items():
             xobjects[name] = value
         for name, path, trans, ob, join, cap, padding, filled, stroked \
                 in self.paths:
@@ -639,7 +634,7 @@ class PdfFile(object):
         as the filename of the font.
         """
 
-        if isinstance(fontprop, six.string_types):
+        if isinstance(fontprop, str):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
             filename = findfont(
@@ -1078,7 +1073,7 @@ end"""
                                        flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
-                    cid_to_gid_map[ccode] = unichr(gind)
+                    cid_to_gid_map[ccode] = chr(gind)
                 max_ccode = max(ccode, max_ccode)
             widths.sort()
             cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
@@ -1232,7 +1227,7 @@ end"""
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in six.iteritems(self.hatchPatterns):
+        for hatch_style, name in self.hatchPatterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
@@ -1410,7 +1405,7 @@ end"""
         self.endStream()
 
     def writeImages(self):
-        for img, name, ob in six.itervalues(self._images):
+        for img, name, ob in self._images.values():
             height, width, data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
@@ -1451,7 +1446,7 @@ end"""
 
     def writeMarkers(self):
         for ((pathops, fill, stroke, joinstyle, capstyle),
-             (name, ob, bbox, lw)) in six.iteritems(self.markers):
+             (name, ob, bbox, lw)) in self.markers.items():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 ob.id, None,
@@ -1557,7 +1552,7 @@ end"""
         """Write out the info dictionary, checking it for good form"""
 
         def is_string_like(x):
-            return isinstance(x, six.string_types)
+            return isinstance(x, str)
 
         def is_date(x):
             return isinstance(x, datetime)
@@ -1643,7 +1638,7 @@ class RendererPdf(RendererBase):
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
-        if isinstance(font, six.string_types):
+        if isinstance(font, str):
             fname = font
         else:
             fname = font.fname
@@ -1653,7 +1648,7 @@ class RendererPdf(RendererBase):
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in six.iteritems(other):
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.file.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -1881,7 +1876,7 @@ class RendererPdf(RendererBase):
                     self.file.output(self.file.fontName(fontname), fontsize,
                                      Op.selectfont)
                     prev_font = fontname, fontsize
-                self.file.output(self.encode_string(unichr(num), fonttype),
+                self.file.output(self.encode_string(chr(num), fonttype),
                                  Op.show)
         self.file.output(Op.end_text)
 
@@ -1935,10 +1930,7 @@ class RendererPdf(RendererBase):
                 pdfname = self.file.dviFontName(dvifont)
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
-            # We need to convert the glyph numbers to bytes, and the easiest
-            # way to do this on both Python 2 and 3 is .encode('latin-1')
-            seq += [['text', x1, y1,
-                     [six.unichr(glyph).encode('latin-1')], x1+width]]
+            seq += [['text', x1, y1, [bytes([glyph])], x1+width]]
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
@@ -2046,7 +2038,7 @@ class RendererPdf(RendererBase):
                 if fonttype == 3 and not isinstance(s, bytes) and len(s) != 0:
                     # Break the string into chunks where each chunk is either
                     # a string of chars <= 255, or a single character > 255.
-                    s = six.text_type(s)
+                    s = str(s)
                     for c in s:
                         if ord(c) <= 255:
                             char_type = 1
