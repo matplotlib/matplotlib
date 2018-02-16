@@ -868,7 +868,7 @@ class PolarAxes(Axes):
         patch.get_path()._interpolation_steps = \
             max(patch.get_path()._interpolation_steps,  # default 1
                 maxis.GRIDLINE_INTERPOLATION_STEPS)  # 180
-        return super().add_patch(self, patch)
+        return super().add_patch(patch)
 
     def cla(self):
         Axes.cla(self)
