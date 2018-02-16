@@ -731,6 +731,7 @@ class Legend(Artist):
         # value of the find_offset.
         self._loc_real = loc
         self.stale = True
+        self._legend_box.set_offset(self._findoffset)
 
     def _get_loc(self):
         return self._loc_real
@@ -1002,7 +1003,6 @@ class Legend(Artist):
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
-        self._legend_box.set_offset(self._findoffset)
         self.texts = text_list
         self.legendHandles = handle_list
 
