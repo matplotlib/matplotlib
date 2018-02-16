@@ -1611,14 +1611,14 @@ class DraggableBase(object):
     helper code for a draggable artist (legend, offsetbox)
     The derived class must override following two method.
 
-      def saveoffset(self):
+      def save_offset(self):
           pass
 
       def update_offset(self, dx, dy):
           pass
 
-    *saveoffset* is called when the object is picked for dragging and it is
-    meant to save reference position of the artist.
+    *save_offset* is called when the object is picked for dragging and it
+    is meant to save reference position of the artist.
 
     *update_offset* is called during the dragging. dx and dy is the pixel
      offset from the point where the mouse drag started.
