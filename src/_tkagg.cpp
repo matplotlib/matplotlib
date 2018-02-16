@@ -19,9 +19,9 @@
 #include "_tkmini.h"
 
 #if defined(_MSC_VER)
-#  define IMG_FORMAT "%Iu %d %d"
+#  define IMG_FORMAT "%d %d %Iu"
 #else
-#  define IMG_FORMAT "%zu %d %d"
+#  define IMG_FORMAT "%d %d %zu"
 #endif
 #define BBOX_FORMAT "%f %f %f %f"
 
@@ -74,9 +74,9 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         return TCL_ERROR;
     }
     /* get buffer from str which is "ptr height width" */
-    if (sscanf(argv[2], IMG_FORMAT, &pdata, &hdata, &wdata) != 3) {
+    if (sscanf(argv[2], IMG_FORMAT, &hdata, &wdata, &pdata) != 3) {
         TCL_APPEND_RESULT(interp, 
-                          "error reading data, expected ptr height width",
+                          "error reading data, expected height width ptr",
                           (char *)NULL);
         return TCL_ERROR;
     }
