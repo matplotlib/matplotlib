@@ -2320,11 +2320,14 @@ class _AxesBase(martist.Artist):
 
         All three forms above set the xmargin and ymargin parameters.
         All keyword parameters are optional.  A single argument
-        specifies both xmargin and ymargin.  The *tight* parameter
-        is passed to :meth:`autoscale_view`, which is executed after
-        a margin is changed; the default here is *True*, on the
-        assumption that when margins are specified, no additional
-        padding to match tick marks is usually desired.  Setting
+        specifies both xmargin and ymargin. The padding added to the end of
+        each interval is *margin* times the data interval. The *margin* must
+        be a float in the range [0, 1].
+
+        The *tight* parameter is passed to :meth:`autoscale_view`
+        , which is executed after a margin is changed; the default here is
+        *True*, on the assumption that when margins are specified, no
+        additional padding to match tick marks is usually desired.  Setting
         *tight* to *None* will preserve the previous setting.
 
         Specifying any margin changes only the autoscaling; for example,
