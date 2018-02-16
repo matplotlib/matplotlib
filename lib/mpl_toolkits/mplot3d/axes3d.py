@@ -15,6 +15,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import map, xrange, zip, reduce
 
+import types
 import math
 import warnings
 from collections import defaultdict
@@ -2363,6 +2364,19 @@ class Axes3D(Axes):
         zs = _backports.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)
+        
+        def set_facecolor3d(self, c):
+            self.set_facecolor2d(c)
+            self._facecolor3d = self.get_facecolor()
+            
+        def set_edgecolor3d(self, c):
+            self.set_edgecolor2d(c)
+            self._edgecolor3d = self.get_edgecolor()        
+            
+        patches.set_facecolor2d = patches.set_facecolor
+        patches.set_facecolor = types.MethodType(set_facecolor3d, patches)
+        patches.set_edgecolor2d = patches.set_edgecolor
+        patches.set_edgecolor = types.MethodType(set_edgecolor3d, patches)  
 
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
