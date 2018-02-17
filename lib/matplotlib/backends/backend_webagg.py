@@ -50,8 +50,8 @@ webagg_server_thread = ServerThread()
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     def show(self):
-        # show the figure window
-        show()
+        # show the figure window as defined in @_Backend.export below
+        show()  # noqa: F821 See issue #10500
 
     def new_timer(self, *args, **kwargs):
         return TimerTornado(*args, **kwargs)
