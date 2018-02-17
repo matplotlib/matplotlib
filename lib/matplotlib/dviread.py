@@ -18,14 +18,16 @@ Interface::
 
 """
 from collections import namedtuple
+import enum
 from functools import lru_cache, partial, wraps
 import logging
-import numpy as np
 import os
 import re
 import struct
 import sys
 import textwrap
+
+import numpy as np
 
 from matplotlib import cbook, rcParams
 from matplotlib.compat import subprocess
@@ -48,7 +50,7 @@ _log = logging.getLogger(__name__)
 #              just stops reading)
 #   finale:    the finale (unimplemented in our current implementation)
 
-_dvistate = cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
+_dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
@@ -301,7 +303,7 @@ class Dvi(object):
             self._dtable[byte](self, byte)
             if byte == 140:                         # end of page
                 return True
-            if self.state == _dvistate.post_post:   # end of file
+            if self.state is _dvistate.post_post:   # end of file
                 self.close()
                 return False
 
@@ -622,7 +624,7 @@ class Vf(Dvi):
         while True:
             byte = self.file.read(1)[0]
             # If we are in a packet, execute the dvi instructions
-            if self.state == _dvistate.inpage:
+            if self.state is _dvistate.inpage:
                 byte_at = self.file.tell()-1
                 if byte_at == packet_ends:
                     self._finalize_packet(packet_char, packet_width)
@@ -678,7 +680,7 @@ class Vf(Dvi):
         self.state = _dvistate.outer
 
     def _pre(self, i, x, cs, ds):
-        if self.state != _dvistate.pre:
+        if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
             raise ValueError("Unknown vf format %d" % i)

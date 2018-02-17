@@ -488,7 +488,8 @@ def strip_math(s):
     return s
 
 
-class Bunch(object):
+@deprecated('3.0', alternative='types.SimpleNamespace')
+class Bunch(types.SimpleNamespace):
     """
     Often we want to just collect a bunch of stuff together, naming each
     item of the bunch; a dictionary's OK for that, but a small do- nothing
@@ -497,16 +498,8 @@ class Bunch(object):
 
       >>> point = Bunch(datum=2, squared=4, coord=12)
       >>> point.datum
-
-      By: Alex Martelli
-      From: https://code.activestate.com/recipes/121294/
     """
-    def __init__(self, **kwds):
-        self.__dict__.update(kwds)
-
-    def __repr__(self):
-        return 'Bunch(%s)' % ', '.join(
-            '%s=%s' % kv for kv in six.iteritems(vars(self)))
+    pass
 
 
 @deprecated('2.1')

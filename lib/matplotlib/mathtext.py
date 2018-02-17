@@ -22,6 +22,7 @@ from six import unichr
 
 import os
 from math import ceil
+import types
 import unicodedata
 from warnings import warn
 from functools import lru_cache
@@ -37,7 +38,7 @@ ParserElement.enablePackrat()
 
 from matplotlib import _png, colors as mcolors, get_data_path, rcParams
 from matplotlib.afm import AFM
-from matplotlib.cbook import Bunch, get_realpath_and_stat
+from matplotlib.cbook import get_realpath_and_stat
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
@@ -312,8 +313,8 @@ class MathtextBackendSvg(MathtextBackend):
 
     def get_results(self, box, used_characters):
         ship(0, 0, box)
-        svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
-                             svg_rects = self.svg_rects)
+        svg_elements = types.SimpleNamespace(svg_glyphs=self.svg_glyphs,
+                                             svg_rects=self.svg_rects)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -587,7 +588,7 @@ class TruetypeFonts(Fonts):
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
-        metrics = Bunch(
+        metrics = types.SimpleNamespace(
             advance = glyph.linearHoriAdvance/65536.0,
             height  = glyph.height/64.0,
             width   = glyph.width/64.0,
@@ -600,7 +601,7 @@ class TruetypeFonts(Fonts):
             slanted = slanted
             )
 
-        result = self.glyphd[key] = Bunch(
+        result = self.glyphd[key] = types.SimpleNamespace(
             font            = font,
             fontsize        = fontsize,
             postscript_name = font.postscript_name,
@@ -1167,7 +1168,7 @@ class StandardPsFonts(Fonts):
 
         xmin, ymin, xmax, ymax = [val * scale
                                   for val in font.get_bbox_char(glyph)]
-        metrics = Bunch(
+        metrics = types.SimpleNamespace(
             advance  = font.get_width_char(glyph) * scale,
             width    = font.get_width_char(glyph) * scale,
             height   = font.get_height_char(glyph) * scale,
@@ -1180,7 +1181,7 @@ class StandardPsFonts(Fonts):
             slanted = slanted
             )
 
-        self.glyphd[key] = Bunch(
+        self.glyphd[key] = types.SimpleNamespace(
             font            = font,
             fontsize        = fontsize,
             postscript_name = font.get_fontname(),
@@ -2290,7 +2291,7 @@ class Parser(object):
     _right_delim = set(r") ] \} > \rfloor \rangle \rceil".split())
 
     def __init__(self):
-        p = Bunch()
+        p = types.SimpleNamespace()
         # All forward declarations are here
         p.accent           = Forward()
         p.ambi_delim       = Forward()
