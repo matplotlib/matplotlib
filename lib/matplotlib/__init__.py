@@ -213,7 +213,7 @@ if not compare_versions(numpy.__version__, __version__numpy__):
 
 
 if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = [str('modpython')]
+    sys.argv = ['modpython']
 
 
 def _is_writable_dir(p):
@@ -419,7 +419,7 @@ def _wrap(fmt, func, level=logging.DEBUG, always=True):
 
 def checkdep_dvipng():
     try:
-        s = subprocess.Popen([str('dvipng'), '-version'],
+        s = subprocess.Popen(['dvipng', '-version'],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
@@ -456,7 +456,7 @@ checkdep_ghostscript.version = None
 
 def checkdep_pdftops():
     try:
-        s = subprocess.Popen([str('pdftops'), '-v'], stdout=subprocess.PIPE,
+        s = subprocess.Popen(['pdftops', '-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         lines = stderr.decode('ascii').split('\n')
@@ -471,7 +471,7 @@ def checkdep_pdftops():
 def checkdep_inkscape():
     if checkdep_inkscape.version is None:
         try:
-            s = subprocess.Popen([str('inkscape'), '-V'],
+            s = subprocess.Popen(['inkscape', '-V'],
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
             stdout, stderr = s.communicate()

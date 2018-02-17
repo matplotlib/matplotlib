@@ -8,12 +8,12 @@ multiple axes at drawing time.
     and vertical lists of sizes that the division will be based on. You
     then use the new_locator method, whose return value is a callable
     object that can be used to set the axes_locator of the axes.
-
 """
+
+import functools
+
 import matplotlib.transforms as mtransforms
-
 from matplotlib.axes import SubplotBase
-
 from . import axes_size as Size
 
 
@@ -906,24 +906,12 @@ class LocatableAxesBase(object):
         self._twinned_axes.join(self, ax2)
         return ax2
 
-_locatableaxes_classes = {}
 
-
+@functools.lru_cache(None)
 def locatable_axes_factory(axes_class):
-
-    new_class = _locatableaxes_classes.get(axes_class)
-    if new_class is None:
-        new_class = type(str("Locatable%s" % (axes_class.__name__)),
-                         (LocatableAxesBase, axes_class),
-                         {'_axes_class': axes_class})
-
-        _locatableaxes_classes[axes_class] = new_class
-
-    return new_class
-
-#if hasattr(maxes.Axes, "get_axes_locator"):
-#    LocatableAxes = maxes.Axes
-#else:
+    return type("Locatable%s" % axes_class.__name__,
+                (LocatableAxesBase, axes_class),
+                {'_axes_class': axes_class})
 
 
 def make_axes_locatable(axes):

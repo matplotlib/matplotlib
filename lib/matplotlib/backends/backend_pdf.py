@@ -1285,9 +1285,9 @@ end"""
 
             streamarr = np.empty(
                 (shape[0] * shape[1],),
-                dtype=[(str('flags'), str('u1')),
-                       (str('points'), str('>u4'), (2,)),
-                       (str('colors'), str('u1'), (3,))])
+                dtype=[('flags', 'u1'),
+                       ('points', '>u4', (2,)),
+                       ('colors', 'u1', (3,))])
             streamarr['flags'] = 0
             streamarr['points'] = (flat_points - points_min) * factor
             streamarr['colors'] = flat_colors[:, :3] * 255.0
