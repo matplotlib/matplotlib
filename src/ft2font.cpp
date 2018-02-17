@@ -532,8 +532,6 @@ FT2Font::~FT2Font()
 
 void FT2Font::clear()
 {
-    angle = 0.0;
-
     pen.x = 0;
     pen.y = 0;
 

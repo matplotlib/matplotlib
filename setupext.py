@@ -1265,11 +1265,13 @@ class FT2Font(SetupPackage):
         sources = [
             'src/ft2font.cpp',
             'src/ft2font_wrapper.cpp',
-            'src/mplutils.cpp'
+            'src/mplutils.cpp',
+            'src/py_converters.cpp',
             ]
         ext = make_extension('matplotlib.ft2font', sources)
         FreeType().add_flags(ext)
         Numpy().add_flags(ext)
+        LibAgg().add_flags(ext, add_sources=False)
         return ext
 
 
@@ -1394,9 +1396,11 @@ class Contour(SetupPackage):
         sources = [
             "src/_contour.cpp",
             "src/_contour_wrapper.cpp",
+            'src/py_converters.cpp',
             ]
         ext = make_extension('matplotlib._contour', sources)
         Numpy().add_flags(ext)
+        LibAgg().add_flags(ext, add_sources=False)
         return ext
 
 

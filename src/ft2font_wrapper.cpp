@@ -1,6 +1,7 @@
 #include "mplutils.h"
 #include "ft2font.h"
 #include "file_compat.h"
+#include "py_converters.h"
 #include "py_exceptions.h"
 #include "numpy_cpp.h"
 
@@ -829,11 +830,11 @@ const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ =
 
 static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int antialiased = 1;
+    bool antialiased = true;
     const char *names[] = { "antialiased", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "|i:draw_glyphs_to_bitmap", (char **)names, &antialiased)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&:draw_glyphs_to_bitmap",
+                                     (char **)names, &convert_bool, &antialiased)) {
         return NULL;
     }
 
@@ -849,11 +850,12 @@ const char *PyFT2Font_get_xys__doc__ =
 
 static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int antialiased = 1;
+    bool antialiased = true;
     std::vector<double> xys;
     const char *names[] = { "antialiased", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|i:get_xys", (char **)names, &antialiased)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&:get_xys",
+                                     (char **)names, &convert_bool, &antialiased)) {
         return NULL;
     }
 
@@ -879,12 +881,12 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
     PyFT2Image *image;
     double xd, yd;
     PyGlyph *glyph;
-    int antialiased = 1;
+    bool antialiased = true;
     const char *names[] = { "image", "x", "y", "glyph", "antialiased", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-                                     "O!ddO!|i:draw_glyph_to_bitmap",
+                                     "O!ddO!|O&:draw_glyph_to_bitmap",
                                      (char **)names,
                                      &PyFT2ImageType,
                                      &image,
@@ -892,6 +894,7 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
                                      &yd,
                                      &PyGlyphType,
                                      &glyph,
+                                     &convert_bool,
                                      &antialiased)) {
         return NULL;
     }
