@@ -19,7 +19,7 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
     else:
         bboxptr = 0
     data = np.asarray(aggimage)
-    dataptr = (data.ctypes.data, data.shape[0], data.shape[1])
+    dataptr = (data.shape[0], data.shape[1], data.ctypes.data)
     try:
         tk.call(
             "PyAggImagePhoto", photoimage,
