@@ -34,7 +34,7 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import is_writable_file_like, warn_deprecated
+from matplotlib.cbook import is_writable_file_like, warn_deprecated, deprecated
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -1472,6 +1472,26 @@ cursord = {
     cursors.SELECT_REGION: wx.CURSOR_CROSS,
     cursors.WAIT: wx.CURSOR_WAIT,
 }
+
+
+@deprecated("2.2")
+class SubplotToolWX(wx.Frame):
+    def __init__(self, targetfig):
+        wx.Frame.__init__(self, None, -1, "Configure subplots")
+
+        toolfig = Figure((6, 3))
+        canvas = FigureCanvasWx(self, -1, toolfig)
+
+        # Create a figure manager to manage things
+        figmgr = FigureManager(canvas, 1, self)
+
+        # Now put all into a sizer
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        # This way of adding to sizer allows resizing
+        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        self.SetSizer(sizer)
+        self.Fit()
+        tool = SubplotTool(targetfig, toolfig)
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
