@@ -1482,7 +1482,7 @@ class SubplotToolWX(wx.Frame):
         canvas = FigureCanvasWx(self, -1, toolfig)
 
         # Create a figure manager to manage things
-        figmgr = FigureManager(canvas, 1, self)
+        figmgr = FigureManager(canvas, 1, self)  # noqa: F821 See issue #10502
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -1545,7 +1545,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         canvas = self.get_canvas(frame, toolfig)
 
         # Create a figure manager to manage things
-        figmgr = FigureManager(canvas, 1, frame)
+        figmgr = FigureManager(canvas, 1, frame)  # noqa: F821 See issue #10502
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
