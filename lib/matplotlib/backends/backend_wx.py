@@ -34,7 +34,7 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import is_writable_file_like, warn_deprecated, deprecated
+from matplotlib.cbook import is_writable_file_like, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -1474,7 +1474,7 @@ cursord = {
 }
 
 
-@deprecated("2.2")
+@cbook.deprecated("2.2")
 class SubplotToolWX(wx.Frame):
     def __init__(self, targetfig):
         wx.Frame.__init__(self, None, -1, "Configure subplots")
@@ -1698,6 +1698,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
         self.EnableTool(self.wx_ids['Back'], can_backward)
         self.EnableTool(self.wx_ids['Forward'], can_forward)
+
+
+@cbook.deprecated("2.2", alternative="NavigationToolbar2Wx")
+class Toolbar(NavigationToolbar2Wx):
+    pass
 
 
 class StatusBarWx(wx.StatusBar):
@@ -1956,15 +1961,6 @@ class PrintoutWx(wx.Printout):
         self.canvas.draw()
         return True
 # >
-
-########################################################################
-#
-# Now just provide the standard names that backend.__init__ is expecting
-#
-########################################################################
-
-
-Toolbar = NavigationToolbar2Wx
 
 
 @_Backend.export
