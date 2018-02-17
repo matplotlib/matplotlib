@@ -109,11 +109,7 @@ static PyObject *convert_ttf_to_ps(PyObject *self, PyObject *args, PyObject *kwd
     static const char *kwlist[] = { "filename", "output", "fonttype", "glyph_ids", NULL };
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-#if PY_MAJOR_VERSION == 3
                                      "yO&i|O&:convert_ttf_to_ps",
-#else
-                                     "sO&i|O&:convert_ttf_to_ps",
-#endif
                                      (char **)kwlist,
                                      &filename,
                                      fileobject_to_PythonFileWriter,
@@ -189,11 +185,7 @@ static PyObject *py_get_pdf_charprocs(PyObject *self, PyObject *args, PyObject *
     static const char *kwlist[] = { "filename", "glyph_ids", NULL };
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-#if PY_MAJOR_VERSION == 3
                                      "y|O&:get_pdf_charprocs",
-#else
-                                     "s|O&:get_pdf_charprocs",
-#endif
                                      (char **)kwlist,
                                      &filename,
                                      pyiterable_to_vector_int,
