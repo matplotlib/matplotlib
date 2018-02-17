@@ -86,11 +86,7 @@ int pyiterable_to_vector_int(PyObject *object, void *address)
 
     PyObject *item;
     while ((item = PyIter_Next(iterator))) {
-#if PY3K
         long value = PyLong_AsLong(item);
-#else
-        long value = PyInt_AsLong(item);
-#endif
         Py_DECREF(item);
         if (value == -1 && PyErr_Occurred()) {
             return 0;
@@ -279,7 +275,6 @@ static const char *module_docstring =
     "fonts to Postscript Type 3, Postscript Type 42 and "
     "Pdf Type 3 fonts.";
 
-#if PY3K
 static PyModuleDef ttconv_module = {
     PyModuleDef_HEAD_INIT,
     "ttconv",
@@ -298,10 +293,3 @@ PyInit_ttconv(void)
 
     return m;
 }
-#else
-PyMODINIT_FUNC
-initttconv(void)
-{
-    Py_InitModule3("ttconv", ttconv_methods, module_docstring);
-}
-#endif

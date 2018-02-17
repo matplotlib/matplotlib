@@ -586,13 +586,8 @@ PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject 
 
 static PyObject *PyRendererAgg_buffer_rgba(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
-#if PY3K
     return PyBytes_FromStringAndSize((const char *)self->x->pixBuffer,
                                      self->x->get_width() * self->x->get_height() * 4);
-#else
-    return PyBuffer_FromReadWriteMemory(self->x->pixBuffer,
-                                        self->x->get_width() * self->x->get_height() * 4);
-#endif
 }
 
 int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
@@ -724,7 +719,6 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_backend_agg",
@@ -737,42 +731,27 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__backend_agg(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_backend_agg(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_backend_agg", NULL, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
     if (!PyRendererAgg_init_type(m, &PyRendererAggType)) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyBufferRegion_init_type(m, &PyBufferRegionType)) {
-        INITERROR;
+        return NULL;
     }
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

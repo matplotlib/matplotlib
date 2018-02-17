@@ -48,7 +48,6 @@ extern "C" {
 /*
  * PyFile_* compatibility
  */
-#if defined(PY3K) | defined(PYPY_VERSION)
 
 /*
  * Get a FILE* handle to the file represented by the Python object
@@ -178,26 +177,6 @@ static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
     }
     return 1;
 }
-
-#else
-
-static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, const char *mode, mpl_off_t *orig_pos)
-{
-    return PyFile_AsFile(file);
-}
-
-static NPY_INLINE int mpl_PyFile_DupClose(PyObject *file, FILE *handle, mpl_off_t orig_pos)
-{
-    // deliberately nothing
-    return 0;
-}
-
-static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
-{
-    return PyFile_Check(file);
-}
-
-#endif
 
 static NPY_INLINE PyObject *mpl_PyFile_OpenFile(PyObject *filename, const char *mode)
 {

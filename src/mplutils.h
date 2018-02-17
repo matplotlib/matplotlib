@@ -31,10 +31,7 @@ typedef unsigned __int8   uint8_t;
 #include <Python.h>
 
 #if PY_MAJOR_VERSION >= 3
-#define PY3K 1
 #define Py_TPFLAGS_HAVE_NEWBUFFER 0
-#else
-#define PY3K 0
 #endif
 
 #undef CLAMP

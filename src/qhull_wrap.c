@@ -11,12 +11,6 @@
 #include <stdio.h>
 
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K 1
-#else
-#define PY3K 0
-#endif
-
 #ifndef MPL_DEVNULL
 #error "MPL_DEVNULL must be defined as the OS-equivalent of /dev/null"
 #endif
@@ -333,7 +327,6 @@ static PyMethodDef qhull_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY3K
 static struct PyModuleDef qhull_module = {
     PyModuleDef_HEAD_INIT,
     "qhull",
@@ -343,33 +336,18 @@ static struct PyModuleDef qhull_module = {
     NULL, NULL, NULL, NULL
 };
 
-#define ERROR_RETURN return NULL
-
 PyMODINIT_FUNC
 PyInit__qhull(void)
-#else
-#define ERROR_RETURN return
-
-PyMODINIT_FUNC
-init_qhull(void)
-#endif
 {
     PyObject* m;
 
-    #if PY3K
-        m = PyModule_Create(&qhull_module);
-    #else
-        m = Py_InitModule3("_qhull", qhull_methods,
-                           "Computing Delaunay triangulations.\n");
-    #endif
+    m = PyModule_Create(&qhull_module);
 
     if (m == NULL) {
-        ERROR_RETURN;
+        return NULL;
     }
 
     import_array();
 
-    #if PY3K
-        return m;
-    #endif
+    return m;
 }
