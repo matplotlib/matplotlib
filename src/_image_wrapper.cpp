@@ -4,11 +4,6 @@
 #include "py_converters.h"
 
 
-#ifndef NPY_1_7_API_VERSION
-#define NPY_ARRAY_C_CONTIGUOUS NPY_C_CONTIGUOUS
-#endif
-
-
 /**********************************************************************
  * Free functions
  * */
