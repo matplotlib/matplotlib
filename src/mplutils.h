@@ -30,8 +30,6 @@ typedef unsigned __int8   uint8_t;
 
 #include <Python.h>
 
-#define Py_TPFLAGS_HAVE_NEWBUFFER 0
-
 #undef CLAMP
 #define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 

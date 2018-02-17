@@ -134,7 +134,7 @@ static PyTypeObject *PyBufferRegion_init_type(PyObject *m, PyTypeObject *type)
     type->tp_name = "matplotlib.backends._backend_agg.BufferRegion";
     type->tp_basicsize = sizeof(PyBufferRegion);
     type->tp_dealloc = (destructor)PyBufferRegion_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER;
+    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     type->tp_methods = methods;
     type->tp_new = PyBufferRegion_new;
     type->tp_as_buffer = &buffer_procs;
@@ -700,7 +700,7 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
     type->tp_name = "matplotlib.backends._backend_agg.RendererAgg";
     type->tp_basicsize = sizeof(PyRendererAgg);
     type->tp_dealloc = (destructor)PyRendererAgg_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER;
+    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     type->tp_methods = methods;
     type->tp_init = (initproc)PyRendererAgg_init;
     type->tp_new = PyRendererAgg_new;
