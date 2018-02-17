@@ -9,8 +9,8 @@ import matplotlib
 from .. import cbook
 from . import wx_compat as wxc
 from .backend_agg import FigureCanvasAgg
-from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
+from .backend_wx import _BackendWx, _FigureCanvasWxBase, FigureFrameWx
+from .backend_wx import NavigationToolbar2Wx as NavigationToolbar2WxAgg
 
 
 class FigureFrameWxAgg(FigureFrameWx):
@@ -71,14 +71,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
     filetypes = FigureCanvasAgg.filetypes
 
 
-@cbook.deprecated("2.2")
-class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
-    def get_canvas(self, frame, fig):
-        return FigureCanvasWxAgg(frame, -1, fig)
-
-
 # agg/wxPython image conversion functions (wxPython >= 2.8)
-
 
 def _convert_agg_to_wx_image(agg, bbox):
     """

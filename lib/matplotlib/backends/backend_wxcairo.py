@@ -6,8 +6,8 @@ import six
 import wx
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
-from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
+from .backend_wx import _BackendWx, _FigureCanvasWxBase, FigureFrameWx
+from .backend_wx import NavigationToolbar2Wx as NavigationToolbar2WxCairo
 from . import wx_compat as wxc
 
 
