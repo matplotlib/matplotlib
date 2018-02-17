@@ -175,6 +175,26 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@image_comparison(baseline_images=['scatter3d_change_color'], remove_text=True,
+                  extensions=['png'])
+def test_scatter3d_change_color():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca1 = ax.scatter(0, 0, 0, color='r', marker='o')
+    sca2 = ax.scatter(np.arange(1, 3), np.arange(1, 3), np.arange(1, 3),
+                      color=['orange', 'green'], marker='^')
+    sca3 = ax.scatter(np.arange(3, 6), np.arange(3, 6), np.arange(3, 6),
+                      color='#FF0000', marker='s')
+
+    sca1.set_color("green")
+    sca2.set_facecolor([0, 1, 1])
+    sca2.set_edgecolor('face')
+    sca3.set_facecolor(["white", "#ABCDEF", [0, 0, 0]])
+
+
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
 def test_surface3d():
     fig = plt.figure()
