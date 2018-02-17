@@ -3,7 +3,8 @@
 #include <sys/socket.h>
 #include <Python.h>
 
-#define PYOSINPUTHOOK_REPETITIVE 1 /* Remove this once Python is fixed */
+/* Remove this once Python is fixed: https://bugs.python.org/issue23237 */
+#define PYOSINPUTHOOK_REPETITIVE 1
 
 /* Proper way to check for the OS X version we are compiling for, from
    http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
