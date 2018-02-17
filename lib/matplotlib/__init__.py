@@ -567,7 +567,7 @@ def checkdep_usetex(s):
     dvipng_req = '1.6'
     flag = True
 
-    if _backports.which("tex") is None:
+    if shutil.which("tex") is None:
         flag = False
         warnings.warn('matplotlibrc text.usetex option can not be used unless '
                       'TeX is installed on your system')
