@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef __PATH_H__
-#define __PATH_H__
+#ifndef MPL_PATH_H
+#define MPL_PATH_H
 
 #include <limits>
 #include <math.h>

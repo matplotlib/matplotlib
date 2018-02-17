@@ -2,8 +2,8 @@
 
 /* Small utilities that are shared by most extension modules. */
 
-#ifndef _MPLUTILS_H
-#define _MPLUTILS_H
+#ifndef MPLUTILS_H
+#define MPLUTILS_H
 
 #if defined(_MSC_VER) && _MSC_VER <= 1600
 typedef unsigned __int8   uint8_t;

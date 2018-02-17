@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _IMAGE_H
-#define _IMAGE_H
+#ifndef MPL_IMAGE_H
+#define MPL_IMAGE_H
 
 #include <vector>
 

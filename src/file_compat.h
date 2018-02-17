@@ -1,5 +1,5 @@
-#ifndef __FILE_COMPAT_H__
-#define __FILE_COMPAT_H__
+#ifndef MPL_FILE_COMPAT_H
+#define MPL_FILE_COMPAT_H
 
 #include <Python.h>
 #include <stdio.h>
@@ -234,4 +234,4 @@ fail:
 }
 #endif
 
-#endif /* ifndef __FILE_COMPAT_H__ */
+#endif /* ifndef MPL_FILE_COMPAT_H */
