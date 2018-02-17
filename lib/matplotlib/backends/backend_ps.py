@@ -1118,10 +1118,8 @@ class FigureCanvasPS(FigureCanvasBase):
                                 "time; consider using the Cairo backend")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(
-                                font_filename.encode(
-                                    sys.getfilesystemencoding()),
-                                fh, fonttype, glyph_ids)
+                            convert_ttf_to_ps(os.fsencode(font_filename),
+                                              fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 

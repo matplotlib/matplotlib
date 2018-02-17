@@ -970,7 +970,7 @@ end"""
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
             rawcharprocs = ttconv.get_pdf_charprocs(
-                filename.encode(sys.getfilesystemencoding()), glyph_ids)
+                os.fsencode(filename), glyph_ids)
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
