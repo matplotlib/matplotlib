@@ -151,14 +151,6 @@ Example usage::
 
     rec2excel(r, 'test.xls', formatd=formatd)
     rec2csv(r, 'test.csv', formatd=formatd)
-    scroll = rec2gtk(r, formatd=formatd)
-
-    win = gtk.Window()
-    win.set_size_request(600,800)
-    win.add(scroll)
-    win.show_all()
-    gtk.main()
-
 
 """
 
