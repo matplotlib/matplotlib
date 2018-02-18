@@ -244,9 +244,11 @@ def boilerplate_gen():
             else:
                 def_edited = []
                 for val in defaults:
-                    if six.PY2:
+                    try:               # Python 2
                         if isinstance(val, unicode):
                             val = val.encode('ascii', 'ignore')
+                    except NameError:  # Python 3
+                        pass
                     def_edited.append(val)
                 defaults = tuple(def_edited)
 
