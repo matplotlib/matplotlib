@@ -5,7 +5,6 @@ from collections import OrderedDict
 
 import six
 from six import unichr
-from six.moves import xrange
 
 import base64
 import codecs
@@ -1112,7 +1111,7 @@ class RendererSVG(RendererBase):
                 same_y = True
                 if len(chars) > 1:
                     last_y = chars[0][1]
-                    for i in xrange(1, len(chars)):
+                    for i in range(1, len(chars)):
                         if chars[i][1] != last_y:
                             same_y = False
                             break

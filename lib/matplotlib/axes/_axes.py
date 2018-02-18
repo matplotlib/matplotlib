@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip, zip_longest
+from six.moves import zip, zip_longest
 
 import functools
 import itertools
@@ -3923,7 +3923,7 @@ class Axes(_AxesBase):
         else:
             def doplot(*args, **kwargs):
                 shuffled = []
-                for i in xrange(0, len(args), 2):
+                for i in range(0, len(args), 2):
                     shuffled.extend([args[i + 1], args[i]])
                 return self.plot(*shuffled, **kwargs)
 
@@ -3937,7 +3937,7 @@ class Axes(_AxesBase):
                              "values must have same the length")
         # check position
         if positions is None:
-            positions = list(xrange(1, N + 1))
+            positions = list(range(1, N + 1))
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
 
@@ -4558,15 +4558,15 @@ class Axes(_AxesBase):
 
             # create accumulation arrays
             lattice1 = np.empty((nx1, ny1), dtype=object)
-            for i in xrange(nx1):
-                for j in xrange(ny1):
+            for i in range(nx1):
+                for j in range(ny1):
                     lattice1[i, j] = []
             lattice2 = np.empty((nx2, ny2), dtype=object)
-            for i in xrange(nx2):
-                for j in xrange(ny2):
+            for i in range(nx2):
+                for j in range(ny2):
                     lattice2[i, j] = []
 
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 if bdist[i]:
                     if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]].append(C[i])
@@ -4574,15 +4574,15 @@ class Axes(_AxesBase):
                     if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]].append(C[i])
 
-            for i in xrange(nx1):
-                for j in xrange(ny1):
+            for i in range(nx1):
+                for j in range(ny1):
                     vals = lattice1[i, j]
                     if len(vals) > mincnt:
                         lattice1[i, j] = reduce_C_function(vals)
                     else:
                         lattice1[i, j] = np.nan
-            for i in xrange(nx2):
-                for j in xrange(ny2):
+            for i in range(nx2):
+                for j in range(ny2):
                     vals = lattice2[i, j]
                     if len(vals) > mincnt:
                         lattice2[i, j] = reduce_C_function(vals)
@@ -6410,7 +6410,7 @@ class Axes(_AxesBase):
         """
         # Avoid shadowing the builtin.
         bin_range = range
-        del range
+        from builtins import range
 
         if not self._hold:
             self.cla()
@@ -6480,7 +6480,7 @@ class Axes(_AxesBase):
                     'weights should have the same shape as x')
 
         if color is None:
-            color = [self._get_lines.get_next_color() for i in xrange(nx)]
+            color = [self._get_lines.get_next_color() for i in range(nx)]
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
@@ -6507,7 +6507,7 @@ class Axes(_AxesBase):
         tops = []
         mlast = None
         # Loop through datasets
-        for i in xrange(nx):
+        for i in range(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)

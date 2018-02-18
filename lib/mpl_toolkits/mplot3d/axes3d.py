@@ -13,7 +13,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map, xrange, zip, reduce
+from six.moves import map, zip, reduce
 
 import math
 import warnings
@@ -1693,8 +1693,8 @@ class Axes3D(Axes):
 
         #colset contains the data for coloring: either average z or the facecolor
         colset = []
-        for rs in xrange(0, rows-1, rstride):
-            for cs in xrange(0, cols-1, cstride):
+        for rs in range(0, rows-1, rstride):
+            for cs in range(0, cols-1, cstride):
                 ps = []
                 for a in (X, Y, Z):
                     ztop = a[rs,cs:min(cols, cs+cstride+1)]
@@ -1709,7 +1709,7 @@ class Axes3D(Axes):
                 # are removed here.
                 ps = list(zip(*ps))
                 lastp = np.array([])
-                ps2 = [ps[0]] + [ps[i] for i in xrange(1, len(ps)) if ps[i] != ps[i-1]]
+                ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
                 avgzsum = sum(p[2] for p in ps2)
                 polys.append(ps2)
 
@@ -1878,14 +1878,14 @@ class Axes3D(Axes):
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
         if rstride:
-            rii = list(xrange(0, rows, rstride))
+            rii = list(range(0, rows, rstride))
             # Add the last index only if needed
             if rows > 0 and rii[-1] != (rows - 1):
                 rii += [rows-1]
         else:
             rii = []
         if cstride:
-            cii = list(xrange(0, cols, cstride))
+            cii = list(range(0, cols, cstride))
             # Add the last index only if needed
             if cols > 0 and cii[-1] != (cols - 1):
                 cii += [cols-1]

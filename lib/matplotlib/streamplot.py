@@ -6,7 +6,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 import numpy as np
 import matplotlib
@@ -648,7 +647,7 @@ def _gen_starting_points(shape):
     x, y = 0, 0
     i = 0
     direction = 'right'
-    for i in xrange(nx * ny):
+    for i in range(nx * ny):
 
         yield x, y
 

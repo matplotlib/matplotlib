@@ -36,7 +36,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 from contextlib import contextmanager
 from functools import partial
@@ -440,7 +439,7 @@ class RendererBase(object):
             return
 
         transform = transforms.IdentityTransform()
-        for i in xrange(N):
+        for i in range(N):
             path = paths[i % Npaths]
             if Ntransforms:
                 transform = Affine2D(all_transforms[i % Ntransforms])
@@ -518,7 +517,7 @@ class RendererBase(object):
             gc0.set_linewidth(0.0)
 
         xo, yo = 0, 0
-        for i in xrange(N):
+        for i in range(N):
             path_id = path_ids[i % Npaths]
             if Noffsets:
                 xo, yo = toffsets[i % Noffsets]
