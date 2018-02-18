@@ -3,11 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import math
-import os
-import sys
 import warnings
-def fn_name(): return sys._getframe(1).f_code.co_name
 
 import gobject
 import gtk; gdk = gtk.gdk
@@ -24,16 +20,15 @@ import numpy as np
 import matplotlib
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import restrict_dict, warn_deprecated
-from matplotlib.figure import Figure
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
+from matplotlib.cbook import warn_deprecated
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
-_debug = False
 
 # Image formats that this backend supports - for FileChooser and print_figure()
 IMAGE_FORMAT = sorted(['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']) # 'raw', 'rgb'
@@ -383,31 +378,13 @@ class GraphicsContextGDK(GraphicsContextBase):
             self.gdkGC.line_width = max(1, int(np.round(pixels)))
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas  = FigureCanvasGDK(figure)
-    manager = FigureManagerBase(canvas, num)
-    return manager
-
-
 class FigureCanvasGDK (FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
         if self.__class__ == matplotlib.backends.backend_gdk.FigureCanvasGDK:
             warn_deprecated('2.0', message="The GDK backend is "
                             "deprecated. It is untested, known to be "
-                            "broken and will be removed in Matplotlib 2.2. "
+                            "broken and will be removed in Matplotlib 3.0. "
                             "Use the Agg backend instead. "
                             "See Matplotlib usage FAQ for"
                             " more info on backends.",
@@ -447,10 +424,15 @@ class FigureCanvasGDK (FigureCanvasBase):
 
         # set the default quality, if we are writing a JPEG.
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
-        options = restrict_dict(kwargs, ['quality'])
-        if format in ['jpg','jpeg']:
-            if 'quality' not in options:
-                options['quality'] = rcParams['savefig.jpeg_quality']
+        options = {k: kwargs[k] for k in ['quality'] if k in kwargs}
+        if format in ['jpg', 'jpeg']:
+            options.setdefault('quality', rcParams['savefig.jpeg_quality'])
             options['quality'] = str(options['quality'])
 
         pixbuf.save(filename, format, options=options)
+
+
+@_Backend.export
+class _BackendGDK(_Backend):
+    FigureCanvas = FigureCanvasGDK
+    FigureManager = FigureManagerBase

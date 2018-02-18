@@ -12,7 +12,7 @@ void _bin_indices_middle(
     unsigned int *rowstart = irows;
     const float *ys2 = ys1 + 1;
     const float *yl = ys1 + ny;
-    float yo = y_min + dy / 2.0;
+    float yo = y_min + dy / 2.0f;
     float ym = 0.5f * (*ys1 + *ys2);
     // y/rows
     j = 0;
@@ -126,7 +126,7 @@ void _bin_indices_linear(
         int iilast = (int)ny - 1;
         int iy0 = (int)floor(sc * (y[ii] - offs));
         int iy1 = (int)floor(sc * (y[ii + 1] - offs));
-        float invgap = 1.0 / (iy1 - iy0);
+        float invgap = 1.0f / (iy1 - iy0);
         for (i = 0; i < nrows && i < iy0; i++) {
             irows[i] = -1;
         }
@@ -135,7 +135,7 @@ void _bin_indices_linear(
                 ii++;
                 iy0 = iy1;
                 iy1 = (int)floor(sc * (y[ii + 1] - offs));
-                invgap = 1.0 / (iy1 - iy0);
+                invgap = 1.0f / (iy1 - iy0);
             }
             if (i >= iy0 && i <= iy1) {
                 irows[i] = ii;
@@ -151,7 +151,7 @@ void _bin_indices_linear(
         int ii = iilast;
         int iy0 = (int)floor(sc * (y[ii] - offs));
         int iy1 = (int)floor(sc * (y[ii - 1] - offs));
-        float invgap = 1.0 / (iy1 - iy0);
+        float invgap = 1.0f / (iy1 - iy0);
         for (i = 0; i < nrows && i < iy0; i++) {
             irows[i] = -1;
         }
@@ -160,7 +160,7 @@ void _bin_indices_linear(
                 ii--;
                 iy0 = iy1;
                 iy1 = (int)floor(sc * (y[ii - 1] - offs));
-                invgap = 1.0 / (iy1 - iy0);
+                invgap = 1.0f / (iy1 - iy0);
             }
             if (i >= iy0 && i <= iy1) {
                 irows[i] = ii - 1;

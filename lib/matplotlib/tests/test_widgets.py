@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 try:
     # mock in python 3.3+
@@ -128,7 +127,7 @@ def test_ellipse():
                     key=' ')
     do_event(tool, 'onmove', xdata=30, ydata=30, button=1)
     do_event(tool, 'release', xdata=30, ydata=30, button=1)
-    assert tool.extents == (120, 170, 120, 170), tool.extents
+    assert tool.extents == (120, 170, 120, 170)
 
     # create from center
     do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
@@ -138,7 +137,7 @@ def test_ellipse():
     do_event(tool, 'release', xdata=125, ydata=125, button=1)
     do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
                     key='control')
-    assert tool.extents == (75, 125, 75, 125), tool.extents
+    assert tool.extents == (75, 125, 75, 125)
 
     # create a square
     do_event(tool, 'on_key_press', xdata=10, ydata=10, button=1,
@@ -160,7 +159,7 @@ def test_ellipse():
     do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
                       key='ctrl+shift')
     extents = [int(e) for e in tool.extents]
-    assert extents == [70, 129, 70, 130], extents
+    assert extents == [70, 129, 70, 130]
 
     assert tool.geometry.shape == (2, 73)
     assert_allclose(tool.geometry[:, 0], [70., 100])

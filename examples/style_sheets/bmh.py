@@ -18,7 +18,7 @@ plt.style.use('bmh')
 
 def plot_beta_hist(ax, a, b):
     ax.hist(beta(a, b, size=10000), histtype="stepfilled",
-            bins=25, alpha=0.8, normed=True)
+            bins=25, alpha=0.8, density=True)
 
 
 fig, ax = plt.subplots()

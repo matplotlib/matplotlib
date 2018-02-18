@@ -37,7 +37,6 @@ ax[2].set_ylim(0, 2)
 divider.set_aspect(1.)
 
 for ax1 in ax:
-    plt.setp(ax1.get_xticklabels()+ax1.get_yticklabels(),
-             visible=False)
+    ax1.tick_params(labelbottom=False, labelleft=False)
 
 plt.show()

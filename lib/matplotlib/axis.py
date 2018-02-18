@@ -6,6 +6,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import logging
+
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
@@ -22,7 +24,17 @@ import matplotlib.units as munits
 import numpy as np
 import warnings
 
+_log = logging.getLogger(__name__)
+
 GRIDLINE_INTERPOLATION_STEPS = 180
+
+# This list is being used for compatibility with Axes.grid, which
+# allows all Line2D kwargs.
+_line_AI = artist.ArtistInspector(mlines.Line2D)
+_line_param_names = _line_AI.get_setters()
+_line_param_aliases = [list(d.keys())[0] for d in _line_AI.aliasd.values()]
+_gridline_param_names = ['grid_' + name
+                         for name in _line_param_names + _line_param_aliases]
 
 
 class Tick(artist.Artist):
@@ -82,6 +94,11 @@ class Tick(artist.Artist):
                  label2On=False,
                  major=True,
                  labelrotation=0,
+                 grid_color=None,
+                 grid_linestyle=None,
+                 grid_linewidth=None,
+                 grid_alpha=None,
+                 **kw  # Other Line2D kwargs applied to gridlines.
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
@@ -140,7 +157,7 @@ class Tick(artist.Artist):
             labelsize = rcParams['%s.labelsize' % name]
         self._labelsize = labelsize
 
-        self._labelrotation = labelrotation
+        self._set_labelrotation(labelrotation)
 
         if zorder is None:
             if major:
@@ -148,6 +165,17 @@ class Tick(artist.Artist):
             else:
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
+
+        self._grid_color = (rcParams['grid.color']
+                            if grid_color is None else grid_color)
+        self._grid_linestyle = (rcParams['grid.linestyle']
+                                if grid_linestyle is None else grid_linestyle)
+        self._grid_linewidth = (rcParams['grid.linewidth']
+                                if grid_linewidth is None else grid_linewidth)
+        self._grid_alpha = (rcParams['grid.alpha']
+                            if grid_alpha is None else grid_alpha)
+
+        self._grid_kw = {k[5:]: v for k, v in kw.items()}
 
         self.apply_tickdir(tickdir)
 
@@ -166,6 +194,20 @@ class Tick(artist.Artist):
         self.label2On = label2On
 
         self.update_position(loc)
+
+    def _set_labelrotation(self, labelrotation):
+        if isinstance(labelrotation, six.string_types):
+            mode = labelrotation
+            angle = 0
+        elif isinstance(labelrotation, (tuple, list)):
+            mode, angle = labelrotation
+        else:
+            mode = 'default'
+            angle = labelrotation
+        if mode not in ('auto', 'default'):
+            raise ValueError("Label rotation mode must be 'default' or "
+                             "'auto', not '{}'.".format(mode))
+        self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
         """
@@ -331,8 +373,14 @@ class Tick(artist.Artist):
             self.tick2line.set(**tick_kw)
             for k, v in six.iteritems(tick_kw):
                 setattr(self, '_' + k, v)
+
+        if 'labelrotation' in kw:
+            self._set_labelrotation(kw.pop('labelrotation'))
+            self.label1.set(rotation=self._labelrotation[1])
+            self.label2.set(rotation=self._labelrotation[1])
+
         label_list = [k for k in six.iteritems(kw)
-                      if k[0] in ['labelsize', 'labelcolor', 'labelrotation']]
+                      if k[0] in ['labelsize', 'labelcolor']]
         if label_list:
             label_kw = {k[5:]: v for k, v in label_list}
             self.label1.set(**label_kw)
@@ -343,6 +391,14 @@ class Tick(artist.Artist):
                 # instead of saving the string representation
                 v = getattr(self.label1, 'get_' + k)()
                 setattr(self, '_label' + k, v)
+
+        grid_list = [k for k in six.iteritems(kw)
+                     if k[0] in _gridline_param_names]
+        if grid_list:
+            grid_kw = {k[5:]: v for k, v in grid_list}
+            self.gridline.set(**grid_kw)
+            for k, v in six.iteritems(grid_kw):
+                setattr(self, '_grid_' + k, v)
 
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar *loc*'
@@ -445,11 +501,12 @@ class XTick(Tick):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = mlines.Line2D(xdata=(0.0, 0.0), ydata=(0, 1.0),
-                          color=rcParams['grid.color'],
-                          linestyle=rcParams['grid.linestyle'],
-                          linewidth=rcParams['grid.linewidth'],
-                          alpha=rcParams['grid.alpha'],
-                          markersize=0)
+                          color=self._grid_color,
+                          linestyle=self._grid_linestyle,
+                          linewidth=self._grid_linewidth,
+                          alpha=self._grid_alpha,
+                          markersize=0,
+                          **self._grid_kw)
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
@@ -568,12 +625,12 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = mlines.Line2D(xdata=(0, 1), ydata=(0, 0),
-                          color=rcParams['grid.color'],
-                          linestyle=rcParams['grid.linestyle'],
-                          linewidth=rcParams['grid.linewidth'],
-                          alpha=rcParams['grid.alpha'],
-                          markersize=0)
-
+                          color=self._grid_color,
+                          linestyle=self._grid_linestyle,
+                          linewidth=self._grid_linewidth,
+                          alpha=self._grid_alpha,
+                          markersize=0,
+                          **self._grid_kw)
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
@@ -605,6 +662,29 @@ class Ticker(object):
     formatter = None
 
 
+class _LazyTickList(object):
+    """
+    A descriptor for lazy instantiation of tick lists.
+
+    See comment above definition of the ``majorTicks`` and ``minorTicks``
+    attributes.
+    """
+
+    def __init__(self, major):
+        self._major = major
+
+    def __get__(self, instance, cls):
+        if instance is None:
+            return self
+        else:
+            if self._major:
+                instance.majorTicks = [instance._get_tick(major=True)]
+                return instance.majorTicks
+            else:
+                instance.minorTicks = [instance._get_tick(major=False)]
+                return instance.minorTicks
+
+
 class Axis(artist.Artist):
     """
     Public attributes
@@ -626,13 +706,6 @@ class Axis(artist.Artist):
         artist.Artist.__init__(self)
         self.set_figure(axes.figure)
 
-        # Keep track of setting to the default value, this allows use to know
-        # if any of the following values is explicitly set by the user, so as
-        # to not overwrite their settings with any of our 'auto' settings.
-        self.isDefault_majloc = True
-        self.isDefault_minloc = True
-        self.isDefault_majfmt = True
-        self.isDefault_minfmt = True
         self.isDefault_label = True
 
         self.axes = axes
@@ -646,9 +719,7 @@ class Axis(artist.Artist):
         self.label = self._get_label()
         self.labelpad = rcParams['axes.labelpad']
         self.offsetText = self._get_offset_text()
-        self.majorTicks = []
-        self.minorTicks = []
-        self.unit_data = None
+
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API
@@ -658,13 +729,19 @@ class Axis(artist.Artist):
         self.cla()
         self._set_scale('linear')
 
+    # During initialization, Axis objects often create ticks that are later
+    # unused; this turns out to be a very slow step.  Instead, use a custom
+    # descriptor to make the tick lists lazy and instantiate them as needed.
+    majorTicks = _LazyTickList(major=True)
+    minorTicks = _LazyTickList(major=False)
+
     def set_label_coords(self, x, y, transform=None):
         """
         Set the coordinates of the label.  By default, the x
         coordinate of the y label is determined by the tick label
         bounding boxes, but this can lead to poor alignment of
         multiple ylabels if there are multiple axes.  Ditto for the y
-        coodinate of the x label.
+        coordinate of the x label.
 
         You can also specify the coordinate system of the label with
         the transform.  If None, the default coordinate system will be
@@ -700,15 +777,14 @@ class Axis(artist.Artist):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     @property
+    @cbook.deprecated("2.2.0")
     def unit_data(self):
-        """Holds data that a ConversionInterface subclass uses
-        to convert between labels and indexes
-        """
-        return self._unit_data
+        return self.units
 
     @unit_data.setter
+    @cbook.deprecated("2.2.0")
     def unit_data(self, unit_data):
-        self._unit_data = unit_data
+        self.set_units(unit_data)
 
     def get_children(self):
         children = [self.label, self.offsetText]
@@ -721,22 +797,10 @@ class Axis(artist.Artist):
 
     def cla(self):
         'clear the current axis'
-        self.set_major_locator(mticker.AutoLocator())
-        self.set_major_formatter(mticker.ScalarFormatter())
-        self.set_minor_locator(mticker.NullLocator())
-        self.set_minor_formatter(mticker.NullFormatter())
 
-        self.set_label_text('')
-        self._set_artist_props(self.label)
+        self.label.set_text('')  # self.set_label_text would change isDefault_
 
-        # Keep track of setting to the default value, this allows use to know
-        # if any of the following values is explicitly set by the user, so as
-        # to not overwrite their settings with any of our 'auto' settings.
-        self.isDefault_majloc = True
-        self.isDefault_minloc = True
-        self.isDefault_majfmt = True
-        self.isDefault_minfmt = True
-        self.isDefault_label = True
+        self._set_scale('linear')
 
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry()
@@ -747,9 +811,6 @@ class Axis(artist.Artist):
         self._gridOnMinor = (rcParams['axes.grid'] and
                              rcParams['axes.grid.which'] in ('both', 'minor'))
 
-        self.label.set_text('')
-        self._set_artist_props(self.label)
-
         self.reset_ticks()
 
         self.converter = None
@@ -758,20 +819,28 @@ class Axis(artist.Artist):
         self.stale = True
 
     def reset_ticks(self):
-        # build a few default ticks; grow as necessary later; only
-        # define 1 so properties set on ticks will be copied as they
-        # grow
-        del self.majorTicks[:]
-        del self.minorTicks[:]
+        """
+        Re-initialize the major and minor Tick lists.
 
-        self.majorTicks.extend([self._get_tick(major=True)])
-        self.minorTicks.extend([self._get_tick(major=False)])
-        self._lastNumMajorTicks = 1
-        self._lastNumMinorTicks = 1
+        Each list starts with a single fresh Tick.
+        """
+        # Restore the lazy tick lists.
+        try:
+            del self.majorTicks
+        except AttributeError:
+            pass
+        try:
+            del self.minorTicks
+        except AttributeError:
+            pass
+        try:
+            self.set_clip_path(self.axes.patch)
+        except AttributeError:
+            pass
 
     def set_tick_params(self, which='major', reset=False, **kw):
         """
-        Set appearance parameters for ticks and ticklabels.
+        Set appearance parameters for ticks, ticklabels, and gridlines.
 
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
@@ -786,6 +855,7 @@ class Axis(artist.Artist):
             if reset:
                 d.clear()
             d.update(kwtrans)
+
         if reset:
             self.reset_ticks()
         else:
@@ -808,8 +878,9 @@ class Axis(artist.Artist):
                    'tick1On', 'tick2On', 'label1On', 'label2On']
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
                    'labelleft', 'labelbottom', 'labelright', 'labeltop',
-                   'rotation']
-        kwkeys = kwkeys0 + kwkeys1
+                   'labelrotation']
+        kwkeys2 = _gridline_param_names
+        kwkeys = kwkeys0 + kwkeys1 + kwkeys2
         kwtrans = dict()
         if to_init_kw:
             if 'length' in kw:
@@ -951,7 +1022,7 @@ class Axis(artist.Artist):
         """
 
         interval = self.get_view_interval()
-        tick_tups = list(self.iter_ticks())
+        tick_tups = list(self.iter_ticks())  # iter_ticks calls the locator
         if self._smart_bounds and tick_tups:
             # handle inverted limits
             view_low, view_high = sorted(interval)
@@ -1032,11 +1103,12 @@ class Axis(artist.Artist):
         for tick, loc, label in tick_tups:
             if tick is None:
                 continue
-            if not mtransforms.interval_contains(interval_expanded, loc):
-                continue
+            # NB: always update labels and position to avoid issues like #9397
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
+            if not mtransforms.interval_contains(interval_expanded, loc):
+                continue
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
@@ -1068,10 +1140,12 @@ class Axis(artist.Artist):
             return
 
         ticks_to_draw = self._update_ticks(renderer)
-        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
-                                                                renderer)
 
-        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(renderer)
+
+        # go back to just this axis's tick labels
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(
+                    ticks_to_draw, renderer)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text(self.major.formatter.get_offset())
@@ -1122,7 +1196,7 @@ class Axis(artist.Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
 
-        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(renderer)
 
         self.label.draw(renderer)
 
@@ -1317,48 +1391,31 @@ class Axis(artist.Artist):
         'get the tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_major_locator()())
-        if len(self.majorTicks) < numticks:
+
+        while len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
-            for i in range(numticks - len(self.majorTicks)):
-                tick = self._get_tick(major=True)
-                self.majorTicks.append(tick)
+            tick = self._get_tick(major=True)
+            self.majorTicks.append(tick)
+            if self._gridOnMajor:
+                tick.gridOn = True
+            self._copy_tick_props(self.majorTicks[0], tick)
 
-        if self._lastNumMajorTicks < numticks:
-            protoTick = self.majorTicks[0]
-            for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
-                tick = self.majorTicks[i]
-                if self._gridOnMajor:
-                    tick.gridOn = True
-                self._copy_tick_props(protoTick, tick)
-
-        self._lastNumMajorTicks = numticks
-        ticks = self.majorTicks[:numticks]
-
-        return ticks
+        return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_minor_locator()())
 
-        if len(self.minorTicks) < numticks:
+        while len(self.minorTicks) < numticks:
             # update the new tick label properties from the old
-            for i in range(numticks - len(self.minorTicks)):
-                tick = self._get_tick(major=False)
-                self.minorTicks.append(tick)
+            tick = self._get_tick(major=False)
+            self.minorTicks.append(tick)
+            if self._gridOnMinor:
+                tick.gridOn = True
+            self._copy_tick_props(self.minorTicks[0], tick)
 
-        if self._lastNumMinorTicks < numticks:
-            protoTick = self.minorTicks[0]
-            for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
-                tick = self.minorTicks[i]
-                if self._gridOnMinor:
-                    tick.gridOn = True
-                self._copy_tick_props(protoTick, tick)
-
-        self._lastNumMinorTicks = numticks
-        ticks = self.minorTicks[:numticks]
-
-        return ticks
+        return self.minorTicks[:numticks]
 
     def grid(self, b=None, which='major', **kwargs):
         """
@@ -1376,30 +1433,21 @@ class Axis(artist.Artist):
         if len(kwargs):
             b = True
         which = which.lower()
+        gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
         if which in ['minor', 'both']:
             if b is None:
                 self._gridOnMinor = not self._gridOnMinor
             else:
                 self._gridOnMinor = b
-            for tick in self.minorTicks:  # don't use get_ticks here!
-                if tick is None:
-                    continue
-                tick.gridOn = self._gridOnMinor
-                if len(kwargs):
-                    tick.gridline.update(kwargs)
-            self._minor_tick_kw['gridOn'] = self._gridOnMinor
+            self.set_tick_params(which='minor', gridOn=self._gridOnMinor,
+                                 **gridkw)
         if which in ['major', 'both']:
             if b is None:
                 self._gridOnMajor = not self._gridOnMajor
             else:
                 self._gridOnMajor = b
-            for tick in self.majorTicks:  # don't use get_ticks here!
-                if tick is None:
-                    continue
-                tick.gridOn = self._gridOnMajor
-                if len(kwargs):
-                    tick.gridline.update(kwargs)
-            self._major_tick_kw['gridOn'] = self._gridOnMajor
+            self.set_tick_params(which='major', gridOn=self._gridOnMajor,
+                                 **gridkw)
         self.stale = True
 
     def update_units(self, data):
@@ -1429,11 +1477,11 @@ class Axis(artist.Artist):
         check the axis converter for the stored units to see if the
         axis info needs to be updated
         """
-
         if self.converter is None:
             return
 
         info = self.converter.axisinfo(self.units, self)
+
         if info is None:
             return
         if info.majloc is not None and \
@@ -1462,6 +1510,10 @@ class Axis(artist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
+        # If x is already a number, doesn't need converting
+        if munits.ConversionInterface.is_numlike(x):
+            return x
+
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
 
@@ -1634,14 +1686,23 @@ class Axis(artist.Artist):
             self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, xdir, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+
+        By default it just gets bboxes for self.
+        """
+        raise NotImplementedError('Derived must override')
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         raise NotImplementedError('Derived must override')
 
-    def _update_offset_text_postion(self, bboxes, bboxes2):
+    def _update_offset_text_position(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels
@@ -1702,7 +1763,7 @@ class XAxis(Axis):
     axis_name = 'x'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured in the x axis.
+        """Test whether the mouse event occurred in the x axis.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -1806,18 +1867,41 @@ class XAxis(Axis):
         elif position == 'bottom':
             self.label.set_verticalalignment('top')
         else:
-            msg = "Position accepts only [ 'top' | 'bottom' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only 'top' or 'bottom'")
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+
+        By default it just gets bboxes for self.
+        """
+        bboxes = []
+        bboxes2 = []
+        # get the Grouper that keeps track of x-label groups for this figure
+        grp = self.figure._align_xlabel_grp
+        # if we want to align labels from other axes:
+        for nn, axx in enumerate(grp.get_siblings(self.axes)):
+            ticks_to_draw = axx.xaxis._update_ticks(renderer)
+            tlb, tlb2 = axx.xaxis._get_tick_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
             return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+
         x, y = self.label.get_position()
         if self.label_position == 'bottom':
             try:
@@ -1917,12 +2001,30 @@ class XAxis(Axis):
         self.stale = True
 
     def tick_top(self):
-        'use ticks only on top'
+        """
+        Move ticks and ticklabels (if present) to the top of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('top')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labeltop=label)
 
     def tick_bottom(self):
-        'use ticks only on bottom'
+        """
+        Move ticks and ticklabels (if present) to the bottom of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('bottom')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelbottom=label)
 
     def get_ticks_position(self):
         """
@@ -2134,18 +2236,41 @@ class YAxis(Axis):
         elif position == 'right':
             self.label.set_verticalalignment('top')
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only 'left' or 'right'")
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, bboxes, bboxes2):
+    def _get_tick_boxes_siblings(self, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+
+        By default it just gets bboxes for self.
+        """
+        bboxes = []
+        bboxes2 = []
+        # get the Grouper that keeps track of y-label groups for this figure
+        grp = self.figure._align_ylabel_grp
+        # if we want to align labels from other axes:
+        for axx in grp.get_siblings(self.axes):
+            ticks_to_draw = axx.yaxis._update_ticks(renderer)
+            tlb, tlb2 = axx.yaxis._get_tick_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
+
+    def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
             return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_ylabels()`
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+
         x, y = self.label.get_position()
         if self.label_position == 'left':
             try:
@@ -2157,7 +2282,6 @@ class YAxis(Axis):
                 spinebbox = self.axes.bbox
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             left = bbox.x0
-
             self.label.set_position(
                 (left - self.labelpad * self.figure.dpi / 72.0, y)
             )
@@ -2189,14 +2313,16 @@ class YAxis(Axis):
         )
 
     def set_offset_position(self, position):
+        """
+        .. ACCEPTS: [ 'left' | 'right' ]
+        """
         x, y = self.offsetText.get_position()
         if position == 'left':
             x = 0
         elif position == 'right':
             x = 1
         else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+            raise ValueError("Position accepts only [ 'left' | 'right' ]")
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
@@ -2253,12 +2379,30 @@ class YAxis(Axis):
         self.stale = True
 
     def tick_right(self):
-        'use ticks only on right'
+        """
+        Move ticks and ticklabels (if present) to the right of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('right')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelright=label)
 
     def tick_left(self):
-        'use ticks only on left'
+        """
+        Move ticks and ticklabels (if present) to the left of the axes.
+        """
+        label = True
+        if 'label1On' in self._major_tick_kw:
+            label = (self._major_tick_kw['label1On']
+                     or self._major_tick_kw['label2On'])
         self.set_ticks_position('left')
+        # if labels were turned off before this was called
+        # leave them off
+        self.set_tick_params(which='both', labelleft=label)
 
     def get_ticks_position(self):
         """

@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pytest
@@ -23,14 +22,12 @@ def test_patheffect1():
                                                           foreground="w"),
                                       path_effects.Normal()])
 
-    ax1.grid(True, linestyle="-")
-
     pe = [path_effects.withStroke(linewidth=3, foreground="w")]
-    for l in ax1.get_xgridlines() + ax1.get_ygridlines():
-        l.set_path_effects(pe)
+    ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(baseline_images=['patheffect2'], remove_text=True)
+@image_comparison(baseline_images=['patheffect2'], remove_text=True,
+                  style='mpl20')
 def test_patheffect2():
 
     ax2 = plt.subplot(111)
@@ -113,10 +110,7 @@ def test_PathEffect_points_to_pixels():
     renderer = fig.canvas.get_renderer()
     pe_renderer = path_effects.SimpleLineShadow().get_proxy_renderer(renderer)
 
-    assert isinstance(pe_renderer, path_effects.PathEffectRenderer), (
-                'Expected a PathEffectRendere instance, got '
-                'a {0} instance.'.format(type(pe_renderer)))
-
+    assert isinstance(pe_renderer, path_effects.PathEffectRenderer)
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
     assert renderer.points_to_pixels(15) == pe_renderer.points_to_pixels(15)
@@ -127,7 +121,7 @@ def test_SimplePatchShadow_offset():
     assert pe._offset == (4, 5)
 
 
-@image_comparison(baseline_images=['collection'], tol=0.015)
+@image_comparison(baseline_images=['collection'], tol=0.02)
 def test_collection():
     x, y = np.meshgrid(np.linspace(0, 10, 150), np.linspace(-5, 5, 100))
     data = np.sin(x) + np.cos(y)

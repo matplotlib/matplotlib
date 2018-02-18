@@ -11,9 +11,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from distutils.version import LooseVersion
+from distutils.version import StrictVersion, LooseVersion
 
-missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8.12"
+missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython>=2.9"
 
 
 try:
@@ -23,9 +23,13 @@ try:
 except ImportError:
     raise ImportError(missingwx)
 
+try:
+    wx_version = StrictVersion(wx.VERSION_STRING)
+except ValueError:
+    wx_version = LooseVersion(wx.VERSION_STRING)
+
 # Ensure we have the correct version imported
-if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.8.12"):
-    print(" wxPython version %s was imported." % backend_version)
+if wx_version < str("2.9"):
     raise ImportError(missingwx)
 
 if is_phoenix:
@@ -139,24 +143,36 @@ else:
     StockCursor = wx.StockCursor
 
 
+# wxPython Classic's DoAddTool has become AddTool in Phoenix. Otherwise
+# they are the same, except for early betas and prerelease builds of
+# Phoenix. This function provides a shim that does the RightThing based on
+# which wxPython is in use.
 def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
-    if is_phoenix:
-        if text in ['Pan', 'Zoom']:
-            kind = wx.ITEM_CHECK
-        else:
-            kind = wx.ITEM_NORMAL
-        parent.AddTool(wx_ids[text], label=text,
-                       bitmap=bmp,
-                       bmpDisabled=wx.NullBitmap,
-                       shortHelpString=text,
-                       longHelpString=tooltip_text,
-                       kind=kind)
+    if text in ['Pan', 'Zoom']:
+        kind = wx.ITEM_CHECK
     else:
-        if text in ['Pan', 'Zoom']:
-            parent.AddCheckTool(
-                wx_ids[text],
-                bmp,
-                shortHelp=text,
-                longHelp=tooltip_text)
-        else:
-            parent.AddSimpleTool(wx_ids[text], bmp, text, tooltip_text)
+        kind = wx.ITEM_NORMAL
+    if is_phoenix:
+        add_tool = parent.AddTool
+    else:
+        add_tool = parent.DoAddTool
+
+    if not is_phoenix or wx_version >= str("4.0.0b2"):
+        # NOTE: when support for Phoenix prior to 4.0.0b2 is dropped then
+        # all that is needed is this clause, and the if and else clause can
+        # be removed.
+        kwargs = dict(label=text,
+                      bitmap=bmp,
+                      bmpDisabled=wx.NullBitmap,
+                      shortHelp=text,
+                      longHelp=tooltip_text,
+                      kind=kind)
+    else:
+        kwargs = dict(label=text,
+                      bitmap=bmp,
+                      bmpDisabled=wx.NullBitmap,
+                      shortHelpString=text,
+                      longHelpString=tooltip_text,
+                      kind=kind)
+
+    return add_tool(wx_ids[text], **kwargs)

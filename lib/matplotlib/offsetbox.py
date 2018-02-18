@@ -34,7 +34,6 @@ from matplotlib import rcParams
 
 from matplotlib import docstring
 
-#from bboximage import BboxImage
 from matplotlib.image import BboxImage
 
 from matplotlib.patches import bbox_artist as mbbox_artist
@@ -44,7 +43,7 @@ from matplotlib.text import _AnnotationBase
 DEBUG = False
 
 
-# for debuging use
+# for debugging use
 def bbox_artist(*args, **kwargs):
     if DEBUG:
         mbbox_artist(*args, **kwargs)
@@ -58,7 +57,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     """
     Geiven a list of (width, xdescent) of each boxes, calculate the
     total width and the x-offset positions of each items according to
-    *mode*. xdescent is analagous to the usual descent, but along the
+    *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
 
     *wd_list* : list of (width, xdescent) of boxes to be packed.
@@ -71,22 +70,19 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     # d_list is currently not used.
 
     if mode == "fixed":
-        offsets_ = np.add.accumulate([0] + [w + sep for w in w_list])
+        offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
-
         if total is None:
             total = offsets_[-1] - sep
-
         return total, offsets
 
     elif mode == "expand":
         if len(w_list) > 1:
             sep = (total - sum(w_list)) / (len(w_list) - 1.)
         else:
-            sep = 0.
-        offsets_ = np.add.accumulate([0] + [w + sep for w in w_list])
+            sep = 0
+        offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
-
         return total, offsets
 
     elif mode == "equal":
@@ -94,10 +90,8 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         if total is None:
             total = (maxh + sep) * len(w_list)
         else:
-            sep = float(total) / (len(w_list)) - maxh
-
-        offsets = np.array([(maxh + sep) * i for i in range(len(w_list))])
-
+            sep = total / len(w_list) - maxh
+        offsets = (maxh + sep) * np.arange(len(w_list))
         return total, offsets
 
     else:
@@ -403,7 +397,6 @@ class VPacker(PackerBase):
         ydescent = height - yoffsets[0]
         yoffsets = height - yoffsets
 
-        #w, h, xd, h_yd = whd_list[-1]
         yoffsets = yoffsets - ydescent
 
         return width + 2 * pad, height + 2 * pad, \
@@ -633,7 +626,7 @@ class DrawingArea(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y cooridnate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -922,7 +915,7 @@ class AuxTransformBox(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y coordinate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -1007,13 +1000,13 @@ class AnchoredOffsetbox(OffsetBox):
                  **kwargs):
         """
         loc is a string or an integer specifying the legend location.
-        The valid  location codes are::
+        The valid location codes are::
 
         'upper right'  : 1,
         'upper left'   : 2,
         'lower left'   : 3,
         'lower right'  : 4,
-        'right'        : 5,
+        'right'        : 5, (same as 'center right', for back-compatibility)
         'center left'  : 6,
         'center right' : 7,
         'lower center' : 8,
@@ -1325,7 +1318,7 @@ class OffsetImage(OffsetBox):
 #         """
 #         set offset of the container.
 
-#         Accept : tuple of x,y coordinate in disokay units.
+#         Accept : tuple of x,y coordinate in display units.
 #         """
 #         self._offset = xy
 
@@ -1571,7 +1564,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
             # The arrow will be drawn from (ox0, oy0) to (ox1,
             # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrinked by shirnkA and shrinkB
+            # Then it will be shrunk by shrinkA and shrinkB
             # (in points). If patch A is not set, self.bbox_patch
             # is used.
 
@@ -1618,14 +1611,14 @@ class DraggableBase(object):
     helper code for a draggable artist (legend, offsetbox)
     The derived class must override following two method.
 
-      def saveoffset(self):
+      def save_offset(self):
           pass
 
       def update_offset(self, dx, dy):
           pass
 
-    *saveoffset* is called when the object is picked for dragging and it is
-    meant to save reference position of the artist.
+    *save_offset* is called when the object is picked for dragging and it
+    is meant to save reference position of the artist.
 
     *update_offset* is called during the dragging. dx and dy is the pixel
      offset from the point where the mouse drag started.
@@ -1640,7 +1633,7 @@ class DraggableBase(object):
 
     *artist_picker* is a picker method that will be
      used. *finalize_offset* is called when the mouse is released. In
-     current implementaion of DraggableLegend and DraggableAnnotation,
+     current implementation of DraggableLegend and DraggableAnnotation,
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.

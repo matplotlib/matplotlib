@@ -25,7 +25,7 @@ from . import axes_size as Size
 
 class Divider(object):
     """
-    This is the class that is used calculates the axes position. It
+    This class calculates the axes position. It
     divides the given rectangular area into several
     sub-rectangles. You initialize the divider by setting the
     horizontal and vertical lists of sizes
@@ -385,7 +385,7 @@ class SubplotDivider(Divider):
             else:
                 try:
                     s = str(int(args[0]))
-                    rows, cols, num = list(map(int, s))
+                    rows, cols, num = map(int, s)
                 except ValueError:
                     raise ValueError(
                         'Single argument to subplot must be a 3-digit integer')
@@ -915,9 +915,14 @@ class LocatableAxesBase(object):
         Need to overload so that twinx/twiny will work with
         these axes.
         """
+        if 'sharex' in kwargs and 'sharey' in kwargs:
+            raise ValueError("Twinned Axes may share only one axis.")
         ax2 = type(self)(self.figure, self.get_position(True), *kl, **kwargs)
         ax2.set_axes_locator(self.get_axes_locator())
         self.figure.add_axes(ax2)
+        self.set_adjustable('datalim')
+        ax2.set_adjustable('datalim')
+        self._twinned_axes.join(self, ax2)
         return ax2
 
 _locatableaxes_classes = {}

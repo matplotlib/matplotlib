@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -17,8 +16,8 @@ import matplotlib
 from matplotlib import dviread
 
 
-needs_tex = pytest.mark.xfail(
-    not matplotlib.checkdep_tex(),
+needs_usetex = pytest.mark.xfail(
+    not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -61,30 +60,6 @@ def test_noscale():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.imshow(Z, cmap='gray', interpolation='none')
-
-
-def test_composite_images():
-    #Test that figures can be saved with and without combining multiple images
-    #(on a single set of axes) into a single composite image.
-    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
-    Z = np.sin(Y ** 2)
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    ax.set_xlim(0, 3)
-    ax.imshow(Z, extent=[0, 1, 0, 1])
-    ax.imshow(Z[::-1], extent=[2, 3, 0, 1])
-    plt.rcParams['image.composite_image'] = True
-    with BytesIO() as svg:
-        fig.savefig(svg, format="svg")
-        svg.seek(0)
-        buff = svg.read()
-        assert buff.count(six.b('<image ')) == 1
-    plt.rcParams['image.composite_image'] = False
-    with BytesIO() as svg:
-        fig.savefig(svg, format="svg")
-        svg.seek(0)
-        buff = svg.read()
-        assert buff.count(six.b('<image ')) == 2
 
 
 def test_text_urls():
@@ -152,7 +127,12 @@ def _test_determinism_save(filename, usetex):
     FigureCanvasSVG(fig).print_svg(filename)
 
 
-def _test_determinism(filename, usetex):
+@pytest.mark.parametrize(
+    "filename, usetex",
+    # unique filenames to allow for parallel testing
+    [("determinism_notex.svg", False),
+     needs_usetex(("determinism_tex.svg", True))])
+def test_determinism(filename, usetex):
     import sys
     from subprocess import check_output, STDOUT, CalledProcessError
     plots = []
@@ -160,40 +140,31 @@ def _test_determinism(filename, usetex):
         # Using check_output and setting stderr to STDOUT will capture the real
         # problem in the output property of the exception
         try:
-            check_output([sys.executable, '-R', '-c',
-                          'import matplotlib; '
-                          'matplotlib._called_from_pytest = True;'
-                          'matplotlib.use("svg"); '
-                          'from matplotlib.tests.test_backend_svg '
-                          'import _test_determinism_save;'
-                          '_test_determinism_save(%r, %r)' % (filename,
-                                                              usetex)],
-                         stderr=STDOUT)
+            check_output(
+                [sys.executable, '-R', '-c',
+                 'import matplotlib; '
+                 'matplotlib._called_from_pytest = True; '
+                 'matplotlib.use("svg"); '
+                 'from matplotlib.tests.test_backend_svg '
+                 'import _test_determinism_save;'
+                 '_test_determinism_save(%r, %r)' % (filename, usetex)],
+                stderr=STDOUT)
         except CalledProcessError as e:
             # it's easier to use utf8 and ask for forgiveness than try
             # to figure out what the current console has as an
             # encoding :-/
             print(e.output.decode(encoding="utf-8", errors="ignore"))
             raise e
-        with open(filename, 'rb') as fd:
-            plots.append(fd.read())
-        os.unlink(filename)
+        else:
+            with open(filename, 'rb') as fd:
+                plots.append(fd.read())
+        finally:
+            os.unlink(filename)
     for p in plots[1:]:
         assert p == plots[0]
 
 
-def test_determinism_notex():
-    # unique filename to allow for parallel testing
-    _test_determinism('determinism_notex.svg', usetex=False)
-
-
-@needs_tex
-def test_determinism_tex():
-    # unique filename to allow for parallel testing
-    _test_determinism('determinism_tex.svg', usetex=True)
-
-
-@needs_tex
+@needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     from matplotlib import rc

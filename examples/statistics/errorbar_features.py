@@ -1,7 +1,7 @@
 """
-===================================================
-Demo of the different ways of specifying error bars
-===================================================
+=======================================
+Different ways of specifying error bars
+=======================================
 
 Errors can be specified as a constant value (as shown in
 `errorbar_demo.py`). However, this example demonstrates

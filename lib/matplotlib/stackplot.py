@@ -19,46 +19,51 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args, **kwargs):
-    """Draws a stacked area plot.
+    """
+    Draws a stacked area plot.
 
-    *x* : 1d array of dimension N
+    Parameters
+    ----------
+    x : 1d array of dimension N
 
-    *y* : 2d array of dimension MxN, OR any number 1d arrays each of dimension
-          1xN. The data is assumed to be unstacked. Each of the following
-          calls is legal::
+    y : 2d array (dimension MxN), or sequence of 1d arrays (each dimension 1xN)
+
+        The data is assumed to be unstacked. Each of the following
+        calls is legal::
 
             stackplot(x, y)               # where y is MxN
             stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
-    Keyword arguments:
+    baseline : ['zero' | 'sym' | 'wiggle' | 'weighted_wiggle']
+        Method used to calculate the baseline:
 
-    *baseline* : ['zero', 'sym', 'wiggle', 'weighted_wiggle']
-                Method used to calculate the baseline. 'zero' is just a
-                simple stacked plot. 'sym' is symmetric around zero and
-                is sometimes called `ThemeRiver`.  'wiggle' minimizes the
-                sum of the squared slopes. 'weighted_wiggle' does the
-                same but weights to account for size of each layer.
-                It is also called `Streamgraph`-layout. More details
-                can be found at http://leebyron.com/streamgraph/.
+        - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
+        - ``'sym'``:  Symmetric around zero and is sometimes called
+          'ThemeRiver'.
+        - ``'wiggle'``: Minimizes the sum of the squared slopes.
+        - ``'weighted_wiggle'``: Does the same but weights to account for
+          size of each layer. It is also called 'Streamgraph'-layout. More
+          details can be found at http://leebyron.com/streamgraph/.
+
+    labels : Length N sequence of strings
+        Labels to assign to each data series.
+
+    colors : Length N sequence of colors
+        A list or tuple of colors. These will be cycled through and used to
+        colour the stacked areas.
+
+    **kwargs :
+        All other keyword arguments are passed to `Axes.fill_between()`.
 
 
-    *labels* : A list or tuple of labels to assign to each data series.
-
-
-    *colors* : A list or tuple of colors. These will be cycled through and
-               used to colour the stacked areas.
-               All other keyword arguments are passed to
-               :func:`~matplotlib.Axes.fill_between`
-
-    Returns *r* : A list of
-    :class:`~matplotlib.collections.PolyCollection`, one for each
-    element in the stacked area plot.
+    Returns
+    -------
+    list of `~.PolyCollection`
+        A list of `~.PolyCollection` instances, one for each element in the
+        stacked area plot.
     """
 
-    if len(args) == 1:
-        y = np.atleast_2d(*args)
-    elif len(args) > 1:
-        y = np.row_stack(args)
+    y = np.row_stack(args)
 
     labels = iter(kwargs.pop('labels', []))
 
@@ -86,7 +91,6 @@ def stackplot(axes, x, *args, **kwargs):
 
     elif baseline == 'weighted_wiggle':
         m, n = y.shape
-        center = np.zeros(n)
         total = np.sum(y, 0)
         # multiply by 1/total (or zero) to avoid infinities in the division:
         inv_total = np.zeros_like(total)
@@ -110,7 +114,7 @@ def stackplot(axes, x, *args, **kwargs):
     # Color between x = 0 and the first array.
     color = axes._get_lines.get_next_color()
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=color, label=six.next(labels, None),
+                             facecolor=color, label=next(labels, None),
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
@@ -119,7 +123,6 @@ def stackplot(axes, x, *args, **kwargs):
     for i in xrange(len(y) - 1):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
-                                   facecolor=color,
-                                   label= six.next(labels, None),
+                                   facecolor=color, label=next(labels, None),
                                    **kwargs))
     return r

@@ -19,16 +19,11 @@ Plotting: howto
 Plot `numpy.datetime64` values
 ------------------------------
 
-For Matplotlib to plot dates (or any scalar with units) a converter
-to float needs to be registered with the `matplolib.units` module.  The
-current best converters for `datetime64` values are in `pandas`.  Simply
-importing `pandas` ::
+As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
+as `datetime.datetime` objects.
 
-  import pandas as pd
-
-should be sufficient as `pandas` will try to install the converters
-on import.  If that does not work, or you need to reset `munits.registry`
-you can explicitly install the `pandas` converters by ::
+If you prefer the pandas converters and locators, you can register their
+converter with the `matplolib.units` module::
 
   from pandas.tseries import converter as pdtc
   pdtc.register()
@@ -48,7 +43,7 @@ If you only want to use the `pandas` converter for `datetime64` values ::
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every Matplotlib artist (see :ref:`sphx_glr_tutorials_02_intermediate_artists.py`) has a method
+Every Matplotlib artist (see :ref:`sphx_glr_tutorials_intermediate_artists.py`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
@@ -160,7 +155,7 @@ labels::
     ax = fig.add_subplot(111)
 
 You can control the defaults for these parameters in your
-:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`.  For
+:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_introductory_customizing.py`.  For
 example, to make the above setting permanent, you would set::
 
     figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
@@ -176,10 +171,10 @@ The other parameters you can configure are, with their defaults
 *top* = 0.9
     the top of the subplots of the figure
 *wspace* = 0.2
-    the amount of width reserved for blank space between subplots,
+    the amount of width reserved for space between subplots,
     expressed as a fraction of the average axis width
 *hspace* = 0.2
-    the amount of height reserved for white space between subplots,
+    the amount of height reserved for space between subplots,
     expressed as a fraction of the average axis height
 
 If you want additional control, you can create an
@@ -191,7 +186,7 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:ref:`sphx_glr_gallery_pylab_examples_axes_demo.py` for an example of placing axes manually.
+:ref:`sphx_glr_gallery_subplots_axes_and_figures_axes_demo.py` for an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -201,7 +196,7 @@ Automatically make room for tick labels
 .. note::
    This is now easier to handle than ever before.
    Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :ref:`sphx_glr_tutorials_02_intermediate_tight_layout_guide.py`.
+   layout issues. See the :ref:`sphx_glr_tutorials_intermediate_tight_layout_guide.py`.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -241,21 +236,34 @@ over so that the tick labels fit in the figure:
 
 .. _howto-ticks:
 
-Configure the tick linewidths
------------------------------
+Configure the tick widths
+-------------------------
 
-In Matplotlib, the ticks are *markers*.  All
-:class:`~matplotlib.lines.Line2D` objects support a line (solid,
-dashed, etc) and a marker (circle, square, tick).  The tick linewidth
-is controlled by the "markeredgewidth" property::
+Wherever possible, it is recommended to use the :meth:`~Axes.tick_params` or
+:meth:`~Axis.set_tick_params` methods to modify tick properties::
 
     import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+
+    fig, ax = plt.subplots()
+    ax.plot(range(10))
+
+    ax.tick_params(width=10)
+
+    plt.show()
+
+For more control of tick properties that are not provided by the above methods,
+it is important to know that in Matplotlib, the ticks are *markers*.  All
+:class:`~matplotlib.lines.Line2D` objects support a line (solid, dashed, etc)
+and a marker (circle, square, tick).  The tick width is controlled by the
+``"markeredgewidth"`` property, so the above effect can also be achieved by::
+
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
     ax.plot(range(10))
 
     for line in ax.get_xticklines() + ax.get_yticklines():
-        line.set_markersize(10)
+        line.set_markeredgewidth(10)
 
     plt.show()
 
@@ -340,7 +348,7 @@ and patches, respectively::
 
 .. htmlonly::
 
-    See :ref:`sphx_glr_gallery_pylab_examples_zorder_demo.py` for a complete example.
+    See :ref:`sphx_glr_gallery_misc_zorder_demo.py` for a complete example.
 
 You can also use the Axes property
 :meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
@@ -357,13 +365,10 @@ some ratio which controls the ratio::
 
   ax = fig.add_subplot(111, aspect='equal')
 
-
-
 .. htmlonly::
 
-    See :ref:`sphx_glr_gallery_subplots_axes_and_figures_equal_aspect_ratio.py` for a complete
-    example.
-
+    See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axis_equal_demo.py` for a
+    complete example.
 
 .. _howto-twoscale:
 
@@ -670,7 +675,7 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using `Pillow <http://python-imaging.github.io/>`_.
+Here is an example using `Pillow <https://pillow.readthedocs.io/en/latest/>`_.
 First, the figure is saved to a BytesIO object which is then fed to
 Pillow for further processing::
 
@@ -758,4 +763,3 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
-

@@ -66,7 +66,7 @@ class Triangulation(object):
                 raise ValueError('triangles min element is out of bounds')
 
         if mask is not None:
-            self.mask = np.asarray(mask, dtype=np.bool)
+            self.mask = np.asarray(mask, dtype=bool)
             if self.mask.shape != (self.triangles.shape[0],):
                 raise ValueError('mask array must have same length as '
                                  'triangles array')
@@ -200,7 +200,7 @@ class Triangulation(object):
         if mask is None:
             self.mask = None
         else:
-            self.mask = np.asarray(mask, dtype=np.bool)
+            self.mask = np.asarray(mask, dtype=bool)
             if self.mask.shape != (self.triangles.shape[0],):
                 raise ValueError('mask array must have same length as '
                                  'triangles array')

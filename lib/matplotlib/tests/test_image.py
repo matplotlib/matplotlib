@@ -1,29 +1,26 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
+
+from copy import copy
 import io
 import os
+import sys
 import warnings
 
 import numpy as np
+from numpy import ma
 from numpy.testing import assert_array_equal
 
-from matplotlib.testing.decorators import image_comparison
+from matplotlib import (
+    colors, image as mimage, patches, pyplot as plt,
+    rc_context, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
-from matplotlib import rcParams, rc_context
-from matplotlib import patches
-import matplotlib.pyplot as plt
 
-from matplotlib import mlab
 import pytest
-
-from copy import copy
-from numpy import ma
-import matplotlib.image as mimage
-import matplotlib.colors as colors
 
 
 try:
@@ -34,7 +31,7 @@ except ImportError:
 needs_pillow = pytest.mark.xfail(not HAS_PIL, reason='Test requires Pillow')
 
 
-@image_comparison(baseline_images=['image_interps'])
+@image_comparison(baseline_images=['image_interps'], style='mpl20')
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
     X = np.arange(100)
@@ -75,22 +72,37 @@ def test_interp_nearest_vs_none():
     ax2.set_title('interpolation nearest')
 
 
-@image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'])
-def test_figimage():
+def do_figimage(suppressComposite):
+    """ Helper for the next two tests """
+    fig = plt.figure(figsize=(2,2), dpi=100)
+    fig.suppressComposite = suppressComposite
+    x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
+    z = np.sin(x**2 + y**2 - x*y)
+    c = np.sin(20*x**2 + 50*y**2)
+    img = z + c/5
+
+    fig.figimage(img, xo=0, yo=0, origin='lower')
+    fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
+    fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
+    fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
+
+
+@image_comparison(baseline_images=['figimage-0'],
+                  extensions=['png','pdf'])
+def test_figimage0():
     'test the figimage method'
 
-    for suppressComposite in False, True:
-        fig = plt.figure(figsize=(2,2), dpi=100)
-        fig.suppressComposite = suppressComposite
-        x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
-        z = np.sin(x**2 + y**2 - x*y)
-        c = np.sin(20*x**2 + 50*y**2)
-        img = z + c/5
+    suppressComposite = False
+    do_figimage(suppressComposite)
 
-        fig.figimage(img, xo=0, yo=0, origin='lower')
-        fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
-        fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
-        fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
+
+@image_comparison(baseline_images=['figimage-1'],
+                  extensions=['png','pdf'])
+def test_figimage1():
+    'test the figimage method'
+    suppressComposite = True
+    do_figimage(suppressComposite)
+
 
 def test_image_python_io():
     fig = plt.figure()
@@ -110,6 +122,16 @@ def test_imread_pil_uint16():
     assert np.sum(img) == 134184960
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+@needs_pillow
+def test_imread_fspath():
+    from pathlib import Path
+    img = plt.imread(
+        Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
+    assert img.dtype == np.uint16
+    assert np.sum(img) == 134184960
+
+
 def test_imsave():
     # The goal here is that the user can specify an output logical DPI
     # for the image, but this will not actually add any extra pixels
@@ -118,9 +140,8 @@ def test_imsave():
     # So we do the traditional case (dpi == 1), and the new case (dpi
     # == 100) and read the resulting PNG files back in and make sure
     # the data is 100% identical.
-    from numpy import random
-    random.seed(1)
-    data = random.rand(256, 128)
+    np.random.seed(1)
+    data = np.random.rand(256, 128)
 
     buff_dpi1 = io.BytesIO()
     plt.imsave(buff_dpi1, data, dpi=1)
@@ -139,17 +160,24 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+@pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
+def test_imsave_fspath(fmt):
+    Path = pytest.importorskip("pathlib").Path
+    plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
+
+
 def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is
     # acceptably preserved through a save/read roundtrip.
-    from numpy import random
-    random.seed(1)
+    np.random.seed(1)
 
     for origin in ['lower', 'upper']:
-        data = random.rand(16, 16, 4)
+        data = np.random.rand(16, 16, 4)
         buff = io.BytesIO()
-        plt.imsave(buff, data, origin=origin)
+        plt.imsave(buff, data, origin=origin, format="png")
 
         buff.seek(0)
         arr_buf = plt.imread(buff)
@@ -163,6 +191,7 @@ def test_imsave_color_alpha():
         arr_buf = (255*arr_buf).astype('uint8')
 
         assert_array_equal(data, arr_buf)
+
 
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
@@ -190,8 +219,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 44, "Did not get 44, got %d" % z
+    assert im.get_cursor_data(event) == 44
 
     # Now try for a point outside the image
     # Tests issue #4957
@@ -199,8 +227,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
     # Hmm, something is wrong here... I get 0, not None...
     # But, this works further down in the tests with extents flipped
@@ -218,8 +245,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 44, "Did not get 44, got %d" % z
+    assert im.get_cursor_data(event) == 44
 
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), extent=[0, 0.5, 0, 0.5])
@@ -228,8 +254,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z == 55, "Did not get 55, got %d" % z
+    assert im.get_cursor_data(event) == 55
 
     # Now try for a point outside the image
     # Tests issue #4957
@@ -237,18 +262,16 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
     x, y = 0.01, -0.01
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    z = im.get_cursor_data(event)
-    assert z is None, "Did not get None, got %d" % z
+    assert im.get_cursor_data(event) is None
 
 
-@image_comparison(baseline_images=['image_clip'])
+@image_comparison(baseline_images=['image_clip'], style='mpl20')
 def test_image_clip():
     d = [[1, 2], [3, 4]]
 
@@ -258,7 +281,7 @@ def test_image_clip():
     im.set_clip_path(patch)
 
 
-@image_comparison(baseline_images=['image_cliprect'])
+@image_comparison(baseline_images=['image_cliprect'], style='mpl20')
 def test_image_cliprect():
     import matplotlib.patches as patches
 
@@ -271,7 +294,8 @@ def test_image_cliprect():
     rect = patches.Rectangle(xy=(1,1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
 
-@image_comparison(baseline_images=['imshow'], remove_text=True)
+
+@image_comparison(baseline_images=['imshow'], remove_text=True, style='mpl20')
 def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt
@@ -283,14 +307,18 @@ def test_imshow():
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
 
-@image_comparison(baseline_images=['no_interpolation_origin'], remove_text=True)
+
+@image_comparison(baseline_images=['no_interpolation_origin'],
+                  remove_text=True)
 def test_no_interpolation_origin():
     fig = plt.figure()
     ax = fig.add_subplot(211)
-    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower", interpolation='none')
+    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower",
+              interpolation='none')
 
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
+
 
 @image_comparison(baseline_images=['image_shift'], remove_text=True,
                   extensions=['pdf', 'svg'])
@@ -307,16 +335,15 @@ def test_image_shift():
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
 
+
 def test_image_edges():
     f = plt.figure(figsize=[1, 1])
     ax = f.add_axes([0, 0, 1, 1], frameon=False)
 
     data = np.tile(np.arange(12), 15).reshape(20, 9)
 
-    im = ax.imshow(data, origin='upper',
-                   extent=[-10, 10, -10, 10], interpolation='none',
-                   cmap='gray'
-                   )
+    im = ax.imshow(data, origin='upper', extent=[-10, 10, -10, 10],
+                   interpolation='none', cmap='gray')
 
     x = y = 2
     ax.set_xlim([-x, x])
@@ -336,7 +363,10 @@ def test_image_edges():
 
     assert g != 100, 'Expected a non-green edge - but sadly, it was.'
 
-@image_comparison(baseline_images=['image_composite_background'], remove_text=True)
+
+@image_comparison(baseline_images=['image_composite_background'],
+                  remove_text=True,
+                  style='mpl20')
 def test_image_composite_background():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -346,7 +376,9 @@ def test_image_composite_background():
     ax.set_facecolor((1, 0, 0, 0.5))
     ax.set_xlim([0, 12])
 
-@image_comparison(baseline_images=['image_composite_alpha'], remove_text=True)
+
+@image_comparison(baseline_images=['image_composite_alpha'],
+                  remove_text=True)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -372,13 +404,15 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
-@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], remove_text=True)
+@image_comparison(baseline_images=['rasterize_10dpi'],
+                  extensions=['pdf', 'svg'],
+                  remove_text=True, style='mpl20')
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
     # It plots a rasterized line and a normal image with implot. So it will catch
     # when images end up in the wrong place in case of non-standard dpi setting.
     # Instead of high-res rasterization i use low-res.  Therefore the fact that the
-    # resolution is non-standard is is easily checked by image_comparison.
+    # resolution is non-standard is easily checked by image_comparison.
     import numpy as np
     import matplotlib.pyplot as plt
 
@@ -405,7 +439,8 @@ def test_rasterize_dpi():
     rcParams['savefig.dpi'] = 10
 
 
-@image_comparison(baseline_images=['bbox_image_inverted'], remove_text=True)
+@image_comparison(baseline_images=['bbox_image_inverted'], remove_text=True,
+                  style='mpl20')
 def test_bbox_image_inverted():
     # This is just used to produce an image to feed to BboxImage
     image = np.arange(100).reshape((10, 10))
@@ -433,8 +468,8 @@ def test_get_window_extent_for_AxisImage():
     # object at a given location and check that get_window_extent()
     # returns the correct bounding box values (in pixels).
 
-    im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4], \
-        [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
+    im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4],
+                   [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
     fig = plt.figure(figsize=(10, 10), dpi=100)
     ax = plt.subplot()
     ax.set_position([0, 0, 1, 1])
@@ -451,7 +486,8 @@ def test_get_window_extent_for_AxisImage():
 
 @image_comparison(baseline_images=['zoom_and_clip_upper_origin'],
                   remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'],
+                  style='mpl20')
 def test_zoom_and_clip_upper_origin():
     image = np.arange(100)
     image = image.reshape((10, 10))
@@ -495,11 +531,10 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185, 'num colors: %d' % (num_colors, )
-    # The fully transparent part should be red, not white or black
-    # or anything else
+    assert 175 <= num_colors <= 185
+    # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
-    assert corner_pixel == (254, 0, 0), "corner pixel: %r" % (corner_pixel, )
+    assert corner_pixel == (254, 0, 0)
 
 
 def test_nonuniformimage_setdata():
@@ -542,6 +577,12 @@ def test_pcolorimage_setdata():
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
 
 
+def test_pcolorimage_extent():
+    im = plt.hist2d([1, 2, 3], [3, 5, 6],
+                    bins=[[0, 3, 7], [1, 2, 3]])[-1]
+    assert im.get_extent() == (0, 7, 1, 3)
+
+
 def test_minimized_rasterized():
     # This ensures that the rasterized content in the colorbars is
     # only as thick as the colorbar, and doesn't extend to other parts
@@ -579,12 +620,13 @@ def test_minimized_rasterized():
 def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
-    Z = plt.imread(req)
+    plt.imread(req)
 
 
 @image_comparison(baseline_images=['log_scale_image'],
                   remove_text=True)
-def test_log_scale_image():
+# The recwarn fixture captures a warning in image_comparison.
+def test_log_scale_image(recwarn):
     Z = np.zeros((10, 10))
     Z[::2] = 1
 
@@ -596,15 +638,15 @@ def test_log_scale_image():
     ax.set_yscale('log')
 
 
-
 @image_comparison(baseline_images=['rotate_image'],
                   remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = Z2 - Z1  # difference of Gaussians
 
     fig, ax1 = plt.subplots(1, 1)
@@ -629,7 +671,7 @@ def test_image_preserve_size():
     buff = io.BytesIO()
 
     im = np.zeros((481, 321))
-    plt.imsave(buff, im)
+    plt.imsave(buff, im, format="png")
 
     buff.seek(0)
     img = plt.imread(buff)
@@ -665,8 +707,9 @@ def test_mask_image_over_under():
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
     palette = copy(plt.cm.gray)
@@ -705,7 +748,7 @@ def test_mask_image():
 
     ax1.imshow(A, interpolation='nearest')
 
-    A = np.zeros((5, 5), dtype=np.bool)
+    A = np.zeros((5, 5), dtype=bool)
     A[1:2, 1:2] = True
     A = np.ma.masked_array(np.ones((5, 5), dtype=np.uint16), A)
 
@@ -729,7 +772,7 @@ def test_imshow_endianess():
 
 
 @image_comparison(baseline_images=['imshow_masked_interpolation'],
-                  remove_text=True, style='default')
+                  remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
     cm = copy(plt.get_cmap('viridis'))
@@ -744,7 +787,8 @@ def test_imshow_masked_interpolation():
     data = np.arange(N*N, dtype='float').reshape(N, N)
 
     data[5, 5] = -1
-
+    # This will cause crazy ringing for the higher-order
+    # interpolations
     data[15, 5] = 1e5
 
     # data[3, 3] = np.nan
@@ -757,6 +801,7 @@ def test_imshow_masked_interpolation():
     data = np.ma.masked_array(data, mask)
 
     fig, ax_grid = plt.subplots(3, 6)
+
     for interp, ax in zip(sorted(mimage._interpd_), ax_grid.ravel()):
         ax.set_title(interp)
         ax.imshow(data, norm=n, cmap=cm, interpolation=interp)
@@ -770,9 +815,61 @@ def test_imshow_no_warn_invalid():
     assert len(warns) == 0
 
 
-def test_empty_imshow():
+@pytest.mark.parametrize(
+    'dtype', [np.dtype(s) for s in 'u2 u4 i2 i4 i8 f4 f8'.split()])
+def test_imshow_clips_rgb_to_valid_range(dtype):
+    arr = np.arange(300, dtype=dtype).reshape((10, 10, 3))
+    if dtype.kind != 'u':
+        arr -= 10
+    too_low = arr < 0
+    too_high = arr > 255
+    if dtype.kind == 'f':
+        arr = arr / 255
+    _, ax = plt.subplots()
+    out = ax.imshow(arr).get_array()
+    assert (out[too_low] == 0).all()
+    if dtype.kind == 'f':
+        assert (out[too_high] == 1).all()
+        assert out.dtype.kind == 'f'
+    else:
+        assert (out[too_high] == 255).all()
+        assert out.dtype == np.uint8
+
+
+@image_comparison(baseline_images=['imshow_flatfield'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_flatfield():
     fig, ax = plt.subplots()
-    im = ax.imshow([[]])
+    im = ax.imshow(np.ones((5, 5)))
+    im.set_clim(.5, 1.5)
+
+
+@image_comparison(baseline_images=['imshow_bignumbers'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_bignumbers():
+    # putting a big number in an array of integers shouldn't
+    # ruin the dynamic range of the resolved bits.
+    fig, ax = plt.subplots()
+    img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
+    pc = ax.imshow(img)
+    pc.set_clim(0, 5)
+    plt.show()
+
+
+@pytest.mark.parametrize(
+    "make_norm",
+    [colors.Normalize,
+     colors.LogNorm,
+     lambda: colors.SymLogNorm(1),
+     lambda: colors.PowerNorm(1)])
+def test_empty_imshow(make_norm):
+    fig, ax = plt.subplots()
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", "Attempting to set identical left==right")
+        im = ax.imshow([[]], norm=make_norm())
     im.set_extent([-5, 5, -5, 5])
     fig.canvas.draw()
 
@@ -783,3 +880,53 @@ def test_empty_imshow():
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
+
+
+def test_imshow_bool():
+    fig, ax = plt.subplots()
+    ax.imshow(np.array([[True, False], [False, True]], dtype=bool))
+
+
+def test_imshow_deprecated_interd_warn():
+    im = plt.imshow([[1, 2], [3, np.nan]])
+    for k in ('_interpd', '_interpdr', 'iterpnames'):
+        with warnings.catch_warnings(record=True) as warns:
+            getattr(im, k)
+        assert len(warns) == 1
+
+
+def test_full_invalid():
+    x = np.ones((10, 10))
+    x[:] = np.nan
+
+    f, ax = plt.subplots()
+    ax.imshow(x)
+
+    f.canvas.draw()
+
+
+@pytest.mark.parametrize("fmt,counted",
+                         [("ps", b" colorimage"), ("svg", b"<image")])
+@pytest.mark.parametrize("composite_image,count", [(True, 1), (False, 2)])
+def test_composite(fmt, counted, composite_image, count):
+    # Test that figures can be saved with and without combining multiple images
+    # (on a single set of axes) into a single composite image.
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y ** 2)
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim(0, 3)
+    ax.imshow(Z, extent=[0, 1, 0, 1])
+    ax.imshow(Z[::-1], extent=[2, 3, 0, 1])
+    plt.rcParams['image.composite_image'] = composite_image
+    buf = io.BytesIO()
+    fig.savefig(buf, format=fmt)
+    assert buf.getvalue().count(counted) == count
+
+
+def test_relim():
+    fig, ax = plt.subplots()
+    ax.imshow([[0]], extent=(0, 1, 0, 1))
+    ax.relim()
+    ax.autoscale()
+    assert ax.get_xlim() == ax.get_ylim() == (0, 1)

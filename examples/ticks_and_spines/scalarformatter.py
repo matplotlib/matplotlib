@@ -15,7 +15,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import ScalarFormatter
 
+###############################################################################
 # Example 1
+
 x = np.arange(0, 1, .01)
 fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
 fig.text(0.5, 0.975, 'The new formatter, default settings',
@@ -40,7 +42,9 @@ ax4.yaxis.set_major_formatter(ScalarFormatter())
 
 fig.subplots_adjust(wspace=0.7, hspace=0.6)
 
+###############################################################################
 # Example 2
+
 x = np.arange(0, 1, .01)
 fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
 fig.text(0.5, 0.975, 'The new formatter, no numerical offset',
@@ -65,7 +69,9 @@ ax4.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
 
 fig.subplots_adjust(wspace=0.7, hspace=0.6)
 
+###############################################################################
 # Example 3
+
 x = np.arange(0, 1, .01)
 fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
 fig.text(0.5, 0.975, 'The new formatter, with mathtext',

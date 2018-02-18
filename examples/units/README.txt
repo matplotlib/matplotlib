@@ -2,8 +2,8 @@
 
 .. _units-examples-index:
 
-Units in Matplotlib
-===================
+Units
+=====
 
 These examples cover the many representations of units
 in Matplotlib.

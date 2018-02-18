@@ -3,48 +3,26 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os, sys
-def fn_name(): return sys._getframe(1).f_code.co_name
-
-try:
-    import gi
-except ImportError:
-    raise ImportError("Gtk3 backend requires pygobject to be installed.")
-
-try:
-    gi.require_version("Gtk", "3.0")
-except AttributeError:
-    raise ImportError(
-        "pygobject version too old -- it must have require_version")
-except ValueError:
-    raise ImportError(
-        "Gtk3 backend requires the GObject introspection bindings for Gtk 3 "
-        "to be installed.")
-
-try:
-    from gi.repository import Gtk, Gdk, GObject, GLib
-except ImportError:
-    raise ImportError("Gtk3 backend requires pygobject to be installed.")
+import logging
+import os
+import sys
 
 import matplotlib
+from matplotlib import backend_tools, rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
-                                      StatusbarBase)
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
-from matplotlib import backend_tools
-
-from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from ._gtk3_compat import GLib, GObject, Gtk, Gdk
 
-from matplotlib import cbook, colors as mcolors, lines, verbose, rcParams
 
-backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
+_log = logging.getLogger(__name__)
 
-_debug = False
-#_debug = True
+backend_version = "%s.%s.%s" % (
+    Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -55,23 +33,8 @@ cursord = {
     cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
     cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
     cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+    cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
-
-def draw_if_interactive():
-    """
-    Is called after every pylab drawing command
-    """
-    if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
-class Show(ShowBase):
-    def mainloop(self):
-        if Gtk.main_level() == 0:
-            Gtk.main()
-
-show = Show()
 
 
 class TimerGTK3(TimerBase):
@@ -119,7 +82,8 @@ class TimerGTK3(TimerBase):
             self._timer = None
             return False
 
-class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
+
+class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -185,12 +149,10 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                   Gdk.EventMask.SCROLL_MASK)
 
     def __init__(self, figure):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         GObject.GObject.__init__(self)
 
         self._idle_draw_id  = 0
-        self._need_redraw   = True
         self._lastCursor    = None
 
         self.connect('scroll_event',         self.scroll_event)
@@ -219,7 +181,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
             GLib.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
@@ -231,7 +192,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
@@ -239,7 +199,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
@@ -247,21 +206,16 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return True  # stop event propagation
 
     def key_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         if event.is_hint:
             t, x, y, state = event.window.get_pointer()
         else:
@@ -279,9 +233,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.enter_notify_event(self, event)
 
     def size_allocate(self, widget, allocation):
-        if _debug:
-            print("FigureCanvasGTK3.%s" % fn_name())
-            print("size_allocate (%d x %d)" % (allocation.width, allocation.height))
         dpival = self.figure.dpi
         winch = allocation.width / dpival
         hinch = allocation.height / dpival
@@ -309,18 +260,14 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return key
 
     def configure_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         if widget.get_property("window") is None:
             return
         w, h = event.width, event.height
         if w < 3 or h < 3:
             return # empty fig
-
         # resize the figure (in inches)
         dpi = self.figure.dpi
         self.figure.set_size_inches(w/dpi, h/dpi, forward=False)
-        self._need_redraw = True
-
         return False  # finish event propagation?
 
     def on_draw_event(self, widget, ctx):
@@ -328,7 +275,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         pass
 
     def draw(self):
-        self._need_redraw = True
         if self.get_visible() and self.get_mapped():
             self.queue_draw()
             # do a synchronous draw (its less efficient than an async draw,
@@ -369,14 +315,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         Gdk.flush()
         Gdk.threads_leave()
 
-    def start_event_loop(self,timeout):
-        FigureCanvasBase.start_event_loop_default(self,timeout)
-    start_event_loop.__doc__=FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
-
 
 class FigureManagerGTK3(FigureManagerBase):
     """
@@ -395,7 +333,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = Gtk.Window()
@@ -411,7 +348,7 @@ class FigureManagerGTK3(FigureManagerBase):
             # all, so I am not sure how to catch it.  I am unhappy
             # doing a blanket catch here, but am not sure what a
             # better way is - JDH
-            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+            _log.info('Could not load matplotlib icon: %s', sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
@@ -468,16 +405,15 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.grab_focus()
 
     def destroy(self, *args):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
 
-        if Gcf.get_num_fig_managers()==0 and \
-               not matplotlib.is_interactive() and \
-               Gtk.main_level() >= 1:
+        if (Gcf.get_num_fig_managers() == 0 and
+                not matplotlib.is_interactive() and
+                Gtk.main_level() >= 1):
             Gtk.main_quit()
 
     def show(self):
@@ -497,7 +433,7 @@ class FigureManagerGTK3(FigureManagerBase):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK3 (self.canvas, self.window)
+            toolbar = NavigationToolbar2GTK3(self.canvas, self.window)
         elif rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarGTK3(self.toolmanager)
         else:
@@ -505,7 +441,7 @@ class FigureManagerGTK3(FigureManagerBase):
         return toolbar
 
     def _get_toolmanager(self):
-        # must be initialised after toolbar has been setted
+        # must be initialised after toolbar has been set
         if rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
@@ -538,15 +474,11 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
-        #self.canvas.set_cursor(cursord[cursor])
+        Gtk.main_iteration()
 
     def release(self, event):
         try: del self._pixmapBack
         except AttributeError: pass
-
-    def dynamic_update(self):
-        # legacy method; new method is canvas.draw_idle
-        self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
@@ -603,7 +535,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
-            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
+            path=os.path.expanduser(rcParams['savefig.directory']),
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
         fc.set_current_name(self.canvas.get_default_filename())
@@ -614,15 +546,13 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         fname, format = chooser.get_filename_from_user()
         chooser.destroy()
         if fname:
-            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
+            startpath = os.path.expanduser(rcParams['savefig.directory'])
+            # Save dir for next time, unless empty str (i.e., use cwd).
+            if startpath != "":
+                rcParams['savefig.directory'] = (
+                    os.path.dirname(six.text_type(fname)))
             try:
-                self.canvas.print_figure(fname, format=format)
+                self.canvas.figure.savefig(fname, format=format)
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
@@ -764,6 +694,7 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
+    _icon_extension = '.png'
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
@@ -856,7 +787,7 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
         fc = FileChooserDialog(
             title='Save the figure',
             parent=self.figure.canvas.manager.window,
-            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
+            path=os.path.expanduser(rcParams['savefig.directory']),
             filetypes=self.figure.canvas.get_supported_filetypes(),
             default_filetype=self.figure.canvas.get_default_filetype())
         fc.set_current_name(self.figure.canvas.get_default_filename())
@@ -867,8 +798,7 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
         fname, format_ = chooser.get_filename_from_user()
         chooser.destroy()
         if fname:
-            startpath = os.path.expanduser(
-                rcParams.get('savefig.directory', ''))
+            startpath = os.path.expanduser(rcParams['savefig.directory'])
             if startpath == '':
                 # explicitly missing key or empty str signals to use cwd
                 rcParams['savefig.directory'] = startpath
@@ -945,7 +875,8 @@ if sys.platform == 'win32':
     icon_filename = 'matplotlib.png'
 else:
     icon_filename = 'matplotlib.svg'
-window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+window_icon = os.path.join(
+    matplotlib.rcParams['datapath'], 'images', icon_filename)
 
 
 def error_msg_gtk(msg, parent=None):
@@ -955,7 +886,7 @@ def error_msg_gtk(msg, parent=None):
             parent = None
 
     if not isinstance(msg, six.string_types):
-        msg = ','.join(map(str,msg))
+        msg = ','.join(map(str, msg))
 
     dialog = Gtk.MessageDialog(
         parent         = parent,
@@ -972,5 +903,18 @@ backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
-FigureCanvas = FigureCanvasGTK3
-FigureManager = FigureManagerGTK3
+
+
+@_Backend.export
+class _BackendGTK3(_Backend):
+    FigureCanvas = FigureCanvasGTK3
+    FigureManager = FigureManagerGTK3
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @staticmethod
+    def mainloop():
+        if Gtk.main_level() == 0:
+            Gtk.main()

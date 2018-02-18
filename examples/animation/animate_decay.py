@@ -3,9 +3,10 @@
 Decay
 =====
 
-This example showcases a sinusoidal decay animation.
+This example showcases:
+- using a generator to drive an animation,
+- changing axes limits during an animation.
 """
-
 
 import numpy as np
 import matplotlib.pyplot as plt

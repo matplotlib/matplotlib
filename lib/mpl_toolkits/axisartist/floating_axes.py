@@ -8,25 +8,22 @@ import six
 from six.moves import zip
 
 # TODO :
+# see if tick_iterator method can be simplified by reusing the parent method.
 
-# *. see if tick_iterator method can be simplified by reusing the parent method.
-
-from itertools import chain
-from .grid_finder import GridFinder
-
-from  .axislines import AxisArtistHelper, GridHelperBase
-from  .axis_artist import AxisArtist
-from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
-
+from matplotlib.transforms import Affine2D, IdentityTransform
 from . import grid_helper_curvelinear
+from .axislines import AxisArtistHelper, GridHelperBase
+from .axis_artist import AxisArtist
+from .grid_finder import GridFinder
+
 
 class FloatingAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
     pass
 
-class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
+class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
     def __init__(self, grid_helper, side, nth_coord_ticks=None):
         """
@@ -140,12 +137,12 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
-            xx00 = xx0.copy()
+            xx00 = xx0.astype(float, copy=True)
             xx00[xx0+dx>xmax] -= dx
             xx1a, yy1a = transform_xy(xx00, yy0)
             xx1b, yy1b = transform_xy(xx00+dx, yy0)
 
-            yy00 = yy0.copy()
+            yy00 = yy0.astype(float, copy=True)
             yy00[yy0+dy>ymax] -= dy
             xx2a, yy2a = transform_xy(xx0, yy00)
             xx2b, yy2b = transform_xy(xx0, yy00+dy)
@@ -161,12 +158,12 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx1, yy1 = transform_xy(xx0, yy0)
 
 
-            yy00 = yy0.copy()
+            yy00 = yy0.astype(float, copy=True)
             yy00[yy0+dy>ymax] -= dy
             xx1a, yy1a = transform_xy(xx0, yy00)
             xx1b, yy1b = transform_xy(xx0, yy00+dy)
 
-            xx00 = xx0.copy()
+            xx00 = xx0.astype(float, copy=True)
             xx00[xx0+dx>xmax] -= dx
             xx2a, yy2a = transform_xy(xx00, yy0)
             xx2b, yy2b = transform_xy(xx00+dx, yy0)
@@ -214,7 +211,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     top=("lat_lines0", 1))[self._side]
 
         xx, yy = self.grid_info[k][v]
-        return Path(list(zip(xx, yy)))
+        return Path(np.column_stack([xx, yy]))
 
 
 
@@ -545,179 +542,3 @@ FloatingAxes = floatingaxes_class_factory(host_axes_class_factory(Axes))
 
 import matplotlib.axes as maxes
 FloatingSubplot = maxes.subplot_class_factory(FloatingAxes)
-
-# def test(fig):
-#     from mpl_toolkits.axes_grid.axislines import Subplot
-#     ax = Subplot(fig, 111)
-
-#     fig.add_subplot(ax)
-
-#     plt.draw()
-
-
-def curvelinear_test3(fig):
-    """
-    polar projection, but in a rectangular box.
-    """
-    global ax1, axis
-    import numpy as np
-    from . import angle_helper
-    from matplotlib.projections import PolarAxes
-
-    # PolarAxes.PolarTransform takes radian. However, we want our coordinate
-    # system in degree
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
-
-    # polar projection, which involves cycle, and also has limits in
-    # its coordinates, needs a special method to find the extremes
-    # (min, max of the coordinate within the view).
-
-
-    grid_locator1 = angle_helper.LocatorDMS(15)
-    # Find a grid values appropriate for the coordinate (degree,
-    # minute, second).
-
-    tick_formatter1 = angle_helper.FormatterDMS()
-    # And also uses an appropriate formatter.  Note that,the
-    # acceptable Locator and Formatter class is a bit different than
-    # that of mpl's, and you cannot directly use mpl's Locator and
-    # Formatter here (but may be possible in the future).
-
-    from .grid_finder import FixedLocator
-    grid_locator2 = FixedLocator([2, 4, 6, 8, 10])
-
-
-    grid_helper = GridHelperCurveLinear(tr,
-                                        extremes=(0, 360, 10, 3),
-                                        grid_locator1=grid_locator1,
-                                        grid_locator2=grid_locator2,
-                                        tick_formatter1=tick_formatter1,
-                                        tick_formatter2=None,
-                                        )
-
-    ax1 = FloatingSubplot(fig, 111, grid_helper=grid_helper)
-
-
-    #ax1.axis["top"].set_visible(False)
-    #ax1.axis["bottom"].major_ticklabels.set_axis_direction("top")
-
-    fig.add_subplot(ax1)
-
-
-    #ax1.grid(True)
-
-
-    r_scale = 10.
-    tr2 = Affine2D().scale(1., 1./r_scale) + tr
-    grid_locator2 = FixedLocator([30, 60, 90])
-    grid_helper2 = GridHelperCurveLinear(tr2,
-                                        extremes=(0, 360,
-                                                  10.*r_scale, 3.*r_scale),
-                                        grid_locator2=grid_locator2,
-                                        )
-
-    ax1.axis["right"] = axis = grid_helper2.new_fixed_axis("right", axes=ax1)
-
-    ax1.axis["left"].label.set_text("Test 1")
-    ax1.axis["right"].label.set_text("Test 2")
-
-
-    for an in [ "left", "right"]:
-        ax1.axis[an].set_visible(False)
-
-
-    #grid_helper2 = ax1.get_grid_helper()
-    ax1.axis["z"] = axis = grid_helper.new_floating_axis(1, 7,
-                                                         axes=ax1,
-                                                         axis_direction="bottom")
-    axis.toggle(all=True, label=True)
-    #axis.label.set_axis_direction("top")
-    axis.label.set_text("z = ?")
-    axis.label.set_visible(True)
-    axis.line.set_color("0.5")
-    #axis.label.set_visible(True)
-
-
-    ax2 = ax1.get_aux_axes(tr)
-
-    xx, yy = [67, 90, 75, 30], [2, 5, 8, 4]
-    ax2.scatter(xx, yy)
-    l, = ax2.plot(xx, yy, "k-")
-    l.set_clip_path(ax1.patch)
-
-
-def curvelinear_test4(fig):
-    """
-    polar projection, but in a rectangular box.
-    """
-    global ax1, axis
-    import numpy as np
-    from . import angle_helper
-    from matplotlib.projections import PolarAxes
-
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
-
-    grid_locator1 = angle_helper.LocatorDMS(5)
-    tick_formatter1 = angle_helper.FormatterDMS()
-
-    from .grid_finder import FixedLocator
-    grid_locator2 = FixedLocator([2, 4, 6, 8, 10])
-
-    grid_helper = GridHelperCurveLinear(tr,
-                                        extremes=(120, 30, 10, 0),
-                                        grid_locator1=grid_locator1,
-                                        grid_locator2=grid_locator2,
-                                        tick_formatter1=tick_formatter1,
-                                        tick_formatter2=None,
-                                        )
-
-    ax1 = FloatingSubplot(fig, 111, grid_helper=grid_helper)
-
-
-    #ax1.axis["top"].set_visible(False)
-    #ax1.axis["bottom"].major_ticklabels.set_axis_direction("top")
-
-    fig.add_subplot(ax1)
-
-
-    #ax1.grid(True)
-
-
-    ax1.axis["left"].label.set_text("Test 1")
-    ax1.axis["right"].label.set_text("Test 2")
-
-
-    for an in [ "top"]:
-        ax1.axis[an].set_visible(False)
-
-
-    #grid_helper2 = ax1.get_grid_helper()
-    ax1.axis["z"] = axis = grid_helper.new_floating_axis(1, 70,
-                                                         axes=ax1,
-                                                         axis_direction="bottom")
-    axis.toggle(all=True, label=True)
-    axis.label.set_axis_direction("top")
-    axis.label.set_text("z = ?")
-    axis.label.set_visible(True)
-    axis.line.set_color("0.5")
-    #axis.label.set_visible(True)
-
-
-    ax2 = ax1.get_aux_axes(tr)
-
-    xx, yy = [67, 90, 75, 30], [2, 5, 8, 4]
-    ax2.scatter(xx, yy)
-    l, = ax2.plot(xx, yy, "k-")
-    l.set_clip_path(ax1.patch)
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1, figsize=(5, 5))
-    fig.clf()
-
-    #test(fig)
-    #curvelinear_test1(fig)
-    curvelinear_test4(fig)
-
-    #plt.draw()
-    plt.show()

@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -111,6 +110,7 @@ math_tests = [
     r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
     r'$\left(X\right)_{a}^{b}$', # github issue 7615
+    r'$\dfrac{\$100.00}{y}$', # github issue #1888
 ]
 
 digits = "0123456789"
@@ -167,9 +167,6 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-# See #7911 for why these tests are flaky and #7107 for why they are not so
-# easy to fix.
-@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
                          ids=[str(index) for index in range(len(math_tests))])
 @pytest.mark.parametrize('fontset',
@@ -184,9 +181,6 @@ def test_mathtext_rendering(baseline_images, fontset, index, test):
              horizontalalignment='center', verticalalignment='center')
 
 
-# See #7911 for why these tests are flaky and #7107 for why they are not so
-# easy to fix.
-@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('index, test', enumerate(font_tests),
                          ids=[str(index) for index in range(len(font_tests))])
 @pytest.mark.parametrize('fontset',
@@ -233,6 +227,8 @@ def test_fontinfo():
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),
         (r'$\left($', r'Expected "\right"'),
+        (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
+        (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
     ],
     ids=[
         'hspace without value',
@@ -253,6 +249,8 @@ def test_fontinfo():
         'right with invalid delimiter',
         'unclosed parentheses with sizing',
         'unclosed parentheses without sizing',
+        'dfrac without parameters',
+        'dfrac with empty parameters',
     ]
 )
 def test_mathtext_exceptions(math, msg):

@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 import itertools
 import pickle
 from weakref import ref
@@ -29,16 +28,18 @@ def test_is_hashable():
 
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
-    d1 = cbook.restrict_dict(d, ['foo', 1])
-    assert d1 == d
-    d2 = cbook.restrict_dict(d, ['bar', 2])
-    assert d2 == {}
-    d3 = cbook.restrict_dict(d, {'foo': 1})
-    assert d3 == {'foo': 'bar'}
-    d4 = cbook.restrict_dict(d, {})
-    assert d4 == {}
-    d5 = cbook.restrict_dict(d, {'foo', 2})
-    assert d5 == {'foo': 'bar'}
+    with pytest.warns(cbook.deprecation.MatplotlibDeprecationWarning) as rec:
+        d1 = cbook.restrict_dict(d, ['foo', 1])
+        assert d1 == d
+        d2 = cbook.restrict_dict(d, ['bar', 2])
+        assert d2 == {}
+        d3 = cbook.restrict_dict(d, {'foo': 1})
+        assert d3 == {'foo': 'bar'}
+        d4 = cbook.restrict_dict(d, {})
+        assert d4 == {}
+        d5 = cbook.restrict_dict(d, {'foo', 2})
+        assert d5 == {'foo': 'bar'}
+    assert len(rec) == 5
     # check that d was not modified
     assert d == {'foo': 'bar', 1: 2}
 
@@ -262,6 +263,45 @@ class Test_callback_registry(object):
                        "callbacks")
 
 
+def raising_cb_reg(func):
+    class TestException(Exception):
+        pass
+
+    def raising_function():
+        raise RuntimeError
+
+    def transformer(excp):
+        if isinstance(excp, RuntimeError):
+            raise TestException
+        raise excp
+
+    # default behavior
+    cb = cbook.CallbackRegistry()
+    cb.connect('foo', raising_function)
+
+    # old default
+    cb_old = cbook.CallbackRegistry(exception_handler=None)
+    cb_old.connect('foo', raising_function)
+
+    # filter
+    cb_filt = cbook.CallbackRegistry(exception_handler=transformer)
+    cb_filt.connect('foo', raising_function)
+
+    return pytest.mark.parametrize('cb, excp',
+                                   [[cb, None],
+                                    [cb_old, RuntimeError],
+                                    [cb_filt, TestException]])(func)
+
+
+@raising_cb_reg
+def test_callbackregistry_process_exception(cb, excp):
+    if excp is not None:
+        with pytest.raises(excp):
+            cb.process('foo')
+    else:
+        cb.process('foo')
+
+
 def test_sanitize_sequence():
     d = {'a': 1, 'b': 2, 'c': 3}
     k = ['a', 'b', 'c']
@@ -351,6 +391,11 @@ def test_to_prestep():
     assert_array_equal(y1_target, y1s)
 
 
+def test_to_prestep_empty():
+    steps = cbook.pts_to_prestep([], [])
+    assert steps.shape == (2, 0)
+
+
 def test_to_poststep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -371,6 +416,11 @@ def test_to_poststep():
     assert_array_equal(y1_target, y1s)
 
 
+def test_to_poststep_empty():
+    steps = cbook.pts_to_poststep([], [])
+    assert steps.shape == (2, 0)
+
+
 def test_to_midstep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -389,6 +439,11 @@ def test_to_midstep():
     xs, y1s = cbook.pts_to_midstep(x, y1)
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
+
+
+def test_to_midstep_empty():
+    steps = cbook.pts_to_midstep([], [])
+    assert steps.shape == (2, 0)
 
 
 @pytest.mark.parametrize(

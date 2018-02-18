@@ -6,8 +6,11 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os
+import logging
 import sys
-from matplotlib import rcParams, verbose
+from matplotlib import rcParams
+
+_log = logging.getLogger(__name__)
 
 # Available APIs.
 QT_API_PYQT = 'PyQt4'       # API is not set here; Python 2.x default is V 1
@@ -80,16 +83,16 @@ _fallback_to_qt4 = False
 if QT_API is None:
     # No ETS environment or incompatible so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
-        QT_API = rcParams['backend.qt5']
+        QT_API = QT_API_PYQT5
     elif rcParams['backend'] == 'Qt4Agg':
-        QT_API = rcParams['backend.qt4']
+        QT_API = QT_API_PYQT
     else:
         # A non-Qt backend was specified, no version of the Qt
         # bindings is imported, but we still got here because a Qt
         # related file was imported. This is allowed, fall back to Qt5
         # using which ever binding the rparams ask for.
         _fallback_to_qt4 = True
-        QT_API = rcParams['backend.qt5']
+        QT_API = QT_API_PYQT5
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
@@ -111,7 +114,7 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYQT5):
             QT_API = QT_API_PYSIDE
         cond = ("Could not import sip; falling back on PySide\n"
                 "in place of PyQt4 or PyQt5.\n")
-        verbose.report(cond, 'helpful')
+        _log.info(cond)
 
 if _sip_imported:
     if QT_API == QT_API_PYQTv2:
@@ -124,14 +127,14 @@ if _sip_imported:
             sip.setapi('QString', 2)
         except:
             res = 'QString API v2 specification failed. Defaulting to v1.'
-            verbose.report(cond + res, 'helpful')
+            _log.info(cond + res)
             # condition has now been reported, no need to repeat it:
             cond = ""
         try:
             sip.setapi('QVariant', 2)
         except:
             res = 'QVariant API v2 specification failed. Defaulting to v1.'
-            verbose.report(cond + res, 'helpful')
+            _log.info(cond + res)
     if QT_API == QT_API_PYQT5:
         try:
             from PyQt5 import QtCore, QtGui, QtWidgets
@@ -139,7 +142,7 @@ if _sip_imported:
         except ImportError:
             if _fallback_to_qt4:
                 # fell through, tried PyQt5, failed fall back to PyQt4
-                QT_API = rcParams['backend.qt4']
+                QT_API = QT_API_PYQT
                 QT_RC_MAJOR_VERSION = 4
             else:
                 raise
@@ -190,7 +193,6 @@ if QT_API == QT_API_PYSIDE2:
         _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
     except ImportError:
         # tried PySide2, failed, fall back to PySide
-        QT_API = rcParams['backend.qt4']
         QT_RC_MAJOR_VERSION = 4
         QT_API = QT_API_PYSIDE
 

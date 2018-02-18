@@ -117,8 +117,8 @@ New eventplot plot type
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
 create multiple rows or columns of identical line segments
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_eventplot_demo_001.png
-   :target: ../../gallery/pylab_examples/eventplot_demo.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_eventplot_demo_001.png
+   :target: ../../gallery/lines_bars_and_markers/eventplot_demo.html
    :align: center
    :scale: 50
 
@@ -141,8 +141,8 @@ perform mesh refinement and smooth contouring was also added
 implementing some basic tools for triangular mesh improvement was
 added (:class:`~matplotlib.tri.TriAnalyzer`).
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_tricontour_smooth_user_001.png
-   :target: ../../gallery/pylab_examples/tricontour_smooth_user.html
+.. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_tricontour_smooth_user_001.png
+   :target: ../../gallery/images_contours_and_fields/tricontour_smooth_user.html
    :align: center
    :scale: 50
 
@@ -154,8 +154,8 @@ Till Stensitzki added non-zero baselines to
 :func:`~matplotlib.pyplot.stackplot`.  They may be symmetric or
 weighted.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_stackplot_demo_001.png
-   :target: ../../gallery/pylab_examples/stackplot_demo.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_stackplot_demo_001.png
+   :target: ../../gallery/lines_bars_and_markers/stackplot_demo.html
    :align: center
    :scale: 50
 
@@ -199,8 +199,8 @@ Path effects on lines
 `````````````````````
 Thanks to Jae-Joon Lee, path effects now also work on plot lines.
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_patheffect_demo_001.png
-   :target: ../../gallery/pylab_examples/patheffect_demo.html
+.. figure:: ../../gallery/misc/images/sphx_glr_patheffect_demo_001.png
+   :target: ../../gallery/misc/patheffect_demo.html
    :align: center
    :scale: 50
 
@@ -400,9 +400,3 @@ matplotlib will now display a `RuntimeWarning` when too many figures
 have been opened at once.  By default, this is displayed for 20 or
 more figures, but the exact number may be controlled using the
 ``figure.max_open_warning`` rcParam.
-
-
-
-
-
-

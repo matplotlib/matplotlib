@@ -80,7 +80,7 @@ The base matplotlib namespace includes:
 
     :data:`~matplotlib.rcParams`
         a global dictionary of default configuration settings.  It is
-        initialized by code which may be overridded by a matplotlibrc
+        initialized by code which may be overridden by a matplotlibrc
         file.
 
     :func:`~matplotlib.rc`
@@ -99,30 +99,48 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# to ensure that we error out properly for existing editable installs.
+from __future__ import absolute_import, division, print_function
 
 import six
-import sys
-import distutils.version
-from itertools import chain
 
+import atexit
 from collections import MutableMapping
-import io
-import inspect
-import locale
-import os
-import re
-import tempfile
-import warnings
 import contextlib
+import distutils.version
 import distutils.sysconfig
 import functools
+import io
+import inspect
+import itertools
+import locale
+import logging
+import os
+from pathlib import Path
+import re
+import shutil
+import stat
+import sys
+import tempfile
+import warnings
+
+if sys.version_info < (3, 5):  # noqa: E402
+    raise ImportError("""
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+See Matplotlib `INSTALL.rst` file for more information:
+
+    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
+
+""")
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
 from matplotlib.cbook import (
-    mplDeprecation, dedent, get_label, sanitize_sequence)
+    _backports, mplDeprecation, dedent, get_label, sanitize_sequence)
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
@@ -136,7 +154,9 @@ from ._version import get_versions
 __version__ = str(get_versions()['version'])
 del get_versions
 
-__version__numpy__ = str('1.7.1')  # minimum required numpy version
+_log = logging.getLogger(__name__)
+
+__version__numpy__ = str('1.10.0')  # minimum required numpy version
 
 __bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
@@ -153,10 +173,14 @@ __bibtex__ = r"""@Article{Hunter:2007,
   year      = 2007
 }"""
 
-try:
-    import dateutil
-except ImportError:
-    raise ImportError("matplotlib requires dateutil")
+
+_python27 = (sys.version_info.major == 2 and sys.version_info.minor >= 7)
+_python34 = (sys.version_info.major == 3 and sys.version_info.minor >= 4)
+if not (_python27 or _python34):
+    raise ImportError("Matplotlib requires Python 2.7 or 3.4 or later")
+
+if _python27:
+    _log.addHandler(logging.NullHandler())
 
 
 def compare_versions(a, b):
@@ -173,57 +197,37 @@ def compare_versions(a, b):
     else:
         return False
 
-if not compare_versions(six.__version__, '1.3'):
+
+try:
+    import dateutil
+except ImportError:
+    raise ImportError("Matplotlib requires dateutil")
+
+
+if not compare_versions(six.__version__, '1.10'):
     raise ImportError(
-        'six 1.3 or later is required; you have %s' % (
-            six.__version__))
+        "Matplotlib requires six>=1.10; you have %s" % six.__version__)
+
 
 try:
     import pyparsing
 except ImportError:
-    raise ImportError("matplotlib requires pyparsing")
+    raise ImportError("Matplotlib requires pyparsing")
 else:
-    if not compare_versions(pyparsing.__version__, '1.5.6'):
+    if not compare_versions(pyparsing.__version__, '2.0.1'):
         raise ImportError(
-            "matplotlib requires pyparsing >= 1.5.6")
-
-    # pyparsing 2.0.0 bug, but it may be patched in distributions
-    try:
-        f = pyparsing.Forward()
-        f <<= pyparsing.Literal('a')
-        bad_pyparsing = f is None
-    except TypeError:
-        bad_pyparsing = True
-
-    # pyparsing 1.5.6 does not have <<= on the Forward class, but
-    # pyparsing 2.0.0 and later will spew deprecation warnings if
-    # using << instead.  Additionally, the <<= in pyparsing 1.5.7 is
-    # broken, since it doesn't return self.  In order to support
-    # pyparsing 1.5.6 and above with a common code base, this small
-    # monkey patch is applied.
-    if bad_pyparsing:
-        def _forward_ilshift(self, other):
-            self.__lshift__(other)
-            return self
-        pyparsing.Forward.__ilshift__ = _forward_ilshift
-
-
-if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = [str('modpython')]
-
-
-major, minor1, minor2, s, tmp = sys.version_info
-_python27 = (major == 2 and minor1 >= 7)
-_python34 = (major == 3 and minor1 >= 4)
-
-if not (_python27 or _python34):
-    raise ImportError('matplotlib requires Python 2.7 or 3.4 or later')
+            "Matplotlib requires pyparsing>=2.0.1; you have %s"
+            % pyparsing.__version__)
 
 
 if not compare_versions(numpy.__version__, __version__numpy__):
     raise ImportError(
-        'numpy %s or later is required; you have %s' % (
+        "Matplotlib requires numpy>=%s; you have %s" % (
             __version__numpy__, numpy.__version__))
+
+
+if not hasattr(sys, 'argv'):  # for modpython
+    sys.argv = [str('modpython')]
 
 
 def _is_writable_dir(p):
@@ -231,30 +235,74 @@ def _is_writable_dir(p):
     p is a string pointing to a putative writable dir -- return True p
     is such a string, else False
     """
-    try:
-        p + ''  # test is string like
-    except TypeError:
-        return False
+    return os.access(p, os.W_OK) and os.path.isdir(p)
 
-    # Test whether the operating system thinks it's a writable directory.
-    # Note that this check is necessary on Google App Engine, because the
-    # subsequent check will succeed even though p may not be writable.
-    if not os.access(p, os.W_OK) or not os.path.isdir(p):
-        return False
-
-    # Also test that it is actually possible to write to a file here.
-    try:
-        t = tempfile.TemporaryFile(dir=p)
-        try:
-            t.write(b'1')
-        finally:
-            t.close()
-    except:
-        return False
-
-    return True
+_verbose_msg = """\
+Command line argument --verbose-LEVEL is deprecated.
+This functionality is now provided by the standard
+python logging library.  To get more (or less) logging output:
+    import logging
+    logger = logging.getLogger('matplotlib')
+    logger.set_level(logging.INFO)"""
 
 
+def _set_logger_verbose_level(level_str='silent', file_str='sys.stdout'):
+    """
+    Use a --verbose-LEVEL level to set the logging level:
+
+    """
+    levelmap = {'silent': logging.WARNING, 'helpful': logging.INFO,
+                'debug': logging.DEBUG, 'debug-annoying': logging.DEBUG,
+                'info': logging.INFO, 'warning': logging.WARNING}
+    # Check that current state of logger isn't already more verbose
+    # than the requested level.  If it is more verbose, then leave more
+    # verbose.
+    newlev = levelmap[level_str]
+    oldlev = _log.getEffectiveLevel()
+    if newlev < oldlev:
+        _log.setLevel(newlev)
+        std = {
+            'sys.stdout': sys.stdout,
+            'sys.stderr': sys.stderr,
+        }
+        if file_str in std:
+            fileo = std[file_str]
+        else:
+            fileo = sys.stdout
+            try:
+                fileo = open(file_str, 'w')
+                # if this fails, we will just write to stdout
+            except IOError:
+                warnings.warn('could not open log file "{0}"'
+                              'for writing.  Check your '
+                              'matplotlibrc'.format(file_str))
+        console = logging.StreamHandler(fileo)
+        console.setLevel(newlev)
+        _log.addHandler(console)
+
+
+def _parse_commandline():
+    """
+    Check for --verbose-LEVEL type command line arguments and
+    set logging level appropriately.
+    """
+
+    levels = ('silent', 'helpful', 'debug', 'debug-annoying',
+              'info', 'warning')
+
+    for arg in sys.argv[1:]:
+        if arg.startswith('--verbose-'):
+            level_str = arg[10:]
+            # If it doesn't match one of ours, then don't even
+            # bother noting it, we are just a 3rd-party library
+            # to somebody else's script.
+            if level_str in levels:
+                _set_logger_verbose_level(level_str)
+
+_parse_commandline()
+
+
+@cbook.deprecated("2.2", message=_verbose_msg)
 class Verbose(object):
     """
     A class to handle reporting.  Set the fileo attribute to any file
@@ -268,9 +316,7 @@ class Verbose(object):
     _commandLineVerbose = None
 
     for arg in sys.argv[1:]:
-        # cast to str because we are using unicode_literals,
-        # and argv is always str
-        if not arg.startswith(str('--verbose-')):
+        if not arg.startswith('--verbose-'):
             continue
         level_str = arg[10:]
         # If it doesn't match one of ours, then don't even
@@ -350,7 +396,29 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
-verbose = Verbose()
+def _wrap(fmt, func, level='DEBUG', always=True):
+    """
+    return a callable function that wraps func and reports its
+    output through logger
+
+    if always is True, the report will occur on every function
+    call; otherwise only on the first time the function is called
+    """
+    assert callable(func)
+
+    def wrapper(*args, **kwargs):
+        ret = func(*args, **kwargs)
+
+        if (always or not wrapper._spoke):
+            lvl = logging.getLevelName(level.upper())
+            _log.log(lvl, fmt % ret)
+            spoke = True
+            if not wrapper._spoke:
+                wrapper._spoke = spoke
+        return ret
+    wrapper._spoke = False
+    wrapper.__doc__ = func.__doc__
+    return wrapper
 
 
 def checkdep_dvipng():
@@ -390,6 +458,9 @@ checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
 
 
+# Deprecated, as it is unneeded and some distributions (e.g. MiKTeX 2.9.6350)
+# do not actually report the TeX version.
+@cbook.deprecated("2.1")
 def checkdep_tex():
     try:
         s = subprocess.Popen([str('tex'), '-version'], stdout=subprocess.PIPE,
@@ -459,16 +530,9 @@ def checkdep_ps_distiller(s):
         return False
 
     flag = True
-    gs_req = '7.07'
-    gs_sugg = '7.07'
+    gs_req = '8.60'
     gs_exec, gs_v = checkdep_ghostscript()
-    if compare_versions(gs_v, gs_sugg):
-        pass
-    elif compare_versions(gs_v, gs_req):
-        verbose.report(('ghostscript-%s found. ghostscript-%s or later '
-                        'is recommended to use the ps.usedistiller option.')
-                       % (gs_v, gs_sugg))
-    else:
+    if not compare_versions(gs_v, gs_req):
         flag = False
         warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
                        'unless ghostscript-%s or later is installed on your '
@@ -499,42 +563,28 @@ def checkdep_usetex(s):
     if not s:
         return False
 
-    tex_req = '3.1415'
-    gs_req = '7.07'
-    gs_sugg = '7.07'
-    dvipng_req = '1.5'
+    gs_req = '8.60'
+    dvipng_req = '1.6'
     flag = True
 
-    tex_v = checkdep_tex()
-    if compare_versions(tex_v, tex_req):
-        pass
-    else:
+    if shutil.which("tex") is None:
         flag = False
-        warnings.warn(('matplotlibrc text.usetex option can not be used '
-                       'unless TeX-%s or later is '
-                       'installed on your system') % tex_req)
+        warnings.warn('matplotlibrc text.usetex option can not be used unless '
+                      'TeX is installed on your system')
 
     dvipng_v = checkdep_dvipng()
-    if compare_versions(dvipng_v, dvipng_req):
-        pass
-    else:
+    if not compare_versions(dvipng_v, dvipng_req):
         flag = False
         warnings.warn('matplotlibrc text.usetex can not be used with *Agg '
-                      'backend unless dvipng-1.5 or later is '
-                      'installed on your system')
+                      'backend unless dvipng-%s or later is installed on '
+                      'your system' % dvipng_req)
 
     gs_exec, gs_v = checkdep_ghostscript()
-    if compare_versions(gs_v, gs_sugg):
-        pass
-    elif compare_versions(gs_v, gs_req):
-        verbose.report(('ghostscript-%s found. ghostscript-%s or later is '
-                        'recommended for use with the text.usetex '
-                        'option.') % (gs_v, gs_sugg))
-    else:
+    if not compare_versions(gs_v, gs_req):
         flag = False
-        warnings.warn(('matplotlibrc text.usetex can not be used '
-                       'unless ghostscript-%s or later is '
-                       'installed on your system') % gs_req)
+        warnings.warn('matplotlibrc text.usetex can not be used unless '
+                      'ghostscript-%s or later is installed on your system'
+                      % gs_req)
 
     return flag
 
@@ -546,17 +596,12 @@ def _get_home():
     :see:
         http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
-    try:
-        if six.PY2 and sys.platform == 'win32':
-            path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
-        else:
-            path = os.path.expanduser("~")
-    except ImportError:
-        # This happens on Google App Engine (pwd module is not present).
-        pass
+    if six.PY2 and sys.platform == 'win32':
+        path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
     else:
-        if os.path.isdir(path):
-            return path
+        path = os.path.expanduser("~")
+    if os.path.isdir(path):
+        return path
     for evar in ('HOME', 'USERPROFILE', 'TMP'):
         path = os.environ.get(evar)
         if path is not None and os.path.isdir(path):
@@ -568,21 +613,14 @@ def _create_tmp_config_dir():
     """
     If the config directory can not be created, create a temporary
     directory.
-
-    Returns None if a writable temporary directory could not be created.
     """
-    try:
-        tempdir = tempfile.gettempdir()
-    except NotImplementedError:
-        # Some restricted platforms (such as Google App Engine) do not provide
-        # gettempdir.
-        return None
     configdir = os.environ['MPLCONFIGDIR'] = (
-        tempfile.mkdtemp(prefix='matplotlib-', dir=tempdir))
+        tempfile.mkdtemp(prefix='matplotlib-'))
+    atexit.register(shutil.rmtree, configdir)
     return configdir
 
 
-get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
+get_home = _wrap('$HOME=%s', _get_home, always=False)
 
 
 def _get_xdg_config_dir():
@@ -614,14 +652,10 @@ def _get_xdg_cache_dir():
 
 
 def _get_config_or_cache_dir(xdg_base):
-    from matplotlib.cbook import mkdirs
-
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         configdir = os.path.abspath(configdir)
-        if not os.path.exists(configdir):
-            mkdirs(configdir)
-
+        Path(configdir).mkdir(parents=True, exist_ok=True)
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
@@ -641,7 +675,7 @@ def _get_config_or_cache_dir(xdg_base):
                 return p
         else:
             try:
-                mkdirs(p)
+                Path(p).mkdir(parents=True, exist_ok=True)
             except OSError:
                 pass
             else:
@@ -671,7 +705,7 @@ def _get_configdir():
     """
     return _get_config_or_cache_dir(_get_xdg_config_dir())
 
-get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
+get_configdir = _wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 
 def _get_cachedir():
@@ -683,11 +717,11 @@ def _get_cachedir():
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
-get_cachedir = verbose.wrap('CACHEDIR=%s', _get_cachedir, always=False)
+get_cachedir = _wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _decode_filesystem_path(path):
-    if isinstance(path, bytes):
+    if not isinstance(path, str):
         return path.decode(sys.getfilesystemencoding())
     else:
         return path
@@ -741,8 +775,8 @@ def _get_data_path_cached():
         defaultParams['datapath'][0] = _get_data_path()
     return defaultParams['datapath'][0]
 
-get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached,
-                             always=False)
+get_data_path = _wrap('matplotlib data path %s', _get_data_path_cached,
+                      always=False)
 
 
 def get_py2exe_datafiles():
@@ -751,7 +785,7 @@ def get_py2exe_datafiles():
     d = {}
     for root, _, files in os.walk(datapath):
         # Need to explicitly remove cocoa_agg files or py2exe complains
-        # NOTE I dont know why, but do as previous version
+        # NOTE I don't know why, but do as previous version
         if 'Matplotlib.nib' in files:
             files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
@@ -769,7 +803,8 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - `$MATPLOTLIBRC` if it is a file
+    - `$MATPLOTLIBRC` if it is a file (or a named pipe, which can be created
+      e.g. by process substitution)
 
     - `$MATPLOTLIBRC/matplotlibrc`
 
@@ -804,8 +839,10 @@ def matplotlib_fname():
         yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
-        if os.path.isfile(fname):
-            break
+        if os.path.exists(fname):
+            st_mode = os.stat(fname).st_mode
+            if stat.S_ISREG(st_mode) or stat.S_ISFIFO(st_mode):
+                break
     # Return first candidate that is a file, or last candidate if none is
     # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
@@ -814,32 +851,20 @@ def matplotlib_fname():
 # names of keys to deprecate
 # the values are a tuple of (new_name, f_old_2_new, f_new_2_old)
 # the inverse function may be `None`
-_deprecated_map = {
-    'text.fontstyle':   ('font.style', lambda x: x, None),
-    'text.fontangle':   ('font.style', lambda x: x, None),
-    'text.fontvariant': ('font.variant', lambda x: x, None),
-    'text.fontweight':  ('font.weight', lambda x: x, None),
-    'text.fontsize':    ('font.size', lambda x: x, None),
-    'tick.size':        ('tick.major.size', lambda x: x, None),
-    'svg.embed_char_paths': ('svg.fonttype',
-                             lambda x: "path" if x else "none", None),
-    'savefig.extension': ('savefig.format', lambda x: x, None),
-    'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
-                         lambda x: [c.get('color', None) for c in x]),
-    'svg.image_noscale': ('image.interpolation', None, None),
-    }
+_deprecated_map = {}
 
-_deprecated_ignore_map = {
-    }
+_deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 
-_obsolete_set = {'tk.pythoninspect', 'legend.isaxes'}
+_obsolete_set = {'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
-_deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
+# do NOT include in _all_deprecated
+_deprecated_set = {'axes.hold',
+                   'backend.qt4',
+                   'backend.qt5'}
 
-_all_deprecated = set(chain(_deprecated_ignore_map,
-                            _deprecated_map,
-                            _obsolete_set))
+_all_deprecated = set(itertools.chain(
+    _deprecated_ignore_map, _deprecated_map, _obsolete_set))
 
 
 class RcParams(MutableMapping, dict):
@@ -857,9 +882,13 @@ class RcParams(MutableMapping, dict):
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_set = ("%s is deprecated. Please remove it from your "
                     "matplotlibrc and/or style files.")
-    msg_depr_ignore = "%s is deprecated and ignored. Use %s"
+    msg_depr_ignore = "%s is deprecated and ignored. Use %s instead."
     msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
                     "and/or style files.")
+    msg_backend_obsolete = ("The {} rcParam was deprecated in version 2.2.  In"
+                            " order to force the use of a specific Qt binding,"
+                            " either import that binding first, or set the "
+                            "QT_API environment variable.")
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -874,8 +903,12 @@ class RcParams(MutableMapping, dict):
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_set and val is not None:
-                warnings.warn(self.msg_depr_set % key,
-                              mplDeprecation)
+                if key.startswith('backend'):
+                    warnings.warn(self.msg_backend_obsolete.format(key),
+                                  mplDeprecation)
+                else:
+                    warnings.warn(self.msg_depr_set % key,
+                                  mplDeprecation)
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt),
@@ -951,7 +984,6 @@ class RcParams(MutableMapping, dict):
             the parent RcParams dictionary.
 
         """
-        import re
         pattern_re = re.compile(pattern)
         return RcParams((key, value)
                         for key, value in self.items()
@@ -1105,26 +1137,24 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = six.iteritems(defaultParams)
-    config = RcParams([(key, default) for key, (default, _) in iter_params
-                                      if key not in _all_deprecated])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        config = RcParams([(key, default) for key, (default, _) in iter_params
+                           if key not in _all_deprecated])
     config.update(config_from_file)
-
-    verbose.set_level(config['verbose.level'])
-    verbose.set_fileo(config['verbose.fileo'])
 
     if config['datapath'] is None:
         config['datapath'] = get_data_path()
 
-    if not config['text.latex.preamble'] == ['']:
-        verbose.report("""
+    if "".join(config['text.latex.preamble']):
+        _log.info("""
 *****************************************************************
 You have the following UNSUPPORTED LaTeX preamble customizations:
 %s
 Please do not ask for support with these customizations active.
 *****************************************************************
-""" % '\n'.join(config['text.latex.preamble']), 'helpful')
-
-    verbose.report('loaded rc file %s' % fname)
+""", '\n'.join(config['text.latex.preamble']))
+    _log.debug('loaded rc file %s', fname)
 
     return config
 
@@ -1140,7 +1170,7 @@ if rcParams['examples.directory']:
     if not os.path.isabs(rcParams['examples.directory']):
         _basedir, _fname = os.path.split(matplotlib_fname())
         # Sometimes matplotlib_fname() can return relative paths,
-        # Also, using realpath() guarentees that Sphinx will use
+        # Also, using realpath() guarantees that Sphinx will use
         # the same path that matplotlib sees (in case of weird symlinks).
         _basedir = os.path.realpath(_basedir)
         _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
@@ -1148,9 +1178,11 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                            six.iteritems(defaultParams)
-                            if key not in _all_deprecated])
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", mplDeprecation)
+    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
+                                six.iteritems(defaultParams)
+                                if key not in _all_deprecated])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
@@ -1262,7 +1294,8 @@ def rc_file(fname):
     rcParams.update(rc_params_from_file(fname))
 
 
-class rc_context(object):
+@contextlib.contextmanager
+def rc_context(rc=None, fname=None):
     """
     Return a context manager for managing rc settings.
 
@@ -1295,26 +1328,16 @@ class rc_context(object):
 
     """
 
-    def __init__(self, rc=None, fname=None):
-        self.rcdict = rc
-        self.fname = fname
-        self._rcparams = rcParams.copy()
-        try:
-            if self.fname:
-                rc_file(self.fname)
-            if self.rcdict:
-                rcParams.update(self.rcdict)
-        except:
-            # if anything goes wrong, revert rc parameters and re-raise
-            rcParams.clear()
-            rcParams.update(self._rcparams)
-            raise
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, tb):
-        rcParams.update(self._rcparams)
+    orig = rcParams.copy()
+    try:
+        if fname:
+            rc_file(fname)
+        if rc:
+            rcParams.update(rc)
+        yield
+    finally:
+        # No need to revalidate the original values.
+        dict.update(rcParams, orig)
 
 
 _use_error_msg = """
@@ -1421,16 +1444,6 @@ def tk_window_focus():
     return rcParams['tk.window_focus']
 
 
-# Jupyter extension paths
-def _jupyter_nbextension_paths():
-    return [{
-        'section': 'notebook',
-        'src': 'backends/web_backend/js',
-        'dest': 'matplotlib',
-        'require': 'matplotlib/extension'
-    }]
-
-
 default_test_modules = [
     'matplotlib.tests',
     'matplotlib.sphinxext.tests',
@@ -1444,7 +1457,14 @@ def _init_tests():
     except ImportError:
         pass
     else:
-        faulthandler.enable()
+        # CPython's faulthandler since v3.6 handles exceptions on Windows
+        # https://bugs.python.org/issue23848 but until v3.6.4 it was
+        # printing non-fatal exceptions https://bugs.python.org/issue30557
+        import platform
+        if not (sys.platform == 'win32' and
+                (3, 6) < sys.version_info < (3, 6, 4) and
+                platform.python_implementation() == 'CPython'):
+            faulthandler.enable()
 
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
@@ -1454,7 +1474,7 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
         ft2font.__freetype_build_type__ != 'local'):
         warnings.warn(
-            "matplotlib is not built with the correct FreeType version to run "
+            "Matplotlib is not built with the correct FreeType version to run "
             "tests.  Set local_freetype=True in setup.cfg and rebuild. "
             "Expect many image comparison failures below. "
             "Expected freetype version {0}. "
@@ -1482,7 +1502,7 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
     """run the matplotlib test suite"""
     _init_tests()
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        raise ImportError("matplotlib test data is not installed")
+        raise ImportError("Matplotlib test data is not installed")
 
     old_backend = get_backend()
     old_recursionlimit = sys.getrecursionlimit()
@@ -1554,8 +1574,43 @@ _DATA_DOC_APPENDIX = """
 """
 
 
+def _add_data_doc(docstring, replace_names, replace_all_args):
+    """Add documentation for a *data* field to the given docstring.
+
+    Parameters
+    ----------
+    docstring : str
+        The input docstring.
+    replace_names : list of strings or None
+        The list of parameter names which arguments should be replaced by
+        `data[name]`. If None, all arguments are replaced if they are
+        included in `data`.
+    replace_all_args : bool
+        If True, all arguments in *args get replaced, even if they are not
+        in replace_names.
+
+    Returns
+    -------
+        The augmented docstring.
+    """
+    if docstring is None:
+        docstring = ''
+    else:
+        docstring = dedent(docstring)
+    _repl = ""
+    if replace_names is None:
+        _repl = "* All positional and all keyword arguments."
+    else:
+        if len(replace_names) != 0:
+            _repl = "* All arguments with the following names: '{names}'."
+        if replace_all_args:
+            _repl += "\n    * All positional arguments."
+        _repl = _repl.format(names="', '".join(sorted(replace_names)))
+    return docstring + _DATA_DOC_APPENDIX.format(replaced=_repl)
+
+
 def _preprocess_data(replace_names=None, replace_all_args=False,
-                        label_namer=None, positional_parameter_names=None):
+                     label_namer=None, positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
     of the input function must include the ax argument at the first position ::
@@ -1596,8 +1651,8 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
 
     def param(func):
         new_sig = None
-        python_has_signature = major >= 3 and minor1 >= 3
-        python_has_wrapped = major >= 3 and minor1 >= 2
+        # signature is since 3.3 and wrapped since 3.2, but we support 3.4+.
+        python_has_signature = python_has_wrapped = six.PY3
 
         # if in a legacy version of python and IPython is already imported
         # try to use their back-ported signature
@@ -1666,10 +1721,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                     # all to be replaced arguments are in the list
                     arg_names = _arg_names[1:]
                 else:
-                    msg = ("Got unknown 'replace_names' and wrapped function "
-                           "'%s' uses '*args', need "
-                           "'positional_parameter_names'!")
-                    raise AssertionError(msg % func.__name__)
+                    raise AssertionError(
+                        "Got unknown 'replace_names' and wrapped function "
+                        "{!r} uses '*args', need 'positional_parameter_names'"
+                        .format(func.__name__))
             else:
                 if positional_parameter_names is not None:
                     if callable(positional_parameter_names):
@@ -1683,11 +1738,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                     if replace_all_args:
                         arg_names = []
                     else:
-                        msg = ("Got 'replace_names' and wrapped function "
-                               "'%s' uses *args, need "
-                               "'positional_parameter_names' or "
-                               "'replace_all_args'!")
-                        raise AssertionError(msg % func.__name__)
+                        raise AssertionError(
+                            "Got 'replace_names' and wrapped function {!r} "
+                            "uses *args, need 'positional_parameter_names' or "
+                            "'replace_all_args'".format(func.__name__))
 
         # compute the possible label_namer and label position in positional
         # arguments
@@ -1706,13 +1760,13 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         # which might surprise the user :-(
         if label_namer and not arg_names_at_runtime and not _has_varkwargs:
             if not arg_names:
-                msg = ("label_namer '%s' can't be found as the parameter "
-                       "without 'positional_parameter_names'.")
-                raise AssertionError(msg % label_namer)
+                raise AssertionError(
+                    "label_namer {!r} can't be found as the parameter without "
+                    "'positional_parameter_names'".format(label_namer))
             elif label_namer not in arg_names:
-                msg = ("label_namer '%s' can't be found in the parameter "
-                       "names (known argnames: %s).")
-                raise AssertionError(msg % (label_namer, arg_names))
+                raise AssertionError(
+                    "label_namer {!r} can't be found in the parameter names "
+                    "(known argnames: %s).".format(label_namer, arg_names))
             else:
                 # this is the case when the name is in arg_names
                 pass
@@ -1792,40 +1846,25 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 elif label_namer in kwargs:
                     kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
-                    import warnings
-                    msg = ("Tried to set a label via parameter '%s' in "
-                           "func '%s' but couldn't find such an argument. \n"
-                           "(This is a programming error, please report to "
-                           "the matplotlib list!)")
-                    warnings.warn(msg % (label_namer, func.__name__),
-                                  RuntimeWarning, stacklevel=2)
+                    warnings.warn(
+                        "Tried to set a label via parameter %r in func %r but "
+                        "couldn't find such an argument.\n"
+                        "(This is a programming error, please report to "
+                        "the Matplotlib list!)" % (label_namer, func.__name__),
+                        RuntimeWarning, stacklevel=2)
             return func(ax, *args, **kwargs)
-        pre_doc = inner.__doc__
-        if pre_doc is None:
-            pre_doc = ''
-        else:
-            pre_doc = dedent(pre_doc)
-        _repl = ""
-        if replace_names is None:
-            _repl = "* All positional and all keyword arguments."
-        else:
-            if len(replace_names) != 0:
-                _repl = "* All arguments with the following names: '{names}'."
-            if replace_all_args:
-                _repl += "\n* All positional arguments."
-            _repl = _repl.format(names="', '".join(sorted(replace_names)))
-        inner.__doc__ = (pre_doc +
-                         _DATA_DOC_APPENDIX.format(replaced=_repl))
+
+        inner.__doc__ = _add_data_doc(inner.__doc__,
+                                      replace_names, replace_all_args)
         if not python_has_wrapped:
             inner.__wrapped__ = func
         if new_sig is not None:
             inner.__signature__ = new_sig
         return inner
+
     return param
 
-
-verbose.report('matplotlib version %s' % __version__)
-verbose.report('verbose.level %s' % verbose.level)
-verbose.report('interactive is %s' % is_interactive())
-verbose.report('platform is %s' % sys.platform)
-verbose.report('loaded modules: %s' % list(sys.modules), 'debug')
+_log.debug('matplotlib version %s', __version__)
+_log.debug('interactive is %s', is_interactive())
+_log.debug('platform is %s', sys.platform)
+_log.debug('loaded modules: %s', list(sys.modules))

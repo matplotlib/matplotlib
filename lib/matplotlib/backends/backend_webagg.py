@@ -15,6 +15,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from contextlib import contextmanager
 import errno
 import json
 import os
@@ -23,7 +24,6 @@ import sys
 import signal
 import socket
 import threading
-from contextlib import contextmanager
 
 try:
     import tornado
@@ -34,61 +34,11 @@ import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-import matplotlib
 from matplotlib import rcParams
-from matplotlib import backend_bases
-from matplotlib.figure import Figure
+from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 from .backend_webagg_core import TimerTornado
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasWebAgg(figure)
-    manager = core.FigureManagerWebAgg(canvas, num)
-    return manager
-
-
-def draw_if_interactive():
-    """
-    Is called after every pylab drawing command
-    """
-    if matplotlib.is_interactive():
-        figManager = Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.draw_idle()
-
-
-class Show(backend_bases.ShowBase):
-    def mainloop(self):
-        WebAggApplication.initialize()
-
-        url = "http://127.0.0.1:{port}{prefix}".format(
-            port=WebAggApplication.port,
-            prefix=WebAggApplication.url_prefix)
-
-        if rcParams['webagg.open_in_browser']:
-            import webbrowser
-            webbrowser.open(url)
-        else:
-            print("To view figure, visit {0}".format(url))
-
-        WebAggApplication.start()
-
-
-show = Show().mainloop
 
 
 class ServerThread(threading.Thread):
@@ -105,17 +55,6 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
 
     def new_timer(self, *args, **kwargs):
         return TimerTornado(*args, **kwargs)
-
-    def start_event_loop(self, timeout):
-        backend_bases.FigureCanvasBase.start_event_loop_default(
-            self, timeout)
-    start_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        backend_bases.FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
 
 class WebAggApplication(tornado.web.Application):
@@ -136,8 +75,8 @@ class WebAggApplication(tornado.web.Application):
     class SingleFigurePage(tornado.web.RequestHandler):
         def __init__(self, application, request, **kwargs):
             self.url_prefix = kwargs.pop('url_prefix', '')
-            return tornado.web.RequestHandler.__init__(self, application,
-                                                       request, **kwargs)
+            tornado.web.RequestHandler.__init__(self, application,
+                                                request, **kwargs)
 
         def get(self, fignum):
             fignum = int(fignum)
@@ -156,8 +95,8 @@ class WebAggApplication(tornado.web.Application):
     class AllFiguresPage(tornado.web.RequestHandler):
         def __init__(self, application, request, **kwargs):
             self.url_prefix = kwargs.pop('url_prefix', '')
-            return tornado.web.RequestHandler.__init__(self, application,
-                                                       request, **kwargs)
+            tornado.web.RequestHandler.__init__(self, application,
+                                                request, **kwargs)
 
         def get(self):
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
@@ -166,8 +105,7 @@ class WebAggApplication(tornado.web.Application):
                 "all_figures.html",
                 prefix=self.url_prefix,
                 ws_uri=ws_uri,
-                figures=sorted(
-                    list(Gcf.figs.items()), key=lambda item: item[0]),
+                figures=sorted(Gcf.figs.items()),
                 toolitems=core.NavigationToolbar2WebAgg.toolitems)
 
     class MplJs(tornado.web.RequestHandler):
@@ -198,7 +136,7 @@ class WebAggApplication(tornado.web.Application):
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
             buff = six.BytesIO()
-            manager.canvas.print_figure(buff, format=fmt)
+            manager.canvas.figure.savefig(buff, format=fmt)
             self.write(buff.getvalue())
 
     class WebSocket(tornado.websocket.WebSocketHandler):
@@ -276,7 +214,7 @@ class WebAggApplication(tornado.web.Application):
             template_path=core.FigureManagerWebAgg.get_static_file_path())
 
     @classmethod
-    def initialize(cls, url_prefix='', port=None):
+    def initialize(cls, url_prefix='', port=None, address=None):
         if cls.initialized:
             return
 
@@ -300,10 +238,15 @@ class WebAggApplication(tornado.web.Application):
                 yield port + random.randint(-2 * n, 2 * n)
 
         success = None
+
+        if address is None:
+            cls.address = rcParams['webagg.address']
+        else:
+            cls.address = address
         cls.port = rcParams['webagg.port']
         for port in random_ports(cls.port, rcParams['webagg.port_retries']):
             try:
-                app.listen(port)
+                app.listen(port, cls.address)
             except socket.error as e:
                 if e.errno != errno.EADDRINUSE:
                     raise
@@ -381,4 +324,27 @@ def ipython_inline_display(figure):
         port=WebAggApplication.port).decode('utf-8')
 
 
-FigureCanvas = FigureCanvasWebAgg
+@_Backend.export
+class _BackendWebAgg(_Backend):
+    FigureCanvas = FigureCanvasWebAgg
+    FigureManager = core.FigureManagerWebAgg
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        manager.canvas.draw_idle()
+
+    @staticmethod
+    def show():
+        WebAggApplication.initialize()
+
+        url = "http://127.0.0.1:{port}{prefix}".format(
+            port=WebAggApplication.port,
+            prefix=WebAggApplication.url_prefix)
+
+        if rcParams['webagg.open_in_browser']:
+            import webbrowser
+            webbrowser.open(url)
+        else:
+            print("To view figure, visit {0}".format(url))
+
+        WebAggApplication.start()

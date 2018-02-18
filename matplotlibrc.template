@@ -40,11 +40,6 @@
 # non-interactive backend.
 backend      : $TEMPLATE_BACKEND
 
-# If you are using the Qt4Agg backend, you can choose here
-# to use the PyQt4 bindings or the newer PySide bindings to
-# the underlying Qt4 toolkit.
-#backend.qt4 : PyQt4        # PyQt4 | PySide
-
 # Note that this can be overridden by the environment variable
 # QT_API used by Enthought Tool Suite (ETS); valid values are
 # "pyqt" and "pyside".  The "pyqt" setting has the side effect of
@@ -53,16 +48,15 @@ backend      : $TEMPLATE_BACKEND
 # The port to use for the web server in the WebAgg backend.
 # webagg.port : 8888
 
+# The address on which the WebAgg web server should be reachable
+# webagg.address : 127.0.0.1
+
 # If webagg.port is unavailable, a number of other random ports will
 # be tried until one that is available is found.
 # webagg.port_retries : 50
 
 # When True, open the webbrowser to the plot that is shown
 # webagg.open_in_browser : True
-
-# When True, the figures rendered in the nbagg backend are created with
-# a transparent background.
-# nbagg.transparent : False
 
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
@@ -128,36 +122,36 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.showfliers  : True
 #boxplot.meanline    : False
 
-#boxplot.flierprops.color           : 'k'
-#boxplot.flierprops.marker          : 'o'
-#boxplot.flierprops.markerfacecolor : 'none'
-#boxplot.flierprops.markeredgecolor : 'k'
+#boxplot.flierprops.color           : k
+#boxplot.flierprops.marker          : o
+#boxplot.flierprops.markerfacecolor : none
+#boxplot.flierprops.markeredgecolor : k
 #boxplot.flierprops.markersize      : 6
-#boxplot.flierprops.linestyle       : 'none'
+#boxplot.flierprops.linestyle       : none
 #boxplot.flierprops.linewidth       : 1.0
 
-#boxplot.boxprops.color     : 'k'
+#boxplot.boxprops.color     : k
 #boxplot.boxprops.linewidth : 1.0
-#boxplot.boxprops.linestyle : '-'
+#boxplot.boxprops.linestyle : -
 
-#boxplot.whiskerprops.color     : 'k'
+#boxplot.whiskerprops.color     : k
 #boxplot.whiskerprops.linewidth : 1.0
-#boxplot.whiskerprops.linestyle : '-'
+#boxplot.whiskerprops.linestyle : -
 
-#boxplot.capprops.color     : 'k'
+#boxplot.capprops.color     : k
 #boxplot.capprops.linewidth : 1.0
-#boxplot.capprops.linestyle : '-'
+#boxplot.capprops.linestyle : -
 
-#boxplot.medianprops.color     : 'C1'
+#boxplot.medianprops.color     : C1
 #boxplot.medianprops.linewidth : 1.0
-#boxplot.medianprops.linestyle : '-'
+#boxplot.medianprops.linestyle : -
 
-#boxplot.meanprops.color           : 'C2'
-#boxplot.meanprops.marker          : '^'
-#boxplot.meanprops.markerfacecolor : 'C2'
-#boxplot.meanprops.markeredgecolor : 'C2'
+#boxplot.meanprops.color           : C2
+#boxplot.meanprops.marker          : ^
+#boxplot.meanprops.markerfacecolor : C2
+#boxplot.meanprops.markeredgecolor : C2
 #boxplot.meanprops.markersize      :  6
-#boxplot.meanprops.linestyle       : 'none'
+#boxplot.meanprops.linestyle       : none
 #boxplot.meanprops.linewidth       : 1.0
 
 ### FONT
@@ -243,14 +237,6 @@ backend      : $TEMPLATE_BACKEND
                             # beware of package collisions: color, geometry, graphicx,
                             # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
                             # may also be loaded, depending on your font settings
-
-#text.dvipnghack : None      # some versions of dvipng don't handle alpha
-                             # channel properly.  Use True to correct
-                             # and flush ~/.matplotlib/tex.cache
-                             # before testing and False to force
-                             # correction off.  None will try and
-                             # guess based on your dvipng version
-
 #text.hinting : auto   # May be one of the following:
                        #   'none': Perform no hinting
                        #   'auto': Use FreeType's autohinter
@@ -305,7 +291,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.labelpad       : 4.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
-#axes.axisbelow      : 'line'  # draw axis gridlines and ticks below
+#axes.axisbelow      : line    # draw axis gridlines and ticks below
                                # patches (True); above patches but below
                                # lines ('line'); or above all (False)
 
@@ -338,14 +324,9 @@ backend      : $TEMPLATE_BACKEND
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hyphen.  See
                                # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
-#axes.prop_cycle    : cycler('color',
-#                            ['1f77b4', 'ff7f0e', '2ca02c', 'd62728',
-#                              '9467bd', '8c564b', 'e377c2', '7f7f7f',
-#                              'bcbd22', '17becf'])
-                                            # color cycle for plot lines
-                                            # as list of string colorspecs:
-                                            # single letter, long name, or
-                                            # web-style hex
+# axes.prop_cycle    : cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
+                      # color cycle for plot lines  as list of string
+                      # colorspecs: single letter, long name, or web-style hex
 #axes.autolimit_mode : data # How to scale axes limits to the data.
                             # Use "data" to use data limits, plus some margin
                             # Use "round_number" move to the nearest "round" number
@@ -376,6 +357,8 @@ backend      : $TEMPLATE_BACKEND
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 #xtick.top            : False   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
+#xtick.labeltop       : False  # draw label on the top
+#xtick.labelbottom    : True  # draw label on the bottom
 #xtick.major.size     : 3.5      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
 #xtick.major.width    : 0.8    # major tick width in points
@@ -393,6 +376,8 @@ backend      : $TEMPLATE_BACKEND
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : False  # draw ticks on the right side
+#ytick.labelleft      : True  # draw tick labels on the left side
+#ytick.labelright     : False  # draw tick labels on the right side
 #ytick.major.size     : 3.5      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
 #ytick.major.width    : 0.8    # major tick width in points
@@ -447,6 +432,10 @@ backend      : $TEMPLATE_BACKEND
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
                             # parameters to make the plot fit the figure
+                            # using `tight_layout`
+#figure.constrained_layout.use: False # When True, automatically make plot
+                                 # elements fit on the figure. (Not compatible
+                                 # with `autolayout`, above).
 #figure.max_open_warning : 20  # The maximum number of figures to open through
                                # the pyplot interface before emitting a warning.
                                # If less than one this feature is disabled.
@@ -456,9 +445,9 @@ backend      : $TEMPLATE_BACKEND
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
 #figure.subplot.bottom  : 0.11    # the bottom of the subplots of the figure
 #figure.subplot.top     : 0.88    # the top of the subplots of the figure
-#figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots,
+#figure.subplot.wspace  : 0.2    # the amount of width reserved for space between subplots,
                                  # expressed as a fraction of the average axis width
-#figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots,
+#figure.subplot.hspace  : 0.2    # the amount of height reserved for space between subplots,
                                  # expressed as a fraction of the average axis height
 
 
@@ -549,14 +538,14 @@ backend      : $TEMPLATE_BACKEND
 #ps.distiller.res  : 6000      # dpi
 #ps.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 
-# pdf backend params
+## pdf backend params
 #pdf.compression   : 6 # integer from 0 to 9
                        # 0 disables compression (good for debugging)
 #pdf.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 
-# svg backend params
+## svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
-#svg.fonttype : 'path'         # How to handle SVG fonts:
+#svg.fonttype :   path         # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers
 #    'svgfont': Embed characters as SVG fonts -- supported only by Chrome,
@@ -566,26 +555,6 @@ backend      : $TEMPLATE_BACKEND
 
 # docstring params
 #docstring.hardcopy = False  # set this when you want to generate hardcopy docstring
-
-# Set the verbose flags.  This controls how much information
-# matplotlib gives you at runtime and where it goes.  The verbosity
-# levels are: silent, helpful, debug, debug-annoying.  Any level is
-# inclusive of all the levels below it.  If your setting is "debug",
-# you'll get all the debug and helpful messages.  When submitting
-# problems to the mailing-list, please set verbose to "helpful" or "debug"
-# and paste the output into your report.
-#
-# The "fileo" gives the destination for any calls to verbose.report.
-# These objects can a filename, or a filehandle like sys.stdout.
-#
-# You can override the rc default verbosity from the command line by
-# giving the flags --verbose-LEVEL where LEVEL is one of the legal
-# levels, e.g., --verbose-helpful.
-#
-# You can access the verbose instance in your code
-#   from matplotlib import verbose.
-#verbose.level  : silent      # one of silent, helpful, debug, debug-annoying
-#verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
 
 # Event keys to interact with figures/plots via keyboard.
 # Customize these settings according to your needs.
@@ -609,24 +578,23 @@ backend      : $TEMPLATE_BACKEND
 #examples.directory : ''   # directory to look in for custom installation
 
 ###ANIMATION settings
-#animation.html : 'none'           # How to display the animation as HTML in
+#animation.html :  none            # How to display the animation as HTML in
                                    # the IPython notebook. 'html5' uses
-                                   # HTML5 video tag.
+                                   # HTML5 video tag; 'jshtml' creates a 
+								   # Javascript animation
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
 #animation.codec : h264            # Codec to use for writing movie
 #animation.bitrate: -1             # Controls size/quality tradeoff for movie.
                                    # -1 implies let utility auto-determine
-#animation.frame_format: 'png'     # Controls frame format used by temp files
+#animation.frame_format:  png      # Controls frame format used by temp files
+#animation.html_args: ''           # Additional arguments to pass to html writer
 #animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
 #animation.ffmpeg_args: ''         # Additional arguments to pass to ffmpeg
 #animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
                                    # $PATH is searched
 #animation.avconv_args: ''         # Additional arguments to pass to avconv
-#animation.mencoder_path: 'mencoder'
-                                   # Path to mencoder binary. Without full path
-                                   # $PATH is searched
-#animation.mencoder_args: ''       # Additional arguments to pass to mencoder
 #animation.convert_path: 'convert' # Path to ImageMagick's convert binary.
                                    # On Windows use the full path since convert
                                    # is also the name of a system tool.
+#animation.convert_args: ''        # Additional arguments to pass to convert

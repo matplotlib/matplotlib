@@ -1,0 +1,5 @@
+matplotlib.cbook.Bunch deprecated
+`````````````````````````````````
+The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
+`types.SimpleNamespace` from the standard library which provides the same
+functionality.

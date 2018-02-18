@@ -7,7 +7,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import warnings
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
 

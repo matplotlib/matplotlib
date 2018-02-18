@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import numpy as np
-import matplotlib.cbook as mcbook
 from matplotlib.transforms import Bbox
 from . import clip_path
 clip_line_to_rect = clip_path.clip_line_to_rect
@@ -145,9 +144,9 @@ class GridFinderBase(object):
         lons_i = np.linspace(lon_min, lon_max, 100) # for interpolation
         lats_i = np.linspace(lat_min, lat_max, 100)
 
-        lon_lines = [self.transform_xy(np.zeros_like(lats_i)+lon, lats_i) \
+        lon_lines = [self.transform_xy(np.zeros_like(lats_i) + lon, lats_i)
                      for lon in lon_values]
-        lat_lines = [self.transform_xy(lons_i, np.zeros_like(lons_i)+lat) \
+        lat_lines = [self.transform_xy(lons_i, np.zeros_like(lons_i) + lat)
                      for lat in lat_values]
 
         return lon_lines, lat_lines
@@ -170,7 +169,8 @@ class GridFinderBase(object):
             gi["levels"].append(v)
             gi["lines"].append(xy)
 
-            for tck, direction in zip(tcks, ["left", "bottom", "right", "top"]):
+            for tck, direction in zip(tcks,
+                                      ["left", "bottom", "right", "top"]):
                 for t in tck:
                     tck_levels[direction].append(lev)
                     tck_locs[direction].append(t)
@@ -213,8 +213,6 @@ class GridFinderBase(object):
                 raise ValueError("unknown update property '%s'" % k)
 
 
-
-
 class GridFinder(GridFinderBase):
 
     def __init__(self,
@@ -232,7 +230,6 @@ class GridFinder(GridFinderBase):
 
         locator1, locator2 : grid locator for 1st and 2nd axis.
         """
-
         if extreme_finder is None:
             extreme_finder = ExtremeFinderSimple(20, 20)
         if grid_locator1 is None:
@@ -243,14 +240,12 @@ class GridFinder(GridFinderBase):
             tick_formatter1 = FormatterPrettyPrint()
         if tick_formatter2 is None:
             tick_formatter2 = FormatterPrettyPrint()
-
-        super(GridFinder, self).__init__( \
-                 extreme_finder,
-                 grid_locator1,
-                 grid_locator2,
-                 tick_formatter1,
-                 tick_formatter2)
-
+        super(GridFinder, self).__init__(
+            extreme_finder,
+            grid_locator1,
+            grid_locator2,
+            tick_formatter1,
+            tick_formatter2)
         self.update_transform(transform)
 
 
@@ -304,7 +299,8 @@ class FixedLocator(object):
 
 class FormatterPrettyPrint(object):
     def __init__(self, useMathText=True):
-        self._fmt = mticker.ScalarFormatter(useMathText=useMathText, useOffset=False)
+        self._fmt = mticker.ScalarFormatter(
+            useMathText=useMathText, useOffset=False)
         self._fmt.create_dummy_axis()
         self._ignore_factor = True
 
@@ -334,19 +330,11 @@ class DictFormatter(object):
         """
 
         if self._fallback_formatter:
-            fallback_strings = self._fallback_formatter(direction, factor, values)
+            fallback_strings = self._fallback_formatter(
+                direction, factor, values)
         else:
             fallback_strings = [""]*len(values)
 
         r = [self._format_dict.get(k, v) for k, v in zip(values,
                                                          fallback_strings)]
         return r
-
-
-if __name__ == "__main__":
-    locator = MaxNLocator()
-    locs, nloc, factor = locator(0, 100)
-
-    fmt = FormatterPrettyPrint()
-
-    print(fmt("left", None, locs))

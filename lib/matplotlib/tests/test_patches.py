@@ -1,8 +1,7 @@
 """
 Tests specific to the patches module.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -335,19 +334,79 @@ def test_multi_color_hatch():
 
     for i in range(5):
         with mstyle.context({'hatch.color': 'C{}'.format(i)}):
-            r = Rectangle((i-.8/2, 5), .8, 1, hatch='//', fc='none')
+            r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
 
 
-@image_comparison(baseline_images=['polar_proj'], extensions=['png'])
-def test_adding_rectangle_patch_with_polar_projection():
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='polar')
+@image_comparison(baseline_images=['units_rectangle'], extensions=['png'])
+def test_units_rectangle():
+    import matplotlib.testing.jpl_units as U
+    U.register()
 
-    # add quadrant as example
-    ax.add_patch(
-        mpatches.Rectangle(
-            (0, 1), width=np.pi * 0.5, height=0.5
-        )
-    )
-    ax.set_rmax(2)
+    p = mpatches.Rectangle((5*U.km, 6*U.km), 1*U.km, 2*U.km)
+
+    fig, ax = plt.subplots()
+    ax.add_patch(p)
+    ax.set_xlim([4*U.km, 7*U.km])
+    ax.set_ylim([5*U.km, 9*U.km])
+
+
+@image_comparison(baseline_images=['connection_patch'], extensions=['png'],
+                  style='mpl20', remove_text=True)
+def test_connection_patch():
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    con = mpatches.ConnectionPatch(xyA=(0.1, 0.1), xyB=(0.9, 0.9),
+                                   coordsA='data', coordsB='data',
+                                   axesA=ax2, axesB=ax1,
+                                   arrowstyle="->")
+    ax2.add_artist(con)
+
+
+def test_datetime_rectangle():
+    # Check that creating a rectangle with timedeltas doesn't fail
+    from datetime import datetime, timedelta
+
+    start = datetime(2017, 1, 1, 0, 0, 0)
+    delta = timedelta(seconds=16)
+    patch = mpatches.Rectangle((start, 0), delta, 1)
+
+    fig, ax = plt.subplots()
+    ax.add_patch(patch)
+
+
+def test_datetime_datetime_fails():
+    from datetime import datetime
+
+    start = datetime(2017, 1, 1, 0, 0, 0)
+    dt_delta = datetime(1970, 1, 5)    # Will be 5 days if units are done wrong
+
+    with pytest.raises(TypeError):
+        mpatches.Rectangle((start, 0), dt_delta, 1)
+
+    with pytest.raises(TypeError):
+        mpatches.Rectangle((0, start), 1, dt_delta)
+
+
+def test_contains_point():
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
+    path = ell.get_path()
+    transform = ell.get_transform()
+    radius = ell._process_radius(None)
+    expected = np.array([path.contains_point(point,
+                                             transform,
+                                             radius) for point in points])
+    result = np.array([ell.contains_point(point) for point in points])
+    assert np.all(result == expected)
+
+
+def test_contains_points():
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
+    path = ell.get_path()
+    transform = ell.get_transform()
+    radius = ell._process_radius(None)
+    expected = path.contains_points(points, transform, radius)
+    result = ell.contains_points(points)
+    assert np.all(result == expected)

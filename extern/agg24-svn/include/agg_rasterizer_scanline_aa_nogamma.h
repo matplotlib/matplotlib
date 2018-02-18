@@ -60,7 +60,7 @@ namespace agg
 
         int not_equal(int ex, int ey, const cell_aa&) const
         {
-            return (ex - x) | (ey - y);
+            return ex != x || ey != y;
         }
     };
 

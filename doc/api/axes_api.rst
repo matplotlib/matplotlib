@@ -4,6 +4,8 @@
 .. currentmodule:: matplotlib.axes
 
 .. autoclass:: Axes
+   :no-members:
+   :no-undoc-members:
 
 .. contents:: Table of Contents
    :depth: 2
@@ -190,7 +192,6 @@ Clearing
    Axes.clear
 
 
-
 Appearance
 ==========
 
@@ -212,14 +213,11 @@ Appearance
 
    Axes.grid
 
-   Axes.get_axis_bgcolor
    Axes.get_facecolor
    Axes.get_fc
 
    Axes.set_facecolor
    Axes.set_fc
-   Axes.set_axis_bgcolor
-
 
 
 Property cycle
@@ -237,16 +235,16 @@ Property cycle
 Axis / limits
 =============
 
+.. For families of methods of the form {get,set}_{x,y}foo, try to list them in
+   the order set_xfoo, get_xfoo, set_yfoo, get_yfoo
+
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
-
-   Axes.get_yaxis
    Axes.get_xaxis
-
-
+   Axes.get_yaxis
 
 Axis Limits and direction
 -------------------------
@@ -257,23 +255,22 @@ Axis Limits and direction
    :nosignatures:
 
    Axes.invert_xaxis
-   Axes.invert_yaxis
    Axes.xaxis_inverted
+   Axes.invert_yaxis
    Axes.yaxis_inverted
 
    Axes.set_xlim
+   Axes.get_xlim
    Axes.set_ylim
    Axes.get_ylim
-   Axes.get_xlim
 
    Axes.update_datalim
    Axes.update_datalim_bounds
-   Axes.update_datalim_numerix
 
-   Axes.set_ybound
    Axes.set_xbound
-   Axes.get_ybound
    Axes.get_xbound
+   Axes.set_ybound
+   Axes.get_ybound
 
 Axis Labels, title, and legend
 ------------------------------
@@ -283,18 +280,16 @@ Axis Labels, title, and legend
    :template: autosummary.rst
    :nosignatures:
 
-   Axes.get_xlabel
-   Axes.get_ylabel
-
    Axes.set_xlabel
+   Axes.get_xlabel
    Axes.set_ylabel
+   Axes.get_ylabel
 
    Axes.set_title
    Axes.get_title
    Axes.legend
    Axes.get_legend
    Axes.get_legend_handles_labels
-
 
 Axis scales
 -----------
@@ -306,11 +301,8 @@ Axis scales
 
    Axes.set_xscale
    Axes.get_xscale
-
-   Axes.get_yscale
    Axes.set_yscale
-
-
+   Axes.get_yscale
 
 Autoscaling and margins
 -----------------------
@@ -331,15 +323,14 @@ Autoscaling and margins
    Axes.autoscale
    Axes.autoscale_view
 
-   Axes.get_autoscale_on
    Axes.set_autoscale_on
+   Axes.get_autoscale_on
 
-   Axes.get_autoscalex_on
    Axes.set_autoscalex_on
+   Axes.get_autoscalex_on
 
-   Axes.get_autoscaley_on
    Axes.set_autoscaley_on
-
+   Axes.get_autoscaley_on
 
 Aspect ratio
 ------------
@@ -350,54 +341,53 @@ Aspect ratio
    :nosignatures:
 
    Axes.apply_aspect
-   Axes.get_aspect
    Axes.set_aspect
+   Axes.get_aspect
 
-   Axes.get_adjustable
    Axes.set_adjustable
-
+   Axes.get_adjustable
 
 Ticks and tick labels
 ---------------------
-
 
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
-   Axes.xaxis_date
-   Axes.yaxis_date
-
-   Axes.get_xmajorticklabels
-   Axes.get_xminorticklabels
-   Axes.get_xticklabels
-   Axes.get_xticklines
+   Axes.set_xticks
    Axes.get_xticks
 
+   Axes.set_xticklabels
+   Axes.get_xticklabels
+   Axes.get_xmajorticklabels
+   Axes.get_xminorticklabels
+
+   Axes.get_xgridlines
+   Axes.get_xticklines
+
+   Axes.xaxis_date
+
+   Axes.set_yticks
+   Axes.get_yticks
+
+   Axes.set_yticklabels
+   Axes.get_yticklabels
    Axes.get_ymajorticklabels
    Axes.get_yminorticklabels
-   Axes.get_yticklabels
+
+   Axes.get_ygridlines
    Axes.get_yticklines
-   Axes.get_yticks
+
+   Axes.yaxis_date
 
    Axes.minorticks_off
    Axes.minorticks_on
-
-   Axes.set_xticklabels
-   Axes.set_xticks
-   Axes.set_yticklabels
-   Axes.set_yticks
-
-   Axes.get_xgridlines
-   Axes.get_ygridlines
-
 
    Axes.ticklabel_format
    Axes.tick_params
 
    Axes.locator_params
-
 
 
 Units
@@ -504,7 +494,6 @@ Interactive
    Axes.format_xdata
    Axes.format_ydata
 
-   Axes.hitlist
    Axes.mouseover
    Axes.in_axes
 
@@ -579,6 +568,7 @@ General Artist Properties
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.set_agg_filter
    Axes.set_alpha
    Axes.set_animated
    Axes.set_clip_box
@@ -586,18 +576,16 @@ General Artist Properties
    Axes.set_clip_path
    Axes.set_gid
    Axes.set_label
+   Axes.set_path_effects
+   Axes.set_rasterized
+   Axes.set_sketch_params
+   Axes.set_snap
+   Axes.set_transform
    Axes.set_url
    Axes.set_visible
    Axes.set_zorder
-   Axes.set_rasterized
-   Axes.set_sketch_params
-   Axes.set_agg_filter
-   Axes.set_snap
-   Axes.set_transform
-   Axes.set_path_effects
 
    Axes.get_agg_filter
-   Axes.get_sketch_params
    Axes.get_alpha
    Axes.get_animated
    Axes.get_clip_box
@@ -605,18 +593,16 @@ General Artist Properties
    Axes.get_clip_path
    Axes.get_gid
    Axes.get_label
+   Axes.get_path_effects
+   Axes.get_rasterized
+   Axes.get_sketch_params
+   Axes.get_snap
+   Axes.get_transform
    Axes.get_url
    Axes.get_visible
    Axes.get_zorder
-   Axes.get_rasterized
-   Axes.get_transform
-   Axes.get_snap
-   Axes.get_path_effects
-
 
    Axes.axes
-   Axes.get_axes
-   Axes.set_axes
    Axes.set_figure
    Axes.get_figure
 
@@ -628,7 +614,6 @@ Artist Methods
    :template: autosummary.rst
    :nosignatures:
 
-   Axes.is_figure_set
    Axes.remove
    Axes.is_transform_set
 

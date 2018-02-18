@@ -29,3 +29,5 @@ ax.set_ylim(-3, 3)
 
 ax.legend(loc='best', fancybox=True, framealpha=0.5)
 ax.set_title('fancy, transparent legends')
+
+plt.show()

@@ -6,21 +6,23 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange, zip
-from itertools import repeat
+import bz2
 import collections
+import contextlib
 import datetime
 import errno
 import functools
 import glob
 import gzip
 import io
+from itertools import repeat
 import locale
 import numbers
+import operator
 import os
 import re
 import sys
@@ -29,26 +31,25 @@ import traceback
 import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 import numpy as np
 
+import matplotlib
+from .deprecation import deprecated, warn_deprecated
+from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
-# On some systems, locale.getpreferredencoding returns None,
-# which can break unicode; and the sage project reports that
-# some systems have incorrect locale specifications, e.g.,
-# an encoding instead of a valid locale name.  Another
-# pathological case that has been reported is an empty string.
-
-# On some systems, getpreferredencoding sets the locale, which has
-# side effects.  Passing False eliminates those side effects.
 
 def unicode_safe(s):
-    import matplotlib
 
     if isinstance(s, bytes):
         try:
+            # On some systems, locale.getpreferredencoding returns None,
+            # which can break unicode; and the sage project reports that
+            # some systems have incorrect locale specifications, e.g.,
+            # an encoding instead of a valid locale name.  Another
+            # pathological case that has been reported is an empty string.
+            # On some systems, getpreferredencoding sets the locale, which has
+            # side effects.  Passing False eliminates those side effects.
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
             if not preferredencoding:
@@ -249,10 +250,12 @@ class _BoundMethodProxy(object):
         return self._hash
 
 
+def _exception_printer(exc):
+    traceback.print_exc()
+
+
 class CallbackRegistry(object):
-    """
-    Handle registering and disconnecting for a set of signals and
-    callbacks:
+    """Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -286,8 +289,29 @@ class CallbackRegistry(object):
     functions).  This technique was shared by Peter Parente on his
     `"Mindtrove" blog
     <http://mindtrove.info/python-weak-references/>`_.
+
+
+    Parameters
+    ----------
+    exception_handler : callable, optional
+       If provided must have signature ::
+
+          def handler(exc: Exception) -> None:
+
+       If not None this function will be called with any `Exception`
+       subclass raised by the callbacks in `CallbackRegistry.process`.
+       The handler may either consume the exception or re-raise.
+
+       The callable must be pickle-able.
+
+       The default handler is ::
+
+          def h(exc):
+              traceback.print_exc()
+
     """
-    def __init__(self):
+    def __init__(self, exception_handler=_exception_printer):
+        self.exception_handler = exception_handler
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
@@ -301,15 +325,13 @@ class CallbackRegistry(object):
     # http://bugs.python.org/issue12290).
 
     def __getstate__(self):
-        return True
+        return {'exception_handler': self.exception_handler}
 
     def __setstate__(self, state):
-        self.__init__()
+        self.__init__(**state)
 
     def connect(self, s, func):
-        """
-        register *func* to be called when a signal *s* is generated
-        func will be called
+        """Register *func* to be called when signal *s* is generated.
         """
         self._func_cid_map.setdefault(s, WeakKeyDictionary())
         # Note proxy not needed in python 3.
@@ -338,8 +360,7 @@ class CallbackRegistry(object):
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """
-        disconnect the callback registered with callback id *cid*
+        """Disconnect the callback registered with callback id *cid*.
         """
         for eventname, callbackd in list(six.iteritems(self.callbacks)):
             try:
@@ -356,8 +377,10 @@ class CallbackRegistry(object):
 
     def process(self, s, *args, **kwargs):
         """
-        process signal `s`.  All of the functions registered to receive
-        callbacks on `s` will be called with ``**args`` and ``**kwargs``
+        Process signal *s*.
+
+        All of the functions registered to receive callbacks on *s* will be
+        called with ``*args`` and ``**kwargs``.
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
@@ -365,6 +388,13 @@ class CallbackRegistry(object):
                     proxy(*args, **kwargs)
                 except ReferenceError:
                     self._remove_proxy(proxy)
+                # this does not capture KeyboardInterrupt, SystemExit,
+                # and GeneratorExit
+                except Exception as exc:
+                    if self.exception_handler is not None:
+                        self.exception_handler(exc)
+                    else:
+                        raise
 
 
 class silent_list(list):
@@ -458,7 +488,8 @@ def strip_math(s):
     return s
 
 
-class Bunch(object):
+@deprecated('3.0', alternative='types.SimpleNamespace')
+class Bunch(types.SimpleNamespace):
     """
     Often we want to just collect a bunch of stuff together, naming each
     item of the bunch; a dictionary's OK for that, but a small do- nothing
@@ -467,16 +498,8 @@ class Bunch(object):
 
       >>> point = Bunch(datum=2, squared=4, coord=12)
       >>> point.datum
-
-      By: Alex Martelli
-      From: https://code.activestate.com/recipes/121294/
     """
-    def __init__(self, **kwds):
-        self.__dict__.update(kwds)
-
-    def __repr__(self):
-        return 'Bunch(%s)' % ', '.join(
-            '%s=%s' % kv for kv in six.iteritems(vars(self)))
+    pass
 
 
 @deprecated('2.1')
@@ -551,17 +574,22 @@ def is_scalar(obj):
     return not isinstance(obj, six.string_types) and not iterable(obj)
 
 
+@deprecated('3.0', 'isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False):
+def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     """
-    *fname* can be a filename or a file handle.  Support for gzipped
+    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
+    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
+        return to_filehandle(
+            os.fspath(fname),
+            flag=flag, return_opened=return_opened, encoding=encoding)
     if isinstance(fname, six.string_types):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
@@ -570,19 +598,29 @@ def to_filehandle(fname, flag='rU', return_opened=False):
         elif fname.endswith('.bz2'):
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
-            import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = open(fname, flag)
+            fh = io.open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
         opened = False
     else:
-        raise ValueError('fname must be a string or file handle')
+        raise ValueError('fname must be a PathLike or file handle')
     if return_opened:
         return fh, opened
     return fh
+
+
+@contextlib.contextmanager
+def open_file_cm(path_or_file, mode="r", encoding=None):
+    r"""Pass through file objects and context-manage `~.PathLike`\s."""
+    fh, opened = to_filehandle(path_or_file, mode, True, encoding)
+    if opened:
+        with fh:
+            yield fh
+    else:
+        yield fh
 
 
 def is_scalar_or_string(val):
@@ -594,6 +632,9 @@ def _string_to_bool(s):
     """Parses the string argument as a boolean"""
     if not isinstance(s, six.string_types):
         return bool(s)
+    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
+                    "boolean is deprecated; use an actual boolean "
+                    "(True/False) instead.")
     if s.lower() in ['on', 'true']:
         return True
     if s.lower() in ['off', 'false']:
@@ -615,8 +656,6 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    import matplotlib
-
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
@@ -655,7 +694,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
     and Recipe 1.12 in cookbook
     """
     for item in seq:
-        if scalarp(item):
+        if scalarp(item) or item is None:
             yield item
         else:
             for subitem in flatten(item, scalarp):
@@ -805,6 +844,7 @@ class Null(object):
         return self
 
 
+@deprecated("3.0")
 def mkdirs(newdir, mode=0o777):
     """
     make directory *newdir* recursively, and set *mode*.  Equivalent to ::
@@ -889,6 +929,7 @@ class RingBuffer(object):
         return self.data[i % len(self.data)]
 
 
+@deprecated('2.1')
 def get_split_ind(seq, N):
     """
     *seq* is a list of words.  Return the index into seq such that::
@@ -1005,6 +1046,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     return results
 
 
+@deprecated('2.1')
 def get_recursive_filelist(args):
     """
     Recurse all the files and dirs in *args* ignoring symbolic links
@@ -1236,6 +1278,7 @@ def reverse_dict(d):
     return {v: k for k, v in six.iteritems(d)}
 
 
+@deprecated('2.1')
 def restrict_dict(d, keys):
     """
     Return a dictionary that contains those keys that appear in both
@@ -1403,7 +1446,7 @@ class Grouper(object):
     would be overkill.
 
     Objects can be joined using :meth:`join`, tested for connectedness
-    using :meth:`joined`, and all disjoint sets can be retreived by
+    using :meth:`joined`, and all disjoint sets can be retrieved by
     using the object as an iterator.
 
     The objects being joined must be hashable and weak-referenceable.
@@ -1524,24 +1567,26 @@ class Grouper(object):
 
 
 def simple_linear_interpolation(a, steps):
-    if steps == 1:
-        return a
+    """
+    Resample an array with ``steps - 1`` points between original point pairs.
 
-    steps = int(np.floor(steps))
-    new_length = ((len(a) - 1) * steps) + 1
-    new_shape = list(a.shape)
-    new_shape[0] = new_length
-    result = np.zeros(new_shape, a.dtype)
+    Parameters
+    ----------
+    a : array, shape (n, ...)
+    steps : int
 
-    result[0] = a[0]
-    a0 = a[0:-1]
-    a1 = a[1:]
-    delta = ((a1 - a0) / steps)
-    for i in range(1, steps):
-        result[i::steps] = delta * i + a0
-    result[steps::steps] = a1
+    Returns
+    -------
+    array, shape ``((n - 1) * steps + 1, ...)``
 
-    return result
+    Along each column of *a*, ``(steps - 1)`` points are introduced between
+    each original values; the values are linearly interpolated.
+    """
+    fps = a.reshape((len(a), -1))
+    xp = np.arange(len(a)) * steps
+    x = np.arange((len(a) - 1) * steps + 1)
+    return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
+            .reshape((len(x),) + a.shape[1:]))
 
 
 @deprecated('2.1', alternative='shutil.rmtree')
@@ -1625,7 +1670,7 @@ def delete_masked_points(*args):
             except:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
-        mask = functools.reduce(np.logical_and, masks)
+        mask = np.logical_and.reduce(masks)
         igood = mask.nonzero()[0]
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
@@ -1812,9 +1857,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                 loval = np.min(x)
                 hival = np.max(x)
             else:
-                whismsg = ('whis must be a float, valid string, or '
-                           'list of percentiles')
-                raise ValueError(whismsg)
+                raise ValueError('whis must be a float, valid string, or list '
+                                 'of percentiles')
         else:
             loval = np.percentile(x, whis[0])
             hival = np.percentile(x, whis[1])
@@ -1903,6 +1947,7 @@ ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
 
 
+@deprecated('2.2')
 def align_iterators(func, *iterables):
     """
     This generator takes a bunch of iterables that are ordered by func
@@ -1947,6 +1992,32 @@ def align_iterators(func, *iterables):
             break
 
 
+def contiguous_regions(mask):
+    """
+    Return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
+    True and we cover all such regions
+    """
+    mask = np.asarray(mask, dtype=bool)
+
+    if not mask.size:
+        return []
+
+    # Find the indices of region changes, and correct offset
+    idx, = np.nonzero(mask[:-1] != mask[1:])
+    idx += 1
+
+    # List operations are faster for moderately sized arrays
+    idx = idx.tolist()
+
+    # Add first and/or last index if needed
+    if mask[0]:
+        idx = [0] + idx
+    if mask[-1]:
+        idx.append(len(mask))
+
+    return list(zip(idx[::2], idx[1::2]))
+
+
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
@@ -1961,6 +2032,17 @@ def is_math_text(s):
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
     return even_dollars
+
+
+def _to_unmasked_float_array(x):
+    """
+    Convert a sequence to a float array; if input was a masked array, masked
+    values are converted to nans.
+    """
+    if hasattr(x, 'mask'):
+        return np.ma.asarray(x, float).filled(np.nan)
+    else:
+        return np.asarray(x, float)
 
 
 def _check_1d(x):
@@ -1990,7 +2072,7 @@ def _reshape_2D(X, name):
     *name* is used to generate the error message for invalid inputs.
     """
     # Iterate over columns for ndarrays, over rows otherwise.
-    X = X.T if isinstance(X, np.ndarray) else np.asarray(X)
+    X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
     if X.ndim == 1 and X.dtype.type != np.object_:
         # 1D array of scalars: directly return it.
         return [X]
@@ -2121,7 +2203,7 @@ def pts_to_prestep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2131,13 +2213,14 @@ def pts_to_prestep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
@@ -2158,7 +2241,7 @@ def pts_to_poststep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2168,13 +2251,14 @@ def pts_to_poststep(x, *args):
     out : array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
-        length ``N``, each of these arrays will be length ``2N + 1``.
+        length ``N``, each of these arrays will be length ``2N + 1``. For
+        ``N=0``, the length will be 0.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
-    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 2::2]
     steps[1:, 0::2] = args
@@ -2193,7 +2277,7 @@ def pts_to_midstep(x, *args):
     Parameters
     ----------
     x : array
-        The x location of the steps.
+        The x location of the steps. May be empty.
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
@@ -2212,7 +2296,8 @@ def pts_to_midstep(x, *args):
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
     steps[0, 1:-1:2] = steps[0, 2::2] = (x[:-1] + x[1:]) / 2
-    steps[0, 0], steps[0, -1] = x[0], x[-1]
+    steps[0, :1] = x[:1]  # Also works for zero-sized input.
+    steps[0, -1:] = x[-1:]
     steps[1:, 0::2] = args
     steps[1:, 1::2] = steps[1:, 0::2]
     return steps
@@ -2249,7 +2334,7 @@ def index_of(y):
     try:
         return y.index.values, y.values
     except AttributeError:
-        y = np.atleast_1d(y)
+        y = _check_1d(y)
         return np.arange(y.shape[0], dtype=float), y
 
 
@@ -2707,3 +2792,36 @@ class _StringFuncParser(object):
                              (params, str_func))
 
         return str_func, params
+
+
+def _topmost_artist(
+        artists,
+        _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
+    """Get the topmost artist of a list.
+
+    In case of a tie, return the *last* of the tied artists, as it will be
+    drawn on top of the others. `max` returns the first maximum in case of ties
+    (on Py2 this is undocumented but true), so we need to iterate over the list
+    in reverse order.
+    """
+    return _cached_max(reversed(artists))
+
+
+def _str_equal(obj, s):
+    """Return whether *obj* is a string equal to string *s*.
+
+    This helper solely exists to handle the case where *obj* is a numpy array,
+    because in such cases, a naive ``obj == s`` would yield an array, which
+    cannot be used in a boolean context.
+    """
+    return isinstance(obj, six.string_types) and obj == s
+
+
+def _str_lower_equal(obj, s):
+    """Return whether *obj* is a string equal, when lowercased, to string *s*.
+
+    This helper solely exists to handle the case where *obj* is a numpy array,
+    because in such cases, a naive ``obj == s`` would yield an array, which
+    cannot be used in a boolean context.
+    """
+    return isinstance(obj, six.string_types) and obj.lower() == s

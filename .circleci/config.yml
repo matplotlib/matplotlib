@@ -1,0 +1,160 @@
+# Circle CI configuration file
+# https://circleci.com/docs/
+
+version: 2
+
+
+###########################################
+# Define some common steps as YAML anchors.
+#
+
+apt-run:  &apt-install
+  name: Install apt packages
+  command: |
+    sudo apt-get -qq update
+    sudo apt-get install -y \
+      inkscape \
+      libav-tools \
+      dvipng \
+      pgf \
+      lmodern \
+      cm-super \
+      texlive-latex-base \
+      texlive-latex-extra \
+      texlive-fonts-recommended \
+      texlive-latex-recommended \
+      texlive-xetex \
+      graphviz \
+      libgeos-dev \
+      otf-freefont
+
+fonts-run:  &fonts-install
+  name: Install custom fonts
+  # We manually install Humor-Sans using the package from Ubuntu 14.10.
+  # Unfortunately humor sans is not available in the Ubuntu version used by
+  # CircleCI but we can manually install the deb from a later version since
+  # it is basically just a .ttf file.
+  command: |
+    mkdir -p ~/.local/share/fonts
+    wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+    if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
+      wget https://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
+      mkdir tmp
+      dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
+      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
+      rm -rf tmp
+    else
+      echo "Not downloading Humor-Sans; file already exists."
+    fi
+    fc-cache -f -v
+
+pip-run:  &pip-install
+  # Upgrade pip and setuptools and wheel to get as clean an install as possible
+  name: Upgrade pip, setuptools, wheel
+  command: |
+    pip install --upgrade --user pip
+    pip install --upgrade --user wheel
+    pip install --upgrade --user setuptools
+
+deps-run: &deps-install
+  name: Install Python dependencies
+  command: |
+    pip install --user numpy${NUMPY_VERSION} codecov coverage
+    pip install --user -r doc-requirements.txt
+
+mpl-run: &mpl-install
+  name: Install Matplotlib
+  command: pip install --user -ve .
+
+doc-run: &doc-build
+  name: Build documentation
+  command: make html
+  working_directory: doc
+
+doc-bundle-run: &doc-bundle
+  name: Bundle sphinx-gallery documentation artifacts
+  command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
+  when: always
+
+
+##########################################
+# Here is where the real jobs are defined.
+#
+
+jobs:
+  docs-python36:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+
+      - run: *apt-install
+      - run: *fonts-install
+      - run: *pip-install
+
+      - run: *deps-install
+      - run: *mpl-install
+
+      - run: *doc-build
+
+      - run: *doc-bundle
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
+
+      - store_artifacts:
+          path: doc/build/html
+
+      - run:
+          name: "Built documentation is available at:"
+          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
+
+      - add_ssh_keys:
+          fingerprints:
+            - "78:13:59:08:61:a9:e5:09:af:df:3a:d8:89:c2:84:c0"
+      - deploy:
+          name: "Deploy new docs"
+          command: ./.circleci/deploy-docs.sh
+
+  docs-python35:
+    docker:
+      - image: circleci/python:3.5
+    steps:
+      - checkout
+
+      - run: *apt-install
+      - run: *fonts-install
+      - run: *pip-install
+
+      - run:
+          <<: *deps-install
+          environment:
+            NUMPY_VERSION: "==1.10.0"
+      - run: *mpl-install
+
+      - run: *doc-build
+
+      # We don't build the LaTeX docs here, so linkchecker will complain
+      - run: touch doc/build/html/Matplotlib.pdf
+
+      - run: *doc-bundle
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
+
+      - store_artifacts:
+          path: doc/build/html
+
+      - run:
+          name: "Built documentation is available at:"
+          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
+
+
+#########################################
+# Defining workflows gets us parallelism.
+#
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - docs-python35
+      - docs-python36

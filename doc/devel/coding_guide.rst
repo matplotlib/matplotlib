@@ -47,21 +47,29 @@ PR Review guidelines
 * If you have commit rights, then you are trusted to use them.  Please
   help review and merge PRs!
 
-* Two developers (those with commit rights) should review all pull
-  requests.  If you are the first to review a PR and approve of
-  the changes, please edit the title to include ``'[MRG+1]'`` and use
-  the github `'approve review'
+* For code changes (anything in ``src`` or ``lib``) two developers
+  (those with commit rights) should review all pull requests.  If you
+  are the first to review a PR and approve of the changes use the
+  github `'approve review'
   <https://help.github.com/articles/reviewing-changes-in-pull-requests/>`__
   tool to mark it as such.  If you are a subsequent reviewer and you
-  approve, either merge (and backport if needed) or select ``'approve review'`` and 
-  increment the number in the title to ask for further review.  
-  If you do the merge, please remove the ``'[MRG+N']`` prefix.
+  approve, either merge (and backport if needed) or select ``'approve
+  review'``.
 
-* Make sure the Travis tests are passing before merging.
+  Ensure that all API changes are documented in
+  :file:`doc/api/api_changes` and significant new features have and
+  entry in :file:`doc/user/whats_new`.
 
-  - Whenever a pull request is created or updated, Travis automatically runs 
-    the test suite on all versions of Python supported by Matplotlib.
-    The `tox` support in Matplotlib may be useful for testing locally.
+* Documentation and examples may be merged by the first reviewer.  Use
+  the threshold "is this better than it was?" as the review criteria.
+
+* Make sure the Travis, Appvyor, and codecov tests are passing before
+  merging.
+
+  - Whenever a pull request is created or updated, Travis and Appveyor
+    automatically runs the test suite on all versions of Python
+    supported by Matplotlib.  The `tox` support in Matplotlib may be
+    useful for testing locally.
 
 * Do not self merge, except for 'small' patches to un-break the CI.
 
@@ -88,7 +96,7 @@ commit to along with the SHA in a comment on the original PR.
 
 We do a backport from master to v2.0.x assuming:
 
-* ``matplotlib`` is a read-only remote branch of the matplotlib/matplotlib repo 
+* ``matplotlib`` is a read-only remote branch of the matplotlib/matplotlib repo
 
 * ``DANGER`` is a read/write remote branch of the matplotlib/matplotlib repo
 

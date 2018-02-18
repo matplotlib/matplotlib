@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
@@ -15,8 +14,8 @@ except ImportError:
 
 with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
-                                             SUPER, ALT, CTRL, SHIFT)  # noqa
+from matplotlib.backends.backend_qt4 import (
+    MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
 
 QtCore = qt_compat.QtCore
 _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
@@ -47,7 +46,7 @@ def test_fig_close():
 
     # assert that we have removed the reference to the FigureManager
     # that got added by plt.figure()
-    assert(init_figs == Gcf.figs)
+    assert init_figs == Gcf.figs
 
 
 @pytest.mark.parametrize(

@@ -2,8 +2,9 @@
 
 #define NO_IMPORT_ARRAY
 
-#include <string>
 #include <algorithm>
+#include <stdexcept>
+#include <string>
 
 #include "ft2font.h"
 #include "mplutils.h"
@@ -115,7 +116,7 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
             }
         }
     } else {
-        throw "Unknown pixel mode";
+        throw std::runtime_error("Unknown pixel mode");
     }
 
     m_dirty = true;
@@ -124,7 +125,7 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
 void FT2Image::draw_rect(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1)
 {
     if (x0 > m_width || x1 > m_width || y0 > m_height || y1 > m_height) {
-        throw "Rect coords outside image bounds";
+        throw std::runtime_error("Rect coords outside image bounds");
     }
 
     size_t top = y0 * m_width;
@@ -166,11 +167,11 @@ inline double conv(long v)
 
 int FT2Font::get_path_count()
 {
-    // get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
+    // get the glyph as a path, a list of (COMMAND, *args) as described in matplotlib.path
     // this code is from agg's decompose_ft_outline with minor modifications
 
     if (!face->glyph) {
-        throw "No glyph loaded";
+        throw std::runtime_error("No glyph loaded");
     }
 
     FT_Outline &outline = face->glyph->outline;
@@ -208,7 +209,7 @@ int FT2Font::get_path_count()
 
         // A contour cannot start with a cubic control point!
         if (tag == FT_CURVE_TAG_CUBIC) {
-            throw "A contour cannot start with a cubic control point";
+            throw std::runtime_error("A contour cannot start with a cubic control point");
         } else if (tag == FT_CURVE_TAG_CONIC) {
             starts_with_last = true;
         } else {
@@ -246,7 +247,7 @@ int FT2Font::get_path_count()
                     }
 
                     if (tag != FT_CURVE_TAG_CONIC) {
-                        throw "Invalid font";
+                        throw std::runtime_error("Invalid font");
                     }
 
                     count += 2;
@@ -262,7 +263,7 @@ int FT2Font::get_path_count()
             default: // FT_CURVE_TAG_CUBIC
             {
                 if (point + 1 > limit || FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC) {
-                    throw "Invalid font";
+                    throw std::runtime_error("Invalid font");
                 }
 
                 point += 2;
@@ -492,13 +493,13 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
     int error = FT_Open_Face(_ft2Library, &open_args, 0, &face);
 
     if (error == FT_Err_Unknown_File_Format) {
-        throw "Can not load face.  Unknown file format.";
+        throw std::runtime_error("Can not load face.  Unknown file format.");
     } else if (error == FT_Err_Cannot_Open_Resource) {
-        throw "Can not load face.  Can not open resource.";
+        throw std::runtime_error("Can not load face.  Can not open resource.");
     } else if (error == FT_Err_Invalid_File_Format) {
-        throw "Can not load face.  Invalid file format.";
+        throw std::runtime_error("Can not load face.  Invalid file format.");
     } else if (error) {
-        throw "Can not load face.";
+        throw std::runtime_error("Can not load face.");
     }
 
     // set a default fontsize 12 pt at 72dpi
@@ -507,14 +508,14 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
     error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * (unsigned int)hinting_factor, 72);
     if (error) {
         FT_Done_Face(face);
-        throw "Could not set the fontsize";
+        throw std::runtime_error("Could not set the fontsize");
     }
 
     if (open_args.stream != NULL) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
 
-    static FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
+    FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
 }
 
@@ -531,8 +532,6 @@ FT2Font::~FT2Font()
 
 void FT2Font::clear()
 {
-    angle = 0.0;
-
     pen.x = 0;
     pen.y = 0;
 
@@ -547,29 +546,29 @@ void FT2Font::set_size(double ptsize, double dpi)
 {
     int error = FT_Set_Char_Size(
         face, (long)(ptsize * 64), 0, (unsigned int)(dpi * hinting_factor), (unsigned int)dpi);
-    static FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
+    FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
 
     if (error) {
-        throw "Could not set the fontsize";
+        throw std::runtime_error("Could not set the fontsize");
     }
 }
 
 void FT2Font::set_charmap(int i)
 {
     if (i >= face->num_charmaps) {
-        throw "i exceeds the available number of char maps";
+        throw std::runtime_error("i exceeds the available number of char maps");
     }
     FT_CharMap charmap = face->charmaps[i];
     if (FT_Set_Charmap(face, charmap)) {
-        throw "Could not set the charmap";
+        throw std::runtime_error("Could not set the charmap");
     }
 }
 
 void FT2Font::select_charmap(unsigned long i)
 {
     if (FT_Select_Charmap(face, (FT_Encoding)i)) {
-        throw "Could not set the charmap";
+        throw std::runtime_error("Could not set the charmap");
     }
 }
 
@@ -601,9 +600,7 @@ void FT2Font::set_text(
     FT_Bool use_kerning = FT_HAS_KERNING(face);
     FT_UInt previous = 0;
 
-    glyphs.resize(0);
-    pen.x = 0;
-    pen.y = 0;
+    clear();
 
     bbox.xMin = bbox.yMin = 32000;
     bbox.xMax = bbox.yMax = -32000;
@@ -624,7 +621,7 @@ void FT2Font::set_text(
         }
         error = FT_Load_Glyph(face, glyph_index, flags);
         if (error) {
-            throw "could not load glyph";
+            throw std::runtime_error("could not load glyph");
         }
         // ignore errors, jump to next glyph
 
@@ -634,7 +631,7 @@ void FT2Font::set_text(
         error = FT_Get_Glyph(face->glyph, &thisGlyph);
 
         if (error) {
-            throw "could not get glyph";
+            throw std::runtime_error("could not get glyph");
         }
         // ignore errors, jump to next glyph
 
@@ -670,14 +667,14 @@ void FT2Font::load_char(long charcode, FT_Int32 flags)
     int error = FT_Load_Char(face, (unsigned long)charcode, flags);
 
     if (error) {
-        throw "Could not load charcode";
+        throw std::runtime_error("Could not load charcode");
     }
 
     FT_Glyph thisGlyph;
     error = FT_Get_Glyph(face->glyph, &thisGlyph);
 
     if (error) {
-        throw "Could not get glyph";
+        throw std::runtime_error("Could not get glyph");
     }
 
     glyphs.push_back(thisGlyph);
@@ -688,14 +685,14 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
     int error = FT_Load_Glyph(face, glyph_index, flags);
 
     if (error) {
-        throw "Could not load glyph";
+        throw std::runtime_error("Could not load glyph");
     }
 
     FT_Glyph thisGlyph;
     error = FT_Get_Glyph(face->glyph, &thisGlyph);
 
     if (error) {
-        throw "Could not load glyph";
+        throw std::runtime_error("Could not load glyph");
     }
 
     glyphs.push_back(thisGlyph);
@@ -729,7 +726,7 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
         error = FT_Glyph_To_Bitmap(
             &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
         if (error) {
-            throw "Could not convert glyph to bitmap";
+            throw std::runtime_error("Could not convert glyph to bitmap");
         }
 
         FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
@@ -750,7 +747,7 @@ void FT2Font::get_xys(bool antialiased, std::vector<double> &xys)
         error = FT_Glyph_To_Bitmap(
             &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
         if (error) {
-            throw "Could not convert glyph to bitmap";
+            throw std::runtime_error("Could not convert glyph to bitmap");
         }
 
         FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
@@ -773,7 +770,7 @@ void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, 
     sub_offset.y = 0; // int((yd - (double)y) * 64.0);
 
     if (glyphInd >= glyphs.size()) {
-        throw "glyph num is out of range";
+        throw std::runtime_error("glyph num is out of range");
     }
 
     error = FT_Glyph_To_Bitmap(&glyphs[glyphInd],
@@ -782,7 +779,7 @@ void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, 
                                1 // destroy image
                                );
     if (error) {
-        throw "Could not convert glyph to bitmap";
+        throw std::runtime_error("Could not convert glyph to bitmap");
     }
 
     FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyphInd];
@@ -798,7 +795,7 @@ void FT2Font::get_glyph_name(unsigned int glyph_number, char *buffer)
         PyOS_snprintf(buffer, 128, "uni%08x", glyph_number);
     } else {
         if (FT_Get_Glyph_Name(face, glyph_number, buffer, 128)) {
-            throw "Could not get glyph names.";
+            throw std::runtime_error("Could not get glyph names.");
         }
     }
 }

@@ -14,6 +14,7 @@
 .pydevproject
 *.swp
 .idea
+.vscode/
 
 # Compiled source #
 ###################
@@ -65,9 +66,6 @@ doc/gallery
 doc/tutorials
 doc/modules
 doc/pyplots/tex_demo.png
-doc/users/installing.rst
-doc/_static/depsy_badge.svg
-doc/_static/matplotlibrc
 lib/dateutil
 examples/*/*.pdf
 examples/*/*.png
@@ -93,3 +91,8 @@ cover/
 __conda_version__.txt
 lib/png.lib
 lib/z.lib
+
+# Jupyter files #
+#################
+
+.ipynb_checkpoints/

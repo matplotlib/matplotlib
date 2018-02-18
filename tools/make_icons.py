@@ -79,11 +79,9 @@ def make_matplotlib_icon():
     for r, bar in zip(radii, bars):
         bar.set_facecolor(cm.jet(r/10.))
 
-    for label in ax.get_xticklabels() + ax.get_yticklabels():
-        label.set_visible(False)
-
-    for line in ax.get_ygridlines() + ax.get_xgridlines():
-        line.set_lw(0.0)
+    ax.tick_params(labelleft=False, labelright=False,
+                   labelbottom=False, labeltop=False)
+    ax.grid(lw=0.0)
 
     ax.set_yticks(np.arange(1, 9, 2))
     ax.set_rmax(9)

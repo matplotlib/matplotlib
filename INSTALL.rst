@@ -1,7 +1,3 @@
-.. The source of this document is INSTALL.rst. During the doc build process,
-.. this file is copied over to doc/users/installing.rst.
-.. Therefore, you must edit INSTALL.rst, *not* doc/users/installing.rst!
-
 .. _pip: https://pypi.python.org/pypi/pip/
 
 ==========
@@ -13,71 +9,41 @@ Installing
     If you wish to contribute to the project, it's recommended you
     :ref:`install the latest development version<install_from_source>`.
 
-
 .. contents::
 
 Installing an official release
 ==============================
 
-Matplotlib and most of its dependencies are all available as wheel packages for
-macOS, Windows and Linux distributions::
+Matplotlib and most of its dependencies are all available as wheel
+packages for macOS, Windows and Linux distributions::
 
-  pip install -U matplotlib
+  python -mpip install -U pip
+  python -mpip install -U matplotlib
 
+.. note::
 
-Third-party distributions of Matplotlib
-=======================================
+   The following backends work out of the box: Agg, ps, pdf, svg and TkAgg.
 
-Scientific Python distributions: Conda, Canopy...
--------------------------------------------------
+   For support of other GUI frameworks, LaTeX rendering, saving
+   animations and a larger selection of file formats, you may need to
+   install :ref:`additional dependencies <install_requirements>`.
 
-The first option is to use one of the pre-packaged Python distributions that
-already provide Matplotlib built-in.  Both `Anaconda
-<https://www.continuum.io/downloads/>`_ and `Canopy
-<https://www.enthought.com/products/canopy/>`_ are both excellent choices that
-"just work" out of the box for Windows, macOS and common Linux platforms.  Both
-of these distributions include Matplotlib and *lots* of other useful tools.
-
-Linux : using your package manager
-----------------------------------
-
-If you are on Linux, you might prefer to use your package manager.  Matplotlib
-is packaged for almost every major Linux distribution.
-
-* Debian / Ubuntu: ``sudo apt-get install python-matplotlib``
-* Fedora: ``sudo dnf install python-matplotlib``
-* Red Hat: ``sudo yum install python-matplotlib``
-* Arch: ``sudo pacman -S python-matplotlib``
-
-.. _installing_windows:
-
-Windows
--------
-
-We strongly recommend using `SciPy-stack compatible Python distributions
-<https://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
-Enthought Canopy, or Continuum Anaconda, which have Matplotlib and its
-dependencies, plus other useful packages, preinstalled.
-
-For `standard Python <https://www.python.org/downloads/>`_ installations,
-install Matplotlib using pip_::
-
-    python -m pip install -U pip setuptools
-    python -m pip install matplotlib
-
-In case Python 2.7 or 3.4 are not installed for all users,
-the Microsoft Visual C++ 2008
-(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
-or
-`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=29>`__
-for Python 2.7) or Microsoft Visual C++ 2010
-(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
-or
-`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
-for Python 3.4) redistributable packages need to be installed.
+Although not required, we suggest also installing ``IPython`` for
+interactive use.  To easily install a complete Scientific Python
+stack, see :ref:`install_scipy_dists` below.
 
 
-The Windows wheels (:file:`*.whl`) on the `PyPI download page
+macOS
+-----
+
+To use the native OSX backend you will need :ref:`a framework build
+<osxframework-faq>` build of Python.
+
+
+Test Data
+---------
+
+The wheels (:file:`*.whl`) on the `PyPI download page
 <https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
 or example code.
 If you want to try the many demos that come in the Matplotlib source
@@ -89,21 +55,38 @@ To run the test suite:
    :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
  * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
    `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-   ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-   <https://inkscape.org/>`_;
+   ffmpeg, avconv, ImageMagick, and `Inkscape <https://inkscape.org/>`_;
  * run ``py.test path\to\tests\directory``.
 
-.. note::
 
-   The following backends work out of the box: Agg, TkAgg, ps, pdf and svg.
-   TkAgg is probably the best backend for interactive use from the standard
-   Python shell or from IPython and is enabled as default.
+Third-party distributions of Matplotlib
+=======================================
 
-   GTK3 is not supported on Windows.
+.. _install_scipy_dists:
 
-   For support for other backends, LaTeX rendering, animation input/output and
-   a larger selection of file formats, you may need to install :ref:`additional
-   dependencies <install_requirements>`.
+Scientific Python Distributions
+-------------------------------
+
+`Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
+<https://www.enthought.com/products/canopy/>`_ and `ActiveState
+<https://www.activestate.com/activepython/downloads>`_ are excellent
+choices that "just work" out of the box for Windows, macOS and common
+Linux platforms. `WinPython <https://winpython.github.io/>`__ is an
+option for windows users.  All of these distributions include
+Matplotlib and *lots* of other useful (data) science tools.
+
+
+Linux : using your package manager
+----------------------------------
+
+If you are on Linux, you might prefer to use your package manager.  Matplotlib
+is packaged for almost every major Linux distribution.
+
+* Debian / Ubuntu: ``sudo apt-get install python3-matplotlib``
+* Fedora: ``sudo dnf install python3-matplotlib``
+* Red Hat: ``sudo yum install python3-matplotlib``
+* Arch: ``sudo pacman -S python-matplotlib``
+
 
 
 .. _install_from_source:
@@ -133,16 +116,14 @@ Python, NumPy, libpng and FreeType), you can build Matplotlib.
 ::
 
   cd matplotlib
-  python setup.py build
-  python setup.py install
+  python -mpip install .
 
-We provide a `setup.cfg
-<https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template>`_
-file that goes with :file:`setup.py` which you can use to customize
-the build process. For example, which default backend to use, whether
-some of the optional libraries that Matplotlib ships with are
-installed, and so on.  This file will be particularly useful to those
-packaging Matplotlib.
+We provide a setup.cfg_ file which you can use to customize the build
+process. For example, which default backend to use, whether some of the
+optional libraries that Matplotlib ships with are installed, and so on.  This
+file will be particularly useful to those packaging Matplotlib.
+
+.. _setup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template
 
 If you have installed prerequisites to nonstandard places and need to
 inform Matplotlib where they are, edit ``setupext.py`` and add the base
@@ -158,20 +139,17 @@ Dependencies
 
 Matplotlib requires a large number of dependencies:
 
-  * `Python <https://www.python.org/downloads/>`_ (>= 2.7 or >= 3.4)
+  * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
   * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
   * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
-  * dateutil (>= 1.1)
+  * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
   * `pyparsing <https://pyparsing.wikispaces.com/>`__
   * `libpng <http://www.libpng.org>`__ (>= 1.2)
   * `pytz <http://pytz.sourceforge.net/>`__
   * FreeType (>= 2.3)
   * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
   * `six <https://pypi.python.org/pypi/six>`_
-  * `backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
-    (for Python 2.7 only)
-  * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
-    2.7 only, on Linux and macOS only)
+  * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
@@ -182,22 +160,23 @@ optional Matplotlib backends and the capabilities they provide.
     `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
-  * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend;
+  * :term:`wxpython` (>= 2.9 or later): for the WX or WXAgg backend;
+  * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`__ (>=
+    v0.8): for cairo based backends;
   * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for GTK3Cairo;
-  * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
+  * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend;
 
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
 
-  * `ffmpeg <https://www.ffmpeg.org/>`__/`avconv
-    <https://libav.org/avconv.html>`__ or `mencoder
-    <https://mplayerhq.hu/design7/news.html>`__ (for saving movies);
-  * `ImageMagick <https://www.imagemagick.org/script/index.php>`__ (for saving
-    animated gifs);
-  * `Pillow <https://python-pillow.org/>`__ (for a larger selection of image
-    file formats: JPEG, BMP, and TIFF image files);
-  * `LaTeX <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_
-    (for rendering text with LaTeX);
+  * `ffmpeg <https://www.ffmpeg.org/>`_/`avconv
+    <https://libav.org/avconv.html>`_: for saving movies;
+  * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
+    animated gifs;
+  * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=2.0): for a larger selection of
+    image file formats: JPEG, BMP, and TIFF image files;
+  * `LaTeX <https://miktex.org/>`_ and `GhostScript
+    <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).
 
 .. note::
 
@@ -265,7 +244,7 @@ If you are using MacPorts, execute the following instead::
 After installing the above requirements, install Matplotlib from source by
 executing::
 
-  python setup.py install
+  python -mpip install .
 
 Note that your environment is somewhat important. Some conda users have
 found that, to run the tests, their PYTHONPATH must include
@@ -314,8 +293,6 @@ without fiddling with environment variables::
   conda install pyqt
   # this package is only available in the conda-forge channel
   conda install -c conda-forge msinttypes
-  # for Python 2.7
-  conda install -c conda-forge backports.functools_lru_cache
 
   # copy the libs which have "wrong" names
   set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib

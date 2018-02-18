@@ -13,7 +13,6 @@ from copy import copy
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-import matplotlib.mlab as mlab
 
 # compute some interesting data
 x0, x1 = -5, 5
@@ -21,9 +20,9 @@ y0, y1 = -3, 3
 x = np.linspace(x0, x1, 500)
 y = np.linspace(y0, y1, 500)
 X, Y = np.meshgrid(x, y)
-Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = 10*(Z2 - Z1)  # difference of Gaussians
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
 
 # Set up a colormap:
 # use copy so that we do not mutate the global colormap instance

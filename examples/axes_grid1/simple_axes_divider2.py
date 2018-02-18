@@ -28,7 +28,6 @@ ax[2].set_axes_locator(divider.new_locator(nx=2, ny=2))
 ax[3].set_axes_locator(divider.new_locator(nx=2, nx1=4, ny=0))
 
 for ax1 in ax:
-    plt.setp(ax1.get_xticklabels()+ax1.get_yticklabels(),
-             visible=False)
+    ax1.tick_params(labelbottom=False, labelleft=False)
 
 plt.show()

@@ -48,7 +48,7 @@ extern "C" {
 /*
  * PyFile_* compatibility
  */
-#if PY3K
+#if defined(PY3K) | defined(PYPY_VERSION)
 
 /*
  * Get a FILE* handle to the file represented by the Python object
@@ -82,7 +82,7 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
     if (ret == NULL) {
         return NULL;
     }
-    fd2 = PyNumber_AsSsize_t(ret, NULL);
+    fd2 = (int)PyNumber_AsSsize_t(ret, NULL);
     Py_DECREF(ret);
 
 /* Convert to FILE* handle */
@@ -126,6 +126,9 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
  */
 static NPY_INLINE int mpl_PyFile_DupClose(PyObject *file, FILE *handle, mpl_off_t orig_pos)
 {
+    PyObject *exc_type = NULL, *exc_value = NULL, *exc_tb = NULL;
+    PyErr_Fetch(&exc_type, &exc_value, &exc_tb);
+
     int fd;
     PyObject *ret;
     mpl_off_t position;
@@ -136,25 +139,33 @@ static NPY_INLINE int mpl_PyFile_DupClose(PyObject *file, FILE *handle, mpl_off_
     fclose(handle);
 
     /* Restore original file handle position, in order to not confuse
-       Python-side data structures */
+       Python-side data structures.  Note that this would fail if an exception
+       is currently set, which can happen as this function is called in cleanup
+       code, so we need to carefully fetch and restore the exception state. */
     fd = PyObject_AsFileDescriptor(file);
     if (fd == -1) {
-        return -1;
+        goto fail;
     }
     if (mpl_lseek(fd, orig_pos, SEEK_SET) != -1) {
         if (position == -1) {
             PyErr_SetString(PyExc_IOError, "obtaining file position failed");
-            return -1;
+            goto fail;
         }
 
         /* Seek Python-side handle to the FILE* handle position */
         ret = PyObject_CallMethod(file, (char *)"seek", (char *)(MPL_OFF_T_PYFMT "i"), position, 0);
         if (ret == NULL) {
-            return -1;
+            goto fail;
         }
         Py_DECREF(ret);
     }
+    PyErr_Restore(exc_type, exc_value, exc_tb);
     return 0;
+fail:
+    Py_XDECREF(exc_type);
+    Py_XDECREF(exc_value);
+    Py_XDECREF(exc_tb);
+    return -1;
 }
 
 static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
@@ -200,14 +211,23 @@ static NPY_INLINE PyObject *mpl_PyFile_OpenFile(PyObject *filename, const char *
 
 static NPY_INLINE int mpl_PyFile_CloseFile(PyObject *file)
 {
+    PyObject *type, *value, *tb;
+    PyErr_Fetch(&type, &value, &tb);
+
     PyObject *ret;
 
     ret = PyObject_CallMethod(file, (char *)"close", NULL);
     if (ret == NULL) {
-        return -1;
+        goto fail;
     }
     Py_DECREF(ret);
+    PyErr_Restore(type, value, tb);
     return 0;
+fail:
+    Py_XDECREF(type);
+    Py_XDECREF(value);
+    Py_XDECREF(tb);
+    return -1;
 }
 
 #ifdef __cplusplus

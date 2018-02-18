@@ -19,6 +19,10 @@
 .. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
 .. _Depsy: http://depsy.org/package/python/matplotlib
 
+.. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+.. _NUMFocus: http://www.numfocus.org
+
+
 ##########
 Matplotlib
 ##########
@@ -28,6 +32,9 @@ figures in a variety of hardcopy formats and interactive environments across
 platforms. Matplotlib can be used in Python scripts, the Python and IPython
 shell (à la MATLAB or Mathematica), web application servers, and various
 graphical user interface toolkits.
+
+NOTE: The current master branch is now Python 3 only.  Python 2 support is
+being dropped.
 
 `Home page <http://matplotlib.org/>`_
 

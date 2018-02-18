@@ -90,11 +90,11 @@ import six
 from six.moves import xrange
 
 from collections import Sized
+from numbers import Number
 
 import numpy as np
 
-from . import rcParams
-from .cbook import is_math_text, is_numlike
+from . import cbook, rcParams
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 
@@ -170,7 +170,7 @@ class MarkerStyle(object):
 
         Attributes
         ----------
-        markers : list of known markes
+        markers : list of known marks
 
         fillstyles : list of known fillstyles
 
@@ -259,7 +259,8 @@ class MarkerStyle(object):
               marker in self.markers):
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
-        elif isinstance(marker, six.string_types) and is_math_text(marker):
+        elif (isinstance(marker, six.string_types)
+              and cbook.is_math_text(marker)):
             self._marker_function = self._set_mathtext_path
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker
@@ -309,7 +310,7 @@ class MarkerStyle(object):
 
     def _set_tuple_marker(self):
         marker = self._marker
-        if is_numlike(marker[0]):
+        if isinstance(marker[0], Number):
             if len(marker) == 2:
                 numsides, rotation = marker[0], 0.0
             elif len(marker) == 3:

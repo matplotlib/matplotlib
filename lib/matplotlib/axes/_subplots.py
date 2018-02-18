@@ -9,6 +9,8 @@ from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 
+import matplotlib._layoutbox as layoutbox
+
 import warnings
 from matplotlib.cbook import mplDeprecation
 
@@ -30,7 +32,6 @@ class SubplotBase(object):
         being created.  *plotNum* starts at 1 in the upper left
         corner and increases to the right.
 
-
         If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
         decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
@@ -43,12 +44,12 @@ class SubplotBase(object):
             else:
                 try:
                     s = str(int(args[0]))
-                    rows, cols, num = list(map(int, s))
+                    rows, cols, num = map(int, s)
                 except ValueError:
-                    raise ValueError(
-                        'Single argument to subplot must be a 3-digit '
-                        'integer')
-                self._subplotspec = GridSpec(rows, cols)[num - 1]
+                    raise ValueError('Single argument to subplot must be '
+                        'a 3-digit integer')
+                self._subplotspec = GridSpec(rows, cols,
+                                             figure=self.figure)[num - 1]
                 # num - 1 for converting from MATLAB to python indexing
         elif len(args) == 3:
             rows, cols, num = args
@@ -56,13 +57,16 @@ class SubplotBase(object):
             cols = int(cols)
             if isinstance(num, tuple) and len(num) == 2:
                 num = [int(n) for n in num]
-                self._subplotspec = GridSpec(rows, cols)[num[0] - 1:num[1]]
+                self._subplotspec = GridSpec(
+                        rows, cols,
+                        figure=self.figure)[(num[0] - 1):num[1]]
             else:
                 if num < 1 or num > rows*cols:
                     raise ValueError(
-                        "num must be 1 <= num <= {maxn}, not {num}".format(
-                            maxn=rows*cols, num=num))
-                self._subplotspec = GridSpec(rows, cols)[int(num) - 1]
+                        ("num must be 1 <= num <= {maxn}, not {num}"
+                        ).format(maxn=rows*cols, num=num))
+                self._subplotspec = GridSpec(
+                        rows, cols, figure=self.figure)[int(num) - 1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
             raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
@@ -71,6 +75,23 @@ class SubplotBase(object):
 
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
+        # add a layout box to this, for both the full axis, and the poss
+        # of the axis.  We need both because the axes may become smaller
+        # due to parasitic axes and hence no longer fill the subplotspec.
+        if self._subplotspec._layoutbox is None:
+            self._layoutbox = None
+            self._poslayoutbox = None
+        else:
+            name = self._subplotspec._layoutbox.name + '.ax'
+            name = name + layoutbox.seq_id()
+            self._layoutbox = layoutbox.LayoutBox(
+                    parent=self._subplotspec._layoutbox,
+                    name=name,
+                    artist=self)
+            self._poslayoutbox = layoutbox.LayoutBox(
+                    parent=self._layoutbox,
+                    name=self._layoutbox.name+'.pos',
+                    pos=True, subplot=True, artist=self)
 
     def __reduce__(self):
         # get the first axes class which does not
@@ -94,7 +115,8 @@ class SubplotBase(object):
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
         """change subplot geometry, e.g., from 1,1,1 to 2,2,3"""
-        self._subplotspec = GridSpec(numrows, numcols)[num - 1]
+        self._subplotspec = GridSpec(numrows, numcols,
+                                     figure=self.figure)[num - 1]
         self.update_params()
         self.set_position(self.figbox)
 
@@ -147,9 +169,11 @@ class SubplotBase(object):
 
     def _make_twin_axes(self, *kl, **kwargs):
         """
-        make a twinx axes of self. This is used for twinx and twiny.
+        Make a twinx axes of self. This is used for twinx and twiny.
         """
         from matplotlib.projections import process_projection_requirements
+        if 'sharex' in kwargs and 'sharey' in kwargs:
+            raise ValueError("Twinned Axes may share only one axis.")
         kl = (self.get_subplotspec(),) + kl
         projection_class, kwargs, key = process_projection_requirements(
             self.figure, *kl, **kwargs)
@@ -157,6 +181,15 @@ class SubplotBase(object):
         ax2 = subplot_class_factory(projection_class)(self.figure,
                                                       *kl, **kwargs)
         self.figure.add_subplot(ax2)
+        self.set_adjustable('datalim')
+        ax2.set_adjustable('datalim')
+
+        if self._layoutbox is not None and ax2._layoutbox is not None:
+            # make the layout boxes be explicitly the same
+            ax2._layoutbox.constrain_same(self._layoutbox)
+            ax2._poslayoutbox.constrain_same(self._poslayoutbox)
+
+        self._twinned_axes.join(self, ax2)
         return ax2
 
 _subplot_classes = {}

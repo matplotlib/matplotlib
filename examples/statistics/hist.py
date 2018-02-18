@@ -46,13 +46,13 @@ axs[1].hist(y, bins=n_bins)
 # edit the histogram to our liking. Let's change the color of each bar
 # based on its y value.
 
-fig, axs = plt.subplots(1, 2, figsize=(10, 5), tight_layout=True)
+fig, axs = plt.subplots(1, 2, tight_layout=True)
 
 # N is the count in each bin, bins is the lower-limit of the bin
 N, bins, patches = axs[0].hist(x, bins=n_bins)
 
 # We'll color code by height, but you could use any scalar
-fracs = N.astype(float) / N.max()
+fracs = N / N.max()
 
 # we need to normalize the data to 0..1 for the full range of the colormap
 norm = colors.Normalize(fracs.min(), fracs.max())
@@ -63,7 +63,7 @@ for thisfrac, thispatch in zip(fracs, patches):
     thispatch.set_facecolor(color)
 
 # We can also normalize our inputs by the total number of counts
-axs[1].hist(x, bins=n_bins, normed=True)
+axs[1].hist(x, bins=n_bins, density=True)
 
 # Now we format the y-axis to display percentage
 axs[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))
@@ -87,7 +87,7 @@ hist = ax.hist2d(x, y)
 # Customizing a 2D histogram is similar to the 1D case, you can control
 # visual components such as the bin size or color normalization.
 
-fig, axs = plt.subplots(1, 3, figsize=(15, 5), sharex=True, sharey=True,
+fig, axs = plt.subplots(3, 1, figsize=(5, 15), sharex=True, sharey=True,
                         tight_layout=True)
 
 # We can increase the number of bins on each axis

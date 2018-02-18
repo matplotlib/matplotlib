@@ -2,8 +2,7 @@
 Provides a collection of utilities for comparing (image) results.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -12,6 +11,7 @@ import functools
 import hashlib
 import itertools
 import os
+from pathlib import Path
 import re
 import shutil
 import sys
@@ -86,11 +86,10 @@ def get_cache_dir():
     if cachedir is None:
         raise RuntimeError('Could not find a suitable configuration directory')
     cache_dir = os.path.join(cachedir, 'test_cache')
-    if not os.path.exists(cache_dir):
-        try:
-            cbook.mkdirs(cache_dir)
-        except IOError:
-            return None
+    try:
+        Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    except IOError:
+        return None
     if not os.access(cache_dir, os.W_OK):
         return None
     return cache_dir
@@ -355,8 +354,8 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
     # clip the images to the same size -- this is useful only when
     # comparing eps to pdf
     if actual_path[-7:-4] == 'eps' and expected_path[-7:-4] == 'pdf':
-        aw, ah = actual_image.shape
-        ew, eh = expected_image.shape
+        aw, ah, ad = actual_image.shape
+        ew, eh, ed = expected_image.shape
         actual_image = actual_image[int(aw / 2 - ew / 2):int(
             aw / 2 + ew / 2), int(ah / 2 - eh / 2):int(ah / 2 + eh / 2)]
     return actual_image, expected_image
@@ -368,12 +367,8 @@ def calculate_rms(expectedImage, actualImage):
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {0} "
             "actual size {1}".format(expectedImage.shape, actualImage.shape))
-    num_values = expectedImage.size
-    abs_diff_image = abs(expectedImage - actualImage)
-    histogram = np.bincount(abs_diff_image.ravel(), minlength=256)
-    sum_of_squares = np.sum(histogram * np.arange(len(histogram)) ** 2)
-    rms = np.sqrt(float(sum_of_squares) / num_values)
-    return rms
+    # Convert to float to avoid overflowing finite integer types.
+    return np.sqrt(((expectedImage - actualImage).astype(float) ** 2).mean())
 
 
 def compare_images(expected, actual, tol, in_decorator=False):
@@ -398,8 +393,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         If called from image_comparison decorator, this should be
         True. (default=False)
 
-    Example
-    -------
+    Examples
+    --------
     img1 = "./baseline/plot.png"
     img2 = "./output/plot.png"
     compare_images( img1, img2, 0.001 ):

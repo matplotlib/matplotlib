@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -7,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 
-from matplotlib.table import CustomCell
+from matplotlib.table import CustomCell, Table
 from matplotlib.path import Path
 from matplotlib.colors import Normalize
 
@@ -29,7 +28,7 @@ def test_zorder():
     rowLabels = ['%d year' % x for x in (100, 50)]
 
     cellText = []
-    yoff = np.array([0.0] * len(colLabels))
+    yoff = np.zeros(len(colLabels))
     for row in reversed(data):
         yoff += row
         cellText.append(['%1.1f' % (x/1000.0) for x in yoff])
@@ -134,7 +133,7 @@ def test_customcell():
 def test_auto_column():
     fig = plt.figure()
 
-    #iteratble list input
+    # iterable list input
     ax1 = fig.add_subplot(4, 1, 1)
     ax1.axis('off')
     tb1 = ax1.table(cellText=[['Fit Text', 2],
@@ -146,7 +145,7 @@ def test_auto_column():
     tb1.set_fontsize(12)
     tb1.auto_set_column_width([-1, 0, 1])
 
-    #iteratble tuple input
+    # iterable tuple input
     ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
     tb2 = ax2.table(cellText=[['Fit Text', 2],
@@ -250,3 +249,15 @@ def test_bbox_table():
 
     plt.draw()
     
+
+def test_table_cells():
+    fig, ax = plt.subplots()
+    table = Table(ax)
+
+    cell = table.add_cell(1, 2, 1, 1)
+    assert isinstance(cell, CustomCell)
+    assert cell is table[1, 2]
+
+    cell2 = CustomCell((0, 0), 1, 2, visible_edges=None)
+    table[2, 1] = cell2
+    assert table[2, 1] is cell2

@@ -4,8 +4,7 @@ Poly Editor
 ===========
 
 This is an example to show how to build cross-GUI applications using
-matplotlib event handling to interact with objects on the canvas
-
+Matplotlib event handling to interact with objects on the canvas.
 """
 import numpy as np
 from matplotlib.lines import Line2D
@@ -15,7 +14,7 @@ from matplotlib.mlab import dist_point_to_segment
 
 class PolygonInteractor(object):
     """
-    An polygon editor.
+    A polygon editor.
 
     Key-bindings
 
@@ -34,17 +33,19 @@ class PolygonInteractor(object):
 
     def __init__(self, ax, poly):
         if poly.figure is None:
-            raise RuntimeError('You must first add the polygon to a figure or canvas before defining the interactor')
+            raise RuntimeError('You must first add the polygon to a figure '
+                               'or canvas before defining the interactor')
         self.ax = ax
         canvas = poly.figure.canvas
         self.poly = poly
 
         x, y = zip(*self.poly.xy)
-        self.line = Line2D(x, y, marker='o', markerfacecolor='r', animated=True)
+        self.line = Line2D(x, y,
+                           marker='o', markerfacecolor='r',
+                           animated=True)
         self.ax.add_line(self.line)
-        #self._update_line(poly)
 
-        cid = self.poly.add_callback(self.poly_changed)
+        self.cid = self.poly.add_callback(self.poly_changed)
         self._ind = None  # the active vert
 
         canvas.mpl_connect('draw_event', self.draw_callback)
@@ -58,7 +59,8 @@ class PolygonInteractor(object):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)
-        self.canvas.blit(self.ax.bbox)
+        # do not need to blit here, this will fire before the screen is
+        # updated
 
     def poly_changed(self, poly):
         'this method is called whenever the polygon object is called'
@@ -113,7 +115,8 @@ class PolygonInteractor(object):
         elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.xy = [tup for i, tup in enumerate(self.poly.xy) if i != ind]
+                self.poly.xy = np.delete(self.poly.xy,
+                                         ind, axis=0)
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key == 'i':
             xys = self.poly.get_transform().transform(self.poly.xy)
@@ -123,14 +126,14 @@ class PolygonInteractor(object):
                 s1 = xys[i + 1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d <= self.epsilon:
-                    self.poly.xy = np.array(
-                        list(self.poly.xy[:i]) +
-                        [(event.xdata, event.ydata)] +
-                        list(self.poly.xy[i:]))
+                    self.poly.xy = np.insert(
+                        self.poly.xy, i+1,
+                        [event.xdata, event.ydata],
+                        axis=0)
                     self.line.set_data(zip(*self.poly.xy))
                     break
-
-        self.canvas.draw()
+        if self.line.stale:
+            self.canvas.draw_idle()
 
     def motion_notify_callback(self, event):
         'on mouse movement'
@@ -164,16 +167,15 @@ if __name__ == '__main__':
     theta = np.arange(0, 2*np.pi, 0.1)
     r = 1.5
 
-    xs = r*np.cos(theta)
-    ys = r*np.sin(theta)
+    xs = r * np.cos(theta)
+    ys = r * np.sin(theta)
 
-    poly = Polygon(list(zip(xs, ys)), animated=True)
+    poly = Polygon(np.column_stack([xs, ys]), animated=True)
 
     fig, ax = plt.subplots()
     ax.add_patch(poly)
     p = PolygonInteractor(ax, poly)
 
-    #ax.add_line(p.line)
     ax.set_title('Click and drag a point to move it')
     ax.set_xlim((-2, 2))
     ax.set_ylim((-2, 2))

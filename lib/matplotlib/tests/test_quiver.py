@@ -142,6 +142,18 @@ def test_barbs():
              cmap='viridis')
 
 
+@image_comparison(baseline_images=['barbs_pivot_test_image'],
+                  extensions=['png'], remove_text=True)
+def test_barbs_pivot():
+    x = np.linspace(-5, 5, 5)
+    X, Y = np.meshgrid(x, x)
+    U, V = 12*X, 12*Y
+    fig, ax = plt.subplots()
+    ax.barbs(X, Y, U, V, fill_empty=True, rounding=False, pivot=1.7,
+             sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3))
+    ax.scatter(X, Y, s=49, c='black')
+
+
 def test_bad_masked_sizes():
     'Test error handling when given differing sized masked arrays'
     x = np.arange(3)
@@ -153,6 +165,26 @@ def test_bad_masked_sizes():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.barbs(x, y, u, v)
+
+
+def test_angles_and_scale():
+    # angles array + scale_units kwarg
+    fig, ax = plt.subplots()
+    X, Y = np.meshgrid(np.arange(15), np.arange(10))
+    U = V = np.ones_like(X)
+    phi = (np.random.rand(15, 10) - .5) * 150
+    ax.quiver(X, Y, U, V, angles=phi, scale_units='xy')
+
+
+@image_comparison(baseline_images=['quiver_xy'],
+                  extensions=['png'], remove_text=True)
+def test_quiver_xy():
+    # simple arrow pointing from SW to NE
+    fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'))
+    ax.quiver(0, 0, 1, 1, angles='xy', scale_units='xy', scale=1)
+    ax.set_xlim(0, 1.1)
+    ax.set_ylim(0, 1.1)
+    ax.grid()
 
 
 def test_quiverkey_angles():

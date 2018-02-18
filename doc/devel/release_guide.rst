@@ -48,11 +48,12 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 Check Docs
 ----------
 
-Before tagging, make sure that the docs build cleanly ::
+Before tagging, update the what's new listing in :file:`doc/users/whats_new.rst`
+by merging all files in :file:`doc/users/next_whats_new/` coherently. Also,
+temporarily comment out the include and toctree glob; re-instate these after a
+release. Finally, make sure that the docs build cleanly ::
 
-  pushd doc
-  python make.py html latex -n 16
-  popd
+  make -Cdoc O=-n$(nproc) html latexpdf
 
 After the docs are built, check that all of the links, internal and external, are still
 valid.  We use ``linkchecker`` for this, which has not been ported to python3 yet.  You will
@@ -211,7 +212,7 @@ build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
   git checkout v2.0.0-doc
   git clean -xfd
   cd doc
-  python make.py html latex -n 16
+  make O=-n$(nproc) html latexpdf
 
 which will build both the html and pdf version of the documentation.
 

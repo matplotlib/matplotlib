@@ -8,7 +8,7 @@ The Pyplot API
 The :mod:`matplotlib.pyplot` module contains functions that allow you to generate
 many kinds of plots quickly. For examples that showcase the use
 of the :mod:`matplotlib.pyplot` module, see the
-:ref:`sphx_glr_tutorials_01_introductory_pyplot.py`
+:ref:`sphx_glr_tutorials_introductory_pyplot.py`
 or the :ref:`pyplots_examples`. We also recommend that you look into
 the object-oriented approach to plotting, described below.
 

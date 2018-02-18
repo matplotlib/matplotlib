@@ -15,6 +15,7 @@ provides a ``usetex`` option for those who do want to call out to TeX
 to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 """
 
+###############################################################################
 # Any text element can use math text.  You should use raw strings (precede the
 # quotes with an ``'r'``), and surround the math text with dollar signs ($), as in
 # TeX. Regular text and mathtext can be interleaved within the same string.
@@ -22,7 +23,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 # (from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (with are designed
 # to blend well with Times), or a Unicode font that you provide.  The mathtext
 # font can be selected with the customization variable ``mathtext.fontset`` (see
-# :ref:`sphx_glr_tutorials_01_introductory_customizing.py`)
+# :ref:`sphx_glr_tutorials_introductory_customizing.py`)
 #
 # .. note::
 #    On `"narrow" <http://wordaligned.org/articles/narrow-python>`_ builds
@@ -32,7 +33,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #    <http://thread.gmane.org/gmane.comp.python.matplotlib.general/19963/focus=19978>`_.
 #
 # Here is a simple example::
-
+#
 #     # plain text
 #     plt.title('alpha > beta')
 #
@@ -151,6 +152,8 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #
 #     \sqrt[3]{x}
 #
+# .. _mathtext-fonts:
+#
 # Fonts
 # -----
 #
@@ -183,7 +186,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #
 # Here "s" and "t" are variable in italics font (default), "sin" is in
 # Roman font, and the amplitude "A" is in calligraphy font.  Note in the
-# example above the caligraphy ``A`` is squished into the ``sin``.  You
+# example above the calligraphy ``A`` is squished into the ``sin``.  You
 # can use a spacing command to add a little whitespace between them::
 #
 #     s(t) = \mathcal{A}\/\sin(2 \omega t)

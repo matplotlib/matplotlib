@@ -3,11 +3,12 @@ The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
 
+# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# to ensure that we error out properly for people with outdated setuptools
+# and/or pip.
 from __future__ import print_function, absolute_import
 from string import Template
-# This needs to be the very first thing to use distribute
-from distribute_setup import use_setuptools
-use_setuptools()
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 
@@ -29,14 +30,6 @@ if __name__ == '__main__':
     # update it when the contents of directories change.
     if os.path.exists('MANIFEST'):
         os.remove('MANIFEST')
-
-try:
-    from setuptools import setup
-except ImportError:
-    try:
-        from setuptools.core import setup
-    except ImportError:
-        from distutils.core import setup
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
@@ -67,14 +60,7 @@ mpl_packages = [
     setupext.Platform(),
     'Required dependencies and extensions',
     setupext.Numpy(),
-    setupext.Six(),
-    setupext.Dateutil(),
-    setupext.BackportsFuncToolsLRUCache(),
-    setupext.Subprocess32(),
-    setupext.Pytz(),
-    setupext.Cycler(),
-    setupext.Tornado(),
-    setupext.Pyparsing(),
+    setupext.InstallRequires(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
@@ -83,7 +69,6 @@ mpl_packages = [
     setupext.Image(),
     setupext.TTConv(),
     setupext.Path(),
-    setupext.ContourLegacy(),
     setupext.Contour(),
     setupext.QhullWrap(),
     setupext.Tri(),
@@ -125,7 +110,6 @@ classifiers = [
     'Programming Language :: Python',
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
@@ -201,23 +185,21 @@ if __name__ == '__main__':
                         required_failed.append(package)
                 else:
                     good_packages.append(package)
-                    if (isinstance(package, setupext.OptionalBackendPackage) and
-                            package.runtime_check() and
-                            default_backend is None):
+                    if (isinstance(package, setupext.OptionalBackendPackage)
+                            and package.runtime_check()
+                            and default_backend is None):
                         default_backend = package.name
         print_raw('')
 
         # Abort if any of the required packages can not be built.
         if required_failed:
             print_line()
-            message = ("The following required packages can not "
-                       "be built: %s" %
-                       ", ".join(x.name for x in required_failed))
+            print_message("The following required packages can not be built: "
+                          "%s" % ", ".join(x.name for x in required_failed))
             for pkg in required_failed:
-                pkg_help = pkg.install_help_msg()
-                if pkg_help:
-                    message += "\n* " + pkg_help
-            print_message(message)
+                msg = pkg.install_help_msg()
+                if msg:
+                    print_message(msg)
             sys.exit(1)
 
         # Now collect all of the information we need to build all of the
@@ -245,7 +227,8 @@ if __name__ == '__main__':
             template = fd.read()
         template = Template(template)
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
+            fd.write(
+                template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
         # Build in verbose mode if requested
         if setupext.options['verbose']:
@@ -282,17 +265,10 @@ if __name__ == '__main__':
         ext_modules=ext_modules,
         package_dir=package_dir,
         package_data=package_data,
-        include_package_data=True,
-        data_files=[
-            ('share/jupyter/nbextensions/matplotlib', [
-                'lib/matplotlib/backends/web_backend/js/extension.js',
-                'lib/matplotlib/backends/web_backend/js/nbagg_mpl.js',
-                'lib/matplotlib/backends/web_backend/js/mpl.js',
-            ]),
-        ],
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
 
+        python_requires='>=3.5',
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,

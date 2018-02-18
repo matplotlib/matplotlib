@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 from six.moves import cPickle as pickle
 from six.moves import range
@@ -12,6 +11,11 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+
+try:  # https://docs.python.org/3/library/exceptions.html#RecursionError
+    RecursionError                 # Python 3.5+
+except NameError:
+    RecursionError = RuntimeError  # Python < 3.5
 
 
 def test_simple():
@@ -31,7 +35,7 @@ def test_simple():
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
-    plt.bar(left=np.arange(10), height=np.arange(10))
+    plt.bar(x=np.arange(10), height=np.arange(10))
     pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     fig = plt.figure()
@@ -42,7 +46,8 @@ def test_simple():
 
 
 @image_comparison(baseline_images=['multi_pickle'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True,
+                  style='mpl20')
 def test_complete():
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
 

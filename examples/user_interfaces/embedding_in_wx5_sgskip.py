@@ -3,11 +3,6 @@
 Embedding In Wx5
 ================
 
-Matplotlib requires wxPython 2.8+
-set the wxPython version in lib\site-packages\wx.pth file
-or if you have wxversion installed un-comment the lines below
-import wxversion
-wxversion.ensureMinimal('2.8')
 """
 
 import wx

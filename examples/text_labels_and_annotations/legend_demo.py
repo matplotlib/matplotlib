@@ -23,17 +23,19 @@ from matplotlib.lines import Line2D
 t1 = np.arange(0.0, 2.0, 0.1)
 t2 = np.arange(0.0, 2.0, 0.01)
 
+fig, ax = plt.subplots()
+
 # note that plot returns a list of lines.  The "l1, = plot" usage
 # extracts the first element of the list into l1 using tuple
 # unpacking.  So l1 is a Line2D instance, not a sequence of lines
-l1, = plt.plot(t2, np.exp(-t2))
-l2, l3 = plt.plot(t2, np.sin(2 * np.pi * t2), '--o', t1, np.log(1 + t1), '.')
-l4, = plt.plot(t2, np.exp(-t2) * np.sin(2 * np.pi * t2), 's-.')
+l1, = ax.plot(t2, np.exp(-t2))
+l2, l3 = ax.plot(t2, np.sin(2 * np.pi * t2), '--o', t1, np.log(1 + t1), '.')
+l4, = ax.plot(t2, np.exp(-t2) * np.sin(2 * np.pi * t2), 's-.')
 
-plt.legend((l2, l4), ('oscillatory', 'damped'), loc='upper right', shadow=True)
-plt.xlabel('time')
-plt.ylabel('volts')
-plt.title('Damped oscillation')
+ax.legend((l2, l4), ('oscillatory', 'damped'), loc='upper right', shadow=True)
+ax.set_xlabel('time')
+ax.set_ylabel('volts')
+ax.set_title('Damped oscillation')
 plt.show()
 
 
@@ -42,21 +44,21 @@ plt.show()
 
 x = np.linspace(0, 1)
 
+fig, (ax0, ax1) = plt.subplots(2, 1)
+
 # Plot the lines y=x**n for n=1..4.
-ax = plt.subplot(2, 1, 1)
 for n in range(1, 5):
-    plt.plot(x, x**n, label="n={0}".format(n))
-plt.legend(loc="upper left", bbox_to_anchor=[0, 1],
-           ncol=2, shadow=True, title="Legend", fancybox=True)
-ax.get_legend().get_title().set_color("red")
+    ax0.plot(x, x**n, label="n={0}".format(n))
+leg = ax0.legend(loc="upper left", bbox_to_anchor=[0, 1],
+                 ncol=2, shadow=True, title="Legend", fancybox=True)
+leg.get_title().set_color("red")
 
 # Demonstrate some more complex labels.
-ax = plt.subplot(2, 1, 2)
-plt.plot(x, x**2, label="multi\nline")
+ax1.plot(x, x**2, label="multi\nline")
 half_pi = np.linspace(0, np.pi / 2)
-plt.plot(np.sin(half_pi), np.cos(half_pi), label=r"$\frac{1}{2}\pi$")
-plt.plot(x, 2**(x**2), label="$2^{x^2}$")
-plt.legend(shadow=True, fancybox=True)
+ax1.plot(np.sin(half_pi), np.cos(half_pi), label=r"$\frac{1}{2}\pi$")
+ax1.plot(x, 2**(x**2), label="$2^{x^2}$")
+ax1.legend(shadow=True, fancybox=True)
 
 plt.show()
 
@@ -166,12 +168,12 @@ class HandlerDashedLines(HandlerLineCollection):
 
 x = np.linspace(0, 5, 100)
 
-plt.figure()
+fig, ax = plt.subplots()
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color'][:5]
 styles = ['solid', 'dashed', 'dashed', 'dashed', 'solid']
 lines = []
 for i, color, style in zip(range(5), colors, styles):
-    plt.plot(x, np.sin(x) - .1 * i, c=color, ls=style)
+    ax.plot(x, np.sin(x) - .1 * i, c=color, ls=style)
 
 
 # make proxy artists
@@ -180,7 +182,7 @@ line = [[(0, 0)]]
 # set up the proxy artist
 lc = mcol.LineCollection(5 * line, linestyles=styles, colors=colors)
 # create the legend
-plt.legend([lc], ['multi-line'], handler_map={type(lc): HandlerDashedLines()},
-           handlelength=2.5, handleheight=3)
+ax.legend([lc], ['multi-line'], handler_map={type(lc): HandlerDashedLines()},
+          handlelength=2.5, handleheight=3)
 
 plt.show()

@@ -4,37 +4,32 @@
 A PDF matplotlib backend
 Author: Jouni K Seppänen <jks@iki.fi>
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import codecs
+import collections
+from datetime import datetime
+from functools import total_ordering
+from io import BytesIO
+import logging
+from math import ceil, cos, floor, pi, sin
 import os
 import re
 import struct
 import sys
 import time
+import types
 import warnings
 import zlib
-import collections
-from io import BytesIO
-from functools import total_ordering
 
 import numpy as np
-from six import unichr
 
-
-from datetime import datetime, tzinfo, timedelta
-from math import ceil, cos, floor, pi, sin
-
-import matplotlib
-from matplotlib import __version__, rcParams
+from matplotlib import cbook, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
-                                      FigureManagerBase, FigureCanvasBase)
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (Bunch, get_realpath_and_stat,
+from matplotlib.cbook import (get_realpath_and_stat,
                               is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -50,6 +45,8 @@ from matplotlib.dates import UTC
 from matplotlib import _path
 from matplotlib import _png
 from matplotlib import ttconv
+
+_log = logging.getLogger(__name__)
 
 # Overview
 #
@@ -159,11 +156,11 @@ def pdfRepr(obj):
         return [b'false', b'true'][obj]
 
     # Integers are written as such.
-    elif isinstance(obj, (six.integer_types, np.integer)):
+    elif isinstance(obj, (int, np.integer)):
         return ("%d" % obj).encode('ascii')
 
     # Unicode strings are encoded in UTF-16BE with byte-order mark.
-    elif isinstance(obj, six.text_type):
+    elif isinstance(obj, str):
         try:
             # But maybe it's really ASCII?
             s = obj.encode('ASCII')
@@ -225,8 +222,8 @@ def pdfRepr(obj):
         return fill([pdfRepr(val) for val in obj.bounds])
 
     else:
-        msg = "Don't know a PDF representation for %s objects." % type(obj)
-        raise TypeError(msg)
+        raise TypeError("Don't know a PDF representation for {} objects"
+                        .format(type(obj)))
 
 
 class Reference(object):
@@ -268,7 +265,7 @@ class Name(object):
         return "<Name %s>" % self.name
 
     def __str__(self):
-        return '/' + six.text_type(self.name)
+        return '/' + str(self.name)
 
     def __eq__(self, other):
         return isinstance(other, Name) and self.name == other.name
@@ -324,7 +321,8 @@ _pdfops = dict(
     grestore=b'Q', textpos=b'Td', selectfont=b'Tf', textmatrix=b'Tm',
     show=b'Tj', showkern=b'TJ', setlinewidth=b'w', clip=b'W', shading=b'sh')
 
-Op = Bunch(**{name: Operator(value) for name, value in six.iteritems(_pdfops)})
+Op = types.SimpleNamespace(**{name: Operator(value)
+                              for name, value in _pdfops.items()})
 
 
 def _paint_path(fill, stroke):
@@ -434,9 +432,8 @@ class PdfFile(object):
         self.passed_in_file_object = False
         self.original_file_like = None
         self.tell_base = 0
-        if isinstance(filename, six.string_types):
-            fh = open(filename, 'wb')
-        elif is_writable_file_like(filename):
+        fh, opened = cbook.to_filehandle(filename, "wb", return_opened=True)
+        if not opened:
             try:
                 self.tell_base = filename.tell()
             except IOError:
@@ -445,8 +442,6 @@ class PdfFile(object):
             else:
                 fh = filename
                 self.passed_in_file_object = True
-        else:
-            raise ValueError("filename must be a path or a file-like object")
 
         self._core14fontdir = os.path.join(
             rcParams['datapath'], 'fonts', 'pdfcorefonts')
@@ -578,14 +573,14 @@ class PdfFile(object):
         self.writeFonts()
         self.writeObject(
             self.alphaStateObject,
-            {val[0]: val[1] for val in six.itervalues(self.alphaStates)})
+            {val[0]: val[1] for val in self.alphaStates.values()})
         self.writeHatches()
         self.writeGouraudTriangles()
         xobjects = {
-            name: ob for image, name, ob in six.itervalues(self._images)}
-        for tup in six.itervalues(self.markers):
+            name: ob for image, name, ob in self._images.values()}
+        for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
-        for name, value in six.iteritems(self.multi_byte_charprocs):
+        for name, value in self.multi_byte_charprocs.items():
             xobjects[name] = value
         for name, path, trans, ob, join, cap, padding, filled, stroked \
                 in self.paths:
@@ -641,7 +636,7 @@ class PdfFile(object):
         as the filename of the font.
         """
 
-        if isinstance(fontprop, six.string_types):
+        if isinstance(fontprop, str):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
             filename = findfont(
@@ -657,9 +652,7 @@ class PdfFile(object):
             Fx = Name('F%d' % self.nextFont)
             self.fontNames[filename] = Fx
             self.nextFont += 1
-            matplotlib.verbose.report(
-                'Assigning font %s = %r' % (Fx, filename),
-                'debug')
+            _log.debug('Assigning font %s = %r', Fx, filename)
 
         return Fx
 
@@ -687,16 +680,14 @@ class PdfFile(object):
         psfont = self.texFontMap[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(
-                ("No usable font file found for {0} (TeX: {1}). "
-                 "The font may lack a Type-1 version.")
+                "No usable font file found for {} (TeX: {}); "
+                "the font may lack a Type-1 version"
                 .format(psfont.psname, dvifont.texname))
 
         pdfname = Name('F%d' % self.nextFont)
         self.nextFont += 1
-        matplotlib.verbose.report(
-            'Assigning font {0} = {1} (dvi)'.format(pdfname, dvifont.texname),
-            'debug')
-        self.dviFontInfo[dvifont.texname] = Bunch(
+        _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
+        self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
             pdfname=pdfname,
             fontfile=psfont.filename,
@@ -709,19 +700,18 @@ class PdfFile(object):
         fonts = {}
         for dviname, info in sorted(self.dviFontInfo.items()):
             Fx = info.pdfname
-            matplotlib.verbose.report('Embedding Type-1 font %s from dvi'
-                                      % dviname, 'debug')
+            _log.debug('Embedding Type-1 font %s from dvi.', dviname)
             fonts[Fx] = self._embedTeXFont(info)
         for filename in sorted(self.fontNames):
             Fx = self.fontNames[filename]
-            matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
+            _log.debug('Embedding font %s.', filename)
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
-                matplotlib.verbose.report('Writing AFM font', 'debug')
+                _log.debug('Writing AFM font.')
                 fonts[Fx] = self._write_afm_font(filename)
             else:
                 # a normal TrueType font
-                matplotlib.verbose.report('Writing TrueType font', 'debug')
+                _log.debug('Writing TrueType font.')
                 realpath, stat_key = get_realpath_and_stat(filename)
                 chars = self.used_characters.get(stat_key)
                 if chars is not None and len(chars[1]):
@@ -741,9 +731,8 @@ class PdfFile(object):
         return fontdictObject
 
     def _embedTeXFont(self, fontinfo):
-        msg = ('Embedding TeX font {0} - fontinfo={1}'
-               .format(fontinfo.dvifont.texname, fontinfo.__dict__))
-        matplotlib.verbose.report(msg, 'debug')
+        _log.debug('Embedding TeX font %s - fontinfo=%s',
+                   fontinfo.dvifont.texname, fontinfo.__dict__)
 
         # Widths
         widthsObject = self.reserveObject('font widths')
@@ -770,12 +759,12 @@ class PdfFile(object):
 
         # If no file is specified, stop short
         if fontinfo.fontfile is None:
-            msg = ('Because of TeX configuration (pdftex.map, see updmap '
-                   'option pdftexDownloadBase14) the font {0} is not '
-                   'embedded. This is deprecated as of PDF 1.5 and it may '
-                   'cause the consumer application to show something that '
-                   'was not intended.').format(fontinfo.basefont)
-            warnings.warn(msg)
+            _log.warning(
+                "Because of TeX configuration (pdftex.map, see updmap option "
+                "pdftexDownloadBase14) the font %s is not embedded. This is "
+                "deprecated as of PDF 1.5 and it may cause the consumer "
+                "application to show something that was not intended.",
+                fontinfo.basefont)
             fontdict['BaseFont'] = Name(fontinfo.basefont)
             self.writeObject(fontdictObject, fontdict)
             return fontdictObject
@@ -1086,7 +1075,7 @@ end"""
                                        flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
-                    cid_to_gid_map[ccode] = unichr(gind)
+                    cid_to_gid_map[ccode] = chr(gind)
                 max_ccode = max(ccode, max_ccode)
             widths.sort()
             cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
@@ -1146,10 +1135,10 @@ end"""
         # You are lost in a maze of TrueType tables, all different...
         sfnt = font.get_sfnt()
         try:
-            ps_name = sfnt[(1, 0, 0, 6)].decode('macroman')  # Macintosh scheme
+            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')  # Macintosh scheme
         except KeyError:
             # Microsoft scheme:
-            ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
+            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
             # (see freetype/ttnameid.h)
         ps_name = ps_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
@@ -1195,9 +1184,9 @@ end"""
         # save as a (non-subsetted) Type 42 font instead.
         if is_opentype_cff_font(filename):
             fonttype = 42
-            msg = ("'%s' can not be subsetted into a Type 3 font. "
-                   "The entire font will be embedded in the output.")
-            warnings.warn(msg % os.path.basename(filename))
+            _log.warning("%r can not be subsetted into a Type 3 font. The "
+                         "entire font will be embedded in the output.",
+                         os.path.basename(filename))
 
         if fonttype == 3:
             return embedTTFType3(font, characters, descriptor)
@@ -1205,7 +1194,7 @@ end"""
             return embedTTFType42(font, characters, descriptor)
 
     def alphaState(self, alpha):
-        """Return name of an ExtGState that sets alpha to the given value"""
+        """Return name of an ExtGState that sets alpha to the given value."""
 
         state = self.alphaStates.get(alpha, None)
         if state is not None:
@@ -1240,7 +1229,7 @@ end"""
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in six.iteritems(self.hatchPatterns):
+        for hatch_style, name in self.hatchPatterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
@@ -1290,7 +1279,7 @@ end"""
             flat_colors = colors.reshape((shape[0] * shape[1], 4))
             points_min = np.min(flat_points, axis=0) - (1 << 8)
             points_max = np.max(flat_points, axis=0) + (1 << 8)
-            factor = float(0xffffffff) / (points_max - points_min)
+            factor = 0xffffffff / (points_max - points_min)
 
             self.beginStream(
                 ob.id, None,
@@ -1418,7 +1407,7 @@ end"""
         self.endStream()
 
     def writeImages(self):
-        for img, name, ob in six.itervalues(self._images):
+        for img, name, ob in self._images.values():
             height, width, data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
@@ -1459,7 +1448,7 @@ end"""
 
     def writeMarkers(self):
         for ((pathops, fill, stroke, joinstyle, capstyle),
-             (name, ob, bbox, lw)) in six.iteritems(self.markers):
+             (name, ob, bbox, lw)) in self.markers.items():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 ob.id, None,
@@ -1565,7 +1554,7 @@ end"""
         """Write out the info dictionary, checking it for good form"""
 
         def is_string_like(x):
-            return isinstance(x, six.string_types)
+            return isinstance(x, str)
 
         def is_date(x):
             return isinstance(x, datetime)
@@ -1626,6 +1615,13 @@ class RendererPdf(RendererBase):
 
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
+        if gc.get_rgb() is None:
+            # it should not matter what color here
+            # since linewidth should be 0
+            # unless affected by global settings in rcParams
+            # hence setting zero alpha just incase
+            gc.set_foreground((0, 0, 0, 0), isRGBA=True)
+
         if gc._forced_alpha:
             gc._effective_alphas = (gc._alpha, gc._alpha)
         elif fillcolor is None or len(fillcolor) < 4:
@@ -1644,7 +1640,7 @@ class RendererPdf(RendererBase):
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
-        if isinstance(font, six.string_types):
+        if isinstance(font, str):
             fname = font
         else:
             fname = font.fname
@@ -1654,7 +1650,7 @@ class RendererPdf(RendererBase):
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in six.iteritems(other):
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.file.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -1882,7 +1878,7 @@ class RendererPdf(RendererBase):
                     self.file.output(self.file.fontName(fontname), fontsize,
                                      Op.selectfont)
                     prev_font = fontname, fontsize
-                self.file.output(self.encode_string(unichr(num), fonttype),
+                self.file.output(self.encode_string(chr(num), fonttype),
                                  Op.show)
         self.file.output(Op.end_text)
 
@@ -1936,10 +1932,7 @@ class RendererPdf(RendererBase):
                 pdfname = self.file.dviFontName(dvifont)
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
-            # We need to convert the glyph numbers to bytes, and the easiest
-            # way to do this on both Python 2 and 3 is .encode('latin-1')
-            seq += [['text', x1, y1,
-                     [six.unichr(glyph).encode('latin-1')], x1+width]]
+            seq += [['text', x1, y1, [bytes([glyph])], x1+width]]
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
@@ -2047,7 +2040,7 @@ class RendererPdf(RendererBase):
                 if fonttype == 3 and not isinstance(s, bytes) and len(s) != 0:
                     # Break the string into chunks where each chunk is either
                     # a string of chars <= 255, or a single character > 255.
-                    s = six.text_type(s)
+                    s = str(s)
                     for c in s:
                         if ord(c) <= 255:
                             char_type = 1
@@ -2352,8 +2345,6 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_hatch', '_hatch_color'), hatch_cmd),
         )
 
-    # TODO: _linestyle
-
     def delta(self, other):
         """
         Copy properties of other into self and return PDF commands
@@ -2367,8 +2358,8 @@ class GraphicsContextPdf(GraphicsContextBase):
                 ours = getattr(self, p)
                 theirs = getattr(other, p)
                 try:
-                    if (ours is None or theirs is None):
-                        different = bool(not(ours is theirs))
+                    if ours is None or theirs is None:
+                        different = ours is not theirs
                     else:
                         different = bool(ours != theirs)
                 except ValueError:
@@ -2418,28 +2409,6 @@ class GraphicsContextPdf(GraphicsContextBase):
 # window/figure managers, etc...
 #
 ########################################################################
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # if a main-level app must be created, this is the usual place to
-    # do it -- see backend_wx, backend_wxagg and backend_tkagg for
-    # examples.  Not all GUIs require explicit instantiation of a
-    # main-level app (egg backend_gtk, backend_gtkagg) for pylab
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasPdf(figure)
-    manager = FigureManagerPdf(canvas, num)
-    return manager
 
 
 class PdfPages(object):
@@ -2539,18 +2508,21 @@ class PdfPages(object):
             instance is provided, this figure is saved. If an int is specified,
             the figure instance to save is looked up by number.
         """
-        if isinstance(figure, Figure):
-            figure.savefig(self, format='pdf', **kwargs)
-        else:
+        if not isinstance(figure, Figure):
             if figure is None:
-                figureManager = Gcf.get_active()
+                manager = Gcf.get_active()
             else:
-                figureManager = Gcf.get_fig_manager(figure)
-            if figureManager is None:
-                raise ValueError("No such figure: " + repr(figure))
-            else:
-                figureManager.canvas.figure.savefig(self, format='pdf',
-                                                    **kwargs)
+                manager = Gcf.get_fig_manager(figure)
+            if manager is None:
+                raise ValueError("No figure {}".format(figure))
+            figure = manager.canvas.figure
+        # Force use of pdf backend, as PdfPages is tightly coupled with it.
+        try:
+            orig_canvas = figure.canvas
+            figure.canvas = FigureCanvasPdf(figure)
+            figure.savefig(self, format="pdf", **kwargs)
+        finally:
+            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """
@@ -2607,7 +2579,8 @@ class FigureCanvasPdf(FigureCanvasBase):
                 bbox_inches_restore=_bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
-            file.finalize()
+            if not isinstance(filename, PdfPages):
+                file.finalize()
         finally:
             if isinstance(filename, PdfPages):  # finish off this page
                 file.endStream()
@@ -2619,5 +2592,7 @@ class FigureManagerPdf(FigureManagerBase):
     pass
 
 
-FigureCanvas = FigureCanvasPdf
-FigureManager = FigureManagerPdf
+@_Backend.export
+class _BackendPdf(_Backend):
+    FigureCanvas = FigureCanvasPdf
+    FigureManager = FigureManagerPdf

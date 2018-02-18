@@ -1,12 +1,13 @@
 #include "src/_contour.h"
 #include "src/mplutils.h"
+#include "src/py_converters.h"
 #include "src/py_exceptions.h"
 
 /* QuadContourGenerator */
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     QuadContourGenerator* ptr;
 } PyQuadContourGenerator;
 
@@ -29,15 +30,15 @@ static int PyQuadContourGenerator_init(PyQuadContourGenerator* self, PyObject* a
 {
     QuadContourGenerator::CoordinateArray x, y, z;
     QuadContourGenerator::MaskArray mask;
-    int corner_mask;
+    bool corner_mask;
     long chunk_size;
 
-    if (!PyArg_ParseTuple(args, "O&O&O&O&il",
+    if (!PyArg_ParseTuple(args, "O&O&O&O&O&l",
                           &x.converter_contiguous, &x,
                           &y.converter_contiguous, &y,
                           &z.converter_contiguous, &z,
                           &mask.converter_contiguous, &mask,
-                          &corner_mask,
+                          &convert_bool, &corner_mask,
                           &chunk_size)) {
         return -1;
     }

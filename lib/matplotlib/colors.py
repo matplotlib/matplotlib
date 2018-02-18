@@ -21,47 +21,37 @@ to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
 `#rrggbb` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
 RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
 
-Commands which take color arguments can use several formats to specify
-the colors.  For the basic built-in colors, you can use a single letter
+Matplotlib recognizes the following formats to specify a color:
 
-    - `b`: blue
-    - `g`: green
-    - `r`: red
-    - `c`: cyan
-    - `m`: magenta
-    - `y`: yellow
-    - `k`: black
-    - `w`: white
+* an RGB or RGBA tuple of float values in ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)``
+  or  ``(0.1, 0.2, 0.5, 0.3)``);
+* a hex RGB or RGBA string (e.g., ``'#0F0F0F'`` or ``'#0F0F0F0F'``);
+* a string representation of a float value in ``[0, 1]`` inclusive for gray
+  level (e.g., ``'0.5'``);
+* one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``;
+* a X11/CSS4 color name;
+* a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__;
+  prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
+* one of ``{'tab:blue', 'tab:orange', 'tab:green',
+  'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
+  'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
+  'T10' categorical palette (which is the default color cycle);
+* a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
+  into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
+  the indexing occurs at artist creation time and defaults to black if the
+  cycle does not include color.
 
-To use the colors that are part of the active color cycle in the current style,
-use `C` followed by a digit.  For example:
-
-    - `C0`: The first color in the cycle
-    - `C1`: The second color in the cycle
-
-Gray shades can be given as a string encoding a float in the 0-1 range, e.g.::
-
-    color = '0.75'
-
-For a greater range of colors, you have two options.  You can specify the
-color using an html hex string, as in::
-
-    color = '#eeefff'
-
-(possibly specifying an alpha value as well), or you can pass an `(r, g, b)`
-or `(r, g, b, a)` tuple, where each of `r`, `g`, `b` and `a` are in the range
-[0,1].
-
-Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
-are supported.
+All string specifications of color, other than "CN", are case-insensitive.
 """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
 import six
 from six.moves import zip
 
 from collections import Sized
+import itertools
 import re
 import warnings
 
@@ -100,22 +90,18 @@ _colors_full_map = _ColorMapping(_colors_full_map)
 
 
 def get_named_colors_mapping():
-    """Return the global mapping of names to named colors.
-    """
+    """Return the global mapping of names to named colors."""
     return _colors_full_map
 
 
 def _is_nth_color(c):
-    """Return whether `c` can be interpreted as an item in the color cycle.
-    """
+    """Return whether *c* can be interpreted as an item in the color cycle."""
     return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
 
 
 def is_color_like(c):
-    """Return whether `c` can be interpreted as an RGB(A) color.
-    """
-    # Special-case nth color syntax because it cannot be parsed during
-    # setup.
+    """Return whether *c* can be interpreted as an RGB(A) color."""
+    # Special-case nth color syntax because it cannot be parsed during setup.
     if _is_nth_color(c):
         return True
     try:
@@ -126,11 +112,38 @@ def is_color_like(c):
         return True
 
 
-def to_rgba(c, alpha=None):
-    """Convert `c` to an RGBA color.
+def same_color(c1, c2):
+    """
+    Compare two colors to see if they are the same.
 
-    If `alpha` is not `None`, it forces the alpha value, except if `c` is
-    "none" (case-insensitive), which always maps to `(0, 0, 0, 0)`.
+    Parameters
+    ----------
+    c1, c2 : Matplotlib colors
+
+    Returns
+    -------
+    bool
+        ``True`` if *c1* and *c2* are the same color, otherwise ``False``.
+    """
+    return (to_rgba_array(c1) == to_rgba_array(c2)).all()
+
+
+def to_rgba(c, alpha=None):
+    """
+    Convert *c* to an RGBA color.
+
+    Parameters
+    ----------
+    c : Matplotlib color
+
+    alpha : scalar, optional
+        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+
+    Returns
+    -------
+    tuple
+        Tuple of ``(r, g, b, a)`` scalars.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
@@ -150,10 +163,10 @@ def to_rgba(c, alpha=None):
 
 
 def _to_rgba_no_colorcycle(c, alpha=None):
-    """Convert `c` to an RGBA color, with no support for color-cycle syntax.
+    """Convert *c* to an RGBA color, with no support for color-cycle syntax.
 
-    If `alpha` is not `None`, it forces the alpha value, except if `c` is
-    "none" (case-insensitive), which always maps to `(0, 0, 0, 0)`.
+    If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+    ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
     if isinstance(c, six.string_types):
@@ -207,18 +220,11 @@ def _to_rgba_no_colorcycle(c, alpha=None):
 
 
 def to_rgba_array(c, alpha=None):
-    """Convert `c` to a (n, 4) array of RGBA colors.
+    """Convert *c* to a (n, 4) array of RGBA colors.
 
-    If `alpha` is not `None`, it forces the alpha value.  If `c` is "none"
-    (case-insensitive) or an empty list, an empty array is returned.
+    If *alpha* is not ``None``, it forces the alpha value.  If *c* is
+    ``"none"`` (case-insensitive) or an empty list, an empty array is returned.
     """
-    # Single value?
-    if isinstance(c, six.string_types) and c.lower() == "none":
-        return np.zeros((0, 4), float)
-    try:
-        return np.array([to_rgba(c, alpha)], float)
-    except (ValueError, TypeError):
-        pass
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
@@ -234,6 +240,16 @@ def to_rgba_array(c, alpha=None):
         if np.any((result < 0) | (result > 1)):
             raise ValueError("RGBA values should be within 0-1 range")
         return result
+    # Handle single values.
+    # Note that this occurs *after* handling inputs that are already arrays, as
+    # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
+    # to format the array in the ValueError message(!).
+    if isinstance(c, six.string_types) and c.lower() == "none":
+        return np.zeros((0, 4), float)
+    try:
+        return np.array([to_rgba(c, alpha)], float)
+    except (ValueError, TypeError):
+        pass
     # Convert one at a time.
     result = np.empty((len(c), 4), float)
     for i, cc in enumerate(c):
@@ -242,16 +258,15 @@ def to_rgba_array(c, alpha=None):
 
 
 def to_rgb(c):
-    """Convert `c` to an RGB color, silently dropping the alpha channel.
-    """
+    """Convert *c* to an RGB color, silently dropping the alpha channel."""
     return to_rgba(c)[:3]
 
 
 def to_hex(c, keep_alpha=False):
-    """Convert `c` to a hex color.
+    """Convert *c* to a hex color.
 
-    Uses the #rrggbb format if `keep_alpha` is False (the default), `#rrggbbaa`
-    otherwise.
+    Uses the ``#rrggbb`` format if *keep_alpha* is False (the default),
+    ``#rrggbbaa`` otherwise.
     """
     c = to_rgba(c)
     if not keep_alpha:
@@ -262,21 +277,11 @@ def to_hex(c, keep_alpha=False):
 
 ### Backwards-compatible color-conversion API
 
+
 cnames = CSS4_COLORS
 hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")
-
-
-def rgb2hex(c):
-    'Given an rgb or rgba sequence of 0-1 floats, return the hex string'
-    return to_hex(c)
-
-
-def hex2color(c):
-    """
-    Take a hex string *s* and return the corresponding rgb 3-tuple
-    Example: #efefef -> (0.93725, 0.93725, 0.93725)
-    """
-    return ColorConverter.to_rgb(c)
+rgb2hex = to_hex
+hex2color = to_rgb
 
 
 class ColorConverter(object):
@@ -339,6 +344,7 @@ class ColorConverter(object):
 
 colorConverter = ColorConverter()
 
+
 ### End of backwards-compatible color-conversion API
 
 
@@ -371,7 +377,7 @@ def makeMappingArray(N, data, gamma=1.0):
     try:
         adata = np.array(data)
     except Exception:
-        raise TypeError("data must be convertable to an array")
+        raise TypeError("data must be convertible to an array")
     shape = adata.shape
     if len(shape) != 2 or shape[1] != 3:
         raise ValueError("data must be nx3 format")
@@ -456,7 +462,7 @@ class Colormap(object):
 
         Returns
         -------
-        Tuple of RGBA values if X is scalar, othewise an array of
+        Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
 
         """
@@ -481,24 +487,19 @@ class Colormap(object):
             xa = xa.byteswap().newbyteorder()
 
         if xa.dtype.kind == "f":
-            # Treat 1.0 as slightly less than 1.
-            vals = np.array([1, 0], dtype=xa.dtype)
-            almost_one = np.nextafter(*vals)
-            np.copyto(xa, almost_one, where=xa == 1.0)
-            # The following clip is fast, and prevents possible
-            # conversion of large positive values to negative integers.
-
             xa *= self.N
+            # Negative values are out of range, but astype(int) would truncate
+            # them towards zero.
+            xa[xa < 0] = -1
+            # xa == 1 (== N after multiplication) is not out of range.
+            xa[xa == self.N] = self.N - 1
+            # Avoid converting large positive values to negative integers.
             np.clip(xa, -1, self.N, out=xa)
-
-            # ensure that all 'under' values will still have negative
-            # value after casting to int
-            np.copyto(xa, -1, where=xa < 0.0)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
-        np.copyto(xa, self._i_over, where=xa > self.N - 1)
-        np.copyto(xa, self._i_under, where=xa < 0)
+        xa[xa > self.N - 1] = self._i_over
+        xa[xa < 0] = self._i_under
         if mask_bad is not None:
             if mask_bad.shape == xa.shape:
                 np.copyto(xa, self._i_bad, where=mask_bad)
@@ -793,25 +794,23 @@ class ListedColormap(Colormap):
 
             the list will be extended by repetition.
         """
-        self.colors = colors
         self.monochrome = False  # True only if all colors in map are
                                  # identical; needed for contouring.
         if N is None:
-            N = len(self.colors)
+            self.colors = colors
+            N = len(colors)
         else:
-            if isinstance(self.colors, six.string_types):
-                self.colors = [self.colors] * N
+            if isinstance(colors, six.string_types):
+                self.colors = [colors] * N
                 self.monochrome = True
-            elif cbook.iterable(self.colors):
-                self.colors = list(self.colors)  # in case it was a tuple
-                if len(self.colors) == 1:
+            elif cbook.iterable(colors):
+                if len(colors) == 1:
                     self.monochrome = True
-                if len(self.colors) < N:
-                    self.colors = list(self.colors) * N
-                del(self.colors[N:])
+                self.colors = list(
+                    itertools.islice(itertools.cycle(colors), N))
             else:
                 try:
-                    gray = float(self.colors)
+                    gray = float(colors)
                 except TypeError:
                     pass
                 else:
@@ -907,7 +906,11 @@ class Normalize(object):
         if np.issubdtype(dtype, np.integer) or dtype.type is np.bool_:
             # bool_/int8/int16 -> float32; int32/int64 -> float64
             dtype = np.promote_types(dtype, np.float32)
-        result = np.ma.array(value, dtype=dtype, copy=True)
+        # ensure data passed in as an ndarray subclass are interpreted as
+        # an ndarray. See issue #6622.
+        mask = np.ma.getmask(value)
+        data = np.asarray(np.ma.getdata(value))
+        result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -937,9 +940,7 @@ class Normalize(object):
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             # ma division is very slow; we can take a shortcut
-            # use np.asarray so data passed in as an ndarray subclass are
-            # interpreted as an ndarray. See issue #6622.
-            resdat = np.asarray(result.data)
+            resdat = result.data
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
@@ -968,15 +969,17 @@ class Normalize(object):
         """
         Set *vmin*, *vmax* to min, max of *A*.
         """
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        A = np.asanyarray(A)
+        self.vmin = A.min()
+        self.vmax = A.max()
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None and np.size(A) > 0:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None and np.size(A) > 0:
-            self.vmax = np.ma.max(A)
+        """autoscale only None-valued vmin or vmax."""
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
 
     def scaled(self):
         'return true if vmin and vmax set'
@@ -1007,7 +1010,7 @@ class LogNorm(Normalize):
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                                     mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
             mask = result.mask
@@ -1044,14 +1047,14 @@ class LogNorm(Normalize):
         self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
+        """autoscale only None-valued vmin or vmax."""
         if self.vmin is not None and self.vmax is not None:
             return
         A = np.ma.masked_less_equal(A, 0, copy=False)
-        if self.vmin is None:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None:
-            self.vmax = np.ma.max(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
 
 
 class SymLogNorm(Normalize):
@@ -1160,13 +1163,14 @@ class SymLogNorm(Normalize):
         self._transform_vmin_vmax()
 
     def autoscale_None(self, A):
-        """ autoscale only None-valued vmin or vmax """
+        """autoscale only None-valued vmin or vmax."""
         if self.vmin is not None and self.vmax is not None:
             pass
-        if self.vmin is None:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None:
-            self.vmax = np.ma.max(A)
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
         self._transform_vmin_vmax()
 
 
@@ -1230,20 +1234,19 @@ class PowerNorm(Normalize):
             self.vmin = 0
             warnings.warn("Power-law scaling on negative values is "
                           "ill-defined, clamping to 0.")
-
         self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None and np.size(A) > 0:
-            self.vmin = np.ma.min(A)
+        """autoscale only None-valued vmin or vmax."""
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
             if self.vmin < 0:
                 self.vmin = 0
                 warnings.warn("Power-law scaling on negative values is "
                               "ill-defined, clamping to 0.")
-
-        if self.vmax is None and np.size(A) > 0:
-            self.vmax = np.ma.max(A)
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
 
 
 class BoundaryNorm(Normalize):
@@ -1312,7 +1315,7 @@ class BoundaryNorm(Normalize):
         for i, b in enumerate(self.boundaries):
             iret[xx >= b] = i
         if self._interp:
-            scalefac = float(self.Ncmap - 1) / (self.N - 2)
+            scalefac = (self.Ncmap - 1) / (self.N - 2)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
@@ -1424,7 +1427,7 @@ def hsv_to_rgb(hsv):
         raise ValueError("Last dimension of input array must be 3; "
                          "shape {shp} was found.".format(shp=hsv.shape))
 
-    # if we got pased a 1D array, try to treat as
+    # if we got passed a 1D array, try to treat as
     # a single color and reshape as needed
     in_ndim = hsv.ndim
     if in_ndim == 1:
@@ -1441,7 +1444,7 @@ def hsv_to_rgb(hsv):
     g = np.empty_like(h)
     b = np.empty_like(h)
 
-    i = (h * 6.0).astype(np.int)
+    i = (h * 6.0).astype(int)
     f = (h * 6.0) - i
     p = v * (1.0 - s)
     q = v * (1.0 - s * f)
@@ -1491,6 +1494,31 @@ def hsv_to_rgb(hsv):
     return rgb
 
 
+def _vector_magnitude(arr):
+    # things that don't work here:
+    #  * np.linalg.norm
+    #    - doesn't broadcast in numpy 1.7
+    #    - drops the mask from ma.array
+    #  * using keepdims - broken on ma.array until 1.11.2
+    #  * using sum - discards mask on ma.array unless entire vector is masked
+
+    sum_sq = 0
+    for i in range(arr.shape[-1]):
+        sum_sq += np.square(arr[..., i, np.newaxis])
+    return np.sqrt(sum_sq)
+
+
+def _vector_dot(a, b):
+    # things that don't work here:
+    #   * a.dot(b) - fails on masked arrays until 1.10
+    #   * np.ma.dot(a, b) - doesn't mask enough things
+    #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
+    dot = 0
+    for i in range(a.shape[-1]):
+        dot += a[..., i] * b[..., i]
+    return dot
+
+
 class LightSource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
@@ -1533,15 +1561,28 @@ class LightSource(object):
         self.hsv_min_sat = hsv_min_sat
         self.hsv_max_sat = hsv_max_sat
 
+    @property
+    def direction(self):
+        """ The unit vector direction towards the light source """
+
+        # Azimuth is in degrees clockwise from North. Convert to radians
+        # counterclockwise from East (mathematical notation).
+        az = np.radians(90 - self.azdeg)
+        alt = np.radians(self.altdeg)
+
+        return np.array([
+            np.cos(az) * np.cos(alt),
+            np.sin(az) * np.cos(alt),
+            np.sin(alt)
+        ])
+
     def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
         """
         Calculates the illumination intensity for a surface using the defined
         azimuth and elevation for the light source.
 
-        Imagine an artificial sun placed at infinity in some azimuth and
-        elevation position illuminating our surface. The parts of the surface
-        that slope toward the sun should brighten while those sides facing away
-        should become darker.
+        This computes the normal vectors for the surface, and then passes them
+        on to `shade_normals`
 
         Parameters
         ----------
@@ -1570,23 +1611,51 @@ class LightSource(object):
             A 2d array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
-        # Azimuth is in degrees clockwise from North. Convert to radians
-        # counterclockwise from East (mathematical notation).
-        az = np.radians(90 - self.azdeg)
-        alt = np.radians(self.altdeg)
 
         # Because most image and raster GIS data has the first row in the array
         # as the "top" of the image, dy is implicitly negative.  This is
         # consistent to what `imshow` assumes, as well.
         dy = -dy
 
-        # Calculate the intensity from the illumination angle
-        dy, dx = np.gradient(vert_exag * elevation, dy, dx)
-        # The aspect is defined by the _downhill_ direction, thus the negative
-        aspect = np.arctan2(-dy, -dx)
-        slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
-        intensity = (np.sin(alt) * np.sin(slope) +
-                     np.cos(alt) * np.cos(slope) * np.cos(az - aspect))
+        # compute the normal vectors from the partial derivatives
+        e_dy, e_dx = np.gradient(vert_exag * elevation, dy, dx)
+
+        # .view is to keep subclasses
+        normal = np.empty(elevation.shape + (3,)).view(type(elevation))
+        normal[..., 0] = -e_dx
+        normal[..., 1] = -e_dy
+        normal[..., 2] = 1
+        normal /= _vector_magnitude(normal)
+
+        return self.shade_normals(normal, fraction)
+
+    def shade_normals(self, normals, fraction=1.):
+        """
+        Calculates the illumination intensity for the normal vectors of a
+        surface using the defined azimuth and elevation for the light source.
+
+        Imagine an artificial sun placed at infinity in some azimuth and
+        elevation position illuminating our surface. The parts of the surface
+        that slope toward the sun should brighten while those sides facing away
+        should become darker.
+
+        Parameters
+        ----------
+        fraction : number, optional
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
+
+        Returns
+        -------
+        intensity : ndarray
+            A 2d array of illumination values between 0-1, where 0 is
+            completely in shadow and 1 is completely illuminated.
+        """
+
+        intensity = _vector_dot(normals, self.direction)
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()
@@ -1746,8 +1815,8 @@ class LightSource(object):
             try:
                 blend = blend_mode(rgb, intensity, **kwargs)
             except TypeError:
-                msg = '"blend_mode" must be callable or one of {0}'
-                raise ValueError(msg.format(lookup.keys))
+                raise ValueError('"blend_mode" must be callable or one of {}'
+                                 .format(lookup.keys))
 
         # Only apply result where hillshade intensity isn't masked
         if hasattr(intensity, 'mask'):

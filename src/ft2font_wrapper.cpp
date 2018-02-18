@@ -1,6 +1,7 @@
 #include "mplutils.h"
 #include "ft2font.h"
 #include "file_compat.h"
+#include "py_converters.h"
 #include "py_exceptions.h"
 #include "numpy_cpp.h"
 
@@ -26,7 +27,7 @@ static PyObject *convert_xys_to_array(std::vector<double> &xys)
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     FT2Image *x;
     Py_ssize_t shape[2];
     Py_ssize_t strides[2];
@@ -229,7 +230,7 @@ static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     size_t glyphInd;
     long width;
     long height;
@@ -323,7 +324,8 @@ static PyTypeObject *PyGlyph_init_type(PyObject *m, PyTypeObject *type)
 
 typedef struct
 {
-    PyObject_HEAD FT2Font *x;
+    PyObject_HEAD
+    FT2Font *x;
     PyObject *fname;
     PyObject *py_file;
     FILE *fp;
@@ -361,7 +363,7 @@ static void close_file_callback(FT_Stream stream)
     PyFT2Font *def = (PyFT2Font *)stream->descriptor.pointer;
 
     if (mpl_PyFile_DupClose(def->py_file, def->fp, def->offset)) {
-        throw "Couldn't close file";
+        throw std::runtime_error("Couldn't close file");
     }
 
     if (def->close_file) {
@@ -484,7 +486,7 @@ const char *PyFT2Font_init__doc__ =
     "  style_flags            style flags  (int type); see the ft2font constants\n"
     "  num_glyphs             number of glyphs in the face\n"
     "  family_name            face family name\n"
-    "  style_name             face syle name\n"
+    "  style_name             face style name\n"
     "  num_fixed_sizes        number of bitmap in the face\n"
     "  scalable               face is scalable\n"
     "\n"
@@ -828,11 +830,11 @@ const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ =
 
 static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int antialiased = 1;
+    bool antialiased = true;
     const char *names[] = { "antialiased", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "|i:draw_glyphs_to_bitmap", (char **)names, &antialiased)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&:draw_glyphs_to_bitmap",
+                                     (char **)names, &convert_bool, &antialiased)) {
         return NULL;
     }
 
@@ -848,11 +850,12 @@ const char *PyFT2Font_get_xys__doc__ =
 
 static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int antialiased = 1;
+    bool antialiased = true;
     std::vector<double> xys;
     const char *names[] = { "antialiased", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|i:get_xys", (char **)names, &antialiased)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&:get_xys",
+                                     (char **)names, &convert_bool, &antialiased)) {
         return NULL;
     }
 
@@ -878,12 +881,12 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
     PyFT2Image *image;
     double xd, yd;
     PyGlyph *glyph;
-    int antialiased = 1;
+    bool antialiased = true;
     const char *names[] = { "image", "x", "y", "glyph", "antialiased", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-                                     "O!ddO!|i:draw_glyph_to_bitmap",
+                                     "O!ddO!|O&:draw_glyph_to_bitmap",
                                      (char **)names,
                                      &PyFT2ImageType,
                                      &image,
@@ -891,6 +894,7 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
                                      &yd,
                                      &PyGlyphType,
                                      &glyph,
+                                     &convert_bool,
                                      &antialiased)) {
         return NULL;
     }

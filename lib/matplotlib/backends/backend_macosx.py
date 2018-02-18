@@ -1,14 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import os
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase, \
-    NavigationToolbar2, TimerBase
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import (
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    TimerBase)
 
 from matplotlib.figure import Figure
 from matplotlib import rcParams
@@ -18,13 +16,7 @@ from matplotlib.widgets import SubplotTool
 import matplotlib
 from matplotlib.backends import _macosx
 
-from .backend_agg import RendererAgg, FigureCanvasAgg
-
-
-class Show(ShowBase):
-    def mainloop(self):
-        _macosx.show()
-show = Show()
+from .backend_agg import FigureCanvasAgg
 
 
 ########################################################################
@@ -33,37 +25,6 @@ show = Show()
 # window/figure managers, etc...
 #
 ########################################################################
-
-def draw_if_interactive():
-    """
-    For performance reasons, we don't want to redraw the figure after
-    each draw command. Instead, we mark the figure as invalid, so that
-    it will be redrawn as soon as the event loop resumes via PyOS_InputHook.
-    This function should be called after each draw event, even if
-    matplotlib is not running interactively.
-    """
-    if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
-        if figManager is not None:
-            figManager.canvas.invalidate()
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    figure = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, figure)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasMac(figure)
-    manager = FigureManagerMac(canvas, num)
-    return manager
 
 
 class TimerMac(_macosx.Timer, TimerBase):
@@ -115,35 +76,17 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
             self.figure.dpi = self.figure.dpi / self._device_scale * value
             self._device_scale = value
 
-    def get_renderer(self, cleared=False):
-        l, b, w, h = self.figure.bbox.bounds
-        key = w, h, self.figure.dpi
-        try:
-            self._lastKey, self._renderer
-        except AttributeError:
-            need_new_renderer = True
-        else:
-            need_new_renderer = (self._lastKey != key)
-
-        if need_new_renderer:
-            self._renderer = RendererAgg(w, h, self.figure.dpi)
-            self._lastKey = key
-        elif cleared:
-            self._renderer.clear()
-
-        return self._renderer
-
     def _draw(self):
-        renderer = self.get_renderer()
+        renderer = self.get_renderer(cleared=self.figure.stale)
 
-        if not self.figure.stale:
-            return renderer
+        if self.figure.stale:
+            self.figure.draw(renderer)
 
-        self.figure.draw(renderer)
         return renderer
 
     def draw(self):
         self.invalidate()
+        self.flush_events()
 
     def draw_idle(self, *args, **kwargs):
         self.invalidate()
@@ -163,7 +106,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        Creates a new backend-specific subclass of `backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 
@@ -229,7 +172,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
                                             self.canvas.get_default_filename())
         if filename is None: # Cancel
             return
-        self.canvas.print_figure(filename)
+        self.canvas.figure.savefig(filename)
 
     def prepare_configure_subplots(self):
         toolfig = Figure(figsize=(6,3))
@@ -241,8 +184,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def set_message(self, message):
         _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
 
-    def dynamic_update(self):
-        self.canvas.draw_idle()
 
 ########################################################################
 #
@@ -250,5 +191,20 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 #
 ########################################################################
 
-FigureCanvas = FigureCanvasMac
-FigureManager = FigureManagerMac
+@_Backend.export
+class _BackendMac(_Backend):
+    FigureCanvas = FigureCanvasMac
+    FigureManager = FigureManagerMac
+
+    @staticmethod
+    def trigger_manager_draw(manager):
+        # For performance reasons, we don't want to redraw the figure after
+        # each draw command. Instead, we mark the figure as invalid, so that it
+        # will be redrawn as soon as the event loop resumes via PyOS_InputHook.
+        # This function should be called after each draw event, even if
+        # matplotlib is not running interactively.
+        manager.canvas.invalidate()
+
+    @staticmethod
+    def mainloop():
+        _macosx.show()

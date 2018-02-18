@@ -281,8 +281,8 @@ class RendererAgg
                                        DashesVector &linestyles,
                                        AntialiasedArray &antialiaseds,
                                        e_offset_position offset_position,
-                                       int check_snap,
-                                       int has_curves);
+                                       bool check_snap,
+                                       bool has_curves);
 
     template <class PointArray, class ColorArray>
     void _draw_gouraud_triangle(PointArray &points,
@@ -915,8 +915,8 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        DashesVector &linestyles,
                                                        AntialiasedArray &antialiaseds,
                                                        e_offset_position offset_position,
-                                                       int check_snap,
-                                                       int has_curves)
+                                                       bool check_snap,
+                                                       bool has_curves)
 {
     typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
@@ -1068,8 +1068,8 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   linestyles,
                                   antialiaseds,
                                   offset_position,
-                                  1,
-                                  1);
+                                  true,
+                                  true);
 }
 
 template <class CoordinateArray>
@@ -1186,8 +1186,8 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   linestyles,
                                   antialiaseds,
                                   OFFSET_POSITION_FIGURE,
-                                  0,
-                                  0);
+                                  false,
+                                  false);
 }
 
 template <class PointArray, class ColorArray>

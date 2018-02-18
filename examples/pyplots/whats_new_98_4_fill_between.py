@@ -4,7 +4,6 @@ Whats New 0.98.4 Fill Between
 =============================
 
 """
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import numpy as np
 

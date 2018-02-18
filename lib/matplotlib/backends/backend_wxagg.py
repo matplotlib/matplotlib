@@ -3,36 +3,22 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib
-from matplotlib.figure import Figure
-
-from .backend_agg import FigureCanvasAgg
-
-from . import wx_compat as wxc
-from . import backend_wx
-from .backend_wx import (FigureManagerWx, FigureCanvasWx,
-    FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, Toolbar)
-
 import wx
 
-
-show = backend_wx.Show()
+import matplotlib
+from .. import cbook
+from . import wx_compat as wxc
+from .backend_agg import FigureCanvasAgg
+from .backend_wx import (
+    _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
 
 
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
         return FigureCanvasWxAgg(self, -1, fig)
 
-    def _get_toolbar(self, statbar):
-        if matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2WxAgg(self.canvas)
-            toolbar.set_status_bar(statbar)
-        else:
-            toolbar = None
-        return toolbar
 
-
-class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
+class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -47,7 +33,6 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         """
         Render the figure using agg.
         """
-        DEBUG_MSG("draw()", 1, self)
         FigureCanvasAgg.draw(self)
 
         self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
@@ -85,52 +70,15 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
 
     filetypes = FigureCanvasAgg.filetypes
 
-    def print_figure(self, filename, *args, **kwargs):
-        # Use pure Agg renderer to draw
-        FigureCanvasAgg.print_figure(self, filename, *args, **kwargs)
-        # Restore the current view; this is needed because the
-        # artist contains methods rely on particular attributes
-        # of the rendered figure for determining things like
-        # bounding boxes.
-        if self._isDrawn:
-            self.draw()
 
-
+@cbook.deprecated("2.2")
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
         return FigureCanvasWxAgg(frame, -1, fig)
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # in order to expose the Figure constructor to the pylab
-    # interface we need to create the figure here
-    DEBUG_MSG("new_figure_manager()", 3, None)
-    backend_wx._create_wx_app()
-
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    fig = FigureClass(*args, **kwargs)
-
-    return new_figure_manager_given_figure(num, fig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    frame = FigureFrameWxAgg(num, figure)
-    figmgr = frame.get_figure_manager()
-    if matplotlib.is_interactive():
-        figmgr.frame.Show()
-        figure.canvas.draw_idle()
-    return figmgr
-
-
-#
 # agg/wxPython image conversion functions (wxPython >= 2.8)
-#
+
 
 def _convert_agg_to_wx_image(agg, bbox):
     """
@@ -193,5 +141,8 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
 
     return destBmp
 
-FigureCanvas = FigureCanvasWxAgg
-FigureManager = FigureManagerWx
+
+@_BackendWx.export
+class _BackendWxAgg(_BackendWx):
+    FigureCanvas = FigureCanvasWxAgg
+    _frame_class = FigureFrameWxAgg

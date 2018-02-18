@@ -69,7 +69,7 @@ class Thumbnail(QtWidgets.QFrame):
         self.image = QtWidgets.QLabel()
         self.image.setAlignment(QtCore.Qt.AlignHCenter |
                                 QtCore.Qt.AlignVCenter)
-        self.image.setMinimumSize(800/3, 600/3)
+        self.image.setMinimumSize(800/3, 500/3)
         layout.addWidget(self.image)
         self.setLayout(layout)
 
@@ -139,7 +139,7 @@ class Dialog(QtWidgets.QDialog):
         self.image_display = QtWidgets.QLabel()
         self.image_display.setAlignment(QtCore.Qt.AlignHCenter |
                                         QtCore.Qt.AlignVCenter)
-        self.image_display.setMinimumSize(800, 600)
+        self.image_display.setMinimumSize(800, 500)
         images_layout.addWidget(thumbnails_box, 3)
         images_layout.addWidget(self.image_display, 6)
         images_box.setLayout(images_layout)

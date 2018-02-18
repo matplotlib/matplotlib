@@ -13,8 +13,7 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -25,24 +24,27 @@ import os
 import warnings
 import re
 
+from matplotlib import cbook, testing
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
-
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
 
-# interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
-#                  'tkagg', 'wx', 'wxagg', 'webagg']
+
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
-
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
                   'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
-
-
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'GTK3Agg', 'GTK3Cairo',
+                  'MacOSX',
+                  'nbAgg',
+                  'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
+                  'TkAgg',
+                  'WebAgg',
+                  'WX', 'WXAgg', 'WXCairo']
 non_interactive_bk = ['agg', 'cairo', 'gdk',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
@@ -97,11 +99,10 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
         else:
             raise ValueError("{!r} must be of type: string or non-dictionary "
                              "iterable".format(s))
-    # Cast `str` to keep Py2 happy despite `unicode_literals`.
     try:
-        f.__name__ = str("{}list".format(scalar_validator.__name__))
+        f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
-        f.__name__ = str("{}List".format(type(scalar_validator).__name__))
+        f.__name__ = "{}List".format(type(scalar_validator).__name__)
     f.__doc__ = scalar_validator.__doc__
     return f
 
@@ -185,7 +186,7 @@ def validate_string_or_None(s):
     if s is None:
         return None
     try:
-        return six.text_type(s)
+        return validate_string(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
@@ -267,8 +268,16 @@ def validate_backend(s):
         return _validate_standard_backends(s)
 
 
-validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])
-validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5', 'PySide2'])
+def validate_qt4(s):
+    if s is None:
+        return None
+    return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
+
+
+def validate_qt5(s):
+    if s is None:
+        return None
+    return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 
 def validate_toolbar(s):
@@ -277,18 +286,6 @@ def validate_toolbar(s):
                 ['None', 'toolbar2', 'toolmanager'],
                 ignorecase=True)
     return validator(s)
-
-
-def validate_maskedarray(v):
-    # 2008/12/12: start warning; later, remove all traces of maskedarray
-    try:
-        if v == 'obsolete':
-            return v
-    except ValueError:
-        pass
-    warnings.warn('rcParams key "maskedarray" is obsolete and has no effect;\n'
-                  ' please delete it from your matplotlibrc file',
-                  mplDeprecation)
 
 
 _seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
@@ -365,7 +362,7 @@ def validate_color_for_prop_cycle(s):
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
                              'prop_cycler'.format(cn=s))
-    elif isinstance(s, six.text_type):
+    elif isinstance(s, six.string_types):
         match = re.match('^C[0-9]$', s)
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
@@ -397,8 +394,8 @@ def validate_color(s):
         # get rid of grouping symbols
         stmp = ''.join([c for c in s if c.isdigit() or c == '.' or c == ','])
         vals = stmp.split(',')
-        if len(vals) != 3:
-            msg = '\nColor tuples must be length 3'
+        if len(vals) not in [3, 4]:
+            msg = '\nColor tuples must be of length 3 or 4'
         else:
             try:
                 colorarg = [float(val) for val in vals]
@@ -411,17 +408,17 @@ def validate_color(s):
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
 
-def deprecate_axes_colorcycle(value):
-    warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
-                  "instead. Will be removed in 2.1.0",
-                  mplDeprecation)
-    return validate_colorlist(value)
-
-
 validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
-validate_stringlist = _listify_validator(six.text_type)
+def validate_string(s):
+    if isinstance(s, (str, six.text_type)):
+        # Always leave str as str and unicode as unicode
+        return s
+    else:
+        return str(s)
+
+validate_stringlist = _listify_validator(str)
 validate_stringlist.__doc__ = 'return a list'
 
 validate_orientation = ValidateInStrings(
@@ -492,17 +489,10 @@ def validate_whiskers(s):
                                  "(float, float)]")
 
 
-def deprecate_savefig_extension(value):
-    warnings.warn("savefig.extension is deprecated.  Use savefig.format "
-                  "instead. Will be removed in 1.4.x",
-                  mplDeprecation)
-    return value
-
-
 def update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
-    value = six.text_type(value)
+    value = validate_string(value)
     if value == 'auto':
         value = 'png'
     return value
@@ -569,19 +559,6 @@ def validate_negative_linestyle_legacy(s):
         return (0, dashes)  # (offset, (solid, blank))
 
 
-def validate_corner_mask(s):
-    if s == 'legacy':
-        return s
-    else:
-        return validate_bool(s)
-
-
-def validate_tkpythoninspect(s):
-    # Introduced 2010/07/05
-    warnings.warn("tk.pythoninspect is obsolete, and has no effect",
-                  mplDeprecation)
-    return validate_bool(s)
-
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
     ['best',
@@ -597,20 +574,15 @@ validate_legend_loc = ValidateInStrings(
      'center'], ignorecase=True)
 
 
-def deprecate_svg_image_noscale(value):
-    warnings.warn("svg.image_noscale is deprecated. Set "
-                  "image.interpolation to 'none' instead.",
-                  mplDeprecation)
-
-
-def deprecate_svg_embed_char_paths(value):
-    warnings.warn("svg.embed_char_paths is deprecated.  Use "
-                  "svg.fonttype instead.",
-                  mplDeprecation)
-
-
-validate_svg_fonttype = ValidateInStrings('svg.fonttype',
-                                          ['none', 'path', 'svgfont'])
+def validate_svg_fonttype(s):
+    if s in ["none", "path"]:
+        return s
+    if s == "svgfont":
+        cbook.warn_deprecated(
+            "2.2", "'svgfont' support for svg.fonttype is deprecated.")
+        return s
+    raise ValueError("Unrecognized svg.fonttype string '{}'; "
+                     "valid strings are 'none', 'path'")
 
 
 def validate_hinting(s):
@@ -626,8 +598,8 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
 validate_movie_writer = ValidateInStrings('animation.writer',
     ['ffmpeg', 'ffmpeg_file',
      'avconv', 'avconv_file',
-     'mencoder', 'mencoder_file',
-     'imagemagick', 'imagemagick_file'])
+     'imagemagick', 'imagemagick_file',
+     'html'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -635,7 +607,7 @@ validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
 validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
 
 validate_movie_html_fmt = ValidateInStrings('animation.html',
-    ['html5', 'none'])
+    ['html5', 'jshtml', 'none'])
 
 def validate_bbox(s):
     if isinstance(s, six.string_types):
@@ -880,7 +852,7 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    if isinstance(s, six.text_type) and s == 'auto':
+    if isinstance(s, six.string_types) and s == 'auto':
         return s
     try:
         return int(s)
@@ -899,7 +871,7 @@ def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
     # the path on next call)
-    if not isinstance(p, six.text_type):
+    if not isinstance(p, six.string_types):
         raise ValueError("path must be a (unicode) string")
     from sys import modules
     # set dirty, so that the next call to the registry will re-evaluate
@@ -909,6 +881,16 @@ def validate_animation_writer_path(p):
     if "matplotlib.animation" in modules:
         modules["matplotlib.animation"].writers.set_dirty()
     return p
+
+def validate_webagg_address(s):
+    if s is not None:
+        import socket
+        try:
+            socket.inet_aton(s)
+        except socket.error as e:
+            raise ValueError("'webagg.address' is not a valid IP address")
+        return s
+    raise ValueError("'webagg.address' is not a valid IP address")
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
@@ -965,9 +947,10 @@ defaultParams = {
     'backend':           ['Agg', validate_backend],  # agg is certainly
                                                       # present
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
-    'backend.qt4':       ['PyQt4', validate_qt4],
-    'backend.qt5':       ['PyQt5', validate_qt5],
+    'backend.qt4':       [None, validate_qt4],
+    'backend.qt5':       [None, validate_qt5],
     'webagg.port':       [8988, validate_int],
+    'webagg.address':    ['127.0.0.1', validate_webagg_address],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
     'nbagg.transparent':       [True, validate_bool],
@@ -975,17 +958,17 @@ defaultParams = {
     'datapath':          [None, validate_path_exists],  # handled by
                                                         # _get_data_path_cached
     'interactive':       [False, validate_bool],
-    'timezone':          ['UTC', six.text_type],
+    'timezone':          ['UTC', validate_string],
 
     # the verbosity setting
     'verbose.level': ['silent', validate_verbose],
-    'verbose.fileo': ['sys.stdout', six.text_type],
+    'verbose.fileo': ['sys.stdout', validate_string],
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
-    'lines.marker':          ['None', six.text_type],  # marker name
+    'lines.marker':          ['None', validate_string],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
@@ -1029,7 +1012,7 @@ defaultParams = {
     'boxplot.meanline': [False, validate_bool],
 
     'boxplot.flierprops.color': ['k', validate_color],
-    'boxplot.flierprops.marker': ['o', six.text_type],
+    'boxplot.flierprops.marker': ['o', validate_string],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
@@ -1053,7 +1036,7 @@ defaultParams = {
     'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
-    'boxplot.meanprops.marker': ['^', six.text_type],
+    'boxplot.meanprops.marker': ['^', validate_string],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
@@ -1062,10 +1045,10 @@ defaultParams = {
 
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
-    'font.style':      ['normal', six.text_type],
-    'font.variant':    ['normal', six.text_type],
-    'font.stretch':    ['normal', six.text_type],
-    'font.weight':     ['normal', six.text_type],
+    'font.style':      ['normal', validate_string],
+    'font.variant':    ['normal', validate_string],
+    'font.stretch':    ['normal', validate_string],
+    'font.weight':     ['normal', validate_string],
     'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'Computer Modern Roman',
@@ -1113,10 +1096,10 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['nearest', six.text_type],
-    'image.cmap':          ['viridis', six.text_type],        # one of gray, jet, etc
+    'image.interpolation': ['nearest', validate_string],
+    'image.cmap':          ['viridis', validate_string],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', six.text_type],  # lookup table
+    'image.origin':        ['upper', validate_string],  # lookup table
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
@@ -1124,7 +1107,7 @@ defaultParams = {
 
     # contour props
     'contour.negative_linestyle': ['dashed', _validate_linestyle],
-    'contour.corner_mask':        [True, validate_corner_mask],
+    'contour.corner_mask':        [True, validate_bool],
 
     # errorbar props
     'errorbar.capsize':      [0, validate_float],
@@ -1143,10 +1126,10 @@ defaultParams = {
 
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
-    'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
+    'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
-    'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
+    'axes.grid.which':       ['major', validate_axis_locator],  # set whether the gid are by
                                                                 # default draw on 'major'
                                                                 # 'minor' or 'both' kind of
                                                                 # axis locator
@@ -1155,7 +1138,7 @@ defaultParams = {
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float], # space between label and axis
-    'axes.labelweight':      ['normal', six.text_type],  # fontsize of the x any y labels
+    'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
     'axes.labelcolor':       ['k', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
@@ -1168,12 +1151,6 @@ defaultParams = {
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.formatter.offset_threshold': [4, validate_int],
     'axes.unicode_minus': [True, validate_bool],
-    'axes.color_cycle': [
-        ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-         '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
-         '#bcbd22', '#17becf'],
-                         deprecate_axes_colorcycle],  # cycle of plot
-                                                      # line colors
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
@@ -1200,16 +1177,16 @@ defaultParams = {
     'axes3d.grid': [True, validate_bool],  # display 3d grid
 
     # scatter props
-    'scatter.marker': ['o', six.text_type],
+    'scatter.marker': ['o', validate_string],
 
     # TODO validate that these are valid datetime format strings
-    'date.autoformatter.year': ['%Y', six.text_type],
-    'date.autoformatter.month': ['%Y-%m', six.text_type],
-    'date.autoformatter.day': ['%Y-%m-%d', six.text_type],
-    'date.autoformatter.hour': ['%m-%d %H', six.text_type],
-    'date.autoformatter.minute': ['%d %H:%M', six.text_type],
-    'date.autoformatter.second': ['%H:%M:%S', six.text_type],
-    'date.autoformatter.microsecond': ['%M:%S.%f', six.text_type],
+    'date.autoformatter.year': ['%Y', validate_string],
+    'date.autoformatter.month': ['%Y-%m', validate_string],
+    'date.autoformatter.day': ['%Y-%m-%d', validate_string],
+    'date.autoformatter.hour': ['%m-%d %H', validate_string],
+    'date.autoformatter.minute': ['%d %H:%M', validate_string],
+    'date.autoformatter.second': ['%H:%M:%S', validate_string],
+    'date.autoformatter.microsecond': ['%M:%S.%f', validate_string],
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
@@ -1241,15 +1218,14 @@ defaultParams = {
     'legend.borderaxespad': [0.5, validate_float],
     # the border between the axes and legend edge
     'legend.columnspacing': [2., validate_float],
-    # the relative size of legend markers vs. original
-    'legend.markerscale': [1.0, validate_float],
-    'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
     'legend.edgecolor': ['0.8', validate_color_or_inherit],
 
     # tick properties
     'xtick.top':         [False, validate_bool],   # draw ticks on the top side
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
+    'xtick.labeltop':    [False, validate_bool],  # draw label on the top
+    'xtick.labelbottom': [True, validate_bool],  # draw label on the bottom
     'xtick.major.size':  [3.5, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
     'xtick.major.width': [0.8, validate_float],  # major xtick width in points
@@ -1265,11 +1241,13 @@ defaultParams = {
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
-    'xtick.direction':   ['out', six.text_type],            # direction of xticks
+    'xtick.direction':   ['out', validate_string],            # direction of xticks
     'xtick.alignment': ["center", _validate_alignment],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
+    'ytick.labelleft':   [True, validate_bool],  # draw tick labels on the left side
+    'ytick.labelright':  [False, validate_bool],  # draw tick labels on the right side
     'ytick.major.size':  [3.5, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
     'ytick.major.width': [0.8, validate_float],   # major ytick width in points
@@ -1285,7 +1263,7 @@ defaultParams = {
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
-    'ytick.direction':   ['out', six.text_type],            # direction of yticks
+    'ytick.direction':   ['out', validate_string],            # direction of yticks
     'ytick.alignment': ["center_baseline", _validate_alignment],
 
 
@@ -1298,7 +1276,7 @@ defaultParams = {
     ## figure props
     # figure title
     'figure.titlesize':   ['large', validate_fontsize],
-    'figure.titleweight': ['normal', six.text_type],
+    'figure.titleweight': ['normal', validate_string],
 
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
@@ -1322,6 +1300,19 @@ defaultParams = {
     'figure.subplot.hspace': [0.2, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=False)],
 
+    # do constrained_layout.
+    'figure.constrained_layout.use': [False, validate_bool],
+    # wspace and hspace are fraction of adjacent subplots to use
+    # for space.  Much smaller than above because we don't need
+    # room for the text.
+    'figure.constrained_layout.hspace': [0.02, ValidateInterval(
+            0, 1, closedmin=True, closedmax=False)],
+    'figure.constrained_layout.wspace': [0.02, ValidateInterval(
+            0, 1, closedmin=True, closedmax=False)],
+    # This is a buffer around the axes in inches.  This is 3pts.
+    'figure.constrained_layout.h_pad': [0.04167, validate_float],
+    'figure.constrained_layout.w_pad': [0.04167, validate_float],
+
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
     'savefig.facecolor':   ['w', validate_color],  # facecolor; white
@@ -1330,20 +1321,17 @@ defaultParams = {
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
     'savefig.jpeg_quality': [95, validate_int],
-    # what to add to extensionless filenames
-    'savefig.extension':  ['png', deprecate_savefig_extension],
     # value checked by backend at runtime
     'savefig.format':     ['png', update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
     # default directory in savefig dialog box
-    'savefig.directory': ['~', six.text_type],
+    'savefig.directory': ['~', validate_string],
     'savefig.transparent': [False, validate_bool],
 
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],
-    'tk.pythoninspect': [False, validate_tkpythoninspect],  # obsolete
 
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],
@@ -1370,17 +1358,14 @@ defaultParams = {
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
-    # suppress scaling of raster data embedded in SVG
-    'svg.image_noscale':    [False, deprecate_svg_image_noscale],
     # True to save all characters as paths in the SVG
-    'svg.embed_char_paths': [True, deprecate_svg_embed_char_paths],
     'svg.fonttype':         ['path', validate_svg_fonttype],
     'svg.hashsalt':         [None, validate_string_or_None],
 
     # set this when you want to generate hardcopy docstring
     'docstring.hardcopy': [False, validate_bool],
     # where plugin directory is locate
-    'plugins.directory':  ['.matplotlib_plugins', six.text_type],
+    'plugins.directory':  ['.matplotlib_plugins', validate_string],
 
     'path.simplify': [True, validate_bool],
     'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
@@ -1406,32 +1391,31 @@ defaultParams = {
     'keymap.all_axes':     [['a'], validate_stringlist],
 
     # sample data
-    'examples.directory': ['', six.text_type],
+    'examples.directory': ['', validate_string],
 
     # Animation settings
     'animation.html':         ['none', validate_movie_html_fmt],
+    # Limit, in MB, of size of base64 encoded animation in HTML
+    # (i.e. IPython notebook)
+    'animation.embed_limit':  [20, validate_float],
     'animation.writer':       ['ffmpeg', validate_movie_writer],
-    'animation.codec':        ['h264', six.text_type],
+    'animation.codec':        ['h264', validate_string],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],
-    # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
+    # Additional arguments for HTML writer
+    'animation.html_args':    [[], validate_stringlist],
+    # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_path':  ['ffmpeg', validate_animation_writer_path],
-
     # Additional arguments for ffmpeg movie writer (using pipes)
     'animation.ffmpeg_args':   [[], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
     'animation.avconv_path':   ['avconv', validate_animation_writer_path],
     # Additional arguments for avconv movie writer (using pipes)
     'animation.avconv_args':   [[], validate_stringlist],
-    # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
-    'animation.mencoder_path': ['mencoder', validate_animation_writer_path],
-    # Additional arguments for mencoder movie writer (using pipes)
-    'animation.mencoder_args': [[], validate_stringlist],
-     # Path to convert binary. If just binary name, subprocess uses $PATH
+     # Path to convert binary. If just binary name, subprocess uses $PATH.
     'animation.convert_path':  ['convert', validate_animation_writer_path],
-     # Additional arguments for mencoder movie writer (using pipes)
-
+     # Additional arguments for convert movie writer (using pipes)
     'animation.convert_args':  [[], validate_stringlist],
 
     # Classic (pre 2.0) compatibility mode

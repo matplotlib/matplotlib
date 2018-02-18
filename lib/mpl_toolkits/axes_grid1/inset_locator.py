@@ -579,7 +579,8 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
 
-    pp = BboxPatch(rect, fill=False, **kwargs)
+    fill = kwargs.pop("fill", False)
+    pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
 
     p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1, **kwargs)

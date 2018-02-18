@@ -34,7 +34,7 @@ IPython to the rescue
     shadow python built-in and can lead to hard to track bugs. To get IPython
     integration without imports the use of the  `%matplotlib` magic is
     preferred. See
-    `ipython documentation <http://ipython.org/ipython-doc/stable/interactive/reference.html#plotting-with-matplotlib>`_
+    `ipython documentation <https://ipython.readthedocs.io/en/stable/interactive/reference.html#plotting-with-matplotlib>`_
     .
 
 Fortunately, `ipython <http://ipython.org/>`_, an enhanced
@@ -92,7 +92,7 @@ are going to need to understand what a matplotlib backend is
 With the TkAgg backend, which uses the Tkinter user interface toolkit,
 you can use matplotlib from an arbitrary non-gui python shell.  Just set your
 ``backend : TkAgg`` and ``interactive : True`` in your
-:file:`matplotlibrc` file (see :ref:`sphx_glr_tutorials_01_introductory_customizing.py`) and fire
+:file:`matplotlibrc` file (see :ref:`sphx_glr_tutorials_introductory_customizing.py`) and fire
 up python.  Then::
 
   >>> from pylab import *

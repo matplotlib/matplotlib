@@ -19,7 +19,7 @@ It is pretty easy to use, and requires only built-in python libs:
     ...                         'fonts', 'afm', 'ptmr8a.afm')
     >>>
     >>> from matplotlib.afm import AFM
-    >>> with open(afm_fname) as fh:
+    >>> with open(afm_fname, 'rb') as fh:
     ...     afm = AFM(fh)
     >>> afm.string_width_height('What the heck?')
     (6220.0, 694)
@@ -41,7 +41,6 @@ import six
 from six.moves import map
 
 import sys
-import os
 import re
 from ._mathtext_data import uni2type1
 
@@ -189,10 +188,12 @@ def _parse_char_metrics(fh):
     ascii_d = {}
     name_d = {}
     for line in fh:
-        line = line.rstrip().decode('ascii')  # Convert from byte-literal
+        # We are defensively letting values be utf8. The spec requires
+        # ascii, but there are non-compliant fonts in circulation
+        line = _to_str(line.rstrip())  # Convert from byte-literal
         if line.startswith('EndCharMetrics'):
             return ascii_d, name_d
-        # Split the metric line into a dictonary, keyed by metric identifiers
+        # Split the metric line into a dictionary, keyed by metric identifiers
         vals = dict(s.strip().split(' ', 1) for s in line.split(';') if s)
         # There may be other metrics present, but only these are needed
         if not {'C', 'WX', 'N', 'B'}.issubset(vals):
@@ -310,11 +311,13 @@ def _parse_optional(fh):
 def parse_afm(fh):
     """
     Parse the Adobe Font Metics file in file handle *fh*. Return value
-    is a (*dhead*, *dcmetrics*, *dkernpairs*, *dcomposite*) tuple where
-    *dhead* is a :func:`_parse_header` dict, *dcmetrics* is a
-    :func:`_parse_composites` dict, *dkernpairs* is a
-    :func:`_parse_kern_pairs` dict (possibly {}), and *dcomposite* is a
-    :func:`_parse_composites` dict (possibly {})
+    is a (*dhead*, *dcmetrics_ascii*, *dmetrics_name*, *dkernpairs*,
+    *dcomposite*) tuple where
+    *dhead* is a :func:`_parse_header` dict,
+    *dcmetrics_ascii* and *dcmetrics_name* are the two resulting dicts
+    from :func:`_parse_char_metrics`,
+    *dkernpairs* is a :func:`_parse_kern_pairs` dict (possibly {}) and
+    *dcomposite* is a :func:`_parse_composites` dict (possibly {})
     """
     _sanity_check(fh)
     dhead = _parse_header(fh)
@@ -392,7 +395,7 @@ class AFM(object):
         maxy = 0
         left = 0
         if not isinstance(s, six.text_type):
-            s = s.decode('ascii')
+            s = _to_str(s)
         for c in s:
             if c == '\n':
                 continue
@@ -501,8 +504,8 @@ class AFM(object):
 
         # FamilyName not specified so we'll make a guess
         name = self.get_fullname()
-        extras = (br'(?i)([ -](regular|plain|italic|oblique|bold|semibold|'
-                  br'light|ultralight|extra|condensed))+$')
+        extras = (r'(?i)([ -](regular|plain|italic|oblique|bold|semibold|'
+                  r'light|ultralight|extra|condensed))+$')
         return re.sub(extras, '', name)
 
     @property

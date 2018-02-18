@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pytest
@@ -50,15 +49,14 @@ def _colorbar_extension_shape(spacing):
         boundaries = values = norm.boundaries
         # Create a subplot.
         cax = fig.add_subplot(4, 1, i + 1)
-        # Turn off text and ticks.
-        for item in cax.get_xticklabels() + cax.get_yticklabels() +\
-                cax.get_xticklines() + cax.get_yticklines():
-            item.set_visible(False)
         # Generate the colorbar.
         cb = ColorbarBase(cax, cmap=cmap, norm=norm,
                 boundaries=boundaries, values=values,
                 extend=extension_type, extendrect=True,
                 orientation='horizontal', spacing=spacing)
+        # Turn off text and ticks.
+        cax.tick_params(left=False, labelleft=False,
+                        bottom=False, labelbottom=False)
     # Return the figure to the caller.
     return fig
 
@@ -82,15 +80,14 @@ def _colorbar_extension_length(spacing):
         for j, extendfrac in enumerate((None, 'auto', 0.1)):
             # Create a subplot.
             cax = fig.add_subplot(12, 1, i*3 + j + 1)
-            # Turn off text and ticks.
-            for item in cax.get_xticklabels() + cax.get_yticklabels() +\
-                    cax.get_xticklines() + cax.get_yticklines():
-                item.set_visible(False)
             # Generate the colorbar.
             ColorbarBase(cax, cmap=cmap, norm=norm,
                          boundaries=boundaries, values=values,
                          extend=extension_type, extendfrac=extendfrac,
                          orientation='horizontal', spacing=spacing)
+            # Turn off text and ticks.
+            cax.tick_params(left=False, labelleft=False,
+                            bottom=False, labelbottom=False)
     # Return the figure to the caller.
     return fig
 
@@ -308,3 +305,12 @@ def test_colorbar_lognorm_extension():
     cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
                       orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
+
+
+def test_colorbar_axes_kw():
+    # test fix for #8493: This does only test, that axes-related keywords pass
+    # and do not raise an exception.
+    plt.figure()
+    plt.imshow(([[1, 2], [3, 4]]))
+    plt.colorbar(orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
+                 aspect=10, anchor=(0., 0.), panchor=(0., 1.))

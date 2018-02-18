@@ -13,6 +13,8 @@ values is a single line of python
 
 .. code::
 
+  import matplotlib.style
+  import matplotlib as mpl
   mpl.style.use('classic')
 
 See :ref:`customizing-with-matplotlibrc-files` for details about how to
@@ -599,6 +601,8 @@ The default value of the ``linecolor`` kwarg for `~matplotlib.Axes.hexbin` has
 changed from ``'none'`` to ``'face'``. If 'none' is now supplied, no line edges
 are drawn around the hexagons.
 
+.. _barbarh_align:
+
 ``bar`` and ``barh``
 --------------------
 
@@ -685,7 +689,7 @@ The default font has changed from "Bitstream Vera Sans" to "DejaVu
 Sans".  DejaVu Sans has additional international and math characters,
 but otherwise has the same appearance as Bitstream Vera Sans.
 Latin, Greek, Cyrillic, Armenian, Georgian, Hebrew, and Arabic are
-`all supported <http://dejavu-fonts.org/wiki/Main_Page>`__
+`all supported <https://dejavu-fonts.github.io/>`__
 (but right-to-left rendering is still not handled by matplotlib).
 In addition, DejaVu contains a sub-set of emoji symbols.
 

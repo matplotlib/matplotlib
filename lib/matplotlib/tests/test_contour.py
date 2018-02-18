@@ -1,17 +1,13 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import datetime
 
 import numpy as np
-from matplotlib import mlab
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 from numpy.testing import assert_array_almost_equal
 import pytest
 import warnings
-
-import re
 
 
 def test_contour_shape_1d_valid():
@@ -132,20 +128,62 @@ def test_contour_shape_invalid_2():
     excinfo.match(r'Input z must be a 2D array.')
 
 
-@image_comparison(baseline_images=['contour_manual_labels'])
+def test_contour_empty_levels():
+
+    x = np.arange(9)
+    z = np.random.random((9, 9))
+
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning) as record:
+        ax.contour(x, x, z, levels=[])
+    assert len(record) == 1
+
+
+def test_contour_badlevel_fmt():
+    # test funny edge case from
+    # https://github.com/matplotlib/matplotlib/issues/9742
+    # User supplied fmt for each level as a dictionary, but
+    # MPL changed the level to the minimum data value because
+    # no contours possible.
+    # This would error out pre
+    # https://github.com/matplotlib/matplotlib/pull/9743
+    x = np.arange(9)
+    z = np.zeros((9, 9))
+
+    fig, ax = plt.subplots()
+    fmt = {1.: '%1.2f'}
+    with pytest.warns(UserWarning) as record:
+        cs = ax.contour(x, x, z, levels=[1.])
+        ax.clabel(cs, fmt=fmt)
+    assert len(record) == 1
+
+
+def test_contour_uniform_z():
+
+    x = np.arange(9)
+    z = np.ones((9, 9))
+
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning) as record:
+        ax.contour(x, x, z)
+    assert len(record) == 1
+
+
+@image_comparison(baseline_images=['contour_manual_labels'],
+    savefig_kwarg={'dpi': 200}, remove_text=True, style='mpl20')
 def test_contour_manual_labels():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
-    plt.figure(figsize=(6, 2))
+    plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
     pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
     plt.clabel(cs, manual=pts)
 
 
 @image_comparison(baseline_images=['contour_labels_size_color'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_contour_labels_size_color():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
@@ -168,21 +206,22 @@ def test_given_colors_levels_and_extends():
     levels = [2, 4, 8, 10]
 
     for i, ax in enumerate(axes.flatten()):
-        plt.sca(ax)
-
         filled = i % 2 == 0.
         extend = ['neither', 'min', 'max', 'both'][i // 2]
 
         if filled:
-            last_color = -1 if extend in ['min', 'max'] else None
-            plt.contourf(data, colors=colors[:last_color], levels=levels,
-                         extend=extend)
+            # If filled, we have 3 colors with no extension,
+            # 4 colors with one extension, and 5 colors with both extensions
+            first_color = 1 if extend in ['max', 'neither'] else None
+            last_color = -1 if extend in ['min', 'neither'] else None
+            c = ax.contourf(data, colors=colors[first_color:last_color],
+                            levels=levels, extend=extend)
         else:
-            last_level = -1 if extend == 'both' else None
-            plt.contour(data, colors=colors, levels=levels[:last_level],
-                        extend=extend)
+            # If not filled, we have 4 levels and 4 colors
+            c = ax.contour(data, colors=colors[:-1],
+                           levels=levels, extend=extend)
 
-        plt.colorbar()
+        plt.colorbar(c, ax=ax)
 
 
 @image_comparison(baseline_images=['contour_datetime_axis'],
@@ -220,8 +259,10 @@ def test_labels():
     x = np.arange(-3.0, 3.0, delta)
     y = np.arange(-2.0, 2.0, delta)
     X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
+
     # difference of Gaussians
     Z = 10.0 * (Z2 - Z1)
 
@@ -263,32 +304,6 @@ def test_contourf_decreasing_levels():
     plt.figure()
     with pytest.raises(ValueError):
         plt.contourf(z, [1.0, 0.0])
-    # Legacy contouring algorithm gives a warning rather than raising an error,
-    # plus a DeprecationWarning.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        plt.contourf(z, [1.0, 0.0], corner_mask='legacy')
-        assert len(w) == 2
-
-
-def test_vminvmax_warning():
-    z = [[0.1, 0.3], [0.5, 0.7]]
-    plt.figure()
-    cs = plt.contourf(z, [0.0, 1.0])
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        cs.vmin
-        assert len(w) == 1
-        msg = "vmin is deprecated and will be removed in 2.2 "
-        assert str(w[0].message).startswith(msg)
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        cs.vmax
-        assert len(w) == 1
-        msg = "vmax is deprecated and will be removed in 2.2 "
-        assert str(w[0].message).startswith(msg)
 
 
 def test_contourf_symmetric_locator():
@@ -340,3 +355,15 @@ def test_internal_cpp_api():
     with pytest.raises(ValueError) as excinfo:
         qcg.create_filled_contour(1, 0)
     excinfo.match(r'filled contour levels must be increasing')
+
+
+def test_circular_contour_warning():
+    # Check that almost circular contours don't throw a warning
+    with pytest.warns(None) as record:
+        x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
+        r = np.sqrt(x ** 2 + y ** 2)
+
+        plt.figure()
+        cs = plt.contour(x, y, r)
+        plt.clabel(cs)
+    assert len(record) == 0

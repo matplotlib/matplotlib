@@ -15,38 +15,19 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import datetime
 import io
 import json
 import os
-import datetime
 import warnings
 
 import numpy as np
 import tornado
-import datetime
 
 from matplotlib.backends import backend_agg
-from matplotlib.figure import Figure
+from matplotlib.backend_bases import _Backend
 from matplotlib import backend_bases
 from matplotlib import _png
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasWebAggCore(figure)
-    manager = FigureManagerWebAgg(canvas, num)
-    return manager
 
 
 # http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
@@ -376,17 +357,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def send_event(self, event_type, **kwargs):
         self.manager._send_event(event_type, **kwargs)
 
-    def start_event_loop(self, timeout):
-        backend_bases.FigureCanvasBase.start_event_loop_default(
-            self, timeout)
-    start_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
-
-    def stop_event_loop(self):
-        backend_bases.FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__ = \
-        backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
-
 
 _JQUERY_ICON_CLASSES = {
     'home': 'ui-icon ui-icon-home',
@@ -422,9 +392,6 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         if cursor != self.cursor:
             self.canvas.send_event("cursor", cursor=cursor)
         self.cursor = cursor
-
-    def dynamic_update(self):
-        self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.send_event(
@@ -499,8 +466,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         with io.open(os.path.join(
                 os.path.dirname(__file__),
-                "web_backend",
-                "js",
+                "web_backend", "js",
                 "mpl.js"), encoding='utf8') as fd:
             output.write(fd.read())
 
@@ -569,3 +535,9 @@ class TimerTornado(backend_bases.TimerBase):
         if self._timer is not None:
             self._timer_stop()
             self._timer_start()
+
+
+@_Backend.export
+class _BackendWebAggCoreAgg(_Backend):
+    FigureCanvas = FigureCanvasWebAggCore
+    FigureManager = FigureManagerWebAgg

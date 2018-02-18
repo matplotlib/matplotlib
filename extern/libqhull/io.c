@@ -3698,7 +3698,7 @@ coordT *qh_readpoints(int *numpoints, int *dimension, boolT *ismalloc) {
         strncat(qh rbox_command, s, sizeof(qh rbox_command)-1);
     }
     if (!s) {
-      qh_fprintf(qh ferr, 6074, "qhull input error: missing \"begin\" for cdd-formated input\n");
+      qh_fprintf(qh ferr, 6074, "qhull input error: missing \"begin\" for cdd-formatted input\n");
       qh_errexit(qh_ERRinput, NULL, NULL);
     }
   }

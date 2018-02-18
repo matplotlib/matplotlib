@@ -9,7 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from docutils.nodes import Body, Element
-from docutils.parsers.rst import directives
+
 
 class only_base(Body, Element):
     def dont_traverse(self, *args, **kwargs):

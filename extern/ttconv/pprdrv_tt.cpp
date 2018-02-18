@@ -137,7 +137,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
 
             offset = getULONG( ptr + 8 );
             length = getULONG( ptr + 12 );
-            table = (BYTE*)calloc( sizeof(BYTE), length );
+            table = (BYTE*)calloc( sizeof(BYTE), length + 2 );
 
             try
             {
@@ -160,6 +160,9 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
                 free(table);
                 throw;
             }
+            /* Always NUL-terminate; add two in case of UTF16 strings. */
+            table[length] = '\0';
+            table[length + 1] = '\0';
             return table;
         }
 
@@ -1055,7 +1058,9 @@ void ttfont_CharStrings(TTStreamWriter& stream, struct TTFONT *font, std::vector
     post_format = getFixed( font->post_table );
 
     /* Emmit the start of the PostScript code to define the dictionary. */
-    stream.printf("/CharStrings %d dict dup begin\n", glyph_ids.size());
+    stream.printf("/CharStrings %d dict dup begin\n", glyph_ids.size()+1);
+    /* Section 5.8.2 table 5.7 of the PS Language Ref says a CharStrings dictionary must contain an entry for .notdef */
+    stream.printf("/.notdef 0 def\n");
 
     /* Emmit one key-value pair for each glyph. */
     for (std::vector<int>::const_iterator i = glyph_ids.begin();
@@ -1102,7 +1107,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
 
         stream.put_char('\n');
 
-        /* This proceedure is for compatiblity with */
+        /* This proceedure is for compatibility with */
         /* level 1 interpreters. */
         stream.putline("/BuildChar {");
         stream.putline(" 1 index /Encoding get exch get");

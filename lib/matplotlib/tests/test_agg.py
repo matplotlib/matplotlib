@@ -1,21 +1,17 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import io
-from distutils.version import LooseVersion
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
 
+from matplotlib import (
+    collections, path, pyplot as plt, transforms as mtransforms, rcParams)
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import image_comparison
-from matplotlib import pyplot as plt
-from matplotlib import collections
-from matplotlib import path, rcParams
-from matplotlib import transforms as mtransforms
 
 
 def test_repeated_save_with_alpha():
@@ -234,3 +230,14 @@ def test_chunksize():
     rcParams['agg.path.chunksize'] = 105
     ax.plot(x, np.sin(x))
     fig.canvas.draw()
+
+
+@pytest.mark.backend('Agg')
+def test_jpeg_dpi():
+    Image = pytest.importorskip("PIL.Image")
+    # Check that dpi is set correctly in jpg files.
+    plt.plot([0, 1, 2], [0, 1, 0])
+    buf = io.BytesIO()
+    plt.savefig(buf, format="jpg", dpi=200)
+    im = Image.open(buf)
+    assert im.info['dpi'] == (200, 200)

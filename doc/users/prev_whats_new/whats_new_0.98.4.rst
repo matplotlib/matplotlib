@@ -79,7 +79,7 @@ psd amplitude scaling
 
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
-:ref:`sphx_glr_gallery_pylab_examples_psd_demo.py`.
+:ref:`sphx_glr_gallery_lines_bars_and_markers_psd_demo.py`.
 The changes should increase MATLAB
 compatibility and increase scaling options.
 
@@ -298,6 +298,3 @@ Here are the 0.98.4 notes from the CHANGELOG::
 
     Added support for arbitrary rasterization resolutions to the SVG
     backend. - MW
-
-
-

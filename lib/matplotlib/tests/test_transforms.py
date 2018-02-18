@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 from six.moves import zip
 
@@ -198,7 +197,7 @@ def test_clipping_of_log():
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
 
-    tpoints, tcodes = list(zip(*result))
+    tpoints, tcodes = zip(*result)
     assert_allclose(tcodes, [M, L, L, L, C])
 
 
@@ -600,3 +599,37 @@ def test_transformed_patch_path():
     # from the transform).
     patch.set_radius(0.5)
     assert_allclose(tpatch.get_fully_transformed_path().vertices, points)
+
+
+@pytest.mark.parametrize('locked_element', ['x0', 'y0', 'x1', 'y1'])
+def test_lockable_bbox(locked_element):
+    other_elements = ['x0', 'y0', 'x1', 'y1']
+    other_elements.remove(locked_element)
+
+    orig = mtransforms.Bbox.unit()
+    locked = mtransforms.LockableBbox(orig, **{locked_element: 2})
+
+    # LockableBbox should keep its locked element as specified in __init__.
+    assert getattr(locked, locked_element) == 2
+    assert getattr(locked, 'locked_' + locked_element) == 2
+    for elem in other_elements:
+        assert getattr(locked, elem) == getattr(orig, elem)
+
+    # Changing underlying Bbox should update everything but locked element.
+    orig.set_points(orig.get_points() + 10)
+    assert getattr(locked, locked_element) == 2
+    assert getattr(locked, 'locked_' + locked_element) == 2
+    for elem in other_elements:
+        assert getattr(locked, elem) == getattr(orig, elem)
+
+    # Unlocking element should revert values back to the underlying Bbox.
+    setattr(locked, 'locked_' + locked_element, None)
+    assert getattr(locked, 'locked_' + locked_element) is None
+    assert np.all(orig.get_points() == locked.get_points())
+
+    # Relocking an element should change its value, but not others.
+    setattr(locked, 'locked_' + locked_element, 3)
+    assert getattr(locked, locked_element) == 3
+    assert getattr(locked, 'locked_' + locked_element) == 3
+    for elem in other_elements:
+        assert getattr(locked, elem) == getattr(orig, elem)

@@ -1,7 +1,7 @@
 """
-===========================================================
-Demo of how to include upper and lower limits in error bars
-===========================================================
+==============================================
+Including upper and lower limits in error bars
+==============================================
 
 In matplotlib, errors bars can have "limits". Applying limits to the
 error bars essentially makes the error unidirectional. Because of that,

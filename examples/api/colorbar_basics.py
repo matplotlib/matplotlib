@@ -3,7 +3,7 @@
 Colorbar
 ========
 
-This example shows how to use colorbar by specifying the mappable object (here
+Use colorbar by specifying the mappable object (here
 the imshow returned object) and the axes to attach the colorbar to.
 """
 
@@ -15,7 +15,7 @@ N = 37
 x, y = np.mgrid[:N, :N]
 Z = (np.cos(x*0.2) + np.sin(y*0.3))
 
-# mask out the negative and positve values, respectively
+# mask out the negative and positive values, respectively
 Zpos = np.ma.masked_less(Z, 0)
 Zneg = np.ma.masked_greater(Z, 0)
 
@@ -30,7 +30,7 @@ pos = ax1.imshow(Zpos, cmap='Blues', interpolation='none')
 # which axes object it should be near
 fig.colorbar(pos, ax=ax1)
 
-# repeat everything above for the the negative data
+# repeat everything above for the negative data
 neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
 fig.colorbar(neg, ax=ax2)
 

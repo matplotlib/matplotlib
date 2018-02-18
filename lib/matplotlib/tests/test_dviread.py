@@ -1,7 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 from matplotlib.testing.decorators import skip_if_command_unavailable
 
 import matplotlib.dviread as dr
@@ -65,7 +61,7 @@ def test_dviread():
                              for [a, b, c, d, e] in entry['text']]
     with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
         data = [{'text': [[t.x, t.y,
-                           six.unichr(t.glyph),
+                           chr(t.glyph),
                            t.font.texname,
                            round(t.font.size, 2)]
                           for t in page.text],

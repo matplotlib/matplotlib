@@ -76,8 +76,8 @@ colormap_kw_doc = '''
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
-    *drawedges*   [ False | True ] If true, draw lines at color
-                  boundaries.
+    *drawedges*   bool
+                  Whether to draw lines at color boundaries.
     ===========   ====================================================
 
     The following will probably be useful only in the context of
@@ -747,7 +747,6 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
     def update_bruteforce(self, mappable):

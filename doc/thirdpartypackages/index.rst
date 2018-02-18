@@ -38,6 +38,16 @@ data processing tools. An example plot from the `Cartopy gallery
 Declarative libraries
 *********************
 
+plotnine
+========
+
+`plotnine <https://plotnine.readthedocs.io/en/stable/>`_ implements a grammar
+of graphics, similar to R's `ggplot2 <http://ggplot2.org/>`_. The grammar allows
+users to compose plots by explicitly mapping data to the visual objects that
+make up the plot.
+
+.. image:: /_static/plotnine.png
+
 ggplot
 ======
 `ggplot <https://github.com/yhat/ggplot>`_ is a port of the R ggplot2 package
@@ -61,6 +71,13 @@ widgets for parameter exploration.
 Specialty plots
 ***************
 
+DeCiDa
+======
+
+`DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a library of functions
+and classes for electron device characterization, electronic circuit design and
+general data visualization and analysis.
+
 Matplotlib-Venn
 ===============
 `Matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a
@@ -75,6 +92,21 @@ that allows Matplotlib users to specify probabilty scales. Simply importing the
 via e.g., ``ax.set_xscale('prob')`` or ``plt.yscale('prob')``.
 
 .. image:: /_static/probscale_demo.png
+
+mpl-scatter-density
+===================
+
+`mpl-scatter-density <https://github.com/astrofrog/mpl-scatter-density>`_ is a
+small package that makes it easy to make scatter plots of large numbers
+of points using a density map. The following example contains around 13 million
+points and the plotting (excluding reading in the data) took less than a
+second on an average laptop:
+
+.. image:: /_static/mpl-scatter-density.png
+    :height: 400px
+
+When used in interactive mode, the density map is downsampled on-the-fly while
+panning/zooming in order to provide a smooth interactive experience.
 
 mplstereonet
 ============
@@ -102,6 +134,19 @@ part of exploring and understanding complex datasets.
 .. image:: /_static/seaborn.png
     :height: 157px
 
+WCSAxes
+=======
+
+The `Astropy <http://www.astropy.org>`_ core package includes a submodule
+called WCSAxes (available at `astropy.visualization.wcsaxes
+<http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html>`_) which
+adds Matplotlib projections for Astronomical image data. The following is an
+example of a plot made with WCSAxes which includes the original coordinate
+system of the image and an overlay of a different coordinate system:
+
+.. image:: /_static/wcsaxes.jpg
+    :height: 400px
+
 Windrose
 ========
 `Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib,
@@ -124,6 +169,15 @@ annotation boxes) for Matplotlib.
 
 Miscellaneous
 *************
+
+mpl-template
+============
+`mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
+a customizable way to add engineering figure elements such as a title block,
+border, and logo.
+
+.. image:: /_static/mpl_template_example.png
+    :height: 330px
 
 adjustText
 ==========

@@ -173,7 +173,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     png_uint_32 width = (png_uint_32)buffer.dim(1);
     png_uint_32 height = (png_uint_32)buffer.dim(0);
-    int channels = buffer.dim(2);
+    npy_intp channels = buffer.dim(2);
     std::vector<png_bytep> row_pointers(height);
     for (png_uint_32 row = 0; row < (png_uint_32)height; ++row) {
         row_pointers[row] = (png_bytep)&buffer(row, 0, 0);
@@ -194,18 +194,18 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     switch (channels) {
     case 1:
-	png_color_type = PNG_COLOR_TYPE_GRAY;
-	break;
+        png_color_type = PNG_COLOR_TYPE_GRAY;
+        break;
     case 3:
-	png_color_type = PNG_COLOR_TYPE_RGB;
-	break;
+        png_color_type = PNG_COLOR_TYPE_RGB;
+        break;
     case 4:
-	png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-	break;
+        png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+        break;
     default:
         PyErr_SetString(PyExc_ValueError,
-			"Buffer must be an NxMxD array with D in 1, 3, 4 "
-			"(grayscale, RGB, RGBA)");
+                        "Buffer must be an NxMxD array with D in 1, 3, 4 "
+                        "(grayscale, RGB, RGBA)");
         goto exit;
     }
 
@@ -349,20 +349,20 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     sig_bit.alpha = 0;
     switch (png_color_type) {
     case PNG_COLOR_TYPE_GRAY:
-	sig_bit.gray = 8;
-	sig_bit.red = 0;
-	sig_bit.green = 0;
-	sig_bit.blue = 0;
-	break;
+        sig_bit.gray = 8;
+        sig_bit.red = 0;
+        sig_bit.green = 0;
+        sig_bit.blue = 0;
+        break;
     case PNG_COLOR_TYPE_RGB_ALPHA:
-	sig_bit.alpha = 8;
-	// fall through
+        sig_bit.alpha = 8;
+        // fall through
     case PNG_COLOR_TYPE_RGB:
-	sig_bit.gray = 0;
-	sig_bit.red = 8;
-	sig_bit.green = 8;
-	sig_bit.blue = 8;
-	break;
+        sig_bit.gray = 0;
+        sig_bit.red = 8;
+        sig_bit.green = 8;
+        sig_bit.blue = 8;
+        break;
     default:
         PyErr_SetString(PyExc_RuntimeError, "internal error, bad png_color_type");
         goto exit;
@@ -408,13 +408,21 @@ static void _read_png_data(PyObject *py_file_obj, png_bytep data, png_size_t len
     Py_ssize_t bufflen;
     if (read_method) {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
-        if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
-            if (bufflen == (Py_ssize_t)length) {
-                memcpy(data, buffer, length);
+        if (result) {
+            if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
+                if (bufflen == (Py_ssize_t)length) {
+                    memcpy(data, buffer, length);
+                } else {
+                    PyErr_SetString(PyExc_IOError, "read past end of file");
+                }
             } else {
-                PyErr_SetString(PyExc_IOError, "read past end of file");
+                PyErr_SetString(PyExc_IOError, "failed to copy buffer");
             }
+        } else  {
+            PyErr_SetString(PyExc_IOError, "failed to read file");
         }
+
+
     }
     Py_XDECREF(read_method);
     Py_XDECREF(result);
@@ -424,6 +432,10 @@ static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length
 {
     PyObject *py_file_obj = (PyObject *)png_get_io_ptr(png_ptr);
     _read_png_data(py_file_obj, data, length);
+    if (PyErr_Occurred()) {
+        png_error(png_ptr, "failed to read file");
+    }
+
 }
 
 static PyObject *_read_png(PyObject *filein, bool float_result)
@@ -481,6 +493,9 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         }
         Py_XDECREF(read_method);
         _read_png_data(py_file, header, 8);
+        if (PyErr_Occurred()) {
+            goto exit;
+        }
     }
 
     if (png_sig_cmp(header, 0, 8)) {
@@ -503,7 +518,9 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     }
 
     if (setjmp(png_jmpbuf(png_ptr))) {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting jump");
+        if (!PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "error setting jump");
+        }
         goto exit;
     }
 
@@ -582,12 +599,12 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
                 if (bit_depth == 16) {
                     png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        A(y, x, p) = (float)(ptr[p]) / max_value;
+                        A(y, x, p) = (float)(ptr[p] / max_value);
                     }
                 } else {
                     png_byte *ptr = &(row[x * dimensions[2]]);
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        A(y, x, p) = (float)(ptr[p]) / max_value;
+                        A(y, x, p) = (float)(ptr[p] / max_value);
                     }
                 }
             }

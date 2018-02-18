@@ -153,7 +153,7 @@ class MyApplication(tornado.web.Application):
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
             buff = io.BytesIO()
-            manager.canvas.print_figure(buff, format=fmt)
+            manager.canvas.figure.savefig(buff, format=fmt)
             self.write(buff.getvalue())
 
     class WebSocket(tornado.websocket.WebSocketHandler):

@@ -8,6 +8,8 @@
    :backlinks: entry
 
 .. automodule:: matplotlib.axis
+   :no-members:
+   :no-undoc-members:
 
 Inheritance
 ===========
@@ -20,9 +22,17 @@ Inheritance
 ================
 
 .. autoclass:: Axis
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: XAxis
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: YAxis
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: Ticker
+   :no-members:
+   :no-undoc-members:
 
 
 .. autosummary::
@@ -99,8 +109,8 @@ Ticks, tick labels and Offset text
    Axis.axis_date
 
 
-Data and view internvals
-------------------------
+Data and view intervals
+-----------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -235,8 +245,14 @@ not used together may de-couple your tick labels from your data.
 ================
 
 .. autoclass:: Tick
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: XTick
+   :no-members:
+   :no-undoc-members:
 .. autoclass:: YTick
+   :no-members:
+   :no-undoc-members:
 
 
 .. autosummary::
@@ -372,7 +388,7 @@ YAxis
    YAxis.update_units
    YAxis.zoom
 
-``YAxis``
+XAxis
 ---------
 
 .. autosummary::
@@ -465,7 +481,6 @@ Ticks
    Tick.get_agg_filter
    Tick.get_alpha
    Tick.get_animated
-   Tick.get_axes
    Tick.get_children
    Tick.get_clip_box
    Tick.get_clip_on
@@ -487,8 +502,6 @@ Ticks
    Tick.get_window_extent
    Tick.get_zorder
    Tick.have_units
-   Tick.hitlist
-   Tick.is_figure_set
    Tick.is_transform_set
    Tick.mouseover
    Tick.pchanged
@@ -501,7 +514,6 @@ Ticks
    Tick.set_agg_filter
    Tick.set_alpha
    Tick.set_animated
-   Tick.set_axes
    Tick.set_clip_box
    Tick.set_clip_on
    Tick.set_clip_path
@@ -535,7 +547,6 @@ Ticks
    XTick.get_agg_filter
    XTick.get_alpha
    XTick.get_animated
-   XTick.get_axes
    XTick.get_children
    XTick.get_clip_box
    XTick.get_clip_on
@@ -557,8 +568,6 @@ Ticks
    XTick.get_window_extent
    XTick.get_zorder
    XTick.have_units
-   XTick.hitlist
-   XTick.is_figure_set
    XTick.is_transform_set
    XTick.mouseover
    XTick.pchanged
@@ -571,7 +580,6 @@ Ticks
    XTick.set_agg_filter
    XTick.set_alpha
    XTick.set_animated
-   XTick.set_axes
    XTick.set_clip_box
    XTick.set_clip_on
    XTick.set_clip_path
@@ -605,7 +613,6 @@ Ticks
    YTick.get_agg_filter
    YTick.get_alpha
    YTick.get_animated
-   YTick.get_axes
    YTick.get_children
    YTick.get_clip_box
    YTick.get_clip_on
@@ -627,8 +634,6 @@ Ticks
    YTick.get_window_extent
    YTick.get_zorder
    YTick.have_units
-   YTick.hitlist
-   YTick.is_figure_set
    YTick.is_transform_set
    YTick.mouseover
    YTick.pchanged
@@ -641,7 +646,6 @@ Ticks
    YTick.set_agg_filter
    YTick.set_alpha
    YTick.set_animated
-   YTick.set_axes
    YTick.set_clip_box
    YTick.set_clip_on
    YTick.set_clip_path
@@ -685,7 +689,6 @@ Axis
    Axis.get_agg_filter
    Axis.get_alpha
    Axis.get_animated
-   Axis.get_axes
    Axis.get_children
    Axis.get_clip_box
    Axis.get_clip_on
@@ -707,8 +710,6 @@ Axis
    Axis.get_window_extent
    Axis.get_zorder
    Axis.have_units
-   Axis.hitlist
-   Axis.is_figure_set
    Axis.is_transform_set
    Axis.mouseover
    Axis.pchanged
@@ -721,7 +722,6 @@ Axis
    Axis.set_agg_filter
    Axis.set_alpha
    Axis.set_animated
-   Axis.set_axes
    Axis.set_clip_box
    Axis.set_clip_on
    Axis.set_clip_path
@@ -755,7 +755,6 @@ Axis
    XAxis.get_agg_filter
    XAxis.get_alpha
    XAxis.get_animated
-   XAxis.get_axes
    XAxis.get_children
    XAxis.get_clip_box
    XAxis.get_clip_on
@@ -777,8 +776,6 @@ Axis
    XAxis.get_window_extent
    XAxis.get_zorder
    XAxis.have_units
-   XAxis.hitlist
-   XAxis.is_figure_set
    XAxis.is_transform_set
    XAxis.mouseover
    XAxis.pchanged
@@ -791,7 +788,6 @@ Axis
    XAxis.set_agg_filter
    XAxis.set_alpha
    XAxis.set_animated
-   XAxis.set_axes
    XAxis.set_clip_box
    XAxis.set_clip_on
    XAxis.set_clip_path
@@ -825,7 +821,6 @@ Axis
    YAxis.get_agg_filter
    YAxis.get_alpha
    YAxis.get_animated
-   YAxis.get_axes
    YAxis.get_children
    YAxis.get_clip_box
    YAxis.get_clip_on
@@ -847,8 +842,6 @@ Axis
    YAxis.get_window_extent
    YAxis.get_zorder
    YAxis.have_units
-   YAxis.hitlist
-   YAxis.is_figure_set
    YAxis.is_transform_set
    YAxis.mouseover
    YAxis.pchanged
@@ -861,7 +854,6 @@ Axis
    YAxis.set_agg_filter
    YAxis.set_alpha
    YAxis.set_animated
-   YAxis.set_axes
    YAxis.set_clip_box
    YAxis.set_clip_on
    YAxis.set_clip_path

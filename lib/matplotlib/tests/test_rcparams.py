@@ -1,9 +1,7 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
-import io
 import os
 import warnings
 from collections import OrderedDict
@@ -23,6 +21,7 @@ import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
                                 validate_colorlist,
+                                validate_color,
                                 validate_bool,
                                 validate_nseq_int,
                                 validate_nseq_float,
@@ -74,8 +73,7 @@ def test_RcParams_class():
                        'font.weight': 'normal',
                        'font.size': 12})
 
-    if six.PY3:
-        expected_repr = """
+    expected_repr = """
 RcParams({'font.cursive': ['Apple Chancery',
                            'Textile',
                            'Zapf Chancery',
@@ -83,28 +81,12 @@ RcParams({'font.cursive': ['Apple Chancery',
           'font.family': ['sans-serif'],
           'font.size': 12.0,
           'font.weight': 'normal'})""".lstrip()
-    else:
-        expected_repr = """
-RcParams({u'font.cursive': [u'Apple Chancery',
-                            u'Textile',
-                            u'Zapf Chancery',
-                            u'cursive'],
-          u'font.family': [u'sans-serif'],
-          u'font.size': 12.0,
-          u'font.weight': u'normal'})""".lstrip()
 
     assert expected_repr == repr(rc)
 
-    if six.PY3:
-        expected_str = """
+    expected_str = """
 font.cursive: ['Apple Chancery', 'Textile', 'Zapf Chancery', 'cursive']
 font.family: ['sans-serif']
-font.size: 12.0
-font.weight: normal""".lstrip()
-    else:
-        expected_str = """
-font.cursive: [u'Apple Chancery', u'Textile', u'Zapf Chancery', u'cursive']
-font.family: [u'sans-serif']
 font.size: 12.0
 font.weight: normal""".lstrip()
 
@@ -143,7 +125,7 @@ def test_Bug_2543():
     # accept None as an argument.
     # https://github.com/matplotlib/matplotlib/issues/2543
     # We filter warnings at this stage since a number of them are raised
-    # for deprecated rcparams as they should. We dont want these in the
+    # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
@@ -160,11 +142,6 @@ def test_Bug_2543():
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
-        _fonttype = mpl.rcParams['svg.fonttype']
-        assert _fonttype == mpl.rcParams['svg.embed_char_paths']
-        with mpl.rc_context():
-            mpl.rcParams['svg.embed_char_paths'] = False
-            assert mpl.rcParams['svg.fonttype'] == "none"
 
     with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
@@ -324,6 +301,27 @@ def generate_validator_testcases(valid):
          'fail': (('fish', ValueError),
                  ),
         },
+        {'validator': validate_color,
+         'success': (('None', 'none'),
+                     ('none', 'none'),
+                     ('AABBCC', '#AABBCC'),  # RGB hex code
+                     ('AABBCC00', '#AABBCC00'),  # RGBA hex code
+                     ('tab:blue', 'tab:blue'),  # named color
+                     ('C0', 'C0'),  # color from cycle
+                     ('(0, 1, 0)', [0.0, 1.0, 0.0]),  # RGB tuple
+                     ((0, 1, 0), (0, 1, 0)),  # non-string version
+                     ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
+                     ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
+                     ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
+
+                    ),
+         'fail': (('tab:veryblue', ValueError),  # invalid name
+                  ('C123', ValueError),  # invalid RGB(A) code and cycle index
+                  ('(0, 1)', ValueError),  # tuple with length < 3
+                  ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
+                  ('(0, 1, none)', ValueError),  # cannot cast none to float
+                 ),
+        },
         {'validator': validate_hist_bins,
          'success': (('auto', 'auto'),
                      ('10', 10),
@@ -419,7 +417,8 @@ def test_rcparams_reset_after_fail():
         assert mpl.rcParams['text.usetex'] is False
 
         with pytest.raises(KeyError):
-            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
+            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
+                                                ('test.blah', True)])):
                 pass
 
         assert mpl.rcParams['text.usetex'] is False

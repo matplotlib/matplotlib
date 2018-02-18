@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 import copy
 
 import numpy as np
@@ -87,13 +86,15 @@ def test_path_clipping():
             xy, facecolor='none', edgecolor='red', closed=True))
 
 
-@image_comparison(baseline_images=['semi_log_with_zero'], extensions=['png'])
+@image_comparison(baseline_images=['semi_log_with_zero'], extensions=['png'],
+                  style='mpl20')
 def test_log_transform_with_zero():
     x = np.arange(-10, 10)
     y = (1.0 - 1.0/(x**2+1))**20
 
     fig, ax = plt.subplots()
-    ax.semilogy(x, y, "-o", lw=15)
+    ax.semilogy(x, y, "-o", lw=15, markeredgecolor='k')
+    ax.set_ylim(1e-7, 1)
     ax.grid(True)
 
 
@@ -205,3 +206,15 @@ def test_path_deepcopy():
     path2 = Path(verts, codes)
     copy.deepcopy(path1)
     copy.deepcopy(path2)
+
+
+@pytest.mark.parametrize('offset', range(-720, 361, 45))
+def test_full_arc(offset):
+    low = offset
+    high = 360 + offset
+
+    path = Path.arc(low, high)
+    mins = np.min(path.vertices, axis=0)
+    maxs = np.max(path.vertices, axis=0)
+    np.testing.assert_allclose(mins, -1)
+    assert np.allclose(maxs, 1)

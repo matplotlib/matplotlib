@@ -15,8 +15,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib.cbook as cbook
+from numbers import Number
+
 from matplotlib.axes import Axes
+
 
 class _Base(object):
     "Base class"
@@ -43,6 +45,7 @@ class Add(_Base):
         a_rel_size, a_abs_size = self._a.get_size(renderer)
         b_rel_size, b_abs_size = self._b.get_size(renderer)
         return a_rel_size + b_rel_size, a_abs_size + b_abs_size
+
 
 class AddList(_Base):
     def __init__(self, add_list):
@@ -75,7 +78,8 @@ class Scaled(_Base):
         abs_size = 0.
         return rel_size, abs_size
 
-Scalable=Scaled
+Scalable = Scaled
+
 
 def _get_axes_aspect(ax):
     aspect = ax.get_aspect()
@@ -88,6 +92,7 @@ def _get_axes_aspect(ax):
         aspect = float(aspect)
 
     return aspect
+
 
 class AxesX(_Base):
     """
@@ -112,6 +117,7 @@ class AxesX(_Base):
         rel_size = abs(l2-l1)*aspect
         abs_size = 0.
         return rel_size, abs_size
+
 
 class AxesY(_Base):
     """
@@ -194,7 +200,6 @@ class MaxWidth(_Base):
         return rel_size, abs_size
 
 
-
 class MaxHeight(_Base):
     """
     Size whose absolute part is the largest height of
@@ -239,6 +244,7 @@ class Fraction(_Base):
             abs_size = a*self._fraction
             return rel_size, abs_size
 
+
 class Padded(_Base):
     """
     Return a instance where the absolute part of *size* is
@@ -254,6 +260,7 @@ class Padded(_Base):
         abs_size = a + self._pad
         return rel_size, abs_size
 
+
 def from_any(size, fraction_ref=None):
     """
     Creates Fixed unit when the first argument is a float, or a
@@ -264,11 +271,11 @@ def from_any(size, fraction_ref=None):
       >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
 
     """
-    if cbook.is_numlike(size):
+    if isinstance(size, Number):
         return Fixed(size)
     elif isinstance(size, six.string_types):
         if size[-1] == "%":
-            return Fraction(float(size[:-1])/100., fraction_ref)
+            return Fraction(float(size[:-1]) / 100, fraction_ref)
 
     raise ValueError("Unknown format")
 
@@ -285,6 +292,7 @@ class SizeFromFunc(_Base):
         abs_size = bb/dpi
 
         return rel_size, abs_size
+
 
 class GetExtentHelper(object):
     def _get_left(tight_bbox, axes_bbox):

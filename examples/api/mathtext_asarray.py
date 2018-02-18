@@ -3,7 +3,7 @@
 A mathtext image as numpy array
 ===============================
 
-This example shows how to make images from LaTeX strings.
+Make images from LaTeX strings.
 """
 
 import matplotlib.mathtext as mathtext
@@ -22,7 +22,7 @@ rgba2, depth2 = parser.to_rgba(
     r'some other string', color='red', fontsize=20, dpi=200)
 
 fig = plt.figure()
-fig.figimage(rgba1.astype(float)/255., 100, 100)
-fig.figimage(rgba2.astype(float)/255., 100, 300)
+fig.figimage(rgba1, 100, 100)
+fig.figimage(rgba2, 100, 300)
 
 plt.show()

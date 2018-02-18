@@ -1,332 +1,418 @@
 .. _whats-new:
 
 ==========================
- What's new in matplotlib
+ What's new in Matplotlib
 ==========================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
 .. contents:: Table of Contents
-   :depth: 3
+   :depth: 4
 
 
+..
+   For a release, add a new section after this, then comment out the include
+   and toctree below by indenting them. Uncomment them after the release.
+   .. include:: next_whats_new/README.rst
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-New in matplotlib 2.0
+      next_whats_new/*
+
+
+New in Matplotlib 2.2
 =====================
 
-.. note::
+Constrained Layout Manager
+--------------------------
 
-   matplotlib 2.0 supports Python 2.7, and 3.4+
+.. warning::
 
-
-
-Default style changes
----------------------
-
-The major changes in v2.0 are related to overhauling the default styles.
-
-.. toctree::
-   :maxdepth: 2
-
-   dflt_style_changes
+    Constrained Layout is **experimental**.  The
+    behaviour and API are subject to change, or the whole functionality
+    may be removed without a deprecation period.
 
 
-Improved color conversion API and RGBA support
-----------------------------------------------
+A new method to automatically decide spacing between subplots and their
+organizing ``GridSpec`` instances has been added.  It is meant to
+replace the venerable ``tight_layout`` method.  It is invoked via
+a new ``constrained_layout=True`` kwarg to
+`~.figure.Figure` or `~.figure.subplots`.
 
-The :mod:`~matplotlib.colors` gained a new color conversion API with
-full support for the alpha channel.  The main public functions are
-:func:`~matplotlib.colors.is_color_like`, :func:`matplotlib.colors.to_rgba`,
-:func:`matplotlib.colors.to_rgba_array` and :func:`~matplotlib.colors.to_hex`.
-RGBA quadruplets are encoded in hex format as `#rrggbbaa`.
+There are new ``rcParams`` for this package, and spacing can be
+more finely tuned with the new `~.set_constrained_layout_pads`.
 
-A side benefit is that the Qt options editor now allows setting the alpha
-channel of the artists as well.
+Features include:
 
+  - Automatic spacing for subplots with a fixed-size padding in inches around
+    subplots and all their decorators, and space between as a fraction
+    of subplot size between subplots.
+  - Spacing for `~.figure.suptitle`, and colorbars that are attached to
+    more than one axes.
+  - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
 
-New Configuration (rcParams)
-----------------------------
+  For more details and capabilities please see the new tutorial:
+  :doc:`/tutorials/intermediate/constrainedlayout_guide`
 
-New rcparams added
+Note the new API to access this:
 
-+---------------------------------+--------------------------------------------------+
-| Parameter                       | Description                                      |
-+=================================+==================================================+
-|`date.autoformatter.year`        | format string for 'year' scale dates             |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.month`       | format string for 'month' scale dates            |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.day`         | format string for 'day' scale dates              |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.hour`        | format string for 'hour' scale times             |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.minute`      | format string for 'minute' scale times           |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.second`      | format string for 'second' scale times           |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.microsecond` | format string for 'microsecond' scale times      |
-+---------------------------------+--------------------------------------------------+
-|`scatter.marker`                 | default marker for scatter plot                  |
-+---------------------------------+--------------------------------------------------+
-|`svg.hashsalt`                   | see note                                         |
-+---------------------------------+--------------------------------------------------+
-|`xtick.top`, `xtick.minor.top`,  | Control where major and minor ticks are drawn.   |
-|`xtick.major.top`                | The global values are `and` ed with the          |
-|`xtick.bottom`,                  | corresponding major/minor values.                |
-|`xtick.minor.bottom`,            |                                                  |
-|`xtick.major.bottom`             |                                                  |
-|`ytick.left`, `ytick.minor.left`,|                                                  |
-|`ytick.major.left`               |                                                  |
-|`ytick.right`,                   |                                                  |
-|`ytick.minor.right`,             |                                                  |
-|`ytick.major.right`              |                                                  |
-+---------------------------------+--------------------------------------------------+
-|`hist.bins`                      | The default number of bins to use in             |
-|                                 | `~matplotlib.axes.Axes.hist`.  This can be an    |
-|                                 | `int`, a list of floats, or ``'auto'`` if numpy  |
-|                                 | >= 1.11 is installed.                            |
-+---------------------------------+--------------------------------------------------+
-|`lines.scale_dashes`             | Whether the line dash patterns should scale with |
-|                                 | linewidth.                                       |
-+---------------------------------+--------------------------------------------------+
-|`axes.formatter.offset_threshold`| Minimum number of digits saved in tick labels    |
-|                                 | that triggers using an offset.                   |
-+---------------------------------+--------------------------------------------------+
+New ``plt.figure`` and ``plt.subplots`` kwarg: ``constrained_layout``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:meth:`~matplotlib.pyplot.figure` and :meth:`~matplotlib.pyplot.subplots`
+can now be called with ``constrained_layout=True`` kwarg to enable
+constrained_layout.
+
+New ``ax.set_position`` behaviour
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:meth:`~matplotlib.axes.set_position` now makes the specified axis no
+longer responsive to ``constrained_layout``, consistent with the idea that the
+user wants to place an axis manually.
+
+Internally, this means that old ``ax.set_position`` calls *inside* the library
+are changed to private ``ax._set_position`` calls so that
+``constrained_layout`` will still work with these axes.
+
+New ``figure`` kwarg for ``GridSpec``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to facilitate ``constrained_layout``, ``GridSpec`` now accepts a
+``figure`` keyword.  This is backwards compatible, in that not supplying this
+will simply cause ``constrained_layout`` to not operate on the subplots
+orgainzed by this ``GridSpec`` instance.  Routines that use ``GridSpec`` (e.g.
+``fig.subplots``) have been modified to pass the figure to ``GridSpec``.
 
 
+xlabels and ylabels can now be automatically aligned
+----------------------------------------------------
 
-Added ``svg.hashsalt`` key to rcParams
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Subplot axes ``ylabels`` can be misaligned horizontally if the tick labels
+are very different widths.  The same can happen to ``xlabels`` if the
+ticklabels are rotated on one subplot (for instance).  The new methods
+on the `Figure` class: `Figure.align_xlabels` and `Figure.align_ylabels`
+will now align these labels horizontally or vertically.  If the user only
+wants to align some axes, a list of axes can be passed.  If no list is
+passed, the algorithm looks at all the labels on the figure.
 
-If ``svg.hashsalt`` is ``None`` (which it is by default), the svg
-backend uses ``uuid4`` to generate the hash salt.  If it is not
-``None``, it must be a string that is used as the hash salt instead of
-``uuid4``.  This allows for deterministic SVG output.
+Only labels that have the same subplot locations are aligned.  i.e. the
+ylabels are aligned only if the subplots are in the same column of the
+subplot layout.
 
+Alignemnt is persistent and automatic after these are called.
 
-Removed the ``svg.image_noscale`` rcParam
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As a result of the extensive changes to image handling, the
-``svg.image_noscale`` rcParam has been removed.  The same
-functionality may be achieved by setting ``interpolation='none'`` on
-individual images or globally using the ``image.interpolation``
-rcParam.
-
-
-Qualitative colormaps
----------------------
-
-ColorBrewer's "qualitative" colormaps ("Accent", "Dark2", "Paired",
-"Pastel1", "Pastel2", "Set1", "Set2", "Set3") were intended for discrete
-categorical data, with no implication of value, and therefore have been
-converted to ``ListedColormap`` instead of ``LinearSegmentedColormap``, so
-the colors will no longer be interpolated and they can be used for
-choropleths, labeled image features, etc.
-
-
-
-Axis offset label now responds to `labelcolor`
-----------------------------------------------
-
-Axis offset labels are now colored the same as axis tick markers when `labelcolor` is altered.
-
-Improved offset text choice
----------------------------
-The default offset-text choice was changed to only use significant digits that
-are common to all ticks (e.g. 1231..1239 -> 1230, instead of 1231), except when
-they straddle a relatively large multiple of a power of ten, in which case that
-multiple is chosen (e.g. 1999..2001->2000).
-
-
-Style parameter blacklist
--------------------------
-
-In order to prevent unexpected consequences from using a style, style
-files are no longer able to set parameters that affect things
-unrelated to style.  These parameters include::
-
-  'interactive', 'backend', 'backend.qt4', 'webagg.port',
-  'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
-  'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
-  'savefig.directory', 'tk.window_focus', 'docstring.hardcopy'
-
-
-Change in default font
-----------------------
-
-The default font used by matplotlib in text has been changed to DejaVu Sans and
-DejaVu Serif for the sans-serif and serif families, respectively. The DejaVu
-font family is based on the previous matplotlib default --Bitstream Vera-- but
-includes a much wider range of characters.
-
-The default mathtext font has been changed from Computer Modern to the DejaVu
-family to maintain consistency with regular text. Two new options for the
-``mathtext.fontset`` configuration parameter have been added: ``dejavusans``
-(default) and ``dejavuserif``. Both of these options use DejaVu glyphs whenever
-possible and fall back to STIX symbols when a glyph is not found in DejaVu. To
-return to the previous behavior, set the rcParam ``mathtext.fontset`` to ``cm``.
-
-
-Faster text rendering
----------------------
-
-Rendering text in the Agg backend is now less fuzzy and about 20%
-faster to draw.
-
-
-Improvements for the Qt figure options editor
----------------------------------------------
-
-Various usability improvements were implemented for the Qt figure options
-editor, among which:
-
-- Line style entries are now sorted without duplicates.
-- The colormap and normalization limits can now be set for images.
-- Line edits for floating values now display only as many digits as necessary
-  to avoid precision loss.  An important bug was also fixed regarding input
-  validation using Qt5 and a locale where the decimal separator is ",".
-- The axes selector now uses shorter, more user-friendly names for axes, and
-  does not crash if there are no axes.
-- Line and image entries using the default labels ("_lineX", "_imageX") are now
-  sorted numerically even when there are more than 10 entries.
-
-
-Improved image support
-----------------------
-
-Prior to version 2.0, matplotlib resampled images by first applying
-the color map and then resizing the result.  Since the resampling was
-performed on the colored image, this introduced colors in the output
-image that didn't actually exist in the color map.  Now, images are
-resampled first (and entirely in floating-point, if the input image is
-floating-point), and then the color map is applied.
-
-In order to make this important change, the image handling code was
-almost entirely rewritten.  As a side effect, image resampling uses
-less memory and fewer datatype conversions than before.
-
-The experimental private feature where one could "skew" an image by
-setting the private member ``_image_skew_coordinate`` has been
-removed.  Instead, images will obey the transform of the axes on which
-they are drawn.
-
-Non-linear scales on image plots
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:func:`imshow` now draws data at the requested points in data space after the
-application of non-linear scales.
-
-The image on the left demonstrates the new, correct behavior.
-The old behavior can be recreated using :func:`pcolormesh` as
-demonstrated on the right.
-
+A convenience wrapper `Figure.align_labels` calls both functions at once.
 
 .. plot::
 
-    import numpy as np
+    import matplotlib.gridspec as gridspec
+
+    fig = plt.figure(figsize=(5, 3), tight_layout=True)
+    gs = gridspec.GridSpec(2, 2)
+
+    ax = fig.add_subplot(gs[0,:])
+    ax.plot(np.arange(0, 1e6, 1000))
+    ax.set_ylabel('Test')
+    for i in range(2):
+        ax = fig.add_subplot(gs[1, i])
+        ax.set_ylabel('Booooo')
+        ax.set_xlabel('Hello')
+        if i == 0:
+            for tick in ax.get_xticklabels():
+                tick.set_rotation(45)
+    fig.align_labels()
+
+
+Axes legends now included in tight_bbox
+---------------------------------------
+
+Legends created via ``ax.legend`` can sometimes overspill the limits of
+the axis.  Tools like ``fig.tight_layout()`` and
+``fig.savefig(bbox_inches='tight')`` would clip these legends.  A change
+was made to include them in the ``tight`` calculations.
+
+
+Cividis colormap
+----------------
+
+A new dark blue/yellow colormap named 'cividis' was added. Like
+viridis, cividis is perceptually uniform and colorblind
+friendly. However, cividis also goes a step further: not only is it
+usable by colorblind users, it should actually look effectively
+identical to colorblind and non-colorblind users. For more details,
+see Nunez J, Anderton C, and Renslow R. (submitted). Optimizing
+colormaps with consideration for color vision deficiency to enable
+accurate interpretation of scientific data."
+
+.. plot::
+
     import matplotlib.pyplot as plt
+    import numpy as np
 
-    data = np.arange(30).reshape(5, 6)
-    x = np.linspace(0, 6, 7)
-    y = 10**np.linspace(0, 5, 6)
-    X, Y = np.meshgrid(x, y)
-
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
-
-    ax1.imshow(data, aspect="auto", extent=(0, 6, 1e0, 1e5), interpolation='nearest')
-    ax1.set_yscale('log')
-    ax1.set_title('Using ax.imshow')
-
-    ax2.pcolormesh(x, y, np.flipud(data))
-    ax2.set_yscale('log')
-    ax2.set_title('Using ax.pcolormesh')
-    ax2.autoscale('tight')
-
-    plt.show()
+    fig, ax = plt.subplots()
+    pcm = ax.pcolormesh(np.random.rand(32,32), cmap='cividis')
+    fig.colorbar(pcm)
 
 
-This can be understood by analogy to plotting a histogram with linearly spaced bins
-with a logarithmic x-axis.  Equal sized bins will be displayed as wider for small
-*x* and narrower for large *x*.
+New style colorblind-friendly color cycle
+-----------------------------------------
+
+A new style defining a color cycle has been added,
+tableau-colorblind10, to provide another option for
+colorblind-friendly plots.  A demonstration of this new
+style can be found in the reference_ of style sheets. To
+load this color cycle in place of the default one::
+
+  import matplotlib.pyplot as plt
+  plt.style.use('tableau-colorblind10')
+
+.. _reference: https://matplotlib.org/gallery/style_sheets/style_sheets_reference.html
+
+
+Support for numpy.datetime64
+----------------------------
+
+Matplotlib has supported `datetime.datetime` dates for a long time in
+`matplotlib.dates`.  We
+now support `numpy.datetime64` dates as well.  Anywhere that
+`dateime.datetime` could be used, `numpy.datetime64` can be used.  eg::
+
+  time = np.arange('2005-02-01', '2005-02-02', dtype='datetime64[h]')
+  plt.plot(time)
 
 
 
-Support for HiDPI (Retina) displays in the NbAgg and WebAgg backends
---------------------------------------------------------------------
+Writing animations with Pillow
+------------------------------
+It is now possible to use Pillow as an animation writer.  Supported output
+formats are currently gif (Pillow>=3.4) and webp (Pillow>=5.0).  Use e.g. as ::
 
-The NbAgg and WebAgg backends will now use the full resolution of your
-high-pixel-density display.
+   from __future__ import division
 
-Change in the default animation codec
--------------------------------------
+   from matplotlib import pyplot as plt
+   from matplotlib.animation import FuncAnimation, PillowWriter
 
-The default animation codec has been changed from ``mpeg4`` to ``h264``,
-which is more efficient. It can be set via the ``animation.codec`` rcParam.
+   fig, ax = plt.subplots()
+   line, = plt.plot([0, 1])
 
-Deprecated support for mencoder in animation
+   def animate(i):
+      line.set_ydata([0, i / 20])
+      return [line]
+
+   anim = FuncAnimation(fig, animate, 20, blit=True)
+   anim.save("movie.gif", writer=PillowWriter(fps=24))
+   plt.show()
+
+
+Slider UI widget can snap to discrete values
 --------------------------------------------
 
-The use of mencoder for writing video files with mpl is problematic;
-switching to ffmpeg is strongly advised.  All support for mencoder
-will be removed in version 2.2.
+The slider UI widget can take the optional argument *valstep*.  Doing so
+forces the slider to take on only discrete values, starting from *valmin* and
+counting up to *valmax* with steps of size *valstep*.
 
-Boxplot Zorder Keyword Argument
--------------------------------
+If *closedmax==True*, then the slider will snap to *valmax* as well.
 
-The ``zorder`` parameter now exists for :func:`boxplot`. This allows the zorder
-of a boxplot to be set in the plotting function call.
 
-::
 
-    boxplot(np.arange(10), zorder=10)
+``capstyle`` and ``joinstyle`` attributes added to `Collection`
+---------------------------------------------------------------
 
-Filled ``+`` and ``x`` markers
-------------------------------
+The `Collection` class now has customizable ``capstyle`` and ``joinstyle``
+attributes. This allows the user for example to set the ``capstyle`` of
+errorbars.
 
-New fillable *plus* and *x* markers have been added. See
-the :mod:`~matplotlib.markers` module and
-:ref:`marker reference <sphx_glr_gallery_lines_bars_and_markers_marker_reference.py>`
-examples.
 
-`rcount` and `ccount` for `plot_surface()`
-------------------------------------------
+*pad* kwarg added to ax.set_title
+---------------------------------
 
-As of v2.0, mplot3d's :func:`~mpl_toolkits.mplot3d.axes3d.plot_surface` now
-accepts `rcount` and `ccount` arguments for controlling the sampling of the
-input data for plotting. These arguments specify the maximum number of
-evenly spaced samples to take from the input data. These arguments are
-also the new default sampling method for the function, and is
-considered a style change.
+The method `axes.set_title` now has a *pad* kwarg, that specifies the
+distance from the top of an axes to where the title is drawn.  The units
+of *pad* is points, and the default is the value of the (already-existing)
+``rcParams['axes.titlepad']``.
 
-The old `rstride` and `cstride` arguments, which specified the size of the
-evenly spaced samples, become the default when 'classic' mode is invoked,
-and are still available for use. There are no plans for deprecating these
-arguments.
 
-Streamplot Zorder Keyword Argument Changes
-------------------------------------------
+Comparison of 2 colors in Matplotlib
+------------------------------------
 
-The ``zorder`` parameter for :func:`streamplot` now has default
-value of ``None`` instead of ``2``. If ``None`` is given as ``zorder``,
-:func:`streamplot` has a default ``zorder`` of
-``matplotlib.lines.Line2D.zorder``.
+As the colors in Matplotlib can be specified with a wide variety of ways, the
+`matplotlib.colors.same_color` method has been added which checks if
+two `~matplotlib.colors` are the same.
 
-.. _gc_get_hatch_color_wn:
 
-Extension to `matplotlib.backend_bases.GraphicsContextBase`
------------------------------------------------------------
+Autoscaling a polar plot snaps to the origin
+--------------------------------------------
 
-To support standardizing hatch behavior across the backends we ship
-the `matplotlib.backend_bases.GraphicsContextBase.get_hatch_color`
-method as added to `matplotlib.backend_bases.GraphicsContextBase`.
-This is only used during the render process in the backends we ship so
-will not break any third-party backends.
+Setting the limits automatically in a polar plot now snaps the radial limit
+to zero if the automatic limit is nearby. This means plotting from zero doesn't
+automatically scale to include small negative values on the radial axis.
 
-If you maintain a third-party backend which extends
-`~matplotlib.backend_bases.GraphicsContextBase` this method is now
-available to you and should be used to color hatch patterns.
+The limits can still be set manually in the usual way using `set_ylim`.
+
+
+PathLike support
+----------------
+
+On Python 3.6+, `~matplotlib.pyplot.savefig`, `~matplotlib.pyplot.imsave`,
+`~matplotlib.pyplot.imread`, and animation writers now accept `os.PathLike`\s
+as input.
+
+
+`Axes.tick_params` can set gridline properties
+----------------------------------------------
+
+`Tick` objects hold gridlines as well as the tick mark and its label.
+`Axis.set_tick_params`, `Axes.tick_params` and `pyplot.tick_params`
+now have keyword arguments 'grid_color', 'grid_alpha', 'grid_linewidth',
+and 'grid_linestyle' for overriding the defaults in `rcParams`:
+'grid.color', etc.
+
+
+`Axes.imshow` clips RGB values to the valid range
+-------------------------------------------------
+
+When `Axes.imshow` is passed an RGB or RGBA value with out-of-range
+values, it now logs a warning and clips them to the valid range.
+The old behaviour, wrapping back in to the range, often hid outliers
+and made interpreting RGB images unreliable.
+
+
+Properties in `matplotlibrc` to place xaxis and yaxis tick labels
+-----------------------------------------------------------------
+
+Introducing four new boolean properties in `.matplotlibrc` for default
+positions of xaxis and yaxis tick labels, namely,
+`xtick.labeltop`, `xtick.labelbottom`, `ytick.labelright` and
+`ytick.labelleft`. These can also be changed in rcParams.
+
+
+PGI bindings for gtk3
+---------------------
+
+The GTK3 backends can now use PGI_ instead of PyGObject_.  PGI is a fairly
+incomplete binding for GObject, thus its use is not recommended; its main
+benefit is its availability on Travis (thus allowing CI testing for the gtk3agg
+and gtk3cairo backends).
+
+The binding selection rules are as follows:
+- if ``gi`` has already been imported, use it; else
+- if ``pgi`` has already been imported, use it; else
+- if ``gi`` can be imported, use it; else
+- if ``pgi`` can be imported, use it; else
+- error out.
+
+Thus, to force usage of PGI when both bindings are installed, import it first.
+
+.. _PGI: https://pgi.readthedocs.io/en/latest/
+.. _PyGObject: http://pygobject.readthedocs.io/en/latest/#
+
+
+
+Cairo rendering for Qt and WX canvases
+--------------------------------------
+
+The new ``Qt4Cairo``, ``Qt5Cairo``, and ``WXCairo`` backends allow Qt and Wx
+canvases to use Cairo rendering instead of Agg.
+
+
+Added support for QT in new ToolManager
+---------------------------------------
+
+Now it is possible to use the ToolManager with Qt5
+For example
+
+  import matplotlib
+
+  matplotlib.use('QT5AGG')
+  matplotlib.rcParams['toolbar'] = 'toolmanager'
+  import matplotlib.pyplot as plt
+
+  plt.plot([1,2,3])
+  plt.show()
+
+
+Treat the new Tool classes experimental for now, the API will likely change and perhaps the rcParam as well
+
+The main example `examples/user_interfaces/toolmanager_sgskip.py` shows more
+details, just adjust the header to use QT instead of GTK3
+
+
+
+TkAgg backend reworked to support PyPy
+--------------------------------------
+
+PyPy_ can now plot using the TkAgg backend, supported on PyPy 5.9
+and greater (both PyPy for python 2.7 and PyPy for python 3.5).
+
+.. _PyPy: https:/www.pypy.org
+
+
+
+Python logging library used for debug output
+--------------------------------------------
+
+Matplotlib has in the past (sporadically) used an internal
+verbose-output reporter.  This version converts those calls to using the
+standard python `logging` library.
+
+Support for the old ``rcParams`` ``verbose.level`` and ``verbose.fileo`` is
+dropped.
+
+The command-line options ``--verbose-helpful`` and ``--verbose-debug`` are
+still accepted, but deprecated.  They are now equivalent to setting
+``logging.INFO`` and ``logging.DEBUG``.
+
+The logger's root name is ``matplotlib`` and can be accessed from programs
+as::
+
+  import logging
+  mlog = logging.getLogger('matplotlib')
+
+Instructions for basic usage are in :ref:`troubleshooting-faq` and for
+developers in :ref:`contributing`.
+
+.. _logging: https://docs.python.org/3/library/logging.html
+
+Improved `repr` for `Transform`\s
+---------------------------------
+
+`Transform`\s now indent their `repr`\s in a more legible manner:
+
+.. code-block:: ipython
+
+   In [1]: l, = plt.plot([]); l.get_transform()
+   Out[1]:
+   CompositeGenericTransform(
+      TransformWrapper(
+         BlendedAffine2D(
+               IdentityTransform(),
+               IdentityTransform())),
+      CompositeGenericTransform(
+         BboxTransformFrom(
+               TransformedBbox(
+                  Bbox(x0=-0.05500000000000001, y0=-0.05500000000000001, x1=0.05500000000000001, y1=0.05500000000000001),
+                  TransformWrapper(
+                     BlendedAffine2D(
+                           IdentityTransform(),
+                           IdentityTransform())))),
+         BboxTransformTo(
+               TransformedBbox(
+                  Bbox(x0=0.125, y0=0.10999999999999999, x1=0.9, y1=0.88),
+                  BboxTransformTo(
+                     TransformedBbox(
+                           Bbox(x0=0.0, y0=0.0, x1=6.4, y1=4.8),
+                           Affine2D(
+                              [[ 100.    0.    0.]
+                              [   0.  100.    0.]
+                              [   0.    0.    1.]])))))))
+
+
+
+
+
+
 
 Previous Whats New
 ==================
@@ -334,6 +420,7 @@ Previous Whats New
 .. toctree::
    :glob:
    :maxdepth: 1
+   :reversed:
 
-   prev_whats_new/whats_new_*
    prev_whats_new/changelog
+   prev_whats_new/whats_new_*

@@ -1,7 +1,7 @@
 """
-==================================
-Demo of the basics of violin plots
-==================================
+==================
+Violin plot basics
+==================
 
 Violin plots are similar to histograms and box plots in that they show
 an abstract representation of the probability distribution of the

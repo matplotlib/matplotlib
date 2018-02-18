@@ -4,13 +4,11 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import numpy as np
-import sys
 import warnings
 
-from . import backend_agg
-from . import backend_gtk3
+from . import backend_agg, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
-from matplotlib.figure import Figure
+from .backend_gtk3 import _BackendGTK3
 from matplotlib import transforms
 
 if six.PY3 and not HAS_CAIRO_CFFI:
@@ -38,15 +36,12 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         w, h = allocation.width, allocation.height
 
         if not len(self._bbox_queue):
-            if self._need_redraw:
-                self._render_figure(w, h)
-                bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
-            else:
-                return
+            self._render_figure(w, h)
+            bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
         else:
             bbox_queue = self._bbox_queue
 
-        if HAS_CAIRO_CFFI:
+        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
             ctx = cairo.Context._from_pointer(
                 cairo.ffi.cast('cairo_t **',
                                id(ctx) + object.__basicsize__)[0],
@@ -101,24 +96,7 @@ class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
     pass
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasGTK3Agg(figure)
-    manager = FigureManagerGTK3Agg(canvas, num)
-    return manager
-
-
-FigureCanvas = FigureCanvasGTK3Agg
-FigureManager = FigureManagerGTK3Agg
-show = backend_gtk3.show
+@_BackendGTK3.export
+class _BackendGTK3Cairo(_BackendGTK3):
+    FigureCanvas = FigureCanvasGTK3Agg
+    FigureManager = FigureManagerGTK3Agg

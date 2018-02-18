@@ -52,12 +52,12 @@ class empty
 
     T &operator()(int i, int j = 0, int k = 0)
     {
-        throw "Accessed empty array";
+        throw std::runtime_error("Accessed empty array");
     }
 
     const T &operator()(int i, int j = 0, int k = 0) const
     {
-        throw "Accessed empty array";
+        throw std::runtime_error("Accessed empty array");
     }
 
     sub_t operator[](int i) const

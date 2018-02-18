@@ -10,8 +10,8 @@ import matplotlib.patches as patches
 import matplotlib.cbook as cbook
 
 
-image_file = cbook.get_sample_data('grace_hopper.png')
-image = plt.imread(image_file)
+with cbook.get_sample_data('grace_hopper.png') as image_file:
+    image = plt.imread(image_file)
 
 fig, ax = plt.subplots()
 im = ax.imshow(image)

@@ -1,8 +1,7 @@
 """
 Tests specific to the lines module.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import itertools
 import matplotlib.lines as mlines
@@ -131,6 +130,19 @@ def test_valid_drawstyles():
         line.set_drawstyle('foobar')
 
 
+def test_set_drawstyle():
+    x = np.linspace(0, 2*np.pi, 10)
+    y = np.sin(x)
+
+    fig, ax = plt.subplots()
+    line, = ax.plot(x, y)
+    line.set_drawstyle("steps-pre")
+    assert len(line.get_path().vertices) == 2*len(x)-1
+
+    line.set_drawstyle("default")
+    assert len(line.get_path().vertices) == len(x)
+
+
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
 def test_set_line_coll_dash_image():
     fig = plt.figure()
@@ -143,7 +155,8 @@ def test_set_line_coll_dash_image():
 @image_comparison(baseline_images=['marker_fill_styles'], remove_text=True,
                   extensions=['png'])
 def test_marker_fill_styles():
-    colors = itertools.cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
+    colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
+                              np.array([0, 0, 0])])
     altcolor = 'lightgreen'
 
     y = np.array([1, 1])

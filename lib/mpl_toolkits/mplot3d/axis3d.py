@@ -10,8 +10,7 @@ import six
 import math
 import copy
 
-from matplotlib import lines as mlines, axis as maxis, \
-        patches as mpatches
+from matplotlib import lines as mlines, axis as maxis, patches as mpatches
 from matplotlib import rcParams
 from . import art3d
 from . import proj3d
@@ -27,7 +26,6 @@ def get_flip_min_max(coord, index, mins, maxs):
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
     coord = copy.copy(coord)
-    #print coord, centers, deltas, axmask
     for i in range(3):
         if not axmask[i]:
             continue
@@ -40,8 +38,8 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
 def tick_update_position(tick, tickxs, tickys, labelpos):
     '''Update tick line and label position and style.'''
 
-    for (label, on) in ((tick.label1, tick.label1On), \
-            (tick.label2, tick.label2On)):
+    for (label, on) in [(tick.label1, tick.label1On),
+                        (tick.label2, tick.label2On)]:
         if on:
             label.set_position(labelpos)
 
@@ -81,68 +79,57 @@ class Axis(maxis.XAxis):
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[adir].copy()
         if rcParams['_internal.classic_mode']:
-            self._axinfo.update({'label':
-                                    {'va': 'center',
-                                     'ha': 'center'},
-                                 'tick':
-                                    {'inward_factor': 0.2,
-                                     'outward_factor': 0.1,
-                                     'linewidth': rcParams['lines.linewidth'],
-                                     'color': 'k'},
-                                 'axisline':
-                                    {'linewidth': 0.75,
-                                     'color': (0, 0, 0, 1)},
-                                 'grid' :
-                                    {'color': (0.9, 0.9, 0.9, 1),
-                                     'linewidth': 1.0,
-                                     'linestyle': '-'},
-                                })
+            self._axinfo.update(
+                {'label': {'va': 'center',
+                           'ha': 'center'},
+                 'tick': {'inward_factor': 0.2,
+                          'outward_factor': 0.1,
+                          'linewidth': rcParams['lines.linewidth'],
+                          'color': 'k'},
+                 'axisline': {'linewidth': 0.75,
+                              'color': (0, 0, 0, 1)},
+                 'grid': {'color': (0.9, 0.9, 0.9, 1),
+                          'linewidth': 1.0,
+                          'linestyle': '-'},
+                 })
         else:
-            self._axinfo.update({'label' :
-                                    {'va': 'center',
-                                     'ha': 'center'},
-                                 'tick' :
-                                    {'inward_factor': 0.2,
-                                     'outward_factor': 0.1,
-                                     'linewidth': rcParams.get(
-                                        adir + 'tick.major.width',
-                                        rcParams['xtick.major.width']),
-                                     'color': rcParams.get(
-                                        adir + 'tick.color',
-                                        rcParams['xtick.color'])},
-                                 'axisline':
-                                    {'linewidth': rcParams['axes.linewidth'],
-                                     'color': rcParams['axes.edgecolor']},
-                                 'grid' :
-                                    {'color': rcParams['grid.color'],
-                                     'linewidth': rcParams['grid.linewidth'],
-                                     'linestyle': rcParams['grid.linestyle']},
-                                })
-
+            self._axinfo.update(
+                {'label': {'va': 'center',
+                           'ha': 'center'},
+                 'tick': {'inward_factor': 0.2,
+                          'outward_factor': 0.1,
+                          'linewidth': rcParams.get(
+                              adir + 'tick.major.width',
+                              rcParams['xtick.major.width']),
+                          'color': rcParams.get(
+                              adir + 'tick.color',
+                              rcParams['xtick.color'])},
+                 'axisline': {'linewidth': rcParams['axes.linewidth'],
+                              'color': rcParams['axes.edgecolor']},
+                 'grid': {'color': rcParams['grid.color'],
+                          'linewidth': rcParams['grid.linewidth'],
+                          'linestyle': rcParams['grid.linestyle']},
+                 })
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
-
         self.set_rotate_label(kwargs.get('rotate_label', None))
 
-
     def init3d(self):
-        self.line = mlines.Line2D(xdata=(0, 0), ydata=(0, 0),
-                            linewidth=self._axinfo['axisline']['linewidth'],
-                            color=self._axinfo['axisline']['color'],
-                            antialiased=True,
-                           )
+        self.line = mlines.Line2D(
+            xdata=(0, 0), ydata=(0, 0),
+            linewidth=self._axinfo['axisline']['linewidth'],
+            color=self._axinfo['axisline']['color'],
+            antialiased=True)
 
         # Store dummy data in Polygon object
-        self.pane = mpatches.Polygon(np.array([[0,0], [0,1], [1,0], [0,0]]),
-                                    closed=False,
-                                    alpha=0.8,
-                                    facecolor=(1,1,1,0),
-                                    edgecolor=(1,1,1,0))
+        self.pane = mpatches.Polygon(
+            np.array([[0, 0], [0, 1], [1, 0], [0, 0]]),
+            closed=False, alpha=0.8, facecolor='k', edgecolor='k')
         self.set_pane_color(self._axinfo['color'])
 
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
-        self.gridlines = art3d.Line3DCollection([], )
+        self.gridlines = art3d.Line3DCollection([])
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
         self.axes._set_artist_props(self.offsetText)
@@ -153,7 +140,8 @@ class Axis(maxis.XAxis):
     def get_tick_positions(self):
         majorLocs = self.major.locator()
         self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i) for i, val in enumerate(majorLocs)]
+        majorLabels = [self.major.formatter(val, i)
+                       for i, val in enumerate(majorLocs)]
         return majorLabels, majorLocs
 
     def get_major_ticks(self, numticks=None):
@@ -173,7 +161,7 @@ class Axis(maxis.XAxis):
         self.stale = True
 
     def set_pane_color(self, color):
-        '''Set pane color to a RGBA tuple'''
+        '''Set pane color to a RGBA tuple.'''
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
@@ -211,8 +199,8 @@ class Axis(maxis.XAxis):
 
         vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
         tc = self.axes.tunit_cube(vals, renderer.M)
-        avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2] for \
-                p1, p2, p3, p4 in self._PLANES]
+        avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2]
+                for p1, p2, p3, p4 in self._PLANES]
         highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
 
         return mins, maxs, centers, deltas, tc, highs
@@ -270,7 +258,8 @@ class Axis(maxis.XAxis):
         edgep2 = edgep1.copy()
         edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
         pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
-        centpt = proj3d.proj_transform(centers[0], centers[1], centers[2], renderer.M)
+        centpt = proj3d.proj_transform(
+            centers[0], centers[1], centers[2], renderer.M)
         self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
         self.line.draw(renderer)
 
@@ -301,13 +290,13 @@ class Axis(maxis.XAxis):
         ax_points_estimate = sum(72. * ax_inches)
         deltas_per_point = 48. / ax_points_estimate
         default_offset = 21.
-        labeldeltas = (self.labelpad + default_offset) * deltas_per_point\
-            * deltas
+        labeldeltas = (
+            (self.labelpad + default_offset) * deltas_per_point * deltas)
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
-        tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2], \
-                renderer.M)
+        tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2],
+                                              renderer.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
@@ -330,7 +319,8 @@ class Axis(maxis.XAxis):
 
         pos = copy.copy(outeredgep)
         pos = move_from_center(pos, centers, labeldeltas, axmask)
-        olx, oly, olz = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+        olx, oly, olz = proj3d.proj_transform(
+            pos[0], pos[1], pos[2], renderer.M)
         self.offsetText.set_text( self.major.formatter.get_offset() )
         self.offsetText.set_position( (olx, oly) )
         angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
@@ -339,20 +329,20 @@ class Axis(maxis.XAxis):
         # the alignment point is used as the "fulcrum" for rotation.
         self.offsetText.set_rotation_mode('anchor')
 
-        #-----------------------------------------------------------------------
+        #----------------------------------------------------------------------
         # Note: the following statement for determining the proper alignment of
-        #       the offset text. This was determined entirely by trial-and-error
-        #       and should not be in any way considered as "the way".  There are
-        #       still some edge cases where alignment is not quite right, but
-        #       this seems to be more of a geometry issue (in other words, I
-        #       might be using the wrong reference points).
+        # the offset text. This was determined entirely by trial-and-error
+        # and should not be in any way considered as "the way".  There are
+        # still some edge cases where alignment is not quite right, but this
+        # seems to be more of a geometry issue (in other words, I might be
+        # using the wrong reference points).
         #
-        #   (TT, FF, TF, FT) are the shorthand for the tuple of
-        #     (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
-        #      centpt[index] <= peparray[index, outerindex])
+        # (TT, FF, TF, FT) are the shorthand for the tuple of
+        #   (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
+        #    centpt[index] <= peparray[index, outerindex])
         #
-        #   Three-letters (e.g., TFT, FTT) are short-hand for the array
-        #    of bools from the variable 'highs'.
+        # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
+        # from the variable 'highs'.
         # ---------------------------------------------------------------------
         if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex] :
             # if FT and if highs has an even number of Trues
@@ -425,26 +415,28 @@ class Axis(maxis.XAxis):
             # Get tick line positions
             pos = copy.copy(edgep1)
             pos[index] = loc
-            pos[tickdir] = edgep1[tickdir] + info['tick']['outward_factor'] * \
-                                             ticksign * tickdelta
-            x1, y1, z1 = proj3d.proj_transform(pos[0], pos[1], pos[2], \
-                    renderer.M)
-            pos[tickdir] = edgep1[tickdir] - info['tick']['inward_factor'] * \
-                                             ticksign * tickdelta
-            x2, y2, z2 = proj3d.proj_transform(pos[0], pos[1], pos[2], \
-                    renderer.M)
+            pos[tickdir] = (
+                edgep1[tickdir]
+                + info['tick']['outward_factor'] * ticksign * tickdelta)
+            x1, y1, z1 = proj3d.proj_transform(pos[0], pos[1], pos[2],
+                                               renderer.M)
+            pos[tickdir] = (
+                edgep1[tickdir]
+                - info['tick']['inward_factor'] * ticksign * tickdelta)
+            x2, y2, z2 = proj3d.proj_transform(pos[0], pos[1], pos[2],
+                                               renderer.M)
 
             # Get position of label
             default_offset = 8.  # A rough estimate
-            labeldeltas = (tick.get_pad() + default_offset) * deltas_per_point\
-                * deltas
+            labeldeltas = (
+                (tick.get_pad() + default_offset) * deltas_per_point * deltas)
 
             axmask = [True, True, True]
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]
             pos = move_from_center(pos, centers, labeldeltas, axmask)
-            lx, ly, lz = proj3d.proj_transform(pos[0], pos[1], pos[2], \
-                    renderer.M)
+            lx, ly, lz = proj3d.proj_transform(pos[0], pos[1], pos[2],
+                                               renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(info['tick']['linewidth'])

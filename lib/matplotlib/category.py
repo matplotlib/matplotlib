@@ -1,10 +1,24 @@
-# -*- coding: utf-8 OA-*-za
+# -*- coding: utf-8 -*-
 """
-catch all for categorical functions
+Module that allows plotting of string "category" data.  i.e.
+``plot(['d', 'f', 'a'],[1, 2, 3])`` will plot three points with x-axis
+values of 'd', 'f', 'a'.
+
+See :doc:`/gallery/lines_bars_and_markers/categorical_variables` for an
+example.
+
+The module uses Matplotlib's `matplotlib.units` mechanism to convert from
+strings to integers, provides a tick locator and formatter, and the
+class:`.UnitData` that creates and stores the string-to-integer mapping.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
+from collections import OrderedDict
+import itertools
+
 import six
+
 
 import numpy as np
 
@@ -13,104 +27,180 @@ import matplotlib.ticker as ticker
 
 # np 1.6/1.7 support
 from distutils.version import LooseVersion
-import collections
 
-
-if LooseVersion(np.__version__) >= LooseVersion('1.8.0'):
-    def shim_array(data):
-        return np.array(data, dtype=np.unicode)
-else:
-    def shim_array(data):
-        if (isinstance(data, six.string_types) or
-                not isinstance(data, collections.Iterable)):
-            data = [data]
-        try:
-            data = [str(d) for d in data]
-        except UnicodeEncodeError:
-            # this yields gibberish but unicode text doesn't
-            # render under numpy1.6 anyway
-            data = [d.encode('utf-8', 'ignore').decode('utf-8')
-                    for d in data]
-        return np.array(data, dtype=np.unicode)
+VALID_TYPES = tuple(set(six.string_types +
+                        (bytes, six.text_type, np.str_, np.bytes_)))
 
 
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Uses axis.unit_data map to encode
-        data as floats
+        """Converts strings in value to floats using
+        mapping information store in the  unit object
+
+        Parameters
+        ----------
+        value : string or iterable
+            value or list of values to be converted
+        unit : :class:`.UnitData`
+           object string unit information for value
+        axis : :class:`~matplotlib.Axis.axis`
+            axis on which the converted value is plotted
+
+        Returns
+        -------
+        mapped_ value : float or ndarray[float]
+
+        .. note:: axis is not used in this function
         """
-        vmap = dict(zip(axis.unit_data.seq, axis.unit_data.locs))
+        # dtype = object preserves numerical pass throughs
+        values = np.atleast_1d(np.array(value, dtype=object))
 
-        if isinstance(value, six.string_types):
-            return vmap[value]
+        # pass through sequence of non binary numbers
+        if all((units.ConversionInterface.is_numlike(v) and
+                not isinstance(v, VALID_TYPES)) for v in values):
+            return np.asarray(values, dtype=float)
 
-        vals = shim_array(value)
+        # force an update so it also does type checking
+        unit.update(values)
 
-        for lab, loc in vmap.items():
-            vals[vals == lab] = loc
+        str2idx = np.vectorize(unit._mapping.__getitem__,
+                               otypes=[float])
 
-        return vals.astype('float')
+        mapped_value = str2idx(values)
+        return mapped_value
 
     @staticmethod
     def axisinfo(unit, axis):
-        majloc = StrCategoryLocator(axis.unit_data.locs)
-        majfmt = StrCategoryFormatter(axis.unit_data.seq)
+        """Sets the default axis ticks and labels
+
+        Parameters
+        ---------
+        unit : :class:`.UnitData`
+            object string unit information for value
+        axis : :class:`~matplotlib.Axis.axis`
+            axis for which information is being set
+
+        Returns
+        -------
+        :class:~matplotlib.units.AxisInfo~
+            Information to support default tick labeling
+
+        .. note: axis is not used
+        """
+        # locator and formatter take mapping dict because
+        # args need to be pass by reference for updates
+        majloc = StrCategoryLocator(unit._mapping)
+        majfmt = StrCategoryFormatter(unit._mapping)
         return units.AxisInfo(majloc=majloc, majfmt=majfmt)
 
     @staticmethod
     def default_units(data, axis):
-        # the conversion call stack is:
+        """ Sets and updates the :class:`~matplotlib.Axis.axis~ units
+
+        Parameters
+        ----------
+        data : string or iterable of strings
+        axis : :class:`~matplotlib.Axis.axis`
+            axis on which the data is plotted
+
+        Returns
+        -------
+        class:~.UnitData~
+            object storing string to integer mapping
+        """
+        # the conversion call stack is supposed to be
         # default_units->axis_info->convert
-        if axis.unit_data is None:
-            axis.unit_data = UnitData(data)
+        if axis.units is None:
+            axis.set_units(UnitData(data))
         else:
-            axis.unit_data.update(data)
-        return None
+            axis.units.update(data)
+        return axis.units
 
 
-class StrCategoryLocator(ticker.FixedLocator):
-    def __init__(self, locs):
-        self.locs = locs
-        self.nbins = None
+class StrCategoryLocator(ticker.Locator):
+    """tick at every integer mapping of the string data"""
+    def __init__(self, units_mapping):
+        """
+        Parameters
+        -----------
+        units_mapping : Dict[str, int]
+             string:integer mapping
+        """
+        self._units = units_mapping
+
+    def __call__(self):
+        return list(self._units.values())
+
+    def tick_values(self, vmin, vmax):
+        return self()
 
 
-class StrCategoryFormatter(ticker.FixedFormatter):
-    def __init__(self, seq):
-        self.seq = seq
-        self.offset_string = ''
+class StrCategoryFormatter(ticker.Formatter):
+    """String representation of the data at every tick"""
+    def __init__(self, units_mapping):
+        """
+        Parameters
+        ----------
+        units_mapping : Dict[Str, int]
+            string:integer mapping
+        """
+        self._units = units_mapping
+
+    def __call__(self, x, pos=None):
+        if pos is None:
+            return ""
+        r_mapping = {v: StrCategoryFormatter._text(k)
+                     for k, v in self._units.items()}
+        return r_mapping.get(int(np.round(x)), '')
+
+    @staticmethod
+    def _text(value):
+        """Converts text values into `utf-8` or `ascii` strings
+        """
+        if LooseVersion(np.__version__) < LooseVersion('1.7.0'):
+            if (isinstance(value, (six.text_type, np.unicode))):
+                value = value.encode('utf-8', 'ignore').decode('utf-8')
+        if isinstance(value, (np.bytes_, six.binary_type)):
+            value = value.decode(encoding='utf-8')
+        elif not isinstance(value, (np.str_, six.string_types)):
+            value = str(value)
+        return value
 
 
 class UnitData(object):
-    # debatable makes sense to special code missing values
-    spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
-
-    def __init__(self, data):
+    def __init__(self, data=None):
         """Create mapping between unique categorical values
-        and numerical identifier
+        and integer identifiers
+        ----------
+        data: iterable
+              sequence of string values
+        """
+        self._mapping = OrderedDict()
+        self._counter = itertools.count(start=0)
+        if data is not None:
+            self.update(data)
+
+    def update(self, data):
+        """Maps new values to integer identifiers.
+
         Paramters
         ---------
         data: iterable
-            sequence of values
+              sequence of string values
+
+        Raises
+        ------
+        TypeError
+              If the value in data is not a string, unicode, bytes type
         """
-        self.seq, self.locs = [], []
-        self._set_seq_locs(data, 0)
+        data = np.atleast_1d(np.array(data, dtype=object))
 
-    def update(self, new_data):
-        # so as not to conflict with spdict
-        value = max(max(self.locs) + 1, 0)
-        self._set_seq_locs(new_data, value)
-
-    def _set_seq_locs(self, data, value):
-        strdata = shim_array(data)
-        new_s = [d for d in np.unique(strdata) if d not in self.seq]
-        for ns in new_s:
-            self.seq.append(ns)
-            if ns in UnitData.spdict:
-                self.locs.append(UnitData.spdict[ns])
-            else:
-                self.locs.append(value)
-                value += 1
+        for val in OrderedDict.fromkeys(data):
+            if not isinstance(val, VALID_TYPES):
+                raise TypeError("{val!r} is not a string".format(val=val))
+            if val not in self._mapping:
+                self._mapping[val] = next(self._counter)
 
 
 # Connects the convertor to matplotlib

@@ -7,29 +7,31 @@ import six
 from six import unichr
 from six.moves import xrange
 
-import os, base64, tempfile, gzip, io, sys, codecs, re
+import base64
+import codecs
+import gzip
+import hashlib
+import io
+import logging
+import re
+import uuid
 
 import numpy as np
 
-from hashlib import md5
-import uuid
-
-from matplotlib import verbose, __version__, rcParams
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib import cbook, __version__, rcParams
+from matplotlib.backend_bases import (
+     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
-from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, FontProperties, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.font_manager import findfont, get_font
+from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
 
-from xml.sax.saxutils import escape as escape_xml_text
+_log = logging.getLogger(__name__)
 
 backend_version = __version__
 
@@ -257,9 +259,6 @@ def generate_css(attrib={}):
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    FONT_SCALE = 100.0
-    fontd = maxdict(50)
-
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
         self.width = width
         self.height = height
@@ -284,12 +283,14 @@ class RendererSVG(RendererBase):
 
         RendererBase.__init__(self)
         self._glyph_map = dict()
-
+        str_height = short_float_fmt(height)
+        str_width = short_float_fmt(width)
         svgwriter.write(svgProlog)
         self._start_id = self.writer.start(
             'svg',
-            width='%ipt' % width, height='%ipt' % height,
-            viewBox='0 0 %i %i' % (width, height),
+            width='%spt' % str_width,
+            height='%spt' % str_height,
+            viewBox='0 0 %s %s' % (str_width, str_height),
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
@@ -322,7 +323,7 @@ class RendererSVG(RendererBase):
         if six.PY3:
             content = content.encode('utf8')
             salt = salt.encode('utf8')
-        m = md5()
+        m = hashlib.md5()
         m.update(salt)
         m.update(content)
         return '%s%s' % (type, m.hexdigest()[:10])
@@ -503,7 +504,7 @@ class RendererSVG(RendererBase):
             font = get_font(font_fname)
             font.set_size(72, 72)
             sfnt = font.get_sfnt()
-            writer.start('font', id=sfnt[(1, 0, 0, 4)])
+            writer.start('font', id=sfnt[1, 0, 0, 4].decode("mac_roman"))
             writer.element(
                 'font-face',
                 attrib={
@@ -825,7 +826,7 @@ class RendererSVG(RendererBase):
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename, 0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
-            verbose.report('Writing image file for inclusion: %s' % filename)
+            _log.info('Writing image file for inclusion: %s', filename)
             _png.write_png(im, filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
@@ -1187,61 +1188,49 @@ class FigureCanvasSVG(FigureCanvasBase):
     fixed_dpi = 72
 
     def print_svg(self, filename, *args, **kwargs):
-        if isinstance(filename, six.string_types):
-            with io.open(filename, 'w', encoding='utf-8') as svgwriter:
-                return self._print_svg(filename, svgwriter, **kwargs)
+        with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
 
-        if not is_writable_file_like(filename):
-            raise ValueError("filename must be a path or a file-like object")
+            filename = getattr(fh, 'name', '')
+            if not isinstance(filename, six.string_types):
+                filename = ''
 
-        svgwriter = filename
-        filename = getattr(svgwriter, 'name', '')
-        if not isinstance(filename, six.string_types):
-            filename = ''
-
-        if not isinstance(svgwriter, io.TextIOBase):
-            if six.PY3:
-                svgwriter = io.TextIOWrapper(svgwriter, 'utf-8')
+            if cbook.file_requires_unicode(fh):
+                detach = False
             else:
-                svgwriter = codecs.getwriter('utf-8')(svgwriter)
-            detach = True
-        else:
-            detach = False
+                if six.PY3:
+                    fh = io.TextIOWrapper(fh, 'utf-8')
+                else:
+                    fh = codecs.getwriter('utf-8')(fh)
+                detach = True
 
-        result = self._print_svg(filename, svgwriter, **kwargs)
+            result = self._print_svg(filename, fh, **kwargs)
 
-        # Detach underlying stream from wrapper so that it remains open in the
-        # caller.
-        if detach:
-            if six.PY3:
-                svgwriter.detach()
-            else:
-                svgwriter.reset()
-                svgwriter.stream = io.BytesIO()
+            # Detach underlying stream from wrapper so that it remains open in
+            # the caller.
+            if detach:
+                if six.PY3:
+                    fh.detach()
+                else:
+                    fh.reset()
+                    fh.stream = io.BytesIO()
 
         return result
 
     def print_svgz(self, filename, *args, **kwargs):
-        if isinstance(filename, six.string_types):
-            options = dict(filename=filename)
-        elif is_writable_file_like(filename):
-            options = dict(fileobj=filename)
-        else:
-            raise ValueError("filename must be a path or a file-like object")
-
-        with gzip.GzipFile(mode='w', **options) as gzipwriter:
+        with cbook.open_file_cm(filename, "wb") as fh, \
+                gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter)
 
-    def _print_svg(self, filename, svgwriter, **kwargs):
+    def _print_svg(self, filename, fh, **kwargs):
         image_dpi = kwargs.pop("dpi", 72)
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
-        w, h = width*72, height*72
+        w, h = width * 72, height * 72
 
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(
-            self.figure,
-            width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
+            self.figure, width, height, image_dpi,
+            RendererSVG(w, h, fh, filename, image_dpi),
             bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
@@ -1254,28 +1243,15 @@ class FigureManagerSVG(FigureManagerBase):
     pass
 
 
-def new_figure_manager(num, *args, **kwargs):
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas  = FigureCanvasSVG(figure)
-    manager = FigureManagerSVG(canvas, num)
-    return manager
-
-
 svgProlog = """\
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
+<!-- Created with matplotlib (https://matplotlib.org/) -->
 """
 
 
-FigureCanvas = FigureCanvasSVG
-FigureManager = FigureManagerSVG
+@_Backend.export
+class _BackendSVG(_Backend):
+    FigureCanvas = FigureCanvasSVG
+    FigureManager = FigureManagerSVG

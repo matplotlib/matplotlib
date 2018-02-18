@@ -14,7 +14,6 @@ from __future__ import print_function
 
 import numpy as np
 import matplotlib.cm as cm
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 from matplotlib.path import Path
@@ -26,9 +25,9 @@ from matplotlib.patches import PathPatch
 delta = 0.025
 x = y = np.arange(-3.0, 3.0, delta)
 X, Y = np.meshgrid(x, y)
-Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = Z2 - Z1  # difference of Gaussians
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
 
 im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
                 origin='lower', extent=[-3, 3, -3, 3],
@@ -41,8 +40,8 @@ plt.show()
 # It is also possible to show images of pictures.
 
 # A sample image
-image_file = cbook.get_sample_data('ada.png')
-image = plt.imread(image_file)
+with cbook.get_sample_data('ada.png') as image_file:
+    image = plt.imread(image_file)
 
 fig, ax = plt.subplots()
 ax.imshow(image)
@@ -53,19 +52,20 @@ ax.axis('off')  # clear x- and y-axes
 
 w, h = 512, 512
 
-datafile = cbook.get_sample_data('ct.raw.gz', asfileobj=True)
-s = datafile.read()
+with cbook.get_sample_data('ct.raw.gz', asfileobj=True) as datafile:
+    s = datafile.read()
 A = np.fromstring(s, np.uint16).astype(float).reshape((w, h))
 A /= A.max()
 
+fig, ax = plt.subplots()
 extent = (0, 25, 0, 25)
-im = plt.imshow(A, cmap=plt.cm.hot, origin='upper', extent=extent)
+im = ax.imshow(A, cmap=plt.cm.hot, origin='upper', extent=extent)
 
 markers = [(15.9, 14.5), (16.8, 15)]
 x, y = zip(*markers)
-plt.plot(x, y, 'o')
+ax.plot(x, y, 'o')
 
-plt.title('CT density')
+ax.set_title('CT density')
 
 plt.show()
 
@@ -121,26 +121,21 @@ plt.show()
 # suggested.
 
 A = np.random.rand(5, 5)
-plt.figure(1)
-plt.imshow(A, interpolation='nearest')
-plt.grid(True)
 
-plt.figure(2)
-plt.imshow(A, interpolation='bilinear')
-plt.grid(True)
-
-plt.figure(3)
-plt.imshow(A, interpolation='bicubic')
-plt.grid(True)
+fig, axs = plt.subplots(1, 3, figsize=(10, 3))
+for ax, interp in zip(axs, ['nearest', 'bilinear', 'bicubic']):
+    ax.imshow(A, interpolation=interp)
+    ax.set_title(interp.capitalize())
+    ax.grid(True)
 
 plt.show()
 
 
 ###############################################################################
 # You can specify whether images should be plotted with the array origin
-# x[0,0] in the upper left or upper right by using the origin parameter.
-# You can also control the default be setting image.origin in your
-# matplotlibrc file; see http://matplotlib.org/matplotlibrc
+# x[0,0] in the upper left or lower right by using the origin parameter.
+# You can also control the default setting image.origin in your
+# :ref:`matplotlibrc file <customizing-with-matplotlibrc-files>`
 
 x = np.arange(120).reshape((10, 12))
 
@@ -160,17 +155,19 @@ plt.show()
 delta = 0.025
 x = y = np.arange(-3.0, 3.0, delta)
 X, Y = np.meshgrid(x, y)
-Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = Z2 - Z1  # difference of Gaussians
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
 
 path = Path([[0, 1], [1, 0], [0, -1], [-1, 0], [0, 1]])
 patch = PathPatch(path, facecolor='none')
-plt.gca().add_patch(patch)
 
-im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
-                origin='lower', extent=[-3, 3, -3, 3],
-                clip_path=patch, clip_on=True)
+fig, ax = plt.subplots()
+ax.add_patch(patch)
+
+im = ax.imshow(Z, interpolation='bilinear', cmap=cm.gray,
+               origin='lower', extent=[-3, 3, -3, 3],
+               clip_path=patch, clip_on=True)
 im.set_clip_path(patch)
 
 plt.show()

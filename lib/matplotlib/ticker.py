@@ -37,100 +37,96 @@ axis limits and ticks that are multiples of that base.
 
 The Locator subclasses defined here are
 
-:class:`NullLocator`
-    No ticks
-
-:class:`FixedLocator`
-    Tick locations are fixed
-
-:class:`IndexLocator`
-    locator for index plots (e.g., where x = range(len(y)))
-
-:class:`LinearLocator`
-    evenly spaced ticks from min to max
-
-:class:`LogLocator`
-    logarithmically ticks from min to max
-
-:class:`SymmetricalLogLocator`
-    locator for use with with the symlog norm, works like the
-    `LogLocator` for the part outside of the threshold and add 0 if
-    inside the limits
-
-:class:`MultipleLocator`
-    ticks and range are a multiple of base; either integer or float
-
-:class:`OldAutoLocator`
-    choose a MultipleLocator and dyamically reassign it for
-    intelligent ticking during navigation
+:class:`AutoLocator`
+    `MaxNLocator` with simple defaults.  This is the default tick locator for
+    most plotting.
 
 :class:`MaxNLocator`
-    finds up to a max number of ticks at nice locations
+    Finds up to a max number of intervals with ticks at nice locations.
 
-:class:`AutoLocator`
-    :class:`MaxNLocator` with simple defaults. This is the default
-    tick locator for most plotting.
+:class:`LinearLocator`
+    Space ticks evenly from min to max.
 
-:class:`AutoMinorLocator`
-    locator for minor ticks when the axis is linear and the
-    major ticks are uniformly spaced. It subdivides the major
-    tick interval into a specified number of minor intervals,
-    defaulting to 4 or 5 depending on the major interval.
+:class:`LogLocator`
+    Space ticks logarithmically from min to max.
+
+:class:`MultipleLocator`
+    Ticks and range are a multiple of base; either integer or float.
+
+:class:`FixedLocator`
+    Tick locations are fixed.
+
+:class:`IndexLocator`
+    Locator for index plots (e.g., where ``x = range(len(y))``).
+
+:class:`NullLocator`
+    No ticks.
+
+:class:`SymmetricalLogLocator`
+    Locator for use with with the symlog norm; works like `LogLocator` for the
+    part outside of the threshold and adds 0 if inside the limits.
 
 :class:`LogitLocator`
     Locator for logit scaling.
 
+:class:`OldAutoLocator`
+    Choose a `MultipleLocator` and dynamically reassign it for intelligent
+    ticking during navigation.
+
+:class:`AutoMinorLocator`
+    Locator for minor ticks when the axis is linear and the
+    major ticks are uniformly spaced.  Subdivides the major
+    tick interval into a specified number of minor intervals,
+    defaulting to 4 or 5 depending on the major interval.
+
 
 There are a number of locators specialized for date locations - see
-the dates module
+the `dates` module.
 
 You can define your own locator by deriving from Locator. You must
 override the ``__call__`` method, which returns a sequence of locations,
 and you will probably want to override the autoscale method to set the
 view limits from the data limits.
 
-If you want to override the default locator, use one of the above or a
-custom locator and pass it to the x or y axis instance. The relevant
-methods are::
+If you want to override the default locator, use one of the above or a custom
+locator and pass it to the x or y axis instance. The relevant methods are::
 
-  ax.xaxis.set_major_locator( xmajorLocator )
-  ax.xaxis.set_minor_locator( xminorLocator )
-  ax.yaxis.set_major_locator( ymajorLocator )
-  ax.yaxis.set_minor_locator( yminorLocator )
+  ax.xaxis.set_major_locator(xmajor_locator)
+  ax.xaxis.set_minor_locator(xminor_locator)
+  ax.yaxis.set_major_locator(ymajor_locator)
+  ax.yaxis.set_minor_locator(yminor_locator)
 
-The default minor locator is the NullLocator, e.g., no minor ticks on by
-default.
+The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
 
 Tick formatting
 ---------------
 
-Tick formatting is controlled by classes derived from Formatter. The
-formatter operates on a single tick value and returns a string to the
-axis.
+Tick formatting is controlled by classes derived from Formatter. The formatter
+operates on a single tick value and returns a string to the axis.
 
 :class:`NullFormatter`
-    No labels on the ticks
+    No labels on the ticks.
 
 :class:`IndexFormatter`
-    Set the strings from a list of labels
+    Set the strings from a list of labels.
 
 :class:`FixedFormatter`
-    Set the strings manually for the labels
+    Set the strings manually for the labels.
 
 :class:`FuncFormatter`
-    User defined function sets the labels
+    User defined function sets the labels.
 
 :class:`StrMethodFormatter`
-    Use string `format` method
+    Use string `format` method.
 
 :class:`FormatStrFormatter`
-    Use an old-style sprintf format string
+    Use an old-style sprintf format string.
 
 :class:`ScalarFormatter`
-    Default formatter for scalars: autopick the format string
+    Default formatter for scalars: autopick the format string.
 
 :class:`LogFormatter`
-    Formatter for log axes
+    Formatter for log axes.
 
 :class:`LogFormatterExponent`
     Format values for log axis using ``exponent = log_base(value)``.
@@ -158,12 +154,12 @@ access to the axis view and data limits.
 To control the major and minor tick label formats, use one of the
 following methods::
 
-  ax.xaxis.set_major_formatter( xmajorFormatter )
-  ax.xaxis.set_minor_formatter( xminorFormatter )
-  ax.yaxis.set_major_formatter( ymajorFormatter )
-  ax.yaxis.set_minor_formatter( yminorFormatter )
+  ax.xaxis.set_major_formatter(xmajor_formatter)
+  ax.xaxis.set_minor_formatter(xminor_formatter)
+  ax.yaxis.set_major_formatter(ymajor_formatter)
+  ax.yaxis.set_minor_formatter(yminor_formatter)
 
-See :ref:`sphx_glr_gallery_pylab_examples_major_minor_demo.py` for an
+See :ref:`sphx_glr_gallery_ticks_and_spines_major_minor_demo.py` for an
 example of setting major and minor ticks. See the :mod:`matplotlib.dates`
 module for more information and examples of using date locators and formatters.
 """
@@ -173,7 +169,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import decimal
 import itertools
 import locale
 import math
@@ -480,7 +475,6 @@ class OldScalarFormatter(Formatter):
         else:
             fmt = '%1.3f'
         s = fmt % x
-        #print d, x, fmt, s
         tup = s.split('e')
         if len(tup) == 2:
             mantissa = tup[0].rstrip('0').rstrip('.')
@@ -984,7 +978,6 @@ class LogFormatter(Formatter):
         if x == 0.0:  # Symlog
             return '0'
 
-        sign = np.sign(x)
         x = abs(x)
         b = self._base
         # only label the decades
@@ -1184,15 +1177,8 @@ class EngFormatter(Formatter):
     """
     Formats axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
-
-    `unit` is a string containing the abbreviated name of the unit,
-    suitable for use with single-letter representations of powers of
-    1000. For example, 'Hz' or 'm'.
-
-    `places` is the precision with which to display the number,
-    specified in digits after the decimal point (there will be between
-    one and three digits before the decimal point).
     """
+
     # The SI engineering prefixes
     ENG_PREFIXES = {
         -24: "y",
@@ -1214,12 +1200,42 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None):
+    def __init__(self, unit="", places=None, sep=" "):
+        """
+        Parameters
+        ----------
+        unit : str (default: "")
+            Unit symbol to use, suitable for use with single-letter
+            representations of powers of 1000. For example, 'Hz' or 'm'.
+
+        places : int (default: None)
+            Precision with which to display the number, specified in
+            digits after the decimal point (there will be between one
+            and three digits before the decimal point). If it is None,
+            the formatting falls back to the floating point format '%g',
+            which displays up to 6 *significant* digits, i.e. the equivalent
+            value for *places* varies between 0 and 5 (inclusive).
+
+        sep : str (default: " ")
+            Separator used between the value and the prefix/unit. For
+            example, one get '3.14 mV' if ``sep`` is " " (default) and
+            '3.14mV' if ``sep`` is "". Besides the default behavior, some
+            other useful options may be:
+
+            * ``sep=""`` to append directly the prefix/unit to the value;
+            * ``sep="\\N{THIN SPACE}"`` (``U+2009``);
+            * ``sep="\\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
+            * ``sep="\\N{NO-BREAK SPACE}"`` (``U+00A0``).
+        """
         self.unit = unit
         self.places = places
+        self.sep = sep
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
+        # Remove the trailing separator when there is neither prefix nor unit
+        if len(self.sep) > 0 and s.endswith(self.sep):
+            s = s[:-len(self.sep)]
         return self.fix_minus(s)
 
     def format_eng(self, num):
@@ -1238,40 +1254,47 @@ class EngFormatter(Formatter):
         u'-1.00 \N{GREEK SMALL LETTER MU}'
 
         `num` may be a numeric value or a string that can be converted
-        to a numeric value with the `decimal.Decimal` constructor.
+        to a numeric value with ``float(num)``.
         """
-        dnum = decimal.Decimal(str(num))
+        if isinstance(num, six.string_types):
+            warnings.warn(
+                "Passing a string as *num* argument is deprecated since"
+                "Matplotlib 2.1, and is expected to be removed in 2.3.",
+                mplDeprecation)
 
+        dnum = float(num)
         sign = 1
+        fmt = "g" if self.places is None else ".{:d}f".format(self.places)
 
         if dnum < 0:
             sign = -1
             dnum = -dnum
 
         if dnum != 0:
-            pow10 = decimal.Decimal(int(math.floor(dnum.log10() / 3) * 3))
+            pow10 = int(math.floor(math.log10(dnum) / 3) * 3)
         else:
-            pow10 = decimal.Decimal(0)
+            pow10 = 0
+            # Force dnum to zero, to avoid inconsistencies like
+            # format_eng(-0) = "0" and format_eng(0.0) = "0"
+            # but format_eng(-0.0) = "-0.0"
+            dnum = 0.0
 
-        pow10 = pow10.min(max(self.ENG_PREFIXES))
-        pow10 = pow10.max(min(self.ENG_PREFIXES))
+        pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
+
+        mant = sign * dnum / (10.0 ** pow10)
+        # Taking care of the cases like 999.9..., which
+        # may be rounded to 1000 instead of 1 k.  Beware
+        # of the corner case of values that are beyond
+        # the range of SI prefixes (i.e. > 'Y').
+        _fmant = float("{mant:{fmt}}".format(mant=mant, fmt=fmt))
+        if _fmant >= 1000 and pow10 != max(self.ENG_PREFIXES):
+            mant /= 1000
+            pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
 
-        mant = sign * dnum / (10 ** pow10)
-
-        if self.places is None:
-            format_str = "%g %s"
-        elif self.places == 0:
-            format_str = "%i %s"
-        elif self.places > 0:
-            format_str = ("%%.%if %%s" % self.places)
-
-        formatted = format_str % (mant, prefix)
-
-        formatted = formatted.strip()
-        if (self.unit != "") and (prefix == self.ENG_PREFIXES[0]):
-            formatted = formatted + " "
+        formatted = "{mant:{fmt}}{sep}{prefix}".format(
+            mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
 
         return formatted
 
@@ -1365,9 +1388,9 @@ class PercentFormatter(Formatter):
         """
         The configured percent symbol as a string.
 
-        If LaTeX is enabled via ``rcParams['text.usetex']``, the special
-        characters `{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`
-        are automatically escaped in the string.
+        If LaTeX is enabled via :rc:`text.usetex`, the special characters
+        ``{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`` are
+        automatically escaped in the string.
         """
         symbol = self._symbol
         if not symbol:
@@ -1381,7 +1404,7 @@ class PercentFormatter(Formatter):
         return symbol
 
     @symbol.setter
-    def symbol(self):
+    def symbol(self, symbol):
         self._symbol = symbol
 
 
@@ -1435,10 +1458,9 @@ class Locator(TickHelper):
         """raise a RuntimeError if Locator attempts to create more than
            MAXTICKS locs"""
         if len(locs) >= self.MAXTICKS:
-            msg = ('Locator attempting to generate %d ticks from %s to %s: ' +
-                   'exceeds Locator.MAXTICKS') % (len(locs), locs[0], locs[-1])
-            raise RuntimeError(msg)
-
+            raise RuntimeError("Locator attempting to generate {} ticks from "
+                               "{} to {}: exceeds Locator.MAXTICKS".format(
+                                   len(locs), locs[0], locs[-1]))
         return locs
 
     def view_limits(self, vmin, vmax):
@@ -1551,7 +1573,7 @@ class FixedLocator(Locator):
         """
         if self.nbins is None:
             return self.locs
-        step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
+        step = max(int(np.ceil(len(self.locs) / self.nbins)), 1)
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]
@@ -1780,7 +1802,11 @@ class MaxNLocator(Locator):
 
         *steps*
             Sequence of nice numbers starting with 1 and ending with 10;
-            e.g., [1, 2, 4, 5, 10]
+            e.g., [1, 2, 4, 5, 10], where the values are acceptable
+            tick multiples.  i.e. for the example, 20, 40, 60 would be
+            an acceptable set of ticks, as would 0.4, 0.6, 0.8, because
+            they are multiples of 2.  However, 30, 60, 90 would not
+            be allowed because 3 does not appear in the list of steps.
 
         *integer*
             If True, ticks will take only integer values, provided
@@ -1793,14 +1819,13 @@ class MaxNLocator(Locator):
 
         *prune*
             ['lower' | 'upper' | 'both' | None]
-            Remove edge ticks -- useful for stacked or ganged plots
-            where the upper tick of one axes overlaps with the lower
-            tick of the axes above it, primarily when
-            `rcParams['axes.autolimit_mode']` is `'round_numbers'`.
-            If `prune=='lower'`, the smallest tick will
-            be removed.  If `prune=='upper'`, the largest tick will be
-            removed.  If `prune=='both'`, the largest and smallest ticks
-            will be removed.  If `prune==None`, no ticks will be removed.
+            Remove edge ticks -- useful for stacked or ganged plots where
+            the upper tick of one axes overlaps with the lower tick of the
+            axes above it, primarily when :rc:`axes.autolimit_mode` is
+            ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
+            be removed.  If ``prune == 'upper'``, the largest tick will be
+            removed.  If ``prune == 'both'``, the largest and smallest ticks
+            will be removed.  If ``prune == None``, no ticks will be removed.
 
         *min_n_ticks*
             Relax `nbins` and `integer` constraints if necessary to
@@ -1848,10 +1873,6 @@ class MaxNLocator(Locator):
             self._nbins = kwargs['nbins']
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
-        if 'trim' in kwargs:
-            warnings.warn(
-                "The 'trim' keyword has no effect since version 2.0.",
-                mplDeprecation)
         if 'symmetric' in kwargs:
             self._symmetric = kwargs['symmetric']
         if 'prune' in kwargs:
@@ -1875,8 +1896,8 @@ class MaxNLocator(Locator):
     def _raw_ticks(self, vmin, vmax):
         if self._nbins == 'auto':
             if self.axis is not None:
-                nbins = max(min(self.axis.get_tick_space(), 9),
-                            max(1, self._min_n_ticks - 1))
+                nbins = np.clip(self.axis.get_tick_space(),
+                                max(1, self._min_n_ticks - 1), 9)
             else:
                 nbins = 9
         else:
@@ -1918,10 +1939,6 @@ class MaxNLocator(Locator):
             if nticks >= self._min_n_ticks:
                 break
         return ticks
-
-    @cbook.deprecated("2.0")
-    def bin_boundaries(self, vmin, vmax):
-        return self._raw_ticks(vmin, vmax)
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
@@ -2074,7 +2091,7 @@ class LogLocator(Locator):
     def tick_values(self, vmin, vmax):
         if self.numticks == 'auto':
             if self.axis is not None:
-                numticks = max(min(self.axis.get_tick_space(), 9), 2)
+                numticks = np.clip(self.axis.get_tick_space(), 2, 9)
             else:
                 numticks = 9
         else:
@@ -2305,7 +2322,7 @@ class SymmetricalLogLocator(Locator):
         total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
         if has_b:
             total_ticks += 1
-        stride = max(np.floor(float(total_ticks) / (self.numticks - 1)), 1)
+        stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:
@@ -2327,7 +2344,10 @@ class SymmetricalLogLocator(Locator):
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * decade)
+                if decade == 0:
+                    ticklocs.append(decade)
+                else:
+                    ticklocs.extend(subs * decade)
         else:
             ticklocs = decades
 
@@ -2456,7 +2476,16 @@ class LogitLocator(Locator):
 
 
 class AutoLocator(MaxNLocator):
+    """
+    Dynamically find major tick positions. This is actually a subclass
+    of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
+    and *steps = [1, 2, 2.5, 5, 10]*.
+    """
     def __init__(self):
+        """
+        To know the values of the non-public parameters, please have a
+        look to the defaults of `~matplotlib.ticker.MaxNLocator`.
+        """
         if rcParams['_internal.classic_mode']:
             nbins = 9
             steps = [1, 2, 5, 10]
@@ -2496,18 +2525,14 @@ class AutoMinorLocator(Locator):
             # TODO: Figure out a way to still be able to display minor
             # ticks without two major ticks visible. For now, just display
             # no ticks at all.
-            majorstep = 0
+            return []
 
         if self.ndivs is None:
-            if majorstep == 0:
-                # TODO: Need a better way to figure out ndivs
-                ndivs = 1
+            x = int(np.round(10 ** (np.log10(majorstep) % 1)))
+            if x in [1, 5, 10]:
+                ndivs = 5
             else:
-                x = int(np.round(10 ** (np.log10(majorstep) % 1)))
-                if x in [1, 5, 10]:
-                    ndivs = 5
-                else:
-                    ndivs = 4
+                ndivs = 4
         else:
             ndivs = self.ndivs
 
@@ -2517,15 +2542,12 @@ class AutoMinorLocator(Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        if len(majorlocs) > 0:
-            t0 = majorlocs[0]
-            tmin = ((vmin - t0) // minorstep + 1) * minorstep
-            tmax = ((vmax - t0) // minorstep + 1) * minorstep
-            locs = np.arange(tmin, tmax, minorstep) + t0
-            cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
-            locs = locs.compress(cond)
-        else:
-            locs = []
+        t0 = majorlocs[0]
+        tmin = ((vmin - t0) // minorstep + 1) * minorstep
+        tmax = ((vmax - t0) // minorstep + 1) * minorstep
+        locs = np.arange(tmin, tmax, minorstep) + t0
+        cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
+        locs = locs.compress(cond)
 
         return self.raise_if_exceeds(np.array(locs))
 

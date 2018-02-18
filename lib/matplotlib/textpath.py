@@ -33,9 +33,6 @@ class TextToPath(object):
     DPI = 72
 
     def __init__(self):
-        """
-        Initialization
-        """
         self.mathtext_parser = MathTextParser('path')
         self.tex_font_map = None
 
@@ -70,9 +67,9 @@ class TextToPath(object):
         """
         sfnt = font.get_sfnt()
         try:
-            ps_name = sfnt[(1, 0, 0, 6)].decode('macroman')
+            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
         except KeyError:
-            ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
+            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
         char_id = urllib_quote('%s-%x' % (ps_name, ccode))
         return char_id
 
@@ -102,7 +99,7 @@ class TextToPath(object):
             return w, h, d
 
         fontsize = prop.get_size_in_points()
-        scale = float(fontsize) / self.FONT_SCALE
+        scale = fontsize / self.FONT_SCALE
 
         if ismath:
             prop = prop.copy()
@@ -492,8 +489,7 @@ class TextPath(Path):
         necessary.
 
         """
-        if (self._invalid or
-            (self._cached_vertices is None)):
+        if self._invalid or self._cached_vertices is None:
             tr = Affine2D().scale(
                     self._size / text_to_path.FONT_SCALE,
                     self._size / text_to_path.FONT_SCALE).translate(*self._xy)

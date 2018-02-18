@@ -278,7 +278,7 @@ inline bool point_in_path(
 
     points_in_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 template <class PathIterator, class PointArray, class ResultArray>
@@ -320,7 +320,7 @@ inline bool point_on_path(
 
     points_on_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 struct extent_limits
@@ -393,7 +393,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
                                  extent_limits &extent)
 {
     if (offsets.size() != 0 && offsets.dim(1) != 2) {
-        throw "Offsets array must be Nx2";
+        throw std::runtime_error("Offsets array must be Nx2");
     }
 
     size_t Npaths = paths.size();
@@ -728,7 +728,7 @@ template <class VerticesArray, class ResultArray>
 void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
     if (vertices.size() != 0 && vertices.dim(1) != 2) {
-        throw "Invalid vertices array.";
+        throw std::runtime_error("Invalid vertices array.");
     }
 
     size_t n = vertices.size();
@@ -758,7 +758,7 @@ template <class VerticesArray, class ResultArray>
 void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
     if (vertices.dim(0) != 2) {
-        throw "Invalid vertices array.";
+        throw std::runtime_error("Invalid vertices array.");
     }
 
     double x;
@@ -904,8 +904,6 @@ bool path_intersects_rectangle(PathIterator &path,
 
     double cx = (rect_x1 + rect_x2) * 0.5, cy = (rect_y1 + rect_y2) * 0.5;
     double w = fabs(rect_x1 - rect_x2), h = fabs(rect_y1 - rect_y2);
-    double xmin = std::min(rect_x1, rect_x2), xmax = std::max(rect_x1, rect_x2);
-    double ymin = std::min(rect_x1, rect_x2), ymax = std::max(rect_x1, rect_x2);
 
     double x1, y1, x2, y2;
 
@@ -1231,7 +1229,7 @@ int convert_to_string(PathIterator &path,
     }
 
     if (sketch_params.scale != 0.0) {
-        *buffersize *= 10.0;
+        *buffersize *= 10;
     }
 
     *buffer = (char *)malloc(*buffersize);
@@ -1262,7 +1260,7 @@ struct _is_sorted
         size = PyArray_DIM(array, 0);
 
         // std::isnan is only in C++11, which we don't yet require,
-        // so we use the the "self == self" trick
+        // so we use the "self == self" trick
         for (i = 0; i < size; ++i) {
             last_value = *((T *)PyArray_GETPTR1(array, i));
             if (last_value == last_value) {

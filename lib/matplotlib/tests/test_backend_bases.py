@@ -1,6 +1,5 @@
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import RendererBase
-from matplotlib.testing.decorators import image_comparison
 
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
@@ -34,11 +33,9 @@ def test_uses_per_path():
                                    [], 'data')]
         uses = rb._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        seen = [0] * len(raw_paths)
-        for i in ids:
-            seen[i] += 1
-        for n in seen:
-            assert n in (uses-1, uses)
+        if raw_paths:
+            seen = np.bincount(ids, minlength=len(raw_paths))
+            assert set(seen).issubset([uses - 1, uses])
 
     check(id, paths, tforms, offsets, facecolors, edgecolors)
     check(id, paths[0:1], tforms, offsets, facecolors, edgecolors)

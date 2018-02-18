@@ -15,11 +15,11 @@ the `API changes <../../api/api_changes.html>`_.
 
 2015-10-21 Added get_ticks_direction()
 
-2015-02-27 Added the rcParam 'image.composite_image' to permit users 
-		   to decide whether they want the vector graphics backends to combine 
-		   all images within a set of axes into a single composite image.  
-		   (If images do not get combined, users can open vector graphics files 
-		   in Adobe Illustrator or Inkscape and edit each image individually.)  
+2015-02-27 Added the rcParam 'image.composite_image' to permit users
+		   to decide whether they want the vector graphics backends to combine
+		   all images within a set of axes into a single composite image.
+		   (If images do not get combined, users can open vector graphics files
+		   in Adobe Illustrator or Inkscape and edit each image individually.)
 
 2015-02-19 Rewrite of C++ code that calculates contours to add support for
            corner masking.  This is controlled by the 'corner_mask' keyword
@@ -596,7 +596,7 @@ the `API changes <../../api/api_changes.html>`_.
 2010-06-30 Added autoscale convenience method and corresponding
            pyplot function for simplified control of autoscaling;
            and changed axis, set_xlim, and set_ylim so that by
-           default, they turn off the autoscaling on the relevent
+           default, they turn off the autoscaling on the relevant
            axis or axes.  Therefore one can call set_xlim before
            plotting a line, for example, and the limits will be
            retained. - EF
@@ -678,7 +678,7 @@ the `API changes <../../api/api_changes.html>`_.
            (with control of dimensions via squeeze keyword). FP.
 
 2010-03-13 Manually brought in commits from branch::
- 
+
     ------------------------------------------------------------------------
     r8191 | leejjoon | 2010-03-13 17:27:57 -0500 (Sat, 13 Mar 2010) | 1 line
 
@@ -1416,7 +1416,7 @@ the `API changes <../../api/api_changes.html>`_.
            and are somewhat out of date. If needed, install them
            independently, see:
 
-           http://code.enthought.com/projects/traits
+           http://code.enthought.com/pages/traits.html
 
            and:
 
@@ -1488,7 +1488,7 @@ the `API changes <../../api/api_changes.html>`_.
            (instead of deprecated popen*) and distutils (for version
            checking) - DSD
 
-2008-11-30 Reimplementaion of the legend which supports baseline alignement,
+2008-11-30 Reimplementation of the legend which supports baseline alignement,
            multi-column, and expand mode. - JJL
 
 2008-12-01 Fixed histogram autoscaling bug when bins or range are given
@@ -5142,7 +5142,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2004-05-19 0.54 released
 
-2004-05-18 Added newline seperated text with rotations to text.Text
+2004-05-18 Added newline separated text with rotations to text.Text
            layout - JDH
 
 2004-05-16 Added fast pcolor using PolyCollections.  - JDH

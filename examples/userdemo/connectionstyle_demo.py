@@ -7,33 +7,14 @@ Connectionstyle Demo
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from mpl_toolkits.axes_grid1.axes_grid import AxesGrid
-from matplotlib.offsetbox import AnchoredText
 
 
-fig = plt.figure(1, figsize=(8, 5))
-fig.clf()
-
-
-def add_at(ax, t, loc=2):
-    fp = dict(size=8)
-    _at = AnchoredText(t, loc=loc, prop=fp)
-    ax.add_artist(_at)
-    return _at
-
-
-grid = AxesGrid(fig, 111, (3, 5), label_mode="1", share_all=True)
-
-grid[0].set_autoscale_on(False)
-
+fig, axs = plt.subplots(3, 5, figsize=(8, 4.8))
 x1, y1 = 0.3, 0.3
 x2, y2 = 0.7, 0.7
 
 
 def demo_con_style(ax, connectionstyle, label=None):
-    if label is None:
-        label = connectionstyle
-
     x1, y1 = 0.3, 0.2
     x2, y2 = 0.8, 0.6
 
@@ -50,53 +31,27 @@ def demo_con_style(ax, connectionstyle, label=None):
                                 ),
                 )
 
-    add_at(ax, label, loc=2)
+    ax.text(.05, .95, connectionstyle.replace(",", ",\n"),
+            transform=ax.transAxes, ha="left", va="top")
 
 
-column = grid.axes_column[0]
+demo_con_style(axs[0, 0], "angle3,angleA=90,angleB=0")
+demo_con_style(axs[1, 0], "angle3,angleA=0,angleB=90")
+demo_con_style(axs[0, 1], "arc3,rad=0.")
+demo_con_style(axs[1, 1], "arc3,rad=0.3")
+demo_con_style(axs[2, 1], "arc3,rad=-0.3")
+demo_con_style(axs[0, 2], "angle,angleA=-90,angleB=180,rad=0")
+demo_con_style(axs[1, 2], "angle,angleA=-90,angleB=180,rad=5")
+demo_con_style(axs[2, 2], "angle,angleA=-90,angleB=10,rad=5")
+demo_con_style(axs[0, 3], "arc,angleA=-90,angleB=0,armA=30,armB=30,rad=0")
+demo_con_style(axs[1, 3], "arc,angleA=-90,angleB=0,armA=30,armB=30,rad=5")
+demo_con_style(axs[2, 3], "arc,angleA=-90,angleB=0,armA=0,armB=40,rad=0")
+demo_con_style(axs[0, 4], "bar,fraction=0.3")
+demo_con_style(axs[1, 4], "bar,fraction=-0.3")
+demo_con_style(axs[2, 4], "bar,angle=180,fraction=-0.2")
 
-demo_con_style(column[0], "angle3,angleA=90,angleB=0",
-               label="angle3,\nangleA=90,\nangleB=0")
-demo_con_style(column[1], "angle3,angleA=0,angleB=90",
-               label="angle3,\nangleA=0,\nangleB=90")
-
-column = grid.axes_column[1]
-
-demo_con_style(column[0], "arc3,rad=0.")
-demo_con_style(column[1], "arc3,rad=0.3")
-demo_con_style(column[2], "arc3,rad=-0.3")
-
-column = grid.axes_column[2]
-
-demo_con_style(column[0], "angle,angleA=-90,angleB=180,rad=0",
-               label="angle,\nangleA=-90,\nangleB=180,\nrad=0")
-demo_con_style(column[1], "angle,angleA=-90,angleB=180,rad=5",
-               label="angle,\nangleA=-90,\nangleB=180,\nrad=5")
-demo_con_style(column[2], "angle,angleA=-90,angleB=10,rad=5",
-               label="angle,\nangleA=-90,\nangleB=10,\nrad=0")
-
-column = grid.axes_column[3]
-
-demo_con_style(column[0], "arc,angleA=-90,angleB=0,armA=30,armB=30,rad=0",
-               label="arc,\nangleA=-90,\nangleB=0,\narmA=30,\narmB=30,\nrad=0")
-demo_con_style(column[1], "arc,angleA=-90,angleB=0,armA=30,armB=30,rad=5",
-               label="arc,\nangleA=-90,\nangleB=0,\narmA=30,\narmB=30,\nrad=5")
-demo_con_style(column[2], "arc,angleA=-90,angleB=0,armA=0,armB=40,rad=0",
-               label="arc,\nangleA=-90,\nangleB=0,\narmA=0,\narmB=40,\nrad=0")
-
-column = grid.axes_column[4]
-
-demo_con_style(column[0], "bar,fraction=0.3",
-               label="bar,\nfraction=0.3")
-demo_con_style(column[1], "bar,fraction=-0.3",
-               label="bar,\nfraction=-0.3")
-demo_con_style(column[2], "bar,angle=180,fraction=-0.2",
-               label="bar,\nangle=180,\nfraction=-0.2")
-
-grid[0].set_xlim(0, 1)
-grid[0].set_ylim(0, 1)
-grid.axes_llc.axis["bottom"].toggle(ticklabels=False)
-grid.axes_llc.axis["left"].toggle(ticklabels=False)
-fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95)
+for ax in axs.flat:
+    ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[], aspect=1)
+fig.tight_layout(pad=0)
 
 plt.show()

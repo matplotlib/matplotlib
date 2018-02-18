@@ -96,6 +96,22 @@ def test_contourf3d_fill():
     ax.set_zlim(-1, 1)
 
 
+@image_comparison(baseline_images=['tricontour'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_tricontour():
+    fig = plt.figure()
+
+    np.random.seed(19680801)
+    x = np.random.rand(1000) - 0.5
+    y = np.random.rand(1000) - 0.5
+    z = -(x**2 + y**2)
+
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.tricontour(x, y, z)
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.tricontourf(x, y, z)
+
+
 @image_comparison(baseline_images=['lines3d'], remove_text=True)
 def test_lines3d():
     fig = plt.figure()
@@ -214,6 +230,25 @@ def test_trisurf3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+
+
+@image_comparison(baseline_images=['trisurf3d_shaded'], remove_text=True,
+                  tol=0.03, extensions=['png'])
+def test_trisurf3d_shaded():
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
 @image_comparison(baseline_images=['wireframe3d'], remove_text=True)
@@ -343,8 +378,8 @@ def test_poly3dcollection_closed():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], np.float)
-    poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], np.float)
+    poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
+    poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], float)
     c1 = art3d.Poly3DCollection([poly1], linewidths=3, edgecolor='k',
                                 facecolor=(0.5, 0.5, 1, 0.5), closed=True)
     c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
@@ -567,6 +602,156 @@ def test_invalid_axes_limits(setter, side, value):
     obj = fig.add_subplot(111, projection='3d')
     with pytest.raises(ValueError):
         getattr(obj, setter)(**limit)
+
+
+class TestVoxels(object):
+    @image_comparison(
+        baseline_images=['voxels-simple'],
+        extensions=['png'],
+        remove_text=True
+    )
+    def test_simple(self):
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        x, y, z = np.indices((5, 4, 3))
+        voxels = (x == y) | (y == z)
+        ax.voxels(voxels)
+
+    @image_comparison(
+        baseline_images=['voxels-edge-style'],
+        extensions=['png'],
+        remove_text=True,
+        style='default'
+    )
+    def test_edge_style(self):
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        x, y, z = np.indices((5, 5, 4))
+        voxels = ((x - 2)**2 + (y - 2)**2 + (z-1.5)**2) < 2.2**2
+        v = ax.voxels(voxels, linewidths=3, edgecolor='C1')
+
+        # change the edge color of one voxel
+        v[max(v.keys())].set_edgecolor('C2')
+
+    @image_comparison(
+        baseline_images=['voxels-named-colors'],
+        extensions=['png'],
+        remove_text=True
+    )
+    def test_named_colors(self):
+        """ test with colors set to a 3d object array of strings """
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        x, y, z = np.indices((10, 10, 10))
+        voxels = (x == y) | (y == z)
+        voxels = voxels & ~(x * y * z < 1)
+        colors = np.zeros((10, 10, 10), dtype=np.object_)
+        colors.fill('C0')
+        colors[(x < 5) & (y < 5)] = '0.25'
+        colors[(x + z) < 10] = 'cyan'
+        ax.voxels(voxels, facecolors=colors)
+
+    @image_comparison(
+        baseline_images=['voxels-rgb-data'],
+        extensions=['png'],
+        remove_text=True
+    )
+    def test_rgb_data(self):
+        """ test with colors set to a 4d float array of rgb data """
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        x, y, z = np.indices((10, 10, 10))
+        voxels = (x == y) | (y == z)
+        colors = np.zeros((10, 10, 10, 3))
+        colors[...,0] = x/9.0
+        colors[...,1] = y/9.0
+        colors[...,2] = z/9.0
+        ax.voxels(voxels, facecolors=colors)
+
+    @image_comparison(
+        baseline_images=['voxels-alpha'],
+        extensions=['png'],
+        remove_text=True
+    )
+    def test_alpha(self):
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        x, y, z = np.indices((10, 10, 10))
+        v1 = x == y
+        v2 = np.abs(x - y) < 2
+        voxels = v1 | v2
+        colors = np.zeros((10, 10, 10, 4))
+        colors[v2] = [1, 0, 0, 0.5]
+        colors[v1] = [0, 1, 0, 0.5]
+        v = ax.voxels(voxels, facecolors=colors)
+
+        assert type(v) is dict
+        for coord, poly in v.items():
+            assert voxels[coord], "faces returned for absent voxel"
+            assert isinstance(poly, art3d.Poly3DCollection)
+
+    @image_comparison(
+        baseline_images=['voxels-xyz'],
+        extensions=['png'],
+        tol=0.01
+    )
+    def test_xyz(self):
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        def midpoints(x):
+            sl = ()
+            for i in range(x.ndim):
+                x = (x[sl + np.index_exp[:-1]] +
+                     x[sl + np.index_exp[1:]]) / 2.0
+                sl += np.index_exp[:]
+            return x
+
+        # prepare some coordinates, and attach rgb values to each
+        r, g, b = np.indices((17, 17, 17)) / 16.0
+        rc = midpoints(r)
+        gc = midpoints(g)
+        bc = midpoints(b)
+
+        # define a sphere about [0.5, 0.5, 0.5]
+        sphere = (rc - 0.5)**2 + (gc - 0.5)**2 + (bc - 0.5)**2 < 0.5**2
+
+        # combine the color components
+        colors = np.zeros(sphere.shape + (3,))
+        colors[..., 0] = rc
+        colors[..., 1] = gc
+        colors[..., 2] = bc
+
+        # and plot everything
+        ax.voxels(r, g, b, sphere,
+                  facecolors=colors,
+                  edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter
+                  linewidth=0.5)
+
+    def test_calling_conventions(self):
+        x, y, z = np.indices((3, 4, 5))
+        filled = np.ones((2, 3, 4))
+
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        # all the valid calling conventions
+        for kw in (dict(), dict(edgecolor='k')):
+            ax.voxels(filled, **kw)
+            ax.voxels(filled=filled, **kw)
+            ax.voxels(x, y, z, filled, **kw)
+            ax.voxels(x, y, z, filled=filled, **kw)
+
+        # duplicate argument
+        with pytest.raises(TypeError) as exc:
+            ax.voxels(x, y, z, filled, filled=filled)
+        exc.match(".*voxels.*")
+        # missing arguments
+        with pytest.raises(TypeError) as exc:
+            ax.voxels(x, y)
+        exc.match(".*voxels.*")
+        # x,y,z are positional only - this passes them on as attributes of
+        # Poly3DCollection
+        with pytest.raises(AttributeError):
+            ax.voxels(filled=filled, x=x, y=y, z=z)
 
 
 def test_inverted_cla():

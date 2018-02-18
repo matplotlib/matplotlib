@@ -28,6 +28,7 @@ par2.axis["right"] = new_fixed_axis(loc="right",
                                     axes=par2,
                                     offset=(offset, 0))
 
+par1.axis["right"].toggle(all=True)
 par2.axis["right"].toggle(all=True)
 
 host.set_xlim(0, 2)

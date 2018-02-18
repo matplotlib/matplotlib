@@ -629,9 +629,9 @@ PyObject* TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
     ContourLine::const_iterator point;
 
     // Find total number of points in all contour lines.
-    int n_points = 0;
+    npy_intp n_points = 0;
     for (line = contour.begin(); line != contour.end(); ++line)
-        n_points += line->size();
+        n_points += (npy_intp)line->size();
 
     // Create segs array for point coordinates.
     npy_intp segs_dims[2] = {n_points, 2};
@@ -1021,8 +1021,8 @@ TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
     // Iterate through trapezoids intersecting edge from left to right.
     // Replace each old trapezoid with 2+ new trapezoids, and replace its
     // corresponding nodes in the search tree with new nodes.
-    unsigned int ntraps = trapezoids.size();
-    for (unsigned int i = 0; i < ntraps; ++i) {
+    size_t ntraps = trapezoids.size();
+    for (size_t i = 0; i < ntraps; ++i) {
         Trapezoid* old = trapezoids[i];  // old trapezoid to replace.
         bool start_trap = (i == 0);
         bool end_trap = (i == ntraps-1);
@@ -1397,10 +1397,10 @@ TrapezoidMapTriFinder::initialize()
     std::random_shuffle(_edges.begin()+2, _edges.end(), rng);
 
     // Add edges, one at a time, to tree.
-    unsigned int nedges = _edges.size();
-    for (unsigned int index = 2; index < nedges; ++index) {
+    size_t nedges = _edges.size();
+    for (size_t index = 2; index < nedges; ++index) {
         if (!add_edge_to_tree(_edges[index]))
-            throw "Triangulation is invalid";
+            throw std::runtime_error("Triangulation is invalid");
         _tree->assert_valid(index == nedges-1);
     }
 }

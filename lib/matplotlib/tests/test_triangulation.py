@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -390,9 +389,9 @@ def test_triinterp():
     diff_lin = np.abs(linear_interp(xs, ys) - zs)
     for interp in (cubic_min_E, cubic_geom):
         diff_cubic = np.abs(interp(xs, ys) - zs)
-        assert(np.max(diff_lin) >= 10.*np.max(diff_cubic))
-        assert(np.dot(diff_lin, diff_lin) >=
-               100.*np.dot(diff_cubic, diff_cubic))
+        assert np.max(diff_lin) >= 10 * np.max(diff_cubic)
+        assert (np.dot(diff_lin, diff_lin) >=
+                100 * np.dot(diff_cubic, diff_cubic))
 
 
 def test_triinterpcubic_C1_continuity():
@@ -745,7 +744,7 @@ def test_triinterp_transformations():
 
 
 @image_comparison(baseline_images=['tri_smooth_contouring'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, tol=0.07)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20
@@ -772,10 +771,9 @@ def test_tri_smooth_contouring():
     y0 = (radii*np.sin(angles)).flatten()
     triang0 = mtri.Triangulation(x0, y0)  # Delaunay triangulation
     z0 = z(x0, y0)
-    xmid = x0[triang0.triangles].mean(axis=1)
-    ymid = y0[triang0.triangles].mean(axis=1)
-    mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
-    triang0.set_mask(mask)
+    triang0.set_mask(np.hypot(x0[triang0.triangles].mean(axis=1),
+                              y0[triang0.triangles].mean(axis=1))
+                     < min_radius)
 
     # Then the plot
     refiner = mtri.UniformTriRefiner(triang0)
@@ -786,8 +784,7 @@ def test_tri_smooth_contouring():
 
 
 @image_comparison(baseline_images=['tri_smooth_gradient'],
-                  extensions=['png'], remove_text=True,
-                  tol=0.03 if on_win else 0)
+                  extensions=['png'], remove_text=True, tol=0.092)
 def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
@@ -810,10 +807,9 @@ def test_tri_smooth_gradient():
     y = (radii*np.sin(angles)).flatten()
     V = dipole_potential(x, y)
     triang = mtri.Triangulation(x, y)
-    xmid = x[triang.triangles].mean(axis=1)
-    ymid = y[triang.triangles].mean(axis=1)
-    mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
-    triang.set_mask(mask)
+    triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                             y[triang.triangles].mean(axis=1))
+                    < min_radius)
 
     # Refine data - interpolates the electrical potential V
     refiner = mtri.UniformTriRefiner(triang)
@@ -847,7 +843,7 @@ def test_tritools():
     x = np.array([0., 1., 0.5, 0., 2.])
     y = np.array([0., 0., 0.5*np.sqrt(3.), -1., 1.])
     triangles = np.array([[0, 1, 2], [0, 1, 3], [1, 2, 4]], dtype=np.int32)
-    mask = np.array([False, False, True], dtype=np.bool)
+    mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
     assert_array_almost_equal(analyser.scale_factors,
@@ -881,7 +877,7 @@ def test_tritools():
     triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1))
     analyser = mtri.TriAnalyzer(triang)
     mask_flat = analyser.get_flat_tri_mask(0.2)
-    verif_mask = np.zeros(162, dtype=np.bool)
+    verif_mask = np.zeros(162, dtype=bool)
     corners_index = [0, 1, 2, 3, 14, 15, 16, 17, 18, 19, 34, 35, 126, 127,
                      142, 143, 144, 145, 146, 147, 158, 159, 160, 161]
     verif_mask[corners_index] = True
@@ -889,7 +885,7 @@ def test_tritools():
 
     # Now including a hole (masked triangle) at the center. The center also
     # shall be eliminated by get_flat_tri_mask.
-    mask = np.zeros(162, dtype=np.bool)
+    mask = np.zeros(162, dtype=bool)
     mask[80] = True
     triang.set_mask(mask)
     mask_flat = analyser.get_flat_tri_mask(0.2)
@@ -906,7 +902,7 @@ def test_trirefine():
     x, y = np.meshgrid(x, x)
     x = x.ravel()
     y = y.ravel()
-    mask = np.zeros(2*n**2, dtype=np.bool)
+    mask = np.zeros(2*n**2, dtype=bool)
     mask[n**2:] = True
     triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1),
                                 mask=mask)
@@ -1032,7 +1028,7 @@ def test_trianalyzer_mismatched_indices():
     x = np.array([0., 1., 0.5, 0., 2.])
     y = np.array([0., 0., 0.5*np.sqrt(3.), -1., 1.])
     triangles = np.array([[0, 1, 2], [0, 1, 3], [1, 2, 4]], dtype=np.int32)
-    mask = np.array([False, False, True], dtype=np.bool)
+    mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
     # numpy >= 1.10 raises a VisibleDeprecationWarning in the following line
@@ -1123,3 +1119,14 @@ def test_internal_cpp_api():
     with pytest.raises(ValueError) as excinfo:
         trifinder.find_many([0], [0, 1])
     excinfo.match(r'x and y must be array_like with same shape')
+
+
+def test_qhull_large_offset():
+    # github issue 8682.
+    x = np.asarray([0, 1, 0, 1, 0.5])
+    y = np.asarray([0, 0, 1, 1, 0.5])
+
+    offset = 1e10
+    triang = mtri.Triangulation(x, y)
+    triang_offset = mtri.Triangulation(x + offset, y + offset)
+    assert len(triang.triangles) == len(triang_offset.triangles)

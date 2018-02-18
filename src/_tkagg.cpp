@@ -13,20 +13,21 @@
 #include <cstdio>
 #include <sstream>
 
-#include "py_converters.h"
+#include <agg_basics.h> // agg:int8u
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
 #if defined(_MSC_VER)
-#  define SIZE_T_FORMAT "%Iu"
+#  define IMG_FORMAT "%d %d %Iu"
 #else
-#  define SIZE_T_FORMAT "%zu"
+#  define IMG_FORMAT "%d %d %zu"
 #endif
+#define BBOX_FORMAT "%f %f %f %f"
 
 typedef struct
 {
-    PyObject_HEAD;
+    PyObject_HEAD
     Tcl_Interp *interp;
 } TkappObject;
 
@@ -44,16 +45,15 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    PyObject *bufferobj;
 
     // vars for blitting
-    PyObject *bboxo;
 
-    size_t aggl, bboxl;
+    size_t pdata;
+    int wdata, hdata, bbox_parse;
+    float x1, x2, y1, y2;
     bool has_bbox;
-    uint8_t *destbuffer;
+    agg::int8u *destbuffer, *buffer;
     int destx, desty, destwidth, destheight, deststride;
-    //unsigned long tmp_ptr;
 
     long mode;
     long nval;
@@ -73,24 +73,14 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         TCL_APPEND_RESULT(interp, "destination photo must exist", (char *)NULL);
         return TCL_ERROR;
     }
-    /* get array (or object that can be converted to array) pointer */
-    if (sscanf(argv[2], SIZE_T_FORMAT, &aggl) != 1) {
-        TCL_APPEND_RESULT(interp, "error casting pointer", (char *)NULL);
+    /* get buffer from str which is "height width ptr" */
+    if (sscanf(argv[2], IMG_FORMAT, &hdata, &wdata, &pdata) != 3) {
+        TCL_APPEND_RESULT(interp, 
+                          "error reading data, expected height width ptr",
+                          (char *)NULL);
         return TCL_ERROR;
     }
-    bufferobj = (PyObject *)aggl;
-
-    numpy::array_view<uint8_t, 3> buffer;
-    try {
-        buffer = numpy::array_view<uint8_t, 3>(bufferobj);
-    } catch (...) {
-        TCL_APPEND_RESULT(interp, "buffer is of wrong type", (char *)NULL);
-        PyErr_Clear();
-        return TCL_ERROR;
-    }
-    int srcheight = buffer.dim(0);
-
-    /* XXX insert aggRenderer type check */
+    buffer = (agg::int8u*)pdata;
 
     /* get array mode (0=mono, 1=rgb, 2=rgba) */
     mode = atol(argv[3]);
@@ -100,24 +90,23 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
     }
 
     /* check for bbox/blitting */
-    if (sscanf(argv[4], SIZE_T_FORMAT, &bboxl) != 1) {
-        TCL_APPEND_RESULT(interp, "error casting pointer", (char *)NULL);
+    bbox_parse = sscanf(argv[4], BBOX_FORMAT, &x1, &x2, &y1, &y2);
+    if (bbox_parse == 4) {
+        has_bbox = true;
+    }
+    else if ((bbox_parse == 1) && (x1 == 0)){
+        has_bbox = false;
+    } else {
+        TCL_APPEND_RESULT(interp, "illegal bbox", (char *)NULL);
         return TCL_ERROR;
     }
-    bboxo = (PyObject *)bboxl;
 
-    if (bboxo != NULL && bboxo != Py_None) {
-        agg::rect_d rect;
-        if (!convert_rect(bboxo, &rect)) {
-            return TCL_ERROR;
-        }
-
-        has_bbox = true;
-
-        destx = (int)rect.x1;
-        desty = srcheight - (int)rect.y2;
-        destwidth = (int)(rect.x2 - rect.x1);
-        destheight = (int)(rect.y2 - rect.y1);
+    if (has_bbox) {
+        int srcstride = wdata * 4;
+        destx = (int)x1;
+        desty = (int)(hdata - y2);
+        destwidth = (int)(x2 - x1);
+        destheight = (int)(y2 - y1);
         deststride = 4 * destwidth;
 
         destbuffer = new agg::int8u[deststride * destheight];
@@ -128,11 +117,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
 
         for (int i = 0; i < destheight; ++i) {
             memcpy(destbuffer + (deststride * i),
-                   &buffer(i + desty, destx, 0),
+                   &buffer[(i + desty) * srcstride + (destx * 4)],
                    deststride);
         }
     } else {
-        has_bbox = false;
         destbuffer = NULL;
         destx = desty = destwidth = destheight = deststride = 0;
     }
@@ -168,10 +156,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         delete[] destbuffer;
 
     } else {
-        block.width = buffer.dim(1);
-        block.height = buffer.dim(0);
+        block.width = wdata;
+        block.height = hdata;
         block.pitch = (int)block.width * nval;
-        block.pixelPtr = buffer.data();
+        block.pixelPtr = buffer;
 
         /* Clear current contents */
         TK_PHOTO_BLANK(photo);
@@ -199,7 +187,7 @@ static PyObject *_tkinit(PyObject *self, PyObject *args)
     } else {
         /* Do it the hard way.  This will break if the TkappObject
            layout changes */
-        app = (TkappObject *)PyLong_AsVoidPtr(arg);
+        app = (TkappObject *)arg;
         interp = app->interp;
     }
 
@@ -338,7 +326,7 @@ int load_tkinter_funcs(void)
  * tkinter uses these symbols, and the symbols are therefore visible in the
  * tkinter dynamic library (module).
  */
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
 #define TKINTER_PKG "tkinter"
 #define TKINTER_MOD "_tkinter"
 // From module __file__ attribute to char *string for dlopen.
@@ -432,13 +420,31 @@ int load_tkinter_funcs(void)
     }
     tkinter_lib = dlopen(tkinter_libname, RTLD_LAZY);
     if (tkinter_lib == NULL) {
-        PyErr_SetString(PyExc_RuntimeError,
-                "Cannot dlopen tkinter module file");
-        goto exit;
+        /* Perhaps it is a cffi module, like in PyPy? */
+        pString = PyObject_GetAttrString(pSubmodule, "tklib_cffi");
+        if (pString == NULL) {
+            goto fail;
+        }
+        pString = PyObject_GetAttrString(pString, "__file__");
+        if (pString == NULL) {
+            goto fail;
+        }
+        tkinter_libname = fname2char(pString);
+        if (tkinter_libname == NULL) {
+            goto fail;
+        }
+        tkinter_lib = dlopen(tkinter_libname, RTLD_LAZY);
+    }
+    if (tkinter_lib == NULL) {
+        goto fail;
     }
     ret = _func_loader(tkinter_lib);
     // dlclose probably safe because tkinter has been imported.
     dlclose(tkinter_lib);
+    goto exit;
+fail:
+    PyErr_SetString(PyExc_RuntimeError,
+            "Cannot dlopen tkinter module file");
 exit:
     Py_XDECREF(pModule);
     Py_XDECREF(pSubmodule);
@@ -447,7 +453,7 @@ exit:
 }
 #endif // end not Windows
 
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
 static PyModuleDef _tkagg_module = { PyModuleDef_HEAD_INIT, "_tkagg", "",   -1,  functions,
                                      NULL,                  NULL,     NULL, NULL };
 
@@ -457,15 +463,11 @@ PyMODINIT_FUNC PyInit__tkagg(void)
 
     m = PyModule_Create(&_tkagg_module);
 
-    import_array();
-
     return (load_tkinter_funcs() == 0) ? m : NULL;
 }
 #else
 PyMODINIT_FUNC init_tkagg(void)
 {
-    import_array();
-
     Py_InitModule("_tkagg", functions);
 
     load_tkinter_funcs();

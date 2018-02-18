@@ -3,27 +3,15 @@
 Embedding In Wx4
 ================
 
-An example of how to use wx or wxagg in an application with a custom
-toolbar
+An example of how to use wx or wxagg in an application with a custom toolbar.
 """
 
-# matplotlib requires wxPython 2.8+
-# set the wxPython version in lib\site-packages\wx.pth file
-# or if you have wxversion installed un-comment the lines below
-#import wxversion
-#wxversion.ensureMinimal('2.8')
-
-from numpy import arange, sin, pi
-
-import matplotlib
-
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
-
 from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
-from numpy.random import rand
+
+import numpy as np
 
 import wx
 
@@ -57,8 +45,8 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
         ax = self.canvas.figure.axes[0]
 
         # generate a random location can color
-        x, y = tuple(rand(2))
-        rgb = tuple(rand(3))
+        x, y = np.random.rand(2)
+        rgb = np.random.rand(3)
 
         # add the text and draw
         ax.text(x, y, 'You clicked me',
@@ -75,8 +63,8 @@ class CanvasFrame(wx.Frame):
 
         self.figure = Figure(figsize=(5, 4), dpi=100)
         self.axes = self.figure.add_subplot(111)
-        t = arange(0.0, 3.0, 0.01)
-        s = sin(2 * pi * t)
+        t = np.arange(0.0, 3.0, 0.01)
+        s = np.sin(2 * np.pi * t)
 
         self.axes.plot(t, s)
 
@@ -84,8 +72,6 @@ class CanvasFrame(wx.Frame):
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
-        # Capture the paint message
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
 
         self.toolbar = MyNavigationToolbar(self.canvas, True)
         self.toolbar.Realize()
@@ -97,10 +83,6 @@ class CanvasFrame(wx.Frame):
         self.toolbar.update()
         self.SetSizer(self.sizer)
         self.Fit()
-
-    def OnPaint(self, event):
-        self.canvas.draw()
-        event.Skip()
 
 
 class App(wx.App):

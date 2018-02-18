@@ -7,7 +7,7 @@ Copyright (C) 2003-2004 Andrew Straw, Jeremy O'Donoghue and others
 
 License: This work is licensed under the PSF. A copy should be included
 with this source code, and is also available at
-http://www.python.org/psf/license.html
+https://docs.python.org/3/license.html
 
 This is yet another example of using matplotlib with wx.  Hopefully
 this is pretty full-featured:
@@ -19,22 +19,15 @@ this is pretty full-featured:
 This was derived from embedding_in_wx and dynamic_image_wxagg.
 
 Thanks to matplotlib and wx teams for creating such great software!
-
 """
-from __future__ import print_function
 
-# matplotlib requires wxPython 2.8+
-# set the wxPython version in lib\site-packages\wx.pth file
-# or if you have wxversion installed un-comment the lines below
-#import wxversion
-#wxversion.ensureMinimal('2.8')
+from __future__ import print_function
 
 import sys
 import time
 import os
 import gc
 import matplotlib
-matplotlib.use('WXAgg')
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
@@ -104,10 +97,6 @@ class PlotPanel(wx.Panel):
         self.lines[0].set_data(xmax_i, ymax_i)
 
         self.canvas.draw()
-
-    def onEraseBackground(self, evt):
-        # this is supposed to prevent redraw flicker on some X servers...
-        pass
 
 
 class MyApp(wx.App):
