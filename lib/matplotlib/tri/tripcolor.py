@@ -45,9 +45,6 @@ def tripcolor(ax, *args, **kwargs):
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
     """
-    if not ax._hold:
-        ax.cla()
-
     alpha = kwargs.pop('alpha', 1.0)
     norm = kwargs.pop('norm', None)
     cmap = kwargs.pop('cmap', None)
