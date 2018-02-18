@@ -1039,8 +1039,17 @@ class TeXSupportCache:
 
         self.connection = sqlite3.connect(
                 filename, isolation_level="DEFERRED")
+        if _log.isEnabledFor(logging.DEBUG):
+            def debug_sql(sql):
+                _log.debug(' '.join(sql.splitlines()).strip())
+            self.connection.set_trace_callback(debug_sql)
+        self.connection.row_factory = sqlite3.Row
         with self.connection as conn:
-            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.executescript("""
+                PRAGMA journal_mode=WAL;
+                PRAGMA synchronous=NORMAL;
+                PRAGMA foreign_keys=ON;
+            """)
             version, = conn.execute("PRAGMA user_version;").fetchone()
 
         if version == 0:
