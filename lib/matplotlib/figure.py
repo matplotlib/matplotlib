@@ -1151,8 +1151,8 @@ class Figure(Artist):
         *args
             Either a 3-digit integer or three separate integers
             describing the position of the subplot. If the three
-            integers are I, J, and K in order, the subplot is the
-            Kth plot on a grid with I rows and J columns.
+            integers are R, C, and P in order, the subplot will take
+            the Pth position on a grid with R rows and C columns.
 
         projection : ['aitoff' | 'hammer' | 'lambert' | \
 'mollweide' | 'polar' | 'rectilinear'], optional
