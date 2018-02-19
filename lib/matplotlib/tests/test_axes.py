@@ -281,15 +281,15 @@ def test_minorticks_on_rcParams_both():
 @image_comparison(baseline_images=["minorticks_on_rcParams_colorbar"],
                   extensions=['png'])
 def test_minorticks_on_rcParams_both():
-	# github issue #8358 
+    # github issue #8358
     fig = plt.figure()
     matplotlib.rcParams['xtick.minor.visible'] = True
     matplotlib.rcParams['ytick.minor.visible'] = True
-    data=[[8.79177825e-09, 2.36526846e-04, 1.29808685e-04],
-       [3.19277847e-04, 1.28805876e-01, 1.06003978e-03],
-       [6.42946628e-04, 3.88960044e-03, 4.80014828e-07]]
-       
-    plt.pcolormesh(data,norm=matplotlib.colors.LogNorm())
+    data = [[8.79177825e-09, 2.36526846e-04, 1.29808685e-04],
+            [3.19277847e-04, 1.28805876e-01, 1.06003978e-03],
+            [6.42946628e-04, 3.88960044e-03, 4.80014828e-07]]
+
+    plt.pcolormesh(data, norm=matplotlib.colors.LogNorm())
     plt.colorbar()
 
 
