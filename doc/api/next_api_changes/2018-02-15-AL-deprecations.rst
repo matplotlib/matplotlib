@@ -13,3 +13,6 @@ The following functions and classes are deprecated:
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
 - ``texmanager.dvipng_hack_alpha``,
+
+The following rcParams are deprecated:
+- ``pgf.debug`` (the pgf backend relies on logging),
