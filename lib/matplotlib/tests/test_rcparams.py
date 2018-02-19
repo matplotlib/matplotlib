@@ -431,7 +431,7 @@ def test_if_rctemplate_is_up_to_date():
     dep2 = mpl._deprecated_set
     deprecated = list(dep1.union(dep2))
     #print(deprecated)
-    path_to_rc = "matplotlibrc.txt" # mpl.matplotlib_fname()
+    path_to_rc = mpl.matplotlib_fname()
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     missing = {}
@@ -454,7 +454,7 @@ def test_if_rctemplate_is_up_to_date():
 def test_if_rctemplate_would_be_valid():
     # This tests if the matplotlibrc.template file would result in a valid
     # rc file if all lines are uncommented.
-    path_to_rc = "matplotlibrc.txt" #mpl.matplotlib_fname() #
+    path_to_rc = mpl.matplotlib_fname()
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     newlines = []
