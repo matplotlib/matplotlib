@@ -476,10 +476,11 @@ def test_if_rctemplate_would_be_valid():
                          'testrcvalid.temp')
     with open(fname, "w") as f:
         f.writelines(newlines)
-
-    dic = mpl.rc_params_from_file(fname,
-                                  fail_on_error=True,
-                                  use_default_template=False)
+    with pytest.warns(None) as record:
+        dic = mpl.rc_params_from_file(fname,
+                                      fail_on_error=True,
+                                      use_default_template=False)
+        assert len(record) == 0
     os.remove(fname)
     #d1 = set(dic.keys())
     #d2 = set(matplotlib.defaultParams.keys())
