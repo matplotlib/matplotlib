@@ -864,6 +864,7 @@ def mkdirs(newdir, mode=0o777):
                 raise
 
 
+@deprecated('3.0')
 class GetRealpathAndStat(object):
     def __init__(self):
         self._cache = {}
@@ -882,7 +883,12 @@ class GetRealpathAndStat(object):
         return result
 
 
-get_realpath_and_stat = GetRealpathAndStat()
+@functools.lru_cache()
+def get_realpath_and_stat(path):
+    realpath = os.path.realpath(path)
+    stat = os.stat(realpath)
+    stat_key = (stat.st_ino, stat.st_dev)
+    return realpath, stat_key
 
 
 @deprecated('2.1')
