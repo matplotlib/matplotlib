@@ -454,10 +454,10 @@ def test_if_rctemplate_is_up_to_date():
                          .format(missing.items()))
 
 
-def test_if_rctemplate_would_be_valid():
+def test_if_rctemplate_would_be_valid(tmpdir):
     # This tests if the matplotlibrc.template file would result in a valid
     # rc file if all lines are uncommented.
-    path_to_rc = mpl.matplotlib_fname()
+    path_to_rc = "matplotlibrc.txt" #mpl.matplotlib_fname() #
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     newlines = []
@@ -471,9 +471,8 @@ def test_if_rctemplate_would_be_valid():
         if "datapath" in newline:
             newline = ""
         newlines.append(newline)
-    #print(os.path.dirname(__file__))
-    fname = os.path.join(os.path.dirname(__file__),
-                         'testrcvalid.temp')
+    d = tmpdir.mkdir('test1')
+    fname = str(d.join('testrcvalid.temp'))
     with open(fname, "w") as f:
         f.writelines(newlines)
     with pytest.warns(None) as record:
@@ -481,7 +480,6 @@ def test_if_rctemplate_would_be_valid():
                                       fail_on_error=True,
                                       use_default_template=False)
         assert len(record) == 0
-    os.remove(fname)
     #d1 = set(dic.keys())
     #d2 = set(matplotlib.defaultParams.keys())
     #print(d2-d1)
