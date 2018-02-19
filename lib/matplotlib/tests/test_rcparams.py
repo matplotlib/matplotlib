@@ -436,9 +436,12 @@ def test_if_rctemplate_is_up_to_date():
         rclines = f.readlines()
     missing = {}
     for k,v in mpl.defaultParams.items():
-        if k[0] == "_": continue;
-        if k in deprecated: continue;
-        if "verbose" in k: continue;
+        if k[0] == "_":
+            continue
+        if k in deprecated:
+            continue
+        if "verbose" in k:
+            continue
         found = False
         for line in rclines:
             if k in line:
@@ -446,8 +449,8 @@ def test_if_rctemplate_is_up_to_date():
         if not found:
             missing.update({k:v})
     if missing:
-        raise ValueError("The following params are missing " + \
-                         "in the matplotlibrc.template file: {}" \
+        raise ValueError("The following params are missing " +
+                         "in the matplotlibrc.template file: {}"
                          .format(missing.items()))
 
 
