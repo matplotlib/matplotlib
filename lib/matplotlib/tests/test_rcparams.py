@@ -452,7 +452,6 @@ def test_if_rctemplate_is_up_to_date():
         raise ValueError("The following params are missing " +
                          "in the matplotlibrc.template file: {}"
                          .format(missing.items()))
-    assert False
 
 
 def test_if_rctemplate_would_be_valid():
@@ -486,4 +485,3 @@ def test_if_rctemplate_would_be_valid():
     #d1 = set(dic.keys())
     #d2 = set(matplotlib.defaultParams.keys())
     #print(d2-d1)
-    assert False
