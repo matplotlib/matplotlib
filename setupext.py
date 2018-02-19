@@ -1339,6 +1339,8 @@ class Qhull(SetupPackage):
         else:
             ext.include_dirs.insert(0, 'extern')
             ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+            if sysconfig.get_config_var('LIBM') == '-lm':
+                ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):
