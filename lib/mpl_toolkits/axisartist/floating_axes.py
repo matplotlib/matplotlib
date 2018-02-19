@@ -32,11 +32,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         """
 
         value, nth_coord = grid_helper.get_data_boundary(side) # return v= 0 , nth=1, extremes of the other coordinate.
-        super(FixedAxisArtistHelper, self).__init__(grid_helper,
-                                                    nth_coord,
-                                                    value,
-                                                    axis_direction=side,
-                                                    )
+        super().__init__(grid_helper, nth_coord, value, axis_direction=side)
         #self.grid_helper = grid_helper
         if nth_coord_ticks is None:
             nth_coord_ticks = nth_coord
@@ -255,12 +251,12 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         self._extremes = extremes
         extreme_finder = ExtremeFinderFixed(extremes)
 
-        super(GridHelperCurveLinear, self).__init__(aux_trans,
-                                                    extreme_finder,
-                                                    grid_locator1=grid_locator1,
-                                                    grid_locator2=grid_locator2,
-                                                    tick_formatter1=tick_formatter1,
-                                                    tick_formatter2=tick_formatter2)
+        super().__init__(aux_trans,
+                         extreme_finder,
+                         grid_locator1=grid_locator1,
+                         grid_locator2=grid_locator2,
+                         tick_formatter1=tick_formatter1,
+                         tick_formatter2=tick_formatter2)
 
 
     # def update_grid_finder(self, aux_trans=None, **kw):

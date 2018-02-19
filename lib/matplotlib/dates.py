@@ -366,7 +366,7 @@ class bytespdate2num(strpdate2num):
             fmt: any valid strptime format is supported
             encoding: encoding to use on byte input (default: 'utf-8')
         """
-        super(bytespdate2num, self).__init__(fmt)
+        super().__init__(fmt)
         self.encoding = encoding
 
     def __call__(self, b):
@@ -377,7 +377,7 @@ class bytespdate2num(strpdate2num):
             A date2num float
         """
         s = b.decode(self.encoding)
-        return super(bytespdate2num, self).__call__(s)
+        return super().__call__(s)
 
 
 # a version of dateutil.parser.parse that can operate on nump0y arrays

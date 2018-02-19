@@ -241,7 +241,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.update(kwargs)
 
     def __getstate__(self):
-        state = super(_ImageBase, self).__getstate__()
+        state = super().__getstate__()
         # We can't pickle the C Image cached object.
         state['_imcache'] = None
         return state
@@ -786,7 +786,7 @@ class AxesImage(_ImageBase):
 
         self._extent = extent
 
-        super(AxesImage, self).__init__(
+        super().__init__(
             ax,
             cmap=cmap,
             norm=norm,
@@ -882,7 +882,7 @@ class NonUniformImage(AxesImage):
         options.
         """
         interp = kwargs.pop('interpolation', 'nearest')
-        super(NonUniformImage, self).__init__(ax, **kwargs)
+        super().__init__(ax, **kwargs)
         self.set_interpolation(interp)
 
     def _check_unsampled_image(self, renderer):
@@ -989,12 +989,12 @@ class NonUniformImage(AxesImage):
     def set_norm(self, norm):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        super(NonUniformImage, self).set_norm(norm)
+        super().set_norm(norm)
 
     def set_cmap(self, cmap):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        super(NonUniformImage, self).set_cmap(cmap)
+        super().set_cmap(cmap)
 
 
 class PcolorImage(AxesImage):
@@ -1020,7 +1020,7 @@ class PcolorImage(AxesImage):
 
         Additional kwargs are matplotlib.artist properties
         """
-        super(PcolorImage, self).__init__(ax, norm=norm, cmap=cmap)
+        super().__init__(ax, norm=norm, cmap=cmap)
         self.update(kwargs)
         if A is not None:
             self.set_data(x, y, A)
@@ -1148,7 +1148,7 @@ class FigureImage(_ImageBase):
 
         kwargs are an optional list of Artist keyword args
         """
-        super(FigureImage, self).__init__(
+        super().__init__(
             None,
             norm=norm,
             cmap=cmap,
@@ -1218,7 +1218,7 @@ class BboxImage(_ImageBase):
         kwargs are an optional list of Artist keyword args
 
         """
-        super(BboxImage, self).__init__(
+        super().__init__(
             None,
             cmap=cmap,
             norm=norm,

@@ -1843,9 +1843,8 @@ class Figure(Artist):
         return None
 
     def __getstate__(self):
-        state = super(Figure, self).__getstate__()
+        state = super().__getstate__()
 
-        # print('\n\n\nStarting pickle')
         # the axobservers cannot currently be pickled.
         # Additionally, the canvas cannot currently be pickled, but this has
         # the benefit of meaning that a figure can be detached from one canvas,
@@ -1866,9 +1865,8 @@ class Figure(Artist):
                     matplotlib._pylab_helpers.Gcf.figs)):
                 state['_restore_to_pylab'] = True
 
-        # set all the layoutbox information to None.  kiwisolver
-        # objects can't be pickeled, so we lose the layout options
-        # at this point.
+        # set all the layoutbox information to None.  kiwisolver objects can't
+        # be pickled, so we lose the layout options at this point.
         state.pop('_layoutbox', None)
         # suptitle:
         if self._suptitle is not None:
