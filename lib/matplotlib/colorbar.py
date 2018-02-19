@@ -313,9 +313,13 @@ class ColorbarBase(cm.ScalarMappable):
         if format is None:
             if isinstance(self.norm, colors.LogNorm):
                 self.formatter = ticker.LogFormatterSciNotation()
+                # minor ticks requested through rcParams should be ignored
+                self.ax.minorticks_off()
             elif isinstance(self.norm, colors.SymLogNorm):
                 self.formatter = ticker.LogFormatterSciNotation(
                                         linthresh=self.norm.linthresh)
+                # minor ticks requested through rcParams should be ignored
+                self.ax.minorticks_off()
             else:
                 self.formatter = ticker.ScalarFormatter()
         elif isinstance(format, six.string_types):
@@ -339,8 +343,6 @@ class ColorbarBase(cm.ScalarMappable):
         # against using those methods.
         self.ax.set_xticks = _set_ticks_on_axis_warn
         self.ax.set_yticks = _set_ticks_on_axis_warn
-        # minor ticks requested through rcParams should be ignored
-        self.ax.minorticks_off()
 
     def draw_all(self):
         '''
