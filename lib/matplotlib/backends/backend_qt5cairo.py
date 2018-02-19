@@ -8,14 +8,14 @@ from .qt_compat import QT_API
 
 class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
     def __init__(self, figure):
-        super(FigureCanvasQTCairo, self).__init__(figure=figure)
+        super().__init__(figure=figure)
         self._renderer = RendererCairo(self.figure.dpi)
         self._renderer.set_width_height(-1, -1)  # Invalid values.
 
     def draw(self):
         if hasattr(self._renderer.gc, "ctx"):
             self.figure.draw(self._renderer)
-        super(FigureCanvasQTCairo, self).draw()
+        super().draw()
 
     def paintEvent(self, event):
         self._update_dpi()

@@ -21,7 +21,7 @@ from .qt_compat import QT_API
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
     def __init__(self, figure):
-        super(FigureCanvasQTAgg, self).__init__(figure=figure)
+        super().__init__(figure=figure)
         self._bbox_queue = []
 
     @property
@@ -91,7 +91,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
 
     def print_figure(self, *args, **kwargs):
-        super(FigureCanvasQTAgg, self).print_figure(*args, **kwargs)
+        super().print_figure(*args, **kwargs)
         self.draw()
 
 

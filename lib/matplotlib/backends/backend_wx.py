@@ -824,8 +824,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     filetypes['xpm'] = 'X pixmap'
 
     def print_figure(self, filename, *args, **kwargs):
-        super(_FigureCanvasWxBase, self).print_figure(
-            filename, *args, **kwargs)
+        super().print_figure(filename, *args, **kwargs)
         # Restore the current view; this is needed because the artist contains
         # methods rely on particular attributes of the rendered figure for
         # determining things like bounding boxes.
@@ -1986,7 +1985,7 @@ class _BackendWx(_Backend):
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp
-        return super(_BackendWx, cls).new_figure_manager(num, *args, **kwargs)
+        return super().new_figure_manager(num, *args, **kwargs)
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):

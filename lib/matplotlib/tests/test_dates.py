@@ -499,7 +499,7 @@ def test_date2num_dst():
         subtraction.
         """
         def __sub__(self, other):
-            r = super(dt_tzaware, self).__sub__(other)
+            r = super().__sub__(other)
             tzinfo = getattr(r, 'tzinfo', None)
 
             if tzinfo is not None:
@@ -513,10 +513,10 @@ def test_date2num_dst():
             return r
 
         def __add__(self, other):
-            return self.mk_tzaware(super(dt_tzaware, self).__add__(other))
+            return self.mk_tzaware(super().__add__(other))
 
         def astimezone(self, tzinfo):
-            dt = super(dt_tzaware, self).astimezone(tzinfo)
+            dt = super().astimezone(tzinfo)
             return self.mk_tzaware(dt)
 
         @classmethod

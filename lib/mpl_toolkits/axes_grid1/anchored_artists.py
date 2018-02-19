@@ -82,7 +82,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         self.da = DrawingArea(width, height, xdescent, ydescent)
         self.drawing_area = self.da
 
-        super(AnchoredDrawingArea, self).__init__(
+        super().__init__(
             loc, pad=pad, borderpad=borderpad, child=self.da, prop=None,
             frameon=frameon, **kwargs
         )

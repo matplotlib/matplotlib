@@ -43,7 +43,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
                                  'Matplotlib usage FAQ for more info on '
                                  'backends.'),
                         alternative='GTK3Agg')
-        super(FigureCanvasGTKAgg, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def configure_event(self, widget, event=None):
 

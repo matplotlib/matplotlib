@@ -234,10 +234,8 @@ def _get_handles(ax):
 
 class HostAxesBase(object):
     def __init__(self, *args, **kwargs):
-
         self.parasites = []
         self._get_base_axes_attr("__init__")(self, *args, **kwargs)
-
 
     def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=None):
         parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
@@ -257,7 +255,6 @@ class HostAxesBase(object):
             all_handles.extend(ax._get_legend_handles(legend_handler_map))
 
         return all_handles
-
 
     def draw(self, renderer):
 
@@ -287,15 +284,10 @@ class HostAxesBase(object):
         self.artists = orig_artists
         self.images = orig_images
 
-
     def cla(self):
-
         for ax in self.parasites:
             ax.cla()
-
         self._get_base_axes_attr("cla")(self)
-        #super(HostAxes, self).cla()
-
 
     def twinx(self, axes_class=None):
         """
@@ -355,7 +347,6 @@ class HostAxesBase(object):
 
         return ax2
 
-
     def twin(self, aux_trans=None, axes_class=None):
         """
         create a twin of Axes for generating a plot with a sharex
@@ -367,16 +358,15 @@ class HostAxesBase(object):
         if axes_class is None:
             axes_class = self._get_base_axes()
 
-        parasite_axes_auxtrans_class = parasite_axes_auxtrans_class_factory(axes_class)
+        parasite_axes_auxtrans_class = \
+            parasite_axes_auxtrans_class_factory(axes_class)
 
         if aux_trans is None:
-            ax2 = parasite_axes_auxtrans_class(self, mtransforms.IdentityTransform(),
-                                               viewlim_mode="equal",
-                                               )
+            ax2 = parasite_axes_auxtrans_class(
+                self, mtransforms.IdentityTransform(), viewlim_mode="equal")
         else:
-            ax2 = parasite_axes_auxtrans_class(self, aux_trans,
-                                               viewlim_mode="transform",
-                                               )
+            ax2 = parasite_axes_auxtrans_class(
+                self, aux_trans, viewlim_mode="transform")
         self.parasites.append(ax2)
         ax2._remove_method = lambda h: self.parasites.remove(h)
 
@@ -403,7 +393,6 @@ class HostAxesBase(object):
         _bbox = Bbox.union([b for b in bbs if b.width!=0 or b.height!=0])
 
         return _bbox
-
 
 
 _host_axes_classes = {}

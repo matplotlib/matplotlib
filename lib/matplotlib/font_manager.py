@@ -945,7 +945,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, FontEntry):
             return dict(o.__dict__, _class='FontEntry')
         else:
-            return super(JSONEncoder, self).default(o)
+            return super().default(o)
 
 
 def _json_decode(o):

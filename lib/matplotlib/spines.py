@@ -49,7 +49,7 @@ class Spine(mpatches.Patch):
         Valid kwargs are:
         %(Patch)s
         """
-        super(Spine, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.axes = axes
         self.set_figure(self.axes.figure)
         self.spine_type = spine_type
@@ -150,7 +150,7 @@ class Spine(mpatches.Patch):
             self._recompute_transform()
             return self._patch_transform
         else:
-            return super(Spine, self).get_patch_transform()
+            return super().get_patch_transform()
 
     def get_path(self):
         return self._path
@@ -311,7 +311,7 @@ class Spine(mpatches.Patch):
     @allow_rasterization
     def draw(self, renderer):
         self._adjust_location()
-        ret = super(Spine, self).draw(renderer)
+        ret = super().draw(renderer)
         self.stale = False
         return ret
 

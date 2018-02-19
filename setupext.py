@@ -793,7 +793,7 @@ class Tests(OptionalPackage):
     default_config = False
 
     def check(self):
-        super(Tests, self).check()
+        super().check()
 
         msgs = []
         msg_template = ('{package} is required to run the Matplotlib test '
@@ -891,7 +891,7 @@ class DelayedExtension(Extension, object):
     on the system.
     """
     def __init__(self, *args, **kwargs):
-        super(DelayedExtension, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._finalized = False
         self._hooks = {}
 
