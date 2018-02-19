@@ -4,7 +4,6 @@ Basic Units
 ===========
 
 """
-import six
 
 import math
 
@@ -110,7 +109,7 @@ class ConvertAllProxy(PassThroughProxy):
         return TaggedValue(ret, ret_unit)
 
 
-class TaggedValue(six.with_metaclass(TaggedValueMeta)):
+class TaggedValue(metaclass=TaggedValueMeta):
 
     _proxies = {'__add__': ConvertAllProxy,
                 '__sub__': ConvertAllProxy,

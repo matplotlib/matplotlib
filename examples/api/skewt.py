@@ -180,10 +180,10 @@ register_projection(SkewXAxes)
 
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
+    from io import StringIO
     from matplotlib.ticker import (MultipleLocator, NullFormatter,
                                    ScalarFormatter)
     import matplotlib.pyplot as plt
-    from six import StringIO
     import numpy as np
 
     # Some examples data

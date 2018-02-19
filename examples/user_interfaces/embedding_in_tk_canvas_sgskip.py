@@ -5,13 +5,11 @@ Embedding in Tk Canvas
 
 Embedding plots in a Tk Canvas.
 """
-import matplotlib as mpl
+
+import tkinter
+
 import numpy as np
-import sys
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-else:
-    import tkinter as tk
+import matplotlib as mpl
 import matplotlib.backends.tkagg as tkagg
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
@@ -26,7 +24,7 @@ def draw_figure(canvas, figure, loc=(0, 0)):
     figure_canvas_agg.draw()
     figure_x, figure_y, figure_w, figure_h = figure.bbox.bounds
     figure_w, figure_h = int(figure_w), int(figure_h)
-    photo = tk.PhotoImage(master=canvas, width=figure_w, height=figure_h)
+    photo = tkinter.PhotoImage(master=canvas, width=figure_w, height=figure_h)
 
     # Position: convert from top-left anchor to center anchor
     canvas.create_image(loc[0] + figure_w/2, loc[1] + figure_h/2, image=photo)
@@ -40,9 +38,9 @@ def draw_figure(canvas, figure, loc=(0, 0)):
 
 # Create a canvas
 w, h = 300, 200
-window = tk.Tk()
+window = tkinter.Tk()
 window.title("A figure in a canvas")
-canvas = tk.Canvas(window, width=w, height=h)
+canvas = tkinter.Canvas(window, width=w, height=h)
 canvas.pack()
 
 # Generate some example data
@@ -64,4 +62,4 @@ canvas.create_line(200, 50, fig_x + fig_w / 2, fig_y + fig_h / 2)
 canvas.create_text(200, 50, text="Zero-crossing", anchor="s")
 
 # Let Tk take over
-tk.mainloop()
+tkinter.mainloop()

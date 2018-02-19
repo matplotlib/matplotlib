@@ -10,7 +10,6 @@ A small game demo using Matplotlib.
    This example requires :download:`pipong.py <pipong.py>`
 
 """
-from __future__ import print_function, division
 import time
 
 

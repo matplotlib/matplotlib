@@ -5,7 +5,6 @@ Watermark image
 
 Use a PNG file as a watermark
 """
-from __future__ import print_function
 import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.image as image

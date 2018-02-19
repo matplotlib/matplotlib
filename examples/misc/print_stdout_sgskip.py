@@ -15,8 +15,4 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 plt.plot([1, 2, 3])
-
-if sys.version_info[0] >= 3:
-    plt.savefig(sys.stdout.buffer)
-else:
-    plt.savefig(sys.stdout)
+plt.savefig(sys.stdout.buffer)
