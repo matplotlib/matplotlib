@@ -83,6 +83,10 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
             sep = 0
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
+        # this is a bit of a hack to avoid a TypeError when used
+        # in conjugation with tight layout
+        if total is None:
+            total = 1
         return total, offsets
 
     elif mode == "equal":
