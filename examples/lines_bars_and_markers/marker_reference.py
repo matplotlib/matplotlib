@@ -5,7 +5,7 @@ Filled and unfilled-marker types
 
 Reference for filled- and unfilled-marker types included with Matplotlib.
 """
-from six import iteritems
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -36,9 +36,7 @@ def split_list(a_list):
 fig, axes = plt.subplots(ncols=2)
 
 # Filter out filled markers and marker settings that do nothing.
-# We use iteritems from six to make sure that we get an iterator
-# in both python 2 and 3
-unfilled_markers = [m for m, func in iteritems(Line2D.markers)
+unfilled_markers = [m for m, func in Line2D.markers.items()
                     if func != 'nothing' and m not in Line2D.filled_markers]
 # Reverse-sort for pretty. We use our own sort key which is essentially
 # a python3 compatible reimplementation of python2 sort.

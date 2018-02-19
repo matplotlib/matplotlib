@@ -6,7 +6,6 @@ Rotating 3D wireframe plot
 A very simple 'animation' of a 3D plot.  See also rotate_axes3d_demo.
 """
 
-from __future__ import print_function
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
