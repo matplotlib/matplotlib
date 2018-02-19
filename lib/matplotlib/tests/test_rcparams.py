@@ -457,7 +457,7 @@ def test_if_rctemplate_is_up_to_date():
 def test_if_rctemplate_would_be_valid(tmpdir):
     # This tests if the matplotlibrc.template file would result in a valid
     # rc file if all lines are uncommented.
-    path_to_rc = "matplotlibrc.txt" #mpl.matplotlib_fname() #
+    path_to_rc = mpl.matplotlib_fname()
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     newlines = []
