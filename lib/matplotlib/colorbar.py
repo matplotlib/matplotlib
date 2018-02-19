@@ -339,6 +339,8 @@ class ColorbarBase(cm.ScalarMappable):
         # against using those methods.
         self.ax.set_xticks = _set_ticks_on_axis_warn
         self.ax.set_yticks = _set_ticks_on_axis_warn
+        # minor ticks requested through rcParams should be ignored
+        self.ax.minorticks_off()
 
     def draw_all(self):
         '''
