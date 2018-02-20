@@ -310,11 +310,12 @@ Thus, to force usage of PGI when both bindings are installed, import it first.
 
 
 
-Cairo rendering for Qt and WX canvases
---------------------------------------
+Cairo rendering for Qt, WX, and Tk canvases
+-------------------------------------------
 
-The new ``Qt4Cairo``, ``Qt5Cairo``, and ``WXCairo`` backends allow Qt and Wx
-canvases to use Cairo rendering instead of Agg.
+The new ``Qt4Cairo``, ``Qt5Cairo``, ``WXCairo``, and ``TkCairo``
+backends allow Qt, Wx, and Tk canvases to use Cairo rendering instead of
+Agg.
 
 
 Added support for QT in new ToolManager
