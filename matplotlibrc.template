@@ -46,7 +46,7 @@ backend      : $TEMPLATE_BACKEND
 ## forcing the use of Version 2 API for QString and QVariant.
 
 ## The port to use for the web server in the WebAgg backend.
-#webagg.port : 8888
+#webagg.port : 8988
 
 ## The address on which the WebAgg web server should be reachable
 #webagg.address : 127.0.0.1
@@ -81,16 +81,16 @@ backend      : $TEMPLATE_BACKEND
 #lines.marker      : None    ## the default marker
 #lines.markeredgewidth  : 1.0     ## the line width around the marker symbol
 #lines.markersize  : 6            ## markersize, in points
-#lines.dash_joinstyle : miter        ## miter|round|bevel
+#lines.dash_joinstyle : round        ## miter|round|bevel
 #lines.dash_capstyle : butt          ## butt|round|projecting
-#lines.solid_joinstyle : miter       ## miter|round|bevel
+#lines.solid_joinstyle : round       ## miter|round|bevel
 #lines.solid_capstyle : projecting   ## butt|round|projecting
 #lines.antialiased : True         ## render lines in antialiased (no jaggies)
 
 ## The three standard dash patterns.  These are scaled by the linewidth.
-#lines.dashed_pattern : 2.8, 1.2
-#lines.dashdot_pattern : 4.8, 1.2, 0.8, 1.2
-#lines.dotted_pattern : 1.1, 1.1
+#lines.dashed_pattern : 3.7, 1.6
+#lines.dashdot_pattern : 6.4, 1.6, 1, 1.6
+#lines.dotted_pattern : 1, 1.65
 #lines.scale_dashes : True
 
 #markers.fillstyle: full ## full|left|right|bottom|top|none
@@ -102,7 +102,7 @@ backend      : $TEMPLATE_BACKEND
 ## information on patch properties
 #patch.linewidth        : 1        ## edge width in points.
 #patch.facecolor        : C0
-#patch.edgecolor        : black   ## if forced, or patch is not filled
+#patch.edgecolor        : k       ## if forced, or patch is not filled
 #patch.force_edgecolor  : False   ## True to always use edgecolor
 #patch.antialiased      : True    ## render patches in antialiased (no jaggies)
 
@@ -151,7 +151,7 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.meanprops.markerfacecolor : C2
 #boxplot.meanprops.markeredgecolor : C2
 #boxplot.meanprops.markersize      :  6
-#boxplot.meanprops.linestyle       : none
+#boxplot.meanprops.linestyle       : --
 #boxplot.meanprops.linewidth       : 1.0
 
 
@@ -194,7 +194,7 @@ backend      : $TEMPLATE_BACKEND
 #font.family         : sans-serif
 #font.style          : normal
 #font.variant        : normal
-#font.weight         : medium
+#font.weight         : normal
 #font.stretch        : normal
 ## note that font.size controls default text sizes.  To configure
 ## special text sizes tick labels, axes, labels, title, etc, see the rc
@@ -202,17 +202,17 @@ backend      : $TEMPLATE_BACKEND
 ## relative to font.size, using the following values: xx-small, x-small,
 ## small, medium, large, x-large, xx-large, larger, or smaller
 #font.size           : 10.0
-#font.serif          : DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-#font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
+#font.serif          : DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+#font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
-#font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, xkcd, fantasy
-#font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+#font.fantasy        : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, xkcd, fantasy
+#font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 #### TEXT
 ## text properties used by text.Text.  See
 ## http://matplotlib.org/api/artist_api.html#module-matplotlib.text for more
 ## information on text properties
-#text.color          : black
+#text.color          : k
 
 #### LaTeX customizations. See http://wiki.scipy.org/Cookbook/Matplotlib/UsingTex
 #text.usetex         : False  ## use latex for all text handling. The following fonts
@@ -226,7 +226,7 @@ backend      : $TEMPLATE_BACKEND
                               ## matplotlib mailing list
 #text.latex.unicode : False ## use "ucs" and "inputenc" LaTeX packages for handling
                             ## unicode strings.
-#text.latex.preamble :  ## IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
+#text.latex.preamble :      ## IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                             ## AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                             ## IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
                             ## preamble is a comma separated list of LaTeX statements
@@ -240,12 +240,12 @@ backend      : $TEMPLATE_BACKEND
 #text.latex.preview : False
 
 #text.hinting : auto   ## May be one of the following:
-                       ##   'none': Perform no hinting
-                       ##   'auto': Use FreeType's autohinter
-                       ##   'native': Use the hinting information in the
+                       ##   none: Perform no hinting
+                       ##   auto: Use FreeType's autohinter
+                       ##   native: Use the hinting information in the
                        #              font file, if available, and if your
                        #              FreeType library supports it
-                       ##   'either': Use the native hinting information,
+                       ##   either: Use the native hinting information,
                        #              or the autohinter if none is available.
                        ## For backward compatibility, this value may also be
                        ## True === 'auto' or False === 'none'.
@@ -261,10 +261,10 @@ backend      : $TEMPLATE_BACKEND
 ## Note that this "custom" mode is unsupported and may go away in the
 ## future.
 #mathtext.cal : cursive
-#mathtext.rm  : serif
+#mathtext.rm  : sans
 #mathtext.tt  : monospace
-#mathtext.it  : serif:italic
-#mathtext.bf  : serif:bold
+#mathtext.it  : sans:italic
+#mathtext.bf  : sans:bold
 #mathtext.sf  : sans
 #mathtext.fontset : dejavusans ## Should be 'dejavusans' (default),
                                ## 'dejavuserif', 'cm' (Computer Modern), 'stix',
@@ -281,8 +281,8 @@ backend      : $TEMPLATE_BACKEND
 ## default face and edge color, default tick sizes,
 ## default fontsizes for ticklabels, and so on.  See
 ## http://matplotlib.org/api/axes_api.html#module-matplotlib.axes
-#axes.facecolor      : white   ## axes background color
-#axes.edgecolor      : black   ## axes edge color
+#axes.facecolor      : w       ## axes background color
+#axes.edgecolor      : k       ## axes edge color
 #axes.linewidth      : 0.8     ## edge linewidth
 #axes.grid           : False   ## display grid or not
 #axes.grid.axis      : both    ## which axis the grid should apply to
@@ -293,7 +293,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.labelsize      : medium  ## fontsize of the x any y labels
 #axes.labelpad       : 4.0     ## space between label and axis
 #axes.labelweight    : normal  ## weight of the x and y labels
-#axes.labelcolor     : black
+#axes.labelcolor     : k
 #axes.axisbelow      : line    ## draw axis gridlines and ticks below
                                ## patches (True); above patches but below
                                ## lines ('line'); or above all (False)
@@ -326,6 +326,8 @@ backend      : $TEMPLATE_BACKEND
 #axes.prop_cycle    : cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
                       ## color cycle for plot lines  as list of string
                       ## colorspecs: single letter, long name, or web-style hex
+					  ## Note the use of string escapes here ('1f77b4', instead of 1f77b4)
+                      ## as opposed to the rest of this file.					  
 #axes.autolimit_mode : data ## How to scale axes limits to the data.
                             ## Use "data" to use data limits, plus some margin
                             ## Use "round_number" move to the nearest "round" number
@@ -427,8 +429,8 @@ backend      : $TEMPLATE_BACKEND
 #figure.titleweight : normal   ## weight of the figure title
 #figure.figsize   : 6.4, 4.8   ## figure size in inches
 #figure.dpi       : 100        ## figure dots per inch
-#figure.facecolor : white      ## figure facecolor; 0.75 is scalar gray
-#figure.edgecolor : white      ## figure edgecolor
+#figure.facecolor : w      ## figure facecolor; 0.75 is scalar gray
+#figure.edgecolor : w      ## figure edgecolor
 #figure.frameon : True          ## enable figure frame
 #figure.max_open_warning : 20  ## The maximum number of figures to open through
                                ## the pyplot interface before emitting a warning.
@@ -496,9 +498,9 @@ backend      : $TEMPLATE_BACKEND
 #path.simplify : True   ## When True, simplify paths by removing "invisible"
                         ## points to reduce file size and increase rendering
                         ## speed
-#path.simplify_threshold : 0.1  ## The threshold of similarity below which
-                                ## vertices will be removed in the simplification
-                                ## process
+#path.simplify_threshold : 0.111111111111  ## The threshold of similarity below which
+                                           ## vertices will be removed in the 
+                                           ## simplification process
 #path.snap : True ## When True, rectilinear axis-aligned paths will be snapped to
                   ## the nearest pixel when certain criteria are met.  When False,
                   ## paths will never be snapped.
@@ -509,15 +511,15 @@ backend      : $TEMPLATE_BACKEND
                     ## is the length of the wiggle along the line (in
                     ## pixels).  *randomness* is the factor by which
                     ## the length is randomly scaled.
-#path.effects : []  #
+#path.effects : []  ##
 
 #### SAVING FIGURES
 ## the default savefig params can be different from the display params
 ## e.g., you may want a higher resolution, or to make the figure
 ## background white
 #savefig.dpi         : figure   ## figure dots per inch or 'figure'
-#savefig.facecolor   : white    ## figure facecolor when saving
-#savefig.edgecolor   : white    ## figure edgecolor when saving
+#savefig.facecolor   : w        ## figure facecolor when saving
+#savefig.edgecolor   : w        ## figure edgecolor when saving
 #savefig.format      : png      ## png, ps, pdf, svg
 #savefig.bbox        : standard ## 'tight' or 'standard'.
                                 ## 'tight' is incompatible with pipe-based animation
@@ -556,15 +558,15 @@ backend      : $TEMPLATE_BACKEND
 ### svg backend params
 #svg.image_inline : True       ## write raster image data directly into the svg file
 #svg.fonttype :   path         ## How to handle SVG fonts:
-   ##     'none': Assume fonts are installed on the machine where the SVG will be viewed.
-   ##     'path': Embed characters as paths -- supported by most SVG renderers
-   ##     'svgfont': Embed characters as SVG fonts -- supported only by Chrome,
+   ##     none: Assume fonts are installed on the machine where the SVG will be viewed.
+   ##     path: Embed characters as paths -- supported by most SVG renderers
+   ##     svgfont: Embed characters as SVG fonts -- supported only by Chrome,
    ##                Opera and Safari
 #svg.hashsalt : None           ## if not None, use this string as hash salt
                                ## instead of uuid4
 ### pgf parameter
 #pgf.rcfonts : True
-#pgf.preamble : []
+#pgf.preamble :   
 #pgf.texsystem : xelatex
 #pgf.debug : False
 
@@ -580,17 +582,17 @@ backend      : $TEMPLATE_BACKEND
 #keymap.forward : right, v           ##   left handed quick navigation
 #keymap.pan : p                      ## pan mnemonic
 #keymap.zoom : o                     ## zoom mnemonic
-#keymap.save : s                     ## saving current figure
-#keymap.quit : ctrl+w, cmd+w         ## close the current figure
-#keymap.quit_all : 'W', 'cmd+W', 'Q' ## close all figures
+#keymap.save : s, ctrl+s             ## saving current figure
+#keymap.quit : ctrl+w, cmd+w, q      ## close the current figure
+#keymap.quit_all : W, cmd+W, Q       ## close all figures
 #keymap.grid : g                     ## switching on/off major grids in current axes
 #keymap.grid_minor : G               ## switching on/off minor grids in current axes
 #keymap.yscale : l                   ## toggle scaling of y-axes ('log'/'linear')
-#keymap.xscale : L, k                ## toggle scaling of x-axes ('log'/'linear')
+#keymap.xscale : k, L                ## toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 ## enable all axes
 
 ## Control location of examples data files
-#examples.directory : ''   ## directory to look in for custom installation
+#examples.directory :              ## directory to look in for custom installation
 
 ###ANIMATION settings
 #animation.html :  none            ## How to display the animation as HTML in
@@ -602,15 +604,15 @@ backend      : $TEMPLATE_BACKEND
 #animation.bitrate: -1             ## Controls size/quality tradeoff for movie.
                                    ## -1 implies let utility auto-determine
 #animation.frame_format:  png      ## Controls frame format used by temp files
-#animation.html_args: ''           ## Additional arguments to pass to html writer
-#animation.ffmpeg_path: 'ffmpeg'   ## Path to ffmpeg binary. Without full path
+#animation.html_args:              ## Additional arguments to pass to html writer
+#animation.ffmpeg_path:  ffmpeg    ## Path to ffmpeg binary. Without full path
                                    ## $PATH is searched
-#animation.ffmpeg_args: ''         ## Additional arguments to pass to ffmpeg
-#animation.avconv_path: 'avconv'   ## Path to avconv binary. Without full path
+#animation.ffmpeg_args:            ## Additional arguments to pass to ffmpeg
+#animation.avconv_path:  avconv    ## Path to avconv binary. Without full path
                                    ## $PATH is searched
-#animation.avconv_args: ''         ## Additional arguments to pass to avconv
-#animation.convert_path: 'convert' ## Path to ImageMagick's convert binary.
+#animation.avconv_args:            ## Additional arguments to pass to avconv
+#animation.convert_path:  convert  ## Path to ImageMagick's convert binary.
                                    ## On Windows use the full path since convert
                                    ## is also the name of a system tool.
-#animation.convert_args: ''        ## Additional arguments to pass to convert
+#animation.convert_args:           ## Additional arguments to pass to convert
 #animation.embed_limit : 20.0
