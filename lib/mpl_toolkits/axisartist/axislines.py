@@ -207,18 +207,12 @@ class AxisArtistHelper(object):
 
             return trans_tick
 
-
     class Floating(_Base):
-        def __init__(self, nth_coord,
-                     value):
 
+        def __init__(self, nth_coord, value):
             self.nth_coord = nth_coord
-
             self._value = value
-
-            super(AxisArtistHelper.Floating,
-                  self).__init__()
-
+            super().__init__()
 
         def get_nth_coord(self):
             return self.nth_coord
