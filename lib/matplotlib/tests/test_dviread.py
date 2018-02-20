@@ -1,9 +1,16 @@
 from matplotlib.testing.decorators import skip_if_command_unavailable
 
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
 import matplotlib.dviread as dr
 import os.path
 import json
 import pytest
+import sqlite3
+import warnings
 
 
 def test_PsfontsMap(monkeypatch):
@@ -68,3 +75,80 @@ def test_dviread():
                  'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}
                 for page in dvi]
     assert data == correct
+
+
+def test_TeXSupportCache(tmpdir):
+    dbfile = str(tmpdir / "test.db")
+    cache = dr.TeXSupportCache(filename=dbfile)
+    assert cache.get_pathnames(['foo', 'bar']) == {}
+    with cache.connection as transaction:
+        cache.update_pathnames({'foo': '/tmp/foo',
+                                'xyzzy': '/xyzzy.dat',
+                                'fontfile': None}, transaction)
+    assert cache.get_pathnames(['foo', 'bar']) == {'foo': '/tmp/foo'}
+    assert cache.get_pathnames(['xyzzy', 'fontfile']) == \
+        {'xyzzy': '/xyzzy.dat', 'fontfile': None}
+
+
+def test_TeXSupportCache_versioning(tmpdir):
+    dbfile = str(tmpdir / "test.db")
+    cache1 = dr.TeXSupportCache(dbfile)
+    with cache1.connection as transaction:
+        cache1.update_pathnames({'foo': '/tmp/foo'}, transaction)
+
+    with sqlite3.connect(dbfile, isolation_level="DEFERRED") as conn:
+        conn.executescript('PRAGMA user_version=1000000000;')
+
+    with pytest.raises(dr.TeXSupportCacheError):
+        cache2 = dr.TeXSupportCache(dbfile)
+
+
+def test_find_tex_files(tmpdir):
+    with mock.patch('matplotlib.dviread.subprocess.Popen') as mock_popen:
+        mock_proc = mock.Mock()
+        stdout = '{s}tmp{s}foo.pfb\n{s}tmp{s}bar.map\n'.\
+                 format(s=os.path.sep).encode('ascii')
+        mock_proc.configure_mock(**{'communicate.return_value': (stdout, b'')})
+        mock_popen.return_value = mock_proc
+
+        # first call uses the results from kpsewhich
+        cache = dr.TeXSupportCache(filename=str(tmpdir / "test.db"))
+        assert dr.find_tex_files(
+            ['foo.pfb', 'cmsy10.pfb', 'bar.tmp', 'bar.map'], cache) \
+            == {'foo.pfb': '{s}tmp{s}foo.pfb'.format(s=os.path.sep),
+                'bar.map': '{s}tmp{s}bar.map'.format(s=os.path.sep),
+                'cmsy10.pfb': None, 'bar.tmp': None}
+        assert mock_popen.called
+
+        # second call (subset of the first one) uses only the cache
+        mock_popen.reset_mock()
+        assert dr.find_tex_files(['foo.pfb', 'cmsy10.pfb'], cache) \
+            == {'foo.pfb': '{s}tmp{s}foo.pfb'.format(s=os.path.sep),
+                'cmsy10.pfb': None}
+        assert not mock_popen.called
+
+        # third call (includes more than the first one) uses kpsewhich again
+        mock_popen.reset_mock()
+        stdout = '{s}usr{s}local{s}cmr10.tfm\n'.\
+                 format(s=os.path.sep).encode('ascii')
+        mock_proc.configure_mock(**{'communicate.return_value': (stdout, b'')})
+        mock_popen.return_value = mock_proc
+        assert dr.find_tex_files(['foo.pfb', 'cmr10.tfm'], cache) == \
+            {'foo.pfb': '{s}tmp{s}foo.pfb'.format(s=os.path.sep),
+             'cmr10.tfm': '{s}usr{s}local{s}cmr10.tfm'.format(s=os.path.sep)}
+        assert mock_popen.called
+
+
+def test_find_tex_file_format():
+    with mock.patch('matplotlib.dviread.subprocess.Popen') as mock_popen:
+        mock_proc = mock.Mock()
+        stdout = b'/foo/bar/baz\n'
+        mock_proc.configure_mock(**{'communicate.return_value': (stdout, b'')})
+        mock_popen.return_value = mock_proc
+
+        warnings.filterwarnings(
+            'ignore',
+            'The format option to find_tex_file is deprecated.*',
+            UserWarning)
+        assert dr.find_tex_file('foobar', format='tfm') == '/foo/bar/baz'
+        assert mock_popen.called

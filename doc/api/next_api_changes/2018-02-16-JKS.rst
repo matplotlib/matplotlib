@@ -1,0 +1,8 @@
+dviread changes
+---------------
+
+The ``format`` keyword argument to ``dviread.find_tex_file`` has been
+deprecated. The function without the ``format`` argument, as well as
+the new ``dviread.find_tex_files`` function, cache their results in
+``texsupport.N.db`` in the cache directory to speed up dvi file
+processing.
