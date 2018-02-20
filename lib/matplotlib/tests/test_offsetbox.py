@@ -98,3 +98,19 @@ def test_offsetbox_loc_codes():
         anchored_box = AnchoredOffsetbox(loc=code, child=da)
         ax.add_artist(anchored_box)
     fig.canvas.draw()
+
+
+def test_expand_with_tight_layout():
+    fig = plt.figure()
+    axes = fig.add_subplot(111)
+
+    d1 = [29388871, 12448, 40, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0]
+    d2 = [28396236, 981940, 22171, 537, 123, 88, 41, 42, 40, 26, 26,
+          84, 6, 2, 0, 0, 0, 0, 0]
+    axes.plot(d1, label='series 1')
+    axes.plot(d2, label='series 2')
+    axes.legend(mode='expand')
+
+    # ### THIS IS WHERE THE CRASH HAPPENS
+    plt.tight_layout(rect=[0, 0.08, 1, 0.92])
