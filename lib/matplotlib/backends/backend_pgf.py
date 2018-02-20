@@ -1153,8 +1153,6 @@ class PdfPages(object):
                 )
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
-        except Exception as e:
-            print(e)
         finally:
             figure.canvas = orig_canvas
 
