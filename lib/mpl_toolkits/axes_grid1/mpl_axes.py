@@ -32,6 +32,7 @@ class Axes(maxes.Axes):
             if isinstance(k, tuple):
                 r = SimpleChainedObjects(
                     [super(Axes.AxisDict, self).__getitem__(k1) for k1 in k])
+                    # super() within a list comprehension needs explicit args
                 return r
             elif isinstance(k, slice):
                 if k.start is None and k.stop is None and k.step is None:
