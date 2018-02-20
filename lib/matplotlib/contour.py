@@ -12,7 +12,7 @@ import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
-import matplotlib.colors as colors
+import matplotlib.colors as mcolors
 import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
@@ -51,7 +51,10 @@ class ClabelText(text.Text):
 class ContourLabeler(object):
     """Mixin to provide labelling capability to ContourSet"""
 
-    def clabel(self, *args, **kwargs):
+    def clabel(self, *args,
+               fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
+               colors=None, use_clabeltext=False, manual=False,
+               rightside_up=True):
         """
         Label a contour plot.
 
@@ -153,18 +156,12 @@ class ContourLabeler(object):
         `BlockingContourLabeler` (case of manual label placement).
         """
 
-        fontsize = kwargs.get('fontsize', None)
-        inline = kwargs.get('inline', 1)
-        inline_spacing = kwargs.get('inline_spacing', 5)
-        self.labelFmt = kwargs.get('fmt', '%1.3f')
-        _colors = kwargs.get('colors', None)
+        self.labelFmt = fmt
+        self._use_clabeltext = use_clabeltext
+        # Detect if manual selection is desired and remove from argument list.
+        self.labelManual = manual
+        self.rightside_up = rightside_up
 
-        self._use_clabeltext = kwargs.get('use_clabeltext', False)
-
-        # Detect if manual selection is desired and remove from argument list
-        self.labelManual = kwargs.get('manual', False)
-
-        self.rightside_up = kwargs.get('rightside_up', True)
         if len(args) == 0:
             levels = self.levels
             indices = list(range(len(self.cvalues)))
@@ -188,14 +185,14 @@ class ContourLabeler(object):
         font_size_pts = self.labelFontProps.get_size_in_points()
         self.labelFontSizeList = [font_size_pts] * len(levels)
 
-        if _colors is None:
+        if colors is None:
             self.labelMappable = self
             self.labelCValueList = np.take(self.cvalues, self.labelIndiceList)
         else:
-            cmap = colors.ListedColormap(_colors, N=len(self.labelLevelList))
+            cmap = mcolors.ListedColormap(colors, N=len(self.labelLevelList))
             self.labelCValueList = list(range(len(self.labelLevelList)))
             self.labelMappable = cm.ScalarMappable(cmap=cmap,
-                                                   norm=colors.NoNorm())
+                                                   norm=mcolors.NoNorm())
 
         self.labelXYs = []
 
@@ -822,11 +819,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         self.nchunk = kwargs.pop('nchunk', 0)
         self.locator = kwargs.pop('locator', None)
-        if (isinstance(norm, colors.LogNorm)
+        if (isinstance(norm, mcolors.LogNorm)
                 or isinstance(self.locator, ticker.LogLocator)):
             self.logscale = True
             if norm is None:
-                norm = colors.LogNorm()
+                norm = mcolors.LogNorm()
         else:
             self.logscale = False
 
@@ -867,7 +864,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if extend_min:
                     i0 = 1
 
-            cmap = colors.ListedColormap(self.colors[i0:None], N=ncolors)
+            cmap = mcolors.ListedColormap(self.colors[i0:None], N=ncolors)
 
             if use_set_under_over:
                 if extend_min:
@@ -1249,7 +1246,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if self.extend in ('both', 'max'):
                     i1 += 1
             self.cvalues = list(range(i0, i1))
-            self.set_norm(colors.NoNorm())
+            self.set_norm(mcolors.NoNorm())
         else:
             self.cvalues = self.layers
         self.set_array(self.levels)

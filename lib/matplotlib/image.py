@@ -887,15 +887,14 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
-    def __init__(self, ax, **kwargs):
+    def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
         kwargs are identical to those for AxesImage, except
         that 'nearest' and 'bilinear' are the only supported 'interpolation'
         options.
         """
-        interp = kwargs.pop('interpolation', 'nearest')
         super().__init__(ax, **kwargs)
-        self.set_interpolation(interp)
+        self.set_interpolation(interpolation)
 
     def _check_unsampled_image(self, renderer):
         """

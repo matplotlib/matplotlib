@@ -51,7 +51,10 @@ class Axes3D(Axes):
     name = '3d'
     _shared_z_axes = cbook.Grouper()
 
-    def __init__(self, fig, rect=None, *args, **kwargs):
+    def __init__(
+            self, fig, rect=None, *args,
+            azim=-60, elev=30, zscale=None, sharez=None, proj_type='persp',
+            **kwargs):
         '''
         Build an :class:`Axes3D` instance in
         :class:`~matplotlib.figure.Figure` *fig* with
@@ -79,11 +82,9 @@ class Axes3D(Axes):
             rect = [0.0, 0.0, 1.0, 1.0]
         self._cids = []
 
-        self.initial_azim = kwargs.pop('azim', -60)
-        self.initial_elev = kwargs.pop('elev', 30)
-        zscale = kwargs.pop('zscale', None)
-        sharez = kwargs.pop('sharez', None)
-        self.set_proj_type(kwargs.pop('proj_type', 'persp'))
+        self.initial_azim = azim
+        self.initial_elev = elev
+        self.set_proj_type(proj_type)
 
         self.xy_viewLim = unit_bbox()
         self.zz_viewLim = unit_bbox()
@@ -1329,7 +1330,8 @@ class Axes3D(Axes):
         self._draw_grid = cbook._string_to_bool(b)
         self.stale = True
 
-    def ticklabel_format(self, **kwargs):
+    def ticklabel_format(
+            self, *, style='', scilimits=None, useOffset=None, axis='both'):
         """
         Convenience method for manipulating the ScalarFormatter
         used by default for linear axes in Axed3D objects.
@@ -1343,10 +1345,8 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        style = kwargs.pop('style', '').lower()
-        scilimits = kwargs.pop('scilimits', None)
-        useOffset = kwargs.pop('useOffset', None)
-        axis = kwargs.pop('axis', 'both').lower()
+        style = style.lower()
+        axis = axis.lower()
         if scilimits is not None:
             try:
                 m, n = scilimits
@@ -2096,7 +2096,8 @@ class Axes3D(Axes):
             art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
             linec.set_sort_zpos(z)
 
-    def contour(self, X, Y, Z, *args, **kwargs):
+    def contour(self, X, Y, Z, *args,
+                extend3d=False, stride=5, zdir='z', offset=None, **kwargs):
         '''
         Create a 3D contour plot.
 
@@ -2118,11 +2119,6 @@ class Axes3D(Axes):
         Returns a :class:`~matplotlib.axes.Axes.contour`
         '''
 
-        extend3d = kwargs.pop('extend3d', False)
-        stride = kwargs.pop('stride', 5)
-        zdir = kwargs.pop('zdir', 'z')
-        offset = kwargs.pop('offset', None)
-
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
@@ -2134,7 +2130,8 @@ class Axes3D(Axes):
 
     contour3D = contour
 
-    def tricontour(self, *args, **kwargs):
+    def tricontour(self, *args,
+                   extend3d=False, stride=5, zdir='z', offset=None, **kwargs):
         """
         Create a 3D contour plot.
 
@@ -2162,11 +2159,6 @@ class Axes3D(Axes):
         longstanding bug in 3D PolyCollection rendering.
         """
 
-        extend3d = kwargs.pop('extend3d', False)
-        stride = kwargs.pop('stride', 5)
-        zdir = kwargs.pop('zdir', 'z')
-        offset = kwargs.pop('offset', None)
-
         had_data = self.has_data()
 
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(
@@ -2189,7 +2181,7 @@ class Axes3D(Axes):
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
 
-    def contourf(self, X, Y, Z, *args, **kwargs):
+    def contourf(self, X, Y, Z, *args, zdir='z', offset=None, **kwargs):
         '''
         Create a 3D contourf plot.
 
@@ -2212,9 +2204,6 @@ class Axes3D(Axes):
             The *zdir* and *offset* kwargs were added.
         '''
 
-        zdir = kwargs.pop('zdir', 'z')
-        offset = kwargs.pop('offset', None)
-
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
@@ -2226,7 +2215,7 @@ class Axes3D(Axes):
 
     contourf3D = contourf
 
-    def tricontourf(self, *args, **kwargs):
+    def tricontourf(self, *args, zdir='z', offset=None, **kwargs):
         """
         Create a 3D contourf plot.
 
@@ -2251,8 +2240,6 @@ class Axes3D(Axes):
         EXPERIMENTAL:  This method currently produces incorrect output due to a
         longstanding bug in 3D PolyCollection rendering.
         """
-        zdir = kwargs.pop('zdir', 'z')
-        offset = kwargs.pop('offset', None)
 
         had_data = self.has_data()
 
@@ -2544,7 +2531,9 @@ class Axes3D(Axes):
         return ret
     set_title.__doc__ = maxes.Axes.set_title.__doc__
 
-    def quiver(self, *args, **kwargs):
+    def quiver(self, *args,
+               length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
+               **kwargs):
         """
         Plot a 3D field of arrows.
 
@@ -2620,16 +2609,6 @@ class Axes3D(Axes):
             return Rpos.dot(uvw), Rneg.dot(uvw)
 
         had_data = self.has_data()
-
-        # handle kwargs
-        # shaft length
-        length = kwargs.pop('length', 1)
-        # arrow length ratio to the shaft length
-        arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
-        # pivot point
-        pivot = kwargs.pop('pivot', 'tail')
-        # normalize
-        normalize = kwargs.pop('normalize', False)
 
         # handle args
         argi = 6
@@ -2719,7 +2698,7 @@ class Axes3D(Axes):
 
     quiver3D = quiver
 
-    def voxels(self, *args, **kwargs):
+    def voxels(self, *args, facecolors=None, edgecolors=None, **kwargs):
         """
         ax.voxels([x, y, z,] /, filled, **kwargs)
 
@@ -2825,14 +2804,12 @@ class Axes3D(Axes):
             else:
                 raise ValueError("Invalid {} argument".format(name))
 
-        # intercept the facecolors, handling defaults and broacasting
-        facecolors = kwargs.pop('facecolors', None)
+        # broadcast and default on facecolors
         if facecolors is None:
             facecolors = self._get_patches_for_fill.get_next_color()
         facecolors = _broadcast_color_arg(facecolors, 'facecolors')
 
         # broadcast but no default on edgecolors
-        edgecolors = kwargs.pop('edgecolors', None)
         edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
 
         # always scale to the full array, even if the data is only in the center

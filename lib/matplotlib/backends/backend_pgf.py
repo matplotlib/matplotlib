@@ -802,8 +802,9 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def _print_pgf_to_fh(self, fh, *args, **kwargs):
-        if kwargs.get("dryrun", False):
+    def _print_pgf_to_fh(self, fh, *args,
+                         dryrun=False, bbox_inches_restore=None, **kwargs):
+        if dryrun:
             renderer = RendererPgf(self.figure, None, dummy=True)
             self.figure.draw(renderer)
             return
@@ -849,10 +850,9 @@ class FigureCanvasPgf(FigureCanvasBase):
                 r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
                 % (w, h))
         writeln(fh, r"\pgfusepath{use as bounding box, clip}")
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(self.figure, w, h, dpi,
                                      RendererPgf(self.figure, fh),
-                                     bbox_inches_restore=_bbox_inches_restore)
+                                     bbox_inches_restore=bbox_inches_restore)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment

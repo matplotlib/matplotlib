@@ -1174,7 +1174,7 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     return handles, labels
 
 
-def _parse_legend_args(axs, *args, **kwargs):
+def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     """
     Get the handles and labels from the calls to either ``figure.legend``
     or ``axes.legend``.
@@ -1184,17 +1184,11 @@ def _parse_legend_args(axs, *args, **kwargs):
     log = logging.getLogger(__name__)
 
     handlers = kwargs.get('handler_map', {}) or {}
-
-    # Support handles and labels being passed as keywords.
-    handles = kwargs.pop('handles', None)
-    labels = kwargs.pop('labels', None)
-
     extra_args = ()
 
-    if (handles is not None or labels is not None) and len(args):
-        warnings.warn("You have mixed positional and keyword "
-                      "arguments, some input may be "
-                      "discarded.")
+    if (handles is not None or labels is not None) and args:
+        warnings.warn("You have mixed positional and keyword arguments, some "
+                      "input may be discarded.")
 
     # if got both handles and labels as kwargs, make same length
     if handles and labels:

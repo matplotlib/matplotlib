@@ -1703,7 +1703,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 pass
 
         @functools.wraps(func)
-        def inner(ax, *args, **kwargs):
+        def inner(ax, *args, data=None, **kwargs):
             # this is needed because we want to change these values if
             # arg_names_at_runtime==True, but python does not allow assigning
             # to a variable in a outer scope. So use some new local ones and
@@ -1713,8 +1713,6 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
             _arg_names = arg_names
 
             label = None
-
-            data = kwargs.pop('data', None)
 
             if data is None:  # data validation
                 args = tuple(sanitize_sequence(a) for a in args)

@@ -521,21 +521,15 @@ class AxesDivider(Divider):
                          horizontal=[self._xref], vertical=[self._yref],
                          aspect=None, anchor="C")
 
-    def _get_new_axes(self, **kwargs):
+    def _get_new_axes(self, *, axes_class=None, **kwargs):
         axes = self._axes
-
-        axes_class = kwargs.pop("axes_class", None)
-
         if axes_class is None:
             if isinstance(axes, SubplotBase):
                 axes_class = axes._axes_class
             else:
                 axes_class = type(axes)
-
-        ax = axes_class(axes.get_figure(),
-                        axes.get_position(original=True), **kwargs)
-
-        return ax
+        return axes_class(axes.get_figure(), axes.get_position(original=True),
+                          **kwargs)
 
     def new_horizontal(self, size, pad=None, pack_start=False, **kwargs):
         """

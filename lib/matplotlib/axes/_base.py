@@ -2683,7 +2683,8 @@ class _AxesBase(martist.Artist):
         if axis == 'y' or axis == 'both':
             self.yaxis.grid(b, which=which, **kwargs)
 
-    def ticklabel_format(self, **kwargs):
+    def ticklabel_format(self, *, axis='both', style='', scilimits=None,
+                         useOffset=None, useLocale=None, useMathText=None):
         """
         Change the `~matplotlib.ticker.ScalarFormatter` used by
         default for linear axes.
@@ -2693,6 +2694,7 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
           Keyword          Description
           ==============   =========================================
+          *axis*           [ 'x' | 'y' | 'both' ]
           *style*          [ 'sci' (or 'scientific') | 'plain' ]
                            plain turns off scientific notation
           *scilimits*      (m, n), pair of integers; if *style*
@@ -2705,7 +2707,6 @@ class _AxesBase(martist.Artist):
                            if False, no offset will be used; if a
                            numeric offset is specified, it will be
                            used.
-          *axis*           [ 'x' | 'y' | 'both' ]
           *useLocale*      If True, format the number according to
                            the current locale.  This affects things
                            such as the character used for the
@@ -2724,12 +2725,8 @@ class _AxesBase(martist.Artist):
         :exc:`AttributeError` will be raised.
 
         """
-        style = kwargs.pop('style', '').lower()
-        scilimits = kwargs.pop('scilimits', None)
-        useOffset = kwargs.pop('useOffset', None)
-        useLocale = kwargs.pop('useLocale', None)
-        useMathText = kwargs.pop('useMathText', None)
-        axis = kwargs.pop('axis', 'both').lower()
+        style = style.lower()
+        axis = axis.lower()
         if scilimits is not None:
             try:
                 m, n = scilimits

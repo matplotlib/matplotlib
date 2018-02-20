@@ -1616,7 +1616,7 @@ class Axis(artist.Artist):
         """
         self.pickradius = pickradius
 
-    def set_ticklabels(self, ticklabels, *args, **kwargs):
+    def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
         """
         Set the text values of the tick labels. Return a list of Text
         instances.  Use *kwarg* *minor=True* to select minor ticks.
@@ -1645,7 +1645,6 @@ class Axis(artist.Artist):
         # replace the ticklabels list with the processed one
         ticklabels = get_labels
 
-        minor = kwargs.pop('minor', False)
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_minor_ticks()

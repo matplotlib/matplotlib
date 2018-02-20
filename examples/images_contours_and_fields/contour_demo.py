@@ -98,8 +98,7 @@ zc = CS.collections[6]
 plt.setp(zc, linewidth=4)
 
 ax.clabel(CS, levels[1::2],  # label every second level
-          inline=1, fmt='%1.1f',
-          cmap='flag', fontsize=14)
+          inline=1, fmt='%1.1f', fontsize=14)
 
 # make a colorbar for the contour lines
 CB = fig.colorbar(CS, shrink=0.8, extend='both')

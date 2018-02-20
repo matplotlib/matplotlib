@@ -516,7 +516,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     if _has_pil:
         # add JPEG support
-        def print_jpg(self, filename_or_obj, *args, **kwargs):
+        def print_jpg(self, filename_or_obj, *args, dryrun=False, **kwargs):
             """
             Other Parameters
             ----------------
@@ -536,7 +536,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 should be stored as a progressive JPEG file.
             """
             buf, size = self.print_to_buffer()
-            if kwargs.pop("dryrun", False):
+            if dryrun:
                 return
             # The image is "pasted" onto a white background image to safely
             # handle any transparency
@@ -557,9 +557,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         print_jpeg = print_jpg
 
         # add TIFF support
-        def print_tif(self, filename_or_obj, *args, **kwargs):
+        def print_tif(self, filename_or_obj, *args, dryrun=False, **kwargs):
             buf, size = self.print_to_buffer()
-            if kwargs.pop("dryrun", False):
+            if dryrun:
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
