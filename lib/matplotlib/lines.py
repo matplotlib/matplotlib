@@ -317,7 +317,7 @@ class Line2D(Artist):
 
         %(Line2D)s
 
-        See :meth:`set_linestyle` for a decription of the line styles,
+        See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
         :meth:`set_drawstyle` for a description of the draw styles.
 

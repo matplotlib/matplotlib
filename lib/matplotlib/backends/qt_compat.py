@@ -23,7 +23,7 @@ ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
            pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
 # ETS is a dict of env variable to (QT_API, QT_MAJOR_VERSION)
 # If the ETS QT_API environment variable is set, use it, but only
-# if the varible if of the same major QT version.  Note that
+# if the variable if of the same major QT version.  Note that
 # ETS requires the version 2 of PyQt4, which is not the platform
 # default for Python 2.x.
 
