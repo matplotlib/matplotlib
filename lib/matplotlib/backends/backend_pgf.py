@@ -25,6 +25,8 @@ from matplotlib.cbook import is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
 from matplotlib.path import Path
+from matplotlib.figure import Figure
+from matplotlib._pylab_helpers import Gcf
 
 
 ###############################################################################
@@ -987,4 +989,178 @@ def _cleanup_all():
     LatexManager._cleanup_remaining_instances()
     TmpDirCleaner.cleanup_remaining_tmpdirs()
 
+
 atexit.register(_cleanup_all)
+
+
+class PdfPages(object):
+    """
+    A multi-page PDF file using the pgf backend
+
+    Examples
+    --------
+
+    >>> import matplotlib.pyplot as plt
+    >>> # Initialize:
+    >>> with PdfPages('foo.pdf') as pdf:
+    ...     # As many times as you like, create a figure fig and save it:
+    ...     fig = plt.figure()
+    ...     pdf.savefig(fig)
+    ...     # When no figure is specified the current figure is saved
+    ...     pdf.savefig()
+    """
+    __slots__ = (
+        'outputfile',
+        'keep_empty',
+        'tmpdir',
+        'base_name',
+        'fname_tex',
+        'fname_pdf',
+        '_n_figures',
+        '_file',
+    )
+
+    def __init__(self, filename, keep_empty=True, metadata=None):
+        """
+        Create a new PdfPages object.
+
+        Parameters
+        ----------
+
+        filename : str
+            Plots using :meth:`PdfPages.savefig` will be written to a file at
+            this location. Any older file with the same name is overwritten.
+        keep_empty : bool, optional
+            If set to False, then empty pdf files will be deleted automatically
+            when closed.
+        metadata : dictionary, optional
+            Information dictionary object (see PDF reference section 10.2.1
+            'Document Information Dictionary'), e.g.:
+            `{'Creator': 'My software', 'Author': 'Me',
+            'Title': 'Awesome fig'}`
+
+            The standard keys are `'Title'`, `'Author'`, `'Subject'`,
+            `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
+            `'ModDate'`, and `'Trapped'`. Values have been predefined
+            for `'Creator'`, `'Producer'` and `'CreationDate'`. They
+            can be removed by setting them to `None`.
+        """
+        self.outputfile = filename
+        self._n_figures = 0
+        self.keep_empty = keep_empty
+
+        # create temporary directory for compiling the figure
+        self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
+        self.base_name = 'pdf_pages'
+        self.fname_tex = os.path.join(self.tmpdir, self.base_name + ".tex")
+        self.fname_pdf = os.path.join(self.tmpdir, self.base_name + ".pdf")
+        self._file = open(self.fname_tex, 'wb')
+
+    def _write_header(self, width_inches, height_inches):
+        latex_preamble = get_preamble()
+        latex_fontspec = get_fontspec()
+        latex_header = r"""\documentclass[12pt]{minimal}
+\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
+%s
+%s
+\usepackage{pgf}
+\setlength{\parindent}{0pt}
+
+\begin{document}%%
+""" % (width_inches, height_inches, latex_preamble, latex_fontspec)
+        self._file.write(latex_header.encode('utf-8'))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
+        """
+        Finalize this object, running LaTeX in a temporary directory
+        and moving the final pdf file to `filename`.
+        """
+        self._file.write(r'\end{document}'.encode('utf-8') + b'\n')
+        self._file.close()
+
+        if self._n_figures > 0:
+            try:
+                self._run_latex()
+            finally:
+                pass
+                # try:
+                #     shutil.rmtree(self.tmpdir)
+                # except:
+                #     TmpDirCleaner.add(self.tmpdir)
+        elif self.keep_empty:
+            open(self.outputfile, 'wb').close()
+
+    def _run_latex(self):
+        texcommand = get_texcommand()
+        cmdargs = [
+            str(texcommand),
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            os.path.basename(self.fname_tex),
+        ]
+        try:
+            check_output(cmdargs, stderr=subprocess.STDOUT, cwd=self.tmpdir)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                "%s was not able to process your file.\n\nFull log:\n%s"
+                % (texcommand, e.output.decode('utf-8')))
+
+        # copy file contents to target
+        with open(self.fname_pdf, "rb") as fh_src, open(self.outputfile, "wb") as fh:
+            shutil.copyfileobj(fh_src, fh)
+
+    def savefig(self, figure=None, **kwargs):
+        """
+        Saves a :class:`~matplotlib.figure.Figure` to this file as a new page.
+
+        Any other keyword arguments are passed to
+        :meth:`~matplotlib.figure.Figure.savefig`.
+
+        Parameters
+        ----------
+
+        figure : :class:`~matplotlib.figure.Figure` or int, optional
+            Specifies what figure is saved to file. If not specified, the
+            active figure is saved. If a :class:`~matplotlib.figure.Figure`
+            instance is provided, this figure is saved. If an int is specified,
+            the figure instance to save is looked up by number.
+        """
+        if not isinstance(figure, Figure):
+            if figure is None:
+                manager = Gcf.get_active()
+            else:
+                manager = Gcf.get_fig_manager(figure)
+            if manager is None:
+                raise ValueError("No figure {}".format(figure))
+            figure = manager.canvas.figure
+
+        try:
+            orig_canvas = figure.canvas
+            figure.canvas = FigureCanvasPgf(figure)
+
+            if self._n_figures == 0:
+                self._write_header(*figure.get_size_inches())
+            else:
+                self._file.write(
+                    r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'.format(
+                        *figure.get_size_inches()
+                    ).encode('utf-8') + b'\n'
+                )
+            figure.savefig(self._file, format="pgf", **kwargs)
+            self._n_figures += 1
+        except Exception as e:
+            print(e)
+        finally:
+            figure.canvas = orig_canvas
+
+    def get_pagecount(self):
+        """
+        Returns the current number of pages in the multipage pdf file.
+        """
+        return self._n_figures

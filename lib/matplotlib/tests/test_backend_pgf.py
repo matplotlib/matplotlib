@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import image_comparison, _image_directories
+from matplotlib.backends.backend_pgf import PdfPages
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -195,3 +196,30 @@ def test_bbox_inches():
     bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox},
                    tol=0)
+
+
+@needs_pdflatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_pdf_pages():
+    rc_pdflatex = {
+        'font.family': 'serif',
+        'pgf.rcfonts': False,
+    }
+    mpl.rcParams.update(rc_pdflatex)
+
+    Y, X = np.ogrid[-1:1:40j, -1:1:40j]
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.plot(range(5))
+    fig1.tight_layout()
+
+    fig2 = plt.figure(figsize=(3, 2))
+    ax2 = fig2.add_subplot(1, 1, 1)
+    ax2.plot(range(5))
+    fig2.tight_layout()
+
+    with PdfPages(os.path.join(result_dir, 'pdfpages.pdf')) as pdf:
+        pdf.savefig(fig1)
+        pdf.savefig(fig2)
