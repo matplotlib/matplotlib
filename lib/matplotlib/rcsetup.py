@@ -42,7 +42,7 @@ interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'GTK3Agg', 'GTK3Cairo',
                   'MacOSX',
                   'nbAgg',
                   'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
-                  'TkAgg',
+                  'TkAgg', 'TkCairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']
 non_interactive_bk = ['agg', 'cairo', 'gdk',
