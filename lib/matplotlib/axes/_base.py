@@ -10,6 +10,7 @@ import itertools
 import warnings
 import math
 from operator import attrgetter
+import types
 
 import numpy as np
 
@@ -582,7 +583,7 @@ class _AxesBase(martist.Artist):
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
-        state = super(_AxesBase, self).__getstate__()
+        state = super().__getstate__()
         state['_cachedRenderer'] = None
         state.pop('_layoutbox')
         state.pop('_poslayoutbox')
@@ -3954,7 +3955,7 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             lim=self.viewLim.frozen(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),

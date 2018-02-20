@@ -41,7 +41,7 @@ class FigureCanvasGTKCairo(backend_cairo.FigureCanvasCairo, FigureCanvasGTK):
                                  'Matplotlib usage FAQ for more info on '
                                  'backends.'),
                         alternative='GTK3Cairo')
-        super(FigureCanvasGTKCairo, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _renderer_init(self):
         """Override to use cairo (rather than GDK) renderer"""

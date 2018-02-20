@@ -945,7 +945,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, FontEntry):
             return dict(o.__dict__, _class='FontEntry')
         else:
-            return super(JSONEncoder, self).default(o)
+            return super().default(o)
 
 
 def _json_decode(o):
@@ -1458,7 +1458,7 @@ else:
                 _rebuild()
             else:
                 fontManager.default_size = None
-                _log.info("Using fontManager instance from %s", _fmcache)
+                _log.debug("Using fontManager instance from %s", _fmcache)
         except cbook.Locked.TimeoutError:
             raise
         except:

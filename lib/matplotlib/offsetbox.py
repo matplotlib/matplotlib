@@ -83,6 +83,10 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
             sep = 0
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
+        # this is a bit of a hack to avoid a TypeError when used
+        # in conjugation with tight layout
+        if total is None:
+            total = 1
         return total, offsets
 
     elif mode == "equal":
@@ -142,7 +146,7 @@ class OffsetBox(martist.Artist):
     """
     def __init__(self, *args, **kwargs):
 
-        super(OffsetBox, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Clipping has not been implemented in the OffesetBox family, so
         # disable the clip flag for consistency. It can always be turned back
@@ -314,7 +318,7 @@ class PackerBase(OffsetBox):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(PackerBase, self).__init__()
+        super().__init__()
 
         self.height = height
         self.width = width
@@ -362,9 +366,7 @@ class VPacker(PackerBase):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(VPacker, self).__init__(pad, sep, width, height,
-                                      align, mode,
-                                      children)
+        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         """
@@ -439,8 +441,7 @@ class HPacker(PackerBase):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(HPacker, self).__init__(pad, sep, width, height,
-                                      align, mode, children)
+        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         """
@@ -494,7 +495,7 @@ class PaddedBox(OffsetBox):
           need to be in pixels.
         """
 
-        super(PaddedBox, self).__init__()
+        super().__init__()
 
         self.pad = pad
         self._children = [child]
@@ -582,7 +583,7 @@ class DrawingArea(OffsetBox):
         *clip* : Whether to clip the children
         """
 
-        super(DrawingArea, self).__init__()
+        super().__init__()
 
         self.width = width
         self.height = height
@@ -1029,7 +1030,7 @@ class AnchoredOffsetbox(OffsetBox):
         bbox_transform : with which the bbox_to_anchor will be transformed.
 
         """
-        super(AnchoredOffsetbox, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
@@ -1257,7 +1258,7 @@ class AnchoredText(AnchoredOffsetbox):
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
-        super(AnchoredText, self).__init__(
+        super().__init__(
             loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,
             **kwargs)
 

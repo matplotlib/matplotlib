@@ -112,7 +112,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
             output = io.StringIO()
         else:
             output = stream
-        super(FigureManagerNbAgg, cls).get_javascript(stream=output)
+        super().get_javascript(stream=output)
         with io.open(os.path.join(
                 os.path.dirname(__file__),
                 "web_backend", 'js',

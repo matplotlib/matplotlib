@@ -11,7 +11,6 @@ to simply use the integer index for the xdata and a custom tick
 Formatter to get the appropriate date string for a given index.
 """
 
-from __future__ import print_function
 
 import numpy as np
 

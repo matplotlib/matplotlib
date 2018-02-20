@@ -122,7 +122,7 @@ class AxislineStyle(_Style):
             """
             initialization.
             """
-            super(AxislineStyle._Base, self).__init__()
+            super().__init__()
 
 
 
@@ -150,7 +150,7 @@ class AxislineStyle(_Style):
             """
 
             self.size = size
-            super(AxislineStyle.SimpleArrow, self).__init__()
+            super().__init__()
 
         def new_line(self, axis_artist, transform):
 

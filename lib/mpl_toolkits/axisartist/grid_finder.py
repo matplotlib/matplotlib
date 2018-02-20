@@ -62,7 +62,7 @@ class GridFinderBase(object):
         Derived must define "transform_xy, inv_transform_xy"
         (may use update_transform)
         """
-        super(GridFinderBase, self).__init__()
+        super().__init__()
 
         self.extreme_finder = extreme_finder
         self.grid_locator1 = grid_locator1
@@ -240,7 +240,7 @@ class GridFinder(GridFinderBase):
             tick_formatter1 = FormatterPrettyPrint()
         if tick_formatter2 is None:
             tick_formatter2 = FormatterPrettyPrint()
-        super(GridFinder, self).__init__(
+        super().__init__(
             extreme_finder,
             grid_locator1,
             grid_locator2,
@@ -320,7 +320,7 @@ class DictFormatter(object):
         format_dict : dictionary for format strings to be used.
         formatter : fall-back formatter
         """
-        super(DictFormatter, self).__init__()
+        super().__init__()
         self._format_dict = format_dict
         self._fallback_formatter = formatter
 

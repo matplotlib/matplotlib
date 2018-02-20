@@ -4,7 +4,6 @@ Menu
 ====
 
 """
-from __future__ import division, print_function
 import numpy as np
 import matplotlib
 import matplotlib.colors as colors

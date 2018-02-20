@@ -54,7 +54,7 @@ class Thumbnail(QtWidgets.QFrame):
     Represents one of the three thumbnails at the top of the window.
     """
     def __init__(self, parent, index, name):
-        super(Thumbnail, self).__init__()
+        super().__init__()
 
         self.parent = parent
         self.index = index
@@ -82,7 +82,7 @@ class ListWidget(QtWidgets.QListWidget):
     The list of files on the left-hand side
     """
     def __init__(self, parent):
-        super(ListWidget, self).__init__()
+        super().__init__()
         self.parent = parent
         self.currentRowChanged.connect(self.change_row)
 
@@ -95,7 +95,7 @@ class EventFilter(QtCore.QObject):
     # by the individual widgets
 
     def __init__(self, window):
-        super(EventFilter, self).__init__()
+        super().__init__()
         self.window = window
 
     def eventFilter(self, receiver, event):
@@ -104,7 +104,7 @@ class EventFilter(QtCore.QObject):
             return True
         else:
             return False
-            return super(EventFilter, self).eventFilter(receiver, event)
+            return super().eventFilter(receiver, event)
 
 
 class Dialog(QtWidgets.QDialog):
@@ -112,7 +112,7 @@ class Dialog(QtWidgets.QDialog):
     The main dialog window.
     """
     def __init__(self, entries):
-        super(Dialog, self).__init__()
+        super().__init__()
 
         self.entries = entries
         self.current_entry = -1
@@ -220,7 +220,7 @@ class Dialog(QtWidgets.QDialog):
         elif e.key() == QtCore.Qt.Key_R:
             self.reject_test()
         else:
-            super(Dialog, self).keyPressEvent(e)
+            super().keyPressEvent(e)
 
 
 class Entry(object):

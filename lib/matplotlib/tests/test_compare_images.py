@@ -155,12 +155,12 @@ def test_nose_image_comparison(func, kwargs, errors, failures, dots,
 
     class TestResultVerifier(nose.result.TextTestResult):
         def __init__(self, *args, **kwargs):
-            super(TestResultVerifier, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.error_count = 0
             self.failure_count = 0
 
         def addError(self, test, err):
-            super(TestResultVerifier, self).addError(test, err)
+            super().addError(test, err)
 
             if self.error_count < len(errors):
                 assert err[0] is errors[self.error_count][0]
@@ -170,7 +170,7 @@ def test_nose_image_comparison(func, kwargs, errors, failures, dots,
             self.error_count += 1
 
         def addFailure(self, test, err):
-            super(TestResultVerifier, self).addFailure(test, err)
+            super().addFailure(test, err)
 
             assert self.failure_count < len(failures), err[1]
             assert err[0] is failures[self.failure_count][0]

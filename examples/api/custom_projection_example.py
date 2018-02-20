@@ -3,12 +3,8 @@
 Custom projection
 =================
 
-Showcase Hammer projection by alleviating many features of
-matplotlib.
+Showcase Hammer projection by alleviating many features of Matplotlib.
 """
-
-
-from __future__ import unicode_literals
 
 import matplotlib
 from matplotlib.axes import Axes

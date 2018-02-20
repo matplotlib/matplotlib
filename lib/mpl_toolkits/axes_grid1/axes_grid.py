@@ -116,10 +116,10 @@ class CbarAxes(CbarAxesBase, LocatableAxes):
         self._default_label_on = True
         self.locator = None
 
-        super(LocatableAxes, self).__init__(*kl, **kwargs)
+        super().__init__(*kl, **kwargs)
 
     def cla(self):
-        super(LocatableAxes, self).cla()
+        super().cla()
         self._config_axes()
 
 
