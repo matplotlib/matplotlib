@@ -1010,12 +1010,12 @@ class PdfPages(object):
     ...     pdf.savefig()
     """
     __slots__ = (
-        'outputfile',
+        '_outputfile',
         'keep_empty',
-        'tmpdir',
-        'base_name',
-        'fname_tex',
-        'fname_pdf',
+        '_tmpdir',
+        '_basename',
+        '_fname_tex',
+        '_fname_pdf',
         '_n_figures',
         '_file',
     )
@@ -1045,16 +1045,16 @@ class PdfPages(object):
             for `'Creator'`, `'Producer'` and `'CreationDate'`. They
             can be removed by setting them to `None`.
         """
-        self.outputfile = filename
+        self._outputfile = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
 
         # create temporary directory for compiling the figure
-        self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
-        self.base_name = 'pdf_pages'
-        self.fname_tex = os.path.join(self.tmpdir, self.base_name + ".tex")
-        self.fname_pdf = os.path.join(self.tmpdir, self.base_name + ".pdf")
-        self._file = open(self.fname_tex, 'wb')
+        self._tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
+        self._basename = 'pdf_pages'
+        self._fname_tex = os.path.join(self._tmpdir, self._basename + ".tex")
+        self._fname_pdf = os.path.join(self._tmpdir, self._basename + ".pdf")
+        self._file = open(self._fname_tex, 'wb')
 
     def _write_header(self, width_inches, height_inches):
         latex_preamble = get_preamble()
@@ -1089,11 +1089,11 @@ class PdfPages(object):
                 self._run_latex()
             finally:
                 try:
-                    shutil.rmtree(self.tmpdir)
+                    shutil.rmtree(self._tmpdir)
                 except:
-                    TmpDirCleaner.add(self.tmpdir)
+                    TmpDirCleaner.add(self._tmpdir)
         elif self.keep_empty:
-            open(self.outputfile, 'wb').close()
+            open(self._outputfile, 'wb').close()
 
     def _run_latex(self):
         texcommand = get_texcommand()
@@ -1104,14 +1104,14 @@ class PdfPages(object):
             os.path.basename(self.fname_tex),
         ]
         try:
-            check_output(cmdargs, stderr=subprocess.STDOUT, cwd=self.tmpdir)
+            check_output(cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "%s was not able to process your file.\n\nFull log:\n%s"
                 % (texcommand, e.output.decode('utf-8')))
 
         # copy file contents to target
-        with open(self.fname_pdf, "rb") as fh_src, open(self.outputfile, "wb") as fh:
+        with open(self.fname_pdf, "rb") as fh_src, open(self._outputfile, "wb") as fh:
             shutil.copyfileobj(fh_src, fh)
 
     def savefig(self, figure=None, **kwargs):
