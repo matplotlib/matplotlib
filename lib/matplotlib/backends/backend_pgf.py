@@ -1088,11 +1088,10 @@ class PdfPages(object):
             try:
                 self._run_latex()
             finally:
-                pass
-                # try:
-                #     shutil.rmtree(self.tmpdir)
-                # except:
-                #     TmpDirCleaner.add(self.tmpdir)
+                try:
+                    shutil.rmtree(self.tmpdir)
+                except:
+                    TmpDirCleaner.add(self.tmpdir)
         elif self.keep_empty:
             open(self.outputfile, 'wb').close()
 
