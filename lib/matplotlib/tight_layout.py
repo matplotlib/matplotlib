@@ -253,7 +253,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ----------
     fig : Figure
     axes_list : list of Axes
-    subplotspec_list : list of `~.SubplotSpec`
+    subplotspec_list : list of `.SubplotSpec`
         The subplotspecs of each axes.
     renderer : renderer
     pad : float

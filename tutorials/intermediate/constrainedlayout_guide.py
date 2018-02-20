@@ -507,16 +507,16 @@ example_plot(ax4)
 #                - Axes: `axR1 = fig.add_subplot(ss)`
 #
 # Each item has a layoutbox associated with it. The nesting of gridspecs
-# created with `~.GridSpecFromSubplotSpec` can be arbitrarily deep.
+# created with `.GridSpecFromSubplotSpec` can be arbitrarily deep.
 #
-# Each `~.Axes` has *two* layoutboxes.  The first one ``ax._layoutbox``
+# Each `.Axes` has *two* layoutboxes.  The first one ``ax._layoutbox``
 # represents the outside of the Axes and all its decorations (i.e. ticklabels,
 # axis labels, etc.).  The second layoutbox corresponds to the Axes'
 # `ax.position`, which sets where in the figure the spines are placed.
 #
 # Why so many stacked containers?  Ideally, all that would be needed are the
 # Axes layout boxes. For the Gridspec case, a container is
-# needed if the Gridspec is nested via `~.GridSpecFromSubplotSpec`.  At the
+# needed if the Gridspec is nested via `.GridSpecFromSubplotSpec`.  At the
 # top level, it is desirable for symmetry, but it also makes room for
 # `~.Figure.suptitle`.
 #
@@ -534,7 +534,7 @@ example_plot(ax4)
 # the difference between the red ``pos`` box and the green ``ax`` box
 # is set by the size of the decorations around the Axes.
 #
-# In the code, this is accomplished by the entries in `~.do_constrained_layout`
+# In the code, this is accomplished by the entries in `.do_constrained_layout`
 # like::
 #
 #     ax._poslayoutbox.edit_left_margin_min(-bbox.x0 + pos.x0 + w_padt)
@@ -554,7 +554,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 # much smaller than the left-hand, so the right-hand layoutboxes are smaller.
 #
 # The Subplotspec boxes are laid out in the code in the subroutine
-# `~.arange_subplotspecs`, which simply checks the subplotspecs in the code
+# `.arange_subplotspecs`, which simply checks the subplotspecs in the code
 # against one another and stacks them appropriately.
 #
 # The two ``pos`` axes are lined up.  Because they have the same

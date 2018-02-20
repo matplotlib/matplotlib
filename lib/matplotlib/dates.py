@@ -297,10 +297,10 @@ def _dt64_to_ordinalf(d):
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
-    seconds and microseconds.  Return value is a `~.datetime`.
+    seconds and microseconds.  Return value is a `.datetime`.
 
     The input date *x* is a float in ordinal days at UTC, and the output will
-    be the specified `~.datetime` object corresponding to that time in
+    be the specified `.datetime` object corresponding to that time in
     timezone *tz*, or if *tz* is ``None``, in the timezone specified in
     :rc:`timezone`.
     """
