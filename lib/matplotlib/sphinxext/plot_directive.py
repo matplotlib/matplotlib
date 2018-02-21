@@ -136,7 +136,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-import sys, os, shutil, io, re, textwrap
+import sys, os, shutil, io, re, textwrap, itertools
 from os.path import relpath
 import traceback
 import warnings
@@ -597,7 +597,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     all_exists = True
     for i, code_piece in enumerate(code_pieces):
         images = []
-        for j in xrange(1000):
+        for j in itertools.count(0):
             if len(code_pieces) > 1:
                 img = ImageFile('%s_%02d_%02d' % (output_base, i, j), output_dir)
             else:
