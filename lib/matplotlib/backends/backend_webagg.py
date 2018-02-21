@@ -183,7 +183,7 @@ class WebAggApplication(tornado.web.Application):
             assert url_prefix[0] == '/' and url_prefix[-1] != '/', \
                 'url_prefix must start with a "/" and not end with one.'
 
-        super(WebAggApplication, self).__init__(
+        super().__init__(
             [
                 # Static files for the CSS and JS
                 (url_prefix + r'/_static/(.*)',

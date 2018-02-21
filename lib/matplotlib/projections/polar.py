@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from collections import OrderedDict
+import types
 
 import numpy as np
 
@@ -291,22 +292,22 @@ class ThetaTick(maxis.XTick):
         self._text2_translate = mtransforms.ScaledTranslation(
             0, 0,
             axes.figure.dpi_scale_trans)
-        super(ThetaTick, self).__init__(axes, *args, **kwargs)
+        super().__init__(axes, *args, **kwargs)
 
     def _get_text1(self):
-        t = super(ThetaTick, self)._get_text1()
+        t = super()._get_text1()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text1_translate)
         return t
 
     def _get_text2(self):
-        t = super(ThetaTick, self)._get_text2()
+        t = super()._get_text2()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text2_translate)
         return t
 
     def _apply_params(self, **kw):
-        super(ThetaTick, self)._apply_params(**kw)
+        super()._apply_params(**kw)
 
         # Ensure transform is correct; sometimes this gets reset.
         trans = self.label1.get_transform()
@@ -325,7 +326,7 @@ class ThetaTick(maxis.XTick):
         self._text2_translate.invalidate()
 
     def update_position(self, loc):
-        super(ThetaTick, self).update_position(loc)
+        super().update_position(loc)
         axes = self.axes
         angle = loc * axes.get_theta_direction() + axes.get_theta_offset()
         text_angle = np.rad2deg(angle) % 360 - 90
@@ -398,19 +399,19 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majfmt = True
 
     def cla(self):
-        super(ThetaAxis, self).cla()
+        super().cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        super(ThetaAxis, self)._set_scale(value, **kwargs)
+        super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
         'Copy the props from src tick to dest tick'
         if src is None or dest is None:
             return
-        super(ThetaAxis, self)._copy_tick_props(src, dest)
+        super()._copy_tick_props(src, dest)
 
         # Ensure that tick transforms are independent so that padding works.
         trans = dest._get_text1_transform()[0]
@@ -533,12 +534,12 @@ class RadialTick(maxis.YTick):
     enabled.
     """
     def _get_text1(self):
-        t = super(RadialTick, self)._get_text1()
+        t = super()._get_text1()
         t.set_rotation_mode('anchor')
         return t
 
     def _get_text2(self):
-        t = super(RadialTick, self)._get_text2()
+        t = super()._get_text2()
         t.set_rotation_mode('anchor')
         return t
 
@@ -597,7 +598,7 @@ class RadialTick(maxis.YTick):
                     return 'center', 'bottom'
 
     def update_position(self, loc):
-        super(RadialTick, self).update_position(loc)
+        super().update_position(loc)
         axes = self.axes
         thetamin = axes.get_thetamin()
         thetamax = axes.get_thetamax()
@@ -717,7 +718,7 @@ class RadialAxis(maxis.YAxis):
     axis_name = 'radius'
 
     def __init__(self, *args, **kwargs):
-        super(RadialAxis, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
 
     def _get_tick(self, major):
@@ -733,12 +734,12 @@ class RadialAxis(maxis.YAxis):
         self.isDefault_majloc = True
 
     def cla(self):
-        super(RadialAxis, self).cla()
+        super().cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        super(RadialAxis, self)._set_scale(value, **kwargs)
+        super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
 
@@ -1375,7 +1376,7 @@ class PolarAxes(Axes):
         elif button == 3:
             mode = 'zoom'
 
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             rmax=self.get_rmax(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),

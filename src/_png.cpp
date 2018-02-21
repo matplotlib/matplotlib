@@ -173,7 +173,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     png_uint_32 width = (png_uint_32)buffer.dim(1);
     png_uint_32 height = (png_uint_32)buffer.dim(0);
-    int channels = buffer.dim(2);
+    npy_intp channels = buffer.dim(2);
     std::vector<png_bytep> row_pointers(height);
     for (png_uint_32 row = 0; row < (png_uint_32)height; ++row) {
         row_pointers[row] = (png_bytep)&buffer(row, 0, 0);
@@ -599,12 +599,12 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
                 if (bit_depth == 16) {
                     png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        A(y, x, p) = (float)(ptr[p]) / max_value;
+                        A(y, x, p) = (float)(ptr[p] / max_value);
                     }
                 } else {
                     png_byte *ptr = &(row[x * dimensions[2]]);
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        A(y, x, p) = (float)(ptr[p]) / max_value;
+                        A(y, x, p) = (float)(ptr[p] / max_value);
                     }
                 }
             }

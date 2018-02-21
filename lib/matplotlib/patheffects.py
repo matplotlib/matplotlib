@@ -183,7 +183,7 @@ class Stroke(AbstractPathEffect):
         keyword arguments, i.e., the keyword arguments should be valid
         gc parameter values.
         """
-        super(Stroke, self).__init__(offset)
+        super().__init__(offset)
         self._gc = kwargs
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
@@ -236,7 +236,7 @@ class SimplePatchShadow(AbstractPathEffect):
             :meth:`AbstractPathEffect._update_gc`.
 
         """
-        super(SimplePatchShadow, self).__init__(offset)
+        super().__init__(offset)
 
         if shadow_rgbFace is None:
             self._shadow_rgbFace = shadow_rgbFace
@@ -318,7 +318,7 @@ class SimpleLineShadow(AbstractPathEffect):
             :meth:`AbstractPathEffect._update_gc`.
 
         """
-        super(SimpleLineShadow, self).__init__(offset)
+        super().__init__(offset)
         if shadow_color is None:
             self._shadow_color = shadow_color
         else:
@@ -379,7 +379,7 @@ class PathPatchEffect(AbstractPathEffect):
             properties which cannot be overridden are "path", "clip_box"
             "transform" and "clip_path".
         """
-        super(PathPatchEffect, self).__init__(offset=offset)
+        super().__init__(offset=offset)
         self.patch = mpatches.PathPatch([], **kwargs)
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):

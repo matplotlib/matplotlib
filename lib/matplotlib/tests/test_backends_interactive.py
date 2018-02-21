@@ -41,6 +41,8 @@ import sys
 from matplotlib import pyplot as plt
 
 fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot([1,2,3], [1,3,1])
 fig.canvas.mpl_connect("draw_event", lambda event: sys.exit())
 plt.show()
 """

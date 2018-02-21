@@ -604,8 +604,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
                   filetypes = [],
                   default_filetype = None
                   ):
-        super (FileChooserDialog, self).__init__ (title, parent, action,
-                                                  buttons)
+        super().__init__(title, parent, action, buttons)
         self.set_default_response (Gtk.ResponseType.OK)
 
         if not path: path = os.getcwd() + os.sep

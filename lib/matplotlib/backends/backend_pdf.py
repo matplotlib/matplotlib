@@ -17,6 +17,7 @@ import re
 import struct
 import sys
 import time
+import types
 import warnings
 import zlib
 
@@ -28,7 +29,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (Bunch, get_realpath_and_stat,
+from matplotlib.cbook import (get_realpath_and_stat,
                               is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -320,7 +321,8 @@ _pdfops = dict(
     grestore=b'Q', textpos=b'Td', selectfont=b'Tf', textmatrix=b'Tm',
     show=b'Tj', showkern=b'TJ', setlinewidth=b'w', clip=b'W', shading=b'sh')
 
-Op = Bunch(**{name: Operator(value) for name, value in _pdfops.items()})
+Op = types.SimpleNamespace(**{name: Operator(value)
+                              for name, value in _pdfops.items()})
 
 
 def _paint_path(fill, stroke):
@@ -685,7 +687,7 @@ class PdfFile(object):
         pdfname = Name('F%d' % self.nextFont)
         self.nextFont += 1
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
-        self.dviFontInfo[dvifont.texname] = Bunch(
+        self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
             pdfname=pdfname,
             fontfile=psfont.filename,

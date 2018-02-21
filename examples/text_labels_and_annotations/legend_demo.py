@@ -10,15 +10,12 @@ we'll show a few examples for how to do so.
 
 First we'll show off how to make a legend for specific lines.
 """
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.legend_handler import (HandlerLineCollection,
-                                       HandlerTuple)
 import matplotlib.collections as mcol
+from matplotlib.legend_handler import HandlerLineCollection, HandlerTuple
 from matplotlib.lines import Line2D
+import numpy as np
 
 t1 = np.arange(0.0, 2.0, 0.1)
 t2 = np.arange(0.0, 2.0, 0.01)

@@ -62,15 +62,15 @@ from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 class _ColorMapping(dict):
     def __init__(self, mapping):
-        super(_ColorMapping, self).__init__(mapping)
+        super().__init__(mapping)
         self.cache = {}
 
     def __setitem__(self, key, value):
-        super(_ColorMapping, self).__setitem__(key, value)
+        super().__setitem__(key, value)
         self.cache.clear()
 
     def __delitem__(self, key):
-        super(_ColorMapping, self).__delitem__(key)
+        super().__delitem__(key)
         self.cache.clear()
 
 

@@ -166,7 +166,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map, xrange, zip
+from six.moves import map, zip
 
 import copy
 import csv
@@ -1453,7 +1453,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         windowVals = window
     else:
         windowVals = window(np.ones(NFFT, X.dtype))
-    ind = list(xrange(0, numRows-NFFT+1, NFFT-noverlap))
+    ind = list(range(0, numRows-NFFT+1, NFFT-noverlap))
     numSlices = len(ind)
     FFTSlices = {}
     FFTConjSlices = {}

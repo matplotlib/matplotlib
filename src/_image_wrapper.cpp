@@ -14,7 +14,7 @@
  * */
 
 const char* image_resample__doc__ =
-"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=0, radius=1)\n\n"
+"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=False, radius=1)\n\n"
 
 "Resample input_array, blending it in-place into output_array, using an\n"
 "affine transformation.\n\n"
@@ -48,8 +48,8 @@ const char* image_resample__doc__ =
 "    The level of transparency to apply.  1.0 is completely opaque.\n"
 "    0.0 is completely transparent.\n\n"
 
-"norm : float, optional\n"
-"    The norm for the interpolation function.  Default is 0.\n\n"
+"norm : bool, optional\n"
+"    Whether to norm the interpolation function.  Default is `False`.\n\n"
 
 "radius: float, optional\n"
 "    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n"
@@ -119,7 +119,6 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyObject *py_output_array = NULL;
     PyObject *py_transform = NULL;
     resample_params_t params;
-    int resample_;
 
     PyArrayObject *input_array = NULL;
     PyArrayObject *output_array = NULL;
@@ -132,10 +131,10 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         "resample", "alpha", "norm", "radius", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwargs, "OOO|iiddd:resample", (char **)kwlist,
+            args, kwargs, "OOO|iO&dO&d:resample", (char **)kwlist,
             &py_input_array, &py_output_array, &py_transform,
-            &params.interpolation, &resample_, &params.alpha, &params.norm,
-            &params.radius)) {
+            &params.interpolation, &convert_bool, &params.resample,
+            &params.alpha, &convert_bool, &params.norm, &params.radius)) {
         return NULL;
     }
 
@@ -144,8 +143,6 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
                      params.interpolation);
         goto error;
     }
-
-    params.resample = (resample_ != 0);
 
     input_array = (PyArrayObject *)PyArray_FromAny(
         py_input_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);

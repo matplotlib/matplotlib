@@ -498,9 +498,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
+            return [list(zip(X[i], Y[i])) for i in range(1, N - 1)]
         else:
-            return [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
+            return [list(zip(Y[i], X[i])) for i in range(1, N - 1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -1337,7 +1337,7 @@ class ColorbarPatch(Colorbar):
         hatches = self.mappable.hatches * n_segments
 
         patches = []
-        for i in xrange(len(X) - 1):
+        for i in range(len(X) - 1):
             val = C[i][0]
             hatch = hatches[i]
 

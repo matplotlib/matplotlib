@@ -10,7 +10,6 @@ imshow. The following examples demonstrate much of the
 functionality of imshow and the many images you can create.
 
 """
-from __future__ import print_function
 
 import numpy as np
 import matplotlib.cm as cm

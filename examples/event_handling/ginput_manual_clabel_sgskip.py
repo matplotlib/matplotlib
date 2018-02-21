@@ -14,7 +14,6 @@ See also ginput_demo.py
 
 """
 
-from __future__ import print_function
 
 import time
 import matplotlib

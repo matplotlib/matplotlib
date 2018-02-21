@@ -82,7 +82,7 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
     if (ret == NULL) {
         return NULL;
     }
-    fd2 = PyNumber_AsSsize_t(ret, NULL);
+    fd2 = (int)PyNumber_AsSsize_t(ret, NULL);
     Py_DECREF(ret);
 
 /* Convert to FILE* handle */
