@@ -246,6 +246,9 @@ def test_pdf_pages_metadata():
     with PdfPages(os.path.join(result_dir, 'pdfpages_meta.pdf'), metadata=md) as pdf:
         pdf.savefig(fig)
         pdf.savefig(fig)
+        pdf.savefig(fig)
+
+        assert pdf.get_pagecount() == 3
 
 
 @needs_lualatex
@@ -269,4 +272,4 @@ def test_pdf_pages_lualatex():
         pdf.savefig(fig)
         pdf.savefig(fig)
 
-    raise Exception(result_dir)
+        assert pdf.get_pagecount() == 2
