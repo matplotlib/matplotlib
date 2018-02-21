@@ -20,6 +20,10 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``font_manager.TempCache``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
 - ``testing.ImageComparisonTest``,
+- ``FigureCanvasWx.macros``,
+- ``_ImageBase.iterpnames``, use the ``interpolation_names`` property instead.
+  (this affects classes that inherit from ``_ImageBase`` including
+  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`),
 - ``texmanager.dvipng_hack_alpha``,
 - ``text.Annotation.arrow``,
 
