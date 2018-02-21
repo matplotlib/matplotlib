@@ -1425,6 +1425,8 @@ class Figure(Artist):
         if not keep_observers:
             self._axobservers = []
         self._suptitle = None
+        if self.get_constrained_layout():
+            layoutbox.nonetree(self._layoutbox)
         self.stale = True
 
     def clear(self, keep_observers=False):
