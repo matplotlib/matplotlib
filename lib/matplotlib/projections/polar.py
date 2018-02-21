@@ -870,6 +870,21 @@ class PolarAxes(Axes):
                 maxis.GRIDLINE_INTERPOLATION_STEPS)  # 180
         return super().add_patch(patch)
 
+    def fill(self, *args, **kwargs):
+        '''
+        Override the existing fill() method from _AxesBase class.
+        Filling a polygon to a polar axis, the edge of the polygon should
+        produce a straight line in polar space, thus the edges should not be
+        interpolated.
+
+        :return: list of `~matplotlib.patches.Patch`
+        '''
+        patches = super().fill(*args, **kwargs)
+        for polygon in patches:
+            polygon.get_path()._interpolation_steps = \
+                min(polygon.get_path()._interpolation_steps, 1)
+        return patches
+
     def cla(self):
         Axes.cla(self)
 
