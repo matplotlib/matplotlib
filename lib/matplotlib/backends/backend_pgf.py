@@ -1071,7 +1071,9 @@ class PdfPages(object):
         hyperref_options = ''
         for k, v in infoDict.items():
             if k not in supported_keys:
-                raise ValueError('Not a supported pdf metadata field: "{}"'.format(k))
+                raise ValueError(
+                    'Not a supported pdf metadata field: "{}"'.format(k)
+                )
             hyperref_options += 'pdf' + k + '={' + str(v) + '},'
 
         latex_preamble = get_preamble()
@@ -1138,8 +1140,9 @@ class PdfPages(object):
                 % (texcommand, e.output.decode('utf-8')))
 
         # copy file contents to target
-        with open(self._fname_pdf, "rb") as fh_src, open(self._outputfile, "wb") as fh:
-            shutil.copyfileobj(fh_src, fh)
+        with open(self._fname_pdf, "rb") as fh_src:
+            with open(self._outputfile, "wb") as fh:
+                shutil.copyfileobj(fh_src, fh)
 
     def savefig(self, figure=None, **kwargs):
         """
