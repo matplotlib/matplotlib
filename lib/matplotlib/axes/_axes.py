@@ -1797,7 +1797,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lags : array (lenth ``2*maxlags+1``)
+        lags : array (length ``2*maxlags+1``)
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
@@ -1859,7 +1859,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lags : array (lenth ``2*maxlags+1``)
+        lags : array (length ``2*maxlags+1``)
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
