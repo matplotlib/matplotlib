@@ -208,8 +208,6 @@ def test_pdf_pages():
     }
     mpl.rcParams.update(rc_pdflatex)
 
-    Y, X = np.ogrid[-1:1:40j, -1:1:40j]
-
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(1, 1, 1)
     ax1.plot(range(5))
@@ -223,3 +221,24 @@ def test_pdf_pages():
     with PdfPages(os.path.join(result_dir, 'pdfpages.pdf')) as pdf:
         pdf.savefig(fig1)
         pdf.savefig(fig2)
+
+
+@needs_xelatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_pdf_pages_metadata():
+    rc_pdflatex = {
+        'font.family': 'serif',
+        'pgf.rcfonts': False,
+    }
+    mpl.rcParams.update(rc_pdflatex)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(range(5))
+    fig.tight_layout()
+
+    md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
+    with PdfPages(os.path.join(result_dir, 'pdfpages.pdf'), metadata=md) as pdf:
+        pdf.savefig(fig)
+        pdf.savefig(fig)
