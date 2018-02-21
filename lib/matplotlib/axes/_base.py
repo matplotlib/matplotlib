@@ -625,13 +625,13 @@ class _AxesBase(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the `~.Figure` for this `~.Axes`.
+        Set the `.Figure` for this `.Axes`.
 
-        .. ACCEPTS: `~.Figure`
+        .. ACCEPTS: `.Figure`
 
         Parameters
         ----------
-        fig : `~.Figure`
+        fig : `.Figure`
         """
         martist.Artist.set_figure(self, fig)
 

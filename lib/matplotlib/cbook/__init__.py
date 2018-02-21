@@ -614,7 +614,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
 
 @contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
-    r"""Pass through file objects and context-manage `~.PathLike`\s."""
+    r"""Pass through file objects and context-manage `.PathLike`\s."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
     if opened:
         with fh:
