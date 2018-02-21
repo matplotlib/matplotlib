@@ -41,6 +41,8 @@ needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
                                    reason='xelatex + pgf is required')
 needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
                                     reason='pdflatex + pgf is required')
+needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
+                                   reason='lualatex + pgf is required')
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -205,6 +207,7 @@ def test_pdf_pages():
     rc_pdflatex = {
         'font.family': 'serif',
         'pgf.rcfonts': False,
+        'pgf.texsystem': 'pdflatex',
     }
     mpl.rcParams.update(rc_pdflatex)
 
@@ -230,6 +233,7 @@ def test_pdf_pages_metadata():
     rc_pdflatex = {
         'font.family': 'serif',
         'pgf.rcfonts': False,
+        'pgf.texsystem': 'xelatex',
     }
     mpl.rcParams.update(rc_pdflatex)
 
@@ -239,6 +243,30 @@ def test_pdf_pages_metadata():
     fig.tight_layout()
 
     md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
-    with PdfPages(os.path.join(result_dir, 'pdfpages.pdf'), metadata=md) as pdf:
+    with PdfPages(os.path.join(result_dir, 'pdfpages_meta.pdf'), metadata=md) as pdf:
         pdf.savefig(fig)
         pdf.savefig(fig)
+
+
+@needs_lualatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_pdf_pages_lualatex():
+    rc_pdflatex = {
+        'font.family': 'serif',
+        'pgf.rcfonts': False,
+        'pgf.texsystem': 'lualatex'
+    }
+    mpl.rcParams.update(rc_pdflatex)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(range(5))
+    fig.tight_layout()
+
+    md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
+    with PdfPages(os.path.join(result_dir, 'pdfpages_lua.pdf'), metadata=md) as pdf:
+        pdf.savefig(fig)
+        pdf.savefig(fig)
+
+    raise Exception(result_dir)

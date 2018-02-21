@@ -1176,11 +1176,18 @@ class PdfPages(object):
             if self._n_figures == 0:
                 self._write_header(*figure.get_size_inches())
             else:
-                self._file.write(
-                    r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'.format(
-                        *figure.get_size_inches()
-                    ).encode('utf-8') + b'\n'
-                )
+                if get_texcommand() == 'lualatex':
+                    self._file.write(
+                        r'\newpage\pagewidth={}in\pageheight={}in%'.format(
+                            *figure.get_size_inches()
+                        ).encode('utf-8') + b'\n'
+                    )
+                else:
+                    self._file.write(
+                        r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'.format(
+                            *figure.get_size_inches()
+                        ).encode('utf-8') + b'\n'
+                    )
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
         finally:
