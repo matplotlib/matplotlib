@@ -56,6 +56,30 @@ Rc parameters that control the behavior of the pgf backend:
 
 .. _pgf-rcfonts:
 
+
+Multi-Page PDF Files
+====================
+
+The pgf backend also supportes multipage pdf files using ``PdfPages``
+
+.. code-block:: python
+
+    from matplotlib.backends.backend_pgf import PdfPages
+    import matplotlib.pyplot as plt
+
+    with PdfPages('multipage.pdf', metadata={'author': 'Me'}) as pdf:
+
+        fig1 = plt.figure()
+        ax1 = fig1.add_subplot(1, 1, 1)
+        ax1.plot([1, 5, 3])
+        pdf.savefig(fig1)
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1, 1, 1)
+        ax2.plot([1, 5, 3])
+        pdf.savefig(fig2)
+
+
 Font specification
 ==================
 
