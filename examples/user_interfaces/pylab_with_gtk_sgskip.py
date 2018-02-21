@@ -6,7 +6,6 @@ Pylab With GTK
 An example of how to use pylab to manage your figure windows, but
 modify the GUI by accessing the underlying gtk widgets
 """
-from __future__ import print_function
 import matplotlib
 matplotlib.use('GTKAgg')
 import matplotlib.pyplot as plt

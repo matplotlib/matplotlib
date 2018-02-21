@@ -23,7 +23,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 import warnings
 
@@ -551,7 +550,7 @@ class Table(Artist):
         else:
             # Position using loc
             (BEST, UR, UL, LL, LR, CL, CR, LC, UC, C,
-             TR, TL, BL, BR, R, L, T, B) = xrange(len(self.codes))
+             TR, TL, BL, BR, R, L, T, B) = range(len(self.codes))
             # defaults for center
             ox = (0.5 - w / 2) - l
             oy = (0.5 - h / 2) - b
@@ -670,8 +669,8 @@ def table(ax,
     height = table._approx_text_height()
 
     # Add the cells
-    for row in xrange(rows):
-        for col in xrange(cols):
+    for row in range(rows):
+        for col in range(cols):
             table.add_cell(row + offset, col,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
@@ -679,7 +678,7 @@ def table(ax,
                            loc=cellLoc)
     # Do column labels
     if colLabels is not None:
-        for col in xrange(cols):
+        for col in range(cols):
             table.add_cell(0, col,
                            width=colWidths[col], height=height,
                            text=colLabels[col], facecolor=colColours[col],
@@ -687,7 +686,7 @@ def table(ax,
 
     # Do row labels
     if rowLabels is not None:
-        for row in xrange(rows):
+        for row in range(rows):
             table.add_cell(row + offset, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],

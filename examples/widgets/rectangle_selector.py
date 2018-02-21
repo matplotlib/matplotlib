@@ -10,7 +10,6 @@ a line or a box from the click-point to the actual mouseposition
 method 'self.ignore()' it is checked whether the button from eventpress
 and eventrelease are the same.
 """
-from __future__ import print_function
 from matplotlib.widgets import RectangleSelector
 import numpy as np
 import matplotlib.pyplot as plt

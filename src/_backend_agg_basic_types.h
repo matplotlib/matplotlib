@@ -115,7 +115,7 @@ class GCAgg
 
     bool has_hatchpath()
     {
-        return hatchpath.total_vertices();
+        return hatchpath.total_vertices() != 0;
     }
 
   private:

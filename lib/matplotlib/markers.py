@@ -87,7 +87,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 from collections import Sized
 from numbers import Number
@@ -101,7 +100,7 @@ from .transforms import IdentityTransform, Affine2D
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
  CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
- CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = xrange(12)
+ CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = range(12)
 
 _empty_path = Path(np.empty((0, 2)))
 

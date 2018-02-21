@@ -35,28 +35,28 @@ The following commands are used to create text in the pyplot
 interface and the object-oriented API:
 
 =================== =================== ======================================
-`~.pyplot` API      OO API              description
+`.pyplot` API       OO API              description
 =================== =================== ======================================
 `~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
-                                        the `~.Axes`.
+                                        the `.Axes`.
 
 `~.pyplot.annotate` `~.Axes.annotate`   Add an annotation, with an optional
                                         arrow, at an arbitrary location of the
-                                        `~.Axes`.
+                                        `.Axes`.
 
-`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the `~.Axes`\\'s x-axis.
+`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the `.Axes`\\'s x-axis.
 
-`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the `~.Axes`\\'s y-axis.
+`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the `.Axes`\\'s y-axis.
 
-`~.pyplot.title`    `~.Axes.set_title`  Add a title to the `~.Axes`.
+`~.pyplot.title`    `~.Axes.set_title`  Add a title to the `.Axes`.
 
 `~.pyplot.figtext`  `~.Figure.text`     Add text at an arbitrary location of
-                                        the `~.Figure`.
+                                        the `.Figure`.
 
-`~.pyplot.suptitle` `~.Figure.suptitle` Add a title to the `~.Figure`.
+`~.pyplot.suptitle` `~.Figure.suptitle` Add a title to the `.Figure`.
 =================== =================== ======================================
 
-All of these functions create and return a `~.Text` instance, which can be
+All of these functions create and return a `.Text` instance, which can be
 configured with a variety of font and other properties.  The example below
 shows all of these commands in action, and more detail is provided in the
 sections that follow.
@@ -145,7 +145,7 @@ ax.set_ylabel('Damped oscillation [V]', labelpad=18)
 plt.show()
 
 ###############################################################################
-# Or, the labels accept all the `~.Text` keyword arguments, including
+# Or, the labels accept all the `.Text` keyword arguments, including
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
 # this position has no effect - to adjust the y-position we need to use the

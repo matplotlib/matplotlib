@@ -297,10 +297,10 @@ def _dt64_to_ordinalf(d):
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
-    seconds and microseconds.  Return value is a `~.datetime`.
+    seconds and microseconds.  Return value is a `.datetime`.
 
     The input date *x* is a float in ordinal days at UTC, and the output will
-    be the specified `~.datetime` object corresponding to that time in
+    be the specified `.datetime` object corresponding to that time in
     timezone *tz*, or if *tz* is ``None``, in the timezone specified in
     :rc:`timezone`.
     """
@@ -366,7 +366,7 @@ class bytespdate2num(strpdate2num):
             fmt: any valid strptime format is supported
             encoding: encoding to use on byte input (default: 'utf-8')
         """
-        super(bytespdate2num, self).__init__(fmt)
+        super().__init__(fmt)
         self.encoding = encoding
 
     def __call__(self, b):
@@ -377,7 +377,7 @@ class bytespdate2num(strpdate2num):
             A date2num float
         """
         s = b.decode(self.encoding)
-        return super(bytespdate2num, self).__call__(s)
+        return super().__call__(s)
 
 
 # a version of dateutil.parser.parse that can operate on nump0y arrays

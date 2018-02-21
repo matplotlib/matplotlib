@@ -71,7 +71,7 @@ fonts *CMU Serif*, *CMU Sans Serif*, etc.
 When saving to ``.pgf``, the font configuration matplotlib used for the
 layout of the figure is included in the header of the text file.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_fonts_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_fonts.py
    :end-before: plt.savefig
 
 
@@ -107,7 +107,7 @@ parameter. Possible values are ``'xelatex'`` (default), ``'lualatex'`` and
 ``'pdflatex'``. Please note that when selecting pdflatex the fonts and
 unicode handling must be configured in the preamble.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_texsystem_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_texsystem.py
    :end-before: plt.savefig
 
 

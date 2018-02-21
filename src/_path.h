@@ -278,7 +278,7 @@ inline bool point_in_path(
 
     points_in_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 template <class PathIterator, class PointArray, class ResultArray>
@@ -320,7 +320,7 @@ inline bool point_on_path(
 
     points_on_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 struct extent_limits
@@ -1229,7 +1229,7 @@ int convert_to_string(PathIterator &path,
     }
 
     if (sketch_params.scale != 0.0) {
-        *buffersize *= 10.0;
+        *buffersize *= 10;
     }
 
     *buffer = (char *)malloc(*buffersize);

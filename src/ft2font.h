@@ -124,7 +124,6 @@ class FT2Font
     std::vector<FT_Vector> pos;
     FT_BBox bbox;
     FT_Pos advance;
-    double angle;
     double ptsize;
     double dpi;
     long hinting_factor;

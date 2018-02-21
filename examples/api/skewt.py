@@ -28,7 +28,7 @@ class SkewXTick(maxis.XTick):
         # This ensures that the new value of the location is set before
         # any other updates take place
         self._loc = loc
-        super(SkewXTick, self).update_position(loc)
+        super().update_position(loc)
 
     def _has_default_loc(self):
         return self.get_loc() is None
@@ -180,10 +180,10 @@ register_projection(SkewXAxes)
 
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
+    from io import StringIO
     from matplotlib.ticker import (MultipleLocator, NullFormatter,
                                    ScalarFormatter)
     import matplotlib.pyplot as plt
-    from six import StringIO
     import numpy as np
 
     # Some examples data

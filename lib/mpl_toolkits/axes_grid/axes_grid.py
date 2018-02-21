@@ -13,10 +13,10 @@ class CbarAxes(axes_grid_orig.CbarAxesBase, LocatableAxes):
         self._default_label_on = False
         self.locator = None
 
-        super(LocatableAxes, self).__init__(*kl, **kwargs)
+        super().__init__(*kl, **kwargs)
 
     def cla(self):
-        super(LocatableAxes, self).cla()
+        super().cla()
         self._config_axes()
 
 

@@ -6,7 +6,6 @@ Coords Demo
 An example of how to interact with the plotting canvas by connecting
 to move and click events
 """
-from __future__ import print_function
 import sys
 import matplotlib.pyplot as plt
 import numpy as np

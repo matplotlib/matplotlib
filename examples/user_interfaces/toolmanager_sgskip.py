@@ -14,7 +14,6 @@ Using `matplotlib.backend_managers.ToolManager`
 """
 
 
-from __future__ import print_function
 import matplotlib
 # Change to the desired backend
 matplotlib.use('GTK3Cairo')

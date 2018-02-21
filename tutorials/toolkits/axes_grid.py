@@ -226,8 +226,8 @@ The "scatter_hist.py" example in mpl can be rewritten using
 
 See the full source code below.
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_001.png
-   :target: ../../gallery/axes_grid1/scatter_hist.html
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_locatable_axes_001.png
+   :target: ../../gallery/axes_grid1/scatter_hist_locatable_axes.html
    :align: center
    :scale: 50
 

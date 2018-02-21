@@ -17,8 +17,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
-import six
 
 import sys
 import os
@@ -824,8 +822,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     filetypes['xpm'] = 'X pixmap'
 
     def print_figure(self, filename, *args, **kwargs):
-        super(_FigureCanvasWxBase, self).print_figure(
-            filename, *args, **kwargs)
+        super().print_figure(filename, *args, **kwargs)
         # Restore the current view; this is needed because the artist contains
         # methods rely on particular attributes of the rendered figure for
         # determining things like bounding boxes.
@@ -1449,7 +1446,7 @@ class MenuButtonWx(wx.Button):
             for menuId in self._axisId[maxAxis:]:
                 self._menu.Delete(menuId)
             self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(list(xrange(maxAxis)))
+        self._toolbar.set_active(list(range(maxAxis)))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
@@ -1986,7 +1983,7 @@ class _BackendWx(_Backend):
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp
-        return super(_BackendWx, cls).new_figure_manager(num, *args, **kwargs)
+        return super().new_figure_manager(num, *args, **kwargs)
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):

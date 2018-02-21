@@ -332,11 +332,11 @@ class ScalarMappable(object):
     def set_norm(self, norm):
         """Set the normalization instance.
 
-        .. ACCEPTS: `~.Normalize`
+        .. ACCEPTS: `.Normalize`
 
         Parameters
         ----------
-        norm : `~.Normalize`
+        norm : `.Normalize`
         """
         if norm is None:
             norm = colors.Normalize()

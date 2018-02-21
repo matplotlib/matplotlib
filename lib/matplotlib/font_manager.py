@@ -45,6 +45,7 @@ License   : matplotlib license (PSF compatible)
 """
 
 from collections import Iterable
+from functools import lru_cache
 import json
 import os
 import sys
@@ -56,11 +57,6 @@ from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
-
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 _log = logging.getLogger(__name__)
 
@@ -949,7 +945,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, FontEntry):
             return dict(o.__dict__, _class='FontEntry')
         else:
-            return super(JSONEncoder, self).default(o)
+            return super().default(o)
 
 
 def _json_decode(o):
@@ -1462,7 +1458,7 @@ else:
                 _rebuild()
             else:
                 fontManager.default_size = None
-                _log.info("Using fontManager instance from %s", _fmcache)
+                _log.debug("Using fontManager instance from %s", _fmcache)
         except cbook.Locked.TimeoutError:
             raise
         except:

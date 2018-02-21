@@ -14,7 +14,6 @@ time, the run may be silent, as a lot of the information is cached.
 Notice how the label for the y axis is provided using unicode!
 
 """
-from __future__ import unicode_literals
 import numpy as np
 import matplotlib
 matplotlib.rcParams['text.usetex'] = True

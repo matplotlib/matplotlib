@@ -9,9 +9,6 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import xrange
-
 from cycler import cycler
 import numpy as np
 
@@ -58,8 +55,8 @@ def stackplot(axes, x, *args, **kwargs):
 
     Returns
     -------
-    list of `~.PolyCollection`
-        A list of `~.PolyCollection` instances, one for each element in the
+    list of `.PolyCollection`
+        A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """
 
@@ -120,7 +117,7 @@ def stackplot(axes, x, *args, **kwargs):
     r = [coll]
 
     # Color between array i-1 and array i
-    for i in xrange(len(y) - 1):
+    for i in range(len(y) - 1):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color, label=next(labels, None),
