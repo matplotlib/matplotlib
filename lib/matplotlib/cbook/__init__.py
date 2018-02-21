@@ -10,7 +10,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip
+from six.moves import zip
 from itertools import repeat
 import collections
 import datetime
@@ -900,7 +900,7 @@ def get_split_ind(seq, N):
 
     s_len = 0
     # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, xrange(len(seq))):
+    for (word, ind) in zip(seq, range(len(seq))):
         s_len += len(word) + 1  # +1 to account for the len(' ')
         if s_len >= N:
             return ind
