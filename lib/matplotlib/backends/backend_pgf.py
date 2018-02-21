@@ -1108,7 +1108,7 @@ class PdfPages(object):
         Finalize this object, running LaTeX in a temporary directory
         and moving the final pdf file to `filename`.
         """
-        self._file.write(r'\end{document}'.encode('utf-8') + b'\n')
+        self._file.write(rb'\end{document}\n')
         self._file.close()
 
         if self._n_figures > 0:
