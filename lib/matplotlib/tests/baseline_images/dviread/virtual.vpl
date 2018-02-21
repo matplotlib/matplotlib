@@ -1,0 +1,23 @@
+(FAMILY TESTING)
+(COMMENT Test data for matplotlib)
+(COMMENT Run vptovf virtual.vpl to obtain virtual.vf)
+(FACE O 352)
+(CODINGSCHEME TEX TEXT)
+(DESIGNSIZE R 10.0)
+(FONTDIMEN
+   (SLANT R 0.0)
+   (SPACE R 0.333334)
+   (STRETCH R 0.166667)
+   (SHRINK R 0.111112)
+   (XHEIGHT R 0.430555)
+   (QUAD R 1.000003)
+   (EXTRASPACE R 0.111112)
+   )
+(MAPFONT D 0
+   (FONTNAME cmr10)
+   (FONTDSIZE R 10.0)
+   )
+(MAPFONT D 1
+   (FONTNAME cmex10)
+   (FONTDSIZE R 10.0)
+   )

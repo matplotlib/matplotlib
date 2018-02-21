@@ -24,12 +24,13 @@ import logging
 import os
 import re
 import struct
+import sqlite3
 import sys
 import textwrap
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import cbook, get_cachedir, rcParams
 from matplotlib.compat import subprocess
 
 _log = logging.getLogger(__name__)
@@ -170,8 +171,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
 class Dvi(object):
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
-    The current implementation can only iterate through pages in order,
-    and does not even attempt to verify the postamble.
+    The current implementation can only iterate through pages in order.
 
     This class can be used as a context manager to close the underlying
     file upon exit. Pages can be read via iteration. Here is an overly
@@ -179,13 +179,26 @@ class Dvi(object):
 
     >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
     >>>     for page in dvi:
-    >>>         print(''.join(unichr(t.glyph) for t in page.text))
+    >>>         print(''.join(chr(t.glyph) for t in page.text))
+
+    Parameters
+    ----------
+
+    filename : str
+        dvi file to read
+    dpi : number or None
+        Dots per inch, can be floating-point; this affects the
+        coordinates returned. Use None to get TeX's internal units
+        which are likely only useful for debugging.
+    cache : TeXSupportCache instance, optional
+        Support file cache instance, defaults to the TeXSupportCache
+        singleton.
     """
     # dispatch table
     _dtable = [None] * 256
     _dispatch = partial(_dispatch, _dtable)
 
-    def __init__(self, filename, dpi):
+    def __init__(self, filename, dpi, cache=None):
         """
         Read the data from the file named *filename* and convert
         TeX's internal units to units of *dpi* per inch.
@@ -193,11 +206,20 @@ class Dvi(object):
         Use None to return TeX's internal units.
         """
         _log.debug('Dvi: %s', filename)
+        if cache is None:
+            cache = TeXSupportCache.get_cache()
+        self.cache = cache
         self.file = open(filename, 'rb')
         self.dpi = dpi
         self.fonts = {}
         self.state = _dvistate.pre
         self.baseline = self._get_baseline(filename)
+        self.fontnames = sorted(set(self._read_fonts()))
+        # populate kpsewhich cache with font pathnames
+        find_tex_files([x + suffix for x in self.fontnames
+                        for suffix in ('.tfm', '.vf', '.pfb')],
+                       cache)
+        cache.optimize()
 
     def _get_baseline(self, filename):
         if rcParams['text.latex.preview']:
@@ -205,8 +227,8 @@ class Dvi(object):
             baseline_filename = base + ".baseline"
             if os.path.exists(baseline_filename):
                 with open(baseline_filename, 'rb') as fd:
-                    l = fd.read().split()
-                height, depth, width = l
+                    line = fd.read().split()
+                height, depth, width = line
                 return float(depth)
         return None
 
@@ -292,6 +314,61 @@ class Dvi(object):
 
         return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
                     height=(maxy_pure-miny)*d, descent=descent)
+
+    def _read_fonts(self):
+        """Read the postamble of the file and return a list of fonts used."""
+
+        file = self.file
+        offset = -1
+        while offset > -100:
+            file.seek(offset, 2)
+            byte = file.read(1)[0]
+            if byte != 223:
+                break
+            offset -= 1
+        if offset >= -4:
+            raise ValueError(
+                "malformed dvi file %s: too few 223 bytes" % file.name)
+        if byte != 2:
+            raise ValueError(
+                ("malformed dvi file %s: post-postamble "
+                 "identification byte not 2") % file.name)
+        file.seek(offset - 4, 2)
+        offset = struct.unpack('!I', file.read(4))[0]
+        file.seek(offset, 0)
+        try:
+            byte = file.read(1)[0]
+        except IndexError:
+            raise ValueError(
+                "malformed dvi file %s: postamble offset %d out of range"
+                % (file.name, offset))
+        if byte != 248:
+            raise ValueError(
+                "malformed dvi file %s: postamble not found at offset %d"
+                % (file.name, offset))
+
+        fonts = []
+        file.seek(28, 1)
+        while True:
+            byte = file.read(1)[0]
+            if 243 <= byte <= 246:
+                _, _, _, _, a, length = (
+                    _arg_olen1(self, byte-243),
+                    _arg(4, False, self, None),
+                    _arg(4, False, self, None),
+                    _arg(4, False, self, None),
+                    _arg(1, False, self, None),
+                    _arg(1, False, self, None))
+                fontname = file.read(a + length)[-length:].decode('ascii')
+                fonts.append(fontname)
+            elif byte == 249:
+                break
+            else:
+                raise ValueError(
+                    "malformed dvi file %s: opcode %d in postamble"
+                    % (file.name, byte))
+        file.seek(0, 0)
+        return fonts
 
     def _read(self):
         """
@@ -592,6 +669,10 @@ class Vf(Dvi):
     ----------
 
     filename : string or bytestring
+        vf file to read
+    cache : TeXSupportCache instance, optional
+        Support file cache instance, defaults to the TeXSupportCache
+        singleton.
 
     Notes
     -----
@@ -602,8 +683,8 @@ class Vf(Dvi):
     but replaces the `_read` loop and dispatch mechanism.
     """
 
-    def __init__(self, filename):
-        Dvi.__init__(self, filename, 0)
+    def __init__(self, filename, cache=None):
+        Dvi.__init__(self, filename, dpi=0, cache=cache)
         try:
             self._first_font = None
             self._chars = {}
@@ -613,6 +694,27 @@ class Vf(Dvi):
 
     def __getitem__(self, code):
         return self._chars[code]
+
+    def _read_fonts(self):
+        """Read through the font-definition section of the vf file
+        and return the list of font names."""
+        fonts = []
+        self.file.seek(0, 0)
+        while True:
+            byte = self.file.read(1)[0]
+            if byte <= 242 or byte >= 248:
+                break
+            elif 243 <= byte <= 246:
+                _ = self._arg(byte - 242)
+                _, _, _, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                fontname = self.file.read(a + length)[-length:].decode('ascii')
+                fonts.append(fontname)
+            elif byte == 247:
+                _, k = self._arg(1), self._arg(1)
+                _ = self.file.read(k)
+                _, _ = self._arg(4), self._arg(4)
+        self.file.seek(0, 0)
+        return fonts
 
     def _read(self):
         """
@@ -651,8 +753,8 @@ class Vf(Dvi):
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
                 k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
-                self._fnt_def_real(k, c, s, d, a, l)
+                c, s, d, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                self._fnt_def_real(k, c, s, d, a, length)
                 if self._first_font is None:
                     self._first_font = k
             elif byte == 247:       # preamble
@@ -980,7 +1082,213 @@ class Encoding(object):
         return re.findall(br'/([^][{}<>\s]+)', data)
 
 
-def find_tex_file(filename, format=None):
+class TeXSupportCacheError(Exception):
+    pass
+
+
+class TeXSupportCache:
+    """A persistent cache of data related to support files related to dvi
+    files produced by TeX. Currently holds results from :program:`kpsewhich`,
+    in future versions could hold pre-parsed font data etc.
+
+    Usage::
+
+      # create or get the singleton instance
+      cache = TeXSupportCache.get_cache()
+      with cache.connection as transaction:
+          cache.update_pathnames(
+              {"pdftex.map": "/usr/local/pdftex.map",
+               "cmsy10.pfb": "/usr/local/fonts/cmsy10.pfb"},
+               transaction)
+      pathnames = cache.get_pathnames(["pdftex.map", "cmr10.pfb"])
+      # now pathnames = {"pdftex.map": "/usr/local/pdftex.map"}
+
+      # optional after inserting new data, may improve query performance:
+      cache.optimize()
+
+    Parameters
+    ----------
+
+    filename : str, optional
+        File in which to store the cache. Defaults to `texsupport.N.db` in
+        the standard cache directory where N is the current schema version.
+
+    Attributes
+    ----------
+
+    connection
+        This database connection object has a context manager to set up
+        a transaction. Transactions are passed into methods that write to
+        the database.
+    """
+
+    __slots__ = ('connection')
+    schema_version = 1  # should match PRAGMA user_version in _create
+    instance = None
+
+    @classmethod
+    def get_cache(cls):
+        "Return the singleton instance of the cache, at the default location"
+        if cls.instance is None:
+            cls.instance = cls()
+        return cls.instance
+
+    def __init__(self, filename=None):
+        if filename is None:
+            filename = os.path.join(get_cachedir(), 'texsupport.%d.db'
+                                    % self.schema_version)
+
+        self.connection = sqlite3.connect(
+                filename, isolation_level="DEFERRED")
+        if _log.isEnabledFor(logging.DEBUG):
+            def debug_sql(sql):
+                _log.debug(' '.join(sql.splitlines()).strip())
+            self.connection.set_trace_callback(debug_sql)
+        self.connection.row_factory = sqlite3.Row
+        with self.connection as conn:
+            conn.executescript("""
+                PRAGMA journal_mode=WAL;
+                PRAGMA synchronous=NORMAL;
+                PRAGMA foreign_keys=ON;
+            """)
+            version, = conn.execute("PRAGMA user_version;").fetchone()
+
+        if version == 0:
+            self._create()
+        elif version != self.schema_version:
+            raise TeXSupportCacheError(
+                "support database %s has version %d, expected %d"
+                % (filename, version, self.schema_version))
+
+    def _create(self):
+        """Create the database."""
+        with self.connection as conn:
+            conn.executescript(
+                """
+                PRAGMA page_size=4096;
+                CREATE TABLE file_path(
+                    filename TEXT PRIMARY KEY NOT NULL,
+                    pathname TEXT
+                ) WITHOUT ROWID;
+                PRAGMA user_version=1;
+                """)
+
+    def optimize(self):
+        """Optional optimization phase after updating data.
+        Executes sqlite's `PRAGMA optimize` statement, which can call
+        `ANALYZE` or other functions that can improve future query performance
+        by spending some time up-front."""
+        with self.connection as conn:
+            conn.execute("PRAGMA optimize;")
+
+    def get_pathnames(self, filenames):
+        """Query the cache for pathnames related to `filenames`.
+
+        Parameters
+        ----------
+        filenames : iterable of str
+
+        Returns
+        -------
+        mapping from str to (str or None)
+            For those filenames that exist in the cache, the mapping
+            includes either the related pathname or None to indicate that
+            the named file does not exist.
+        """
+        rows = self.connection.execute(
+            "SELECT filename, pathname FROM file_path WHERE filename IN "
+            "(%s)"
+            % ','.join('?' for _ in filenames),
+            filenames).fetchall()
+        return {filename: pathname for (filename, pathname) in rows}
+
+    def update_pathnames(self, mapping, transaction):
+        """Update the cache with the given filename-to-pathname mapping
+
+        Parameters
+        ----------
+        mapping : mapping from str to (str or None)
+            Mapping from filenames to the corresponding full pathnames
+            or None to indicate that the named file does not exist.
+        transaction : obtained via the context manager of self.connection
+        """
+        transaction.executemany(
+            "INSERT OR REPLACE INTO file_path (filename, pathname) "
+            "VALUES (?, ?)",
+            mapping.items())
+
+
+def find_tex_files(filenames, cache=None):
+    """Find multiple files in the texmf tree. This can be more efficient
+    than `find_tex_file` because it makes only one call to `kpsewhich`.
+
+    Calls :program:`kpsewhich` which is an interface to the kpathsea
+    library [1]_. Most existing TeX distributions on Unix-like systems use
+    kpathsea. It is also available as part of MikTeX, a popular
+    distribution on Windows.
+
+    The results are cached into the TeX support database. In case of
+    mistaken results, deleting the database resets the cache.
+
+    Parameters
+    ----------
+    filename : string or bytestring
+    cache : TeXSupportCache, optional
+        Cache instance to use, defaults to the singleton instance of the class.
+
+    References
+    ----------
+
+    .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
+        The library that :program:`kpsewhich` is part of.
+
+    """
+
+    # we expect these to always be ascii encoded, but use utf-8
+    # out of caution
+    filenames = [f.decode('utf-8', errors='replace')
+                 if isinstance(f, bytes) else f
+                 for f in filenames]
+    if cache is None:
+        cache = TeXSupportCache.get_cache()
+    result = cache.get_pathnames(filenames)
+
+    filenames = [f for f in filenames if f not in result]
+    if not filenames:
+        return result
+
+    cmd = ['kpsewhich'] + list(filenames)
+    _log.debug('find_tex_files: %s', cmd)
+    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    output = pipe.communicate()[0].decode('ascii').splitlines()
+    _log.debug('find_tex_files result: %s', output)
+    mapping = _match(filenames, output)
+    with cache.connection as transaction:
+        cache.update_pathnames(mapping, transaction)
+    result.update(mapping)
+
+    return result
+
+
+def _match(filenames, pathnames):
+    """
+    Match filenames to pathnames in lists that are in matching order,
+    except that some filenames may lack pathnames.
+    """
+    result = {f: None for f in filenames}
+    filenames, pathnames = iter(filenames), iter(pathnames)
+    try:
+        filename, pathname = next(filenames), next(pathnames)
+        while True:
+            if pathname.endswith(os.path.sep + filename):
+                result[filename] = pathname
+                pathname = next(pathnames)
+            filename = next(filenames)
+    except StopIteration:
+        return result
+
+
+def find_tex_file(filename, format=None, cache=None):
     """
     Find a file in the texmf tree.
 
@@ -989,12 +1297,20 @@ def find_tex_file(filename, format=None):
     kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
 
+    The results are cached into a database whose location defaults to
+    :file:`~/.matplotlib/texsupport.db`. In case of mistaken results,
+    deleting this file resets the cache.
+
     Parameters
     ----------
     filename : string or bytestring
-    format : string or bytestring
+    format : string or bytestring, DEPRECATED
         Used as the value of the `--format` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
+        Deprecated to allow batching multiple filenames into one kpsewhich
+        call, since any format option would apply to all filenames at once.
+    cache : TeXSupportCache, optional
+        Cache instance to use, defaults to the singleton instance of the class.
 
     References
     ----------
@@ -1003,22 +1319,31 @@ def find_tex_file(filename, format=None):
         The library that :program:`kpsewhich` is part of.
     """
 
-    # we expect these to always be ascii encoded, but use utf-8
-    # out of caution
-    if isinstance(filename, bytes):
-        filename = filename.decode('utf-8', errors='replace')
-    if isinstance(format, bytes):
-        format = format.decode('utf-8', errors='replace')
-
-    cmd = ['kpsewhich']
     if format is not None:
-        cmd += ['--format=' + format]
-    cmd += [filename]
-    _log.debug('find_tex_file(%s): %s', filename, cmd)
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    result = pipe.communicate()[0].rstrip()
-    _log.debug('find_tex_file result: %s', result)
-    return result.decode('ascii')
+        cbook.warn_deprecated(
+            "3.0",
+            "The format option to find_tex_file is deprecated "
+            "to allow batching multiple filenames into one call. "
+            "Omitting the option should not change the result, as "
+            "kpsewhich uses the filename extension to choose the path.")
+        # we expect these to always be ascii encoded, but use utf-8
+        # out of caution
+        if isinstance(filename, bytes):
+            filename = filename.decode('utf-8', errors='replace')
+        if isinstance(format, bytes):
+            format = format.decode('utf-8', errors='replace')
+
+        cmd = ['kpsewhich']
+        if format is not None:
+            cmd += ['--format=' + format]
+        cmd += [filename]
+        _log.debug('find_tex_file(%s): %s', filename, cmd)
+        pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        result = pipe.communicate()[0].rstrip()
+        _log.debug('find_tex_file result: %s', result)
+        return result.decode('ascii')
+
+    return list(find_tex_files([filename], cache).values())[0]
 
 
 # With multiple text objects per figure (e.g., tick labels) we may end
