@@ -252,7 +252,8 @@ def figure_edit(axes, parent=None):
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
+        if not (np.all(axes.get_xlim() == orig_xlim) and
+                np.all(axes.get_ylim() == orig_ylim)):
             figure.canvas.toolbar.push_current()
 
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,
