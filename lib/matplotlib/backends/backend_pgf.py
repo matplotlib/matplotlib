@@ -16,7 +16,7 @@ import warnings
 import weakref
 
 import matplotlib as mpl
-from matplotlib import _png, rcParams
+from matplotlib import _png, rcParams, __version__
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -1018,6 +1018,7 @@ class PdfPages(object):
         '_fname_pdf',
         '_n_figures',
         '_file',
+        'metadata',
     )
 
     def __init__(self, filename, keep_empty=True, metadata=None):
@@ -1040,14 +1041,14 @@ class PdfPages(object):
             'Title': 'Awesome fig'}`
 
             The standard keys are `'Title'`, `'Author'`, `'Subject'`,
-            `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
-            `'ModDate'`, and `'Trapped'`. Values have been predefined
-            for `'Creator'`, `'Producer'` and `'CreationDate'`. They
-            can be removed by setting them to `None`.
+            `'Keywords'`, `'Producer'`, `'Creator'` and `'Trapped'`.
+            Values have been predefined for `'Creator'` and `'Producer'`.
+            They can be removed by setting them to the empty string.
         """
         self._outputfile = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
+        self.metadata = metadata or {}
 
         # create temporary directory for compiling the figure
         self._tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
@@ -1057,17 +1058,43 @@ class PdfPages(object):
         self._file = open(self._fname_tex, 'wb')
 
     def _write_header(self, width_inches, height_inches):
+        supported_keys = {
+            'title', 'author', 'subject', 'keywords', 'creator',
+            'producer', 'trapped'
+        }
+        infoDict = {
+            'creator': 'matplotlib %s, http://matplotlib.org' % __version__,
+            'producer': 'matplotlib pgf backend %s' % __version__,
+        }
+        metadata = {k.lower(): v for k, v in self.metadata.items()}
+        infoDict.update(metadata)
+        hyperref_options = ''
+        for k, v in infoDict.items():
+            if k not in supported_keys:
+                raise ValueError('Not a supported pdf metadata field: "{}"'.format(k))
+            hyperref_options += 'pdf' + k + '={' + str(v) + '},'
+
         latex_preamble = get_preamble()
         latex_fontspec = get_fontspec()
-        latex_header = r"""\documentclass[12pt]{minimal}
-\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
-%s
-%s
-\usepackage{pgf}
-\setlength{\parindent}{0pt}
+        latex_header = r"""\PassOptionsToPackage{{
+  {metadata}
+}}{{hyperref}}
+\RequirePackage{{hyperref}}
+\documentclass[12pt]{{minimal}}
+\usepackage[paperwidth={width}in, paperheight={height}in, margin=0in]{{geometry}}
+{preamble}
+{fontspec}
+\usepackage{{pgf}}
+\setlength{{\parindent}}{{0pt}}
 
-\begin{document}%%
-""" % (width_inches, height_inches, latex_preamble, latex_fontspec)
+\begin{{document}}%%
+""".format(
+            width=width_inches,
+            height=height_inches,
+            preamble=latex_preamble,
+            fontspec=latex_fontspec,
+            metadata=hyperref_options,
+        )
         self._file.write(latex_header.encode('utf-8'))
 
     def __enter__(self):
