@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 from collections import OrderedDict
 
 import six
-from six.moves import xrange
 
 import itertools
 import warnings
@@ -393,7 +392,7 @@ class _process_plot_var_args(object):
         if ncx > 1 and ncy > 1 and ncx != ncy:
             cbook.warn_deprecated("2.2", "cycling among columns of inputs "
                                   "with non-matching shapes is deprecated.")
-        for j in xrange(max(ncx, ncy)):
+        for j in range(max(ncx, ncy)):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
         return ret

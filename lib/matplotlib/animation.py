@@ -21,7 +21,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip
+from six.moves import zip
 
 import abc
 import contextlib
@@ -1680,7 +1680,7 @@ class FuncAnimation(TimedAnimation):
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
         else:
-            self._iter_gen = lambda: iter(xrange(frames))
+            self._iter_gen = lambda: iter(range(frames))
             self.save_count = frames
 
         if self.save_count is None:

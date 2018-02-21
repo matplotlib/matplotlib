@@ -17,8 +17,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
-import six
 
 import sys
 import os
@@ -1448,7 +1446,7 @@ class MenuButtonWx(wx.Button):
             for menuId in self._axisId[maxAxis:]:
                 self._menu.Delete(menuId)
             self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(list(xrange(maxAxis)))
+        self._toolbar.set_active(list(range(maxAxis)))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
