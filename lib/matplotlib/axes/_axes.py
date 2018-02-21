@@ -344,7 +344,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-        handles : sequence of `~.Artist`, optional
+        handles : sequence of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -386,7 +386,7 @@ class Axes(_AxesBase):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : `~.BboxBase` or pair of floats
+        bbox_to_anchor : `.BboxBase` or pair of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -411,13 +411,13 @@ class Axes(_AxesBase):
 
         numpoints : None or int
             The number of marker points in the legend when creating a legend
-            entry for a `~.Line2D` (line).
+            entry for a `.Line2D` (line).
             Default is ``None``, which will take the value from
             :rc:`legend.numpoints`.
 
         scatterpoints : None or int
             The number of marker points in the legend when creating
-            a legend entry for a `~.PathCollection` (scatter plot).
+            a legend entry for a `.PathCollection` (scatter plot).
             Default is ``None``, which will take the value from
             :rc:`legend.scatterpoints`.
 
@@ -1305,7 +1305,7 @@ class Axes(_AxesBase):
         >>> plot(y)           # plot y using x as index array 0..N-1
         >>> plot(y, 'r+')     # ditto, but with red plusses
 
-        You can use `~.Line2D` properties as keyword arguments for more
+        You can use `.Line2D` properties as keyword arguments for more
         control on the  appearance. Line properties and *fmt* can be mixed.
         The following two calls yield identical results:
 
@@ -1403,7 +1403,7 @@ class Axes(_AxesBase):
             These parameters determined if the view limits are adapted to
             the data limits. The values are passed on to `autoscale_view`.
 
-        **kwargs : `~.Line2D` properties, optional
+        **kwargs : `.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
             auto legends), linewidth, antialiasing, marker face color.
             Example::
@@ -1414,14 +1414,14 @@ class Axes(_AxesBase):
             If you make multiple lines with one plot command, the kwargs
             apply to all those lines.
 
-            Here is a list of available `~.Line2D` properties:
+            Here is a list of available `.Line2D` properties:
 
             %(Line2D)s
 
         Returns
         -------
         lines
-            A list of `~.Line2D` objects that were added.
+            A list of `.Line2D` objects that were added.
 
 
         See Also
@@ -1800,12 +1800,12 @@ class Axes(_AxesBase):
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
-        line : `~.LineCollection` or `~.Line2D`
-            `~.Artist` added to the axes of the correlation.
+        line : `.LineCollection` or `.Line2D`
+            `.Artist` added to the axes of the correlation.
 
-             `~.LineCollection` if *usevlines* is True
-             `~.Line2D` if *usevlines* is False
-        b : `~.Line2D` or None
+             `.LineCollection` if *usevlines* is True
+             `.Line2D` if *usevlines* is False
+        b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False
 
@@ -1862,12 +1862,12 @@ class Axes(_AxesBase):
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
-        line : `~.LineCollection` or `~.Line2D`
-            `~.Artist` added to the axes of the correlation
+        line : `.LineCollection` or `.Line2D`
+            `.Artist` added to the axes of the correlation
 
-             `~.LineCollection` if *usevlines* is True
-             `~.Line2D` if *usevlines* is False
-        b : `~.Line2D` or None
+             `.LineCollection` if *usevlines* is True
+             `.Line2D` if *usevlines* is False
+        b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False
 
@@ -2049,7 +2049,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2367,7 +2367,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2485,7 +2485,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : :class:`~.BrokenBarHCollection` properties
+        **kwargs : :class:`.BrokenBarHCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2979,7 +2979,7 @@ class Axes(_AxesBase):
             - *None*: No errorbar.
 
         fmt : plot format string, optional, default: ''
-            The format for the data points / data lines. See `~.plot` for
+            The format for the data points / data lines. See `.plot` for
             details.
 
             Use 'none' (case insensitive) to plot errorbars without any data
@@ -3049,7 +3049,7 @@ class Axes(_AxesBase):
             property names, *markerfacecolor*, *markeredgecolor*, *markersize*
             and *markeredgewidth*.
 
-            Valid kwargs for the marker properties are `~.Lines2D` properties:
+            Valid kwargs for the marker properties are `.Lines2D` properties:
 
             %(Line2D)s
 
@@ -4103,7 +4103,7 @@ class Axes(_AxesBase):
             ``image.cmap``.
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
-            A `~.Normalize` instance is used to scale luminance data to 0, 1.
+            A `.Normalize` instance is used to scale luminance data to 0, 1.
             *norm* is only used if *c* is an array of floats. If *None*, use
             the default `.colors.Normalize`.
 
@@ -5027,15 +5027,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `~.PolyCollection`.
-            They control the `~.Polygon` properties:
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
 
             %(PolyCollection)s
 
         Returns
         -------
-        `~.PolyCollection`
-            A `~.PolyCollection` containing the plotted polygons.
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
@@ -5211,15 +5211,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `~.PolyCollection`.
-            They control the `~.Polygon` properties:
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
 
             %(PolyCollection)s
 
         Returns
         -------
-        `~.PolyCollection`
-            A `~.PolyCollection` containing the plotted polygons.
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
