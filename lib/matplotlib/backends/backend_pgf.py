@@ -1021,7 +1021,7 @@ class PdfPages(object):
         'metadata',
     )
 
-    def __init__(self, filename, keep_empty=True, metadata=None):
+    def __init__(self, filename, *, keep_empty=True, metadata=None):
         """
         Create a new PdfPages object.
 
