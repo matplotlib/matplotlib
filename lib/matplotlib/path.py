@@ -4,8 +4,8 @@ A module for dealing with the polylines used throughout Matplotlib.
 The primary class for polyline handling in Matplotlib is `Path`.  Almost all
 vector drawing makes use of `Path`\s somewhere in the drawing pipeline.
 
-Whilst a `Path` instance itself cannot be drawn, some `~.Artist` subclasses,
-such as `~.PathPatch` and `~.PathCollection`, can be used for convenient `Path`
+Whilst a `Path` instance itself cannot be drawn, some `.Artist` subclasses,
+such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 

@@ -258,14 +258,14 @@ class Figure(Artist):
 
     """
     The Figure instance supports callbacks through a *callbacks* attribute
-    which is a `~.CallbackRegistry` instance.  The events you can connect to
+    which is a `.CallbackRegistry` instance.  The events you can connect to
     are 'dpi_changed', and the callback will be called with ``func(fig)`` where
     fig is the `Figure` instance.
 
     Attributes
     ----------
     patch
-        The `~.Rectangle` instance representing the figure patch.
+        The `.Rectangle` instance representing the figure patch.
 
     suppressComposite
         For multiple figure images, the figure will make composite images
@@ -321,10 +321,10 @@ class Figure(Artist):
 
         tight_layout : bool
             If ``False`` use *subplotpars*; if ``True`` adjust subplot
-            parameters using `~.tight_layout` with default padding.
+            parameters using `.tight_layout` with default padding.
             When providing a dict containing the keys
             ``pad``, ``w_pad``, ``h_pad``, and ``rect``, the default
-            `~.tight_layout` paddings will be overridden.
+            `.tight_layout` paddings will be overridden.
             Defaults to rc ``figure.autolayout``.
 
         constrained_layout : bool
@@ -486,20 +486,20 @@ class Figure(Artist):
 
     def get_tight_layout(self):
         """
-        Return whether and how `~.tight_layout` is called when drawing.
+        Return whether and how `.tight_layout` is called when drawing.
         """
         return self._tight
 
     def set_tight_layout(self, tight):
         """
-        Set whether and how `~.tight_layout` is called when drawing.
+        Set whether and how `.tight_layout` is called when drawing.
 
         Parameters
         ----------
         tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
-            If a bool, sets whether to call `~.tight_layout` upon drawing.
+            If a bool, sets whether to call `.tight_layout` upon drawing.
             If ``None``, use the ``figure.autolayout`` rcparam instead.
-            If a dict, pass it as kwargs to `~.tight_layout`, overriding the
+            If a dict, pass it as kwargs to `.tight_layout`, overriding the
             default paddings.
 
             ..
@@ -1002,7 +1002,7 @@ class Figure(Artist):
 
     def delaxes(self, ax):
         """
-        Remove the `~.Axes` *ax* from the figure and update the current axes.
+        Remove the `.Axes` *ax* from the figure and update the current axes.
         """
         self._axstack.remove(ax)
         for func in self._axobservers:
@@ -1516,7 +1516,7 @@ class Figure(Artist):
         Parameters
         ----------
 
-        handles : sequence of `~.Artist`, optional
+        handles : sequence of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -1558,7 +1558,7 @@ class Figure(Artist):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : `~.BboxBase` or pair of floats
+        bbox_to_anchor : `.BboxBase` or pair of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -1583,13 +1583,13 @@ class Figure(Artist):
 
         numpoints : None or int
             The number of marker points in the legend when creating a legend
-            entry for a `~.Line2D` (line).
+            entry for a `.Line2D` (line).
             Default is ``None``, which will take the value from
             :rc:`legend.numpoints`.
 
         scatterpoints : None or int
             The number of marker points in the legend when creating
-            a legend entry for a `~.PathCollection` (scatter plot).
+            a legend entry for a `.PathCollection` (scatter plot).
             Default is ``None``, which will take the value from
             :rc:`legend.scatterpoints`.
 
@@ -2300,8 +2300,8 @@ class Figure(Artist):
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `~.GridSpec`, so that
-        their `~.SubplotSpec` positions correspond to figure positions.
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -2368,8 +2368,8 @@ class Figure(Artist):
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `~.GridSpec`, so that
-        their `~.SubplotSpec` positions correspond to figure positions.
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------

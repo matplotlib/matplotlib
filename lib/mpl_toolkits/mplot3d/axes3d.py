@@ -1626,7 +1626,7 @@ class Axes3D(Axes):
             Whether to shade the face colors.
 
         **kwargs :
-            Other arguments are forwarded to `~.Poly3DCollection`.
+            Other arguments are forwarded to `.Poly3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1840,7 +1840,7 @@ class Axes3D(Axes):
             of the new default of ``rcount = ccount = 50``.
 
         **kwargs :
-            Other arguments are forwarded to `~.Line3DCollection`.
+            Other arguments are forwarded to `.Line3DCollection`.
         """
 
         had_data = self.has_data()
