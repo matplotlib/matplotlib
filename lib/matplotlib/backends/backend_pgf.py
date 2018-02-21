@@ -1101,7 +1101,7 @@ class PdfPages(object):
             str(texcommand),
             "-interaction=nonstopmode",
             "-halt-on-error",
-            os.path.basename(self.fname_tex),
+            os.path.basename(self._fname_tex),
         ]
         try:
             check_output(cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir)
@@ -1111,7 +1111,7 @@ class PdfPages(object):
                 % (texcommand, e.output.decode('utf-8')))
 
         # copy file contents to target
-        with open(self.fname_pdf, "rb") as fh_src, open(self._outputfile, "wb") as fh:
+        with open(self._fname_pdf, "rb") as fh_src, open(self._outputfile, "wb") as fh:
             shutil.copyfileobj(fh_src, fh)
 
     def savefig(self, figure=None, **kwargs):
