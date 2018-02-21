@@ -17,11 +17,6 @@ This file is python 3 only due to the use of `inspect`
 # For some later history, see
 # http://thread.gmane.org/gmane.comp.python.matplotlib.devel/7068
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import os
 import inspect
 import random
@@ -154,7 +149,7 @@ def boilerplate_gen():
         'semilogx',
         'semilogy',
         'specgram',
-        #'spy',
+        # 'spy',
         'stackplot',
         'stem',
         'step',
@@ -233,22 +228,10 @@ def boilerplate_gen():
             has_data = 'data' in inspect.signature(base_func).parameters
             work_func = inspect.unwrap(base_func)
 
-            if six.PY2:
-                args, varargs, varkw, defaults = inspect.getargspec(work_func)
-            else:
-                (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
-                    annotations) = inspect.getfullargspec(work_func)
+            (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
+                annotations) = inspect.getfullargspec(work_func)
             args.pop(0)  # remove 'self' argument
-            if defaults is None:
-                defaults = ()
-            else:
-                def_edited = []
-                for val in defaults:
-                    if six.PY2:
-                        if isinstance(val, unicode):
-                            val = val.encode('ascii', 'ignore')
-                    def_edited.append(val)
-                defaults = tuple(def_edited)
+            defaults = tuple(defaults or ())
 
             # Add a data keyword argument if needed (fmt is PLOT_TEMPLATE) and
             # possible (if *args is used, we can't just add a data
