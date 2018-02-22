@@ -1,10 +1,7 @@
 """
-A replacement wrapper around the subprocess module, with a number of
-work-arounds:
-- Provides a stub implementation of subprocess members on Google App Engine
-  (which are missing in subprocess).
-- Use subprocess32, backport from python 3.2 on Linux/Mac work-around for
-  https://github.com/matplotlib/matplotlib/issues/5314
+A replacement wrapper around the subprocess module, which provides a stub
+implementation of subprocess members on Google App Engine
+(which are missing in subprocess).
 
 Instead of importing subprocess, other modules should use this as follows:
 
@@ -12,19 +9,7 @@ from matplotlib.compat import subprocess
 
 This module is safe to import from anywhere within matplotlib.
 """
-
-from __future__ import absolute_import    # Required to import subprocess
-from __future__ import print_function
-import os
-import sys
-if os.name == 'posix' and sys.version_info[0] < 3:
-    # work around for https://github.com/matplotlib/matplotlib/issues/5314
-    try:
-        import subprocess32 as subprocess
-    except ImportError:
-        import subprocess
-else:
-    import subprocess
+import subprocess
 
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError']
 
