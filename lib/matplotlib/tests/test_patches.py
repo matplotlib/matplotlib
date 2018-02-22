@@ -374,6 +374,18 @@ def test_polar_rectangle_transform_patch():
     ax.set_rmax(2.5)
 
 
+@image_comparison(baseline_images=['polar_polygon_filling'], extensions=['png'],
+                  style='mpl20', remove_text=True)
+def test_polar_polygon_filling():
+    x = np.linspace(0, np.pi, 5)
+    y = np.abs(np.sin(x))
+    fig = plt.figure(figsize=(6.4, 4.8))
+    ax = fig.add_subplot(1, 1, 1, polar=True)
+    # ax.set_rmax(1.5)
+    ax.plot(x, y)
+    ax.fill(x, y)
+
+
 def test_datetime_rectangle():
     # Check that creating a rectangle with timedeltas doesn't fail
     from datetime import datetime, timedelta
