@@ -187,15 +187,6 @@ class MarkerStyle(object):
         self.set_fillstyle(fillstyle)
         self.set_marker(marker)
 
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        d.pop('_marker_function')
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        self.set_marker(self._marker)
-
     def _recache(self):
         if self._marker_function is None:
             return

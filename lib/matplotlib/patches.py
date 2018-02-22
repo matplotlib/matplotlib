@@ -2033,14 +2033,6 @@ class BoxStyle(_Style):
             else:
                 return self.transmute(x0, y0, width, height, mutation_size)
 
-        def __reduce__(self):
-            # because we have decided to nest these classes, we need to
-            # add some more information to allow instance pickling.
-            return (cbook._NestedClassGetter(),
-                    (BoxStyle, self.__class__.__name__),
-                    self.__dict__
-                    )
-
     class Square(_Base):
         """
         A simple square box.
@@ -2819,14 +2811,6 @@ class ConnectionStyle(_Style):
 
             return shrunk_path
 
-        def __reduce__(self):
-            # because we have decided to nest these classes, we need to
-            # add some more information to allow instance pickling.
-            return (cbook._NestedClassGetter(),
-                    (ConnectionStyle, self.__class__.__name__),
-                    self.__dict__
-                    )
-
     class Arc3(_Base):
         """
         Creates a simple quadratic bezier curve between two
@@ -3275,14 +3259,6 @@ class ArrowStyle(_Style):
                     return path_mutated, fillable
             else:
                 return self.transmute(path, mutation_size, linewidth)
-
-        def __reduce__(self):
-            # because we have decided to nest these classes, we need to
-            # add some more information to allow instance pickling.
-            return (cbook._NestedClassGetter(),
-                    (ArrowStyle, self.__class__.__name__),
-                    self.__dict__
-                    )
 
     class _Curve(_Base):
         """
