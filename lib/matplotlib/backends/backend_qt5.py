@@ -269,7 +269,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
         try:
-            return self.devicePixelRatio()
+            ratio = self.devicePixelRatio()
+            if ratio == 0:
+                return 1
+            else:
+                return ratio
         except AttributeError:
             return 1
 
