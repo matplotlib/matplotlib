@@ -176,7 +176,9 @@ class Patch(artist.Artist):
         # For some properties we don't need or don't want to go through the
         # getters/setters, so we just copy them directly.
         self._edgecolor = other._edgecolor
+        self._original_edgecolor = other._original_edgecolor
         self._facecolor = other._facecolor
+        self._original_facecolor = other._original_facecolor
         self._fill = other._fill
         self._hatch = other._hatch
         self._hatch_color = other._hatch_color
