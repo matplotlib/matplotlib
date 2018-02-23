@@ -243,7 +243,9 @@ def test_pdf_pages_metadata():
     fig.tight_layout()
 
     md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
-    with PdfPages(os.path.join(result_dir, 'pdfpages_meta.pdf'), metadata=md) as pdf:
+    path = os.path.join(result_dir, 'pdfpages_meta.pdf')
+
+    with PdfPages(path, metadata=md) as pdf:
         pdf.savefig(fig)
         pdf.savefig(fig)
         pdf.savefig(fig)
@@ -268,7 +270,8 @@ def test_pdf_pages_lualatex():
     fig.tight_layout()
 
     md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
-    with PdfPages(os.path.join(result_dir, 'pdfpages_lua.pdf'), metadata=md) as pdf:
+    path = os.path.join(result_dir, 'pdfpages_lua.pdf')
+    with PdfPages(path, metadata=md) as pdf:
         pdf.savefig(fig)
         pdf.savefig(fig)
 

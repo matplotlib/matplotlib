@@ -1083,7 +1083,11 @@ class PdfPages(object):
 }}{{hyperref}}
 \RequirePackage{{hyperref}}
 \documentclass[12pt]{{minimal}}
-\usepackage[paperwidth={width}in, paperheight={height}in, margin=0in]{{geometry}}
+\usepackage[
+    paperwidth={width}in,
+    paperheight={height}in,
+    margin=0in
+]{{geometry}}
 {preamble}
 {fontspec}
 \usepackage{{pgf}}
