@@ -2287,7 +2287,7 @@ def log2(x, ln2=math.log(2.0)):
             return len(bin_n)
 
 
-@cbook.deprecated("2.2", 'numpy.mod(n, 2)')
+@cbook.deprecated("2.2")
 def ispower2(n):
     """
     Returns the log base 2 of *n* if *n* is a power of 2, zero otherwise.
