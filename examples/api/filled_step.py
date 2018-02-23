@@ -63,7 +63,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     if bottoms is None:
         bottoms = np.zeros_like(values)
     if np.isscalar(bottoms):
-        bottoms = np.ones_like(values) * bottoms
+        bottoms = np.full_like(values, bottoms)
 
     values = np.r_[values, values[-1]]
     bottoms = np.r_[bottoms, bottoms[-1]]

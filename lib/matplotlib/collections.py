@@ -941,8 +941,8 @@ class PolyCollection(_CollectionWithSizes):
                     else:
                         xy = np.asarray(xy)
                         xy = np.concatenate([xy, xy[0:1]])
-                    codes = np.empty(xy.shape[0], dtype=mpath.Path.code_type)
-                    codes[:] = mpath.Path.LINETO
+                    codes = np.full(xy.shape[0], mpath.Path.LINETO,
+                                    dtype=mpath.Path.code_type)
                     codes[0] = mpath.Path.MOVETO
                     codes[-1] = mpath.Path.CLOSEPOLY
                     self._paths.append(mpath.Path(xy, codes))

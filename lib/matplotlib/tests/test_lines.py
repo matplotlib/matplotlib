@@ -189,7 +189,7 @@ def test_lw_scaling():
     cy = cycler(matplotlib.rcParams['axes.prop_cycle'])
     for j, (ls, sty) in enumerate(zip(lins_styles, cy)):
         for lw in np.linspace(.5, 10, 10):
-            ax.plot(th, j*np.ones(50) + .1 * lw, linestyle=ls, lw=lw, **sty)
+            ax.plot(th, np.full(50, j) + .1 * lw, linestyle=ls, lw=lw, **sty)
 
 
 def test_nan_is_sorted():

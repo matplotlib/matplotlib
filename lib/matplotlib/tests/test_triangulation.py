@@ -645,7 +645,7 @@ def test_triinterp_colinear():
         zs_target = 1.23*xs - 4.79*ys
         for interp in (linear_interp, cubic_min_E, cubic_geom):
             zs, = interp._interpolate_multikeys(
-                xs, ys, tri_index=itri*np.ones(10, dtype=np.int32))
+                xs, ys, tri_index=np.full(10, itri, dtype=np.int32))
             assert_array_almost_equal(zs_target, zs)
 
 
