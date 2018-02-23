@@ -20,16 +20,18 @@ Interface::
 from collections import namedtuple
 import enum
 from functools import lru_cache, partial, wraps
+from itertools import chain
 import logging
 import os
 import re
 import struct
+import sqlite3
 import sys
 import textwrap
-
 import numpy as np
+import zlib
 
-from matplotlib import cbook, rcParams
+from matplotlib import cbook, get_cachedir, rcParams
 from matplotlib.compat import subprocess
 
 _log = logging.getLogger(__name__)
@@ -167,37 +169,53 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     return decorate
 
 
-class Dvi(object):
+def _keep(func, keys):
+    """Return mapping from each k in keys to func(k)
+    such that func(k) is not None"""
+    return dict((k, v) for k, v in zip(keys, map(func, keys)) if v is not None)
+
+
+class _DviReader(object):
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
-    The current implementation can only iterate through pages in order,
-    and does not even attempt to verify the postamble.
+    This implementation is only used to store the file in a cache, from
+    which it is read by Dvi.
 
-    This class can be used as a context manager to close the underlying
-    file upon exit. Pages can be read via iteration. Here is an overly
-    simple way to extract text without trying to detect whitespace::
+    Parameters
+    ----------
 
-    >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
-    >>>     for page in dvi:
-    >>>         print(''.join(unichr(t.glyph) for t in page.text))
+    filename : str
+        dvi file to read
+    cache : TeXSupportCache instance, optional
+        Support file cache instance, defaults to the TeXSupportCache
+        singleton.
     """
     # dispatch table
     _dtable = [None] * 256
     _dispatch = partial(_dispatch, _dtable)
 
-    def __init__(self, filename, dpi):
-        """
-        Read the data from the file named *filename* and convert
-        TeX's internal units to units of *dpi* per inch.
-        *dpi* only sets the units and does not limit the resolution.
-        Use None to return TeX's internal units.
-        """
+    def __init__(self, filename, cache=None):
         _log.debug('Dvi: %s', filename)
+        if cache is None:
+            cache = TeXSupportCache.get_cache()
+        self.cache = cache
         self.file = open(filename, 'rb')
-        self.dpi = dpi
         self.fonts = {}
+        self.recursive_fonts = set()
         self.state = _dvistate.pre
         self.baseline = self._get_baseline(filename)
+        self.fontnames = set(self._read_fonts())
+        # populate kpsewhich cache with font pathnames
+        find_tex_files([x + suffix for x in self.fontnames
+                        for suffix in ('.tfm', '.vf', '.pfb')],
+                       cache)
+        self._tfm = _keep(_tfmfile, self.fontnames)
+        self._vf = _keep(_vffile, self.fontnames)
+        for vf in self._vf.values():
+            self.fontnames.update(vf.fontnames)
+
+    def close(self):
+        self.file.close()
 
     def _get_baseline(self, filename):
         if rcParams['text.latex.preview']:
@@ -205,93 +223,94 @@ class Dvi(object):
             baseline_filename = base + ".baseline"
             if os.path.exists(baseline_filename):
                 with open(baseline_filename, 'rb') as fd:
-                    l = fd.read().split()
-                height, depth, width = l
+                    line = fd.read().split()
+                height, depth, width = line
                 return float(depth)
         return None
 
-    def __enter__(self):
-        """
-        Context manager enter method, does nothing.
-        """
-        return self
+    def store(self):
+        c = self.cache
+        with c.connection as t:
+            fileid = c.dvi_new_file(self.file.name, t)
+            _log.debug('fontnames is %s', self.fontnames)
+            fontid = c.dvi_font_sync_ids(self.fontnames, t)
 
-    def __exit__(self, etype, evalue, etrace):
-        """
-        Context manager exit method, closes the underlying file if it is open.
-        """
-        self.close()
+            pageno = 0
+            while True:
+                if not self._read():
+                    break
+                for seq, elt in enumerate(self.text + self.boxes):
+                    if isinstance(elt, Box):
+                        c.dvi_add_box(elt, fileid, pageno, seq, t)
+                    else:
+                        texname = elt.font.texname.decode('ascii')
+                        c.dvi_add_text(elt, fileid, pageno, seq,
+                                       fontid[texname], t)
+                pageno += 1
 
-    def __iter__(self):
-        """
-        Iterate through the pages of the file.
+            for dvifont in chain(self.recursive_fonts, self.fonts.values()):
+                c.dvi_font_sync_metrics(dvifont, t)
+            if self.baseline is not None:
+                c.dvi_add_baseline(fileid, 0, self.baseline, t)
+        c.optimize()
+        return fileid
 
-        Yields
-        ------
-        Page
-            Details of all the text and box objects on the page.
-            The Page tuple contains lists of Text and Box tuples and
-            the page dimensions, and the Text and Box tuples contain
-            coordinates transformed into a standard Cartesian
-            coordinate system at the dpi value given when initializing.
-            The coordinates are floating point numbers, but otherwise
-            precision is not lost and coordinate values are not clipped to
-            integers.
-        """
-        while True:
-            have_page = self._read()
-            if have_page:
-                yield self._output()
-            else:
+    def _read_fonts(self):
+        """Read the postamble of the file and return a list of fonts used."""
+
+        file = self.file
+        offset = -1
+        while offset > -100:
+            file.seek(offset, 2)
+            byte = file.read(1)[0]
+            if byte != 223:
                 break
+            offset -= 1
+        if offset >= -4:
+            raise ValueError(
+                "malformed dvi file %s: too few 223 bytes" % file.name)
+        if byte != 2:
+            raise ValueError(
+                ("malformed dvi file %s: post-postamble "
+                 "identification byte not 2") % file.name)
+        file.seek(offset - 4, 2)
+        offset = struct.unpack('!I', file.read(4))[0]
+        file.seek(offset, 0)
+        try:
+            byte = file.read(1)[0]
+        except IndexError:
+            raise ValueError(
+                "malformed dvi file %s: postamble offset %d out of range"
+                % (file.name, offset))
+        if byte != 248:
+            raise ValueError(
+                "malformed dvi file %s: postamble not found at offset %d"
+                % (file.name, offset))
 
-    def close(self):
-        """
-        Close the underlying file if it is open.
-        """
-        if not self.file.closed:
-            self.file.close()
-
-    def _output(self):
-        """
-        Output the text and boxes belonging to the most recent page.
-        page = dvi._output()
-        """
-        minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
-        maxy_pure = -np.inf
-        for elt in self.text + self.boxes:
-            if isinstance(elt, Box):
-                x, y, h, w = elt
-                e = 0           # zero depth
-            else:               # glyph
-                x, y, font, g, w = elt
-                h, e = font._height_depth_of(g)
-            minx = min(minx, x)
-            miny = min(miny, y - h)
-            maxx = max(maxx, x + w)
-            maxy = max(maxy, y + e)
-            maxy_pure = max(maxy_pure, y)
-
-        if self.dpi is None:
-            # special case for ease of debugging: output raw dvi coordinates
-            return Page(text=self.text, boxes=self.boxes,
-                        width=maxx-minx, height=maxy_pure-miny,
-                        descent=maxy-maxy_pure)
-
-        # convert from TeX's "scaled points" to dpi units
-        d = self.dpi / (72.27 * 2**16)
-        if self.baseline is None:
-            descent = (maxy - maxy_pure) * d
-        else:
-            descent = self.baseline
-
-        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
-                for (x, y, f, g, w) in self.text]
-        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
-                 for (x, y, h, w) in self.boxes]
-
-        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
-                    height=(maxy_pure-miny)*d, descent=descent)
+        fonts = []
+        file.seek(28, 1)
+        while True:
+            byte = file.read(1)[0]
+            if 243 <= byte <= 246:
+                _, _, _, _, a, length = (
+                    _arg_olen1(self, byte-243),
+                    _arg(4, False, self, None),
+                    _arg(4, False, self, None),
+                    _arg(4, False, self, None),
+                    _arg(1, False, self, None),
+                    _arg(1, False, self, None))
+                fontname = file.read(a + length)[-length:].decode('ascii')
+                _log.debug('dvi._read_fonts(%s): encountered %s',
+                           self.file.name, fontname)
+                fonts.append(fontname)
+            elif byte == 249:
+                break
+            else:
+                raise ValueError(
+                    "malformed dvi file %s: opcode %d in postamble"
+                    % (file.name, byte))
+        file.seek(0, 0)
+        return fonts
 
     def _read(self):
         """
@@ -345,10 +364,11 @@ class Dvi(object):
             self.text.append(Text(self.h, self.v, font, char,
                                   font._width_of(char)))
         else:
-            scale = font._scale
+            scale = font.scale
             for x, y, f, g, w in font._vf[char].text:
-                newf = DviFont(scale=_mul2012(scale, f._scale),
+                newf = DviFont(scale=_mul2012(scale, f.scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
+                self.recursive_fonts.add(newf)
                 self.text.append(Text(self.h + _mul2012(x, scale),
                                       self.v + _mul2012(y, scale),
                                       newf, g, newf._width_of(g)))
@@ -445,14 +465,12 @@ class Dvi(object):
     def _fnt_def_real(self, k, c, s, d, a, l):
         n = self.file.read(a + l)
         fontname = n[-l:].decode('ascii')
-        tfm = _tfmfile(fontname)
+        tfm = self._tfm.get(fontname)
         if tfm is None:
             raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
-
-        vf = _vffile(fontname)
-
+        vf = self._vf.get(fontname)
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
@@ -503,16 +521,19 @@ class DviFont(object):
     ----------
 
     scale : float
-        Factor by which the font is scaled from its natural size.
-    tfm : Tfm
-        TeX font metrics for this font
+       Factor by which the font is scaled from its natural size,
+       represented as an integer in 20.12 fixed-point format.
+    tfm : Tfm, may be None if widths given
+       TeX Font Metrics file for this font
     texname : bytes
        Name of the font as used internally by TeX and friends, as an
        ASCII bytestring. This is usually very different from any external
        font names, and :class:`dviread.PsfontsMap` can be used to find
        the external name of the font.
-    vf : Vf
+    vf : Vf or None
        A TeX "virtual font" file, or None if this font is not virtual.
+    widths : list of integers, optional
+       Widths for this font. Overrides the widths read from the tfm file.
 
     Attributes
     ----------
@@ -521,26 +542,37 @@ class DviFont(object):
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
+    scale : int
+       Factor by which the font is scaled from its natural size,
+       represented as an integer in 20.12 fixed-point format.
     widths : list
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
 
     """
-    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', 'widths', 'scale', '_vf', '_tfm')
 
-    def __init__(self, scale, tfm, texname, vf):
+    def __init__(self, scale, tfm, texname, vf, widths=None):
         if not isinstance(texname, bytes):
             raise ValueError("texname must be a bytestring, got %s"
                              % type(texname))
-        self._scale, self._tfm, self.texname, self._vf = \
-            scale, tfm, texname, vf
+        self.scale, self._tfm, self.texname, self._vf, self.widths = \
+            scale, tfm, texname, vf, widths
         self.size = scale * (72.0 / (72.27 * 2**16))
-        try:
-            nchars = max(tfm.width) + 1
-        except ValueError:
-            nchars = 0
-        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in range(nchars)]
+
+        if self.widths is None:
+            try:
+                nchars = max(tfm.width) + 1
+            except ValueError:
+                nchars = 0
+            self.widths = [(1000*tfm.width.get(char, 0)) >> 20
+                           for char in range(nchars)]
+
+    def __repr__(self):
+        return '<DviFont %s *%f>' % (self.texname, self.scale / 2**20)
+
+    def __hash__(self):
+        return 1001 * hash(self.texname) + hash(self.size)
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -556,7 +588,7 @@ class DviFont(object):
 
         width = self._tfm.width.get(char, None)
         if width is not None:
-            return _mul2012(width, self._scale)
+            return _mul2012(width, self.scale)
         _log.debug('No width for char %d in font %s.', char, self.texname)
         return 0
 
@@ -574,11 +606,93 @@ class DviFont(object):
                            name, char, self.texname)
                 result.append(0)
             else:
-                result.append(_mul2012(value, self._scale))
+                result.append(_mul2012(value, self.scale))
         return result
 
 
-class Vf(Dvi):
+class Dvi(object):
+    """
+    A representation of a dvi ("device-independent") file, as produced by TeX.
+
+    Parameters
+    ----------
+
+    filename : str
+    dpi : float or None
+    cache : TeXSupportCache, optional
+
+    Attributes
+    ----------
+
+    filename : str
+    dpi : float or None
+    cache : TeXSupportCache
+
+
+    """
+    def __init__(self, filename, dpi, cache=None):
+        if cache is None:
+            cache = TeXSupportCache.get_cache()
+        self.cache = cache
+        self.filename = filename
+        self.dpi = dpi
+        self._filename_id = cache.dvi_id(filename)
+        if self._filename_id is None:
+            self._filename_id = _DviReader(filename, cache).store()
+        self._fonts = cache.dvi_fonts(self._filename_id)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, etype, evalue, etrace):
+        pass
+
+    def __getitem__(self, pageno):
+        if self.cache.dvi_page_exists(self._filename_id, pageno):
+            return self._output(pageno)
+        raise IndexError
+
+    def _output(self, page):
+        extrema = self.cache.dvi_page_boundingbox(self._filename_id, page)
+        min_x, min_y, max_x, max_y, max_y_pure = (
+            extrema[n] for n in ('min_x', 'min_y', 'max_x',
+                                 'max_y', 'max_y_pure'))
+        boxes = self.cache.dvi_page_boxes(self._filename_id, page)
+        text = self.cache.dvi_page_text(self._filename_id, page)
+        baseline = self.cache.dvi_get_baseline(self._filename_id, page)
+        if self.dpi is None:
+            return Page(text=[Text(x=row['x'], y=row['y'],
+                                   font=self._fonts[(row['texname'],
+                                                     row['fontscale'])],
+                                   glyph=row['glyph'], width=row['width'])
+                              for row in text],
+                        boxes=[Box(x=row['x'], y=row['y'],
+                                   height=row['height'], width=row['width'])
+                               for row in boxes],
+                        width=max_x-min_x,
+                        height=max_y_pure-min_y,
+                        descent=max_y-max_y_pure)
+        d = self.dpi / (72.27 * 2**16)
+        descent = \
+            baseline if baseline is not None else (max_y - max_y_pure) * d
+
+        return Page(text=[Text((row['x'] - min_x) * d,
+                               (max_y - row['y']) * d - descent,
+                               self._fonts[(row['texname'], row['fontscale'])],
+                               row['glyph'],
+                               row['width'] * d)
+                          for row in text],
+                    boxes=[Box((row['x'] - min_x) * d,
+                               (max_y - row['y']) * d - descent,
+                               row['height'] * d,
+                               row['width'] * d)
+                           for row in boxes],
+                    width=(max_x - min_x) * d,
+                    height=(max_y_pure - min_y) * d,
+                    descent=descent)
+
+
+class Vf(_DviReader):
     """
     A virtual font (\\*.vf file) containing subroutines for dvi files.
 
@@ -592,18 +706,22 @@ class Vf(Dvi):
     ----------
 
     filename : string or bytestring
+        vf file to read
+    cache : TeXSupportCache instance, optional
+        Support file cache instance, defaults to the TeXSupportCache
+        singleton.
 
     Notes
     -----
 
     The virtual font format is a derivative of dvi:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
-    This class reuses some of the machinery of `Dvi`
+    This class reuses some of the machinery of `_DviReader`
     but replaces the `_read` loop and dispatch mechanism.
     """
 
-    def __init__(self, filename):
-        Dvi.__init__(self, filename, 0)
+    def __init__(self, filename, cache=None):
+        _DviReader.__init__(self, filename, cache=cache)
         try:
             self._first_font = None
             self._chars = {}
@@ -613,6 +731,29 @@ class Vf(Dvi):
 
     def __getitem__(self, code):
         return self._chars[code]
+
+    def _read_fonts(self):
+        """Read through the font-definition section of the vf file
+        and return the list of font names."""
+        fonts = []
+        self.file.seek(0, 0)
+        while True:
+            byte = self.file.read(1)[0]
+            if byte <= 242 or byte >= 248:
+                break
+            elif 243 <= byte <= 246:
+                _ = self._arg(byte - 242)
+                _, _, _, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                fontname = self.file.read(a + length)[-length:].decode('ascii')
+                fonts.append(fontname)
+                _log.debug('Vf._read_fonts(%s): encountered %s',
+                           self.file.name, fontname)
+            elif byte == 247:
+                _, k = self._arg(1), self._arg(1)
+                _ = self.file.read(k)
+                _, _ = self._arg(4), self._arg(4)
+        self.file.seek(0, 0)
+        return fonts
 
     def _read(self):
         """
@@ -636,7 +777,7 @@ class Vf(Dvi):
                     if byte in (139, 140) or byte >= 243:
                         raise ValueError(
                             "Inappropriate opcode %d in vf file" % byte)
-                    Dvi._dtable[byte](self, byte)
+                    _DviReader._dtable[byte](self, byte)
                     continue
 
             # We are outside a packet
@@ -651,8 +792,8 @@ class Vf(Dvi):
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
                 k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
-                self._fnt_def_real(k, c, s, d, a, l)
+                c, s, d, a, length = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                self._fnt_def_real(k, c, s, d, a, length)
                 if self._first_font is None:
                     self._first_font = k
             elif byte == 247:       # preamble
@@ -980,7 +1121,593 @@ class Encoding(object):
         return re.findall(br'/([^][{}<>\s]+)', data)
 
 
-def find_tex_file(filename, format=None):
+class TeXSupportCacheError(Exception):
+    pass
+
+
+class TeXSupportCache:
+    """A persistent cache of data related to support files related to dvi
+    files produced by TeX. Currently holds results from :program:`kpsewhich`
+    and the contents of parsed dvi files, in future versions could include
+    pre-parsed font data etc.
+
+    Usage::
+
+      # create or get the singleton instance
+      cache = TeXSupportCache.get_cache()
+
+      # insert and query some pathnames
+      with cache.connection as transaction:
+          cache.update_pathnames(
+              {"pdftex.map": "/usr/local/pdftex.map",
+               "cmsy10.pfb": "/usr/local/fonts/cmsy10.pfb"},
+               transaction)
+      pathnames = cache.get_pathnames(["pdftex.map", "cmr10.pfb"])
+      # now pathnames = {"pdftex.map": "/usr/local/pdftex.map"}
+
+      # optional after inserting new data, may improve query performance:
+      cache.optimize()
+
+      # insert and query some dvi file contents
+      with cache.connection as transaction:
+          id = cache.dvi_new_file("/path/to/foobar.dvi", transaction)
+          font_ids = cache.dvi_font_sync_ids(['font1', 'font2'], transaction)
+          cache.dvi_font_sync_metrics(DviFont1, transaction)
+          cache.dvi_font_sync_metrics(DviFont2, transaction)
+          for i, box in enumerate(boxes):
+               cache.dvi_add_box(box, id, 0, i, transaction)
+          for i, text in enumerate(texts):
+               cache.dvi_add_text(text, id, 0, i, font_ids['font1'],
+                                  transaction)
+      fonts = cache.dvi_fonts(id)
+      assert cache.dvi_page_exists(id, 0)
+      bbox = cache.dvi_page_boundingbox(id, 0)
+      for box in dvi_page_boxes(id, 0):
+          handle_box(box)
+      for text in dvi_page_texts(id, 0):
+          handle_text(text)
+
+    Parameters
+    ----------
+
+    filename : str, optional
+        File in which to store the cache. Defaults to `texsupport.N.db` in
+        the standard cache directory where N is the current schema version.
+
+    Attributes
+    ----------
+
+    connection
+        This database connection object has a context manager to set up
+        a transaction. Transactions are passed into methods that write to
+        the database.
+    """
+
+    __slots__ = ('connection')
+    schema_version = 2  # should match PRAGMA user_version in _create
+    instance = None
+
+    @classmethod
+    def get_cache(cls):
+        "Return the singleton instance of the cache, at the default location"
+        if cls.instance is None:
+            cls.instance = cls()
+        return cls.instance
+
+    def __init__(self, filename=None):
+        if filename is None:
+            filename = os.path.join(get_cachedir(), 'texsupport.%d.db'
+                                    % self.schema_version)
+
+        self.connection = sqlite3.connect(
+                filename, isolation_level="DEFERRED")
+        if _log.isEnabledFor(logging.DEBUG):
+            def debug_sql(sql):
+                _log.debug(' '.join(sql.splitlines()).strip())
+            self.connection.set_trace_callback(debug_sql)
+        self.connection.row_factory = sqlite3.Row
+        with self.connection as conn:
+            conn.executescript("""
+                PRAGMA journal_mode=WAL;
+                PRAGMA synchronous=NORMAL;
+                PRAGMA foreign_keys=ON;
+            """)
+            version, = conn.execute("PRAGMA user_version;").fetchone()
+
+        if version == 0:
+            self._create()
+        elif version != self.schema_version:
+            raise TeXSupportCacheError(
+                "support database %s has version %d, expected %d"
+                % (filename, version, self.schema_version))
+
+    def _create(self):
+        """Create the database."""
+        with self.connection as conn:
+            # kpsewhich results
+            conn.executescript(
+                """
+                PRAGMA page_size=4096;
+                CREATE TABLE file_path(
+                    filename TEXT PRIMARY KEY NOT NULL,
+                    pathname TEXT
+                ) WITHOUT ROWID;
+                """)
+            # dvi files
+            conn.executescript(
+                """
+                CREATE TABLE dvi_file(
+                    id INTEGER PRIMARY KEY,
+                    name UNIQUE NOT NULL,
+                    mtime INTEGER,
+                    size INTEGER
+                );
+                CREATE TABLE dvi_font(
+                    id INTEGER PRIMARY KEY,
+                    texname UNIQUE NOT NULL
+                );
+                CREATE TABLE dvi_font_metrics(
+                    id INTEGER NOT NULL
+                        REFERENCES dvi_font(id) ON DELETE CASCADE,
+                    scale INTEGER NOT NULL,
+                    widths BLOB NOT NULL,
+                    PRIMARY KEY (id, scale)
+                );
+                CREATE TABLE dvi(
+                    fileid INTEGER NOT NULL
+                        REFERENCES dvi_file(id) ON DELETE CASCADE,
+                    pageno INTEGER NOT NULL,
+                    seq INTEGER NOT NULL,
+                    x INTEGER NOT NULL,
+                    y INTEGER NOT NULL,
+                    height INTEGER NOT NULL,
+                    width INTEGER NOT NULL,
+                    depth INTEGER NOT NULL,
+                    fontid INTEGER,
+                    fontscale INTEGER,
+                    glyph INTEGER,
+                    PRIMARY KEY (fileid, pageno, seq)
+                ) WITHOUT ROWID;
+                CREATE TABLE dvi_baseline(
+                    fileid INTEGER NOT NULL
+                        REFERENCES dvi_file(id) ON DELETE CASCADE,
+                    pageno INTEGER NOT NULL,
+                    baseline REAL NOT NULL,
+                    PRIMARY KEY (fileid, pageno)
+                ) WITHOUT ROWID;
+                PRAGMA user_version=2;
+                """)
+
+    def optimize(self):
+        """Optional optimization phase after updating data.
+        Executes sqlite's `PRAGMA optimize` statement, which can call
+        `ANALYZE` or other functions that can improve future query performance
+        by spending some time up-front."""
+        with self.connection as conn:
+            conn.execute("PRAGMA optimize;")
+
+    def get_pathnames(self, filenames):
+        """Query the cache for pathnames related to `filenames`.
+
+        Parameters
+        ----------
+        filenames : iterable of str
+
+        Returns
+        -------
+        mapping from str to (str or None)
+            For those filenames that exist in the cache, the mapping
+            includes either the related pathname or None to indicate that
+            the named file does not exist.
+        """
+        rows = self.connection.execute(
+            "SELECT filename, pathname FROM file_path WHERE filename IN "
+            "(%s)"
+            % ','.join('?' for _ in filenames),
+            filenames).fetchall()
+        return {filename: pathname for (filename, pathname) in rows}
+
+    def update_pathnames(self, mapping, transaction):
+        """Update the cache with the given filename-to-pathname mapping
+
+        Parameters
+        ----------
+        mapping : mapping from str to (str or None)
+            Mapping from filenames to the corresponding full pathnames
+            or None to indicate that the named file does not exist.
+        transaction : obtained via the context manager of self.connection
+        """
+        transaction.executemany(
+            "INSERT OR REPLACE INTO file_path (filename, pathname) "
+            "VALUES (?, ?)",
+            mapping.items())
+
+    # Dvi files
+
+    def dvi_new_file(self, name, transaction):
+        """Record a dvi file in the cache.
+
+        Parameters
+        ----------
+        name : str
+            Name of the file to add.
+        transaction : obtained via the context manager of self.connection
+        """
+
+        stat = os.stat(name)
+        transaction.execute("DELETE FROM dvi_file WHERE name=?", (name,))
+        transaction.execute(
+            "INSERT INTO dvi_file (name, mtime, size) VALUES (?, ?, ?)",
+            (name, int(stat.st_mtime), int(stat.st_size)))
+        return transaction.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    def dvi_id(self, name):
+        """Query the database identifier of a given dvi file.
+
+        Parameters
+        ----------
+        name : str
+            Name of the file to query.
+
+        Returns
+        -------
+        int or None
+        """
+
+        rows = self.connection.execute(
+            "SELECT id, mtime, size FROM dvi_file WHERE name=? LIMIT 1",
+            (name,)).fetchall()
+        if rows:
+            id, mtime, size = rows[0]
+            stat = os.stat(name)
+            if mtime == int(stat.st_mtime) and size == stat.st_size:
+                return id
+
+    def dvi_font_sync_ids(self, fontnames, transaction):
+        """Record dvi fonts in the cache and return their database
+        identifiers.
+
+        Parameters
+        ----------
+        fontnames : list of str
+            TeX names of fonts
+        transaction : obtained via the context manager of self.connection
+
+        Returns
+        -------
+        mapping from texname to int
+        """
+
+        transaction.executemany(
+            "INSERT OR IGNORE INTO dvi_font (texname) VALUES (?)",
+            ((name,) for name in fontnames))
+        fontid = {}
+        for name in fontnames:
+            fontid[name], = transaction.execute(
+                "SELECT id FROM dvi_font WHERE texname=?",
+                (name,)).fetchone()
+        return fontid
+
+    def dvi_font_sync_metrics(self, dvifont, transaction):
+        """Record dvi font metrics in the cache.
+
+        Parameters
+        ----------
+        dvifont : DviFont
+        transaction : obtained via the context manager of self.connection
+        """
+
+        exists = bool(transaction.execute("""
+            SELECT 1 FROM dvi_font_metrics m, dvi_font f
+            WHERE m.id=f.id AND f.texname=:texname
+            AND m.scale=:scale LIMIT 1
+        """, {
+            "texname": dvifont.texname.decode('ascii'),
+            "scale": dvifont.scale
+        }).fetchall())
+
+        if not exists:
+            # Widths are given in 32-bit words in tfm, although the normal
+            # range is around 1000 units. This and the repetition of values
+            # make the width data very compressible.
+            widths = struct.pack('<{}I'.format(len(dvifont.widths)),
+                                 *dvifont.widths)
+            widths = zlib.compress(widths, 9)
+            transaction.execute("""
+                INSERT INTO dvi_font_metrics (id, scale, widths)
+                SELECT id, :scale, :widths FROM dvi_font WHERE texname=:texname
+            """, {
+                "texname": dvifont.texname.decode('ascii'),
+                "scale": dvifont.scale,
+                "widths": widths
+            })
+
+    def dvi_fonts(self, fileid):
+        """Query the dvi fonts of a given dvi file.
+
+        Parameters
+        ----------
+        fileid : int
+            File identifier as returned by dvi_id
+
+        Returns
+        -------
+        mapping from (str, float) to DviFont
+            Maps from (TeX name, scale) to DviFont objects.
+        """
+
+        rows = self.connection.execute("""
+            SELECT texname, fontscale, widths FROM
+            (SELECT DISTINCT fontid, fontscale FROM dvi WHERE fileid=?) d
+            JOIN dvi_font f ON (d.fontid=f.id)
+            JOIN dvi_font_metrics m ON (d.fontid=m.id AND d.fontscale=m.scale)
+        """, (fileid,)).fetchall()
+
+        def decode(widths):
+            data = zlib.decompress(widths)
+            n = len(data) // 4
+            return struct.unpack('<{}I'.format(n), data)
+
+        return {(row['texname'], row['fontscale']):
+                DviFont(texname=row['texname'].encode('ascii'),
+                        scale=row['fontscale'],
+                        widths=decode(row['widths']),
+                        tfm=None, vf=None)
+                for row in rows}
+
+    def dvi_add_box(self, box, fileid, pageno, seq, transaction):
+        """Record a box object of a dvi file.
+
+        Parameters
+        ----------
+        box : Box
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+        seq : int
+            Used to order the boxes
+        transaction : obtained via the context manager of self.connection
+        """
+
+        transaction.execute("""
+            INSERT INTO dvi (
+                fileid, pageno, seq, x, y, height, width, depth
+            ) VALUES (:fileid, :pageno, :seq, :x, :y, :height, :width, 0)
+        """, {
+            "fileid": fileid, "pageno": pageno, "seq": seq,
+            "x": box.x, "y": box.y, "height": box.height, "width": box.width
+        })
+
+    def dvi_add_text(self, text, fileid, pageno, seq, fontid, transaction):
+        """Record a box object of a dvi file.
+
+        Parameters
+        ----------
+        box : Text
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+        seq : int
+            Used to order the boxes
+        fontid : int
+            As returned by dvi_font_sync_ids
+        transaction : obtained via the context manager of self.connection
+        """
+
+        height, depth = text.font._height_depth_of(text.glyph)
+        transaction.execute("""
+            INSERT INTO dvi (
+                fileid, pageno, seq,
+                x, y, height, width, depth, fontid, fontscale, glyph
+            ) VALUES (
+                :fileid, :pageno, :seq,
+                :x, :y, :height, :width, :depth, :fontid, :fontscale, :glyph
+            )
+        """, {
+            "fileid": fileid, "pageno": pageno, "seq": seq,
+            "x": text.x, "y": text.y, "width": text.width,
+            "height": height, "depth": depth,
+            "fontid": fontid, "fontscale": text.font.scale, "glyph": text.glyph
+        })
+
+    def dvi_page_exists(self, fileid, pageno):
+        """Query if a page exists in the dvi file.
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+
+        Returns
+        -------
+        boolean
+        """
+        return bool(self.connection.execute(
+            "SELECT 1 FROM dvi WHERE fileid=? AND pageno=? LIMIT 1",
+            (fileid, pageno)).fetchall())
+
+    def dvi_page_boundingbox(self, fileid, pageno):
+        """Query the bounding box of a page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno
+            Page number
+
+        Returns
+        -------
+        A namedtuple-like object with fields min_x, min_y, max_x,
+        max_y and max_y_pure (like max_y but ignores depth).
+        """
+
+        return self.connection.execute("""
+                SELECT min(x)          min_x,
+                       min(y - height) min_y,
+                       max(x + width)  max_x,
+                       max(y + depth)  max_y,
+                       max(y)          max_y_pure
+                FROM dvi WHERE fileid=? AND pageno=?
+                """, (fileid, pageno)).fetchone()
+
+    def dvi_page_boxes(self, fileid, pageno):
+        """Query the boxes of a page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno
+            Page number
+
+        Returns
+        -------
+        An iterator of (x, y, height, width) tuples of boxes
+        """
+
+        return self.connection.execute("""
+            SELECT x, y, height, width FROM dvi
+            WHERE fileid=? AND pageno=? AND fontid IS NULL ORDER BY seq
+        """, (fileid, pageno)).fetchall()
+
+    def dvi_page_text(self, fileid, pageno):
+        """Query the text of a page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno
+            Page number
+
+        Returns
+        -------
+        An iterator of (x, y, height, width, depth, texname, fontscale)
+        tuples of text
+        """
+
+        return self.connection.execute("""
+            SELECT x, y, height, width, depth, f.texname, fontscale, glyph
+            FROM dvi JOIN dvi_font f ON (dvi.fontid=f.id)
+            WHERE fileid=? AND pageno=? AND fontid IS NOT NULL ORDER BY seq
+        """, (fileid, pageno)).fetchall()
+
+    def dvi_add_baseline(self, fileid, pageno, baseline, transaction):
+        """Record the baseline of a dvi page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+        baseline : float
+        transaction : obtained via the context manager of self.connection
+        """
+
+        transaction.execute("""
+            INSERT INTO dvi_baseline (fileid, pageno, baseline)
+            VALUES (:fileid, :pageno, :baseline)
+        """, {"fileid": fileid, "pageno": pageno, "baseline": baseline})
+
+    def dvi_get_baseline(self, fileid, pageno):
+        """Query the baseline of a dvi page
+
+        Parameters
+        ----------
+        fileid : int
+            As returned by dvi_id
+        pageno : int
+            Page number
+
+        Returns
+        -------
+        float
+        """
+
+        rows = self.connection.execute(
+            "SELECT baseline FROM dvi_baseline WHERE fileid=? AND pageno=?",
+            (fileid, pageno)).fetchall()
+        if rows:
+            return rows[0][0]
+
+
+def find_tex_files(filenames, cache=None):
+    """Find multiple files in the texmf tree. This can be more efficient
+    than `find_tex_file` because it makes only one call to `kpsewhich`.
+
+    Calls :program:`kpsewhich` which is an interface to the kpathsea
+    library [1]_. Most existing TeX distributions on Unix-like systems use
+    kpathsea. It is also available as part of MikTeX, a popular
+    distribution on Windows.
+
+    The results are cached into the TeX support database. In case of
+    mistaken results, deleting the database resets the cache.
+
+    Parameters
+    ----------
+    filename : string or bytestring
+    cache : TeXSupportCache, optional
+        Cache instance to use, defaults to the singleton instance of the class.
+
+    References
+    ----------
+
+    .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
+        The library that :program:`kpsewhich` is part of.
+
+    """
+
+    # we expect these to always be ascii encoded, but use utf-8
+    # out of caution
+    filenames = [f.decode('utf-8', errors='replace')
+                 if isinstance(f, bytes) else f
+                 for f in filenames]
+    if cache is None:
+        cache = TeXSupportCache.get_cache()
+    result = cache.get_pathnames(filenames)
+
+    filenames = [f for f in filenames if f not in result]
+    if not filenames:
+        return result
+
+    cmd = ['kpsewhich'] + list(filenames)
+    _log.debug('find_tex_files: %s', cmd)
+    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    output = pipe.communicate()[0].decode('ascii').splitlines()
+    _log.debug('find_tex_files result: %s', output)
+    mapping = _match(filenames, output)
+    with cache.connection as transaction:
+        cache.update_pathnames(mapping, transaction)
+    result.update(mapping)
+
+    return result
+
+
+def _match(filenames, pathnames):
+    """
+    Match filenames to pathnames in lists that are in matching order,
+    except that some filenames may lack pathnames.
+    """
+    result = {f: None for f in filenames}
+    filenames, pathnames = iter(filenames), iter(pathnames)
+    try:
+        filename, pathname = next(filenames), next(pathnames)
+        while True:
+            if pathname.endswith(os.path.sep + filename):
+                result[filename] = pathname
+                pathname = next(pathnames)
+            filename = next(filenames)
+    except StopIteration:
+        return result
+
+
+def find_tex_file(filename, format=None, cache=None):
     """
     Find a file in the texmf tree.
 
@@ -989,12 +1716,20 @@ def find_tex_file(filename, format=None):
     kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
 
+    The results are cached into a database whose location defaults to
+    :file:`~/.matplotlib/texsupport.db`. In case of mistaken results,
+    deleting this file resets the cache.
+
     Parameters
     ----------
     filename : string or bytestring
-    format : string or bytestring
+    format : string or bytestring, DEPRECATED
         Used as the value of the `--format` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
+        Deprecated to allow batching multiple filenames into one kpsewhich
+        call, since any format option would apply to all filenames at once.
+    cache : TeXSupportCache, optional
+        Cache instance to use, defaults to the singleton instance of the class.
 
     References
     ----------
@@ -1003,22 +1738,31 @@ def find_tex_file(filename, format=None):
         The library that :program:`kpsewhich` is part of.
     """
 
-    # we expect these to always be ascii encoded, but use utf-8
-    # out of caution
-    if isinstance(filename, bytes):
-        filename = filename.decode('utf-8', errors='replace')
-    if isinstance(format, bytes):
-        format = format.decode('utf-8', errors='replace')
-
-    cmd = ['kpsewhich']
     if format is not None:
-        cmd += ['--format=' + format]
-    cmd += [filename]
-    _log.debug('find_tex_file(%s): %s', filename, cmd)
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    result = pipe.communicate()[0].rstrip()
-    _log.debug('find_tex_file result: %s', result)
-    return result.decode('ascii')
+        cbook.warn_deprecated(
+            "3.0",
+            "The format option to find_tex_file is deprecated "
+            "to allow batching multiple filenames into one call. "
+            "Omitting the option should not change the result, as "
+            "kpsewhich uses the filename extension to choose the path.")
+        # we expect these to always be ascii encoded, but use utf-8
+        # out of caution
+        if isinstance(filename, bytes):
+            filename = filename.decode('utf-8', errors='replace')
+        if isinstance(format, bytes):
+            format = format.decode('utf-8', errors='replace')
+
+        cmd = ['kpsewhich']
+        if format is not None:
+            cmd += ['--format=' + format]
+        cmd += [filename]
+        _log.debug('find_tex_file(%s): %s', filename, cmd)
+        pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        result = pipe.communicate()[0].rstrip()
+        _log.debug('find_tex_file result: %s', result)
+        return result.decode('ascii')
+
+    return list(find_tex_files([filename], cache).values())[0]
 
 
 # With multiple text objects per figure (e.g., tick labels) we may end
@@ -1049,7 +1793,7 @@ if __name__ == '__main__':
             fPrev = None
             for x, y, f, c, w in page.text:
                 if f != fPrev:
-                    print('font', f.texname, 'scaled', f._scale/pow(2.0, 20))
+                    print('font', f.texname, 'scaled', f.scale/pow(2.0, 20))
                     fPrev = f
                 print(x, y, c, 32 <= c < 128 and chr(c) or '.', w)
             for x, y, w, h in page.boxes:
