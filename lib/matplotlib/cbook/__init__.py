@@ -1256,9 +1256,7 @@ class Stack(object):
         old = self._elements[:]
         self.clear()
         for thiso in old:
-            if thiso == o:
-                continue
-            else:
+            if thiso != o:
                 self.push(thiso)
 
 

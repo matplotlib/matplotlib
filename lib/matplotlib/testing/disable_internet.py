@@ -65,7 +65,7 @@ def check_internet_off(original_function):
             new_addr = (host, args[addr_arg][1])
             args = args[:addr_arg] + (new_addr,) + args[addr_arg + 1:]
 
-        if any([h in host for h in valid_hosts]):
+        if any(h in host for h in valid_hosts):
             return original_function(*args, **kwargs)
         else:
             raise IOError("An attempt was made to connect to the internet "

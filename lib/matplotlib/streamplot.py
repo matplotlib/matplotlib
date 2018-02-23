@@ -552,7 +552,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
                 dmap.update_trajectory(xi, yi)
             except InvalidIndexError:
                 break
-            if (stotal + ds) > maxlength:
+            if stotal + ds > maxlength:
                 break
             stotal += ds
 

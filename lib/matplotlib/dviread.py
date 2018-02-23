@@ -238,12 +238,8 @@ class Dvi(object):
             precision is not lost and coordinate values are not clipped to
             integers.
         """
-        while True:
-            have_page = self._read()
-            if have_page:
-                yield self._output()
-            else:
-                break
+        while self._read():
+            yield self._output()
 
     def close(self):
         """

@@ -861,8 +861,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # extend_max case we don't need to worry about passing more colors
             # than ncolors as ListedColormap will clip.
             total_levels = ncolors + int(extend_min) + int(extend_max)
-            if (len(self.colors) == total_levels and
-                    any([extend_min, extend_max])):
+            if len(self.colors) == total_levels and (extend_min or extend_max):
                 use_set_under_over = True
                 if extend_min:
                     i0 = 1

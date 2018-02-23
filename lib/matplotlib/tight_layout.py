@@ -108,7 +108,7 @@ def auto_adjust_subplotpars(
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
                                                num1num2_list):
-        if all([not ax.get_visible() for ax in subplots]):
+        if all(not ax.get_visible() for ax in subplots):
             continue
 
         tight_bbox_raw = union([ax.get_tightbbox(renderer) for ax in subplots
@@ -278,8 +278,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
 
     subplotspec_list2 = []
 
-    for ax, subplotspec in zip(axes_list,
-                               subplotspec_list):
+    for ax, subplotspec in zip(axes_list, subplotspec_list):
         if subplotspec is None:
             continue
 

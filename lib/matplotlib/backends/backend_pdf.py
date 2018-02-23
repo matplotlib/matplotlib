@@ -1804,8 +1804,8 @@ class RendererPdf(RendererBase):
                 simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
-                if (x < 0 or y < 0 or
-                        x > self.file.width * 72 or y > self.file.height * 72):
+                if not (0 <= x <= self.file.width * 72
+                        and 0 <= y <= self.file.height * 72):
                     continue
                 dx, dy = x - lastx, y - lasty
                 output(1, 0, 0, 1, dx, dy, Op.concat_matrix,

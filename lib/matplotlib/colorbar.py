@@ -1388,7 +1388,7 @@ def colorbar_factory(cax, mappable, **kwargs):
     # if the given mappable is a contourset with any hatching, use
     # ColorbarPatch else use Colorbar
     if (isinstance(mappable, contour.ContourSet)
-            and any([hatch is not None for hatch in mappable.hatches])):
+            and any(hatch is not None for hatch in mappable.hatches)):
         cb = ColorbarPatch(cax, mappable, **kwargs)
     else:
         cb = Colorbar(cax, mappable, **kwargs)

@@ -129,17 +129,16 @@ papersize = {'letter': (8.5,11),
              'b10': (1.26,1.76)}
 
 def _get_papertype(w, h):
-    keys = list(six.iterkeys(papersize))
-    keys.sort()
-    keys.reverse()
-    for key in keys:
-        if key.startswith('l'): continue
-        pw, ph = papersize[key]
-        if (w < pw) and (h < ph): return key
+    for key, (pw, ph) in sorted(papersize.items(), reverse=True):
+        if key.startswith('l'):
+            continue
+        if w < pw and h < ph:
+            return key
     return 'a0'
 
 def _num_to_str(val):
-    if isinstance(val, six.string_types): return val
+    if isinstance(val, six.string_types):
+        return val
 
     ival = int(val)
     if val == ival: return str(ival)

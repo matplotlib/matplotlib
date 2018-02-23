@@ -1384,9 +1384,8 @@ class Figure(Artist):
             if len(siblings) > 1:
                 grouper.remove(ax)
                 for last_ax in siblings:
-                    if ax is last_ax:
-                        continue
-                    return last_ax
+                    if ax is not last_ax:
+                        return last_ax
             return None
 
         self.delaxes(ax)
