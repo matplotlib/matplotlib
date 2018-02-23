@@ -31,6 +31,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
+    'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
     'IPython.sphinxext.ipython_console_highlighting',
