@@ -3236,6 +3236,17 @@ def test_empty_eventplot():
     plt.draw()
 
 
+@pytest.mark.parametrize('data, orientation', product(
+    ([[]], [[], [0, 1]], [[0, 1], []]),
+    ('_empty', 'vertical', 'horizontal', None, 'none')))
+def test_eventplot_orientation(data, orientation):
+    """Introduced when fixing issue #6412. """
+    opts = {} if orientation == "_empty" else {'orientation': orientation}
+    fig, ax = plt.subplots(1, 1)
+    ax.eventplot(data, **opts)
+    plt.draw()
+
+
 @image_comparison(baseline_images=['marker_styles'], extensions=['png'],
                   remove_text=True)
 def test_marker_styles():
