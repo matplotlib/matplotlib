@@ -44,6 +44,7 @@ import logging
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import warnings
 
@@ -53,7 +54,6 @@ import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
 from matplotlib.cbook import Locked
-from matplotlib.compat.subprocess import subprocess, Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
 import re
 
