@@ -1011,7 +1011,7 @@ def _cleanup_all():
 atexit.register(_cleanup_all)
 
 
-class PdfPages(object):
+class PdfPages:
     """
     A multi-page PDF file using the pgf backend
 
@@ -1081,7 +1081,7 @@ class PdfPages(object):
             'producer', 'trapped'
         }
         infoDict = {
-            'creator': 'matplotlib %s, http://matplotlib.org' % __version__,
+            'creator': 'matplotlib %s, https://matplotlib.org' % __version__,
             'producer': 'matplotlib pgf backend %s' % __version__,
         }
         metadata = {k.lower(): v for k, v in self.metadata.items()}

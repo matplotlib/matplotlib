@@ -310,6 +310,6 @@ Copyright 2013 Taco Hoekwater, the LuaTeX Team.
     assert parse_lualatex_version(v1) == (1, 0, 4)
     assert parse_lualatex_version(v2) == (0, 76, 0)
 
-    # just test if it is successfull
+    # just test if it is successful
     version = get_lualatex_version()
     assert len(version) == 3

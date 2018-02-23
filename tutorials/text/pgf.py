@@ -60,7 +60,7 @@ Rc parameters that control the behavior of the pgf backend:
 Multi-Page PDF Files
 ====================
 
-The pgf backend also supportes multipage pdf files using ``PdfPages``
+The pgf backend also supports multipage pdf files using ``PdfPages``
 
 .. code-block:: python
 
