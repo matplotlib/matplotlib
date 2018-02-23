@@ -51,11 +51,29 @@ else:
     except:
         warnings.warn('error getting fonts from fc-list', UserWarning)
 
+
+luatex_version_re = re.compile(
+    'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
+)
+
+
 def get_texcommand():
     """Get chosen TeX system from rc."""
     texsystem_options = ["xelatex", "lualatex", "pdflatex"]
     texsystem = rcParams["pgf.texsystem"]
     return texsystem if texsystem in texsystem_options else "xelatex"
+
+
+def get_lualatex_version():
+    """Get version of luatex"""
+    output = check_output(['lualatex', '--version'])
+    return parse_lualatex_version(output.decode())
+
+
+def parse_lualatex_version(output):
+    '''parse the lualatex version from the output of `lualatex --version`'''
+    match = luatex_version_re.match(output)
+    return tuple(map(int, match.groups()))
 
 
 def get_fontspec():
@@ -1181,17 +1199,16 @@ class PdfPages(object):
                 self._write_header(*figure.get_size_inches())
             else:
                 if get_texcommand() == 'lualatex':
-                    self._file.write(
-                        r'\newpage\pagewidth={}in\pageheight={}in%'.format(
-                            *figure.get_size_inches()
-                        ).encode('utf-8') + b'\n'
-                    )
+                    if get_lualatex_version() > (0, 85, 0):
+                        np = r'\newpage\pagewidth={}in\pageheight={}in%'
+                    else:
+                        np = r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'
                 else:
-                    self._file.write(
-                        r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'.format(
-                            *figure.get_size_inches()
-                        ).encode('utf-8') + b'\n'
-                    )
+                    np = r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'
+                self._file.write(np.format(
+                        *figure.get_size_inches()
+                    ).encode('utf-8') + b'\n'
+                )
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
         finally:
