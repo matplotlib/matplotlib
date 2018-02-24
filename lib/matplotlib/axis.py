@@ -982,8 +982,7 @@ class Axis(artist.Artist):
             (minorTicks, minorLocs, minorLabels)]
 
         for group in major_minor:
-            for tick in zip(*group):
-                yield tick
+            yield from zip(*group)
 
     def get_ticklabel_extents(self, renderer):
         """

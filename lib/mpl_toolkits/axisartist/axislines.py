@@ -372,9 +372,11 @@ class AxisArtistHelperRectlinear(object):
                     c = [self._value, self._value]
                     c[self.nth_coord] = x
                     c1, c2 = tr2ax.transform_point(c)
-                    if 0. <= c1 <= 1. and 0. <= c2 <= 1.:
-                        if 0. - self.delta1 <= [c1, c2][self.nth_coord] <= 1. + self.delta2:
-                            yield c, angle_normal, angle_tangent, l
+                    if (0 <= c1 <= 1 and 0 <= c2 <= 1
+                            and 0 - self.delta1
+                                <= [c1, c2][self.nth_coord]
+                                <= 1 + self.delta2):
+                        yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
 

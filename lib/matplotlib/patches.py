@@ -1706,7 +1706,7 @@ class Arc(Ellipse):
             x1e += epsilon
             y1e += epsilon
             for x, y in iter_circle_intersect_on_line(x0, y0, x1, y1):
-                if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
+                if x0e <= x <= x1e and y0e <= y <= y1e:
                     yield x, y
 
         # Transforms the axes box_path so that it is relative to the unit

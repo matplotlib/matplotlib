@@ -697,8 +697,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
         if scalarp(item) or item is None:
             yield item
         else:
-            for subitem in flatten(item, scalarp):
-                yield subitem
+            yield from flatten(item, scalarp)
 
 
 @deprecated('2.1', "sorted(..., key=itemgetter(...))")
