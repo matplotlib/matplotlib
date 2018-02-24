@@ -1230,7 +1230,7 @@ class FigureFrameWx(wx.Frame):
         return toolbar
 
     def get_canvas(self, fig):
-        return type(self.canvas)(self, -1, fig)
+        return FigureCanvasWx(self, -1, fig)
 
     def get_figure_manager(self):
         DEBUG_MSG("get_figure_manager()", 1, self)
@@ -1508,7 +1508,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
-        return FigureCanvasWx(frame, -1, fig)
+        return type(self.canvas)(frame, -1, fig)
 
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
