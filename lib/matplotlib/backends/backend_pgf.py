@@ -52,7 +52,7 @@ else:
         warnings.warn('error getting fonts from fc-list', UserWarning)
 
 
-luatex_version_re = re.compile(
+_luatex_version_re = re.compile(
     'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
 )
 
@@ -64,15 +64,15 @@ def get_texcommand():
     return texsystem if texsystem in texsystem_options else "xelatex"
 
 
-def get_lualatex_version():
+def _get_lualatex_version():
     """Get version of luatex"""
     output = check_output(['lualatex', '--version'])
-    return parse_lualatex_version(output.decode())
+    return _parse_lualatex_version(output.decode())
 
 
-def parse_lualatex_version(output):
+def _parse_lualatex_version(output):
     '''parse the lualatex version from the output of `lualatex --version`'''
-    match = luatex_version_re.match(output)
+    match = _luatex_version_re.match(output)
     return tuple(map(int, match.groups()))
 
 
@@ -1199,7 +1199,7 @@ class PdfPages:
                 self._write_header(*figure.get_size_inches())
             else:
                 if get_texcommand() == 'lualatex':
-                    if get_lualatex_version() > (0, 85, 0):
+                    if _get_lualatex_version() > (0, 85, 0):
                         np = r'\newpage\pagewidth={}in\pageheight={}in%'
                     else:
                         np = r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'

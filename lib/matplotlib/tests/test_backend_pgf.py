@@ -280,8 +280,8 @@ def test_pdf_pages_lualatex():
 
 @needs_lualatex
 def test_luatex_version():
-    from matplotlib.backends.backend_pgf import parse_lualatex_version
-    from matplotlib.backends.backend_pgf import get_lualatex_version
+    from matplotlib.backends.backend_pgf import _parse_lualatex_version
+    from matplotlib.backends.backend_pgf import _get_lualatex_version
 
     v1 = '''This is LuaTeX, Version 1.0.4 (TeX Live 2017)
 
@@ -307,9 +307,9 @@ named COPYING and the LuaTeX source.
 Copyright 2013 Taco Hoekwater, the LuaTeX Team.
 '''
 
-    assert parse_lualatex_version(v1) == (1, 0, 4)
-    assert parse_lualatex_version(v2) == (0, 76, 0)
+    assert _parse_lualatex_version(v1) == (1, 0, 4)
+    assert _parse_lualatex_version(v2) == (0, 76, 0)
 
     # just test if it is successful
-    version = get_lualatex_version()
+    version = _get_lualatex_version()
     assert len(version) == 3
