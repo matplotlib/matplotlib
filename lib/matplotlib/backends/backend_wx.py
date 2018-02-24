@@ -1474,6 +1474,7 @@ cursord = {
 }
 
 
+@cbook.deprecated("2.2")
 class SubplotToolWX(wx.Frame):
     def __init__(self, targetfig):
         wx.Frame.__init__(self, None, -1, "Configure subplots")
@@ -1697,6 +1698,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
         self.EnableTool(self.wx_ids['Back'], can_backward)
         self.EnableTool(self.wx_ids['Forward'], can_forward)
+
+
+@cbook.deprecated("2.2", alternative="NavigationToolbar2Wx")
+class Toolbar(NavigationToolbar2Wx):
+    pass
 
 
 class StatusBarWx(wx.StatusBar):
@@ -1955,15 +1961,6 @@ class PrintoutWx(wx.Printout):
         self.canvas.draw()
         return True
 # >
-
-########################################################################
-#
-# Now just provide the standard names that backend.__init__ is expecting
-#
-########################################################################
-
-
-Toolbar = NavigationToolbar2Wx
 
 
 @_Backend.export
