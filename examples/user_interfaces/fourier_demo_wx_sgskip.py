@@ -8,7 +8,7 @@ Fourier Demo WX
 import numpy as np
 
 import wx
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 
@@ -123,7 +123,7 @@ class FourierDemoFrame(wx.Frame):
     def createCanvas(self, parent):
         self.lines = []
         self.figure = Figure()
-        self.canvas = FigureCanvasWxAgg(parent, -1, self.figure)
+        self.canvas = FigureCanvas(parent, -1, self.figure)
         self.canvas.callbacks.connect('button_press_event', self.mouseDown)
         self.canvas.callbacks.connect('motion_notify_event', self.mouseMotion)
         self.canvas.callbacks.connect('button_release_event', self.mouseUp)
