@@ -42,7 +42,7 @@ else:
     try:
         # list scalable (non-bitmap) fonts
         fc_list = subprocess.check_output(
-            [str('fc-list'), ':outline,scalable', 'family'])
+            ['fc-list', ':outline,scalable', 'family'])
         fc_list = fc_list.decode('utf8')
         system_fonts = [f.split(',')[0] for f in fc_list.splitlines()]
         system_fonts = list(set(system_fonts))
@@ -175,7 +175,7 @@ def make_pdf_to_png_converter():
     # check for pdftocairo
     try:
         subprocess.check_output(
-            [str("pdftocairo"), "-v"], stderr=subprocess.STDOUT)
+            ["pdftocairo", "-v"], stderr=subprocess.STDOUT)
         tools_available.append("pdftocairo")
     except:
         pass
@@ -187,7 +187,7 @@ def make_pdf_to_png_converter():
     # pick converter
     if "pdftocairo" in tools_available:
         def cairo_convert(pdffile, pngfile, dpi):
-            cmd = [str("pdftocairo"), "-singlefile", "-png", "-r", "%d" % dpi,
+            cmd = ["pdftocairo", "-singlefile", "-png", "-r", "%d" % dpi,
                    pdffile, os.path.splitext(pngfile)[0]]
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return cairo_convert
