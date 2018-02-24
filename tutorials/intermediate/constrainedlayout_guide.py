@@ -226,7 +226,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # rcParams:
 # -----------
 #
-# There are four `rcParams` that can be set, either in a script
+# There are five `rcParams` that can be set, either in a script
 # or in the `matplotlibrc` file.  They all have the prefix
 # `figure.constrained_layout`:
 #
