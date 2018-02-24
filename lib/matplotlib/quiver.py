@@ -407,9 +407,9 @@ def _parse_args(*args):
 
 
 def _check_consistent_shapes(*arrays):
-    all_shapes = set(a.shape for a in arrays)
+    all_shapes = {a.shape for a in arrays}
     if len(all_shapes) != 1:
-        raise ValueError('The shapes of the passed in arrays do not match.')
+        raise ValueError('The shapes of the passed in arrays do not match')
 
 
 class Quiver(mcollections.PolyCollection):

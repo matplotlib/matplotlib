@@ -161,7 +161,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     # list of unique gridspecs that contain child axes:
-    gss = set([])
+    gss = set()
     for ax in fig.axes:
         if hasattr(ax, 'get_subplotspec'):
             gs = ax.get_subplotspec().get_gridspec()

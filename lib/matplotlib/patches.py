@@ -2362,66 +2362,56 @@ class BoxStyle(_Style):
             x0, y0 = x0 - pad + tooth_size2, y0 - pad + tooth_size2
             x1, y1 = x0 + width, y0 + height
 
-            bottom_saw_x = [x0] + \
-                           [x0 + tooth_size2 + dsx * .5 * i
-                            for i
-                            in range(dsx_n * 2)] + \
-                           [x1 - tooth_size2]
+            bottom_saw_x = [
+                x0,
+                *(x0 + tooth_size2 + dsx * .5 * np.arange(dsx_n * 2)),
+                x1 - tooth_size2,
+            ]
+            bottom_saw_y = [
+                y0,
+                *([y0 - tooth_size2, y0, y0 + tooth_size2, y0] * dsx_n),
+                y0 - tooth_size2,
+            ]
+            right_saw_x = [
+                x1,
+                *([x1 + tooth_size2, x1, x1 - tooth_size2, x1] * dsx_n),
+                x1 + tooth_size2,
+            ]
+            right_saw_y = [
+                y0,
+                *(y0 + tooth_size2 + dsy * .5 * np.arange(dsy_n * 2)),
+                y1 - tooth_size2,
+            ]
+            top_saw_x = [
+                x1,
+                *(x1 - tooth_size2 - dsx * .5 * np.arange(dsx_n * 2)),
+                x0 + tooth_size2,
+            ]
+            top_saw_y = [
+                y1,
+                *([y1 + tooth_size2, y1, y1 - tooth_size2, y1] * dsx_n),
+                y1 + tooth_size2,
+            ]
+            left_saw_x = [
+                x0,
+                *([x0 - tooth_size2, x0, x0 + tooth_size2, x0] * dsy_n),
+                x0 - tooth_size2,
+            ]
+            left_saw_y = [
+                y1,
+                *(y1 - tooth_size2 - dsy * .5 * np.arange(dsy_n * 2)),
+                y0 + tooth_size2,
+            ]
 
-            bottom_saw_y = [y0] + \
-                           [y0 - tooth_size2, y0,
-                            y0 + tooth_size2, y0] * dsx_n + \
-                           [y0 - tooth_size2]
-
-            right_saw_x = [x1] + \
-                          [x1 + tooth_size2,
-                           x1,
-                           x1 - tooth_size2,
-                           x1] * dsx_n + \
-                          [x1 + tooth_size2]
-
-            right_saw_y = [y0] + \
-                          [y0 + tooth_size2 + dsy * .5 * i
-                           for i
-                           in range(dsy_n * 2)] + \
-                          [y1 - tooth_size2]
-
-            top_saw_x = [x1] + \
-                        [x1 - tooth_size2 - dsx * .5 * i
-                         for i
-                         in range(dsx_n * 2)] + \
-                        [x0 + tooth_size2]
-
-            top_saw_y = [y1] + \
-                        [y1 + tooth_size2,
-                         y1,
-                         y1 - tooth_size2,
-                         y1] * dsx_n + \
-                        [y1 + tooth_size2]
-
-            left_saw_x = [x0] + \
-                         [x0 - tooth_size2,
-                          x0,
-                          x0 + tooth_size2,
-                          x0] * dsy_n + \
-                         [x0 - tooth_size2]
-
-            left_saw_y = [y1] + \
-                         [y1 - tooth_size2 - dsy * .5 * i
-                          for i
-                          in range(dsy_n * 2)] + \
-                         [y0 + tooth_size2]
-
-            saw_vertices = (list(zip(bottom_saw_x, bottom_saw_y)) +
-                            list(zip(right_saw_x, right_saw_y)) +
-                            list(zip(top_saw_x, top_saw_y)) +
-                            list(zip(left_saw_x, left_saw_y)) +
-                            [(bottom_saw_x[0], bottom_saw_y[0])])
+            saw_vertices = [*zip(bottom_saw_x, bottom_saw_y),
+                            *zip(right_saw_x, right_saw_y),
+                            *zip(top_saw_x, top_saw_y),
+                            *zip(left_saw_x, left_saw_y),
+                            (bottom_saw_x[0], bottom_saw_y[0])]
 
             return saw_vertices
 
         def transmute(self, x0, y0, width, height, mutation_size):
-
             saw_vertices = self._get_sawtooth_vertices(x0, y0, width,
                                                        height, mutation_size)
             path = Path(saw_vertices, closed=True)
@@ -3223,9 +3213,8 @@ class ArrowStyle(_Style):
             if (len(segments) != 2 or segments[0][1] != Path.MOVETO or
                     segments[1][1] != Path.CURVE3):
                 raise ValueError(
-                    "'path' it's not a valid quadratic Bezier curve")
-
-            return list(segments[0][0]) + list(segments[1][0])
+                    "'path' is not a valid quadratic Bezier curve")
+            return [*segments[0][0], *segments[1][0]]
 
         def transmute(self, path, mutation_size, linewidth):
             """

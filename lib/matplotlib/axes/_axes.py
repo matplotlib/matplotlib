@@ -3085,8 +3085,9 @@ class Axes(_AxesBase):
             fmt_style_kwargs = {}
         else:
             fmt_style_kwargs = {k: v for k, v in
-                            zip(('linestyle', 'marker', 'color'),
-                                _process_plot_format(fmt)) if v is not None}
+                                zip(('linestyle', 'marker', 'color'),
+                                    _process_plot_format(fmt))
+                                if v is not None}
         if fmt == 'none':
             # Remove alpha=0 color that _process_plot_format returns
             fmt_style_kwargs.pop('color')
@@ -3122,12 +3123,12 @@ class Axes(_AxesBase):
                 yerr = [yerr] * len(y)
 
         # make the style dict for the 'normal' plot line
-        plot_line_style = dict(base_style)
-        plot_line_style.update(**kwargs)
-        if barsabove:
-            plot_line_style['zorder'] = kwargs['zorder'] - .1
-        else:
-            plot_line_style['zorder'] = kwargs['zorder'] + .1
+        plot_line_style = {
+            **base_style,
+            **kwargs,
+            'zorder': (kwargs['zorder'] - .1 if barsabove else
+                       kwargs['zorder'] + .1),
+        }
 
         # make the style dict for the line collections (the bars)
         eb_lines_style = dict(base_style)
@@ -7697,8 +7698,8 @@ class Axes(_AxesBase):
         nr, nc = Z.shape
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
-              'aspect': 'equal'}          # (already the imshow default)
-        kw.update(kwargs)
+              'aspect': 'equal',          # (already the imshow default)
+              **kwargs}
         im = self.imshow(Z, **kw)
         self.title.set_y(1.05)
         self.xaxis.tick_top()

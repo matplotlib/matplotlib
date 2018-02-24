@@ -874,11 +874,10 @@ def validate_webagg_address(s):
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
-_validate_named_linestyle = ValidateInStrings('linestyle',
-                                              list(six.iterkeys(ls_mapper)) +
-                                              list(six.itervalues(ls_mapper)) +
-                                              ['None', 'none', ' ', ''],
-                                              ignorecase=True)
+_validate_named_linestyle = ValidateInStrings(
+    'linestyle',
+    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
+    ignorecase=True)
 
 
 def _validate_linestyle(ls):
