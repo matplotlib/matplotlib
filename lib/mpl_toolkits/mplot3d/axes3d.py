@@ -2633,7 +2633,7 @@ class Axes3D(Axes):
         argi = 6
         if len(args) < argi:
             raise ValueError('Wrong number of arguments. Expected %d got %d' %
-                       (argi, len(args)))
+                             (argi, len(args)))
 
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]
