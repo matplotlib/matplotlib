@@ -1271,10 +1271,11 @@ class Axes(_AxesBase):
                 minline = (lineoffsets - linelengths).min()
                 maxline = (lineoffsets + linelengths).max()
 
-                if colls[0].is_horizontal():
-                    corners = (minpos, minline), (maxpos, maxline)
-                else:
+                if (orientation is not None and
+                        orientation.lower() == "vertical"):
                     corners = (minline, minpos), (maxline, maxpos)
+                else:  # "horizontal", None or "none" (see EventCollection)
+                    corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
                 self.autoscale_view()
 
