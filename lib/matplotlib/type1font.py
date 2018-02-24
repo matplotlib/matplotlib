@@ -270,9 +270,9 @@ class Type1Font(object):
             oldmatrix[0:3, 0] = array[::2]
             oldmatrix[0:3, 1] = array[1::2]
             modifier = np.array([[extend, 0, 0],
-                                 [slant, 1, 0],
-                                 [0, 0, 1]])
-            newmatrix = np.dot(modifier, oldmatrix)
+                                 [slant,  1, 0],
+                                 [0,      0, 1]])
+            newmatrix = modifier @ oldmatrix
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
             as_string = u'[' + u' '.join(str(x) for x in array) + u']'

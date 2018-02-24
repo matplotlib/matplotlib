@@ -1032,8 +1032,8 @@ class Axes3D(Axes):
 
         viewM = proj3d.view_transformation(E, R, V)
         projM = self._projection(zfront, zback)
-        M0 = np.dot(viewM, worldM)
-        M = np.dot(projM, M0)
+        M0 = viewM @ worldM
+        M = projM @ M0
         return M
 
     def mouse_init(self, rotate_btn=1, zoom_btn=3):
@@ -1775,7 +1775,7 @@ class Axes3D(Axes):
         *color* can also be an array of the same length as *normals*.
         '''
 
-        shade = np.array([np.dot(n / proj3d.mod(n), [-1, -1, 0.5])
+        shade = np.array([n / proj3d.mod(n) @ [-1, -1, 0.5]
                           if proj3d.mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
@@ -2615,7 +2615,7 @@ class Axes3D(Axes):
             Rneg[[0,1,2,2],[2,2,0,1]] = -Rneg[[0,1,2,2],[2,2,0,1]]
 
             # multiply them to get the rotated vector
-            return Rpos.dot(uvw), Rneg.dot(uvw)
+            return Rpos @ uvw, Rneg @ uvw
 
         had_data = self.has_data()
 
@@ -2859,12 +2859,12 @@ class Axes3D(Axes):
         # render
         for permute in permutation_matrices(3):
             # find the set of ranges to iterate over
-            pc, qc, rc = permute.T.dot(size)
+            pc, qc, rc = permute.T @ size
             pinds = np.arange(pc)
             qinds = np.arange(qc)
             rinds = np.arange(rc)
 
-            square_rot = square.dot(permute.T)
+            square_rot = square @ permute.T
 
             # iterate within the current plane
             for p in pinds:
@@ -2874,15 +2874,15 @@ class Axes3D(Axes):
                     # empty space, to avoid drawing internal faces.
 
                     # draw lower faces
-                    p0 = permute.dot([p, q, 0])
+                    p0 = permute @ [p, q, 0]
                     i0 = tuple(p0)
                     if filled[i0]:
                         voxel_faces[i0].append(p0 + square_rot)
 
                     # draw middle faces
                     for r1, r2 in zip(rinds[:-1], rinds[1:]):
-                        p1 = permute.dot([p, q, r1])
-                        p2 = permute.dot([p, q, r2])
+                        p1 = permute @ [p, q, r1]
+                        p2 = permute @ [p, q, r2]
 
                         i1 = tuple(p1)
                         i2 = tuple(p2)
@@ -2893,8 +2893,8 @@ class Axes3D(Axes):
                             voxel_faces[i2].append(p2 + square_rot)
 
                     # draw upper faces
-                    pk = permute.dot([p, q, rc-1])
-                    pk2 = permute.dot([p, q, rc])
+                    pk = permute @ [p, q, rc-1]
+                    pk2 = permute @ [p, q, rc]
                     ik = tuple(pk)
                     if filled[ik]:
                         voxel_faces[ik].append(pk2 + square_rot)

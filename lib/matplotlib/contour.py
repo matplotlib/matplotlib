@@ -675,15 +675,11 @@ def _find_closest_point_on_leg(p1, p2, p0):
     d01 = p0 - p1
 
     # project on to line segment to find closest point
-    proj = np.dot(d01, d21) / np.dot(d21, d21)
-    if proj < 0:
-        proj = 0
-    if proj > 1:
-        proj = 1
-    pc = p1 + proj * d21
+    proj = (d01 @ d21) / (d21 @ d21)
+    pc = p1 + np.clip(proj, 0, 1) * d21
 
     # find squared distance
-    d = np.sum((pc-p0)**2)
+    d = np.sum((pc - p0)**2)
 
     return d, pc
 

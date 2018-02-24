@@ -1255,10 +1255,7 @@ def test_arc_ellipse():
     R = np.array([
         [np.cos(rtheta), -np.sin(rtheta)],
         [np.sin(rtheta), np.cos(rtheta)]])
-
-    x, y = np.dot(R, np.array([x, y]))
-    x += xcenter
-    y += ycenter
+    x, y = R @ [x, y] + [xcenter, ycenter]
 
     fig = plt.figure()
     ax = fig.add_subplot(211, aspect='auto')

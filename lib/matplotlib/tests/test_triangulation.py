@@ -390,8 +390,7 @@ def test_triinterp():
     for interp in (cubic_min_E, cubic_geom):
         diff_cubic = np.abs(interp(xs, ys) - zs)
         assert np.max(diff_lin) >= 10 * np.max(diff_cubic)
-        assert (np.dot(diff_lin, diff_lin) >=
-                100 * np.dot(diff_cubic, diff_cubic))
+        assert diff_lin @ diff_lin >= 100 * diff_cubic @ diff_cubic
 
 
 def test_triinterpcubic_C1_continuity():
@@ -522,7 +521,7 @@ def test_triinterpcubic_cg_solver():
         b[itest] = 1.
         x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
                                        tol=1.e-10)
-        assert_array_almost_equal(np.dot(mat_dense, x), b)
+        assert_array_almost_equal(mat_dense @ x, b)
 
     # 2) Same matrix with inserting 2 rows - cols with null diag terms
     # (but still linked with the rest of the matrix by extra-diag terms)
@@ -544,7 +543,7 @@ def test_triinterpcubic_cg_solver():
         b[itest] = 1.
         x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.ones(n*m + 2),
                                        tol=1.e-10)
-        assert_array_almost_equal(np.dot(mat_dense, x), b)
+        assert_array_almost_equal(mat_dense @ x, b)
 
     # 3) Now a simple test that summation of duplicate (i.e. with same rows,
     # same cols) entries occurs when compressed.
