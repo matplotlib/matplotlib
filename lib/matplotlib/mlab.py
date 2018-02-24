@@ -186,7 +186,7 @@ if six.PY3:
     long = int
 
 
-@cbook.deprecated("2.2", alternative='np.logspace, np.geomspace')
+@cbook.deprecated("2.2", alternative='numpy.logspace or numpy.geomspace')
 def logspace(xmin, xmax, N):
     '''
     Return N values logarithmically spaced between xmin and xmax.
@@ -1346,7 +1346,7 @@ def donothing_callback(*args):
     pass
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', 'scipy.signal.coherence')
 def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
                  window=window_hanning, noverlap=0,
                  preferSpeedOverMemory=True,
@@ -1504,7 +1504,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         return Cxy, Phase, freqs
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', 'scipy.stats.entropy')
 def entropy(y, bins):
     r"""
     Return the entropy of the data in *y* in units of nat.
@@ -1534,7 +1534,7 @@ def entropy(y, bins):
     return S
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', 'scipy.stats.norm.pdf')
 def normpdf(x, *args):
     "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"
     mu, sigma = args
@@ -1718,7 +1718,7 @@ class PCA(object):
         return a
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', 'numpy.percentile')
 def prctile(x, p=(0.0, 25.0, 50.0, 75.0, 100.0)):
     """
     Return the percentiles of *x*.  *p* can either be a sequence of
@@ -1801,7 +1801,7 @@ def center_matrix(M, dim=0):
     return M
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', 'scipy.integrate.ode')
 def rk4(derivs, y0, t):
     """
     Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.
@@ -1919,7 +1919,7 @@ def get_sparse_matrix(M, N, frac=0.1):
     return data
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', 'numpy.hypot')
 def dist(x, y):
     """
     Return the distance between two points.
@@ -2061,7 +2061,7 @@ exp_safe_MIN = math.log(2.2250738585072014e-308)
 exp_safe_MAX = 1.7976931348623157e+308
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("2.2", 'numpy.exp')
 def exp_safe(x):
     """
     Compute exponentials which safely underflow to zero.
@@ -2077,7 +2077,7 @@ def exp_safe(x):
         return math.exp(x)
 
 
-@cbook.deprecated("2.2", alternative='np.array(list(map(...)))')
+@cbook.deprecated("2.2", alternative='numpy.array(list(map(...)))')
 def amap(fn, *args):
     """
     amap(function, sequence[, sequence, ...]) -> array.
@@ -2096,7 +2096,7 @@ def rms_flat(a):
     return np.sqrt(np.mean(np.abs(a) ** 2))
 
 
-@cbook.deprecated("2.2", alternative='np.linalg.norm(a, ord=1)')
+@cbook.deprecated("2.2", alternative='numpy.linalg.norm(a, ord=1)')
 def l1norm(a):
     """
     Return the *l1* norm of *a*, flattened out.
@@ -2106,7 +2106,7 @@ def l1norm(a):
     return np.sum(np.abs(a))
 
 
-@cbook.deprecated("2.2", alternative='np.linalg.norm(a, ord=2)')
+@cbook.deprecated("2.2", alternative='numpy.linalg.norm(a, ord=2)')
 def l2norm(a):
     """
     Return the *l2* norm of *a*, flattened out.
@@ -2116,7 +2116,7 @@ def l2norm(a):
     return np.sqrt(np.sum(np.abs(a) ** 2))
 
 
-@cbook.deprecated("2.2", alternative='np.linalg.norm(a.flat, ord=p)')
+@cbook.deprecated("2.2", alternative='numpy.linalg.norm(a.flat, ord=p)')
 def norm_flat(a, p=2):
     """
     norm(a,p=2) -> l-p norm of a.flat
@@ -2134,7 +2134,7 @@ def norm_flat(a, p=2):
         return np.sum(np.abs(a) ** p) ** (1 / p)
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("2.2", 'numpy.arange')
 def frange(xini, xfin=None, delta=None, **kw):
     """
     frange([start,] stop[, step, keywords]) -> array of floats
@@ -2202,7 +2202,7 @@ def frange(xini, xfin=None, delta=None, **kw):
 # end frange()
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("2.2", 'numpy.identity')
 def identity(n, rank=2, dtype='l', typecode=None):
     """
     Returns the identity matrix of shape (*n*, *n*, ..., *n*) (rank *r*).
@@ -2268,7 +2268,7 @@ def binary_repr(number, max_length=1025):
     return ''.join(map(repr, digits)).replace('L', '')
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("2.2", 'numpy.log2')
 def log2(x, ln2=math.log(2.0)):
     """
     Return the log(*x*) in base 2.
@@ -2319,7 +2319,7 @@ def isvector(X):
 
 
 # helpers for loading, saving, manipulating and viewing numpy record arrays
-@cbook.deprecated("2.2")
+@cbook.deprecated("2.2", 'numpy.isnan')
 def safe_isnan(x):
     ':func:`numpy.isnan` for arbitrary types'
     if isinstance(x, six.string_types):
@@ -2334,7 +2334,7 @@ def safe_isnan(x):
         return b
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("2.2", 'numpy.isinf')
 def safe_isinf(x):
     ':func:`numpy.isinf` for arbitrary types'
     if isinstance(x, six.string_types):
@@ -3130,7 +3130,7 @@ def csvformat_factory(format):
     return format
 
 
-@cbook.deprecated("2.2", alternative='np.recarray.tofile')
+@cbook.deprecated("2.2", alternative='numpy.recarray.tofile')
 def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     """
     Returns a textual representation of a record array.
@@ -3251,7 +3251,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     return text
 
 
-@cbook.deprecated("2.2", alternative='np.recarray.tofile')
+@cbook.deprecated("2.2", alternative='numpy.recarray.tofile')
 def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
             missingd=None, withheader=True):
     """
@@ -3452,7 +3452,7 @@ def griddata(x, y, z, xi, yi, interp='nn'):
 ##################################################
 # Linear interpolation algorithms
 ##################################################
-@cbook.deprecated("2.2", alternative="np.interp")
+@cbook.deprecated("2.2", alternative="numpy.interp")
 def less_simple_linear_interpolation(x, y, xi, extrap=False):
     """
     This function provides simple (but somewhat less so than
