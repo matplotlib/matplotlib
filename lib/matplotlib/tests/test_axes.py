@@ -1545,7 +1545,7 @@ def test_hist_step_filled():
         ax.set_ylim(ymin=-50)
 
     patches = axes[0].patches
-    assert all([p.get_facecolor() == p.get_edgecolor() for p in patches])
+    assert all(p.get_facecolor() == p.get_edgecolor() for p in patches)
 
 
 @image_comparison(baseline_images=['hist_density'], extensions=['png'])

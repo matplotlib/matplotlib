@@ -22,6 +22,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import inspect
 from numbers import Number
 import sys
 import time
@@ -1055,8 +1056,8 @@ def subplot(*args, **kwargs):
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
-    if len(args)==0:
-        args=(1,1,1)
+    if len(args) == 0:
+        args = (1, 1, 1)
 
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
@@ -1064,19 +1065,21 @@ def subplot(*args, **kwargs):
     # ever occur, but mysterious behavior can result because what was
     # intended to be the sharex argument is instead treated as a
     # subplot index for subplot()
-    if len(args) >= 3 and isinstance(args[2], bool) :
-        warnings.warn("The subplot index argument to subplot() appears"
-                      " to be a boolean. Did you intend to use subplots()?")
+    if len(args) >= 3 and isinstance(args[2], bool):
+        warnings.warn("The subplot index argument to subplot() appears "
+                      "to be a boolean. Did you intend to use subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
     bbox = a.bbox
     byebye = []
     for other in fig.axes:
-        if other==a: continue
+        if other == a:
+            continue
         if bbox.fully_overlaps(other.bbox):
             byebye.append(other)
-    for ax in byebye: delaxes(ax)
+    for ax in byebye:
+        delaxes(ax)
 
     return a
 
@@ -1334,8 +1337,10 @@ def subplot_tool(targetfig=None):
     else:
         # find the manager for this figure
         for manager in _pylab_helpers.Gcf._activeQue:
-            if manager.canvas.figure==targetfig: break
-        else: raise RuntimeError('Could not find manager for targetfig')
+            if manager.canvas.figure == targetfig:
+                break
+        else:
+            raise RuntimeError('Could not find manager for targetfig')
 
     toolfig = figure(figsize=(6,3))
     toolfig.subplots_adjust(top=0.9)
@@ -1845,27 +1850,19 @@ def get_plot_commands():
     """
     Get a sorted list of all of the plotting commands.
     """
-    # This works by searching for all functions in this module and
-    # removing a few hard-coded exclusions, as well as all of the
-    # colormap-setting functions, and anything marked as private with
-    # a preceding underscore.
-
-    import inspect
-
+    # This works by searching for all functions in this module and removing
+    # a few hard-coded exclusions, as well as all of the colormap-setting
+    # functions, and anything marked as private with a preceding underscore.
     exclude = {'colormaps', 'colors', 'connect', 'disconnect',
                'get_plot_commands', 'get_current_fig_manager', 'ginput',
                'plotting', 'waitforbuttonpress'}
     exclude |= set(colormaps())
     this_module = inspect.getmodule(get_plot_commands)
-
-    commands = set()
-    for name, obj in list(six.iteritems(globals())):
-        if name.startswith('_') or name in exclude:
-            continue
-        if inspect.isfunction(obj) and inspect.getmodule(obj) is this_module:
-            commands.add(name)
-
-    return sorted(commands)
+    return sorted(
+        name for name, obj in globals().items()
+        if not name.startswith('_') and name not in exclude
+           and inspect.isfunction(obj)
+           and inspect.getmodule(obj) is this_module)
 
 
 @deprecated('2.1')

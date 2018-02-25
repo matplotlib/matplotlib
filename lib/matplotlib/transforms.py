@@ -239,11 +239,8 @@ class TransformNode(object):
 
                 if hasattr(root, '_children'):
                     for child in root._children:
-                        name = '?'
-                        for key, val in six.iteritems(root.__dict__):
-                            if val is child:
-                                name = key
-                                break
+                        name = next((key for key, val in root.__dict__.items()
+                                     if val is child), '?')
                         fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n'
                                     % (hash(root),
                                     hash(child),

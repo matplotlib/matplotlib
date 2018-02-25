@@ -237,8 +237,6 @@ class WebAggApplication(tornado.web.Application):
             for i in range(n - 5):
                 yield port + random.randint(-2 * n, 2 * n)
 
-        success = None
-
         if address is None:
             cls.address = rcParams['webagg.address']
         else:
@@ -252,10 +250,8 @@ class WebAggApplication(tornado.web.Application):
                     raise
             else:
                 cls.port = port
-                success = True
                 break
-
-        if not success:
+        else:
             raise SystemExit(
                 "The webagg server could not be started because an available "
                 "port could not be found")
