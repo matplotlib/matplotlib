@@ -1451,7 +1451,7 @@ class TextWithDash(Text):
                 dy = h
                 dx = h / tan_theta
         cwd = np.array([dx, dy]) / 2
-        cwd *= 1 + dashpad / np.sqrt(np.dot(cwd, cwd))
+        cwd *= 1 + dashpad / np.linalg.norm(cwd)
         cw = c2 + (dashdirection * 2 - 1) * cwd
 
         newx, newy = inverse.transform_point(tuple(cw))

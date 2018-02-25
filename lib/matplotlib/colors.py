@@ -1508,17 +1508,6 @@ def _vector_magnitude(arr):
     return np.sqrt(sum_sq)
 
 
-def _vector_dot(a, b):
-    # things that don't work here:
-    #   * a.dot(b) - fails on masked arrays until 1.10
-    #   * np.ma.dot(a, b) - doesn't mask enough things
-    #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
-    dot = 0
-    for i in range(a.shape[-1]):
-        dot += a[..., i] * b[..., i]
-    return dot
-
-
 class LightSource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
@@ -1655,7 +1644,7 @@ class LightSource(object):
             completely in shadow and 1 is completely illuminated.
         """
 
-        intensity = _vector_dot(normals, self.direction)
+        intensity = normals.dot(self.direction)
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()

@@ -437,7 +437,7 @@ def _test_proj_make_M():
     V = np.array([0, 0, 1])
     viewM = proj3d.view_transformation(E, R, V)
     perspM = proj3d.persp_transformation(100, -100)
-    M = np.dot(perspM, viewM)
+    M = perspM @ viewM
     return M
 
 
@@ -504,7 +504,7 @@ def test_proj_axes_cube_ortho():
     V = np.array([0, 0, 1])
     viewM = proj3d.view_transformation(E, R, V)
     orthoM = proj3d.ortho_transformation(-1, 1)
-    M = np.dot(orthoM, viewM)
+    M = orthoM @ viewM
 
     ts = '0 1 2 3 0 4 5 6 7 4'.split()
     xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 100

@@ -210,7 +210,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
             raise ValueError("Got unknown position parameter %s" % where)
 
         M = np.array([[cx, sx], [-sx, cx]])
-        coords = np.dot(orig_position, M) + [[x_pos, y_pos]]
+        coords = orig_position @ M + [[x_pos, y_pos]]
         x, y = np.ravel(coords)
         orig_label = rate_labels[pair]
         label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])

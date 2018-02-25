@@ -1899,7 +1899,7 @@ class Axes(_AxesBase):
         correls = np.correlate(x, y, mode=2)
 
         if normed:
-            correls /= np.sqrt(np.dot(x, x) * np.dot(y, y))
+            correls /= np.linalg.norm(x) * np.linalg.norm(y)
 
         if maxlags is None:
             maxlags = Nx - 1

@@ -1036,7 +1036,7 @@ class RendererSVG(RendererBase):
                 # to the anchor point manually for now.
                 angle_rad = np.deg2rad(angle)
                 dir_vert = np.array([np.sin(angle_rad), np.cos(angle_rad)])
-                v_offset = np.dot(dir_vert, [(x - ax), (y - ay)])
+                v_offset = dir_vert @ [x - ax, y - ay]
                 ax = ax + v_offset * dir_vert[0]
                 ay = ay + v_offset * dir_vert[1]
 

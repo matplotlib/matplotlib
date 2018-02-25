@@ -1776,14 +1776,6 @@ class AffineBase(Transform):
         # optimises the access of the transform matrix vs the superclass
         return self.get_matrix()
 
-    @staticmethod
-    def _concat(a, b):
-        """
-        Concatenates two transformation matrices (represented as numpy
-        arrays) together.
-        """
-        return np.dot(b, a)
-
     def __eq__(self, other):
         if getattr(other, "is_affine", False):
             return np.all(self.get_matrix() == other.get_matrix())
@@ -2018,9 +2010,8 @@ class Affine2D(Affine2DBase):
         """
         a = np.cos(theta)
         b = np.sin(theta)
-        rotate_mtx = np.array([[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
-                              float)
-        self._mtx = np.dot(rotate_mtx, self._mtx)
+        rotate_mtx = np.array([[a, -b, 0.], [b, a, 0.], [0., 0., 1.]])
+        self._mtx = rotate_mtx @ self._mtx
         self.invalidate()
         return self
 
@@ -2042,6 +2033,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
+        # Cast to float to avoid wraparound issues with uint8's
+        x, y = float(x), float(y)
         return self.translate(-x, -y).rotate(theta).translate(x, y)
 
     def rotate_deg_around(self, x, y, degrees):
@@ -2064,9 +2057,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        translate_mtx = np.array(
-            [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(translate_mtx, self._mtx)
+        translate_mtx = np.array([[1., 0., tx], [0., 1., ty], [0., 0., 1.]])
+        self._mtx = translate_mtx @ self._mtx
         self.invalidate()
         return self
 
@@ -2083,9 +2075,8 @@ class Affine2D(Affine2DBase):
         """
         if sy is None:
             sy = sx
-        scale_mtx = np.array(
-            [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(scale_mtx, self._mtx)
+        scale_mtx = np.array([[sx, 0., 0.], [0., sy, 0.], [0., 0., 1.]])
+        self._mtx = scale_mtx @ self._mtx
         self.invalidate()
         return self
 
@@ -2102,9 +2093,8 @@ class Affine2D(Affine2DBase):
         """
         rotX = np.tan(xShear)
         rotY = np.tan(yShear)
-        skew_mtx = np.array(
-            [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(skew_mtx, self._mtx)
+        skew_mtx = np.array([[1., rotX, 0.], [rotY, 1., 0.], [0., 0., 1.]])
+        self._mtx = skew_mtx @ self._mtx
         self.invalidate()
         return self
 
@@ -2504,8 +2494,8 @@ class CompositeGenericTransform(Transform):
         if not self._b.is_affine:
             return self._b.get_affine()
         else:
-            return Affine2D(np.dot(self._b.get_affine().get_matrix(),
-                                self._a.get_affine().get_matrix()))
+            return Affine2D(self._b.get_affine().get_matrix()
+                            @ self._a.get_affine().get_matrix())
     get_affine.__doc__ = Transform.get_affine.__doc__
 
     def inverted(self):
@@ -2570,9 +2560,7 @@ class CompositeAffine2D(Affine2DBase):
 
     def get_matrix(self):
         if self._invalid:
-            self._mtx = np.dot(
-                self._b.get_matrix(),
-                self._a.get_matrix())
+            self._mtx = self._b.get_matrix() @ self._a.get_matrix()
             self._inverted = None
             self._invalid = 0
         return self._mtx

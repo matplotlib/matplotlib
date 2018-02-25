@@ -1293,7 +1293,7 @@ class FancyArrow(Polygon):
                 # Account for division by zero
                 cx, sx = 0, 1
             M = [[cx, sx], [-sx, cx]]
-            verts = np.dot(coords, M) + (x + dx, y + dy)
+            verts = coords @ M + [x + dx, y + dy]
 
         Polygon.__init__(self, list(map(tuple, verts)), closed=True, **kwargs)
 

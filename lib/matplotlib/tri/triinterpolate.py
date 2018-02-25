@@ -1217,7 +1217,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         Uf, err = _cg(A=Kff_coo, b=Ff, x0=Uf0, tol=tol)
         # If the PCG did not converge, we return the best guess between Uf0
         # and Uf.
-        err0 = np.linalg.norm(Kff_coo.dot(Uf0) - Ff)
+        err0 = np.linalg.norm(Kff_coo @ Uf0 - Ff)
         if err0 < err:
             # Maybe a good occasion to raise a warning here ?
             warnings.warn("In TriCubicInterpolator initialization, PCG sparse"
@@ -1325,7 +1325,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     x: array.
         The converged solution.
     err: float
-        The absolute error np.linalg.norm(A.dot(x) - b)
+        The absolute error np.linalg.norm(A @ x - b)
 
     Other parameters
     ----------------
@@ -1355,28 +1355,28 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     else:
         x = x0
 
-    r = b - A.dot(x)
-    w = r/kvec
+    r = b - A @ x
+    w = r / kvec
 
     p = np.zeros(n)
     beta = 0.0
-    rho = np.dot(r, w)
+    rho = r @ w
     k = 0
 
     # Following C. T. Kelley
     while (np.sqrt(abs(rho)) > tol*b_norm) and (k < maxiter):
         p = w + beta*p
-        z = A.dot(p)
-        alpha = rho/np.dot(p, z)
+        z = A @ p
+        alpha = rho / (p @ z)
         r = r - alpha*z
         w = r/kvec
         rhoold = rho
-        rho = np.dot(r, w)
+        rho = r @ w
         x = x + alpha*p
         beta = rho/rhoold
-        #err = np.linalg.norm(A.dot(x) - b) # absolute accuracy - not used
+        #err = np.linalg.norm(A @ x - b) # absolute accuracy - not used
         k += 1
-    err = np.linalg.norm(A.dot(x) - b)
+    err = np.linalg.norm(A @ x - b)
     return x, err
 
 
