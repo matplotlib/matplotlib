@@ -561,16 +561,17 @@ class Axes(_AxesBase):
         """
         Add text to the axes.
 
-        Add text in string `s` to axis at location `x`, `y`, data
-        coordinates.
+        Add the text *s* to the axes at location *x*, *y* in data coordinates.
 
         Parameters
         ----------
         x, y : scalars
-            data coordinates
+            The position to place the text. By default, this is in data
+            coordinates. The coordinate system can be changed using the
+            *transform* parameter.
 
-        s : string
-            text
+        s : str
+            The text.
 
         fontdict : dictionary, optional, default: None
             A dictionary to override the default text properties. If fontdict
@@ -579,6 +580,11 @@ class Axes(_AxesBase):
         withdash : boolean, optional, default: False
             Creates a `~matplotlib.text.TextWithDash` instance instead of a
             `~matplotlib.text.Text` instance.
+
+        Returns
+        -------
+        text : `.Text`
+            The created `.Text` instance.
 
         Other Parameters
         ----------------
@@ -597,9 +603,8 @@ class Axes(_AxesBase):
         lower-left and 1,1 is upper-right).  The example below places
         text in the center of the axes::
 
-            >>> text(0.5, 0.5,'matplotlib', horizontalalignment='center',
-            ...      verticalalignment='center',
-            ...      transform=ax.transAxes)
+            >>> text(0.5, 0.5, 'matplotlib', horizontalalignment='center',
+            ...      verticalalignment='center', transform=ax.transAxes)
 
         You can put a rectangular box around the text instance (e.g., to
         set a background color) by using the keyword `bbox`.  `bbox` is
@@ -4781,29 +4786,25 @@ class Axes(_AxesBase):
         """
         Add an arrow to the axes.
 
-        Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
-        `y` + `dy`). Uses FancyArrow patch to construct the arrow.
+        This draws an arrow from ``(x, y)`` to ``(x+dx, y+dy)``.
 
         Parameters
         ----------
-        x : float
-            X-coordinate of the arrow base
-        y : float
-            Y-coordinate of the arrow base
-        dx : float
-            Length of arrow along x-coordinate
-        dy : float
-            Length of arrow along y-coordinate
+        x, y : float
+            The x/y-coordinate of the arrow base.
+        dx, dy : float
+            The length of the arrow along x/y-direction.
 
         Returns
         -------
-        a : FancyArrow
-            patches.FancyArrow object
+        arrow : `.FancyArrow`
+            The created `.FancyArrow` object.
 
         Other Parameters
-        -----------------
-        Optional kwargs (inherited from FancyArrow patch) control the arrow
-        construction and properties:
+        ----------------
+        **kwargs
+            Optional kwargs (inherited from `.FancyArrow` patch) control the
+            arrow construction and properties:
 
         %(FancyArrow)s
 
@@ -4811,11 +4812,12 @@ class Axes(_AxesBase):
         -----
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
-        create an arrow whose head is square with its stem, use
-        :meth:`annotate` for example::
+        create an arrow whose head is square with its stem,
+        use :meth:`annotate` for example:
 
-            ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
-                arrowprops=dict(arrowstyle="->"))
+        >>> ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
+        ...             arrowprops=dict(arrowstyle="->"))
+
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -6181,7 +6183,7 @@ class Axes(_AxesBase):
                 cellLoc='right', colWidths=None,
                 rowLabels=None, rowColours=None, rowLoc='left',
                 colLabels=None, colColours=None, colLoc='center',
-                loc='bottom', bbox=None):
+                loc='bottom', bbox=None)
 
         Returns a :class:`matplotlib.table.Table` instance. Either `cellText`
         or `cellColours` must be provided. For finer grained control over
