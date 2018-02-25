@@ -679,13 +679,8 @@ class Axes(_AxesBase):
 
         See also
         --------
-        hlines : add horizontal lines in data coordinates
-        axhspan : add a horizontal span (rectangle) across the axis
-
-        Notes
-        -----
-        kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
-        to control the line properties.
+        hlines : Add horizontal lines in data coordinates.
+        axhspan : Add a horizontal span (rectangle) across the axis.
 
         Examples
         --------
@@ -769,8 +764,8 @@ class Axes(_AxesBase):
 
         See also
         --------
-        vlines : add vertical lines in data coordinates
-        axvspan : add a vertical span (rectangle) across the axis
+        vlines : Add vertical lines in data coordinates.
+        axvspan : Add a vertical span (rectangle) across the axis.
         """
 
         if "transform" in kwargs:
@@ -829,7 +824,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        axvspan : add a vertical span across the axes
+        axvspan : Add a vertical span across the axes.
         """
         trans = self.get_yaxis_transform(which='grid')
 
@@ -886,7 +881,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        axhspan : add a horizontal span across the axes
+        axhspan : Add a horizontal span across the axes.
 
         Examples
         --------
