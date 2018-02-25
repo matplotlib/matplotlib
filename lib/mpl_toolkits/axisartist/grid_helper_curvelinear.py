@@ -298,10 +298,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
                 delta=0.00001
-                if (0. -delta<= c2[0] <= 1.+delta) and \
-                       (0. -delta<= c2[1] <= 1.+delta):
-                    d1 = d/3.14159*180.
-                    d2 = d2/3.14159*180.
+                if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
+                    d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
 
         return f1(), iter([])

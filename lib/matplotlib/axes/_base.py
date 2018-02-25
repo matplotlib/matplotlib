@@ -403,8 +403,7 @@ class _process_plot_var_args(object):
             if args and isinstance(args[0], six.string_types):
                 this += args[0],
                 args = args[1:]
-            for seg in self._plot_args(this, kwargs):
-                yield seg
+            yield from self._plot_args(this, kwargs)
 
 
 class _AxesBase(martist.Artist):

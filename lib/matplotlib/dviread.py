@@ -958,8 +958,7 @@ class Encoding(object):
             _log.debug('Result: %s', self.encoding)
 
     def __iter__(self):
-        for name in self.encoding:
-            yield name
+        yield from self.encoding
 
     def _parse(self, file):
         result = []

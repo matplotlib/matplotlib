@@ -967,11 +967,8 @@ class RcParams(MutableMapping, dict):
                          for k, v in sorted(self.items()))
 
     def __iter__(self):
-        """
-        Yield sorted list of keys.
-        """
-        for k in sorted(dict.__iter__(self)):
-            yield k
+        """Yield sorted list of keys."""
+        yield from sorted(dict.__iter__(self))
 
     def find_all(self, pattern):
         """
@@ -1015,18 +1012,11 @@ def is_url(filename):
     return URL_REGEX.match(filename) is not None
 
 
-def _url_lines(f):
-    # Compatibility for urlopen in python 3, which yields bytes.
-    for line in f:
-        yield line.decode('utf8')
-
-
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if is_url(fname):
-        f = urlopen(fname)
-        yield _url_lines(f)
-        f.close()
+        with urlopen(fname) as f:
+            yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
         encoding = locale.getpreferredencoding(do_setlocale=False)
