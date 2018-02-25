@@ -1132,8 +1132,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parents = np.atleast_1d(parents).ravel()
 
     # check if using constrained_layout:
-    gs = parents[0].get_subplotspec().get_gridspec()
-    using_constrained_layout = (gs._layoutbox is not None)
+    try:
+        gs = parents[0].get_subplotspec().get_gridspec()
+        using_constrained_layout = (gs._layoutbox is not None)
+    except AttributeError:
+        using_constrained_layout = False
+
     # defaults are not appropriate for constrained_layout:
     pad0 = loc_settings['pad']
     if using_constrained_layout:
