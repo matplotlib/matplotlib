@@ -377,3 +377,14 @@ def test_constrained_layout19():
     ax.set_title('')
     fig.canvas.draw()
     assert all(ax.get_position().extents == ax2.get_position().extents)
+
+
+def test_constrained_layout20():
+    'Smoke test cl does not mess up added axes'
+    gx = np.linspace(-5, 5, 4)
+    img = np.hypot(gx, gx[:, None])
+
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    mesh = ax.pcolormesh(gx, gx, img)
+    fig.colorbar(mesh)
