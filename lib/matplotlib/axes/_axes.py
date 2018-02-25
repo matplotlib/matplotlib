@@ -3520,6 +3520,10 @@ class Axes(_AxesBase):
 
           - ``means``: points or lines representing the means.
 
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
+
         """
 
         # If defined in matplotlibrc, apply the value from rc file
