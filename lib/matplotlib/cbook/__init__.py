@@ -24,6 +24,7 @@ import locale
 import numbers
 import operator
 import os
+from pathlib import Path
 import re
 import sys
 import time
@@ -2486,6 +2487,7 @@ removing these folders and trying again.
 """
 
 
+@deprecated("3.0")
 class Locked(object):
     """
     Context manager to handle locks.
@@ -2539,6 +2541,40 @@ class Locked(object):
                     os.rmdir(path)
                 except OSError:
                     pass
+
+
+@contextlib.contextmanager
+def _lock_path(path):
+    """
+    Context manager for locking a path.
+
+    Usage::
+
+        with _lock_path(path):
+            ...
+
+    Another thread or process that attempts to lock the same path will wait
+    until this context manager is exited.
+
+    The lock is implemented by creating a temporary file in the parent
+    directory, so that directory must exist and be writable.
+    """
+    path = Path(path)
+    lock_path = path.with_name(path.name + ".matplotlib-lock")
+    retries = 50
+    sleeptime = 0.1
+    for _ in range(retries):
+        try:
+            with lock_path.open("xb"):
+                break
+        except FileExistsError:
+            time.sleep(sleeptime)
+    else:
+        raise TimeoutError(_lockstr.format(lock_path))
+    try:
+        yield
+    finally:
+        lock_path.unlink()
 
 
 def _topmost_artist(
