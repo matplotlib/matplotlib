@@ -40,8 +40,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    _backports, mplDeprecation, warn_deprecated,
-    STEP_LOOKUP_MAP, iterable, safe_first_element)
+    mplDeprecation, warn_deprecated, STEP_LOOKUP_MAP, iterable,
+    safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -2316,7 +2316,7 @@ class Axes(_AxesBase):
         self.add_container(bar_container)
 
         if tick_labels is not None:
-            tick_labels = _backports.broadcast_to(tick_labels, len(patches))
+            tick_labels = np.broadcast_to(tick_labels, len(patches))
             tick_label_axis.set_ticks(tick_label_position)
             tick_label_axis.set_ticklabels(tick_labels)
 

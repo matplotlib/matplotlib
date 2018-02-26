@@ -18,7 +18,6 @@ import numpy as np
 
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
-from matplotlib.cbook import _backports
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection,
     PathCollection)
@@ -147,7 +146,7 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
 def path_to_3d_segment(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment.'''
 
-    zs = _backports.broadcast_to(zs, len(path))
+    zs = np.broadcast_to(zs, len(path))
     pathsegs = path.iter_segments(simplify=False, curves=False)
     seg = [(x, y, z) for (((x, y), code), z) in zip(pathsegs, zs)]
     seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
@@ -159,7 +158,7 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
     Convert paths from a collection object to 3D segments.
     '''
 
-    zs = _backports.broadcast_to(zs, len(paths))
+    zs = np.broadcast_to(zs, len(paths))
     segs = [path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return segs
@@ -168,7 +167,7 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment with path codes.'''
 
-    zs = _backports.broadcast_to(zs, len(path))
+    zs = np.broadcast_to(zs, len(path))
     seg = []
     codes = []
     pathsegs = path.iter_segments(simplify=False, curves=False)
@@ -184,7 +183,7 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     Convert paths from a collection object to 3D segments with path codes.
     '''
 
-    zs = _backports.broadcast_to(zs, len(paths))
+    zs = np.broadcast_to(zs, len(paths))
     segments = []
     codes_list = []
     for path, pathz in zip(paths, zs):
@@ -258,7 +257,7 @@ class Patch3D(Patch):
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
-        zs = _backports.broadcast_to(zs, len(verts))
+        zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
                            for ((x, y), z) in zip(verts, zs)]
         self._facecolor3d = Patch.get_facecolor(self)
@@ -755,7 +754,7 @@ def rotate_axes(xs, ys, zs, zdir):
 
 def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
-    return _backports.broadcast_to(
+    return np.broadcast_to(
         mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
         (num, 4))
 
