@@ -339,7 +339,7 @@ failbackend = dict(
     )
 
 
-from matplotlib.compat import subprocess
+import subprocess
 
 
 def run(arglist):
