@@ -16,7 +16,9 @@ from .backend_wx import (
 
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
-        return FigureCanvasWxAgg(self, -1, fig)
+        canvas = FigureCanvasWxAgg(fig)
+        canvas.Reparent(self)
+        return canvas
 
 
 class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):

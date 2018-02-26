@@ -4,17 +4,19 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import wx
+import wx.lib.wxcairo as wxcairo
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
-import wx.lib.wxcairo as wxcairo
 
 
 class FigureFrameWxCairo(FigureFrameWx):
     def get_canvas(self, fig):
-        return FigureCanvasWxCairo(self, -1, fig)
+        canvas = FigureCanvasWxCairo(fig)
+        canvas.Reparent(self)
+        return canvas
 
 
 class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
@@ -27,12 +29,13 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
     we give a hint as to our preferred minimum size.
     """
 
-    def __init__(self, parent, id, figure):
+    def __init__(self, *args):
         # _FigureCanvasWxBase should be fixed to have the same signature as
         # every other FigureCanvas and use cooperative inheritance, but in the
-        # meantime the following will make do.
-        _FigureCanvasWxBase.__init__(self, parent, id, figure)
-        FigureCanvasCairo.__init__(self, figure)
+        # meantime the following will make do.  (`args[-1]` is always the
+        # figure.)
+        _FigureCanvasWxBase.__init__(self, *args)
+        FigureCanvasCairo.__init__(self, args[-1])
         self._renderer = RendererCairo(self.figure.dpi)
 
     def draw(self, drawDC=None):

@@ -613,16 +613,29 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wx.WXK_NUMPAD_DELETE: 'delete',
     }
 
-    def __init__(self, parent, id, figure):
+    def __init__(self, *args):
         """
-        Initialise a FigureWx instance.
+        Initialize a FigureWx instance.
 
-        - Initialise the FigureCanvasBase and wxPanel parents.
-        - Set event handlers for:
-          EVT_SIZE  (Resize event)
-          EVT_PAINT (Paint event)
+        Initialize the FigureCanvasBase and wxPanel parents and set event
+        handlers.
+
+        Note that the canvas parent is set to the top window
+        (``wx.App().GetTopWindow()``) and it is the responsibility of the
+        caller to ``Reparent`` the canvas.
         """
 
+        if len(args) == 3:
+            # Legacy signature.
+            cbook.warn_deprecated(
+                "3.0", "Passing a parent and id to the FigureCanvasWx "
+                "constructor is deprecated; use 'SetId' and 'Reparent' if "
+                "needed.")
+            parent, id, figure = args
+        else:
+            parent = wx.GetApp().GetTopWindow()
+            id = wx.ID_ANY
+            figure, = args
         FigureCanvasBase.__init__(self, figure)
         # Set preferred window size hint - helps the sizer (if one is
         # connected)
@@ -1227,7 +1240,9 @@ class FigureFrameWx(wx.Frame):
         return toolbar
 
     def get_canvas(self, fig):
-        return FigureCanvasWx(self, -1, fig)
+        canvas = FigureCanvasWx(fig)
+        canvas.Reparent(self)
+        return canvas
 
     def get_figure_manager(self):
         DEBUG_MSG("get_figure_manager()", 1, self)
@@ -1279,17 +1294,24 @@ class FigureManagerWx(FigureManagerBase):
     def __init__(self, canvas, num, frame):
         DEBUG_MSG("__init__()", 1, self)
         FigureManagerBase.__init__(self, canvas, num)
-        self.frame = frame
         self.window = frame
-
-        self.tb = frame.GetToolBar()
-        self.toolbar = self.tb  # consistent with other backends
+        self.toolbar = frame.GetToolBar()
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.tb is not None:
-                self.tb.update()
+            if self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
+
+    @property
+    @cbook.deprecated("3.0")
+    def frame(self):
+        return self.window
+
+    @property
+    @cbook.deprecated("3.0")
+    def tb(self):
+        return self.toolbar
 
     def show(self):
         self.frame.Show()
@@ -1477,7 +1499,8 @@ class SubplotToolWX(wx.Frame):
         wx.Frame.__init__(self, None, -1, "Configure subplots")
 
         toolfig = Figure((6, 3))
-        canvas = FigureCanvasWx(self, -1, toolfig)
+        canvas = FigureCanvasWx(toolfig)
+        canvas.Reparent(self)
 
         # Create a figure manager to manage things
         figmgr = FigureManager(canvas, 1, self)
@@ -1493,7 +1516,7 @@ class SubplotToolWX(wx.Frame):
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
-        wx.ToolBar.__init__(self, canvas.GetParent(), -1)
+        wx.ToolBar.__init__(self, canvas.GetParent())
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
@@ -1506,7 +1529,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
+        canvas = type(self.canvas)(fig)
+        canvas.Reparent(frame)
+        return canvas
 
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
@@ -1537,7 +1562,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         NavigationToolbar2.pan(self, *args)
 
     def configure_subplots(self, evt):
-        frame = wx.Frame(None, -1, "Configure subplots")
+        frame = wx.Frame(None, title="Configure subplots")
 
         toolfig = Figure((6, 3))
         canvas = self.get_canvas(frame, toolfig)
@@ -1710,7 +1735,7 @@ class StatusBarWx(wx.StatusBar):
     """
 
     def __init__(self, parent):
-        wx.StatusBar.__init__(self, parent, -1)
+        wx.StatusBar.__init__(self, parent)
         self.SetFieldsCount(2)
         self.SetStatusText("None", 1)
         # self.SetStatusText("Measurement: None", 2)
