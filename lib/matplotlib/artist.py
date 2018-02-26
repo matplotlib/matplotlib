@@ -1463,13 +1463,9 @@ def setp(obj, *args, **kwargs):
         raise ValueError('The set args must be string, value pairs')
 
     # put args into ordereddict to maintain order
-    funcvals = OrderedDict()
-    for i in range(0, len(args) - 1, 2):
-        funcvals[args[i]] = args[i + 1]
-
-    ret = [o.update(funcvals) for o in objs]
-    ret.extend([o.set(**kwargs) for o in objs])
-    return [x for x in cbook.flatten(ret)]
+    funcvals = OrderedDict((k, v) for k, v in zip(args[::2], args[1::2]))
+    ret = [o.update(funcvals) for o in objs] + [o.set(**kwargs) for o in objs]
+    return list(cbook.flatten(ret))
 
 
 def kwdoc(a):
