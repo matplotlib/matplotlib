@@ -2378,10 +2378,9 @@ class Axes3D(Axes):
             """
             self.set_facecolor2d(c)
 
-            c = self.get_facecolor()    # new color
+            c = self.get_facecolor().copy()    # new color
             length_old = self._facecolor3d.shape[0]
             length_new = c.shape[0]
-
             # reset alpha value to original
             if (length_new > length_old):
                 c[:, 3] = self._facecolor3d[0, 3]
@@ -2404,7 +2403,7 @@ class Axes3D(Axes):
             """
             self.set_edgecolor2d(c)
 
-            c = self.get_edgecolor()    # new color
+            c = self.get_edgecolor().copy()    # new color
             length_old = self._edgecolor3d.shape[0]
             length_new = c.shape[0]
 

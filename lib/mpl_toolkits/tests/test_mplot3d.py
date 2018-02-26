@@ -176,7 +176,7 @@ def test_scatter3d_color():
 
 
 @image_comparison(baseline_images=['scatter3d_change_color'], remove_text=True,
-                  extensions=['png'])
+                  style='mpl20', extensions=['png'])
 def test_scatter3d_change_color():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
