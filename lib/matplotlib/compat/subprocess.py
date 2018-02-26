@@ -13,9 +13,8 @@ import subprocess
 from matplotlib.cbook import warn_deprecated
 warn_deprecated(since='3.0',
                 name='matplotlib.compat.subprocess',
-                alternative='All the functionality provided by this module '
-                            'is available in the python 3 standard library '
-                            '"subprocess" module.',
+                alternative='the python 3 standard library '
+                            '"subprocess" module',
                 obj_type='module')
 
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError']
