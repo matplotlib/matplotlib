@@ -219,8 +219,7 @@ import six
 
 import warnings
 
-from matplotlib.cbook import (
-    flatten, exception_to_str, silent_list, iterable, dedent)
+from matplotlib.cbook import flatten, silent_list, iterable, dedent
 
 import matplotlib as mpl
 

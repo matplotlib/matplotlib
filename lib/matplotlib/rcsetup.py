@@ -539,26 +539,6 @@ _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ignorecase=True)
 
 
-@deprecated('2.1',
-            addendum=(" See 'validate_negative_linestyle_legacy' " +
-                      "deprecation warning for more information."))
-def validate_negative_linestyle(s):
-    return _validate_negative_linestyle(s)
-
-
-@deprecated('2.1',
-            addendum=(" The 'contour.negative_linestyle' rcParam now " +
-                      "follows the same validation as the other rcParams " +
-                      "that are related to line style."))
-def validate_negative_linestyle_legacy(s):
-    try:
-        res = validate_negative_linestyle(s)
-        return res
-    except ValueError:
-        dashes = validate_nseq_float(2)(s)
-        return (0, dashes)  # (offset, (solid, blank))
-
-
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
     ['best',

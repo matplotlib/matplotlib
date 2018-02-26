@@ -3,8 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import six
 from six.moves.urllib.parse import urlparse
@@ -182,21 +180,6 @@ def _rgb_to_rgba(A):
 
 class _ImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
-
-    @property
-    @cbook.deprecated("2.1")
-    def _interpd(self):
-        return _interpd_
-
-    @property
-    @cbook.deprecated("2.1")
-    def _interpdr(self):
-        return {v: k for k, v in six.iteritems(_interpd_)}
-
-    @property
-    @cbook.deprecated("2.1", alternative="mpl.image.interpolation_names")
-    def iterpnames(self):
-        return interpolations_names
 
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)

@@ -15,15 +15,6 @@ needs_sphinx = pytest.mark.skipif(
     reason="'{} -msphinx' does not return 0".format(sys.executable))
 
 
-@cbook.deprecated("2.1", alternative="filecmp.cmp")
-def file_same(file1, file2):
-    with open(file1, 'rb') as fobj:
-        contents1 = fobj.read()
-    with open(file2, 'rb') as fobj:
-        contents2 = fobj.read()
-    return contents1 == contents2
-
-
 def test_tinypages(tmpdir):
     html_dir = pjoin(str(tmpdir), 'html')
     doctree_dir = pjoin(str(tmpdir), 'doctrees')

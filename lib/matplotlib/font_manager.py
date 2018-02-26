@@ -19,7 +19,6 @@ the advantage that it is the standard way to look up fonts on X11
 platforms, so if a font is installed, it is much more likely to be
 found.
 """
-from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -338,24 +337,6 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             fontfiles.add(os.path.abspath(fname))
 
     return [fname for fname in fontfiles if os.path.exists(fname)]
-
-
-@cbook.deprecated("2.1")
-def weight_as_number(weight):
-    """
-    Return the weight property as a numeric value.  String values
-    are converted to their corresponding numeric value.
-    """
-    if isinstance(weight, six.string_types):
-        try:
-            weight = weight_dict[weight.lower()]
-        except KeyError:
-            weight = 400
-    elif weight in range(100, 1000, 100):
-        pass
-    else:
-        raise ValueError('weight not a valid integer')
-    return weight
 
 
 class FontEntry(object):
@@ -920,22 +901,6 @@ class FontProperties(object):
     def copy(self):
         """Return a deep copy of self"""
         return FontProperties(_init=self)
-
-
-@cbook.deprecated("2.1")
-def ttfdict_to_fnames(d):
-    """
-    flatten a ttfdict to all the filenames it contains
-    """
-    fnames = []
-    for named in six.itervalues(d):
-        for styled in six.itervalues(named):
-            for variantd in six.itervalues(styled):
-                for weightd in six.itervalues(variantd):
-                    for stretchd in six.itervalues(weightd):
-                        for fname in six.itervalues(stretchd):
-                            fnames.append(fname)
-    return fnames
 
 
 class JSONEncoder(json.JSONEncoder):

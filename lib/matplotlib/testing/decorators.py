@@ -55,12 +55,6 @@ def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
         return knownfailureif(fail_condition, msg, known_exception_class)
 
 
-@cbook.deprecated('2.1',
-                  alternative='pytest.xfail or import the plugin')
-def knownfailureif(fail_condition, msg=None, known_exception_class=None):
-    _knownfailureif(fail_condition, msg, known_exception_class)
-
-
 def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
 
@@ -329,12 +323,6 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
 
     def teardown(self):
         self.teardown_class()
-
-    @staticmethod
-    @cbook.deprecated('2.1',
-                      alternative='remove_ticks_and_titles')
-    def remove_text(figure):
-        remove_ticks_and_titles(figure)
 
     def nose_runner(self):
         func = self.compare

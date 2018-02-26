@@ -5574,15 +5574,6 @@ def test_zero_linewidth():
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
 
 
-def test_patch_deprecations():
-    fig, ax = plt.subplots()
-    with warnings.catch_warnings(record=True) as w:
-        assert ax.patch == ax.axesPatch
-        assert fig.patch == fig.figurePatch
-
-    assert len(w) == 2
-
-
 def test_polar_gridlines():
     fig = plt.figure()
     ax = fig.add_subplot(111, polar=True)
