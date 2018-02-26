@@ -855,8 +855,6 @@ def test_imshow_bignumbers():
     img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
     pc = ax.imshow(img)
     pc.set_clim(0, 5)
-    plt.show()
-
 
 @pytest.mark.parametrize(
     "make_norm",

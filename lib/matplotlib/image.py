@@ -396,6 +396,22 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # scaled data
                 A_scaled = np.empty(A.shape, dtype=scaled_dtype)
                 A_scaled[:] = A
+                # clip scaled data around norm if necessary.
+                # This is necessary for big numbers at the edge of
+                # float64's ability to represent changes.  Applying
+                # a norm first would be good, but ruins the interpolation
+                # of over numbers.
+                if self.norm.vmin is not None and self.norm.vmax is not None:
+                    dv = self.norm.vmax - self.norm.vmin
+                    vmid = self.norm.vmin + dv / 2
+                    newmin = vmid - dv * 1.e7
+                    if newmin > a_min:
+                        A_scaled[A_scaled < newmin ] = newmin
+                        a_min = np.float64(newmin)
+                    newmax = vmid + dv * 1.e7
+                    if newmax < a_max:
+                        A_scaled[A_scaled > newmax] = newmax
+                        a_max = np.float64(newmax)
                 A_scaled -= a_min
                 # a_min and a_max might be ndarray subclasses so use
                 # asscalar to ensure they are scalars to avoid errors
