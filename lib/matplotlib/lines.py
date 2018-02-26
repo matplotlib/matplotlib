@@ -162,49 +162,38 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
                         _slice_or_none(codes, slice(start, None, step)))
 
         elif isinstance(step, float):
-            if not (isinstance(start, int) or
-                    isinstance(start, float)):
-                raise ValueError('`markevery` is a tuple with '
-                    'len 2 and second element is a float, but '
-                    'the first element is not a float or an '
-                    'int; '
+            if not isinstance(start, (int, float)):
+                raise ValueError(
+                    '`markevery` is a tuple with len 2 and second element is '
+                    'a float, but the first element is not a float or an int; '
                     'markevery=%s' % (markevery,))
-            #calc cumulative distance along path (in display
-            # coords):
+            # calc cumulative distance along path (in display coords):
             disp_coords = affine.transform(tpath.vertices)
-            delta = np.empty((len(disp_coords), 2),
-                             dtype=float)
-            delta[0, :] = 0.0
-            delta[1:, :] = (disp_coords[1:, :] -
-                                disp_coords[:-1, :])
+            delta = np.empty((len(disp_coords), 2))
+            delta[0, :] = 0
+            delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
             delta = np.sum(delta**2, axis=1)
             delta = np.sqrt(delta)
             delta = np.cumsum(delta)
-            #calc distance between markers along path based on
-            # the axes bounding box diagonal being a distance
-            # of unity:
-            scale = ax_transform.transform(
-                np.array([[0, 0], [1, 1]]))
+            # calc distance between markers along path based on the axes
+            # bounding box diagonal being a distance of unity:
+            scale = ax_transform.transform(np.array([[0, 0], [1, 1]]))
             scale = np.diff(scale, axis=0)
             scale = np.sum(scale**2)
             scale = np.sqrt(scale)
-            marker_delta = np.arange(start * scale,
-                                     delta[-1],
-                                     step * scale)
-            #find closest actual data point that is closest to
+            marker_delta = np.arange(start * scale, delta[-1], step * scale)
+            # find closest actual data point that is closest to
             # the theoretical distance along the path:
-            inds = np.abs(delta[np.newaxis, :] -
-                            marker_delta[:, np.newaxis])
+            inds = np.abs(delta[np.newaxis, :] - marker_delta[:, np.newaxis])
             inds = inds.argmin(axis=1)
             inds = np.unique(inds)
             # return, we are done here
             return Path(verts[inds],
                         _slice_or_none(codes, inds))
         else:
-            raise ValueError('`markevery` is a tuple with '
-                'len 2, but its second element is not an int '
-                'or a float; '
-                'markevery=%s' % (markevery,))
+            raise ValueError(
+                '`markevery` is a tuple with len 2, but its second element is '
+                'not an int or a float; markevery=%s' % (markevery,))
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return

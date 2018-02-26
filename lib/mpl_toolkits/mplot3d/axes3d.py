@@ -1996,11 +1996,7 @@ class Axes3D(Axes):
         xt = tri.x[triangles]
         yt = tri.y[triangles]
         zt = z[triangles]
-
-        # verts = np.stack((xt, yt, zt), axis=-1)
-        verts = np.concatenate((
-            xt[..., np.newaxis], yt[..., np.newaxis], zt[..., np.newaxis]
-        ), axis=-1)
+        verts = np.stack((xt, yt, zt), axis=-1)
 
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
