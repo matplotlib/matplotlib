@@ -2674,6 +2674,15 @@ class FigureManagerBase(object):
                 'key_press_event',
                 self.key_press)
 
+        self.toolmanager = None
+        self.toolbar = None
+
+        @self.canvas.figure.add_axobserver
+        def notify_axes_change(fig):
+            # Called whenever the current axes is changed.
+            if self.toolmanager is None and self.toolbar is not None:
+                self.toolbar.update()
+
     def show(self):
         """
         For GUI backends, show the figure window and redraw.

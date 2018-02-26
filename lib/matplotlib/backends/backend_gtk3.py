@@ -394,14 +394,6 @@ class FigureManagerGTK3(FigureManagerBase):
             self.window.show()
             self.canvas.draw_idle()
 
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolmanager is not None:
-                pass
-            elif self.toolbar is not None:
-                self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
-
         self.canvas.grab_focus()
 
     def destroy(self, *args):
