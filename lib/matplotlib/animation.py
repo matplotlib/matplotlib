@@ -30,6 +30,7 @@ import itertools
 import logging
 import os
 import platform
+import subprocess
 import sys
 import tempfile
 import uuid
@@ -38,7 +39,6 @@ import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
-from matplotlib.compat import subprocess
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 if six.PY2:

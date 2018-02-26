@@ -133,6 +133,7 @@ from pathlib import Path
 import re
 import shutil
 import stat
+import subprocess
 import tempfile
 import warnings
 
@@ -141,7 +142,6 @@ import warnings
 from . import cbook
 from matplotlib.cbook import (
     _backports, mplDeprecation, dedent, get_label, sanitize_sequence)
-from matplotlib.compat import subprocess
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy

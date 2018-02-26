@@ -566,7 +566,7 @@ def skip_if_command_unavailable(cmd):
         return a non zero exit code, something like
         ["latex", "-version"]
     """
-    from matplotlib.compat.subprocess import check_output
+    from subprocess import check_output
     try:
         check_output(cmd)
     except:
