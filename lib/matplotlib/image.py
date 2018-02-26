@@ -402,16 +402,22 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # a norm first would be good, but ruins the interpolation
                 # of over numbers.
                 if self.norm.vmin is not None and self.norm.vmax is not None:
-                    dv = self.norm.vmax - self.norm.vmin
+                    dv = (np.float64(self.norm.vmax) -
+                            np.float64(self.norm.vmin))
                     vmid = self.norm.vmin + dv / 2
                     newmin = vmid - dv * 1.e7
-                    if newmin > a_min:
-                        A_scaled[A_scaled < newmin ] = newmin
+                    if newmin < a_min:
+                        newmin = None
+                    else:
                         a_min = np.float64(newmin)
                     newmax = vmid + dv * 1.e7
-                    if newmax < a_max:
-                        A_scaled[A_scaled > newmax] = newmax
+                    if newmax > a_max:
+                        newmax = None
+                    else:
                         a_max = np.float64(newmax)
+                    if newmax is not None or newmin is not None:
+                        A_scaled = np.clip(A_scaled, newmin, newmax)
+
                 A_scaled -= a_min
                 # a_min and a_max might be ndarray subclasses so use
                 # asscalar to ensure they are scalars to avoid errors
