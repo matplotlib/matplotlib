@@ -3175,16 +3175,10 @@ class Axes(_AxesBase):
         caplines = []
 
         # arrays fine here, they are booleans and hence not units
-        def _bool_asarray_helper(d, expected):
-            if not iterable(d):
-                return np.asarray([d] * expected, bool)
-            else:
-                return np.asarray(d, bool)
-
-        lolims = _bool_asarray_helper(lolims, len(x))
-        uplims = _bool_asarray_helper(uplims, len(x))
-        xlolims = _bool_asarray_helper(xlolims, len(x))
-        xuplims = _bool_asarray_helper(xuplims, len(x))
+        lolims = np.broadcast_to(lolims, len(x)).astype(bool)
+        uplims = np.broadcast_to(uplims, len(x)).astype(bool)
+        xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
+        xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
         everymask = np.arange(len(x)) % errorevery == 0
 
@@ -3216,9 +3210,9 @@ class Axes(_AxesBase):
             else:
                 if iterable(a) and iterable(b):
                     # using list comps rather than arrays to preserve units
-                    low = [thisx - thiserr for (thisx, thiserr)
+                    low = [thisx - thiserr for thisx, thiserr
                            in cbook.safezip(data, a)]
-                    high = [thisx + thiserr for (thisx, thiserr)
+                    high = [thisx + thiserr for thisx, thiserr
                             in cbook.safezip(data, b)]
                     return low, high
             # Check if xerr is scalar or symmetric. Asymmetric is handled
@@ -3227,13 +3221,13 @@ class Axes(_AxesBase):
             # special case for empty lists
             if len(err) > 1:
                 fe = safe_first_element(err)
-                if (len(err) != len(data) or np.size(fe) > 1):
+                if len(err) != len(data) or np.size(fe) > 1:
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units
-            low = [thisx - thiserr for (thisx, thiserr)
+            low = [thisx - thiserr for thisx, thiserr
                    in cbook.safezip(data, err)]
-            high = [thisx + thiserr for (thisx, thiserr)
+            high = [thisx + thiserr for thisx, thiserr
                     in cbook.safezip(data, err)]
             return low, high
 
