@@ -512,6 +512,18 @@ def test_nonuniformimage_setnorm():
 
 
 @needs_pillow
+def test_jpeg_2d():
+    # smoke test that mode-L pillow images work.
+    imd = np.ones((10, 10), dtype='uint8')
+    for i in range(10):
+        imd[i, :] = np.linspace(0.0, 1.0, 10) * 255
+    im = Image.new('L', (10, 10))
+    im.putdata(imd.flatten())
+    fig, ax = plt.subplots()
+    ax.imshow(im)
+
+
+@needs_pillow
 def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
