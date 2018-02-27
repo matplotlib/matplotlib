@@ -173,7 +173,7 @@ class SubplotBase(object):
         """
         from matplotlib.projections import process_projection_requirements
         if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
-           raise ValueError("Twinned Axes may share only one axis.")
+            raise ValueError("Twinned Axes may share only one axis.")
         kl = (self.get_subplotspec(),) + kl
         projection_class, kwargs, key = process_projection_requirements(
             self.figure, *kl, **kwargs)
