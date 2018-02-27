@@ -51,7 +51,7 @@ else:
     except:
         warnings.warn('error getting fonts from fc-list', UserWarning)
 
-        
+
 _luatex_version_re = re.compile(
     'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
 )
@@ -66,7 +66,7 @@ def get_texcommand():
 
 def _get_lualatex_version():
     """Get version of luatex"""
-    output = check_output(['lualatex', '--version'])
+    output = subprocess.check_output(['lualatex', '--version'])
     return _parse_lualatex_version(output.decode())
 
 
@@ -1157,7 +1157,9 @@ class PdfPages:
             os.path.basename(self._fname_tex),
         ]
         try:
-            check_output(cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir)
+            subprocess.check_output(
+                cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir
+            )
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "%s was not able to process your file.\n\nFull log:\n%s"
