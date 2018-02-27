@@ -131,7 +131,7 @@ _Matrix commands
   cumsum    - the cumulative sum along a dimension
   detrend   - remove the mean or besdt fit line from an array
   diag      - the k-th diagonal of matrix
-  diff      - the n-th differnce of an array
+  diff      - the n-th difference of an array
   eig       - the eigenvalues and eigen vectors of v
   eye       - a matrix where the k-th diagonal is ones, else zero
   find      - return the indices where a condition is nonzero

@@ -162,8 +162,8 @@ def _parse_header(fh):
         try:
             d[key] = headerConverters[key](val)
         except ValueError:
-            print('Value error parsing header in AFM:',
-                  key, val, file=sys.stderr)
+            print('Value error parsing header in AFM:', key, val,
+                  file=sys.stderr)
             continue
         except KeyError:
             print('Found an unknown keyword in AFM header (was %r)' % key,

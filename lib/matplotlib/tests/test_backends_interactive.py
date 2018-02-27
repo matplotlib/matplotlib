@@ -1,20 +1,14 @@
 import importlib
 import os
+import subprocess
 import sys
 
-from matplotlib.compat.subprocess import Popen
 import pytest
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
 # PyPI-installable on Travis.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
-#
-# We also don't test on Py2 because its subprocess module doesn't support
-# timeouts, and it would require a separate code path to check for module
-# existence without actually trying to import the module (which may install
-# an undesirable input hook).
-
 
 def _get_testable_interactive_backends():
     backends = []
@@ -53,6 +47,6 @@ plt.show()
 def test_backend(backend):
     environ = os.environ.copy()
     environ["MPLBACKEND"] = backend
-    proc = Popen([sys.executable, "-c", _test_script], env=environ)
+    proc = subprocess.Popen([sys.executable, "-c", _test_script], env=environ)
     # Empirically, 1s is not enough on Travis.
     assert proc.wait(timeout=10) == 0

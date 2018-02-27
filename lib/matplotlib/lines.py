@@ -317,7 +317,7 @@ class Line2D(Artist):
 
         %(Line2D)s
 
-        See :meth:`set_linestyle` for a decription of the line styles,
+        See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
         :meth:`set_drawstyle` for a description of the draw styles.
 
@@ -1038,17 +1038,10 @@ class Line2D(Artist):
         ls : str
             The linestyle with the drawstyle (if any) stripped.
         '''
-        ret_ds = None
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
-                ret_ds = ds
-                if len(ls) > len(ds):
-                    ls = ls[len(ds):]
-                else:
-                    ls = '-'
-                break
-
-        return ret_ds, ls
+                return ds, ls[len(ds):] or '-'
+        return None, ls
 
     def set_linestyle(self, ls):
         """

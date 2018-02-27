@@ -328,8 +328,7 @@ class Ticks(Line2D, AttributeCopier):
         for loc, angle in self.locs_angles:
             marker_rotation.clear().rotate_deg(angle+add_angle)
             locs = path_trans.transform_non_affine([loc])
-            if (self.axes and
-                    not self.axes.viewLim.contains(locs[0][0], locs[0][1])):
+            if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
             renderer.draw_markers(gc, self._tickvert_path, marker_transform,
                                   Path(locs), path_trans.get_affine())
@@ -742,7 +741,8 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         #self._set_offset_radius(r)
 
         for (x, y), a, l in self._locs_angles_labels:
-            if not l.strip(): continue
+            if not l.strip():
+                continue
             self._set_ref_angle(a) #+ add_angle
             self.set_x(x)
             self.set_y(y)
@@ -792,12 +792,12 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         """
         whd_list = []
         for (x, y), a, l in self._locs_angles_labels:
-            if not l.strip(): continue
+            if not l.strip():
+                continue
             clean_line, ismath = self.is_math_text(l)
             whd = renderer.get_text_width_height_descent(
                 clean_line, self._fontproperties, ismath=ismath)
             whd_list.append(whd)
-
         return whd_list
 
 

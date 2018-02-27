@@ -44,6 +44,7 @@ import logging
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import warnings
 
@@ -53,31 +54,10 @@ import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
 from matplotlib.cbook import Locked
-from matplotlib.compat.subprocess import subprocess, Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
 import re
 
 _log = logging.getLogger(__name__)
-
-
-@mpl.cbook.deprecated("2.1")
-def dvipng_hack_alpha():
-    try:
-        p = Popen([str('dvipng'), '-version'], stdin=PIPE, stdout=PIPE,
-                  stderr=STDOUT, close_fds=(sys.platform != 'win32'))
-        stdout, stderr = p.communicate()
-    except OSError:
-        _log.info('No dvipng was found')
-        return False
-    lines = stdout.decode(sys.getdefaultencoding()).split('\n')
-    for line in lines:
-        if line.startswith('dvipng '):
-            version = line.split()[-1]
-            _log.info('Found dvipng version %s', version)
-            version = distutils.version.LooseVersion(version)
-            return version < distutils.version.LooseVersion('1.6')
-    _log.info('Unexpected response from dvipng -version')
-    return False
 
 
 class TexManager(object):

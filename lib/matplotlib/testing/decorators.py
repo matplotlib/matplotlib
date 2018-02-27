@@ -127,8 +127,7 @@ def cleanup(style=None):
                 original_settings = mpl.rcParams.copy()
                 matplotlib.style.use(style)
                 try:
-                    for yielded in func(*args, **kwargs):
-                        yield yielded
+                    yield from func(*args, **kwargs)
                 finally:
                     _do_cleanup(original_units_registry,
                                 original_settings)
@@ -352,8 +351,7 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
 
         @nose.tools.with_setup(self.setup, self.teardown)
         def runner_wrapper():
-            for case in self.nose_runner():
-                yield case
+            yield from self.nose_runner()
 
         return _copy_metadata(func, runner_wrapper)
 
@@ -568,7 +566,7 @@ def skip_if_command_unavailable(cmd):
         return a non zero exit code, something like
         ["latex", "-version"]
     """
-    from matplotlib.compat.subprocess import check_output
+    from subprocess import check_output
     try:
         check_output(cmd)
     except:

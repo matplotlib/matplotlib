@@ -614,7 +614,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
 
 @contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
-    r"""Pass through file objects and context-manage `~.PathLike`\s."""
+    r"""Pass through file objects and context-manage `.PathLike`\s."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
     if opened:
         with fh:
@@ -697,8 +697,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
         if scalarp(item) or item is None:
             yield item
         else:
-            for subitem in flatten(item, scalarp):
-                yield subitem
+            yield from flatten(item, scalarp)
 
 
 @deprecated('2.1', "sorted(..., key=itemgetter(...))")
@@ -1256,9 +1255,7 @@ class Stack(object):
         old = self._elements[:]
         self.clear()
         for thiso in old:
-            if thiso == o:
-                continue
-            else:
+            if thiso != o:
                 self.push(thiso)
 
 
@@ -1295,7 +1292,7 @@ def restrict_dict(d, keys):
 
 def report_memory(i=0):  # argument may go away
     """return the memory consumed by process"""
-    from matplotlib.compat.subprocess import Popen, PIPE
+    from subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:

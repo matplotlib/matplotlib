@@ -166,8 +166,7 @@ class TextToPath(object):
     def get_glyphs_with_font(self, font, s, glyph_map=None,
                              return_new_glyphs_only=False):
         """
-        convert the string *s* to vertices and codes using the
-        provided ttf font.
+        Convert string *s* to vertices and codes using the provided ttf font.
         """
 
         # Mostly copied from backend_svg.py.
@@ -201,13 +200,13 @@ class TextToPath(object):
                 kern = 0
 
             glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-            horiz_advance = (glyph.linearHoriAdvance / 65536.0)
+            horiz_advance = glyph.linearHoriAdvance / 65536
 
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
                 glyph_map_new[char_id] = self.glyph_to_path(font)
 
-            currx += (kern / 64.0)
+            currx += kern / 64
 
             xpositions.append(currx)
             glyph_ids.append(char_id)
@@ -222,7 +221,7 @@ class TextToPath(object):
         rects = []
 
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
-                     glyph_map_new, rects)
+                glyph_map_new, rects)
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):

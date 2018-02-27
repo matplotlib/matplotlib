@@ -48,13 +48,13 @@ from collections import Iterable
 from functools import lru_cache
 import json
 import os
+import subprocess
 import sys
 from threading import Timer
 import warnings
 import logging
 
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
-from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 

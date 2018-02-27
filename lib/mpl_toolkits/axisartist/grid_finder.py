@@ -153,12 +153,13 @@ class GridFinderBase(object):
 
 
     def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
-        gi = dict()
-        gi["values"] = []
-        gi["levels"] = []
-        gi["tick_levels"] = dict(left=[], bottom=[], right=[], top=[])
-        gi["tick_locs"] = dict(left=[], bottom=[], right=[], top=[])
-        gi["lines"] = []
+        gi = {
+            "values": [],
+            "levels": [],
+            "tick_levels": dict(left=[], bottom=[], right=[], top=[]),
+            "tick_locs": dict(left=[], bottom=[], right=[], top=[]),
+            "lines": [],
+        }
 
         tck_levels = gi["tick_levels"]
         tck_locs = gi["tick_locs"]
@@ -281,18 +282,16 @@ class FixedLocator(object):
         self._locs = locs
         self._factor = None
 
-
     def __call__(self, v1, v2):
         if self._factor is None:
             v1, v2 = sorted([v1, v2])
         else:
             v1, v2 = sorted([v1*self._factor, v2*self._factor])
-        locs = np.array([l for l in self._locs if ((v1 <= l) and (l <= v2))])
+        locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
     def set_factor(self, f):
         self._factor = f
-
 
 
 # Tick Formatter

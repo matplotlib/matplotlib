@@ -254,7 +254,7 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transfrom()
+            transform = bbox1.get_transform()
             bbox1 = Bbox.from_bounds(0, 0, 1, 1)
             bbox1 = TransformedBbox(bbox1, transform)
 

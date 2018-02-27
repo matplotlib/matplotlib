@@ -3,7 +3,7 @@ The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
 
-# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
 from __future__ import print_function, absolute_import

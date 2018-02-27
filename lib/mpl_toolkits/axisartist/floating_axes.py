@@ -181,16 +181,9 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
                 delta=0.00001
-                if (0. -delta<= c2[0] <= 1.+delta) and \
-                       (0. -delta<= c2[1] <= 1.+delta):
-                    d1 = d/3.14159*180.
-                    d2 = d2/3.14159*180.
-                    #_mod = (d2-d1+180)%360
-                    #if _mod < 180:
-                    #    d1 += 180
-                    ##_div, _mod = divmod(d2-d1, 360)
+                if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
+                    d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
-                    #, d2/3.14159*180.+da)
 
         return f1(), iter([])
 

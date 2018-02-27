@@ -5,7 +5,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 import warnings
 import matplotlib as mpl
@@ -164,7 +163,7 @@ class ContourLabeler(object):
         self.rightside_up = kwargs.get('rightside_up', True)
         if len(args) == 0:
             levels = self.levels
-            indices = list(xrange(len(self.cvalues)))
+            indices = list(range(len(self.cvalues)))
         elif len(args) == 1:
             levlabs = list(args[0])
             indices, levels = [], []
@@ -190,7 +189,7 @@ class ContourLabeler(object):
             self.labelCValueList = np.take(self.cvalues, self.labelIndiceList)
         else:
             cmap = colors.ListedColormap(_colors, N=len(self.labelLevelList))
-            self.labelCValueList = list(xrange(len(self.labelLevelList)))
+            self.labelCValueList = list(range(len(self.labelLevelList)))
             self.labelMappable = cm.ScalarMappable(cmap=cmap,
                                                    norm=colors.NoNorm())
 
@@ -862,8 +861,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # extend_max case we don't need to worry about passing more colors
             # than ncolors as ListedColormap will clip.
             total_levels = ncolors + int(extend_min) + int(extend_max)
-            if (len(self.colors) == total_levels and
-                    any([extend_min, extend_max])):
+            if len(self.colors) == total_levels and (extend_min or extend_max):
                 use_set_under_over = True
                 if extend_min:
                     i0 = 1
@@ -1340,7 +1338,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # Nonetheless, improvements could probably be made.
 
         if indices is None:
-            indices = list(xrange(len(self.levels)))
+            indices = list(range(len(self.levels)))
 
         dmin = np.inf
         conmin = None

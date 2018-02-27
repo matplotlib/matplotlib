@@ -18,7 +18,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip
+from six.moves import zip
 
 import warnings
 import matplotlib.transforms as mtransforms
@@ -401,9 +401,9 @@ class VPacker(PackerBase):
 
         yoffsets = yoffsets - ydescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+                list(zip(xoffsets, yoffsets)))
 
 
 class HPacker(PackerBase):
@@ -479,9 +479,9 @@ class HPacker(PackerBase):
         xdescent = whd_list[0][2]
         xoffsets = xoffsets - xdescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+               list(zip(xoffsets, yoffsets)))
 
 
 class PaddedBox(OffsetBox):
@@ -1198,7 +1198,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = xrange(11)
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",

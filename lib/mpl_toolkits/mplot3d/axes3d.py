@@ -13,11 +13,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map, xrange, zip, reduce
+from six.moves import map, zip, reduce
 
+from collections import defaultdict
 import math
 import warnings
-from collections import defaultdict
 
 import numpy as np
 
@@ -210,17 +210,21 @@ class Axes3D(Axes):
             ax.init3d()
 
     def get_children(self):
-        return [self.zaxis, ] + super().get_children()
+        return [self.zaxis] + super().get_children()
 
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )
 
     def unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
-        xs, ys, zs = ([minx, maxx, maxx, minx, minx, maxx, maxx, minx],
-                      [miny, miny, maxy, maxy, miny, miny, maxy, maxy],
-                      [minz, minz, minz, minz, maxz, maxz, maxz, maxz])
-        return list(zip(xs, ys, zs))
+        return [(minx, miny, minz),
+                (maxx, miny, minz),
+                (maxx, maxy, minz),
+                (minx, maxy, minz),
+                (minx, miny, maxz),
+                (maxx, miny, maxz),
+                (maxx, maxy, maxz),
+                (minx, maxy, maxz)]
 
     def tunit_cube(self, vals=None, M=None):
         if M is None:
@@ -761,7 +765,7 @@ class Axes3D(Axes):
     set_zlim = set_zlim3d
 
     def get_xlim3d(self):
-        return self.xy_viewLim.intervalx
+        return tuple(self.xy_viewLim.intervalx)
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
     get_xlim = get_xlim3d
     if get_xlim.__doc__ is not None:
@@ -771,7 +775,7 @@ class Axes3D(Axes):
             """
 
     def get_ylim3d(self):
-        return self.xy_viewLim.intervaly
+        return tuple(self.xy_viewLim.intervaly)
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
     get_ylim = get_ylim3d
     if get_ylim.__doc__ is not None:
@@ -782,7 +786,7 @@ class Axes3D(Axes):
 
     def get_zlim3d(self):
         '''Get 3D z limits.'''
-        return self.zz_viewLim.intervalx
+        return tuple(self.zz_viewLim.intervalx)
     get_zlim = get_zlim3d
 
     def get_zscale(self):
@@ -1623,7 +1627,7 @@ class Axes3D(Axes):
             Whether to shade the face colors.
 
         **kwargs :
-            Other arguments are forwarded to `~.Poly3DCollection`.
+            Other arguments are forwarded to `.Poly3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1693,8 +1697,8 @@ class Axes3D(Axes):
 
         #colset contains the data for coloring: either average z or the facecolor
         colset = []
-        for rs in xrange(0, rows-1, rstride):
-            for cs in xrange(0, cols-1, cstride):
+        for rs in range(0, rows-1, rstride):
+            for cs in range(0, cols-1, cstride):
                 ps = []
                 for a in (X, Y, Z):
                     ztop = a[rs,cs:min(cols, cs+cstride+1)]
@@ -1709,7 +1713,7 @@ class Axes3D(Axes):
                 # are removed here.
                 ps = list(zip(*ps))
                 lastp = np.array([])
-                ps2 = [ps[0]] + [ps[i] for i in xrange(1, len(ps)) if ps[i] != ps[i-1]]
+                ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
                 avgzsum = sum(p[2] for p in ps2)
                 polys.append(ps2)
 
@@ -1837,7 +1841,7 @@ class Axes3D(Axes):
             of the new default of ``rcount = ccount = 50``.
 
         **kwargs :
-            Other arguments are forwarded to `~.Line3DCollection`.
+            Other arguments are forwarded to `.Line3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1878,14 +1882,14 @@ class Axes3D(Axes):
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
         if rstride:
-            rii = list(xrange(0, rows, rstride))
+            rii = list(range(0, rows, rstride))
             # Add the last index only if needed
             if rows > 0 and rii[-1] != (rows - 1):
                 rii += [rows-1]
         else:
             rii = []
         if cstride:
-            cii = list(xrange(0, cols, cstride))
+            cii = list(range(0, cols, cstride))
             # Add the last index only if needed
             if cols > 0 and cii[-1] != (cols - 1):
                 cii += [cols-1]
@@ -2632,8 +2636,8 @@ class Axes3D(Axes):
         # handle args
         argi = 6
         if len(args) < argi:
-            ValueError('Wrong number of arguments. Expected %d got %d' %
-                       (argi, len(args)))
+            raise ValueError('Wrong number of arguments. Expected %d got %d' %
+                             (argi, len(args)))
 
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]

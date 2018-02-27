@@ -288,7 +288,7 @@ class Axis(maxis.XAxis):
         ax_scale = self.axes.bbox.size / self.figure.bbox.size
         ax_inches = np.multiply(ax_scale, self.figure.get_size_inches())
         ax_points_estimate = sum(72. * ax_inches)
-        deltas_per_point = 48. / ax_points_estimate
+        deltas_per_point = 48 / ax_points_estimate
         default_offset = 21.
         labeldeltas = (
             (self.labelpad + default_offset) * deltas_per_point * deltas)
@@ -305,15 +305,14 @@ class Axis(maxis.XAxis):
         self.label.set_ha(info['label']['ha'])
         self.label.draw(renderer)
 
-
         # Draw Offset text
 
         # Which of the two edge points do we want to
         # use for locating the offset text?
-        if juggled[2] == 2 :
+        if juggled[2] == 2:
             outeredgep = edgep1
             outerindex = 0
-        else :
+        else:
             outeredgep = edgep2
             outerindex = 1
 
@@ -321,8 +320,8 @@ class Axis(maxis.XAxis):
         pos = move_from_center(pos, centers, labeldeltas, axmask)
         olx, oly, olz = proj3d.proj_transform(
             pos[0], pos[1], pos[2], renderer.M)
-        self.offsetText.set_text( self.major.formatter.get_offset() )
-        self.offsetText.set_position( (olx, oly) )
+        self.offsetText.set_text(self.major.formatter.get_offset())
+        self.offsetText.set_position((olx, oly))
         angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
         self.offsetText.set_rotation(angle)
         # Must set rotation mode to "anchor" so that
@@ -344,29 +343,29 @@ class Axis(maxis.XAxis):
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
-        if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex] :
+        if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= peparray[index, outerindex]
-                and ((len(highs.nonzero()[0]) % 2) == 0)) :
+                    and len(highs.nonzero()[0]) % 2 == 0):
                 # Usually, this means align right, except for the FTT case,
                 # in which offset for axis 1 and 2 are aligned left.
-                if highs.tolist() == [False, True, True] and index in (1, 2) :
+                if highs.tolist() == [False, True, True] and index in (1, 2):
                     align = 'left'
-                else :
+                else:
                     align = 'right'
-            else :
+            else:
                 # The FF case
                 align = 'left'
-        else :
+        else:
             # if TF and if highs has an even number of Trues
             if (centpt[index] > peparray[index, outerindex]
-                and ((len(highs.nonzero()[0]) % 2) == 0)) :
+                    and len(highs.nonzero()[0]) % 2 == 0):
                 # Usually mean align left, except if it is axis 2
-                if index == 2 :
+                if index == 2:
                     align = 'right'
-                else :
+                else:
                     align = 'left'
-            else :
+            else:
                 # The TT case
                 align = 'right'
 
@@ -385,7 +384,7 @@ class Axis(maxis.XAxis):
 
             # Grid points at end of the other plane
             xyz2 = copy.deepcopy(xyz0)
-            newindex = (index + 2) %  3
+            newindex = (index + 2) % 3
             newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
             for i in range(len(majorLocs)):
                 xyz2[i][newindex] = newval
@@ -461,7 +460,7 @@ class Axis(maxis.XAxis):
 
     # TODO: Get this to work properly when mplot3d supports
     #       the transforms framework.
-    def get_tightbbox(self, renderer) :
+    def get_tightbbox(self, renderer):
         # Currently returns None so that Axis.get_tightbbox
         # doesn't return junk info.
         return None

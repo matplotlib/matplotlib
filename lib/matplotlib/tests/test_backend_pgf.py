@@ -3,13 +3,13 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import shutil
+import subprocess
 
 import numpy as np
 import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import image_comparison, _image_directories
 from matplotlib.backends.backend_pgf import PdfPages
