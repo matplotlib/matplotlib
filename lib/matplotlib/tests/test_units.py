@@ -97,8 +97,9 @@ def test_plot_masked_units():
     fig, ax = plt.subplots()
     ax.plot(data_masked_units)
 
+    
 @image_comparison(baseline_images=['jpl_bar_units'], extensions=['png'],
-                  savefig_kwarg={'dpi': 60}, style='mpl20')
+                  savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_bar_units():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
@@ -109,12 +110,13 @@ def test_jpl_bar_units():
     w = [1*day, 2*day, 3*day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
 
-    fig, ax = P.subplots()
+    fig, ax = plt.subplots()
     ax.bar(x, w, bottom=b)
     ax.set_ylim([b-1*day, b+w[-1]+1*day])
 
+    
 @image_comparison(baseline_images=['jpl_barh_units'], extensions=['png'],
-                  savefig_kwarg={'dpi': 60}, style='mpl20')
+                  savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_barh_units():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
@@ -125,11 +127,11 @@ def test_jpl_barh_units():
     w = [1*day, 2*day, 3*day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
 
-    fig, ax = P.subplots()
+    fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
     ax.set_xlim([b-1*day, b+w[-1]+1*day])
 
-    
+
 
     
    
