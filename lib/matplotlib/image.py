@@ -636,7 +636,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
-            self._A = pil_to_array(A)
+            if A.mode == 'L':
+                # greyscale image, but our logic assumes rgba:
+                self._A = pil_to_array(A.convert('RGBA'))
+            else:
+                self._A = pil_to_array(A)
         else:
             self._A = cbook.safe_masked_invalid(A, copy=True)
 
