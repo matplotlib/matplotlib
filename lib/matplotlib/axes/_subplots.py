@@ -172,8 +172,9 @@ class SubplotBase(object):
         Make a twinx axes of self. This is used for twinx and twiny.
         """
         from matplotlib.projections import process_projection_requirements
-        if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
-            raise ValueError("Twinned Axes may share only one axis.")
+        if 'sharex' in kwargs and 'sharey' in kwargs:
+            if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
+                raise ValueError("Twinned Axes may share only one axis.")
         kl = (self.get_subplotspec(),) + kl
         projection_class, kwargs, key = process_projection_requirements(
             self.figure, *kl, **kwargs)
