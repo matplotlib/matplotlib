@@ -2190,10 +2190,6 @@ class Axes(_AxesBase):
                     adjust_xlim = True
                 x = 0
 
-        x, height, width, y, linewidth = np.broadcast_arrays(
-            # Make args iterable too.
-            np.atleast_1d(x), height, width, y, linewidth)
-
         if orientation == 'vertical':
             self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
             if log:
@@ -2211,18 +2207,6 @@ class Axes(_AxesBase):
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
-        linewidth = itertools.cycle(np.atleast_1d(linewidth))
-        color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
-                                # Fallback if color == "none".
-                                itertools.repeat([0, 0, 0, 0]))
-        if edgecolor is None:
-            edgecolor = itertools.repeat(None)
-        else:
-            edgecolor = itertools.chain(
-                itertools.cycle(mcolors.to_rgba_array(edgecolor)),
-                # Fallback if edgecolor == "none".
-                itertools.repeat([0, 0, 0, 0]))
-
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
         if self.xaxis is not None:
@@ -2236,6 +2220,22 @@ class Axes(_AxesBase):
             height = self.convert_yunits(height)
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
+
+        x, height, width, y, linewidth = np.broadcast_arrays(
+            # Make args iterable too.
+            np.atleast_1d(x), height, width, y, linewidth)
+
+        linewidth = itertools.cycle(np.atleast_1d(linewidth))
+        color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
+                                # Fallback if color == "none".
+                                itertools.repeat([0, 0, 0, 0]))
+        if edgecolor is None:
+            edgecolor = itertools.repeat(None)
+        else:
+            edgecolor = itertools.chain(
+                itertools.cycle(mcolors.to_rgba_array(edgecolor)),
+                # Fallback if edgecolor == "none".
+                itertools.repeat([0, 0, 0, 0]))
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
