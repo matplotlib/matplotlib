@@ -226,11 +226,11 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # rcParams:
 # -----------
 #
-# There are four `rcParams` that can be set, either in a script
+# There are five `rcParams` that can be set, either in a script
 # or in the `matplotlibrc` file.  They all have the prefix
 # `figure.constrained_layout`:
 #
-#  - `do`: Whether to do constrained_layout. Default is False
+#  - `use`: Whether to use constrained_layout. Default is False
 #  - `w_pad`, `h_pad`    Padding around axes objects.
 #     Float representing inches.  Default is 3./72. inches (3 pts)
 #  - `wspace`, `hspace`  Space between subplot groups.

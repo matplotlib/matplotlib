@@ -507,7 +507,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
-                self.insert( Gtk.SeparatorToolItem(), -1 )
+                self.insert(Gtk.SeparatorToolItem(), -1)
                 continue
             fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
@@ -654,14 +654,10 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         self.set_extra_widget(hbox)
 
     def get_filename_from_user (self):
-        while True:
-            filename = None
-            if self.run() != int(Gtk.ResponseType.OK):
-                break
-            filename = self.get_filename()
-            break
-
-        return filename, self.ext
+        if self.run() == int(Gtk.ResponseType.OK):
+            return self.get_filename(), self.ext
+        else:
+            return None, self.ext
 
 
 class RubberbandGTK3(backend_tools.RubberbandBase):

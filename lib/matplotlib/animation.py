@@ -30,6 +30,7 @@ import itertools
 import logging
 import os
 import platform
+import subprocess
 import sys
 import tempfile
 import uuid
@@ -38,7 +39,6 @@ import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
-from matplotlib.compat import subprocess
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 if six.PY2:
@@ -761,11 +761,11 @@ class ImageMagickBase(object):
         for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
             try:
                 hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,
-                                        'Software\\Imagemagick\\Current',
+                                        r'Software\Imagemagick\Current',
                                         0, winreg.KEY_QUERY_VALUE | flag)
                 binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
                 winreg.CloseKey(hkey)
-                binpath += '\\convert.exe'
+                binpath += r'\convert.exe'
                 break
             except Exception:
                 binpath = ''

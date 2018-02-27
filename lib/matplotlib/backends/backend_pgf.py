@@ -10,6 +10,7 @@ import math
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import warnings
@@ -22,8 +23,6 @@ from matplotlib.backend_bases import (
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import is_writable_file_like
-from matplotlib.compat import subprocess
-from matplotlib.compat.subprocess import check_output
 from matplotlib.path import Path
 
 
@@ -42,12 +41,14 @@ else:
     # assuming fontconfig is installed and the command 'fc-list' exists
     try:
         # list scalable (non-bitmap) fonts
-        fc_list = check_output([str('fc-list'), ':outline,scalable', 'family'])
+        fc_list = subprocess.check_output(
+            ['fc-list', ':outline,scalable', 'family'])
         fc_list = fc_list.decode('utf8')
         system_fonts = [f.split(',')[0] for f in fc_list.splitlines()]
         system_fonts = list(set(system_fonts))
     except:
         warnings.warn('error getting fonts from fc-list', UserWarning)
+
 
 def get_texcommand():
     """Get chosen TeX system from rc."""
@@ -173,7 +174,8 @@ def make_pdf_to_png_converter():
     tools_available = []
     # check for pdftocairo
     try:
-        check_output([str("pdftocairo"), "-v"], stderr=subprocess.STDOUT)
+        subprocess.check_output(
+            ["pdftocairo", "-v"], stderr=subprocess.STDOUT)
         tools_available.append("pdftocairo")
     except:
         pass
@@ -185,9 +187,9 @@ def make_pdf_to_png_converter():
     # pick converter
     if "pdftocairo" in tools_available:
         def cairo_convert(pdffile, pngfile, dpi):
-            cmd = [str("pdftocairo"), "-singlefile", "-png", "-r", "%d" % dpi,
+            cmd = ["pdftocairo", "-singlefile", "-png", "-r", "%d" % dpi,
                    pdffile, os.path.splitext(pngfile)[0]]
-            check_output(cmd, stderr=subprocess.STDOUT)
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return cairo_convert
     elif "gs" in tools_available:
         def gs_convert(pdffile, pngfile, dpi):
@@ -197,7 +199,7 @@ def make_pdf_to_png_converter():
                    '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
                    '-sDEVICE=png16m', '-sOutputFile=%s' % pngfile,
                    '-r%d' % dpi, pdffile]
-            check_output(cmd, stderr=subprocess.STDOUT)
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return gs_convert
     else:
         raise RuntimeError("No suitable pdf to png renderer found.")
@@ -900,7 +902,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             cmdargs = [str(texcommand), "-interaction=nonstopmode",
                        "-halt-on-error", "figure.tex"]
             try:
-                check_output(cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
+                subprocess.check_output(
+                    cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
             except subprocess.CalledProcessError as e:
                 raise RuntimeError(
                     "%s was not able to process your file.\n\nFull log:\n%s"

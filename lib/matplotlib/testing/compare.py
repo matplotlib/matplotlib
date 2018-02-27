@@ -14,13 +14,13 @@ import os
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import sys
 from tempfile import TemporaryFile
 
 import numpy as np
 
 import matplotlib
-from matplotlib.compat import subprocess
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
 from matplotlib import _get_cachedir

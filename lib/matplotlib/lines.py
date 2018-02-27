@@ -1038,17 +1038,10 @@ class Line2D(Artist):
         ls : str
             The linestyle with the drawstyle (if any) stripped.
         '''
-        ret_ds = None
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
-                ret_ds = ds
-                if len(ls) > len(ds):
-                    ls = ls[len(ds):]
-                else:
-                    ls = '-'
-                break
-
-        return ret_ds, ls
+                return ds, ls[len(ds):] or '-'
+        return None, ls
 
     def set_linestyle(self, ls):
         """

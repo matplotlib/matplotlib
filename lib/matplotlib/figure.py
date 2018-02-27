@@ -1384,9 +1384,8 @@ class Figure(Artist):
             if len(siblings) > 1:
                 grouper.remove(ax)
                 for last_ax in siblings:
-                    if ax is last_ax:
-                        continue
-                    return last_ax
+                    if ax is not last_ax:
+                        return last_ax
             return None
 
         self.delaxes(ax)
@@ -1858,14 +1857,11 @@ class Figure(Artist):
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
 
-        # check to see if the figure has a manager and whether it is registered
-        # with pyplot
-        if getattr(self.canvas, 'manager', None) is not None:
-            manager = self.canvas.manager
-            import matplotlib._pylab_helpers
-            if manager in list(six.itervalues(
-                    matplotlib._pylab_helpers.Gcf.figs)):
-                state['_restore_to_pylab'] = True
+        # check whether the figure manager (if any) is registered with pyplot
+        from matplotlib import _pylab_helpers
+        if getattr(self.canvas, 'manager', None) \
+                in _pylab_helpers.Gcf.figs.values():
+            state['_restore_to_pylab'] = True
 
         # set all the layoutbox information to None.  kiwisolver objects can't
         # be pickled, so we lose the layout options at this point.

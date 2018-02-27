@@ -1592,7 +1592,7 @@ def _to_matrix_vectorized(M):
         M_res[...,i,j] = M[i][j]
     """
     assert isinstance(M, (tuple, list))
-    assert all([isinstance(item, (tuple, list)) for item in M])
+    assert all(isinstance(item, (tuple, list)) for item in M)
     c_vec = np.asarray([len(item) for item in M])
     assert np.all(c_vec-c_vec[0] == 0)
     r = len(M)

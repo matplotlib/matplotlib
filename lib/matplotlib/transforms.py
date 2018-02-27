@@ -239,11 +239,8 @@ class TransformNode(object):
 
                 if hasattr(root, '_children'):
                     for child in root._children:
-                        name = '?'
-                        for key, val in six.iteritems(root.__dict__):
-                            if val is child:
-                                name = key
-                                break
+                        name = next((key for key, val in root.__dict__.items()
+                                     if val is child), '?')
                         fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n'
                                     % (hash(root),
                                     hash(child),
@@ -2448,15 +2445,16 @@ class CompositeGenericTransform(Transform):
 
     def __eq__(self, other):
         if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
-            return self is other or (self._a == other._a and self._b == other._b)
+            return self is other or (self._a == other._a
+                                     and self._b == other._b)
         else:
             return False
 
     def _iter_break_from_left_to_right(self):
-        for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
-            yield lh_compliment, rh_compliment + self._b
-        for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
-            yield self._a + lh_compliment, rh_compliment
+        for left, right in self._a._iter_break_from_left_to_right():
+            yield left, right + self._b
+        for left, right in self._b._iter_break_from_left_to_right():
+            yield self._a + left, right
 
     @property
     def depth(self):
@@ -2557,10 +2555,10 @@ class CompositeAffine2D(Affine2DBase):
         return self._a.depth + self._b.depth
 
     def _iter_break_from_left_to_right(self):
-        for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
-            yield lh_compliment, rh_compliment + self._b
-        for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
-            yield self._a + lh_compliment, rh_compliment
+        for left, right in self._a._iter_break_from_left_to_right():
+            yield left, right + self._b
+        for left, right in self._b._iter_break_from_left_to_right():
+            yield self._a + left, right
 
     def __str__(self):
         return ("{}(\n"

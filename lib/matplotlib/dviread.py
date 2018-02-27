@@ -24,13 +24,13 @@ import logging
 import os
 import re
 import struct
+import subprocess
 import sys
 import textwrap
 
 import numpy as np
 
 from matplotlib import cbook, rcParams
-from matplotlib.compat import subprocess
 
 _log = logging.getLogger(__name__)
 
@@ -238,12 +238,8 @@ class Dvi(object):
             precision is not lost and coordinate values are not clipped to
             integers.
         """
-        while True:
-            have_page = self._read()
-            if have_page:
-                yield self._output()
-            else:
-                break
+        while self._read():
+            yield self._output()
 
     def close(self):
         """
@@ -958,8 +954,7 @@ class Encoding(object):
             _log.debug('Result: %s', self.encoding)
 
     def __iter__(self):
-        for name in self.encoding:
-            yield name
+        yield from self.encoding
 
     def _parse(self, file):
         result = []
