@@ -42,7 +42,7 @@ needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
 needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
                                     reason='pdflatex + pgf is required')
 needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
-                                   reason='lualatex + pgf is required')
+                                    reason='lualatex + pgf is required')
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):

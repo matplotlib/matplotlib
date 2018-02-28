@@ -1166,9 +1166,7 @@ class PdfPages:
                 % (texcommand, e.output.decode('utf-8')))
 
         # copy file contents to target
-        with open(self._fname_pdf, "rb") as fh_src:
-            with open(self._outputfile, "wb") as fh:
-                shutil.copyfileobj(fh_src, fh)
+        shutil.copyfile(self._fname_pdf, self._outputfile)
 
     def savefig(self, figure=None, **kwargs):
         """
@@ -1199,24 +1197,30 @@ class PdfPages:
             orig_canvas = figure.canvas
             figure.canvas = FigureCanvasPgf(figure)
 
+            width, height = figure.get_size_inches()
             if self._n_figures == 0:
-                self._write_header(*figure.get_size_inches())
+                self._write_header(width, height)
             else:
-                if get_texcommand() == 'lualatex':
-                    if _get_lualatex_version() > (0, 85, 0):
-                        np = r'\newpage\pagewidth={}in\pageheight={}in%'
-                    else:
-                        np = r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'
-                else:
-                    np = r'\newpage\pdfpagewidth={}in\pdfpageheight={}in%'
-                self._file.write(np.format(
-                        *figure.get_size_inches()
-                    ).encode('utf-8') + b'\n'
-                )
+                self._file.write(self._build_newpage_command(width, height))
+
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
         finally:
             figure.canvas = orig_canvas
+
+    def _build_newpage_command(self, width, height):
+        '''LuaLaTeX from version 0.85 removed the `\pdf*` primitives,
+        so we need to check the lualatex version and use `\pagewidth` if
+        the version is 0.85 or newer
+        '''
+        texcommand = get_texcommand()
+        if texcommand == 'lualatex' and _get_lualatex_version() >= (0, 85, 0):
+            cmd = r'\page'
+        else:
+            cmd = r'\pdfpage'
+
+        newpage = r'\newpage{cmd}width={w}in,{cmd}height={h}in%' + '\n'
+        return newpage.format(cmd=cmd, w=width, h=height).encode('utf-8')
 
     def get_pagecount(self):
         """
