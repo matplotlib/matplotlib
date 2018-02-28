@@ -2194,16 +2194,10 @@ class Axes(_AxesBase):
             self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
             if log:
                 self.set_yscale('log', nonposy='clip')
-
-            tick_label_axis = self.xaxis
-            tick_label_position = x
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
             if log:
                 self.set_xscale('log', nonposx='clip')
-
-            tick_label_axis = self.yaxis
-            tick_label_position = y
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
@@ -2225,6 +2219,14 @@ class Axes(_AxesBase):
             # Make args iterable too.
             np.atleast_1d(x), height, width, y, linewidth)
 
+        # Now that units have been converted, set the tick locations.
+        if orientation == 'vertical':
+            tick_label_axis = self.xaxis
+            tick_label_position = x
+        elif orientation == 'horizontal':
+            tick_label_axis = self.yaxis
+            tick_label_position = y
+        
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
                                 # Fallback if color == "none".
