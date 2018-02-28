@@ -1289,8 +1289,7 @@ class _AxesBase(martist.Artist):
         if not (isinstance(aspect, str) and aspect in ('equal', 'auto')):
             aspect = float(aspect)  # raise ValueError if necessary
         if share:
-            axes = set(self._shared_x_axes.get_siblings(self)
-                       + self._shared_y_axes.get_siblings(self))
+            axes = set(self._shared_x_axes | self._shared_y_axes)
         else:
             axes = [self]
         for ax in axes:
@@ -4325,7 +4324,7 @@ class _AxesBase(martist.Artist):
 
         for ax in shared:
             setattr(ax, shared_axes, shared)
-            ax._adjustable = 'datalim'
+            # ax._adjustable = 'datalim'
 
     def share_x_axes(self, axes):
         """
