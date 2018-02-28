@@ -105,14 +105,38 @@ im = ax.pcolormesh(arr, rasterized=True)
 fig.colorbar(im, ax=ax, shrink=0.6)
 
 ############################################################################
-# If you specify multiple axes to the ``ax`` argument of ``colorbar``,
-# constrained_layout will take space from all axes that share the same
-# gridspec.
+# If you specify a list of axes (or other iterable container) to the
+# ``ax`` argument of ``colorbar``, constrained_layout will take space from all # axes that share the same gridspec.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flatten():
     im = ax.pcolormesh(arr, rasterized=True)
 fig.colorbar(im, ax=axs, shrink=0.6)
+
+############################################################################
+# Note that there is a bit of a subtlety when specifying a single axes
+# as the parent.  In the following, it might be desirable and expected
+# for the colorbars to line up, but they don't because the colorbar paired
+# with the bottom axes is tied to the subplotspec of the axes, and hence
+# shrinks when the gridspec-level colorbar is added.
+
+fig, axs = plt.subplots(3, 1, figsize=(4, 4), constrained_layout=True)
+for ax in axs[:2]:
+    im = ax.pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=axs[:2], shrink=0.6)
+im = axs[2].pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=axs[2], shrink=0.6)
+
+############################################################################
+# The API to make a single-axes behave like a list of axes is to specify
+# it as a list (or other iterable container), as below:
+
+fig, axs = plt.subplots(3, 1, figsize=(4, 4), constrained_layout=True)
+for ax in axs[:2]:
+    im = ax.pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=axs[:2], shrink=0.6)
+im = axs[2].pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=[axs[2]], shrink=0.6)
 
 ####################################################
 # Suptitle
