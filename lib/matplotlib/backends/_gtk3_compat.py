@@ -11,11 +11,6 @@ The binding selection rules are as follows:
 Thus, to force usage of PGI when both bindings are installed, import it first.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import importlib
 import sys
 

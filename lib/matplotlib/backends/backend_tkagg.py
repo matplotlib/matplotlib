@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 from .. import cbook
 from . import tkagg  # Paint image to Tk photo blitter extension.
 from .backend_agg import FigureCanvasAgg
