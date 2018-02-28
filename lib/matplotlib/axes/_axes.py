@@ -2226,7 +2226,7 @@ class Axes(_AxesBase):
         elif orientation == 'horizontal':
             tick_label_axis = self.yaxis
             tick_label_position = y
-        
+
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
                                 # Fallback if color == "none".
