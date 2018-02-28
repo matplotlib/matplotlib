@@ -964,7 +964,7 @@ class PolyCollection(_CollectionWithSizes):
 
     def set_verts_and_codes(self, verts, codes):
         '''This allows one to initialize vertices with path codes.'''
-        if (len(verts) != len(codes)):
+        if len(verts) != len(codes):
             raise ValueError("'codes' must be a 1D list or array "
                              "with the same length of 'verts'")
         self._paths = []

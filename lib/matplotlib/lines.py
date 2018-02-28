@@ -882,10 +882,7 @@ class Line2D(Artist):
         return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
-        if alt:
-            fc = self._markerfacecoloralt
-        else:
-            fc = self._markerfacecolor
+        fc = self._markerfacecoloralt if alt else self._markerfacecolor
         if cbook._str_lower_equal(fc, 'auto'):
             if self.get_fillstyle() == 'none':
                 return 'none'

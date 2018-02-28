@@ -175,7 +175,7 @@ class TriInterpolator(object):
         if tri_index is None:
             tri_index = self._trifinder(x, y)
         else:
-            if (tri_index.shape != sh_ret):
+            if tri_index.shape != sh_ret:
                 raise ValueError(
                     "tri_index array is provided and shall"
                     " have same shape as x and y. Given: "

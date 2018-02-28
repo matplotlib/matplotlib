@@ -169,7 +169,7 @@ class Grid(object):
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if (ngrids > self._nrows * self._ncols) or (ngrids <= 0):
+            if not 0 < ngrids <= self._nrows * self._ncols:
                 raise Exception("")
 
         self.ngrids = ngrids

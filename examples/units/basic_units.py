@@ -249,13 +249,13 @@ class BasicUnit(object):
 class UnitResolver(object):
     def addition_rule(self, units):
         for unit_1, unit_2 in zip(units[:-1], units[1:]):
-            if (unit_1 != unit_2):
+            if unit_1 != unit_2:
                 return NotImplemented
         return units[0]
 
     def multiplication_rule(self, units):
         non_null = [u for u in units if u]
-        if (len(non_null) > 1):
+        if len(non_null) > 1:
             return NotImplemented
         return non_null[0]
 
@@ -268,7 +268,7 @@ class UnitResolver(object):
         '__rsub__': addition_rule}
 
     def __call__(self, operation, units):
-        if (operation not in self.op_dict):
+        if operation not in self.op_dict:
             return NotImplemented
 
         return self.op_dict[operation](self, units)

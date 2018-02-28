@@ -413,7 +413,7 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
         val = self._value_in_bounds(event.xdata)
-        if (val is not None) and (val != self.val):
+        if val not in [None, self.val]:
             self.set_val(val)
 
     def set_val(self, val):
@@ -474,7 +474,7 @@ class Slider(AxesWidget):
 
     def reset(self):
         """Reset the slider to the initial value"""
-        if (self.val != self.valinit):
+        if self.val != self.valinit:
             self.set_val(self.valinit)
 
 

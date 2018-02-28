@@ -212,7 +212,7 @@ class GridSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
 
-        if (self.figure is None) or not self.figure.get_constrained_layout():
+        if self.figure is None or not self.figure.get_constrained_layout():
             self._layoutbox = None
         else:
             self.figure.init_layoutbox()

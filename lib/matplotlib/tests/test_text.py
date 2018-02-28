@@ -435,7 +435,7 @@ def test_two_2line_texts(spacing1, spacing2):
 
     # line spacing only affects height
     assert box1.width == box2.width
-    if (spacing1 == spacing2):
+    if spacing1 == spacing2:
         assert box1.height == box2.height
     else:
         assert box1.height != box2.height
