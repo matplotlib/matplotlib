@@ -6225,7 +6225,9 @@ class Axes(_AxesBase):
         ----------
         x : (n,) array or sequence of (n,) arrays
             Input values, this takes either a single array or a sequence of
-            arrays which are not required to be of the same length
+            arrays which are not required to be of the same length.
+            Masked arrays or arrays with invalid values (e.g. ``nan``) are
+            allowed.
 
         bins : integer or sequence or 'auto', optional
             If an integer is given, ``bins + 1`` bin edges are calculated and
@@ -6281,7 +6283,8 @@ class Axes(_AxesBase):
             only contributes its associated weight towards the bin count
             (instead of 1).  If *normed* or *density* is ``True``,
             the weights are normalized, so that the integral of the density
-            over the range remains 1.
+            over the range remains 1. Masked arrays or arrays with invalid
+            values (e.g. ``nan``) are allowed.
 
             Default is ``None``
 
@@ -6472,6 +6475,7 @@ class Axes(_AxesBase):
         else:
             w = [None] * nx
 
+        # Comparing shape of weights vs. x
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
 
@@ -6479,6 +6483,18 @@ class Axes(_AxesBase):
             if wi is not None and len(wi) != len(xi):
                 raise ValueError(
                     'weights should have the same shape as x')
+
+        # Combine the masks from x[i] and w[i] (if applicable) into a single
+        # mask and apply it to both.
+        if not input_empty:
+            for i, (xi, wi) in enumerate(zip(x, w)):
+                xi = cbook.safe_masked_invalid(xi)
+                mask = xi.mask
+                if wi is not None:
+                    wi = cbook.safe_masked_invalid(wi)
+                    mask = mask | wi.mask
+                    w[i] = np.ma.masked_array(wi, mask=mask)
+                x[i] = np.ma.masked_array(xi, mask=mask)
 
         if color is None:
             color = [self._get_lines.get_next_color() for i in range(nx)]

@@ -1478,6 +1478,13 @@ def test_barh_tick_label():
             align='center')
 
 
+def test_hist_nans():
+    # Check that histogram input data can include nans
+    fig, ax = plt.subplots()
+    ax.hist([1, 2, 1, 2, 3, np.nan],
+            weights=[1, 1, 1, np.nan, 1, 1])
+
+
 @image_comparison(baseline_images=['hist_log'],
                   remove_text=True)
 def test_hist_log():
