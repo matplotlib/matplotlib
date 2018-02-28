@@ -37,6 +37,7 @@ addons:
       - texlive-latex-extra
       - texlive-latex-recommended
       - texlive-xetex
+      - texlive-luatex
 
 env:
   global:
