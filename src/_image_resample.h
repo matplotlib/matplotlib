@@ -800,7 +800,7 @@ struct resample_params_t {
     agg::trans_affine affine;
     const double *transform_mesh;
     bool resample;
-    double norm;
+    bool norm;
     double radius;
     double alpha;
 };

@@ -583,9 +583,9 @@ class ColorbarBase(cm.ScalarMappable):
         x = np.array([1.0, 2.0])
         X, Y = np.meshgrid(x,levels)
         if self.orientation == 'vertical':
-            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
+            xy = [list(zip(X[i], Y[i])) for i in range(N)]
         else:
-            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
+            xy = [list(zip(Y[i], X[i])) for i in range(N)]
         col = collections.LineCollection(xy, linewidths=linewidths,
                                          )
         self.lines = col

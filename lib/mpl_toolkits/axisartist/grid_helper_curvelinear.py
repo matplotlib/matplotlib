@@ -28,7 +28,7 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
 
-        super(FixedAxisArtistHelper, self).__init__(loc=side)
+        super().__init__(loc=side)
 
         self.grid_helper = grid_helper
         if nth_coord_ticks is None:
@@ -92,9 +92,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
 
-        super(FloatingAxisArtistHelper, self).__init__(nth_coord,
-                                                       value,
-                                                       )
+        super().__init__(nth_coord, value)
         self.value = value
         self.grid_helper = grid_helper
         self._extremes = None, None
@@ -300,10 +298,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
                 delta=0.00001
-                if (0. -delta<= c2[0] <= 1.+delta) and \
-                       (0. -delta<= c2[1] <= 1.+delta):
-                    d1 = d/3.14159*180.
-                    d2 = d2/3.14159*180.
+                if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
+                    d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
 
         return f1(), iter([])
@@ -341,7 +337,7 @@ class GridHelperCurveLinear(GridHelperBase):
 
         e.g., ``x2, y2 = trans(x1, y1)``
         """
-        super(GridHelperCurveLinear, self).__init__()
+        super().__init__()
 
         self.grid_info = None
         self._old_values = None

@@ -99,11 +99,23 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-# NOTE: This file must remain Python 2 compatible for the forseeable future,
+# NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for existing editable installs.
 from __future__ import absolute_import, division, print_function
 
 import six
+
+import sys
+if sys.version_info < (3, 5):  # noqa: E402
+    raise ImportError("""
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+See Matplotlib `INSTALL.rst` file for more information:
+
+    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
+
+""")
 
 import atexit
 from collections import MutableMapping
@@ -117,30 +129,19 @@ import itertools
 import locale
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import stat
-import sys
+import subprocess
 import tempfile
 import warnings
-
-if sys.version_info < (3, 5):  # noqa: E402
-    raise ImportError("""
-Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
-Beginning with Matplotlib 3.0, Python 3.5 and above is required.
-
-See Matplotlib `INSTALL.rst` file for more information:
-
-    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
-
-""")
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
 from matplotlib.cbook import (
     _backports, mplDeprecation, dedent, get_label, sanitize_sequence)
-from matplotlib.compat import subprocess
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
@@ -566,7 +567,7 @@ def checkdep_usetex(s):
     dvipng_req = '1.6'
     flag = True
 
-    if _backports.which("tex") is None:
+    if shutil.which("tex") is None:
         flag = False
         warnings.warn('matplotlibrc text.usetex option can not be used unless '
                       'TeX is installed on your system')
@@ -651,14 +652,10 @@ def _get_xdg_cache_dir():
 
 
 def _get_config_or_cache_dir(xdg_base):
-    from matplotlib.cbook import mkdirs
-
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         configdir = os.path.abspath(configdir)
-        if not os.path.exists(configdir):
-            mkdirs(configdir)
-
+        Path(configdir).mkdir(parents=True, exist_ok=True)
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
@@ -678,7 +675,7 @@ def _get_config_or_cache_dir(xdg_base):
                 return p
         else:
             try:
-                mkdirs(p)
+                Path(p).mkdir(parents=True, exist_ok=True)
             except OSError:
                 pass
             else:
@@ -970,11 +967,8 @@ class RcParams(MutableMapping, dict):
                          for k, v in sorted(self.items()))
 
     def __iter__(self):
-        """
-        Yield sorted list of keys.
-        """
-        for k in sorted(dict.__iter__(self)):
-            yield k
+        """Yield sorted list of keys."""
+        yield from sorted(dict.__iter__(self))
 
     def find_all(self, pattern):
         """
@@ -1018,18 +1012,11 @@ def is_url(filename):
     return URL_REGEX.match(filename) is not None
 
 
-def _url_lines(f):
-    # Compatibility for urlopen in python 3, which yields bytes.
-    for line in f:
-        yield line.decode('utf8')
-
-
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if is_url(fname):
-        f = urlopen(fname)
-        yield _url_lines(f)
-        f.close()
+        with urlopen(fname) as f:
+            yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
         encoding = locale.getpreferredencoding(do_setlocale=False)

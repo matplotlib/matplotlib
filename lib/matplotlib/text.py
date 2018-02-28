@@ -158,6 +158,7 @@ class Text(Artist):
         elif isinstance(fontproperties, six.string_types):
             fontproperties = FontProperties(fontproperties)
 
+        self._text = ''
         self.set_text(text)
         self.set_color(color)
         self.set_usetex(usetex)
@@ -182,12 +183,12 @@ class Text(Artist):
         # Update bbox last, as it depends on font properties.
         sentinel = object()  # bbox can be None, so use another sentinel.
         bbox = kwargs.pop("bbox", sentinel)
-        super(Text, self).update(kwargs)
+        super().update(kwargs)
         if bbox is not sentinel:
             self.set_bbox(bbox)
 
     def __getstate__(self):
-        d = super(Text, self).__getstate__()
+        d = super().__getstate__()
         # remove the cached _renderer (if it exists)
         d['_renderer'] = None
         return d
@@ -535,7 +536,7 @@ class Text(Artist):
 
         ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
         """
-        super(Text, self).set_clip_box(clipbox)
+        super().set_clip_box(clipbox)
         self._update_clip_properties()
 
     def set_clip_path(self, path, transform=None):
@@ -559,7 +560,7 @@ class Text(Artist):
         :class:`~matplotlib.transforms.Transform`) |
         :class:`~matplotlib.patches.Patch` | None ]
         """
-        super(Text, self).set_clip_path(path, transform)
+        super().set_clip_path(path, transform)
         self._update_clip_properties()
 
     def set_clip_on(self, b):
@@ -574,7 +575,7 @@ class Text(Artist):
         b : bool
             .. ACCEPTS: bool
         """
-        super(Text, self).set_clip_on(b)
+        super().set_clip_on(b)
         self._update_clip_properties()
 
     def get_wrap(self):
@@ -1158,14 +1159,18 @@ class Text(Artist):
 
     def set_text(self, s):
         """
-        Set the text string *s*
+        Set the text string *s*.
 
         It may contain newlines (``\\n``) or math in LaTeX syntax.
 
-        ACCEPTS: string or anything printable with '%s' conversion.
+        ACCEPTS: string or object castable to string, except
+        ``None``, which is set to an empty string.
         """
-        self._text = '%s' % (s,)
-        self.stale = True
+        if s is None:
+            s = ''
+        if s != self._text:
+            self._text = '%s' % (s,)
+            self.stale = True
 
     @staticmethod
     def is_math_text(s, usetex=None):

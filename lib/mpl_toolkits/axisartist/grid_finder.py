@@ -62,7 +62,7 @@ class GridFinderBase(object):
         Derived must define "transform_xy, inv_transform_xy"
         (may use update_transform)
         """
-        super(GridFinderBase, self).__init__()
+        super().__init__()
 
         self.extreme_finder = extreme_finder
         self.grid_locator1 = grid_locator1
@@ -153,12 +153,13 @@ class GridFinderBase(object):
 
 
     def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
-        gi = dict()
-        gi["values"] = []
-        gi["levels"] = []
-        gi["tick_levels"] = dict(left=[], bottom=[], right=[], top=[])
-        gi["tick_locs"] = dict(left=[], bottom=[], right=[], top=[])
-        gi["lines"] = []
+        gi = {
+            "values": [],
+            "levels": [],
+            "tick_levels": dict(left=[], bottom=[], right=[], top=[]),
+            "tick_locs": dict(left=[], bottom=[], right=[], top=[]),
+            "lines": [],
+        }
 
         tck_levels = gi["tick_levels"]
         tck_locs = gi["tick_locs"]
@@ -240,7 +241,7 @@ class GridFinder(GridFinderBase):
             tick_formatter1 = FormatterPrettyPrint()
         if tick_formatter2 is None:
             tick_formatter2 = FormatterPrettyPrint()
-        super(GridFinder, self).__init__(
+        super().__init__(
             extreme_finder,
             grid_locator1,
             grid_locator2,
@@ -281,18 +282,16 @@ class FixedLocator(object):
         self._locs = locs
         self._factor = None
 
-
     def __call__(self, v1, v2):
         if self._factor is None:
             v1, v2 = sorted([v1, v2])
         else:
             v1, v2 = sorted([v1*self._factor, v2*self._factor])
-        locs = np.array([l for l in self._locs if ((v1 <= l) and (l <= v2))])
+        locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
     def set_factor(self, f):
         self._factor = f
-
 
 
 # Tick Formatter
@@ -320,7 +319,7 @@ class DictFormatter(object):
         format_dict : dictionary for format strings to be used.
         formatter : fall-back formatter
         """
-        super(DictFormatter, self).__init__()
+        super().__init__()
         self._format_dict = format_dict
         self._fallback_formatter = formatter
 

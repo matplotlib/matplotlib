@@ -45,22 +45,18 @@ License   : matplotlib license (PSF compatible)
 """
 
 from collections import Iterable
+from functools import lru_cache
 import json
 import os
+import subprocess
 import sys
 from threading import Timer
 import warnings
 import logging
 
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
-from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
-
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 _log = logging.getLogger(__name__)
 
@@ -395,10 +391,18 @@ class FontEntry(object):
 
 def ttfFontProperty(font):
     """
-    A function for populating the :class:`FontKey` by extracting
-    information from the TrueType font file.
+    Extract information from a TrueType font file.
 
-    *font* is a :class:`FT2Font` instance.
+    Parameters
+    ----------
+    font : `.FT2Font`
+        The TrueType font file from which information will be extracted.
+
+    Returns
+    -------
+    `FontEntry`
+        The extracted font properties.
+
     """
     name = font.family_name
 
@@ -474,10 +478,18 @@ def ttfFontProperty(font):
 
 def afmFontProperty(fontpath, font):
     """
-    A function for populating a :class:`FontKey` instance by
-    extracting information from the AFM font file.
+    Extract information from an AFM font file.
 
-    *font* is a class:`AFM` instance.
+    Parameters
+    ----------
+    font : `.AFM`
+        The AFM font file from which information will be extracted.
+
+    Returns
+    -------
+    `FontEntry`
+        The extracted font properties.
+
     """
 
     name = font.get_familyname()
@@ -933,7 +945,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, FontEntry):
             return dict(o.__dict__, _class='FontEntry')
         else:
-            return super(JSONEncoder, self).default(o)
+            return super().default(o)
 
 
 def _json_decode(o):
@@ -1446,7 +1458,7 @@ else:
                 _rebuild()
             else:
                 fontManager.default_size = None
-                _log.info("Using fontManager instance from %s", _fmcache)
+                _log.debug("Using fontManager instance from %s", _fmcache)
         except cbook.Locked.TimeoutError:
             raise
         except:

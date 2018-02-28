@@ -1,0 +1,5 @@
+``Axes3D.get_xlim``, ``get_ylim`` and ``get_zlim`` now return a tuple
+`````````````````````````````````````````````````````````````````````
+
+They previously returned an array.  Returning a tuple is consistent with the
+behavior for 2D axes.

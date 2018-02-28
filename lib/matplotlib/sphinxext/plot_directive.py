@@ -140,8 +140,10 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
+import itertools
 import sys, os, shutil, io, re, textwrap
 from os.path import relpath
+from pathlib import Path
 import traceback
 import warnings
 
@@ -582,21 +584,17 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # Look for single-figure output files first
     all_exists = True
     img = ImageFile(output_base, output_dir)
-    for format, dpi in formats:
-        if out_of_date(code_path, img.filename(format)):
-            all_exists = False
-            break
-        img.formats.append(format)
-
-    if all_exists:
+    if not any(out_of_date(code_path, img.filename(fmt))
+               for fmt, dpi in formats):
         return [(code, [img])]
+    img.formats.extend(fmt for fmt, dpi in formats)
 
     # Then look for multi-figure output files
     results = []
     all_exists = True
     for i, code_piece in enumerate(code_pieces):
         images = []
-        for j in xrange(1000):
+        for j in itertools.count():
             if len(code_pieces) > 1:
                 img = ImageFile('%s_%02d_%02d' % (output_base, i, j),
                                 output_dir)
@@ -846,8 +844,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         state_machine.insert_input(total_lines, source=source_file_name)
 
     # copy image files to builder's output directory, if necessary
-    if not os.path.exists(dest_dir):
-        cbook.mkdirs(dest_dir)
+    Path(dest_dir).mkdir(parents=True, exist_ok=True)
 
     for code_piece, images in results:
         for img in images:

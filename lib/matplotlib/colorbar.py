@@ -498,9 +498,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
+            return [list(zip(X[i], Y[i])) for i in range(1, N - 1)]
         else:
-            return [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
+            return [list(zip(Y[i], X[i])) for i in range(1, N - 1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -1132,8 +1132,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parents = np.atleast_1d(parents).ravel()
 
     # check if using constrained_layout:
-    gs = parents[0].get_subplotspec().get_gridspec()
-    using_constrained_layout = (gs._layoutbox is not None)
+    try:
+        gs = parents[0].get_subplotspec().get_gridspec()
+        using_constrained_layout = (gs._layoutbox is not None)
+    except AttributeError:
+        using_constrained_layout = False
+
     # defaults are not appropriate for constrained_layout:
     pad0 = loc_settings['pad']
     if using_constrained_layout:
@@ -1337,7 +1341,7 @@ class ColorbarPatch(Colorbar):
         hatches = self.mappable.hatches * n_segments
 
         patches = []
-        for i in xrange(len(X) - 1):
+        for i in range(len(X) - 1):
             val = C[i][0]
             hatch = hatches[i]
 
@@ -1388,7 +1392,7 @@ def colorbar_factory(cax, mappable, **kwargs):
     # if the given mappable is a contourset with any hatching, use
     # ColorbarPatch else use Colorbar
     if (isinstance(mappable, contour.ContourSet)
-            and any([hatch is not None for hatch in mappable.hatches])):
+            and any(hatch is not None for hatch in mappable.hatches)):
         cb = ColorbarPatch(cax, mappable, **kwargs)
     else:
         cb = Colorbar(cax, mappable, **kwargs)

@@ -7,6 +7,7 @@ import six
 from six.moves import map, zip
 
 import math
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -120,7 +121,7 @@ class Patch(artist.Artist):
     def _process_radius(self, radius):
         if radius is not None:
             return radius
-        if cbook.is_numlike(self._picker):
+        if isinstance(self._picker, Number):
             _radius = self._picker
         else:
             if self.get_edgecolor()[3] == 0:
@@ -1705,7 +1706,7 @@ class Arc(Ellipse):
             x1e += epsilon
             y1e += epsilon
             for x, y in iter_circle_intersect_on_line(x0, y0, x1, y1):
-                if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
+                if x0e <= x <= x1e and y0e <= y <= y1e:
                     yield x, y
 
         # Transforms the axes box_path so that it is relative to the unit
@@ -1994,7 +1995,7 @@ class BoxStyle(_Style):
             """
             initializtion.
             """
-            super(BoxStyle._Base, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
             """
@@ -2052,7 +2053,7 @@ class BoxStyle(_Style):
             """
 
             self.pad = pad
-            super(BoxStyle.Square, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
@@ -2080,7 +2081,7 @@ class BoxStyle(_Style):
                 The amount of padding around the original box.
             """
             self.pad = pad
-            super(BoxStyle.Circle, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
@@ -2099,7 +2100,7 @@ class BoxStyle(_Style):
         """
         def __init__(self, pad=0.3):
             self.pad = pad
-            super(BoxStyle.LArrow, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2137,7 +2138,7 @@ class BoxStyle(_Style):
         """
 
         def __init__(self, pad=0.3):
-            super(BoxStyle.RArrow, self).__init__(pad)
+            super().__init__(pad)
 
         def transmute(self, x0, y0, width, height, mutation_size):
 
@@ -2159,7 +2160,7 @@ class BoxStyle(_Style):
 
         def __init__(self, pad=0.3):
             self.pad = pad
-            super(BoxStyle.DArrow, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
 
@@ -2216,7 +2217,7 @@ class BoxStyle(_Style):
             """
             self.pad = pad
             self.rounding_size = rounding_size
-            super(BoxStyle.Round, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
 
@@ -2280,7 +2281,7 @@ class BoxStyle(_Style):
 
             self.pad = pad
             self.rounding_size = rounding_size
-            super(BoxStyle.Round4, self).__init__()
+            super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
 
@@ -2334,7 +2335,7 @@ class BoxStyle(_Style):
             """
             self.pad = pad
             self.tooth_size = tooth_size
-            super(BoxStyle.Sawtooth, self).__init__()
+            super().__init__()
 
         def _get_sawtooth_vertices(self, x0, y0, width, height, mutation_size):
 
@@ -2438,7 +2439,7 @@ class BoxStyle(_Style):
             *tooth_size*
               size of the sawtooth. pad* if None
             """
-            super(BoxStyle.Roundtooth, self).__init__(pad, tooth_size)
+            super().__init__(pad, tooth_size)
 
         def transmute(self, x0, y0, width, height, mutation_size):
             saw_vertices = self._get_sawtooth_vertices(x0, y0,
@@ -3304,7 +3305,7 @@ class ArrowStyle(_Style):
             self.beginarrow, self.endarrow = beginarrow, endarrow
             self.head_length, self.head_width = head_length, head_width
             self.fillbegin, self.fillend = fillbegin, fillend
-            super(ArrowStyle._Curve, self).__init__()
+            super().__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
                              head_dist, cos_t, sin_t, linewidth
@@ -3424,8 +3425,7 @@ class ArrowStyle(_Style):
         """
 
         def __init__(self):
-            super(ArrowStyle.Curve, self).__init__(
-                beginarrow=False, endarrow=False)
+            super().__init__(beginarrow=False, endarrow=False)
 
     _style_list["-"] = Curve
 
@@ -3445,9 +3445,8 @@ class ArrowStyle(_Style):
                 Width of the arrow head
             """
 
-            super(ArrowStyle.CurveA, self).__init__(
-                  beginarrow=True, endarrow=False,
-                  head_length=head_length, head_width=head_width)
+            super().__init__(beginarrow=True, endarrow=False,
+                             head_length=head_length, head_width=head_width)
 
     _style_list["<-"] = CurveA
 
@@ -3467,9 +3466,8 @@ class ArrowStyle(_Style):
                 Width of the arrow head
             """
 
-            super(ArrowStyle.CurveB, self).__init__(
-                beginarrow=False, endarrow=True,
-                head_length=head_length, head_width=head_width)
+            super().__init__(beginarrow=False, endarrow=True,
+                             head_length=head_length, head_width=head_width)
 
     _style_list["->"] = CurveB
 
@@ -3489,9 +3487,8 @@ class ArrowStyle(_Style):
                 Width of the arrow head
             """
 
-            super(ArrowStyle.CurveAB, self).__init__(
-                beginarrow=True, endarrow=True,
-                head_length=head_length, head_width=head_width)
+            super().__init__(beginarrow=True, endarrow=True,
+                             head_length=head_length, head_width=head_width)
 
     _style_list["<->"] = CurveAB
 
@@ -3511,10 +3508,9 @@ class ArrowStyle(_Style):
                 Width of the arrow head
             """
 
-            super(ArrowStyle.CurveFilledA, self).__init__(
-                beginarrow=True, endarrow=False,
-                fillbegin=True, fillend=False,
-                head_length=head_length, head_width=head_width)
+            super().__init__(beginarrow=True, endarrow=False,
+                             fillbegin=True, fillend=False,
+                             head_length=head_length, head_width=head_width)
 
     _style_list["<|-"] = CurveFilledA
 
@@ -3534,10 +3530,9 @@ class ArrowStyle(_Style):
                 Width of the arrow head
             """
 
-            super(ArrowStyle.CurveFilledB, self).__init__(
-                beginarrow=False, endarrow=True,
-                fillbegin=False, fillend=True,
-                head_length=head_length, head_width=head_width)
+            super().__init__(beginarrow=False, endarrow=True,
+                             fillbegin=False, fillend=True,
+                             head_length=head_length, head_width=head_width)
 
     _style_list["-|>"] = CurveFilledB
 
@@ -3557,10 +3552,9 @@ class ArrowStyle(_Style):
                 Width of the arrow head
             """
 
-            super(ArrowStyle.CurveFilledAB, self).__init__(
-                beginarrow=True, endarrow=True,
-                fillbegin=True, fillend=True,
-                head_length=head_length, head_width=head_width)
+            super().__init__(beginarrow=True, endarrow=True,
+                             fillbegin=True, fillend=True,
+                             head_length=head_length, head_width=head_width)
 
     _style_list["<|-|>"] = CurveFilledAB
 
@@ -3671,10 +3665,9 @@ class ArrowStyle(_Style):
                 Angle between the bracket and the line
             """
 
-            super(ArrowStyle.BracketAB, self).__init__(
-                        True, True, widthA=widthA, lengthA=lengthA,
-                        angleA=angleA, widthB=widthB, lengthB=lengthB,
-                        angleB=angleB)
+            super().__init__(True, True,
+                             widthA=widthA, lengthA=lengthA, angleA=angleA,
+                             widthB=widthB, lengthB=lengthB, angleB=angleB)
 
     _style_list["]-["] = BracketAB
 
@@ -3697,10 +3690,8 @@ class ArrowStyle(_Style):
                 Angle between the bracket and the line
             """
 
-            super(ArrowStyle.BracketA, self).__init__(True, None,
-                                                      widthA=widthA,
-                                                      lengthA=lengthA,
-                                                      angleA=angleA)
+            super().__init__(True, None,
+                             widthA=widthA, lengthA=lengthA, angleA=angleA)
 
     _style_list["]-"] = BracketA
 
@@ -3723,10 +3714,8 @@ class ArrowStyle(_Style):
                 Angle between the bracket and the line
             """
 
-            super(ArrowStyle.BracketB, self).__init__(None, True,
-                                                      widthB=widthB,
-                                                      lengthB=lengthB,
-                                                      angleB=angleB)
+            super().__init__(None, True,
+                             widthB=widthB, lengthB=lengthB, angleB=angleB)
 
     _style_list["-["] = BracketB
 
@@ -3754,9 +3743,9 @@ class ArrowStyle(_Style):
                 Angle between the bracket and the line
             """
 
-            super(ArrowStyle.BarAB, self).__init__(
-                        True, True, widthA=widthA, lengthA=0, angleA=angleA,
-                        widthB=widthB, lengthB=0, angleB=angleB)
+            super().__init__(True, True,
+                             widthA=widthA, lengthA=0, angleA=angleA,
+                             widthB=widthB, lengthB=0, angleB=angleB)
 
     _style_list["|-|"] = BarAB
 
@@ -3781,7 +3770,7 @@ class ArrowStyle(_Style):
 
             self.head_length, self.head_width, self.tail_width = \
                 head_length, head_width, tail_width
-            super(ArrowStyle.Simple, self).__init__()
+            super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
 
@@ -3868,7 +3857,7 @@ class ArrowStyle(_Style):
 
             self.head_length, self.head_width, self.tail_width = \
                 head_length, head_width, tail_width
-            super(ArrowStyle.Fancy, self).__init__()
+            super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
 
@@ -3970,7 +3959,7 @@ class ArrowStyle(_Style):
 
             self.tail_width = tail_width
             self.shrink_factor = shrink_factor
-            super(ArrowStyle.Wedge, self).__init__()
+            super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
 

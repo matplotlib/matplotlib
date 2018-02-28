@@ -11,15 +11,16 @@ import functools
 import hashlib
 import itertools
 import os
+from pathlib import Path
 import re
 import shutil
+import subprocess
 import sys
 from tempfile import TemporaryFile
 
 import numpy as np
 
 import matplotlib
-from matplotlib.compat import subprocess
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
 from matplotlib import _get_cachedir
@@ -85,11 +86,10 @@ def get_cache_dir():
     if cachedir is None:
         raise RuntimeError('Could not find a suitable configuration directory')
     cache_dir = os.path.join(cachedir, 'test_cache')
-    if not os.path.exists(cache_dir):
-        try:
-            cbook.mkdirs(cache_dir)
-        except IOError:
-            return None
+    try:
+        Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    except IOError:
+        return None
     if not os.access(cache_dir, os.W_OK):
         return None
     return cache_dir

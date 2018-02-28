@@ -5,7 +5,6 @@ Visualizing named colors
 
 Simple plot example with the named colors and its visual representation.
 """
-from __future__ import division
 
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors

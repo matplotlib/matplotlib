@@ -18,8 +18,8 @@ extern "C" {
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
  */
-#define FIXED_MAJOR(val) (long)((val & 0xffff000) >> 16)
-#define FIXED_MINOR(val) (long)(val & 0xffff)
+#define FIXED_MAJOR(val) (signed short)((val & 0xffff0000) >> 16)
+#define FIXED_MINOR(val) (unsigned short)(val & 0xffff)
 
 // the FreeType string rendered into a width, height buffer
 class FT2Image
@@ -124,7 +124,6 @@ class FT2Font
     std::vector<FT_Vector> pos;
     FT_BBox bbox;
     FT_Pos advance;
-    double angle;
     double ptsize;
     double dpi;
     long hinting_factor;

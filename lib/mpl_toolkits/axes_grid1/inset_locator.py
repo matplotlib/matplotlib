@@ -63,7 +63,7 @@ class InsetPosition(object):
 class AnchoredLocatorBase(AnchoredOffsetbox):
     def __init__(self, bbox_to_anchor, offsetbox, loc,
                  borderpad=0.5, bbox_transform=None):
-        super(AnchoredLocatorBase, self).__init__(
+        super().__init__(
             loc, pad=0., child=None, borderpad=borderpad,
             bbox_to_anchor=bbox_to_anchor, bbox_transform=bbox_transform
         )
@@ -91,7 +91,7 @@ class AnchoredSizeLocator(AnchoredLocatorBase):
     def __init__(self, bbox_to_anchor, x_size, y_size, loc,
                  borderpad=0.5, bbox_transform=None):
 
-        super(AnchoredSizeLocator, self).__init__(
+        super().__init__(
             bbox_to_anchor, None, loc,
             borderpad=borderpad, bbox_transform=bbox_transform
         )
@@ -129,7 +129,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         if bbox_to_anchor is None:
             bbox_to_anchor = parent_axes.bbox
 
-        super(AnchoredZoomLocator, self).__init__(
+        super().__init__(
             bbox_to_anchor, None, loc, borderpad=borderpad,
             bbox_transform=bbox_transform)
 
@@ -254,7 +254,7 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transfrom()
+            transform = bbox1.get_transform()
             bbox1 = Bbox.from_bounds(0, 0, 1, 1)
             bbox1 = TransformedBbox(bbox1, transform)
 

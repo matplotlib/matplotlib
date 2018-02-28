@@ -1,0 +1,9 @@
+`Text.set_text` with string argument ``None`` sets string to empty
+------------------------------------------------------------------
+
+`Text.set_text` when passed a string value of ``None`` would set the
+string to ``"None"``, so subsequent calls to `Text.get_text` would return
+the ambiguous ``"None"`` string.
+
+This change sets text objects passed ``None`` to have empty strings, so that
+`Text.get_text` returns and an empty string.

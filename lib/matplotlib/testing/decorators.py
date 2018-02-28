@@ -5,10 +5,11 @@ import six
 import functools
 import inspect
 import os
-import sys
+from pathlib import Path
 import shutil
-import warnings
+import sys
 import unittest
+import warnings
 
 # Note - don't import nose up here - import it only as needed in functions.
 # This allows other functions here to be used by pytest-based testing suites
@@ -126,8 +127,7 @@ def cleanup(style=None):
                 original_settings = mpl.rcParams.copy()
                 matplotlib.style.use(style)
                 try:
-                    for yielded in func(*args, **kwargs):
-                        yield yielded
+                    yield from func(*args, **kwargs)
                 finally:
                     _do_cleanup(original_units_registry,
                                 original_settings)
@@ -351,8 +351,7 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
 
         @nose.tools.with_setup(self.setup, self.teardown)
         def runner_wrapper():
-            for case in self.nose_runner():
-                yield case
+            yield from self.nose_runner()
 
         return _copy_metadata(func, runner_wrapper)
 
@@ -532,9 +531,7 @@ def _image_directories(func):
 
     baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
     result_dir = os.path.abspath(os.path.join('result_images', subdir))
-
-    if not os.path.exists(result_dir):
-        cbook.mkdirs(result_dir)
+    Path(result_dir).mkdir(parents=True, exist_ok=True)
 
     return baseline_dir, result_dir
 
@@ -569,7 +566,7 @@ def skip_if_command_unavailable(cmd):
         return a non zero exit code, something like
         ["latex", "-version"]
     """
-    from matplotlib.compat.subprocess import check_output
+    from subprocess import check_output
     try:
         check_output(cmd)
     except:

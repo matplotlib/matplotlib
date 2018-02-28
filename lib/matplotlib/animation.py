@@ -21,7 +21,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip
+from six.moves import zip
 
 import abc
 import contextlib
@@ -30,6 +30,7 @@ import itertools
 import logging
 import os
 import platform
+import subprocess
 import sys
 import tempfile
 import uuid
@@ -38,7 +39,6 @@ import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
-from matplotlib.compat import subprocess
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 if six.PY2:
@@ -586,7 +586,7 @@ class PillowWriter(MovieWriter):
     def __init__(self, *args, **kwargs):
         if kwargs.get("extra_args") is None:
             kwargs["extra_args"] = ()
-        super(PillowWriter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def setup(self, fig, outfile, dpi=None):
         self._frames = []
@@ -761,11 +761,11 @@ class ImageMagickBase(object):
         for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
             try:
                 hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,
-                                        'Software\\Imagemagick\\Current',
+                                        r'Software\Imagemagick\Current',
                                         0, winreg.KEY_QUERY_VALUE | flag)
                 binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
                 winreg.CloseKey(hkey)
-                binpath += '\\convert.exe'
+                binpath += r'\convert.exe'
                 break
             except Exception:
                 binpath = ''
@@ -782,7 +782,7 @@ class ImageMagickBase(object):
         bin_path = cls.bin_path()
         if bin_path == "convert":
             cls._init_from_registry()
-        return super(ImageMagickBase, cls).isAvailable()
+        return super().isAvailable()
 
 ImageMagickBase._init_from_registry()
 
@@ -877,8 +877,7 @@ class HTMLWriter(FileMovieWriter):
         self._saved_frames = []
         self._total_bytes = 0
         self._hit_limit = False
-        super(HTMLWriter, self).__init__(fps, codec, bitrate,
-                                         extra_args, metadata)
+        super().__init__(fps, codec, bitrate, extra_args, metadata)
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         root, ext = os.path.splitext(outfile)
@@ -894,8 +893,7 @@ class HTMLWriter(FileMovieWriter):
         else:
             frame_prefix = None
 
-        super(HTMLWriter, self).setup(fig, outfile, dpi,
-                                      frame_prefix, clear_temp=False)
+        super().setup(fig, outfile, dpi, frame_prefix, clear_temp=False)
 
     def grab_frame(self, **savefig_kwargs):
         if self.embed_frames:
@@ -919,7 +917,7 @@ class HTMLWriter(FileMovieWriter):
             else:
                 self._saved_frames.append(imgdata64)
         else:
-            return super(HTMLWriter, self).grab_frame(**savefig_kwargs)
+            return super().grab_frame(**savefig_kwargs)
 
     def _run(self):
         # make a duck-typed subprocess stand in
@@ -1682,7 +1680,7 @@ class FuncAnimation(TimedAnimation):
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
         else:
-            self._iter_gen = lambda: iter(xrange(frames))
+            self._iter_gen = lambda: iter(range(frames))
             self.save_count = frames
 
         if self.save_count is None:

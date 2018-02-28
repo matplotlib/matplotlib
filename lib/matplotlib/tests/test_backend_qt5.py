@@ -6,8 +6,6 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 
-from numpy.testing import assert_equal
-
 import pytest
 try:
     # mock in python 3.3+
@@ -135,8 +133,8 @@ def test_dpi_ratio_change():
         # The actual widget size and figure physical size don't change
         assert size.width() == 600
         assert size.height() == 240
-        assert_equal(qt_canvas.get_width_height(), (600, 240))
-        assert_equal(fig.get_size_inches(), (5, 2))
+        assert qt_canvas.get_width_height() == (600, 240)
+        assert (fig.get_size_inches() == (5, 2)).all()
 
         p.return_value = 2
 
@@ -158,8 +156,8 @@ def test_dpi_ratio_change():
         # The actual widget size and figure physical size don't change
         assert size.width() == 600
         assert size.height() == 240
-        assert_equal(qt_canvas.get_width_height(), (600, 240))
-        assert_equal(fig.get_size_inches(), (5, 2))
+        assert qt_canvas.get_width_height() == (600, 240)
+        assert (fig.get_size_inches() == (5, 2)).all()
 
 
 @pytest.mark.backend('Qt5Agg')

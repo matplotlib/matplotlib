@@ -33,6 +33,9 @@ platforms. Matplotlib can be used in Python scripts, the Python and IPython
 shell (à la MATLAB or Mathematica), web application servers, and various
 graphical user interface toolkits.
 
+NOTE: The current master branch is now Python 3 only.  Python 2 support is
+being dropped.
+
 `Home page <http://matplotlib.org/>`_
 
 Installation

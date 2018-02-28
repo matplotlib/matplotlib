@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -16,7 +17,7 @@ import numpy as np
 from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    _to_unmasked_float_array, iterable, is_numlike, ls_mapper, ls_mapper_r,
+    _to_unmasked_float_array, iterable, ls_mapper, ls_mapper_r,
     STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
@@ -316,7 +317,7 @@ class Line2D(Artist):
 
         %(Line2D)s
 
-        See :meth:`set_linestyle` for a decription of the line styles,
+        See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
         :meth:`set_drawstyle` for a description of the draw styles.
 
@@ -421,7 +422,7 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if is_numlike(self._picker):
+        if isinstance(self._picker, Number):
             self.pickradius = self._picker
 
         self._xorig = np.asarray([])
@@ -456,7 +457,7 @@ class Line2D(Artist):
         if callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not is_numlike(self.pickradius):
+        if not isinstance(self.pickradius, Number):
             raise ValueError("pick radius should be a distance")
 
         # Make sure we have data to plot
@@ -1037,17 +1038,10 @@ class Line2D(Artist):
         ls : str
             The linestyle with the drawstyle (if any) stripped.
         '''
-        ret_ds = None
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
-                ret_ds = ds
-                if len(ls) > len(ds):
-                    ls = ls[len(ds):]
-                else:
-                    ls = '-'
-                break
-
-        return ret_ds, ls
+                return ds, ls[len(ds):] or '-'
+        return None, ls
 
     def set_linestyle(self, ls):
         """

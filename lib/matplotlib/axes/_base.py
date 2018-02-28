@@ -4,12 +4,12 @@ from __future__ import (absolute_import, division, print_function,
 from collections import OrderedDict
 
 import six
-from six.moves import xrange
 
 import itertools
 import warnings
 import math
 from operator import attrgetter
+import types
 
 import numpy as np
 
@@ -392,7 +392,7 @@ class _process_plot_var_args(object):
         if ncx > 1 and ncy > 1 and ncx != ncy:
             cbook.warn_deprecated("2.2", "cycling among columns of inputs "
                                   "with non-matching shapes is deprecated.")
-        for j in xrange(max(ncx, ncy)):
+        for j in range(max(ncx, ncy)):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
         return ret
@@ -403,8 +403,7 @@ class _process_plot_var_args(object):
             if args and isinstance(args[0], six.string_types):
                 this += args[0],
                 args = args[1:]
-            for seg in self._plot_args(this, kwargs):
-                yield seg
+            yield from self._plot_args(this, kwargs)
 
 
 class _AxesBase(martist.Artist):
@@ -582,7 +581,7 @@ class _AxesBase(martist.Artist):
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
-        state = super(_AxesBase, self).__getstate__()
+        state = super().__getstate__()
         state['_cachedRenderer'] = None
         state.pop('_layoutbox')
         state.pop('_poslayoutbox')
@@ -624,13 +623,13 @@ class _AxesBase(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the `~.Figure` for this `~.Axes`.
+        Set the `.Figure` for this `.Axes`.
 
-        .. ACCEPTS: `~.Figure`
+        .. ACCEPTS: `.Figure`
 
         Parameters
         ----------
-        fig : `~.Figure`
+        fig : `.Figure`
         """
         martist.Artist.set_figure(self, fig)
 
@@ -989,11 +988,8 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        return OrderedDict([
-            ('left', mspines.Spine.linear_spine(self, 'left')),
-            ('right', mspines.Spine.linear_spine(self, 'right')),
-            ('bottom', mspines.Spine.linear_spine(self, 'bottom')),
-            ('top', mspines.Spine.linear_spine(self, 'top'))])
+        return OrderedDict((side, mspines.Spine.linear_spine(self, side))
+                           for side in ['left', 'right', 'bottom', 'top'])
 
     def cla(self):
         """Clear the current axes."""
@@ -2320,11 +2316,14 @@ class _AxesBase(martist.Artist):
 
         All three forms above set the xmargin and ymargin parameters.
         All keyword parameters are optional.  A single argument
-        specifies both xmargin and ymargin.  The *tight* parameter
-        is passed to :meth:`autoscale_view`, which is executed after
-        a margin is changed; the default here is *True*, on the
-        assumption that when margins are specified, no additional
-        padding to match tick marks is usually desired.  Setting
+        specifies both xmargin and ymargin. The padding added to the end of
+        each interval is *margin* times the data interval. The *margin* must
+        be a float in the range [0, 1].
+
+        The *tight* parameter is passed to :meth:`autoscale_view`
+        , which is executed after a margin is changed; the default here is
+        *True*, on the assumption that when margins are specified, no
+        additional padding to match tick marks is usually desired.  Setting
         *tight* to *None* will preserve the previous setting.
 
         Specifying any margin changes only the autoscaling; for example,
@@ -3951,7 +3950,7 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             lim=self.viewLim.frozen(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),
@@ -4014,7 +4013,7 @@ class _AxesBase(martist.Artist):
         p = self._pan_start
         dx = x - p.x
         dy = y - p.y
-        if dx == 0 and dy == 0:
+        if dx == dy == 0:
             return
         if button == 1:
             dx, dy = format_deltas(key, dx, dy)
@@ -4035,6 +4034,8 @@ class _AxesBase(martist.Artist):
             except OverflowError:
                 warnings.warn('Overflow while panning')
                 return
+        else:
+            return
 
         valid = np.isfinite(result.transformed(p.trans))
         points = result.get_points().astype(object)

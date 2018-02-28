@@ -39,45 +39,25 @@ import six
 
 import copy
 import glob
+import hashlib
+import logging
 import os
+from pathlib import Path
 import shutil
+import subprocess
 import sys
 import warnings
-import logging
-
-from hashlib import md5
 
 import distutils.version
 import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
-from matplotlib.cbook import mkdirs, Locked
-from matplotlib.compat.subprocess import subprocess, Popen, PIPE, STDOUT
+from matplotlib.cbook import Locked
 import matplotlib.dviread as dviread
 import re
 
 _log = logging.getLogger(__name__)
-
-
-@mpl.cbook.deprecated("2.1")
-def dvipng_hack_alpha():
-    try:
-        p = Popen([str('dvipng'), '-version'], stdin=PIPE, stdout=PIPE,
-                  stderr=STDOUT, close_fds=(sys.platform != 'win32'))
-        stdout, stderr = p.communicate()
-    except OSError:
-        _log.info('No dvipng was found')
-        return False
-    lines = stdout.decode(sys.getdefaultencoding()).split('\n')
-    for line in lines:
-        if line.startswith('dvipng '):
-            version = line.split()[-1]
-            _log.info('Found dvipng version %s', version)
-            version = distutils.version.LooseVersion(version)
-            return version < distutils.version.LooseVersion('1.6')
-    _log.info('Unexpected response from dvipng -version')
-    return False
 
 
 class TexManager(object):
@@ -88,7 +68,7 @@ class TexManager(object):
     cachedir = mpl.get_cachedir()
     if cachedir is not None:
         texcache = os.path.join(cachedir, 'tex.cache')
-        mkdirs(texcache)
+        Path(texcache).mkdir(parents=True, exist_ok=True)
     else:
         # Should only happen in a restricted environment (such as Google App
         # Engine). Deal with this gracefully by not creating a cache directory.
@@ -136,7 +116,7 @@ class TexManager(object):
             raise RuntimeError('Cannot create TexManager, as there is no '
                                'cache directory available')
 
-        mkdirs(self.texcache)
+        Path(self.texcache).mkdir(parents=True, exist_ok=True)
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
@@ -171,7 +151,7 @@ class TexManager(object):
         # correct png is selected for strings rendered with same font and dpi
         # even if the latex preamble changes within the session
         preamble_bytes = self.get_custom_preamble().encode('utf-8')
-        fontconfig.append(md5(preamble_bytes).hexdigest())
+        fontconfig.append(hashlib.md5(preamble_bytes).hexdigest())
         self._fontconfig = ''.join(fontconfig)
 
         # The following packages and commands need to be included in the latex
@@ -188,7 +168,8 @@ class TexManager(object):
         """
         s = ''.join([tex, self.get_font_config(), '%f' % fontsize,
                      self.get_custom_preamble(), str(dpi or '')])
-        return os.path.join(self.texcache, md5(s.encode('utf-8')).hexdigest())
+        return os.path.join(
+            self.texcache, hashlib.md5(s.encode('utf-8')).hexdigest())
 
     def get_font_config(self):
         """Reinitializes self if relevant rcParams on have changed."""

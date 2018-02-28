@@ -13,12 +13,12 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map, xrange, zip, reduce
+from six.moves import map, zip, reduce
 
 import types
+from collections import defaultdict
 import math
 import warnings
-from collections import defaultdict
 
 import numpy as np
 
@@ -100,11 +100,9 @@ class Axes3D(Axes):
             self._shared_z_axes.join(self, sharez)
             self._adjustable = 'datalim'
 
-        super(Axes3D, self).__init__(fig, rect,
-                                     frameon=True,
-                                     *args, **kwargs)
+        super().__init__(fig, rect, frameon=True, *args, **kwargs)
         # Disable drawing of axes by base class
-        super(Axes3D, self).set_axis_off()
+        super().set_axis_off()
         # Enable drawing of axes by Axes3D class
         self.set_axis_on()
         self.M = None
@@ -164,8 +162,7 @@ class Axes3D(Axes):
         Look for unit *kwargs* and update the axis instances as necessary
 
         """
-        super(Axes3D, self)._process_unit_info(xdata=xdata, ydata=ydata,
-                                               kwargs=kwargs)
+        super()._process_unit_info(xdata=xdata, ydata=ydata, kwargs=kwargs)
 
         if self.xaxis is None or self.yaxis is None or self.zaxis is None:
             return
@@ -195,8 +192,8 @@ class Axes3D(Axes):
 
         # This is purposely using the 2D Axes's set_xlim and set_ylim,
         # because we are trying to place our viewing pane.
-        super(Axes3D, self).set_xlim(-xdwl, xdw, auto=None)
-        super(Axes3D, self).set_ylim(-ydwl, ydw, auto=None)
+        super().set_xlim(-xdwl, xdw, auto=None)
+        super().set_ylim(-ydwl, ydw, auto=None)
 
     def _init_axis(self):
         '''Init 3D axes; overrides creation of regular X/Y axes'''
@@ -214,17 +211,21 @@ class Axes3D(Axes):
             ax.init3d()
 
     def get_children(self):
-        return [self.zaxis, ] + super(Axes3D, self).get_children()
+        return [self.zaxis] + super().get_children()
 
     def _get_axis_list(self):
-        return super(Axes3D, self)._get_axis_list() + (self.zaxis, )
+        return super()._get_axis_list() + (self.zaxis, )
 
     def unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
-        xs, ys, zs = ([minx, maxx, maxx, minx, minx, maxx, maxx, minx],
-                      [miny, miny, maxy, maxy, miny, miny, maxy, maxy],
-                      [minz, minz, minz, minz, maxz, maxz, maxz, maxz])
-        return list(zip(xs, ys, zs))
+        return [(minx, miny, minz),
+                (maxx, miny, minz),
+                (maxx, maxy, minz),
+                (minx, maxy, minz),
+                (minx, miny, maxz),
+                (maxx, miny, maxz),
+                (maxx, maxy, maxz),
+                (minx, maxy, maxz)]
 
     def tunit_cube(self, vals=None, M=None):
         if M is None:
@@ -299,7 +300,7 @@ class Axes3D(Axes):
                 ax.draw(renderer)
 
         # Then rest
-        super(Axes3D, self).draw(renderer)
+        super().draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()
@@ -328,7 +329,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        return super(Axes3D, self).get_autoscale_on() and self.get_autoscalez_on()
+        return super().get_autoscale_on() and self.get_autoscalez_on()
 
     def get_autoscalez_on(self):
         """
@@ -351,7 +352,7 @@ class Axes3D(Axes):
         b : bool
             .. ACCEPTS: bool
         """
-        super(Axes3D, self).set_autoscale_on(b)
+        super().set_autoscale_on(b)
         self.set_autoscalez_on(b)
 
     def set_autoscalez_on(self, b):
@@ -765,7 +766,7 @@ class Axes3D(Axes):
     set_zlim = set_zlim3d
 
     def get_xlim3d(self):
-        return self.xy_viewLim.intervalx
+        return tuple(self.xy_viewLim.intervalx)
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
     get_xlim = get_xlim3d
     if get_xlim.__doc__ is not None:
@@ -775,7 +776,7 @@ class Axes3D(Axes):
             """
 
     def get_ylim3d(self):
-        return self.xy_viewLim.intervaly
+        return tuple(self.xy_viewLim.intervaly)
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
     get_ylim = get_ylim3d
     if get_ylim.__doc__ is not None:
@@ -786,7 +787,7 @@ class Axes3D(Axes):
 
     def get_zlim3d(self):
         '''Get 3D z limits.'''
-        return self.zz_viewLim.intervalx
+        return tuple(self.zz_viewLim.intervalx)
     get_zlim = get_zlim3d
 
     def get_zscale(self):
@@ -1099,7 +1100,7 @@ class Axes3D(Axes):
         # Disabling mouse interaction might have been needed a long
         # time ago, but I can't find a reason for it now - BVR (2012-03)
         #self.disable_mouse_rotation()
-        super(Axes3D, self).cla()
+        super().cla()
         self.zaxis.cla()
 
         if self._sharez is not None:
@@ -1443,7 +1444,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        super(Axes3D, self).tick_params(axis, **kwargs)
+        super().tick_params(axis, **kwargs)
         if axis in ['z', 'both'] :
             zkw = dict(kwargs)
             zkw.pop('top', None)
@@ -1523,7 +1524,7 @@ class Axes3D(Axes):
         except for the `zdir` keyword, which sets the direction to be
         used as the z direction.
         '''
-        text = super(Axes3D, self).text(x, y, s, **kwargs)
+        text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
         return text
 
@@ -1565,7 +1566,7 @@ class Axes3D(Axes):
         # Match length
         zs = _backports.broadcast_to(zs, len(xs))
 
-        lines = super(Axes3D, self).plot(xs, ys, *args, **kwargs)
+        lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
             art3d.line_2d_to_3d(line, zs=zs, zdir=zdir)
 
@@ -1627,7 +1628,7 @@ class Axes3D(Axes):
             Whether to shade the face colors.
 
         **kwargs :
-            Other arguments are forwarded to `~.Poly3DCollection`.
+            Other arguments are forwarded to `.Poly3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1697,8 +1698,8 @@ class Axes3D(Axes):
 
         #colset contains the data for coloring: either average z or the facecolor
         colset = []
-        for rs in xrange(0, rows-1, rstride):
-            for cs in xrange(0, cols-1, cstride):
+        for rs in range(0, rows-1, rstride):
+            for cs in range(0, cols-1, cstride):
                 ps = []
                 for a in (X, Y, Z):
                     ztop = a[rs,cs:min(cols, cs+cstride+1)]
@@ -1713,7 +1714,7 @@ class Axes3D(Axes):
                 # are removed here.
                 ps = list(zip(*ps))
                 lastp = np.array([])
-                ps2 = [ps[0]] + [ps[i] for i in xrange(1, len(ps)) if ps[i] != ps[i-1]]
+                ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
                 avgzsum = sum(p[2] for p in ps2)
                 polys.append(ps2)
 
@@ -1841,7 +1842,7 @@ class Axes3D(Axes):
             of the new default of ``rcount = ccount = 50``.
 
         **kwargs :
-            Other arguments are forwarded to `~.Line3DCollection`.
+            Other arguments are forwarded to `.Line3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1882,14 +1883,14 @@ class Axes3D(Axes):
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
         if rstride:
-            rii = list(xrange(0, rows, rstride))
+            rii = list(range(0, rows, rstride))
             # Add the last index only if needed
             if rows > 0 and rii[-1] != (rows - 1):
                 rii += [rows-1]
         else:
             rii = []
         if cstride:
-            cii = list(xrange(0, cols, cstride))
+            cii = list(range(0, cols, cstride))
             # Add the last index only if needed
             if cols > 0 and cii[-1] != (cols - 1):
                 cii += [cols-1]
@@ -2128,7 +2129,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = super(Axes3D, self).contour(jX, jY, jZ, *args, **kwargs)
+        cset = super().contour(jX, jY, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2185,7 +2186,7 @@ class Axes3D(Axes):
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
 
-        cset = super(Axes3D, self).tricontour(tri, jZ, *args, **kwargs)
+        cset = super().tricontour(tri, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2220,7 +2221,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = super(Axes3D, self).contourf(jX, jY, jZ, *args, **kwargs)
+        cset = super().contourf(jX, jY, jZ, *args, **kwargs)
         self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2272,7 +2273,7 @@ class Axes3D(Axes):
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
 
-        cset = super(Axes3D, self).tricontourf(tri, jZ, *args, **kwargs)
+        cset = super().tricontourf(tri, jZ, *args, **kwargs)
         self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2309,7 +2310,7 @@ class Axes3D(Axes):
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
 
-        super(Axes3D, self).add_collection(col)
+        super().add_collection(col)
 
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
@@ -2358,8 +2359,7 @@ class Axes3D(Axes):
 
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
 
-        patches = super(Axes3D, self).scatter(
-            xs, ys, s=s, c=c, *args, **kwargs)
+        patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
         is_2d = not cbook.iterable(zs)
         zs = _backports.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
@@ -2452,7 +2452,7 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        patches = super(Axes3D, self).bar(left, height, *args, **kwargs)
+        patches = super().bar(left, height, *args, **kwargs)
 
         zs = _backports.broadcast_to(zs, len(left))
 
@@ -2595,8 +2595,7 @@ class Axes3D(Axes):
         return col
 
     def set_title(self, label, fontdict=None, loc='center', **kwargs):
-        ret = super(Axes3D, self).set_title(label, fontdict=fontdict, loc=loc,
-                                            **kwargs)
+        ret = super().set_title(label, fontdict=fontdict, loc=loc, **kwargs)
         (x, y) = self.title.get_position()
         self.title.set_y(0.92 * y)
         return ret
@@ -2692,8 +2691,8 @@ class Axes3D(Axes):
         # handle args
         argi = 6
         if len(args) < argi:
-            ValueError('Wrong number of arguments. Expected %d got %d' %
-                       (argi, len(args)))
+            raise ValueError('Wrong number of arguments. Expected %d got %d' %
+                             (argi, len(args)))
 
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]

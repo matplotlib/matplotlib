@@ -84,8 +84,8 @@ cmaps = OrderedDict()
 # amongst the colormaps: some are approximately linear in :math:`L^*` and others
 # are more curved.
 
-cmaps['Perceptually Uniform Sequential'] = ['viridis', 'plasma',
-                                            'inferno', 'magma']
+cmaps['Perceptually Uniform Sequential'] = [
+            'viridis', 'plasma', 'inferno', 'magma', 'cividis']
 
 cmaps['Sequential'] = [
             'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
@@ -205,7 +205,7 @@ plt.show()
 mpl.rcParams.update({'font.size': 12})
 
 # Number of colormap per subplot for particular cmap categories
-_DSUBS = {'Perceptually Uniform Sequential': 4, 'Sequential': 6,
+_DSUBS = {'Perceptually Uniform Sequential': 5, 'Sequential': 6,
           'Sequential (2)': 6, 'Diverging': 6, 'Qualitative': 4,
           'Miscellaneous': 6}
 

@@ -152,7 +152,7 @@ class AxisArtistHelper(object):
 
             self.nth_coord = nth_coord
 
-            super(AxisArtistHelper.Fixed, self).__init__()
+            super().__init__()
 
             self.passthru_pt = self._default_passthru_pt[loc]
 
@@ -207,18 +207,12 @@ class AxisArtistHelper(object):
 
             return trans_tick
 
-
     class Floating(_Base):
-        def __init__(self, nth_coord,
-                     value):
 
+        def __init__(self, nth_coord, value):
             self.nth_coord = nth_coord
-
             self._value = value
-
-            super(AxisArtistHelper.Floating,
-                  self).__init__()
-
+            super().__init__()
 
         def get_nth_coord(self):
             return self.nth_coord
@@ -238,8 +232,7 @@ class AxisArtistHelperRectlinear(object):
             nth_coord = along which coordinate value varies
             in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
-            super(AxisArtistHelperRectlinear.Fixed, self).__init__(
-                loc, nth_coord)
+            super().__init__(loc, nth_coord)
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
 
         # TICK
@@ -287,8 +280,7 @@ class AxisArtistHelperRectlinear(object):
     class Floating(AxisArtistHelper.Floating):
         def __init__(self, axes, nth_coord,
                      passingthrough_point, axis_direction="bottom"):
-            super(AxisArtistHelperRectlinear.Floating, self).__init__(
-                nth_coord, passingthrough_point)
+            super().__init__(nth_coord, passingthrough_point)
             self._axis_direction = axis_direction
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
 
@@ -380,9 +372,11 @@ class AxisArtistHelperRectlinear(object):
                     c = [self._value, self._value]
                     c[self.nth_coord] = x
                     c1, c2 = tr2ax.transform_point(c)
-                    if 0. <= c1 <= 1. and 0. <= c2 <= 1.:
-                        if 0. - self.delta1 <= [c1, c2][self.nth_coord] <= 1. + self.delta2:
-                            yield c, angle_normal, angle_tangent, l
+                    if (0 <= c1 <= 1 and 0 <= c2 <= 1
+                            and 0 - self.delta1
+                                <= [c1, c2][self.nth_coord]
+                                <= 1 + self.delta2):
+                        yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
 
@@ -395,7 +389,7 @@ class GridHelperBase(object):
     def __init__(self):
         self._force_update = True
         self._old_limits = None
-        super(GridHelperBase, self).__init__()
+        super().__init__()
 
 
     def update_lim(self, axes):
@@ -456,7 +450,7 @@ class GridHelperRectlinear(GridHelperBase):
 
     def __init__(self, axes):
 
-        super(GridHelperRectlinear, self).__init__()
+        super().__init__()
         self.axes = axes
 
 
@@ -569,7 +563,7 @@ class Axes(maxes.Axes):
     class AxisDict(dict):
         def __init__(self, axes):
             self.axes = axes
-            super(Axes.AxisDict, self).__init__()
+            super().__init__()
 
         def __getitem__(self, k):
             if isinstance(k, tuple):
@@ -600,7 +594,7 @@ class Axes(maxes.Axes):
         else:
             self._grid_helper = GridHelperRectlinear(self)
 
-        super(Axes, self).__init__(*kl, **kw)
+        super().__init__(*kl, **kw)
 
         self.toggle_axisline(True)
 
@@ -623,7 +617,7 @@ class Axes(maxes.Axes):
 
 
     def _init_axis(self):
-        super(Axes, self)._init_axis()
+        super()._init_axis()
 
 
     def _init_axis_artists(self, axes=None):
@@ -671,7 +665,7 @@ class Axes(maxes.Axes):
         # gridlines need to b created before cla() since cla calls grid()
 
         self._init_gridlines()
-        super(Axes, self).cla()
+        super().cla()
 
         # the clip_path should be set after Axes.cla() since that's
         # when a patch is created.
@@ -691,7 +685,7 @@ class Axes(maxes.Axes):
         # axes_grid and the original mpl's grid, because axes_grid
         # explicitly set the visibility of the gridlines.
 
-        super(Axes, self).grid(b, which=which, axis=axis, **kwargs)
+        super().grid(b, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
 
@@ -715,7 +709,7 @@ class Axes(maxes.Axes):
             children = list(six.itervalues(self._axislines)) + [self.gridlines]
         else:
             children = []
-        children.extend(super(Axes, self).get_children())
+        children.extend(super().get_children())
         return children
 
     def invalidate_grid_helper(self):
@@ -747,20 +741,20 @@ class Axes(maxes.Axes):
     def draw(self, renderer, inframe=False):
 
         if not self._axisline_on:
-            super(Axes, self).draw(renderer, inframe)
+            super().draw(renderer, inframe)
             return
 
         orig_artists = self.artists
         self.artists = self.artists + list(self._axislines.values()) + [self.gridlines]
 
-        super(Axes, self).draw(renderer, inframe)
+        super().draw(renderer, inframe)
 
         self.artists = orig_artists
 
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
 
-        bb0 = super(Axes, self).get_tightbbox(renderer, call_axes_locator)
+        bb0 = super().get_tightbbox(renderer, call_axes_locator)
 
         if not self._axisline_on:
             return bb0
@@ -792,18 +786,13 @@ class Axes(maxes.Axes):
         return _bbox
 
 
-
-
 Subplot = maxes.subplot_class_factory(Axes)
 
+
 class AxesZero(Axes):
-    def __init__(self, *kl, **kw):
-
-        super(AxesZero, self).__init__(*kl, **kw)
-
 
     def _init_axis_artists(self):
-        super(AxesZero, self)._init_axis_artists()
+        super()._init_axis_artists()
 
         new_floating_axis = self._grid_helper.new_floating_axis
         xaxis_zero = new_floating_axis(nth_coord=0,
@@ -824,5 +813,6 @@ class AxesZero(Axes):
         yaxis_zero.line.set_clip_path(self.patch)
         yaxis_zero.set_visible(False)
         self._axislines["yzero"] = yaxis_zero
+
 
 SubplotZero = maxes.subplot_class_factory(AxesZero)

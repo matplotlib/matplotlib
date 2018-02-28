@@ -5,7 +5,6 @@ from collections import OrderedDict
 
 import six
 from six import unichr
-from six.moves import xrange
 
 import base64
 import codecs
@@ -232,15 +231,12 @@ def generate_transform(transform_list=[]):
     if len(transform_list):
         output = io.StringIO()
         for type, value in transform_list:
-            if type == 'scale' and (value == (1.0,) or value == (1.0, 1.0)):
-                continue
-            if type == 'translate' and value == (0.0, 0.0):
-                continue
-            if type == 'rotate' and value == (0.0,):
+            if (type == 'scale' and (value == (1,) or value == (1, 1))
+                    or type == 'translate' and value == (0, 0)
+                    or type == 'rotate' and value == (0,)):
                 continue
             if type == 'matrix' and isinstance(value, Affine2DBase):
                 value = value.to_values()
-
             output.write('%s(%s)' % (
                 type, ' '.join(short_float_fmt(x) for x in value)))
         return output.getvalue()
@@ -1081,15 +1077,13 @@ class RendererSVG(RendererBase):
                 ('translate', (x, y)),
                 ('rotate', (-angle,))])
 
-            # Apply attributes to 'g', not 'text', because we likely
-            # have some rectangles as well with the same style and
-            # transformation
+            # Apply attributes to 'g', not 'text', because we likely have some
+            # rectangles as well with the same style and transformation.
             writer.start('g', attrib=attrib)
 
             writer.start('text')
 
-            # Sort the characters by font, and output one tspan for
-            # each
+            # Sort the characters by font, and output one tspan for each.
             spans = OrderedDict()
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({
@@ -1112,7 +1106,7 @@ class RendererSVG(RendererBase):
                 same_y = True
                 if len(chars) > 1:
                     last_y = chars[0][1]
-                    for i in xrange(1, len(chars)):
+                    for i in range(1, len(chars)):
                         if chars[i][1] != last_y:
                             same_y = False
                             break
@@ -1247,7 +1241,7 @@ svgProlog = """\
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
+<!-- Created with matplotlib (https://matplotlib.org/) -->
 """
 
 

@@ -17,8 +17,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
-import six
 
 import sys
 import os
@@ -824,8 +822,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     filetypes['xpm'] = 'X pixmap'
 
     def print_figure(self, filename, *args, **kwargs):
-        super(_FigureCanvasWxBase, self).print_figure(
-            filename, *args, **kwargs)
+        super().print_figure(filename, *args, **kwargs)
         # Restore the current view; this is needed because the artist contains
         # methods rely on particular attributes of the rendered figure for
         # determining things like bounding boxes.
@@ -1230,7 +1227,7 @@ class FigureFrameWx(wx.Frame):
         return toolbar
 
     def get_canvas(self, fig):
-        return type(self.canvas)(self, -1, fig)
+        return FigureCanvasWx(self, -1, fig)
 
     def get_figure_manager(self):
         DEBUG_MSG("get_figure_manager()", 1, self)
@@ -1449,7 +1446,7 @@ class MenuButtonWx(wx.Button):
             for menuId in self._axisId[maxAxis:]:
                 self._menu.Delete(menuId)
             self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(list(xrange(maxAxis)))
+        self._toolbar.set_active(list(range(maxAxis)))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
@@ -1474,6 +1471,7 @@ cursord = {
 }
 
 
+@cbook.deprecated("2.2")
 class SubplotToolWX(wx.Frame):
     def __init__(self, targetfig):
         wx.Frame.__init__(self, None, -1, "Configure subplots")
@@ -1508,7 +1506,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
-        return FigureCanvasWx(frame, -1, fig)
+        return type(self.canvas)(frame, -1, fig)
 
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
@@ -1697,6 +1695,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
         self.EnableTool(self.wx_ids['Back'], can_backward)
         self.EnableTool(self.wx_ids['Forward'], can_forward)
+
+
+@cbook.deprecated("2.2", alternative="NavigationToolbar2Wx")
+class Toolbar(NavigationToolbar2Wx):
+    pass
 
 
 class StatusBarWx(wx.StatusBar):
@@ -1956,15 +1959,6 @@ class PrintoutWx(wx.Printout):
         return True
 # >
 
-########################################################################
-#
-# Now just provide the standard names that backend.__init__ is expecting
-#
-########################################################################
-
-
-Toolbar = NavigationToolbar2Wx
-
 
 @_Backend.export
 class _BackendWx(_Backend):
@@ -1986,7 +1980,7 @@ class _BackendWx(_Backend):
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp
-        return super(_BackendWx, cls).new_figure_manager(num, *args, **kwargs)
+        return super().new_figure_manager(num, *args, **kwargs)
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):

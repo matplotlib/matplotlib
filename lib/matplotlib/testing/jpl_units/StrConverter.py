@@ -14,7 +14,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 import matplotlib.units as units
 from matplotlib.cbook import iterable
@@ -119,7 +118,7 @@ class StrConverter( units.ConversionInterface ):
 
       # add padding (so they do not appear on the axes themselves)
       labels = [ '' ] + labels + [ '' ]
-      ticks = list(xrange( len(labels) ))
+      ticks = list(range( len(labels) ))
       ticks[0] = 0.5
       ticks[-1] = ticks[-1] - 0.5
 

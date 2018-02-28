@@ -67,7 +67,6 @@ have short aliases, e.g., 'lw' for 'linewidth' and 'mec' for
 these properties will be listed as 'fullname or aliasname'.
 """
 
-from __future__ import print_function
 
 import matplotlib.pyplot as plt
 import numpy as np

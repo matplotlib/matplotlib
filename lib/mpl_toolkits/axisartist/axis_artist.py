@@ -175,7 +175,7 @@ class AttributeCopier(object):
     def __init__(self, ref_artist, klass=Artist):
         self._klass = klass
         self._ref_artist = ref_artist
-        super(AttributeCopier, self).__init__()
+        super().__init__()
 
     def set_ref_artist(self, artist):
         self._ref_artist = artist
@@ -328,8 +328,7 @@ class Ticks(Line2D, AttributeCopier):
         for loc, angle in self.locs_angles:
             marker_rotation.clear().rotate_deg(angle+add_angle)
             locs = path_trans.transform_non_affine([loc])
-            if (self.axes and
-                    not self.axes.viewLim.contains(locs[0][0], locs[0][1])):
+            if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
             renderer.draw_markers(gc, self._tickvert_path, marker_transform,
                                   Path(locs), path_trans.get_affine())
@@ -349,8 +348,7 @@ class LabelBase(mtext.Text):
         self._ref_angle = 0
         self._offset_radius = 0.
 
-        super(LabelBase, self).__init__(*kl,
-                                        **kwargs)
+        super().__init__(*kl, **kwargs)
 
         self.set_rotation_mode("anchor")
         self._text_follow_ref_angle = True
@@ -407,7 +405,7 @@ class LabelBase(mtext.Text):
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
         self.set_rotation(text_ref_angle+angle_orig)
-        super(LabelBase, self).draw(renderer)
+        super().draw(renderer)
         offset_tr.clear()
 
 
@@ -436,7 +434,7 @@ class LabelBase(mtext.Text):
         offset_tr.translate(dx, dy)
         self.set_rotation(text_ref_angle+angle_orig)
 
-        bbox = super(LabelBase, self).get_window_extent(renderer).frozen()
+        bbox = super().get_window_extent(renderer).frozen()
 
         offset_tr.clear()
 
@@ -461,7 +459,6 @@ class AxisLabel(LabelBase, AttributeCopier):
 
         axis_direction = kwargs.pop("axis_direction", "bottom")
         self._axis = kwargs.pop("axis", None)
-        #super(AxisLabel, self).__init__(*kl, **kwargs)
         LabelBase.__init__(self, *kl, **kwargs)
         AttributeCopier.__init__(self, self._axis, klass=LabelBase)
 
@@ -504,7 +501,7 @@ class AxisLabel(LabelBase, AttributeCopier):
 
 
     def get_text(self):
-        t = super(AxisLabel, self).get_text()
+        t = super().get_text()
         if t == "__from_axes__":
             return self._axis.get_label().get_text()
         return self._text
@@ -574,7 +571,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         r = self._get_external_pad() + pad
         self._set_offset_radius(r)
 
-        super(AxisLabel, self).draw(renderer)
+        super().draw(renderer)
 
 
     def get_window_extent(self, renderer):
@@ -586,7 +583,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         r = self._get_external_pad() + pad
         self._set_offset_radius(r)
 
-        bb = super(AxisLabel, self).get_window_extent(renderer)
+        bb = super().get_window_extent(renderer)
 
         return bb
 
@@ -744,7 +741,8 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         #self._set_offset_radius(r)
 
         for (x, y), a, l in self._locs_angles_labels:
-            if not l.strip(): continue
+            if not l.strip():
+                continue
             self._set_ref_angle(a) #+ add_angle
             self.set_x(x)
             self.set_y(y)
@@ -794,12 +792,12 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         """
         whd_list = []
         for (x, y), a, l in self._locs_angles_labels:
-            if not l.strip(): continue
+            if not l.strip():
+                continue
             clean_line, ismath = self.is_math_text(l)
             whd = renderer.get_text_width_height_descent(
                 clean_line, self._fontproperties, ismath=ismath)
             whd_list.append(whd)
-
         return whd_list
 
 
@@ -811,7 +809,7 @@ class GridlinesCollection(LineCollection):
         """
         self._which = kwargs.pop("which", "major")
         self._axis = kwargs.pop("axis", "both")
-        super(GridlinesCollection, self).__init__(*kl, **kwargs)
+        super().__init__(*kl, **kwargs)
         self.set_grid_helper(None)
 
     def set_which(self, which):
@@ -831,7 +829,7 @@ class GridlinesCollection(LineCollection):
                 self.set_segments([np.transpose(l) for l in gl])
             else:
                 self.set_segments([])
-        super(GridlinesCollection, self).draw(renderer)
+        super().draw(renderer)
 
 
 
@@ -863,7 +861,7 @@ class AxisArtist(martist.Artist):
         """
         #axes is also used to follow the axis attribute (tick color, etc).
 
-        super(AxisArtist, self).__init__(**kw)
+        super().__init__(**kw)
 
         self.axes = axes
 

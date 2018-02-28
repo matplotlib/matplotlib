@@ -21,7 +21,6 @@ option parsing error with the driver script, separate them from driver
 switches with a --.
 """
 
-from __future__ import print_function, division
 import os
 import time
 import sys
@@ -340,7 +339,7 @@ failbackend = dict(
     )
 
 
-from matplotlib.compat import subprocess
+import subprocess
 
 
 def run(arglist):
@@ -383,16 +382,12 @@ def drive(backend, directories, python=['python'], switches=[]):
         tmpfile_name = '_tmp_%s.py' % basename
         tmpfile = open(tmpfile_name, 'w')
 
-        future_imports = 'from __future__ import division, print_function'
         for line in open(fullpath):
             line_lstrip = line.lstrip()
             if line_lstrip.startswith("#"):
                 tmpfile.write(line)
-            elif 'unicode_literals' in line:
-                future_imports = future_imports + ', unicode_literals'
 
         tmpfile.writelines((
-            future_imports + '\n',
             'import sys\n',
             'sys.path.append("%s")\n' % fpath.replace('\\', '\\\\'),
             'import matplotlib\n',
@@ -402,11 +397,7 @@ def drive(backend, directories, python=['python'], switches=[]):
             'numpy.seterr(invalid="ignore")\n',
             ))
         for line in open(fullpath):
-            line_lstrip = line.lstrip()
-            if (line_lstrip.startswith('from __future__ import') or
-                    line_lstrip.startswith('matplotlib.use') or
-                    line_lstrip.startswith('savefig') or
-                    line_lstrip.startswith('show')):
+            if line.lstrip().startswith(('matplotlib.use', 'savefig', 'show')):
                 continue
             tmpfile.write(line)
         if backend in rcsetup.interactive_bk:

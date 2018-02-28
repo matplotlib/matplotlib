@@ -80,7 +80,7 @@ def test_curvelinear3():
 
 
 @image_comparison(baseline_images=['curvelinear4'],
-                  extensions=['png'], style='default', tol=0.01)
+                  extensions=['png'], style='default', tol=0.015)
 def test_curvelinear4():
     fig = plt.figure(figsize=(5, 5))
     fig.clf()

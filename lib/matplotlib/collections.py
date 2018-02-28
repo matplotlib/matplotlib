@@ -15,6 +15,8 @@ import warnings
 
 import six
 from six.moves import zip
+
+from numbers import Number
 try:
     from math import gcd
 except ImportError:
@@ -370,7 +372,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         pickradius = (
             float(self._picker)
-            if cbook.is_numlike(self._picker) and
+            if isinstance(self._picker, Number) and
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
 

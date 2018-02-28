@@ -11,6 +11,7 @@ from six.moves import StringIO
 import glob, os, shutil, sys, time, datetime
 import io
 import logging
+import subprocess
 
 from tempfile import mkstemp
 from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
@@ -21,7 +22,6 @@ from matplotlib.backend_bases import (
 
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
-from matplotlib.compat.subprocess import subprocess
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
@@ -78,8 +78,8 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        from matplotlib.compat.subprocess import Popen, PIPE
-        s = Popen([self.gs_exe, "--version"], stdout=PIPE)
+        s = subprocess.Popen(
+            [self.gs_exe, "--version"], stdout=subprocess.PIPE)
         pipe, stderr = s.communicate()
         if six.PY3:
             ver = pipe.decode('ascii')
@@ -129,17 +129,16 @@ papersize = {'letter': (8.5,11),
              'b10': (1.26,1.76)}
 
 def _get_papertype(w, h):
-    keys = list(six.iterkeys(papersize))
-    keys.sort()
-    keys.reverse()
-    for key in keys:
-        if key.startswith('l'): continue
-        pw, ph = papersize[key]
-        if (w < pw) and (h < ph): return key
+    for key, (pw, ph) in sorted(papersize.items(), reverse=True):
+        if key.startswith('l'):
+            continue
+        if w < pw and h < ph:
+            return key
     return 'a0'
 
 def _num_to_str(val):
-    if isinstance(val, six.string_types): return val
+    if isinstance(val, six.string_types):
+        return val
 
     ival = int(val)
     if val == ival: return str(ival)

@@ -2,12 +2,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip, zip_longest
+from six.moves import zip, zip_longest
 
 import functools
 import itertools
 import logging
 import math
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -344,7 +345,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-        handles : sequence of `~.Artist`, optional
+        handles : sequence of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -386,7 +387,7 @@ class Axes(_AxesBase):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : `~.BboxBase` or pair of floats
+        bbox_to_anchor : `.BboxBase` or pair of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -411,13 +412,13 @@ class Axes(_AxesBase):
 
         numpoints : None or int
             The number of marker points in the legend when creating a legend
-            entry for a `~.Line2D` (line).
+            entry for a `.Line2D` (line).
             Default is ``None``, which will take the value from
             :rc:`legend.numpoints`.
 
         scatterpoints : None or int
             The number of marker points in the legend when creating
-            a legend entry for a `~.PathCollection` (scatter plot).
+            a legend entry for a `.PathCollection` (scatter plot).
             Default is ``None``, which will take the value from
             :rc:`legend.scatterpoints`.
 
@@ -1270,10 +1271,11 @@ class Axes(_AxesBase):
                 minline = (lineoffsets - linelengths).min()
                 maxline = (lineoffsets + linelengths).max()
 
-                if colls[0].is_horizontal():
-                    corners = (minpos, minline), (maxpos, maxline)
-                else:
+                if (orientation is not None and
+                        orientation.lower() == "vertical"):
                     corners = (minline, minpos), (maxline, maxpos)
+                else:  # "horizontal", None or "none" (see EventCollection)
+                    corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
                 self.autoscale_view()
 
@@ -1305,7 +1307,7 @@ class Axes(_AxesBase):
         >>> plot(y)           # plot y using x as index array 0..N-1
         >>> plot(y, 'r+')     # ditto, but with red plusses
 
-        You can use `~.Line2D` properties as keyword arguments for more
+        You can use `.Line2D` properties as keyword arguments for more
         control on the  appearance. Line properties and *fmt* can be mixed.
         The following two calls yield identical results:
 
@@ -1403,7 +1405,7 @@ class Axes(_AxesBase):
             These parameters determined if the view limits are adapted to
             the data limits. The values are passed on to `autoscale_view`.
 
-        **kwargs : `~.Line2D` properties, optional
+        **kwargs : `.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
             auto legends), linewidth, antialiasing, marker face color.
             Example::
@@ -1414,14 +1416,14 @@ class Axes(_AxesBase):
             If you make multiple lines with one plot command, the kwargs
             apply to all those lines.
 
-            Here is a list of available `~.Line2D` properties:
+            Here is a list of available `.Line2D` properties:
 
             %(Line2D)s
 
         Returns
         -------
         lines
-            A list of `~.Line2D` objects that were added.
+            A list of `.Line2D` objects that were added.
 
 
         See Also
@@ -1796,16 +1798,16 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lags : array (lenth ``2*maxlags+1``)
+        lags : array (length ``2*maxlags+1``)
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
-        line : `~.LineCollection` or `~.Line2D`
-            `~.Artist` added to the axes of the correlation.
+        line : `.LineCollection` or `.Line2D`
+            `.Artist` added to the axes of the correlation.
 
-             `~.LineCollection` if *usevlines* is True
-             `~.Line2D` if *usevlines* is False
-        b : `~.Line2D` or None
+             `.LineCollection` if *usevlines* is True
+             `.Line2D` if *usevlines* is False
+        b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False
 
@@ -1858,16 +1860,16 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lags : array (lenth ``2*maxlags+1``)
+        lags : array (length ``2*maxlags+1``)
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
-        line : `~.LineCollection` or `~.Line2D`
-            `~.Artist` added to the axes of the correlation
+        line : `.LineCollection` or `.Line2D`
+            `.Artist` added to the axes of the correlation
 
-             `~.LineCollection` if *usevlines* is True
-             `~.Line2D` if *usevlines* is False
-        b : `~.Line2D` or None
+             `.LineCollection` if *usevlines* is True
+             `.Line2D` if *usevlines* is False
+        b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False
 
@@ -2049,7 +2051,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2367,7 +2369,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2485,7 +2487,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : :class:`~.BrokenBarHCollection` properties
+        **kwargs : :class:`.BrokenBarHCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2979,7 +2981,7 @@ class Axes(_AxesBase):
             - *None*: No errorbar.
 
         fmt : plot format string, optional, default: ''
-            The format for the data points / data lines. See `~.plot` for
+            The format for the data points / data lines. See `.plot` for
             details.
 
             Use 'none' (case insensitive) to plot errorbars without any data
@@ -3049,7 +3051,7 @@ class Axes(_AxesBase):
             property names, *markerfacecolor*, *markeredgecolor*, *markersize*
             and *markeredgewidth*.
 
-            Valid kwargs for the marker properties are `~.Lines2D` properties:
+            Valid kwargs for the marker properties are `.Lines2D` properties:
 
             %(Line2D)s
 
@@ -3922,7 +3924,7 @@ class Axes(_AxesBase):
         else:
             def doplot(*args, **kwargs):
                 shuffled = []
-                for i in xrange(0, len(args), 2):
+                for i in range(0, len(args), 2):
                     shuffled.extend([args[i + 1], args[i]])
                 return self.plot(*shuffled, **kwargs)
 
@@ -3936,7 +3938,7 @@ class Axes(_AxesBase):
                              "values must have same the length")
         # check position
         if positions is None:
-            positions = list(xrange(1, N + 1))
+            positions = list(range(1, N + 1))
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
 
@@ -4103,7 +4105,7 @@ class Axes(_AxesBase):
             ``image.cmap``.
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
-            A `~.Normalize` instance is used to scale luminance data to 0, 1.
+            A `.Normalize` instance is used to scale luminance data to 0, 1.
             *norm* is only used if *c* is an array of floats. If *None*, use
             the default `.colors.Normalize`.
 
@@ -4557,15 +4559,15 @@ class Axes(_AxesBase):
 
             # create accumulation arrays
             lattice1 = np.empty((nx1, ny1), dtype=object)
-            for i in xrange(nx1):
-                for j in xrange(ny1):
+            for i in range(nx1):
+                for j in range(ny1):
                     lattice1[i, j] = []
             lattice2 = np.empty((nx2, ny2), dtype=object)
-            for i in xrange(nx2):
-                for j in xrange(ny2):
+            for i in range(nx2):
+                for j in range(ny2):
                     lattice2[i, j] = []
 
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 if bdist[i]:
                     if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]].append(C[i])
@@ -4573,15 +4575,15 @@ class Axes(_AxesBase):
                     if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]].append(C[i])
 
-            for i in xrange(nx1):
-                for j in xrange(ny1):
+            for i in range(nx1):
+                for j in range(ny1):
                     vals = lattice1[i, j]
                     if len(vals) > mincnt:
                         lattice1[i, j] = reduce_C_function(vals)
                     else:
                         lattice1[i, j] = np.nan
-            for i in xrange(nx2):
-                for j in xrange(ny2):
+            for i in range(nx2):
+                for j in range(ny2):
                     vals = lattice2[i, j]
                     if len(vals) > mincnt:
                         lattice2[i, j] = reduce_C_function(vals)
@@ -5027,15 +5029,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `~.PolyCollection`.
-            They control the `~.Polygon` properties:
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
 
             %(PolyCollection)s
 
         Returns
         -------
-        `~.PolyCollection`
-            A `~.PolyCollection` containing the plotted polygons.
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
@@ -5211,15 +5213,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `~.PolyCollection`.
-            They control the `~.Polygon` properties:
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
 
             %(PolyCollection)s
 
         Returns
         -------
-        `~.PolyCollection`
-            A `~.PolyCollection` containing the plotted polygons.
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
@@ -6409,7 +6411,7 @@ class Axes(_AxesBase):
         """
         # Avoid shadowing the builtin.
         bin_range = range
-        del range
+        from builtins import range
 
         if not self._hold:
             self.cla()
@@ -6479,7 +6481,7 @@ class Axes(_AxesBase):
                     'weights should have the same shape as x')
 
         if color is None:
-            color = [self._get_lines.get_next_color() for i in xrange(nx)]
+            color = [self._get_lines.get_next_color() for i in range(nx)]
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
@@ -6506,7 +6508,7 @@ class Axes(_AxesBase):
         tops = []
         mlast = None
         # Loop through datasets
-        for i in xrange(nx):
+        for i in range(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -6526,7 +6528,7 @@ class Axes(_AxesBase):
                 m[:] = (m / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
-            if cbook.is_numlike(cumulative) and cumulative < 0:
+            if isinstance(cumulative, Number) and cumulative < 0:
                 slc = slice(None, None, -1)
 
             if density:
