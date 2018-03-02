@@ -5128,6 +5128,29 @@ def test_remove_shared_axes_relim():
     assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
 
 
+def test_shared_axes_retick():
+    # related to GitHub issue 8946
+    # set_xticks should set shared axes limits
+    fig, ax_lst = plt.subplots(2, 2, sharex='all', sharey='all')
+
+    data = np.random.randn(10)
+    data2 = np.random.randn(10)
+    index = range(10)
+    index2 = [x + 5.5 for x in index]
+
+    ax_lst[0][0].scatter(index, data)
+    ax_lst[0][1].scatter(index2, data2)
+
+    ax_lst[1][0].scatter(index, data)
+    ax_lst[1][1].scatter(index2, data2)
+
+    ax_lst[0][0].set_xticks(range(-10, 20, 1))
+    ax_lst[0][0].set_yticks(range(-10, 20, 1))
+
+    assert ax_lst[0][0].get_xlim() == ax_lst[0][1].get_xlim()
+    assert ax_lst[0][0].get_ylim() == ax_lst[1][0].get_ylim()
+
+
 def test_adjust_numtick_aspect():
     fig, ax = plt.subplots()
     ax.yaxis.get_major_locator().set_params(nbins='auto')
