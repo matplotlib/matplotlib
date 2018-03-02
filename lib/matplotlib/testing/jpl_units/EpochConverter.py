@@ -101,7 +101,7 @@ class EpochConverter( units.ConversionInterface ):
       = RETURN VALUE
       - Returns the value parameter converted to floats.
       """
-      return value.days()
+      return value.seconds() / 86400.0
 
    #------------------------------------------------------------------------
    @staticmethod
