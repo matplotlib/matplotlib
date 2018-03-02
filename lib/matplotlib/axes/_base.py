@@ -3194,6 +3194,12 @@ class _AxesBase(martist.Artist):
         """
         ret = self.xaxis.set_ticks(ticks, minor=minor)
         self.stale = True
+
+        g = self.get_shared_x_axes()
+        for ax in g.get_siblings(self):
+            ax.xaxis.set_ticks(ticks, minor=minor)
+            ax.stale = True
+
         return ret
 
     def get_xmajorticklabels(self):
@@ -3281,6 +3287,12 @@ class _AxesBase(martist.Artist):
         ret = self.xaxis.set_ticklabels(labels,
                                         minor=minor, **kwargs)
         self.stale = True
+
+        g = self.get_shared_x_axes()
+        for ax in g.get_siblings(self):
+            ax.xaxis.set_ticklabels(labels, minor=minor, **kwargs)
+            ax.stale = True
+
         return ret
 
     def invert_yaxis(self):
@@ -3512,6 +3524,9 @@ class _AxesBase(martist.Artist):
             Default is ``False``.
         """
         ret = self.yaxis.set_ticks(ticks, minor=minor)
+        g = self.get_shared_y_axes()
+        for ax in g.get_siblings(self):
+            ax.yaxis.set_ticks(ticks, minor=minor)
         return ret
 
     def get_ymajorticklabels(self):
@@ -3596,8 +3611,12 @@ class _AxesBase(martist.Artist):
         """
         if fontdict is not None:
             kwargs.update(fontdict)
-        return self.yaxis.set_ticklabels(labels,
+        ret = self.yaxis.set_ticklabels(labels,
                                          minor=minor, **kwargs)
+        g = self.get_shared_y_axes()
+        for ax in g.get_siblings(self):
+            ax.yaxis.set_ticklabels(labels, minor=minor, **kwargs)
+        return ret
 
     def xaxis_date(self, tz=None):
         """
