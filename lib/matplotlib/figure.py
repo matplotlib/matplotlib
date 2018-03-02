@@ -2228,20 +2228,18 @@ class Figure(Artist):
         See also `.set_constrained_layout_pads`.
         """
 
-        from matplotlib._constrained_layout import (do_constrained_layout)
+        from matplotlib._constrained_layout import do_constrained_layout
 
         _log.debug('Executing constrainedlayout')
         if self._layoutbox is None:
-            warnings.warn("Calling figure.constrained_layout, but figure "
-                          "not setup to do constrained layout.  "
-                          "   You either called GridSpec without the "
-                          "fig keyword, you are using plt.subplot, "
-                          "or you need to call figure or subplots"
-                          "with the constrained_layout=True kwarg.")
+            warnings.warn("Calling figure.constrained_layout, but figure not "
+                          "setup to do constrained layout.  You either called "
+                          "GridSpec without the fig keyword, you are using "
+                          "plt.subplot, or you need to call figure or "
+                          "subplots with the constrained_layout=True kwarg.")
             return
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
-
         fig = self
         width, height = fig.get_size_inches()
         w_pad = w_pad / width

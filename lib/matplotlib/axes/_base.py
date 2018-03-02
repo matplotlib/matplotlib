@@ -988,11 +988,8 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        return OrderedDict([
-            ('left', mspines.Spine.linear_spine(self, 'left')),
-            ('right', mspines.Spine.linear_spine(self, 'right')),
-            ('bottom', mspines.Spine.linear_spine(self, 'bottom')),
-            ('top', mspines.Spine.linear_spine(self, 'top'))])
+        return OrderedDict((side, mspines.Spine.linear_spine(self, side))
+                           for side in ['left', 'right', 'bottom', 'top'])
 
     def cla(self):
         """Clear the current axes."""

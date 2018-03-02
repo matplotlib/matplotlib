@@ -557,13 +557,11 @@ class ColorbarBase(cm.ScalarMappable):
             colors = np.asarray(colors)[igood]
         if cbook.iterable(linewidths):
             linewidths = np.asarray(linewidths)[igood]
-        N = len(y)
-        x = np.array([0.0, 1.0])
-        X, Y = np.meshgrid(x, y)
+        X, Y = np.meshgrid([0, 1], y)
         if self.orientation == 'vertical':
-            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
+            xy = np.stack([X, Y], axis=-1)
         else:
-            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
+            xy = np.stack([Y, X], axis=-1)
         col = collections.LineCollection(xy, linewidths=linewidths)
 
         if erase and self.lines:

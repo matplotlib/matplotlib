@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from . import backend_cairo, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3

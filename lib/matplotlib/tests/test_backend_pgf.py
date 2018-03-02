@@ -12,6 +12,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import image_comparison, _image_directories
+from matplotlib.backends.backend_pgf import PdfPages
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -40,6 +41,8 @@ needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
                                    reason='xelatex + pgf is required')
 needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
                                     reason='pdflatex + pgf is required')
+needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
+                                    reason='lualatex + pgf is required')
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -195,3 +198,118 @@ def test_bbox_inches():
     bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox},
                    tol=0)
+
+
+@needs_pdflatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_pdf_pages():
+    rc_pdflatex = {
+        'font.family': 'serif',
+        'pgf.rcfonts': False,
+        'pgf.texsystem': 'pdflatex',
+    }
+    mpl.rcParams.update(rc_pdflatex)
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.plot(range(5))
+    fig1.tight_layout()
+
+    fig2 = plt.figure(figsize=(3, 2))
+    ax2 = fig2.add_subplot(1, 1, 1)
+    ax2.plot(range(5))
+    fig2.tight_layout()
+
+    with PdfPages(os.path.join(result_dir, 'pdfpages.pdf')) as pdf:
+        pdf.savefig(fig1)
+        pdf.savefig(fig2)
+
+
+@needs_xelatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_pdf_pages_metadata():
+    rc_pdflatex = {
+        'font.family': 'serif',
+        'pgf.rcfonts': False,
+        'pgf.texsystem': 'xelatex',
+    }
+    mpl.rcParams.update(rc_pdflatex)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(range(5))
+    fig.tight_layout()
+
+    md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
+    path = os.path.join(result_dir, 'pdfpages_meta.pdf')
+
+    with PdfPages(path, metadata=md) as pdf:
+        pdf.savefig(fig)
+        pdf.savefig(fig)
+        pdf.savefig(fig)
+
+        assert pdf.get_pagecount() == 3
+
+
+@needs_lualatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_pdf_pages_lualatex():
+    rc_pdflatex = {
+        'font.family': 'serif',
+        'pgf.rcfonts': False,
+        'pgf.texsystem': 'lualatex'
+    }
+    mpl.rcParams.update(rc_pdflatex)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(range(5))
+    fig.tight_layout()
+
+    md = {'author': 'me', 'title': 'Multipage PDF with pgf'}
+    path = os.path.join(result_dir, 'pdfpages_lua.pdf')
+    with PdfPages(path, metadata=md) as pdf:
+        pdf.savefig(fig)
+        pdf.savefig(fig)
+
+        assert pdf.get_pagecount() == 2
+
+
+@needs_lualatex
+def test_luatex_version():
+    from matplotlib.backends.backend_pgf import _parse_lualatex_version
+    from matplotlib.backends.backend_pgf import _get_lualatex_version
+
+    v1 = '''This is LuaTeX, Version 1.0.4 (TeX Live 2017)
+
+Execute  'luatex --credits'  for credits and version details.
+
+There is NO warranty. Redistribution of this software is covered by
+the terms of the GNU General Public License, version 2 or (at your option)
+any later version. For more information about these matters, see the file
+named COPYING and the LuaTeX source.
+
+LuaTeX is Copyright 2017 Taco Hoekwater and the LuaTeX Team.
+'''
+
+    v2 = '''This is LuaTeX, Version beta-0.76.0-2015112019  (TeX Live 2013) (rev 4627)
+
+Execute  'luatex --credits'  for credits and version details.
+
+There is NO warranty. Redistribution of this software is covered by
+the terms of the GNU General Public License, version 2 or (at your option)
+any later version. For more information about these matters, see the file
+named COPYING and the LuaTeX source.
+
+Copyright 2013 Taco Hoekwater, the LuaTeX Team.
+'''
+
+    assert _parse_lualatex_version(v1) == (1, 0, 4)
+    assert _parse_lualatex_version(v2) == (0, 76, 0)
+
+    # just test if it is successful
+    version = _get_lualatex_version()
+    assert len(version) == 3
