@@ -51,12 +51,31 @@ def test_date_numpyx():
                                   datetime.datetime(2017, 1, 1, 3, 1, 1)]]])
 @pytest.mark.parametrize('dtype', ['datetime64[s]',
                                     'datetime64[us]',
-                                    'datetime64[ms]'])
+                                    'datetime64[ms]',
+                                    'datetime64[ns]'])
 def test_date_date2num_numpy(t0, dtype):
     time = mdates.date2num(t0)
     tnp = np.array(t0, dtype=dtype)
     nptime = mdates.date2num(tnp)
     assert np.array_equal(time, nptime)
+
+
+@pytest.mark.parametrize('dtype', ['datetime64[s]',
+                                    'datetime64[us]',
+                                    'datetime64[ms]',
+                                    'datetime64[ns]'])
+def test_date2num_NaT(dtype):
+    t0 = datetime.datetime(2017, 1, 1, 0, 1, 1)
+    tmpl = [mdates.date2num(t0), np.nan]
+    tnp = np.array([t0, 'NaT'], dtype=dtype)
+    nptime = mdates.date2num(tnp)
+    np.testing.assert_array_equal(tmpl, nptime)
+
+
+@pytest.mark.parametrize('units', ['s', 'ms', 'us', 'ns'])
+def test_date2num_NaT_scalar(units):
+    tmpl = mdates.date2num(np.datetime64('NaT', units))
+    assert np.isnan(tmpl)
 
 
 @image_comparison(baseline_images=['date_empty'], extensions=['png'])

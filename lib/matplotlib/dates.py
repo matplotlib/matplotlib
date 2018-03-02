@@ -290,6 +290,13 @@ def _dt64_to_ordinalf(d):
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY + 1.0
 
+    NaT_int = np.datetime64('NaT').astype(np.int64)
+    d_int = d.astype(np.int64)
+    try:
+        dt[d_int == NaT_int] = np.nan
+    except TypeError:
+        if d_int == NaT_int:
+            dt = np.nan
     return dt
 
 
