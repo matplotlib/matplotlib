@@ -924,7 +924,7 @@ class RingBuffer(object):
         if len(self.data) == self.max:
             self.cur = 0
             # Permanently change self's class from non-full to full
-            self.__class__ = __Full
+            self.__class__ = RingBuffer.__Full
 
     def get(self):
         """ Return a list of elements from the oldest to the newest. """
