@@ -1124,6 +1124,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
 
+    parents_iterable = cbook.iterable(parents)
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
@@ -1191,7 +1192,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         # and we need to set the aspect ratio by hand...
         cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     else:
-        if len(parents) == 1:
+        if not parents_iterable:
             # this is a single axis...
             ax = parents[0]
             lb, lbpos = constrained_layout.layoutcolorbarsingle(
