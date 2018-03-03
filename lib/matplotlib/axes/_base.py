@@ -3143,6 +3143,67 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return left, right
 
+    def _set_xviewlim(self, left=None, right=None, emit=True):
+        """
+        Set the view limits for the x-axis directly
+
+        .. ACCEPTS: (left: float, right: float)
+
+        Parameters
+        ----------
+        left : scalar, optional
+            The left xlim (default: None, which leaves the left limit
+            unchanged).
+
+        right : scalar, optional
+            The right xlim (default: None, which leaves the right limit
+            unchanged).
+
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
+
+        xlimits : tuple, optional
+            The left and right xlims may be passed as the tuple
+            (`left`, `right`) as the first positional argument (or as
+            the `left` keyword argument).
+
+        Returns
+        -------
+        xlimits : tuple
+            Returns the new x-axis view limits as (`left`, `right`).
+
+        Notes
+        -----
+        The `left` value may be greater than the `right` value, in which
+        case the x-axis values will decrease from left to right.
+
+        Examples
+        --------
+        >>> _set_xviewlim(left, right)
+        >>> _set_xviewlim((left, right))
+        >>> left, right = _set_xviewlim(left, right)
+
+        """
+        if right is None and iterable(left):
+            left, right = left
+        if left is None or right is None:
+            raise ValueError('Invalid view limits provided: %s, %s',
+                             left, right)
+
+        self.viewLim.intervalx = (left, right)
+
+        if emit:
+            self.callbacks.process('xlim_changed', self)
+            # Call all of the other x-axes that are shared with this one
+            for other in self._shared_x_axes.get_siblings(self):
+                if other is not self:
+                    other._set_xviewlim(self.viewLim.intervalx, emit=False)
+                    if (other.figure != self.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.stale = True
+        return left, right
+
     def get_xscale(self):
         return self.xaxis.get_scale()
     get_xscale.__doc__ = "Return the xaxis scale string: %s""" % (
@@ -3203,12 +3264,6 @@ class _AxesBase(martist.Artist):
         """
         ret = self.xaxis.set_ticks(ticks, minor=minor)
         self.stale = True
-
-        g = self.get_shared_x_axes()
-        for ax in g.get_siblings(self):
-            ax.xaxis.set_ticks(ticks, minor=minor)
-            ax.stale = True
-
         return ret
 
     def get_xmajorticklabels(self):
@@ -3296,12 +3351,6 @@ class _AxesBase(martist.Artist):
         ret = self.xaxis.set_ticklabels(labels,
                                         minor=minor, **kwargs)
         self.stale = True
-
-        g = self.get_shared_x_axes()
-        for ax in g.get_siblings(self):
-            ax.xaxis.set_ticklabels(labels, minor=minor, **kwargs)
-            ax.stale = True
-
         return ret
 
     def invert_yaxis(self):
@@ -3475,6 +3524,62 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return bottom, top
 
+    def _set_yviewlim(self, bottom=None, top=None, emit=True):
+        """
+        Set the view limits for the y-axis directly
+
+        .. ACCEPTS: (bottom: float, top: float)
+
+        Parameters
+        ----------
+        bottom : scalar, optional
+            The bottom ylim (default: None, which leaves the bottom
+            limit unchanged).
+
+        top : scalar, optional
+            The top ylim (default: None, which leaves the top limit
+            unchanged).
+
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
+
+        ylimits : tuple, optional
+            The bottom and top yxlims may be passed as the tuple
+            (`bottom`, `top`) as the first positional argument (or as
+            the `bottom` keyword argument).
+
+        Returns
+        -------
+        ylimits : tuple
+            Returns the new y-axis limits as (`bottom`, `top`).
+
+        Examples
+        --------
+        >>> _set_yviewlim(bottom, top)
+        >>> _set_yviewlim((bottom, top))
+        >>> bottom, top = _set_yviewlim(bottom, top)
+        """
+
+        if top is None and iterable(bottom):
+            bottom, top = bottom
+        if top is None or bottom is None:
+            raise ValueError('Invalid view limits provided: %s, %s',
+                             bottom, top)
+
+        self.viewLim.intervaly = (bottom, top)
+
+        if emit:
+            self.callbacks.process('ylim_changed', self)
+            # Call all of the other y-axes that are shared with this one
+            for other in self._shared_y_axes.get_siblings(self):
+                if other is not self:
+                    other._set_yviewlim(self.viewLim.intervaly, emit=False)
+                    if (other.figure != self.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.stale = True
+        return bottom, top
+
     def get_yscale(self):
         return self.yaxis.get_scale()
     get_yscale.__doc__ = "Return the yaxis scale string: %s""" % (
@@ -3533,9 +3638,6 @@ class _AxesBase(martist.Artist):
             Default is ``False``.
         """
         ret = self.yaxis.set_ticks(ticks, minor=minor)
-        g = self.get_shared_y_axes()
-        for ax in g.get_siblings(self):
-            ax.yaxis.set_ticks(ticks, minor=minor)
         return ret
 
     def get_ymajorticklabels(self):
@@ -3620,12 +3722,8 @@ class _AxesBase(martist.Artist):
         """
         if fontdict is not None:
             kwargs.update(fontdict)
-        ret = self.yaxis.set_ticklabels(labels,
+        return self.yaxis.set_ticklabels(labels,
                                          minor=minor, **kwargs)
-        g = self.get_shared_y_axes()
-        for ax in g.get_siblings(self):
-            ax.yaxis.set_ticklabels(labels, minor=minor, **kwargs)
-        return ret
 
     def xaxis_date(self, tz=None):
         """
