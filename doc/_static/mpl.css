@@ -373,14 +373,24 @@ div.warning {
     border: 1px solid #eed3d7;
 }
 
+div.deprecated {
+    color: #606060;
+    background-color: #f0f0f0;
+    border: 1px solid #404040;
+}
+
+div.deprecated span.versionmodified {
+    color: #606060;
+    font-weight: bold;
+}
+
 div.green {
     color: #468847;
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
 }
 
-
-div.admonition p, div.warning p {
+div.admonition p, div.warning p, div.deprecated p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
@@ -401,14 +411,13 @@ div.warning p.admonition-title {
     font-size: 14px;
 }
 
-div.admonition {
+div.admonition, div.deprecated {
     margin-bottom: 10px;
     margin-top: 10px;
     padding: 7px;
     border-radius: 4px;
     -moz-border-radius: 4px;
   }
-
 
 div.note {
     background-color: #eee;
