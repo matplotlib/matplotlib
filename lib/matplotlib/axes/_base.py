@@ -395,14 +395,15 @@ class _process_plot_var_args(object):
             yield from self._plot_args(this, kwargs)
 
 
+_shared_x_axes = cbook.Grouper()
+_shared_y_axes = cbook.Grouper()
+_twinned_axes = cbook.Grouper()
+
+
 class _AxesBase(martist.Artist):
     """
     """
     name = "rectilinear"
-
-    _shared_x_axes = cbook.Grouper()
-    _shared_y_axes = cbook.Grouper()
-    _twinned_axes = cbook.Grouper()
 
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
@@ -468,6 +469,13 @@ class _AxesBase(martist.Artist):
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
+
+        # Reference the global instances in the instance dict to support
+        # pickling.
+        self._shared_x_axes = _shared_x_axes
+        self._shared_y_axes = _shared_y_axes
+        self._twinned_axes = _twinned_axes
+
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
         else:
