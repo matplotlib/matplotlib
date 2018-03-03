@@ -2070,15 +2070,15 @@ class XAxis(Axis):
 
         """
         if ignore:
-            self.axes.viewLim.intervalx = vmin, vmax
+            self.axes._set_xviewlim(vmin, vmax)
         else:
             Vmin, Vmax = self.get_view_interval()
             if Vmin < Vmax:
-                self.axes.viewLim.intervalx = (min(vmin, vmax, Vmin),
-                                               max(vmin, vmax, Vmax))
+                self.axes._set_xviewlim(min(vmin, vmax, Vmin),
+                                        max(vmin, vmax, Vmax))
             else:
-                self.axes.viewLim.intervalx = (max(vmin, vmax, Vmin),
-                                               min(vmin, vmax, Vmax))
+                self.axes._set_xviewlim(max(vmin, vmax, Vmin),
+                                        min(vmin, vmax, Vmax))
 
     def get_minpos(self):
         return self.axes.dataLim.minposx
@@ -2448,15 +2448,15 @@ class YAxis(Axis):
 
         """
         if ignore:
-            self.axes.viewLim.intervaly = vmin, vmax
+            self.axes._set_yviewlim(vmin, vmax)
         else:
             Vmin, Vmax = self.get_view_interval()
             if Vmin < Vmax:
-                self.axes.viewLim.intervaly = (min(vmin, vmax, Vmin),
-                                               max(vmin, vmax, Vmax))
+                self.axes._set_yviewlim(min(vmin, vmax, Vmin),
+                                        max(vmin, vmax, Vmax))
             else:
-                self.axes.viewLim.intervaly = (max(vmin, vmax, Vmin),
-                                               min(vmin, vmax, Vmax))
+                self.axes._set_yviewlim(max(vmin, vmax, Vmin),
+                                        min(vmin, vmax, Vmax))
         self.stale = True
 
     def get_minpos(self):
