@@ -1,15 +1,11 @@
+import datetime
+from unittest.mock import MagicMock
+
 from matplotlib.cbook import iterable
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.units as munits
 import numpy as np
-import datetime
-
-try:
-    # mock in python 3.3+
-    from unittest.mock import MagicMock
-except ImportError:
-    from mock import MagicMock
 
 
 # Basic class that wraps numpy array and has units

@@ -1,17 +1,11 @@
-from __future__ import absolute_import, division, print_function
-
 import copy
+from unittest import mock
 
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 
 import pytest
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
 
 with matplotlib.rc_context(rc={'backend': 'Qt5Agg'}):
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat',

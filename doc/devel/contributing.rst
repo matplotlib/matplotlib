@@ -142,18 +142,17 @@ Additionally you will need to copy :file:`setup.cfg.template` to
 In either case you can then run the tests to check your work
 environment is set up properly::
 
-  python tests.py
+  pytest
 
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
-.. _mock: https://docs.python.org/dev/library/unittest.mock.html
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org>
 
 .. note::
 
   **Additional dependencies for testing**: pytest_ (version 3.1 or later),
-  mock_ (if Python 2), Ghostscript_, Inkscape_
+  Ghostscript_, Inkscape_
 
 .. seealso::
 
