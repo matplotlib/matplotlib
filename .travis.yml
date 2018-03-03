@@ -110,9 +110,8 @@ before_install:
       export PATH=/usr/lib/ccache:$PATH
     else
       ci/travis/silence brew update
-      brew install python3 ffmpeg imagemagick mplayer ccache
-      # make 'python' mean 'python3'
-      ln -sf /usr/local/bin/python3 /usr/local/bin/python
+      brew upgrade python
+      brew install ffmpeg imagemagick mplayer ccache
       hash -r
       which python
       python --version
