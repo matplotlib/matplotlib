@@ -118,8 +118,7 @@ def tripcolor(ax, *args, **kwargs):
     else:
         # Vertices of triangles.
         maskedTris = tri.get_masked_triangles()
-        verts = np.concatenate((tri.x[maskedTris][..., np.newaxis],
-                                tri.y[maskedTris][..., np.newaxis]), axis=2)
+        verts = np.stack((tri.x[maskedTris], tri.y[maskedTris]), axis=-1)
 
         # Color values.
         if facecolors is None:

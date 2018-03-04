@@ -40,8 +40,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    _backports, mplDeprecation, warn_deprecated,
-    STEP_LOOKUP_MAP, iterable, safe_first_element)
+    mplDeprecation, warn_deprecated, STEP_LOOKUP_MAP, iterable,
+    safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -2318,7 +2318,7 @@ class Axes(_AxesBase):
         self.add_container(bar_container)
 
         if tick_labels is not None:
-            tick_labels = _backports.broadcast_to(tick_labels, len(patches))
+            tick_labels = np.broadcast_to(tick_labels, len(patches))
             tick_label_axis.set_ticks(tick_label_position)
             tick_label_axis.set_ticklabels(tick_labels)
 
@@ -3177,16 +3177,10 @@ class Axes(_AxesBase):
         caplines = []
 
         # arrays fine here, they are booleans and hence not units
-        def _bool_asarray_helper(d, expected):
-            if not iterable(d):
-                return np.asarray([d] * expected, bool)
-            else:
-                return np.asarray(d, bool)
-
-        lolims = _bool_asarray_helper(lolims, len(x))
-        uplims = _bool_asarray_helper(uplims, len(x))
-        xlolims = _bool_asarray_helper(xlolims, len(x))
-        xuplims = _bool_asarray_helper(xuplims, len(x))
+        lolims = np.broadcast_to(lolims, len(x)).astype(bool)
+        uplims = np.broadcast_to(uplims, len(x)).astype(bool)
+        xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
+        xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
         everymask = np.arange(len(x)) % errorevery == 0
 
@@ -3218,9 +3212,9 @@ class Axes(_AxesBase):
             else:
                 if iterable(a) and iterable(b):
                     # using list comps rather than arrays to preserve units
-                    low = [thisx - thiserr for (thisx, thiserr)
+                    low = [thisx - thiserr for thisx, thiserr
                            in cbook.safezip(data, a)]
-                    high = [thisx + thiserr for (thisx, thiserr)
+                    high = [thisx + thiserr for thisx, thiserr
                             in cbook.safezip(data, b)]
                     return low, high
             # Check if xerr is scalar or symmetric. Asymmetric is handled
@@ -3229,13 +3223,13 @@ class Axes(_AxesBase):
             # special case for empty lists
             if len(err) > 1:
                 fe = safe_first_element(err)
-                if (len(err) != len(data) or np.size(fe) > 1):
+                if len(err) != len(data) or np.size(fe) > 1:
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units
-            low = [thisx - thiserr for (thisx, thiserr)
+            low = [thisx - thiserr for thisx, thiserr
                    in cbook.safezip(data, err)]
-            high = [thisx + thiserr for (thisx, thiserr)
+            high = [thisx + thiserr for thisx, thiserr
                     in cbook.safezip(data, err)]
             return low, high
 
@@ -5734,26 +5728,20 @@ class Axes(_AxesBase):
         # don't plot if C or any of the surrounding vertices are masked.
         mask = ma.getmaskarray(C) + xymask
 
-        newaxis = np.newaxis
         compress = np.compress
 
         ravelmask = (mask == 0).ravel()
-        X1 = compress(ravelmask, ma.filled(X[0:-1, 0:-1]).ravel())
-        Y1 = compress(ravelmask, ma.filled(Y[0:-1, 0:-1]).ravel())
-        X2 = compress(ravelmask, ma.filled(X[1:, 0:-1]).ravel())
-        Y2 = compress(ravelmask, ma.filled(Y[1:, 0:-1]).ravel())
+        X1 = compress(ravelmask, ma.filled(X[:-1, :-1]).ravel())
+        Y1 = compress(ravelmask, ma.filled(Y[:-1, :-1]).ravel())
+        X2 = compress(ravelmask, ma.filled(X[1:, :-1]).ravel())
+        Y2 = compress(ravelmask, ma.filled(Y[1:, :-1]).ravel())
         X3 = compress(ravelmask, ma.filled(X[1:, 1:]).ravel())
         Y3 = compress(ravelmask, ma.filled(Y[1:, 1:]).ravel())
-        X4 = compress(ravelmask, ma.filled(X[0:-1, 1:]).ravel())
-        Y4 = compress(ravelmask, ma.filled(Y[0:-1, 1:]).ravel())
+        X4 = compress(ravelmask, ma.filled(X[:-1, 1:]).ravel())
+        Y4 = compress(ravelmask, ma.filled(Y[:-1, 1:]).ravel())
         npoly = len(X1)
 
-        xy = np.concatenate((X1[:, newaxis], Y1[:, newaxis],
-                             X2[:, newaxis], Y2[:, newaxis],
-                             X3[:, newaxis], Y3[:, newaxis],
-                             X4[:, newaxis], Y4[:, newaxis],
-                             X1[:, newaxis], Y1[:, newaxis]),
-                            axis=1)
+        xy = np.stack([X1, Y1, X2, Y2, X3, Y3, X4, Y4, X1, Y1], axis=-1)
         verts = xy.reshape((npoly, 5, 2))
 
         C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())

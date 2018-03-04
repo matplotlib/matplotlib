@@ -341,8 +341,7 @@ class _process_plot_var_args(object):
         # modify the kwargs dictionary.
         self._setdefaults(default_dict, kwargs)
 
-        seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
-                                          y[:, np.newaxis])),
+        seg = mpatches.Polygon(np.column_stack((x, y)),
                                facecolor=facecolor,
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])

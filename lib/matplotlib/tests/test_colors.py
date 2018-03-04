@@ -1,10 +1,7 @@
-from __future__ import absolute_import, division, print_function
-
 import copy
 import six
 import itertools
 import warnings
-from distutils.version import LooseVersion as V
 
 import numpy as np
 import pytest
@@ -458,17 +455,9 @@ def test_light_source_shading_default():
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00]]
         ]).T
 
-    if (V(np.__version__) == V('1.9.0')):
-        # Numpy 1.9.0 uses a 2. order algorithm on the edges by default
-        # This was changed back again in 1.9.1
-        expect = expect[1:-1, 1:-1, :]
-        rgb = rgb[1:-1, 1:-1, :]
-
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@pytest.mark.xfail(V('1.7.0') <= V(np.__version__) <= V('1.9.0'),
-                   reason='NumPy version is not buggy')
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
@@ -538,14 +527,7 @@ def test_light_source_hillshading():
         dy = -dy
         dz = np.ones_like(dy)
         normals = np.dstack([dx, dy, dz])
-        dividers = np.zeros_like(z)[..., None]
-        for i, mat in enumerate(normals):
-            for j, vec in enumerate(mat):
-                dividers[i, j, 0] = np.linalg.norm(vec)
-        normals /= dividers
-        # once we drop support for numpy 1.7.x the above can be written as
-        # normals /= np.linalg.norm(normals, axis=2)[..., None]
-        # aviding the double loop.
+        normals /= np.linalg.norm(normals, axis=2)[..., None]
 
         intensity = np.tensordot(normals, illum, axes=(2, 0))
         intensity -= intensity.min()
