@@ -1,21 +1,11 @@
-from __future__ import absolute_import, division, print_function
-
-from six.moves import map
-
-
 import datetime
-import dateutil
 import tempfile
+from unittest.mock import Mock
 
+import dateutil
 import numpy as np
 import pytest
 import pytz
-
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -270,7 +260,7 @@ def test_date_formatter_strftime():
 
 def test_date_formatter_callable():
     scale = -11
-    locator = mock.Mock(_get_unit=mock.Mock(return_value=scale))
+    locator = Mock(_get_unit=Mock(return_value=scale))
     callable_formatting_function = (lambda dates, _:
                                     [dt.strftime('%d-%m//%Y') for dt in dates])
 

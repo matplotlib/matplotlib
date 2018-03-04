@@ -4,7 +4,7 @@
 #
 #   $ python tests.py -v -d
 #
-# The arguments are identical to the arguments accepted by py.test.
+# The arguments are identical to the arguments accepted by pytest.
 #
 # See http://doc.pytest.org/ for a detailed description of these options.
 

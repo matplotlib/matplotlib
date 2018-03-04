@@ -1479,12 +1479,8 @@ def _init_tests():
 
     try:
         import pytest
-        try:
-            from unittest import mock
-        except ImportError:
-            import mock
     except ImportError:
-        print("matplotlib.test requires pytest and mock to run.")
+        print("matplotlib.test requires pytest to run.")
         raise
 
 

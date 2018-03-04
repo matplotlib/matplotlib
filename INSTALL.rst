@@ -54,9 +54,9 @@ To run the test suite:
  * extract the :file:`lib\\matplotlib\\tests` or
    :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
  * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
-   `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-   ffmpeg, avconv, ImageMagick, and `Inkscape <https://inkscape.org/>`_;
- * run ``py.test path\to\tests\directory``.
+   Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
+   <https://inkscape.org/>`_;
+ * run ``pytest path\to\tests\directory``.
 
 
 Third-party distributions of Matplotlib
