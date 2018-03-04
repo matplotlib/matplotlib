@@ -34,6 +34,7 @@ import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.legend import Legend
+from matplotlib.text import Text
 
 from matplotlib.rcsetup import cycler
 from matplotlib.rcsetup import validate_axisbelow
@@ -4178,6 +4179,8 @@ class _AxesBase(martist.Artist):
                 bb.append(child.get_window_extent(renderer))
             elif isinstance(child, Legend) and child.get_visible():
                 bb.append(child._legend_box.get_window_extent(renderer))
+            elif isinstance(child, Text) and child.get_visible():
+                bb.append(child.get_window_extent(renderer))
 
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
