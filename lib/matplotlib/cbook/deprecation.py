@@ -103,8 +103,7 @@ def warn_deprecated(
     """
     message = _generate_deprecation_message(
                 since, message, name, alternative, pending, obj_type)
-
-    warnings.warn(message, mplDeprecation, stacklevel=1)
+    warnings.warn(message, mplDeprecation, stacklevel=2)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,

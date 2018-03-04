@@ -589,8 +589,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff',
-                              dpi=dpi)
+            return image.save(filename_or_obj, format='tiff', dpi=dpi)
         print_tiff = print_tif
 
 
