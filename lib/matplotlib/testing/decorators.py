@@ -42,17 +42,13 @@ def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
     if the exception is an instance of this class. (Default = None)
 
     """
-    if is_called_from_pytest():
-        import pytest
-        if fail_condition == 'indeterminate':
-            fail_condition, strict = True, False
-        else:
-            fail_condition, strict = bool(fail_condition), True
-        return pytest.mark.xfail(condition=fail_condition, reason=msg,
-                                 raises=known_exception_class, strict=strict)
+    import pytest
+    if fail_condition == 'indeterminate':
+        fail_condition, strict = True, False
     else:
-        from ._nose.decorators import knownfailureif
-        return knownfailureif(fail_condition, msg, known_exception_class)
+        fail_condition, strict = bool(fail_condition), True
+    return pytest.mark.xfail(condition=fail_condition, reason=msg,
+                             raises=known_exception_class, strict=strict)
 
 
 def _do_cleanup(original_units_registry, original_settings):
