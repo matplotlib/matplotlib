@@ -178,6 +178,8 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.bind("<Configure>", self.resize)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
+        self._tkcanvas.bind("<Enter>", self.enter_notify_event)
+        self._tkcanvas.bind("<Leave>", self.leave_notify_event)
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
         for name in "<Button-1>", "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
@@ -326,6 +328,11 @@ class FigureCanvasTk(FigureCanvasBase):
         y = self.figure.bbox.height - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
+    def enter_notify_event(self, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height - event.y
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def button_press_event(self, event, dblclick=False):
         x = event.x
