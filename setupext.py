@@ -1,14 +1,10 @@
-from __future__ import print_function, absolute_import
-
-from importlib import import_module
-
-from distutils import sysconfig
-from distutils import version
+from distutils import sysconfig, version
 from distutils.core import Extension
 import distutils.command.build_ext
 import glob
 import multiprocessing
 import os
+import pathlib
 import platform
 import re
 import shutil
@@ -17,6 +13,8 @@ from subprocess import check_output
 import sys
 import warnings
 from textwrap import fill
+
+import setuptools
 import versioneer
 
 
@@ -660,9 +658,7 @@ class Python(SetupPackage):
     name = "python"
 
     def check(self):
-        major, minor1, minor2, s, tmp = sys.version_info
-
-        if major < 3 or minor1 < 5:
+        if sys.version_info < (3, 5):
             error = """
 Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
 Beginning with Matplotlib 3.0, Python 3.5 and above is required.
@@ -672,7 +668,6 @@ This may be due to an out of date pip.
 Make sure you have pip >= 9.0.1.
 """
             raise CheckFailed(error)
-
         return sys.version
 
 
@@ -683,55 +678,29 @@ class Matplotlib(SetupPackage):
         return versioneer.get_version()
 
     def get_packages(self):
-        return [
-            'matplotlib',
-            'matplotlib.backends',
-            'matplotlib.backends.qt_editor',
-            'matplotlib.compat',
-            'matplotlib.projections',
-            'matplotlib.axes',
-            'matplotlib.sphinxext',
-            'matplotlib.style',
-            'matplotlib.testing',
-            'matplotlib.testing._nose',
-            'matplotlib.testing._nose.plugins',
-            'matplotlib.testing.jpl_units',
-            'matplotlib.tri',
-            'matplotlib.cbook'
-            ]
+        return setuptools.find_packages(
+            "lib",
+            include=["matplotlib", "matplotlib.*"],
+            exclude=["matplotlib.tests", "matplotlib.*.tests"])
 
     def get_py_modules(self):
         return ['pylab']
 
     def get_package_data(self):
+
+        def iter_dir(base):
+            return [
+                str(path.relative_to('lib/matplotlib'))
+                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
+
         return {
             'matplotlib':
             [
-                'mpl-data/fonts/afm/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.txt',
-                'mpl-data/fonts/ttf/*.ttf',
-                'mpl-data/fonts/ttf/LICENSE_STIX',
-                'mpl-data/fonts/ttf/COPYRIGHT.TXT',
-                'mpl-data/fonts/ttf/README.TXT',
-                'mpl-data/fonts/ttf/RELEASENOTES.TXT',
-                'mpl-data/images/*.xpm',
-                'mpl-data/images/*.svg',
-                'mpl-data/images/*.gif',
-                'mpl-data/images/*.pdf',
-                'mpl-data/images/*.png',
-                'mpl-data/images/*.ppm',
-                'mpl-data/example/*.npy',
-                'mpl-data/matplotlibrc',
-                'backends/web_backend/*.*',
-                'backends/web_backend/js/*.*',
-                'backends/web_backend/jquery/js/*.min.js',
-                'backends/web_backend/jquery/css/themes/base/*.min.css',
-                'backends/web_backend/jquery/css/themes/base/images/*',
-                'backends/web_backend/css/*.*',
-                'backends/Matplotlib.nib/*',
-                'mpl-data/stylelib/*.mplstyle',
-             ]}
+                *iter_dir('mpl-data/fonts'),
+                *iter_dir('mpl-data/images'),
+                *iter_dir('mpl-data/stylelib'),
+                *iter_dir('backends/web_backend'),
+            ]}
 
 
 class SampleData(OptionalPackage):
@@ -742,11 +711,16 @@ class SampleData(OptionalPackage):
     name = "sample_data"
 
     def get_package_data(self):
+
+        def iter_dir(base):
+            return [
+                str(path.relative_to('lib/matplotlib'))
+                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
+
         return {
             'matplotlib':
             [
-                'mpl-data/sample_data/*.*',
-                'mpl-data/sample_data/axes_grid/*.*',
+                *iter_dir('mpl-data/sample_data'),
             ]}
 
 
@@ -1432,9 +1406,8 @@ class BackendTkAgg(OptionalBackendPackage):
     def runtime_check(self):
         """ Checks whether TkAgg runtime dependencies are met
         """
-        pkg_name = 'tkinter'
         try:
-            import_module(pkg_name)
+            import tkinter
         except ImportError:
             return False
         return True

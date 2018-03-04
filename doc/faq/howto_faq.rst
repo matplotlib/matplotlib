@@ -136,6 +136,10 @@ Finally, the multipage pdf object has to be closed::
 
     pp.close()
 
+The same can be done using the pgf backend::
+    
+    from matplotlib.backends.backend_pgf import PdfPages
+
 
 .. _howto-subplots-adjust:
 

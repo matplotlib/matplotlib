@@ -182,15 +182,13 @@ class GridFinderBase(object):
     def update_transform(self, aux_trans):
         if isinstance(aux_trans, Transform):
             def transform_xy(x, y):
-                x, y = np.asarray(x), np.asarray(y)
-                ll1 = np.concatenate((x[:,np.newaxis], y[:,np.newaxis]), 1)
+                ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.transform(ll1)
                 lon, lat = ll2[:,0], ll2[:,1]
                 return lon, lat
 
             def inv_transform_xy(x, y):
-                x, y = np.asarray(x), np.asarray(y)
-                ll1 = np.concatenate((x[:,np.newaxis], y[:,np.newaxis]), 1)
+                ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.inverted().transform(ll1)
                 lon, lat = ll2[:,0], ll2[:,1]
                 return lon, lat

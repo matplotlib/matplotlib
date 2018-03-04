@@ -1077,15 +1077,13 @@ class RendererSVG(RendererBase):
                 ('translate', (x, y)),
                 ('rotate', (-angle,))])
 
-            # Apply attributes to 'g', not 'text', because we likely
-            # have some rectangles as well with the same style and
-            # transformation
+            # Apply attributes to 'g', not 'text', because we likely have some
+            # rectangles as well with the same style and transformation.
             writer.start('g', attrib=attrib)
 
             writer.start('text')
 
-            # Sort the characters by font, and output one tspan for
-            # each
+            # Sort the characters by font, and output one tspan for each.
             spans = OrderedDict()
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({

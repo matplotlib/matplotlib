@@ -1253,7 +1253,7 @@ class ArtistInspector(object):
             lines.append('%s%s: %s' % (pad, name, accepts))
         return lines
 
-    def pprint_setters_rest(self, prop=None, leadingspace=2):
+    def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
         If *prop* is *None*, return a list of strings of all settable
         properties and their valid values.  Format the output for ReST
@@ -1463,20 +1463,16 @@ def setp(obj, *args, **kwargs):
         raise ValueError('The set args must be string, value pairs')
 
     # put args into ordereddict to maintain order
-    funcvals = OrderedDict()
-    for i in range(0, len(args) - 1, 2):
-        funcvals[args[i]] = args[i + 1]
-
-    ret = [o.update(funcvals) for o in objs]
-    ret.extend([o.set(**kwargs) for o in objs])
-    return [x for x in cbook.flatten(ret)]
+    funcvals = OrderedDict((k, v) for k, v in zip(args[::2], args[1::2]))
+    ret = [o.update(funcvals) for o in objs] + [o.set(**kwargs) for o in objs]
+    return list(cbook.flatten(ret))
 
 
 def kwdoc(a):
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:
         return '\n'.join(ArtistInspector(a).pprint_setters_rest(
-                         leadingspace=2))
+                         leadingspace=4))
     else:
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 

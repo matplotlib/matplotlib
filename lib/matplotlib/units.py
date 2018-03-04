@@ -160,6 +160,10 @@ class Registry(dict):
         if classx is not None:
             converter = self.get(classx)
 
+        if converter is None and hasattr(x, "values"):
+            # this unpacks pandas series or dataframes...
+            x = x.values
+
         # If x is an array, look inside the array for data with units
         if isinstance(x, np.ndarray) and x.size:
             xravel = x.ravel()
