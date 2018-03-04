@@ -910,14 +910,6 @@ def test_imshow_bool():
     ax.imshow(np.array([[True, False], [False, True]], dtype=bool))
 
 
-def test_imshow_deprecated_interd_warn():
-    im = plt.imshow([[1, 2], [3, np.nan]])
-    for k in ('_interpd', '_interpdr', 'iterpnames'):
-        with warnings.catch_warnings(record=True) as warns:
-            getattr(im, k)
-        assert len(warns) == 1
-
-
 def test_full_invalid():
     x = np.ones((10, 10))
     x[:] = np.nan

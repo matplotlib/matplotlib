@@ -400,11 +400,6 @@ class Figure(Artist):
         self._align_xlabel_grp = cbook.Grouper()
         self._align_ylabel_grp = cbook.Grouper()
 
-    @property
-    @cbook.deprecated("2.1", alternative="`.Figure.patch`")
-    def figurePatch(self):
-        return self.patch
-
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
     # use it, for some reason.

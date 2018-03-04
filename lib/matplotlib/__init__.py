@@ -459,23 +459,6 @@ checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
 
 
-# Deprecated, as it is unneeded and some distributions (e.g. MiKTeX 2.9.6350)
-# do not actually report the TeX version.
-@cbook.deprecated("2.1")
-def checkdep_tex():
-    try:
-        s = subprocess.Popen([str('tex'), '-version'], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        line = stdout.decode('ascii').split('\n')[0]
-        pattern = r'3\.1\d+'
-        match = re.search(pattern, line)
-        v = match.group(0)
-        return v
-    except (IndexError, ValueError, AttributeError, OSError):
-        return None
-
-
 def checkdep_pdftops():
     try:
         s = subprocess.Popen([str('pdftops'), '-v'], stdout=subprocess.PIPE,
@@ -507,23 +490,6 @@ def checkdep_inkscape():
             pass
     return checkdep_inkscape.version
 checkdep_inkscape.version = None
-
-
-@cbook.deprecated("2.1")
-def checkdep_xmllint():
-    try:
-        s = subprocess.Popen([str('xmllint'), '--version'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        lines = stderr.decode('ascii').split('\n')
-        for line in lines:
-            if 'version' in line:
-                v = line.split()[-1]
-                break
-        return v
-    except (IndexError, ValueError, UnboundLocalError, OSError):
-        return None
 
 
 def checkdep_ps_distiller(s):

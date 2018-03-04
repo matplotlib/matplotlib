@@ -20,11 +20,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         super().__init__(figure=figure)
         self._bbox_queue = []
 
-    @property
-    @cbook.deprecated("2.1")
-    def blitbox(self):
-        return self._bbox_queue
-
     def paintEvent(self, e):
         """Copy the image from the Agg canvas to the qt.drawable.
 

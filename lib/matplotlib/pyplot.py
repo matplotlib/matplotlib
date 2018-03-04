@@ -1865,56 +1865,6 @@ def get_plot_commands():
            and inspect.getmodule(obj) is this_module)
 
 
-@deprecated('2.1')
-def colors():
-    """
-    This is a do-nothing function to provide you with help on how
-    matplotlib handles colors.
-
-    Commands which take color arguments can use several formats to
-    specify the colors.  For the basic built-in colors, you can use a
-    single letter
-
-      =====   =======
-      Alias   Color
-      =====   =======
-      'b'     blue
-      'g'     green
-      'r'     red
-      'c'     cyan
-      'm'     magenta
-      'y'     yellow
-      'k'     black
-      'w'     white
-      =====   =======
-
-    For a greater range of colors, you have two options.  You can
-    specify the color using an html hex string, as in::
-
-      color = '#eeefff'
-
-    or you can pass an R,G,B tuple, where each of R,G,B are in the
-    range [0,1].
-
-    You can also use any legal html name for a color, for example::
-
-      color = 'red'
-      color = 'burlywood'
-      color = 'chartreuse'
-
-    The example below creates a subplot with a dark
-    slate gray background::
-
-       subplot(111, facecolor=(0.1843, 0.3098, 0.3098))
-
-    Here is an example that creates a pale turquoise title::
-
-      title('Is this the best color?', color='#afeeee')
-
-    """
-    pass
-
-
 def colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using

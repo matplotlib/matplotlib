@@ -64,87 +64,6 @@ def unicode_safe(s):
     return s
 
 
-@deprecated('2.1')
-class converter(object):
-    """
-    Base class for handling string -> python type with support for
-    missing values
-    """
-    def __init__(self, missing='Null', missingval=None):
-        self.missing = missing
-        self.missingval = missingval
-
-    def __call__(self, s):
-        if s == self.missing:
-            return self.missingval
-        return s
-
-    def is_missing(self, s):
-        return not s.strip() or s == self.missing
-
-
-@deprecated('2.1')
-class tostr(converter):
-    """convert to string or None"""
-    def __init__(self, missing='Null', missingval=''):
-        converter.__init__(self, missing=missing, missingval=missingval)
-
-
-@deprecated('2.1')
-class todatetime(converter):
-    """convert to a datetime or None"""
-    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a :func:`time.strptime` format string for conversion'
-        converter.__init__(self, missing, missingval)
-        self.fmt = fmt
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        tup = time.strptime(s, self.fmt)
-        return datetime.datetime(*tup[:6])
-
-
-@deprecated('2.1')
-class todate(converter):
-    """convert to a date or None"""
-    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        """use a :func:`time.strptime` format string for conversion"""
-        converter.__init__(self, missing, missingval)
-        self.fmt = fmt
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        tup = time.strptime(s, self.fmt)
-        return datetime.date(*tup[:3])
-
-
-@deprecated('2.1')
-class tofloat(converter):
-    """convert to a float or None"""
-    def __init__(self, missing='Null', missingval=None):
-        converter.__init__(self, missing)
-        self.missingval = missingval
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        return float(s)
-
-
-@deprecated('2.1')
-class toint(converter):
-    """convert to an int or None"""
-    def __init__(self, missing='Null', missingval=None):
-        converter.__init__(self, missing)
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        return int(s)
-
-
 class _BoundMethodProxy(object):
     """
     Our own proxy object which enables weak references to bound and unbound
@@ -502,42 +421,12 @@ class Bunch(types.SimpleNamespace):
     pass
 
 
-@deprecated('2.1')
-def unique(x):
-    """Return a list of unique elements of *x*"""
-    return list(set(x))
-
-
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
         iter(obj)
     except TypeError:
         return False
-    return True
-
-
-@deprecated('2.1')
-def is_string_like(obj):
-    """Return True if *obj* looks like a string"""
-    # (np.str_ == np.unicode_ on Py3).
-    return isinstance(obj, (six.string_types, np.str_, np.unicode_))
-
-
-@deprecated('2.1')
-def is_sequence_of_strings(obj):
-    """Returns true if *obj* is iterable and contains strings"""
-    if not iterable(obj):
-        return False
-    if is_string_like(obj) and not isinstance(obj, np.ndarray):
-        try:
-            obj = obj.values
-        except AttributeError:
-            # not pandas
-            return False
-    for o in obj:
-        if not is_string_like(o):
-            return False
     return True
 
 
@@ -566,12 +455,6 @@ def file_requires_unicode(x):
         return True
     else:
         return False
-
-
-@deprecated('2.1')
-def is_scalar(obj):
-    """return true if *obj* is not string like and is not iterable"""
-    return not isinstance(obj, six.string_types) and not iterable(obj)
 
 
 @deprecated('3.0', 'isinstance(..., numbers.Number)')
@@ -700,149 +583,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
-@deprecated('2.1', "sorted(..., key=itemgetter(...))")
-class Sorter(object):
-    """
-    Sort by attribute or item
-
-    Example usage::
-
-      sort = Sorter()
-
-      list = [(1, 2), (4, 8), (0, 3)]
-      dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
-              {'a': 9, 'b': 9}]
-
-
-      sort(list)       # default sort
-      sort(list, 1)    # sort by index 1
-      sort(dict, 'a')  # sort a list of dicts by key 'a'
-
-    """
-
-    def _helper(self, data, aux, inplace):
-        aux.sort()
-        result = [data[i] for junk, i in aux]
-        if inplace:
-            data[:] = result
-        return result
-
-    def byItem(self, data, itemindex=None, inplace=1):
-        if itemindex is None:
-            if inplace:
-                data.sort()
-                result = data
-            else:
-                result = sorted(data)
-            return result
-        else:
-            aux = [(data[i][itemindex], i) for i in range(len(data))]
-            return self._helper(data, aux, inplace)
-
-    def byAttribute(self, data, attributename, inplace=1):
-        aux = [(getattr(data[i], attributename), i) for i in range(len(data))]
-        return self._helper(data, aux, inplace)
-
-    # a couple of handy synonyms
-    sort = byItem
-    __call__ = byItem
-
-
-@deprecated('2.1')
-class Xlator(dict):
-    """
-    All-in-one multiple-string-substitution class
-
-    Example usage::
-
-      text = "Larry Wall is the creator of Perl"
-      adict = {
-      "Larry Wall" : "Guido van Rossum",
-      "creator" : "Benevolent Dictator for Life",
-      "Perl" : "Python",
-      }
-
-      print(multiple_replace(adict, text))
-
-      xlat = Xlator(adict)
-      print(xlat.xlat(text))
-    """
-
-    def _make_regex(self):
-        """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self)))
-
-    def __call__(self, match):
-        """ Handler invoked for each regex *match* """
-        return self[match.group(0)]
-
-    def xlat(self, text):
-        """ Translate *text*, returns the modified text. """
-        return self._make_regex().sub(self, text)
-
-
-@deprecated('2.1')
-def soundex(name, len=4):
-    """ soundex module conforming to Odell-Russell algorithm """
-
-    # digits holds the soundex values for the alphabet
-    soundex_digits = '01230120022455012623010202'
-    sndx = ''
-    fc = ''
-
-    # Translate letters in name to soundex digits
-    for c in name.upper():
-        if c.isalpha():
-            if not fc:
-                fc = c   # Remember first letter
-            d = soundex_digits[ord(c) - ord('A')]
-            # Duplicate consecutive soundex digits are skipped
-            if not sndx or (d != sndx[-1]):
-                sndx += d
-
-    # Replace first digit with first letter
-    sndx = fc + sndx[1:]
-
-    # Remove all 0s from the soundex code
-    sndx = sndx.replace('0', '')
-
-    # Return soundex code truncated or 0-padded to len characters
-    return (sndx + (len * '0'))[:len]
-
-
-@deprecated('2.1')
-class Null(object):
-    """ Null objects always and reliably "do nothing." """
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-    def __str__(self):
-        return "Null()"
-
-    def __repr__(self):
-        return "Null()"
-
-    if six.PY3:
-        def __bool__(self):
-            return 0
-    else:
-        def __nonzero__(self):
-            return 0
-
-    def __getattr__(self, name):
-        return self
-
-    def __setattr__(self, name, value):
-        return self
-
-    def __delattr__(self, name):
-        return self
-
-
 @deprecated("3.0")
 def mkdirs(newdir, mode=0o777):
     """
@@ -888,91 +628,6 @@ def get_realpath_and_stat(path):
     stat = os.stat(realpath)
     stat_key = (stat.st_ino, stat.st_dev)
     return realpath, stat_key
-
-
-@deprecated('2.1')
-def dict_delall(d, keys):
-    """delete all of the *keys* from the :class:`dict` *d*"""
-    for key in keys:
-        try:
-            del d[key]
-        except KeyError:
-            pass
-
-
-@deprecated('2.1')
-class RingBuffer(object):
-    """ class that implements a not-yet-full buffer """
-    def __init__(self, size_max):
-        self.max = size_max
-        self.data = []
-
-    class __Full:
-        """ class that implements a full buffer """
-        def append(self, x):
-            """ Append an element overwriting the oldest one. """
-            self.data[self.cur] = x
-            self.cur = (self.cur + 1) % self.max
-
-        def get(self):
-            """ return list of elements in correct order """
-            return self.data[self.cur:] + self.data[:self.cur]
-
-    def append(self, x):
-        """append an element at the end of the buffer"""
-        self.data.append(x)
-        if len(self.data) == self.max:
-            self.cur = 0
-            # Permanently change self's class from non-full to full
-            self.__class__ = __Full
-
-    def get(self):
-        """ Return a list of elements from the oldest to the newest. """
-        return self.data
-
-    def __get_item__(self, i):
-        return self.data[i % len(self.data)]
-
-
-@deprecated('2.1')
-def get_split_ind(seq, N):
-    """
-    *seq* is a list of words.  Return the index into seq such that::
-
-        len(' '.join(seq[:ind])<=N
-
-    .
-    """
-
-    s_len = 0
-    # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, xrange(len(seq))):
-        s_len += len(word) + 1  # +1 to account for the len(' ')
-        if s_len >= N:
-            return ind
-    return len(seq)
-
-
-@deprecated('2.1', alternative='textwrap.TextWrapper')
-def wrap(prefix, text, cols):
-    """wrap *text* with *prefix* at length *cols*"""
-    pad = ' ' * len(prefix.expandtabs())
-    available = cols - len(pad)
-
-    seq = text.split(' ')
-    Nseq = len(seq)
-    ind = 0
-    lines = []
-    while ind < Nseq:
-        lastInd = ind
-        ind += get_split_ind(seq[ind:], available)
-        lines.append(seq[lastInd:ind])
-
-    # add the prefix to the first line, pad with spaces otherwise
-    ret = prefix + ' '.join(lines[0]) + '\n'
-    for line in lines[1:]:
-        ret += pad + ' '.join(line) + '\n'
-    return ret
 
 
 # A regular expression used to determine the amount of space to
@@ -1049,101 +704,6 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
             break
 
     return results
-
-
-@deprecated('2.1')
-def get_recursive_filelist(args):
-    """
-    Recurse all the files and dirs in *args* ignoring symbolic links
-    and return the files as a list of strings
-    """
-    files = []
-
-    for arg in args:
-        if os.path.isfile(arg):
-            files.append(arg)
-            continue
-        if os.path.isdir(arg):
-            newfiles = listFiles(arg, recurse=1, return_folders=1)
-            files.extend(newfiles)
-
-    return [f for f in files if not os.path.islink(f)]
-
-
-@deprecated('2.1')
-def pieces(seq, num=2):
-    """Break up the *seq* into *num* tuples"""
-    start = 0
-    while 1:
-        item = seq[start:start + num]
-        if not len(item):
-            break
-        yield item
-        start += num
-
-
-@deprecated('2.1')
-def exception_to_str(s=None):
-    if six.PY3:
-        sh = io.StringIO()
-    else:
-        sh = io.BytesIO()
-    if s is not None:
-        print(s, file=sh)
-    traceback.print_exc(file=sh)
-    return sh.getvalue()
-
-
-@deprecated('2.1')
-def allequal(seq):
-    """
-    Return *True* if all elements of *seq* compare equal.  If *seq* is
-    0 or 1 length, return *True*
-    """
-    if len(seq) < 2:
-        return True
-    val = seq[0]
-    for i in xrange(1, len(seq)):
-        thisval = seq[i]
-        if thisval != val:
-            return False
-    return True
-
-
-@deprecated('2.1')
-def alltrue(seq):
-    """
-    Return *True* if all elements of *seq* evaluate to *True*.  If
-    *seq* is empty, return *False*.
-    """
-    if not len(seq):
-        return False
-    for val in seq:
-        if not val:
-            return False
-    return True
-
-
-@deprecated('2.1')
-def onetrue(seq):
-    """
-    Return *True* if one element of *seq* is *True*.  It *seq* is
-    empty, return *False*.
-    """
-    if not len(seq):
-        return False
-    for val in seq:
-        if val:
-            return True
-    return False
-
-
-@deprecated('2.1')
-def allpairs(x):
-    """
-    return all possible pairs in sequence *x*
-    """
-    return [(s, f) for i, f in enumerate(x) for s in x[i + 1:]]
 
 
 class maxdict(dict):
@@ -1262,37 +822,6 @@ class Stack(object):
                 self.push(thiso)
 
 
-@deprecated('2.1')
-def finddir(o, match, case=False):
-    """
-    return all attributes of *o* which match string in match.  if case
-    is True require an exact case match.
-    """
-    if case:
-        names = [(name, name) for name in dir(o)
-                 if isinstance(name, six.string_types)]
-    else:
-        names = [(name.lower(), name) for name in dir(o)
-                 if isinstance(name, six.string_types)]
-        match = match.lower()
-    return [orig for name, orig in names if name.find(match) >= 0]
-
-
-@deprecated('2.1')
-def reverse_dict(d):
-    """reverse the dictionary -- may lose data if values are not unique!"""
-    return {v: k for k, v in six.iteritems(d)}
-
-
-@deprecated('2.1')
-def restrict_dict(d, keys):
-    """
-    Return a dictionary that contains those keys that appear in both
-    d and keys, with values from d.
-    """
-    return {k: v for k, v in six.iteritems(d) if k in keys}
-
-
 def report_memory(i=0):  # argument may go away
     """return the memory consumed by process"""
     from subprocess import Popen, PIPE
@@ -1349,16 +878,6 @@ def safezip(*args):
         if len(arg) != Nx:
             raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
     return list(zip(*args))
-
-
-@deprecated('2.1')
-def issubclass_safe(x, klass):
-    """return issubclass(x, klass) and return False on a TypeError"""
-
-    try:
-        return issubclass(x, klass)
-    except TypeError:
-        return False
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1593,21 +1112,6 @@ def simple_linear_interpolation(a, steps):
     x = np.arange((len(a) - 1) * steps + 1)
     return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
             .reshape((len(x),) + a.shape[1:]))
-
-
-@deprecated('2.1', alternative='shutil.rmtree')
-def recursive_remove(path):
-    if os.path.isdir(path):
-        for fname in (glob.glob(os.path.join(path, '*')) +
-                      glob.glob(os.path.join(path, '.*'))):
-            if os.path.isdir(fname):
-                recursive_remove(fname)
-                os.removedirs(fname)
-            else:
-                os.remove(fname)
-        # os.removedirs(path)
-    else:
-        os.remove(path)
 
 
 def delete_masked_points(*args):
@@ -1893,58 +1397,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         stats['q1'], stats['med'], stats['q3'] = q1, med, q3
 
     return bxpstats
-
-
-# FIXME I don't think this is used anywhere
-@deprecated('2.1')
-def unmasked_index_ranges(mask, compressed=True):
-    """
-    Find index ranges where *mask* is *False*.
-
-    *mask* will be flattened if it is not already 1-D.
-
-    Returns Nx2 :class:`numpy.ndarray` with each row the start and stop
-    indices for slices of the compressed :class:`numpy.ndarray`
-    corresponding to each of *N* uninterrupted runs of unmasked
-    values.  If optional argument *compressed* is *False*, it returns
-    the start and stop indices into the original :class:`numpy.ndarray`,
-    not the compressed :class:`numpy.ndarray`.  Returns *None* if there
-    are no unmasked values.
-
-    Example::
-
-      y = ma.array(np.arange(5), mask = [0,0,1,0,0])
-      ii = unmasked_index_ranges(ma.getmaskarray(y))
-      # returns array [[0,2,] [2,4,]]
-
-      y.compressed()[ii[1,0]:ii[1,1]]
-      # returns array [3,4,]
-
-      ii = unmasked_index_ranges(ma.getmaskarray(y), compressed=False)
-      # returns array [[0, 2], [3, 5]]
-
-      y.filled()[ii[1,0]:ii[1,1]]
-      # returns array [3,4,]
-
-    Prior to the transforms refactoring, this was used to support
-    masked arrays in Line2D.
-    """
-    mask = mask.reshape(mask.size)
-    m = np.concatenate(((1,), mask, (1,)))
-    indices = np.arange(len(mask) + 1)
-    mdif = m[1:] - m[:-1]
-    i0 = np.compress(mdif == -1, indices)
-    i1 = np.compress(mdif == 1, indices)
-    assert len(i0) == len(i1)
-    if len(i1) == 0:
-        return None  # Maybe this should be np.zeros((0,2), dtype=int)
-    if not compressed:
-        return np.concatenate((i0[:, np.newaxis], i1[:, np.newaxis]), axis=1)
-    seglengths = i1 - i0
-    breakpoints = np.cumsum(seglengths)
-    ic0 = np.concatenate(((0,), breakpoints[:-1]))
-    ic1 = breakpoints
-    return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
 
 
 # The ls_mapper maps short codes for line style to their full name used by

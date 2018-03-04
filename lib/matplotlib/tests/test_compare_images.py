@@ -96,19 +96,6 @@ def nosetest_simple_figure():
     return fig
 
 
-def nosetest_manual_text_removal():
-    from matplotlib.testing.decorators import ImageComparisonTest
-
-    fig = nosetest_simple_figure()
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
-        # Make sure this removes text like it should.
-        ImageComparisonTest.remove_text(fig)
-
-    assert len(w) == 1
-    assert 'remove_text function was deprecated in version 2.1.' in str(w[0])
-
-
 @pytest.mark.parametrize(
     'func, kwargs, errors, failures, dots',
     [
@@ -134,11 +121,6 @@ def nosetest_manual_text_removal():
          [],
          [],
          '...'),
-        (nosetest_manual_text_removal,
-         {'baseline_images': ['simple']},
-         [],
-         [],
-         '...'),
     ],
     ids=[
         'empty',
@@ -146,7 +128,6 @@ def nosetest_manual_text_removal():
         'incorrect shape',
         'failing figure',
         'passing figure',
-        'manual text removal',
     ])
 def test_nose_image_comparison(func, kwargs, errors, failures, dots,
                                monkeypatch):

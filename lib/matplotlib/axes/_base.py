@@ -40,9 +40,6 @@ from matplotlib.rcsetup import validate_axisbelow
 
 rcParams = matplotlib.rcParams
 
-is_string_like = cbook.is_string_like
-is_sequence_of_strings = cbook.is_sequence_of_strings
-
 _hold_msg = """axes.hold is deprecated.
     See the API Changes document (http://matplotlib.org/api/api_changes.html)
     for more details."""
@@ -1130,11 +1127,6 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
-
-    @property
-    @cbook.deprecated("2.1", alternative="Axes.patch")
-    def axesPatch(self):
-        return self.patch
 
     def clear(self):
         """Clear the axes."""
@@ -4042,38 +4034,6 @@ class _AxesBase(martist.Artist):
         points[~valid] = None
         self.set_xlim(points[:, 0])
         self.set_ylim(points[:, 1])
-
-    @cbook.deprecated("2.1")
-    def get_cursor_props(self):
-        """
-        Return the cursor propertiess as a (*linewidth*, *color*)
-        tuple, where *linewidth* is a float and *color* is an RGBA
-        tuple
-        """
-        return self._cursorProps
-
-    @cbook.deprecated("2.1")
-    def set_cursor_props(self, *args):
-        """Set the cursor property as
-
-        Call signature ::
-
-          ax.set_cursor_props(linewidth, color)
-
-        or::
-
-          ax.set_cursor_props((linewidth, color))
-
-        ACCEPTS: a (*float*, *color*) tuple
-        """
-        if len(args) == 1:
-            lw, c = args[0]
-        elif len(args) == 2:
-            lw, c = args
-        else:
-            raise ValueError('args must be a (linewidth, color) tuple')
-        c = mcolors.to_rgba(c)
-        self._cursorProps = lw, c
 
     def get_children(self):
         """return a list of child artists"""
