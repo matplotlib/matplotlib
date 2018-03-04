@@ -142,7 +142,6 @@ import warnings
 from . import cbook
 from matplotlib.cbook import (
     mplDeprecation, dedent, get_label, sanitize_sequence)
-from matplotlib.compat import subprocess
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
