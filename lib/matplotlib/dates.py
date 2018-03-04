@@ -436,6 +436,10 @@ def date2num(d):
     For details see the module docstring.
     """
 
+    if hasattr(d, "values"):
+        # this unpacks pandas series or dataframes...
+        d = d.values
+
     if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
             or isinstance(d, np.datetime64)):
         return _dt64_to_ordinalf(d)
