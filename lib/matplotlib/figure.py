@@ -1812,11 +1812,8 @@ class Figure(Artist):
             # if the user has specified particular projection detail
             # then build up a key which can represent this
             else:
-                # we don't want to modify the original kwargs
-                # so take a copy so that we can do what we like to it
-                kwargs_copy = kwargs.copy()
                 projection_class, _, key = process_projection_requirements(
-                    self, **kwargs_copy)
+                    self, **kwargs)
 
                 # let the returned axes have any gridspec by removing it from
                 # the key
@@ -1826,6 +1823,15 @@ class Figure(Artist):
                 # if the cax matches this key then return the axes, otherwise
                 # continue and a new axes will be created
                 if key == ckey and isinstance(cax, projection_class):
+                    cbook.warn_deprecated(
+                        "3.0",
+                        "Calling `gca()` using the same arguments as a "
+                        "previous axes currently reuses the earlier "
+                        "instance.  In a future version, a new instance will "
+                        "always be created and returned.  Meanwhile, this "
+                        "warning can be suppressed, and the future behavior "
+                        "ensured, by passing a unique label to each axes "
+                        "instance.")
                     return cax
                 else:
                     warnings.warn('Requested projection is different from '
