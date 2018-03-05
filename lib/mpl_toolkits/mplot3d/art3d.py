@@ -451,10 +451,12 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def set_facecolor(self, colors):
-        # override setter for facecolor so that 3dfacecolor
-        # will be updated as well. 
-        # In providing consitentcy in 2dcolor and 3dcolor setter.
-        # Note: will also update edgecolor if it follows facecolor
+        '''
+        Override setter for facecolor so that 3dfacecolor
+        will be updated as well. 
+        In providing consitentcy in 2dcolor and 3dcolor setter.
+        Note: will also update edgecolor if it follows facecolor
+        '''
 
         PathCollection.set_facecolor(self, colors)
         self._facecolor3d = PathCollection.get_facecolor(self)
@@ -468,23 +470,31 @@ class Path3DCollection(PathCollection):
     set_facecolors = set_facecolor
 
     def set_edgecolor(self, colors):
-        # override setter for edgecolor so that 3dedgecolor
-        # will be updated as well.
-        # In providing consitentcy in 2dcolor and 3dcolor setter.
+        '''
+        Override setter for edgecolor so that 3dedgecolor
+        will be updated as well.
+        In providing consitentcy in 2dcolor and 3dcolor setter.
+        '''
 
         PathCollection.set_edgecolor(self, colors)
         self._edgecolor3d = PathCollection.get_edgecolor(self)
     set_edgecolors = set_edgecolor
 
-    def _set_facecolors_on_project(self, colors):
-        # A sepearted method that changes edgecolor in drawing
-        # as in this case, we dont change 3d facecolor
-        PathCollection.set_facecolor(self, colors)
+    def _set_facecolor_on_projection(self, color):
+        '''
+        A sepearted method that changes edgecolor in drawing
+        as in this case, we dont change 3d facecolor
+        '''
 
-    def _set_edgecolors_on_project(self, colors):
-        # A sepearted method that changes edgecolor in drawing
-        # as in this case, we dont change 3d edgecolor
-        PathCollection.set_edgecolor(self, colors)
+        super().set_facecolor(color)
+
+    def _set_edgecolor_on_projection(self, color):
+        '''
+        A sepearted method that changes edgecolor in drawing
+        as in this case, we dont change 3d edgecolor
+        '''
+
+        super().set_edgecolor(color)
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
@@ -493,14 +503,12 @@ class Path3DCollection(PathCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        # now uses setter on project
-        self._set_facecolors_on_project(fcs)
+        self._set_facecolor_on_projection(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        # now uses setter on project
-        self._set_edgecolors_on_project(ecs)
+        self._set_edgecolor_on_projection(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
