@@ -314,7 +314,6 @@ class BboxConnector(Patch):
         else:
             fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
             Patch.__init__(self, fill=fill, **kwargs)
-        #Patch.__init__(self, fill=False, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
@@ -584,7 +583,6 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
 
-    #fill = kwargs.pop("fill", False)
     fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
     pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
