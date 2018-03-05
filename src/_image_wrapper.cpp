@@ -4,11 +4,6 @@
 #include "py_converters.h"
 
 
-#ifndef NPY_1_7_API_VERSION
-#define NPY_ARRAY_C_CONTIGUOUS NPY_C_CONTIGUOUS
-#endif
-
-
 /**********************************************************************
  * Free functions
  * */
@@ -442,7 +437,6 @@ static PyMethodDef module_functions[] = {
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
@@ -455,27 +449,14 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__image(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_image(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_image", module_functions, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     if (PyModule_AddIntConstant(m, "NEAREST", NEAREST) ||
@@ -496,14 +477,12 @@ PyMODINIT_FUNC init_image(void)
         PyModule_AddIntConstant(m, "LANCZOS", LANCZOS) ||
         PyModule_AddIntConstant(m, "BLACKMAN", BLACKMAN) ||
         PyModule_AddIntConstant(m, "_n_interpolation", _n_interpolation)) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

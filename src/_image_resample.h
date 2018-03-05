@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef RESAMPLE_H
-#define RESAMPLE_H
+#ifndef MPL_RESAMPLE_H
+#define MPL_RESAMPLE_H
 
 #include "agg_image_accessors.h"
 #include "agg_path_storage.h"
@@ -1010,4 +1010,4 @@ void resample(
     }
 }
 
-#endif /* RESAMPLE_H */
+#endif /* MPL_RESAMPLE_H */

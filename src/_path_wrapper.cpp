@@ -866,7 +866,6 @@ extern "C" {
         {NULL}
     };
 
-#if PY3K
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_path",
@@ -879,28 +878,17 @@ extern "C" {
         NULL
     };
 
-#define INITERROR return NULL
     PyMODINIT_FUNC PyInit__path(void)
-#else
-#define INITERROR return
-    PyMODINIT_FUNC init_path(void)
-#endif
     {
         PyObject *m;
-#if PY3K
         m = PyModule_Create(&moduledef);
-#else
-        m = Py_InitModule3("_path", module_functions, NULL);
-#endif
 
         if (m == NULL) {
-            INITERROR;
+            return NULL;
         }
 
         import_array();
 
-#if PY3K
         return m;
-#endif
     }
 }

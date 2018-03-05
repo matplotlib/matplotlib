@@ -3,8 +3,8 @@
 /* Utilities to create scalars and empty arrays that behave like the
    Numpy array wrappers in numpy_cpp.h */
 
-#ifndef _SCALAR_H_
-#define _SCALAR_H_
+#ifndef MPL_SCALAR_H
+#define MPL_SCALAR_H
 
 namespace array
 {

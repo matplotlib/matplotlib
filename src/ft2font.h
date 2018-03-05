@@ -1,8 +1,8 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
 /* A python interface to FreeType */
-#ifndef _FT2FONT_H
-#define _FT2FONT_H
+#ifndef MPL_FT2FONT_H
+#define MPL_FT2FONT_H
 #include <vector>
 #include <stdint.h>
 
