@@ -60,16 +60,16 @@ class Tick(artist.Artist):
         Determines whether to draw the tickline.
 
     tick1On : bool
-        Determines whether to draw the 1st tickline.
+        Determines whether to draw the first tickline.
 
     tick2On : bool
-        Determines whether to draw the 2nd tickline.
+        Determines whether to draw the second tickline.
 
     label1On : bool
-        Determines whether to draw tick label.
+        Determines whether to draw the first tick label.
 
     label2On : bool
-        Determines whether to draw tick label.
+        Determines whether to draw the second tick label.
     """
     def __init__(self, axes, loc, label,
                  size=None,  # points
