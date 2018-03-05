@@ -125,6 +125,7 @@ import distutils.sysconfig
 import functools
 import io
 import inspect
+from inspect import Parameter
 import itertools
 import locale
 import logging
@@ -174,23 +175,17 @@ __bibtex__ = r"""@Article{Hunter:2007,
 }"""
 
 
-_python27 = (sys.version_info.major == 2 and sys.version_info.minor >= 7)
-_python34 = (sys.version_info.major == 3 and sys.version_info.minor >= 4)
-if not (_python27 or _python34):
-    raise ImportError("Matplotlib requires Python 2.7 or 3.4 or later")
-
-if _python27:
-    _log.addHandler(logging.NullHandler())
-
-
 def compare_versions(a, b):
     "return True if a is greater than or equal to b"
+    if isinstance(a, bytes):
+        cbook.warn_deprecated(
+            "3.0", "compare_version arguments should be strs.")
+        a = a.decode('ascii')
+    if isinstance(b, bytes):
+        cbook.warn_deprecated(
+            "3.0", "compare_version arguments should be strs.")
+        b = b.decode('ascii')
     if a:
-        if six.PY3:
-            if isinstance(a, bytes):
-                a = a.decode('ascii')
-            if isinstance(b, bytes):
-                b = b.decode('ascii')
         a = distutils.version.LooseVersion(a)
         b = distutils.version.LooseVersion(b)
         return a >= b
@@ -750,10 +745,6 @@ def get_py2exe_datafiles():
     _, tail = os.path.split(datapath)
     d = {}
     for root, _, files in os.walk(datapath):
-        # Need to explicitly remove cocoa_agg files or py2exe complains
-        # NOTE I don't know why, but do as previous version
-        if 'Matplotlib.nib' in files:
-            files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
         root = root.replace(tail, 'mpl-data')
         root = root[root.index('mpl-data'):]
@@ -1602,52 +1593,24 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         replace_names = set(replace_names)
 
     def param(func):
-        new_sig = None
-        # signature is since 3.3 and wrapped since 3.2, but we support 3.4+.
-        python_has_signature = python_has_wrapped = six.PY3
-
-        # if in a legacy version of python and IPython is already imported
-        # try to use their back-ported signature
-        if not python_has_signature and 'IPython' in sys.modules:
-            try:
-                import IPython.utils.signatures
-                signature = IPython.utils.signatures.signature
-                Parameter = IPython.utils.signatures.Parameter
-            except ImportError:
-                pass
+        sig = inspect.signature(func)
+        _has_varargs = False
+        _has_varkwargs = False
+        _arg_names = []
+        params = list(sig.parameters.values())
+        for p in params:
+            if p.kind is Parameter.VAR_POSITIONAL:
+                _has_varargs = True
+            elif p.kind is Parameter.VAR_KEYWORD:
+                _has_varkwargs = True
             else:
-                python_has_signature = True
+                _arg_names.append(p.name)
+        data_param = Parameter('data', Parameter.KEYWORD_ONLY, default=None)
+        if _has_varkwargs:
+            params.insert(-1, data_param)
         else:
-            if python_has_signature:
-                signature = inspect.signature
-                Parameter = inspect.Parameter
-
-        if not python_has_signature:
-            arg_spec = inspect.getargspec(func)
-            _arg_names = arg_spec.args
-            _has_varargs = arg_spec.varargs is not None
-            _has_varkwargs = arg_spec.keywords is not None
-        else:
-            sig = signature(func)
-            _has_varargs = False
-            _has_varkwargs = False
-            _arg_names = []
-            params = list(sig.parameters.values())
-            for p in params:
-                if p.kind is Parameter.VAR_POSITIONAL:
-                    _has_varargs = True
-                elif p.kind is Parameter.VAR_KEYWORD:
-                    _has_varkwargs = True
-                else:
-                    _arg_names.append(p.name)
-            data_param = Parameter('data',
-                                   Parameter.KEYWORD_ONLY,
-                                   default=None)
-            if _has_varkwargs:
-                params.insert(-1, data_param)
-            else:
-                params.append(data_param)
-            new_sig = sig.replace(parameters=params)
+            params.append(data_param)
+        new_sig = sig.replace(parameters=params)
         # Import-time check: do we have enough information to replace *args?
         arg_names_at_runtime = False
         # there can't be any positional arguments behind *args and no
@@ -1701,7 +1664,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         label_namer_pos = 9999  # bigger than all "possible" argument lists
         if (label_namer and  # we actually want a label here ...
                 arg_names and  # and we can determine a label in *args ...
-                (label_namer in arg_names)):  # and it is in *args
+                label_namer in arg_names):  # and it is in *args
             label_namer_pos = arg_names.index(label_namer)
             if "label" in arg_names:
                 label_pos = arg_names.index("label")
@@ -1789,10 +1752,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
             # didn't set one. Note: if the user puts in "label=None", it does
             # *NOT* get replaced!
             user_supplied_label = (
-                (len(args) >= _label_pos) or  # label is included in args
-                ('label' in kwargs)  # ... or in kwargs
+                len(args) >= _label_pos or  # label is included in args
+                'label' in kwargs  # ... or in kwargs
             )
-            if (label_namer and not user_supplied_label):
+            if label_namer and not user_supplied_label:
                 if _label_namer_pos < len(args):
                     kwargs['label'] = get_label(args[_label_namer_pos], label)
                 elif label_namer in kwargs:
@@ -1808,10 +1771,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
 
         inner.__doc__ = _add_data_doc(inner.__doc__,
                                       replace_names, replace_all_args)
-        if not python_has_wrapped:
-            inner.__wrapped__ = func
-        if new_sig is not None:
-            inner.__signature__ = new_sig
+        inner.__signature__ = new_sig
         return inner
 
     return param

@@ -188,12 +188,9 @@ def get_include_dirs():
 
 def is_min_version(found, minversion):
     """
-    Returns `True` if `found` is at least as high a version as
-    `minversion`.
+    Returns whether *found* is a version at least as high as *minversion*.
     """
-    expected_version = version.LooseVersion(minversion)
-    found_version = version.LooseVersion(found)
-    return found_version >= expected_version
+    return version.LooseVersion(found) >= version.LooseVersion(minversion)
 
 
 # Define the display functions only if display_status is True.
@@ -1365,17 +1362,14 @@ class InstallRequires(SetupPackage):
         return "handled by setuptools"
 
     def get_install_requires(self):
-        install_requires = [
+        return [
             "cycler>=0.10",
+            "kiwisolver>=1.0.1",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
             "pytz",
             "six>=1.10",
-            "kiwisolver>=1.0.1",
         ]
-        if sys.version_info < (3,) and os.name == "posix":
-            install_requires += ["subprocess32"]
-        return install_requires
 
 
 class BackendAgg(OptionalBackendPackage):
