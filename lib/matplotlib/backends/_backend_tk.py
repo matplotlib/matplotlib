@@ -1052,7 +1052,7 @@ class _BackendTk(_Backend):
             rcParams['datapath'], 'images', 'matplotlib.ppm')
         icon_img = Tk.PhotoImage(file=icon_fname)
         try:
-            window.tk.call('wm', 'foobar', window._w, icon_img)
+            window.tk.call('wm', 'iconphoto', window._w, icon_img)
         except Exception as exc:
             # log the failure (due e.g. to Tk version), but carry on
             _log.info('Could not load matplotlib icon: %s', exc)
