@@ -1032,7 +1032,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def _onEnter(self, evt):
         """Mouse has entered the window."""
-        FigureCanvasBase.enter_notify_event(self, guiEvent=evt)
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        FigureCanvasBase.enter_notify_event(self, guiEvent=evt, xy=(x, y))
 
 
 class FigureCanvasWx(_FigureCanvasWxBase):
