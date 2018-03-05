@@ -7,12 +7,12 @@ Demonstrate adding a FigureCanvasGTK3Agg widget to a Gtk.ScrolledWindow using
 GTK3 accessed via pygobject.
 """
 
-from gi.repository import Gtk
-
 from matplotlib.backends.backend_gtk3agg import (
     FigureCanvasGTK3Agg as FigureCanvas)
 from matplotlib.figure import Figure
 import numpy as np
+from gi.repository import Gtk
+
 
 win = Gtk.Window()
 win.connect("delete-event", Gtk.main_quit)
@@ -27,7 +27,7 @@ a.plot(t, s)
 
 sw = Gtk.ScrolledWindow()
 win.add(sw)
-# A scrolled window border goes outside the scrollbars and viewport
+# A scrolled window border goes outside the scrollbars and viewport.
 sw.set_border_width(10)
 
 canvas = FigureCanvas(f)  # a Gtk.DrawingArea
