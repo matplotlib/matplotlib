@@ -100,7 +100,7 @@ up python.  Then::
   >>> xlabel('hi mom')
 
 should work out of the box.  This is also likely to work with recent
-versions of the qt4agg and gtkagg backends, and with the macosx backend
+versions of the qt4agg and gtk3agg backends, and with the macosx backend
 on the Macintosh. Note, in batch mode,
 i.e. when making
 figures from scripts, interactive mode can be slow since it redraws

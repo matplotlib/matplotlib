@@ -4,7 +4,6 @@ Render to qt from agg
 
 import ctypes
 
-from matplotlib import cbook
 from matplotlib.transforms import Bbox
 
 from .backend_agg import FigureCanvasAgg
@@ -84,11 +83,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
     def print_figure(self, *args, **kwargs):
         super().print_figure(*args, **kwargs)
         self.draw()
-
-
-@cbook.deprecated("2.2")
-class FigureCanvasQTAggBase(FigureCanvasQTAgg):
-    pass
 
 
 @_BackendQT5.export

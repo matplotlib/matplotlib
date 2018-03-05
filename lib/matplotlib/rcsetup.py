@@ -35,17 +35,14 @@ from cycler import Cycler, cycler as ccycler
 
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg',
-                  'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'GTK3Agg', 'GTK3Cairo',
+interactive_bk = ['GTK3Agg', 'GTK3Cairo',
                   'MacOSX',
                   'nbAgg',
                   'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
                   'TkAgg', 'TkCairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']
-non_interactive_bk = ['agg', 'cairo', 'gdk',
+non_interactive_bk = ['agg', 'cairo',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
