@@ -182,13 +182,20 @@ class _Backend(object):
         is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
         `interactive` mode.
         """
-        if cls.mainloop is None:
-            return
         managers = Gcf.get_all_fig_managers()
         if not managers:
             return
         for manager in managers:
-            manager.show()
+            try:
+                manager.show()
+            except NonGuiException:
+                warnings.warn(
+                    ('matplotlib is currently using %s, which is a ' +
+                     'non-GUI backend, so cannot show the figure.')
+                    % get_backend())
+                return
+        if cls.mainloop is None:
+            return
         if block is None:
             # Hack: Are we in IPython's pylab mode?
             from matplotlib import pyplot
