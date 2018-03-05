@@ -84,7 +84,7 @@ class Text3D(mtext.Text):
             [self._position3d, self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
-        if dx==0. and dy==0.:
+        if dx == 0. and dy == 0.:
             # atan2 raises ValueError: math domain error on 0,0
             angle = 0.
         else:
@@ -200,7 +200,8 @@ class Line3DCollection(LineCollection):
 
     def __init__(self, segments, *args, **kwargs):
         '''
-        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
+        Keyword arguments are passed onto
+        :func:`~matplotlib.collections.LineCollection`.
         '''
         LineCollection.__init__(self, segments, *args, **kwargs)
 
@@ -309,7 +310,7 @@ class PathPatch3D(Patch3D):
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
-    path =  patch.get_path()
+    path = patch.get_path()
     polygons = path.to_polygons(trans)
     if len(polygons):
         return polygons[0]
@@ -450,27 +451,39 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def set_facecolor(self, colors):
-        
+        # override setter for facecolor so that 3dfacecolor
+        # will be updated as well. 
+        # In providing consitentcy in 2dcolor and 3dcolor setter.
+        # Note: will also update edgecolor if it follows facecolor
+
         PathCollection.set_facecolor(self, colors)
         self._facecolor3d = PathCollection.get_facecolor(self)
         try:
             # Will update edge color together if it follows facecolor
-            if (isinstance(self._edgecolors, six.string_types)
-                   and self._edgecolors == str('face')):
-                self.set_edgecolor(colors)
+            if (isinstance(self._edgecolors, six.string_types) and
+                self._edgecolors == str('face')):
+                    self.set_edgecolor(colors)
         except AttributeError:
             pass
     set_facecolors = set_facecolor
 
     def set_edgecolor(self, colors):
+        # override setter for edgecolor so that 3dedgecolor
+        # will be updated as well.
+        # In providing consitentcy in 2dcolor and 3dcolor setter.
+
         PathCollection.set_edgecolor(self, colors)
         self._edgecolor3d = PathCollection.get_edgecolor(self)
     set_edgecolors = set_edgecolor
 
-    def set_facecolors_on_project(self, colors):
+    def _set_facecolors_on_project(self, colors):
+        # A sepearted method that changes edgecolor in drawing
+        # as in this case, we dont change 3d facecolor
         PathCollection.set_facecolor(self, colors)
 
-    def set_edgecolors_on_project(self, colors):
+    def _set_edgecolors_on_project(self, colors):
+        # A sepearted method that changes edgecolor in drawing
+        # as in this case, we dont change 3d edgecolor
         PathCollection.set_edgecolor(self, colors)
 
     def do_3d_projection(self, renderer):
@@ -480,17 +493,19 @@ class Path3DCollection(PathCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors_on_project(fcs)
+        # now uses setter on project
+        self._set_facecolors_on_project(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors_on_project(ecs)
+        # now uses setter on project
+        self._set_edgecolors_on_project(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
-        if vzs.size > 0 :
+        if vzs.size > 0:
             return min(vzs)
-        else :
+        else:
             return np.nan
 
 
@@ -585,7 +600,7 @@ class Poly3DCollection(PolyCollection):
 
         if len(segments3d):
             xs, ys, zs = zip(*points)
-        else :
+        else:
             # We need this so that we can skip the bad unpacking from zip()
             xs, ys, zs = [], [], []
 
@@ -619,7 +634,7 @@ class Poly3DCollection(PolyCollection):
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
         self.stale = True
@@ -676,12 +691,12 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
             return np.min(tzs)
-        else :
+        else:
             return np.nan
 
     def set_facecolor(self, colors):
