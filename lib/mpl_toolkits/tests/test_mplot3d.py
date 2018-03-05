@@ -174,6 +174,16 @@ def test_scatter3d_color():
     ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
                color='b', marker='s')
 
+@image_comparison(baseline_images = ['scatter_face_color_change'],
+                  remove_text=True, extensions=['png'])
+def test_scatter_face_color_change():
+    # Take the test data from above, although size does not matter here
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    scat = ax.scatter(np.arange(10), np.arange(10), np.arange(10),
+                      facecolors="red")
+    # changes facecolor, it should also change edgecolor when displayed
+    scat.set_facecolors("green")
 
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
 def test_surface3d():

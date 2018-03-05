@@ -449,6 +449,30 @@ class Path3DCollection(PathCollection):
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
 
+    def set_facecolor(self, colors):
+        
+        PathCollection.set_facecolor(self, colors)
+        self._facecolor3d = PathCollection.get_facecolor(self)
+        try:
+            # Will update edge color together if it follows facecolor
+            if (isinstance(self._edgecolors, six.string_types)
+                   and self._edgecolors == str('face')):
+                self.set_edgecolor(colors)
+        except AttributeError:
+            pass
+    set_facecolors = set_facecolor
+
+    def set_edgecolor(self, colors):
+        PathCollection.set_edgecolor(self, colors)
+        self._edgecolor3d = PathCollection.get_edgecolor(self)
+    set_edgecolors = set_edgecolor
+
+    def set_facecolors_on_project(self, colors):
+        PathCollection.set_facecolor(self, colors)
+
+    def set_edgecolors_on_project(self, colors):
+        PathCollection.set_edgecolor(self, colors)
+
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
@@ -456,12 +480,12 @@ class Path3DCollection(PathCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        self.set_facecolors_on_project(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
+        self.set_edgecolors_on_project(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0 :
