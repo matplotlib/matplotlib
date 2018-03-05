@@ -6,14 +6,14 @@ Embedding In GTK3 Panzoom
 Demonstrate NavigationToolbar with GTK3 accessed via pygobject.
 """
 
-from gi.repository import Gtk
-
 from matplotlib.backends.backend_gtk3 import (
     NavigationToolbar2GTK3 as NavigationToolbar)
 from matplotlib.backends.backend_gtk3agg import (
     FigureCanvasGTK3Agg as FigureCanvas)
 from matplotlib.figure import Figure
 import numpy as np
+from gi.repository import Gtk
+
 
 win = Gtk.Window()
 win.connect("delete-event", Gtk.main_quit)
@@ -29,11 +29,11 @@ a.plot(t, s)
 vbox = Gtk.VBox()
 win.add(vbox)
 
-# Add canvas to vbox
+# Add canvas to vbox.
 canvas = FigureCanvas(f)  # a Gtk.DrawingArea
 vbox.pack_start(canvas, True, True, 0)
 
-# Create toolbar
+# Create toolbar.
 toolbar = NavigationToolbar(canvas, win)
 vbox.pack_start(toolbar, False, False, 0)
 

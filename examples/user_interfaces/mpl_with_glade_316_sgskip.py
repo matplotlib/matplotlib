@@ -5,13 +5,14 @@ Matplotlib With Glade 316
 
 """
 
-from gi.repository import Gtk
+from pathlib import Path
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 from matplotlib.backends.backend_gtk3agg import (
     FigureCanvasGTK3Agg as FigureCanvas)
 import numpy as np
+from gi.repository import Gtk
 
 
 class Window1Signals(object):
@@ -21,12 +22,14 @@ class Window1Signals(object):
 
 def main():
     builder = Gtk.Builder()
-    builder.add_objects_from_file("mpl_with_glade_316.glade", ("window1", ""))
+    builder.add_objects_from_file(
+        str(Path(__file__).with_name("mpl_with_glade_316.glade")),
+        ("window1", ""))
     builder.connect_signals(Window1Signals())
     window = builder.get_object("window1")
     sw = builder.get_object("scrolledwindow1")
 
-    # Start of Matplotlib specific code
+    # Start of Matplotlib specific code.
     figure = Figure(figsize=(8, 6), dpi=71)
     axis = figure.add_subplot(111)
     t = np.arange(0.0, 3.0, 0.01)
@@ -39,7 +42,7 @@ def main():
     canvas = FigureCanvas(figure)  # a Gtk.DrawingArea
     canvas.set_size_request(800, 600)
     sw.add_with_viewport(canvas)
-    # End of Matplotlib specific code
+    # End of Matplotlib specific code.
 
     window.show_all()
     Gtk.main()
