@@ -812,7 +812,7 @@ _deprecated_map = {}
 
 _deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 
-_obsolete_set = {'plugins.directory', 'text.dvipnghack'}
+_obsolete_set = {'pgf.debug', 'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
 # do NOT include in _all_deprecated

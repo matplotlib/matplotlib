@@ -1,11 +1,7 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import atexit
 import codecs
 import errno
+import logging
 import math
 import os
 import re
@@ -26,6 +22,8 @@ from matplotlib.cbook import is_writable_file_like
 from matplotlib.path import Path
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
+
+_log = logging.getLogger(__name__)
 
 
 ###############################################################################
@@ -193,10 +191,9 @@ def make_pdf_to_png_converter():
     tools_available = []
     # check for pdftocairo
     try:
-        subprocess.check_output(
-            ["pdftocairo", "-v"], stderr=subprocess.STDOUT)
+        subprocess.check_output(["pdftocairo", "-v"], stderr=subprocess.STDOUT)
         tools_available.append("pdftocairo")
-    except:
+    except OSError:
         pass
     # check for ghostscript
     gs, ver = mpl.checkdep_ghostscript()
@@ -212,7 +209,7 @@ def make_pdf_to_png_converter():
         return cairo_convert
     elif "gs" in tools_available:
         def gs_convert(pdffile, pngfile, dpi):
-            cmd = [str(gs),
+            cmd = [gs,
                    '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
                    '-dUseCIEColor', '-dTextAlphaBits=4',
                    '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
@@ -226,11 +223,11 @@ def make_pdf_to_png_converter():
 
 class LatexError(Exception):
     def __init__(self, message, latex_output=""):
-        Exception.__init__(self, message)
+        super().__init__(message)
         self.latex_output = latex_output
 
 
-class LatexManagerFactory(object):
+class LatexManagerFactory:
     previous_instance = None
 
     @staticmethod
@@ -242,18 +239,16 @@ class LatexManagerFactory(object):
         # Check if the previous instance of LatexManager can be reused.
         if (prev and prev.latex_header == latex_header
                 and prev.texcommand == texcommand):
-            if rcParams["pgf.debug"]:
-                print("reusing LatexManager")
+            _log.debug("reusing LatexManager")
             return prev
         else:
-            if rcParams["pgf.debug"]:
-                print("creating LatexManager")
+            _log.debug("creating LatexManager")
             new_inst = LatexManager()
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
 
-class LatexManager(object):
+class LatexManager:
     """
     The LatexManager opens an instance of the LaTeX application for
     determining the metrics of text elements. The LaTeX environment can be
@@ -306,7 +301,6 @@ class LatexManager(object):
         # store references for __del__
         self._os_path = os.path
         self._shutil = shutil
-        self._debug = rcParams["pgf.debug"]
 
         # create a tmp directory for running latex, remember to cleanup
         self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_lm_")
@@ -317,18 +311,16 @@ class LatexManager(object):
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
-            latex = subprocess.Popen([str(self.texcommand), "-halt-on-error"],
+            latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                      stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE,
                                      cwd=self.tmpdir)
-        except OSError as e:
-            if e.errno == errno.ENOENT:
-                raise RuntimeError(
-                    "Latex command not found. Install %r or change "
-                    "pgf.texsystem to the desired command." % self.texcommand)
-            else:
-                raise RuntimeError(
-                    "Error starting process %r" % self.texcommand)
+        except FileNotFoundError:
+            raise RuntimeError(
+                "Latex command not found. Install %r or change "
+                "pgf.texsystem to the desired command." % self.texcommand)
+        except OSError:
+            raise RuntimeError("Error starting process %r" % self.texcommand)
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
@@ -336,7 +328,7 @@ class LatexManager(object):
                              "or error in preamble:\n%s" % stdout)
 
         # open LaTeX process for real work
-        latex = subprocess.Popen([str(self.texcommand), "-halt-on-error"],
+        latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                  cwd=self.tmpdir)
         self.latex = latex
@@ -366,8 +358,7 @@ class LatexManager(object):
             sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
 
     def __del__(self):
-        if self._debug:
-            print("deleting LatexManager")
+        _log.debug("deleting LatexManager")
         self._cleanup()
 
     def get_width_height_descent(self, text, prop):
@@ -787,7 +778,7 @@ class GraphicsContextPgf(GraphicsContextBase):
 ########################################################################
 
 
-class TmpDirCleaner(object):
+class TmpDirCleaner:
     remaining_tmpdirs = set()
 
     @staticmethod
@@ -797,10 +788,10 @@ class TmpDirCleaner(object):
     @staticmethod
     def cleanup_remaining_tmpdirs():
         for tmpdir in TmpDirCleaner.remaining_tmpdirs:
-            try:
-                shutil.rmtree(tmpdir)
-            except:
-                sys.stderr.write("error deleting tmp directory %s\n" % tmpdir)
+            shutil.rmtree(
+                tmpdir,
+                onerror=lambda *args: print("error deleting tmp directory %s"
+                                            % tmpdir, file=sys.stderr))
 
 
 class FigureCanvasPgf(FigureCanvasBase):
@@ -879,7 +870,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             return
 
         # figure out where the pgf is to be written to
-        if isinstance(fname_or_fh, six.string_types):
+        if isinstance(fname_or_fh, str):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -918,7 +909,7 @@ class FigureCanvasPgf(FigureCanvasBase):
                 fh_tex.write(latexcode)
 
             texcommand = get_texcommand()
-            cmdargs = [str(texcommand), "-interaction=nonstopmode",
+            cmdargs = [texcommand, "-interaction=nonstopmode",
                        "-halt-on-error", "figure.tex"]
             try:
                 subprocess.check_output(
@@ -946,7 +937,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             return
 
         # figure out where the pdf is to be written to
-        if isinstance(fname_or_fh, six.string_types):
+        if isinstance(fname_or_fh, str):
             with open(fname_or_fh, "wb") as fh:
                 self._print_pdf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -982,7 +973,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
 
-        if isinstance(fname_or_fh, six.string_types):
+        if isinstance(fname_or_fh, str):
             with open(fname_or_fh, "wb") as fh:
                 self._print_png_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
@@ -995,8 +986,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
 
 class FigureManagerPgf(FigureManagerBase):
-    def __init__(self, *args):
-        FigureManagerBase.__init__(self, *args)
+    pass
 
 
 @_Backend.export

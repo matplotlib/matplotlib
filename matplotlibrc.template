@@ -565,9 +565,8 @@ backend      : $TEMPLATE_BACKEND
                                ## instead of uuid4
 ### pgf parameter
 #pgf.rcfonts : True
-#pgf.preamble :   
+#pgf.preamble :
 #pgf.texsystem : xelatex
-#pgf.debug : False
 
 ### docstring params
 ##docstring.hardcopy = False  ## set this when you want to generate hardcopy docstring
