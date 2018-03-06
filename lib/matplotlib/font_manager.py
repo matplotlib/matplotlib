@@ -1378,7 +1378,7 @@ else:
         fontManager = FontManager()
 
         if _fmcache:
-            with cbook.Locked(cachedir):
+            with cbook._lock_path(_fmcache):
                 json_dump(fontManager, _fmcache)
         _log.info("generated new fontManager")
 
@@ -1391,9 +1391,9 @@ else:
             else:
                 fontManager.default_size = None
                 _log.debug("Using fontManager instance from %s", _fmcache)
-        except cbook.Locked.TimeoutError:
+        except TimeoutError:
             raise
-        except:
+        except Exception:
             _rebuild()
     else:
         _rebuild()
