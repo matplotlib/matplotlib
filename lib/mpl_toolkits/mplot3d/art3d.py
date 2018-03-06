@@ -495,7 +495,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
     col.set_3d_properties(zs, zdir)
-    
+
     def set_facecolor3d(self, c):
         """
         Set the facecolor(s) of the collection.  *c* can be a
@@ -548,7 +548,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     col.set_facecolor2d = col.set_facecolor
     col.set_facecolor = types.MethodType(set_facecolor3d, col)
     col.set_edgecolor2d = col.set_edgecolor
-    col.set_edgecolor = types.MethodType(set_edgecolor3d, col)      
+    col.set_edgecolor = types.MethodType(set_edgecolor3d, col)
 
 
 class Poly3DCollection(PolyCollection):
