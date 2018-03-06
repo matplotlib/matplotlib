@@ -554,8 +554,11 @@ class Axes(_AxesBase):
         if len(extra_args):
             raise TypeError('legend only accepts two non-keyword arguments')
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
-        self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
+        self.legend_._remove_method = self._remove_legend
         return self.legend_
+
+    def _remove_legend(self, legend):
+        self.legend_ = None
 
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
