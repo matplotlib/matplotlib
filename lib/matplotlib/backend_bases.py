@@ -2011,7 +2011,8 @@ class FigureCanvasBase(object):
         axes: topmost axes containing the point, or None if no axes.
 
         """
-        axes_list = [a for a in self.figure.get_axes() if a.patch.contains_point(xy)]
+        axes_list = [a for a in self.figure.get_axes()
+                     if a.patch.contains_point(xy)]
 
         if axes_list:
             axes = cbook._topmost_artist(axes_list)
