@@ -155,7 +155,7 @@ class _process_plot_var_args(object):
         self.set_prop_cycle()
 
     def __getstate__(self):
-        # note: it is not possible to pickle a itertools.cycle instance
+        # note: it is not possible to pickle a generator (and thus a cycler).
         return {'axes': self.axes, 'command': self.command}
 
     def __setstate__(self, state):
