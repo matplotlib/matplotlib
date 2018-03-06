@@ -173,26 +173,68 @@ def test_scatter3d_color():
                color='r', marker='o')
     ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
                color='b', marker='s')
-
-
-@image_comparison(baseline_images=['scatter3d_change_color'], remove_text=True,
+    
+    
+@image_comparison(baseline_images=['scatter3d_change_facecolor_single'], remove_text=True,
                   style='mpl20', extensions=['png'])
-def test_scatter3d_change_color():
+def test_scatter3d_change_facecolor_single():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
-    sca1 = ax.scatter(0, 0, 0, color='r', marker='o')
-    sca2 = ax.scatter(np.arange(1, 3), np.arange(1, 3), np.arange(1, 3),
-                      color=['orange', 'green'], marker='^')
-    sca3 = ax.scatter(np.arange(3, 6), np.arange(3, 6), np.arange(3, 6),
-                      color='#FF0000', marker='s')
+    sca = ax.scatter(0, 0, 0, color='r', marker='o')
+    sca.set_facecolor([0, 1, 1])    
+    
 
-    sca1.set_color("green")
-    sca2.set_facecolor([0, 1, 1])
-    sca2.set_edgecolor('face')
-    sca3.set_facecolor(["white", "#ABCDEF", [0, 0, 0]])
+@image_comparison(baseline_images=['scatter3d_change_facecolor_multiple'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_scatter3d_change_facecolor_multiple():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3), color='black', marker='H')
+    sca.set_facecolor([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_single'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_scatter3d_change_edgecolor_single():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5), color='gray', marker='^')
+    sca.set_edgecolor("orange")
+
+
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_multiple'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_scatter3d_change_edgecolor_multiple():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5), color='gray', marker='s')
+    sca.set_edgecolor(['#ff0000','#0ff000','#00ff00','#000ff0','#0000ff'])
+
+
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_face'], remove_text=True,
+                  style='mpl20', extensions=['png'])
+def test_scatter3d_change_edgecolor_face():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3), color="black", marker='x')
+    sca.set_facecolor(["red", "green", "blue"])
+    sca.set_edgecolor('face')
+
 
 
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
