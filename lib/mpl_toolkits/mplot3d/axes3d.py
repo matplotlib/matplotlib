@@ -15,7 +15,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import map, zip, reduce
 
-import types
 from collections import defaultdict
 import math
 import warnings
@@ -2364,60 +2363,6 @@ class Axes3D(Axes):
         zs = _backports.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)
-
-        def set_facecolor3d(self, c):
-            """
-            Set the facecolor(s) of the collection.  *c* can be a
-            matplotlib color spec (all patches have same color), or a
-            sequence of specs; if it is a sequence the patches will
-            cycle through the sequence.
-
-            If *c* is 'none', the patch will not be filled.
-
-            ACCEPTS: matplotlib color spec or sequence of specs
-            """
-            self.set_facecolor2d(c)
-
-            c = self.get_facecolor().copy()    # new color
-            length_old = self._facecolor3d.shape[0]
-            length_new = c.shape[0]
-            # reset alpha value to original
-            if (length_new > length_old):
-                c[:, 3] = self._facecolor3d[0, 3]
-            elif (length_new == length_old):
-                c[:, 3] = self._facecolor3d[:, 3]
-            self._facecolor3d = c
-
-        def set_edgecolor3d(self, c):
-            """
-            Set the edgecolor(s) of the collection. *c* can be a
-            matplotlib color spec (all patches have same color), or a
-            sequence of specs; if it is a sequence the patches will
-            cycle through the sequence.
-
-            If *c* is 'face', the edge color will always be the same as
-            the face color.  If it is 'none', the patch boundary will not
-            be drawn.
-
-            ACCEPTS: matplotlib color spec or sequence of specs
-            """
-            self.set_edgecolor2d(c)
-
-            c = self.get_edgecolor().copy()    # new color
-            length_old = self._edgecolor3d.shape[0]
-            length_new = c.shape[0]
-
-            # reset alpha value to original
-            if (length_new > length_old):
-                c[:, 3] = self._edgecolor3d[0, 3]
-            elif (length_new == length_old):
-                c[:, 3] = self._edgecolor3d[:, 3]
-            self._edgecolor3d = c
-
-        patches.set_facecolor2d = patches.set_facecolor
-        patches.set_facecolor = types.MethodType(set_facecolor3d, patches)
-        patches.set_edgecolor2d = patches.set_edgecolor
-        patches.set_edgecolor = types.MethodType(set_edgecolor3d, patches)
 
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
