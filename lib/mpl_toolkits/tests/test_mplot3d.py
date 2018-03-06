@@ -173,10 +173,10 @@ def test_scatter3d_color():
                color='r', marker='o')
     ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
                color='b', marker='s')
-    
-    
-@image_comparison(baseline_images=['scatter3d_change_facecolor_single'], remove_text=True,
-                  style='mpl20', extensions=['png'])
+
+
+@image_comparison(baseline_images=['scatter3d_change_facecolor_single'],
+                  remove_text=True, style='mpl20', extensions=['png'])
 def test_scatter3d_change_facecolor_single():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -184,57 +184,60 @@ def test_scatter3d_change_facecolor_single():
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
     sca = ax.scatter(0, 0, 0, color='r', marker='o')
-    sca.set_facecolor([0, 1, 1])    
-    
+    sca.set_facecolor([0, 1, 1])
 
-@image_comparison(baseline_images=['scatter3d_change_facecolor_multiple'], remove_text=True,
-                  style='mpl20', extensions=['png'])
+
+@image_comparison(baseline_images=['scatter3d_change_facecolor_multiple'],
+                  remove_text=True, style='mpl20', extensions=['png'])
 def test_scatter3d_change_facecolor_multiple():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
-    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3), color='black', marker='H')
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3),
+                     color='black', marker='H')
     sca.set_facecolor([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
 
-@image_comparison(baseline_images=['scatter3d_change_edgecolor_single'], remove_text=True,
-                  style='mpl20', extensions=['png'])
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_single'],
+                  remove_text=True, style='mpl20', extensions=['png'])
 def test_scatter3d_change_edgecolor_single():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
-    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5), color='gray', marker='^')
+    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5),
+                     color='gray', marker='^')
     sca.set_edgecolor("orange")
 
 
-@image_comparison(baseline_images=['scatter3d_change_edgecolor_multiple'], remove_text=True,
-                  style='mpl20', extensions=['png'])
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_multiple'],
+                  remove_text=True, style='mpl20', extensions=['png'])
 def test_scatter3d_change_edgecolor_multiple():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
-    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5), color='gray', marker='s')
-    sca.set_edgecolor(['#ff0000','#0ff000','#00ff00','#000ff0','#0000ff'])
+    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5),
+                     color='gray', marker='s')
+    sca.set_edgecolor(['#ff0000', '#0ff000', '#00ff00', '#000ff0', '#0000ff'])
 
 
-@image_comparison(baseline_images=['scatter3d_change_edgecolor_face'], remove_text=True,
-                  style='mpl20', extensions=['png'])
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_face'],
+                  remove_text=True, style='mpl20', extensions=['png'])
 def test_scatter3d_change_edgecolor_face():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
-    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3), color="black", marker='x')
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3),
+                     color="black", marker='x')
     sca.set_facecolor(["red", "green", "blue"])
     sca.set_edgecolor('face')
-
 
 
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
