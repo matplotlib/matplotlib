@@ -1921,7 +1921,7 @@ class MaxNLocator(Locator):
                 step = steps[istep]
                 best_vmin = (_vmin // step) * step
                 best_vmax = best_vmin + step * nbins
-                if (best_vmax >= _vmax):
+                if best_vmax >= _vmax:
                     break
 
         # This is an upper limit; move to smaller steps if necessary.

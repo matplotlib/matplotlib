@@ -571,20 +571,13 @@ class CheckButtons(AxesWidget):
         self.observers = {}
 
     def _clicked(self, event):
-        if self.ignore(event):
+        if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
-        if event.button != 1:
-            return
-        if event.inaxes != self.ax:
-            return
-
         for i, (p, t) in enumerate(zip(self.rectangles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y) or
                     p.get_window_extent().contains(event.x, event.y)):
                 self.set_active(i)
                 break
-        else:
-            return
 
     def set_active(self, index):
         """
@@ -1020,26 +1013,15 @@ class RadioButtons(AxesWidget):
         self.observers = {}
 
     def _clicked(self, event):
-        if self.ignore(event):
-            return
-        if event.button != 1:
-            return
-        if event.inaxes != self.ax:
+        if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
         xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
         pclicked = np.array([xy[0], xy[1]])
-
-        def inside(p):
-            pcirc = np.array([p.center[0], p.center[1]])
-            d = pclicked - pcirc
-            return np.sqrt(np.dot(d, d)) < p.radius
-
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
-            if t.get_window_extent().contains(event.x, event.y) or inside(p):
+            if (t.get_window_extent().contains(event.x, event.y)
+                    or np.linalg.norm(pclicked - p.center) < p.radius):
                 self.set_active(i)
                 break
-        else:
-            return
 
     def set_active(self, index):
         """
@@ -1820,6 +1802,8 @@ class SpanSelector(_SelectorWidget):
             self.pressv = xdata
         else:
             self.pressv = ydata
+
+        self._set_span_xy(event)
         return False
 
     def _release(self, event):
@@ -1858,6 +1842,26 @@ class SpanSelector(_SelectorWidget):
         """on motion notify event"""
         if self.pressv is None:
             return
+
+        self._set_span_xy(event)
+
+        if self.onmove_callback is not None:
+            vmin = self.pressv
+            xdata, ydata = self._get_data(event)
+            if self.direction == 'horizontal':
+                vmax = xdata or self.prev[0]
+            else:
+                vmax = ydata or self.prev[1]
+
+            if vmin > vmax:
+                vmin, vmax = vmax, vmin
+            self.onmove_callback(vmin, vmax)
+
+        self.update()
+        return False
+
+    def _set_span_xy(self, event):
+        """Setting the span coordinates"""
         x, y = self._get_data(event)
         if x is None:
             return
@@ -1877,21 +1881,6 @@ class SpanSelector(_SelectorWidget):
         else:
             self.rect.set_y(minv)
             self.rect.set_height(maxv - minv)
-
-        if self.onmove_callback is not None:
-            vmin = self.pressv
-            xdata, ydata = self._get_data(event)
-            if self.direction == 'horizontal':
-                vmax = xdata or self.prev[0]
-            else:
-                vmax = ydata or self.prev[1]
-
-            if vmin > vmax:
-                vmin, vmax = vmax, vmin
-            self.onmove_callback(vmin, vmax)
-
-        self.update()
-        return False
 
 
 class ToolHandles(object):

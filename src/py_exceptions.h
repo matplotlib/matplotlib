@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef __PY_EXCEPTIONS_H__
-#define __PY_EXCEPTIONS_H__
+#ifndef MPL_PY_EXCEPTIONS_H
+#define MPL_PY_EXCEPTIONS_H
 
 #include <exception>
 #include <stdexcept>

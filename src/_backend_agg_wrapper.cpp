@@ -134,7 +134,7 @@ static PyTypeObject *PyBufferRegion_init_type(PyObject *m, PyTypeObject *type)
     type->tp_name = "matplotlib.backends._backend_agg.BufferRegion";
     type->tp_basicsize = sizeof(PyBufferRegion);
     type->tp_dealloc = (destructor)PyBufferRegion_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER;
+    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     type->tp_methods = methods;
     type->tp_new = PyBufferRegion_new;
     type->tp_as_buffer = &buffer_procs;
@@ -396,11 +396,11 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
     numpy::array_view<const double, 2> facecolors;
-    int antialiased;
+    bool antialiased;
     numpy::array_view<const double, 2> edgecolors;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&IIO&O&O&O&iO&:draw_quad_mesh",
+                          "O&O&IIO&O&O&O&O&O&:draw_quad_mesh",
                           &convert_gcagg,
                           &gc,
                           &convert_trans_affine,
@@ -415,6 +415,7 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
                           &offset_trans,
                           &convert_colors,
                           &facecolors,
+                          &convert_bool,
                           &antialiased,
                           &convert_colors,
                           &edgecolors)) {
@@ -585,13 +586,8 @@ PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject 
 
 static PyObject *PyRendererAgg_buffer_rgba(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
-#if PY3K
     return PyBytes_FromStringAndSize((const char *)self->x->pixBuffer,
                                      self->x->get_width() * self->x->get_height() * 4);
-#else
-    return PyBuffer_FromReadWriteMemory(self->x->pixBuffer,
-                                        self->x->get_width() * self->x->get_height() * 4);
-#endif
 }
 
 int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
@@ -704,7 +700,7 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
     type->tp_name = "matplotlib.backends._backend_agg.RendererAgg";
     type->tp_basicsize = sizeof(PyRendererAgg);
     type->tp_dealloc = (destructor)PyRendererAgg_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER;
+    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     type->tp_methods = methods;
     type->tp_init = (initproc)PyRendererAgg_init;
     type->tp_new = PyRendererAgg_new;
@@ -723,7 +719,6 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_backend_agg",
@@ -736,42 +731,27 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__backend_agg(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_backend_agg(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_backend_agg", NULL, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
     if (!PyRendererAgg_init_type(m, &PyRendererAggType)) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyBufferRegion_init_type(m, &PyBufferRegionType)) {
-        INITERROR;
+        return NULL;
     }
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

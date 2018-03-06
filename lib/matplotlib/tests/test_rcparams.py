@@ -1,18 +1,13 @@
-from __future__ import absolute_import, division, print_function
-
 import six
 
-import os
-import warnings
 from collections import OrderedDict
+import os
+from unittest import mock
+import warnings
 
 from cycler import cycler, Cycler
 import pytest
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -422,3 +417,64 @@ def test_rcparams_reset_after_fail():
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
+
+
+def test_if_rctemplate_is_up_to_date():
+    # This tests if the matplotlibrc.template file
+    # contains all valid rcParams.
+    dep1 = mpl._all_deprecated
+    dep2 = mpl._deprecated_set
+    deprecated = list(dep1.union(dep2))
+    #print(deprecated)
+    path_to_rc = mpl.matplotlib_fname()
+    with open(path_to_rc, "r") as f:
+        rclines = f.readlines()
+    missing = {}
+    for k,v in mpl.defaultParams.items():
+        if k[0] == "_":
+            continue
+        if k in deprecated:
+            continue
+        if "verbose" in k:
+            continue
+        found = False
+        for line in rclines:
+            if k in line:
+                found = True
+        if not found:
+            missing.update({k:v})
+    if missing:
+        raise ValueError("The following params are missing " +
+                         "in the matplotlibrc.template file: {}"
+                         .format(missing.items()))
+
+
+def test_if_rctemplate_would_be_valid(tmpdir):
+    # This tests if the matplotlibrc.template file would result in a valid
+    # rc file if all lines are uncommented.
+    path_to_rc = mpl.matplotlib_fname()
+    with open(path_to_rc, "r") as f:
+        rclines = f.readlines()
+    newlines = []
+    for line in rclines:
+        if line[0] == "#":
+            newline = line[1:]
+        else:
+            newline = line
+        if "$TEMPLATE_BACKEND" in newline:
+            newline = "backend : Agg"
+        if "datapath" in newline:
+            newline = ""
+        newlines.append(newline)
+    d = tmpdir.mkdir('test1')
+    fname = str(d.join('testrcvalid.temp'))
+    with open(fname, "w") as f:
+        f.writelines(newlines)
+    with pytest.warns(None) as record:
+        dic = mpl.rc_params_from_file(fname,
+                                      fail_on_error=True,
+                                      use_default_template=False)
+        assert len(record) == 0
+    #d1 = set(dic.keys())
+    #d2 = set(matplotlib.defaultParams.keys())
+    #print(d2-d1)

@@ -1,14 +1,9 @@
-from __future__ import absolute_import, division, print_function
-
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
 import collections
+import inspect
+from unittest import mock
+
 import numpy as np
 import pytest
-
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -17,7 +12,6 @@ import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-import inspect
 
 
 # test that docstrigs are the same
@@ -517,3 +511,14 @@ def test_shadow_framealpha():
     ax.plot(range(100), label="test")
     leg = ax.legend(shadow=True, facecolor='w')
     assert leg.get_frame().get_alpha() == 1
+
+
+def test_legend_title_empty():
+    # test that if we don't set the legend title, that
+    # it comes back as an empty string, and that it is not
+    # visible:
+    fig, ax = plt.subplots()
+    ax.plot(range(10))
+    leg = ax.legend()
+    assert leg.get_title().get_text() == ""
+    assert leg.get_title().get_visible() is False

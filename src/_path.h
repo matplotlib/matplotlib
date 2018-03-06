@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef __PATH_H__
-#define __PATH_H__
+#ifndef MPL_PATH_H
+#define MPL_PATH_H
 
 #include <limits>
 #include <math.h>
@@ -278,7 +278,7 @@ inline bool point_in_path(
 
     points_in_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 template <class PathIterator, class PointArray, class ResultArray>
@@ -320,7 +320,7 @@ inline bool point_on_path(
 
     points_on_path(points, r, path, trans, result);
 
-    return (bool)result[0];
+    return result[0] != 0;
 }
 
 struct extent_limits
@@ -1076,13 +1076,8 @@ char *__add_number(double val, const char *format, int precision,
 {
     char *result;
 
-#if PY_VERSION_HEX >= 0x02070000
     char *str;
     str = PyOS_double_to_string(val, format[0], precision, 0, NULL);
-#else
-    char str[64];
-    PyOS_ascii_formatd(str, 64, format, val);
-#endif
 
     // Delete trailing zeros and decimal point
     char *q = str;
@@ -1104,17 +1099,11 @@ char *__add_number(double val, const char *format, int precision,
     ++q;
     *q = 0;
 
-#if PY_VERSION_HEX >= 0x02070000
     if ((result = __append_to_string(p, buffer, buffersize, str)) == NULL) {
         PyMem_Free(str);
         return NULL;
     }
     PyMem_Free(str);
-#else
-    if ((result = __append_to_string(p, buffer, buffersize, str)) == NULL) {
-        return NULL;
-    }
-#endif
 
     return result;
 }
@@ -1128,12 +1117,7 @@ int __convert_to_string(PathIterator &path,
                         char **buffer,
                         size_t *buffersize)
 {
-#if PY_VERSION_HEX >= 0x02070000
     const char *format = "f";
-#else
-    char format[64];
-    snprintf(format, 64, "%s.%df", "%", precision);
-#endif
 
     char *p = *buffer;
     double x[3];
@@ -1229,7 +1213,7 @@ int convert_to_string(PathIterator &path,
     }
 
     if (sketch_params.scale != 0.0) {
-        *buffersize *= 10.0;
+        *buffersize *= 10;
     }
 
     *buffer = (char *)malloc(*buffersize);

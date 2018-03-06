@@ -1,26 +1,21 @@
-from __future__ import print_function, absolute_import
-
-from importlib import import_module
-
-from distutils import sysconfig
-from distutils import version
+from distutils import sysconfig, version
 from distutils.core import Extension
 import distutils.command.build_ext
 import glob
 import multiprocessing
 import os
+import pathlib
 import platform
 import re
+import shutil
 import subprocess
 from subprocess import check_output
 import sys
 import warnings
 from textwrap import fill
-import shutil
+
+import setuptools
 import versioneer
-
-
-PY3min = (sys.version_info[0] >= 3)
 
 
 def _get_xdg_cache_dir():
@@ -57,16 +52,10 @@ LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 if sys.platform != 'win32':
-    if not PY3min:
-        from commands import getstatusoutput
-    else:
-        from subprocess import getstatusoutput
+    from subprocess import getstatusoutput
 
 
-if PY3min:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
 
 
 # matplotlib build options, which can be altered using setup.cfg
@@ -80,10 +69,7 @@ options = {
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
-    if PY3min:
-        config = configparser.ConfigParser()
-    else:
-        config = configparser.SafeConfigParser()
+    config = configparser.ConfigParser()
     config.read(setup_cfg)
 
     if config.has_option('status', 'suppress'):
@@ -202,12 +188,9 @@ def get_include_dirs():
 
 def is_min_version(found, minversion):
     """
-    Returns `True` if `found` is at least as high a version as
-    `minversion`.
+    Returns whether *found* is a version at least as high as *minversion*.
     """
-    expected_version = version.LooseVersion(minversion)
-    found_version = version.LooseVersion(found)
-    return found_version >= expected_version
+    return version.LooseVersion(found) >= version.LooseVersion(minversion)
 
 
 # Define the display functions only if display_status is True.
@@ -564,11 +547,7 @@ class SetupPackage(object):
             for manager in managers:
                 pkg_name = self.pkg_names.get(manager, None)
                 if pkg_name:
-                    try:
-                        # `shutil.which()` can be used when Python 2.7 support
-                        # is dropped. It is available in Python 3.3+
-                        _ = check_output(["which", manager],
-                                         stderr=subprocess.STDOUT)
+                    if shutil.which(manager) is not None:
                         if manager == 'port':
                             pkgconfig = 'pkgconfig'
                         else:
@@ -577,8 +556,6 @@ class SetupPackage(object):
                                 'and pkg-config with `{1} install {3}`'
                                 .format(self.name, manager, pkg_name,
                                         pkgconfig))
-                    except subprocess.CalledProcessError:
-                        pass
 
         message = None
         if sys.platform == "win32":
@@ -678,18 +655,16 @@ class Python(SetupPackage):
     name = "python"
 
     def check(self):
-        major, minor1, minor2, s, tmp = sys.version_info
+        if sys.version_info < (3, 5):
+            error = """
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
 
-        if major < 2:
-            raise CheckFailed(
-                "Requires Python 2.7 or later")
-        elif major == 2 and minor1 < 7:
-            raise CheckFailed(
-                "Requires Python 2.7 or later (in the 2.x series)")
-        elif major == 3 and minor1 < 4:
-            raise CheckFailed(
-                "Requires Python 3.4 or later (in the 3.x series)")
+This may be due to an out of date pip.
 
+Make sure you have pip >= 9.0.1.
+"""
+            raise CheckFailed(error)
         return sys.version
 
 
@@ -700,55 +675,29 @@ class Matplotlib(SetupPackage):
         return versioneer.get_version()
 
     def get_packages(self):
-        return [
-            'matplotlib',
-            'matplotlib.backends',
-            'matplotlib.backends.qt_editor',
-            'matplotlib.compat',
-            'matplotlib.projections',
-            'matplotlib.axes',
-            'matplotlib.sphinxext',
-            'matplotlib.style',
-            'matplotlib.testing',
-            'matplotlib.testing._nose',
-            'matplotlib.testing._nose.plugins',
-            'matplotlib.testing.jpl_units',
-            'matplotlib.tri',
-            'matplotlib.cbook'
-            ]
+        return setuptools.find_packages(
+            "lib",
+            include=["matplotlib", "matplotlib.*"],
+            exclude=["matplotlib.tests", "matplotlib.*.tests"])
 
     def get_py_modules(self):
         return ['pylab']
 
     def get_package_data(self):
+
+        def iter_dir(base):
+            return [
+                str(path.relative_to('lib/matplotlib'))
+                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
+
         return {
             'matplotlib':
             [
-                'mpl-data/fonts/afm/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.txt',
-                'mpl-data/fonts/ttf/*.ttf',
-                'mpl-data/fonts/ttf/LICENSE_STIX',
-                'mpl-data/fonts/ttf/COPYRIGHT.TXT',
-                'mpl-data/fonts/ttf/README.TXT',
-                'mpl-data/fonts/ttf/RELEASENOTES.TXT',
-                'mpl-data/images/*.xpm',
-                'mpl-data/images/*.svg',
-                'mpl-data/images/*.gif',
-                'mpl-data/images/*.pdf',
-                'mpl-data/images/*.png',
-                'mpl-data/images/*.ppm',
-                'mpl-data/example/*.npy',
-                'mpl-data/matplotlibrc',
-                'backends/web_backend/*.*',
-                'backends/web_backend/js/*.*',
-                'backends/web_backend/jquery/js/*.min.js',
-                'backends/web_backend/jquery/css/themes/base/*.min.css',
-                'backends/web_backend/jquery/css/themes/base/images/*',
-                'backends/web_backend/css/*.*',
-                'backends/Matplotlib.nib/*',
-                'mpl-data/stylelib/*.mplstyle',
-             ]}
+                *iter_dir('mpl-data/fonts'),
+                *iter_dir('mpl-data/images'),
+                *iter_dir('mpl-data/stylelib'),
+                *iter_dir('backends/web_backend'),
+            ]}
 
 
 class SampleData(OptionalPackage):
@@ -759,11 +708,16 @@ class SampleData(OptionalPackage):
     name = "sample_data"
 
     def get_package_data(self):
+
+        def iter_dir(base):
+            return [
+                str(path.relative_to('lib/matplotlib'))
+                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
+
         return {
             'matplotlib':
             [
-                'mpl-data/sample_data/*.*',
-                'mpl-data/sample_data/axes_grid/*.*',
+                *iter_dir('mpl-data/sample_data'),
             ]}
 
 
@@ -789,7 +743,7 @@ class Tests(OptionalPackage):
     default_config = False
 
     def check(self):
-        super(Tests, self).check()
+        super().check()
 
         msgs = []
         msg_template = ('{package} is required to run the Matplotlib test '
@@ -807,15 +761,6 @@ class Tests(OptionalPackage):
                 msgs += [bad_pytest]
         except ImportError:
             msgs += [bad_pytest]
-
-        if PY3min:
-            msgs += ['using unittest.mock']
-        else:
-            try:
-                import mock
-                msgs += ['using mock %s' % mock.__version__]
-            except ImportError:
-                msgs += [msg_template.format(package='mock')]
 
         return ' / '.join(msgs)
 
@@ -887,7 +832,7 @@ class DelayedExtension(Extension, object):
     on the system.
     """
     def __init__(self, *args, **kwargs):
-        super(DelayedExtension, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._finalized = False
         self._hooks = {}
 
@@ -933,19 +878,12 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        if PY3min:
-            import builtins
-            if hasattr(builtins, '__NUMPY_SETUP__'):
-                del builtins.__NUMPY_SETUP__
-            import imp
-            import numpy
-            imp.reload(numpy)
-        else:
-            import __builtin__
-            if hasattr(__builtin__, '__NUMPY_SETUP__'):
-                del __builtin__.__NUMPY_SETUP__
-            import numpy
-            reload(numpy)
+        import builtins
+        if hasattr(builtins, '__NUMPY_SETUP__'):
+            del builtins.__NUMPY_SETUP__
+        import imp
+        import numpy
+        imp.reload(numpy)
 
         ext = Extension('test', [])
         ext.include_dirs.append(numpy.get_include())
@@ -986,10 +924,10 @@ class Numpy(SetupPackage):
         ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
 
     def get_setup_requires(self):
-        return ['numpy>=1.7.1']
+        return ['numpy>=1.10.0']
 
     def get_install_requires(self):
-        return ['numpy>=1.7.1']
+        return ['numpy>=1.10.0']
 
 
 class LibAgg(SetupPackage):
@@ -1142,11 +1080,7 @@ class FreeType(SetupPackage):
             if (tarball_cache_path is not None and
                     os.path.isfile(tarball_cache_path)):
                 if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
-                    try:
-                        os.makedirs('build')
-                    except OSError:
-                        # Don't care if it exists.
-                        pass
+                    os.makedirs('build', exist_ok=True)
                     try:
                         shutil.copy(tarball_cache_path, tarball_path)
                         print('Using cached tarball: {}'
@@ -1156,10 +1090,7 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-                if PY3min:
-                    from urllib.request import urlretrieve
-                else:
-                    from urllib import urlretrieve
+                from urllib.request import urlretrieve
 
                 if not os.path.exists('build'):
                     os.makedirs('build')
@@ -1189,11 +1120,7 @@ class FreeType(SetupPackage):
                                   "You can download the file by "
                                   "alternative means and copy it "
                                   " to '{0}'".format(tarball_path))
-                try:
-                    os.makedirs(tarball_cache_dir)
-                except OSError:
-                    # Don't care if it exists.
-                    pass
+                os.makedirs(tarball_cache_dir, exist_ok=True)
                 try:
                     shutil.copy(tarball_path, tarball_cache_path)
                     print('Cached tarball at: {}'.format(tarball_cache_path))
@@ -1261,11 +1188,13 @@ class FT2Font(SetupPackage):
         sources = [
             'src/ft2font.cpp',
             'src/ft2font_wrapper.cpp',
-            'src/mplutils.cpp'
+            'src/mplutils.cpp',
+            'src/py_converters.cpp',
             ]
         ext = make_extension('matplotlib.ft2font', sources)
         FreeType().add_flags(ext)
         Numpy().add_flags(ext)
+        LibAgg().add_flags(ext, add_sources=False)
         return ext
 
 
@@ -1333,6 +1262,8 @@ class Qhull(SetupPackage):
         else:
             ext.include_dirs.insert(0, 'extern')
             ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+            if sysconfig.get_config_var('LIBM') == '-lm':
+                ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):
@@ -1390,9 +1321,11 @@ class Contour(SetupPackage):
         sources = [
             "src/_contour.cpp",
             "src/_contour_wrapper.cpp",
+            'src/py_converters.cpp',
             ]
         ext = make_extension('matplotlib._contour', sources)
         Numpy().add_flags(ext)
+        LibAgg().add_flags(ext, add_sources=False)
         return ext
 
 
@@ -1429,19 +1362,14 @@ class InstallRequires(SetupPackage):
         return "handled by setuptools"
 
     def get_install_requires(self):
-        install_requires = [
+        return [
             "cycler>=0.10",
+            "kiwisolver>=1.0.1",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
             "pytz",
             "six>=1.10",
-            "kiwisolver>=1.0.1",
         ]
-        if sys.version_info < (3,):
-            install_requires += ["backports.functools_lru_cache"]
-        if sys.version_info < (3,) and os.name == "posix":
-            install_requires += ["subprocess32"]
-        return install_requires
 
 
 class BackendAgg(OptionalBackendPackage):
@@ -1472,9 +1400,8 @@ class BackendTkAgg(OptionalBackendPackage):
     def runtime_check(self):
         """ Checks whether TkAgg runtime dependencies are met
         """
-        pkg_name = 'tkinter' if PY3min else 'Tkinter'
         try:
-            import_module(pkg_name)
+            import tkinter
         except ImportError:
             return False
         return True
@@ -1496,128 +1423,6 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['psapi'])
         elif sys.platform.startswith('linux'):
             ext.libraries.extend(['dl'])
-
-
-class BackendGtk(OptionalBackendPackage):
-    name = "gtk"
-
-    def check_requirements(self):
-        try:
-            import gtk
-        except ImportError:
-            raise CheckFailed("Requires pygtk")
-        except RuntimeError:
-            raise CheckFailed('pygtk present, but import failed.')
-        else:
-            version = (2, 2, 0)
-            if gtk.pygtk_version < version:
-                raise CheckFailed(
-                    "Requires pygtk %d.%d.%d or later. "
-                    "Found %d.%d.%d" % (version + gtk.pygtk_version))
-
-        ext = self.get_extension()
-        self.add_flags(ext)
-        check_include_file(ext.include_dirs,
-                           os.path.join("gtk", "gtk.h"),
-                           'gtk')
-        check_include_file(ext.include_dirs,
-                           os.path.join("pygtk", "pygtk.h"),
-                           'pygtk')
-
-        return 'Gtk: %s pygtk: %s' % (
-            ".".join(str(x) for x in gtk.gtk_version),
-            ".".join(str(x) for x in gtk.pygtk_version))
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-    def get_extension(self):
-        sources = [
-            'src/_backend_gdk.c'
-            ]
-        ext = make_extension('matplotlib.backends._backend_gdk', sources)
-        self.add_flags(ext)
-        Numpy().add_flags(ext)
-        return ext
-
-    def add_flags(self, ext):
-        if sys.platform == 'win32':
-            def getoutput(s):
-                ret = os.popen(s).read().strip()
-                return ret
-
-            if 'PKG_CONFIG_PATH' not in os.environ:
-                # If Gtk+ is installed, pkg-config is required to be installed
-                os.environ['PKG_CONFIG_PATH'] = 'C:\\GTK\\lib\\pkgconfig'
-
-                # popen broken on my win32 platform so I can't use pkgconfig
-                ext.library_dirs.extend(
-                    ['C:/GTK/bin', 'C:/GTK/lib'])
-
-                ext.include_dirs.extend(
-                    ['win32_static/include/pygtk-2.0',
-                     'C:/GTK/include',
-                     'C:/GTK/include/gobject',
-                     'C:/GTK/include/gext',
-                     'C:/GTK/include/glib',
-                     'C:/GTK/include/pango',
-                     'C:/GTK/include/atk',
-                     'C:/GTK/include/X11',
-                     'C:/GTK/include/cairo',
-                     'C:/GTK/include/gdk',
-                     'C:/GTK/include/gdk-pixbuf',
-                     'C:/GTK/include/gtk',
-                     ])
-
-            pygtkIncludes = getoutput(
-                'pkg-config --cflags-only-I pygtk-2.0').split()
-            gtkIncludes = getoutput(
-                'pkg-config --cflags-only-I gtk+-2.0').split()
-            includes = pygtkIncludes + gtkIncludes
-            ext.include_dirs.extend([include[2:] for include in includes])
-
-            pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
-            gtkLinker = getoutput('pkg-config --libs gtk+-2.0').split()
-            linkerFlags = pygtkLinker + gtkLinker
-
-            ext.libraries.extend(
-                [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
-
-            ext.library_dirs.extend(
-                [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
-
-            ext.extra_link_args.extend(
-                [flag for flag in linkerFlags if not
-                 (flag.startswith('-l') or flag.startswith('-L'))])
-
-            # visual studio doesn't need the math library
-            if (sys.platform == 'win32' and
-                win32_compiler == 'msvc' and
-                'm' in ext.libraries):
-                ext.libraries.remove('m')
-
-        elif sys.platform != 'win32':
-            pkg_config.setup_extension(ext, 'pygtk-2.0')
-            pkg_config.setup_extension(ext, 'gtk+-2.0')
-
-
-class BackendGtkAgg(BackendGtk):
-    name = "gtkagg"
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-    def get_extension(self):
-        sources = [
-            'src/py_converters.cpp',
-            'src/_gtkagg.cpp',
-            'src/mplutils.cpp'
-            ]
-        ext = make_extension('matplotlib.backends._gtkagg', sources)
-        self.add_flags(ext)
-        LibAgg().add_flags(ext)
-        Numpy().add_flags(ext)
-        return ext
 
 
 def backend_gtk3agg_internal_check(x):

@@ -15,6 +15,8 @@ import warnings
 
 import six
 from six.moves import zip
+
+from numbers import Number
 try:
     from math import gcd
 except ImportError:
@@ -370,7 +372,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         pickradius = (
             float(self._picker)
-            if cbook.is_numlike(self._picker) and
+            if isinstance(self._picker, Number) and
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
 
@@ -1779,11 +1781,9 @@ class TriMesh(Collection):
 
         This function is primarily of use to backend implementers.
         """
-        Path = mpath.Path
         triangles = tri.get_masked_triangles()
-        verts = np.concatenate((tri.x[triangles][..., np.newaxis],
-                                tri.y[triangles][..., np.newaxis]), axis=2)
-        return [Path(x) for x in verts]
+        verts = np.stack((tri.x[triangles], tri.y[triangles]), axis=-1)
+        return [mpath.Path(x) for x in verts]
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -1796,8 +1796,7 @@ class TriMesh(Collection):
         tri = self._triangulation
         triangles = tri.get_masked_triangles()
 
-        verts = np.concatenate((tri.x[triangles][..., np.newaxis],
-                                tri.y[triangles][..., np.newaxis]), axis=2)
+        verts = np.stack((tri.x[triangles], tri.y[triangles]), axis=-1)
 
         self.update_scalarmappable()
         colors = self._facecolors[triangles]
@@ -1878,22 +1877,19 @@ class QuadMesh(Collection):
 
         This function is primarily of use to backend implementers.
         """
-        Path = mpath.Path
-
         if isinstance(coordinates, np.ma.MaskedArray):
             c = coordinates.data
         else:
             c = coordinates
-
         points = np.concatenate((
-                    c[0:-1, 0:-1],
-                    c[0:-1, 1:],
+                    c[:-1, :-1],
+                    c[:-1, 1:],
                     c[1:, 1:],
-                    c[1:, 0:-1],
-                    c[0:-1, 0:-1]
+                    c[1:, :-1],
+                    c[:-1, :-1]
                 ), axis=2)
         points = points.reshape((meshWidth * meshHeight, 5, 2))
-        return [Path(x) for x in points]
+        return [mpath.Path(x) for x in points]
 
     def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
         """

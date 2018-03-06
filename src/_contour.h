@@ -139,8 +139,8 @@
  * different polygons.  The S-most polygon must be started first, then the next
  * S-most and so on until the N-most polygon is started in that quad.
  */
-#ifndef _CONTOUR_H
-#define _CONTOUR_H
+#ifndef MPL_CONTOUR_H
+#define MPL_CONTOUR_H
 
 #include "src/numpy_cpp.h"
 #include <stdint.h>

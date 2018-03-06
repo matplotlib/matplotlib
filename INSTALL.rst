@@ -32,41 +32,12 @@ Although not required, we suggest also installing ``IPython`` for
 interactive use.  To easily install a complete Scientific Python
 stack, see :ref:`install_scipy_dists` below.
 
-.. _installing_windows:
-
-Windows
--------
-
-In case Python 2.7 or 3.4 are not installed for all users,
-the Microsoft Visual C++ 2008
-(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
-or
-`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=29>`__
-for Python 2.7) or Microsoft Visual C++ 2010
-(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
-or
-`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
-for Python 3.4) redistributable packages need to be installed.
 
 macOS
 -----
 
-If you are using Python 2.7 on a Mac you may need to do::
-
-  xcode-select --install
-
-so that *subprocess32*, a dependency, may be compiled.
-
 To use the native OSX backend you will need :ref:`a framework build
 <osxframework-faq>` build of Python.
-
-
-Linux
------
-
-On extremely old versions of Linux and Python 2.7 you may need to
-install the master version of *subprocess32* (`see comments
-<https://github.com/google/python-subprocess32/issues/12#issuecomment-304724113>`__).
 
 
 Test Data
@@ -83,9 +54,9 @@ To run the test suite:
  * extract the :file:`lib\\matplotlib\\tests` or
    :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
  * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
-   `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-   ffmpeg, avconv, ImageMagick, and `Inkscape <https://inkscape.org/>`_;
- * run ``py.test path\to\tests\directory``.
+   Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
+   <https://inkscape.org/>`_;
+ * run ``pytest path\to\tests\directory``.
 
 
 Third-party distributions of Matplotlib
@@ -96,12 +67,13 @@ Third-party distributions of Matplotlib
 Scientific Python Distributions
 -------------------------------
 
-Both `Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
-<https://www.enthought.com/products/canopy/>`_ are both excellent
+`Anaconda <https://www.continuum.io/downloads/>`_ and `Canopy
+<https://www.enthought.com/products/canopy/>`_ and `ActiveState
+<https://www.activestate.com/activepython/downloads>`_ are excellent
 choices that "just work" out of the box for Windows, macOS and common
 Linux platforms. `WinPython <https://winpython.github.io/>`__ is an
 option for windows users.  All of these distributions include
-Matplotlib and *lots* of other useful tools.
+Matplotlib and *lots* of other useful (data) science tools.
 
 
 Linux : using your package manager
@@ -167,7 +139,7 @@ Dependencies
 
 Matplotlib requires a large number of dependencies:
 
-  * `Python <https://www.python.org/downloads/>`_ (>= 2.7 or >= 3.4)
+  * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
   * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
   * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
   * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
@@ -177,10 +149,6 @@ Matplotlib requires a large number of dependencies:
   * FreeType (>= 2.3)
   * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
   * `six <https://pypi.python.org/pypi/six>`_
-  * `backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
-    (for Python 2.7 only)
-  * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
-    2.7 only, on Linux and macOS only)
   * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
 
 Optionally, you can also install a number of packages to enable better user
@@ -191,7 +159,6 @@ optional Matplotlib backends and the capabilities they provide.
   * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
     `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
-  * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
   * :term:`wxpython` (>= 2.9 or later): for the WX or WXAgg backend;
   * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`__ (>=
     v0.8): for cairo based backends;
@@ -325,8 +292,6 @@ without fiddling with environment variables::
   conda install pyqt
   # this package is only available in the conda-forge channel
   conda install -c conda-forge msinttypes
-  # for Python 2.7
-  conda install -c conda-forge backports.functools_lru_cache
 
   # copy the libs which have "wrong" names
   set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib

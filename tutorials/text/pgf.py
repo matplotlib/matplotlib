@@ -56,6 +56,30 @@ Rc parameters that control the behavior of the pgf backend:
 
 .. _pgf-rcfonts:
 
+
+Multi-Page PDF Files
+====================
+
+The pgf backend also supports multipage pdf files using ``PdfPages``
+
+.. code-block:: python
+
+    from matplotlib.backends.backend_pgf import PdfPages
+    import matplotlib.pyplot as plt
+
+    with PdfPages('multipage.pdf', metadata={'author': 'Me'}) as pdf:
+
+        fig1 = plt.figure()
+        ax1 = fig1.add_subplot(1, 1, 1)
+        ax1.plot([1, 5, 3])
+        pdf.savefig(fig1)
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1, 1, 1)
+        ax2.plot([1, 5, 3])
+        pdf.savefig(fig2)
+
+
 Font specification
 ==================
 
@@ -71,7 +95,7 @@ fonts *CMU Serif*, *CMU Sans Serif*, etc.
 When saving to ``.pgf``, the font configuration matplotlib used for the
 layout of the figure is included in the header of the text file.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_fonts_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_fonts.py
    :end-before: plt.savefig
 
 
@@ -107,7 +131,7 @@ parameter. Possible values are ``'xelatex'`` (default), ``'lualatex'`` and
 ``'pdflatex'``. Please note that when selecting pdflatex the fonts and
 unicode handling must be configured in the preamble.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_texsystem_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_texsystem.py
    :end-before: plt.savefig
 
 

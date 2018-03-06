@@ -3,8 +3,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from numbers import Number
+
 import matplotlib.axes as maxes
-import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
@@ -115,10 +116,10 @@ class CbarAxes(CbarAxesBase, LocatableAxes):
         self._default_label_on = True
         self.locator = None
 
-        super(LocatableAxes, self).__init__(*kl, **kwargs)
+        super().__init__(*kl, **kwargs)
 
     def cla(self):
-        super(LocatableAxes, self).cla()
+        super().cla()
         self._config_axes()
 
 
@@ -208,7 +209,7 @@ class Grid(object):
 
         h = []
         v = []
-        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
+        if isinstance(rect, (str, Number)):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=False)
         elif isinstance(rect, SubplotSpec):
@@ -529,7 +530,7 @@ class ImageGrid(Grid):
 
         h = []
         v = []
-        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
+        if isinstance(rect, (str, Number)):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=aspect)
         elif isinstance(rect, SubplotSpec):

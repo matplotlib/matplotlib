@@ -66,7 +66,6 @@ the specified epsilon tolerance)
 The examples below illustrate each of these methods.
 """
 
-from __future__ import print_function
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle

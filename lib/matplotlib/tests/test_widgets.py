@@ -1,10 +1,4 @@
-from __future__ import absolute_import, division, print_function
-
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest.mock import Mock
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -60,7 +54,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     *step*
         number of scroll steps (positive for 'up', negative for 'down')
     """
-    event = mock.Mock()
+    event = Mock()
     event.button = button
     ax = tool.ax
     event.x, event.y = ax.transData.transform([(xdata, ydata),

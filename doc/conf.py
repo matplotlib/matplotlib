@@ -58,8 +58,6 @@ def _check_deps():
              "numpydoc": 'numpydoc',
              "PIL.Image": 'pillow',
              "sphinx_gallery": 'sphinx_gallery'}
-    if sys.version_info < (3, 3):
-        names["mock"] = 'mock'
     missing = []
     for name in names:
         try:

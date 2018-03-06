@@ -10,7 +10,6 @@ a lasso loop around the points on the graph. To draw, just click
 on the graph, hold, and drag it around the points you need to select.
 """
 
-from __future__ import print_function
 
 import numpy as np
 

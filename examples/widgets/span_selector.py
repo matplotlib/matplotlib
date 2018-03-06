@@ -38,7 +38,7 @@ def onselect(xmin, xmax):
     ax2.set_ylim(thisy.min(), thisy.max())
     fig.canvas.draw()
 
-# set useblit True on gtkagg for enhanced performance
+# Set useblit=True on most backends for enhanced performance.
 span = SpanSelector(ax1, onselect, 'horizontal', useblit=True,
                     rectprops=dict(alpha=0.5, facecolor='red'))
 

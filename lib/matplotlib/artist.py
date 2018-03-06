@@ -306,8 +306,8 @@ class Artist(object):
 
         Parameters
         ----------
-        t : `~.Transform`
-            .. ACCEPTS: `~.Transform`
+        t : `.Transform`
+            .. ACCEPTS: `.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -469,7 +469,7 @@ class Artist(object):
 
     @cbook.deprecated("2.2", "artist.figure is not None")
     def is_figure_set(self):
-        """Returns whether the artist is assigned to a `~.Figure`."""
+        """Returns whether the artist is assigned to a `.Figure`."""
         return self.figure is not None
 
     def get_url(self):
@@ -596,8 +596,8 @@ class Artist(object):
 
         Parameters
         ----------
-        path_effects : `~.AbstractPathEffect`
-            .. ACCEPTS: `~.AbstractPathEffect`
+        path_effects : `.AbstractPathEffect`
+            .. ACCEPTS: `.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -606,17 +606,17 @@ class Artist(object):
         return self._path_effects
 
     def get_figure(self):
-        """Return the `~.Figure` instance the artist belongs to."""
+        """Return the `.Figure` instance the artist belongs to."""
         return self.figure
 
     def set_figure(self, fig):
         """
-        Set the `~.Figure` instance the artist belongs to.
+        Set the `.Figure` instance the artist belongs to.
 
         Parameters
         ----------
-        fig : `~.Figure`
-            .. ACCEPTS: a `~.Figure` instance
+        fig : `.Figure`
+            .. ACCEPTS: a `.Figure` instance
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -636,12 +636,12 @@ class Artist(object):
 
     def set_clip_box(self, clipbox):
         """
-        Set the artist's clip `~.Bbox`.
+        Set the artist's clip `.Bbox`.
 
         Parameters
         ----------
-        clipbox : `~.Bbox`
-            .. ACCEPTS: a `~.Bbox` instance
+        clipbox : `.Bbox`
+            .. ACCEPTS: a `.Bbox` instance
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -662,7 +662,7 @@ class Artist(object):
         this method will set the clipping box to the corresponding rectangle
         and set the clipping path to ``None``.
 
-        ACCEPTS: [(`~matplotlib.path.Path`, `~.Transform`) | `~.Patch` | None]
+        ACCEPTS: [(`~matplotlib.path.Path`, `.Transform`) | `.Patch` | None]
         """
         from matplotlib.patches import Patch, Rectangle
 
@@ -1253,7 +1253,7 @@ class ArtistInspector(object):
             lines.append('%s%s: %s' % (pad, name, accepts))
         return lines
 
-    def pprint_setters_rest(self, prop=None, leadingspace=2):
+    def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
         If *prop* is *None*, return a list of strings of all settable
         properties and their valid values.  Format the output for ReST
@@ -1463,20 +1463,16 @@ def setp(obj, *args, **kwargs):
         raise ValueError('The set args must be string, value pairs')
 
     # put args into ordereddict to maintain order
-    funcvals = OrderedDict()
-    for i in range(0, len(args) - 1, 2):
-        funcvals[args[i]] = args[i + 1]
-
-    ret = [o.update(funcvals) for o in objs]
-    ret.extend([o.set(**kwargs) for o in objs])
-    return [x for x in cbook.flatten(ret)]
+    funcvals = OrderedDict((k, v) for k, v in zip(args[::2], args[1::2]))
+    ret = [o.update(funcvals) for o in objs] + [o.set(**kwargs) for o in objs]
+    return list(cbook.flatten(ret))
 
 
 def kwdoc(a):
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:
         return '\n'.join(ArtistInspector(a).pprint_setters_rest(
-                         leadingspace=2))
+                         leadingspace=4))
     else:
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 

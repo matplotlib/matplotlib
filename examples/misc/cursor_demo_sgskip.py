@@ -16,7 +16,6 @@ similar effect.  See
     https://github.com/joferkington/mpldatacursor
     https://github.com/anntzer/mplcursors
 """
-from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 

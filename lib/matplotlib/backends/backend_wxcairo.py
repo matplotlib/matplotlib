@@ -1,14 +1,10 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import wx
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
-from . import wx_compat as wxc
+    _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
+    NavigationToolbar2Wx as NavigationToolbar2WxCairo)
+import wx.lib.wxcairo as wxcairo
 
 
 class FigureFrameWxCairo(FigureFrameWx):
@@ -41,8 +37,7 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
         self._renderer.set_ctx_from_surface(surface)
         self._renderer.set_width_height(width, height)
         self.figure.draw(self._renderer)
-        buf = surface.get_data()
-        self.bitmap = wxc.BitmapFromBuffer(width, height, buf)
+        self.bitmap = wxcairo.BitmapFromImageSurface(surface)
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC, origin='WXCairo')
 

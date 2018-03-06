@@ -17,8 +17,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
-import six
 
 import sys
 import os
@@ -503,27 +501,6 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
-    @cbook.deprecated("2.1")
-    def set_linestyle(self, ls):
-        """
-        Set the line style to be one of
-        """
-        DEBUG_MSG("set_linestyle()", 1, self)
-        self.select()
-        GraphicsContextBase.set_linestyle(self, ls)
-        try:
-            self._style = wxc.dashd_wx[ls]
-        except KeyError:
-            self._style = wx.LONG_DASH  # Style not used elsewhere...
-
-        # On MS Windows platform, only line width of 1 allowed for dash lines
-        if wx.Platform == '__WXMSW__':
-            self.set_linewidth(1)
-
-        self._pen.SetStyle(self._style)
-        self.gfx_ctx.SetPen(self._pen)
-        self.unselect()
-
     def get_wxcolour(self, color):
         """return a wx.Colour from RGB format"""
         DEBUG_MSG("get_wx_color()", 1, self)
@@ -824,8 +801,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     filetypes['xpm'] = 'X pixmap'
 
     def print_figure(self, filename, *args, **kwargs):
-        super(_FigureCanvasWxBase, self).print_figure(
-            filename, *args, **kwargs)
+        super().print_figure(filename, *args, **kwargs)
         # Restore the current view; this is needed because the artist contains
         # methods rely on particular attributes of the rendered figure for
         # determining things like bounding boxes.
@@ -1056,7 +1032,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def _onEnter(self, evt):
         """Mouse has entered the window."""
-        FigureCanvasBase.enter_notify_event(self, guiEvent=evt)
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        FigureCanvasBase.enter_notify_event(self, guiEvent=evt, xy=(x, y))
 
 
 class FigureCanvasWx(_FigureCanvasWxBase):
@@ -1230,7 +1209,7 @@ class FigureFrameWx(wx.Frame):
         return toolbar
 
     def get_canvas(self, fig):
-        return type(self.canvas)(self, -1, fig)
+        return FigureCanvasWx(self, -1, fig)
 
     def get_figure_manager(self):
         DEBUG_MSG("get_figure_manager()", 1, self)
@@ -1449,7 +1428,7 @@ class MenuButtonWx(wx.Button):
             for menuId in self._axisId[maxAxis:]:
                 self._menu.Delete(menuId)
             self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(list(xrange(maxAxis)))
+        self._toolbar.set_active(list(range(maxAxis)))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
@@ -1474,6 +1453,7 @@ cursord = {
 }
 
 
+@cbook.deprecated("2.2")
 class SubplotToolWX(wx.Frame):
     def __init__(self, targetfig):
         wx.Frame.__init__(self, None, -1, "Configure subplots")
@@ -1508,7 +1488,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
-        return FigureCanvasWx(frame, -1, fig)
+        return type(self.canvas)(frame, -1, fig)
 
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
@@ -1592,14 +1572,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         cursor = wxc.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
-
-    @cbook.deprecated("2.1", alternative="canvas.draw_idle")
-    def dynamic_update(self):
-        d = self._idle
-        self._idle = False
-        if d:
-            self.canvas.draw()
-            self._idle = True
 
     def press(self, event):
         if self._active == 'ZOOM':
@@ -1697,6 +1669,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
         self.EnableTool(self.wx_ids['Back'], can_backward)
         self.EnableTool(self.wx_ids['Forward'], can_forward)
+
+
+@cbook.deprecated("2.2", alternative="NavigationToolbar2Wx")
+class Toolbar(NavigationToolbar2Wx):
+    pass
 
 
 class StatusBarWx(wx.StatusBar):
@@ -1956,15 +1933,6 @@ class PrintoutWx(wx.Printout):
         return True
 # >
 
-########################################################################
-#
-# Now just provide the standard names that backend.__init__ is expecting
-#
-########################################################################
-
-
-Toolbar = NavigationToolbar2Wx
-
 
 @_Backend.export
 class _BackendWx(_Backend):
@@ -1986,7 +1954,7 @@ class _BackendWx(_Backend):
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp
-        return super(_BackendWx, cls).new_figure_manager(num, *args, **kwargs)
+        return super().new_figure_manager(num, *args, **kwargs)
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):

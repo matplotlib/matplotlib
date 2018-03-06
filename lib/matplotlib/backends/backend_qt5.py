@@ -232,7 +232,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     @_allow_super_init
     def __init__(self, figure):
         _create_qApp()
-        super(FigureCanvasQT, self).__init__(figure=figure)
+        super().__init__(figure=figure)
 
         self.figure = figure
         # We don't want to scale up the figure DPI more than once.
@@ -269,7 +269,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
         try:
-            return self.devicePixelRatio()
+            # self.devicePixelRatio() returns 0 in rare cases
+            return self.devicePixelRatio() or 1
         except AttributeError:
             return 1
 
@@ -298,7 +299,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event)
+        x, y = self.mouseEventCoords(event.pos())
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -492,7 +494,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             return
         self._is_drawing = True
         try:
-            super(FigureCanvasQT, self).draw()
+            super().draw()
         finally:
             self._is_drawing = False
         self.update()
@@ -762,7 +764,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         # the actual sizeHint, so override it instead in order to make the
         # aesthetic adjustments noted above.
         def sizeHint(self):
-            size = super(NavigationToolbar2QT, self).sizeHint()
+            size = super().sizeHint()
             size.setHeight(max(48, size.height()))
             return size
 
@@ -798,11 +800,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._actions['zoom'].setChecked(self._active == 'ZOOM')
 
     def pan(self, *args):
-        super(NavigationToolbar2QT, self).pan(*args)
+        super().pan(*args)
         self._update_buttons_checked()
 
     def zoom(self, *args):
-        super(NavigationToolbar2QT, self).zoom(*args)
+        super().zoom(*args)
         self._update_buttons_checked()
 
     def set_message(self, s):

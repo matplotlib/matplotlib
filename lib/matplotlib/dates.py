@@ -283,23 +283,31 @@ def _dt64_to_ordinalf(d):
 
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
-    extra = d - d.astype('datetime64[s]')
+    # NOTE: First cast truncates; second cast back is for NumPy 1.10.
+    extra = d - d.astype('datetime64[s]').astype(d.dtype)
     extra = extra.astype('timedelta64[ns]')
     t0 = np.datetime64('0001-01-01T00:00:00').astype('datetime64[s]')
     dt = (d.astype('datetime64[s]') - t0).astype(np.float64)
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY + 1.0
 
+    NaT_int = np.datetime64('NaT').astype(np.int64)
+    d_int = d.astype(np.int64)
+    try:
+        dt[d_int == NaT_int] = np.nan
+    except TypeError:
+        if d_int == NaT_int:
+            dt = np.nan
     return dt
 
 
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
-    seconds and microseconds.  Return value is a `~.datetime`.
+    seconds and microseconds.  Return value is a `.datetime`.
 
     The input date *x* is a float in ordinal days at UTC, and the output will
-    be the specified `~.datetime` object corresponding to that time in
+    be the specified `.datetime` object corresponding to that time in
     timezone *tz*, or if *tz* is ``None``, in the timezone specified in
     :rc:`timezone`.
     """
@@ -365,7 +373,7 @@ class bytespdate2num(strpdate2num):
             fmt: any valid strptime format is supported
             encoding: encoding to use on byte input (default: 'utf-8')
         """
-        super(bytespdate2num, self).__init__(fmt)
+        super().__init__(fmt)
         self.encoding = encoding
 
     def __call__(self, b):
@@ -376,7 +384,7 @@ class bytespdate2num(strpdate2num):
             A date2num float
         """
         s = b.decode(self.encoding)
-        return super(bytespdate2num, self).__call__(s)
+        return super().__call__(s)
 
 
 # a version of dateutil.parser.parse that can operate on nump0y arrays
@@ -428,6 +436,10 @@ def date2num(d):
     Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
+
+    if hasattr(d, "values"):
+        # this unpacks pandas series or dataframes...
+        d = d.values
 
     if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
             or isinstance(d, np.datetime64)):
@@ -725,7 +737,7 @@ class DateFormatter(ticker.Formatter):
         fmt = fmt.replace("%s", "s")
         if dt.year >= 1900:
             # Note: in python 3.3 this is okay for years >= 1000,
-            # refer to http://bugs.python.org/issue177742
+            # refer to http://bugs.python.org/issue1777412
             return cbook.unicode_safe(dt.strftime(fmt))
 
         return self.strftime_pre_1900(dt, fmt)

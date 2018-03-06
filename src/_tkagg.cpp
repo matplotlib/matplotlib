@@ -19,9 +19,9 @@
 #include "_tkmini.h"
 
 #if defined(_MSC_VER)
-#  define IMG_FORMAT "%Iu %d %d"
+#  define IMG_FORMAT "%d %d %Iu"
 #else
-#  define IMG_FORMAT "%zu %d %d"
+#  define IMG_FORMAT "%d %d %zu"
 #endif
 #define BBOX_FORMAT "%f %f %f %f"
 
@@ -73,10 +73,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         TCL_APPEND_RESULT(interp, "destination photo must exist", (char *)NULL);
         return TCL_ERROR;
     }
-    /* get buffer from str which is "ptr height width" */
-    if (sscanf(argv[2], IMG_FORMAT, &pdata, &hdata, &wdata) != 3) {
+    /* get buffer from str which is "height width ptr" */
+    if (sscanf(argv[2], IMG_FORMAT, &hdata, &wdata, &pdata) != 3) {
         TCL_APPEND_RESULT(interp, 
-                          "error reading data, expected ptr height width",
+                          "error reading data, expected height width ptr",
                           (char *)NULL);
         return TCL_ERROR;
     }
@@ -322,13 +322,10 @@ int load_tkinter_funcs(void)
 #else  // not Windows
 
 /*
- * On Unix, we can get the TCL and Tk synbols from the tkinter module, because
+ * On Unix, we can get the TCL and Tk symbols from the tkinter module, because
  * tkinter uses these symbols, and the symbols are therefore visible in the
  * tkinter dynamic library (module).
  */
-#if PY_MAJOR_VERSION >= 3
-#define TKINTER_PKG "tkinter"
-#define TKINTER_MOD "_tkinter"
 // From module __file__ attribute to char *string for dlopen.
 char *fname2char(PyObject *fname)
 {
@@ -339,12 +336,6 @@ char *fname2char(PyObject *fname)
     }
     return PyBytes_AsString(bytes);
 }
-#else
-#define TKINTER_PKG "Tkinter"
-#define TKINTER_MOD "tkinter"
-// From module __file__ attribute to char *string for dlopen
-#define fname2char(s) (PyString_AsString(s))
-#endif
 
 #include <dlfcn.h>
 
@@ -402,11 +393,11 @@ int load_tkinter_funcs(void)
     PyErr_Clear();
 
     // Now try finding the tkinter compiled module
-    pModule = PyImport_ImportModule(TKINTER_PKG);
+    pModule = PyImport_ImportModule("tkinter");
     if (pModule == NULL) {
         goto exit;
     }
-    pSubmodule = PyObject_GetAttrString(pModule, TKINTER_MOD);
+    pSubmodule = PyObject_GetAttrString(pModule, "_tkinter");
     if (pSubmodule == NULL) {
         goto exit;
     }
@@ -453,7 +444,6 @@ exit:
 }
 #endif // end not Windows
 
-#if PY_MAJOR_VERSION >= 3
 static PyModuleDef _tkagg_module = { PyModuleDef_HEAD_INIT, "_tkagg", "",   -1,  functions,
                                      NULL,                  NULL,     NULL, NULL };
 
@@ -465,11 +455,3 @@ PyMODINIT_FUNC PyInit__tkagg(void)
 
     return (load_tkinter_funcs() == 0) ? m : NULL;
 }
-#else
-PyMODINIT_FUNC init_tkagg(void)
-{
-    Py_InitModule("_tkagg", functions);
-
-    load_tkinter_funcs();
-}
-#endif

@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef PATH_CLEANUP_H
-#define PATH_CLEANUP_H
+#ifndef MPL_PATH_CLEANUP_H
+#define MPL_PATH_CLEANUP_H
 
 #include <Python.h>
 
@@ -24,4 +24,4 @@ unsigned get_vertex(void *pipeline, double *x, double *y);
 
 void free_path_iterator(void *pipeline);
 
-#endif /* PATH_CLEANUP_H */
+#endif /* MPL_PATH_CLEANUP_H */

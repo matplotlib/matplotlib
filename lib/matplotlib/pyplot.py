@@ -22,6 +22,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import inspect
+from numbers import Number
 import sys
 import time
 import warnings
@@ -31,9 +33,8 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_numlike
-from matplotlib.cbook import _string_to_bool
-from matplotlib.cbook import deprecated, warn_deprecated
+from matplotlib.cbook import (
+    dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -94,16 +95,10 @@ def _backend_selection():
         if not PyQt5.QtWidgets.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules and
-          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
-        if 'gi' in sys.modules:
-            from gi.repository import GObject
-            ml = GObject.MainLoop
-        else:
-            import gobject
-            ml = gobject.MainLoop
-        if ml().is_running():
-            rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
+    elif 'gtk' in sys.modules and 'gi' in sys.modules:
+        from gi.repository import GObject
+        if GObject.MainLoop().is_running():
+            rcParams['backend'] = 'GTK3Agg'
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
         pass  # what if anything do we need to do for tkinter?
@@ -641,7 +636,7 @@ def close(*args):
 
     ``close()`` by itself closes the current figure
 
-    ``close(fig)`` closes the `~.Figure` instance *fig*
+    ``close(fig)`` closes the `.Figure` instance *fig*
 
     ``close(num)`` closes the figure number *num*
 
@@ -878,7 +873,7 @@ def axes(arg=None, **kwargs):
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
-        - `~.Axes`: This is equivalent to `.pyplot.sca`. It sets the current
+        - `.Axes`: This is equivalent to `.pyplot.sca`. It sets the current
           axes to *arg*. Note: This implicitly changes the current figure to
           the parent of *arg*.
 
@@ -994,7 +989,7 @@ def subplot(*args, **kwargs):
 
        subplot(nrows, ncols, index, **kwargs)
 
-    In the current figure, create and return an `~.Axes`, at position *index*
+    In the current figure, create and return an `.Axes`, at position *index*
     of a (virtual) grid of *nrows* by *ncols* axes.  Indexes go from 1 to
     ``nrows * ncols``, incrementing in row-major order.
 
@@ -1002,7 +997,7 @@ def subplot(*args, **kwargs):
     given as a single, concatenated, three-digit number.
 
     For example, ``subplot(2, 3, 3)`` and ``subplot(233)`` both create an
-    `~.Axes` at the top right corner of the current figure, occupying half of
+    `.Axes` at the top right corner of the current figure, occupying half of
     the figure height and a third of the figure width.
 
     .. note::
@@ -1055,8 +1050,8 @@ def subplot(*args, **kwargs):
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
-    if len(args)==0:
-        args=(1,1,1)
+    if len(args) == 0:
+        args = (1, 1, 1)
 
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
@@ -1064,19 +1059,21 @@ def subplot(*args, **kwargs):
     # ever occur, but mysterious behavior can result because what was
     # intended to be the sharex argument is instead treated as a
     # subplot index for subplot()
-    if len(args) >= 3 and isinstance(args[2], bool) :
-        warnings.warn("The subplot index argument to subplot() appears"
-                      " to be a boolean. Did you intend to use subplots()?")
+    if len(args) >= 3 and isinstance(args[2], bool):
+        warnings.warn("The subplot index argument to subplot() appears "
+                      "to be a boolean. Did you intend to use subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
     bbox = a.bbox
     byebye = []
     for other in fig.axes:
-        if other==a: continue
+        if other == a:
+            continue
         if bbox.fully_overlaps(other.bbox):
             byebye.append(other)
-    for ax in byebye: delaxes(ax)
+    for ax in byebye:
+        delaxes(ax)
 
     return a
 
@@ -1334,8 +1331,10 @@ def subplot_tool(targetfig=None):
     else:
         # find the manager for this figure
         for manager in _pylab_helpers.Gcf._activeQue:
-            if manager.canvas.figure==targetfig: break
-        else: raise RuntimeError('Could not find manager for targetfig')
+            if manager.canvas.figure == targetfig:
+                break
+        else:
+            raise RuntimeError('Could not find manager for targetfig')
 
     toolfig = figure(figsize=(6,3))
     toolfig.subplots_adjust(top=0.9)
@@ -1845,77 +1844,19 @@ def get_plot_commands():
     """
     Get a sorted list of all of the plotting commands.
     """
-    # This works by searching for all functions in this module and
-    # removing a few hard-coded exclusions, as well as all of the
-    # colormap-setting functions, and anything marked as private with
-    # a preceding underscore.
-
-    import inspect
-
+    # This works by searching for all functions in this module and removing
+    # a few hard-coded exclusions, as well as all of the colormap-setting
+    # functions, and anything marked as private with a preceding underscore.
     exclude = {'colormaps', 'colors', 'connect', 'disconnect',
                'get_plot_commands', 'get_current_fig_manager', 'ginput',
                'plotting', 'waitforbuttonpress'}
     exclude |= set(colormaps())
     this_module = inspect.getmodule(get_plot_commands)
-
-    commands = set()
-    for name, obj in list(six.iteritems(globals())):
-        if name.startswith('_') or name in exclude:
-            continue
-        if inspect.isfunction(obj) and inspect.getmodule(obj) is this_module:
-            commands.add(name)
-
-    return sorted(commands)
-
-
-@deprecated('2.1')
-def colors():
-    """
-    This is a do-nothing function to provide you with help on how
-    matplotlib handles colors.
-
-    Commands which take color arguments can use several formats to
-    specify the colors.  For the basic built-in colors, you can use a
-    single letter
-
-      =====   =======
-      Alias   Color
-      =====   =======
-      'b'     blue
-      'g'     green
-      'r'     red
-      'c'     cyan
-      'm'     magenta
-      'y'     yellow
-      'k'     black
-      'w'     white
-      =====   =======
-
-    For a greater range of colors, you have two options.  You can
-    specify the color using an html hex string, as in::
-
-      color = '#eeefff'
-
-    or you can pass an R,G,B tuple, where each of R,G,B are in the
-    range [0,1].
-
-    You can also use any legal html name for a color, for example::
-
-      color = 'red'
-      color = 'burlywood'
-      color = 'chartreuse'
-
-    The example below creates a subplot with a dark
-    slate gray background::
-
-       subplot(111, facecolor=(0.1843, 0.3098, 0.3098))
-
-    Here is an example that creates a pale turquoise title::
-
-      title('Is this the best color?', color='#afeeee')
-
-    """
-    pass
+    return sorted(
+        name for name, obj in globals().items()
+        if not name.startswith('_') and name not in exclude
+           and inspect.isfunction(obj)
+           and inspect.getmodule(obj) is this_module)
 
 
 def colormaps():
@@ -2421,7 +2362,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
         'return the name and column data for identifier'
         if isinstance(identifier, six.string_types):
             return identifier, r[identifier]
-        elif is_numlike(identifier):
+        elif isinstance(identifier, Number):
             name = r.dtype.names[int(identifier)]
             return name, r[name]
         else:

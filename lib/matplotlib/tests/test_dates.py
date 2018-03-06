@@ -1,21 +1,11 @@
-from __future__ import absolute_import, division, print_function
-
-from six.moves import map
-
-
 import datetime
-import dateutil
 import tempfile
+from unittest.mock import Mock
 
+import dateutil
 import numpy as np
 import pytest
 import pytz
-
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -51,12 +41,31 @@ def test_date_numpyx():
                                   datetime.datetime(2017, 1, 1, 3, 1, 1)]]])
 @pytest.mark.parametrize('dtype', ['datetime64[s]',
                                     'datetime64[us]',
-                                    'datetime64[ms]'])
+                                    'datetime64[ms]',
+                                    'datetime64[ns]'])
 def test_date_date2num_numpy(t0, dtype):
     time = mdates.date2num(t0)
     tnp = np.array(t0, dtype=dtype)
     nptime = mdates.date2num(tnp)
     assert np.array_equal(time, nptime)
+
+
+@pytest.mark.parametrize('dtype', ['datetime64[s]',
+                                    'datetime64[us]',
+                                    'datetime64[ms]',
+                                    'datetime64[ns]'])
+def test_date2num_NaT(dtype):
+    t0 = datetime.datetime(2017, 1, 1, 0, 1, 1)
+    tmpl = [mdates.date2num(t0), np.nan]
+    tnp = np.array([t0, 'NaT'], dtype=dtype)
+    nptime = mdates.date2num(tnp)
+    np.testing.assert_array_equal(tmpl, nptime)
+
+
+@pytest.mark.parametrize('units', ['s', 'ms', 'us', 'ns'])
+def test_date2num_NaT_scalar(units):
+    tmpl = mdates.date2num(np.datetime64('NaT', units))
+    assert np.isnan(tmpl)
 
 
 @image_comparison(baseline_images=['date_empty'], extensions=['png'])
@@ -251,7 +260,7 @@ def test_date_formatter_strftime():
 
 def test_date_formatter_callable():
     scale = -11
-    locator = mock.Mock(_get_unit=mock.Mock(return_value=scale))
+    locator = Mock(_get_unit=Mock(return_value=scale))
     callable_formatting_function = (lambda dates, _:
                                     [dt.strftime('%d-%m//%Y') for dt in dates])
 
@@ -499,7 +508,7 @@ def test_date2num_dst():
         subtraction.
         """
         def __sub__(self, other):
-            r = super(dt_tzaware, self).__sub__(other)
+            r = super().__sub__(other)
             tzinfo = getattr(r, 'tzinfo', None)
 
             if tzinfo is not None:
@@ -513,10 +522,10 @@ def test_date2num_dst():
             return r
 
         def __add__(self, other):
-            return self.mk_tzaware(super(dt_tzaware, self).__add__(other))
+            return self.mk_tzaware(super().__add__(other))
 
         def astimezone(self, tzinfo):
-            dt = super(dt_tzaware, self).astimezone(tzinfo)
+            dt = super().astimezone(tzinfo)
             return self.mk_tzaware(dt)
 
         @classmethod

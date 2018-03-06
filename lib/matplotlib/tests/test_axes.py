@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
 import six
-from six.moves import xrange
 from itertools import chain, product
 from distutils.version import LooseVersion
 import io
@@ -26,7 +25,6 @@ import matplotlib.colors as mcolors
 from numpy.testing import assert_allclose, assert_array_equal
 from matplotlib.cbook import (
     IgnoredKeywordWarning, MatplotlibDeprecationWarning)
-from matplotlib.cbook._backports import broadcast_to
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -283,7 +281,7 @@ def test_autoscale_tiny_range():
     # github pull #904
     fig, ax = plt.subplots(2, 2)
     ax = ax.flatten()
-    for i in xrange(4):
+    for i in range(4):
         y1 = 10**(-11 - i)
         ax[i].plot([0, 1], [1, 1 + y1])
 
@@ -1546,7 +1544,7 @@ def test_hist_step_filled():
         ax.set_ylim(ymin=-50)
 
     patches = axes[0].patches
-    assert all([p.get_facecolor() == p.get_edgecolor() for p in patches])
+    assert all(p.get_facecolor() == p.get_edgecolor() for p in patches)
 
 
 @image_comparison(baseline_images=['hist_density'], extensions=['png'])
@@ -2888,8 +2886,8 @@ def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
-    x = list(xrange(10))
-    y = list(xrange(10))
+    x = list(range(10))
+    y = list(range(10))
 
     # Test the call signatures
     ax.stem(y)
@@ -3188,7 +3186,7 @@ def test_eventplot_colors(colors):
     # NB: ['rgbk'] is not a valid argument for to_rgba_array, while 'rgbk' is.
     if len(expected) == 1:
         expected = expected[0]
-    expected = broadcast_to(mcolors.to_rgba_array(expected), (len(data), 4))
+    expected = np.broadcast_to(mcolors.to_rgba_array(expected), (len(data), 4))
 
     fig, ax = plt.subplots()
     if len(colors) == 1:  # tuple with a single string (like '0.5' or 'rgbk')
@@ -3237,6 +3235,17 @@ def test_empty_eventplot():
     plt.draw()
 
 
+@pytest.mark.parametrize('data, orientation', product(
+    ([[]], [[], [0, 1]], [[0, 1], []]),
+    ('_empty', 'vertical', 'horizontal', None, 'none')))
+def test_eventplot_orientation(data, orientation):
+    """Introduced when fixing issue #6412. """
+    opts = {} if orientation == "_empty" else {'orientation': orientation}
+    fig, ax = plt.subplots(1, 1)
+    ax.eventplot(data, **opts)
+    plt.draw()
+
+
 @image_comparison(baseline_images=['marker_styles'], extensions=['png'],
                   remove_text=True)
 def test_marker_styles():
@@ -3261,7 +3270,7 @@ def test_markers_fillstyle_rcparams():
 @image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
                   remove_text=True)
 def test_vertex_markers():
-    data = list(xrange(10))
+    data = list(range(10))
     marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
     marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
     fig = plt.figure()
@@ -3275,7 +3284,7 @@ def test_vertex_markers():
 @image_comparison(baseline_images=['vline_hline_zorder',
                                    'errorbar_zorder'])
 def test_eb_line_zorder():
-    x = list(xrange(10))
+    x = list(range(10))
 
     # First illustrate basic pyplot interface, using defaults where possible.
     fig = plt.figure()
@@ -3291,9 +3300,9 @@ def test_eb_line_zorder():
     # Now switch to a more OO interface to exercise more features.
     fig = plt.figure()
     ax = fig.gca()
-    x = list(xrange(10))
+    x = list(range(10))
     y = np.zeros(10)
-    yerr = list(xrange(10))
+    yerr = list(range(10))
     ax.errorbar(x, y, yerr=yerr, zorder=5, lw=5, color='r')
     for j in range(10):
         ax.axhline(j, lw=5, color='k', zorder=j)
@@ -3422,7 +3431,7 @@ def test_mixed_collection():
     from matplotlib import patches
     from matplotlib import collections
 
-    x = list(xrange(10))
+    x = list(range(10))
 
     # First illustrate basic pyplot interface, using defaults where possible.
     fig = plt.figure()
@@ -5562,15 +5571,6 @@ def test_barh_signature(args, kwargs, warning_count):
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
-
-
-def test_patch_deprecations():
-    fig, ax = plt.subplots()
-    with warnings.catch_warnings(record=True) as w:
-        assert ax.patch == ax.axesPatch
-        assert fig.patch == fig.figurePatch
-
-    assert len(w) == 2
 
 
 def test_polar_gridlines():

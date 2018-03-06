@@ -1,14 +1,9 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import logging
 import os
 import sys
 
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -84,55 +79,55 @@ class TimerGTK3(TimerBase):
 
 
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
-    keyvald = {65507 : 'control',
-               65505 : 'shift',
-               65513 : 'alt',
-               65508 : 'control',
-               65506 : 'shift',
-               65514 : 'alt',
-               65361 : 'left',
-               65362 : 'up',
-               65363 : 'right',
-               65364 : 'down',
-               65307 : 'escape',
-               65470 : 'f1',
-               65471 : 'f2',
-               65472 : 'f3',
-               65473 : 'f4',
-               65474 : 'f5',
-               65475 : 'f6',
-               65476 : 'f7',
-               65477 : 'f8',
-               65478 : 'f9',
-               65479 : 'f10',
-               65480 : 'f11',
-               65481 : 'f12',
-               65300 : 'scroll_lock',
-               65299 : 'break',
-               65288 : 'backspace',
-               65293 : 'enter',
-               65379 : 'insert',
-               65535 : 'delete',
-               65360 : 'home',
-               65367 : 'end',
-               65365 : 'pageup',
-               65366 : 'pagedown',
-               65438 : '0',
-               65436 : '1',
-               65433 : '2',
-               65435 : '3',
-               65430 : '4',
-               65437 : '5',
-               65432 : '6',
-               65429 : '7',
-               65431 : '8',
-               65434 : '9',
-               65451 : '+',
-               65453 : '-',
-               65450 : '*',
-               65455 : '/',
-               65439 : 'dec',
-               65421 : 'enter',
+    keyvald = {65507: 'control',
+               65505: 'shift',
+               65513: 'alt',
+               65508: 'control',
+               65506: 'shift',
+               65514: 'alt',
+               65361: 'left',
+               65362: 'up',
+               65363: 'right',
+               65364: 'down',
+               65307: 'escape',
+               65470: 'f1',
+               65471: 'f2',
+               65472: 'f3',
+               65473: 'f4',
+               65474: 'f5',
+               65475: 'f6',
+               65476: 'f7',
+               65477: 'f8',
+               65478: 'f9',
+               65479: 'f10',
+               65480: 'f11',
+               65481: 'f12',
+               65300: 'scroll_lock',
+               65299: 'break',
+               65288: 'backspace',
+               65293: 'enter',
+               65379: 'insert',
+               65535: 'delete',
+               65360: 'home',
+               65367: 'end',
+               65365: 'pageup',
+               65366: 'pagedown',
+               65438: '0',
+               65436: '1',
+               65433: '2',
+               65435: '3',
+               65430: '4',
+               65437: '5',
+               65432: '6',
+               65429: '7',
+               65431: '8',
+               65434: '9',
+               65451: '+',
+               65453: '-',
+               65450: '*',
+               65455: '/',
+               65439: 'dec',
+               65421: 'enter',
                }
 
     # Setting this as a static constant prevents
@@ -230,7 +225,10 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, event)
 
     def enter_notify_event(self, widget, event):
-        FigureCanvasBase.enter_notify_event(self, event)
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.get_allocation().height - event.y
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def size_allocate(self, widget, allocation):
         dpival = self.figure.dpi
@@ -267,7 +265,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             return # empty fig
         # resize the figure (in inches)
         dpi = self.figure.dpi
-        self.figure.set_size_inches(w/dpi, h/dpi, forward=False)
+        self.figure.set_size_inches(w / dpi, h / dpi, forward=False)
         return False  # finish event propagation?
 
     def on_draw_event(self, widget, ctx):
@@ -279,7 +277,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             self.queue_draw()
             # do a synchronous draw (its less efficient than an async draw,
             # but is required if/when animation is used)
-            self.get_property("window").process_updates (False)
+            self.get_property("window").process_updates(False)
 
     def draw_idle(self):
         if self._idle_draw_id != 0:
@@ -325,11 +323,11 @@ class FigureManagerGTK3(FigureManagerBase):
     num : int or str
         The Figure number
     toolbar : Gtk.Toolbar
-        The Gtk.Toolbar  (gtk only)
+        The Gtk.Toolbar
     vbox : Gtk.VBox
-        The Gtk.VBox containing the canvas and toolbar (gtk only)
+        The Gtk.VBox containing the canvas and toolbar
     window : Gtk.Window
-        The Gtk.Window   (gtk only)
+        The Gtk.Window
 
     """
     def __init__(self, canvas, num):
@@ -340,14 +338,10 @@ class FigureManagerGTK3(FigureManagerBase):
         self.set_window_title("Figure %d" % num)
         try:
             self.window.set_icon_from_file(window_icon)
-        except (SystemExit, KeyboardInterrupt):
-            # re-raise exit type Exceptions
-            raise
-        except:
-            # some versions of gtk throw a glib.GError but not
-            # all, so I am not sure how to catch it.  I am unhappy
-            # doing a blanket catch here, but am not sure what a
-            # better way is - JDH
+        except Exception:
+            # Some versions of gtk throw a glib.GError but not all, so I am not
+            # sure how to catch it.  I am unhappy doing a blanket catch here,
+            # but am not sure what a better way is - JDH
             _log.info('Could not load matplotlib icon: %s', sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
@@ -359,8 +353,8 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.vbox.pack_start(self.canvas, True, True, 0)
         # calculate size for window
-        w = int (self.canvas.figure.bbox.width)
-        h = int (self.canvas.figure.bbox.height)
+        w = int(self.canvas.figure.bbox.width)
+        h = int(self.canvas.figure.bbox.height)
 
         self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
@@ -384,7 +378,7 @@ class FigureManagerGTK3(FigureManagerBase):
             self.toolbar.show()
             h += add_widget(self.toolbar, False, False, 0)
 
-        self.window.set_default_size (w, h)
+        self.window.set_default_size(w, h)
 
         def destroy(*args):
             Gcf.destroy(num)
@@ -421,7 +415,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.show()
         self.window.present()
 
-    def full_screen_toggle (self):
+    def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
         if self._full_screen_flag:
             self.window.fullscreen()
@@ -476,10 +470,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
         Gtk.main_iteration()
 
-    def release(self, event):
-        try: del self._pixmapBack
-        except AttributeError: pass
-
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
         self.ctx = self.canvas.get_property("window").cairo_create()
@@ -493,7 +483,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         y0 = height - y0
         w = abs(x1 - x0)
         h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0,x1), min(y0, y1), w, h)]
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
 
         self.ctx.new_path()
         self.ctx.set_line_width(0.5)
@@ -503,11 +493,11 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _init_toolbar(self):
         self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(rcParams['datapath'],'images')
+        basedir = os.path.join(rcParams['datapath'], 'images')
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
-                self.insert( Gtk.SeparatorToolItem(), -1 )
+                self.insert(Gtk.SeparatorToolItem(), -1)
                 continue
             fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
@@ -549,15 +539,14 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             startpath = os.path.expanduser(rcParams['savefig.directory'])
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
-                rcParams['savefig.directory'] = (
-                    os.path.dirname(six.text_type(fname)))
+                rcParams['savefig.directory'] = os.path.dirname(fname)
             try:
                 self.canvas.figure.savefig(fname, format=format)
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         canvas = self._get_canvas(toolfig)
         toolfig.subplots_adjust(top=0.9)
         tool =  SubplotTool(self.canvas.figure, toolfig)
@@ -568,10 +557,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         window = Gtk.Window()
         try:
             window.set_icon_from_file(window_icon)
-        except (SystemExit, KeyboardInterrupt):
-            # re-raise exit type Exceptions
-            raise
-        except:
+        except Exception:
             # we presumably already logged a message on the
             # failure of the main plot, don't keep reporting
             pass
@@ -594,31 +580,31 @@ class FileChooserDialog(Gtk.FileChooserDialog):
     """GTK+ file selector which remembers the last file/directory
     selected and presents the user with a menu of supported image formats
     """
-    def __init__ (self,
-                  title   = 'Save file',
-                  parent  = None,
-                  action  = Gtk.FileChooserAction.SAVE,
-                  buttons = (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                             Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
-                  path    = None,
-                  filetypes = [],
-                  default_filetype = None
-                  ):
-        super (FileChooserDialog, self).__init__ (title, parent, action,
-                                                  buttons)
-        self.set_default_response (Gtk.ResponseType.OK)
+    def __init__(self,
+                 title   = 'Save file',
+                 parent  = None,
+                 action  = Gtk.FileChooserAction.SAVE,
+                 buttons = (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                            Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
+                 path    = None,
+                 filetypes = [],
+                 default_filetype = None
+                ):
+        super().__init__(title, parent, action, buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
 
-        if not path: path = os.getcwd() + os.sep
+        if not path:
+            path = os.getcwd()
 
         # create an extra widget to list supported image formats
-        self.set_current_folder (path)
-        self.set_current_name ('image.' + default_filetype)
+        self.set_current_folder(path)
+        self.set_current_name('image.' + default_filetype)
 
         hbox = Gtk.Box(spacing=10)
         hbox.pack_start(Gtk.Label(label="File Format:"), False, False, 0)
 
         liststore = Gtk.ListStore(GObject.TYPE_STRING)
-        cbox = Gtk.ComboBox() #liststore)
+        cbox = Gtk.ComboBox()
         cbox.set_model(liststore)
         cell = Gtk.CellRendererText()
         cbox.pack_start(cell, True)
@@ -626,21 +612,21 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         hbox.pack_start(cbox, False, False, 0)
 
         self.filetypes = filetypes
-        self.sorted_filetypes = sorted(six.iteritems(filetypes))
+        sorted_filetypes = sorted(filetypes.items())
         default = 0
-        for i, (ext, name) in enumerate(self.sorted_filetypes):
+        for i, (ext, name) in enumerate(sorted_filetypes):
             liststore.append(["%s (*.%s)" % (name, ext)])
             if ext == default_filetype:
                 default = i
         cbox.set_active(default)
         self.ext = default_filetype
 
-        def cb_cbox_changed (cbox, data=None):
+        def cb_cbox_changed(cbox, data=None):
             """File extension changed"""
             head, filename = os.path.split(self.get_filename())
             root, ext = os.path.splitext(filename)
             ext = ext[1:]
-            new_ext = self.sorted_filetypes[cbox.get_active()][0]
+            new_ext = sorted_filetypes[cbox.get_active()][0]
             self.ext = new_ext
 
             if ext in self.filetypes:
@@ -648,21 +634,21 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             elif ext == '':
                 filename = filename.rstrip('.') + '.' + new_ext
 
-            self.set_current_name (filename)
-        cbox.connect ("changed", cb_cbox_changed)
+            self.set_current_name(filename)
+        cbox.connect("changed", cb_cbox_changed)
 
         hbox.show_all()
         self.set_extra_widget(hbox)
 
-    def get_filename_from_user (self):
-        while True:
-            filename = None
-            if self.run() != int(Gtk.ResponseType.OK):
-                break
-            filename = self.get_filename()
-            break
+    @cbook.deprecated("3.0", alternative="sorted(self.filetypes.items())")
+    def sorted_filetypes(self):
+        return sorted(self.filetypes.items())
 
-        return filename, self.ext
+    def get_filename_from_user(self):
+        if self.run() == int(Gtk.ResponseType.OK):
+            return self.get_filename(), self.ext
+        else:
+            return None, self.ext
 
 
 class RubberbandGTK3(backend_tools.RubberbandBase):
@@ -695,6 +681,7 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     _icon_extension = '.png'
+
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
@@ -804,8 +791,7 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
                 rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(
-                    six.text_type(fname))
+                rcParams['savefig.directory'] = os.path.dirname(fname)
             try:
                 self.figure.canvas.print_figure(fname, format=format_)
             except Exception as e:
@@ -829,10 +815,7 @@ class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
 
         try:
             self.window.window.set_icon_from_file(window_icon)
-        except (SystemExit, KeyboardInterrupt):
-            # re-raise exit type Exceptions
-            raise
-        except:
+        except Exception:
             # we presumably already logged a message on the
             # failure of the main plot, don't keep reporting
             pass
@@ -885,7 +868,7 @@ def error_msg_gtk(msg, parent=None):
         if not parent.is_toplevel():
             parent = None
 
-    if not isinstance(msg, six.string_types):
+    if not isinstance(msg, str):
         msg = ','.join(map(str, msg))
 
     dialog = Gtk.MessageDialog(

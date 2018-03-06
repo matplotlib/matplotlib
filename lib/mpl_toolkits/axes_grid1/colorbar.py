@@ -565,10 +565,11 @@ class ColorbarBase(cm.ScalarMappable):
 
         self.solids = col
         if self.drawedges:
-            self.dividers = collections.LineCollection(self._edges(X,Y),
-                              colors=(mpl.rcParams['axes.edgecolor'],),
-                              linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
-                              )
+            self.dividers = collections.LineCollection(
+                self._edges(X,Y),
+                colors=(mpl.rcParams['axes.edgecolor'],),
+                linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
+            )
             self.ax.add_collection(self.dividers)
         else:
             self.dividers = None
@@ -577,21 +578,15 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         Draw lines on the colorbar. It deletes preexisting lines.
         '''
-        del self.lines
-
-        N = len(levels)
-        x = np.array([1.0, 2.0])
-        X, Y = np.meshgrid(x,levels)
+        X, Y = np.meshgrid([1, 2], levels)
         if self.orientation == 'vertical':
-            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
+            xy = np.stack([X, Y], axis=-1)
         else:
-            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
-        col = collections.LineCollection(xy, linewidths=linewidths,
-                                         )
+            xy = np.stack([Y, X], axis=-1)
+        col = collections.LineCollection(xy, linewidths=linewidths)
         self.lines = col
         col.set_color(colors)
         self.ax.add_collection(col)
-
 
     def _select_locator(self, formatter):
         '''

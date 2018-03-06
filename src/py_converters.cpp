@@ -109,8 +109,13 @@ int convert_double(PyObject *obj, void *p)
 int convert_bool(PyObject *obj, void *p)
 {
     bool *val = (bool *)p;
+    int ret;
 
-    *val = PyObject_IsTrue(obj);
+    ret = PyObject_IsTrue(obj);
+    if (ret == -1) {
+        return 0;
+    }
+    *val = ret != 0;
 
     return 1;
 }
@@ -387,7 +392,7 @@ int convert_path(PyObject *obj, void *pathp)
     if (should_simplify_obj == NULL) {
         goto exit;
     }
-    should_simplify = PyObject_IsTrue(should_simplify_obj);
+    should_simplify = PyObject_IsTrue(should_simplify_obj) != 0;
 
     simplify_threshold_obj = PyObject_GetAttrString(obj, "simplify_threshold");
     if (simplify_threshold_obj == NULL) {

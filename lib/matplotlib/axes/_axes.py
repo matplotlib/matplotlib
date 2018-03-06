@@ -2,12 +2,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip, zip_longest
+from six.moves import zip, zip_longest
 
 import functools
 import itertools
 import logging
 import math
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -39,8 +40,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    _backports, mplDeprecation, warn_deprecated,
-    STEP_LOOKUP_MAP, iterable, safe_first_element)
+    mplDeprecation, warn_deprecated, STEP_LOOKUP_MAP, iterable,
+    safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -344,7 +345,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-        handles : sequence of `~.Artist`, optional
+        handles : sequence of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -386,7 +387,7 @@ class Axes(_AxesBase):
             corner of the legend in axes coordinates (in which case
             ``bbox_to_anchor`` will be ignored).
 
-        bbox_to_anchor : `~.BboxBase` or pair of floats
+        bbox_to_anchor : `.BboxBase` or pair of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -411,13 +412,13 @@ class Axes(_AxesBase):
 
         numpoints : None or int
             The number of marker points in the legend when creating a legend
-            entry for a `~.Line2D` (line).
+            entry for a `.Line2D` (line).
             Default is ``None``, which will take the value from
             :rc:`legend.numpoints`.
 
         scatterpoints : None or int
             The number of marker points in the legend when creating
-            a legend entry for a `~.PathCollection` (scatter plot).
+            a legend entry for a `.PathCollection` (scatter plot).
             Default is ``None``, which will take the value from
             :rc:`legend.scatterpoints`.
 
@@ -560,16 +561,17 @@ class Axes(_AxesBase):
         """
         Add text to the axes.
 
-        Add text in string `s` to axis at location `x`, `y`, data
-        coordinates.
+        Add the text *s* to the axes at location *x*, *y* in data coordinates.
 
         Parameters
         ----------
         x, y : scalars
-            data coordinates
+            The position to place the text. By default, this is in data
+            coordinates. The coordinate system can be changed using the
+            *transform* parameter.
 
-        s : string
-            text
+        s : str
+            The text.
 
         fontdict : dictionary, optional, default: None
             A dictionary to override the default text properties. If fontdict
@@ -578,6 +580,11 @@ class Axes(_AxesBase):
         withdash : boolean, optional, default: False
             Creates a `~matplotlib.text.TextWithDash` instance instead of a
             `~matplotlib.text.Text` instance.
+
+        Returns
+        -------
+        text : `.Text`
+            The created `.Text` instance.
 
         Other Parameters
         ----------------
@@ -596,9 +603,8 @@ class Axes(_AxesBase):
         lower-left and 1,1 is upper-right).  The example below places
         text in the center of the axes::
 
-            >>> text(0.5, 0.5,'matplotlib', horizontalalignment='center',
-            ...      verticalalignment='center',
-            ...      transform=ax.transAxes)
+            >>> text(0.5, 0.5, 'matplotlib', horizontalalignment='center',
+            ...      verticalalignment='center', transform=ax.transAxes)
 
         You can put a rectangular box around the text instance (e.g., to
         set a background color) by using the keyword `bbox`.  `bbox` is
@@ -678,13 +684,8 @@ class Axes(_AxesBase):
 
         See also
         --------
-        hlines : add horizontal lines in data coordinates
-        axhspan : add a horizontal span (rectangle) across the axis
-
-        Notes
-        -----
-        kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
-        to control the line properties.
+        hlines : Add horizontal lines in data coordinates.
+        axhspan : Add a horizontal span (rectangle) across the axis.
 
         Examples
         --------
@@ -768,8 +769,8 @@ class Axes(_AxesBase):
 
         See also
         --------
-        vlines : add vertical lines in data coordinates
-        axvspan : add a vertical span (rectangle) across the axis
+        vlines : Add vertical lines in data coordinates.
+        axvspan : Add a vertical span (rectangle) across the axis.
         """
 
         if "transform" in kwargs:
@@ -828,7 +829,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        axvspan : add a vertical span across the axes
+        axvspan : Add a vertical span across the axes.
         """
         trans = self.get_yaxis_transform(which='grid')
 
@@ -885,7 +886,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        axhspan : add a horizontal span across the axes
+        axhspan : Add a horizontal span across the axes.
 
         Examples
         --------
@@ -1270,10 +1271,11 @@ class Axes(_AxesBase):
                 minline = (lineoffsets - linelengths).min()
                 maxline = (lineoffsets + linelengths).max()
 
-                if colls[0].is_horizontal():
-                    corners = (minpos, minline), (maxpos, maxline)
-                else:
+                if (orientation is not None and
+                        orientation.lower() == "vertical"):
                     corners = (minline, minpos), (maxline, maxpos)
+                else:  # "horizontal", None or "none" (see EventCollection)
+                    corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
                 self.autoscale_view()
 
@@ -1305,7 +1307,7 @@ class Axes(_AxesBase):
         >>> plot(y)           # plot y using x as index array 0..N-1
         >>> plot(y, 'r+')     # ditto, but with red plusses
 
-        You can use `~.Line2D` properties as keyword arguments for more
+        You can use `.Line2D` properties as keyword arguments for more
         control on the  appearance. Line properties and *fmt* can be mixed.
         The following two calls yield identical results:
 
@@ -1403,7 +1405,7 @@ class Axes(_AxesBase):
             These parameters determined if the view limits are adapted to
             the data limits. The values are passed on to `autoscale_view`.
 
-        **kwargs : `~.Line2D` properties, optional
+        **kwargs : `.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
             auto legends), linewidth, antialiasing, marker face color.
             Example::
@@ -1414,14 +1416,14 @@ class Axes(_AxesBase):
             If you make multiple lines with one plot command, the kwargs
             apply to all those lines.
 
-            Here is a list of available `~.Line2D` properties:
+            Here is a list of available `.Line2D` properties:
 
             %(Line2D)s
 
         Returns
         -------
         lines
-            A list of `~.Line2D` objects that were added.
+            A list of `.Line2D` objects that were added.
 
 
         See Also
@@ -1796,16 +1798,16 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lags : array (lenth ``2*maxlags+1``)
+        lags : array (length ``2*maxlags+1``)
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
-        line : `~.LineCollection` or `~.Line2D`
-            `~.Artist` added to the axes of the correlation.
+        line : `.LineCollection` or `.Line2D`
+            `.Artist` added to the axes of the correlation.
 
-             `~.LineCollection` if *usevlines* is True
-             `~.Line2D` if *usevlines* is False
-        b : `~.Line2D` or None
+             `.LineCollection` if *usevlines* is True
+             `.Line2D` if *usevlines* is False
+        b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False
 
@@ -1858,16 +1860,16 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lags : array (lenth ``2*maxlags+1``)
+        lags : array (length ``2*maxlags+1``)
             lag vector.
         c : array  (length ``2*maxlags+1``)
             auto correlation vector.
-        line : `~.LineCollection` or `~.Line2D`
-            `~.Artist` added to the axes of the correlation
+        line : `.LineCollection` or `.Line2D`
+            `.Artist` added to the axes of the correlation
 
-             `~.LineCollection` if *usevlines* is True
-             `~.Line2D` if *usevlines* is False
-        b : `~.Line2D` or None
+             `.LineCollection` if *usevlines* is True
+             `.Line2D` if *usevlines* is False
+        b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False
 
@@ -2049,7 +2051,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2188,38 +2190,16 @@ class Axes(_AxesBase):
                     adjust_xlim = True
                 x = 0
 
-        x, height, width, y, linewidth = np.broadcast_arrays(
-            # Make args iterable too.
-            np.atleast_1d(x), height, width, y, linewidth)
-
         if orientation == 'vertical':
             self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
             if log:
                 self.set_yscale('log', nonposy='clip')
-
-            tick_label_axis = self.xaxis
-            tick_label_position = x
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
             if log:
                 self.set_xscale('log', nonposx='clip')
-
-            tick_label_axis = self.yaxis
-            tick_label_position = y
         else:
             raise ValueError('invalid orientation: %s' % orientation)
-
-        linewidth = itertools.cycle(np.atleast_1d(linewidth))
-        color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
-                                # Fallback if color == "none".
-                                itertools.repeat([0, 0, 0, 0]))
-        if edgecolor is None:
-            edgecolor = itertools.repeat(None)
-        else:
-            edgecolor = itertools.chain(
-                itertools.cycle(mcolors.to_rgba_array(edgecolor)),
-                # Fallback if edgecolor == "none".
-                itertools.repeat([0, 0, 0, 0]))
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
@@ -2234,6 +2214,30 @@ class Axes(_AxesBase):
             height = self.convert_yunits(height)
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
+
+        x, height, width, y, linewidth = np.broadcast_arrays(
+            # Make args iterable too.
+            np.atleast_1d(x), height, width, y, linewidth)
+
+        # Now that units have been converted, set the tick locations.
+        if orientation == 'vertical':
+            tick_label_axis = self.xaxis
+            tick_label_position = x
+        elif orientation == 'horizontal':
+            tick_label_axis = self.yaxis
+            tick_label_position = y
+
+        linewidth = itertools.cycle(np.atleast_1d(linewidth))
+        color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
+                                # Fallback if color == "none".
+                                itertools.repeat([0, 0, 0, 0]))
+        if edgecolor is None:
+            edgecolor = itertools.repeat(None)
+        else:
+            edgecolor = itertools.chain(
+                itertools.cycle(mcolors.to_rgba_array(edgecolor)),
+                # Fallback if edgecolor == "none".
+                itertools.repeat([0, 0, 0, 0]))
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
@@ -2314,7 +2318,7 @@ class Axes(_AxesBase):
         self.add_container(bar_container)
 
         if tick_labels is not None:
-            tick_labels = _backports.broadcast_to(tick_labels, len(patches))
+            tick_labels = np.broadcast_to(tick_labels, len(patches))
             tick_label_axis.set_ticks(tick_label_position)
             tick_label_axis.set_ticklabels(tick_labels)
 
@@ -2367,7 +2371,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2485,7 +2489,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : :class:`~.BrokenBarHCollection` properties
+        **kwargs : :class:`.BrokenBarHCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2979,7 +2983,7 @@ class Axes(_AxesBase):
             - *None*: No errorbar.
 
         fmt : plot format string, optional, default: ''
-            The format for the data points / data lines. See `~.plot` for
+            The format for the data points / data lines. See `.plot` for
             details.
 
             Use 'none' (case insensitive) to plot errorbars without any data
@@ -3049,7 +3053,7 @@ class Axes(_AxesBase):
             property names, *markerfacecolor*, *markeredgecolor*, *markersize*
             and *markeredgewidth*.
 
-            Valid kwargs for the marker properties are `~.Lines2D` properties:
+            Valid kwargs for the marker properties are `.Lines2D` properties:
 
             %(Line2D)s
 
@@ -3173,16 +3177,10 @@ class Axes(_AxesBase):
         caplines = []
 
         # arrays fine here, they are booleans and hence not units
-        def _bool_asarray_helper(d, expected):
-            if not iterable(d):
-                return np.asarray([d] * expected, bool)
-            else:
-                return np.asarray(d, bool)
-
-        lolims = _bool_asarray_helper(lolims, len(x))
-        uplims = _bool_asarray_helper(uplims, len(x))
-        xlolims = _bool_asarray_helper(xlolims, len(x))
-        xuplims = _bool_asarray_helper(xuplims, len(x))
+        lolims = np.broadcast_to(lolims, len(x)).astype(bool)
+        uplims = np.broadcast_to(uplims, len(x)).astype(bool)
+        xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
+        xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
         everymask = np.arange(len(x)) % errorevery == 0
 
@@ -3214,9 +3212,9 @@ class Axes(_AxesBase):
             else:
                 if iterable(a) and iterable(b):
                     # using list comps rather than arrays to preserve units
-                    low = [thisx - thiserr for (thisx, thiserr)
+                    low = [thisx - thiserr for thisx, thiserr
                            in cbook.safezip(data, a)]
-                    high = [thisx + thiserr for (thisx, thiserr)
+                    high = [thisx + thiserr for thisx, thiserr
                             in cbook.safezip(data, b)]
                     return low, high
             # Check if xerr is scalar or symmetric. Asymmetric is handled
@@ -3225,13 +3223,13 @@ class Axes(_AxesBase):
             # special case for empty lists
             if len(err) > 1:
                 fe = safe_first_element(err)
-                if (len(err) != len(data) or np.size(fe) > 1):
+                if len(err) != len(data) or np.size(fe) > 1:
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units
-            low = [thisx - thiserr for (thisx, thiserr)
+            low = [thisx - thiserr for thisx, thiserr
                    in cbook.safezip(data, err)]
-            high = [thisx + thiserr for (thisx, thiserr)
+            high = [thisx + thiserr for thisx, thiserr
                     in cbook.safezip(data, err)]
             return low, high
 
@@ -3522,6 +3520,10 @@ class Axes(_AxesBase):
             the whiskers (fliers).
 
           - ``means``: points or lines representing the means.
+
+        Notes
+        -----
+        .. [Notes section required for data comment. See #10189.]
 
         """
 
@@ -3922,7 +3924,7 @@ class Axes(_AxesBase):
         else:
             def doplot(*args, **kwargs):
                 shuffled = []
-                for i in xrange(0, len(args), 2):
+                for i in range(0, len(args), 2):
                     shuffled.extend([args[i + 1], args[i]])
                 return self.plot(*shuffled, **kwargs)
 
@@ -3936,7 +3938,7 @@ class Axes(_AxesBase):
                              "values must have same the length")
         # check position
         if positions is None:
-            positions = list(xrange(1, N + 1))
+            positions = list(range(1, N + 1))
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
 
@@ -4103,7 +4105,7 @@ class Axes(_AxesBase):
             ``image.cmap``.
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
-            A `~.Normalize` instance is used to scale luminance data to 0, 1.
+            A `.Normalize` instance is used to scale luminance data to 0, 1.
             *norm* is only used if *c* is an array of floats. If *None*, use
             the default `.colors.Normalize`.
 
@@ -4557,15 +4559,15 @@ class Axes(_AxesBase):
 
             # create accumulation arrays
             lattice1 = np.empty((nx1, ny1), dtype=object)
-            for i in xrange(nx1):
-                for j in xrange(ny1):
+            for i in range(nx1):
+                for j in range(ny1):
                     lattice1[i, j] = []
             lattice2 = np.empty((nx2, ny2), dtype=object)
-            for i in xrange(nx2):
-                for j in xrange(ny2):
+            for i in range(nx2):
+                for j in range(ny2):
                     lattice2[i, j] = []
 
-            for i in xrange(len(x)):
+            for i in range(len(x)):
                 if bdist[i]:
                     if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]].append(C[i])
@@ -4573,15 +4575,15 @@ class Axes(_AxesBase):
                     if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]].append(C[i])
 
-            for i in xrange(nx1):
-                for j in xrange(ny1):
+            for i in range(nx1):
+                for j in range(ny1):
                     vals = lattice1[i, j]
                     if len(vals) > mincnt:
                         lattice1[i, j] = reduce_C_function(vals)
                     else:
                         lattice1[i, j] = np.nan
-            for i in xrange(nx2):
-                for j in xrange(ny2):
+            for i in range(nx2):
+                for j in range(ny2):
                     vals = lattice2[i, j]
                     if len(vals) > mincnt:
                         lattice2[i, j] = reduce_C_function(vals)
@@ -4780,29 +4782,25 @@ class Axes(_AxesBase):
         """
         Add an arrow to the axes.
 
-        Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
-        `y` + `dy`). Uses FancyArrow patch to construct the arrow.
+        This draws an arrow from ``(x, y)`` to ``(x+dx, y+dy)``.
 
         Parameters
         ----------
-        x : float
-            X-coordinate of the arrow base
-        y : float
-            Y-coordinate of the arrow base
-        dx : float
-            Length of arrow along x-coordinate
-        dy : float
-            Length of arrow along y-coordinate
+        x, y : float
+            The x/y-coordinate of the arrow base.
+        dx, dy : float
+            The length of the arrow along x/y-direction.
 
         Returns
         -------
-        a : FancyArrow
-            patches.FancyArrow object
+        arrow : `.FancyArrow`
+            The created `.FancyArrow` object.
 
         Other Parameters
-        -----------------
-        Optional kwargs (inherited from FancyArrow patch) control the arrow
-        construction and properties:
+        ----------------
+        **kwargs
+            Optional kwargs (inherited from `.FancyArrow` patch) control the
+            arrow construction and properties:
 
         %(FancyArrow)s
 
@@ -4810,11 +4808,12 @@ class Axes(_AxesBase):
         -----
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
-        create an arrow whose head is square with its stem, use
-        :meth:`annotate` for example::
+        create an arrow whose head is square with its stem,
+        use :meth:`annotate` for example:
 
-            ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
-                arrowprops=dict(arrowstyle="->"))
+        >>> ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
+        ...             arrowprops=dict(arrowstyle="->"))
+
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -5027,15 +5026,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `~.PolyCollection`.
-            They control the `~.Polygon` properties:
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
 
             %(PolyCollection)s
 
         Returns
         -------
-        `~.PolyCollection`
-            A `~.PolyCollection` containing the plotted polygons.
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
@@ -5211,15 +5210,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `~.PolyCollection`.
-            They control the `~.Polygon` properties:
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
 
             %(PolyCollection)s
 
         Returns
         -------
-        `~.PolyCollection`
-            A `~.PolyCollection` containing the plotted polygons.
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
@@ -5730,26 +5729,20 @@ class Axes(_AxesBase):
         # don't plot if C or any of the surrounding vertices are masked.
         mask = ma.getmaskarray(C) + xymask
 
-        newaxis = np.newaxis
         compress = np.compress
 
         ravelmask = (mask == 0).ravel()
-        X1 = compress(ravelmask, ma.filled(X[0:-1, 0:-1]).ravel())
-        Y1 = compress(ravelmask, ma.filled(Y[0:-1, 0:-1]).ravel())
-        X2 = compress(ravelmask, ma.filled(X[1:, 0:-1]).ravel())
-        Y2 = compress(ravelmask, ma.filled(Y[1:, 0:-1]).ravel())
+        X1 = compress(ravelmask, ma.filled(X[:-1, :-1]).ravel())
+        Y1 = compress(ravelmask, ma.filled(Y[:-1, :-1]).ravel())
+        X2 = compress(ravelmask, ma.filled(X[1:, :-1]).ravel())
+        Y2 = compress(ravelmask, ma.filled(Y[1:, :-1]).ravel())
         X3 = compress(ravelmask, ma.filled(X[1:, 1:]).ravel())
         Y3 = compress(ravelmask, ma.filled(Y[1:, 1:]).ravel())
-        X4 = compress(ravelmask, ma.filled(X[0:-1, 1:]).ravel())
-        Y4 = compress(ravelmask, ma.filled(Y[0:-1, 1:]).ravel())
+        X4 = compress(ravelmask, ma.filled(X[:-1, 1:]).ravel())
+        Y4 = compress(ravelmask, ma.filled(Y[:-1, 1:]).ravel())
         npoly = len(X1)
 
-        xy = np.concatenate((X1[:, newaxis], Y1[:, newaxis],
-                             X2[:, newaxis], Y2[:, newaxis],
-                             X3[:, newaxis], Y3[:, newaxis],
-                             X4[:, newaxis], Y4[:, newaxis],
-                             X1[:, newaxis], Y1[:, newaxis]),
-                            axis=1)
+        xy = np.stack([X1, Y1, X2, Y2, X3, Y3, X4, Y4, X1, Y1], axis=-1)
         verts = xy.reshape((npoly, 5, 2))
 
         C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
@@ -6180,7 +6173,7 @@ class Axes(_AxesBase):
                 cellLoc='right', colWidths=None,
                 rowLabels=None, rowColours=None, rowLoc='left',
                 colLabels=None, colColours=None, colLoc='center',
-                loc='bottom', bbox=None):
+                loc='bottom', bbox=None)
 
         Returns a :class:`matplotlib.table.Table` instance. Either `cellText`
         or `cellColours` must be provided. For finer grained control over
@@ -6409,7 +6402,7 @@ class Axes(_AxesBase):
         """
         # Avoid shadowing the builtin.
         bin_range = range
-        del range
+        from builtins import range
 
         if not self._hold:
             self.cla()
@@ -6479,7 +6472,7 @@ class Axes(_AxesBase):
                     'weights should have the same shape as x')
 
         if color is None:
-            color = [self._get_lines.get_next_color() for i in xrange(nx)]
+            color = [self._get_lines.get_next_color() for i in range(nx)]
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
@@ -6506,7 +6499,7 @@ class Axes(_AxesBase):
         tops = []
         mlast = None
         # Loop through datasets
-        for i in xrange(nx):
+        for i in range(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -6526,7 +6519,7 @@ class Axes(_AxesBase):
                 m[:] = (m / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
-            if cbook.is_numlike(cumulative) and cumulative < 0:
+            if isinstance(cumulative, Number) and cumulative < 0:
                 slc = slice(None, None, -1)
 
             if density:

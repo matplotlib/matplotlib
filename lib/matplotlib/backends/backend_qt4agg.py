@@ -1,10 +1,6 @@
 """
 Render to qt from agg
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 from .backend_qt5agg import (
     _BackendQT5Agg, FigureCanvasQTAgg, FigureManagerQT, NavigationToolbar2QT)

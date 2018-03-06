@@ -14,12 +14,12 @@ revision, see the :ref:`github-stats`.
 ..
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
-   .. include:: next_whats_new/README.rst
-   .. toctree::
-      :glob:
-      :maxdepth: 1
+.. include:: next_whats_new/README.rst
+.. toctree::
+   :glob:
+   :maxdepth: 1
 
-      next_whats_new/*
+   next_whats_new/*
 
 
 New in Matplotlib 2.2
@@ -161,7 +161,14 @@ New style colorblind-friendly color cycle
 
 A new style defining a color cycle has been added,
 tableau-colorblind10, to provide another option for
-colorblind-friendly plots.
+colorblind-friendly plots.  A demonstration of this new
+style can be found in the reference_ of style sheets. To
+load this color cycle in place of the default one::
+
+  import matplotlib.pyplot as plt
+  plt.style.use('tableau-colorblind10')
+
+.. _reference: https://matplotlib.org/gallery/style_sheets/style_sheets_reference.html
 
 
 Support for numpy.datetime64
@@ -303,11 +310,12 @@ Thus, to force usage of PGI when both bindings are installed, import it first.
 
 
 
-Cairo rendering for Qt and WX canvases
---------------------------------------
+Cairo rendering for Qt, WX, and Tk canvases
+-------------------------------------------
 
-The new ``Qt4Cairo``, ``Qt5Cairo``, and ``WXCairo`` backends allow Qt and Wx
-canvases to use Cairo rendering instead of Agg.
+The new ``Qt4Cairo``, ``Qt5Cairo``, ``WXCairo``, and ``TkCairo``
+backends allow Qt, Wx, and Tk canvases to use Cairo rendering instead of
+Agg.
 
 
 Added support for QT in new ToolManager

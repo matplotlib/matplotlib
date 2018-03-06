@@ -3,12 +3,8 @@
 Custom projection
 =================
 
-Showcase Hammer projection by alleviating many features of
-matplotlib.
+Showcase Hammer projection by alleviating many features of Matplotlib.
 """
-
-
-from __future__ import unicode_literals
 
 import matplotlib
 from matplotlib.axes import Axes
@@ -399,18 +395,17 @@ class HammerAxes(GeoAxes):
             self._resolution = resolution
 
         def transform_non_affine(self, ll):
-            longitude = ll[:, 0:1]
-            latitude = ll[:, 1:2]
+            longitude, latitude = ll.T
 
             # Pre-compute some values
-            half_long = longitude / 2.0
+            half_long = longitude / 2
             cos_latitude = np.cos(latitude)
-            sqrt2 = np.sqrt(2.0)
+            sqrt2 = np.sqrt(2)
 
-            alpha = np.sqrt(1.0 + cos_latitude * np.cos(half_long))
-            x = (2.0 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
+            alpha = np.sqrt(1 + cos_latitude * np.cos(half_long))
+            x = (2 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
             y = (sqrt2 * np.sin(latitude)) / alpha
-            return np.concatenate((x, y), 1)
+            return np.column_stack([x, y])
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def transform_path_non_affine(self, path):

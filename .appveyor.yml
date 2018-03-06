@@ -19,9 +19,6 @@ environment:
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
     # one for 64bit because we construct envs anyway. But using one for the
     # right python version is hopefully making it fast due to package caching.
-    - PYTHON_VERSION: "2.7"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
-      TEST_ALL: "no"
     - PYTHON_VERSION: "3.5"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
       TEST_ALL: "no"
@@ -62,7 +59,7 @@ install:
   #
   - conda create -q -n test-environment python=%PYTHON_VERSION%
     msinttypes freetype=2.6 "libpng>=1.6.21,<1.7" zlib=1.2 tk=8.5
-    pip setuptools numpy mock pandas sphinx tornado
+    pip setuptools numpy pandas sphinx tornado
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124

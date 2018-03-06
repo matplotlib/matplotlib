@@ -5,7 +5,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
 
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
@@ -517,12 +516,9 @@ class CubicTriInterpolator(TriInterpolator):
 
         a = tris_pts[:, 1, :] - tris_pts[:, 0, :]
         b = tris_pts[:, 2, :] - tris_pts[:, 0, :]
-        abT = np.concatenate([np.expand_dims(a, ndim+1),
-                              np.expand_dims(b, ndim+1)], ndim+1)
+        abT = np.stack([a, b], axis=-1)
         ab = _transpose_vectorized(abT)
-        x = np.expand_dims(x, ndim)
-        y = np.expand_dims(y, ndim)
-        OM = np.concatenate([x, y], ndim) - tris_pts[:, 0, :]
+        OM = np.stack([x, y], axis=1) - tris_pts[:, 0, :]
 
         metric = _prod_vectorized(ab, abT)
         # Here we try to deal with the colinear cases.
@@ -1533,7 +1529,7 @@ def _prod_vectorized(M1, M2):
     assert sh1[-1] == sh2[-2]
 
     ndim1 = len(sh1)
-    t1_index = list(xrange(ndim1-2)) + [ndim1-1, ndim1-2]
+    t1_index = list(range(ndim1-2)) + [ndim1-1, ndim1-2]
     return np.sum(np.transpose(M1, t1_index)[..., np.newaxis] *
                   M2[..., np.newaxis, :], -3)
 
@@ -1549,9 +1545,7 @@ def _transpose_vectorized(M):
     """
     Transposition of an array of matrices *M*.
     """
-    ndim = M.ndim
-    assert ndim == 3
-    return np.transpose(M, [0, ndim-1, ndim-2])
+    return np.transpose(M, [0, 2, 1])
 
 
 def _roll_vectorized(M, roll_indices, axis):
@@ -1593,7 +1587,7 @@ def _to_matrix_vectorized(M):
         M_res[...,i,j] = M[i][j]
     """
     assert isinstance(M, (tuple, list))
-    assert all([isinstance(item, (tuple, list)) for item in M])
+    assert all(isinstance(item, (tuple, list)) for item in M)
     c_vec = np.asarray([len(item) for item in M])
     assert np.all(c_vec-c_vec[0] == 0)
     r = len(M)

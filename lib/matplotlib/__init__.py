@@ -99,9 +99,23 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
+# NOTE: This file must remain Python 2 compatible for the foreseeable future,
+# to ensure that we error out properly for existing editable installs.
 from __future__ import absolute_import, division, print_function
 
 import six
+
+import sys
+if sys.version_info < (3, 5):  # noqa: E402
+    raise ImportError("""
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+See Matplotlib `INSTALL.rst` file for more information:
+
+    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
+
+""")
 
 import atexit
 from collections import MutableMapping
@@ -111,14 +125,16 @@ import distutils.sysconfig
 import functools
 import io
 import inspect
+from inspect import Parameter
 import itertools
 import locale
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import stat
-import sys
+import subprocess
 import tempfile
 import warnings
 
@@ -126,8 +142,7 @@ import warnings
 # definitions, so it is safe to import from it here.
 from . import cbook
 from matplotlib.cbook import (
-    _backports, mplDeprecation, dedent, get_label, sanitize_sequence)
-from matplotlib.compat import subprocess
+    mplDeprecation, dedent, get_label, sanitize_sequence)
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
@@ -142,7 +157,7 @@ del get_versions
 
 _log = logging.getLogger(__name__)
 
-__version__numpy__ = str('1.7.1')  # minimum required numpy version
+__version__numpy__ = '1.10.0'  # minimum required numpy version
 
 __bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
@@ -160,23 +175,17 @@ __bibtex__ = r"""@Article{Hunter:2007,
 }"""
 
 
-_python27 = (sys.version_info.major == 2 and sys.version_info.minor >= 7)
-_python34 = (sys.version_info.major == 3 and sys.version_info.minor >= 4)
-if not (_python27 or _python34):
-    raise ImportError("Matplotlib requires Python 2.7 or 3.4 or later")
-
-if _python27:
-    _log.addHandler(logging.NullHandler())
-
-
 def compare_versions(a, b):
     "return True if a is greater than or equal to b"
+    if isinstance(a, bytes):
+        cbook.warn_deprecated(
+            "3.0", "compare_version arguments should be strs.")
+        a = a.decode('ascii')
+    if isinstance(b, bytes):
+        cbook.warn_deprecated(
+            "3.0", "compare_version arguments should be strs.")
+        b = b.decode('ascii')
     if a:
-        if six.PY3:
-            if isinstance(a, bytes):
-                a = a.decode('ascii')
-            if isinstance(b, bytes):
-                b = b.decode('ascii')
         a = distutils.version.LooseVersion(a)
         b = distutils.version.LooseVersion(b)
         return a >= b
@@ -444,23 +453,6 @@ checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
 
 
-# Deprecated, as it is unneeded and some distributions (e.g. MiKTeX 2.9.6350)
-# do not actually report the TeX version.
-@cbook.deprecated("2.1")
-def checkdep_tex():
-    try:
-        s = subprocess.Popen([str('tex'), '-version'], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        line = stdout.decode('ascii').split('\n')[0]
-        pattern = r'3\.1\d+'
-        match = re.search(pattern, line)
-        v = match.group(0)
-        return v
-    except (IndexError, ValueError, AttributeError, OSError):
-        return None
-
-
 def checkdep_pdftops():
     try:
         s = subprocess.Popen([str('pdftops'), '-v'], stdout=subprocess.PIPE,
@@ -492,23 +484,6 @@ def checkdep_inkscape():
             pass
     return checkdep_inkscape.version
 checkdep_inkscape.version = None
-
-
-@cbook.deprecated("2.1")
-def checkdep_xmllint():
-    try:
-        s = subprocess.Popen([str('xmllint'), '--version'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        lines = stderr.decode('ascii').split('\n')
-        for line in lines:
-            if 'version' in line:
-                v = line.split()[-1]
-                break
-        return v
-    except (IndexError, ValueError, UnboundLocalError, OSError):
-        return None
 
 
 def checkdep_ps_distiller(s):
@@ -553,7 +528,7 @@ def checkdep_usetex(s):
     dvipng_req = '1.6'
     flag = True
 
-    if _backports.which("tex") is None:
+    if shutil.which("tex") is None:
         flag = False
         warnings.warn('matplotlibrc text.usetex option can not be used unless '
                       'TeX is installed on your system')
@@ -638,14 +613,10 @@ def _get_xdg_cache_dir():
 
 
 def _get_config_or_cache_dir(xdg_base):
-    from matplotlib.cbook import mkdirs
-
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         configdir = os.path.abspath(configdir)
-        if not os.path.exists(configdir):
-            mkdirs(configdir)
-
+        Path(configdir).mkdir(parents=True, exist_ok=True)
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
@@ -665,7 +636,7 @@ def _get_config_or_cache_dir(xdg_base):
                 return p
         else:
             try:
-                mkdirs(p)
+                Path(p).mkdir(parents=True, exist_ok=True)
             except OSError:
                 pass
             else:
@@ -774,10 +745,6 @@ def get_py2exe_datafiles():
     _, tail = os.path.split(datapath)
     d = {}
     for root, _, files in os.walk(datapath):
-        # Need to explicitly remove cocoa_agg files or py2exe complains
-        # NOTE I don't know why, but do as previous version
-        if 'Matplotlib.nib' in files:
-            files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
         root = root.replace(tail, 'mpl-data')
         root = root[root.index('mpl-data'):]
@@ -845,7 +812,7 @@ _deprecated_map = {}
 
 _deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
 
-_obsolete_set = {'plugins.directory', 'text.dvipnghack'}
+_obsolete_set = {'pgf.debug', 'plugins.directory', 'text.dvipnghack'}
 
 # The following may use a value of None to suppress the warning.
 # do NOT include in _all_deprecated
@@ -957,11 +924,8 @@ class RcParams(MutableMapping, dict):
                          for k, v in sorted(self.items()))
 
     def __iter__(self):
-        """
-        Yield sorted list of keys.
-        """
-        for k in sorted(dict.__iter__(self)):
-            yield k
+        """Yield sorted list of keys."""
+        yield from sorted(dict.__iter__(self))
 
     def find_all(self, pattern):
         """
@@ -1005,18 +969,11 @@ def is_url(filename):
     return URL_REGEX.match(filename) is not None
 
 
-def _url_lines(f):
-    # Compatibility for urlopen in python 3, which yields bytes.
-    for line in f:
-        yield line.decode('utf8')
-
-
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if is_url(fname):
-        f = urlopen(fname)
-        yield _url_lines(f)
-        f.close()
+        with urlopen(fname) as f:
+            yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
         encoding = locale.getpreferredencoding(do_setlocale=False)
@@ -1478,12 +1435,8 @@ def _init_tests():
 
     try:
         import pytest
-        try:
-            from unittest import mock
-        except ImportError:
-            import mock
     except ImportError:
-        print("matplotlib.test requires pytest and mock to run.")
+        print("matplotlib.test requires pytest to run.")
         raise
 
 
@@ -1640,52 +1593,24 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         replace_names = set(replace_names)
 
     def param(func):
-        new_sig = None
-        # signature is since 3.3 and wrapped since 3.2, but we support 3.4+.
-        python_has_signature = python_has_wrapped = six.PY3
-
-        # if in a legacy version of python and IPython is already imported
-        # try to use their back-ported signature
-        if not python_has_signature and 'IPython' in sys.modules:
-            try:
-                import IPython.utils.signatures
-                signature = IPython.utils.signatures.signature
-                Parameter = IPython.utils.signatures.Parameter
-            except ImportError:
-                pass
+        sig = inspect.signature(func)
+        _has_varargs = False
+        _has_varkwargs = False
+        _arg_names = []
+        params = list(sig.parameters.values())
+        for p in params:
+            if p.kind is Parameter.VAR_POSITIONAL:
+                _has_varargs = True
+            elif p.kind is Parameter.VAR_KEYWORD:
+                _has_varkwargs = True
             else:
-                python_has_signature = True
+                _arg_names.append(p.name)
+        data_param = Parameter('data', Parameter.KEYWORD_ONLY, default=None)
+        if _has_varkwargs:
+            params.insert(-1, data_param)
         else:
-            if python_has_signature:
-                signature = inspect.signature
-                Parameter = inspect.Parameter
-
-        if not python_has_signature:
-            arg_spec = inspect.getargspec(func)
-            _arg_names = arg_spec.args
-            _has_varargs = arg_spec.varargs is not None
-            _has_varkwargs = arg_spec.keywords is not None
-        else:
-            sig = signature(func)
-            _has_varargs = False
-            _has_varkwargs = False
-            _arg_names = []
-            params = list(sig.parameters.values())
-            for p in params:
-                if p.kind is Parameter.VAR_POSITIONAL:
-                    _has_varargs = True
-                elif p.kind is Parameter.VAR_KEYWORD:
-                    _has_varkwargs = True
-                else:
-                    _arg_names.append(p.name)
-            data_param = Parameter('data',
-                                   Parameter.KEYWORD_ONLY,
-                                   default=None)
-            if _has_varkwargs:
-                params.insert(-1, data_param)
-            else:
-                params.append(data_param)
-            new_sig = sig.replace(parameters=params)
+            params.append(data_param)
+        new_sig = sig.replace(parameters=params)
         # Import-time check: do we have enough information to replace *args?
         arg_names_at_runtime = False
         # there can't be any positional arguments behind *args and no
@@ -1739,7 +1664,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
         label_namer_pos = 9999  # bigger than all "possible" argument lists
         if (label_namer and  # we actually want a label here ...
                 arg_names and  # and we can determine a label in *args ...
-                (label_namer in arg_names)):  # and it is in *args
+                label_namer in arg_names):  # and it is in *args
             label_namer_pos = arg_names.index(label_namer)
             if "label" in arg_names:
                 label_pos = arg_names.index("label")
@@ -1827,10 +1752,10 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
             # didn't set one. Note: if the user puts in "label=None", it does
             # *NOT* get replaced!
             user_supplied_label = (
-                (len(args) >= _label_pos) or  # label is included in args
-                ('label' in kwargs)  # ... or in kwargs
+                len(args) >= _label_pos or  # label is included in args
+                'label' in kwargs  # ... or in kwargs
             )
-            if (label_namer and not user_supplied_label):
+            if label_namer and not user_supplied_label:
                 if _label_namer_pos < len(args):
                     kwargs['label'] = get_label(args[_label_namer_pos], label)
                 elif label_namer in kwargs:
@@ -1846,10 +1771,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
 
         inner.__doc__ = _add_data_doc(inner.__doc__,
                                       replace_names, replace_all_args)
-        if not python_has_wrapped:
-            inner.__wrapped__ = func
-        if new_sig is not None:
-            inner.__signature__ = new_sig
+        inner.__signature__ = new_sig
         return inner
 
     return param

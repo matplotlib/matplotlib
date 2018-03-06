@@ -1,5 +1,5 @@
-#ifndef __BACKEND_AGG_BASIC_TYPES_H__
-#define __BACKEND_AGG_BASIC_TYPES_H__
+#ifndef MPL_BACKEND_AGG_BASIC_TYPES_H
+#define MPL_BACKEND_AGG_BASIC_TYPES_H
 
 /* Contains some simple types from the Agg backend that are also used
    by other modules */
@@ -115,7 +115,7 @@ class GCAgg
 
     bool has_hatchpath()
     {
-        return hatchpath.total_vertices();
+        return hatchpath.total_vertices() != 0;
     }
 
   private:

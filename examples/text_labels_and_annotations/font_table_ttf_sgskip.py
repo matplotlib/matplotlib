@@ -19,9 +19,6 @@ from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 
-import six
-from six import unichr
-
 # the font table grid
 
 labelc = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -47,7 +44,7 @@ for ccode, glyphind in codes:
     if ccode >= 256:
         continue
     r, c = divmod(ccode, 16)
-    s = unichr(ccode)
+    s = chr(ccode)
     chars[r][c] = s
 
 lightgrn = (0.5, 0.8, 0.5)

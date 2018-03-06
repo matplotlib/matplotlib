@@ -46,8 +46,12 @@ from __future__ import (absolute_import, division, print_function,
 
 
 import six
-from matplotlib.cbook import iterable, is_numlike, safe_first_element
+
+from numbers import Number
+
 import numpy as np
+
+from matplotlib.cbook import iterable, safe_first_element
 
 
 class AxisInfo(object):
@@ -125,9 +129,9 @@ class ConversionInterface(object):
         """
         if iterable(x):
             for thisx in x:
-                return is_numlike(thisx)
+                return isinstance(thisx, Number)
         else:
-            return is_numlike(x)
+            return isinstance(x, Number)
 
 
 class Registry(dict):
@@ -155,6 +159,10 @@ class Registry(dict):
 
         if classx is not None:
             converter = self.get(classx)
+
+        if converter is None and hasattr(x, "values"):
+            # this unpacks pandas series or dataframes...
+            x = x.values
 
         # If x is an array, look inside the array for data with units
         if isinstance(x, np.ndarray) and x.size:

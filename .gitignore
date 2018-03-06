@@ -80,6 +80,7 @@ result_images
 
 # Nose/Pytest generated files #
 ###############################
+.pytest_cache/
 .cache/
 .coverage
 .coverage.*
@@ -91,3 +92,8 @@ cover/
 __conda_version__.txt
 lib/png.lib
 lib/z.lib
+
+# Jupyter files #
+#################
+
+.ipynb_checkpoints/

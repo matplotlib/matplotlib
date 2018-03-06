@@ -4,12 +4,12 @@ from __future__ import (absolute_import, division, print_function,
 from collections import OrderedDict
 
 import six
-from six.moves import xrange
 
 import itertools
 import warnings
 import math
 from operator import attrgetter
+import types
 
 import numpy as np
 
@@ -39,9 +39,6 @@ from matplotlib.rcsetup import cycler
 from matplotlib.rcsetup import validate_axisbelow
 
 rcParams = matplotlib.rcParams
-
-is_string_like = cbook.is_string_like
-is_sequence_of_strings = cbook.is_sequence_of_strings
 
 _hold_msg = """axes.hold is deprecated.
     See the API Changes document (http://matplotlib.org/api/api_changes.html)
@@ -341,8 +338,7 @@ class _process_plot_var_args(object):
         # modify the kwargs dictionary.
         self._setdefaults(default_dict, kwargs)
 
-        seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
-                                          y[:, np.newaxis])),
+        seg = mpatches.Polygon(np.column_stack((x, y)),
                                facecolor=facecolor,
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])
@@ -392,7 +388,7 @@ class _process_plot_var_args(object):
         if ncx > 1 and ncy > 1 and ncx != ncy:
             cbook.warn_deprecated("2.2", "cycling among columns of inputs "
                                   "with non-matching shapes is deprecated.")
-        for j in xrange(max(ncx, ncy)):
+        for j in range(max(ncx, ncy)):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
         return ret
@@ -403,8 +399,7 @@ class _process_plot_var_args(object):
             if args and isinstance(args[0], six.string_types):
                 this += args[0],
                 args = args[1:]
-            for seg in self._plot_args(this, kwargs):
-                yield seg
+            yield from self._plot_args(this, kwargs)
 
 
 class _AxesBase(martist.Artist):
@@ -582,7 +577,7 @@ class _AxesBase(martist.Artist):
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
-        state = super(_AxesBase, self).__getstate__()
+        state = super().__getstate__()
         state['_cachedRenderer'] = None
         state.pop('_layoutbox')
         state.pop('_poslayoutbox')
@@ -624,13 +619,13 @@ class _AxesBase(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the `~.Figure` for this `~.Axes`.
+        Set the `.Figure` for this `.Axes`.
 
-        .. ACCEPTS: `~.Figure`
+        .. ACCEPTS: `.Figure`
 
         Parameters
         ----------
-        fig : `~.Figure`
+        fig : `.Figure`
         """
         martist.Artist.set_figure(self, fig)
 
@@ -989,11 +984,8 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        return OrderedDict([
-            ('left', mspines.Spine.linear_spine(self, 'left')),
-            ('right', mspines.Spine.linear_spine(self, 'right')),
-            ('bottom', mspines.Spine.linear_spine(self, 'bottom')),
-            ('top', mspines.Spine.linear_spine(self, 'top'))])
+        return OrderedDict((side, mspines.Spine.linear_spine(self, side))
+                           for side in ['left', 'right', 'bottom', 'top'])
 
     def cla(self):
         """Clear the current axes."""
@@ -1136,11 +1128,6 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
-    @property
-    @cbook.deprecated("2.1", alternative="Axes.patch")
-    def axesPatch(self):
-        return self.patch
-
     def clear(self):
         """Clear the axes."""
         self.cla()
@@ -1223,16 +1210,16 @@ class _AxesBase(martist.Artist):
         self._get_lines.set_prop_cycle(prop_cycle)
         self._get_patches_for_fill.set_prop_cycle(prop_cycle)
 
+    @cbook.deprecated('1.5', alternative='`.set_prop_cycle`')
     def set_color_cycle(self, clist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
-        *clist* is a list of mpl color specifiers.
-
-        .. deprecated:: 1.5
+        Parameters
+        ----------
+        clist
+            A list of mpl color specifiers.
         """
-        cbook.warn_deprecated(
-            '1.5', name='set_color_cycle', alternative='set_prop_cycle')
         if clist is None:
             # Calling set_color_cycle() or set_prop_cycle() with None
             # effectively resets the cycle, but you can't do
@@ -2320,11 +2307,14 @@ class _AxesBase(martist.Artist):
 
         All three forms above set the xmargin and ymargin parameters.
         All keyword parameters are optional.  A single argument
-        specifies both xmargin and ymargin.  The *tight* parameter
-        is passed to :meth:`autoscale_view`, which is executed after
-        a margin is changed; the default here is *True*, on the
-        assumption that when margins are specified, no additional
-        padding to match tick marks is usually desired.  Setting
+        specifies both xmargin and ymargin. The padding added to the end of
+        each interval is *margin* times the data interval. The *margin* must
+        be a float in the range [0, 1].
+
+        The *tight* parameter is passed to :meth:`autoscale_view`
+        , which is executed after a margin is changed; the default here is
+        *True*, on the assumption that when margins are specified, no
+        additional padding to match tick marks is usually desired.  Setting
         *tight* to *None* will preserve the previous setting.
 
         Specifying any margin changes only the autoscaling; for example,
@@ -3951,7 +3941,7 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             lim=self.viewLim.frozen(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),
@@ -4014,7 +4004,7 @@ class _AxesBase(martist.Artist):
         p = self._pan_start
         dx = x - p.x
         dy = y - p.y
-        if dx == 0 and dy == 0:
+        if dx == dy == 0:
             return
         if button == 1:
             dx, dy = format_deltas(key, dx, dy)
@@ -4035,6 +4025,8 @@ class _AxesBase(martist.Artist):
             except OverflowError:
                 warnings.warn('Overflow while panning')
                 return
+        else:
+            return
 
         valid = np.isfinite(result.transformed(p.trans))
         points = result.get_points().astype(object)
@@ -4042,38 +4034,6 @@ class _AxesBase(martist.Artist):
         points[~valid] = None
         self.set_xlim(points[:, 0])
         self.set_ylim(points[:, 1])
-
-    @cbook.deprecated("2.1")
-    def get_cursor_props(self):
-        """
-        Return the cursor propertiess as a (*linewidth*, *color*)
-        tuple, where *linewidth* is a float and *color* is an RGBA
-        tuple
-        """
-        return self._cursorProps
-
-    @cbook.deprecated("2.1")
-    def set_cursor_props(self, *args):
-        """Set the cursor property as
-
-        Call signature ::
-
-          ax.set_cursor_props(linewidth, color)
-
-        or::
-
-          ax.set_cursor_props((linewidth, color))
-
-        ACCEPTS: a (*float*, *color*) tuple
-        """
-        if len(args) == 1:
-            lw, c = args[0]
-        elif len(args) == 2:
-            lw, c = args
-        else:
-            raise ValueError('args must be a (linewidth, color) tuple')
-        c = mcolors.to_rgba(c)
-        self._cursorProps = lw, c
 
     def get_children(self):
         """return a list of child artists"""

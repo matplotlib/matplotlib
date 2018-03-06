@@ -152,7 +152,7 @@ mappable :
     default to the current image.
 
 cax : :class:`~matplotlib.axes.Axes` object, optional
-    Axis into which the colorbar will be drawn
+    Axes into which the colorbar will be drawn.
 
 ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
     Parent axes from which space for a new colorbar axes will be stolen.
@@ -498,9 +498,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
+            return [list(zip(X[i], Y[i])) for i in range(1, N - 1)]
         else:
-            return [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
+            return [list(zip(Y[i], X[i])) for i in range(1, N - 1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -557,13 +557,11 @@ class ColorbarBase(cm.ScalarMappable):
             colors = np.asarray(colors)[igood]
         if cbook.iterable(linewidths):
             linewidths = np.asarray(linewidths)[igood]
-        N = len(y)
-        x = np.array([0.0, 1.0])
-        X, Y = np.meshgrid(x, y)
+        X, Y = np.meshgrid([0, 1], y)
         if self.orientation == 'vertical':
-            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
+            xy = np.stack([X, Y], axis=-1)
         else:
-            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
+            xy = np.stack([Y, X], axis=-1)
         col = collections.LineCollection(xy, linewidths=linewidths)
 
         if erase and self.lines:
@@ -1126,14 +1124,19 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
 
+    parents_iterable = cbook.iterable(parents)
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
     parents = np.atleast_1d(parents).ravel()
 
     # check if using constrained_layout:
-    gs = parents[0].get_subplotspec().get_gridspec()
-    using_constrained_layout = (gs._layoutbox is not None)
+    try:
+        gs = parents[0].get_subplotspec().get_gridspec()
+        using_constrained_layout = (gs._layoutbox is not None)
+    except AttributeError:
+        using_constrained_layout = False
+
     # defaults are not appropriate for constrained_layout:
     pad0 = loc_settings['pad']
     if using_constrained_layout:
@@ -1189,7 +1192,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         # and we need to set the aspect ratio by hand...
         cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     else:
-        if len(parents) == 1:
+        if not parents_iterable:
             # this is a single axis...
             ax = parents[0]
             lb, lbpos = constrained_layout.layoutcolorbarsingle(
@@ -1337,7 +1340,7 @@ class ColorbarPatch(Colorbar):
         hatches = self.mappable.hatches * n_segments
 
         patches = []
-        for i in xrange(len(X) - 1):
+        for i in range(len(X) - 1):
             val = C[i][0]
             hatch = hatches[i]
 
@@ -1388,7 +1391,7 @@ def colorbar_factory(cax, mappable, **kwargs):
     # if the given mappable is a contourset with any hatching, use
     # ColorbarPatch else use Colorbar
     if (isinstance(mappable, contour.ContourSet)
-            and any([hatch is not None for hatch in mappable.hatches])):
+            and any(hatch is not None for hatch in mappable.hatches)):
         cb = ColorbarPatch(cax, mappable, **kwargs)
     else:
         cb = Colorbar(cax, mappable, **kwargs)

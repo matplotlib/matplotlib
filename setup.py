@@ -3,6 +3,9 @@ The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
 
+# NOTE: This file must remain Python 2 compatible for the foreseeable future,
+# to ensure that we error out properly for people with outdated setuptools
+# and/or pip.
 from __future__ import print_function, absolute_import
 from string import Template
 from setuptools import setup
@@ -10,6 +13,17 @@ from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 import sys
+
+if sys.version_info < (3, 5):
+    error = """
+Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
+Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
+This may be due to an out of date pip.
+
+Make sure you have pip >= 9.0.1.
+"""
+    sys.exit(error)
 
 # distutils is breaking our sdists for files in symlinked dirs.
 # distutils will copy if os.link is not available, so this is a hack
@@ -83,10 +97,8 @@ mpl_packages = [
     setupext.BackendQt4(),
     setupext.BackendGtk3Agg(),
     setupext.BackendGtk3Cairo(),
-    setupext.BackendGtkAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendWxAgg(),
-    setupext.BackendGtk(),
     setupext.BackendAgg(),
     setupext.BackendCairo(),
     setupext.Windowing(),
@@ -105,9 +117,7 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Topic :: Scientific/Engineering :: Visualization',
@@ -248,11 +258,11 @@ if __name__ == '__main__':
         author_email="matplotlib-users@python.org",
         url="http://matplotlib.org",
         long_description="""
-        matplotlib strives to produce publication quality 2D graphics
+        Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
         development and web application servers targeting multiple user
         interfaces and hardcopy output formats.  There is a 'pylab' mode
-        which emulates matlab graphics.
+        which emulates MATLAB graphics.
         """,
         license="BSD",
         packages=packages,
@@ -265,6 +275,7 @@ if __name__ == '__main__':
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
 
+        python_requires='>=3.5',
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,

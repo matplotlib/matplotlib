@@ -19,7 +19,7 @@ It is pretty easy to use, and requires only built-in python libs:
     ...                         'fonts', 'afm', 'ptmr8a.afm')
     >>>
     >>> from matplotlib.afm import AFM
-    >>> with open(afm_fname) as fh:
+    >>> with open(afm_fname, 'rb') as fh:
     ...     afm = AFM(fh)
     >>> afm.string_width_height('What the heck?')
     (6220.0, 694)
@@ -162,8 +162,8 @@ def _parse_header(fh):
         try:
             d[key] = headerConverters[key](val)
         except ValueError:
-            print('Value error parsing header in AFM:',
-                  key, val, file=sys.stderr)
+            print('Value error parsing header in AFM:', key, val,
+                  file=sys.stderr)
             continue
         except KeyError:
             print('Found an unknown keyword in AFM header (was %r)' % key,

@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from numbers import Number
 import warnings
 
 import numpy as np
@@ -16,7 +17,7 @@ import numpy as np
 from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    _to_unmasked_float_array, iterable, is_numlike, ls_mapper, ls_mapper_r,
+    _to_unmasked_float_array, iterable, ls_mapper, ls_mapper_r,
     STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
@@ -161,49 +162,38 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
                         _slice_or_none(codes, slice(start, None, step)))
 
         elif isinstance(step, float):
-            if not (isinstance(start, int) or
-                    isinstance(start, float)):
-                raise ValueError('`markevery` is a tuple with '
-                    'len 2 and second element is a float, but '
-                    'the first element is not a float or an '
-                    'int; '
+            if not isinstance(start, (int, float)):
+                raise ValueError(
+                    '`markevery` is a tuple with len 2 and second element is '
+                    'a float, but the first element is not a float or an int; '
                     'markevery=%s' % (markevery,))
-            #calc cumulative distance along path (in display
-            # coords):
+            # calc cumulative distance along path (in display coords):
             disp_coords = affine.transform(tpath.vertices)
-            delta = np.empty((len(disp_coords), 2),
-                             dtype=float)
-            delta[0, :] = 0.0
-            delta[1:, :] = (disp_coords[1:, :] -
-                                disp_coords[:-1, :])
+            delta = np.empty((len(disp_coords), 2))
+            delta[0, :] = 0
+            delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
             delta = np.sum(delta**2, axis=1)
             delta = np.sqrt(delta)
             delta = np.cumsum(delta)
-            #calc distance between markers along path based on
-            # the axes bounding box diagonal being a distance
-            # of unity:
-            scale = ax_transform.transform(
-                np.array([[0, 0], [1, 1]]))
+            # calc distance between markers along path based on the axes
+            # bounding box diagonal being a distance of unity:
+            scale = ax_transform.transform(np.array([[0, 0], [1, 1]]))
             scale = np.diff(scale, axis=0)
             scale = np.sum(scale**2)
             scale = np.sqrt(scale)
-            marker_delta = np.arange(start * scale,
-                                     delta[-1],
-                                     step * scale)
-            #find closest actual data point that is closest to
+            marker_delta = np.arange(start * scale, delta[-1], step * scale)
+            # find closest actual data point that is closest to
             # the theoretical distance along the path:
-            inds = np.abs(delta[np.newaxis, :] -
-                            marker_delta[:, np.newaxis])
+            inds = np.abs(delta[np.newaxis, :] - marker_delta[:, np.newaxis])
             inds = inds.argmin(axis=1)
             inds = np.unique(inds)
             # return, we are done here
             return Path(verts[inds],
                         _slice_or_none(codes, inds))
         else:
-            raise ValueError('`markevery` is a tuple with '
-                'len 2, but its second element is not an int '
-                'or a float; '
-                'markevery=%s' % (markevery,))
+            raise ValueError(
+                '`markevery` is a tuple with len 2, but its second element is '
+                'not an int or a float; markevery=%s' % (markevery,))
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return
@@ -316,7 +306,7 @@ class Line2D(Artist):
 
         %(Line2D)s
 
-        See :meth:`set_linestyle` for a decription of the line styles,
+        See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
         :meth:`set_drawstyle` for a description of the draw styles.
 
@@ -421,7 +411,7 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if is_numlike(self._picker):
+        if isinstance(self._picker, Number):
             self.pickradius = self._picker
 
         self._xorig = np.asarray([])
@@ -456,7 +446,7 @@ class Line2D(Artist):
         if callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not is_numlike(self.pickradius):
+        if not isinstance(self.pickradius, Number):
             raise ValueError("pick radius should be a distance")
 
         # Make sure we have data to plot
@@ -1037,17 +1027,10 @@ class Line2D(Artist):
         ls : str
             The linestyle with the drawstyle (if any) stripped.
         '''
-        ret_ds = None
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
-                ret_ds = ds
-                if len(ls) > len(ds):
-                    ls = ls[len(ds):]
-                else:
-                    ls = '-'
-                break
-
-        return ret_ds, ls
+                return ds, ls[len(ds):] or '-'
+        return None, ls
 
     def set_linestyle(self, ls):
         """
