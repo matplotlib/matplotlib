@@ -534,7 +534,36 @@ validate_fillstylelist = _listify_validator(validate_fillstyle)
 _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ['solid', 'dashed'],
                                                  ignorecase=True)
+def validate_markevery(s):
+    """
+    Validate the markevery property of a Line2D object.
 
+    Parameters
+    ----------
+    s : None, int, float, slice, length-2 tuple of ints,
+        length-2 tuple of floats, list
+
+    Returns
+    -------
+    s : None, int, float, slice, length-2 tuple of ints,
+        length-2 tuple of floats, list, ValueError
+
+    """
+
+    if isinstance(s, tuple):
+        # Ensure correct length of 2
+        if len(s) != 2:
+            raise ValueError("'markevery' tuple must be a length of 2")
+        # Ensure that all elements in the tuple are of type int
+        if not all(isinstance(x, int) for x in s):
+            raise ValueError("'markevery' tuple ")
+        # Ensure that all elements in the tuple are of type float
+        elif not all(isinstance(x, float) for x in s):
+            raise ValueError("'markevery' tuple ")
+
+    return s;
+
+validate_markeverylist = _listify_validator(validate_markevery)
 
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
@@ -676,6 +705,7 @@ _prop_validators = {
         'markersize': validate_floatlist,
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
+        'markevery': validate_markeverylist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
         'hatch': validate_hatchlist,
