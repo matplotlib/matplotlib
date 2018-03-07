@@ -84,7 +84,7 @@ static void flush_png_data(png_structp png_ptr)
 }
 
 const char *Py_write_png__doc__ =
-    "write_png(buffer, file, dpi=0, compression=6, filter=auto)\n"
+    "write_png(buffer, file, dpi=0, compression=6, filter=auto, metadata=None)\n"
     "\n"
     "Parameters\n"
     "----------\n"
