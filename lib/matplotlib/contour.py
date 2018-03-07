@@ -441,7 +441,7 @@ class ContourLabeler(object):
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
-                if np.all(I != -1):
+                if all(i != -1 for i in I):
                     nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
