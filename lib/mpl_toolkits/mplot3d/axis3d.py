@@ -451,7 +451,8 @@ class Axis(maxis.XAxis):
         """return the Interval instance for this 3d axis view limits"""
         return self.v_interval
 
-    def set_view_interval(self, vmin, vmax, ignore=False):
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
         if ignore:
             self.v_interval = vmin, vmax
         else:
@@ -467,17 +468,110 @@ class Axis(maxis.XAxis):
 
 # Use classes to look at different data limits
 
+
 class XAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervalx
+
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
+        """
+        If *ignore* is *False*, the order of vmin, vmax
+        does not matter; the original axis orientation will
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.
+        If *emit* is *True*, observers will be notified of
+        limit change. If *auto* is *True*, it turns on
+        autoscaling of the x-axis, and if *auto* is *False*,
+        it turns off autoscaling of the x-axis, while *None*
+        leaves autoscaling unchanged.
+
+        """
+        Axis.set_view_interval(self, vmin, vmax, ignore=ignore, emit=emit,
+                               auto=auto)
+        self.axes.xy_viewLim.intervalx = self.v_interval
+        if auto is not None:
+            self.axes.set_autoscalex_on(bool(auto))
+        if emit:
+            self.axes.callbacks.process('xlim_changed', self.axes)
+            # Call all of the other x-axes that are shared with this one
+            for other in self.axes.get_shared_x_axes().get_siblings(self.axes):
+                if other is not self.axes:
+                    other.set_xlim(self.v_interval, emit=False, auto=auto)
+                    if (other.figure != self.axes.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.axes.stale = True
+
 
 class YAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervaly
 
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
+        """
+        If *ignore* is *False*, the order of vmin, vmax
+        does not matter; the original axis orientation will
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.
+        If *emit* is *True*, observers will be notified of
+        limit change. If *auto* is *True*, it turns on
+        autoscaling of the y-axis, and if *auto* is *False*,
+        it turns off autoscaling of the y-axis, while *None*
+        leaves autoscaling unchanged.
+
+        """
+        Axis.set_view_interval(self, vmin, vmax, ignore=ignore, emit=emit,
+                               auto=auto)
+        self.axes.xy_viewLim.intervaly = self.v_interval
+        if auto is not None:
+            self.axes.set_autoscaley_on(bool(auto))
+        if emit:
+            self.axes.callbacks.process('ylim_changed', self.axes)
+            # Call all of the other x-axes that are shared with this one
+            for other in self.axes.get_shared_y_axes().get_siblings(self.axes):
+                if other is not self.axes:
+                    other.set_ylim(self.v_interval, emit=False, auto=auto)
+                    if (other.figure != self.axes.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.axes.stale = True
+
+
 class ZAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.zz_dataLim.intervalx
+
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
+        """
+        If *ignore* is *False*, the order of vmin, vmax
+        does not matter; the original axis orientation will
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.
+        If *emit* is *True*, observers will be notified of
+        limit change. If *auto* is *True*, it turns on
+        autoscaling of the z-axis, and if *auto* is *False*,
+        it turns off autoscaling of the z-axis, while *None*
+        leaves autoscaling unchanged.
+
+        """
+        Axis.set_view_interval(self, vmin, vmax, ignore=ignore, emit=emit,
+                               auto=auto)
+        self.axes.zz_viewLim.intervalx = self.v_interval
+        if auto is not None:
+            self.axes.set_autoscalez_on(bool(auto))
+        if emit:
+            self.axes.callbacks.process('zlim_changed', self.axes)
+            # Call all of the other x-axes that are shared with this one
+            for other in self.axes.get_shared_z_axes().get_siblings(self.axes):
+                if other is not self.axes:
+                    other.set_zlim(self.v_interval, emit=False, auto=auto)
+                    if (other.figure != self.axes.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.axes.stale = True

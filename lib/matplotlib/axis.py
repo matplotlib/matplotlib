@@ -931,14 +931,15 @@ class Axis(artist.Artist):
         'return the Interval instance for this axis view limits'
         raise NotImplementedError('Derived must override')
 
-    def set_view_interval(self, vmin, vmax, ignore=False):
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
         raise NotImplementedError('Derived must override')
 
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         raise NotImplementedError('Derived must override')
 
-    def set_data_interval(self):
+    def set_data_interval(self, vmin, vmax, ignore=False):
         '''set the axis data limits'''
         raise NotImplementedError('Derived must override')
 
@@ -2059,26 +2060,45 @@ class XAxis(Axis):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervalx
 
-    def set_view_interval(self, vmin, vmax, ignore=False):
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
         """
         If *ignore* is *False*, the order of vmin, vmax
         does not matter; the original axis orientation will
         be preserved. In addition, the view limits can be
-        expanded, but will not be reduced.  This method is
+        expanded, but will not be reduced.
+        If *emit* is *True*, observers will be notified of
+        limit change. If *auto* is *True*, it turns on
+        autoscaling of the x-axis, and if *auto* is *False*,
+        it turns off autoscaling of the x-axis, while *None*
+        leaves autoscaling unchanged. This method is
         for mpl internal use; for normal use, see
         :meth:`~matplotlib.axes.Axes.set_xlim`.
 
         """
         if ignore:
-            self.axes._set_xviewlim(vmin, vmax)
+            self.axes.viewLim.intervalx = (vmin, vmax)
         else:
             Vmin, Vmax = self.get_view_interval()
             if Vmin < Vmax:
-                self.axes._set_xviewlim(min(vmin, vmax, Vmin),
-                                        max(vmin, vmax, Vmax))
+                self.axes.viewLim.intervalx = (min(vmin, vmax, Vmin),
+                                               max(vmin, vmax, Vmax))
             else:
-                self.axes._set_xviewlim(max(vmin, vmax, Vmin),
-                                        min(vmin, vmax, Vmax))
+                self.axes.viewLim.intervalx = (max(vmin, vmax, Vmin),
+                                               min(vmin, vmax, Vmax))
+        if auto is not None:
+            self.axes.set_autoscalex_on(bool(auto))
+        if emit:
+            self.axes.callbacks.process('xlim_changed', self.axes)
+            # Call all of the other axes that are shared with this one
+            for other in self.axes.get_shared_x_axes().get_siblings(self.axes):
+                if other is not self.axes:
+                    other.set_xlim(self.axes.viewLim.intervalx, emit=False,
+                                   auto=auto)
+                    if (other.figure != self.axes.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.axes.stale = True
 
     def get_minpos(self):
         return self.axes.dataLim.minposx
@@ -2437,26 +2457,45 @@ class YAxis(Axis):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
 
-    def set_view_interval(self, vmin, vmax, ignore=False):
+    def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
+                          auto=False):
         """
         If *ignore* is *False*, the order of vmin, vmax
         does not matter; the original axis orientation will
         be preserved. In addition, the view limits can be
-        expanded, but will not be reduced.  This method is
+        expanded, but will not be reduced.
+        If *emit* is *True*, observers will be notified of
+        limit change. If *auto* is *True*, it turns on
+        autoscaling of the y-axis, and if *auto* is *False*,
+        it turns off autoscaling of the y-axis, while *None*
+        leaves autoscaling unchanged. This method is
         for mpl internal use; for normal use, see
         :meth:`~matplotlib.axes.Axes.set_ylim`.
 
         """
         if ignore:
-            self.axes._set_yviewlim(vmin, vmax)
+            self.axes.viewLim.intervaly = (vmin, vmax)
         else:
             Vmin, Vmax = self.get_view_interval()
             if Vmin < Vmax:
-                self.axes._set_yviewlim(min(vmin, vmax, Vmin),
-                                        max(vmin, vmax, Vmax))
+                self.axes.viewLim.intervaly = (min(vmin, vmax, Vmin),
+                                               max(vmin, vmax, Vmax))
             else:
-                self.axes._set_yviewlim(max(vmin, vmax, Vmin),
-                                        min(vmin, vmax, Vmax))
+                self.axes.viewLim.intervaly = (max(vmin, vmax, Vmin),
+                                               min(vmin, vmax, Vmax))
+        if auto is not None:
+            self.axes.set_autoscaley_on(bool(auto))
+        if emit:
+            self.axes.callbacks.process('ylim_changed', self.axes)
+            # Call all of the other axes that are shared with this one
+            for other in self.axes.get_shared_y_axes().get_siblings(self.axes):
+                if other is not self.axes:
+                    other.set_ylim(self.axes.viewLim.intervaly, emit=False,
+                                   auto=auto)
+                    if (other.figure != self.axes.figure and
+                            other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+        self.axes.stale = True
         self.stale = True
 
     def get_minpos(self):

@@ -40,6 +40,9 @@ from matplotlib.rcsetup import validate_axisbelow
 
 rcParams = matplotlib.rcParams
 
+is_string_like = cbook.is_string_like
+is_sequence_of_strings = cbook.is_sequence_of_strings
+
 _hold_msg = """axes.hold is deprecated.
     See the API Changes document (http://matplotlib.org/api/api_changes.html)
     for more details."""
@@ -338,7 +341,8 @@ class _process_plot_var_args(object):
         # modify the kwargs dictionary.
         self._setdefaults(default_dict, kwargs)
 
-        seg = mpatches.Polygon(np.column_stack((x, y)),
+        seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
+                                          y[:, np.newaxis])),
                                facecolor=facecolor,
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])
@@ -1128,6 +1132,11 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
+    @property
+    @cbook.deprecated("2.1", alternative="Axes.patch")
+    def axesPatch(self):
+        return self.patch
+
     def clear(self):
         """Clear the axes."""
         self.cla()
@@ -1210,16 +1219,16 @@ class _AxesBase(martist.Artist):
         self._get_lines.set_prop_cycle(prop_cycle)
         self._get_patches_for_fill.set_prop_cycle(prop_cycle)
 
-    @cbook.deprecated('1.5', alternative='`.set_prop_cycle`')
     def set_color_cycle(self, clist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
-        Parameters
-        ----------
-        clist
-            A list of mpl color specifiers.
+        *clist* is a list of mpl color specifiers.
+
+        .. deprecated:: 1.5
         """
+        cbook.warn_deprecated(
+            '1.5', name='set_color_cycle', alternative='set_prop_cycle')
         if clist is None:
             # Calling set_color_cycle() or set_prop_cycle() with None
             # effectively resets the cycle, but you can't do
@@ -3117,82 +3126,10 @@ class _AxesBase(martist.Artist):
                 'invalid limits will be ignored.')
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
-        self.viewLim.intervalx = (left, right)
-        if auto is not None:
-            self._autoscaleXon = bool(auto)
-
-        if emit:
-            self.callbacks.process('xlim_changed', self)
-            # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
-                if other is not self:
-                    other.set_xlim(self.viewLim.intervalx,
-                                   emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                            other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
-        return left, right
-
-    def _set_xviewlim(self, left=None, right=None, emit=True):
-        """
-        Set the view limits for the x-axis directly
-
-        .. ACCEPTS: (left: float, right: float)
-
-        Parameters
-        ----------
-        left : scalar, optional
-            The left xlim (default: None, which leaves the left limit
-            unchanged).
-
-        right : scalar, optional
-            The right xlim (default: None, which leaves the right limit
-            unchanged).
-
-        emit : bool, optional
-            Whether to notify observers of limit change (default: True).
-
-        xlimits : tuple, optional
-            The left and right xlims may be passed as the tuple
-            (`left`, `right`) as the first positional argument (or as
-            the `left` keyword argument).
-
-        Returns
-        -------
-        xlimits : tuple
-            Returns the new x-axis view limits as (`left`, `right`).
-
-        Notes
-        -----
-        The `left` value may be greater than the `right` value, in which
-        case the x-axis values will decrease from left to right.
-
-        Examples
-        --------
-        >>> _set_xviewlim(left, right)
-        >>> _set_xviewlim((left, right))
-        >>> left, right = _set_xviewlim(left, right)
-
-        """
-        if right is None and iterable(left):
-            left, right = left
-        if left is None or right is None:
-            raise ValueError('Invalid view limits provided: %s, %s',
-                             left, right)
-
-        self.viewLim.intervalx = (left, right)
-
-        if emit:
-            self.callbacks.process('xlim_changed', self)
-            # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
-                if other is not self:
-                    other._set_xviewlim(self.viewLim.intervalx, emit=False)
-                    if (other.figure != self.figure and
-                            other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
+        # We force the use of `maxis.XAxis` so that subclasses have access
+        # to changing `viewLim` in this way (see Axes3D)
+        maxis.XAxis.set_view_interval(self.xaxis, left, right, ignore=True,
+                                      emit=emit, auto=auto)
         return left, right
 
     def get_xscale(self):
@@ -3498,77 +3435,10 @@ class _AxesBase(martist.Artist):
                 'invalid limits will be ignored.')
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
-        self.viewLim.intervaly = (bottom, top)
-        if auto is not None:
-            self._autoscaleYon = bool(auto)
-
-        if emit:
-            self.callbacks.process('ylim_changed', self)
-            # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
-                if other is not self:
-                    other.set_ylim(self.viewLim.intervaly,
-                                   emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                            other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
-        return bottom, top
-
-    def _set_yviewlim(self, bottom=None, top=None, emit=True):
-        """
-        Set the view limits for the y-axis directly
-
-        .. ACCEPTS: (bottom: float, top: float)
-
-        Parameters
-        ----------
-        bottom : scalar, optional
-            The bottom ylim (default: None, which leaves the bottom
-            limit unchanged).
-
-        top : scalar, optional
-            The top ylim (default: None, which leaves the top limit
-            unchanged).
-
-        emit : bool, optional
-            Whether to notify observers of limit change (default: True).
-
-        ylimits : tuple, optional
-            The bottom and top yxlims may be passed as the tuple
-            (`bottom`, `top`) as the first positional argument (or as
-            the `bottom` keyword argument).
-
-        Returns
-        -------
-        ylimits : tuple
-            Returns the new y-axis limits as (`bottom`, `top`).
-
-        Examples
-        --------
-        >>> _set_yviewlim(bottom, top)
-        >>> _set_yviewlim((bottom, top))
-        >>> bottom, top = _set_yviewlim(bottom, top)
-        """
-
-        if top is None and iterable(bottom):
-            bottom, top = bottom
-        if top is None or bottom is None:
-            raise ValueError('Invalid view limits provided: %s, %s',
-                             bottom, top)
-
-        self.viewLim.intervaly = (bottom, top)
-
-        if emit:
-            self.callbacks.process('ylim_changed', self)
-            # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
-                if other is not self:
-                    other._set_yviewlim(self.viewLim.intervaly, emit=False)
-                    if (other.figure != self.figure and
-                            other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
+        # We force the use of `maxis.YAxis` so that subclasses have access
+        # to changing `viewLim` in this way (see Axes3D)
+        maxis.YAxis.set_view_interval(self.yaxis, bottom, top, ignore=True,
+                                      emit=emit, auto=auto)
         return bottom, top
 
     def get_yscale(self):
@@ -4151,6 +4021,38 @@ class _AxesBase(martist.Artist):
         points[~valid] = None
         self.set_xlim(points[:, 0])
         self.set_ylim(points[:, 1])
+
+    @cbook.deprecated("2.1")
+    def get_cursor_props(self):
+        """
+        Return the cursor propertiess as a (*linewidth*, *color*)
+        tuple, where *linewidth* is a float and *color* is an RGBA
+        tuple
+        """
+        return self._cursorProps
+
+    @cbook.deprecated("2.1")
+    def set_cursor_props(self, *args):
+        """Set the cursor property as
+
+        Call signature ::
+
+          ax.set_cursor_props(linewidth, color)
+
+        or::
+
+          ax.set_cursor_props((linewidth, color))
+
+        ACCEPTS: a (*float*, *color*) tuple
+        """
+        if len(args) == 1:
+            lw, c = args[0]
+        elif len(args) == 2:
+            lw, c = args
+        else:
+            raise ValueError('args must be a (linewidth, color) tuple')
+        c = mcolors.to_rgba(c)
+        self._cursorProps = lw, c
 
     def get_children(self):
         """return a list of child artists"""

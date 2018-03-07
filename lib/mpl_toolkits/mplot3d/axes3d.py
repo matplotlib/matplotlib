@@ -29,6 +29,7 @@ import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
+from matplotlib.cbook import _backports
 from matplotlib.colors import Normalize, LightSource
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
@@ -640,22 +641,9 @@ class Axes3D(Axes):
                      'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
         left, right = self.xaxis.limit_range_for_scale(left, right)
-        self.xy_viewLim.intervalx = (left, right)
 
-        if auto is not None:
-            self._autoscaleXon = bool(auto)
-
-        if emit:
-            self.callbacks.process('xlim_changed', self)
-            # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
-                if other is not self:
-                    other.set_xlim(self.xy_viewLim.intervalx,
-                                            emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
+        self.xaxis.set_view_interval(left, right, ignore=True, emit=emit,
+                                     auto=auto)
         return left, right
     set_xlim = set_xlim3d
 
@@ -692,22 +680,9 @@ class Axes3D(Axes):
                      'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
-        self.xy_viewLim.intervaly = (bottom, top)
 
-        if auto is not None:
-            self._autoscaleYon = bool(auto)
-
-        if emit:
-            self.callbacks.process('ylim_changed', self)
-            # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
-                if other is not self:
-                    other.set_ylim(self.xy_viewLim.intervaly,
-                                            emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
+        self.yaxis.set_view_interval(bottom, top, ignore=True, emit=emit,
+                                     auto=auto)
         return bottom, top
     set_ylim = set_ylim3d
 
@@ -744,22 +719,9 @@ class Axes3D(Axes):
                      'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.zaxis.limit_range_for_scale(bottom, top)
-        self.zz_viewLim.intervalx = (bottom, top)
 
-        if auto is not None:
-            self._autoscaleZon = bool(auto)
-
-        if emit:
-            self.callbacks.process('zlim_changed', self)
-            # Call all of the other y-axes that are shared with this one
-            for other in self._shared_z_axes.get_siblings(self):
-                if other is not self:
-                    other.set_zlim(self.zz_viewLim.intervalx,
-                                            emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
-                        other.figure.canvas.draw_idle()
-        self.stale = True
+        self.zaxis.set_view_interval(bottom, top, ignore=True, emit=emit,
+                                     auto=auto)
         return bottom, top
     set_zlim = set_zlim3d
 
@@ -949,6 +911,10 @@ class Axes3D(Axes):
         Returns *None*.
         """
         return None
+
+    def get_shared_z_axes(self):
+        """Return a reference to the shared axes Grouper object for z axes."""
+        return self._shared_z_axes
 
     def view_init(self, elev=None, azim=None):
         """
@@ -1562,7 +1528,7 @@ class Axes3D(Axes):
         zdir = kwargs.pop('zdir', 'z')
 
         # Match length
-        zs = np.broadcast_to(zs, len(xs))
+        zs = _backports.broadcast_to(zs, len(xs))
 
         lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
@@ -2000,7 +1966,11 @@ class Axes3D(Axes):
         xt = tri.x[triangles]
         yt = tri.y[triangles]
         zt = z[triangles]
-        verts = np.stack((xt, yt, zt), axis=-1)
+
+        # verts = np.stack((xt, yt, zt), axis=-1)
+        verts = np.concatenate((
+            xt[..., np.newaxis], yt[..., np.newaxis], zt[..., np.newaxis]
+        ), axis=-1)
 
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
@@ -2355,7 +2325,7 @@ class Axes3D(Axes):
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
         is_2d = not cbook.iterable(zs)
-        zs = np.broadcast_to(zs, len(xs))
+        zs = _backports.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)
 
@@ -2394,7 +2364,7 @@ class Axes3D(Axes):
 
         patches = super().bar(left, height, *args, **kwargs)
 
-        zs = np.broadcast_to(zs, len(left))
+        zs = _backports.broadcast_to(zs, len(left))
 
         verts = []
         verts_zs = []
@@ -2681,7 +2651,8 @@ class Axes3D(Axes):
         UVW = np.column_stack(input_args[3:argi]).astype(float)
 
         # Normalize rows of UVW
-        norm = np.linalg.norm(UVW, axis=1)
+        # Note: with numpy 1.9+, could use np.linalg.norm(UVW, axis=1)
+        norm = np.sqrt(np.sum(UVW**2, axis=1))
 
         # If any row of UVW is all zeros, don't make a quiver for it
         mask = norm > 0
@@ -2806,12 +2777,13 @@ class Axes3D(Axes):
         if xyz is None:
             x, y, z = np.indices(coord_shape)
         else:
-            x, y, z = (np.broadcast_to(c, coord_shape) for c in xyz)
+            x, y, z = (_backports.broadcast_to(c, coord_shape) for c in xyz)
 
         def _broadcast_color_arg(color, name):
             if np.ndim(color) in (0, 1):
                 # single color, like "red" or [1, 0, 0]
-                return np.broadcast_to(color, filled.shape + np.shape(color))
+                return _backports.broadcast_to(
+                    color, filled.shape + np.shape(color))
             elif np.ndim(color) in (3, 4):
                 # 3D array of strings, or 4D array with last axis rgb
                 if np.shape(color)[:3] != filled.shape:
