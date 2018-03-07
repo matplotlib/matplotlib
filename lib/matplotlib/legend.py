@@ -917,6 +917,7 @@ class Legend(Artist):
         descent = 0.35 * self._approx_text_height() * (self.handleheight - 0.7)
         # 0.35 and 0.7 are just heuristic numbers and may need to be improved.
         height = self._approx_text_height() * self.handleheight - descent
+        width = self.handlelength * fontsize
         # each handle needs to be drawn inside a box of (x, y, w, h) =
         # (0, -descent, width, height).  And their coordinates should
         # be given in the display coordinates.
@@ -929,6 +930,7 @@ class Legend(Artist):
 
         for orig_handle, lab in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
+            #print(lab,"\norig handle ",type(orig_handle), "\nhandler: ", type(handler))#my change here
             if handler is None:
                 warnings.warn(
                     "Legend does not support {!r} instances.\nA proxy artist "
@@ -944,8 +946,12 @@ class Legend(Artist):
                 textbox = TextArea(lab, textprops=label_prop,
                                    multilinebaseline=True,
                                    minimumdescent=True)
-                handlebox = DrawingArea(width=self.handlelength * fontsize,
-                                        height=height,
+
+                da_width, da_height = handler.scale_dimensions(self,
+                                                               width, height,
+                                                               orig_handle)
+                handlebox = DrawingArea(width=da_width,
+                                        height=da_height,
                                         xdescent=0., ydescent=descent)
 
                 text_list.append(textbox._text)
@@ -953,6 +959,7 @@ class Legend(Artist):
                 # original artist/handle.
                 handle_list.append(handler.legend_artist(self, orig_handle,
                                                          fontsize, handlebox))
+                #print("new handle: ", type(handle_list[-1]),"\n")#my change here
                 handles_and_labels.append((handlebox, textbox))
 
         if handles_and_labels:

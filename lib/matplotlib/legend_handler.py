@@ -88,6 +88,16 @@ class HandlerBase(object):
         height = height - self._ypad * fontsize
         return xdescent, ydescent, width, height
 
+    def scale_dimensions(self, legend, width, height, orig_handle):
+        return (max(width, self.handle_width(legend, orig_handle)),
+                max(height, self.handle_height(legend, orig_handle)))
+
+    def handle_width(self, legend, orig_handle):
+        return -1
+
+    def handle_height(self, legend, orig_handle):
+        return -1
+
     def legend_artist(self, legend, orig_handle,
                       fontsize, handlebox):
         """
@@ -227,6 +237,26 @@ class HandlerLine2D(HandlerNpoints):
         """
         HandlerNpoints.__init__(self, marker_pad=marker_pad,
                                 numpoints=numpoints, **kw)
+
+    def handle_width(self, legend, orig_handle):
+        if isinstance(orig_handle, Line2D):
+            marker = orig_handle.get_marker()
+            marker_size = orig_handle.get_markersize()
+            if marker and marker_size > 0:
+                if legend.markerscale != 1:
+                    marker_size = marker_size * legend.markerscale
+                return marker_size
+        return -1
+
+    def handle_height(self, legend, orig_handle):
+        if isinstance(orig_handle, Line2D):
+            marker = orig_handle.get_marker()
+            marker_size = orig_handle.get_markersize()
+            if marker and marker_size > 0:
+                if legend.markerscale != 1:
+                    marker_size = marker_size * legend.markerscale
+                return marker_size
+        return -1
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -655,6 +685,24 @@ class HandlerTuple(HandlerBase):
         self._ndivide = ndivide
         self._pad = pad
         HandlerBase.__init__(self, **kwargs)
+
+    def handle_width(self, legend, orig_handle):
+        handler_map = legend.get_legend_handler_map()
+        largest_width = -1
+        for handle1 in orig_handle:
+            handler = legend.get_legend_handler(handler_map, handle1)
+            largest_width = max(largest_width,
+                                handler.handle_width(legend, handle1))
+        return largest_width
+
+    def handle_height(self, legend, orig_handle):
+        handler_map = legend.get_legend_handler_map()
+        largest_height = -1
+        for handle1 in orig_handle:
+            handler = legend.get_legend_handler(handler_map, handle1)
+            largest_height = max(largest_height,
+                                handler.handle_height(legend, handle1))
+        return largest_height
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
