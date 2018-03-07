@@ -173,8 +173,9 @@ def test_fancy():
     plt.plot([5] * 10, 'o--', label='XX')
     plt.errorbar(np.arange(10), np.arange(10), xerr=0.5,
                  yerr=0.5, label='XX')
-    plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
+    lg = plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
+    lg.get_title().set_fontsize(12)
 
 
 @image_comparison(baseline_images=['framealpha'], remove_text=True)
@@ -192,15 +193,17 @@ def test_rc():
     plt.figure()
     ax = plt.subplot(121)
     ax.scatter(np.arange(10), np.arange(10, 0, -1), label='three')
-    ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
+    lg = ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
+    lg.get_title().set_fontsize(12)
 
     mpl.rcParams['legend.scatterpoints'] = 1
     plt.figure()
     ax = plt.subplot(121)
     ax.scatter(np.arange(10), np.arange(10, 0, -1), label='one')
-    ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
+    lg = ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
+    lg.get_title().set_fontsize(12)
 
 
 @image_comparison(baseline_images=['legend_expand'], remove_text=True)
