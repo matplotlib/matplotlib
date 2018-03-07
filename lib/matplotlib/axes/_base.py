@@ -586,12 +586,6 @@ class _AxesBase(martist.Artist):
 
     def __setstate__(self, state):
         self.__dict__ = state
-        # put the _remove_method back on all artists contained within the axes
-        for container_name in ['lines', 'collections', 'tables', 'patches',
-                               'texts', 'images']:
-            container = getattr(self, container_name)
-            for artist in container:
-                artist._remove_method = container.remove
         self._stale = True
         self._layoutbox = None
         self._poslayoutbox = None
@@ -1858,9 +1852,9 @@ class _AxesBase(martist.Artist):
         """
         a.axes = self
         self.artists.append(a)
+        a._remove_method = self.artists.remove
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
-        a._remove_method = lambda h: self.artists.remove(h)
         self.stale = True
         return a
 
@@ -1875,6 +1869,7 @@ class _AxesBase(martist.Artist):
         if not label:
             collection.set_label('_collection%d' % len(self.collections))
         self.collections.append(collection)
+        collection._remove_method = self.collections.remove
         self._set_artist_props(collection)
 
         if collection.get_clip_path() is None:
@@ -1883,7 +1878,6 @@ class _AxesBase(martist.Artist):
         if autolim:
             self.update_datalim(collection.get_datalim(self.transData))
 
-        collection._remove_method = lambda h: self.collections.remove(h)
         self.stale = True
         return collection
 
@@ -1897,7 +1891,7 @@ class _AxesBase(martist.Artist):
         if not image.get_label():
             image.set_label('_image%d' % len(self.images))
         self.images.append(image)
-        image._remove_method = lambda h: self.images.remove(h)
+        image._remove_method = self.images.remove
         self.stale = True
         return image
 
@@ -1920,7 +1914,7 @@ class _AxesBase(martist.Artist):
         if not line.get_label():
             line.set_label('_line%d' % len(self.lines))
         self.lines.append(line)
-        line._remove_method = lambda h: self.lines.remove(h)
+        line._remove_method = self.lines.remove
         self.stale = True
         return line
 
@@ -1930,7 +1924,7 @@ class _AxesBase(martist.Artist):
         """
         self._set_artist_props(txt)
         self.texts.append(txt)
-        txt._remove_method = lambda h: self.texts.remove(h)
+        txt._remove_method = self.texts.remove
         self.stale = True
         return txt
 
@@ -1993,7 +1987,7 @@ class _AxesBase(martist.Artist):
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
-        p._remove_method = lambda h: self.patches.remove(h)
+        p._remove_method = self.patches.remove
         return p
 
     def _update_patch_limits(self, patch):
@@ -2039,7 +2033,7 @@ class _AxesBase(martist.Artist):
         self._set_artist_props(tab)
         self.tables.append(tab)
         tab.set_clip_path(self.patch)
-        tab._remove_method = lambda h: self.tables.remove(h)
+        tab._remove_method = self.tables.remove
         return tab
 
     def add_container(self, container):
@@ -2053,7 +2047,7 @@ class _AxesBase(martist.Artist):
         if not label:
             container.set_label('_container%d' % len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(h))
+        container._remove_method = self.containers.remove
         return container
 
     def _on_units_changed(self, scalex=False, scaley=False):
