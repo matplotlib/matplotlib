@@ -20,43 +20,35 @@ class MatplotlibDeprecationWarning(UserWarning):
 mplDeprecation = MatplotlibDeprecationWarning
 
 
-def _generate_deprecation_message(since, message='', name='',
-                                  alternative='', pending=False,
-                                  obj_type='attribute',
-                                  addendum=''):
+def _generate_deprecation_message(
+        since, message='', name='', alternative='', pending=False,
+        obj_type='attribute', addendum='', *, removal=''):
+
+    if removal == "":
+        removal = {"2.2": "in 3.1", "3.0": "in 3.2"}.get(
+            since, "two minor releases later")
+    elif removal:
+        removal = "in {}".format(removal)
 
     if not message:
+        message = (
+            "The {name} {obj_type}"
+            + (" will be deprecated in a future version"
+               if pending else
+               (" was deprecated in Matplotlib {since}"
+                + (" and will be removed {removal}"
+                   if removal else
+                   "")))
+            + "."
+            + (" Use {alternative} instead." if alternative else ""))
 
-        if pending:
-            message = (
-                'The %(name)s %(obj_type)s will be deprecated in a '
-                'future version.')
-        else:
-            message = (
-                'The %(name)s %(obj_type)s was deprecated in version '
-                '%(since)s.')
-
-    altmessage = ''
-    if alternative:
-        altmessage = ' Use %s instead.' % alternative
-
-    message = ((message % {
-        'func': name,
-        'name': name,
-        'alternative': alternative,
-        'obj_type': obj_type,
-        'since': since}) +
-        altmessage)
-
-    if addendum:
-        message += addendum
-
-    return message
+    return message.format(func=name, name=name, obj_type=obj_type, since=since,
+                          removal=removal, alternative=alternative)
 
 
 def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum=''):
+        obj_type='attribute', addendum='', *, removal=''):
     """
     Used to display deprecation warning in a standard way.
 
@@ -85,6 +77,11 @@ def warn_deprecated(
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
 
+    removal : str, optional
+        The expected removal version.  With the default (an empty string), a
+        removal version is automatically computed from *since*.  Set to other
+        Falsy values to not schedule a removal date.
+
     obj_type : str, optional
         The object type being deprecated.
 
@@ -102,12 +99,12 @@ def warn_deprecated(
 
     """
     message = _generate_deprecation_message(
-                since, message, name, alternative, pending, obj_type)
+        since, message, name, alternative, pending, obj_type, removal=removal)
     warnings.warn(message, mplDeprecation, stacklevel=2)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type=None, addendum=''):
+               obj_type=None, addendum='', *, removal=''):
     """
     Decorator to mark a function or a class as deprecated.
 
@@ -144,6 +141,11 @@ def deprecated(since, message='', name='', alternative='', pending=False,
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
+
+    removal : str, optional
+        The expected removal version.  With the default (an empty string), a
+        removal version is automatically computed from *since*.  Set to other
+        Falsy values to not schedule a removal date.
 
     addendum : str, optional
         Additional text appended directly to the final message.
@@ -199,8 +201,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                     return wrapper
 
         message = _generate_deprecation_message(
-                    since, message, name, alternative, pending,
-                    obj_type, addendum)
+            since, message, name, alternative, pending, obj_type, addendum,
+            removal=removal)
 
         def wrapper(*args, **kwargs):
             warnings.warn(message, mplDeprecation, stacklevel=2)
