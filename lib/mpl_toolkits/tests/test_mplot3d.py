@@ -183,7 +183,8 @@ def test_scatter3d_change_facecolor_single():
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.zaxis.set_major_formatter(plt.NullFormatter())
-    sca = ax.scatter(0, 0, 0, color='r', marker='o')
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3),
+                     color='r', marker='o')
     sca.set_facecolor([0, 1, 1])
 
 
