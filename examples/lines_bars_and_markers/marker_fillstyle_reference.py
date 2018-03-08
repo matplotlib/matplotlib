@@ -22,15 +22,11 @@ def format_axes(ax):
     ax.set_axis_off()
 
 
-def nice_repr(text):
-    return repr(text).lstrip('u')
-
-
 fig, ax = plt.subplots()
 
 # Plot all fill styles.
 for y, fill_style in enumerate(Line2D.fillStyles):
-    ax.text(-0.5, y, nice_repr(fill_style), **text_style)
+    ax.text(-0.5, y, repr(fill_style), **text_style)
     ax.plot(y * points, fillstyle=fill_style, **marker_style)
     format_axes(ax)
     ax.set_title('fill style')

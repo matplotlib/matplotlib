@@ -22,10 +22,6 @@ def format_axes(ax):
     ax.set_axis_off()
 
 
-def nice_repr(text):
-    return repr(text).lstrip('u')
-
-
 def split_list(a_list):
     i_half = len(a_list) // 2
     return (a_list[:i_half], a_list[i_half:])
@@ -44,7 +40,7 @@ unfilled_markers = sorted(unfilled_markers,
                           key=lambda x: (str(type(x)), str(x)))[::-1]
 for ax, markers in zip(axes, split_list(unfilled_markers)):
     for y, marker in enumerate(markers):
-        ax.text(-0.5, y, nice_repr(marker), **text_style)
+        ax.text(-0.5, y, repr(marker), **text_style)
         ax.plot(y * points, marker=marker, **marker_style)
         format_axes(ax)
 fig.suptitle('un-filled markers', fontsize=14)
@@ -56,7 +52,7 @@ fig.suptitle('un-filled markers', fontsize=14)
 fig, axes = plt.subplots(ncols=2)
 for ax, markers in zip(axes, split_list(Line2D.filled_markers)):
     for y, marker in enumerate(markers):
-        ax.text(-0.5, y, nice_repr(marker), **text_style)
+        ax.text(-0.5, y, repr(marker), **text_style)
         ax.plot(y * points, marker=marker, **marker_style)
         format_axes(ax)
 fig.suptitle('filled markers', fontsize=14)
