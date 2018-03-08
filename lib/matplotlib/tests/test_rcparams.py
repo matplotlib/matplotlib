@@ -329,14 +329,25 @@ def generate_validator_testcases(valid):
                   )
          },
          {'validator': validate_markevery,
-          'success': ((None,None),
-                      (1,1),
-                      (0.1,0.1)
+          'success': ((None, None),
+                      (1, 1),
+                      (0.1, 0.1),
+                      ((1,1), (1,1)),
+                      ((0.1,0.1), (0.1,0.1)),
+                      ([1,2,3], [1,2,3]),
+                      (slice(2), slice(None,2,None)),
+                      (slice(1,2,3), slice(1,2,3))
                       ),
           'fail': (((1,2,3), ValueError),
                    ((0.1,0.2,0.3), ValueError),
+                   ((0.1,2,3), ValueError),
+                   ((1,0.2,0.3), ValueError),
                    ((1,0.1), ValueError),
-                   (('abc'), ValueError)
+                   ((0.1,1), ValueError),
+                   (('abc'), ValueError),
+                   (('a'), ValueError),
+                   ('abc', ValueError),
+                   ('a', ValueError)
                    )
          }
     )
