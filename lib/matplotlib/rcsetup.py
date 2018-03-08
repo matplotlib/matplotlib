@@ -541,27 +541,43 @@ def validate_markevery(s):
     Parameters
     ----------
     s : None, int, float, slice, length-2 tuple of ints,
-        length-2 tuple of floats, list
+        length-2 tuple of floats, list of ints
 
     Returns
     -------
     s : None, int, float, slice, length-2 tuple of ints,
-        length-2 tuple of floats, list, ValueError
+        length-2 tuple of floats, list of ints
 
     """
+    # Validate s against type slice
+    if isinstance(s, slice):
+        return s
+    # Validate s against type tuple and list
+    if isinstance(s, Iterable):
+        if isinstance(s, tuple):
+            tupMaxLength = 2
+            tupType = type(s[0])
+            if len(s) != tupMaxLength:
+                raise ValueError("'markevery' tuple must have a length "
+                                 "of %d" % (tupMaxLength))
+            if tupType is int and not all(isinstance(e, int) for e in s):
+                raise ValueError("'markevery' tuple with first element of "
+                                 "type int must have all elements of type "
+                                 "int")
+            if tupType is float and not all(isinstance(e, float) for e in s):
+                raise ValueError("'markevery' tuple with first element of "
+                                 "type float must have all elements of type "
+                                 "float")
+        if isinstance(s, list):
+            if not all(isinstance(e, int) for e in s):
+                raise ValueError("'markevery' list must have all elements "
+                                 "of type int")
+    # Validate s against type float int and None
+    elif not isinstance(s, (float, int)):
+        if s is not None:
+            raise TypeError("'markevery' is of an invalid type")
 
-    if isinstance(s, tuple):
-        # Ensure correct length of 2
-        if len(s) != 2:
-            raise ValueError("'markevery' tuple must be a length of 2")
-        # Ensure that all elements in the tuple are of type int
-        if not all(isinstance(x, int) for x in s):
-            raise ValueError("'markevery' tuple ")
-        # Ensure that all elements in the tuple are of type float
-        elif not all(isinstance(x, float) for x in s):
-            raise ValueError("'markevery' tuple ")
-
-    return s;
+    return s
 
 validate_markeverylist = _listify_validator(validate_markevery)
 
