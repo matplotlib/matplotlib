@@ -183,6 +183,7 @@ def test_plot_3d_from_2d():
     xs = np.arange(0, 5)
     ys = np.arange(5, 10)
     ax.plot(xs, ys, zs=0, zdir='x')
+    ax.plot(xs, ys, zs=0, zdir='y')
 
 
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
