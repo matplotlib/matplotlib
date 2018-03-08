@@ -11,12 +11,10 @@ https://matplotlib.org/examples/pylab_examples/markevery_demo.html
 Renders a plot with shifted-sine curves along each column with
 a unique markevery value for each sine curve.
 """
-from __future__ import division
 from cycler import cycler
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 # Define a list of markevery cases and color cases to plot
 cases = [None,
