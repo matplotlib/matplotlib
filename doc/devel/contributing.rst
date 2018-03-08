@@ -471,19 +471,18 @@ Then they will receive messages like::
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are five levels at which you can emit messages.
-`logging.critical` and `logging.error`
-are really only there for errors that will end the use of the library but
-not kill the interpreter.  `logging.warning` overlaps with the
-``warnings`` library.  The
-`logging tutorial <https://docs.python.org/3/howto/logging.html#logging-basic-tutorial>`_
-suggests that the difference
-between `logging.warning` and `warnings.warn` is that
-`warnings.warn` be used for things the user must change to stop
-the warning, whereas `logging.warning` can be more persistent.
+There are five levels at which you can emit messages. `logging.critical` and
+`logging.error` are really only there for errors that will end the use of the
+library but not kill the interpreter. `logging.warning` overlaps with the
+`warnings` library.  The `logging tutorial`_ suggests that the difference
+between `logging.warning` and `warnings.warn` is that `warnings.warn` be used
+for things the user must change to stop the warning, whereas `logging.warning`
+can be more persistent.
+
+.. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
 By default, `logging` displays all log messages at levels higher than
-`logging.WARNING` to `sys.stderr`.
+``logging.WARNING`` to `sys.stderr`.
 
 Calls to `logging.info` are not displayed by default.  They are for
 information that the user may want to know if the program behaves oddly.

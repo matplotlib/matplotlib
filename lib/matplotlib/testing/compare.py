@@ -23,7 +23,6 @@ import numpy as np
 import matplotlib
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
-from matplotlib import _get_cachedir
 from matplotlib import cbook
 
 __all__ = ['compare_float', 'compare_images', 'comparable_formats']
@@ -82,7 +81,7 @@ def compare_float(expected, actual, relTol=None, absTol=None):
 
 
 def get_cache_dir():
-    cachedir = _get_cachedir()
+    cachedir = matplotlib.get_cachedir()
     if cachedir is None:
         raise RuntimeError('Could not find a suitable configuration directory')
     cache_dir = os.path.join(cachedir, 'test_cache')
@@ -272,7 +271,7 @@ def convert(filename, cache):
     created file.
 
     If *cache* is True, the result of the conversion is cached in
-    `matplotlib._get_cachedir() + '/test_cache/'`.  The caching is based
+    `matplotlib.get_cachedir() + '/test_cache/'`.  The caching is based
     on a hash of the exact contents of the input file.  The is no limit
     on the size of the cache, so it may need to be manually cleared
     periodically.
