@@ -123,40 +123,6 @@ def test_constrained_layout6():
                  ticks=ticker.MaxNLocator(nbins=5))
 
 
-@image_comparison(baseline_images=['constrained_layout8'],
-        extensions=['png'])
-def test_constrained_layout8():
-    'Test for gridspecs that are not completely full'
-    fig = plt.figure(figsize=(7, 4), constrained_layout=True)
-    gs = gridspec.GridSpec(3, 5, figure=fig)
-    axs = []
-    j = 1
-    for i in [0, 1]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=10)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
-    j = 0
-    for i in [2, 4]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=10)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
-    ax = fig.add_subplot(gs[2, :])
-    axs += [ax]
-    pcm = example_pcolor(ax, fontsize=10)
-
-    fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
-
-
 def test_constrained_layout7():
     'Test for proper warning if fig not set in GridSpec'
     with pytest.warns(UserWarning, match='Calling figure.constrained_layout, '
@@ -179,26 +145,20 @@ def test_constrained_layout8():
     fig = plt.figure(figsize=(10, 5), constrained_layout=True)
     gs = gridspec.GridSpec(3, 5, figure=fig)
     axs = []
-    j = 1
-    for i in [0, 4]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=9)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
-    j = 0
-    for i in [1]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=9)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
+    for j in [0, 1]:
+        if j == 0:
+            ilist = [1]
+        else:
+            ilist = [0, 4]
+        for i in ilist:
+            ax = fig.add_subplot(gs[j, i])
+            axs += [ax]
+            pcm = example_pcolor(ax, fontsize=9)
+            if i > 0:
+                ax.set_ylabel('')
+            if j < 1:
+                ax.set_xlabel('')
+            ax.set_title('')
     ax = fig.add_subplot(gs[2, :])
     axs += [ax]
     pcm = example_pcolor(ax, fontsize=9)
