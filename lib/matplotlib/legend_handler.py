@@ -89,7 +89,7 @@ class HandlerBase(object):
         return xdescent, ydescent, width, height
 
     def scale_dimensions(self, legend, width, height, orig_handle):
-        """
+        '''
         Return larger of input width/height or width/height of orig_handle
 
         Parameters
@@ -104,15 +104,14 @@ class HandlerBase(object):
             The object that the output width and height must be large
             enough to fit.
 
-        """
+        '''
         return (max(width, self.handle_width(legend, orig_handle)),
                 max(height, self.handle_height(legend, orig_handle)))
 
     def handle_width(self, legend, orig_handle):
-        """
-        Charles I'm not sure how to write this
-        Return width of orig_handle.
-        Default implementation returns -1.
+        '''
+        Overriden in children classes if orig_handle could be larger
+        than the default DrawingArea height, returns the height of the handler.
 
         Parameters
         ----------
@@ -122,12 +121,22 @@ class HandlerBase(object):
             The object that the output width and height must be large
             enough to fit.
 
-        """
+        '''
         return -1
 
     def handle_height(self, legend, orig_handle):
         '''
-        Charles
+        Overriden in children classes if orig_handle could be larger
+        than the default DrawingArea height, returns the height of the handler.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
         '''
         return -1
 
@@ -273,7 +282,18 @@ class HandlerLine2D(HandlerNpoints):
 
     def handle_width(self, legend, orig_handle):
         '''
-        Charles
+        If *orig_handle* contains a marker, returns markersize multiplied by
+        legend.marker_scale, if the marker is not significantly
+        larger in width, do nothing.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
         '''
         if isinstance(orig_handle, Line2D):
             marker = orig_handle.get_marker()
@@ -286,7 +306,18 @@ class HandlerLine2D(HandlerNpoints):
 
     def handle_height(self, legend, orig_handle):
         '''
-        Charles
+        If *orig_handle* contains a marker, returns markersize multiplied by
+        legend.marker_scale, if the marker is not significantly
+        larger in height, do nothing.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
         '''
         if isinstance(orig_handle, Line2D):
             marker = orig_handle.get_marker()
@@ -727,7 +758,16 @@ class HandlerTuple(HandlerBase):
 
     def handle_width(self, legend, orig_handle):
         '''
-        Charles
+        Returns width of largest handler in *orig_handler* tuple.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
         '''
         handler_map = legend.get_legend_handler_map()
         largest_width = -1
@@ -739,7 +779,16 @@ class HandlerTuple(HandlerBase):
 
     def handle_height(self, legend, orig_handle):
         '''
-        Charles
+        Returns width of largest handler in *orig_handler* tuple.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
         '''
         handler_map = legend.get_legend_handler_map()
         largest_height = -1
