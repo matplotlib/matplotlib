@@ -94,6 +94,16 @@ def get_named_colors_mapping():
     return _colors_full_map
 
 
+def _sanitize_extrema(ex):
+    if ex is None:
+        return ex
+    try:
+        ret = np.asscalar(ex)
+    except AttributeError:
+        ret = float(ex)
+    return ret
+
+
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
     return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
@@ -878,8 +888,8 @@ class Normalize(object):
         likely to lead to surprises; therefore the default is
         *clip* = *False*.
         """
-        self.vmin = vmin
-        self.vmax = vmax
+        self.vmin = _sanitize_extrema(vmin)
+        self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
 
     @staticmethod

@@ -314,9 +314,9 @@ class ScalarMappable(object):
             except (TypeError, ValueError):
                 pass
         if vmin is not None:
-            self.norm.vmin = vmin
+            self.norm.vmin = colors._sanitize_extrema(vmin)
         if vmax is not None:
-            self.norm.vmax = vmax
+            self.norm.vmax = colors._sanitize_extrema(vmax)
         self.changed()
 
     def set_cmap(self, cmap):
