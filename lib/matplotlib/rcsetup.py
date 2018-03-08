@@ -568,6 +568,8 @@ def validate_markevery(s):
                 raise ValueError("'markevery' tuple with first element of "
                                  "type float must have all elements of type "
                                  "float")
+            if not instance(tupType, (float, int)):
+                raise TypeError("'markevery' tuple is of an invalid type")
         if isinstance(s, list):
             if not all(isinstance(e, int) for e in s):
                 raise ValueError("'markevery' list must have all elements "

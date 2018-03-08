@@ -332,22 +332,28 @@ def generate_validator_testcases(valid):
           'success': ((None, None),
                       (1, 1),
                       (0.1, 0.1),
-                      ((1,1), (1,1)),
-                      ((0.1,0.1), (0.1,0.1)),
-                      ([1,2,3], [1,2,3]),
-                      (slice(2), slice(None,2,None)),
-                      (slice(1,2,3), slice(1,2,3))
+                      ((1, 1), (1, 1)),
+                      ((0.1, 0.1), (0.1, 0.1)),
+                      ([1, 2, 3], [1, 2, 3]),
+                      (slice(2), slice(None, 2, None)),
+                      (slice(1, 2, 3), slice(1, 2, 3))
                       ),
-          'fail': (((1,2,3), ValueError),
-                   ((0.1,0.2,0.3), ValueError),
-                   ((0.1,2,3), ValueError),
-                   ((1,0.2,0.3), ValueError),
-                   ((1,0.1), ValueError),
-                   ((0.1,1), ValueError),
+          'fail': (((1, 2, 3), ValueError),
+                   ([1, 2, 0.3], ValueError),
+                   (['a', 2, 3], ValueError),
+                   ([1, 2, 'a'], ValueError),
+                   ((0.1, 0.2, 0.3), ValueError),
+                   ((0.1, 2, 3), ValueError),
+                   ((1, 0.2, 0.3), ValueError),
+                   ((1, 0.1), ValueError),
+                   ((0.1, 1), ValueError),
                    (('abc'), ValueError),
-                   (('a'), ValueError),
-                   ('abc', ValueError),
-                   ('a', ValueError)
+                   ((1, 'a'), ValueError),
+                   ((0.1, 'b'), ValueError),
+                   (('a', 1), ValueError),
+                   (('a', 0.1), ValueError),
+                   ('abc', TypeError),
+                   ('a', TypeError)
                    )
          }
     )
