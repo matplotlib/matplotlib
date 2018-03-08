@@ -930,7 +930,6 @@ class Legend(Artist):
 
         for orig_handle, lab in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
-            #print(lab,"\norig handle ",type(orig_handle), "\nhandler: ", type(handler))#my change here
             if handler is None:
                 warnings.warn(
                     "Legend does not support {!r} instances.\nA proxy artist "
@@ -959,7 +958,6 @@ class Legend(Artist):
                 # original artist/handle.
                 handle_list.append(handler.legend_artist(self, orig_handle,
                                                          fontsize, handlebox))
-                #print("new handle: ", type(handle_list[-1]),"\n")#my change here
                 handles_and_labels.append((handlebox, textbox))
 
         if handles_and_labels:
