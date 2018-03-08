@@ -89,13 +89,46 @@ class HandlerBase(object):
         return xdescent, ydescent, width, height
 
     def scale_dimensions(self, legend, width, height, orig_handle):
+        """
+        Return larger of input width/height or width/height of orig_handle
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle
+        width : number
+            The width that is being compared to width of orig_handle.
+        height : number
+            The height that is being compared to height of orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
+        """
         return (max(width, self.handle_width(legend, orig_handle)),
                 max(height, self.handle_height(legend, orig_handle)))
 
     def handle_width(self, legend, orig_handle):
+        """
+        Charles I'm not sure how to write this
+        Return width of orig_handle.
+        Default implementation returns -1.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend that will contain the orig_handle.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object that the output width and height must be large
+            enough to fit.
+
+        """
         return -1
 
     def handle_height(self, legend, orig_handle):
+        '''
+        Charles
+        '''
         return -1
 
     def legend_artist(self, legend, orig_handle,
@@ -239,6 +272,9 @@ class HandlerLine2D(HandlerNpoints):
                                 numpoints=numpoints, **kw)
 
     def handle_width(self, legend, orig_handle):
+        '''
+        Charles
+        '''
         if isinstance(orig_handle, Line2D):
             marker = orig_handle.get_marker()
             marker_size = orig_handle.get_markersize()
@@ -249,6 +285,9 @@ class HandlerLine2D(HandlerNpoints):
         return -1
 
     def handle_height(self, legend, orig_handle):
+        '''
+        Charles
+        '''
         if isinstance(orig_handle, Line2D):
             marker = orig_handle.get_marker()
             marker_size = orig_handle.get_markersize()
@@ -687,6 +726,9 @@ class HandlerTuple(HandlerBase):
         HandlerBase.__init__(self, **kwargs)
 
     def handle_width(self, legend, orig_handle):
+        '''
+        Charles
+        '''
         handler_map = legend.get_legend_handler_map()
         largest_width = -1
         for handle1 in orig_handle:
@@ -696,12 +738,15 @@ class HandlerTuple(HandlerBase):
         return largest_width
 
     def handle_height(self, legend, orig_handle):
+        '''
+        Charles
+        '''
         handler_map = legend.get_legend_handler_map()
         largest_height = -1
         for handle1 in orig_handle:
             handler = legend.get_legend_handler(handler_map, handle1)
             largest_height = max(largest_height,
-                                handler.handle_height(legend, handle1))
+                                 handler.handle_height(legend, handle1))
         return largest_height
 
     def create_artists(self, legend, orig_handle,

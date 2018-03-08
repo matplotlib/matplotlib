@@ -523,14 +523,16 @@ def test_legend_title_empty():
     assert leg.get_title().get_text() == ""
     assert leg.get_title().get_visible() is False
 
+
 @image_comparison(baseline_images=['legend_large_markers'],
                   extensions=['png'])
 def test_large_markers():
     # test that legend scales to fit markers with large markersize
     plt.figure()
-    a, = plt.plot([1], [1], 's',  markersize=40.)
-    b, = plt.plot([2], [1], '*',  markersize=40.)
+    a, = plt.plot([1], [1], 's', markersize=40.)
+    b, = plt.plot([2], [1], '*', markersize=40.)
     plt.legend([a, b], ["big square", "big star"], loc=2, numpoints=1)
+
 
 @image_comparison(baseline_images=['legend_large_markerscale'],
                   extensions=['png'])
@@ -538,14 +540,14 @@ def test_large_markerscale():
     # test that legend scales to fit markers with large markerscale
     plt.figure()
     a, = plt.plot([1], [1], 's')
-    plt.legend([a], ["big markerscale"],markerscale=20., loc=2, numpoints=1)
+    plt.legend([a], ["big markerscale"], markerscale=20., loc=2, numpoints=1)
+
 
 @image_comparison(baseline_images=['legend_large_marker_in_tuple'],
                   extensions=['png'])
 def test_large_marker_in_tuple():
     # test that legend scales to fit large markers in tuple
     plt.figure()
-    a, = plt.plot([1], [1], "ro",c="green", markersize=15)
-    b, = plt.plot([1], [1], "w+",c="red", markeredgewidth=3, markersize=40)
+    a, = plt.plot([1], [1], "ro", c="green", markersize=15)
+    b, = plt.plot([1], [1], "w+", c="red", markeredgewidth=3, markersize=40)
     plt.legend([(a, b)], ["a and b"], loc=2, numpoints=1)
-
