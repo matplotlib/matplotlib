@@ -1212,8 +1212,17 @@ class AutoDateLocator(DateLocator):
 
           locator = AutoDateLocator()
           locator.intervald[HOURLY] = [3] # only show every 3 hours
+
+        In order to avoid overlapping dates, another dictionary was
+        created to map the format of the date used to its estimated
+        length before data is even inserted. In addition, the default
+        width of figsize from rcparams (rcParams["figure.figsize"][0])
+        is used to get a estimate of the number of date ticks
+        we can fit in the axis.
+
         """
         DateLocator.__init__(self, tz)
+
         self._locator = YearLocator()
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
@@ -1222,6 +1231,17 @@ class AutoDateLocator(DateLocator):
 
         self.maxticks = {YEARLY: 11, MONTHLY: 12, DAILY: 11, HOURLY: 12,
                          MINUTELY: 11, SECONDLY: 11, MICROSECONDLY: 8}
+
+        # Pad length format to account for extra character
+        self.eachtick_len = {
+            YEARLY: len(rcParams['date.autoformatter.year']) + 2,
+            MONTHLY: len(rcParams['date.autoformatter.month']) + 2,
+            DAILY: len(rcParams['date.autoformatter.day']) + 2,
+            HOURLY: len(rcParams['date.autoformatter.hour']),
+            MINUTELY: len(rcParams['date.autoformatter.minute']),
+            SECONDLY: len(rcParams['date.autoformatter.second']),
+            MICROSECONDLY: len(rcParams['date.autoformatter.microsecond'])}
+
         if maxticks is not None:
             try:
                 self.maxticks.update(maxticks)
@@ -1319,7 +1339,11 @@ class AutoDateLocator(DateLocator):
         # an interval from an list specific to that frequency that gives no
         # more than maxticks tick positions. Also, set up some ranges
         # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
+
+        # a ratio of 12 default font sized date chars per inch is 'estimated'
+        maxwid = rcParams["figure.figsize"][0] * 12
         for i, (freq, num) in enumerate(zip(self._freqs, nums)):
+
             # If this particular frequency doesn't give enough ticks, continue
             if num < self.minticks:
                 # Since we're not using this particular frequency, set
@@ -1331,8 +1355,9 @@ class AutoDateLocator(DateLocator):
             # Find the first available interval that doesn't give too many
             # ticks
             for interval in self.intervald[freq]:
-                if num <= interval * (self.maxticks[freq] - 1):
-                    break
+                if (num <= interval * (self.maxticks[freq] - 1)):
+                    if (num/interval * self.eachtick_len[freq] <= maxwid):
+                        break
             else:
                 # We went through the whole loop without breaking, default to
                 # the last interval in the list and raise a warning
