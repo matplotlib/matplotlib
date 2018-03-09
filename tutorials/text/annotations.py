@@ -517,7 +517,7 @@ more control, it supports a few other options.
     :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
 
 Using ConnectionPatch
---------------------
+---------------------
 
 The ConnectionPatch is like an annotation without text. While the annotate
 function is recommended in most situations, the ConnectionPatch is useful when
