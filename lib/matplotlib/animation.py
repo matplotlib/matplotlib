@@ -668,7 +668,7 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
                 '-r', str(self.fps)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
 
-        if (_log.getEffectiveLevel() < logging.DEBUG):
+        if (_log.getEffectiveLevel() > logging.DEBUG):
             args += ['-loglevel', 'quiet']
         args += ['-i', 'pipe:'] + self.output_args
         return args
