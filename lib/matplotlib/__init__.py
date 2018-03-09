@@ -143,6 +143,7 @@ import warnings
 from . import cbook
 from matplotlib.cbook import (
     mplDeprecation, dedent, get_label, sanitize_sequence)
+from matplotlib.cbook.deprecation import _deprecated_global
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
@@ -389,6 +390,11 @@ class Verbose(object):
     def ge(self, level):
         'return true if self.level is >= level'
         return self.vald[self.level] >= self.vald[level]
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    _deprecated_global("verbose", Verbose(), "2.2")
 
 
 def _wrap(fmt, func, level='DEBUG', always=True):

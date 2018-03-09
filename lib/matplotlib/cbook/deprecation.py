@@ -1,5 +1,7 @@
 import functools
+import sys
 import textwrap
+from types import ModuleType
 import warnings
 
 
@@ -221,3 +223,38 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         return finalize(wrapper, new_doc)
 
     return deprecate
+
+
+class _DeprecatorModuleType(ModuleType):
+    def __getattr__(self, name):
+        try:
+            val, message = self._deprecated_dict[name]
+            warnings.warn(message, MatplotlibDeprecationWarning, stacklevel=2)
+            return val
+        except KeyError:
+            raise AttributeError(
+                "Module {!r} has no attibute {!r}"
+                .format(self.__name__, name)) from None
+
+
+def _deprecated_global(
+        name, obj, since, *,
+        message="", alternative="", pending=False, obj_type="object",
+        addendum="", removal=""):
+    frame = sys._getframe(1)
+    if frame.f_locals is not frame.f_globals:
+        raise RuntimeError(
+            "Matplotlib internal error: cannot globally deprecate object from "
+            "non-global frame")
+    mod = sys.modules[frame.f_globals["__name__"]]
+    if type(mod) == ModuleType:
+        mod.__class__ = _DeprecatorModuleType
+    elif mod.__class__ != _DeprecatorModuleType:
+        warnings.warn("Matplotlib internal error: cannot deprecate global of "
+                      "patched module.  Assigning attribute normally.")
+        mod.__dict__[name] = obj
+        return
+    message = _generate_deprecation_message(
+        since=since, message=message, name=name, alternative=alternative,
+        pending=pending, obj_type=obj_type, removal=removal)
+    mod.__dict__.setdefault("_deprecated_dict", {})[name] = (obj, message)
