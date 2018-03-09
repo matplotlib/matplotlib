@@ -245,7 +245,7 @@ def test_bbox_table():
         cellText=data,
         cellColours=colours,
         edgeColour='#cccccc',
-        bbox = (.0, .0, 1, 1))
+        bbox=(.0, .0, 1, 1))
 
     plt.draw()
     
