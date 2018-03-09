@@ -391,7 +391,7 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
-def _wrap(fmt, func, level='DEBUG', always=True):
+def _wrap(fmt, func, level=logging.DEBUG, always=True):
     """
     return a callable function that wraps func and reports its
     output through logger
@@ -405,8 +405,7 @@ def _wrap(fmt, func, level='DEBUG', always=True):
         ret = func(*args, **kwargs)
 
         if (always or not wrapper._spoke):
-            lvl = logging.getLevelName(level.upper())
-            _log.log(lvl, fmt % ret)
+            _log.log(level, fmt % ret)
             spoke = True
             if not wrapper._spoke:
                 wrapper._spoke = spoke
