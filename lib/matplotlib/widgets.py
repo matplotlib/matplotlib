@@ -272,7 +272,7 @@ class Slider(AxesWidget):
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
-                 slidermax=None, dragging=True, valstep=None, **kwargs):
+                 slidermax=None, dragging=True, valstep=None, orientation='h', **kwargs):
         """
         Parameters
         ----------
@@ -314,6 +314,9 @@ class Slider(AxesWidget):
         valstep : float, optional, default: None
             If given, the slider will snap to multiples of `valstep`.
 
+        orientation : str, optional, default: 'h'
+            If 'h' the slider is horizontal. If 'v' it is vertical
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
@@ -329,6 +332,11 @@ class Slider(AxesWidget):
         if slidermax is not None and not hasattr(slidermax, 'val'):
             raise ValueError("Argument slidermax ({}) has no 'val'"
                              .format(type(slidermax)))
+        if orientation not in ['h', 'v']:
+            raise ValueError("Argument orientation ({}) must be either 'h' or 'v'"
+                             .format(orientation))
+
+        self.orientation = orientation
         self.closedmin = closedmin
         self.closedmax = closedmax
         self.slidermin = slidermin
@@ -342,12 +350,19 @@ class Slider(AxesWidget):
             valinit = valmin
         self.val = valinit
         self.valinit = valinit
-        self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-        self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
+        if orientation is 'v':
+            self.poly = ax.axhspan(valmin, valinit, 0, 1, **kwargs)
+            self.hline = ax.axhline(valinit, 0, 1, color='r', lw=1)
+        else:
+            self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
+            self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
 
         self.valfmt = valfmt
         ax.set_yticks([])
-        ax.set_xlim((valmin, valmax))
+        if orientation is 'v':
+            ax.set_ylim((valmin, valmax))
+        else:
+            ax.set_xlim((valmin, valmax))
         ax.set_xticks([])
         ax.set_navigate(False)
 
@@ -355,14 +370,24 @@ class Slider(AxesWidget):
         self.connect_event('button_release_event', self._update)
         if dragging:
             self.connect_event('motion_notify_event', self._update)
-        self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
-                             verticalalignment='center',
-                             horizontalalignment='right')
+        if orientation is 'v':
+            self.label = ax.text(0.5, 1.02, label, transform=ax.transAxes,
+                                 verticalalignment='bottom',
+                                 horizontalalignment='center')
 
-        self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
-                               transform=ax.transAxes,
-                               verticalalignment='center',
-                               horizontalalignment='left')
+            self.valtext = ax.text(0.5, -0.02, valfmt % valinit,
+                                   transform=ax.transAxes,
+                                   verticalalignment='top',
+                                   horizontalalignment='center')
+        else:
+            self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
+                                 verticalalignment='center',
+                                 horizontalalignment='right')
+
+            self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
+                                   transform=ax.transAxes,
+                                   verticalalignment='center',
+                                   horizontalalignment='left')
 
         self.cnt = 0
         self.observers = {}
@@ -416,7 +441,10 @@ class Slider(AxesWidget):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
             return
-        val = self._value_in_bounds(event.xdata)
+        if self.orientation is 'v':
+            val = self._value_in_bounds(event.ydata)
+        else:
+            val = self._value_in_bounds(event.xdata)
         if (val is not None) and (val != self.val):
             self.set_val(val)
 
@@ -429,8 +457,12 @@ class Slider(AxesWidget):
         val : float
         """
         xy = self.poly.xy
-        xy[2] = val, 1
-        xy[3] = val, 0
+        if self.orientation is 'v':
+            xy[1] = 0, val
+            xy[2] = 1, val
+        else:
+            xy[2] = val, 1
+            xy[3] = val, 0
         self.poly.xy = xy
         self.valtext.set_text(self.valfmt % val)
         if self.drawon:
