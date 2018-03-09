@@ -118,15 +118,12 @@ class MyWX(MagicMock):
     class Frame(object):
         pass
 
-    VERSION_STRING = '2.9'
-
 
 def setup(app):
-    sys.modules['cairocffi'] = MyCairoCffi()
-    sys.modules['PyQt4'] = MyPyQt4()
-    sys.modules['sip'] = MySip()
-    sys.modules['wx'] = MyWX()
-    sys.modules['wxversion'] = MagicMock()
-
-    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
-    return metadata
+    sys.modules.update(
+        cairocffi=MyCairoCffi(),
+        PyQt4=MyPyQt4(),
+        sip=MySip(),
+        wx=MyWX(),
+    )
+    return {'parallel_read_safe': True, 'parallel_write_safe': True}
