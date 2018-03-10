@@ -705,11 +705,18 @@ def test_ndarray_subclass_norm(recwarn):
             raise RuntimeError
 
     data = np.arange(-10, 10, 1, dtype=float)
+    data.shape = (10, 2)
+    mydata = data.view(MyArray)
 
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
+                 mcolors.Normalize(vmin=mydata.min(), vmax=mydata.max()),
+                 mcolors.SymLogNorm(3, vmin=mydata.min(), vmax=mydata.max()),
                  mcolors.PowerNorm(1)]:
-        assert_array_equal(norm(data.view(MyArray)), norm(data))
+        assert_array_equal(norm(mydata), norm(data))
+        fig, ax = plt.subplots()
+        ax.imshow(mydata, norm=norm)
+        fig.canvas.draw()
         if isinstance(norm, mcolors.PowerNorm):
             assert len(recwarn) == 1
             warn = recwarn.pop(UserWarning)
