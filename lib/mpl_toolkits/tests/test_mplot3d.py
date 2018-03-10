@@ -365,7 +365,7 @@ def test_trisurf3d_change_edgecolor():
     z = np.sin(-x*y)
 
     ax = fig.gca(projection='3d')
-    surf = ax.plot_trisurf(x, y, z, cmap=cmx.jet, linewidth=0.2)
+    surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
     surf.set_edgecolor("white")
 
 
