@@ -55,6 +55,42 @@ def test_bar3d_notshaded():
     fig.canvas.draw()
 
 
+@image_comparison(baseline_images=['bar3d_change_edgecolor_notshaded'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_bar3d_change_edgecolor_notshaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = 5 - x2d + y2d
+    bar = ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
+    bar.set_edgecolor("red")
+    fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['bar3d_change_edgecolor_shaded'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_bar3d_change_edgecolor_shaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = 5 - x2d + y2d
+    bar = ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    bar.set_edgecolor("yellow")
+    fig.canvas.draw()
+
+
 @image_comparison(baseline_images=['contour3d'], remove_text=True)
 def test_contour3d():
     fig = plt.figure()
@@ -309,6 +345,30 @@ def test_trisurf3d():
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
 
 
+@image_comparison(baseline_images=['test_trisurf3d_change_edgecolor'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_trisurf3d_change_edgecolor():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    ax = fig.gca(projection='3d')
+    surf = ax.plot_trisurf(x, y, z, cmap=cmx.jet, linewidth=0.2)
+    surf.set_edgecolor("white")
+
+
 @image_comparison(baseline_images=['trisurf3d_shaded'], remove_text=True,
                   tol=0.03, extensions=['png'])
 def test_trisurf3d_shaded():
@@ -326,6 +386,30 @@ def test_trisurf3d_shaded():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
+
+
+@image_comparison(baseline_images=['test_trisurf3d_change_edgecolor_shaded'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_trisurf3d_change_edgecolor_shaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    ax = fig.gca(projection='3d')
+    surf = ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
+    surf.set_edgecolor("gray")
 
 
 @image_comparison(baseline_images=['wireframe3d'], remove_text=True)
