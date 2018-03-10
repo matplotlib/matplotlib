@@ -272,7 +272,7 @@ class Slider(AxesWidget):
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
-                 slidermax=None, dragging=True, valstep=None, 
+                 slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', **kwargs):
         """
         Parameters
@@ -335,8 +335,8 @@ class Slider(AxesWidget):
             raise ValueError("Argument slidermax ({}) has no 'val'"
                              .format(type(slidermax)))
         if orientation not in ['horizontal', 'vertical']:
-            raise ValueError("Argument orientation ({}) must be either 'horizontal' or 'vertical'"
-                             .format(orientation))
+            raise ValueError("Argument orientation ({}) must be either"
+                             "'horizontal' or 'vertical'".format(orientation))
 
         self.orientation = orientation
         self.closedmin = closedmin
