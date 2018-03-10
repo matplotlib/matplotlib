@@ -444,7 +444,7 @@ class Quiver(mcollections.PolyCollection):
         X, Y, U, V, C = _parse_args(*args)
         self.X = X
         self.Y = Y
-        self.XY = np.hstack((X[:, np.newaxis], Y[:, np.newaxis]))
+        self.XY = np.column_stack((X, Y))
         self.N = len(X)
         self.scale = kw.pop('scale', None)
         self.headwidth = kw.pop('headwidth', 3)
@@ -617,7 +617,7 @@ class Quiver(mcollections.PolyCollection):
 
     def _angles_lengths(self, U, V, eps=1):
         xy = self.ax.transData.transform(self.XY)
-        uv = np.hstack((U[:, np.newaxis], V[:, np.newaxis]))
+        uv = np.column_stack((U, V))
         xyp = self.ax.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
@@ -673,8 +673,7 @@ class Quiver(mcollections.PolyCollection):
             theta = ma.masked_invalid(np.deg2rad(angles)).filled(0)
         theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
-        xy = xy[:, :, np.newaxis]
-        XY = np.concatenate((xy.real, xy.imag), axis=2)
+        XY = np.stack((xy.real, xy.imag), axis=2)
         if self.Umask is not ma.nomask:
             XY = ma.array(XY)
             XY[self.Umask] = ma.masked
@@ -952,7 +951,7 @@ class Barbs(mcollections.PolyCollection):
         x, y, u, v, c = _parse_args(*args)
         self.x = x
         self.y = y
-        xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
+        xy = np.column_stack((x, y))
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
@@ -1171,7 +1170,7 @@ class Barbs(mcollections.PolyCollection):
             self.set_array(c)
 
         # Update the offsets in case the masked data changed
-        xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
+        xy = np.column_stack((x, y))
         self._offsets = xy
         self.stale = True
 
@@ -1188,7 +1187,7 @@ class Barbs(mcollections.PolyCollection):
         x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
                                           self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
-        xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
+        xy = np.column_stack((x, y))
         mcollections.PolyCollection.set_offsets(self, xy)
         self.stale = True
 

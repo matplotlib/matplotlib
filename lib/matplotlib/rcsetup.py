@@ -35,17 +35,14 @@ from cycler import Cycler, cycler as ccycler
 
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg',
-                  'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'GTK3Agg', 'GTK3Cairo',
+interactive_bk = ['GTK3Agg', 'GTK3Cairo',
                   'MacOSX',
                   'nbAgg',
                   'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
                   'TkAgg', 'TkCairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']
-non_interactive_bk = ['agg', 'cairo', 'gdk',
+non_interactive_bk = ['agg', 'cairo',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
@@ -537,26 +534,6 @@ validate_fillstylelist = _listify_validator(validate_fillstyle)
 _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ['solid', 'dashed'],
                                                  ignorecase=True)
-
-
-@deprecated('2.1',
-            addendum=(" See 'validate_negative_linestyle_legacy' " +
-                      "deprecation warning for more information."))
-def validate_negative_linestyle(s):
-    return _validate_negative_linestyle(s)
-
-
-@deprecated('2.1',
-            addendum=(" The 'contour.negative_linestyle' rcParam now " +
-                      "follows the same validation as the other rcParams " +
-                      "that are related to line style."))
-def validate_negative_linestyle_legacy(s):
-    try:
-        res = validate_negative_linestyle(s)
-        return res
-    except ValueError:
-        dashes = validate_nseq_float(2)(s)
-        return (0, dashes)  # (offset, (solid, blank))
 
 
 validate_legend_loc = ValidateInStrings(

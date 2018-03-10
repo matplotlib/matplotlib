@@ -76,17 +76,7 @@ def get_axall_tightbbox(ax, renderer):
     return bbox
 
 
-def in_same_column(ss0, ssc):
-    nrows, ncols = ss0.get_gridspec().get_geometry()
-
-    if ss0.num2 is None:
-        ss0.num2 = ss0.num1
-    rownum0min, colnum0min = divmod(ss0.num1, ncols)
-    rownum0max, colnum0max = divmod(ss0.num2, ncols)
-    if ssc.num2 is None:
-        ssc.num2 = ssc.num1
-    rownumCmin, colnumCmin = divmod(ssc.num1, ncols)
-    rownumCmax, colnumCmax = divmod(ssc.num2, ncols)
+def in_same_column(colnum0min, colnum0max, colnumCmin, colnumCmax):
     if colnum0min >= colnumCmin and colnum0min <= colnumCmax:
         return True
     if colnum0max >= colnumCmin and colnum0max <= colnumCmax:
@@ -94,17 +84,7 @@ def in_same_column(ss0, ssc):
     return False
 
 
-def in_same_row(ss0, ssc):
-    nrows, ncols = ss0.get_gridspec().get_geometry()
-
-    if ss0.num2 is None:
-        ss0.num2 = ss0.num1
-    rownum0min, colnum0min = divmod(ss0.num1, ncols)
-    rownum0max, colnum0max = divmod(ss0.num2, ncols)
-    if ssc.num2 is None:
-        ssc.num2 = ssc.num1
-    rownumCmin, colnumCmin = divmod(ssc.num1, ncols)
-    rownumCmax, colnumCmax = divmod(ssc.num2, ncols)
+def in_same_row(rownum0min, rownum0max, rownumCmin, rownumCmax):
     if rownum0min >= rownumCmin and rownum0min <= rownumCmax:
         return True
     if rownum0max >= rownumCmin and rownum0max <= rownumCmax:
@@ -177,6 +157,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     margins) is very large.  There must be a math way to check for this case.
 
     '''
+
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     # list of unique gridspecs that contain child axes:
@@ -314,52 +295,77 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                         and ax._layoutbox is not None):
                     if ax.get_subplotspec().get_gridspec() == gs:
                         axs += [ax]
-            for ax in axs:
-                axs = axs[1:]
+            rownummin = np.zeros(len(axs), dtype=np.int8)
+            rownummax = np.zeros(len(axs), dtype=np.int8)
+            colnummin = np.zeros(len(axs), dtype=np.int8)
+            colnummax = np.zeros(len(axs), dtype=np.int8)
+            width = np.zeros(len(axs))
+            height = np.zeros(len(axs))
+
+            for n, ax in enumerate(axs):
+                ss0 = ax.get_subplotspec()
+                if ss0.num2 is None:
+                    ss0.num2 = ss0.num1
+                rownummin[n], colnummin[n] = divmod(ss0.num1, ncols)
+                rownummax[n], colnummax[n] = divmod(ss0.num2, ncols)
+                width[n] = np.sum(
+                        width_ratios[colnummin[n]:(colnummax[n] + 1)])
+                height[n] = np.sum(
+                        height_ratios[rownummin[n]:(rownummax[n] + 1)])
+
+            for nn, ax in enumerate(axs[:-1]):
+                ss0 = ax.get_subplotspec()
+
                 # now compare ax to all the axs:
                 #
                 # If the subplotspecs have the same colnumXmax, then line
                 # up their right sides.  If they have the same min, then
                 # line up their left sides (and vertical equivalents).
-                ss0 = ax.get_subplotspec()
-                if ss0.num2 is None:
-                    ss0.num2 = ss0.num1
-                rownum0min, colnum0min = divmod(ss0.num1, ncols)
-                rownum0max, colnum0max = divmod(ss0.num2, ncols)
-                for axc in axs:
-                    ssc = axc.get_subplotspec()
-                    # get the rownums and colnums
-                    rownumCmin, colnumCmin = divmod(ssc.num1, ncols)
-                    if ssc.num2 is None:
-                        ssc.num2 = ssc.num1
-                    rownumCmax, colnumCmax = divmod(ssc.num2, ncols)
-
+                rownum0min, colnum0min = rownummin[nn], colnummin[nn]
+                rownum0max, colnum0max = rownummax[nn], colnummax[nn]
+                width0, height0 = width[nn], height[nn]
+                alignleft = False
+                alignright = False
+                alignbot = False
+                aligntop = False
+                alignheight = False
+                alignwidth = False
+                for mm in range(nn+1, len(axs)):
+                    axc = axs[mm]
+                    rownumCmin, colnumCmin = rownummin[mm], colnummin[mm]
+                    rownumCmax, colnumCmax = rownummax[mm], colnummax[mm]
+                    widthC, heightC = width[mm], height[mm]
                     # Horizontally align axes spines if they have the
                     # same min or max:
-                    if colnum0min == colnumCmin:
+                    if not alignleft and colnum0min == colnumCmin:
                         # we want the _poslayoutboxes to line up on left
                         # side of the axes spines...
                         layoutbox.align([ax._poslayoutbox,
                                          axc._poslayoutbox],
                                         'left')
-                    if colnum0max == colnumCmax:
+                        alignleft = True
+
+                    if not alignright and colnum0max == colnumCmax:
                         # line up right sides of _poslayoutbox
                         layoutbox.align([ax._poslayoutbox,
                                          axc._poslayoutbox],
                                         'right')
+                        alignright = True
                     # Vertically align axes spines if they have the
                     # same min or max:
-                    if rownum0min == rownumCmin:
+                    if not aligntop and rownum0min == rownumCmin:
                         # line up top of _poslayoutbox
                         _log.debug('rownum0min == rownumCmin')
                         layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
                                         'top')
-                    if rownum0max == rownumCmax:
+                        aligntop = True
+
+                    if not alignbot and rownum0max == rownumCmax:
                         # line up bottom of _poslayoutbox
                         _log.debug('rownum0max == rownumCmax')
                         layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
                                         'bottom')
-
+                        alignbot = True
                     ###########
                     # Now we make the widths and heights of position boxes
                     # similar. (i.e the spine locations)
@@ -377,22 +383,19 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                     # For height, this only needs to be done if the
                     # subplots share a column.  For width if they
                     # share a row.
-                    widthC = np.sum(
-                            width_ratios[colnumCmin:(colnumCmax + 1)])
-                    width0 = np.sum(
-                            width_ratios[colnum0min:(colnum0max + 1)])
-                    heightC = np.sum(
-                            height_ratios[rownumCmin:(rownumCmax + 1)])
-                    height0 = np.sum(
-                            height_ratios[rownum0min:(rownum0max + 1)])
 
                     drowsC = (rownumCmax - rownumCmin + 1)
                     drows0 = (rownum0max - rownum0min + 1)
                     dcolsC = (colnumCmax - colnumCmin + 1)
                     dcols0 = (colnum0max - colnum0min + 1)
 
-                    if height0 > heightC:
-                        if in_same_column(ss0, ssc):
+                    if not alignheight and drows0 == drowsC:
+                        ax._poslayoutbox.constrain_height(
+                                axc._poslayoutbox.height * height0 / heightC)
+                        alignheight = True
+                    elif in_same_column(colnum0min, colnum0max,
+                            colnumCmin, colnumCmax):
+                        if height0 > heightC:
                             ax._poslayoutbox.constrain_height_min(
                                 axc._poslayoutbox.height * height0 / heightC)
                             # these constraints stop the smaller axes from
@@ -400,34 +403,31 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                             axc._poslayoutbox.constrain_height_min(
                                 ax._poslayoutbox.height * heightC /
                                 (height0*1.8))
-                    else:
-                        if in_same_column(ss0, ssc):
+                        elif height0 < heightC:
                             axc._poslayoutbox.constrain_height_min(
                                 ax._poslayoutbox.height * heightC / height0)
                             ax._poslayoutbox.constrain_height_min(
                                 ax._poslayoutbox.height * height0 /
                                 (heightC*1.8))
-                    if drows0 == drowsC:
-                        ax._poslayoutbox.constrain_height(
-                                axc._poslayoutbox.height * height0 / heightC)
                     # widths...
-                    if width0 > widthC:
-                        if in_same_row(ss0, ssc):
+                    if not alignwidth and dcols0 == dcolsC:
+                        ax._poslayoutbox.constrain_width(
+                                axc._poslayoutbox.width * width0 / widthC)
+                        alignwidth = True
+                    elif in_same_row(rownum0min, rownum0max,
+                            rownumCmin, rownumCmax):
+                        if width0 > widthC:
                             ax._poslayoutbox.constrain_width_min(
                                     axc._poslayoutbox.width * width0 / widthC)
                             axc._poslayoutbox.constrain_width_min(
                                     ax._poslayoutbox.width * widthC /
                                     (width0*1.8))
-                    else:
-                        if in_same_row(ss0, ssc):
+                        elif width0 < widthC:
                             axc._poslayoutbox.constrain_width_min(
                                     ax._poslayoutbox.width * widthC / width0)
                             ax._poslayoutbox.constrain_width_min(
                                     axc._poslayoutbox.width * width0 /
                                     (widthC*1.8))
-                    if dcols0 == dcolsC:
-                        ax._poslayoutbox.constrain_width(
-                                axc._poslayoutbox.width * width0 / widthC)
 
     fig._layoutbox.constrained_layout_called += 1
     fig._layoutbox.update_variables()

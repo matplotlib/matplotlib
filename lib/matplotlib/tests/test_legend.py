@@ -1,14 +1,9 @@
-from __future__ import absolute_import, division, print_function
-
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
 import collections
+import inspect
+from unittest import mock
+
 import numpy as np
 import pytest
-
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -17,7 +12,6 @@ import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-import inspect
 
 
 # test that docstrigs are the same

@@ -45,7 +45,6 @@ requirements that are needed to build the documentation. They are listed in
 * Sphinx>=1.3, !=1.5.0, !=1.6.4
 * colorspacious
 * IPython
-* mock
 * numpydoc>=0.4
 * Pillow
 * sphinx-gallery>=0.1.12

@@ -73,9 +73,10 @@ from matplotlib.backends import pylab_setup
 
 ## Backend detection ##
 def _backend_selection():
-    """ If rcParams['backend_fallback'] is true, check to see if the
-        current backend is compatible with the current running event
-        loop, and if not switches to a compatible one.
+    """
+    If rcParams['backend_fallback'] is true, check to see if the
+    current backend is compatible with the current running event loop,
+    and if not switches to a compatible one.
     """
     backend = rcParams['backend']
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
@@ -95,19 +96,14 @@ def _backend_selection():
         if not PyQt5.QtWidgets.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules and
-          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
-        if 'gi' in sys.modules:
-            from gi.repository import GObject
-            ml = GObject.MainLoop
-        else:
-            import gobject
-            ml = gobject.MainLoop
-        if ml().is_running():
-            rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
+    elif 'gtk' in sys.modules and 'gi' in sys.modules:
+        from gi.repository import GObject
+        if GObject.MainLoop().is_running():
+            rcParams['backend'] = 'GTK3Agg'
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
         pass  # what if anything do we need to do for tkinter?
+
 
 _backend_selection()
 
@@ -175,7 +171,7 @@ def install_repl_displayhook():
 
 def uninstall_repl_displayhook():
     """
-    Uninstalls the matplotlib display hook.
+    Uninstall the matplotlib display hook.
 
     .. warning
 
@@ -255,20 +251,18 @@ def show(*args, **kw):
 
 
 def isinteractive():
-    """
-    Return status of interactive mode.
-    """
+    """Return the status of interactive mode."""
     return matplotlib.is_interactive()
 
 
 def ioff():
-    """Turn interactive mode off."""
+    """Turn the interactive mode off."""
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
 
 
 def ion():
-    """Turn interactive mode on."""
+    """Turn the interactive mode on."""
     matplotlib.interactive(True)
     install_repl_displayhook()
 
@@ -681,9 +675,7 @@ def close(*args):
 
 
 def clf():
-    """
-    Clear the current figure.
-    """
+    """Clear the current figure."""
     gcf().clf()
 
 
@@ -1863,56 +1855,6 @@ def get_plot_commands():
         if not name.startswith('_') and name not in exclude
            and inspect.isfunction(obj)
            and inspect.getmodule(obj) is this_module)
-
-
-@deprecated('2.1')
-def colors():
-    """
-    This is a do-nothing function to provide you with help on how
-    matplotlib handles colors.
-
-    Commands which take color arguments can use several formats to
-    specify the colors.  For the basic built-in colors, you can use a
-    single letter
-
-      =====   =======
-      Alias   Color
-      =====   =======
-      'b'     blue
-      'g'     green
-      'r'     red
-      'c'     cyan
-      'm'     magenta
-      'y'     yellow
-      'k'     black
-      'w'     white
-      =====   =======
-
-    For a greater range of colors, you have two options.  You can
-    specify the color using an html hex string, as in::
-
-      color = '#eeefff'
-
-    or you can pass an R,G,B tuple, where each of R,G,B are in the
-    range [0,1].
-
-    You can also use any legal html name for a color, for example::
-
-      color = 'red'
-      color = 'burlywood'
-      color = 'chartreuse'
-
-    The example below creates a subplot with a dark
-    slate gray background::
-
-       subplot(111, facecolor=(0.1843, 0.3098, 0.3098))
-
-    Here is an example that creates a pale turquoise title::
-
-      title('Is this the best color?', color='#afeeee')
-
-    """
-    pass
 
 
 def colormaps():

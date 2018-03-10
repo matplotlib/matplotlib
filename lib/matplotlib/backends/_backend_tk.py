@@ -15,7 +15,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.backends.windowing as windowing
 
 import matplotlib
-from matplotlib import backend_tools, cbook, rcParams
+from matplotlib import backend_tools, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -178,6 +178,8 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.bind("<Configure>", self.resize)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
+        self._tkcanvas.bind("<Enter>", self.enter_notify_event)
+        self._tkcanvas.bind("<Leave>", self.leave_notify_event)
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
         for name in "<Button-1>", "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
@@ -294,10 +296,6 @@ class FigureCanvasTk(FigureCanvasBase):
             else:
                 self.leave_notify_event(guiEvent)
 
-    show = cbook.deprecated("2.2", name="FigureCanvasTk.show",
-                            alternative="FigureCanvasTk.draw")(
-                                lambda self: self.draw())
-
     def draw_idle(self):
         'update drawing area only if idle'
         if self._idle is False:
@@ -326,6 +324,11 @@ class FigureCanvasTk(FigureCanvasBase):
         y = self.figure.bbox.height - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
+    def enter_notify_event(self, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height - event.y
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def button_press_event(self, event, dblclick=False):
         x = event.x
@@ -511,22 +514,8 @@ class FigureManagerTk(FigureManagerBase):
             toolmanager = None
         return toolmanager
 
-    def resize(self, width, height=None):
-        # before 09-12-22, the resize method takes a single *event*
-        # parameter. On the other hand, the resize method of other
-        # FigureManager class takes *width* and *height* parameter,
-        # which is used to change the size of the window. For the
-        # Figure.set_size_inches with forward=True work with Tk
-        # backend, I changed the function signature but tried to keep
-        # it backward compatible. -JJL
-
-        # when a single parameter is given, consider it as a event
-        if height is None:
-            cbook.warn_deprecated("2.2", "FigureManagerTkAgg.resize now takes "
-                                  "width and height as separate arguments")
-            width = width.width
-        else:
-            self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
+    def resize(self, width, height):
+        self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
 
         if self.toolbar is not None:
             self.toolbar.configure(width=width)
@@ -570,70 +559,6 @@ class FigureManagerTk(FigureManagerBase):
     def full_screen_toggle(self):
         is_fullscreen = bool(self.window.attributes('-fullscreen'))
         self.window.attributes('-fullscreen', not is_fullscreen)
-
-
-@cbook.deprecated("2.2")
-class AxisMenu(object):
-    def __init__(self, master, naxes):
-        self._master = master
-        self._naxes = naxes
-        self._mbar = Tk.Frame(master=master, relief=Tk.RAISED, borderwidth=2)
-        self._mbar.pack(side=Tk.LEFT)
-        self._mbutton = Tk.Menubutton(
-            master=self._mbar, text="Axes", underline=0)
-        self._mbutton.pack(side=Tk.LEFT, padx="2m")
-        self._mbutton.menu = Tk.Menu(self._mbutton)
-        self._mbutton.menu.add_command(
-            label="Select All", command=self.select_all)
-        self._mbutton.menu.add_command(
-            label="Invert All", command=self.invert_all)
-        self._axis_var = []
-        self._checkbutton = []
-        for i in range(naxes):
-            self._axis_var.append(Tk.IntVar())
-            self._axis_var[i].set(1)
-            self._checkbutton.append(self._mbutton.menu.add_checkbutton(
-                label = "Axis %d" % (i+1),
-                variable=self._axis_var[i],
-                command=self.set_active))
-            self._mbutton.menu.invoke(self._mbutton.menu.index("Select All"))
-        self._mbutton['menu'] = self._mbutton.menu
-        self._mbar.tk_menuBar(self._mbutton)
-        self.set_active()
-
-    def adjust(self, naxes):
-        if self._naxes < naxes:
-            for i in range(self._naxes, naxes):
-                self._axis_var.append(Tk.IntVar())
-                self._axis_var[i].set(1)
-                self._checkbutton.append( self._mbutton.menu.add_checkbutton(
-                    label = "Axis %d" % (i+1),
-                    variable=self._axis_var[i],
-                    command=self.set_active))
-        elif self._naxes > naxes:
-            for i in range(self._naxes-1, naxes-1, -1):
-                del self._axis_var[i]
-                self._mbutton.menu.forget(self._checkbutton[i])
-                del self._checkbutton[i]
-        self._naxes = naxes
-        self.set_active()
-
-    def get_indices(self):
-        a = [i for i in range(len(self._axis_var)) if self._axis_var[i].get()]
-        return a
-
-    def set_active(self):
-        self._master.set_active(self.get_indices())
-
-    def invert_all(self):
-        for a in self._axis_var:
-            a.set(not a.get())
-        self.set_active()
-
-    def select_all(self):
-        for a in self._axis_var:
-            a.set(1)
-        self.set_active()
 
 
 class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
@@ -1052,7 +977,7 @@ class _BackendTk(_Backend):
             rcParams['datapath'], 'images', 'matplotlib.ppm')
         icon_img = Tk.PhotoImage(file=icon_fname)
         try:
-            window.tk.call('wm', 'foobar', window._w, icon_img)
+            window.tk.call('wm', 'iconphoto', window._w, icon_img)
         except Exception as exc:
             # log the failure (due e.g. to Tk version), but carry on
             _log.info('Could not load matplotlib icon: %s', exc)

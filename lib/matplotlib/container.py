@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import matplotlib.cbook as cbook
@@ -32,6 +29,7 @@ class Container(tuple):
 
         self.set_label(label)
 
+    @cbook.deprecated("3.0")
     def set_remove_method(self, f):
         self._remove_method = f
 
@@ -43,13 +41,6 @@ class Container(tuple):
 
         if self._remove_method:
             self._remove_method(self)
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # remove the unpicklable remove method, this will get re-added on load
-        # (by the axes) if the artist lives on an axes.
-        d['_remove_method'] = None
-        return d
 
     def get_label(self):
         """

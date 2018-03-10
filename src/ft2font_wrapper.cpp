@@ -207,7 +207,7 @@ static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
     type->tp_name = "matplotlib.ft2font.FT2Image";
     type->tp_basicsize = sizeof(PyFT2Image);
     type->tp_dealloc = (destructor)PyFT2Image_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER;
+    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     type->tp_methods = methods;
     type->tp_new = PyFT2Image_new;
     type->tp_init = (initproc)PyFT2Image_init;
@@ -1220,17 +1220,10 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
                              t->maxComponentDepth);
     }
     case 2: {
-#if PY3K
         char os_2_dict[] =
             "{s:H, s:h, s:H, s:H, s:H, s:h, s:h, s:h,"
             "s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:y#, s:(kkkk),"
             "s:y#, s:H, s:H, s:H}";
-#else
-        char os_2_dict[] =
-            "{s:H, s:h, s:H, s:H, s:H, s:h, s:h, s:h,"
-            "s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:s#, s:(kkkk),"
-            "s:s#, s:H, s:H, s:H}";
-#endif
         TT_OS2 *t = (TT_OS2 *)table;
         return Py_BuildValue(os_2_dict,
                              "version",
@@ -1377,15 +1370,9 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
                              t->maxMemType1);
     }
     case 6: {
-        #if PY3K
         char pclt_dict[] =
             "{s:(h,H), s:k, s:H, s:H, s:H, s:H, s:H, s:H, s:y#, s:y#, s:b, "
             "s:b, s:b}";
-        #else
-        char pclt_dict[] =
-            "{s:(h,H), s:k, s:H, s:H, s:H, s:H, s:H, s:H, s:s#, s:s#, s:b, "
-            "s:b, s:b}";
-        #endif
         TT_PCLT *t = (TT_PCLT *)table;
         return Py_BuildValue(pclt_dict,
                              "version",
@@ -1669,7 +1656,7 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
     type->tp_doc = PyFT2Font_init__doc__;
     type->tp_basicsize = sizeof(PyFT2Font);
     type->tp_dealloc = (destructor)PyFT2Font_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER;
+    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     type->tp_methods = methods;
     type->tp_getset = getset;
     type->tp_new = PyFT2Font_new;
@@ -1689,7 +1676,6 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "ft2font",
@@ -1702,39 +1688,26 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit_ft2font(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC initft2font(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("ft2font", NULL, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyFT2Image_init_type(m, &PyFT2ImageType)) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyGlyph_init_type(m, &PyGlyphType)) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyFT2Font_init_type(m, &PyFT2FontType)) {
-        INITERROR;
+        return NULL;
     }
 
     PyObject *d = PyModule_GetDict(m);
@@ -1775,7 +1748,7 @@ PyMODINIT_FUNC initft2font(void)
         add_dict_int(d, "LOAD_TARGET_MONO", (unsigned long)FT_LOAD_TARGET_MONO) ||
         add_dict_int(d, "LOAD_TARGET_LCD", (unsigned long)FT_LOAD_TARGET_LCD) ||
         add_dict_int(d, "LOAD_TARGET_LCD_V", (unsigned long)FT_LOAD_TARGET_LCD_V)) {
-        INITERROR;
+        return NULL;
     }
 
     // initialize library
@@ -1783,7 +1756,7 @@ PyMODINIT_FUNC initft2font(void)
 
     if (error) {
         PyErr_SetString(PyExc_RuntimeError, "Could not initialize the freetype2 library");
-        INITERROR;
+        return NULL;
     }
 
     {
@@ -1793,19 +1766,17 @@ PyMODINIT_FUNC initft2font(void)
         FT_Library_Version(_ft2Library, &major, &minor, &patch);
         sprintf(version_string, "%d.%d.%d", major, minor, patch);
         if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
-            INITERROR;
+            return NULL;
         }
     }
 
     if (PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE))) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

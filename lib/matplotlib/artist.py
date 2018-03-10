@@ -124,7 +124,6 @@ class Artist(object):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
-        d['_remove_method'] = None
         d['stale_callback'] = None
         return d
 
@@ -1253,7 +1252,7 @@ class ArtistInspector(object):
             lines.append('%s%s: %s' % (pad, name, accepts))
         return lines
 
-    def pprint_setters_rest(self, prop=None, leadingspace=2):
+    def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
         If *prop* is *None*, return a list of strings of all settable
         properties and their valid values.  Format the output for ReST
@@ -1472,7 +1471,7 @@ def kwdoc(a):
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:
         return '\n'.join(ArtistInspector(a).pprint_setters_rest(
-                         leadingspace=2))
+                         leadingspace=4))
     else:
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 

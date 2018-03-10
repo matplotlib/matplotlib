@@ -44,38 +44,32 @@ class Tick(artist.Artist):
     1 refers to the bottom of the plot for xticks and the left for yticks
     2 refers to the top of the plot for xticks and the right for yticks
 
-    Publicly accessible attributes:
+    Attributes
+    ----------
+    tick1line : Line2D
 
-      :attr:`tick1line`
-          a Line2D instance
+    tick2line : Line2D
 
-      :attr:`tick2line`
-          a Line2D instance
+    gridline : Line2D
 
-      :attr:`gridline`
-          a Line2D instance
+    label1 : Text
 
-      :attr:`label1`
-          a Text instance
+    label2 : Text
 
-      :attr:`label2`
-          a Text instance
+    gridOn : bool
+        Determines whether to draw the tickline.
 
-      :attr:`gridOn`
-          a boolean which determines whether to draw the tickline
+    tick1On : bool
+        Determines whether to draw the first tickline.
 
-      :attr:`tick1On`
-          a boolean which determines whether to draw the 1st tickline
+    tick2On : bool
+        Determines whether to draw the second tickline.
 
-      :attr:`tick2On`
-          a boolean which determines whether to draw the 2nd tickline
+    label1On : bool
+        Determines whether to draw the first tick label.
 
-      :attr:`label1On`
-          a boolean which determines whether to draw tick label
-
-      :attr:`label2On`
-          a boolean which determines whether to draw tick label
-
+    label2On : bool
+        Determines whether to draw the second tick label.
     """
     def __init__(self, axes, loc, label,
                  size=None,  # points
@@ -677,11 +671,20 @@ class _LazyTickList(object):
         if instance is None:
             return self
         else:
+            # instance._get_tick() can itself try to access the majorTicks
+            # attribute (e.g. in certain projection classes which override
+            # e.g. get_xaxis_text1_transform).  In order to avoid infinite
+            # recursion, first set the majorTicks on the instance to an empty
+            # list, then create the tick and append it.
             if self._major:
-                instance.majorTicks = [instance._get_tick(major=True)]
+                instance.majorTicks = []
+                tick = instance._get_tick(major=True)
+                instance.majorTicks.append(tick)
                 return instance.majorTicks
             else:
-                instance.minorTicks = [instance._get_tick(major=False)]
+                instance.minorTicks = []
+                tick = instance._get_tick(major=False)
+                instance.minorTicks.append(tick)
                 return instance.minorTicks
 
 

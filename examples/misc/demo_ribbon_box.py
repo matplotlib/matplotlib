@@ -30,7 +30,7 @@ class RibbonBox(object):
                       self.original_image.dtype)
 
         im[:, :, :3] = self.b_and_h[:, :, np.newaxis]
-        im[:, :, :3] -= self.color[:, :, np.newaxis]*(1. - np.array(rgb))
+        im[:, :, :3] -= self.color[:, :, np.newaxis] * (1 - np.array(rgb))
         im[:, :, 3] = self.alpha
 
         self.im = im

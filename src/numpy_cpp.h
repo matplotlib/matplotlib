@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef _NUMPY_CPP_H_
-#define _NUMPY_CPP_H_
+#ifndef MPL_NUMPY_CPP_H
+#define MPL_NUMPY_CPP_H
 
 /***************************************************************************
  * This file is based on original work by Mark Wiebe, available at:

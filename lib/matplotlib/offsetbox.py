@@ -156,25 +156,6 @@ class OffsetBox(martist.Artist):
         self._children = []
         self._offset = (0, 0)
 
-    def __getstate__(self):
-        state = martist.Artist.__getstate__(self)
-
-        # pickle cannot save instancemethods, so handle them here
-        from .cbook import _InstanceMethodPickler
-        import inspect
-
-        offset = state['_offset']
-        if inspect.ismethod(offset):
-            state['_offset'] = _InstanceMethodPickler(offset)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        from .cbook import _InstanceMethodPickler
-        if isinstance(self._offset, _InstanceMethodPickler):
-            self._offset = self._offset.get_instancemethod()
-        self.stale = True
-
     def set_figure(self, fig):
         """
         Set the figure

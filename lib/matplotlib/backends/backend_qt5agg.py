@@ -1,14 +1,9 @@
 """
 Render to qt from agg
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import ctypes
 
-from matplotlib import cbook
 from matplotlib.transforms import Bbox
 
 from .backend_agg import FigureCanvasAgg
@@ -23,11 +18,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
     def __init__(self, figure):
         super().__init__(figure=figure)
         self._bbox_queue = []
-
-    @property
-    @cbook.deprecated("2.1")
-    def blitbox(self):
-        return self._bbox_queue
 
     def paintEvent(self, e):
         """Copy the image from the Agg canvas to the qt.drawable.
@@ -63,7 +53,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             qimage = QtGui.QImage(buf, w, h, QtGui.QImage.Format_ARGB32)
             # Adjust the buf reference count to work around a memory leak bug
             # in QImage under PySide on Python 3.
-            if QT_API == 'PySide' and six.PY3:
+            if QT_API == 'PySide':
                 ctypes.c_long.from_address(id(buf)).value = 1
             if hasattr(qimage, 'setDevicePixelRatio'):
                 # Not available on Qt4 or some older Qt5.
@@ -93,11 +83,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
     def print_figure(self, *args, **kwargs):
         super().print_figure(*args, **kwargs)
         self.draw()
-
-
-@cbook.deprecated("2.2")
-class FigureCanvasQTAggBase(FigureCanvasQTAgg):
-    pass
 
 
 @_BackendQT5.export

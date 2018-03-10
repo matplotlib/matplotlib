@@ -1226,8 +1226,7 @@ class PolarAxes(Axes):
         return Axes.set_yticks(self, *args, **kwargs)
 
     @docstring.dedent_interpd
-    def set_thetagrids(self, angles, labels=None, frac=None, fmt=None,
-                       **kwargs):
+    def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
         Set the angles at which to place the theta grids (these
         gridlines are equal along the theta dimension).  *angles* is in
@@ -1237,10 +1236,6 @@ class PolarAxes(Axes):
         the labels to use at each angle.
 
         If *labels* is None, the labels will be ``fmt %% angle``
-
-        *frac* is the fraction of the polar axes radius at which to
-        place the label (1 is the edge). e.g., 1.05 is outside the axes
-        and 0.95 is inside the axes.
 
         Return value is a list of tuples (*line*, *label*), where
         *line* is :class:`~matplotlib.lines.Line2D` instances and the
@@ -1252,10 +1247,6 @@ class PolarAxes(Axes):
 
         ACCEPTS: sequence of floats
         """
-        if frac is not None:
-            cbook.warn_deprecated('2.1', name='frac', obj_type='parameter',
-                                  alternative='tick padding via '
-                                              'Axes.tick_params')
 
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)

@@ -241,6 +241,17 @@ def test_scatter3d_change_edgecolor_face():
     sca.set_edgecolor('face')
 
 
+@image_comparison(baseline_images=['plot_3d_from_2d'], remove_text=True,
+                  extensions=['png'])
+def test_plot_3d_from_2d():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    xs = np.arange(0, 5)
+    ys = np.arange(5, 10)
+    ax.plot(xs, ys, zs=0, zdir='x')
+    ax.plot(xs, ys, zs=0, zdir='y')
+
+
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
 def test_surface3d():
     fig = plt.figure()

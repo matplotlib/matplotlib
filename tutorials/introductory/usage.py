@@ -354,8 +354,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    :func:`~matplotlib.use` unless absolutely necessary.
 #
 # .. note::
-#    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
-#    and 'gtkagg' are equivalent.
+#    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
+#    and 'gtk3agg' are equivalent.
 #
 # With a typical installation of matplotlib, such as from a
 # binary installer or a linux distribution package, a good default
@@ -373,11 +373,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 # Geometry`_ C++ library to make a raster (pixel) image of the figure.
 # All of the user interfaces except ``macosx`` can be used with
-# agg rendering, e.g.,
-# ``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``QT5Agg``, ``TkAgg``.  In
-# addition, some of the user interfaces support other rendering engines.
-# For example, with GTK, you can also select GDK rendering (backend
-# ``GTK`` deprecated in 2.0) or Cairo rendering (backend ``GTKCairo``).
+# agg rendering, e.g., ``WXAgg``, ``GTK3Agg``, ``QT4Agg``, ``QT5Agg``,
+# ``TkAgg``.  In addition, some of the user interfaces support other rendering
+# engines.  For example, with GTK+ 3, you can also select Cairo rendering
+# (backend ``GTK3Cairo``).
 #
 # For the rendering engines, one can also distinguish between `vector
 # <https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -438,14 +437,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
 #           ``pyside``).  This backend can be activated in IPython with
 #           ``%matplotlib qt4``.
-# GTKAgg    Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_, and
-#           pycairo_ or cairocffi_; Python2 only).  This backend can be
-#           activated in IPython with ``%matplotlib gtk``.
-# GTKCairo  Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_,
-#           and pycairo_ or cairocffi_; Python2 only).
-# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_;
-#           v4.0 (in beta) is required for Python3). This backend can be
-#           activated in IPython with ``%matplotlib wx``.#
+# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+#           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/

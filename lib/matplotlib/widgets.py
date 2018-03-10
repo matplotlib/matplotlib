@@ -1802,6 +1802,8 @@ class SpanSelector(_SelectorWidget):
             self.pressv = xdata
         else:
             self.pressv = ydata
+
+        self._set_span_xy(event)
         return False
 
     def _release(self, event):
@@ -1840,6 +1842,26 @@ class SpanSelector(_SelectorWidget):
         """on motion notify event"""
         if self.pressv is None:
             return
+
+        self._set_span_xy(event)
+
+        if self.onmove_callback is not None:
+            vmin = self.pressv
+            xdata, ydata = self._get_data(event)
+            if self.direction == 'horizontal':
+                vmax = xdata or self.prev[0]
+            else:
+                vmax = ydata or self.prev[1]
+
+            if vmin > vmax:
+                vmin, vmax = vmax, vmin
+            self.onmove_callback(vmin, vmax)
+
+        self.update()
+        return False
+
+    def _set_span_xy(self, event):
+        """Setting the span coordinates"""
         x, y = self._get_data(event)
         if x is None:
             return
@@ -1859,21 +1881,6 @@ class SpanSelector(_SelectorWidget):
         else:
             self.rect.set_y(minv)
             self.rect.set_height(maxv - minv)
-
-        if self.onmove_callback is not None:
-            vmin = self.pressv
-            xdata, ydata = self._get_data(event)
-            if self.direction == 'horizontal':
-                vmax = xdata or self.prev[0]
-            else:
-                vmax = ydata or self.prev[1]
-
-            if vmin > vmax:
-                vmin, vmax = vmax, vmin
-            self.onmove_callback(vmin, vmax)
-
-        self.update()
-        return False
 
 
 class ToolHandles(object):

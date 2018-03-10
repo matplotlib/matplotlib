@@ -516,11 +516,11 @@ more control, it supports a few other options.
     You may take a look at this example
     :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
 
-Using ConnectorPatch
---------------------
+Using ConnectionPatch
+---------------------
 
-The ConnectorPatch is like an annotation without text. While the annotate
-function is recommended in most situations, the ConnectorPatch is useful when
+The ConnectionPatch is like an annotation without text. While the annotate
+function is recommended in most situations, the ConnectionPatch is useful when
 you want to connect points in different axes. ::
 
   from matplotlib.patches import ConnectionPatch
@@ -540,7 +540,7 @@ point xy in the data coordinates of ``ax2``. Here is a simple example.
    Connect Simple01
 
 
-While the ConnectorPatch instance can be added to any axes, you may want to add
+While the ConnectionPatch instance can be added to any axes, you may want to add
 it to the axes that is latest in drawing order to prevent overlap by other
 axes.
 

@@ -1,18 +1,13 @@
-from __future__ import absolute_import, division, print_function
-
 import six
 
-import os
-import warnings
 from collections import OrderedDict
+import os
+from unittest import mock
+import warnings
 
 from cycler import cycler, Cycler
 import pytest
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors

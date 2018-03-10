@@ -40,9 +40,6 @@ from matplotlib.rcsetup import validate_axisbelow
 
 rcParams = matplotlib.rcParams
 
-is_string_like = cbook.is_string_like
-is_sequence_of_strings = cbook.is_sequence_of_strings
-
 _hold_msg = """axes.hold is deprecated.
     See the API Changes document (http://matplotlib.org/api/api_changes.html)
     for more details."""
@@ -158,7 +155,7 @@ class _process_plot_var_args(object):
         self.set_prop_cycle()
 
     def __getstate__(self):
-        # note: it is not possible to pickle a itertools.cycle instance
+        # note: it is not possible to pickle a generator (and thus a cycler).
         return {'axes': self.axes, 'command': self.command}
 
     def __setstate__(self, state):
@@ -341,8 +338,7 @@ class _process_plot_var_args(object):
         # modify the kwargs dictionary.
         self._setdefaults(default_dict, kwargs)
 
-        seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
-                                          y[:, np.newaxis])),
+        seg = mpatches.Polygon(np.column_stack((x, y)),
                                facecolor=facecolor,
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])
@@ -590,12 +586,6 @@ class _AxesBase(martist.Artist):
 
     def __setstate__(self, state):
         self.__dict__ = state
-        # put the _remove_method back on all artists contained within the axes
-        for container_name in ['lines', 'collections', 'tables', 'patches',
-                               'texts', 'images']:
-            container = getattr(self, container_name)
-            for artist in container:
-                artist._remove_method = container.remove
         self._stale = True
         self._layoutbox = None
         self._poslayoutbox = None
@@ -1132,11 +1122,6 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
-    @property
-    @cbook.deprecated("2.1", alternative="Axes.patch")
-    def axesPatch(self):
-        return self.patch
-
     def clear(self):
         """Clear the axes."""
         self.cla()
@@ -1219,16 +1204,16 @@ class _AxesBase(martist.Artist):
         self._get_lines.set_prop_cycle(prop_cycle)
         self._get_patches_for_fill.set_prop_cycle(prop_cycle)
 
+    @cbook.deprecated('1.5', alternative='`.set_prop_cycle`')
     def set_color_cycle(self, clist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
-        *clist* is a list of mpl color specifiers.
-
-        .. deprecated:: 1.5
+        Parameters
+        ----------
+        clist
+            A list of mpl color specifiers.
         """
-        cbook.warn_deprecated(
-            '1.5', name='set_color_cycle', alternative='set_prop_cycle')
         if clist is None:
             # Calling set_color_cycle() or set_prop_cycle() with None
             # effectively resets the cycle, but you can't do
@@ -1867,9 +1852,9 @@ class _AxesBase(martist.Artist):
         """
         a.axes = self
         self.artists.append(a)
+        a._remove_method = self.artists.remove
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
-        a._remove_method = lambda h: self.artists.remove(h)
         self.stale = True
         return a
 
@@ -1884,6 +1869,7 @@ class _AxesBase(martist.Artist):
         if not label:
             collection.set_label('_collection%d' % len(self.collections))
         self.collections.append(collection)
+        collection._remove_method = self.collections.remove
         self._set_artist_props(collection)
 
         if collection.get_clip_path() is None:
@@ -1892,7 +1878,6 @@ class _AxesBase(martist.Artist):
         if autolim:
             self.update_datalim(collection.get_datalim(self.transData))
 
-        collection._remove_method = lambda h: self.collections.remove(h)
         self.stale = True
         return collection
 
@@ -1906,7 +1891,7 @@ class _AxesBase(martist.Artist):
         if not image.get_label():
             image.set_label('_image%d' % len(self.images))
         self.images.append(image)
-        image._remove_method = lambda h: self.images.remove(h)
+        image._remove_method = self.images.remove
         self.stale = True
         return image
 
@@ -1929,7 +1914,7 @@ class _AxesBase(martist.Artist):
         if not line.get_label():
             line.set_label('_line%d' % len(self.lines))
         self.lines.append(line)
-        line._remove_method = lambda h: self.lines.remove(h)
+        line._remove_method = self.lines.remove
         self.stale = True
         return line
 
@@ -1939,7 +1924,7 @@ class _AxesBase(martist.Artist):
         """
         self._set_artist_props(txt)
         self.texts.append(txt)
-        txt._remove_method = lambda h: self.texts.remove(h)
+        txt._remove_method = self.texts.remove
         self.stale = True
         return txt
 
@@ -2002,7 +1987,7 @@ class _AxesBase(martist.Artist):
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
-        p._remove_method = lambda h: self.patches.remove(h)
+        p._remove_method = self.patches.remove
         return p
 
     def _update_patch_limits(self, patch):
@@ -2048,7 +2033,7 @@ class _AxesBase(martist.Artist):
         self._set_artist_props(tab)
         self.tables.append(tab)
         tab.set_clip_path(self.patch)
-        tab._remove_method = lambda h: self.tables.remove(h)
+        tab._remove_method = self.tables.remove
         return tab
 
     def add_container(self, container):
@@ -2062,7 +2047,7 @@ class _AxesBase(martist.Artist):
         if not label:
             container.set_label('_container%d' % len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(h))
+        container._remove_method = self.containers.remove
         return container
 
     def _on_units_changed(self, scalex=False, scaley=False):
@@ -4043,38 +4028,6 @@ class _AxesBase(martist.Artist):
         points[~valid] = None
         self.set_xlim(points[:, 0])
         self.set_ylim(points[:, 1])
-
-    @cbook.deprecated("2.1")
-    def get_cursor_props(self):
-        """
-        Return the cursor propertiess as a (*linewidth*, *color*)
-        tuple, where *linewidth* is a float and *color* is an RGBA
-        tuple
-        """
-        return self._cursorProps
-
-    @cbook.deprecated("2.1")
-    def set_cursor_props(self, *args):
-        """Set the cursor property as
-
-        Call signature ::
-
-          ax.set_cursor_props(linewidth, color)
-
-        or::
-
-          ax.set_cursor_props((linewidth, color))
-
-        ACCEPTS: a (*float*, *color*) tuple
-        """
-        if len(args) == 1:
-            lw, c = args[0]
-        elif len(args) == 2:
-            lw, c = args
-        else:
-            raise ValueError('args must be a (linewidth, color) tuple')
-        c = mcolors.to_rgba(c)
-        self._cursorProps = lw, c
 
     def get_children(self):
         """return a list of child artists"""

@@ -94,6 +94,16 @@ def get_named_colors_mapping():
     return _colors_full_map
 
 
+def _sanitize_extrema(ex):
+    if ex is None:
+        return ex
+    try:
+        ret = np.asscalar(ex)
+    except AttributeError:
+        ret = float(ex)
+    return ret
+
+
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
     return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
@@ -878,8 +888,8 @@ class Normalize(object):
         likely to lead to surprises; therefore the default is
         *clip* = *False*.
         """
-        self.vmin = vmin
-        self.vmax = vmax
+        self.vmin = _sanitize_extrema(vmin)
+        self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
 
     @staticmethod
@@ -1485,8 +1495,7 @@ def hsv_to_rgb(hsv):
     g[idx] = v[idx]
     b[idx] = v[idx]
 
-    # `np.stack([r, g, b], axis=-1)` (numpy 1.10).
-    rgb = np.concatenate([r[..., None], g[..., None], b[..., None]], -1)
+    rgb = np.stack([r, g, b], axis=-1)
 
     if in_ndim == 1:
         rgb.shape = (3,)
@@ -1506,17 +1515,6 @@ def _vector_magnitude(arr):
     for i in range(arr.shape[-1]):
         sum_sq += np.square(arr[..., i, np.newaxis])
     return np.sqrt(sum_sq)
-
-
-def _vector_dot(a, b):
-    # things that don't work here:
-    #   * a.dot(b) - fails on masked arrays until 1.10
-    #   * np.ma.dot(a, b) - doesn't mask enough things
-    #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
-    dot = 0
-    for i in range(a.shape[-1]):
-        dot += a[..., i] * b[..., i]
-    return dot
 
 
 class LightSource(object):
@@ -1655,7 +1653,7 @@ class LightSource(object):
             completely in shadow and 1 is completely illuminated.
         """
 
-        intensity = _vector_dot(normals, self.direction)
+        intensity = normals.dot(self.direction)
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()

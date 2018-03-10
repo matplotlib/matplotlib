@@ -52,16 +52,16 @@ Testing
 
 After installation, you can launch the test suite::
 
-  py.test
+  pytest
 
 Or from the Python interpreter::
 
   import matplotlib
   matplotlib.test()
 
-Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
-more information. Note that the test suite requires pytest and, on Python 2.7,
-mock. Please install with pip or your package manager of choice.
+Consider reading http://matplotlib.org/devel/coding_guide.html#testing for more
+information. Note that the test suite requires pytest. Please install with pip
+or your package manager of choice.
 
 Contact
 =======

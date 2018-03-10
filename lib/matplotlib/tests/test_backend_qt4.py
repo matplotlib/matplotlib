@@ -1,16 +1,11 @@
-from __future__ import absolute_import, division, print_function
+import copy
+from unittest.mock import Mock
 
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 import matplotlib
-import copy
 
 import pytest
-try:
-    # mock in python 3.3+
-    from unittest import mock
-except ImportError:
-    import mock
 
 with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
@@ -91,7 +86,7 @@ def test_correct_key(qt_key, qt_mods, answer):
     """
     qt_canvas = plt.figure().canvas
 
-    event = mock.Mock()
+    event = Mock()
     event.isAutoRepeat.return_value = False
     event.key.return_value = qt_key
     event.modifiers.return_value = qt_mods

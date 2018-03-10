@@ -22,7 +22,7 @@ x = np.arange(100)
 # Here are many sets of y to plot vs x
 ys = x[:50, np.newaxis] + x[np.newaxis, :]
 
-segs = np.zeros((50, 100, 2), float)
+segs = np.zeros((50, 100, 2))
 segs[:, :, 1] = ys
 segs[:, :, 0] = x
 
