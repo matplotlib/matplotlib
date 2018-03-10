@@ -248,7 +248,7 @@ def test_bbox_table():
         bbox=(.0, .0, 1, 1))
 
     plt.draw()
-    
+
 
 def test_table_cells():
     fig, ax = plt.subplots()
