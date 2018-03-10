@@ -1,5 +1,5 @@
 Change return value of Axes.get_shared_[x,y,z]_axes()
------------------------------------------------
+-----------------------------------------------------
 
 The method `matplotlib.Axes.get_shared_x_axes` (and y and z) used to return `~.cbook.Grouper` objects.
 Now it returns a `~.weakref.WeakSet` object.
