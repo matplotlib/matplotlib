@@ -345,7 +345,7 @@ def test_trisurf3d():
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
 
 
-@image_comparison(baseline_images=['test_trisurf3d_change_edgecolor'],
+@image_comparison(baseline_images=['trisurf3d_change_edgecolor'],
                   remove_text=True, style='mpl20', extensions=['png'])
 def test_trisurf3d_change_edgecolor():
     fig = plt.figure()
@@ -388,7 +388,7 @@ def test_trisurf3d_shaded():
     ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
-@image_comparison(baseline_images=['test_trisurf3d_change_edgecolor_shaded'],
+@image_comparison(baseline_images=['trisurf3d_change_edgecolor_shaded'],
                   remove_text=True, style='mpl20', extensions=['png'])
 def test_trisurf3d_change_edgecolor_shaded():
     fig = plt.figure()
