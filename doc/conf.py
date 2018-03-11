@@ -153,7 +153,7 @@ master_doc = 'contents'
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2017 The Matplotlib development team')
+             'team; 2012 - 2018 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
