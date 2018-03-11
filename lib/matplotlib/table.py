@@ -61,6 +61,7 @@ class Cell(Rectangle):
             loc = 'right'
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], text=text,
+                          verticalalignment='center_baseline',
                           fontproperties=fontproperties)
         self._text.set_clip_on(False)
 
@@ -134,7 +135,6 @@ class Cell(Rectangle):
         l, b, w, h = bbox.bounds
 
         # draw in center vertically
-        self._text.set_verticalalignment('center_baseline')
         y = b + (h / 2.0)
 
         # now position horizontally
