@@ -163,8 +163,8 @@ class Text(Artist):
         self.set_color(color)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
-        self._verticalalignment = verticalalignment
-        self._horizontalalignment = horizontalalignment
+        self.set_verticalalignment(verticalalignment)
+        self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
         self._fontproperties = fontproperties
