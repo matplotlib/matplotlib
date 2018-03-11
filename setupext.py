@@ -565,7 +565,7 @@ class SetupPackage(object):
                            .format(url, self.name))
         elif sys.platform == "darwin":
             message = _try_managers("brew", "port")
-        elif sys.platform.startswith("linux"):
+        elif sys.platform == "linux":
             release = platform.linux_distribution()[0].lower()
             if release in ('debian', 'ubuntu'):
                 message = _try_managers('apt-get')
@@ -1421,7 +1421,7 @@ class BackendTkAgg(OptionalBackendPackage):
         if sys.platform == 'win32':
             # PSAPI library needed for finding Tcl / Tk at run time
             ext.libraries.extend(['psapi'])
-        elif sys.platform.startswith('linux'):
+        elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
 
 
