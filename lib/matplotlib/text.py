@@ -1150,7 +1150,7 @@ class Text(Artist):
         ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' |
                    'center_baseline' ]
         """
-        legal = ('top', 'bottom', 'center', 'baseline', 'centre_baseline')
+        legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
         if align not in legal:
             raise ValueError('Vertical alignment must be one of %s' %
                              str(legal))
