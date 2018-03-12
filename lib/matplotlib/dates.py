@@ -1241,7 +1241,7 @@ class AutoDateLocator(DateLocator):
             MINUTELY: len(rcParams['date.autoformatter.minute']),
             SECONDLY: len(rcParams['date.autoformatter.second']),
             MICROSECONDLY: len(rcParams['date.autoformatter.microsecond'])}
-
+        print(self.eachtick_len)
         if maxticks is not None:
             try:
                 self.maxticks.update(maxticks)
@@ -1340,7 +1340,7 @@ class AutoDateLocator(DateLocator):
         # more than maxticks tick positions. Also, set up some ranges
         # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
 
-        # a ratio of 12 default font sized date chars per inch is 'estimated'
+        # a ratio of 10 default font sized date chars per inch is 'estimated'
         maxwid = rcParams["figure.figsize"][0] * 12
         for i, (freq, num) in enumerate(zip(self._freqs, nums)):
 
@@ -1356,7 +1356,7 @@ class AutoDateLocator(DateLocator):
             # ticks
             for interval in self.intervald[freq]:
                 if (num <= interval * (self.maxticks[freq] - 1)):
-                    if (num/interval * self.eachtick_len[freq] <= maxwid):
+                    if ((num//interval) * self.eachtick_len[freq] <= maxwid):
                         break
             else:
                 # We went through the whole loop without breaking, default to
@@ -1369,7 +1369,7 @@ class AutoDateLocator(DateLocator):
 
             # Set some parameters as appropriate
             self._freq = freq
-
+            print(self._byranges[i])
             if self._byranges[i] and self.interval_multiples:
                 byranges[i] = self._byranges[i][::interval]
                 interval = 1
