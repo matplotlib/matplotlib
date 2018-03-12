@@ -9,7 +9,11 @@ from matplotlib.testing.decorators import image_comparison
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset, inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import (
+    zoomed_inset_axes,
+    mark_inset,
+    inset_axes
+)
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 from matplotlib.colors import LogNorm
@@ -180,7 +184,7 @@ def test_inset_axes():
               origin="lower")
 
     # creating our inset axes without a bbox_transform parameter
-    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1,1))
+    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
 
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
@@ -209,7 +213,7 @@ def test_inset_axes():
 
 def test_inset_axes_without_transform_should_use_parent_axes():
     # creating our figure
-    fig = plt.figure(dpi=150);
+    fig = plt.figure(dpi=150)
 
     # gca method gets current axes of the figure
     ax = plt.gca()
