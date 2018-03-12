@@ -186,6 +186,34 @@ def test_plot_3d_from_2d():
     ax.plot(xs, ys, zs=0, zdir='y')
 
 
+@image_comparison(baseline_images=['surface3d_rotate_gt_270deg'],
+                  remove_text=True, extensions=['png'])
+def test_rotate_gt_270deg():
+    elevation = 345
+    angle = None
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    # get test data, copied from axes3d.get_test_data(0.05)
+    # avoiding create too much dependency
+    x = y = np.arange(-3.0, 3.0, 0.05)
+    X, Y = np.meshgrid(x, y)
+
+    Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
+    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+          (2 * np.pi * 0.5 * 1.5))
+    Z = Z2 - Z1
+
+    X = X * 10
+    Y = Y * 10
+    Z = Z * 500
+    # plot below
+    s = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, lw=0)
+    ax.view_init(azim=angle, elev=elevation)
+    ax.axis('off')
+
+
+
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
 def test_surface3d():
     fig = plt.figure()
@@ -316,9 +344,10 @@ def test_quiver3d():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
 def test_quiver3d_empty():
@@ -330,9 +359,10 @@ def test_quiver3d_empty():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_masked'], remove_text=True)
 def test_quiver3d_masked():
@@ -346,11 +376,12 @@ def test_quiver3d_masked():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
     u = np.ma.masked_where((-0.4 < x) & (x < 0.1), u, copy=False)
     v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_pivot_middle'], remove_text=True,
                   extensions=['png'])
@@ -363,9 +394,10 @@ def test_quiver3d_pivot_middle():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_pivot_tail'], remove_text=True,
                   extensions=['png'])
@@ -378,7 +410,7 @@ def test_quiver3d_pivot_tail():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
 
@@ -425,9 +457,10 @@ def test_axes3d_labelpad():
 def test_axes3d_cla():
     # fixed in pull request 4553
     fig = plt.figure()
-    ax = fig.add_subplot(1,1,1, projection='3d')
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
+
 
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
@@ -435,7 +468,7 @@ def test_plotsurface_1d_raises():
     X, Y = np.meshgrid(x, y)
     z = np.random.randn(100)
 
-    fig = plt.figure(figsize=(14,6))
+    fig = plt.figure(figsize=(14, 6))
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     with pytest.raises(ValueError):
         ax.plot_surface(X, Y, z)
@@ -533,6 +566,7 @@ def test_proj_axes_cube_ortho():
 
     ax.set_xlim(-200, 200)
     ax.set_ylim(-200, 200)
+
 
 def test_rot():
     V = [1, 0, 0, 1]
@@ -674,9 +708,9 @@ class TestVoxels(object):
         x, y, z = np.indices((10, 10, 10))
         voxels = (x == y) | (y == z)
         colors = np.zeros((10, 10, 10, 3))
-        colors[...,0] = x/9.0
-        colors[...,1] = y/9.0
-        colors[...,2] = z/9.0
+        colors[..., 0] = x/9.0
+        colors[..., 1] = y/9.0
+        colors[..., 2] = z/9.0
         ax.voxels(voxels, facecolors=colors)
 
     @image_comparison(

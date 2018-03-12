@@ -964,7 +964,7 @@ class Axes3D(Axes):
         """
 
         self.dist = 10
-
+        # normalize the angle to stay between [-180, 180]
         if elev is None:
             self.elev = art3d.norm_angle(self.initial_elev)
         else:
