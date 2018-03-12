@@ -946,6 +946,8 @@ defaultParams = {
     'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', validate_string],  # marker name
+    'lines.markerfacecolor': ['auto', validate_color_or_auto],  # default color
+    'lines.markeredgecolor': ['auto', validate_color_or_auto],  # default color
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
