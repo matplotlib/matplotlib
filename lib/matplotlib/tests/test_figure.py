@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import os
 import sys
 import warnings
 
@@ -379,6 +378,11 @@ def test_figure_repr():
 
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_fspath(fmt):
+def test_fspath(fmt, tmpdir):
     from pathlib import Path
-    plt.savefig(Path(os.devnull), format=fmt)
+    out = Path(tmpdir, "test.{}".format(fmt))
+    plt.savefig(out)
+    with out.open("rb") as file:
+        # All the supported formats include the format name (case-insensitive)
+        # in the first 100 bytes.
+        assert fmt.encode("ascii") in file.read(100).lower()
