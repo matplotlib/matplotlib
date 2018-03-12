@@ -1593,6 +1593,7 @@ class Arc(Ellipse):
 
         self.theta1 = theta1
         self.theta2 = theta2
+        self._path = Path.arc(self.theta1, self.theta2)
 
     @artist.allow_rasterization
     def draw(self, renderer):
