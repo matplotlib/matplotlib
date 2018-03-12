@@ -686,6 +686,7 @@ class Poly3DCollection(PolyCollection):
         try:
             self._facecolors = mcolors.to_rgba_array(
                 self._facecolors3d, self._alpha)
+            self._facecolors3d = self._facecolors
         except (AttributeError, TypeError, IndexError):
             pass
         try:
