@@ -966,14 +966,14 @@ class Axes3D(Axes):
         self.dist = 10
 
         if elev is None:
-            self.elev = self.initial_elev
+            self.elev = art3d.norm_angle(self.initial_elev)
         else:
-            self.elev = elev
+            self.elev = art3d.norm_angle(elev)
 
         if azim is None:
-            self.azim = self.initial_azim
+            self.azim = art3d.norm_angle(self.initial_azim)
         else:
-            self.azim = azim
+            self.azim = art3d.norm_angle(azim)
 
     def set_proj_type(self, proj_type):
         """
