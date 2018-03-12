@@ -213,7 +213,6 @@ def test_rotate_gt_270deg():
     ax.axis('off')
 
 
-
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
 def test_surface3d():
     fig = plt.figure()
