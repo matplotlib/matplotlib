@@ -224,6 +224,7 @@ def _is_writable_dir(p):
     return os.access(p, os.W_OK) and os.path.isdir(p)
 
 _verbose_msg = """\
+matplotlib.verbose is deprecated;
 Command line argument --verbose-LEVEL is deprecated.
 This functionality is now provided by the standard
 python logging library.  To get more (or less) logging output:
@@ -288,7 +289,6 @@ def _parse_commandline():
 _parse_commandline()
 
 
-@cbook.deprecated("2.2", message=_verbose_msg)
 class Verbose(object):
     """
     A class to handle reporting.  Set the fileo attribute to any file
@@ -311,10 +311,12 @@ class Verbose(object):
         if level_str in levels:
             _commandLineVerbose = level_str
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def __init__(self):
         self.set_level('silent')
         self.fileo = sys.stdout
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def set_level(self, level):
         'set the verbosity to one of the Verbose.levels strings'
 
@@ -326,6 +328,7 @@ class Verbose(object):
         else:
             self.level = level
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def set_fileo(self, fname):
         std = {
             'sys.stdout': sys.stdout,
@@ -343,6 +346,7 @@ class Verbose(object):
             else:
                 self.fileo = fileo
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def report(self, s, level='helpful'):
         """
         print message s to self.fileo if self.level>=level.  Return
@@ -354,6 +358,7 @@ class Verbose(object):
             return True
         return False
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def wrap(self, fmt, func, level='helpful', always=True):
         """
         return a callable function that wraps func and reports it
@@ -377,6 +382,7 @@ class Verbose(object):
         wrapper.__doc__ = func.__doc__
         return wrapper
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def ge(self, level):
         'return true if self.level is >= level'
         return self.vald[self.level] >= self.vald[level]
