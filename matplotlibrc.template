@@ -455,6 +455,7 @@ backend      : $TEMPLATE_BACKEND
 #figure.constrained_layout.w_pad : 0.04167 ##  inches. Default is 3./72. inches (3 pts)
 #figure.constrained_layout.hspace : 0.02   ## Space between subplot groups. Float representing 
 #figure.constrained_layout.wspace : 0.02   ##  a fraction of the subplot widths being separated. 
+#figure.show       : True    ## Show the figure on the GUI
 
 #### IMAGES
 #image.aspect : equal             ## equal | auto | a number

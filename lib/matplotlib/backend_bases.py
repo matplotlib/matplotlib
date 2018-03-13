@@ -188,7 +188,8 @@ class _Backend(object):
         if not managers:
             return
         for manager in managers:
-            manager.show()
+            if rcParams['figure.show']:
+                manager.show()
         if block is None:
             # Hack: Are we in IPython's pylab mode?
             from matplotlib import pyplot
