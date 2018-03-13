@@ -12,6 +12,7 @@ from io import BytesIO
 from math import ceil
 import os
 import logging
+import warnings
 
 import numpy as np
 
@@ -264,8 +265,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         and magnified by the magnification factor.
 
         `A` may be a greyscale image (MxN) with a dtype of `float32`,
-        `float64`, `uint16` or `uint8`, or an RGBA image (MxNx4) with
-        a dtype of `float32`, `float64`, or `uint8`.
+        `float64`, `float128`, `uint16` or `uint8`, or an RGBA image (MxNx4)
+        with a dtype of `float32`, `float64`, `float128`, or `uint8`.
 
         If `unsampled` is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
@@ -361,6 +362,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
                     scaled_dtype = A.dtype
+                    # Cast to float64
+                    if A.dtype not in (np.float32, np.float16):
+                        if A.dtype != np.float64:
+                            warnings.warn(
+                                "Casting input data from '{0}' to 'float64'"
+                                "for imshow".format(A.dtype))
+                        scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
@@ -386,7 +394,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # of over numbers.
                 if self.norm.vmin is not None and self.norm.vmax is not None:
                     dv = (np.float64(self.norm.vmax) -
-                            np.float64(self.norm.vmin))
+                          np.float64(self.norm.vmin))
                     vmid = self.norm.vmin + dv / 2
                     newmin = vmid - dv * 1.e7
                     if newmin < a_min:
