@@ -374,8 +374,8 @@ def test_polar_rectangle_transform_patch():
     ax.set_rmax(2.5)
 
 
-@image_comparison(baseline_images=['polar_polygon_filling'], extensions=['png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(baseline_images=['polar_polygon_filling'],
+                  extensions=['png'], style='mpl20', remove_text=True)
 def test_polar_polygon_filling():
     x = np.linspace(0, np.pi, 5)
     y = np.abs(np.sin(x))
