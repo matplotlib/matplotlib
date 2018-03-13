@@ -430,7 +430,7 @@ def test_wireframe3d_change_facecolor_alpha():
     ax.zaxis.set_major_formatter(plt.NullFormatter())
     X, Y, Z = axes3d.get_test_data(0.05)
     li = ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
-    li.set_facecolor([1,0,0,.3])
+    li.set_facecolor([1, 0, 0, .3])
 
 
 @image_comparison(baseline_images=['wireframe3d_change_edgecolor'],
@@ -511,7 +511,7 @@ def test_quiver3d_change_color():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
 
     qu = ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
     qu.set_color("red")
@@ -526,8 +526,7 @@ def test_quiver3d_empty():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
@@ -825,7 +824,6 @@ class TestVoxels(object):
         voxels = (x == y) | (y == z)
         ax.voxels(voxels)
 
-
     @image_comparison(baseline_images=['voxels_simple_change_edgecolor'],
                       remove_text=True, style='mpl20', extensions=['png'])
     def test_voxels_simple_change_edgecolor(self):
@@ -842,9 +840,9 @@ class TestVoxels(object):
         for coord, poly in v.items():
             poly.set_edgecolor("red")
 
-
-    @image_comparison(baseline_images=['voxels_simple_change_facecolor_single'],
-                      remove_text=True, style='mpl20', extensions=['png'])
+    @image_comparison(
+        baseline_images=['voxels_simple_change_facecolor_single'],
+        remove_text=True, style='mpl20', extensions=['png'])
     def test_voxels_simple_change_facecolor_single(self):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -860,9 +858,9 @@ class TestVoxels(object):
             poly.set_edgecolor("black")
             poly.set_facecolor("yellow")
 
-
-    @image_comparison(baseline_images=['voxels_simple_change_facecolor_multiple'],
-                      remove_text=True, style='mpl20', extensions=['png'])
+    @image_comparison(
+        baseline_images=['voxels_simple_change_facecolor_multiple'],
+        remove_text=True, style='mpl20', extensions=['png'])
     def test_voxels_simple_change_facecolor_multiple(self):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -877,7 +875,6 @@ class TestVoxels(object):
         for coord, poly in v.items():
             poly.set_edgecolor("black")
             poly.set_facecolor(tuple(t/4 for t in coord))
-
 
     @image_comparison(
         baseline_images=['voxels-edge-style'],
@@ -952,7 +949,6 @@ class TestVoxels(object):
             assert voxels[coord], "faces returned for absent voxel"
             assert isinstance(poly, art3d.Poly3DCollection)
 
-
     @image_comparison(baseline_images=['voxels_alpha_change_edgecolor'],
                       remove_text=True, style='mpl20', extensions=['png'])
     def test_voxels_alpha_change_edgecolor(self):
@@ -975,8 +971,7 @@ class TestVoxels(object):
         for coord, poly in v.items():
             assert voxels[coord], "faces returned for absent voxel"
             assert isinstance(poly, art3d.Poly3DCollection)
-            poly.set_edgecolor([1,1,1,.5])
-
+            poly.set_edgecolor([1, 1, 1, .5])
 
     @image_comparison(
         baseline_images=['voxels-xyz'],
