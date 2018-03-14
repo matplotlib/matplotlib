@@ -986,6 +986,13 @@ class RadioButtons(AxesWidget):
         cnt = 0
         axcolor = ax.get_facecolor()
 
+        # scale the radius of the circle with the spacing between each one
+        circle_radius = (dy / 2) - 0.01
+
+        # defaul to hard-coded value if the radius becomes too large
+        if(circle_radius > 0.05):
+            circle_radius = 0.05
+
         self.labels = []
         self.circles = []
         for y, label in zip(ys, labels):
@@ -999,7 +1006,7 @@ class RadioButtons(AxesWidget):
             else:
                 facecolor = axcolor
 
-            p = Circle(xy=(0.15, y), radius=0.05, edgecolor='black',
+            p = Circle(xy=(0.15, y), radius=circle_radius, edgecolor='black',
                        facecolor=facecolor, transform=ax.transAxes)
 
             self.labels.append(t)
