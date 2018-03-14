@@ -4288,11 +4288,15 @@ class _AxesBase(martist.Artist):
         self.unshare_y_axes()
 
     def _share_axes(self, axes, shared_axes):
-        shared = getattr(self, shared_axes)
-        shared |= getattr(axes, shared_axes)
+        if not iterable(axes):
+            axes = [axes]
+
+        shared = getattr(self, "_shared_{}_axes".format(shared_axes))
+        for ax in axes:
+            shared |= getattr(ax, "_shared_{}_axes".format(shared_axes))
 
         for ax in shared:
-            setattr(ax, shared_axes, shared)
+            setattr(ax, "_shared_{}_axes".format(shared_axes), shared)
 
     def share_x_axes(self, axes):
         """
@@ -4303,7 +4307,7 @@ class _AxesBase(martist.Artist):
         axes: Axes
             Axes to share.
         """
-        self._share_axes(axes, '_shared_x_axes')
+        self._share_axes(axes, 'x')
 
     def share_y_axes(self, axes):
         """
@@ -4314,7 +4318,7 @@ class _AxesBase(martist.Artist):
         axes: Axes
             Axes to share.
         """
-        self._share_axes(axes, '_shared_y_axes')
+        self._share_axes(axes, 'y')
 
     def share_axes(self, axes):
         """

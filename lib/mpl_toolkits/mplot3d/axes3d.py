@@ -2919,7 +2919,7 @@ class Axes3D(Axes):
         axes: Axes
             Axes to share.
         """
-        self._share_axes(axes, '_shared_z_axes')
+        self._share_axes(axes, 'z')
 
     def share_axes(self, axes):
         """
