@@ -10,7 +10,7 @@ controls on wxPython.
 import matplotlib
 matplotlib.use("WxAgg")
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx, wxc
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
 import numpy as np
 
@@ -27,7 +27,7 @@ mathtext_parser = MathTextParser("Bitmap")
 
 def mathtext_to_wxbitmap(s):
     ftimage, depth = mathtext_parser.parse(s, 150)
-    return wxc.BitmapFromBuffer(
+    return wx.Bitmap.FromBufferRGBA(
         ftimage.get_width(), ftimage.get_height(),
         ftimage.as_rgba_str())
 ############################################################
@@ -43,7 +43,6 @@ functions = [
 class CanvasFrame(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title, size=(550, 350))
-        self.SetBackgroundColour(wxc.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -71,7 +70,7 @@ class CanvasFrame(wx.Frame):
                 bm = mathtext_to_wxbitmap(mt)
                 item = wx.MenuItem(menu, 1000 + i, " ")
                 item.SetBitmap(bm)
-                menu.AppendItem(item)
+                menu.Append(item)
                 self.Bind(wx.EVT_MENU, self.OnChangePlot, item)
             menuBar.Append(menu, "&Functions")
 

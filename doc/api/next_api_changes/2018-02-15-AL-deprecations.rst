@@ -5,6 +5,8 @@ The following modules are deprecated:
 - :mod:`matplotlib.compat.subprocess`. This was a python 2 workaround, but all
   the functionality can now be found in the python 3 standard library
   :mod:`subprocess`.
+- :mod:`matplotlib.backends.wx_compat`. Python 3 is only compatible with
+  wxPython 4, so support for wxPython 3 or earlier can be dropped.
 
 The following classes, methods, and functions are deprecated:
 
