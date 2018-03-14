@@ -33,7 +33,7 @@ ax1.share_axes(ax)
 ax2 = fig.add_subplot(313, projection='3d', sharex=ax)
 ax2.plot(x, y, z)
 
-ax2.unshare_x_axes(ax)
+ax2.unshare_x_axes()
 ax2.share_z_axes(ax)
 
 plt.show()
