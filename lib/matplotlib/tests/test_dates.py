@@ -650,7 +650,7 @@ def test_datetime_hourly_overlap():
 @image_comparison(baseline_images=['datetime_minutely_overlap'],
                   extensions=['png'])
 def test_datetime_minutely_overlap():
-    # issue 7712 for overlapping date ticks in second intervals
+    # issue 7712 for overlapping date ticks in minutely intervals
     plt.rcParams['date.autoformatter.minute'] = '%d %H:%M'
     plt.rcParams['xtick.major.pad'] = '8'
     dates = [datetime.datetime(2018, 1, 1, 1, i) for i in range(1, 55)]
