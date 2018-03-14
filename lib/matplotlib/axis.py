@@ -1568,7 +1568,7 @@ class Axis(artist.Artist):
 
         ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
         """
-        if not hasattr(formatter, 'format_data'):
+        if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
                     "matplotlib.ticker.Formatter")
         self.isDefault_majfmt = False
@@ -1582,7 +1582,7 @@ class Axis(artist.Artist):
 
         ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
         """
-        if not hasattr(formatter, 'format_data'):
+        if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
                     "matplotlib.ticker.Formatter")
         self.isDefault_minfmt = False
@@ -1596,7 +1596,7 @@ class Axis(artist.Artist):
 
         ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
         """
-        if not hasattr(locator, 'tick_values'):
+        if not isinstance(locator, mticker.Locator):
             raise TypeError("formatter argument should be instance of "
                     "matplotlib.ticker.Locator")
         self.isDefault_majloc = False
@@ -1610,7 +1610,7 @@ class Axis(artist.Artist):
 
         ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
         """
-        if not hasattr(locator, 'tick_values'):
+        if not isinstance(locator, mticker.Locator):
             raise TypeError("formatter argument should be instance of "
                     "matplotlib.ticker.Locator")
         self.isDefault_minloc = False
