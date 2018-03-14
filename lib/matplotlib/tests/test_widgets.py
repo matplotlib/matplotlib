@@ -90,8 +90,9 @@ def check_rectangle(**kwargs):
 
     if kwargs.get('drawtype', None) not in ['line', 'none']:
         assert_allclose(tool.geometry,
-            [[100., 100, 199, 199, 100], [100, 199, 199, 100, 100]],
-            err_msg=tool.geometry)
+                        [[100., 100, 199, 199, 100], 
+                         [100, 199, 199, 100, 100]],
+                        err_msg=tool.geometry)
 
     assert ax._got_onselect
 
@@ -118,7 +119,7 @@ def test_ellipse():
 
     # drag the rectangle
     do_event(tool, 'press', xdata=10, ydata=10, button=1,
-                    key=' ')
+             key=' ')
                     
     do_event(tool, 'onmove', xdata=30, ydata=30, button=1)
     do_event(tool, 'release', xdata=30, ydata=30, button=1)
@@ -126,33 +127,33 @@ def test_ellipse():
 
     # create from center
     do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
-                    key='control')
+             key='control')
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
     do_event(tool, 'release', xdata=125, ydata=125, button=1)
     do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
-                    key='control')
+             key='control')
     assert tool.extents == (75, 125, 75, 125)
 
     # create a square
     do_event(tool, 'on_key_press', xdata=10, ydata=10, button=1,
-                    key='shift')
+             key='shift')
     do_event(tool, 'press', xdata=10, ydata=10, button=1)
     do_event(tool, 'onmove', xdata=35, ydata=30, button=1)
     do_event(tool, 'release', xdata=35, ydata=30, button=1)
     do_event(tool, 'on_key_release', xdata=10, ydata=10, button=1,
-                    key='shift')
+             key='shift')
     extents = [int(e) for e in tool.extents]
     assert extents == [10, 35, 10, 34]
 
     # create a square from center
     do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
-                      key='ctrl+shift')
+             key='ctrl+shift')
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=125, ydata=130, button=1)
     do_event(tool, 'release', xdata=125, ydata=130, button=1)
     do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
-                      key='ctrl+shift')
+             key='ctrl+shift')
     extents = [int(e) for e in tool.extents]
     assert extents == [70, 129, 70, 130]
 
@@ -273,7 +274,7 @@ def test_check_radio_buttons_image():
                          (False, True, True))
 
 
-@image_comparison(baseline_images=['check_bunch_of_radio_buttons'], 
+@image_comparison(baseline_images=['check_bunch_of_radio_buttons'],
                   extensions=['png'])
 def test_check_bunch_of_radio_buttons():
     rax = plt.axes([0.05, 0.1, 0.15, 0.7])
@@ -452,3 +453,4 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
+    
