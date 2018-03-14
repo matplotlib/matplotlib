@@ -437,9 +437,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
 #           ``pyside``).  This backend can be activated in IPython with
 #           ``%matplotlib qt4``.
-# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_;
-#           v4.0 (in beta) is required for Python3). This backend can be
-#           activated in IPython with ``%matplotlib wx``.#
+# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+#           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/

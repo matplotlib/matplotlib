@@ -163,8 +163,8 @@ class Text(Artist):
         self.set_color(color)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
-        self._verticalalignment = verticalalignment
-        self._horizontalalignment = horizontalalignment
+        self.set_verticalalignment(verticalalignment)
+        self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
         self._fontproperties = fontproperties
@@ -1147,9 +1147,10 @@ class Text(Artist):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' ]
+        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' |
+                   'center_baseline' ]
         """
-        legal = ('top', 'bottom', 'center', 'baseline')
+        legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
         if align not in legal:
             raise ValueError('Vertical alignment must be one of %s' %
                              str(legal))

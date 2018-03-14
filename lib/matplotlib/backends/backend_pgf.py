@@ -30,7 +30,7 @@ _log = logging.getLogger(__name__)
 
 # create a list of system fonts, all of these should work with xe/lua-latex
 system_fonts = []
-if sys.platform.startswith('win'):
+if sys.platform == 'win32':
     from matplotlib import font_manager
     for f in font_manager.win32InstalledFonts():
         try:

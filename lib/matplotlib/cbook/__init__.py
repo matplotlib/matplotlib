@@ -829,34 +829,34 @@ def report_memory(i=0):  # argument may go away
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:
-            a2 = Popen(str('ps -p %d -o osz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Sun OS only if "
                 "the 'ps' program is found")
         mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
+    elif sys.platform == 'linux':
         try:
-            a2 = Popen(str('ps -p %d -o rss,sz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Linux only if "
                 "the 'ps' program is found")
         mem = int(a2[1].split()[1])
-    elif sys.platform.startswith('darwin'):
+    elif sys.platform == 'darwin':
         try:
-            a2 = Popen(str('ps -p %d -o rss,vsz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Mac OS only if "
                 "the 'ps' program is found")
         mem = int(a2[1].split()[0])
-    elif sys.platform.startswith('win'):
+    elif sys.platform == 'win32':
         try:
-            a2 = Popen([str("tasklist"), "/nh", "/fi", "pid eq %d" % pid],
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
                        stdout=PIPE).stdout.read()
         except OSError:
             raise NotImplementedError(
