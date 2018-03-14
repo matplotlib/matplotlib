@@ -10,6 +10,7 @@ import pytz
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib import rcParams
 
 
 def test_date_numpyx():
@@ -405,12 +406,12 @@ def test_auto_date_locator_intmult():
                  '2180-01-01 00:00:00+00:00', '2200-01-01 00:00:00+00:00']
                 ],
                [datetime.timedelta(weeks=52),
-                ['1997-01-01 00:00:00+00:00', '1997-02-01 00:00:00+00:00',
-                 '1997-03-01 00:00:00+00:00', '1997-04-01 00:00:00+00:00',
-                 '1997-05-01 00:00:00+00:00', '1997-06-01 00:00:00+00:00',
-                 '1997-07-01 00:00:00+00:00', '1997-08-01 00:00:00+00:00',
-                 '1997-09-01 00:00:00+00:00', '1997-10-01 00:00:00+00:00',
-                 '1997-11-01 00:00:00+00:00', '1997-12-01 00:00:00+00:00']
+               ['1997-01-01 00:00:00+00:00', '1997-02-01 00:00:00+00:00',
+                '1997-03-01 00:00:00+00:00', '1997-04-01 00:00:00+00:00',
+                '1997-05-01 00:00:00+00:00', '1997-06-01 00:00:00+00:00',
+                '1997-07-01 00:00:00+00:00', '1997-08-01 00:00:00+00:00',
+                '1997-09-01 00:00:00+00:00', '1997-10-01 00:00:00+00:00',
+                '1997-11-01 00:00:00+00:00', '1997-12-01 00:00:00+00:00']
                 ],
                [datetime.timedelta(days=141),
                 ['1997-01-01 00:00:00+00:00', '1997-01-22 00:00:00+00:00',
@@ -453,7 +454,6 @@ def test_auto_date_locator_intmult():
                  '1997-01-01 00:00:00.001500+00:00']
                 ],
                )
-
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
@@ -612,3 +612,47 @@ def test_tz_utc():
 def test_num2timedelta(x, tdelta):
     dt = mdates.num2timedelta(x)
     assert dt == tdelta
+
+
+@image_comparison(baseline_images=['datetime_daily_overlap'],
+                  extensions=['png'])
+def test_datetime_daily_overlap():
+    # issue 7712 for overlapping daily dates
+    plt.rcParams['date.autoformatter.day'] = "%Y-%m-%d"
+    plt.rcParams['xtick.major.pad'] = 8
+    dates = [datetime.datetime(2018, 1, i) for i in range(1, 30)]
+    values = list(range(1, 30))
+    plt.plot(dates, values)
+
+
+@image_comparison(baseline_images=['datetime_monthly_overlap'],
+                  extensions=['png'])
+def test_datetime_monthly_overlap():
+    # issue 7712 for overlapping monthly dates
+    plt.rcParams['date.autoformatter.month'] = '%Y-%m'
+    plt.rcParams['xtick.major.pad'] = '8'
+    dates = [datetime.datetime(2018, i, 1) for i in range(1, 11)]
+    values = list(range(1, 11))
+    plt.plot(dates, values)
+
+
+@image_comparison(baseline_images=['datetime_hourly_overlap'],
+                  extensions=['png'])
+def test_datetime_hourly_overlap():
+    # issue 7712 for overlapping hourly dates
+    plt.rcParams['date.autoformatter.hour'] = '%m-%d %H'
+    plt.rcParams['xtick.major.pad'] = '8'
+    dates = [datetime.datetime(2018, 1, 1, i) for i in range(1, 20)]
+    values = list(range(1, 20))
+    plt.plot(dates, values)
+
+
+@image_comparison(baseline_images=['datetime_minutely_overlap'],
+                  extensions=['png'])
+def test_datetime_minutely_overlap():
+    # issue 7712 for overlapping date ticks in second intervals
+    plt.rcParams['date.autoformatter.minute'] = '%d %H:%M'
+    plt.rcParams['xtick.major.pad'] = '8'
+    dates = [datetime.datetime(2018, 1, 1, 1, i) for i in range(1, 55)]
+    values = list(range(1, 55))
+    plt.plot(dates, values)
