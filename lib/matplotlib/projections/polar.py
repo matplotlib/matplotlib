@@ -1022,6 +1022,13 @@ class PolarAxes(Axes):
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
+        """Set the minimum and maxium radius
+        ----------
+        thetamin
+            Updates the thetamin value.
+        thetamax
+            Updates the thetamax value.
+        """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
@@ -1100,21 +1107,59 @@ class PolarAxes(Axes):
         return self._direction.get_matrix()[0, 0]
 
     def set_rmax(self, rmax):
+        """Update the maximum radius
+
+        Parameters
+        ----------
+        rmax : number
+            Set maximum radius to value rmax.
+        """
         self.viewLim.y1 = rmax
 
     def get_rmax(self):
+        """
+        Returns
+        -------
+        float
+            The maximum radius of chart.
+        """
         return self.viewLim.ymax
 
     def set_rmin(self, rmin):
+        """Updates the minimum radius
+        Parameters
+        ----------
+        rmin : number
+            Set minimumradius to value rmin.
+        """
         self.viewLim.y0 = rmin
 
     def get_rmin(self):
+        """
+        Returns
+        -------
+        float
+            The minimum radius of chart.
+        """
         return self.viewLim.ymin
 
     def set_rorigin(self, rorigin):
+        """Updates the chart origin
+
+        Parameters
+        ----------
+        rorigin : number
+            Set the chart origin value.
+        """
         self._originViewLim.locked_y0 = rorigin
 
     def get_rorigin(self):
+        """
+        Returns
+        -------
+        float
+            The origin of chart.
+        """
         return self._originViewLim.y0
 
     def get_rsign(self):
@@ -1349,7 +1394,6 @@ class PolarAxes(Axes):
     def can_zoom(self):
         """
         Return *True* if this axes supports the zoom box button functionality.
-
         Polar axes do not support zoom boxes.
         """
         return False
@@ -1357,7 +1401,6 @@ class PolarAxes(Axes):
     def can_pan(self):
         """
         Return *True* if this axes supports the pan/zoom button functionality.
-
         For polar axes, this is slightly misleading. Both panning and
         zooming are performed by the same button. Panning is performed
         in azimuth while zooming is done along the radial.
