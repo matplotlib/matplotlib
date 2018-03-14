@@ -235,7 +235,6 @@ class _AxisWrapper(object):
 class ThetaLocator(mticker.Locator):
     """
     Used to locate theta ticks.
-
     This will work the same as the base locator except in the case that the
     view spans the entire circle. In such cases, the previously used default
     locations of every 45 degrees are returned.
@@ -275,12 +274,10 @@ class ThetaLocator(mticker.Locator):
 class ThetaTick(maxis.XTick):
     """
     A theta-axis tick.
-
     This subclass of `XTick` provides angular ticks with some small
     modification to their re-positioning such that ticks are rotated based on
     tick location. This results in ticks that are correctly perpendicular to
     the arc spine.
-
     When 'auto' rotation is enabled, labels are also rotated to be parallel to
     the spine. The label padding is also applied here since it's not possible
     to use a generic axes transform to produce tick-specific padding.
@@ -378,7 +375,6 @@ class ThetaTick(maxis.XTick):
 class ThetaAxis(maxis.XAxis):
     """
     A theta Axis.
-
     This overrides certain properties of an `XAxis` to provide special-casing
     for an angular axis.
     """
@@ -423,7 +419,6 @@ class ThetaAxis(maxis.XAxis):
 class RadialLocator(mticker.Locator):
     """
     Used to locate radius ticks.
-
     Ensures that all ticks are strictly positive.  For all other
     tasks, it delegates to the base
     :class:`~matplotlib.ticker.Locator` (which may be different
@@ -467,9 +462,7 @@ class RadialLocator(mticker.Locator):
 class _ThetaShift(mtransforms.ScaledTranslation):
     """
     Apply a padding shift based on axes theta limits.
-
     This is used to create padding for radial ticks.
-
     Parameters
     ----------
     axes : matplotlib.axes.Axes
@@ -526,7 +519,6 @@ class _ThetaShift(mtransforms.ScaledTranslation):
 class RadialTick(maxis.YTick):
     """
     A radial-axis tick.
-
     This subclass of `YTick` provides radial ticks with some small modification
     to their re-positioning such that ticks are rotated based on axes limits.
     This results in ticks that are correctly perpendicular to the spine. Labels
@@ -710,7 +702,6 @@ class RadialTick(maxis.YTick):
 class RadialAxis(maxis.YAxis):
     """
     A radial Axis.
-
     This overrides certain properties of a `YAxis` to provide special-casing
     for a radial axis.
     """
@@ -746,7 +737,6 @@ class RadialAxis(maxis.YAxis):
 def _is_full_circle_deg(thetamin, thetamax):
     """
     Determine if a wedge (in degrees) spans the full circle.
-
     The condition is derived from :class:`~matplotlib.patches.Wedge`.
     """
     return abs(abs(thetamax - thetamin) - 360.0) < 1e-12
@@ -755,7 +745,6 @@ def _is_full_circle_deg(thetamin, thetamax):
 def _is_full_circle_rad(thetamin, thetamax):
     """
     Determine if a wedge (in radians) spans the full circle.
-
     The condition is derived from :class:`~matplotlib.patches.Wedge`.
     """
     return abs(abs(thetamax - thetamin) - 2 * np.pi) < 1.74e-14
@@ -764,7 +753,6 @@ def _is_full_circle_rad(thetamin, thetamax):
 class _WedgeBbox(mtransforms.Bbox):
     """
     Transform (theta,r) wedge Bbox into axes bounding box.
-
     Parameters
     ----------
     center : tuple of float
@@ -838,7 +826,6 @@ class _WedgeBbox(mtransforms.Bbox):
 class PolarAxes(Axes):
     """
     A polar graph projection, where the input dimensions are *theta*, *r*.
-
     Theta starts pointing east and goes anti-clockwise.
     """
     name = 'polar'
@@ -986,6 +973,9 @@ class PolarAxes(Axes):
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text_transform, 'center', 'center'
 
+
+    
+
     def get_yaxis_transform(self, which='grid'):
         if which in ('tick1', 'tick2'):
             return self._yaxis_text_transform
@@ -1092,6 +1082,14 @@ class PolarAxes(Axes):
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
+        """Set the minimum and maxium radius
+        ----------
+        thetamin
+            Updates the thetamin value.
+        thetamax
+            Updates the thetamax value.
+        
+        """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
@@ -1116,10 +1114,8 @@ class PolarAxes(Axes):
         """
         Sets the location of theta's zero.  (Calls set_theta_offset
         with the correct value in radians under the hood.)
-
         loc : str
             May be one of "N", "NW", "W", "SW", "S", "SE", "E", or "NE".
-
         offset : float, optional
             An offset in degrees to apply from the specified `loc`. **Note:**
             this offset is *always* applied counter-clockwise regardless of
@@ -1139,10 +1135,8 @@ class PolarAxes(Axes):
     def set_theta_direction(self, direction):
         """
         Set the direction in which theta increases.
-
         clockwise, -1:
            Theta increases in the clockwise direction
-
         counterclockwise, anticlockwise, 1:
            Theta increases in the counterclockwise direction
         """
@@ -1161,34 +1155,78 @@ class PolarAxes(Axes):
     def get_theta_direction(self):
         """
         Get the direction in which theta increases.
-
         -1:
            Theta increases in the clockwise direction
-
         1:
            Theta increases in the counterclockwise direction
         """
         return self._direction.get_matrix()[0, 0]
 
     def set_rmax(self, rmax):
+        """Updates the maximum radius
+        Parameters
+        ----------
+        rmax : number
+            Set maximum radius to value rmax.
+        """
         self.viewLim.y1 = rmax
 
     def get_rmax(self):
+        """
+        Returns
+        -------
+        float
+            The maximum radius of chart.
+        """
         return self.viewLim.ymax
 
     def set_rmin(self, rmin):
+        """Updates the minimum radius
+        Parameters
+        ----------
+        rmin : number
+            Set minimumradius to value rmin.
+        """
         self.viewLim.y0 = rmin
 
     def get_rmin(self):
+        """
+        Returns
+        -------
+        float
+            The minimum radius of chart.
+        """
         return self.viewLim.ymin
 
     def set_rorigin(self, rorigin):
+        """Updates the chart origin
+        Parameters
+        ----------
+        rorigin : number
+            Set the chart origin value.
+        """
         self._originViewLim.locked_y0 = rorigin
 
     def get_rorigin(self):
+        """
+        Returns
+        -------
+        float
+            The origin of chart.
+        """
         return self._originViewLim.y0
 
     def set_rlim(self, *args, **kwargs):
+
+         """Set the minimum and maxium radius
+        ----------
+        ymin = 0
+            Updates the rmin value.
+        ymax = 0
+            Updates the rmax value.
+        
+        """
+        
         if 'rmin' in kwargs:
             kwargs['ymin'] = kwargs.pop('rmin')
         if 'rmax' in kwargs:
@@ -1206,7 +1244,6 @@ class PolarAxes(Axes):
 
     def set_rlabel_position(self, value):
         """Updates the theta position of the radius labels.
-
         Parameters
         ----------
         value : number
@@ -1231,20 +1268,14 @@ class PolarAxes(Axes):
         Set the angles at which to place the theta grids (these
         gridlines are equal along the theta dimension).  *angles* is in
         degrees.
-
         *labels*, if not None, is a ``len(angles)`` list of strings of
         the labels to use at each angle.
-
         If *labels* is None, the labels will be ``fmt %% angle``
-
         Return value is a list of tuples (*line*, *label*), where
         *line* is :class:`~matplotlib.lines.Line2D` instances and the
         *label* is :class:`~matplotlib.text.Text` instances.
-
         kwargs are optional text properties for the labels:
-
         %(Text)s
-
         ACCEPTS: sequence of floats
         """
 
@@ -1265,23 +1296,16 @@ class PolarAxes(Axes):
                    **kwargs):
         """
         Set the radial locations and labels of the *r* grids.
-
         The labels will appear at radial distances *radii* at the
         given *angle* in degrees.
-
         *labels*, if not None, is a ``len(radii)`` list of strings of the
         labels to use at each radius.
-
         If *labels* is None, the built-in formatter will be used.
-
         Return value is a list of tuples (*line*, *label*), where
         *line* is :class:`~matplotlib.lines.Line2D` instances and the
         *label* is :class:`~matplotlib.text.Text` instances.
-
         kwargs are optional text properties for the labels:
-
         %(Text)s
-
         ACCEPTS: sequence of floats
         """
         # Make sure we take into account unitized data
@@ -1328,7 +1352,6 @@ class PolarAxes(Axes):
     def can_zoom(self):
         """
         Return *True* if this axes supports the zoom box button functionality.
-
         Polar axes do not support zoom boxes.
         """
         return False
@@ -1336,7 +1359,6 @@ class PolarAxes(Axes):
     def can_pan(self):
         """
         Return *True* if this axes supports the pan/zoom button functionality.
-
         For polar axes, this is slightly misleading. Both panning and
         zooming are performed by the same button. Panning is performed
         in azimuth while zooming is done along the radial.
@@ -1409,6 +1431,7 @@ PolarAxes.InvertedPolarTransform = InvertedPolarTransform
 PolarAxes.ThetaFormatter = ThetaFormatter
 PolarAxes.RadialLocator = RadialLocator
 PolarAxes.ThetaLocator = ThetaLocator
+
 
 
 # These are a couple of aborted attempts to project a polar plot using
