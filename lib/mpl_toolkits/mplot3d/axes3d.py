@@ -2900,35 +2900,15 @@ class Axes3D(Axes):
 
         return polygons
 
-    def unshare_z_axes(self, axes=None):
-        """
-        Unshare z axis.
+    def unshare_z_axes(self):
+        """ Unshare z axis. """
+        self._unshare_axes("z")
 
-        Parameters
-        ----------
-        axes: Axes
-            Axes to unshare, if related. None will unshare itself.
-        """
-        if axes is None or axes is self:
-            children = self._unshare_axes('_shared_z_axes', '_sharez')
-            for ax in children:
-                self._copy_axis_major_minor(ax.zaxis)
-            self._copy_axis_major_minor(self.zaxis)
-        elif axes in self._shared_z_axes:
-            axes.unshare_z_axes()
-
-    def unshare_axes(self, axes=None):
-        """
-        Unshare x, y and z axes.
-
-        Parameters
-        ----------
-        axes: Axes
-            Axes to unshare, if related. None will unshare itself.
-        """
-        self.unshare_x_axes(axes)
-        self.unshare_y_axes(axes)
-        self.unshare_z_axes(axes)
+    def unshare_axes(self):
+        """ Unshare x, y and z axes. """
+        self.unshare_x_axes()
+        self.unshare_y_axes()
+        self.unshare_z_axes()
 
     def share_z_axes(self, axes):
         """

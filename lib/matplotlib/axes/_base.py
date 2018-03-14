@@ -4235,11 +4235,11 @@ class _AxesBase(martist.Artist):
 
     def get_shared_x_axes(self):
         """Return a copy of the shared axes Weakset object for x axes"""
-        return self._shared_x_axes
+        return WeakSet(self._shared_x_axes)
 
     def get_shared_y_axes(self):
         """Return a copy of the shared axes Weakset object for y axes"""
-        return self._shared_y_axes
+        return WeakSet(self._shared_y_axes)
 
     def is_sharing_x_axes(self):
         return len(self.get_shared_x_axes()) > 1
@@ -4247,19 +4247,21 @@ class _AxesBase(martist.Artist):
     def is_sharing_y_axes(self):
         return len(self.get_shared_y_axes()) > 1
 
-    def _unshare_axes(self, shared_axes, parent):
-        children = []
+    def _unshare_axes(self, shared_axes):
+        for ax in getattr(self, "_shared_{}_axes".format(shared_axes)):
+            parent = getattr(ax, "_share{}".format(shared_axes))
 
-        for ax in getattr(self, shared_axes):
-            if getattr(ax, parent) is self:
-                setattr(ax, parent, None)
-                children.append(ax)
+            if parent is self:
+                setattr(ax, "_share{}".format(shared_axes), None)
+                self._copy_axis_major_minor(
+                    getattr(ax, "{}axis".format(shared_axes)))
 
-        getattr(self, shared_axes).remove(self)
-        setattr(self, shared_axes, WeakSet([self]))
-        setattr(self, parent, None)
+        getattr(self, "_shared_{}_axes".format(shared_axes)).remove(self)
+        setattr(self, "_shared_{}_axes".format(shared_axes), WeakSet([self]))
+        setattr(self, "_share{}".format(shared_axes), None)
 
-        return children
+        self._copy_axis_major_minor(
+            getattr(self, "{}axis".format(shared_axes)))
 
     @staticmethod
     def _copy_axis_major_minor(axis):
@@ -4272,51 +4274,18 @@ class _AxesBase(martist.Artist):
         axis.major.set_axis(axis)
         axis.minor.set_axis(axis)
 
-    def unshare_x_axes(self, axes=None):
-        """
-        Unshare x axis.
+    def unshare_x_axes(self):
+        """ Unshare x axis. """
+        self._unshare_axes("x")
 
-        Parameters
-        ----------
-        axes: Axes
-            Axes to unshare, if related. None will unshare itself.
-        """
-        if axes is None or axes is self:
-            children = self._unshare_axes('_shared_x_axes', '_sharex')
-            for ax in children:
-                self._copy_axis_major_minor(ax.xaxis)
-            self._copy_axis_major_minor(self.xaxis)
-        elif axes in self._shared_x_axes:
-            axes.unshare_x_axes()
+    def unshare_y_axes(self):
+        """ Unshare y axis. """
+        self._unshare_axes("y")
 
-    def unshare_y_axes(self, axes=None):
-        """
-        Unshare y axis.
-
-        Parameters
-        ----------
-        axes: Axes
-            Axes to unshare, if related. None will unshare itself.
-        """
-        if axes is None or axes is self:
-            children = self._unshare_axes('_shared_y_axes', '_sharey')
-            for ax in children:
-                self._copy_axis_major_minor(ax.yaxis)
-            self._copy_axis_major_minor(self.yaxis)
-        elif axes in self._shared_y_axes:
-            axes.unshare_y_axes()
-
-    def unshare_axes(self, axes=None):
-        """
-        Unshare both x and y axes.
-
-        Parameters
-        ----------
-        axes: Axes
-            Axes to unshare, if related. None will unshare itself.
-        """
-        self.unshare_x_axes(axes)
-        self.unshare_y_axes(axes)
+    def unshare_axes(self):
+        """ Unshare both x and y axes. """
+        self.unshare_x_axes()
+        self.unshare_y_axes()
 
     def _share_axes(self, axes, shared_axes):
         shared = getattr(self, shared_axes)
@@ -4324,7 +4293,6 @@ class _AxesBase(martist.Artist):
 
         for ax in shared:
             setattr(ax, shared_axes, shared)
-            # ax._adjustable = 'datalim'
 
     def share_x_axes(self, axes):
         """
