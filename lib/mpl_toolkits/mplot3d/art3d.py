@@ -455,14 +455,24 @@ class Path3DCollection(PathCollection):
 
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
-
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
+
+        # Sort the points based on z coordinates
+        # Put vzs first to sort based on z value
+        z_markers = sorted(zip(vzs, np.column_stack([vxs, vys]), fcs, ecs),
+                           reverse=True)
+        vps = [ps for zs, ps, fc, ec in z_markers]
+        fcs = [fc for zs, ps, fc, ec in z_markers]
+        ecs = [ec for zs, ps, fc, ec in z_markers]
+
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
+
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
+        self.set_facecolors(fcs)
+
+        PathCollection.set_offsets(self, vps)
 
         if vzs.size > 0 :
             return min(vzs)
