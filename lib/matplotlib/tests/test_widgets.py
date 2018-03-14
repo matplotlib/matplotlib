@@ -119,6 +119,7 @@ def test_ellipse():
     # drag the rectangle
     do_event(tool, 'press', xdata=10, ydata=10, button=1,
                     key=' ')
+                    
     do_event(tool, 'onmove', xdata=30, ydata=30, button=1)
     do_event(tool, 'release', xdata=30, ydata=30, button=1)
     assert tool.extents == (120, 170, 120, 170)
@@ -260,7 +261,8 @@ def test_CheckButtons():
     check.disconnect(cid)
 
 
-@image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'], style='default')
+@image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
+                  style='default')
 def test_check_radio_buttons_image():
     get_ax()
     plt.subplots_adjust(left=0.3)
@@ -270,10 +272,15 @@ def test_check_radio_buttons_image():
     widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                          (False, True, True))
 
-@image_comparison(baseline_images=['check_bunch_of_radio_buttons'], extensions=['png'])
+
+@image_comparison(baseline_images=['check_bunch_of_radio_buttons'], 
+                  extensions=['png'])
 def test_check_bunch_of_radio_buttons():
     rax = plt.axes([0.05, 0.1, 0.15, 0.7])
-    widgets.RadioButtons(rax, ('B1', 'B2', 'B3', 'B4', 'B5','B6', 'B7', 'B8', 'B9', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15'))
+    widgets.RadioButtons(rax, ('B1', 'B2', 'B3', 'B4', 'B5', 'B6',
+                               'B7', 'B8', 'B9', 'B10', 'B11', 'B12',
+                               'B13', 'B14', 'B15'))
+
 
 def test_slider_slidermin_slidermax_invalid():
     fig, ax = plt.subplots()
