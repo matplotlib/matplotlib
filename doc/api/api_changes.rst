@@ -28,6 +28,8 @@ Deprecations
 Classes, functions, and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The now unused ``verbose`` class is deprecated, use ``logging`` instead.
+
 The unused and untested ``Artist.onRemove`` and ``Artist.hitlist`` methods have
 been deprecated.
 
