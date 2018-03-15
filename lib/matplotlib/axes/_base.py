@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 from collections import OrderedDict
 
 import six
@@ -836,12 +833,11 @@ class _AxesBase(martist.Artist):
         self.transScale.set(
             mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
-        if hasattr(self, "lines"):
-            for line in self.lines:
-                try:
-                    line._transformed_path.invalidate()
-                except AttributeError:
-                    pass
+        for line in getattr(self, "lines", []):  # Not set during init.
+            try:
+                line._transformed_path.invalidate()
+            except AttributeError:
+                pass
 
     def get_position(self, original=False):
         """

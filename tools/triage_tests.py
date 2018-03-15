@@ -24,9 +24,8 @@ Keys:
     R:          Reject test.  Copy the expected result to the source tree.
 """
 
-from __future__ import unicode_literals
-
 import os
+from pathlib import Path
 import shutil
 import sys
 
@@ -272,11 +271,7 @@ class Entry(object):
         """
         Returns True if two files have the same content.
         """
-        with open(a, 'rb') as fd:
-            a_content = fd.read()
-        with open(b, 'rb') as fd:
-            b_content = fd.read()
-        return a_content == b_content
+        return Path(a).read_bytes() == Path(b).read_bytes()
 
     def copy_file(self, a, b):
         """

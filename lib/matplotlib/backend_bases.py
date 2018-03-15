@@ -32,9 +32,6 @@ graphics contexts must implement to serve as a matplotlib backend
     The base class for the messaging area.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 from contextlib import contextmanager
@@ -2062,9 +2059,8 @@ class FigureCanvasBase(object):
         If necessary, this function will switch to a registered backend that
         supports the format.
         """
-        method_name = 'print_%s' % fmt
         # Return the current canvas if it supports the requested format.
-        if hasattr(self, method_name):
+        if hasattr(self, 'print_{}'.format(fmt)):
             return self
         # Return a default canvas for the requested format, if it exists.
         canvas_class = get_registered_canvas_class(fmt)

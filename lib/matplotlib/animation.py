@@ -15,22 +15,21 @@
 # * Movies
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import six
-from six.moves import zip
 
 import abc
+import base64
 import contextlib
 from io import BytesIO
 import itertools
 import logging
 import os
+from pathlib import Path
 import platform
 import subprocess
 import sys
-import tempfile
+from tempfile import TemporaryDirectory
 import uuid
 
 import numpy as np
@@ -38,11 +37,6 @@ import numpy as np
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
-
-if six.PY2:
-    from base64 import encodestring as encodebytes
-else:
-    from base64 import encodebytes
 
 
 _log = logging.getLogger(__name__)
@@ -383,8 +377,7 @@ class MovieWriter(AbstractMovieWriter):
                              dpi=self.dpi, **savefig_kwargs)
         except (RuntimeError, IOError) as e:
             out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error '
-                           'running proc:\n%s\n%s' % (out, err))
+            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
             raise IOError('Error saving animation to file (cause: {0}) '
                           'Stdout: {1} StdError: {2}. It may help to re-run '
                           'with logging level set to '
@@ -537,8 +530,7 @@ class FileMovieWriter(MovieWriter):
 
         except RuntimeError:
             out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error '
-                           'running proc:\n%s\n%s' % (out, err))
+            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
             raise
 
     def finish(self):
@@ -669,7 +661,7 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
-        if (_log.getEffectiveLevel() > logging.DEBUG):
+        if _log.getEffectiveLevel() > logging.DEBUG:
             args += ['-loglevel', 'quiet']
         args += ['-i', 'pipe:'] + self.output_args
         return args
@@ -903,7 +895,7 @@ class HTMLWriter(FileMovieWriter):
             f = BytesIO()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
-            imgdata64 = encodebytes(f.getvalue()).decode('ascii')
+            imgdata64 = base64.encodebytes(f.getvalue()).decode('ascii')
             self._total_bytes += len(imgdata64)
             if self._total_bytes >= self._bytes_limit:
                 _log.warning(
@@ -1336,35 +1328,30 @@ class Animation(object):
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
 
-            # First write the video to a tempfile. Set delete to False
-            # so we can re-open to read binary data.
-            with tempfile.NamedTemporaryFile(suffix='.m4v',
-                                             delete=False) as f:
+            # Can't open a NamedTemporaryFile twice on Windows, so use a
+            # TemporaryDirectory instead.
+            with TemporaryDirectory() as tmpdir:
+                path = Path(tmpdir, "temp.m4v")
                 # We create a writer manually so that we can get the
                 # appropriate size for the tag
                 Writer = writers[rcParams['animation.writer']]
                 writer = Writer(codec='h264',
                                 bitrate=rcParams['animation.bitrate'],
                                 fps=1000. / self._interval)
-                self.save(f.name, writer=writer)
+                self.save(str(path), writer=writer)
+                # Now open and base64 encode.
+                vid64 = base64.encodebytes(path.read_bytes())
 
-            # Now open and base64 encode
-            with open(f.name, 'rb') as video:
-                vid64 = encodebytes(video.read())
-                vid_len = len(vid64)
-                if vid_len >= embed_limit:
-                    _log.warning(
-                        "Animation movie is %s bytes, exceeding the limit of "
-                        "%s. If you're sure you want a large animation "
-                        "embedded, set the animation.embed_limit rc parameter "
-                        "to a larger value (in MB).", vid_len, embed_limit)
-                else:
-                    self._base64_video = vid64.decode('ascii')
-                    self._video_size = 'width="{}" height="{}"'.format(
-                            *writer.frame_size)
-
-            # Now we can remove
-            os.remove(f.name)
+            if len(vid64) >= embed_limit:
+                _log.warning(
+                    "Animation movie is %s bytes, exceeding the limit of %s. "
+                    "If you're sure you want a large animation embedded, set "
+                    "the animation.embed_limit rc parameter to a larger value "
+                    "(in MB).", vid_len, embed_limit)
+            else:
+                self._base64_video = vid64.decode('ascii')
+                self._video_size = 'width="{}" height="{}"'.format(
+                        *writer.frame_size)
 
         # If we exceeded the size, this attribute won't exist
         if hasattr(self, '_base64_video'):
@@ -1392,25 +1379,18 @@ class Animation(object):
         if default_mode is None:
             default_mode = 'loop' if self.repeat else 'once'
 
-        if hasattr(self, "_html_representation"):
-            return self._html_representation
-        else:
-            # Can't open a second time while opened on windows. So we avoid
-            # deleting when closed, and delete manually later.
-            with tempfile.NamedTemporaryFile(suffix='.html',
-                                             delete=False) as f:
-                self.save(f.name, writer=HTMLWriter(fps=fps,
-                                                    embed_frames=embed_frames,
-                                                    default_mode=default_mode))
-            # Re-open and get content
-            with open(f.name) as fobj:
-                html = fobj.read()
+        if not hasattr(self, "_html_representation"):
+            # Can't open a NamedTemporaryFile twice on Windows, so use a
+            # TemporaryDirectory instead.
+            with TemporaryDirectory() as tmpdir:
+                path = Path(tmpdir, "temp.html")
+                writer = HTMLWriter(fps=fps,
+                                    embed_frames=embed_frames,
+                                    default_mode=default_mode)
+                self.save(str(path), writer=writer)
+                self._html_representation = path.read_text()
 
-            # Now we can delete
-            os.remove(f.name)
-
-            self._html_representation = html
-            return html
+        return self._html_representation
 
     def _repr_html_(self):
         '''IPython display hook for rendering.'''
