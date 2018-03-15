@@ -18,14 +18,16 @@ addons:
     paths:
     - result_images.tar.bz2
   apt:
+    sources:
+      - sourceline: ppa:jonathonf/ffmpeg-3
     packages:
       - cm-super
       - dvipng
+      - ffmpeg
       - gdb
       - gir1.2-gtk-3.0
       - graphviz
       - inkscape
-      - libav-tools
       - libcairo2
       - libgeos-dev
       - libgirepository-1.0.1
@@ -52,7 +54,7 @@ env:
     - NUMPY=numpy
     - PANDAS=
     - PYPARSING=pyparsing
-    - PYTEST='pytest!=3.3.0,>=3.2.0'
+    - PYTEST='pytest>=3.4'
     - PYTEST_COV=pytest-cov
     - PYTEST_PEP8=
     - SPHINX=sphinx
@@ -74,7 +76,7 @@ matrix:
         - NUMPY=numpy==1.10.0
         - PANDAS='pandas<0.21.0'
         - PYPARSING=pyparsing==2.0.1
-        - PYTEST=pytest==3.1.0
+        - PYTEST=pytest==3.4
         - PYTEST_COV=pytest-cov==2.3.1
         - SPHINX=sphinx==1.3
     - python: 3.5
