@@ -8,7 +8,7 @@ artists into 3D versions which can be added to an Axes3D.
 '''
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
+import types
 import six
 from six.moves import zip
 
@@ -494,6 +494,60 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
     col.set_3d_properties(zs, zdir)
+
+    def set_facecolor3d(self, c):
+        """
+        Set the facecolor(s) of the collection.  *c* can be a
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'none', the patch will not be filled.
+
+        ACCEPTS: matplotlib color spec or sequence of specs
+        """
+        self.set_facecolor2d(c)
+
+        c = self.get_facecolor().copy()    # new color
+        length_old = self._facecolor3d.shape[0]
+        length_new = c.shape[0]
+        # reset alpha value to original
+        if (length_new > length_old):
+            c[:, 3] = self._facecolor3d[0, 3]
+        elif (length_new == length_old):
+            c[:, 3] = self._facecolor3d[:, 3]
+        self._facecolor3d = c
+
+    def set_edgecolor3d(self, c):
+        """
+        Set the edgecolor(s) of the collection. *c* can be a
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'face', the edge color will always be the same as
+        the face color.  If it is 'none', the patch boundary will not
+        be drawn.
+
+        ACCEPTS: matplotlib color spec or sequence of specs
+        """
+        self.set_edgecolor2d(c)
+
+        c = self.get_edgecolor().copy()    # new color
+        length_old = self._edgecolor3d.shape[0]
+        length_new = c.shape[0]
+
+        # reset alpha value to original
+        if (length_new > length_old):
+            c[:, 3] = self._edgecolor3d[0, 3]
+        elif (length_new == length_old):
+            c[:, 3] = self._edgecolor3d[:, 3]
+        self._edgecolor3d = c
+
+    col.set_facecolor2d = col.set_facecolor
+    col.set_facecolor = types.MethodType(set_facecolor3d, col)
+    col.set_edgecolor2d = col.set_edgecolor
+    col.set_edgecolor = types.MethodType(set_edgecolor3d, col)
 
 
 class Poly3DCollection(PolyCollection):

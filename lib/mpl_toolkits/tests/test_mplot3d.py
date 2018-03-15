@@ -55,6 +55,42 @@ def test_bar3d_notshaded():
     fig.canvas.draw()
 
 
+@image_comparison(baseline_images=['bar3d_change_edgecolor_notshaded'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_bar3d_change_edgecolor_notshaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = 5 - x2d + y2d
+    bar = ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
+    bar.set_edgecolor("red")
+    fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['bar3d_change_edgecolor_shaded'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_bar3d_change_edgecolor_shaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = 5 - x2d + y2d
+    bar = ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    bar.set_edgecolor("yellow")
+    fig.canvas.draw()
+
+
 @image_comparison(baseline_images=['contour3d'], remove_text=True)
 def test_contour3d():
     fig = plt.figure()
@@ -175,6 +211,72 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@image_comparison(baseline_images=['scatter3d_change_facecolor_single'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_scatter3d_change_facecolor_single():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3),
+                     color='r', marker='o')
+    sca.set_facecolor([0, 1, 1])
+
+
+@image_comparison(baseline_images=['scatter3d_change_facecolor_multiple'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_scatter3d_change_facecolor_multiple():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3),
+                     color='black', marker='H')
+    sca.set_facecolor([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_single'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_scatter3d_change_edgecolor_single():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5),
+                     color='gray', marker='^')
+    sca.set_edgecolor("orange")
+
+
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_multiple'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_scatter3d_change_edgecolor_multiple():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 5), np.arange(0, 5), np.arange(0, 5),
+                     color='gray', marker='s')
+    sca.set_edgecolor(['#ff0000', '#0ff000', '#00ff00', '#000ff0', '#0000ff'])
+
+
+@image_comparison(baseline_images=['scatter3d_change_edgecolor_face'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_scatter3d_change_edgecolor_face():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    sca = ax.scatter(np.arange(0, 3), np.arange(0, 3), np.arange(0, 3),
+                     color="black", marker='x')
+    sca.set_facecolor(["red", "green", "blue"])
+    sca.set_edgecolor('face')
+
+
 @image_comparison(baseline_images=['plot_3d_from_2d'], remove_text=True,
                   extensions=['png'])
 def test_plot_3d_from_2d():
@@ -243,6 +345,30 @@ def test_trisurf3d():
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
 
 
+@image_comparison(baseline_images=['trisurf3d_change_edgecolor'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_trisurf3d_change_edgecolor():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    ax = fig.gca(projection='3d')
+    surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+    surf.set_edgecolor("white")
+
+
 @image_comparison(baseline_images=['trisurf3d_shaded'], remove_text=True,
                   tol=0.03, extensions=['png'])
 def test_trisurf3d_shaded():
@@ -262,12 +388,62 @@ def test_trisurf3d_shaded():
     ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
+@image_comparison(baseline_images=['trisurf3d_change_edgecolor_shaded'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_trisurf3d_change_edgecolor_shaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    ax = fig.gca(projection='3d')
+    surf = ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
+    surf.set_edgecolor("gray")
+
+
 @image_comparison(baseline_images=['wireframe3d'], remove_text=True)
 def test_wireframe3d():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
+
+
+@image_comparison(baseline_images=['wireframe3d_change_facecolor_alpha'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_wireframe3d_change_facecolor_alpha():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    X, Y, Z = axes3d.get_test_data(0.05)
+    li = ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
+    li.set_facecolor([1, 0, 0, .3])
+
+
+@image_comparison(baseline_images=['wireframe3d_change_edgecolor'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_wireframe3d_change_edgecolor():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    X, Y, Z = axes3d.get_test_data(0.05)
+    li = ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
+    li.set_edgecolor("red")
 
 
 @image_comparison(baseline_images=['wireframe3dzerocstride'], remove_text=True,
@@ -320,6 +496,27 @@ def test_quiver3d():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
+@image_comparison(baseline_images=['quiver3d_change_color'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_quiver3d_change_color():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+
+    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
+
+    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+         np.sin(np.pi * z))
+
+    qu = ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+    qu.set_color("red")
+
+
 @image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
 def test_quiver3d_empty():
     fig = plt.figure()
@@ -330,7 +527,7 @@ def test_quiver3d_empty():
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+         np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
@@ -628,6 +825,58 @@ class TestVoxels(object):
         voxels = (x == y) | (y == z)
         ax.voxels(voxels)
 
+    @image_comparison(baseline_images=['voxels_simple_change_edgecolor'],
+                      remove_text=True, style='mpl20', extensions=['png'])
+    def test_voxels_simple_change_edgecolor(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.xaxis.set_major_formatter(plt.NullFormatter())
+        ax.yaxis.set_major_formatter(plt.NullFormatter())
+        ax.zaxis.set_major_formatter(plt.NullFormatter())
+
+        x, y, z = np.indices((5, 4, 3))
+        voxels = (x == y) | (y == z)
+        v = ax.voxels(voxels)
+
+        for coord, poly in v.items():
+            poly.set_edgecolor("red")
+
+    @image_comparison(
+        baseline_images=['voxels_simple_change_facecolor_single'],
+        remove_text=True, style='mpl20', extensions=['png'])
+    def test_voxels_simple_change_facecolor_single(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.xaxis.set_major_formatter(plt.NullFormatter())
+        ax.yaxis.set_major_formatter(plt.NullFormatter())
+        ax.zaxis.set_major_formatter(plt.NullFormatter())
+
+        x, y, z = np.indices((5, 4, 3))
+        voxels = (x == y) | (y == z)
+        v = ax.voxels(voxels)
+
+        for coord, poly in v.items():
+            poly.set_edgecolor("black")
+            poly.set_facecolor("yellow")
+
+    @image_comparison(
+        baseline_images=['voxels_simple_change_facecolor_multiple'],
+        remove_text=True, style='mpl20', extensions=['png'])
+    def test_voxels_simple_change_facecolor_multiple(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.xaxis.set_major_formatter(plt.NullFormatter())
+        ax.yaxis.set_major_formatter(plt.NullFormatter())
+        ax.zaxis.set_major_formatter(plt.NullFormatter())
+
+        x, y, z = np.indices((5, 4, 3))
+        voxels = (x == y) | (y == z)
+        v = ax.voxels(voxels)
+
+        for coord, poly in v.items():
+            poly.set_edgecolor("black")
+            poly.set_facecolor(tuple(t/4 for t in coord))
+
     @image_comparison(
         baseline_images=['voxels-edge-style'],
         extensions=['png'],
@@ -700,6 +949,30 @@ class TestVoxels(object):
         for coord, poly in v.items():
             assert voxels[coord], "faces returned for absent voxel"
             assert isinstance(poly, art3d.Poly3DCollection)
+
+    @image_comparison(baseline_images=['voxels_alpha_change_edgecolor'],
+                      remove_text=True, style='mpl20', extensions=['png'])
+    def test_voxels_alpha_change_edgecolor(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.xaxis.set_major_formatter(plt.NullFormatter())
+        ax.yaxis.set_major_formatter(plt.NullFormatter())
+        ax.zaxis.set_major_formatter(plt.NullFormatter())
+
+        x, y, z = np.indices((10, 10, 10))
+        v1 = x == y
+        v2 = np.abs(x - y) < 2
+        voxels = v1 | v2
+        colors = np.zeros((10, 10, 10, 4))
+        colors[v2] = [1, 0, 0, 0.5]
+        colors[v1] = [0, 1, 0, 0.5]
+        v = ax.voxels(voxels, facecolors=colors)
+
+        assert type(v) is dict
+        for coord, poly in v.items():
+            assert voxels[coord], "faces returned for absent voxel"
+            assert isinstance(poly, art3d.Poly3DCollection)
+            poly.set_edgecolor([1, 1, 1, .5])
 
     @image_comparison(
         baseline_images=['voxels-xyz'],
