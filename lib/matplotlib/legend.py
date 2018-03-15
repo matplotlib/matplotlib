@@ -39,6 +39,7 @@ from matplotlib.cbook import silent_list, is_hashable
 import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
+from matplotlib.text import Annotation
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
@@ -815,7 +816,8 @@ class Legend(Artist):
             update_func=legend_handler.update_from_first_child),
         tuple: legend_handler.HandlerTuple(),
         PathCollection: legend_handler.HandlerPathCollection(),
-        PolyCollection: legend_handler.HandlerPolyCollection()
+        PolyCollection: legend_handler.HandlerPolyCollection(),
+        Annotation: legend_handler.HandlerAnnotation()
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
@@ -1307,12 +1309,12 @@ def _get_legend_handles(axs, legend_handler_map=None):
     """
     handles_original = []
     for ax in axs:
-        handles_original += (ax.lines + ax.patches +
+        handles_original += (ax.lines + ax.patches + ax.texts +
                              ax.collections + ax.containers)
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
-                handles_original += (axx.lines + axx.patches +
+                handles_original += (axx.lines + axx.patches + ax.texts +
                                      axx.collections + axx.containers)
 
     handler_map = Legend.get_default_handler_map()
