@@ -954,11 +954,6 @@ class Normalize(object):
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-        # Agg cannot handle float128.  We actually only need 32-bit of
-        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
-        # so casting to float32 would lose precision on float64s as well.
-        if result.dtype == np.longdouble:
-            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result
