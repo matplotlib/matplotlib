@@ -1015,7 +1015,8 @@ class _AxesBase(martist.Artist):
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor
             x0, x1 = self._sharex.get_xlim()
-            self.set_xlim(x0, x1, emit=False, auto=None)
+            self.set_xlim(x0, x1, emit=False,
+                          auto=self._sharex.get_autoscalex_on())
             self.xaxis._scale = mscale.scale_factory(
                     self._sharex.xaxis.get_scale(), self.xaxis)
         else:
@@ -1029,7 +1030,8 @@ class _AxesBase(martist.Artist):
             self.yaxis.major = self._sharey.yaxis.major
             self.yaxis.minor = self._sharey.yaxis.minor
             y0, y1 = self._sharey.get_ylim()
-            self.set_ylim(y0, y1, emit=False, auto=None)
+            self.set_ylim(y0, y1, emit=False,
+                          auto=self._sharey.get_autoscaley_on())
             self.yaxis._scale = mscale.scale_factory(
                     self._sharey.yaxis.get_scale(), self.yaxis)
         else:
@@ -1045,8 +1047,10 @@ class _AxesBase(martist.Artist):
         if (rcParams['ytick.minor.visible']):
             self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
-        self._autoscaleXon = True
-        self._autoscaleYon = True
+        if self._sharex is None:
+            self._autoscaleXon = True
+        if self._sharey is None:
+            self._autoscaleYon = True
         self._xmargin = rcParams['axes.xmargin']
         self._ymargin = rcParams['axes.ymargin']
         self._tight = None
