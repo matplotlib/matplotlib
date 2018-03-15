@@ -90,7 +90,9 @@ class HandlerBase(object):
 
     def scale_dimensions(self, legend, width, height, orig_handle):
         '''
-        Return larger of input width/height or width/height of orig_handle
+        Return (width, height) where
+               width is the larger of input width or width of orig_handle and
+               height is the larger of input height or height or orig_handle
 
         Parameters
         ----------
@@ -111,7 +113,7 @@ class HandlerBase(object):
     def handle_width(self, legend, orig_handle):
         '''
         Overriden in children classes if orig_handle could be larger
-        than the default DrawingArea height, returns the height of the handler.
+        than the default DrawingArea height, returns the height of orig_handle.
 
         Parameters
         ----------
@@ -127,7 +129,7 @@ class HandlerBase(object):
     def handle_height(self, legend, orig_handle):
         '''
         Overriden in children classes if orig_handle could be larger
-        than the default DrawingArea height, returns the height of the handler.
+        than the default DrawingArea height, returns the height of orig_handle.
 
         Parameters
         ----------
@@ -758,7 +760,7 @@ class HandlerTuple(HandlerBase):
 
     def handle_width(self, legend, orig_handle):
         '''
-        Returns width of largest handler in *orig_handler* tuple.
+        Returns width of largest handle in *orig_handle* tuple.
 
         Parameters
         ----------
@@ -779,7 +781,7 @@ class HandlerTuple(HandlerBase):
 
     def handle_height(self, legend, orig_handle):
         '''
-        Returns width of largest handler in *orig_handler* tuple.
+        Returns width of largest handle in *orig_handle* tuple.
 
         Parameters
         ----------
