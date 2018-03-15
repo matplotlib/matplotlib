@@ -619,7 +619,7 @@ def test_num2timedelta(x, tdelta):
 def test_datetime_daily_overlap():
     # issue 7712 for overlapping daily dates
     plt.rcParams['date.autoformatter.day'] = "%Y-%m-%d"
-    plt.rcParams['xtick.major.pad'] = 8
+    plt.rcParams["autodatelocator.spacing"] = "generous"
     dates = [datetime.datetime(2018, 1, i) for i in range(1, 30)]
     values = list(range(1, 30))
     plt.plot(dates, values)
@@ -629,8 +629,8 @@ def test_datetime_daily_overlap():
                   extensions=['png'])
 def test_datetime_monthly_overlap():
     # issue 7712 for overlapping monthly dates
-    plt.rcParams['date.autoformatter.month'] = '%Y-%m'
-    plt.rcParams['xtick.major.pad'] = '8'
+    plt.rcParams['date.autoformatter.month'] = '%Y-%m'    
+    plt.rcParams["autodatelocator.spacing"] = "generous"
     dates = [datetime.datetime(2018, i, 1) for i in range(1, 11)]
     values = list(range(1, 11))
     plt.plot(dates, values)
@@ -641,7 +641,7 @@ def test_datetime_monthly_overlap():
 def test_datetime_hourly_overlap():
     # issue 7712 for overlapping hourly dates
     plt.rcParams['date.autoformatter.hour'] = '%m-%d %H'
-    plt.rcParams['xtick.major.pad'] = '8'
+    plt.rcParams["autodatelocator.spacing"] = "generous"
     dates = [datetime.datetime(2018, 1, 1, i) for i in range(1, 20)]
     values = list(range(1, 20))
     plt.plot(dates, values)
@@ -652,7 +652,7 @@ def test_datetime_hourly_overlap():
 def test_datetime_minutely_overlap():
     # issue 7712 for overlapping date ticks in minutely intervals
     plt.rcParams['date.autoformatter.minute'] = '%d %H:%M'
-    plt.rcParams['xtick.major.pad'] = '8'
+    plt.rcParams["autodatelocator.spacing"] = "generous"
     dates = [datetime.datetime(2018, 1, 1, 1, i) for i in range(1, 55)]
     values = list(range(1, 55))
     plt.plot(dates, values)

@@ -1,5 +1,5 @@
 ``AutoDateLocator.get_locator`` now contains reduced datetime overlaps
 ````````````````````````````````````````````````````````````````````````
 
-Due to issue #7712, the interval frequency of datetime ticks gets reduced in order
-to avoid overlapping tick labels.
+Due to issue #7712, the interval frequency of datetime ticks gets reduced due to 
+avoid overlapping tick labels.
