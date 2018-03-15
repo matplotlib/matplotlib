@@ -6,8 +6,6 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import six
 from six.moves import xrange, zip
 import bz2
@@ -470,7 +468,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
-    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
+    if isinstance(fname, getattr(os, "PathLike", ())):
         return to_filehandle(
             os.fspath(fname),
             flag=flag, return_opened=return_opened, encoding=encoding)
@@ -547,8 +545,7 @@ def get_sample_data(fname, asfileobj=True):
     path = os.path.join(root, fname)
 
     if asfileobj:
-        if (os.path.splitext(fname)[-1].lower() in
-                ('.csv', '.xrc', '.txt')):
+        if os.path.splitext(fname)[-1].lower() in ['.csv', '.xrc', '.txt']:
             mode = 'r'
         else:
             mode = 'rb'

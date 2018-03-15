@@ -180,8 +180,7 @@ class FourierDemoFrame(wx.Frame):
         # This method creates the subplots, waveforms and labels.
         # Later, when the waveforms or sliders are dragged, only the
         # waveform data will be updated (not here, but below in setKnob).
-        if not hasattr(self, 'subplot1'):
-            self.subplot1, self.subplot2 = self.figure.subplots(2)
+        self.subplot1, self.subplot2 = self.figure.subplots(2)
         x1, y1, x2, y2 = self.compute(self.f0.value, self.A.value)
         color = (1., 0., 0.)
         self.lines += self.subplot1.plot(x1, y1, color=color, linewidth=2)
