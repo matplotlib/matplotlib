@@ -3,11 +3,10 @@
 Scatter Symbol
 ==============
 
-Scatter plot with symbols.
-In this example clovers are used.
+Scatter plot with clover symbols.
 
 """
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 

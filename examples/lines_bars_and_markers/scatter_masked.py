@@ -3,7 +3,8 @@
 Scatter Masked
 ==============
 
-Add mask line in plot.
+Mask some data points and add a line demarking
+masked regions.
 
 """
 import matplotlib.pyplot as plt
