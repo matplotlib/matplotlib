@@ -4,8 +4,7 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -216,15 +215,25 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'markevery=%s' % (markevery,))
 
 
+@cbook._define_aliases({
+    "antialiased": ["aa"],
+    "color": ["c"],
+    "linestyle": ["ls"],
+    "linewidth": ["lw"],
+    "markeredgecolor": ["mec"],
+    "markeredgewidth": ["mew"],
+    "markerfacecolor": ["mfc"],
+    "markerfacecoloralt": ["mfcalt"],
+    "markersize": ["ms"],
+})
 class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
     the vertices, and a marker at each vertex.  Additionally, the
     drawing of the solid line is influenced by the drawstyle, e.g., one
     can create "stepped" lines in various styles.
-
-
     """
+
     lineStyles = _lineStyles = {  # hidden names deprecated
         '-':    '_draw_solid',
         '--':   '_draw_dashed',
@@ -1243,79 +1252,6 @@ class Line2D(Artist):
 
     def _get_rgba_ln_color(self, alt=False):
         return mcolors.to_rgba(self._color, self._alpha)
-
-    # some aliases....
-    def set_aa(self, val):
-        'alias for set_antialiased'
-        self.set_antialiased(val)
-
-    def set_c(self, val):
-        'alias for set_color'
-        self.set_color(val)
-
-    def set_ls(self, val):
-        """alias for set_linestyle"""
-        self.set_linestyle(val)
-
-    def set_lw(self, val):
-        """alias for set_linewidth"""
-        self.set_linewidth(val)
-
-    def set_mec(self, val):
-        """alias for set_markeredgecolor"""
-        self.set_markeredgecolor(val)
-
-    def set_mew(self, val):
-        """alias for set_markeredgewidth"""
-        self.set_markeredgewidth(val)
-
-    def set_mfc(self, val):
-        """alias for set_markerfacecolor"""
-        self.set_markerfacecolor(val)
-
-    def set_mfcalt(self, val):
-        """alias for set_markerfacecoloralt"""
-        self.set_markerfacecoloralt(val)
-
-    def set_ms(self, val):
-        """alias for set_markersize"""
-        self.set_markersize(val)
-
-    def get_aa(self):
-        """alias for get_antialiased"""
-        return self.get_antialiased()
-
-    def get_c(self):
-        """alias for get_color"""
-        return self.get_color()
-
-    def get_ls(self):
-        """alias for get_linestyle"""
-        return self.get_linestyle()
-
-    def get_lw(self):
-        """alias for get_linewidth"""
-        return self.get_linewidth()
-
-    def get_mec(self):
-        """alias for get_markeredgecolor"""
-        return self.get_markeredgecolor()
-
-    def get_mew(self):
-        """alias for get_markeredgewidth"""
-        return self.get_markeredgewidth()
-
-    def get_mfc(self):
-        """alias for get_markerfacecolor"""
-        return self.get_markerfacecolor()
-
-    def get_mfcalt(self, alt=False):
-        """alias for get_markerfacecoloralt"""
-        return self.get_markerfacecoloralt()
-
-    def get_ms(self):
-        """alias for get_markersize"""
-        return self.get_markersize()
 
     def set_dash_joinstyle(self, s):
         """

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import map, zip
@@ -20,15 +17,14 @@ from .bezier import (
     split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
 
-_patch_alias_map = {
-        'antialiased': ['aa'],
-        'edgecolor': ['ec'],
-        'facecolor': ['fc'],
-        'linewidth': ['lw'],
-        'linestyle': ['ls']
-    }
 
-
+@cbook._define_aliases({
+    "antialiased": ["aa"],
+    "edgecolor": ["ec"],
+    "facecolor": ["fc"],
+    "linewidth": ["lw"],
+    "linestyle": ["ls"],
+})
 class Patch(artist.Artist):
     """
     A patch is a 2D artist with a face color and an edge color.
@@ -267,10 +263,6 @@ class Patch(artist.Artist):
         self._antialiased = aa
         self.stale = True
 
-    def set_aa(self, aa):
-        """alias for set_antialiased"""
-        return self.set_antialiased(aa)
-
     def _set_edgecolor(self, color):
         set_hatch_color = True
         if color is None:
@@ -295,10 +287,6 @@ class Patch(artist.Artist):
         self._original_edgecolor = color
         self._set_edgecolor(color)
 
-    def set_ec(self, color):
-        """alias for set_edgecolor"""
-        return self.set_edgecolor(color)
-
     def _set_facecolor(self, color):
         if color is None:
             color = mpl.rcParams['patch.facecolor']
@@ -314,10 +302,6 @@ class Patch(artist.Artist):
         """
         self._original_facecolor = color
         self._set_facecolor(color)
-
-    def set_fc(self, color):
-        """alias for set_facecolor"""
-        return self.set_facecolor(color)
 
     def set_color(self, c):
         """
@@ -367,10 +351,6 @@ class Patch(artist.Artist):
             offset, ls, self._linewidth)
         self.stale = True
 
-    def set_lw(self, lw):
-        """alias for set_linewidth"""
-        return self.set_linewidth(lw)
-
     def set_linestyle(self, ls):
         """
         Set the patch linestyle
@@ -410,10 +390,6 @@ class Patch(artist.Artist):
         self._dashoffset, self._dashes = mlines._scale_dashes(
             offset, ls, self._linewidth)
         self.stale = True
-
-    def set_ls(self, ls):
-        """alias for set_linestyle"""
-        return self.set_linestyle(ls)
 
     def set_fill(self, b):
         """
@@ -1510,7 +1486,7 @@ class Circle(Ellipse):
         """
         Create true circle at center *xy* = (*x*, *y*) with given
         *radius*.  Unlike :class:`~matplotlib.patches.CirclePolygon`
-        which is a polygonal approximation, this uses Bézier splines
+        which is a polygonal approximation, this uses Bezier splines
         and is much closer to a scale-free circle.
 
         Valid kwargs are:

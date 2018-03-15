@@ -49,17 +49,6 @@ _log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
-_alias_map = {'color': ['c'],
-              'linewidth': ['lw'],
-              'linestyle': ['ls'],
-              'facecolor': ['fc'],
-              'edgecolor': ['ec'],
-              'markerfacecolor': ['mfc'],
-              'markeredgecolor': ['mec'],
-              'markeredgewidth': ['mew'],
-              'markersize': ['ms'],
-             }
-
 
 def _plot_args_replacer(args, data):
     if len(args) == 1:
@@ -1524,7 +1513,7 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
-        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
@@ -2121,7 +2110,7 @@ class Axes(_AxesBase):
         %(Rectangle)s
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
         # this is using the lambdas to do the arg/kwarg unpacking rather
         # than trying to re-implement all of that logic our selves.
         matchers = [
@@ -3065,7 +3054,7 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
         # anything that comes in as 'None', drop so the default thing
         # happens down stream
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
@@ -4953,7 +4942,8 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        # For compatibility(!), get aliases from Line2D rather than Patch.
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
@@ -5049,12 +5039,11 @@ class Axes(_AxesBase):
 
         """
         if not rcParams['_internal.classic_mode']:
-            color_aliases = mcoll._color_aliases
-            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
-
-            if not any(c in kwargs for c in ('color', 'facecolors')):
-                fc = self._get_patches_for_fill.get_next_color()
-                kwargs['facecolors'] = fc
+            kwargs = cbook.normalize_kwargs(
+                kwargs, mcoll.Collection._alias_map)
+            if not any(c in kwargs for c in ('color', 'facecolor')):
+                kwargs['facecolor'] = \
+                    self._get_patches_for_fill.get_next_color()
 
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
@@ -5233,12 +5222,12 @@ class Axes(_AxesBase):
 
         """
         if not rcParams['_internal.classic_mode']:
-            color_aliases = mcoll._color_aliases
-            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+            kwargs = cbook.normalize_kwargs(
+                kwargs, mcoll.Collection._alias_map)
+            if not any(c in kwargs for c in ('color', 'facecolor')):
+                kwargs['facecolor'] = \
+                    self._get_patches_for_fill.get_next_color()
 
-            if not any(c in kwargs for c in ('color', 'facecolors')):
-                fc = self._get_patches_for_fill.get_next_color()
-                kwargs['facecolors'] = fc
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
         self._process_unit_info(xdata=x2)
