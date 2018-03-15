@@ -3,8 +3,10 @@
 Scatter Symbol
 ==============
 
+Scatter plot with symbols.
+
 """
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import numpy as np
 import matplotlib
 

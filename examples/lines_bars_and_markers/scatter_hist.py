@@ -3,6 +3,8 @@
 Scatter Hist
 ============
 
+Creates histogram from scatter plot.
+
 """
 import numpy as np
 import matplotlib.pyplot as plt

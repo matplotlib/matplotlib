@@ -3,6 +3,8 @@
 Scatter Custom Symbol
 =====================
 
+Custom symbol in scatter plot.
+
 """
 import matplotlib.pyplot as plt
 import numpy as np

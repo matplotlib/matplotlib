@@ -3,6 +3,8 @@
 Scatter Star Poly
 =================
 
+Create multiple scatter plots.
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
