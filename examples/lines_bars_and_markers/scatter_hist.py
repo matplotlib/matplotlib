@@ -4,6 +4,7 @@ Scatter Hist
 ============
 
 Creates histogram from scatter plot.
+And adds them to the sides of the plot.
 
 """
 import numpy as np

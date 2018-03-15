@@ -4,6 +4,7 @@ Scatter Symbol
 ==============
 
 Scatter plot with symbols.
+In this example clovers are used.
 
 """
 from matplotlib import pyplot as plt

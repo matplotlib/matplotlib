@@ -3,7 +3,8 @@
 Scatter Star Poly
 =================
 
-Create multiple scatter plots.
+Create multiple scatter plots with different
+star symbols.
 
 """
 import numpy as np

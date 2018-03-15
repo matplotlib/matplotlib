@@ -4,6 +4,7 @@ Scatter Custom Symbol
 =====================
 
 Custom symbol in scatter plot.
+This example is creating an ellipse
 
 """
 import matplotlib.pyplot as plt
