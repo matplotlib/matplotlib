@@ -527,7 +527,8 @@ def test_legend_title_empty():
 @image_comparison(baseline_images=['simple_annotation'],
                   extensions=['png'])
 def test_simple_annotation():
-    # tests that simple annotations appear on the legend
+    # tests that a simple example graph with annotations
+    # appear on the legend with their image and label
     x = np.arange(0.0, 15.0, 0.01)
     y = np.sin(0.3*np.pi*x)
     fig = plt.figure()
@@ -552,7 +553,7 @@ def test_simple_annotation():
                   extensions=['png'])
 def test_all_linestyles():
     # tests that annotations with different linestyles
-    # appear on the legend
+    # appear on the legend with their image and label
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_xlim(0, 1.7)
@@ -589,7 +590,7 @@ def test_all_linestyles():
                   extensions=['png'])
 def test_all_arrowstyles():
     # tests that annotations with different arrowstyles
-    # appear on the legend
+    # appear on the legend with their image and label
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_ylim(0, 2.5)
@@ -661,7 +662,7 @@ def test_all_arrowstyles():
                   extensions=['png'])
 def test_annotation_colours():
     # tests that annotations with different colors
-    # appear on the legend
+    # appear on the legend with their image and label
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.annotate("",
@@ -692,8 +693,12 @@ def test_annotation_colours():
 @image_comparison(baseline_images=['annotation_text'],
                   extensions=['png'])
 def test_annotation_text():
-    # tests that annotations with different text
-    # appear on the legend
+    # tests that annotations with different texts
+    # appear on the legend with their image and label
+    # note: the text itself does not appear on the legend,
+    # only the arrow. The text itself is self-explanatory.
+    # However, if only text is passed, the image will be
+    # the text.
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.annotate("hello",
@@ -704,17 +709,26 @@ def test_annotation_text():
                             'color':'green'},
                 label="hello") 
     ax.annotate("world",
-                xy=(0.3, 0.1), 
-                xytext=(0.3, 0.9), 
+                xy=(0.3, 0.9), 
+                xytext=(0.3, 0.1), 
                 arrowprops={'arrowstyle':'<->',
                             'ls':'dashdot',
                             'color':'purple'},
-                label="world")    
+                label="world")
+    ax.annotate("short text",
+                xy=(0.5, 0.9), 
+                xytext=(0.5, 0.1),
+                label="short text")    
+    ax.annotate("long text",
+                xy=(0.7, 0.9), 
+                xytext=(0.7, 0.1),
+                label="long text")    
+    
     ax.legend() 
     plt.show()
 
 
-@image_comparison(baseline_images=['annotation_no_line'],
+@image_comparison(baseline_images=['annotation_no_line_text'],
                   extensions=['png'])
 def test_annotation_no_line_text():
     # tests that annotations with no line, text, or both
@@ -722,19 +736,19 @@ def test_annotation_no_line_text():
     # note: if no text, it will not appear in the legend
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.annotate("no text",
+    ax.annotate("",
                 xy=(0.1, 0.9), 
                 xytext=(0.1, 0.1), 
                 arrowprops={'arrowstyle':'-',
                             'ls':'dashed'},
-                label="") 
+                label="no text") 
     ax.annotate("no line",
                 xy=(0.3, 0.1), 
                 xytext=(0.3, 0.9),
                 label="no line")
-    ax.annotate("no line or text",
+    ax.annotate("",
                 xy=(0.5, 0.1), 
                 xytext=(0.5, 0.9),
-                label="")
+                label="no line or text")
     ax.legend() 
     plt.show()
