@@ -216,7 +216,7 @@ plt.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
 # The :class:`~matplotlib.legend_handler.HandlerTuple` class can also be used to
 # assign several legend keys to the same entry:
 
-from matplotlib.legend_handler import HandlerLine2D, HandlerTuple, HandlerBase
+from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 
 p1, = plt.plot([1, 2.5, 3], 'r-d')
 p2, = plt.plot([3, 2, 1], 'k-o')
@@ -234,6 +234,7 @@ l = plt.legend([(p1, p2)], ['Two keys'], numpoints=1,
 # single artist for the legend to use. Signature details about the "legend_artist"
 # are documented at :meth:`~matplotlib.legend_handler.HandlerBase.legend_artist`.
 
+from matplotlib.legend_handler import HandlerBase
 import matplotlib.patches as mpatches
 
 
