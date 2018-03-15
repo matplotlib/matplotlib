@@ -1082,14 +1082,6 @@ class PolarAxes(Axes):
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
-        """Set the minimum and maxium radius
-        ----------
-        thetamin
-            Updates the thetamin value.
-        thetamax
-            Updates the thetamax value.
-        
-        """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
@@ -1218,11 +1210,11 @@ class PolarAxes(Axes):
 
     def set_rlim(self, *args, **kwargs):
 
-         """Set the minimum and maxium radius
+         """Set the minimum and maximum radius
         ----------
-        ymin = 0
+        rmin = 0
             Updates the rmin value.
-        ymax = 0
+        rmax = 0
             Updates the rmax value.
         
         """
