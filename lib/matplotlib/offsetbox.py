@@ -77,16 +77,16 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         return total, offsets
 
     elif mode == "expand":
+        # This is a bit of a hack to avoid a TypeError when *total*
+        # is None and used in conjugation with tight layout.
+        if total is None:
+            total = 1
         if len(w_list) > 1:
-            sep = (total - sum(w_list)) / (len(w_list) - 1.)
+            sep = (total - sum(w_list)) / (len(w_list) - 1)
         else:
             sep = 0
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
-        # this is a bit of a hack to avoid a TypeError when used
-        # in conjugation with tight layout
-        if total is None:
-            total = 1
         return total, offsets
 
     elif mode == "equal":
