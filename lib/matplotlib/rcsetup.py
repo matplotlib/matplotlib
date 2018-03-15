@@ -534,7 +534,54 @@ validate_fillstylelist = _listify_validator(validate_fillstyle)
 _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ['solid', 'dashed'],
                                                  ignorecase=True)
+def validate_markevery(s):
+    """
+    Validate the markevery property of a Line2D object.
 
+    Parameters
+    ----------
+    s : None, int, float, slice, length-2 tuple of ints,
+        length-2 tuple of floats, list of ints
+
+    Returns
+    -------
+    s : None, int, float, slice, length-2 tuple of ints,
+        length-2 tuple of floats, list of ints
+
+    """
+    # Validate s against type slice
+    if isinstance(s, slice):
+        return s
+    # Validate s against type tuple
+    if isinstance(s, tuple):
+        tupMaxLength = 2
+        tupType = type(s[0])
+        if len(s) != tupMaxLength:
+            raise TypeError("'markevery' tuple must have a length of "
+                            "%d" % (tupMaxLength))
+        if tupType is int and not all(isinstance(e, int) for e in s):
+            raise TypeError("'markevery' tuple with first element of "
+                            "type int must have all elements of type "
+                            "int")
+        if tupType is float and not all(isinstance(e, float) for e in s):
+            raise TypeError("'markevery' tuple with first element of "
+                            "type float must have all elements of type "
+                            "float")
+        if tupType is not float and tupType is not int:
+            raise TypeError("'markevery' tuple contains an invalid type")
+    # Validate s against type list
+    elif isinstance(s, list):
+        if not all(isinstance(e, int) for e in s):
+            raise TypeError("'markevery' list must have all elements of "
+                            "type int")
+    # Validate s against type float int and None
+    elif not isinstance(s, (float, int)):
+        if s is not None:
+            raise TypeError("'markevery' is of an invalid type")
+
+    return s
+
+validate_markeverylist = _listify_validator(validate_markevery)
 
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
@@ -676,6 +723,7 @@ _prop_validators = {
         'markersize': validate_floatlist,
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
+        'markevery': validate_markeverylist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
         'hatch': validate_hatchlist,

@@ -23,6 +23,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins,
+                                validate_markevery,
                                 _validate_linestyle)
 
 
@@ -326,6 +327,35 @@ def generate_validator_testcases(valid):
                      ),
          'fail': (('aardvark', ValueError),
                   )
+         },
+         {'validator': validate_markevery,
+          'success': ((None, None),
+                      (1, 1),
+                      (0.1, 0.1),
+                      ((1, 1), (1, 1)),
+                      ((0.1, 0.1), (0.1, 0.1)),
+                      ([1, 2, 3], [1, 2, 3]),
+                      (slice(2), slice(None, 2, None)),
+                      (slice(1, 2, 3), slice(1, 2, 3))
+                      ),
+          'fail': (((1, 2, 3), TypeError),
+                   ([1, 2, 0.3], TypeError),
+                   (['a', 2, 3], TypeError),
+                   ([1, 2, 'a'], TypeError),
+                   ((0.1, 0.2, 0.3), TypeError),
+                   ((0.1, 2, 3), TypeError),
+                   ((1, 0.2, 0.3), TypeError),
+                   ((1, 0.1), TypeError),
+                   ((0.1, 1), TypeError),
+                   (('abc'), TypeError),
+                   ((1, 'a'), TypeError),
+                   ((0.1, 'b'), TypeError),
+                   (('a', 1), TypeError),
+                   (('a', 0.1), TypeError),
+                   ('abc', TypeError),
+                   ('a', TypeError),
+                   (object(), TypeError)
+                   )
          }
     )
 

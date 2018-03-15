@@ -296,11 +296,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # to the "backend" and many new users are confused by this term.
 # matplotlib targets many different use cases and output formats.  Some
 # people use matplotlib interactively from the python shell and have
-# plotting windows pop up when they type commands.  Some people embed
-# matplotlib into graphical user interfaces like wxpython or pygtk to
-# build rich applications.  Others use matplotlib in batch scripts to
-# generate postscript images from some numerical simulations, and still
-# others in web application servers to dynamically serve up graphs.
+# plotting windows pop up when they type commands.  Some people run
+# `Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
+# quick data analysis. Others embed matplotlib into graphical user
+# interfaces like wxpython or pygtk to build rich applications.  Some
+# people use matplotlib in batch scripts to generate postscript images
+# from numerical simulations, and still others run web application
+# servers to dynamically serve up graphs.
 #
 # To support all of these use cases, matplotlib can target different
 # outputs, and each of these capabilities is called a backend; the
