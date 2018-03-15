@@ -742,7 +742,7 @@ class HandlerText(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         p.set_fontsize(0.75*fontsize)
-        c = Rectangle(xy=(-xdescent, -ydescent), width=width, height=height,
+        c = Rectangle(xy=(-xdescent, -ydescent - (height/5)), width=width, height=7*height/5,
                       facecolor="none", edgecolor="none")
         c.set_transform(trans)
         p.set_clip_path(c)
