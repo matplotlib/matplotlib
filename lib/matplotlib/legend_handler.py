@@ -789,6 +789,6 @@ class HandlerAnnotation(HandlerBase):
                                             ydescent, width, height, fontsize,
                                             trans)
         else:
-            p = Rectangle(xy=(-xdescent, -ydescent), width=width,
-                          height=height, facecolor="none", edgecolor="none")
+            p = [Rectangle(xy=(-xdescent, -ydescent), width=width,
+                           height=height, facecolor="none", edgecolor="none")]
         return p
