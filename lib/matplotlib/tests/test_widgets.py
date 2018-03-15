@@ -263,7 +263,7 @@ def test_CheckButtons():
 
 
 @image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
-                  style='default')
+                  style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
     get_ax()
     plt.subplots_adjust(left=0.3)
@@ -275,7 +275,7 @@ def test_check_radio_buttons_image():
 
 
 @image_comparison(baseline_images=['check_bunch_of_radio_buttons'],
-                  extensions=['png'])
+                  style='mpl20', extensions=['png'], remove_text=True)
 def test_check_bunch_of_radio_buttons():
     rax = plt.axes([0.05, 0.1, 0.15, 0.7])
     widgets.RadioButtons(rax, ('B1', 'B2', 'B3', 'B4', 'B5', 'B6',
