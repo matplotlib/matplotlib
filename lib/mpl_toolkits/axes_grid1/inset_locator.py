@@ -369,9 +369,7 @@ class BboxConnectorPatch(BboxConnector):
         path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
         path2 = self.connect_bbox(self.bbox2, self.bbox1,
                                   self.loc2b, self.loc1b)
-        path_merged = (list(path1.vertices) +
-                       list(path2.vertices) +
-                       [path1.vertices[0]])
+        path_merged = [*path1.vertices, *path2.vertices, path1.vertices[0]]
         return Path(path_merged)
 
     get_path.__doc__ = BboxConnector.get_path.__doc__

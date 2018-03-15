@@ -2704,7 +2704,7 @@ class Axes3D(Axes):
             # transpose to get a list of lines
             heads = heads.swapaxes(0, 1)
 
-            lines = list(shafts) + list(heads)
+            lines = [*shafts, *heads]
         else:
             lines = []
 

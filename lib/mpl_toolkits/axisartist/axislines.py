@@ -641,7 +641,7 @@ class Axes(maxes.Axes):
 
     def get_children(self):
         if self._axisline_on:
-            children = list(six.itervalues(self._axislines)) + [self.gridlines]
+            children = [*self._axislines.values(), self.gridlines]
         else:
             children = []
         children.extend(super().get_children())
@@ -668,54 +668,25 @@ class Axes(maxes.Axes):
                                     axes=self)
         return axis
 
-
-
     def draw(self, renderer, inframe=False):
-
         if not self._axisline_on:
             super().draw(renderer, inframe)
             return
-
         orig_artists = self.artists
-        self.artists = self.artists + list(self._axislines.values()) + [self.gridlines]
-
+        self.artists = [
+            *self.artists, *self._axislines.values(), self.gridlines]
         super().draw(renderer, inframe)
-
         self.artists = orig_artists
 
-
     def get_tightbbox(self, renderer, call_axes_locator=True):
-
         bb0 = super().get_tightbbox(renderer, call_axes_locator)
-
         if not self._axisline_on:
             return bb0
-
-        bb = [bb0]
-
-        for axisline in list(six.itervalues(self._axislines)):
-            if not axisline.get_visible():
-                continue
-
-            bb.append(axisline.get_tightbbox(renderer))
-            # if axisline.label.get_visible():
-            #     bb.append(axisline.label.get_window_extent(renderer))
-
-
-            # if axisline.major_ticklabels.get_visible():
-            #     bb.extend(axisline.major_ticklabels.get_window_extents(renderer))
-            # if axisline.minor_ticklabels.get_visible():
-            #     bb.extend(axisline.minor_ticklabels.get_window_extents(renderer))
-            # if axisline.major_ticklabels.get_visible() or \
-            #    axisline.minor_ticklabels.get_visible():
-            #     bb.append(axisline.offsetText.get_window_extent(renderer))
-
-        #bb.extend([c.get_window_extent(renderer) for c in artists \
-        #           if c.get_visible()])
-
-        _bbox = Bbox.union([b for b in bb if b and (b.width!=0 or b.height!=0)])
-
-        return _bbox
+        bb = [bb0] + [axisline.get_tightbbox(renderer)
+                      for axisline in self._axislines.values()
+                      if axisline.get_visible()]
+        bbox = Bbox.union([b for b in bb if b and (b.width!=0 or b.height!=0)])
+        return bbox
 
 
 Subplot = maxes.subplot_class_factory(Axes)

@@ -1529,7 +1529,7 @@ def _prod_vectorized(M1, M2):
     assert sh1[-1] == sh2[-2]
 
     ndim1 = len(sh1)
-    t1_index = list(range(ndim1-2)) + [ndim1-1, ndim1-2]
+    t1_index = [*range(ndim1-2), ndim1-1, ndim1-2]
     return np.sum(np.transpose(M1, t1_index)[..., np.newaxis] *
                   M2[..., np.newaxis, :], -3)
 

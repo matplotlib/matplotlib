@@ -263,7 +263,7 @@ def comparable_formats():
     on this system.
 
     """
-    return ['png'] + list(converter)
+    return ['png', *converter]
 
 
 def convert(filename, cache):

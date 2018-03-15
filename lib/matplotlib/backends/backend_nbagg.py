@@ -135,15 +135,15 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def clearup_closed(self):
         """Clear up any closed Comms."""
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if socket.is_open()])
+        self.web_sockets = {socket for socket in self.web_sockets
+                            if socket.is_open()}
 
         if len(self.web_sockets) == 0:
             self.canvas.close_event()
 
     def remove_comm(self, comm_id):
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if not socket.comm.comm_id == comm_id])
+        self.web_sockets = {socket for socket in self.web_sockets
+                            if not socket.comm.comm_id == comm_id}
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):

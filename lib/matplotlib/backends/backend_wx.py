@@ -790,15 +790,17 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             else:
                 drawDC.DrawBitmap(self.bitmap, 0, 0)
 
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['bmp'] = 'Windows bitmap'
-    filetypes['jpeg'] = 'JPEG'
-    filetypes['jpg'] = 'JPEG'
-    filetypes['pcx'] = 'PCX'
-    filetypes['png'] = 'Portable Network Graphics'
-    filetypes['tif'] = 'Tagged Image Format File'
-    filetypes['tiff'] = 'Tagged Image Format File'
-    filetypes['xpm'] = 'X pixmap'
+    filetypes = {
+        **FigureCanvasBase.filetypes,
+        'bmp': 'Windows bitmap',
+        'jpeg': 'JPEG',
+        'jpg': 'JPEG',
+        'pcx': 'PCX',
+        'png': 'Portable Network Graphics',
+        'tif': 'Tagged Image Format File',
+        'tiff': 'Tagged Image Format File',
+        'xpm': 'X pixmap',
+    }
 
     def print_figure(self, filename, *args, **kwargs):
         super().print_figure(filename, *args, **kwargs)

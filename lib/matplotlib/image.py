@@ -928,7 +928,7 @@ class NonUniformImage(AxesImage):
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
             if A.shape[2] == 3:
-                B = np.zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
+                B = np.zeros(tuple([*A.shape[0:2], 4]), np.uint8)
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B

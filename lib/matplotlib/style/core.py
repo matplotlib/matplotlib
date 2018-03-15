@@ -158,8 +158,7 @@ def context(style, after_reset=False):
 
 def load_base_library():
     """Load style library defined in this package."""
-    library = dict()
-    library.update(read_style_directory(BASE_LIBRARY_PATH))
+    library = read_style_directory(BASE_LIBRARY_PATH)
     return library
 
 

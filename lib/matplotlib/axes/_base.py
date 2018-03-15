@@ -287,8 +287,7 @@ class _process_plot_var_args(object):
                     kw[k] = defaults[k]
 
     def _makeline(self, x, y, kw, kwargs):
-        kw = kw.copy()  # Don't modify the original kw.
-        kw.update(kwargs)
+        kw = {**kw, **kwargs}  # Don't modify the original kw.
         default_dict = self._getdefaults(None, kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
@@ -527,8 +526,7 @@ class _AxesBase(martist.Artist):
         if yscale:
             self.set_yscale(yscale)
 
-        if len(kwargs):
-            self.update(kwargs)
+        self.update(kwargs)
 
         if self.xaxis is not None:
             self._xcid = self.xaxis.callbacks.connect(
