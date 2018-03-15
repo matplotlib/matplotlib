@@ -30,7 +30,7 @@ class exception : public std::exception
         }                                                                    \
         return (errorcode);                                                  \
     }                                                                        \
-    catch (const std::bad_alloc)                                             \
+    catch (const std::bad_alloc &)                                           \
     {                                                                        \
         PyErr_Format(PyExc_MemoryError, "In %s: Out of memory", (name));     \
         {                                                                    \
