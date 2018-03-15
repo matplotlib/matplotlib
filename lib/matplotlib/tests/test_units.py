@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.units as munits
 import numpy as np
+import datetime
 
 
 # Basic class that wraps numpy array and has units
