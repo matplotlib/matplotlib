@@ -371,7 +371,7 @@ def test_circular_contour_warning():
 
 
 @image_comparison(baseline_images=['contour_log_extension'],
-                  extensions=['png'])
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_contourf_log_extension():
     # Test that contourf with lognorm is extended correctly
     fig = plt.figure(figsize=(10,5))
