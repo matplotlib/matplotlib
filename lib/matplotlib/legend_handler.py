@@ -88,7 +88,7 @@ class HandlerBase(object):
         height = height - self._ypad * fontsize
         return xdescent, ydescent, width, height
 
-    def scale_dimensions(self, legend, width, height, orig_handle):
+    def _scale_dimensions(self, legend, width, height, orig_handle):
         '''
         Return (width, height) where
                width is the larger of input width or width of orig_handle and

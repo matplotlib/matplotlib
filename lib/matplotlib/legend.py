@@ -947,7 +947,7 @@ class Legend(Artist):
                                    minimumdescent=True)
                 # if handle is larger than width and height get new width and
                 # height to fit handle else keep width and height
-                da_width, da_height = handler.scale_dimensions(self,
+                da_width, da_height = handler._scale_dimensions(self,
                                                                width, height,
                                                                orig_handle)
                 handlebox = DrawingArea(width=da_width,
