@@ -4073,7 +4073,7 @@ class Axes(_AxesBase):
                       label_namer="y")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
-                verts=None, edgecolors=None, masked=False,
+                verts=None, edgecolors=None, plotinvalid=False,
                 **kwargs):
         """
         A scatter plot of *y* vs *x* with varying marker size and/or color.
@@ -4145,7 +4145,7 @@ class Axes(_AxesBase):
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
 
-        masked : boolean, optional, default: False
+        plotinvalid : boolean, optional, default: False
             Set to plot valid points with invalid color, in conjunction with
             `~matplotlib.colors.Colormap.set_bad`.
 
@@ -4272,7 +4272,7 @@ class Axes(_AxesBase):
         else:
             colors = None  # use cmap, norm after collection is created
 
-        if masked is False:
+        if plotinvalid is False:
             # `delete_masked_points` only modifies arguments of the same length
             #  as `x`.
             x, y, s, c, colors, edgecolors, linewidths =\
@@ -4320,7 +4320,7 @@ class Axes(_AxesBase):
                 raise ValueError(
                     "'norm' must be an instance of 'mcolors.Normalize'")
 
-            if masked is False:
+            if plotinvalid is False:
                 collection.set_array(c)
             else:
                 collection.set_array(ma.masked_invalid(c))
