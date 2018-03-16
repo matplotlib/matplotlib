@@ -726,7 +726,28 @@ class font_to_rgba
         _gen->prepare();
     }
 };
+class span_conv_alpha
+{
+  public:
+    typedef agg::rgba8 color_type;
 
+    double m_alpha;
+
+    span_conv_alpha(double alpha) : m_alpha(alpha)
+    {
+    }
+
+    void prepare()
+    {
+    }
+    void generate(color_type *span, int x, int y, unsigned len) const
+    {
+        do {
+            span->a = (agg::int8u)((double)span->a * m_alpha);
+            ++span;
+        } while (--len);
+    }
+};
 template <class ImageArray>
 inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle)
 {
@@ -740,11 +761,13 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
-    if (angle != 0.0) {
+    double alpha = gc.alpha;
+    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
+    if (angle != 0.0 || has_clippath) {
         agg::rendering_buffer srcbuf(
                 image.data(), (unsigned)image.dim(1),
                 (unsigned)image.dim(0), (unsigned)image.dim(1));
-        agg::pixfmt_gray8 pixf_img(srcbuf);
+        pixfmt pixf(srcbuf);
 
         set_clipbox(gc.cliprect, theRasterizer);
 
@@ -764,17 +787,31 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
         agg::trans_affine inv_mtx(mtx);
         inv_mtx.invert();
 
-        agg::image_filter_lut filter;
-        filter.calculate(agg::image_filter_spline36());
-        interpolator_type interpolator(inv_mtx);
+        typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
+        typedef agg::image_accessor_clip<pixfmt> image_accessor_type;
+        typedef agg::span_interpolator_linear<> interpolator_type;
+        typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type>
+        image_span_gen_type;
+        typedef agg::span_converter<image_span_gen_type, span_conv_alpha> span_conv;
+
         color_span_alloc_type sa;
-        image_accessor_type ia(pixf_img, agg::gray8(0));
-        image_span_gen_type image_span_generator(ia, interpolator, filter);
-        span_gen_type output_span_generator(&image_span_generator, gc.color);
-        renderer_type ri(rendererBase, sa, output_span_generator);
+        image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
+        interpolator_type interpolator(inv_mtx);
+        image_span_gen_type image_span_generator(ia, interpolator);
+        span_conv_alpha conv_alpha(alpha);
+        span_conv spans(image_span_generator, conv_alpha);
+
+        typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+        typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+        typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, span_conv>
+            renderer_type_alpha;
+
+        pixfmt_amask_type pfa(pixFmt, alphaMask);
+        amask_ren_type r(pfa);
+        renderer_type_alpha ri(r, sa, spans);
 
         theRasterizer.add_path(rect2);
-        agg::render_scanlines(theRasterizer, slineP8, ri);
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
     } else {
         agg::rect_i fig, text;
 
@@ -801,28 +838,6 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     }
 }
 
-class span_conv_alpha
-{
-  public:
-    typedef agg::rgba8 color_type;
-
-    double m_alpha;
-
-    span_conv_alpha(double alpha) : m_alpha(alpha)
-    {
-    }
-
-    void prepare()
-    {
-    }
-    void generate(color_type *span, int x, int y, unsigned len) const
-    {
-        do {
-            span->a = (agg::int8u)((double)span->a * m_alpha);
-            ++span;
-        } while (--len);
-    }
-};
 
 template <class ImageArray>
 inline void RendererAgg::draw_image(GCAgg &gc,

@@ -200,6 +200,50 @@ def test_titles():
     ax.set_yticks([])
 
 
+@image_comparison(baseline_images=['text_clip'],
+                  extensions=['png'])
+def test_text_clip():
+    plt.figure(figsize=(8, 8))
+    ax = plt.gca()
+
+    poly = matplotlib.patches.Polygon([[1, 0], [0, 1], [-1, 0], [0, -1]],
+                                      facecolor="#ddffdd",
+                                      edgecolor="#00ff00",
+                                      linewidth=2,
+                                      alpha=0.5)
+
+    ax.add_patch(poly)
+
+    # add a text into the axes with clip path which should not be displayed
+    txt_outside = matplotlib.text.Text(0.65,
+                                       0.85,
+                                       "outside 1",
+                                       clip_on=True,
+                                       clip_path=poly)
+    ax.add_artist(txt_outside)
+    txt_outside.set_clip_path(poly)
+    # add a text into the axes with clip path which should not be displayed
+    a = ax.text(0.65, 0.75, "outside 2", clip_on=True, clip_path=poly)
+    a.set_clip_path(poly)
+    # should be (and is) displayed
+    txt_inside = matplotlib.text.Text(0.,
+                                      0.,
+                                      "inside :)",
+                                      clip_on=True,
+                                      clip_path=poly)
+    txt_inside.set_clip_path(poly)
+    ax.add_artist(txt_inside)
+
+    # works perfectly
+    scatter = plt.scatter(*np.transpose([[0.1, 0.1], [0.7, 0.7]]),
+                          zorder=5,
+                          clip_path=poly)
+
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+    ax.add_artist(scatter)
+
+
 @image_comparison(baseline_images=['text_alignment'])
 def test_alignment():
     plt.figure()
@@ -474,25 +518,3 @@ def test_single_artist_usetex():
     fig, ax = plt.subplots()
     ax.text(.5, .5, r"$\frac12$", usetex=True)
     fig.canvas.draw()
-
-
-@image_comparison(baseline_images=['text_as_path_opacity'],
-                  extensions=['svg'])
-def test_text_as_path_opacity():
-    plt.figure()
-    plt.gca().set_axis_off()
-    plt.text(0.25, 0.25, 'c', color=(0, 0, 0, 0.5))
-    plt.text(0.25, 0.5, 'a', alpha=0.5)
-    plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
-
-
-@image_comparison(baseline_images=['text_as_text_opacity'],
-                  extensions=['svg'])
-def test_text_as_text_opacity():
-    matplotlib.rcParams['svg.fonttype'] = 'none'
-    plt.figure()
-    plt.gca().set_axis_off()
-    plt.text(0.25, 0.25, '50% using `color`', color=(0, 0, 0, 0.5))
-    plt.text(0.25, 0.5, '50% using `alpha`', alpha=0.5)
-    plt.text(0.25, 0.75, '50% using `alpha` and 100% `color`', alpha=0.5,
-             color=(0, 0, 0, 1))
