@@ -1166,7 +1166,7 @@ class AutoDateLocator(DateLocator):
     locations.
     """
     def __init__(self, tz=None, minticks=5, maxticks=None,
-                 interval_multiples=False, spread=""):
+                 interval_multiples=False):
         """
         *minticks* is the minimum number of ticks desired, which is used to
         select the type of ticking (yearly, monthly, etc.).
@@ -1259,7 +1259,6 @@ class AutoDateLocator(DateLocator):
                     MINUTELY: rcParams['date.autoformatter.minute'],
                     SECONDLY: rcParams['date.autoformatter.second'],
                     MICROSECONDLY: rcParams['date.autoformatter.microsecond']}
-        self.spread = spread
 
         self._byranges = [None, range(1, 13), range(1, 32),
                           range(0, 24), range(0, 60), range(0, 60), None]
