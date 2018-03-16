@@ -55,22 +55,24 @@ def _plot_args_replacer(args, data):
         return ["y"]
     elif len(args) == 2:
         # this can be two cases: x,y or y,c
-        if not args[1] in data:
-            # this is not in data, so just assume that it is something which
-            # will not get replaced (color spec or array like).
-            return ["y", "c"]
         # it's data, but could be a color code like 'ro' or 'b--'
         # -> warn the user in that case...
+
         try:
             _process_plot_format(args[1])
         except ValueError:
             pass
         else:
-            warnings.warn(
-                "Second argument {!r} is ambiguous: could be a color spec but "
-                "is in data; using as data.  Either rename the entry in data "
-                "or use three arguments to plot.".format(args[1]),
-                RuntimeWarning, stacklevel=3)
+            # arg can be parsed into colour; verify arg is not data
+            if not args[1] in data:
+                return ["y", "c"]
+            else:
+                warnings.warn(
+                    "Second argument {!r} is ambiguous: could be a color spec "
+                    "but is in data; using as data.  Either rename the entry "
+                    "in data or use three arguments to plot.".format(args[1]),
+                    RuntimeWarning, stacklevel=3)
+
         return ["x", "y"]
     elif len(args) == 3:
         return ["x", "y", "c"]
