@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import, division, print_function
-
 import io
 import re
 
 import numpy as np
 import pytest
-import six
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -31,13 +26,14 @@ needs_usetex = pytest.mark.xfail(
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
-    needs_ghostscript(('ps', False, {'ps.usedistiller': 'ghostscript'})),
-    needs_usetex(needs_ghostscript(('ps', False, {'text.latex.unicode': True,
-                                                  'text.usetex': True}))),
+    needs_ghostscript(
+        ('ps', False, {'ps.usedistiller': 'ghostscript'})),
+    needs_usetex(needs_ghostscript(
+        ('ps', False, {'text.latex.unicode': True, 'text.usetex': True}))),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    needs_usetex(needs_ghostscript(('eps', False, {'text.latex.unicode': True,
-                                                   'text.usetex': True}))),
+    needs_usetex(needs_ghostscript(
+        ('eps', False, {'text.latex.unicode': True, 'text.usetex': True}))),
 ], ids=[
     'ps',
     'ps with distiller',
@@ -50,35 +46,25 @@ def test_savefig_to_stringio(format, use_log, rcParams):
     matplotlib.rcParams.update(rcParams)
 
     fig, ax = plt.subplots()
-    buffers = [
-        six.moves.StringIO(),
-        io.StringIO(),
-        io.BytesIO()]
 
-    if use_log:
-        ax.set_yscale('log')
+    with io.StringIO() as s_buf, io.BytesIO() as b_buf:
 
-    ax.plot([1, 2], [1, 2])
-    ax.set_title(u"Déjà vu")
-    for buffer in buffers:
-        fig.savefig(buffer, format=format)
+        if use_log:
+            ax.set_yscale('log')
 
-    values = [x.getvalue() for x in buffers]
+        ax.plot([1, 2], [1, 2])
+        ax.set_title("Déjà vu")
+        fig.savefig(s_buf, format=format)
+        fig.savefig(b_buf, format=format)
 
-    if six.PY3:
-        values = [
-            values[0].encode('ascii'),
-            values[1].encode('ascii'),
-            values[2]]
+        s_val = s_buf.getvalue().encode('ascii')
+        b_val = b_buf.getvalue()
 
-    # Remove comments from the output.  This includes things that
-    # could change from run to run, such as the time.
-    values = [re.sub(b'%%.*?\n', b'', x) for x in values]
+        # Remove comments from the output.  This includes things that could
+        # change from run to run, such as the time.
+        s_val, b_val = [re.sub(b'%%.*?\n', b'', x) for x in [s_val, b_val]]
 
-    assert values[0] == values[1]
-    assert values[1] == values[2].replace(b'\r\n', b'\n')
-    for buffer in buffers:
-        buffer.close()
+        assert s_val == b_val.replace(b'\r\n', b'\n')
 
 
 def test_patheffects():

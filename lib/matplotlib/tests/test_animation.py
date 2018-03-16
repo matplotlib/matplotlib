@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import sys
 import tempfile
 
@@ -205,14 +201,14 @@ def test_movie_writer_registry():
     assert len(animation.writers._registered) > 0
     animation.writers.list()  # resets dirty state
     assert not animation.writers._dirty
-    mpl.rcParams['animation.ffmpeg_path'] = u"not_available_ever_xxxx"
+    mpl.rcParams['animation.ffmpeg_path'] = "not_available_ever_xxxx"
     assert animation.writers._dirty
     animation.writers.list()  # resets
     assert not animation.writers._dirty
     assert not animation.writers.is_available("ffmpeg")
     # something which is guaranteed to be available in path
     # and exits immediately
-    bin = u"true" if sys.platform != 'win32' else u"where"
+    bin = "true" if sys.platform != 'win32' else "where"
     mpl.rcParams['animation.ffmpeg_path'] = bin
     assert animation.writers._dirty
     animation.writers.list()  # resets

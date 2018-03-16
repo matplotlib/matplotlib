@@ -47,7 +47,7 @@ with PdfPages('multipage_pdf.pdf') as pdf:
     # We can also set the file's metadata via the PdfPages object:
     d = pdf.infodict()
     d['Title'] = 'Multipage PDF Example'
-    d['Author'] = u'Jouni K. Sepp\xe4nen'
+    d['Author'] = 'Jouni K. Sepp\xe4nen'
     d['Subject'] = 'How to create a multipage pdf file and set its metadata'
     d['Keywords'] = 'PdfPages multipage keywords author title subject'
     d['CreationDate'] = datetime.datetime(2009, 11, 13)

@@ -2,16 +2,11 @@
 Provides utilities to test output reproducibility.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import io
 import os
 import re
+import subprocess
 import sys
-from subprocess import check_output
 
 import pytest
 
@@ -34,11 +29,11 @@ def _determinism_save(objects='mhi', format="pdf", usetex=False):
         # use different markers...
         ax1 = fig.add_subplot(1, 6, 1)
         x = range(10)
-        ax1.plot(x, [1] * 10, marker=u'D')
-        ax1.plot(x, [2] * 10, marker=u'x')
-        ax1.plot(x, [3] * 10, marker=u'^')
-        ax1.plot(x, [4] * 10, marker=u'H')
-        ax1.plot(x, [5] * 10, marker=u'v')
+        ax1.plot(x, [1] * 10, marker='D')
+        ax1.plot(x, [2] * 10, marker='x')
+        ax1.plot(x, [3] * 10, marker='^')
+        ax1.plot(x, [4] * 10, marker='H')
+        ax1.plot(x, [5] * 10, marker='v')
 
     if 'h' in objects:
         # also use different hatch patterns
@@ -63,13 +58,8 @@ def _determinism_save(objects='mhi', format="pdf", usetex=False):
     x = range(5)
     fig.add_subplot(1, 6, 6).plot(x, x)
 
-    if six.PY2 and format == 'ps':
-        stdout = io.StringIO()
-    else:
-        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     fig.savefig(stdout, format=format)
-    if six.PY2 and format == 'ps':
-        sys.stdout.write(stdout.getvalue())
 
     # Restores SOURCE_DATE_EPOCH
     if sde is None:
@@ -94,14 +84,14 @@ def _determinism_check(objects='mhi', format="pdf", usetex=False):
     """
     plots = []
     for i in range(3):
-        result = check_output([sys.executable, '-R', '-c',
-                               'import matplotlib; '
-                               'matplotlib._called_from_pytest = True; '
-                               'matplotlib.use(%r); '
-                               'from matplotlib.testing.determinism '
-                               'import _determinism_save;'
-                               '_determinism_save(%r,%r,%r)'
-                               % (format, objects, format, usetex)])
+        result = subprocess.check_output([
+            sys.executable, '-R', '-c',
+            'import matplotlib; '
+            'matplotlib._called_from_pytest = True; '
+            'matplotlib.use(%r); '
+            'from matplotlib.testing.determinism import _determinism_save;'
+            '_determinism_save(%r, %r, %r)'
+            % (format, objects, format, usetex)])
         plots.append(result)
     for p in plots[1:]:
         if usetex:
@@ -128,14 +118,14 @@ def _determinism_source_date_epoch(format, string, keyword=b"CreationDate"):
         a string to look at when searching for the timestamp in the document
         (used in case the test fails).
     """
-    buff = check_output([sys.executable, '-R', '-c',
-                         'import matplotlib; '
-                         'matplotlib._called_from_pytest = True; '
-                         'matplotlib.use(%r); '
-                         'from matplotlib.testing.determinism '
-                         'import _determinism_save;'
-                         '_determinism_save(%r,%r)'
-                         % (format, "", format)])
+    buff = subprocess.check_output([
+        sys.executable, '-R', '-c',
+        'import matplotlib; '
+        'matplotlib._called_from_pytest = True; '
+        'matplotlib.use(%r); '
+        'from matplotlib.testing.determinism import _determinism_save;'
+        '_determinism_save(%r, %r)'
+        % (format, "", format)])
     find_keyword = re.compile(b".*" + keyword + b".*")
     key = find_keyword.search(buff)
     if key:
