@@ -183,8 +183,8 @@ def test_overlap_markers_yellow_first():
     y = np.array([1, -1])
     z = np.array([0, 0])
     ax = fig.add_subplot(111, projection='3d')
-    patches = ax.scatter(x, y, z, s = 3500, c=['b', 'y'])
-    ax.view_init(elev=0, azim = -50)
+    patches = ax.scatter(x, y, z, s=3500, c=['b', 'y'])
+    ax.view_init(elev=0, azim=-50)
 
 
 @image_comparison(baseline_images=['scatter3d_overlap_markers_blue'],
@@ -195,8 +195,8 @@ def test_overlap_markers_blue_first():
     y = np.array([1, -1])
     z = np.array([0, 0])
     ax = fig.add_subplot(111, projection='3d')
-    patches = ax.scatter(x, y, z, s = 3500, c=['b', 'y'])
-    ax.view_init(elev=0, azim = 130)
+    patches = ax.scatter(x, y, z, s=3500, c=['b', 'y'])
+    ax.view_init(elev=0, azim=130)
 
 
 @image_comparison(baseline_images=['plot_3d_from_2d'], remove_text=True,
