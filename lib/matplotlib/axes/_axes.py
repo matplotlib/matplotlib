@@ -5046,10 +5046,11 @@ class Axes(_AxesBase):
 
         """
         if not rcParams['_internal.classic_mode']:
+            kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
 
-            if not any(c in kwargs for c in ('color', 'facecolors')):
+            if 'facecolors' not in kwargs:
                 fc = self._get_patches_for_fill.get_next_color()
                 kwargs['facecolors'] = fc
 
