@@ -19,7 +19,8 @@ from weakref import WeakValueDictionary
 import numpy as np
 
 from . import _path, rcParams
-from .cbook import _to_unmasked_float_array, simple_linear_interpolation
+from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
+                    maxdict)
 
 
 class Path(object):
