@@ -1677,7 +1677,7 @@ def test_scatter_invalid_color():
     cmap = plt.get_cmap('jet', 16)
     cmap.set_bad("k", 1)
     ax.scatter(data["x"], data["x"], c=data["c"], s=data["s"],
-               cmap=cmap, masked=True)
+               cmap=cmap, plotinvalid=True)
 
 
 @image_comparison(baseline_images=['scatter', 'scatter'])
