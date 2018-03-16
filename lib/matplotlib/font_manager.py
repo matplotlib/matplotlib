@@ -926,7 +926,7 @@ def _normalize_font_family(family):
     return family
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("3.0")
 class TempCache(object):
     """
     A class to store temporary caches that are (a) not saved to disk
