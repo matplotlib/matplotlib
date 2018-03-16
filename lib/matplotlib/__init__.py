@@ -388,6 +388,11 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    verbose = Verbose()
+
+
 def _wrap(fmt, func, level=logging.DEBUG, always=True):
     """
     return a callable function that wraps func and reports its
