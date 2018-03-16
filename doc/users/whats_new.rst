@@ -14,11 +14,12 @@ revision, see the :ref:`github-stats`.
 ..
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
-   .. toctree::
-      :glob:
-      :maxdepth: 1
 
-      next_whats_new/*
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   next_whats_new/*
 
 
 New in Matplotlib 2.2
