@@ -33,6 +33,9 @@ class TextToPath(object):
     DPI = 72
 
     def __init__(self):
+        """
+        Initialization
+        """
         self.mathtext_parser = MathTextParser('path')
         self.tex_font_map = None
 
@@ -489,7 +492,8 @@ class TextPath(Path):
         necessary.
 
         """
-        if self._invalid or self._cached_vertices is None:
+        if (self._invalid or
+            (self._cached_vertices is None)):
             tr = Affine2D().scale(
                     self._size / text_to_path.FONT_SCALE,
                     self._size / text_to_path.FONT_SCALE).translate(*self._xy)

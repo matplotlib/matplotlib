@@ -25,11 +25,7 @@ from math import ceil
 import unicodedata
 from warnings import warn
 
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
-
+from numpy import inf, isinf
 import numpy as np
 
 from pyparsing import (
@@ -41,7 +37,7 @@ ParserElement.enablePackrat()
 
 from matplotlib import _png, colors as mcolors, get_data_path, rcParams
 from matplotlib.afm import AFM
-from matplotlib.cbook import Bunch, get_realpath_and_stat
+from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
@@ -3251,8 +3247,8 @@ class MathTextParser(object):
         Create a MathTextParser for the given backend *output*.
         """
         self._output = output.lower()
+        self._cache = maxdict(50)
 
-    @lru_cache(50)
     def parse(self, s, dpi = 72, prop = None):
         """
         Parse the given math expression *s* at the given *dpi*.  If
@@ -3264,9 +3260,15 @@ class MathTextParser(object):
         The results are cached, so multiple calls to :meth:`parse`
         with the same expression should be fast.
         """
-
+        # There is a bug in Python 3.x where it leaks frame references,
+        # and therefore can't handle this caching
         if prop is None:
             prop = FontProperties()
+
+        cacheKey = (s, dpi, hash(prop))
+        result = self._cache.get(cacheKey)
+        if result is not None:
+            return result
 
         if self._output == 'ps' and rcParams['ps.useafm']:
             font_output = StandardPsFonts(prop)
@@ -3290,7 +3292,9 @@ class MathTextParser(object):
 
         box = self._parser.parse(s, font_output, fontsize, dpi)
         font_output.set_canvas_size(box.width, box.height, box.depth)
-        return font_output.get_results(box)
+        result = font_output.get_results(box)
+        self._cache[cacheKey] = result
+        return result
 
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """

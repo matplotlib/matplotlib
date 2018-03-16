@@ -22,6 +22,7 @@ from matplotlib import cbook, __version__, rcParams
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
+from matplotlib.cbook import is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING
@@ -259,6 +260,9 @@ def generate_css(attrib={}):
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
+    FONT_SCALE = 100.0
+    fontd = maxdict(50)
+
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
         self.width = width
         self.height = height

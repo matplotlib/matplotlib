@@ -16,15 +16,11 @@ import six
 
 from weakref import WeakValueDictionary
 
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
-
 import numpy as np
 
 from . import _path, rcParams
-from .cbook import _to_unmasked_float_array, simple_linear_interpolation
+from .cbook import (_to_unmasked_float_array, simple_linear_interpolation,
+                    maxdict)
 
 
 class Path(object):
@@ -940,17 +936,27 @@ class Path(object):
         """
         return cls.arc(theta1, theta2, n, True)
 
-    @staticmethod
-    @lru_cache(8)
-    def hatch(hatchpattern, density=6):
+    _hatch_dict = maxdict(8)
+
+    @classmethod
+    def hatch(cls, hatchpattern, density=6):
         """
         Given a hatch specifier, *hatchpattern*, generates a Path that
         can be used in a repeated hatching pattern.  *density* is the
         number of lines per unit square.
         """
         from matplotlib.hatch import get_path
-        return (get_path(hatchpattern, density)
-                if hatchpattern is not None else None)
+
+        if hatchpattern is None:
+            return None
+
+        hatch_path = cls._hatch_dict.get((hatchpattern, density))
+        if hatch_path is not None:
+            return hatch_path
+
+        hatch_path = get_path(hatchpattern, density)
+        cls._hatch_dict[(hatchpattern, density)] = hatch_path
+        return hatch_path
 
     def clip_to_bbox(self, bbox, inside=True):
         """
