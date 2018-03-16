@@ -1076,11 +1076,11 @@ class ArtistInspector(object):
         :class:`Artists` are of the same type) and it is your responsibility
         to make sure this is so.
         """
-        if cbook.iterable(o):
-            # Wrapped in list instead of doing try-except around next(iter(o))
-            o = list(o)
-            if len(o):
-                o = o[0]
+        if not isinstance(o, Artist):
+            if cbook.iterable(o):
+                o = list(o)
+                if len(o):
+                    o = o[0]
 
         self.oorig = o
         if not inspect.isclass(o):
@@ -1437,7 +1437,7 @@ def setp(obj, *args, **kwargs):
       >>> setp(lines, linewidth=2, color='r')        # python style
     """
 
-    if not cbook.iterable(obj):
+    if isinstance(obj, Artist):
         objs = [obj]
     else:
         objs = list(cbook.flatten(obj))
