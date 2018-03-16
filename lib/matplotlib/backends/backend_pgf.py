@@ -51,7 +51,7 @@ else:
 
 
 _luatex_version_re = re.compile(
-    'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
+    r'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
 )
 
 
@@ -1199,7 +1199,7 @@ class PdfPages:
             figure.canvas = orig_canvas
 
     def _build_newpage_command(self, width, height):
-        '''LuaLaTeX from version 0.85 removed the `\pdf*` primitives,
+        r'''LuaLaTeX from version 0.85 removed the `\pdf*` primitives,
         so we need to check the lualatex version and use `\pagewidth` if
         the version is 0.85 or newer
         '''
