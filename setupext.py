@@ -1632,10 +1632,10 @@ class BackendQtBase(OptionalBackendPackage):
         return '.'.join(temp)
 
     def check_requirements(self):
-        '''
+        """
         If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
         so we need to test in a subprocess (as for Gtk3).
-        '''
+        """
         try:
             p = multiprocessing.Pool()
 
