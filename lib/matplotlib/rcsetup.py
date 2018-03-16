@@ -1212,7 +1212,7 @@ defaultParams = {
     'date.autoformatter.minute': ['%d %H:%M', validate_string],
     'date.autoformatter.second': ['%H:%M:%S', validate_string],
     'date.autoformatter.microsecond': ['%M:%S.%f', validate_string],
-    
+
     # To avoid overlapping date invervals, we can set the spacing in advance
     # 'generous' is set to avoid overlapping, otherwise 'tight' by default
     'autodatelocator.spacing' : ['tight', validate_string],

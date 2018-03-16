@@ -629,7 +629,7 @@ def test_datetime_daily_overlap():
                   extensions=['png'])
 def test_datetime_monthly_overlap():
     # issue 7712 for overlapping monthly dates
-    plt.rcParams['date.autoformatter.month'] = '%Y-%m'    
+    plt.rcParams['date.autoformatter.month'] = '%Y-%m'
     plt.rcParams["autodatelocator.spacing"] = "generous"
     dates = [datetime.datetime(2018, i, 1) for i in range(1, 11)]
     values = list(range(1, 11))
