@@ -15,6 +15,7 @@ The following classes, methods, and functions are deprecated:
 - ``container.Container.set_remove_method``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
 - ``texmanager.dvipng_hack_alpha``,
+- ``font_manager.TempCache``,
 
 The following rcParams are deprecated:
 - ``pgf.debug`` (the pgf backend relies on logging),
