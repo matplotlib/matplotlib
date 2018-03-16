@@ -33,7 +33,7 @@ CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 @cbook._define_aliases({
     "antialiased": ["antialiaseds"],
     "edgecolor": ["edgecolors"],
-    "facecolor": ["facecolors"],
+    "facecolor": ["color", "facecolors"],
     "linestyle": ["linestyles", "dashes"],
     "linewidth": ["linewidths", "lw"],
 })

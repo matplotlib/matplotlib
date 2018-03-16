@@ -1027,6 +1027,16 @@ def test_fill_between_interpolate_decreasing():
     ax.set_ylim(800, 600)
 
 
+@image_comparison(baseline_images=['fill_between_color_arg'],
+                  style='mpl20', remove_text=True)
+def test_fill_between_color_arg():
+    # This test should not produce an empty grid
+    # even though color is set to 'None'
+    xgrid = np.linspace(0, 10, 100)
+    plt.fill_between(xgrid, 2 * xgrid, 3 * xgrid, color='None',
+                   alpha=0.3, edgecolor='blue', hatch="///")
+
+
 @image_comparison(baseline_images=['symlog'])
 def test_symlog():
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
