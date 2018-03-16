@@ -14,7 +14,7 @@ from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 
 
-# test that docstrigs are the same
+# test that docstrings are the same
 def get_docstring_section(func, section):
     """ extract a section from the docstring of a function """
     ll = inspect.getdoc(func)

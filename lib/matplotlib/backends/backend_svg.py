@@ -143,15 +143,11 @@ class XMLWriter(object):
         self.__tags.append(tag)
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write("<%s" % tag)
-        if attrib or extra:
-            attrib = attrib.copy()
-            attrib.update(extra)
-            attrib = sorted(six.iteritems(attrib))
-            for k, v in attrib:
-                if not v == '':
-                    k = escape_cdata(k)
-                    v = escape_attrib(v)
-                    self.__write(" %s=\"%s\"" % (k, v))
+        for k, v in sorted({**attrib, **extra}.items()):
+            if not v == '':
+                k = escape_cdata(k)
+                v = escape_attrib(v)
+                self.__write(" %s=\"%s\"" % (k, v))
         self.__open = 1
         return len(self.__tags)-1
 
@@ -901,8 +897,10 @@ class RendererSVG(RendererBase):
         style = {}
         if color != '#000000':
             style['fill'] = color
-        if gc.get_alpha() != 1.0:
-            style['opacity'] = short_float_fmt(gc.get_alpha())
+
+        alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
+        if alpha != 1:
+            style['opacity'] = short_float_fmt(alpha)
 
         if not ismath:
             font = text2path._get_font(prop)
@@ -1002,8 +1000,10 @@ class RendererSVG(RendererBase):
         style = {}
         if color != '#000000':
             style['fill'] = color
-        if gc.get_alpha() != 1.0:
-            style['opacity'] = short_float_fmt(gc.get_alpha())
+
+        alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
+        if alpha != 1:
+            style['opacity'] = short_float_fmt(alpha)
 
         if not ismath:
             font = self._get_font(prop)

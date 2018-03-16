@@ -48,7 +48,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
         Artist added to the Axes
     """
     print(orientation)
-    if orientation not in set('hv'):
+    if orientation not in 'hv':
         raise ValueError("orientation must be in {{'h', 'v'}} "
                          "not {o}".format(o=orientation))
 

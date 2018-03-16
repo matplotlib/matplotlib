@@ -1,8 +1,6 @@
 """
 Displays Agg images in the browser, with interactivity
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 # The WebAgg backend is divided into two modules:
 #
@@ -13,12 +11,12 @@ from __future__ import (absolute_import, division, print_function,
 # - `backend_webagg.py` contains a concrete implementation of a basic
 #   application, implemented with tornado.
 
-import six
-
 from contextlib import contextmanager
 import errno
+from io import BytesIO
 import json
 import os
+from pathlib import Path
 import random
 import sys
 import signal
@@ -63,14 +61,9 @@ class WebAggApplication(tornado.web.Application):
 
     class FavIcon(tornado.web.RequestHandler):
         def get(self):
-            image_path = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)),
-                'mpl-data', 'images')
-
             self.set_header('Content-Type', 'image/png')
-            with open(os.path.join(image_path,
-                                   'matplotlib.png'), 'rb') as fd:
-                self.write(fd.read())
+            image_path = Path(rcParams["datapath"], "images", "matplotlib.png")
+            self.write(image_path.read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
         def __init__(self, application, request, **kwargs):
@@ -135,7 +128,7 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
-            buff = six.BytesIO()
+            buff = BytesIO()
             manager.canvas.figure.savefig(buff, format=fmt)
             self.write(buff.getvalue())
 
@@ -304,13 +297,9 @@ def ipython_inline_display(figure):
     if not webagg_server_thread.is_alive():
         webagg_server_thread.start()
 
-    with open(os.path.join(
-            core.FigureManagerWebAgg.get_static_file_path(),
-            'ipython_inline_figure.html')) as fd:
-        tpl = fd.read()
-
     fignum = figure.number
-
+    tpl = Path(core.FigureManagerWebAgg.get_static_file_path(),
+               "ipython_inline_figure.html").read_text()
     t = tornado.template.Template(tpl)
     return t.generate(
         prefix=WebAggApplication.url_prefix,

@@ -36,24 +36,22 @@ your script::
 import six
 
 import copy
+import distutils.version
 import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 import warnings
 
-import distutils.version
 import numpy as np
+
 import matplotlib as mpl
-from matplotlib import rcParams
-from matplotlib._png import read_png
-from matplotlib.cbook import Locked
-import matplotlib.dviread as dviread
-import re
+from matplotlib import _png, cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -338,7 +336,7 @@ class TexManager(object):
         dvifile = '%s.dvi' % basefile
         if not os.path.exists(dvifile):
             texfile = self.make_tex(tex, fontsize)
-            with Locked(self.texcache):
+            with cbook._lock_path(texfile):
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
                      texfile], tex)
@@ -434,7 +432,7 @@ class TexManager(object):
         alpha = self.grey_arrayd.get(key)
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
-            X = read_png(os.path.join(self.texcache, pngfile))
+            X = _png.read_png(os.path.join(self.texcache, pngfile))
             self.grey_arrayd[key] = alpha = X[:, :, -1]
         return alpha
 

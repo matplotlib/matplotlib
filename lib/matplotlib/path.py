@@ -610,7 +610,7 @@ class Path(object):
                 if len(vertices) < 3:
                     return []
                 elif np.any(vertices[0] != vertices[-1]):
-                    vertices = list(vertices) + [vertices[0]]
+                    vertices = [*vertices, vertices[0]]
 
             if transform is None:
                 return [vertices]

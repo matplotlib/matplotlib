@@ -1,6 +1,6 @@
 import importlib
 import os
-import subprocess
+from subprocess import Popen
 import sys
 
 import pytest
@@ -19,9 +19,7 @@ def _get_testable_interactive_backends():
                           (["tkinter"], "tkagg"),
                           (["wx"], "wxagg")]:
         reason = None
-        if sys.version_info < (3,):
-            reason = "Py3-only test"
-        elif not os.environ.get("DISPLAY"):
+        if not os.environ.get("DISPLAY"):
             reason = "No $DISPLAY"
         elif any(importlib.util.find_spec(dep) is None for dep in deps):
             reason = "Missing dependency"
@@ -45,8 +43,7 @@ plt.show()
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
 def test_backend(backend):
-    environ = os.environ.copy()
-    environ["MPLBACKEND"] = backend
-    proc = subprocess.Popen([sys.executable, "-c", _test_script], env=environ)
+    proc = Popen([sys.executable, "-c", _test_script],
+                 env={**os.environ, "MPLBACKEND": backend})
     # Empirically, 1s is not enough on Travis.
     assert proc.wait(timeout=10) == 0

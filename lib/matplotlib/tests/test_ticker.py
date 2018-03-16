@@ -728,3 +728,27 @@ class TestPercentFormatter(object):
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
         with matplotlib.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
+
+
+def test_majformatter_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_major_formatter(matplotlib.ticker.LogLocator())
+
+
+def test_minformatter_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_minor_formatter(matplotlib.ticker.LogLocator())
+
+
+def test_majlocator_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_major_locator(matplotlib.ticker.LogFormatter())
+
+
+def test_minlocator_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_minor_locator(matplotlib.ticker.LogFormatter())

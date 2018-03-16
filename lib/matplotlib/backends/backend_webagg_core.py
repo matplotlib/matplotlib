@@ -499,8 +499,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         return os.path.join(os.path.dirname(__file__), 'web_backend')
 
     def _send_event(self, event_type, **kwargs):
-        payload = {'type': event_type}
-        payload.update(kwargs)
+        payload = {'type': event_type, **kwargs}
         for s in self.web_sockets:
             s.send_json(payload)
 

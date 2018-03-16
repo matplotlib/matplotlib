@@ -73,9 +73,10 @@ from matplotlib.backends import pylab_setup
 
 ## Backend detection ##
 def _backend_selection():
-    """ If rcParams['backend_fallback'] is true, check to see if the
-        current backend is compatible with the current running event
-        loop, and if not switches to a compatible one.
+    """
+    If rcParams['backend_fallback'] is true, check to see if the
+    current backend is compatible with the current running event loop,
+    and if not switches to a compatible one.
     """
     backend = rcParams['backend']
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
@@ -102,6 +103,7 @@ def _backend_selection():
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
         pass  # what if anything do we need to do for tkinter?
+
 
 _backend_selection()
 
@@ -169,7 +171,7 @@ def install_repl_displayhook():
 
 def uninstall_repl_displayhook():
     """
-    Uninstalls the matplotlib display hook.
+    Uninstall the matplotlib display hook.
 
     .. warning
 
@@ -249,20 +251,18 @@ def show(*args, **kw):
 
 
 def isinteractive():
-    """
-    Return status of interactive mode.
-    """
+    """Return the status of interactive mode."""
     return matplotlib.is_interactive()
 
 
 def ioff():
-    """Turn interactive mode off."""
+    """Turn the interactive mode off."""
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
 
 
 def ion():
-    """Turn interactive mode on."""
+    """Turn the interactive mode on."""
     matplotlib.interactive(True)
     install_repl_displayhook()
 
@@ -675,9 +675,7 @@ def close(*args):
 
 
 def clf():
-    """
-    Clear the current figure.
-    """
+    """Clear the current figure."""
     gcf().clf()
 
 

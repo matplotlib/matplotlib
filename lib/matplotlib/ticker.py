@@ -737,7 +737,7 @@ class ScalarFormatter(Formatter):
         # set the format string to format all the ticklabels
         if len(self.locs) < 2:
             # Temporarily augment the locations with the axis end points.
-            _locs = list(self.locs) + [vmin, vmax]
+            _locs = [*self.locs, vmin, vmax]
         else:
             _locs = self.locs
         locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
@@ -929,7 +929,7 @@ class LogFormatter(Formatter):
             # It's probably a colorbar with
             # a format kwarg setting a LogFormatter in the manner
             # that worked with 1.5.x, but that doesn't work now.
-            self._sublabels = set((1,))  # label powers of base
+            self._sublabels = {1}  # label powers of base
             return
 
         b = self._base

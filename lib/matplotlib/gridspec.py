@@ -280,8 +280,7 @@ class GridSpec(GridSpecBase):
         else:
             subplotpars = copy.copy(figure.subplotpars)
 
-        update_kw = {k: getattr(self, k) for k in self._AllowedKeys}
-        subplotpars.update(**update_kw)
+        subplotpars.update(**{k: getattr(self, k) for k in self._AllowedKeys})
 
         return subplotpars
 
