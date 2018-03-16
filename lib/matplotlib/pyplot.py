@@ -1500,65 +1500,60 @@ def axis(*v, **kwargs):
 
 def xlabel(s, *args, **kwargs):
     """
-    Set the *x* axis label of the current axis.
+    Set the x-axis label of the current axes.
 
-    Default override is::
+    Call signature::
 
-      override = {
-          'fontsize'            : 'small',
-          'verticalalignment'   : 'top',
-          'horizontalalignment' : 'center'
-          }
+        xlabel(label, fontdict=None, labelpad=None, **kwargs)
 
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args work
+    This is the pyplot equivalent of calling `.set_xlabel` on the current axes.
+    See there for a full parameter description.
     """
     return gca().set_xlabel(s, *args, **kwargs)
 
 
 def ylabel(s, *args, **kwargs):
     """
-    Set the *y* axis label of the current axis.
+    Set the y-axis label of the current axes.
 
-    Defaults override is::
+    Call signature::
 
-        override = {
-           'fontsize'            : 'small',
-           'verticalalignment'   : 'center',
-           'horizontalalignment' : 'right',
-           'rotation'='vertical' : }
+        ylabel(label, fontdict=None, labelpad=None, **kwargs)
 
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args
-            work.
+    This is the pyplot equivalent of calling `.set_ylabel` on the current axes.
+    See there for a full parameter description.
     """
     return gca().set_ylabel(s, *args, **kwargs)
 
 
 def xlim(*args, **kwargs):
     """
-    Get or set the *x* limits of the current axes.
+    Get or set the x limits of the current axes.
 
-    ::
+    Call signatures::
 
-      xmin, xmax = xlim()   # return the current xlim
-      xlim( (xmin, xmax) )  # set the xlim to xmin, xmax
-      xlim( xmin, xmax )    # set the xlim to xmin, xmax
+        xmin, xmax = xlim()  # return the current xlim
+        xlim((xmin, xmax))   # set the xlim to xmin, xmax
+        xlim(xmin, xmax)     # set the xlim to xmin, xmax
 
-    If you do not specify args, you can pass the xmin and xmax as
-    kwargs, e.g.::
+    If you do not specify args, you can pass *xmin* or *xmax* as kwargs, i.e.::
 
-      xlim(xmax=3) # adjust the max leaving min unchanged
-      xlim(xmin=1) # adjust the min leaving max unchanged
+        xlim(xmax=3)  # adjust the max leaving min unchanged
+        xlim(xmin=1)  # adjust the min leaving max unchanged
 
     Setting limits turns autoscaling off for the x-axis.
 
-    The new axis limits are returned as a length 2 tuple.
+    Returns
+    -------
+    xmin, xmax
+        A tuple of the new x-axis limits.
 
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``xlim()``) is the pyplot
+    equivalent of calling `~.Axes.get_xlim` on the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_xlim` on the current axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -1569,23 +1564,33 @@ def xlim(*args, **kwargs):
 
 def ylim(*args, **kwargs):
     """
-    Get or set the *y*-limits of the current axes.
+    Get or set the y-limits of the current axes.
 
-    ::
+    Call signatures::
 
-      ymin, ymax = ylim()   # return the current ylim
-      ylim( (ymin, ymax) )  # set the ylim to ymin, ymax
-      ylim( ymin, ymax )    # set the ylim to ymin, ymax
+        ymin, ymax = ylim()  # return the current ylim
+        ylim((ymin, ymax))   # set the ylim to ymin, ymax
+        ylim(ymin, ymax)     # set the ylim to ymin, ymax
 
-    If you do not specify args, you can pass the *ymin* and *ymax* as
-    kwargs, e.g.::
+    If you do not specify args, you can alternatively pass *ymin* or *ymax* as
+    kwargs, i.e.::
 
-      ylim(ymax=3) # adjust the max leaving min unchanged
-      ylim(ymin=1) # adjust the min leaving max unchanged
+        ylim(ymax=3)  # adjust the max leaving min unchanged
+        ylim(ymin=1)  # adjust the min leaving max unchanged
 
     Setting limits turns autoscaling off for the y-axis.
 
-    The new axis limits are returned as a length 2 tuple.
+    Returns
+    -------
+    ymin, ymax
+        A tuple of the new y-axis limits.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``ylim()``) is the pyplot
+    equivalent of calling `~.Axes.get_ylim` on the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_ylim` on the current axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -1597,13 +1602,23 @@ def ylim(*args, **kwargs):
 @docstring.dedent_interpd
 def xscale(*args, **kwargs):
     """
-    Set the scaling of the *x*-axis.
+    Set the scaling of the x-axis.
 
-    call signature::
+    Call signature::
 
-      xscale(scale, **kwargs)
+        xscale(scale, **kwargs)
 
-    The available scales are: %(scale)s
+    Parameters
+    ----------
+    scale : [%(scale)s]
+        The scaling type.
+    **kwargs
+        Additional parameters depend on *scale*. See Notes.
+
+    Notes
+    -----
+    This is the pyplot equivalent of calling `~.Axes.set_xscale` on the
+    current axes.
 
     Different keywords may be accepted, depending on the scale:
 
@@ -1615,13 +1630,23 @@ def xscale(*args, **kwargs):
 @docstring.dedent_interpd
 def yscale(*args, **kwargs):
     """
-    Set the scaling of the *y*-axis.
+    Set the scaling of the y-axis.
 
-    call signature::
+    Call signature::
 
-      yscale(scale, **kwargs)
+        yscale(scale, **kwargs)
 
-    The available scales are: %(scale)s
+    Parameters
+    ----------
+    scale : [%(scale)s]
+        The scaling type.
+    **kwargs
+        Additional parameters depend on *scale*. See Notes.
+
+    Notes
+    -----
+    This is the pyplot equivalent of calling `~.Axes.set_yscale` on the
+    current axes.
 
     Different keywords may be accepted, depending on the scale:
 
@@ -1632,24 +1657,63 @@ def yscale(*args, **kwargs):
 
 def xticks(*args, **kwargs):
     """
-    Get or set the *x*-limits of the current tick locations and labels.
+    Get or set the current tick locations and labels of the x-axis.
 
-    ::
+    Call signatures::
 
-      # return locs, labels where locs is an array of tick locations and
-      # labels is an array of tick labels.
-      locs, labels = xticks()
+        locs, labels = xticks()           # Get locations and labels
 
-      # set the locations of the xticks
-      xticks( arange(6) )
+        xticks(locs, [labels], **kwargs)  # Set locations and labels
 
-      # set the locations and labels of the xticks
-      xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+    Parameters
+    ----------
+    locs : array_like
+        A list of positions at which ticks should be placed. You can pass an
+        empty list to disable xticks.
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties. For example, to rotate long labels::
+    labels : array_like, optional
+        A list of explicit labels to place at the given *locs*.
 
-      xticks( arange(12), calendar.month_name[1:13], rotation=17 )
+    **kwargs
+        :class:`.Text` properties can be used to control the appearance of
+        the labels.
+
+    Returns
+    -------
+    locs
+        An array of label locations.
+    labels
+        A list of `.Text` objects.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``xticks()``) is the pyplot
+    equivalent of calling `~.Axes.get_xticks` and `~.Axes.get_xticklabels` on
+    the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_xticks` and `~.Axes.set_xticklabels` on the current axes.
+
+    Examples
+    --------
+    Get the current locations and labels:
+
+        >>> locs, labels = xticks()
+
+    Set label locations:
+
+        >>> xticks(np.arange(0, 1, step=0.2))
+
+    Set text labels:
+
+        >>> xticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
+
+    Set text labels and properties:
+
+        >>> xticks(np.arange(12), calendar.month_name[1:13], rotation=20)
+
+    Disable xticks:
+
+        >>> xticks([])
     """
     ax = gca()
 
@@ -1672,24 +1736,63 @@ def xticks(*args, **kwargs):
 
 def yticks(*args, **kwargs):
     """
-    Get or set the *y*-limits of the current tick locations and labels.
+    Get or set the current tick locations and labels of the y-axis.
 
-    ::
+    Call signatures::
 
-      # return locs, labels where locs is an array of tick locations and
-      # labels is an array of tick labels.
-      locs, labels = yticks()
+        locs, labels = yticks()           # Get locations and labels
 
-      # set the locations of the yticks
-      yticks( arange(6) )
+        yticks(locs, [labels], **kwargs)  # Set locations and labels
 
-      # set the locations and labels of the yticks
-      yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+    Parameters
+    ----------
+    locs : array_like
+        A list of positions at which ticks should be placed. You can pass an
+        empty list to disable yticks.
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties. For example, to rotate long labels::
+    labels : array_like, optional
+        A list of explicit labels to place at the given *locs*.
 
-      yticks( arange(12), calendar.month_name[1:13], rotation=45 )
+    **kwargs
+        :class:`.Text` properties can be used to control the appearance of
+        the labels.
+
+    Returns
+    -------
+    locs
+        An array of label locations.
+    labels
+        A list of `.Text` objects.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``yticks()``) is the pyplot
+    equivalent of calling `~.Axes.get_yticks` and `~.Axes.get_yticklabels` on
+    the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_yticks` and `~.Axes.set_yticklabels` on the current axes.
+
+    Examples
+    --------
+    Get the current locations and labels:
+
+        >>> locs, labels = yticks()
+
+    Set label locations:
+
+        >>> yticks(np.arange(0, 1, step=0.2))
+
+    Set text labels:
+
+        >>> yticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
+
+    Set text labels and properties:
+
+        >>> yticks(np.arange(12), calendar.month_name[1:13], rotation=45)
+
+    Disable yticks:
+
+        >>> yticks([])
     """
     ax = gca()
 
