@@ -507,15 +507,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
         ACCEPTS: matplotlib color spec or sequence of specs
         """
         self.set_facecolor2d(c)
-
         c = self.get_facecolor().copy()    # new color
-        length_old = self._facecolor3d.shape[0]
-        length_new = c.shape[0]
-        # reset alpha value to original
-        if (length_new > length_old):
-            c[:, 3] = self._facecolor3d[0, 3]
-        elif (length_new == length_old):
-            c[:, 3] = self._facecolor3d[:, 3]
         self._facecolor3d = c
 
     def set_edgecolor3d(self, c):
@@ -532,22 +524,34 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
         ACCEPTS: matplotlib color spec or sequence of specs
         """
         self.set_edgecolor2d(c)
-
         c = self.get_edgecolor().copy()    # new color
-        length_old = self._edgecolor3d.shape[0]
-        length_new = c.shape[0]
-
-        # reset alpha value to original
-        if (length_new > length_old):
-            c[:, 3] = self._edgecolor3d[0, 3]
-        elif (length_new == length_old):
-            c[:, 3] = self._edgecolor3d[:, 3]
         self._edgecolor3d = c
+
+    def do_projection3d(self, renderer):
+        xs, ys, zs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+
+        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+               self._facecolor3d)
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
+        self.set_facecolor2d(fcs)
+
+        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+               self._edgecolor3d)
+        ecs = mcolors.to_rgba_array(ecs, self._alpha)
+        self.set_edgecolor2d(ecs)
+        PathCollection.set_offsets(self, list(zip(vxs, vys)))
+
+        if vzs.size > 0:
+            return min(vzs)
+        else:
+            return np.nan
 
     col.set_facecolor2d = col.set_facecolor
     col.set_facecolor = types.MethodType(set_facecolor3d, col)
     col.set_edgecolor2d = col.set_edgecolor
     col.set_edgecolor = types.MethodType(set_edgecolor3d, col)
+    col.do_3d_projection = types.MethodType(do_projection3d, col)
 
 
 class Poly3DCollection(PolyCollection):
