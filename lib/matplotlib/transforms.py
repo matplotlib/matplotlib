@@ -33,9 +33,6 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import numpy as np
@@ -105,7 +102,7 @@ class TransformNode(object):
 
     if DEBUG:
         def __str__(self):
-            # either just return the name of this TransformNode, or it's repr
+            # either just return the name of this TransformNode, or its repr
             return self._shorthand_name or repr(self)
 
     def __getstate__(self):

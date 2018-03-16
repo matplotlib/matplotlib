@@ -329,8 +329,7 @@ class silent_list(list):
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
-    def __str__(self):
-        return repr(self)
+    __str__ = __repr__
 
     def __getstate__(self):
         # store a dictionary of this SilentList's state
@@ -916,14 +915,14 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # next "wraps around"
             next = path[(i + 1) % len(path)]
 
-            outstream.write("   %s -- " % str(type(step)))
+            outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
                 for key, val in six.iteritems(step):
                     if val is next:
-                        outstream.write("[%s]" % repr(key))
+                        outstream.write("[{!r}]".format(key))
                         break
                     if key is next:
-                        outstream.write("[key] = %s" % repr(val))
+                        outstream.write("[key] = {!r}".format(val))
                         break
             elif isinstance(step, list):
                 outstream.write("[%d]" % step.index(next))
