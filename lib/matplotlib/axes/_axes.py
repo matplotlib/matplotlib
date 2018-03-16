@@ -1415,7 +1415,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `.Line2D` objects that were added.
+            A list of `.Line2D` objects representing the plotted data.
 
 
         See Also
@@ -1558,7 +1558,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `.Line2D` objects that were added to the axes.
+            A list of `~.Line2D` objects representing the plotted data.
 
 
         Other Parameters
@@ -1607,36 +1607,45 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
-        Make a plot with log scaling on both the *x* and *y* axis.
+        Make a plot with log scaling on both the x and y axis.
 
-        :func:`~matplotlib.pyplot.loglog` supports all the keyword
-        arguments of :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale` /
-        :meth:`matplotlib.axes.Axes.set_yscale`.
+        Call signatures::
+
+            loglog([x], y, [fmt], data=None, **kwargs)
+            loglog([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
+
+        This is just a thin wrapper around `.plot` which additionally changes
+        both the x-axis and the y-axis to log scaling. All of the concepts and
+        parameters of plot can be used here as well.
+
+        The additional parameters *basex/y*, *subsx/y* and *nonposx/y* control
+        the x/y-axis properties. They are just forwarded to `.Axes.set_xscale`
+        and `.Axes.set_yscale`.
 
         Parameters
         ----------
-        basex, basey : scalar
-            Base of the x/y logarithm. Must be > 1.
+        basex, basey : scalar, optional, default 10
+            Base of the x/y logarithm.
 
-        subsx, subsy : sequence
-            The location of the minor x/y ticks; ``None`` defaults to autosubs,
-            which depend on the number of decades in the plot;
-            see :meth:`matplotlib.axes.Axes.set_xscale` /
-            :meth:`matplotlib.axes.Axes.set_yscale` for details.
+        subsx, subsy : sequence, optional
+            The location of the minor x/y ticks. If *None*, reasonable
+            locations are automatically chosen depending on the number of
+            decades in the plot.
+            See `.Axes.set_xscale` / `.Axes.set_yscale` for details.
 
-        nonposx, nonposy : ['mask' | 'clip' ]
+        nonposx, nonposy : {'mask', 'clip'}, optional, default 'mask'
             Non-positive values in x or y can be masked as invalid, or clipped
             to a very small positive number.
 
+        Returns
+        -------
+        lines
+            A list of `~.Line2D` objects representing the plotted data.
+
         Other Parameters
         ----------------
-        **kwargs :
-            The remaining valid kwargs are :class:`~matplotlib.lines.Line2D`
-            properties:
-
-            %(Line2D)s
-
+        **kwargs
+            All parameters supported by `.plot`.
         """
         if not self._hold:
             self.cla()
@@ -1662,39 +1671,41 @@ class Axes(_AxesBase):
         """
         Make a plot with log scaling on the x axis.
 
+        Call signatures::
+
+            semilogx([x], y, [fmt], data=None, **kwargs)
+            semilogx([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
+
+        This is just a thin wrapper around `.plot` which additionally changes
+        the x-axis to log scaling. All of the concepts and parameters of plot
+        can be used here as well.
+
+        The additional parameters *basex*, *subsx* and *nonposx* control the
+        x-axis properties. They are just forwarded to `.Axes.set_xscale`.
+
         Parameters
         ----------
-        basex : float, optional
-            Base of the x logarithm. The scalar should be larger than 1.
+        basex : scalar, optional, default 10
+            Base of the x logarithm.
 
         subsx : array_like, optional
-            The location of the minor xticks; ``None`` defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
-            details.
+            The location of the minor xticks. If *None*, reasonable locations
+            are automatically chosen depending on the number of decades in the
+            plot. See `.Axes.set_xscale` for details.
 
-        nonposx : string, optional, {'mask', 'clip'}
-            Non-positive values in x can be masked as
-            invalid, or clipped to a very small positive number.
+        nonposx : {'mask', 'clip'}, optional, default 'mask'
+            Non-positive values in x can be masked as invalid, or clipped to a
+            very small positive number.
 
         Returns
         -------
-        `~matplotlib.pyplot.plot`
-            Log-scaled plot on the x axis.
+        lines
+            A list of `~.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-            %(Line2D)s
-
-        Notes
-        -----
-        This function supports all the keyword arguments of
-        :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale`.
+        **kwargs
+            All parameters supported by `.plot`.
         """
         if not self._hold:
             self.cla()
@@ -1714,41 +1725,42 @@ class Axes(_AxesBase):
         """
         Make a plot with log scaling on the y axis.
 
+        Call signatures::
+
+            semilogy([x], y, [fmt], data=None, **kwargs)
+            semilogy([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
+
+        This is just a thin wrapper around `.plot` which additionally changes
+        the y-axis to log scaling. All of the concepts and parameters of plot
+        can be used here as well.
+
+        The additional parameters *basey*, *subsy* and *nonposy* control the
+        y-axis properties. They are just forwarded to `.Axes.set_yscale`.
+
         Parameters
         ----------
-        basey : float, optional
-            Base of the y logarithm. The scalar should be larger than 1.
+        basey : scalar, optional, default 10
+            Base of the y logarithm.
 
         subsy : array_like, optional
-            The location of the minor yticks; ``None`` defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
-            details.
+            The location of the minor yticks. If *None*, reasonable locations
+            are automatically chosen depending on the number of decades in the
+            plot. See `.Axes.set_yscale` for details.
 
-        nonposy : string, optional, {'mask', 'clip'}
-            Non-positive values in *y* can be masked as
-            invalid, or clipped to a very small positive number.
+        nonposy : {'mask', 'clip'}, optional, default 'mask'
+            Non-positive values in y can be masked as invalid, or clipped to a
+            very small positive number.
 
         Returns
         -------
-        `~matplotlib.pyplot.plot`
-            Log-scaled plot on the *y* axis.
+        lines
+            A list of `~.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-            %(Line2D)s
-
-        Notes
-        -----
-        This function supports all the keyword arguments of
-        :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_yscale`.
+        **kwargs
+            All parameters supported by `.plot`.
         """
-
         if not self._hold:
             self.cla()
         d = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
