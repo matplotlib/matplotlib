@@ -1348,24 +1348,6 @@ class AutoDateLocator(DateLocator):
             width = figure.get_size_inches()[0]
         else:
             width = rcParams["figure.figsize"][0]
-            
-        if self.axis is not None:
-            ax = self.axis.axes
-            from matplotlib.transforms import TransformedBbox
-            
-            bbox = ax.get_position(original=False)
-            canvas = figure.canvas
-            transf =  self.axis.axes.transData.transform(bbox.get_points())
-            
-            #tight_bbox_raw = ax.get_tightbbox(figure.canvas.get_renderer())
-            #import matplotlib.transforms as mtransforms
-            
-            #bb = mtransforms.Bbox(bbox)
-            #print(transf)
-            print(transf[0][1], transf[1][1])
-            #print(bbox.bounds)
-            #print(bbox.get_points())
-            #print("pos ended")
 
         # a ratio of 8 date characters per inch is 'estimated'
         maxwid = width * 8
