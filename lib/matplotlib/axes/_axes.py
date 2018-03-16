@@ -4180,7 +4180,7 @@ class Axes(_AxesBase):
                       label_namer="y")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
-                verts=None, edgecolors=None,
+                verts=None, edgecolors=None, masked=False,
                 **kwargs):
         """
         A scatter plot of *y* vs *x* with varying marker size and/or color.
@@ -4257,6 +4257,10 @@ class Axes(_AxesBase):
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
 
+        masked : boolean, optional, default: False
+            Set to plot valid points with invalid color, in conjunction with
+            `~matplotlib.colors.Colormap.set_bad`.
+
         Returns
         -------
         paths : `~matplotlib.collections.PathCollection`
@@ -4310,11 +4314,12 @@ class Axes(_AxesBase):
                 c, edgecolors, kwargs, xshape, yshape,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
-        # `delete_masked_points` only modifies arguments of the same length as
-        # `x`.
-        x, y, s, c, colors, edgecolors, linewidths =\
-            cbook.delete_masked_points(
-                x, y, s, c, colors, edgecolors, linewidths)
+        if masked is False:
+            # `delete_masked_points` only modifies arguments of the same length
+            #  as `x`.
+            x, y, s, c, colors, edgecolors, linewidths =\
+               cbook.delete_masked_points(
+                   x, y, s, c, colors, edgecolors, linewidths)
 
         scales = s   # Renamed for readability below.
 
@@ -4358,7 +4363,12 @@ class Axes(_AxesBase):
             if norm is not None and not isinstance(norm, mcolors.Normalize):
                 raise ValueError(
                     "'norm' must be an instance of 'mcolors.Normalize'")
-            collection.set_array(np.asarray(c))
+
+            if masked is False:
+                collection.set_array(c)
+            else:
+                collection.set_array(ma.masked_invalid(c))
+
             collection.set_cmap(cmap)
             collection.set_norm(norm)
 
