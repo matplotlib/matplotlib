@@ -611,11 +611,17 @@ class IsoDateFormatter(ticker.Formatter):
     Use ISO 8601 format for tick format.
     """
 
-    def __init__(self, fmt=None, tz=None):
+    def __init__(self, fmt=None, tz=None, show_only=None):
         """
         *tz* is the :class:`tzinfo` instance.
         *fmt* is ignored and kept for compatibility with `DateFormatter`.
         """
+        if show_only is not None:
+            if show_only not in ['date', 'time']:
+                raise ValueError('show_only can only be "date", "time", or'
+                                 'None.')
+            if show_only:
+                self.fmt = show_only
         if tz is None:
             tz = _get_rc_timezone()
         self.tz = tz
@@ -640,7 +646,14 @@ class IsoDateFormatter(ticker.Formatter):
         # no special treatment for years before 1900 because isoformat appears
         # to "just work" for datetimes before 1900.
 
-        return cbook.unicode_safe(dt.isoformat())
+        if self.fmt == "date":
+            to_print = dt.date()
+        elif self.fmt == "time":
+            to_print = dt.time()
+        else:
+            to_print = dt
+
+        return cbook.unicode_safe(to_print.isoformat())
 
     def strftime(self, dt, fmt=None):
         """
