@@ -21,6 +21,7 @@ The Matplotlib Developers' Guide
    gitwash/index.rst
    coding_guide.rst
    release_guide.rst
+   min_dep_policy.rst
    MEP/index
 
 .. toctree::
