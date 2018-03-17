@@ -348,7 +348,6 @@ class Legend(Artist):
                  handler_map=None,
                  ):
         """
-
         Parameters
         ----------
         parent : `.Axes` or `.Figure`
