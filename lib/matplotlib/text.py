@@ -2051,8 +2051,6 @@ class Annotation(Text, _AnnotationBase):
 
         self.arrowprops = arrowprops
 
-        self.arrow = None
-
         if arrowprops is not None:
             if "arrowstyle" in arrowprops:
                 arrowprops = self.arrowprops.copy()
@@ -2072,9 +2070,6 @@ class Annotation(Text, _AnnotationBase):
 
     def contains(self, event):
         contains, tinfo = Text.contains(self, event)
-        if self.arrow is not None:
-            in_arrow, _ = self.arrow.contains(event)
-            contains = contains or in_arrow
         if self.arrow_patch is not None:
             in_patch, _ = self.arrow_patch.contains(event)
             contains = contains or in_patch
@@ -2098,9 +2093,6 @@ class Annotation(Text, _AnnotationBase):
         self._textcoords = coords
 
     def set_figure(self, fig):
-
-        if self.arrow is not None:
-            self.arrow.set_figure(fig)
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
@@ -2257,18 +2249,19 @@ class Annotation(Text, _AnnotationBase):
         '''
         if not self.get_visible():
             return Bbox.unit()
-        arrow = self.arrow
-        arrow_patch = self.arrow_patch
 
         text_bbox = Text.get_window_extent(self, renderer=renderer)
         bboxes = [text_bbox]
 
-        if self.arrow is not None:
-            bboxes.append(arrow.get_window_extent(renderer=renderer))
-        elif self.arrow_patch is not None:
-            bboxes.append(arrow_patch.get_window_extent(renderer=renderer))
+        if self.arrow_patch is not None:
+            bboxes.append(
+                self.arrow_patch.get_window_extent(renderer=renderer))
 
         return Bbox.union(bboxes)
+
+    arrow = property(
+        fget=cbook.deprecated("3.0")(lambda self: None),
+        fset=cbook.deprecated("3.0")(lambda self, value: None))
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
