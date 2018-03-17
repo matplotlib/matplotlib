@@ -131,6 +131,7 @@ install:
         codecov \
         coverage \
         $CYCLER \
+        $DATEUTIL \
         $NOSE \
         $NUMPY \
         $PANDAS \
@@ -138,8 +139,8 @@ install:
         coverage \
         pillow \
         $PYPARSING \
-        $DATEUTIL \
-        $SPHINX
+        $SPHINX \
+        tornado
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
