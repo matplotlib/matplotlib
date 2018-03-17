@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function
 import six
 import sys
 
+import matplotlib
+
 
 def test_simple():
     assert 1 + 1 == 2
@@ -39,3 +41,7 @@ def test_override_builtins():
                 overridden = True
 
     assert not overridden
+
+
+def test_verbose():
+    assert isinstance(matplotlib.verbose, matplotlib.Verbose)
