@@ -12,13 +12,10 @@ Pull request checklist
 Branch selection
 ----------------
 
-* In general, simple bugfixes that are unlikely to introduce new bugs
-  of their own should be merged onto the maintenance branch.  New
-  features, or anything that changes the API, should be made against
-  master.  The rules are fuzzy here -- when in doubt, target master.
+In general target the master branch for all new features and
+bug-fixes.  PRs may target maintenance or doc branches on
+a case-by-case basis.
 
-* Once changes are merged into the maintenance branch, they should
-  be merged into master.
 
 Documentation
 -------------
@@ -87,31 +84,71 @@ PR Review guidelines
   merge the PR and then open a new PR against upstream.
 
 
-Backports
-=========
+Branches and Backports
+======================
 
 
-When doing backports please include the branch you backported the
-commit to along with the SHA in a comment on the original PR.
+The current active branches are
 
-We do a backport from master to v2.0.x assuming:
+*master*
+  This will be Matplotlib 3.0.  Supports Python 3.5+.
+
+*v2.2.x*
+  Maintenance branch for Matplotlib 2.2 LTS.  Supports Python 2.7, 3.4+
+
+*v2.2.2-doc*
+  Documentation for the current release.
+
+
+We always will backport to 2.2.x
+
+- critical bug fixes (segfault, failure to import, things that the
+  user can not work around)
+- fixes for regressions against 2.0 or 2.1
+
+Everything else (regressions against 1.x versions, bugs/api
+inconsistencies the user can work around in their code) are on a
+case-by-case basis, should be low-risk, and need someone to advocate
+for and shepherd through the backport.
+
+Automated backports
+-------------------
+
+We use meeseeksdev bot to automatically backport merges to the correct
+maintenance branch base on the milestone.  To work properly the
+milestone must be set before merging.  If you have commit rights, the
+bot can also be manually triggered after a merge by leaving a message
+``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts
+meeseekdevs will inform you that the backport needs to be done
+manually.
+
+The target branch is configured by putting ``on-merge: backport to
+TARGETBRANCH`` in the milestone description on it's own line.
+
+If the bot is not working as expected, please report issues to
+`Meeseeksdev<https://github.com/MeeseeksBox/MeeseeksDev>`__.
+
+
+Manual backports
+----------------
+
+When doing backports please copy the form used by meeseekdev,
+``Backport PR #XXXX: TITLE OF PR``.  If you need to manually resolve
+conflicts make note of them and how you resolved them in the commit
+message.
+
+We do a backport from master to v2.2.x assuming:
 
 * ``matplotlib`` is a read-only remote branch of the matplotlib/matplotlib repo
-
-* ``DANGER`` is a read/write remote branch of the matplotlib/matplotlib repo
 
 The ``TARGET_SHA`` is the hash of the merge commit you would like to
 backport.  This can be read off of the github PR page (in the UI with
 the merge notification) or through the git CLI tools.::
 
   git fetch matplotlib
-  git checkout v2.0.x
-  git merge --ff-only matplotlib/v2.0.x
+  git checkout v2.2.x
+  git merge --ff-only matplotlib/v2.2.x
   git cherry-pick -m 1 TARGET_SHA
-  git log --graph --decorate  # to look at it
-  # local tests? (use your judgment)
-  git push DANGER v2.0.x
-  # leave a comment on PR noting sha of the resulting commit
-  # from the cherry-pick + branch it was moved to
+  # resolve conflicts and commit if required
 
-These commands work on git 2.7.1.
+Use your discretion to push directly to upstream or to open a PR.
