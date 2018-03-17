@@ -1,11 +1,8 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 from copy import copy
 import io
 import os
 import sys
+import urllib.request
 import warnings
 
 import numpy as np
@@ -630,9 +627,9 @@ def test_minimized_rasterized():
 
 @pytest.mark.network
 def test_load_from_url():
-    req = six.moves.urllib.request.urlopen(
-        "http://matplotlib.org/_static/logo_sidebar_horiz.png")
-    plt.imread(req)
+    url = "http://matplotlib.org/_static/logo_sidebar_horiz.png"
+    plt.imread(url)
+    plt.imread(urllib.request.urlopen(url))
 
 
 @image_comparison(baseline_images=['log_scale_image'],
