@@ -141,7 +141,7 @@ bbox_to_anchor : `.BboxBase` or pair of floats
     For example, to put the legend's upper right hand corner in the
     center of the axes the following keywords can be used::
 
-       loc='upper right', bbox_to_anchor=(0.5, 0.5)
+        loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
 ncol : integer
     The number of columns that the legend has. Default is 1.
