@@ -2860,7 +2860,11 @@ class NavigationToolbar2(object):
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:
-                            s += ' [%s]' % a.format_cursor_data(data)
+                            zformat = a.format_cursor_data
+                            if hasattr(a.colorbar, 'formatter'):
+                                if callable(a.colorbar.formatter):
+                                    zformat = a.colorbar.formatter
+                            s += ' [%s]' % zformat(data)
 
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
