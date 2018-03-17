@@ -8,7 +8,7 @@ artists into 3D versions which can be added to an Axes3D.
 '''
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import types
+
 import six
 from six.moves import zip
 
@@ -401,6 +401,38 @@ class Patch3DCollection(PatchCollection):
         else:
             return np.nan
 
+    def set_facecolor(self, c):
+        """
+        Set the facecolor(s) of the collection.  *c* can be a
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'none', the patch will not be filled.
+
+        ACCEPTS: matplotlib color spec or sequence of specs
+        """
+        self._set_facecolor(c)
+        c = self.get_facecolor().copy()    # new color
+        self._facecolor3d = c
+
+    def set_edgecolor(self, c):
+        """
+        Set the edgecolor(s) of the collection. *c* can be a
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'face', the edge color will always be the same as
+        the face color.  If it is 'none', the patch boundary will not
+        be drawn.
+
+        ACCEPTS: matplotlib color spec or sequence of specs
+        """
+        self._set_edgecolor(c)
+        c = self.get_edgecolor().copy()    # new color
+        self._edgecolor3d = c
+
 
 class Path3DCollection(PathCollection):
     '''
@@ -466,7 +498,7 @@ class Path3DCollection(PathCollection):
 
         if vzs.size > 0 :
             return min(vzs)
-        else :
+        else:
             return np.nan
 
     def set_facecolor(self, c):
@@ -499,7 +531,7 @@ class Path3DCollection(PathCollection):
         """
         self._set_edgecolor(c)
         c = self.get_edgecolor().copy()    # new color
-        self._edgecolor3d = c  
+        self._edgecolor3d = c
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
