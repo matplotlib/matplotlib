@@ -388,12 +388,12 @@ class Patch3DCollection(PatchCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        self._set_facecolor(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
+        self._set_edgecolor(ecs)
         PatchCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
@@ -456,18 +456,50 @@ class Path3DCollection(PathCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        self._set_facecolor(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
+        self._set_edgecolor(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0 :
             return min(vzs)
         else :
             return np.nan
+
+    def set_facecolor(self, c):
+        """
+        Set the facecolor(s) of the collection.  *c* can be a
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'none', the patch will not be filled.
+
+        ACCEPTS: matplotlib color spec or sequence of specs
+        """
+        self._set_facecolor(c)
+        c = self.get_facecolor().copy()    # new color
+        self._facecolor3d = c
+
+    def set_edgecolor(self, c):
+        """
+        Set the edgecolor(s) of the collection. *c* can be a
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'face', the edge color will always be the same as
+        the face color.  If it is 'none', the patch boundary will not
+        be drawn.
+
+        ACCEPTS: matplotlib color spec or sequence of specs
+        """
+        self._set_edgecolor(c)
+        c = self.get_edgecolor().copy()    # new color
+        self._edgecolor3d = c  
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
@@ -494,64 +526,6 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
     col.set_3d_properties(zs, zdir)
-
-    def set_facecolor3d(self, c):
-        """
-        Set the facecolor(s) of the collection.  *c* can be a
-        matplotlib color spec (all patches have same color), or a
-        sequence of specs; if it is a sequence the patches will
-        cycle through the sequence.
-
-        If *c* is 'none', the patch will not be filled.
-
-        ACCEPTS: matplotlib color spec or sequence of specs
-        """
-        self.set_facecolor2d(c)
-        c = self.get_facecolor().copy()    # new color
-        self._facecolor3d = c
-
-    def set_edgecolor3d(self, c):
-        """
-        Set the edgecolor(s) of the collection. *c* can be a
-        matplotlib color spec (all patches have same color), or a
-        sequence of specs; if it is a sequence the patches will
-        cycle through the sequence.
-
-        If *c* is 'face', the edge color will always be the same as
-        the face color.  If it is 'none', the patch boundary will not
-        be drawn.
-
-        ACCEPTS: matplotlib color spec or sequence of specs
-        """
-        self.set_edgecolor2d(c)
-        c = self.get_edgecolor().copy()    # new color
-        self._edgecolor3d = c
-
-    def do_projection3d(self, renderer):
-        xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
-               self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolor2d(fcs)
-
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
-               self._edgecolor3d)
-        ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolor2d(ecs)
-        PathCollection.set_offsets(self, list(zip(vxs, vys)))
-
-        if vzs.size > 0:
-            return min(vzs)
-        else:
-            return np.nan
-
-    col.set_facecolor2d = col.set_facecolor
-    col.set_facecolor = types.MethodType(set_facecolor3d, col)
-    col.set_edgecolor2d = col.set_edgecolor
-    col.set_edgecolor = types.MethodType(set_edgecolor3d, col)
-    col.do_3d_projection = types.MethodType(do_projection3d, col)
 
 
 class Poly3DCollection(PolyCollection):
