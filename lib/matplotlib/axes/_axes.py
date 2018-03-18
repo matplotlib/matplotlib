@@ -4191,11 +4191,10 @@ class Axes(_AxesBase):
         of the observations at (x[i],y[i]).
 
         If *C* is specified, it specifies values at the coordinate
-        (x[i],y[i]). These values are accumulated for each hexagonal
+        (x[i], y[i]). These values are accumulated for each hexagonal
         bin and then reduced according to *reduce_C_function*, which
-        defaults to numpy's mean function (np.mean). (If *C* is
-        specified, it must also be a 1-D sequence of the same length
-        as *x* and *y*.)
+        defaults to `numpy.mean`. (If *C* is specified, it must also
+        be a 1-D sequence of the same length as *x* and *y*.)
 
         Parameters
         ----------
@@ -4211,7 +4210,7 @@ class Axes(_AxesBase):
             tuple with two elements specifying the number of hexagons
             in the *x*-direction and the *y*-direction.
 
-        bins : {'log'} or int or sequence, optional, default is *None*
+        bins : 'log' or int or sequence, optional, default is *None*
             If *None*, no binning is applied; the color of each hexagon
             directly corresponds to its count value.
 
@@ -4287,11 +4286,9 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        object
-            a :class:`~matplotlib.collections.PolyCollection` instance; use
-            :meth:`~matplotlib.collections.PolyCollection.get_array` on
-            this :class:`~matplotlib.collections.PolyCollection` to get
-            the counts in each hexagon.
+        polycollection
+            A `.PolyCollection` instance; use `.PolyCollection.get_array` on
+            this to get the counts in each hexagon.
 
             If *marginals* is *True*, horizontal
             bar and vertical bar (both PolyCollections) will be attached
@@ -6058,11 +6055,11 @@ class Axes(_AxesBase):
         ----------
         x : (n,) array or sequence of (n,) arrays
             Input values, this takes either a single array or a sequence of
-            arrays which are not required to be of the same length
+            arrays which are not required to be of the same length.
 
-        bins : integer or sequence or 'auto', optional
+        bins : int or sequence or str, optional
             If an integer is given, ``bins + 1`` bin edges are calculated and
-            returned, consistent with :func:`numpy.histogram`.
+            returned, consistent with `numpy.histogram`.
 
             If `bins` is a sequence, gives bin edges, including left edge of
             first bin and right edge of last bin.  In this case, `bins` is
@@ -6079,9 +6076,12 @@ class Axes(_AxesBase):
 
             Unequally spaced bins are supported if *bins* is a sequence.
 
-            If Numpy 1.11 is installed, may also be ``'auto'``.
+            With Numpy 1.11 or newer, you can alternatively provide a string
+            describing a binning strategy, such as 'auto', 'sturges', 'fd',
+            'doane', 'scott', 'rice', 'sturges' or 'sqrt', see
+            `numpy.histogram`.
 
-            Default is taken from the rcParam ``hist.bins``.
+            The default is taken from :rc:`hist.bins`.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
@@ -6094,7 +6094,7 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        density : boolean, optional
+        density : bool, optional
             If ``True``, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
@@ -6118,7 +6118,7 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        cumulative : boolean, optional
+        cumulative : bool, optional
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints. If *normed* or *density*
@@ -6178,7 +6178,7 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        log : boolean, optional
+        log : bool, optional
             If ``True``, the histogram axis will be set to a log scale. If
             *log* is ``True`` and *x* is a 1D array, empty bins will be
             filtered out and only the non-empty ``(n, bins, patches)``
@@ -6192,14 +6192,14 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        label : string or None, optional
+        label : str or None, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that the legend command will work as expected.
 
             default is ``None``
 
-        stacked : boolean, optional
+        stacked : bool, optional
             If ``True``, multiple data are stacked on top of each other If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
@@ -6553,10 +6553,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y: array_like, shape (n, )
+        x, y : array_like, shape (n, )
             Input values
 
-        bins: [None | int | [int, int] | array_like | [array, array]]
+        bins : None or int or [int, int] or array_like or [array, array]
 
             The bin specification:
 
@@ -6580,7 +6580,7 @@ class Axes(_AxesBase):
              xmax], [ymin, ymax]]. All values outside of this range will be
              considered outliers and not tallied in the histogram.
 
-        normed : boolean, optional, default: False
+        normed : bool, optional, default: False
              Normalize histogram.
 
         weights : array_like, shape (n, ), optional, default: None
@@ -6610,7 +6610,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        cmap : {Colormap, string}, optional
+        cmap : Colormap or str, optional
             A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
             settings.
 
@@ -6619,7 +6619,7 @@ class Axes(_AxesBase):
             scale luminance data to ``[0, 1]``. If not set, defaults to
             ``Normalize()``.
 
-        vmin/vmax : {None, scalar}, optional
+        vmin/vmax : None or scalar, optional
             Arguments passed to the `Normalize` instance.
 
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
