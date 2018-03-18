@@ -101,12 +101,12 @@ backend      : $TEMPLATE_BACKEND
 ## information on patch properties
 #patch.linewidth        : 1        ## edge width in points.
 #patch.facecolor        : C0
-#patch.edgecolor        : k       ## if forced, or patch is not filled
+#patch.edgecolor        : black   ## if forced, or patch is not filled
 #patch.force_edgecolor  : False   ## True to always use edgecolor
 #patch.antialiased      : True    ## render patches in antialiased (no jaggies)
 
 #### HATCHES
-#hatch.color     : k
+#hatch.color     : black
 #hatch.linewidth : 1.0
 
 #### Boxplot
@@ -121,23 +121,23 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.showfliers  : True
 #boxplot.meanline    : False
 
-#boxplot.flierprops.color           : k
+#boxplot.flierprops.color           : black
 #boxplot.flierprops.marker          : o
 #boxplot.flierprops.markerfacecolor : none
-#boxplot.flierprops.markeredgecolor : k
+#boxplot.flierprops.markeredgecolor : black
 #boxplot.flierprops.markersize      : 6
 #boxplot.flierprops.linestyle       : none
 #boxplot.flierprops.linewidth       : 1.0
 
-#boxplot.boxprops.color     : k
+#boxplot.boxprops.color     : black
 #boxplot.boxprops.linewidth : 1.0
 #boxplot.boxprops.linestyle : -
 
-#boxplot.whiskerprops.color     : k
+#boxplot.whiskerprops.color     : black
 #boxplot.whiskerprops.linewidth : 1.0
 #boxplot.whiskerprops.linestyle : -
 
-#boxplot.capprops.color     : k
+#boxplot.capprops.color     : black
 #boxplot.capprops.linewidth : 1.0
 #boxplot.capprops.linestyle : -
 
@@ -211,7 +211,7 @@ backend      : $TEMPLATE_BACKEND
 ## text properties used by text.Text.  See
 ## http://matplotlib.org/api/artist_api.html#module-matplotlib.text for more
 ## information on text properties
-#text.color          : k
+#text.color          : black
 
 #### LaTeX customizations. See http://wiki.scipy.org/Cookbook/Matplotlib/UsingTex
 #text.usetex         : False  ## use latex for all text handling. The following fonts
@@ -280,8 +280,8 @@ backend      : $TEMPLATE_BACKEND
 ## default face and edge color, default tick sizes,
 ## default fontsizes for ticklabels, and so on.  See
 ## http://matplotlib.org/api/axes_api.html#module-matplotlib.axes
-#axes.facecolor      : w       ## axes background color
-#axes.edgecolor      : k       ## axes edge color
+#axes.facecolor      : white   ## axes background color
+#axes.edgecolor      : black   ## axes edge color
 #axes.linewidth      : 0.8     ## edge linewidth
 #axes.grid           : False   ## display grid or not
 #axes.grid.axis      : both    ## which axis the grid should apply to
@@ -292,7 +292,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.labelsize      : medium  ## fontsize of the x any y labels
 #axes.labelpad       : 4.0     ## space between label and axis
 #axes.labelweight    : normal  ## weight of the x and y labels
-#axes.labelcolor     : k
+#axes.labelcolor     : black
 #axes.axisbelow      : line    ## draw axis gridlines and ticks below
                                ## patches (True); above patches but below
                                ## lines ('line'); or above all (False)
@@ -364,7 +364,7 @@ backend      : $TEMPLATE_BACKEND
 #xtick.minor.width    : 0.6    ## minor tick width in points
 #xtick.major.pad      : 3.5    ## distance to major tick label in points
 #xtick.minor.pad      : 3.4    ## distance to the minor tick label in points
-#xtick.color          : k      ## color of the tick labels
+#xtick.color          : black  ## color of the tick labels
 #xtick.labelsize      : medium ## fontsize of the tick labels
 #xtick.direction      : out    ## direction: in, out, or inout
 #xtick.minor.visible  : False  ## visibility of minor ticks on x-axis
@@ -384,7 +384,7 @@ backend      : $TEMPLATE_BACKEND
 #ytick.minor.width    : 0.6    ## minor tick width in points
 #ytick.major.pad      : 3.5    ## distance to major tick label in points
 #ytick.minor.pad      : 3.4    ## distance to the minor tick label in points
-#ytick.color          : k      ## color of the tick labels
+#ytick.color          : black  ## color of the tick labels
 #ytick.labelsize      : medium ## fontsize of the tick labels
 #ytick.direction      : out    ## direction: in, out, or inout
 #ytick.minor.visible  : False  ## visibility of minor ticks on y-axis
@@ -428,9 +428,9 @@ backend      : $TEMPLATE_BACKEND
 #figure.titleweight : normal   ## weight of the figure title
 #figure.figsize   : 6.4, 4.8   ## figure size in inches
 #figure.dpi       : 100        ## figure dots per inch
-#figure.facecolor : w      ## figure facecolor; 0.75 is scalar gray
-#figure.edgecolor : w      ## figure edgecolor
-#figure.frameon : True          ## enable figure frame
+#figure.facecolor : white      ## figure facecolor
+#figure.edgecolor : white      ## figure edgecolor
+#figure.frameon : True         ## enable figure frame
 #figure.max_open_warning : 20  ## The maximum number of figures to open through
                                ## the pyplot interface before emitting a warning.
                                ## If less than one this feature is disabled.
@@ -517,8 +517,8 @@ backend      : $TEMPLATE_BACKEND
 ## e.g., you may want a higher resolution, or to make the figure
 ## background white
 #savefig.dpi         : figure   ## figure dots per inch or 'figure'
-#savefig.facecolor   : w        ## figure facecolor when saving
-#savefig.edgecolor   : w        ## figure edgecolor when saving
+#savefig.facecolor   : white    ## figure facecolor when saving
+#savefig.edgecolor   : white    ## figure edgecolor when saving
 #savefig.format      : png      ## png, ps, pdf, svg
 #savefig.bbox        : standard ## 'tight' or 'standard'.
                                 ## 'tight' is incompatible with pipe-based animation

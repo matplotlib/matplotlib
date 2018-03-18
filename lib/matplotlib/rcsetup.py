@@ -1011,13 +1011,13 @@ defaultParams = {
 
     ## patch props
     'patch.linewidth':   [1.0, validate_float],     # line width in points
-    'patch.edgecolor':   ['k', validate_color],
+    'patch.edgecolor':   ['black', validate_color],
     'patch.force_edgecolor' : [False, validate_bool],
     'patch.facecolor':   ['C0', validate_color],    # first color in cycle
     'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 
     ## hatch props
-    'hatch.color': ['k', validate_color],
+    'hatch.color': ['black', validate_color],
     'hatch.linewidth': [1.0, validate_float],
 
     ## Histogram properties
@@ -1035,23 +1035,23 @@ defaultParams = {
     'boxplot.showfliers': [True, validate_bool],
     'boxplot.meanline': [False, validate_bool],
 
-    'boxplot.flierprops.color': ['k', validate_color],
+    'boxplot.flierprops.color': ['black', validate_color],
     'boxplot.flierprops.marker': ['o', validate_string],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
-    'boxplot.flierprops.markeredgecolor': ['k', validate_color],
+    'boxplot.flierprops.markeredgecolor': ['black', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
     'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
-    'boxplot.boxprops.color': ['k', validate_color],
+    'boxplot.boxprops.color': ['black', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
     'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
 
-    'boxplot.whiskerprops.color': ['k', validate_color],
+    'boxplot.whiskerprops.color': ['black', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
     'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
 
-    'boxplot.capprops.color': ['k', validate_color],
+    'boxplot.capprops.color': ['black', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
     'boxplot.capprops.linestyle': ['-', _validate_linestyle],
 
@@ -1099,7 +1099,7 @@ defaultParams = {
                         validate_stringlist],
 
     # text props
-    'text.color':          ['k', validate_color],     # black
+    'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [False, validate_bool],
     'text.latex.preamble': [[''], validate_stringlist],
@@ -1139,8 +1139,8 @@ defaultParams = {
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
     'axes.hold':             [None, deprecate_axes_hold],
-    'axes.facecolor':        ['w', validate_color],  # background color; white
-    'axes.edgecolor':        ['k', validate_color],  # edge color; black
+    'axes.facecolor':        ['white', validate_color],  # background color
+    'axes.edgecolor':        ['black', validate_color],  # edge color
     'axes.linewidth':        [0.8, validate_float],  # edge linewidth
 
     'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
@@ -1163,7 +1163,7 @@ defaultParams = {
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float], # space between label and axis
     'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
-    'axes.labelcolor':       ['k', validate_color],    # color of axis label
+    'axes.labelcolor':       ['black', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
                                # of the axis range is smaller than the
@@ -1256,7 +1256,7 @@ defaultParams = {
     'xtick.minor.width': [0.6, validate_float],  # minor xtick width in points
     'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
     'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
-    'xtick.color':       ['k', validate_color],  # color of the xtick labels
+    'xtick.color':       ['black', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visibility of the x axis minor ticks
     'xtick.minor.top':   [True, validate_bool],  # draw x axis top minor ticks
     'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
@@ -1278,7 +1278,7 @@ defaultParams = {
     'ytick.minor.width': [0.6, validate_float],   # minor ytick width in points
     'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
     'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
-    'ytick.color':       ['k', validate_color],   # color of the ytick labels
+    'ytick.color':       ['black', validate_color],   # color of the ytick labels
     'ytick.minor.visible':   [False, validate_bool],    # visibility of the y axis minor ticks
     'ytick.minor.left':   [True, validate_bool],  # draw y axis left minor ticks
     'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
@@ -1305,8 +1305,8 @@ defaultParams = {
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
     'figure.dpi':        [100, validate_float],  # DPI
-    'figure.facecolor':  ['w', validate_color],  # facecolor; white
-    'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
+    'figure.facecolor':  ['white', validate_color],
+    'figure.edgecolor':  ['white', validate_color],
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
@@ -1339,8 +1339,8 @@ defaultParams = {
 
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
-    'savefig.facecolor':   ['w', validate_color],  # facecolor; white
-    'savefig.edgecolor':   ['w', validate_color],  # edgecolor; white
+    'savefig.facecolor':   ['white', validate_color],
+    'savefig.edgecolor':   ['white', validate_color],
     'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
