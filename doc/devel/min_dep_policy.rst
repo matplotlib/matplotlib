@@ -39,4 +39,4 @@ System and C-dependencies
 For system or c-dependencies (libpng, freetype, GUI frameworks, latex,
 gs, ffmpeg) support as old as practical.  These can be difficult to
 install for end-users and we want to be usable on as many systems as
-possible.  We will only bump these when absolutely necessary.
+possible.  We will bump these on a case-by-case basis.
