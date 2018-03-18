@@ -62,8 +62,8 @@ def _stale_figure_callback(self, val):
 
 class AxesStack(Stack):
     """
-    Specialization of the `.Stack` to handle all tracking of `.Axes` in a
-    `.Figure`. This stack stores ``key, (ind, axes)`` pairs, where:
+    Specialization of the Stack to handle all tracking of Axes in a Figure.
+    This stack stores ``key, (ind, axes)`` pairs, where:
 
         * **key** should be a hash of the args and kwargs
           used in generating the Axes.
@@ -81,7 +81,7 @@ class AxesStack(Stack):
 
     def as_list(self):
         """
-        Return a list of the Axes instances that have been added to the figure.
+        Return a list of the Axes instances that have been added to the figure
         """
         ia_list = [a for k, a in self._elements]
         ia_list.sort()
@@ -90,7 +90,7 @@ class AxesStack(Stack):
     def get(self, key):
         """
         Return the Axes instance that was added with *key*.
-        If it is not present, return *None*.
+        If it is not present, return None.
         """
         item = dict(self._elements).get(key)
         if item is None:
@@ -692,55 +692,31 @@ class Figure(Artist):
         """
         Add a centered title to the figure.
 
-        Parameters
-        ----------
-        t : str
-            The title text.
+        kwargs are :class:`matplotlib.text.Text` properties.  Using figure
+        coordinates, the defaults are:
 
-        x : float, default 0.5
-            The x location of the text in figure coordinates.
+          x : 0.5
+            The x location of the text in figure coords
 
-        y : float, default 0.98
-            The y location of the text in figure coordinates.
+          y : 0.98
+            The y location of the text in figure coords
 
-        horizontalalignment, ha : {'center', 'left', right'}, default: 'center'
-            The horizontal alignment of the text.
+          horizontalalignment : 'center'
+            The horizontal alignment of the text
 
-        verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
-default: 'top'
-            The vertical alignment of the text.
+          verticalalignment : 'top'
+            The vertical alignment of the text
 
-        fontsize, size : default: :rc:`figure.titlesize`
-            The font size of the text. See `.Text.set_size` for possible
-            values.
+        If the `fontproperties` keyword argument is given then the
+        rcParams defaults for `fontsize` (`figure.titlesize`) and
+        `fontweight` (`figure.titleweight`) will be ignored in favour
+        of the `FontProperties` defaults.
 
-        fontweight, weight : default: :rc:`figuretitleweight`
-            The font weight of the text. See `.Text.set_weight` for possible
-            values.
+        A :class:`matplotlib.text.Text` instance is returned.
 
+        Example::
 
-        Returns
-        -------
-            text
-                The `.Text` instance of the title.
-
-
-        Other Parameters
-        ----------------
-        fontproperties : None or dict, optional
-            A dict of font properties. If *fontproperties* is given the
-            default values for font size and weight are taken from the
-            `FontProperties` defaults. :rc:`figure.titlesize` and
-            :rc:`figure.titleweight` are ignored in this case.
-
-        **kwargs
-            Additional kwargs are :class:`matplotlib.text.Text` properties.
-
-
-        Examples
-        --------
-
-        >>> fig.suptitle('This is the figure title', fontsize=12)
+          fig.suptitle('this is the figure title', fontsize=12)
         """
         x = kwargs.pop('x', 0.5)
         y = kwargs.pop('y', 0.98)
@@ -895,9 +871,9 @@ default: 'top'
         return im
 
     def set_size_inches(self, w, h=None, forward=True):
-        """Set the figure size in inches.
+        """Set the figure size in inches (1in == 2.54cm)
 
-        Call signatures::
+        Usage ::
 
              fig.set_size_inches(w, h)  # OR
              fig.set_size_inches((w, h))
@@ -906,7 +882,7 @@ default: 'top'
         automatically updated; e.g., you can resize the figure window
         from the shell
 
-        ACCEPTS: a (w, h) tuple with w, h in inches
+        ACCEPTS: a w, h tuple with w, h in inches
 
         See Also
         --------
@@ -992,9 +968,9 @@ default: 'top'
 
     def set_dpi(self, val):
         """
-        Set the resolution of the figure in dots-per-inch.
+        Set the dots-per-inch of the figure
 
-        .. ACCEPTS: float
+        ACCEPTS: float
         """
         self.dpi = val
         self.stale = True
@@ -1003,7 +979,7 @@ default: 'top'
         """
         Set the width of the figure in inches
 
-        .. ACCEPTS: float
+        ACCEPTS: float
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
@@ -1011,13 +987,13 @@ default: 'top'
         """
         Set the height of the figure in inches
 
-        .. ACCEPTS: float
+        ACCEPTS: float
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
     def set_frameon(self, b):
         """
-        Set whether the figure frame (background) is displayed or invisible.
+        Set whether the figure frame (background) is displayed or invisible
 
         ACCEPTS: boolean
         """
@@ -2103,7 +2079,7 @@ default: 'top'
         Call signature::
 
           subplots_adjust(left=None, bottom=None, right=None, top=None,
-                          wspace=None, hspace=None)
+                              wspace=None, hspace=None)
 
         Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
         *None*) and update the subplot locations.
@@ -2204,8 +2180,8 @@ default: 'top'
         """
         Return a (tight) bounding box of the figure in inches.
 
-        Currently, this takes only axes title, axis labels, and axis
-        ticklabels into account. Needs improvement.
+        It only accounts axes title, axis labels, and axis
+        ticklabels. Needs improvement.
         """
 
         bb = []
@@ -2461,50 +2437,30 @@ default: 'top'
 
 def figaspect(arg):
     """
-    Calculate the width and height for a figure with a specified aspect ratio.
+    Create a figure with specified aspect ratio.  If *arg* is a number,
+    use that aspect ratio.  If *arg* is an array, figaspect will
+    determine the width and height for a figure that would fit array
+    preserving aspect ratio.  The figure width, height in inches are
+    returned.  Be sure to create an axes with equal with and height,
+    e.g.,
 
-    While the height is taken from :rc:`figure.figsize`, the width is
-    adjusted to match the desired aspect ratio. Additionally, it is ensured
-    that the width is in the range [4., 16.] and the height is in the range
-    [2., 16.]. If necessary, the default height is adjusted to ensure this.
+    Example usage::
 
-    Parameters
-    ----------
-    arg : scalar or 2d array
-        If a scalar, this defines the aspect ratio (i.e. the ratio height /
-        width).
-        In case of an array the aspect ratio is number of rows / number of
-        columns, so that the array could be fitted in the figure undistorted.
+      # make a figure twice as tall as it is wide
+      w, h = figaspect(2.)
+      fig = Figure(figsize=(w,h))
+      ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+      ax.imshow(A, **kwargs)
 
-    Returns
-    -------
-    width, height
-        The figure size in inches.
 
-    Notes
-    -----
-    If you want to create an axes within the figure, that still presevers the
-    aspect ratio, be sure to create it with equal width and height. See
-    examples below.
+      # make a figure with the proper aspect for an array
+      A = rand(5,3)
+      w, h = figaspect(A)
+      fig = Figure(figsize=(w,h))
+      ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+      ax.imshow(A, **kwargs)
 
-    Thanks to Fernando Perez for this function.
-
-    Examples
-    --------
-    Make a figure twice as tall as it is wide::
-
-        w, h = figaspect(2.)
-        fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-        ax.imshow(A, **kwargs)
-
-    Make a figure with the proper aspect for an array::
-
-        A = rand(5,3)
-        w, h = figaspect(A)
-        fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-        ax.imshow(A, **kwargs)
+    Thanks to Fernando Perez for this function
     """
 
     isarray = hasattr(arg, 'shape') and not np.isscalar(arg)
