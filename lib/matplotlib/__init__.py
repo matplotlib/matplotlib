@@ -1147,7 +1147,7 @@ if rcParams['axes.formatter.use_locale']:
 
 def rc(group, **kwargs):
     """
-    Set the current rc params.  Group is the grouping for the rc, e.g.,
+    Set the current rc params.  *group* is the grouping for the rc, e.g.,
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
     also be a list or tuple of group names, e.g., (*xtick*, *ytick*).

@@ -1939,18 +1939,14 @@ default: 'top'
         self.stale = True
         return cb
 
-    def subplots_adjust(self, *args, **kwargs):
+    def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
+                        wspace=None, hspace=None):
         """
-        Call signature::
-
-          subplots_adjust(left=None, bottom=None, right=None, top=None,
-                          wspace=None, hspace=None)
-
         Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
         *None*) and update the subplot locations.
 
         """
-        self.subplotpars.update(*args, **kwargs)
+        self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis
