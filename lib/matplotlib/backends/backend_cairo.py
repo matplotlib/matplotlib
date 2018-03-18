@@ -47,6 +47,26 @@ from matplotlib.transforms import Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
 
+def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
+    """
+    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
+
+    Cairo uses the former format, Matplotlib the latter.
+    """
+    rgba = np.take(  # .take() ensures C-contiguity of the result.
+        buf,
+        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
+    rgb = rgba[..., :-1]
+    alpha = rgba[..., -1]
+    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
+    mask = alpha != 0
+    for channel in np.rollaxis(rgb, -1):
+        channel[mask] = (
+            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
+            // alpha[mask])
+    return rgba
+
+
 class ArrayWrapper:
     """Thin wrapper around numpy ndarray to expose the interface
        expected by cairocffi. Basically replicates the
@@ -436,15 +456,24 @@ class FigureCanvasCairo(FigureCanvasBase):
     supports_blit = False
 
     def print_png(self, fobj, *args, **kwargs):
-        width, height = self.get_width_height()
+        self._get_printed_image_surface().write_to_png(fobj)
 
+    def print_rgba(self, fobj, *args, **kwargs):
+        width, height = self.get_width_height()
+        buf = self._get_printed_image_surface().get_data()
+        fobj.write(_premultiplied_argb32_to_unmultiplied_rgba8888(
+            np.asarray(buf).reshape((width, height, 4))))
+
+    print_raw = print_rgba
+
+    def _get_printed_image_surface(self):
+        width, height = self.get_width_height()
         renderer = RendererCairo(self.figure.dpi)
         renderer.set_width_height(width, height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         renderer.set_ctx_from_surface(surface)
-
         self.figure.draw(renderer)
-        surface.write_to_png(fobj)
+        return surface
 
     def print_pdf(self, fobj, *args, **kwargs):
         return self._save(fobj, 'pdf', *args, **kwargs)
