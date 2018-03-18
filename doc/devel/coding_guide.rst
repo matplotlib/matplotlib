@@ -96,8 +96,9 @@ The current active branches are
 *v2.2.x*
   Maintenance branch for Matplotlib 2.2 LTS.  Supports Python 2.7, 3.4+
 
-*v2.2.2-doc*
-  Documentation for the current release.
+*v2.2.N-doc*
+  Documentation for the current release.  On a patch release, this will be replaced
+  by a properly named branch for the new release.
 
 
 We always will backport to 2.2.x
@@ -110,6 +111,10 @@ Everything else (regressions against 1.x versions, bugs/api
 inconsistencies the user can work around in their code) are on a
 case-by-case basis, should be low-risk, and need someone to advocate
 for and shepherd through the backport.
+
+The only changes to be backported to 2.2.N-doc are changes to
+:path:`doc`, :path:`examples`, or :path:`totorials`.  Any changes to
+:path:`lib` or :path:`src` should not be backported to this branch.
 
 Automated backports
 -------------------
