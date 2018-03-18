@@ -797,6 +797,7 @@ class Line2D(Artist):
                     gc.set_alpha(rgbaFace[3])
                 else:
                     gc.set_alpha(self.get_alpha())
+            gc.set_antialiased(self._antialiased)
 
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
