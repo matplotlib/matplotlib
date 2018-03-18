@@ -412,9 +412,8 @@ class Patch3DCollection(PatchCollection):
 
         ACCEPTS: matplotlib color spec or sequence of specs
         """
-        self._set_facecolor(c)
-        c = self.get_facecolor().copy()    # new color
-        self._facecolor3d = c
+        PatchCollection.set_facecolor(self, c)
+        self._facecolor3d = self.get_facecolor().copy()    # new color
 
     def set_edgecolor(self, c):
         """
@@ -429,9 +428,8 @@ class Patch3DCollection(PatchCollection):
 
         ACCEPTS: matplotlib color spec or sequence of specs
         """
-        self._set_edgecolor(c)
-        c = self.get_edgecolor().copy()    # new color
-        self._edgecolor3d = c
+        PatchCollection.set_edgecolor(self, c)
+        self._edgecolor3d = self.get_edgecolor().copy()    # new color
 
 
 class Path3DCollection(PathCollection):
@@ -512,9 +510,8 @@ class Path3DCollection(PathCollection):
 
         ACCEPTS: matplotlib color spec or sequence of specs
         """
-        self._set_facecolor(c)
-        c = self.get_facecolor().copy()    # new color
-        self._facecolor3d = c
+        PathCollection.set_facecolor(self, c)
+        self._facecolor3d = self.get_facecolor().copy()    # new color
 
     def set_edgecolor(self, c):
         """
@@ -529,9 +526,8 @@ class Path3DCollection(PathCollection):
 
         ACCEPTS: matplotlib color spec or sequence of specs
         """
-        self._set_edgecolor(c)
-        c = self.get_edgecolor().copy()    # new color
-        self._edgecolor3d = c
+        PathCollection.set_edgecolor(self, c)
+        self._edgecolor3d = self.get_edgecolor().copy()    # new color
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):

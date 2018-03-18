@@ -55,6 +55,25 @@ def test_bar3d_notshaded():
     fig.canvas.draw()
 
 
+@image_comparison(baseline_images=['bar3d_change_color_single'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_bar3d_change_color_single():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    for c, z in zip(['r', 'g', 'b', 'y'], [30, 20, 10, 0]):
+        xs = np.arange(20)
+        ys = np.arange(20)
+        cs = [c] * len(xs)
+        bar = ax.bar(xs, ys, zs=z, zdir='y', color=cs)
+
+        for p in bar:
+            p.set_facecolor([0, 1, 1, 0.8])
+            p.set_edgecolor("black")
+
+
 @image_comparison(baseline_images=['bar3d_change_edgecolor_notshaded'],
                   remove_text=True, style='mpl20', extensions=['png'])
 def test_bar3d_change_edgecolor_notshaded():
@@ -70,6 +89,25 @@ def test_bar3d_change_edgecolor_notshaded():
     z = 5 - x2d + y2d
     bar = ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
     bar.set_edgecolor("red")
+    fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['bar3d_change_color_alpha'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_bar3d_change_color_alpha():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    ax.zaxis.set_major_formatter(plt.NullFormatter())
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = 5 - x2d + y2d
+    bar = ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
+    bar.set_edgecolor([1, 1, 0, .8])
+    bar.set_facecolor([0, 1, 0, .6])
     fig.canvas.draw()
 
 
