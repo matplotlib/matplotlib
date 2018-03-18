@@ -1652,15 +1652,15 @@ class Axes3D(Axes):
             # Strides have priority over counts in classic mode.
             # So, only compute strides from counts
             # if counts were explicitly given
-            if has_count:
-                rstride = int(max(np.ceil(rows / rcount), 1))
-                cstride = int(max(np.ceil(cols / ccount), 1))
+            compute_strides = has_count
         else:
             # If the strides are provided then it has priority.
             # Otherwise, compute the strides from the counts.
-            if not has_stride:
-                rstride = int(max(np.ceil(rows / rcount), 1))
-                cstride = int(max(np.ceil(cols / ccount), 1))
+            compute_strides = not has_stride
+
+        if compute_strides:
+            rstride = int(max(np.ceil(rows / rcount), 1))
+            cstride = int(max(np.ceil(cols / ccount), 1))
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
