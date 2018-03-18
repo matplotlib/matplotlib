@@ -113,7 +113,7 @@ case-by-case basis, should be low-risk, and need someone to advocate
 for and shepherd through the backport.
 
 The only changes to be backported to 2.2.N-doc are changes to
-:path:`doc`, :path:`examples`, or :path:`totorials`.  Any changes to
+:path:`doc`, :path:`examples`, or :path:`tutorials`.  Any changes to
 :path:`lib` or :path:`src` should not be backported to this branch.
 
 Automated backports
