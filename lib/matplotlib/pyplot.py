@@ -294,8 +294,8 @@ def pause(interval):
 
 
 @docstring.copy_dedent(matplotlib.rc)
-def rc(*args, **kwargs):
-    matplotlib.rc(*args, **kwargs)
+def rc(group, **kwargs):
+    matplotlib.rc(group, **kwargs)
 
 
 @docstring.copy_dedent(matplotlib.rc_context)
@@ -344,8 +344,8 @@ def sci(im):
 ## Any Artist ##
 # (getp is simply imported)
 @docstring.copy(_setp)
-def setp(*args, **kwargs):
-    return _setp(*args, **kwargs)
+def setp(obj, *args, **kwargs):
+    return _setp(obj, *args, **kwargs)
 
 
 def xkcd(scale=1, length=100, randomness=2):
@@ -735,13 +735,13 @@ def waitforbuttonpress(*args, **kwargs):
 # Putting things in figures
 
 @docstring.copy_dedent(Figure.text)
-def figtext(*args, **kwargs):
-    return gcf().text(*args, **kwargs)
+def figtext(x, y, s, *args, **kwargs):
+    return gcf().text(x, y, s, *args, **kwargs)
 
 
 @docstring.copy_dedent(Figure.suptitle)
-def suptitle(*args, **kwargs):
-    return gcf().suptitle(*args, **kwargs)
+def suptitle(t, **kwargs):
+    return gcf().suptitle(t, **kwargs)
 
 
 @docstring.copy_dedent(Figure.figimage)
@@ -1289,14 +1289,10 @@ def twiny(ax=None):
     return ax1
 
 
-def subplots_adjust(*args, **kwargs):
+def subplots_adjust(left=None, bottom=None, right=None, top=None,
+                    wspace=None, hspace=None):
     """
     Tune the subplot layout.
-
-    call signature::
-
-      subplots_adjust(left=None, bottom=None, right=None, top=None,
-                      wspace=None, hspace=None)
 
     The parameter meanings (and suggested defaults) are::
 
@@ -1312,7 +1308,7 @@ def subplots_adjust(*args, **kwargs):
     The actual defaults are controlled by the rc file
     """
     fig = gcf()
-    fig.subplots_adjust(*args, **kwargs)
+    fig.subplots_adjust(left, bottom, right, top, wspace, hspace)
 
 
 def subplot_tool(targetfig=None):
@@ -1597,13 +1593,9 @@ def ylim(*args, **kwargs):
 
 
 @docstring.dedent_interpd
-def xscale(*args, **kwargs):
+def xscale(scale, **kwargs):
     """
     Set the scaling of the x-axis.
-
-    Call signature::
-
-        xscale(scale, **kwargs)
 
     Parameters
     ----------
@@ -1621,17 +1613,13 @@ def xscale(*args, **kwargs):
 
     %(scale_docs)s
     """
-    gca().set_xscale(*args, **kwargs)
+    gca().set_xscale(scale, **kwargs)
 
 
 @docstring.dedent_interpd
-def yscale(*args, **kwargs):
+def yscale(scale, **kwargs):
     """
     Set the scaling of the y-axis.
-
-    Call signature::
-
-        yscale(scale, **kwargs)
 
     Parameters
     ----------
@@ -1649,7 +1637,7 @@ def yscale(*args, **kwargs):
 
     %(scale_docs)s
     """
-    gca().set_yscale(*args, **kwargs)
+    gca().set_yscale(scale, **kwargs)
 
 
 def xticks(*args, **kwargs):
@@ -2316,13 +2304,13 @@ def set_cmap(cmap):
 
 
 @docstring.copy_dedent(_imread)
-def imread(*args, **kwargs):
-    return _imread(*args, **kwargs)
+def imread(fname, format=None):
+    return _imread(fname, format)
 
 
 @docstring.copy_dedent(_imsave)
-def imsave(*args, **kwargs):
-    return _imsave(*args, **kwargs)
+def imsave(fname, arr, **kwargs):
+    return _imsave(fname, arr, **kwargs)
 
 
 def matshow(A, fignum=None, **kw):

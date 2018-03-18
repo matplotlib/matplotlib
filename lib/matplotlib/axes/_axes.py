@@ -471,8 +471,8 @@ class Axes(_AxesBase):
         return t
 
     @docstring.dedent_interpd
-    def annotate(self, *args, **kwargs):
-        a = mtext.Annotation(*args, **kwargs)
+    def annotate(self, text, xy, *args, **kwargs):
+        a = mtext.Annotation(text, xy, *args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         if 'clip_on' in kwargs:
             a.set_clip_path(self.patch)
@@ -4668,8 +4668,8 @@ class Axes(_AxesBase):
         self.add_artist(a)
         return a
 
-    def quiverkey(self, *args, **kw):
-        qk = mquiver.QuiverKey(*args, **kw)
+    def quiverkey(self, Q, X, Y, U, label, **kw):
+        qk = mquiver.QuiverKey(Q, X, Y, U, label, **kw)
         self.add_artist(qk)
         return qk
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
