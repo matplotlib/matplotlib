@@ -131,7 +131,7 @@ The target branch is configured by putting ``on-merge: backport to
 TARGETBRANCH`` in the milestone description on it's own line.
 
 If the bot is not working as expected, please report issues to
-`Meeseeksdev<https://github.com/MeeseeksBox/MeeseeksDev>`__.
+`Meeseeksdev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
 
 
 Manual backports
