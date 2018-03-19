@@ -235,19 +235,14 @@ def test_inset_axes_without_transform_should_use_parent_axes():
 def test_fill_facecolor():
     fig, ax = plt.subplots(1, 5)
     fig.set_size_inches(5, 5)
-    trans1 = blended_transform_factory(ax[0].transData, ax[0].transData)
-    trans2 = blended_transform_factory(ax[1].transData, ax[1].transData)
-    trans3 = blended_transform_factory(ax[2].transData, ax[2].transData)
-    trans4 = blended_transform_factory(ax[3].transData, ax[3].transData)
-    trans5 = blended_transform_factory(ax[4].transData, ax[4].transData)
     for i in range(1, 4):
         ax[i].yaxis.set_visible(False)
     ax[4].yaxis.tick_right()
     bbox = Bbox.from_extents(0, 0.4, 1, 0.6)
 
     # fill with blue by setting 'fc' field
-    bbox1 = TransformedBbox(bbox, trans1)
-    bbox2 = TransformedBbox(bbox, trans2)
+    bbox1 = TransformedBbox(bbox, ax[0].transData)
+    bbox2 = TransformedBbox(bbox, ax[1].transData)
     # set color to BboxConnectorPatch
     p = BboxConnectorPatch(
         bbox1, bbox2, loc1a=1, loc2a=2, loc1b=4, loc2b=3,
@@ -263,8 +258,8 @@ def test_fill_facecolor():
     mark_inset(ax[0], axins, loc1=2, loc2=4, fc="b", ec="0.5")
 
     # fill with yellow by setting 'facecolor' field
-    bbox3 = TransformedBbox(bbox, trans2)
-    bbox4 = TransformedBbox(bbox, trans3)
+    bbox3 = TransformedBbox(bbox, ax[1].transData)
+    bbox4 = TransformedBbox(bbox, ax[2].transData)
     # set color to BboxConnectorPatch
     p = BboxConnectorPatch(
         bbox3, bbox4, loc1a=1, loc2a=2, loc1b=4, loc2b=3,
@@ -280,8 +275,8 @@ def test_fill_facecolor():
     mark_inset(ax[1], axins, loc1=2, loc2=4, facecolor="y", ec="0.5")
 
     # fill with green by setting 'color' field
-    bbox5 = TransformedBbox(bbox, trans3)
-    bbox6 = TransformedBbox(bbox, trans4)
+    bbox5 = TransformedBbox(bbox, ax[2].transData)
+    bbox6 = TransformedBbox(bbox, ax[3].transData)
     # set color to BboxConnectorPatch
     p = BboxConnectorPatch(
         bbox5, bbox6, loc1a=1, loc2a=2, loc1b=4, loc2b=3,
@@ -297,8 +292,8 @@ def test_fill_facecolor():
     mark_inset(ax[2], axins, loc1=2, loc2=4, color="g", ec="0.5")
 
     # fill with green but color won't show if set fill to False
-    bbox7 = TransformedBbox(bbox, trans4)
-    bbox8 = TransformedBbox(bbox, trans5)
+    bbox7 = TransformedBbox(bbox, ax[3].transData)
+    bbox8 = TransformedBbox(bbox, ax[4].transData)
     # BboxConnectorPatch won't show green
     p = BboxConnectorPatch(
         bbox7, bbox8, loc1a=1, loc2a=2, loc1b=4, loc2b=3,
@@ -309,8 +304,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[3], 1, loc=1)
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    axins.get_xaxis().set_ticks([])
+    axins.get_yaxis().set_ticks([])
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
