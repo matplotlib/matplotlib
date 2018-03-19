@@ -87,8 +87,8 @@ fig.show()
 # --------------------------------------
 #
 # Here we illustrate the use of custom length colorbar extensions, used on a
-# colorbar with discrete intervals. To make the length of each extension same
-# as the length of the interior colors, use ``extendfrac='auto'``.
+# colorbar with discrete intervals. To make the length of each extension the
+# same as the length of the interior colors, use ``extendfrac='auto'``.
 
 fig, ax = plt.subplots(figsize=(6, 1))
 fig.subplots_adjust(bottom=0.5)
