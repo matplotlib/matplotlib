@@ -72,19 +72,25 @@ if os.path.exists(setup_cfg):
     config = configparser.ConfigParser()
     config.read(setup_cfg)
 
-    if config.has_option('status', 'suppress'):
+    try:
         options['display_status'] = not config.getboolean("status", "suppress")
-
-    if config.has_option('rc_options', 'backend'):
+    except configparser.Error:
+        pass
+    try:
         options['backend'] = config.get("rc_options", "backend")
-
-    if config.has_option('directories', 'basedirlist'):
+    except configparser.Error:
+        pass
+    try:
         options['basedirlist'] = [
             x.strip() for x in
             config.get("directories", "basedirlist").split(',')]
-
-    if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.getboolean("test", "local_freetype")
+    except configparser.Error:
+        pass
+    try:
+        options['local_freetype'] = config.getboolean(
+            "test_build", "local_freetype")
+    except configparser.Error:
+        pass
 else:
     config = None
 
