@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
-from matplotlib.legend_handler import HandlerTuple
+from matplotlib.legend_handler import HandlerTuple, HandlerAnnotation
+import matplotlib.patches as mpatches
 import matplotlib.legend as mlegend
 
 
@@ -214,6 +215,55 @@ def test_hatching():
     ax.set_xlim(-0.01, 1.1)
     ax.set_ylim(-0.01, 1.1)
     ax.legend(handlelength=4, handleheight=4)
+
+
+@image_comparison(baseline_images=['legend_all_annotation_text'],
+                  extensions=['png'],
+                  style='mpl20')
+def test_legend_all_annotation():
+    # Related to issue 8236
+    # Tests all annotations and text in legend
+    fig, ax = plt.subplots(1)
+    ax.plot([0, 1], [0, 0], label='line1')
+    ax.plot([0, 1], [1, 1], label='line2')
+    ax.set_xticklabels('')
+    ax.set_yticklabels('')
+    # no text, no arrow
+    ax.annotate("",
+                xy=(0.1, 0.5),
+                xytext=(0.1, 0.5),
+                label='annotation (empty)')
+    # text, no arrow
+    my_annotation = ax.annotate("X",
+                xy=(0.1, 0.5),
+                xytext=(0.1, 0.5),
+                color='C2',
+                label='annotation (text, no arrow)')
+    # no text, arrow
+    ax.annotate("",
+                xy=(0.3, 1.0),
+                xytext=(0.3, 0.0),
+                arrowprops={'arrowstyle': '<->', 'color': 'C7'},
+                label='annotation (no text, arrow)')
+    # Fancy arrow patch
+    arrpatch = mpatches.FancyArrowPatch([0.5, 0.8], [0.9, 0.9],
+                            arrowstyle='<|-',
+                            mutation_scale=20,
+                            color='C3',
+                            label='arrowpatch')
+    ax.add_patch(arrpatch)
+    # Long text, will not be used in legend
+    ax.text(x=0.1, y=0.1,
+            s='Hello',
+            color='C5',
+            label='text')
+    # Short text, copied in legend
+    ax.text(x=0.1, y=0.2,
+            s='Z',
+            color='C0',
+            label='short text')
+    ax.legend(handler_map={my_annotation: HandlerAnnotation(rep_str='Abcde',
+                                                            rep_maxlen=0)})
 
 
 def test_legend_remove():
