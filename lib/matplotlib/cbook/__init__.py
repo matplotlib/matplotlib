@@ -38,6 +38,7 @@ from .deprecation import deprecated, warn_deprecated
 from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 
+@deprecated("3.0")
 def unicode_safe(s):
 
     if isinstance(s, bytes):

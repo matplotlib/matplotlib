@@ -135,28 +135,21 @@ Here all all the date formatters:
     * :class:`IndexDateFormatter`: date plots with implicit *x*
       indexing.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import zip
-import re
-import time
-import math
 import datetime
 import functools
-
-import warnings
 import logging
+import math
+import re
+import time
+import warnings
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
                             SECONDLY)
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
-import logging
 import numpy as np
-
 
 import matplotlib
 from matplotlib import rcParams
@@ -404,7 +397,7 @@ def datestr2num(d, default=None):
     default : datetime instance, optional
         The default date to use when fields are missing in *d*.
     """
-    if isinstance(d, six.string_types):
+    if isinstance(d, str):
         dt = dateutil.parser.parse(d, default=default)
         return date2num(dt)
     else:
@@ -629,15 +622,15 @@ class DateFormatter(ticker.Formatter):
     def __call__(self, x, pos=0):
         if x == 0:
             raise ValueError('DateFormatter found a value of x=0, which is '
-                             'an illegal date.  This usually occurs because '
+                             'an illegal date; this usually occurs because '
                              'you have not informed the axis that it is '
                              'plotting dates, e.g., with ax.xaxis_date()')
-        dt = num2date(x, self.tz)
-        return self.strftime(dt, self.fmt)
+        return num2date(x, self.tz).strftime(self.fmt)
 
     def set_tzinfo(self, tz):
         self.tz = tz
 
+    @cbook.deprecated("3.0")
     def _replace_common_substr(self, s1, s2, sub1, sub2, replacement):
         """Helper function for replacing substrings sub1 and sub2
         located at the same indexes in strings s1 and s2 respectively,
@@ -663,6 +656,7 @@ class DateFormatter(ticker.Formatter):
 
         return s1, s2
 
+    @cbook.deprecated("3.0")
     def strftime_pre_1900(self, dt, fmt=None):
         """Call time.strftime for years before 1900 by rolling
         forward a multiple of 28 years.
@@ -720,6 +714,7 @@ class DateFormatter(ticker.Formatter):
                                              "{0:02d}".format(dt.year % 100))
         return cbook.unicode_safe(s1)
 
+    @cbook.deprecated("3.0")
     def strftime(self, dt, fmt=None):
         """
         Refer to documentation for :meth:`datetime.datetime.strftime`
@@ -764,10 +759,7 @@ class IndexDateFormatter(ticker.Formatter):
         ind = int(np.round(x))
         if ind >= len(self.t) or ind <= 0:
             return ''
-
-        dt = num2date(self.t[ind], self.tz)
-
-        return cbook.unicode_safe(dt.strftime(self.fmt))
+        return num2date(self.t[ind], self.tz).strftime(self.fmt)
 
 
 class AutoDateFormatter(ticker.Formatter):
@@ -858,7 +850,7 @@ class AutoDateFormatter(ticker.Formatter):
                     if scale >= locator_unit_scale),
                    self.defaultfmt)
 
-        if isinstance(fmt, six.string_types):
+        if isinstance(fmt, str):
             self._formatter = DateFormatter(fmt, self._tz)
             result = self._formatter(x, pos)
         elif callable(fmt):

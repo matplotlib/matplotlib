@@ -9,11 +9,11 @@ The following modules are deprecated:
 The following classes, methods, functions, and attributes are deprecated:
 
 - ``Annotation.arrow``,
-- ``cbook.GetRealpathAndStat`` (which is only a helper for
-  ``get_realpath_and_stat``),
-- ``cbook.Locked``,
+- ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
+  ``cbook.unicode_safe``
 - ``container.Container.set_remove_method``,
+- ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
 - ``texmanager.dvipng_hack_alpha``,
