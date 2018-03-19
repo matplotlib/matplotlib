@@ -232,8 +232,6 @@ class _ColorbarAutoLocator(ticker.MaxNLocator):
 
     def __init__(self, colorbar):
         """
-        _ColorbarAutoLocator(colorbar)
-
         This ticker needs to know the *colorbar* so that it can access
         its *vmin* and *vmax*.  Otherwise it is the same as
         `~.ticker.AutoLocator`.
@@ -515,7 +513,9 @@ class ColorbarBase(cm.ScalarMappable):
             if type(self.norm) == colors.LogNorm:
                 long_axis.set_minor_locator(_ColorbarLogLocator(self,
                             base=10., subs='auto'))
-                long_axis.set_minor_formatter(ticker.NullFormatter())
+                long_axis.set_minor_formatter(
+                    ticker.LogFormatter()
+                )
         else:
             _log.debug('Using fixed locator on colorbar')
             ticks, ticklabels, offset_string = self._ticker(locator, formatter)
