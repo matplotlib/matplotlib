@@ -88,27 +88,25 @@ class HandlerBase(object):
         height = height - self._ypad * fontsize
         return xdescent, ydescent, width, height
 
-    def _scale_dimensions(self, legend, width, height, orig_handle):
+    def _scale_dimensions(self, legend, handlebox, orig_handle):
         '''
-        Return (width, height) where
-               width is the larger of input width or width of orig_handle and
-               height is the larger of input height or height or orig_handle
+        Scales up handlebox dimensions to fit orig_handle
 
         Parameters
         ----------
         legend : :class:`matplotlib.legend.Legend` instance
             The legend that will contain the orig_handle
-        width : number
-            The width that is being compared to width of orig_handle.
-        height : number
-            The height that is being compared to height of orig_handle.
+        handlebox: :class:`matplotlib.offsetbox.DrawingArea`
+            The drawing area that is to be scaled
         orig_handle : :class:`matplotlib.artist.Artist` or similar
             The object that the output width and height must be large
             enough to fit.
 
         '''
-        return (max(width, self.handle_width(legend, orig_handle)),
-                max(height, self.handle_height(legend, orig_handle)))
+        width = max(handlebox.width, self.handle_width(legend, orig_handle))
+        height = max(handlebox.height, self.handle_height(legend, orig_handle))
+        handlebox.set_width(width)
+        handlebox.set_height(height)
 
     def handle_width(self, legend, orig_handle):
         '''
@@ -163,6 +161,7 @@ class HandlerBase(object):
             be added to this handlebox inside this method.
 
         """
+        self._scale_dimensions(legend, handlebox, orig_handle)
         xdescent, ydescent, width, height = self.adjust_drawing_area(
                  legend, orig_handle,
                  handlebox.xdescent, handlebox.ydescent,
@@ -171,7 +170,6 @@ class HandlerBase(object):
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
                                       fontsize, handlebox.get_transform())
-
         # create_artists will return a list of artists.
         for a in artists:
             handlebox.add_artist(a)
@@ -297,13 +295,13 @@ class HandlerLine2D(HandlerNpoints):
             enough to fit.
 
         '''
-        if isinstance(orig_handle, Line2D):
-            marker = orig_handle.get_marker()
-            marker_size = orig_handle.get_markersize()
-            if marker and marker_size > 0:
-                if legend.markerscale != 1:
-                    marker_size = marker_size * legend.markerscale
-                return marker_size
+
+        marker = orig_handle.get_marker()
+        marker_size = orig_handle.get_markersize()
+        if marker and marker_size > 0:
+            if legend.markerscale != 1:
+                marker_size = marker_size * legend.markerscale
+            return marker_size
         return -1
 
     def handle_height(self, legend, orig_handle):
@@ -321,13 +319,13 @@ class HandlerLine2D(HandlerNpoints):
             enough to fit.
 
         '''
-        if isinstance(orig_handle, Line2D):
-            marker = orig_handle.get_marker()
-            marker_size = orig_handle.get_markersize()
-            if marker and marker_size > 0:
-                if legend.markerscale != 1:
-                    marker_size = marker_size * legend.markerscale
-                return marker_size
+
+        marker = orig_handle.get_marker()
+        marker_size = orig_handle.get_markersize()
+        if marker and marker_size > 0:
+            if legend.markerscale != 1:
+                marker_size = marker_size * legend.markerscale
+            return marker_size
         return -1
 
     def create_artists(self, legend, orig_handle,
@@ -411,6 +409,12 @@ class HandlerLineCollection(HandlerLine2D):
     """
     Handler for `.LineCollection` instances.
     """
+    def handle_width(self, legend, orig_handle):
+        return -1
+
+    def handle_height(self, legend, orig_handle):
+        return -1
+
     def get_numpoints(self, legend):
         if self._numpoints is None:
             return legend.scatterpoints
@@ -543,6 +547,12 @@ class HandlerErrorbar(HandlerLine2D):
     """
     Handler for Errorbars.
     """
+    def handle_width(self, legend, orig_handle):
+        return -1
+
+    def handle_height(self, legend, orig_handle):
+        return -1
+
     def __init__(self, xerr_size=0.5, yerr_size=None,
                  marker_pad=0.3, numpoints=None, **kw):
 
@@ -605,8 +615,8 @@ class HandlerErrorbar(HandlerLine2D):
         handle_caplines = []
 
         if orig_handle.has_xerr:
-            verts = [ ((x - xerr_size, y), (x + xerr_size, y))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x - xerr_size, y), (x + xerr_size, y))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -623,8 +633,8 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_right)
 
         if orig_handle.has_yerr:
-            verts = [ ((x, y - yerr_size), (x, y + yerr_size))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x, y - yerr_size), (x, y + yerr_size))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)

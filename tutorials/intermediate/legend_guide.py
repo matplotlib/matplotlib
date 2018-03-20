@@ -234,7 +234,6 @@ l = plt.legend([(p1, p2)], ['Two keys'], numpoints=1,
 # single artist for the legend to use. Signature details about the "legend_artist"
 # are documented at :meth:`~matplotlib.legend_handler.HandlerBase.legend_artist`.
 
-from matplotlib.legend_handler import HandlerBase
 import matplotlib.patches as mpatches
 
 
@@ -242,7 +241,7 @@ class AnyObject(object):
     pass
 
 
-class AnyObjectHandler(HandlerBase):
+class AnyObjectHandler(object):
     def legend_artist(self, legend, orig_handle, fontsize, handlebox):
         x0, y0 = handlebox.xdescent, handlebox.ydescent
         width, height = handlebox.width, handlebox.height
