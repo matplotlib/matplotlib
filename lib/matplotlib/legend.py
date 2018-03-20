@@ -945,9 +945,6 @@ class Legend(Artist):
                 textbox = TextArea(lab, textprops=label_prop,
                                    multilinebaseline=True,
                                    minimumdescent=True)
-                # if handle is larger than width and height get new width and
-                # height to fit handle else keep width and height
-
                 handlebox = DrawingArea(width=width,
                                         height=height,
                                         xdescent=0., ydescent=descent)
