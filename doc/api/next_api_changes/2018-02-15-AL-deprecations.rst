@@ -16,6 +16,7 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
+- ``FigureCanvasWx.macros``,
 - ``texmanager.dvipng_hack_alpha``,
 
 The following rcParams are deprecated:

@@ -13,8 +13,6 @@
  should be included with this source code.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import six
 
@@ -606,29 +604,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # Set preferred window size hint - helps the sizer (if one is
         # connected)
         l, b, w, h = figure.bbox.bounds
-        w = int(math.ceil(w))
-        h = int(math.ceil(h))
+        w = math.ceil(w)
+        h = math.ceil(h)
 
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
-
-        def do_nothing(*args, **kwargs):
-            warnings.warn(
-                "could not find a setinitialsize function for backend_wx; "
-                "please report your wxpython version=%s "
-                "to the matplotlib developers list" %
-                wxc.backend_version)
-            pass
-
-        # try to find the set size func across wx versions
-        try:
-            getattr(self, 'SetInitialSize')
-        except AttributeError:
-            self.SetInitialSize = getattr(self, 'SetBestFittingSize',
-                                          do_nothing)
-
-        if not hasattr(self, 'IsShownOnScreen'):
-            self.IsShownOnScreen = getattr(self, 'IsVisible',
-                                           lambda *args: True)
 
         # Create the drawing bitmap
         self.bitmap = wxc.EmptyBitmap(w, h)
@@ -661,7 +640,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
         self.SetBackgroundColour(wx.WHITE)
 
-        self.macros = {}  # dict from wx id to seq of macros
+    @property
+    @cbook.deprecated("3.0")
+    def macros(self):
+        return {}
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
@@ -1082,8 +1064,8 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         origBitmap = self.bitmap
 
         l, b, width, height = self.figure.bbox.bounds
-        width = int(math.ceil(width))
-        height = int(math.ceil(height))
+        width = math.ceil(width)
+        height = math.ceil(height)
 
         self.bitmap = wxc.EmptyBitmap(width, height)
 
