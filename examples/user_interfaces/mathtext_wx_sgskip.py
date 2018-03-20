@@ -60,8 +60,9 @@ class CanvasFrame(wx.Frame):
 
         # File Menu
         menu = wx.Menu()
-        menu.Append(wx.ID_EXIT, "E&xit\tAlt-X", "Exit this simple sample")
+        m_exit = menu.Append(wx.ID_EXIT, "E&xit\tAlt-X", "Exit this simple sample")
         menuBar.Append(menu, "&File")
+        self.Bind(wx.EVT_MENU, self.OnClose, m_exit)
 
         if IS_GTK or IS_WIN:
             # Equation Menu
@@ -111,6 +112,9 @@ class CanvasFrame(wx.Frame):
         self.axes.clear()
         self.axes.plot(t, s)
         self.canvas.draw()
+
+    def OnClose(self, event):
+        self.Destroy()
 
 
 class MyApp(wx.App):
