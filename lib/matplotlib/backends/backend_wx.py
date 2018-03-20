@@ -1826,9 +1826,22 @@ else:
             self._rect = None
 
 
+class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        if not self.canvas._isDrawn:
+            self.canvas.draw()
+        if not self.canvas.bitmap.IsOk() or not wx.TheClipboard.Open():
+            return
+        try:
+            wx.TheClipboard.SetData(wx.BitmapDataObject(self.canvas.bitmap))
+        finally:
+            wx.TheClipboard.Close()
+
+
 backend_tools.ToolSaveFigure = SaveFigureWx
 backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx
 
 
 # < Additions for printing support: Matt Newville
