@@ -104,7 +104,7 @@ for ax in axs.flatten():
 #
 #   For the `pcolormesh` kwargs (``pc_kwargs``) we use a dictionary.
 #   Below we will assign one colorbar to a number of axes each containing
-#   a `SclaraMappable`; specifying the norm and colormap ensures
+#   a `ScalarMappable`; specifying the norm and colormap ensures
 #   the colorbar is accurate for all the axes.
 
 arr = np.arange(100).reshape((10, 10))
