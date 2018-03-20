@@ -9,14 +9,8 @@ such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
-from weakref import WeakValueDictionary
-
 from functools import lru_cache
+from weakref import WeakValueDictionary
 
 import numpy as np
 

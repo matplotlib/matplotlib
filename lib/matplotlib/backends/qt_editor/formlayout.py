@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 formlayout
 ==========
@@ -38,17 +37,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 # 1.0.7: added support for "Apply" button
 # 1.0.6: code cleaning
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 __version__ = '1.0.10'
 __license__ = __doc__
 
 import copy
 import datetime
 import warnings
-
-import six
 
 from matplotlib import colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
@@ -133,7 +127,7 @@ class ColorLayout(QtWidgets.QHBoxLayout):
 def font_is_installed(font):
     """Check if font is installed"""
     return [fam for fam in QtGui.QFontDatabase().families()
-            if six.text_type(fam) == font]
+            if str(fam) == font]
 
 
 def tuple_to_qfont(tup):
@@ -157,7 +151,7 @@ def tuple_to_qfont(tup):
 
 
 def qfont_to_tuple(font):
-    return (six.text_type(font.family()), int(font.pointSize()),
+    return (str(font.family()), int(font.pointSize()),
             font.italic(), font.bold())
 
 
@@ -245,7 +239,7 @@ class FormWidget(QtWidgets.QWidget):
             elif (label.lower() not in BLACKLIST
                   and mcolors.is_color_like(value)):
                 field = ColorLayout(to_qcolor(value), self)
-            elif isinstance(value, six.string_types):
+            elif isinstance(value, str):
                 field = QtWidgets.QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
                 if isinstance(value, tuple):
@@ -306,9 +300,8 @@ class FormWidget(QtWidgets.QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
-            elif (isinstance(value, six.string_types)
-                  or mcolors.is_color_like(value)):
-                value = six.text_type(field.text())
+            elif isinstance(value, str) or mcolors.is_color_like(value):
+                value = str(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
                 if isinstance(value[0], (list, tuple)):

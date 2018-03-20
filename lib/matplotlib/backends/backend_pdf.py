@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 A PDF matplotlib backend
 Author: Jouni K Seppänen <jks@iki.fi>

@@ -13,16 +13,11 @@ more information.
 # It probably logically belongs in :file:`font_manager.py`, but placing it
 # there would have created cyclical dependency problems.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
+from functools import lru_cache
 import re
+
 from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
                        ParseException, Suppress)
-
-from functools import lru_cache
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub

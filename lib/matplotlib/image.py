@@ -4,14 +4,12 @@ operations.
 
 """
 
-import six
-from six.moves.urllib.parse import urlparse
-from six.moves.urllib.request import urlopen
 from io import BytesIO
-
 from math import ceil
 import os
 import logging
+import urllib.parse
+import urllib.request
 import warnings
 
 import numpy as np
@@ -1327,8 +1325,8 @@ def imread(fname, format=None):
 
     handlers = {'png': _png.read_png, }
     if format is None:
-        if isinstance(fname, six.string_types):
-            parsed = urlparse(fname)
+        if isinstance(fname, str):
+            parsed = urllib.parse.urlparse(fname)
             # If the string is a URL, assume png
             if len(parsed.scheme) > 1:
                 ext = 'png'
@@ -1356,11 +1354,11 @@ def imread(fname, format=None):
     # To handle Unicode filenames, we pass a file object to the PNG
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
-    if isinstance(fname, six.string_types):
-        parsed = urlparse(fname)
+    if isinstance(fname, str):
+        parsed = urllib.parse.urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
-            fd = BytesIO(urlopen(fname).read())
+            fd = BytesIO(urllib.request.urlopen(fname).read())
             return handler(fd)
         else:
             with open(fname, 'rb') as fd:
@@ -1409,7 +1407,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         fname = os.fspath(fname)
     if (format == 'png'
         or (format is None
-            and isinstance(fname, six.string_types)
+            and isinstance(fname, str)
             and fname.lower().endswith('.png'))):
         image = AxesImage(None, cmap=cmap, origin=origin)
         image.set_data(arr)

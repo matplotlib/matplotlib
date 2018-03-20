@@ -18,11 +18,6 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange, zip
 
 import warnings
 
@@ -318,7 +313,7 @@ class ColorbarBase(cm.ScalarMappable):
                                         linthresh=self.norm.linthresh)
             else:
                 self.formatter = ticker.ScalarFormatter()
-        elif isinstance(format, six.string_types):
+        elif isinstance(format, str):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
@@ -753,7 +748,7 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         # Set the default value.
         extendlength = np.array([default, default])
-        if isinstance(frac, six.string_types):
+        if isinstance(frac, str):
             if frac.lower() == 'auto':
                 # Use the provided values when 'auto' is required.
                 extendlength[0] = automin

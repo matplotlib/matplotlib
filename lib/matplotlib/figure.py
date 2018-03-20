@@ -11,11 +11,6 @@ contains all the plot elements.  The following classes are defined
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import logging
 import warnings
 
@@ -1059,7 +1054,7 @@ default: 'top'
                 ret.append(a)
             return tuple(ret)
 
-        key = fixlist(args), fixitems(six.iteritems(kwargs))
+        key = fixlist(args), fixitems(kwargs.items())
         return key
 
     def add_axes(self, *args, **kwargs):

@@ -1,18 +1,11 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+import warnings
 
-import six
-from six.moves import map
-
-from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
-
-import matplotlib._layoutbox as layoutbox
-
-import warnings
 from matplotlib.cbook import mplDeprecation
+from matplotlib.gridspec import GridSpec, SubplotSpec
+import matplotlib._layoutbox as layoutbox
 
 
 class SubplotBase(object):

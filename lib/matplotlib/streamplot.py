@@ -2,12 +2,9 @@
 Streamline plotting for 2D vector fields.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import numpy as np
+
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors

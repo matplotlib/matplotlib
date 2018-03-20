@@ -1,13 +1,9 @@
 # Originally from astropy project (http://astropy.org), under BSD
 # 3-clause license.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import contextlib
 import socket
-
-from six.moves import urllib
+import urllib.request
 
 # save original socket method for restoration
 # These are global so that re-calling the turn_off_internet function doesn't

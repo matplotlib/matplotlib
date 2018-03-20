@@ -8,21 +8,13 @@ counterparts (e.g., you may not be able to select all line styles) but
 they are meant to be fast for common use cases (e.g., a large set of solid
 line segemnts)
 """
-from __future__ import absolute_import, division, print_function
 
+import math
+from numbers import Number
 import warnings
 
-import six
-from six.moves import zip
-
-from numbers import Number
-try:
-    from math import gcd
-except ImportError:
-    # LPy workaround
-    from fractions import gcd
-
 import numpy as np
+
 import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
                lines as mlines, path as mpath, transforms)
@@ -540,7 +532,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             The line style.
         """
         try:
-            if isinstance(ls, six.string_types):
+            if isinstance(ls, str):
                 ls = cbook.ls_mapper.get(ls, ls)
                 dashes = [mlines._get_dash_pattern(ls)]
             else:
@@ -626,9 +618,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if len(dashes) != len(linewidths):
             l_dashes = len(dashes)
             l_lw = len(linewidths)
-            GCD = gcd(l_dashes, l_lw)
-            dashes = list(dashes) * (l_lw // GCD)
-            linewidths = list(linewidths) * (l_dashes // GCD)
+            gcd = math.gcd(l_dashes, l_lw)
+            dashes = list(dashes) * (l_lw // gcd)
+            linewidths = list(linewidths) * (l_dashes // gcd)
 
         # scale the dash patters
         dashes = [mlines._scale_dashes(o, d, lw)
@@ -692,8 +684,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._facecolors
 
     def get_edgecolor(self):
-        if (isinstance(self._edgecolors, six.string_types)
-                   and self._edgecolors == str('face')):
+        if cbook._str_equal(self._edgecolors, 'face'):
             return self.get_facecolors()
         else:
             return self._edgecolors

@@ -33,8 +33,6 @@ your script::
 
 """
 
-import six
-
 import copy
 import distutils.version
 import glob
@@ -116,8 +114,7 @@ class TexManager(object):
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
-        elif (isinstance(ff, six.string_types)
-              and ff.lower() in self.font_families):
+        elif isinstance(ff, str) and ff.lower() in self.font_families:
             self.font_family = ff.lower()
         else:
             _log.info('font.family must be one of (%s) when text.usetex is '
