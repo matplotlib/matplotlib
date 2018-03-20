@@ -24,13 +24,13 @@ import logging
 import os
 import re
 import struct
+import subprocess
 import sys
 import textwrap
 
 import numpy as np
 
 from matplotlib import cbook, rcParams
-from matplotlib.compat import subprocess
 
 _log = logging.getLogger(__name__)
 

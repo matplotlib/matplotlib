@@ -20,16 +20,12 @@ def format_axes(ax):
     ax.set_axis_off()
 
 
-def nice_repr(text):
-    return repr(text).lstrip('u')
-
-
 # Plot all line styles.
 fig, ax = plt.subplots()
 
 linestyles = ['-', '--', '-.', ':']
 for y, linestyle in enumerate(linestyles):
-    ax.text(-0.1, y, nice_repr(linestyle), **text_style)
+    ax.text(-0.1, y, repr(linestyle), **text_style)
     ax.plot(y * points, linestyle=linestyle, color=color, linewidth=3)
     format_axes(ax)
     ax.set_title('line styles')

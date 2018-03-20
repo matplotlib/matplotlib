@@ -11,6 +11,7 @@ from six.moves import StringIO
 import glob, os, shutil, sys, time, datetime
 import io
 import logging
+import subprocess
 
 from tempfile import mkstemp
 from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
@@ -21,7 +22,6 @@ from matplotlib.backend_bases import (
 
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
-from matplotlib.compat.subprocess import subprocess
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
@@ -78,8 +78,8 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        from matplotlib.compat.subprocess import Popen, PIPE
-        s = Popen([self.gs_exe, "--version"], stdout=PIPE)
+        s = subprocess.Popen(
+            [self.gs_exe, "--version"], stdout=subprocess.PIPE)
         pipe, stderr = s.communicate()
         if six.PY3:
             ver = pipe.decode('ascii')
@@ -230,7 +230,7 @@ class RendererPS(RendererBase):
         realpath, stat_key = get_realpath_and_stat(font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
-        used_characters[1].update([ord(x) for x in s])
+        used_characters[1].update(map(ord, s))
 
     def merge_used_characters(self, other):
         for stat_key, (realpath, charset) in six.iteritems(other):

@@ -176,7 +176,7 @@ class FontLayout(QtWidgets.QGridLayout):
         # Font size
         self.size = QtWidgets.QComboBox(parent)
         self.size.setEditable(True)
-        sizelist = list(range(6, 12)) + list(range(12, 30, 2)) + [36, 48, 72]
+        sizelist = [*range(6, 12), *range(12, 30, 2), 36, 48, 72]
         size = font.pointSize()
         if size not in sizelist:
             sizelist.append(size)

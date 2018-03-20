@@ -269,7 +269,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
         try:
-            return self.devicePixelRatio()
+            # self.devicePixelRatio() returns 0 in rare cases
+            return self.devicePixelRatio() or 1
         except AttributeError:
             return 1
 
@@ -298,7 +299,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event)
+        x, y = self.mouseEventCoords(event.pos())
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()

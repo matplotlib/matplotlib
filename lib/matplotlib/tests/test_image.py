@@ -1,11 +1,8 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 from copy import copy
 import io
 import os
 import sys
+import urllib.request
 import warnings
 
 import numpy as np
@@ -512,6 +509,18 @@ def test_nonuniformimage_setnorm():
 
 
 @needs_pillow
+def test_jpeg_2d():
+    # smoke test that mode-L pillow images work.
+    imd = np.ones((10, 10), dtype='uint8')
+    for i in range(10):
+        imd[i, :] = np.linspace(0.0, 1.0, 10) * 255
+    im = Image.new('L', (10, 10))
+    im.putdata(imd.flatten())
+    fig, ax = plt.subplots()
+    ax.imshow(im)
+
+
+@needs_pillow
 def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
@@ -618,9 +627,9 @@ def test_minimized_rasterized():
 
 @pytest.mark.network
 def test_load_from_url():
-    req = six.moves.urllib.request.urlopen(
-        "http://matplotlib.org/_static/logo_sidebar_horiz.png")
-    plt.imread(req)
+    url = "http://matplotlib.org/_static/logo_sidebar_horiz.png"
+    plt.imread(url)
+    plt.imread(urllib.request.urlopen(url))
 
 
 @image_comparison(baseline_images=['log_scale_image'],
@@ -855,7 +864,18 @@ def test_imshow_bignumbers():
     img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
     pc = ax.imshow(img)
     pc.set_clim(0, 5)
-    plt.show()
+
+
+@image_comparison(baseline_images=['imshow_bignumbers_real'],
+                  remove_text=True, style='mpl20',
+                  extensions=['png'])
+def test_imshow_bignumbers_real():
+    # putting a big number in an array of integers shouldn't
+    # ruin the dynamic range of the resolved bits.
+    fig, ax = plt.subplots()
+    img = np.array([[2., 1., 1.e22],[4., 1., 3.]])
+    pc = ax.imshow(img)
+    pc.set_clim(0, 5)
 
 
 @pytest.mark.parametrize(
@@ -880,19 +900,13 @@ def test_empty_imshow(make_norm):
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
+    # Ensure that drawing doesn't cause crash
+    fig.canvas.draw()
 
 
 def test_imshow_bool():
     fig, ax = plt.subplots()
     ax.imshow(np.array([[True, False], [False, True]], dtype=bool))
-
-
-def test_imshow_deprecated_interd_warn():
-    im = plt.imshow([[1, 2], [3, np.nan]])
-    for k in ('_interpd', '_interpdr', 'iterpnames'):
-        with warnings.catch_warnings(record=True) as warns:
-            getattr(im, k)
-        assert len(warns) == 1
 
 
 def test_full_invalid():

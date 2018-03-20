@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef __PY_ADAPTORS_H__
-#define __PY_ADAPTORS_H__
+#ifndef MPL_PY_ADAPTORS_H
+#define MPL_PY_ADAPTORS_H
 
 /***************************************************************************
  * This module contains a number of C++ classes that adapt Python data

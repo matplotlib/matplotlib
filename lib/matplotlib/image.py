@@ -3,8 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import six
 from six.moves.urllib.parse import urlparse
@@ -14,6 +12,7 @@ from io import BytesIO
 from math import ceil
 import os
 import logging
+import warnings
 
 import numpy as np
 
@@ -183,21 +182,6 @@ def _rgb_to_rgba(A):
 class _ImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
 
-    @property
-    @cbook.deprecated("2.1")
-    def _interpd(self):
-        return _interpd_
-
-    @property
-    @cbook.deprecated("2.1")
-    def _interpdr(self):
-        return {v: k for k, v in six.iteritems(_interpd_)}
-
-    @property
-    @cbook.deprecated("2.1", alternative="mpl.image.interpolation_names")
-    def iterpnames(self):
-        return interpolations_names
-
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
@@ -281,8 +265,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         and magnified by the magnification factor.
 
         `A` may be a greyscale image (MxN) with a dtype of `float32`,
-        `float64`, `uint16` or `uint8`, or an RGBA image (MxNx4) with
-        a dtype of `float32`, `float64`, or `uint8`.
+        `float64`, `float128`, `uint16` or `uint8`, or an RGBA image (MxNx4)
+        with a dtype of `float32`, `float64`, `float128`, or `uint8`.
 
         If `unsampled` is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
@@ -378,6 +362,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
                     scaled_dtype = A.dtype
+                    # Cast to float64
+                    if A.dtype not in (np.float32, np.float16):
+                        if A.dtype != np.float64:
+                            warnings.warn(
+                                "Casting input data from '{0}' to 'float64'"
+                                "for imshow".format(A.dtype))
+                        scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
@@ -396,6 +387,28 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # scaled data
                 A_scaled = np.empty(A.shape, dtype=scaled_dtype)
                 A_scaled[:] = A
+                # clip scaled data around norm if necessary.
+                # This is necessary for big numbers at the edge of
+                # float64's ability to represent changes.  Applying
+                # a norm first would be good, but ruins the interpolation
+                # of over numbers.
+                if self.norm.vmin is not None and self.norm.vmax is not None:
+                    dv = (np.float64(self.norm.vmax) -
+                          np.float64(self.norm.vmin))
+                    vmid = self.norm.vmin + dv / 2
+                    newmin = vmid - dv * 1.e7
+                    if newmin < a_min:
+                        newmin = None
+                    else:
+                        a_min = np.float64(newmin)
+                    newmax = vmid + dv * 1.e7
+                    if newmax > a_max:
+                        newmax = None
+                    else:
+                        a_max = np.float64(newmax)
+                    if newmax is not None or newmin is not None:
+                        A_scaled = np.clip(A_scaled, newmin, newmax)
+
                 A_scaled -= a_min
                 # a_min and a_max might be ndarray subclasses so use
                 # asscalar to ensure they are scalars to avoid errors
@@ -614,7 +627,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
-            self._A = pil_to_array(A)
+            if A.mode == 'L':
+                # greyscale image, but our logic assumes rgba:
+                self._A = pil_to_array(A.convert('RGBA'))
+            else:
+                self._A = pil_to_array(A)
         else:
             self._A = cbook.safe_masked_invalid(A, copy=True)
 
@@ -911,7 +928,7 @@ class NonUniformImage(AxesImage):
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
             if A.shape[2] == 3:
-                B = np.zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
+                B = np.zeros(tuple([*A.shape[0:2], 4]), np.uint8)
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B

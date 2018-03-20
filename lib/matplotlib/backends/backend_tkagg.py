@@ -1,6 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-from .. import cbook
 from . import tkagg  # Paint image to Tk photo blitter extension.
 from .backend_agg import FigureCanvasAgg
 from ._backend_tk import (
@@ -17,16 +14,6 @@ class FigureCanvasTkAgg(FigureCanvasAgg, FigureCanvasTk):
         tkagg.blit(
             self._tkphoto, self.renderer._renderer, bbox=bbox, colormode=2)
         self._master.update_idletasks()
-
-
-@cbook.deprecated("2.2")
-class FigureManagerTkAgg(FigureManagerTk):
-    pass
-
-
-@cbook.deprecated("2.2")
-class NavigationToolbar2TkAgg(NavigationToolbar2Tk):
-    pass
 
 
 @_BackendTk.export

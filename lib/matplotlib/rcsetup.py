@@ -35,17 +35,14 @@ from cycler import Cycler, cycler as ccycler
 
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg',
-                  'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'GTK3Agg', 'GTK3Cairo',
+interactive_bk = ['GTK3Agg', 'GTK3Cairo',
                   'MacOSX',
                   'nbAgg',
                   'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
                   'TkAgg', 'TkCairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']
-non_interactive_bk = ['agg', 'cairo', 'gdk',
+non_interactive_bk = ['agg', 'cairo',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
@@ -537,27 +534,54 @@ validate_fillstylelist = _listify_validator(validate_fillstyle)
 _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ['solid', 'dashed'],
                                                  ignorecase=True)
+def validate_markevery(s):
+    """
+    Validate the markevery property of a Line2D object.
 
+    Parameters
+    ----------
+    s : None, int, float, slice, length-2 tuple of ints,
+        length-2 tuple of floats, list of ints
 
-@deprecated('2.1',
-            addendum=(" See 'validate_negative_linestyle_legacy' " +
-                      "deprecation warning for more information."))
-def validate_negative_linestyle(s):
-    return _validate_negative_linestyle(s)
+    Returns
+    -------
+    s : None, int, float, slice, length-2 tuple of ints,
+        length-2 tuple of floats, list of ints
 
+    """
+    # Validate s against type slice
+    if isinstance(s, slice):
+        return s
+    # Validate s against type tuple
+    if isinstance(s, tuple):
+        tupMaxLength = 2
+        tupType = type(s[0])
+        if len(s) != tupMaxLength:
+            raise TypeError("'markevery' tuple must have a length of "
+                            "%d" % (tupMaxLength))
+        if tupType is int and not all(isinstance(e, int) for e in s):
+            raise TypeError("'markevery' tuple with first element of "
+                            "type int must have all elements of type "
+                            "int")
+        if tupType is float and not all(isinstance(e, float) for e in s):
+            raise TypeError("'markevery' tuple with first element of "
+                            "type float must have all elements of type "
+                            "float")
+        if tupType is not float and tupType is not int:
+            raise TypeError("'markevery' tuple contains an invalid type")
+    # Validate s against type list
+    elif isinstance(s, list):
+        if not all(isinstance(e, int) for e in s):
+            raise TypeError("'markevery' list must have all elements of "
+                            "type int")
+    # Validate s against type float int and None
+    elif not isinstance(s, (float, int)):
+        if s is not None:
+            raise TypeError("'markevery' is of an invalid type")
 
-@deprecated('2.1',
-            addendum=(" The 'contour.negative_linestyle' rcParam now " +
-                      "follows the same validation as the other rcParams " +
-                      "that are related to line style."))
-def validate_negative_linestyle_legacy(s):
-    try:
-        res = validate_negative_linestyle(s)
-        return res
-    except ValueError:
-        dashes = validate_nseq_float(2)(s)
-        return (0, dashes)  # (offset, (solid, blank))
+    return s
 
+validate_markeverylist = _listify_validator(validate_markevery)
 
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
@@ -699,6 +723,7 @@ _prop_validators = {
         'markersize': validate_floatlist,
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
+        'markevery': validate_markeverylist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
         'hatch': validate_hatchlist,
@@ -894,11 +919,10 @@ def validate_webagg_address(s):
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
-_validate_named_linestyle = ValidateInStrings('linestyle',
-                                              list(six.iterkeys(ls_mapper)) +
-                                              list(six.itervalues(ls_mapper)) +
-                                              ['None', 'none', ' ', ''],
-                                              ignorecase=True)
+_validate_named_linestyle = ValidateInStrings(
+    'linestyle',
+    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
+    ignorecase=True)
 
 
 def _validate_linestyle(ls):
@@ -987,13 +1011,13 @@ defaultParams = {
 
     ## patch props
     'patch.linewidth':   [1.0, validate_float],     # line width in points
-    'patch.edgecolor':   ['k', validate_color],
+    'patch.edgecolor':   ['black', validate_color],
     'patch.force_edgecolor' : [False, validate_bool],
     'patch.facecolor':   ['C0', validate_color],    # first color in cycle
     'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 
     ## hatch props
-    'hatch.color': ['k', validate_color],
+    'hatch.color': ['black', validate_color],
     'hatch.linewidth': [1.0, validate_float],
 
     ## Histogram properties
@@ -1011,23 +1035,23 @@ defaultParams = {
     'boxplot.showfliers': [True, validate_bool],
     'boxplot.meanline': [False, validate_bool],
 
-    'boxplot.flierprops.color': ['k', validate_color],
+    'boxplot.flierprops.color': ['black', validate_color],
     'boxplot.flierprops.marker': ['o', validate_string],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
-    'boxplot.flierprops.markeredgecolor': ['k', validate_color],
+    'boxplot.flierprops.markeredgecolor': ['black', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
     'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
-    'boxplot.boxprops.color': ['k', validate_color],
+    'boxplot.boxprops.color': ['black', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
     'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
 
-    'boxplot.whiskerprops.color': ['k', validate_color],
+    'boxplot.whiskerprops.color': ['black', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
     'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
 
-    'boxplot.capprops.color': ['k', validate_color],
+    'boxplot.capprops.color': ['black', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
     'boxplot.capprops.linestyle': ['-', _validate_linestyle],
 
@@ -1075,7 +1099,7 @@ defaultParams = {
                         validate_stringlist],
 
     # text props
-    'text.color':          ['k', validate_color],     # black
+    'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [False, validate_bool],
     'text.latex.preamble': [[''], validate_stringlist],
@@ -1115,8 +1139,8 @@ defaultParams = {
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
     'axes.hold':             [None, deprecate_axes_hold],
-    'axes.facecolor':        ['w', validate_color],  # background color; white
-    'axes.edgecolor':        ['k', validate_color],  # edge color; black
+    'axes.facecolor':        ['white', validate_color],  # background color
+    'axes.edgecolor':        ['black', validate_color],  # edge color
     'axes.linewidth':        [0.8, validate_float],  # edge linewidth
 
     'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
@@ -1139,7 +1163,7 @@ defaultParams = {
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float], # space between label and axis
     'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
-    'axes.labelcolor':       ['k', validate_color],    # color of axis label
+    'axes.labelcolor':       ['black', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
                                # of the axis range is smaller than the
@@ -1232,7 +1256,7 @@ defaultParams = {
     'xtick.minor.width': [0.6, validate_float],  # minor xtick width in points
     'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
     'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
-    'xtick.color':       ['k', validate_color],  # color of the xtick labels
+    'xtick.color':       ['black', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visibility of the x axis minor ticks
     'xtick.minor.top':   [True, validate_bool],  # draw x axis top minor ticks
     'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
@@ -1254,7 +1278,7 @@ defaultParams = {
     'ytick.minor.width': [0.6, validate_float],   # minor ytick width in points
     'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
     'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
-    'ytick.color':       ['k', validate_color],   # color of the ytick labels
+    'ytick.color':       ['black', validate_color],   # color of the ytick labels
     'ytick.minor.visible':   [False, validate_bool],    # visibility of the y axis minor ticks
     'ytick.minor.left':   [True, validate_bool],  # draw y axis left minor ticks
     'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
@@ -1281,8 +1305,8 @@ defaultParams = {
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
     'figure.dpi':        [100, validate_float],  # DPI
-    'figure.facecolor':  ['w', validate_color],  # facecolor; white
-    'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
+    'figure.facecolor':  ['white', validate_color],
+    'figure.edgecolor':  ['white', validate_color],
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
@@ -1315,8 +1339,8 @@ defaultParams = {
 
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
-    'savefig.facecolor':   ['w', validate_color],  # facecolor; white
-    'savefig.edgecolor':   ['w', validate_color],  # edgecolor; white
+    'savefig.facecolor':   ['white', validate_color],
+    'savefig.edgecolor':   ['white', validate_color],
     'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white

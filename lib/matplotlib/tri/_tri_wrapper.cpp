@@ -494,7 +494,6 @@ static PyTypeObject* PyTrapezoidMapTriFinder_init_type(PyObject* m, PyTypeObject
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_tri",
@@ -507,44 +506,29 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__tri(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_tri(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_tri", NULL, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyTriangulation_init_type(m, &PyTriangulationType)) {
-        INITERROR;
+        return NULL;
     }
     if (!PyTriContourGenerator_init_type(m, &PyTriContourGeneratorType)) {
-        INITERROR;
+        return NULL;
     }
     if (!PyTrapezoidMapTriFinder_init_type(m, &PyTrapezoidMapTriFinderType)) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

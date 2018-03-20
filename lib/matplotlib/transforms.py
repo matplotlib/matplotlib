@@ -33,9 +33,6 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import numpy as np
@@ -105,7 +102,7 @@ class TransformNode(object):
 
     if DEBUG:
         def __str__(self):
-            # either just return the name of this TransformNode, or it's repr
+            # either just return the name of this TransformNode, or its repr
             return self._shorthand_name or repr(self)
 
     def __getstate__(self):
@@ -637,7 +634,7 @@ class BboxBase(TransformNode):
         splitting the original one with vertical lines at fractional
         positions *f1*, *f2*, ...
         """
-        xf = [0] + list(args) + [1]
+        xf = [0, *args, 1]
         x0, y0, x1, y1 = self.extents
         w = x1 - x0
         return [Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]])
@@ -651,7 +648,7 @@ class BboxBase(TransformNode):
         splitting the original one with horizontal lines at fractional
         positions *f1*, *f2*, ...
         """
-        yf = [0] + list(args) + [1]
+        yf = [0, *args, 1]
         x0, y0, x1, y1 = self.extents
         h = y1 - y0
         return [Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]])
@@ -1676,30 +1673,6 @@ class TransformWrapper(Transform):
 
     def __eq__(self, other):
         return self._child.__eq__(other)
-
-    # NOTE: Transform.__[gs]etstate__ should be sufficient when using only
-    # Python 3.4+.
-    def __getstate__(self):
-        # only store the child information and parents
-        return {
-            'child': self._child,
-            'input_dims': self.input_dims,
-            'output_dims': self.output_dims,
-            # turn the weak-values dictionary into a normal dictionary
-            'parents': dict((k, v()) for (k, v) in
-                            six.iteritems(self._parents))
-        }
-
-    def __setstate__(self, state):
-        # re-initialise the TransformWrapper with the state's child
-        self._init(state['child'])
-        # The child may not be unpickled yet, so restore its information.
-        self.input_dims = state['input_dims']
-        self.output_dims = state['output_dims']
-        # turn the normal dictionary back into a dictionary with weak
-        # values
-        self._parents = dict((k, weakref.ref(v)) for (k, v) in
-                             six.iteritems(state['parents']) if v is not None)
 
     def __str__(self):
         return ("{}(\n"

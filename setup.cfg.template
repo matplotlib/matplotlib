@@ -34,7 +34,7 @@
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, including
-# GTK, MacOSX, Qt4, Qt5, Tk, and WX. Support for many of
+# GTK3, MacOSX, Qt4, Qt5, Tk, and WX. Support for many of
 # these toolkits requires AGG, the Anti-Grain Geometry library,
 # which is provided by Matplotlib and built by default.
 #
@@ -43,8 +43,6 @@
 # these GUI toolkits during installation and, if present, compiles the
 # required extensions to support the toolkit.
 #
-# - GTK 2.x support of any kind requires the GTK runtime environment
-#   headers and PyGTK.
 # - Tk support requires Tk development headers and Tkinter.
 # - Mac OSX backend requires the Cocoa headers included with XCode.
 # - Windowing is MS-Windows specific, and requires the "windows.h"
@@ -66,10 +64,8 @@
 #
 #agg = auto
 #cairo = auto
-#gtk = auto
 #gtk3agg = auto
 #gtk3cairo = auto
-#gtkagg = auto
 #macosx = auto
 #pyside = auto
 #qt4agg = auto
@@ -80,13 +76,12 @@
 [rc_options]
 # User-configurable options
 #
-# Default backend, one of: Agg, Cairo, GTK, GTKAgg, GTKCairo,
-# GTK3Agg, GTK3Cairo, MacOSX, Pdf, Ps, Qt4Agg, Qt5Agg, SVG, TkAgg, WX, WXAgg.
+# Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, MacOSX, Pdf, Ps,
+# Qt4Agg, Qt5Agg, SVG, TkAgg, WX, WXAgg.
 #
-# The Agg, Ps, Pdf and SVG backends do not require external
-# dependencies. Do not choose GTK, GTKAgg, GTKCairo, MacOSX, or TkAgg
-# if you have disabled the relevant extension modules.  Agg will be used
-# by default.
+# The Agg, Ps, Pdf and SVG backends do not require external dependencies. Do
+# not choose MacOSX, or TkAgg if you have disabled the relevant extension
+# modules.  Agg will be used by default.
 #
 #backend = Agg
 #

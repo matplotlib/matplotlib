@@ -9,7 +9,11 @@ from matplotlib.testing.decorators import image_comparison
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import (
+    zoomed_inset_axes,
+    mark_inset,
+    inset_axes
+)
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 from matplotlib.colors import LogNorm
@@ -153,6 +157,73 @@ def test_inset_locator():
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
+
+
+@image_comparison(
+    baseline_images=['inset_axes'], style='default', extensions=['png'],
+    remove_text=True)
+def test_inset_axes():
+    def get_demo_image():
+        from matplotlib.cbook import get_sample_data
+        import numpy as np
+        f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
+        z = np.load(f)
+        # z is a numpy array of 15x15
+        return z, (-3, 4, -4, 3)
+
+    fig, ax = plt.subplots(figsize=[5, 4])
+
+    # prepare the demo image
+    Z, extent = get_demo_image()
+    Z2 = np.zeros([150, 150], dtype="d")
+    ny, nx = Z.shape
+    Z2[30:30 + ny, 30:30 + nx] = Z
+
+    # extent = [-3, 4, -4, 3]
+    ax.imshow(Z2, extent=extent, interpolation="nearest",
+              origin="lower")
+
+    # creating our inset axes without a bbox_transform parameter
+    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
+
+    axins.imshow(Z2, extent=extent, interpolation="nearest",
+                 origin="lower")
+    axins.yaxis.get_major_locator().set_params(nbins=7)
+    axins.xaxis.get_major_locator().set_params(nbins=7)
+    # sub region of the original image
+    x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
+    axins.set_xlim(x1, x2)
+    axins.set_ylim(y1, y2)
+
+    plt.xticks(visible=False)
+    plt.yticks(visible=False)
+
+    # draw a bbox of the region of the inset axes in the parent axes and
+    # connecting lines between the bbox and the inset axes area
+    mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+
+    asb = AnchoredSizeBar(ax.transData,
+                          0.5,
+                          '0.5',
+                          loc=8,
+                          pad=0.1, borderpad=0.5, sep=5,
+                          frameon=False)
+    ax.add_artist(asb)
+
+
+def test_inset_axes_without_transform_should_use_parent_axes():
+    # creating our figure
+    fig = plt.figure(dpi=150)
+
+    # gca method gets current axes of the figure
+    ax = plt.gca()
+    ax.plot([0.0, 0.25, 0.50, 1.0], [0.1, 0.2, 0.4, 0.9], color='b')
+
+    # creating our inset_axes. without a bbox_transform parameter
+    ax_ins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
+    ax_ins.plot([0.0, 0.25, 0.50, 1.0], [0.9, 0.4, 0.2, 0.1], color='r')
+
+    assert ax.transAxes == ax_ins.transAxes
 
 
 @image_comparison(baseline_images=['zoomed_axes',

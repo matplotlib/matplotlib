@@ -7,7 +7,7 @@ This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.
 
 This script must be run interactively using a backend that has a
-graphical user interface (for example, using GTKAgg backend, but not
+graphical user interface (for example, using GTK3Agg backend, but not
 PS backend).
 
 See also ginput_demo.py

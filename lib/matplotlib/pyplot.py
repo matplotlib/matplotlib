@@ -73,9 +73,10 @@ from matplotlib.backends import pylab_setup
 
 ## Backend detection ##
 def _backend_selection():
-    """ If rcParams['backend_fallback'] is true, check to see if the
-        current backend is compatible with the current running event
-        loop, and if not switches to a compatible one.
+    """
+    If rcParams['backend_fallback'] is true, check to see if the
+    current backend is compatible with the current running event loop,
+    and if not switches to a compatible one.
     """
     backend = rcParams['backend']
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
@@ -95,19 +96,14 @@ def _backend_selection():
         if not PyQt5.QtWidgets.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules and
-          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
-        if 'gi' in sys.modules:
-            from gi.repository import GObject
-            ml = GObject.MainLoop
-        else:
-            import gobject
-            ml = gobject.MainLoop
-        if ml().is_running():
-            rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
+    elif 'gtk' in sys.modules and 'gi' in sys.modules:
+        from gi.repository import GObject
+        if GObject.MainLoop().is_running():
+            rcParams['backend'] = 'GTK3Agg'
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
         pass  # what if anything do we need to do for tkinter?
+
 
 _backend_selection()
 
@@ -175,7 +171,7 @@ def install_repl_displayhook():
 
 def uninstall_repl_displayhook():
     """
-    Uninstalls the matplotlib display hook.
+    Uninstall the matplotlib display hook.
 
     .. warning
 
@@ -255,20 +251,18 @@ def show(*args, **kw):
 
 
 def isinteractive():
-    """
-    Return status of interactive mode.
-    """
+    """Return the status of interactive mode."""
     return matplotlib.is_interactive()
 
 
 def ioff():
-    """Turn interactive mode off."""
+    """Turn the interactive mode off."""
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
 
 
 def ion():
-    """Turn interactive mode on."""
+    """Turn the interactive mode on."""
     matplotlib.interactive(True)
     install_repl_displayhook()
 
@@ -300,8 +294,8 @@ def pause(interval):
 
 
 @docstring.copy_dedent(matplotlib.rc)
-def rc(*args, **kwargs):
-    matplotlib.rc(*args, **kwargs)
+def rc(group, **kwargs):
+    matplotlib.rc(group, **kwargs)
 
 
 @docstring.copy_dedent(matplotlib.rc_context)
@@ -350,8 +344,8 @@ def sci(im):
 ## Any Artist ##
 # (getp is simply imported)
 @docstring.copy(_setp)
-def setp(*args, **kwargs):
-    return _setp(*args, **kwargs)
+def setp(obj, *args, **kwargs):
+    return _setp(obj, *args, **kwargs)
 
 
 def xkcd(scale=1, length=100, randomness=2):
@@ -681,9 +675,7 @@ def close(*args):
 
 
 def clf():
-    """
-    Clear the current figure.
-    """
+    """Clear the current figure."""
     gcf().clf()
 
 
@@ -743,13 +735,13 @@ def waitforbuttonpress(*args, **kwargs):
 # Putting things in figures
 
 @docstring.copy_dedent(Figure.text)
-def figtext(*args, **kwargs):
-    return gcf().text(*args, **kwargs)
+def figtext(x, y, s, *args, **kwargs):
+    return gcf().text(x, y, s, *args, **kwargs)
 
 
 @docstring.copy_dedent(Figure.suptitle)
-def suptitle(*args, **kwargs):
-    return gcf().suptitle(*args, **kwargs)
+def suptitle(t, **kwargs):
+    return gcf().suptitle(t, **kwargs)
 
 
 @docstring.copy_dedent(Figure.figimage)
@@ -1297,14 +1289,10 @@ def twiny(ax=None):
     return ax1
 
 
-def subplots_adjust(*args, **kwargs):
+def subplots_adjust(left=None, bottom=None, right=None, top=None,
+                    wspace=None, hspace=None):
     """
     Tune the subplot layout.
-
-    call signature::
-
-      subplots_adjust(left=None, bottom=None, right=None, top=None,
-                      wspace=None, hspace=None)
 
     The parameter meanings (and suggested defaults) are::
 
@@ -1320,7 +1308,7 @@ def subplots_adjust(*args, **kwargs):
     The actual defaults are controlled by the rc file
     """
     fig = gcf()
-    fig.subplots_adjust(*args, **kwargs)
+    fig.subplots_adjust(left, bottom, right, top, wspace, hspace)
 
 
 def subplot_tool(targetfig=None):
@@ -1505,65 +1493,60 @@ def axis(*v, **kwargs):
 
 def xlabel(s, *args, **kwargs):
     """
-    Set the *x* axis label of the current axis.
+    Set the x-axis label of the current axes.
 
-    Default override is::
+    Call signature::
 
-      override = {
-          'fontsize'            : 'small',
-          'verticalalignment'   : 'top',
-          'horizontalalignment' : 'center'
-          }
+        xlabel(label, fontdict=None, labelpad=None, **kwargs)
 
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args work
+    This is the pyplot equivalent of calling `.set_xlabel` on the current axes.
+    See there for a full parameter description.
     """
     return gca().set_xlabel(s, *args, **kwargs)
 
 
 def ylabel(s, *args, **kwargs):
     """
-    Set the *y* axis label of the current axis.
+    Set the y-axis label of the current axes.
 
-    Defaults override is::
+    Call signature::
 
-        override = {
-           'fontsize'            : 'small',
-           'verticalalignment'   : 'center',
-           'horizontalalignment' : 'right',
-           'rotation'='vertical' : }
+        ylabel(label, fontdict=None, labelpad=None, **kwargs)
 
-    .. seealso::
-
-        :func:`~matplotlib.pyplot.text`
-            For information on how override and the optional args
-            work.
+    This is the pyplot equivalent of calling `.set_ylabel` on the current axes.
+    See there for a full parameter description.
     """
     return gca().set_ylabel(s, *args, **kwargs)
 
 
 def xlim(*args, **kwargs):
     """
-    Get or set the *x* limits of the current axes.
+    Get or set the x limits of the current axes.
 
-    ::
+    Call signatures::
 
-      xmin, xmax = xlim()   # return the current xlim
-      xlim( (xmin, xmax) )  # set the xlim to xmin, xmax
-      xlim( xmin, xmax )    # set the xlim to xmin, xmax
+        xmin, xmax = xlim()  # return the current xlim
+        xlim((xmin, xmax))   # set the xlim to xmin, xmax
+        xlim(xmin, xmax)     # set the xlim to xmin, xmax
 
-    If you do not specify args, you can pass the xmin and xmax as
-    kwargs, e.g.::
+    If you do not specify args, you can pass *xmin* or *xmax* as kwargs, i.e.::
 
-      xlim(xmax=3) # adjust the max leaving min unchanged
-      xlim(xmin=1) # adjust the min leaving max unchanged
+        xlim(xmax=3)  # adjust the max leaving min unchanged
+        xlim(xmin=1)  # adjust the min leaving max unchanged
 
     Setting limits turns autoscaling off for the x-axis.
 
-    The new axis limits are returned as a length 2 tuple.
+    Returns
+    -------
+    xmin, xmax
+        A tuple of the new x-axis limits.
 
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``xlim()``) is the pyplot
+    equivalent of calling `~.Axes.get_xlim` on the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_xlim` on the current axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -1574,23 +1557,33 @@ def xlim(*args, **kwargs):
 
 def ylim(*args, **kwargs):
     """
-    Get or set the *y*-limits of the current axes.
+    Get or set the y-limits of the current axes.
 
-    ::
+    Call signatures::
 
-      ymin, ymax = ylim()   # return the current ylim
-      ylim( (ymin, ymax) )  # set the ylim to ymin, ymax
-      ylim( ymin, ymax )    # set the ylim to ymin, ymax
+        ymin, ymax = ylim()  # return the current ylim
+        ylim((ymin, ymax))   # set the ylim to ymin, ymax
+        ylim(ymin, ymax)     # set the ylim to ymin, ymax
 
-    If you do not specify args, you can pass the *ymin* and *ymax* as
-    kwargs, e.g.::
+    If you do not specify args, you can alternatively pass *ymin* or *ymax* as
+    kwargs, i.e.::
 
-      ylim(ymax=3) # adjust the max leaving min unchanged
-      ylim(ymin=1) # adjust the min leaving max unchanged
+        ylim(ymax=3)  # adjust the max leaving min unchanged
+        ylim(ymin=1)  # adjust the min leaving max unchanged
 
     Setting limits turns autoscaling off for the y-axis.
 
-    The new axis limits are returned as a length 2 tuple.
+    Returns
+    -------
+    ymin, ymax
+        A tuple of the new y-axis limits.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``ylim()``) is the pyplot
+    equivalent of calling `~.Axes.get_ylim` on the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_ylim` on the current axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -1600,61 +1593,112 @@ def ylim(*args, **kwargs):
 
 
 @docstring.dedent_interpd
-def xscale(*args, **kwargs):
+def xscale(scale, **kwargs):
     """
-    Set the scaling of the *x*-axis.
+    Set the scaling of the x-axis.
 
-    call signature::
+    Parameters
+    ----------
+    scale : [%(scale)s]
+        The scaling type.
+    **kwargs
+        Additional parameters depend on *scale*. See Notes.
 
-      xscale(scale, **kwargs)
-
-    The available scales are: %(scale)s
+    Notes
+    -----
+    This is the pyplot equivalent of calling `~.Axes.set_xscale` on the
+    current axes.
 
     Different keywords may be accepted, depending on the scale:
 
     %(scale_docs)s
     """
-    gca().set_xscale(*args, **kwargs)
+    gca().set_xscale(scale, **kwargs)
 
 
 @docstring.dedent_interpd
-def yscale(*args, **kwargs):
+def yscale(scale, **kwargs):
     """
-    Set the scaling of the *y*-axis.
+    Set the scaling of the y-axis.
 
-    call signature::
+    Parameters
+    ----------
+    scale : [%(scale)s]
+        The scaling type.
+    **kwargs
+        Additional parameters depend on *scale*. See Notes.
 
-      yscale(scale, **kwargs)
-
-    The available scales are: %(scale)s
+    Notes
+    -----
+    This is the pyplot equivalent of calling `~.Axes.set_yscale` on the
+    current axes.
 
     Different keywords may be accepted, depending on the scale:
 
     %(scale_docs)s
     """
-    gca().set_yscale(*args, **kwargs)
+    gca().set_yscale(scale, **kwargs)
 
 
 def xticks(*args, **kwargs):
     """
-    Get or set the *x*-limits of the current tick locations and labels.
+    Get or set the current tick locations and labels of the x-axis.
 
-    ::
+    Call signatures::
 
-      # return locs, labels where locs is an array of tick locations and
-      # labels is an array of tick labels.
-      locs, labels = xticks()
+        locs, labels = xticks()           # Get locations and labels
 
-      # set the locations of the xticks
-      xticks( arange(6) )
+        xticks(locs, [labels], **kwargs)  # Set locations and labels
 
-      # set the locations and labels of the xticks
-      xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+    Parameters
+    ----------
+    locs : array_like
+        A list of positions at which ticks should be placed. You can pass an
+        empty list to disable xticks.
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties. For example, to rotate long labels::
+    labels : array_like, optional
+        A list of explicit labels to place at the given *locs*.
 
-      xticks( arange(12), calendar.month_name[1:13], rotation=17 )
+    **kwargs
+        :class:`.Text` properties can be used to control the appearance of
+        the labels.
+
+    Returns
+    -------
+    locs
+        An array of label locations.
+    labels
+        A list of `.Text` objects.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``xticks()``) is the pyplot
+    equivalent of calling `~.Axes.get_xticks` and `~.Axes.get_xticklabels` on
+    the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_xticks` and `~.Axes.set_xticklabels` on the current axes.
+
+    Examples
+    --------
+    Get the current locations and labels:
+
+        >>> locs, labels = xticks()
+
+    Set label locations:
+
+        >>> xticks(np.arange(0, 1, step=0.2))
+
+    Set text labels:
+
+        >>> xticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
+
+    Set text labels and properties:
+
+        >>> xticks(np.arange(12), calendar.month_name[1:13], rotation=20)
+
+    Disable xticks:
+
+        >>> xticks([])
     """
     ax = gca()
 
@@ -1677,24 +1721,63 @@ def xticks(*args, **kwargs):
 
 def yticks(*args, **kwargs):
     """
-    Get or set the *y*-limits of the current tick locations and labels.
+    Get or set the current tick locations and labels of the y-axis.
 
-    ::
+    Call signatures::
 
-      # return locs, labels where locs is an array of tick locations and
-      # labels is an array of tick labels.
-      locs, labels = yticks()
+        locs, labels = yticks()           # Get locations and labels
 
-      # set the locations of the yticks
-      yticks( arange(6) )
+        yticks(locs, [labels], **kwargs)  # Set locations and labels
 
-      # set the locations and labels of the yticks
-      yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+    Parameters
+    ----------
+    locs : array_like
+        A list of positions at which ticks should be placed. You can pass an
+        empty list to disable yticks.
 
-    The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties. For example, to rotate long labels::
+    labels : array_like, optional
+        A list of explicit labels to place at the given *locs*.
 
-      yticks( arange(12), calendar.month_name[1:13], rotation=45 )
+    **kwargs
+        :class:`.Text` properties can be used to control the appearance of
+        the labels.
+
+    Returns
+    -------
+    locs
+        An array of label locations.
+    labels
+        A list of `.Text` objects.
+
+    Notes
+    -----
+    Calling this function with no arguments (e.g. ``yticks()``) is the pyplot
+    equivalent of calling `~.Axes.get_yticks` and `~.Axes.get_yticklabels` on
+    the current axes.
+    Calling this function with arguments is the pyplot equivalent of calling
+    `~.Axes.set_yticks` and `~.Axes.set_yticklabels` on the current axes.
+
+    Examples
+    --------
+    Get the current locations and labels:
+
+        >>> locs, labels = yticks()
+
+    Set label locations:
+
+        >>> yticks(np.arange(0, 1, step=0.2))
+
+    Set text labels:
+
+        >>> yticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
+
+    Set text labels and properties:
+
+        >>> yticks(np.arange(12), calendar.month_name[1:13], rotation=45)
+
+    Disable yticks:
+
+        >>> yticks([])
     """
     ax = gca()
 
@@ -1863,56 +1946,6 @@ def get_plot_commands():
         if not name.startswith('_') and name not in exclude
            and inspect.isfunction(obj)
            and inspect.getmodule(obj) is this_module)
-
-
-@deprecated('2.1')
-def colors():
-    """
-    This is a do-nothing function to provide you with help on how
-    matplotlib handles colors.
-
-    Commands which take color arguments can use several formats to
-    specify the colors.  For the basic built-in colors, you can use a
-    single letter
-
-      =====   =======
-      Alias   Color
-      =====   =======
-      'b'     blue
-      'g'     green
-      'r'     red
-      'c'     cyan
-      'm'     magenta
-      'y'     yellow
-      'k'     black
-      'w'     white
-      =====   =======
-
-    For a greater range of colors, you have two options.  You can
-    specify the color using an html hex string, as in::
-
-      color = '#eeefff'
-
-    or you can pass an R,G,B tuple, where each of R,G,B are in the
-    range [0,1].
-
-    You can also use any legal html name for a color, for example::
-
-      color = 'red'
-      color = 'burlywood'
-      color = 'chartreuse'
-
-    The example below creates a subplot with a dark
-    slate gray background::
-
-       subplot(111, facecolor=(0.1843, 0.3098, 0.3098))
-
-    Here is an example that creates a pale turquoise title::
-
-      title('Is this the best color?', color='#afeeee')
-
-    """
-    pass
 
 
 def colormaps():
@@ -2271,13 +2304,13 @@ def set_cmap(cmap):
 
 
 @docstring.copy_dedent(_imread)
-def imread(*args, **kwargs):
-    return _imread(*args, **kwargs)
+def imread(fname, format=None):
+    return _imread(fname, format)
 
 
 @docstring.copy_dedent(_imsave)
-def imsave(*args, **kwargs):
-    return _imsave(*args, **kwargs)
+def imsave(fname, arr, **kwargs):
+    return _imsave(fname, arr, **kwargs)
 
 
 def matshow(A, fignum=None, **kw):

@@ -499,27 +499,6 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
-    @cbook.deprecated("2.1")
-    def set_linestyle(self, ls):
-        """
-        Set the line style to be one of
-        """
-        DEBUG_MSG("set_linestyle()", 1, self)
-        self.select()
-        GraphicsContextBase.set_linestyle(self, ls)
-        try:
-            self._style = wxc.dashd_wx[ls]
-        except KeyError:
-            self._style = wx.LONG_DASH  # Style not used elsewhere...
-
-        # On MS Windows platform, only line width of 1 allowed for dash lines
-        if wx.Platform == '__WXMSW__':
-            self.set_linewidth(1)
-
-        self._pen.SetStyle(self._style)
-        self.gfx_ctx.SetPen(self._pen)
-        self.unselect()
-
     def get_wxcolour(self, color):
         """return a wx.Colour from RGB format"""
         DEBUG_MSG("get_wx_color()", 1, self)
@@ -793,15 +772,17 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             else:
                 drawDC.DrawBitmap(self.bitmap, 0, 0)
 
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['bmp'] = 'Windows bitmap'
-    filetypes['jpeg'] = 'JPEG'
-    filetypes['jpg'] = 'JPEG'
-    filetypes['pcx'] = 'PCX'
-    filetypes['png'] = 'Portable Network Graphics'
-    filetypes['tif'] = 'Tagged Image Format File'
-    filetypes['tiff'] = 'Tagged Image Format File'
-    filetypes['xpm'] = 'X pixmap'
+    filetypes = {
+        **FigureCanvasBase.filetypes,
+        'bmp': 'Windows bitmap',
+        'jpeg': 'JPEG',
+        'jpg': 'JPEG',
+        'pcx': 'PCX',
+        'png': 'Portable Network Graphics',
+        'tif': 'Tagged Image Format File',
+        'tiff': 'Tagged Image Format File',
+        'xpm': 'X pixmap',
+    }
 
     def print_figure(self, filename, *args, **kwargs):
         super().print_figure(filename, *args, **kwargs)
@@ -1035,7 +1016,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def _onEnter(self, evt):
         """Mouse has entered the window."""
-        FigureCanvasBase.enter_notify_event(self, guiEvent=evt)
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        FigureCanvasBase.enter_notify_event(self, guiEvent=evt, xy=(x, y))
 
 
 class FigureCanvasWx(_FigureCanvasWxBase):
@@ -1572,14 +1556,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         cursor = wxc.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
-
-    @cbook.deprecated("2.1", alternative="canvas.draw_idle")
-    def dynamic_update(self):
-        d = self._idle
-        self._idle = False
-        if d:
-            self.canvas.draw()
-            self._idle = True
 
     def press(self, event):
         if self._active == 'ZOOM':

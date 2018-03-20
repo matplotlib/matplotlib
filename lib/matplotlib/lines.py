@@ -4,8 +4,7 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 
@@ -162,49 +161,38 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
                         _slice_or_none(codes, slice(start, None, step)))
 
         elif isinstance(step, float):
-            if not (isinstance(start, int) or
-                    isinstance(start, float)):
-                raise ValueError('`markevery` is a tuple with '
-                    'len 2 and second element is a float, but '
-                    'the first element is not a float or an '
-                    'int; '
+            if not isinstance(start, (int, float)):
+                raise ValueError(
+                    '`markevery` is a tuple with len 2 and second element is '
+                    'a float, but the first element is not a float or an int; '
                     'markevery=%s' % (markevery,))
-            #calc cumulative distance along path (in display
-            # coords):
+            # calc cumulative distance along path (in display coords):
             disp_coords = affine.transform(tpath.vertices)
-            delta = np.empty((len(disp_coords), 2),
-                             dtype=float)
-            delta[0, :] = 0.0
-            delta[1:, :] = (disp_coords[1:, :] -
-                                disp_coords[:-1, :])
+            delta = np.empty((len(disp_coords), 2))
+            delta[0, :] = 0
+            delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
             delta = np.sum(delta**2, axis=1)
             delta = np.sqrt(delta)
             delta = np.cumsum(delta)
-            #calc distance between markers along path based on
-            # the axes bounding box diagonal being a distance
-            # of unity:
-            scale = ax_transform.transform(
-                np.array([[0, 0], [1, 1]]))
+            # calc distance between markers along path based on the axes
+            # bounding box diagonal being a distance of unity:
+            scale = ax_transform.transform(np.array([[0, 0], [1, 1]]))
             scale = np.diff(scale, axis=0)
             scale = np.sum(scale**2)
             scale = np.sqrt(scale)
-            marker_delta = np.arange(start * scale,
-                                     delta[-1],
-                                     step * scale)
-            #find closest actual data point that is closest to
+            marker_delta = np.arange(start * scale, delta[-1], step * scale)
+            # find closest actual data point that is closest to
             # the theoretical distance along the path:
-            inds = np.abs(delta[np.newaxis, :] -
-                            marker_delta[:, np.newaxis])
+            inds = np.abs(delta[np.newaxis, :] - marker_delta[:, np.newaxis])
             inds = inds.argmin(axis=1)
             inds = np.unique(inds)
             # return, we are done here
             return Path(verts[inds],
                         _slice_or_none(codes, inds))
         else:
-            raise ValueError('`markevery` is a tuple with '
-                'len 2, but its second element is not an int '
-                'or a float; '
-                'markevery=%s' % (markevery,))
+            raise ValueError(
+                '`markevery` is a tuple with len 2, but its second element is '
+                'not an int or a float; markevery=%s' % (markevery,))
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return
@@ -227,15 +215,25 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'markevery=%s' % (markevery,))
 
 
+@cbook._define_aliases({
+    "antialiased": ["aa"],
+    "color": ["c"],
+    "linestyle": ["ls"],
+    "linewidth": ["lw"],
+    "markeredgecolor": ["mec"],
+    "markeredgewidth": ["mew"],
+    "markerfacecolor": ["mfc"],
+    "markerfacecoloralt": ["mfcalt"],
+    "markersize": ["ms"],
+})
 class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
     the vertices, and a marker at each vertex.  Additionally, the
     drawing of the solid line is influenced by the drawstyle, e.g., one
     can create "stepped" lines in various styles.
-
-
     """
+
     lineStyles = _lineStyles = {  # hidden names deprecated
         '-':    '_draw_solid',
         '--':   '_draw_dashed',
@@ -258,11 +256,9 @@ class Line2D(Artist):
     }
 
     # drawStyles should now be deprecated.
-    drawStyles = {}
-    drawStyles.update(_drawStyles_l)
-    drawStyles.update(_drawStyles_s)
+    drawStyles = {**_drawStyles_l, **_drawStyles_s}
     # Need a list ordered with long names first:
-    drawStyleKeys = list(_drawStyles_l) + list(_drawStyles_s)
+    drawStyleKeys = [*_drawStyles_l, *_drawStyles_s]
 
     # Referenced here to maintain API.  These are defined in
     # MarkerStyle
@@ -389,9 +385,9 @@ class Line2D(Artist):
         self._us_dashSeq = None
         self._us_dashOffset = 0
 
+        self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
         self.set_drawstyle(drawstyle)
-        self.set_linewidth(linewidth)
 
         self._color = None
         self.set_color(color)
@@ -801,6 +797,7 @@ class Line2D(Artist):
                     gc.set_alpha(rgbaFace[3])
                 else:
                     gc.set_alpha(self.get_alpha())
+            gc.set_antialiased(self._antialiased)
 
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
@@ -1254,79 +1251,6 @@ class Line2D(Artist):
 
     def _get_rgba_ln_color(self, alt=False):
         return mcolors.to_rgba(self._color, self._alpha)
-
-    # some aliases....
-    def set_aa(self, val):
-        'alias for set_antialiased'
-        self.set_antialiased(val)
-
-    def set_c(self, val):
-        'alias for set_color'
-        self.set_color(val)
-
-    def set_ls(self, val):
-        """alias for set_linestyle"""
-        self.set_linestyle(val)
-
-    def set_lw(self, val):
-        """alias for set_linewidth"""
-        self.set_linewidth(val)
-
-    def set_mec(self, val):
-        """alias for set_markeredgecolor"""
-        self.set_markeredgecolor(val)
-
-    def set_mew(self, val):
-        """alias for set_markeredgewidth"""
-        self.set_markeredgewidth(val)
-
-    def set_mfc(self, val):
-        """alias for set_markerfacecolor"""
-        self.set_markerfacecolor(val)
-
-    def set_mfcalt(self, val):
-        """alias for set_markerfacecoloralt"""
-        self.set_markerfacecoloralt(val)
-
-    def set_ms(self, val):
-        """alias for set_markersize"""
-        self.set_markersize(val)
-
-    def get_aa(self):
-        """alias for get_antialiased"""
-        return self.get_antialiased()
-
-    def get_c(self):
-        """alias for get_color"""
-        return self.get_color()
-
-    def get_ls(self):
-        """alias for get_linestyle"""
-        return self.get_linestyle()
-
-    def get_lw(self):
-        """alias for get_linewidth"""
-        return self.get_linewidth()
-
-    def get_mec(self):
-        """alias for get_markeredgecolor"""
-        return self.get_markeredgecolor()
-
-    def get_mew(self):
-        """alias for get_markeredgewidth"""
-        return self.get_markeredgewidth()
-
-    def get_mfc(self):
-        """alias for get_markerfacecolor"""
-        return self.get_markerfacecolor()
-
-    def get_mfcalt(self, alt=False):
-        """alias for get_markerfacecoloralt"""
-        return self.get_markerfacecoloralt()
-
-    def get_ms(self):
-        """alias for get_markersize"""
-        return self.get_markersize()
 
     def set_dash_joinstyle(self, s):
         """

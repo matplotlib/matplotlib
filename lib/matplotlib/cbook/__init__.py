@@ -6,8 +6,6 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import six
 from six.moves import xrange, zip
 import bz2
@@ -24,6 +22,7 @@ import locale
 import numbers
 import operator
 import os
+from pathlib import Path
 import re
 import sys
 import time
@@ -39,6 +38,7 @@ from .deprecation import deprecated, warn_deprecated
 from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 
+@deprecated("3.0")
 def unicode_safe(s):
 
     if isinstance(s, bytes):
@@ -62,87 +62,6 @@ def unicode_safe(s):
         else:
             return six.text_type(s, preferredencoding)
     return s
-
-
-@deprecated('2.1')
-class converter(object):
-    """
-    Base class for handling string -> python type with support for
-    missing values
-    """
-    def __init__(self, missing='Null', missingval=None):
-        self.missing = missing
-        self.missingval = missingval
-
-    def __call__(self, s):
-        if s == self.missing:
-            return self.missingval
-        return s
-
-    def is_missing(self, s):
-        return not s.strip() or s == self.missing
-
-
-@deprecated('2.1')
-class tostr(converter):
-    """convert to string or None"""
-    def __init__(self, missing='Null', missingval=''):
-        converter.__init__(self, missing=missing, missingval=missingval)
-
-
-@deprecated('2.1')
-class todatetime(converter):
-    """convert to a datetime or None"""
-    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a :func:`time.strptime` format string for conversion'
-        converter.__init__(self, missing, missingval)
-        self.fmt = fmt
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        tup = time.strptime(s, self.fmt)
-        return datetime.datetime(*tup[:6])
-
-
-@deprecated('2.1')
-class todate(converter):
-    """convert to a date or None"""
-    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        """use a :func:`time.strptime` format string for conversion"""
-        converter.__init__(self, missing, missingval)
-        self.fmt = fmt
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        tup = time.strptime(s, self.fmt)
-        return datetime.date(*tup[:3])
-
-
-@deprecated('2.1')
-class tofloat(converter):
-    """convert to a float or None"""
-    def __init__(self, missing='Null', missingval=None):
-        converter.__init__(self, missing)
-        self.missingval = missingval
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        return float(s)
-
-
-@deprecated('2.1')
-class toint(converter):
-    """convert to an int or None"""
-    def __init__(self, missing='Null', missingval=None):
-        converter.__init__(self, missing)
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        return int(s)
 
 
 class _BoundMethodProxy(object):
@@ -411,8 +330,7 @@ class silent_list(list):
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
-    def __str__(self):
-        return repr(self)
+    __str__ = __repr__
 
     def __getstate__(self):
         # store a dictionary of this SilentList's state
@@ -502,42 +420,12 @@ class Bunch(types.SimpleNamespace):
     pass
 
 
-@deprecated('2.1')
-def unique(x):
-    """Return a list of unique elements of *x*"""
-    return list(set(x))
-
-
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
         iter(obj)
     except TypeError:
         return False
-    return True
-
-
-@deprecated('2.1')
-def is_string_like(obj):
-    """Return True if *obj* looks like a string"""
-    # (np.str_ == np.unicode_ on Py3).
-    return isinstance(obj, (six.string_types, np.str_, np.unicode_))
-
-
-@deprecated('2.1')
-def is_sequence_of_strings(obj):
-    """Returns true if *obj* is iterable and contains strings"""
-    if not iterable(obj):
-        return False
-    if is_string_like(obj) and not isinstance(obj, np.ndarray):
-        try:
-            obj = obj.values
-        except AttributeError:
-            # not pandas
-            return False
-    for o in obj:
-        if not is_string_like(o):
-            return False
     return True
 
 
@@ -568,12 +456,6 @@ def file_requires_unicode(x):
         return False
 
 
-@deprecated('2.1')
-def is_scalar(obj):
-    """return true if *obj* is not string like and is not iterable"""
-    return not isinstance(obj, six.string_types) and not iterable(obj)
-
-
 @deprecated('3.0', 'isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
@@ -586,7 +468,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
-    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
+    if isinstance(fname, getattr(os, "PathLike", ())):
         return to_filehandle(
             os.fspath(fname),
             flag=flag, return_opened=return_opened, encoding=encoding)
@@ -663,8 +545,7 @@ def get_sample_data(fname, asfileobj=True):
     path = os.path.join(root, fname)
 
     if asfileobj:
-        if (os.path.splitext(fname)[-1].lower() in
-                ('.csv', '.xrc', '.txt')):
+        if os.path.splitext(fname)[-1].lower() in ['.csv', '.xrc', '.txt']:
             mode = 'r'
         else:
             mode = 'rb'
@@ -698,149 +579,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield item
         else:
             yield from flatten(item, scalarp)
-
-
-@deprecated('2.1', "sorted(..., key=itemgetter(...))")
-class Sorter(object):
-    """
-    Sort by attribute or item
-
-    Example usage::
-
-      sort = Sorter()
-
-      list = [(1, 2), (4, 8), (0, 3)]
-      dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
-              {'a': 9, 'b': 9}]
-
-
-      sort(list)       # default sort
-      sort(list, 1)    # sort by index 1
-      sort(dict, 'a')  # sort a list of dicts by key 'a'
-
-    """
-
-    def _helper(self, data, aux, inplace):
-        aux.sort()
-        result = [data[i] for junk, i in aux]
-        if inplace:
-            data[:] = result
-        return result
-
-    def byItem(self, data, itemindex=None, inplace=1):
-        if itemindex is None:
-            if inplace:
-                data.sort()
-                result = data
-            else:
-                result = sorted(data)
-            return result
-        else:
-            aux = [(data[i][itemindex], i) for i in range(len(data))]
-            return self._helper(data, aux, inplace)
-
-    def byAttribute(self, data, attributename, inplace=1):
-        aux = [(getattr(data[i], attributename), i) for i in range(len(data))]
-        return self._helper(data, aux, inplace)
-
-    # a couple of handy synonyms
-    sort = byItem
-    __call__ = byItem
-
-
-@deprecated('2.1')
-class Xlator(dict):
-    """
-    All-in-one multiple-string-substitution class
-
-    Example usage::
-
-      text = "Larry Wall is the creator of Perl"
-      adict = {
-      "Larry Wall" : "Guido van Rossum",
-      "creator" : "Benevolent Dictator for Life",
-      "Perl" : "Python",
-      }
-
-      print(multiple_replace(adict, text))
-
-      xlat = Xlator(adict)
-      print(xlat.xlat(text))
-    """
-
-    def _make_regex(self):
-        """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self)))
-
-    def __call__(self, match):
-        """ Handler invoked for each regex *match* """
-        return self[match.group(0)]
-
-    def xlat(self, text):
-        """ Translate *text*, returns the modified text. """
-        return self._make_regex().sub(self, text)
-
-
-@deprecated('2.1')
-def soundex(name, len=4):
-    """ soundex module conforming to Odell-Russell algorithm """
-
-    # digits holds the soundex values for the alphabet
-    soundex_digits = '01230120022455012623010202'
-    sndx = ''
-    fc = ''
-
-    # Translate letters in name to soundex digits
-    for c in name.upper():
-        if c.isalpha():
-            if not fc:
-                fc = c   # Remember first letter
-            d = soundex_digits[ord(c) - ord('A')]
-            # Duplicate consecutive soundex digits are skipped
-            if not sndx or (d != sndx[-1]):
-                sndx += d
-
-    # Replace first digit with first letter
-    sndx = fc + sndx[1:]
-
-    # Remove all 0s from the soundex code
-    sndx = sndx.replace('0', '')
-
-    # Return soundex code truncated or 0-padded to len characters
-    return (sndx + (len * '0'))[:len]
-
-
-@deprecated('2.1')
-class Null(object):
-    """ Null objects always and reliably "do nothing." """
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-    def __str__(self):
-        return "Null()"
-
-    def __repr__(self):
-        return "Null()"
-
-    if six.PY3:
-        def __bool__(self):
-            return 0
-    else:
-        def __nonzero__(self):
-            return 0
-
-    def __getattr__(self, name):
-        return self
-
-    def __setattr__(self, name, value):
-        return self
-
-    def __delattr__(self, name):
-        return self
 
 
 @deprecated("3.0")
@@ -888,91 +626,6 @@ def get_realpath_and_stat(path):
     stat = os.stat(realpath)
     stat_key = (stat.st_ino, stat.st_dev)
     return realpath, stat_key
-
-
-@deprecated('2.1')
-def dict_delall(d, keys):
-    """delete all of the *keys* from the :class:`dict` *d*"""
-    for key in keys:
-        try:
-            del d[key]
-        except KeyError:
-            pass
-
-
-@deprecated('2.1')
-class RingBuffer(object):
-    """ class that implements a not-yet-full buffer """
-    def __init__(self, size_max):
-        self.max = size_max
-        self.data = []
-
-    class __Full:
-        """ class that implements a full buffer """
-        def append(self, x):
-            """ Append an element overwriting the oldest one. """
-            self.data[self.cur] = x
-            self.cur = (self.cur + 1) % self.max
-
-        def get(self):
-            """ return list of elements in correct order """
-            return self.data[self.cur:] + self.data[:self.cur]
-
-    def append(self, x):
-        """append an element at the end of the buffer"""
-        self.data.append(x)
-        if len(self.data) == self.max:
-            self.cur = 0
-            # Permanently change self's class from non-full to full
-            self.__class__ = __Full
-
-    def get(self):
-        """ Return a list of elements from the oldest to the newest. """
-        return self.data
-
-    def __get_item__(self, i):
-        return self.data[i % len(self.data)]
-
-
-@deprecated('2.1')
-def get_split_ind(seq, N):
-    """
-    *seq* is a list of words.  Return the index into seq such that::
-
-        len(' '.join(seq[:ind])<=N
-
-    .
-    """
-
-    s_len = 0
-    # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, xrange(len(seq))):
-        s_len += len(word) + 1  # +1 to account for the len(' ')
-        if s_len >= N:
-            return ind
-    return len(seq)
-
-
-@deprecated('2.1', alternative='textwrap.TextWrapper')
-def wrap(prefix, text, cols):
-    """wrap *text* with *prefix* at length *cols*"""
-    pad = ' ' * len(prefix.expandtabs())
-    available = cols - len(pad)
-
-    seq = text.split(' ')
-    Nseq = len(seq)
-    ind = 0
-    lines = []
-    while ind < Nseq:
-        lastInd = ind
-        ind += get_split_ind(seq[ind:], available)
-        lines.append(seq[lastInd:ind])
-
-    # add the prefix to the first line, pad with spaces otherwise
-    ret = prefix + ' '.join(lines[0]) + '\n'
-    for line in lines[1:]:
-        ret += pad + ' '.join(line) + '\n'
-    return ret
 
 
 # A regular expression used to determine the amount of space to
@@ -1051,101 +704,6 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     return results
 
 
-@deprecated('2.1')
-def get_recursive_filelist(args):
-    """
-    Recurse all the files and dirs in *args* ignoring symbolic links
-    and return the files as a list of strings
-    """
-    files = []
-
-    for arg in args:
-        if os.path.isfile(arg):
-            files.append(arg)
-            continue
-        if os.path.isdir(arg):
-            newfiles = listFiles(arg, recurse=1, return_folders=1)
-            files.extend(newfiles)
-
-    return [f for f in files if not os.path.islink(f)]
-
-
-@deprecated('2.1')
-def pieces(seq, num=2):
-    """Break up the *seq* into *num* tuples"""
-    start = 0
-    while 1:
-        item = seq[start:start + num]
-        if not len(item):
-            break
-        yield item
-        start += num
-
-
-@deprecated('2.1')
-def exception_to_str(s=None):
-    if six.PY3:
-        sh = io.StringIO()
-    else:
-        sh = io.BytesIO()
-    if s is not None:
-        print(s, file=sh)
-    traceback.print_exc(file=sh)
-    return sh.getvalue()
-
-
-@deprecated('2.1')
-def allequal(seq):
-    """
-    Return *True* if all elements of *seq* compare equal.  If *seq* is
-    0 or 1 length, return *True*
-    """
-    if len(seq) < 2:
-        return True
-    val = seq[0]
-    for i in xrange(1, len(seq)):
-        thisval = seq[i]
-        if thisval != val:
-            return False
-    return True
-
-
-@deprecated('2.1')
-def alltrue(seq):
-    """
-    Return *True* if all elements of *seq* evaluate to *True*.  If
-    *seq* is empty, return *False*.
-    """
-    if not len(seq):
-        return False
-    for val in seq:
-        if not val:
-            return False
-    return True
-
-
-@deprecated('2.1')
-def onetrue(seq):
-    """
-    Return *True* if one element of *seq* is *True*.  It *seq* is
-    empty, return *False*.
-    """
-    if not len(seq):
-        return False
-    for val in seq:
-        if val:
-            return True
-    return False
-
-
-@deprecated('2.1')
-def allpairs(x):
-    """
-    return all possible pairs in sequence *x*
-    """
-    return [(s, f) for i, f in enumerate(x) for s in x[i + 1:]]
-
-
 class maxdict(dict):
     """
     A dictionary with a maximum size; this doesn't override all the
@@ -1168,9 +726,9 @@ class maxdict(dict):
 
 class Stack(object):
     """
-    Implement a stack where elements can be pushed on and you can move
-    back and forth.  But no pop.  Should mimic home / back / forward
-    in a browser
+    Stack of elements with a movable cursor.
+
+    Mimics home/back/forward in a web browser.
     """
 
     def __init__(self, default=None):
@@ -1178,62 +736,65 @@ class Stack(object):
         self._default = default
 
     def __call__(self):
-        """return the current element, or None"""
+        """Return the current element, or None."""
         if not len(self._elements):
             return self._default
         else:
             return self._elements[self._pos]
 
     def __len__(self):
-        return self._elements.__len__()
+        return len(self._elements)
 
     def __getitem__(self, ind):
-        return self._elements.__getitem__(ind)
+        return self._elements[ind]
 
     def forward(self):
-        """move the position forward and return the current element"""
-        n = len(self._elements)
-        if self._pos < n - 1:
-            self._pos += 1
+        """Move the position forward and return the current element."""
+        self._pos = min(self._pos + 1, len(self._elements) - 1)
         return self()
 
     def back(self):
-        """move the position back and return the current element"""
+        """Move the position back and return the current element."""
         if self._pos > 0:
             self._pos -= 1
         return self()
 
     def push(self, o):
         """
-        push object onto stack at current position - all elements
-        occurring later than the current position are discarded
+        Push *o* to the stack at current position.  Discard all later elements.
+
+        *o* is returned.
         """
-        self._elements = self._elements[:self._pos + 1]
-        self._elements.append(o)
+        self._elements = self._elements[:self._pos + 1] + [o]
         self._pos = len(self._elements) - 1
         return self()
 
     def home(self):
-        """push the first element onto the top of the stack"""
+        """
+        Push the first element onto the top of the stack.
+
+        The first element is returned.
+        """
         if not len(self._elements):
             return
         self.push(self._elements[0])
         return self()
 
     def empty(self):
+        """Return whether the stack is empty."""
         return len(self._elements) == 0
 
     def clear(self):
-        """empty the stack"""
+        """Empty the stack."""
         self._pos = -1
         self._elements = []
 
     def bubble(self, o):
         """
-        raise *o* to the top of the stack and return *o*.  *o* must be
-        in the stack
-        """
+        Raise *o* to the top of the stack.  *o* must be present in the stack.
 
+        *o* is returned.
+        """
         if o not in self._elements:
             raise ValueError('Unknown element o')
         old = self._elements[:]
@@ -1249,7 +810,7 @@ class Stack(object):
         return o
 
     def remove(self, o):
-        'remove element *o* from the stack'
+        """Remove *o* from the stack."""
         if o not in self._elements:
             raise ValueError('Unknown element o')
         old = self._elements[:]
@@ -1259,71 +820,40 @@ class Stack(object):
                 self.push(thiso)
 
 
-@deprecated('2.1')
-def finddir(o, match, case=False):
-    """
-    return all attributes of *o* which match string in match.  if case
-    is True require an exact case match.
-    """
-    if case:
-        names = [(name, name) for name in dir(o)
-                 if isinstance(name, six.string_types)]
-    else:
-        names = [(name.lower(), name) for name in dir(o)
-                 if isinstance(name, six.string_types)]
-        match = match.lower()
-    return [orig for name, orig in names if name.find(match) >= 0]
-
-
-@deprecated('2.1')
-def reverse_dict(d):
-    """reverse the dictionary -- may lose data if values are not unique!"""
-    return {v: k for k, v in six.iteritems(d)}
-
-
-@deprecated('2.1')
-def restrict_dict(d, keys):
-    """
-    Return a dictionary that contains those keys that appear in both
-    d and keys, with values from d.
-    """
-    return {k: v for k, v in six.iteritems(d) if k in keys}
-
-
 def report_memory(i=0):  # argument may go away
     """return the memory consumed by process"""
-    from matplotlib.compat.subprocess import Popen, PIPE
+    from subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:
-            a2 = Popen(str('ps -p %d -o osz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Sun OS only if "
                 "the 'ps' program is found")
         mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
+    elif sys.platform == 'linux':
         try:
-            a2 = Popen(str('ps -p %d -o rss,sz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Linux only if "
                 "the 'ps' program is found")
         mem = int(a2[1].split()[1])
-    elif sys.platform.startswith('darwin'):
+    elif sys.platform == 'darwin':
         try:
-            a2 = Popen(str('ps -p %d -o rss,vsz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Mac OS only if "
                 "the 'ps' program is found")
         mem = int(a2[1].split()[0])
-    elif sys.platform.startswith('win'):
+    elif sys.platform == 'win32':
         try:
-            a2 = Popen([str("tasklist"), "/nh", "/fi", "pid eq %d" % pid],
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
                        stdout=PIPE).stdout.read()
         except OSError:
             raise NotImplementedError(
@@ -1346,16 +876,6 @@ def safezip(*args):
         if len(arg) != Nx:
             raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
     return list(zip(*args))
-
-
-@deprecated('2.1')
-def issubclass_safe(x, klass):
-    """return issubclass(x, klass) and return False on a TypeError"""
-
-    try:
-        return issubclass(x, klass)
-    except TypeError:
-        return False
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1396,14 +916,14 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # next "wraps around"
             next = path[(i + 1) % len(path)]
 
-            outstream.write("   %s -- " % str(type(step)))
+            outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
                 for key, val in six.iteritems(step):
                     if val is next:
-                        outstream.write("[%s]" % repr(key))
+                        outstream.write("[{!r}]".format(key))
                         break
                     if key is next:
-                        outstream.write("[key] = %s" % repr(val))
+                        outstream.write("[key] = {!r}".format(val))
                         break
             elif isinstance(step, list):
                 outstream.write("[%d]" % step.index(next))
@@ -1590,21 +1110,6 @@ def simple_linear_interpolation(a, steps):
     x = np.arange((len(a) - 1) * steps + 1)
     return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
             .reshape((len(x),) + a.shape[1:]))
-
-
-@deprecated('2.1', alternative='shutil.rmtree')
-def recursive_remove(path):
-    if os.path.isdir(path):
-        for fname in (glob.glob(os.path.join(path, '*')) +
-                      glob.glob(os.path.join(path, '.*'))):
-            if os.path.isdir(fname):
-                recursive_remove(fname)
-                os.removedirs(fname)
-            else:
-                os.remove(fname)
-        # os.removedirs(path)
-    else:
-        os.remove(path)
 
 
 def delete_masked_points(*args):
@@ -1892,58 +1397,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     return bxpstats
 
 
-# FIXME I don't think this is used anywhere
-@deprecated('2.1')
-def unmasked_index_ranges(mask, compressed=True):
-    """
-    Find index ranges where *mask* is *False*.
-
-    *mask* will be flattened if it is not already 1-D.
-
-    Returns Nx2 :class:`numpy.ndarray` with each row the start and stop
-    indices for slices of the compressed :class:`numpy.ndarray`
-    corresponding to each of *N* uninterrupted runs of unmasked
-    values.  If optional argument *compressed* is *False*, it returns
-    the start and stop indices into the original :class:`numpy.ndarray`,
-    not the compressed :class:`numpy.ndarray`.  Returns *None* if there
-    are no unmasked values.
-
-    Example::
-
-      y = ma.array(np.arange(5), mask = [0,0,1,0,0])
-      ii = unmasked_index_ranges(ma.getmaskarray(y))
-      # returns array [[0,2,] [2,4,]]
-
-      y.compressed()[ii[1,0]:ii[1,1]]
-      # returns array [3,4,]
-
-      ii = unmasked_index_ranges(ma.getmaskarray(y), compressed=False)
-      # returns array [[0, 2], [3, 5]]
-
-      y.filled()[ii[1,0]:ii[1,1]]
-      # returns array [3,4,]
-
-    Prior to the transforms refactoring, this was used to support
-    masked arrays in Line2D.
-    """
-    mask = mask.reshape(mask.size)
-    m = np.concatenate(((1,), mask, (1,)))
-    indices = np.arange(len(mask) + 1)
-    mdif = m[1:] - m[:-1]
-    i0 = np.compress(mdif == -1, indices)
-    i1 = np.compress(mdif == 1, indices)
-    assert len(i0) == len(i1)
-    if len(i1) == 0:
-        return None  # Maybe this should be np.zeros((0,2), dtype=int)
-    if not compressed:
-        return np.concatenate((i0[:, np.newaxis], i1[:, np.newaxis]), axis=1)
-    seglengths = i1 - i0
-    breakpoints = np.cumsum(seglengths)
-    ic0 = np.concatenate(((0,), breakpoints[:-1]))
-    ic1 = breakpoints
-    return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
-
-
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
@@ -2155,44 +1608,6 @@ def violin_stats(X, method, points=100):
         vpstats.append(stats)
 
     return vpstats
-
-
-class _NestedClassGetter(object):
-    # recipe from http://stackoverflow.com/a/11493777/741316
-    """
-    When called with the containing class as the first argument,
-    and the name of the nested class as the second argument,
-    returns an instance of the nested class.
-    """
-    def __call__(self, containing_class, class_name):
-        nested_class = getattr(containing_class, class_name)
-
-        # make an instance of a simple object (this one will do), for which we
-        # can change the __class__ later on.
-        nested_instance = _NestedClassGetter()
-
-        # set the class of the instance, the __init__ will never be called on
-        # the class but the original state will be set later on by pickle.
-        nested_instance.__class__ = nested_class
-        return nested_instance
-
-
-class _InstanceMethodPickler(object):
-    """
-    Pickle cannot handle instancemethod saving. _InstanceMethodPickler
-    provides a solution to this.
-    """
-    def __init__(self, instancemethod):
-        """Takes an instancemethod as its only argument."""
-        if six.PY3:
-            self.parent_obj = instancemethod.__self__
-            self.instancemethod_name = instancemethod.__func__.__name__
-        else:
-            self.parent_obj = instancemethod.im_self
-            self.instancemethod_name = instancemethod.im_func.__name__
-
-    def get_instancemethod(self):
-        return getattr(self.parent_obj, self.instancemethod_name)
 
 
 def pts_to_prestep(x, *args):
@@ -2486,6 +1901,7 @@ removing these folders and trying again.
 """
 
 
+@deprecated("3.0")
 class Locked(object):
     """
     Context manager to handle locks.
@@ -2541,6 +1957,40 @@ class Locked(object):
                     pass
 
 
+@contextlib.contextmanager
+def _lock_path(path):
+    """
+    Context manager for locking a path.
+
+    Usage::
+
+        with _lock_path(path):
+            ...
+
+    Another thread or process that attempts to lock the same path will wait
+    until this context manager is exited.
+
+    The lock is implemented by creating a temporary file in the parent
+    directory, so that directory must exist and be writable.
+    """
+    path = Path(path)
+    lock_path = path.with_name(path.name + ".matplotlib-lock")
+    retries = 50
+    sleeptime = 0.1
+    for _ in range(retries):
+        try:
+            with lock_path.open("xb"):
+                break
+        except FileExistsError:
+            time.sleep(sleeptime)
+    else:
+        raise TimeoutError(_lockstr.format(lock_path))
+    try:
+        yield
+    finally:
+        lock_path.unlink()
+
+
 def _topmost_artist(
         artists,
         _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
@@ -2572,3 +2022,49 @@ def _str_lower_equal(obj, s):
     cannot be used in a boolean context.
     """
     return isinstance(obj, six.string_types) and obj.lower() == s
+
+
+def _define_aliases(alias_d, cls=None):
+    """Class decorator for defining property aliases.
+
+    Use as ::
+
+        @cbook._define_aliases({"property": ["alias", ...], ...})
+        class C: ...
+
+    For each property, if the corresponding ``get_property`` is defined in the
+    class so far, an alias named ``get_alias`` will be defined; the same will
+    be done for setters.  If neither the getter nor the setter exists, an
+    exception will be raised.
+
+    The alias map is stored as the ``_alias_map`` attribute on the class and
+    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    aliases come last).
+    """
+    if cls is None:
+        return functools.partial(_define_aliases, alias_d)
+
+    def make_alias(name):  # Enforce a closure over *name*.
+        def method(self, *args, **kwargs):
+            return getattr(self, name)(*args, **kwargs)
+        return method
+
+    for prop, aliases in alias_d.items():
+        exists = False
+        for prefix in ["get_", "set_"]:
+            if prefix + prop in vars(cls):
+                exists = True
+                for alias in aliases:
+                    method = make_alias(prefix + prop)
+                    method.__name__ = prefix + alias
+                    method.__doc__ = "alias for `{}`".format(prefix + prop)
+                    setattr(cls, prefix + alias, method)
+        if not exists:
+            raise ValueError(
+                "Neither getter nor setter exists for {!r}".format(prop))
+
+    if hasattr(cls, "_alias_map"):
+        # Need to decide on conflict resolution policy.
+        raise NotImplementedError("Parent class already defines aliases")
+    cls._alias_map = alias_d
+    return cls

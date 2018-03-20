@@ -105,14 +105,38 @@ im = ax.pcolormesh(arr, rasterized=True)
 fig.colorbar(im, ax=ax, shrink=0.6)
 
 ############################################################################
-# If you specify multiple axes to the ``ax`` argument of ``colorbar``,
-# constrained_layout will take space from all axes that share the same
-# gridspec.
+# If you specify a list of axes (or other iterable container) to the
+# ``ax`` argument of ``colorbar``, constrained_layout will take space from all # axes that share the same gridspec.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flatten():
     im = ax.pcolormesh(arr, rasterized=True)
 fig.colorbar(im, ax=axs, shrink=0.6)
+
+############################################################################
+# Note that there is a bit of a subtlety when specifying a single axes
+# as the parent.  In the following, it might be desirable and expected
+# for the colorbars to line up, but they don't because the colorbar paired
+# with the bottom axes is tied to the subplotspec of the axes, and hence
+# shrinks when the gridspec-level colorbar is added.
+
+fig, axs = plt.subplots(3, 1, figsize=(4, 4), constrained_layout=True)
+for ax in axs[:2]:
+    im = ax.pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=axs[:2], shrink=0.6)
+im = axs[2].pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=axs[2], shrink=0.6)
+
+############################################################################
+# The API to make a single-axes behave like a list of axes is to specify
+# it as a list (or other iterable container), as below:
+
+fig, axs = plt.subplots(3, 1, figsize=(4, 4), constrained_layout=True)
+for ax in axs[:2]:
+    im = ax.pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=axs[:2], shrink=0.6)
+im = axs[2].pcolormesh(arr, rasterized=True)
+fig.colorbar(im, ax=[axs[2]], shrink=0.6)
 
 ####################################################
 # Suptitle
@@ -223,19 +247,19 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
         hspace=0.2, wspace=0.2)
 
 ##########################################
-# rcParams:
-# -----------
+# rcParams
+# --------
 #
 # There are five `rcParams` that can be set, either in a script
 # or in the `matplotlibrc` file.  They all have the prefix
 # `figure.constrained_layout`:
 #
-#  - `use`: Whether to use constrained_layout. Default is False
-#  - `w_pad`, `h_pad`    Padding around axes objects.
-#     Float representing inches.  Default is 3./72. inches (3 pts)
-#  - `wspace`, `hspace`  Space between subplot groups.
-#     Float representing a fraction of the subplot widths being separated.
-#     Default is 0.02.
+# - `use`: Whether to use constrained_layout. Default is False
+# - `w_pad`, `h_pad`    Padding around axes objects.
+#    Float representing inches.  Default is 3./72. inches (3 pts)
+# - `wspace`, `hspace`  Space between subplot groups.
+#    Float representing a fraction of the subplot widths being separated.
+#    Default is 0.02.
 
 plt.rcParams['figure.constrained_layout.use'] = True
 fig, axs = plt.subplots(2, 2, figsize=(3, 3))
@@ -446,16 +470,15 @@ example_plot(ax4)
 # Other Caveats
 # -------------
 #
-#  * ``constrained_layout`` only considers ticklabels,
-#    axis labels, titles, and legends.  Thus, other artists may be clipped
-#    and also may overlap.
+# * ``constrained_layout`` only considers ticklabels, axis labels, titles, and
+#   legends.  Thus, other artists may be clipped and also may overlap.
 #
-#  * It assumes that the extra space needed for ticklabels, axis labels,
-#    and titles is independent of original location of axes. This is
-#    often true, but there are rare cases where it is not.
+# * It assumes that the extra space needed for ticklabels, axis labels,
+#   and titles is independent of original location of axes. This is
+#   often true, but there are rare cases where it is not.
 #
-#  * There are small differences in how the backends handle rendering fonts,
-#    so the results will not be pixel-identical.
+# * There are small differences in how the backends handle rendering fonts,
+#   so the results will not be pixel-identical.
 
 ###########################################################
 # Debugging
@@ -467,9 +490,9 @@ example_plot(ax4)
 # mode is for all sizes to collapse to their smallest allowable value. If
 # this happens, it is for one of two reasons:
 #
-#   1. There was not enough room for the elements you were requesting to draw
-#   2. There is a bug - in which case open an issue at
-#      https://github.com/matplotlib/matplotlib/issues.
+# 1. There was not enough room for the elements you were requesting to draw.
+# 2. There is a bug - in which case open an issue at
+#    https://github.com/matplotlib/matplotlib/issues.
 #
 # If there is a bug, please report with a self-contained example that does
 # not require outside data or dependencies (other than numpy).
@@ -632,11 +655,10 @@ plot_children(fig, fig._layoutbox, printit=False)
 # height of the 1-row Axes to be less than half the height of the
 # 2-row Axes.
 #
-# ..note::
+# .. note::
 #
-#   This algorithm can be wrong if the decorations attached
-#   to the smaller axes are very large, so there is an unaccounted-for
-#   edge case.
+#    This algorithm can be wrong if the decorations attached to the smaller
+#    axes are very large, so there is an unaccounted-for edge case.
 
 
 fig = plt.figure(constrained_layout=True)

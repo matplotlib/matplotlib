@@ -443,7 +443,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
         return result.pyobj();
-    } catch (py::exception) {
+    } catch (py::exception &) {
         PyErr_Clear();
         try {
             numpy::array_view<double, 1> vertices(vertices_obj);
@@ -451,7 +451,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
             numpy::array_view<double, 1> result(dims);
             CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
             return result.pyobj();
-        } catch (py::exception) {
+        } catch (py::exception &) {
             return NULL;
         }
     }
@@ -866,7 +866,6 @@ extern "C" {
         {NULL}
     };
 
-#if PY3K
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_path",
@@ -879,28 +878,17 @@ extern "C" {
         NULL
     };
 
-#define INITERROR return NULL
     PyMODINIT_FUNC PyInit__path(void)
-#else
-#define INITERROR return
-    PyMODINIT_FUNC init_path(void)
-#endif
     {
         PyObject *m;
-#if PY3K
         m = PyModule_Create(&moduledef);
-#else
-        m = Py_InitModule3("_path", module_functions, NULL);
-#endif
 
         if (m == NULL) {
-            INITERROR;
+            return NULL;
         }
 
         import_array();
 
-#if PY3K
         return m;
-#endif
     }
 }

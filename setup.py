@@ -97,10 +97,8 @@ mpl_packages = [
     setupext.BackendQt4(),
     setupext.BackendGtk3Agg(),
     setupext.BackendGtk3Cairo(),
-    setupext.BackendGtkAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendWxAgg(),
-    setupext.BackendGtk(),
     setupext.BackendAgg(),
     setupext.BackendCairo(),
     setupext.Windowing(),
@@ -127,9 +125,9 @@ classifiers = [
 
 
 class NoopTestCommand(TestCommand):
-    def run(self):
+    def __init__(self, dist):
         print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'python tests.py'")
+              "'python setup.py test'. Please run 'python tests.py'.")
 
 
 class BuildExtraLibraries(BuildExtCommand):
@@ -260,11 +258,11 @@ if __name__ == '__main__':
         author_email="matplotlib-users@python.org",
         url="http://matplotlib.org",
         long_description="""
-        matplotlib strives to produce publication quality 2D graphics
+        Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
         development and web application servers targeting multiple user
         interfaces and hardcopy output formats.  There is a 'pylab' mode
-        which emulates matlab graphics.
+        which emulates MATLAB graphics.
         """,
         license="BSD",
         packages=packages,

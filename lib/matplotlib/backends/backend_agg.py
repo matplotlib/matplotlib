@@ -68,11 +68,6 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
 
-    @property
-    @cbook.deprecated("2.2")
-    def debug(self):
-        return 1
-
     # we want to cache the fonts at the class level so that when
     # multiple figures are created we can reuse them.  This helps with
     # a bug on windows where the creation of too many figures leads to
@@ -589,8 +584,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff',
-                              dpi=dpi)
+            return image.save(filename_or_obj, format='tiff', dpi=dpi)
         print_tiff = print_tif
 
 

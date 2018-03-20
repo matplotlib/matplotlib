@@ -172,7 +172,7 @@ int convert_rect(PyObject *rectobj, void *rectp)
             rect->x2 = rect_arr(1, 0);
             rect->y2 = rect_arr(1, 1);
         }
-        catch (py::exception)
+        catch (py::exception &)
         {
             PyErr_Clear();
 
@@ -190,7 +190,7 @@ int convert_rect(PyObject *rectobj, void *rectp)
                 rect->x2 = rect_arr(2);
                 rect->y2 = rect_arr(3);
             }
-            catch (py::exception)
+            catch (py::exception &)
             {
                 return 0;
             }
@@ -352,7 +352,7 @@ int convert_trans_affine(PyObject *obj, void *transp)
             return 1;
         }
     }
-    catch (py::exception)
+    catch (py::exception &)
     {
         return 0;
     }

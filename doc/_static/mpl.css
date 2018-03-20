@@ -232,9 +232,6 @@ div.sphinxsidebar {
     text-align: left;
 /*    margin-left: -100%; */
 }
-div.sphinxsidebarwrapper {
-    padding-top: 28px
-}
 
 div.sphinxsidebar h4, div.sphinxsidebar h3 {
     margin: 1em 0 0.5em 0;
@@ -243,6 +240,11 @@ div.sphinxsidebar h4, div.sphinxsidebar h3 {
     color: white;
     border: 1px solid #86989B;
     background-color: #AFC1C4;
+}
+
+div.sphinxsidebar h3 a {
+    /* workaround for table of contents heading, which is a link */
+    color: white !important;
 }
 
 div.sphinxsidebar ul {
@@ -256,6 +258,36 @@ div.sphinxsidebar ul {
 div.sphinxsidebar ul ul {
     list-style: square;
     margin-left: 20px;
+}
+
+div.sphinxsidebar #searchbox input {
+    border: 1px solid #aaa;
+    padding: 0.25em;
+    box-sizing: border-box;
+}
+
+div.sphinxsidebar #searchbox form {
+    display: inline-block;
+    width: 100%
+}
+
+div.sphinxsidebar #searchbox input[type="text"] {
+    float: left;
+    width: 80%;
+}
+
+div.sphinxsidebar #searchbox input[type="submit"] {
+    float: left;
+    width: 20%;
+    border-left: none;
+}
+
+div.sphinxsidebar #searchbox input[type="submit"]:hover {
+    background: #ddd;
+}
+
+div.sphinxsidebar .searchformwrapper {
+    display: block;
 }
 
 p {
@@ -373,14 +405,24 @@ div.warning {
     border: 1px solid #eed3d7;
 }
 
+div.deprecated {
+    color: #606060;
+    background-color: #f0f0f0;
+    border: 1px solid #404040;
+}
+
+div.deprecated span.versionmodified {
+    color: #606060;
+    font-weight: bold;
+}
+
 div.green {
     color: #468847;
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
 }
 
-
-div.admonition p, div.warning p {
+div.admonition p, div.warning p, div.deprecated p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
@@ -401,14 +443,13 @@ div.warning p.admonition-title {
     font-size: 14px;
 }
 
-div.admonition {
+div.admonition, div.deprecated {
     margin-bottom: 10px;
     margin-top: 10px;
     padding: 7px;
     border-radius: 4px;
     -moz-border-radius: 4px;
   }
-
 
 div.note {
     background-color: #eee;
@@ -802,6 +843,10 @@ figcaption {
     -o-transform:rotate(45deg);
     box-shadow:4px 4px 10px rgba(0,0,0,0.8);
   }
+}
+
+#sidebar-donations {
+    margin-top: 28px;
 }
 
 .donate_button {

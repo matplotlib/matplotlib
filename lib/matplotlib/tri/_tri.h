@@ -60,8 +60,8 @@
  * points below or above (including the same as) the contour level) and 6 that
  * do.  See the function get_exit_edge for details.
  */
-#ifndef _TRI_H
-#define _TRI_H
+#ifndef MPL_TRI_H
+#define MPL_TRI_H
 
 #include "src/numpy_cpp.h"
 

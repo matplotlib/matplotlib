@@ -10,8 +10,6 @@ backends
    backend_tools_api.rst
    backend_agg_api.rst
    backend_cairo_api.rst
-   backend_gtkagg_api.rst
-   backend_gtkcairo_api.rst
    backend_gtk3agg_api.rst
    backend_gtk3cairo_api.rst
    backend_nbagg_api.rst

@@ -4,11 +4,6 @@
 #include "py_converters.h"
 
 
-#ifndef NPY_1_7_API_VERSION
-#define NPY_ARRAY_C_CONTIGUOUS NPY_C_CONTIGUOUS
-#endif
-
-
 /**********************************************************************
  * Free functions
  * */
@@ -357,13 +352,12 @@ static PyObject *image_pcolor(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const float, 1> x;
     numpy::array_view<const float, 1> y;
     numpy::array_view<const agg::int8u, 3> d;
-    unsigned int rows;
-    unsigned int cols;
+    npy_intp rows, cols;
     float bounds[4];
     int interpolation;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&II(ffff)i:pcolor",
+                          "O&O&O&nn(ffff)i:pcolor",
                           &x.converter,
                           &x,
                           &y.converter,
@@ -401,13 +395,12 @@ static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const double, 1> x;
     numpy::array_view<const double, 1> y;
     numpy::array_view<const agg::int8u, 3> d;
-    unsigned int rows;
-    unsigned int cols;
+    npy_intp rows, cols;
     float bounds[4];
     numpy::array_view<const agg::int8u, 1> bg;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&II(ffff)O&:pcolor2",
+                          "O&O&O&nn(ffff)O&:pcolor2",
                           &x.converter_contiguous,
                           &x,
                           &y.converter_contiguous,
@@ -442,7 +435,6 @@ static PyMethodDef module_functions[] = {
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
@@ -455,27 +447,14 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__image(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_image(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_image", module_functions, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     if (PyModule_AddIntConstant(m, "NEAREST", NEAREST) ||
@@ -496,14 +475,12 @@ PyMODINIT_FUNC init_image(void)
         PyModule_AddIntConstant(m, "LANCZOS", LANCZOS) ||
         PyModule_AddIntConstant(m, "BLACKMAN", BLACKMAN) ||
         PyModule_AddIntConstant(m, "_n_interpolation", _n_interpolation)) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

@@ -10,16 +10,28 @@ out what caused the breakage and how to fix it by updating your code.
 For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
+.. for a release comment out the toctree below
+
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   next_api_changes/*
+
+
 API Changes in 2.2.0
 ====================
 
-..
 
-  .. toctree::
-     :glob:
-     :maxdepth: 1
 
-     next_api_changes/*
+New dependency
+--------------
+
+`kiwisolver <https://github.com/nucleic/kiwi>`__ is now a required
+dependency to support the new constrained_layout,  see
+:ref:`sphx_glr_tutorials_intermediate_constrainedlayout_guide.py` for
+more details.
 
 
 Deprecations
@@ -80,6 +92,10 @@ transparency of figure patches in the nbagg (or any other) backend,
 directly set ``figure.patch.facecolor``, or the ``figure.facecolor``
 rcParam.
 
+Deprecated `Axis.unit_data`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use `Axis.units` (which has long existed) instead.
 
 
 Removals
@@ -136,12 +152,25 @@ The following deprecated rcParams have been removed:
 
 
 
+Only accept string-like for Categorical input
+---------------------------------------------
+
+Do not accept mixed string / float / int input, only
+strings are valid categoricals.
+
 Removal of unused imports
 -------------------------
 Many unused imports were removed from the codebase.  As a result,
 trying to import certain classes or functions from the "wrong" module
 (e.g. `~.Figure` from :mod:`matplotlib.backends.backend_agg` instead of
 :mod:`matplotlib.figure`) will now raise an `ImportError`.
+
+
+``Axes3D.get_xlim``, ``get_ylim`` and ``get_zlim`` now return a tuple
+---------------------------------------------------------------------
+
+They previously returned an array.  Returning a tuple is consistent with the
+behavior for 2D axes.
 
 
 Exception type changes
@@ -260,14 +289,6 @@ and ::
     object]
 
 
-
-New dependency
---------------
-
-`kiwisolver <https://github.com/nucleic/kiwi>`__ is now a required
-dependency to support the new constrained_layout,  see
-:ref:`sphx_glr_tutorials_intermediate_constrainedlayout_guide.py` for
-more details.
 
 
 `Axes.imshow` clips RGB values to the valid range

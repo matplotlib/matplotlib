@@ -58,8 +58,6 @@ def _check_deps():
              "numpydoc": 'numpydoc',
              "PIL.Image": 'pillow',
              "sphinx_gallery": 'sphinx_gallery'}
-    if sys.version_info < (3, 3):
-        names["mock"] = 'mock'
     missing = []
     for name in names:
         try:
@@ -155,7 +153,7 @@ master_doc = 'contents'
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2017 The Matplotlib development team')
+             'team; 2012 - 2018 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -242,9 +240,9 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['donate_sidebar.html', 'searchbox.html'],
-    '**': ['localtoc.html', 'relations.html',
-           'sourcelink.html', 'searchbox.html']
+    'index': ['searchbox.html', 'donate_sidebar.html'],
+    '**': ['searchbox.html', 'localtoc.html', 'relations.html',
+           'pagesource.html']
 }
 
 # If false, no module index is generated.

@@ -440,7 +440,7 @@ class ContourLabeler(object):
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
-                if np.all(I != -1):
+                if all(i != -1 for i in I):
                     nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
@@ -823,9 +823,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.logscale = True
             if norm is None:
                 norm = colors.LogNorm()
-            if self.extend is not 'neither':
-                raise ValueError('extend kwarg does not work yet with log '
-                                 ' scale')
         else:
             self.logscale = False
 
@@ -1206,7 +1203,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            self.layers[0] = -1e150
+            if self.logscale:
+                self.layers[0] = 1e-150
+            else:
+                self.layers[0] = -1e150
         if self.extend in ('both', 'max'):
             self.layers[-1] = 1e150
 

@@ -80,6 +80,7 @@ result_images
 
 # Nose/Pytest generated files #
 ###############################
+.pytest_cache/
 .cache/
 .coverage
 .coverage.*

@@ -1,10 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
+import pytest
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
-from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
+from matplotlib.offsetbox import (
+        AnchoredOffsetbox, DrawingArea, _get_packed_offsets)
 
 
 @image_comparison(baseline_images=['offsetbox_clipping'], remove_text=True)
@@ -101,16 +103,26 @@ def test_offsetbox_loc_codes():
 
 
 def test_expand_with_tight_layout():
-    fig = plt.figure()
-    axes = fig.add_subplot(111)
+    # Check issue reported in #10476, and updated due to #10784
+    fig, ax = plt.subplots()
 
-    d1 = [29388871, 12448, 40, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0]
-    d2 = [28396236, 981940, 22171, 537, 123, 88, 41, 42, 40, 26, 26,
-          84, 6, 2, 0, 0, 0, 0, 0]
-    axes.plot(d1, label='series 1')
-    axes.plot(d2, label='series 2')
-    axes.legend(mode='expand')
+    d1 = [1, 2]
+    d2 = [2, 1]
+    ax.plot(d1, label='series 1')
+    ax.plot(d2, label='series 2')
+    ax.legend(ncol=2, mode='expand')
 
-    # ### THIS IS WHERE THE CRASH HAPPENS
-    plt.tight_layout(rect=[0, 0.08, 1, 0.92])
+    fig.tight_layout()  # where the crash used to happen
+
+
+@pytest.mark.parametrize('wd_list',
+                         ([(150, 1)], [(150, 1)]*3, [(0.1, 1)], [(0.1, 1)]*2))
+@pytest.mark.parametrize('total', (250, 100, 0, -1, None))
+@pytest.mark.parametrize('sep', (250, 1, 0, -1))
+@pytest.mark.parametrize('mode', ("expand", "fixed", "equal"))
+def test_get_packed_offsets(wd_list, total, sep, mode):
+    # Check a (rather arbitrary) set of parameters due to successive similar
+    # issue tickets (at least #10476 and #10784) related to corner cases
+    # triggered inside this function when calling higher-level functions
+    # (e.g. `Axes.legend`).
+    _get_packed_offsets(wd_list, total, sep, mode=mode)

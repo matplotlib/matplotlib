@@ -61,11 +61,7 @@ static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t lengt
     PyObject *write_method = PyObject_GetAttrString(py_file_obj, "write");
     PyObject *result = NULL;
     if (write_method) {
-#if PY3K
         result = PyObject_CallFunction(write_method, (char *)"y#", data, length);
-#else
-        result = PyObject_CallFunction(write_method, (char *)"s#", data, length);
-#endif
     }
     Py_XDECREF(write_method);
     Py_XDECREF(result);
@@ -84,7 +80,7 @@ static void flush_png_data(png_structp png_ptr)
 }
 
 const char *Py_write_png__doc__ =
-    "write_png(buffer, file, dpi=0, compression=6, filter=auto)\n"
+    "write_png(buffer, file, dpi=0, compression=6, filter=auto, metadata=None)\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -232,11 +228,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         }
         buff.cursor = 0;
     } else {
-        #if PY3K
         if (close_file) {
-        #else
-        if (close_file || PyFile_Check(py_file)) {
-        #endif
             fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
         }
 
@@ -309,7 +301,6 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
         while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
             text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
-#if PY3K
             if (PyUnicode_Check(meta_key)) {
                 PyObject *temp_key = PyUnicode_AsEncodedString(meta_key, "latin_1", "strict");
                 if (temp_key != NULL) {
@@ -332,10 +323,6 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
             } else {
                 text[meta_pos].text = (char *)"Invalid value in metadata";
             }
-#else
-            text[meta_pos].key = PyString_AsString(meta_key);
-            text[meta_pos].text = PyString_AsString(meta_val);
-#endif
 #ifdef PNG_iTXt_SUPPORTED
             text[meta_pos].lang = NULL;
 #endif
@@ -466,11 +453,7 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         py_file = filein;
     }
 
-    #if PY3K
     if (close_file) {
-    #else
-    if (close_file || PyFile_Check(py_file)) {
-    #endif
         fp = mpl_PyFile_Dup(py_file, (char *)"rb", &offset);
     }
 
@@ -738,7 +721,6 @@ static PyMethodDef module_methods[] = {
 
 extern "C" {
 
-#if PY3K
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_png",
@@ -751,27 +733,14 @@ extern "C" {
         NULL
     };
 
-#define INITERROR return NULL
-
     PyMODINIT_FUNC PyInit__png(void)
-
-#else
-#define INITERROR return
-
-    PyMODINIT_FUNC init_png(void)
-#endif
-
     {
         PyObject *m;
 
-#if PY3K
         m = PyModule_Create(&moduledef);
-#else
-        m = Py_InitModule3("_png", module_methods, NULL);
-#endif
 
         if (m == NULL) {
-            INITERROR;
+            return NULL;
         }
 
         import_array();
@@ -781,12 +750,10 @@ extern "C" {
             PyModule_AddIntConstant(m, "PNG_FILTER_UP", PNG_FILTER_UP) ||
             PyModule_AddIntConstant(m, "PNG_FILTER_AVG", PNG_FILTER_AVG) ||
             PyModule_AddIntConstant(m, "PNG_FILTER_PAETH", PNG_FILTER_PAETH)) {
-            INITERROR;
+            return NULL;
         }
 
 
-#if PY3K
         return m;
-#endif
     }
 }
