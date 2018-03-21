@@ -308,7 +308,11 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, fill=False, **kwargs)
+        if 'fill' in kwargs:
+            Patch.__init__(self, **kwargs)
+        else:
+            fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+            Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
@@ -581,8 +585,11 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
 
-    fill = kwargs.pop("fill", False)
-    pp = BboxPatch(rect, fill=fill, **kwargs)
+    if 'fill' in kwargs:
+        pp = BboxPatch(rect, **kwargs)
+    else:
+        fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+        pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
 
     p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1, **kwargs)
