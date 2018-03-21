@@ -1346,7 +1346,7 @@ class AutoDateLocator(DateLocator):
         else:
             font_ratio = rcParams['font.size'] / 10
 
-        # a ratio of 7.2 date characters per inch is 'estimated'
+        # a ratio of 8 date characters per inch is 'estimated'
         if (axes is not None and transfig is not None):
             bbox = axes.get_position(original=False)
             figwidth = transfig.transform(bbox.get_points())[1][0]
