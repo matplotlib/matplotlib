@@ -1350,6 +1350,8 @@ def _load_bitmap(filename):
 
 
 _FRAME_ICON = None
+
+
 def _set_frame_icon(frame):
     # set frame icon
     global _FRAME_ICON
@@ -1358,9 +1360,11 @@ def _set_frame_icon(frame):
         for image in ('matplotlib.png', 'matplotlib_large.png'):
             image = os.path.join(matplotlib.rcParams['datapath'], 'images',
                                  image)
-            if not os.path.exists(image): continue
+            if not os.path.exists(image):
+                continue
             icon = wx.Icon(_load_bitmap(image))
-            if not icon.IsOk(): return
+            if not icon.IsOk():
+                return
             bundle.AddIcon(icon)
     frame.SetIcons(_FRAME_ICON)
 
@@ -1748,7 +1752,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             tool = self.InsertTool(idx, -1, name, bmp, wx.NullBitmap, kind,
                                    description or "")
         else:
-            size = (self.GetTextExtent(name)[0]+10,-1)
+            size = (self.GetTextExtent(name)[0]+10, -1)
             if toggle:
                 control = wx.ToggleButton(self, -1, name, size=size)
             else:
@@ -1787,6 +1791,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             else:
                 tool.GetControl().SetValue(toggled)
         self.Refresh()
+
     def remove_toolitem(self, name):
         for tool, handler in self._toolitems[name]:
             self.DeleteTool(tool.Id)
