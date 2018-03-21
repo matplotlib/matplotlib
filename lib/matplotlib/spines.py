@@ -1,19 +1,13 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+import warnings
 
-import six
+import numpy as np
 
 import matplotlib
-
+from matplotlib import docstring, rcParams
 from matplotlib.artist import allow_rasterization
-from matplotlib import docstring
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
-import numpy as np
-import warnings
-
-rcParams = matplotlib.rcParams
 
 
 class Spine(mpatches.Patch):
@@ -187,7 +181,7 @@ class Spine(mpatches.Patch):
         """
         self._ensure_position_is_set()
         position = self._position
-        if isinstance(position, six.string_types):
+        if isinstance(position, str):
             if position == 'center':
                 position = ('axes', 0.5)
             elif position == 'zero':
@@ -319,7 +313,7 @@ class Spine(mpatches.Patch):
         """calculate the offset transform performed by the spine"""
         self._ensure_position_is_set()
         position = self._position
-        if isinstance(position, six.string_types):
+        if isinstance(position, str):
             if position == 'center':
                 position = ('axes', 0.5)
             elif position == 'zero':

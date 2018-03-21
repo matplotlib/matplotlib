@@ -14,18 +14,14 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 import warnings
+
+import numpy as np
+
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import matplotlib.path as mpath
-import numpy as np
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 from matplotlib.font_manager import FontProperties
@@ -1016,7 +1012,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if isinstance(loc, six.string_types):
+        if isinstance(loc, str):
             try:
                 loc = self.codes[loc]
             except KeyError:

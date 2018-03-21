@@ -22,10 +22,6 @@ arbitrary objects. See the :ref:`legend guide
 <sphx_glr_tutorials_intermediate_legend_guide.py>` for more information.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import logging
 import warnings
@@ -420,8 +416,7 @@ class Legend(Artist):
         # trim handles and labels if illegal label...
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
-            if (isinstance(label, six.string_types) and
-                    label.startswith('_')):
+            if isinstance(label, str) and label.startswith('_'):
                 warnings.warn('The handle {!r} has a label of {!r} which '
                               'cannot be automatically added to the '
                               'legend.'.format(handle, label))
@@ -467,7 +462,7 @@ class Legend(Artist):
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
-        if isinstance(loc, six.string_types):
+        if isinstance(loc, str):
             if loc not in self.codes:
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '

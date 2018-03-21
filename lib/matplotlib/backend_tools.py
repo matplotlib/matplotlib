@@ -11,15 +11,15 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
+import time
+import warnings
+from weakref import WeakKeyDictionary
+
+import numpy as np
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
-from weakref import WeakKeyDictionary
-import six
-import time
-import warnings
-import numpy as np
 
 
 class Cursors(object):
@@ -1057,7 +1057,7 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
         info.
     """
 
-    for name, tool in six.iteritems(tools):
+    for name, tool in tools.items():
         toolmanager.add_tool(name, tool)
 
 

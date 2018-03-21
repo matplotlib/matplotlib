@@ -34,14 +34,9 @@ It is pretty easy to use, and requires only built-in python libs:
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import map
-
-import sys
 import re
+import sys
+
 from ._mathtext_data import uni2type1
 
 # Convert string the a python type
@@ -394,7 +389,7 @@ class AFM(object):
         miny = 1e9
         maxy = 0
         left = 0
-        if not isinstance(s, six.text_type):
+        if not isinstance(s, str):
             s = _to_str(s)
         for c in s:
             if c == '\n':

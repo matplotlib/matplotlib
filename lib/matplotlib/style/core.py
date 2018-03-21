@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 """
 Core functions and attributes for the matplotlib style library:
 
@@ -14,9 +10,10 @@ Core functions and attributes for the matplotlib style library:
 ``library``
     A dictionary of style names and matplotlib settings.
 """
+
+import contextlib
 import os
 import re
-import contextlib
 import warnings
 
 import matplotlib as mpl
@@ -89,18 +86,16 @@ def use(style):
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
-    if isinstance(style, six.string_types) or hasattr(style, 'keys'):
+    if isinstance(style, str) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
         styles = [style]
     else:
         styles = style
 
-    styles = (style_alias.get(s, s)
-              if isinstance(s, six.string_types)
-              else s
+    styles = (style_alias.get(s, s) if isinstance(s, str) else s
               for s in styles)
     for style in styles:
-        if not isinstance(style, six.string_types):
+        if not isinstance(style, str):
             _apply_style(style)
         elif style == 'default':
             _apply_style(rcParamsDefault, warn=False)
@@ -210,11 +205,8 @@ def update_nested_dict(main_dict, new_dict):
     already exists. Instead you should update the sub-dict.
     """
     # update named styles specified by user
-    for name, rc_dict in six.iteritems(new_dict):
-        if name in main_dict:
-            main_dict[name].update(rc_dict)
-        else:
-            main_dict[name] = rc_dict
+    for name, rc_dict in new_dict.items():
+        main_dict.setdefault(name, {}).update(rc_dict)
     return main_dict
 
 
