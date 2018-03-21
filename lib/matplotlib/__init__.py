@@ -1294,8 +1294,7 @@ def rc_file(fname):
     rcParams.update(rc_params_from_file(fname))
 
 
-@contextlib.contextmanager
-def rc_context(rc=None, fname=None):
+class rc_context:
     """
     Return a context manager for managing rc settings.
 
@@ -1325,19 +1324,33 @@ def rc_context(rc=None, fname=None):
             ax.plot(range(3), range(3))
             fig.savefig('A.png', format='png')
             plt.close(fig)
-
     """
+    # While it may seem natural to implement rc_context using
+    # contextlib.contextmanager, that would entail always calling the finally:
+    # clause of the contextmanager (which restores the original rcs) including
+    # during garbage collection; as a result, something like `plt.xkcd();
+    # gc.collect()` would result in the style being lost (as `xkcd()` is
+    # implemented on top of rc_context, and nothing is holding onto context
+    # manager except possibly circular references.
 
-    orig = rcParams.copy()
-    try:
-        if fname:
-            rc_file(fname)
-        if rc:
-            rcParams.update(rc)
-        yield
-    finally:
+    def __init__(self, rc=None, fname=None):
+        self._orig = rcParams.copy()
+        try:
+            if fname:
+                rc_file(fname)
+            if rc:
+                rcParams.update(rc)
+        except Exception:
+            # If anything goes wrong, revert to the original rcs.
+            dict.update(rcParams, self._orig)
+            raise
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
         # No need to revalidate the original values.
-        dict.update(rcParams, orig)
+        dict.update(rcParams, self._orig)
 
 
 _use_error_msg = """
