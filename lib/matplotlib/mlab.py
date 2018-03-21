@@ -810,7 +810,7 @@ docstring.interpd.update(Spectral=cbook.dedent("""
         argument, it must take a data segment as an argument and
         return the windowed version of the segment.
 
-    sides : [ 'default' | 'onesided' | 'twosided' ]
+    sides : {'default', 'onesided', 'twosided'}
         Specifies which sides of the spectrum to return.  Default gives the
         default behavior, which returns one-sided for real data and both
         for complex data.  'onesided' forces the return of a one-sided
@@ -819,7 +819,7 @@ docstring.interpd.update(Spectral=cbook.dedent("""
 
 
 docstring.interpd.update(Single_Spectrum=cbook.dedent("""
-    pad_to : integer
+    pad_to : int
         The number of points to which the data segment is padded when
         performing the FFT.  While not increasing the actual resolution of
         the spectrum (the minimum distance between resolvable peaks),
@@ -831,7 +831,7 @@ docstring.interpd.update(Single_Spectrum=cbook.dedent("""
 
 
 docstring.interpd.update(PSD=cbook.dedent("""
-    pad_to : integer
+    pad_to : int
         The number of points to which the data segment is padded when
         performing the FFT.  This can be different from *NFFT*, which
         specifies the number of data points used.  While not increasing
@@ -841,7 +841,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
         in the call to fft(). The default is None, which sets *pad_to*
         equal to *NFFT*
 
-    NFFT : integer
+    NFFT : int
         The number of data points used in each block for the FFT.
         A power 2 is most efficient.  The default value is 256.
         This should *NOT* be used to get zero padding, or the scaling of the
@@ -861,7 +861,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
         :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
         :func:`~matplotlib.pylab.detrend_none`.
 
-    scale_by_freq : boolean, optional
+    scale_by_freq : bool, optional
         Specifies whether the resulting density values should be scaled
         by the scaling frequency, which gives density in units of Hz^-1.
         This allows for integration over the returned frequency values.

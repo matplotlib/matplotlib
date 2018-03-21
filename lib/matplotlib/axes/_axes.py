@@ -1633,7 +1633,7 @@ class Axes(_AxesBase):
             If ``True``, `Axes.vlines` is used to plot the vertical lines from
             the origin to the acorr. Otherwise, `Axes.plot` is used.
 
-        maxlags : integer, optional, default: 10
+        maxlags : int, optional, default: 10
             Number of lags to show. If ``None``, will return all
             ``2 * len(x) - 1`` lags.
 
@@ -1654,10 +1654,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
+        linestyle : `.Line2D` property, optional, default: None
             Only used if usevlines is ``False``.
 
-        marker : string, optional, default: 'o'
+        marker : str, optional, default: 'o'
 
         Notes
         -----
@@ -1674,7 +1674,9 @@ class Axes(_AxesBase):
         """
         Plot the cross correlation between *x* and *y*.
 
-        The correlation with lag k is defined as sum_n x[n+k] * conj(y[n]).
+        The correlation with lag k is defined as
+        :math:`\sum_n x[n+k] \cdot y^*[n]`, where :math:`y^*` is the complex
+        conjugate of :math:`y`.
 
         Parameters
         ----------
@@ -1716,7 +1718,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` property, optional
+        linestyle : `.Line2D` property, optional
             Only used if usevlines is ``False``.
 
         marker : string, optional
@@ -6685,11 +6687,11 @@ class Axes(_AxesBase):
 
         %(PSD)s
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6703,10 +6705,10 @@ class Axes(_AxesBase):
         -------
         Pxx : 1-D array
             The values for the power spectrum `P_{xx}` before scaling
-            (real valued)
+            (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *Pxx*
+            The frequencies corresponding to the elements in *Pxx*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
@@ -6807,17 +6809,17 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x, y : 1-D arrays or sequences
-            Arrays or sequences containing the data
+            Arrays or sequences containing the data.
 
         %(Spectral)s
 
         %(PSD)s
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6831,10 +6833,10 @@ class Axes(_AxesBase):
         -------
         Pxy : 1-D array
             The values for the cross spectrum `P_{xy}` before scaling
-            (complex valued)
+            (complex valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *Pxy*
+            The frequencies corresponding to the elements in *Pxy*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
@@ -6913,18 +6915,18 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : 1-D array or sequence
-            Array or sequence containing the data
+            Array or sequence containing the data.
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        scale : [ 'default' | 'linear' | 'dB' ]
+        scale : {'default', 'linear', 'dB'}
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale, i.e., the dB amplitude
             (20 * log10). 'default' is 'linear'.
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6933,13 +6935,13 @@ class Axes(_AxesBase):
         Returns
         -------
         spectrum : 1-D array
-            The values for the magnitude spectrum before scaling (real valued)
+            The values for the magnitude spectrum before scaling (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *spectrum*
+            The frequencies corresponding to the elements in *spectrum*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
-            The line created by this function
+            The line created by this function.
 
         Other Parameters
         ----------------
@@ -7018,13 +7020,13 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : 1-D array or sequence
-            Array or sequence containing the data
+            Array or sequence containing the data.
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7033,13 +7035,13 @@ class Axes(_AxesBase):
         Returns
         -------
         spectrum : 1-D array
-            The values for the angle spectrum in radians (real valued)
+            The values for the angle spectrum in radians (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *spectrum*
+            The frequencies corresponding to the elements in *spectrum*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
-            The line created by this function
+            The line created by this function.
 
         Other Parameters
         ----------------
@@ -7109,7 +7111,7 @@ class Axes(_AxesBase):
 
         %(Single_Spectrum)s
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7118,13 +7120,13 @@ class Axes(_AxesBase):
         Returns
         -------
         spectrum : 1-D array
-            The values for the phase spectrum in radians (real valued)
+            The values for the phase spectrum in radians (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *spectrum*
+            The frequencies corresponding to the elements in *spectrum*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
-            The line created by this function
+            The line created by this function.
 
         Other Parameters
         ----------------
@@ -7189,11 +7191,11 @@ class Axes(_AxesBase):
 
         %(PSD)s
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between blocks.  The
             default value is 0 (no overlap).
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7202,10 +7204,11 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        The return value is a tuple (*Cxy*, *f*), where *f* are the
-        frequencies of the coherence vector.
+        Cxy : 1-D array
+            The coherence vector.
 
-        kwargs are applied to the lines.
+        freqs : 1-D array
+            The frequencies for the elements in *Cxy*.
 
         Other Parameters
         ----------------
@@ -7268,18 +7271,18 @@ class Axes(_AxesBase):
 
         %(PSD)s
 
-        mode : [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
+        mode : {'default', 'psd', 'magnitude', 'angle', 'phase'}
             What sort of spectrum to use.  Default is 'psd', which takes
             the power spectral density.  'complex' returns the complex-valued
             frequency spectrum.  'magnitude' returns the magnitude spectrum.
             'angle' returns the phase spectrum without unwrapping.  'phase'
             returns the phase spectrum with unwrapping.
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between blocks.  The
             default value is 128.
 
-        scale : [ 'default' | 'linear' | 'dB' ]
+        scale : {'default', 'linear', 'dB'}
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'psd',
             this is dB power (10 * log10).  Otherwise this is dB amplitude
@@ -7287,7 +7290,7 @@ class Axes(_AxesBase):
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7297,7 +7300,7 @@ class Axes(_AxesBase):
             A :class:`matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
-        xextent : [None | (xmin, xmax)]
+        xextent : *None* or (xmin, xmax)
             The image extent along the x-axis. The default sets *xmin* to the
             left border of the first bin (*spectrum* column) and *xmax* to the
             right border of the last bin. Note that for *noverlap>0* the width
@@ -7305,7 +7308,7 @@ class Axes(_AxesBase):
 
         **kwargs :
             Additional kwargs are passed on to imshow which makes the
-            specgram image
+            specgram image.
 
         Returns
         -------
