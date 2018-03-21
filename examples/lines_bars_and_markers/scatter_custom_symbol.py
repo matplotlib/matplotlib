@@ -3,6 +3,8 @@
 Scatter Custom Symbol
 =====================
 
+Creating a custom ellipse symbol in scatter plot.
+
 """
 import matplotlib.pyplot as plt
 import numpy as np
