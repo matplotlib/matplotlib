@@ -151,7 +151,7 @@ environment is set up properly::
 
 .. note::
 
-  **Additional dependencies for testing**: pytest_ (version 3.1 or later),
+  **Additional dependencies for testing**: pytest_ (version 3.4 or later),
   Ghostscript_, Inkscape_
 
 .. seealso::

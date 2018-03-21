@@ -685,8 +685,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
                 '-vframes', str(self._frame_counter)] + self.output_args
 
 
-# Base class of avconv information.  AVConv has identical arguments to
-# FFMpeg
+# Base class of avconv information.  AVConv has identical arguments to FFMpeg.
 class AVConvBase(FFMpegBase):
     '''Mixin class for avconv output.
 
@@ -1340,7 +1339,8 @@ class Animation(object):
                 # Now open and base64 encode.
                 vid64 = base64.encodebytes(path.read_bytes())
 
-            if len(vid64) >= embed_limit:
+            vid_len = len(vid64)
+            if vid_len >= embed_limit:
                 _log.warning(
                     "Animation movie is %s bytes, exceeding the limit of %s. "
                     "If you're sure you want a large animation embedded, set "
