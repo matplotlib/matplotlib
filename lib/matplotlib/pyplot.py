@@ -387,7 +387,7 @@ def xkcd(scale=1, length=100, randomness=2):
             "xkcd mode is not compatible with text.usetex = True")
 
     from matplotlib import patheffects
-    xkcd_ctx = rc_context({
+    return rc_context({
         'font.family': ['xkcd', 'Humor Sans', 'Comic Sans MS'],
         'font.size': 14.0,
         'path.sketch': (scale, length, randomness),
@@ -404,21 +404,6 @@ def xkcd(scale=1, length=100, randomness=2):
         'ytick.major.size': 8,
         'ytick.major.width': 3,
     })
-    xkcd_ctx.__enter__()
-
-    # In order to make the call to `xkcd` that does not use a context manager
-    # (cm) work, we need to enter into the cm ourselves, and return a dummy
-    # cm that does nothing on entry and cleans up the xkcd context on exit.
-    # Additionally, we need to keep a reference to the dummy cm because it
-    # would otherwise be exited when GC'd.
-
-    class dummy_ctx(object):
-        def __enter__(self):
-            pass
-
-        __exit__ = xkcd_ctx.__exit__
-
-    return dummy_ctx()
 
 
 ## Figures ##
