@@ -1,9 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip, zip_longest
-
 import functools
 import itertools
 import logging
@@ -2764,7 +2758,7 @@ class Axes(_AxesBase):
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
                 yt = y + pctdistance * radius * math.sin(thetam)
-                if isinstance(autopct, six.string_types):
+                if isinstance(autopct, str):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
                     s = autopct(100. * frac)
@@ -5606,8 +5600,7 @@ class Axes(_AxesBase):
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and (
-                isinstance(ec, six.string_types) and ec.lower() == "none"):
+        if 'antialiaseds' not in kwargs and cbook._str_lower_equal(ec, "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -6526,12 +6519,12 @@ class Axes(_AxesBase):
 
         if label is None:
             labels = [None]
-        elif isinstance(label, six.string_types):
+        elif isinstance(label, str):
             labels = [label]
         else:
-            labels = [six.text_type(lab) for lab in label]
+            labels = [str(lab) for lab in label]
 
-        for patch, lbl in zip_longest(patches, labels, fillvalue=None):
+        for patch, lbl in itertools.zip_longest(patches, labels):
             if patch:
                 p = patch[0]
                 p.update(kwargs)

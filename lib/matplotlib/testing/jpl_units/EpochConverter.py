@@ -10,11 +10,6 @@
 # ==========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import matplotlib.units as units
 import matplotlib.dates as date_ticker
 from matplotlib.cbook import iterable
@@ -121,8 +116,8 @@ class EpochConverter(units.ConversionInterface):
         isNotEpoch = True
         isDuration = False
 
-        if iterable(value) and not isinstance(value, six.string_types):
-            if (len(value) == 0):
+        if iterable(value) and not isinstance(value, str):
+            if len(value) == 0:
                 return []
             else:
                 return [EpochConverter.convert(x, unit, axis) for x in value]
@@ -156,7 +151,7 @@ class EpochConverter(units.ConversionInterface):
         - Returns the default units to use for value.
         """
         frame = None
-        if iterable(value) and not isinstance(value, six.string_types):
+        if iterable(value) and not isinstance(value, str):
             return EpochConverter.default_units(value[0], axis)
         else:
             frame = value.frame()
