@@ -1284,7 +1284,7 @@ class FigureManagerWx(FigureManagerBase):
         self.frame = frame
         self.window = frame
 
-        self.toolmanager = frame.toolmanager
+        self.toolmanager = getattr(frame, "toolmanager", None)
         self.toolbar = frame.GetToolBar()
 
     def show(self):
@@ -1552,6 +1552,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def configure_subplots(self, evt):
         global FigureManager  # placates pyflakes: created by @_Backend.export
         frame = wx.Frame(None, -1, "Configure subplots")
+        _set_frame_icon(frame)
 
         toolfig = Figure((6, 3))
         canvas = self.get_canvas(frame, toolfig)
@@ -1811,7 +1812,6 @@ class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def configure_subplots(self):
         frame = wx.Frame(None, -1, "Configure subplots")
         _set_frame_icon(frame)
-        frame.toolmanager = None
 
         toolfig = Figure((6, 3))
         canvas = self.get_canvas(frame, toolfig)
