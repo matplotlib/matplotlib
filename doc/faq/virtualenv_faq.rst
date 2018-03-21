@@ -28,19 +28,23 @@ PyQt5         yes                        yes
 ------------- -------------------------- ---------------------------------
 PyQt4         PySide: on Windows and OSX yes
 ------------- -------------------------- ---------------------------------
-PyGObject     no                         on Linux
+PyGObject     yes [#]_                   on Linux
 ------------- -------------------------- ---------------------------------
 wxPython      yes [#]_                   yes
 ============= ========================== =================================
+
+.. [#] No wheels available, see
+       https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html
+       for build instructions.
 
 .. [#] OSX and Windows wheels available on PyPI.  Linux wheels available but
        not on PyPI, see https://wxpython.org/pages/downloads/.
 
 For cases where the framework is not installable in a venv, it needs to be
-install the package in the global (system) site-packages, and then made
-available from within the venv.  This can be achieved by either of the
-following methods (in all cases, the system-wide Python and the venv Python
-must be of the same version):
+installed in the global (system) site-packages, and then made available from
+within the venv.  This can be achieved by either of the following methods (in
+all cases, the system-wide Python and the venv Python must be of the same
+version):
 
 - `vext <https://pypi.python.org/pypi/vext>`_ allows controlled access
   from within the virtualenv to specific system-wide packages without the
