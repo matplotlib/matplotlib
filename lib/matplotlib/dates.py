@@ -1332,25 +1332,28 @@ class AutoDateLocator(DateLocator):
         #  bysecond, unused (for microseconds)]
         byranges = [None, 1, 1, 0, 0, 0, None]
 
+        # Required attributes to get width from figure's normal points
         axis_name = getattr(self.axis, 'axis_name', '')
+        axes = getattr(self.axis, 'axes', None)
         label = getattr(self.axis, 'label', None)
         figure = getattr(self.axis, 'figure', None)
+        transfig = getattr(figure, 'transFigure', None)
+        maxwid = rcParams['figure.figsize'][0]
 
-        # estimated font ratio since our estimation
-        # is on font size 10
+        # estimated font ratio on font size 10
         if label is not None:
-            font_ratio = label.get_fontsize()/10
+            font_ratio = label.get_fontsize() / 10
         else:
-            font_ratio = rcParams['font.size']/10
+            font_ratio = rcParams['font.size'] / 10
 
-        if figure is not None:
-            width = figure.get_size_inches()[0]
-        else:
-            width = rcParams["figure.figsize"][0]
+        # a ratio of 7.2 date characters per inch is 'estimated'
+        if (axes is not None and transfig is not None):
+            bbox = axes.get_position(original=False)
+            figwidth = transfig.transform(bbox.get_points())[1][0]
+            dpi = figure.get_dpi()
+            maxwid = (figwidth / dpi) * 8
 
-        # a ratio of 8 date characters per inch is 'estimated'
-        maxwid = width * 8
-        apply_spread = (rcParams["autodatelocator.spacing"] == "generous")
+        spacing = (rcParams["autodatelocator.spacing"] == "generous")
 
         # Loop over all the frequencies and try to find one that gives at
         # least a minticks tick positions.  Once this is found, look for
@@ -1368,18 +1371,21 @@ class AutoDateLocator(DateLocator):
 
             # Compute at runtime the size of date label with given format
             if (axis_name == 'x'):
-                date_len = len(dmin.strftime(self.eachtick[freq]))
+                datelen_ratio = \
+                    len(dmin.strftime(self.eachtick[freq])) * font_ratio
             else:
-                date_len = 1
+                datelen_ratio = 1 * font_ratio
 
             # Find the first available interval that doesn't give too many
             # ticks
             for interval in self.intervald[freq]:
+
+                # Using an estmation of characters per inch, reduce
+                # intervals untill we get no overlaps
+                apply_spread = (not spacing or
+                                ((num/interval) * datelen_ratio) <= maxwid)
                 if (num <= interval * (self.maxticks[freq] - 1)):
-                    # Using an estmation of characters per inch, reduce
-                    # intervals untill we get no overlaps
-                    if (((num/interval) * date_len * font_ratio) <= maxwid or
-                            (not apply_spread)):
+                    if (apply_spread):
                         break
             else:
                 # We went through the whole loop without breaking, default to
