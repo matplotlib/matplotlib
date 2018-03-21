@@ -2128,6 +2128,11 @@ class RectangleSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
+        if not self.interactive:
+            x = event.xdata
+            y = event.ydata
+            self.extents = x, x, y, y
+
         self.set_visible(self.visible)
 
     def _release(self, event):
