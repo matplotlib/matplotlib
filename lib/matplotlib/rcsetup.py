@@ -747,9 +747,11 @@ def cycler(*args, **kwargs):
     Creates a :class:`cycler.Cycler` object much like :func:`cycler.cycler`,
     but includes input validation.
 
-    cycler(arg)
-    cycler(label, itr)
-    cycler(label1=itr1[, label2=itr2[, ...]])
+    Call signatures::
+
+      cycler(cycler)
+      cycler(label, values)
+      cycler(label=values[, label2=values2[, ...]])
 
     Form 1 simply copies a given `Cycler` object.
 
@@ -761,15 +763,15 @@ def cycler(*args, **kwargs):
 
     Parameters
     ----------
-    arg : Cycler
+    cycler : Cycler
         Copy constructor for Cycler.
 
-    label : name
-        The property key. Must be a valid `Artist` property.
+    label : str
+        The property key. Must be a valid `.Artist` property.
         For example, 'color' or 'linestyle'. Aliases are allowed,
         such as 'c' for 'color' and 'lw' for 'linewidth'.
 
-    itr : iterable
+    values : iterable
         Finite-length iterable of the property values. These values
         are validated and will raise a ValueError if invalid.
 
@@ -777,6 +779,19 @@ def cycler(*args, **kwargs):
     -------
     cycler : Cycler
         New :class:`cycler.Cycler` for the given properties
+
+    Examples
+    --------
+    Creating a cycler for a single property:
+
+    >>> c = cycler(color=['red', 'green', 'blue'])  # or
+    >>> c = cycler('color', ['red', 'green', 'blue'])
+
+    Creating a cycler for simultaneously cycling over multiple properties
+    (e.g. red circle, green plus, blue cross):
+
+    >>> c = cycler(color=['red', 'green', 'blue'],
+    ...            marker=['o', '+', 'x'])
 
     """
     if args and kwargs:

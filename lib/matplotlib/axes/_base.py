@@ -1152,40 +1152,58 @@ class _AxesBase(martist.Artist):
 
     def set_prop_cycle(self, *args, **kwargs):
         """
-        Set the property cycle for any future plot commands on this Axes.
+        Set the property cycle of the Axes.
 
-        set_prop_cycle(arg)
-        set_prop_cycle(label, itr)
-        set_prop_cycle(label1=itr1[, label2=itr2[, ...]])
+        The property cycle controls the style properties such as color,
+        marker and linestyle of future plot commands. The style properties
+        of data already added to the Axes are not modified.
+
+        Call signatures::
+
+          set_prop_cycle(cycler)
+          set_prop_cycle(label, values)
+          set_prop_cycle(label=values[, label2=values2[, ...]])
 
         Form 1 simply sets given `Cycler` object.
 
-        Form 2 creates and sets  a `Cycler` from a label and an iterable.
+        Form 2 creates and sets a `Cycler` from a label and an iterable.
 
-        Form 3 composes and sets  a `Cycler` as an inner product of the
+        Form 3 composes and sets a `Cycler` as an inner product of the
         pairs of keyword arguments. In other words, all of the
         iterables are cycled simultaneously, as if through zip().
 
         Parameters
         ----------
-        arg : Cycler
-            Set the given Cycler.
-            Can also be `None` to reset to the cycle defined by the
+        cycler : Cycler
+            Set the given Cycler. *None* resets to the cycle defined by the
             current style.
 
         label : str
-            The property key. Must be a valid `Artist` property.
+            The property key. Must be a valid `.Artist` property.
             For example, 'color' or 'linestyle'. Aliases are allowed,
             such as 'c' for 'color' and 'lw' for 'linewidth'.
 
-        itr : iterable
+        values : iterable
             Finite-length iterable of the property values. These values
             are validated and will raise a ValueError if invalid.
 
+        Examples
+        --------
+        Setting the property cycle for a single property:
+
+        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])  # or
+        >>> ax.set_prop_cycle('color', ['red', 'green', 'blue'])
+
+        Setting the property cycle for simultaneously cycling over multiple
+        properties (e.g. red circle, green plus, blue cross):
+
+        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'],
+        ...                   marker=['o', '+', 'x'])
+
         See Also
         --------
-            :func:`cycler`      Convenience function for creating your
-                                own cyclers.
+        matplotlib.rcsetup.cycler
+            Convenience function for creating your own cyclers.
 
         """
         if args and kwargs:
