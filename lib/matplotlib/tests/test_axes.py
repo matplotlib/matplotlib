@@ -588,6 +588,7 @@ def test_structured_data():
     # support for stuctured data
     pts = np.array([(1, 1), (2, 2)], dtype=[("ones", float), ("twos", float)])
 
+    # this should not read second name as a format and raise ValueError
     fig, ax = plt.subplots(2)
     ax[0].plot("ones", "twos", data=pts)
     ax[1].plot("ones", "twos", "r", data=pts)
