@@ -37,32 +37,33 @@ Z[interior] = np.ma.masked
 # this is usually not such a good idea, because they don't
 # occur on nice boundaries, but we do it here for purposes
 # of illustration.
-CS = plt.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
+
+fig1, ax2 = plt.subplots()
+CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
 # Note that in the following, we explicitly pass in a subset of
 # the contour levels used for the filled contours.  Alternatively,
 # We could pass in additional levels to provide extra resolution,
 # or leave out the levels kwarg to use all of the original levels.
 
-CS2 = plt.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
+CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
 
-plt.title('Nonsense (3 masked regions)')
-plt.xlabel('word length anomaly')
-plt.ylabel('sentence length anomaly')
+ax2.set_title('Nonsense (3 masked regions)')
+ax2.set_xlabel('word length anomaly')
+ax2.set_ylabel('sentence length anomaly')
 
 # Make a colorbar for the ContourSet returned by the contourf call.
-cbar = plt.colorbar(CS)
+cbar = fig1.colorbar(CS)
 cbar.ax.set_ylabel('verbosity coefficient')
 # Add the contour line levels to the colorbar
 cbar.add_lines(CS2)
 
-plt.figure()
-
+fig2, ax2 = plt.subplots()
 # Now make a contour plot with the levels specified,
 # and with the colormap generated automatically from a list
 # of colors.
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
-CS3 = plt.contourf(X, Y, Z, levels,
+CS3 = ax2.contourf(X, Y, Z, levels,
                    colors=('r', 'g', 'b'),
                    origin=origin,
                    extend='both')
@@ -72,16 +73,16 @@ CS3 = plt.contourf(X, Y, Z, levels,
 CS3.cmap.set_under('yellow')
 CS3.cmap.set_over('cyan')
 
-CS4 = plt.contour(X, Y, Z, levels,
+CS4 = ax2.contour(X, Y, Z, levels,
                   colors=('k',),
                   linewidths=(3,),
                   origin=origin)
-plt.title('Listed colors (3 masked regions)')
-plt.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
+ax2.set_title('Listed colors (3 masked regions)')
+ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
 # Notice that the colorbar command gets all the information it
 # needs from the ContourSet object, CS3.
-plt.colorbar(CS3)
+fig2.colorbar(CS3)
 
 # Illustrate all 4 possible "extend" settings:
 extends = ["neither", "both", "min", "max"]
@@ -94,12 +95,12 @@ cmap.set_over("yellow")
 # no effect:
 # cmap.set_bad("red")
 
-fig, axs = plt.subplots(2, 2)
-fig.subplots_adjust(hspace=0.3)
+fig3, axs = plt.subplots(2, 2)
+fig3.subplots_adjust(hspace=0.3)
 
 for ax, extend in zip(axs.ravel(), extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
-    fig.colorbar(cs, ax=ax, shrink=0.9)
+    fig3.colorbar(cs, ax=ax, shrink=0.9)
     ax.set_title("extend = %s" % extend)
     ax.locator_params(nbins=4)
 

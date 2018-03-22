@@ -23,16 +23,16 @@ mask[0, 6] = True
 z = np.ma.array(z, mask=mask)
 
 corner_masks = [False, True]
-for i, corner_mask in enumerate(corner_masks):
-    plt.subplot(1, 2, i + 1)
-    cs = plt.contourf(x, y, z, corner_mask=corner_mask)
-    plt.contour(cs, colors='k')
-    plt.title('corner_mask = {0}'.format(corner_mask))
+fig, axs = plt.subplots(ncols=2)
+for ax, corner_mask in zip(axs, corner_masks):
+    cs = ax.contourf(x, y, z, corner_mask=corner_mask)
+    ax.contour(cs, colors='k')
+    ax.set_title('corner_mask = {0}'.format(corner_mask))
 
     # Plot grid.
-    plt.grid(c='k', ls='-', alpha=0.3)
+    ax.grid(c='k', ls='-', alpha=0.3)
 
     # Indicate masked points with red circles.
-    plt.plot(np.ma.array(x, mask=~mask), y, 'ro')
+    ax.plot(np.ma.array(x, mask=~mask), y, 'ro')
 
 plt.show()

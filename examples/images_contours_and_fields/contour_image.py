@@ -34,14 +34,12 @@ levels = np.arange(-2.0, 1.601, 0.4)
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 cmap = cm.PRGn
 
-fig = plt.figure()
+fig, _axs = plt.subplots(nrows=2, ncols=2)
 fig.subplots_adjust(hspace=0.3)
+axs = _axs.flatten()
 
-
-plt.subplot(2, 2, 1)
-
-cset1 = plt.contourf(X, Y, Z, levels,
-                     cmap=cm.get_cmap(cmap, len(levels) - 1), norm=norm)
+cset1 = axs[0].contourf(X, Y, Z, levels, norm=norm,
+                     cmap=cm.get_cmap(cmap, len(levels) - 1))
 # It is not necessary, but for the colormap, we need only the
 # number of levels minus 1.  To avoid discretization error, use
 # either this number or a large number such as the default (256).
@@ -51,7 +49,7 @@ cset1 = plt.contourf(X, Y, Z, levels,
 # of the polygons in the collections returned by contourf.
 # Use levels output from previous call to guarantee they are the same.
 
-cset2 = plt.contour(X, Y, Z, cset1.levels, colors='k')
+cset2 = axs[0].contour(X, Y, Z, cset1.levels, colors='k')
 
 # We don't really need dashed contour lines to indicate negative
 # regions, so let's turn them off.
@@ -64,28 +62,18 @@ for c in cset2.collections:
 # We are making a thick green line as a zero contour.
 # Specify the zero level as a tuple with only 0 in it.
 
-cset3 = plt.contour(X, Y, Z, (0,), colors='g', linewidths=2)
-plt.title('Filled contours')
-plt.colorbar(cset1)
+cset3 = axs[0].contour(X, Y, Z, (0,), colors='g', linewidths=2)
+axs[0].set_title('Filled contours')
+fig.colorbar(cset1, ax=axs[0])
 
 
-plt.subplot(2, 2, 2)
+axs[1].imshow(Z, extent=extent, cmap=cmap, norm=norm)
+axs[1].contour(Z, levels, colors='k', origin='upper', extent=extent)
+axs[1].set_title("Image, origin 'upper'")
 
-plt.imshow(Z, extent=extent, cmap=cmap, norm=norm)
-v = plt.axis()
-plt.contour(Z, levels, colors='k', origin='upper', extent=extent)
-plt.axis(v)
-plt.title("Image, origin 'upper'")
-
-plt.subplot(2, 2, 3)
-
-plt.imshow(Z, origin='lower', extent=extent, cmap=cmap, norm=norm)
-v = plt.axis()
-plt.contour(Z, levels, colors='k', origin='lower', extent=extent)
-plt.axis(v)
-plt.title("Image, origin 'lower'")
-
-plt.subplot(2, 2, 4)
+axs[2].imshow(Z, origin='lower', extent=extent, cmap=cmap, norm=norm)
+axs[2].contour(Z, levels, colors='k', origin='lower', extent=extent)
+axs[2].set_title("Image, origin 'lower'")
 
 # We will use the interpolation "nearest" here to show the actual
 # image pixels.
@@ -93,15 +81,13 @@ plt.subplot(2, 2, 4)
 # This is intentional. The Z values are defined at the center of each
 # image pixel (each color block on the following subplot), so the
 # domain that is contoured does not extend beyond these pixel centers.
-im = plt.imshow(Z, interpolation='nearest', extent=extent,
+im = axs[3].imshow(Z, interpolation='nearest', extent=extent,
                 cmap=cmap, norm=norm)
-v = plt.axis()
-plt.contour(Z, levels, colors='k', origin='image', extent=extent)
-plt.axis(v)
-ylim = plt.get(plt.gca(), 'ylim')
-plt.setp(plt.gca(), ylim=ylim[::-1])
-plt.title("Origin from rc, reversed y-axis")
-plt.colorbar(im)
+axs[3].contour(Z, levels, colors='k', origin='image', extent=extent)
+ylim = axs[3].get_ylim()
+axs[3].set_ylim(ylim[::-1])
+axs[3].set_title("Origin from rc, reversed y-axis")
+fig.colorbar(im, ax=axs[3])
 
-plt.tight_layout()
+fig.tight_layout()
 plt.show()

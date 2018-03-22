@@ -42,7 +42,7 @@ Zm = np.ma.masked_where(Z > 1.2, Z)
 # range to which the regular palette color scale is applied.
 # Anything above that range is colored based on palette.set_over, etc.
 
-# set up the axes
+# set up the Axes objets
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
 # plot using 'continuous' color map
