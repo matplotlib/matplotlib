@@ -1294,7 +1294,7 @@ def rc_file(fname):
     rcParams.update(rc_params_from_file(fname))
 
 
-class rc_context:
+class rc_context(object):
     """
     Return a context manager for managing rc settings.
 
