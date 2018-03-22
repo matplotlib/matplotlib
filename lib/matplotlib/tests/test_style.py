@@ -1,11 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
+from collections import OrderedDict
+from contextlib import contextmanager
+import gc
 import os
 import shutil
 import tempfile
 import warnings
-from collections import OrderedDict
-from contextlib import contextmanager
 
 import pytest
 
@@ -162,6 +163,8 @@ def test_alias(equiv_styles):
 def test_xkcd_no_cm():
     assert mpl.rcParams["path.sketch"] is None
     plt.xkcd()
+    assert mpl.rcParams["path.sketch"] == (1, 100, 2)
+    gc.collect()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
 
 
