@@ -19,11 +19,6 @@ Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import warnings
 
 from . import artist
@@ -37,8 +32,7 @@ from matplotlib.path import Path
 
 class Cell(Rectangle):
     """
-    A cell is a Rectangle with some associated text.
-
+    A cell is a  `.Rectangle` with some associated text.
     """
     PAD = 0.1  # padding between text and rectangle
 
@@ -73,7 +67,7 @@ class Cell(Rectangle):
         self._text.set_figure(fig)
 
     def get_text(self):
-        'Return the cell Text intance'
+        """Return the cell `.Text` instance."""
         return self._text
 
     def set_fontsize(self, size):
@@ -81,7 +75,7 @@ class Cell(Rectangle):
         self.stale = True
 
     def get_fontsize(self):
-        'Return the cell fontsize'
+        """Return the cell fontsize."""
         return self._text.get_fontsize()
 
     def auto_set_font_size(self, renderer):
@@ -189,8 +183,9 @@ class CustomCell(Cell):
         self.stale = True
 
     def get_path(self):
-        'Return a path where the edges specified by _visible_edges are drawn'
-
+        """
+        Return a path where the edges specified by _visible_edges are drawn.
+        """
         codes = [Path.MOVETO]
 
         for edge in self._edges:
@@ -249,12 +244,12 @@ class Table(Artist):
 
         Artist.__init__(self)
 
-        if isinstance(loc, six.string_types) and loc not in self.codes:
+        if isinstance(loc, str) and loc not in self.codes:
             warnings.warn('Unrecognized location %s. Falling back on '
                           'bottom; valid locations are\n%s\t' %
                           (loc, '\n\t'.join(self.codes)))
             loc = 'bottom'
-        if isinstance(loc, six.string_types):
+        if isinstance(loc, str):
             loc = self.codes.get(loc, 1)
         self.set_figure(ax.figure)
         self._axes = ax
@@ -281,9 +276,9 @@ class Table(Artist):
         Parameters
         ----------
         row : int
-            Row index
+            Row index.
         col : int
-            Column index
+            Column index.
 
         Returns
         -------
@@ -297,7 +292,7 @@ class Table(Artist):
 
     def __setitem__(self, position, cell):
         """
-        Set a customcell in a given position
+        Set a custom cell in a given position.
         """
         if not isinstance(cell, CustomCell):
             raise TypeError('Table only accepts CustomCell')
@@ -313,7 +308,7 @@ class Table(Artist):
 
     def __getitem__(self, position):
         """
-        Retreive a custom cell from a given position
+        Retrieve a custom cell from a given position.
         """
         try:
             row, col = position[0], position[1]
@@ -359,7 +354,7 @@ class Table(Artist):
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
         boxes = [cell.get_window_extent(renderer)
-                 for (row, col), cell in six.iteritems(self._cells)
+                 for (row, col), cell in self._cells.items()
                  if row >= 0 and col >= 0]
         bbox = Bbox.union(boxes)
         return bbox.inverse_transformed(self.get_transform())
@@ -377,7 +372,7 @@ class Table(Artist):
         renderer = self.figure._cachedRenderer
         if renderer is not None:
             boxes = [cell.get_window_extent(renderer)
-                     for (row, col), cell in six.iteritems(self._cells)
+                     for (row, col), cell in self._cells.items()
                      if row >= 0 and col >= 0]
             bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
@@ -385,14 +380,14 @@ class Table(Artist):
             return False, {}
 
     def get_children(self):
-        'Return the Artists contained by the table'
-        return list(six.itervalues(self._cells))
+        """Return the Artists contained by the table."""
+        return list(self._cells.values())
     get_child_artists = get_children  # backward compatibility
 
     def get_window_extent(self, renderer):
-        'Return the bounding box of the table in window coords'
+        """Return the bounding box of the table in window coords."""
         boxes = [cell.get_window_extent(renderer)
-                 for cell in six.itervalues(self._cells)]
+                 for cell in self._cells.values()]
         return Bbox.union(boxes)
 
     def _do_cell_alignment(self):
@@ -403,7 +398,7 @@ class Table(Artist):
         # Calculate row/column widths
         widths = {}
         heights = {}
-        for (row, col), cell in six.iteritems(self._cells):
+        for (row, col), cell in self._cells.items():
             height = heights.setdefault(row, 0.0)
             heights[row] = max(height, cell.get_height())
             width = widths.setdefault(col, 0.0)
@@ -423,7 +418,7 @@ class Table(Artist):
             ypos += heights[row]
 
         # set cell positions
-        for (row, col), cell in six.iteritems(self._cells):
+        for (row, col), cell in self._cells.items():
             cell.set_x(lefts[col])
             cell.set_y(bottoms[row])
 
@@ -461,8 +456,7 @@ class Table(Artist):
         self.stale = True
 
     def _auto_set_column_width(self, col, renderer):
-        """ Automagically set width for column.
-        """
+        """Automatically set width for column."""
         cells = [key for key in self._cells if key[1] == col]
 
         # find max width
@@ -484,9 +478,9 @@ class Table(Artist):
 
         if len(self._cells) == 0:
             return
-        fontsize = list(six.itervalues(self._cells))[0].get_fontsize()
+        fontsize = next(iter(self._cells.values())).get_fontsize()
         cells = []
-        for key, cell in six.iteritems(self._cells):
+        for key, cell in self._cells.items():
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
@@ -495,12 +489,12 @@ class Table(Artist):
             cells.append(cell)
 
         # now set all fontsizes equal
-        for cell in six.itervalues(self._cells):
+        for cell in self._cells.values():
             cell.set_fontsize(fontsize)
 
     def scale(self, xscale, yscale):
         """ Scale column widths by xscale and row heights by yscale. """
-        for c in six.itervalues(self._cells):
+        for c in self._cells.values():
             c.set_width(c.get_width() * xscale)
             c.set_height(c.get_height() * yscale)
 
@@ -511,14 +505,13 @@ class Table(Artist):
         ACCEPTS: a float in points
         """
 
-        for cell in six.itervalues(self._cells):
+        for cell in self._cells.values():
             cell.set_fontsize(size)
         self.stale = True
 
     def _offset(self, ox, oy):
-        'Move all the artists by ox,oy (axes coords)'
-
-        for c in six.itervalues(self._cells):
+        """Move all the artists by ox, oy (axes coords)."""
+        for c in self._cells.values():
             x, y = c.get_x(), c.get_y()
             c.set_x(x + ox)
             c.set_y(y + oy)
@@ -579,7 +572,7 @@ class Table(Artist):
         self._offset(ox, oy)
 
     def get_celld(self):
-        'return a dict of cells in the table'
+        """Return a dict of cells in the table."""
         return self._cells
 
 
