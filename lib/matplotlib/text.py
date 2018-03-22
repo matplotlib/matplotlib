@@ -1,10 +1,6 @@
 """
 Classes for including text in a figure.
 """
-from __future__ import absolute_import, division, print_function
-
-import six
-from six.moves import zip
 
 import contextlib
 import logging
@@ -63,10 +59,9 @@ def get_rotation(rotation):
     try:
         angle = float(rotation)
     except (ValueError, TypeError):
-        isString = isinstance(rotation, six.string_types)
-        if ((isString and rotation == 'horizontal') or rotation is None):
+        if cbook._str_equal(rotation, 'horizontal') or rotation is None:
             angle = 0.
-        elif (isString and rotation == 'vertical'):
+        elif cbook._str_equal(rotation, 'vertical'):
             angle = 90.
         else:
             raise ValueError("rotation is {0} expected either 'horizontal'"
@@ -168,7 +163,7 @@ class Text(Artist):
             color = rcParams['text.color']
         if fontproperties is None:
             fontproperties = FontProperties()
-        elif isinstance(fontproperties, six.string_types):
+        elif isinstance(fontproperties, str):
             fontproperties = FontProperties(fontproperties)
 
         self._text = ''
@@ -467,8 +462,7 @@ class Text(Artist):
                     pad = 0.3
 
             # boxstyle could be a callable or a string
-            if (isinstance(boxstyle, six.string_types)
-                    and "pad" not in boxstyle):
+            if isinstance(boxstyle, str) and "pad" not in boxstyle:
                 boxstyle += ",pad=%0.2f" % pad
 
             bbox_transmuter = props.pop("bbox_transmuter", None)
@@ -1136,7 +1130,7 @@ class Text(Artist):
 
         ACCEPTS: a :class:`matplotlib.font_manager.FontProperties` instance
         """
-        if isinstance(fp, six.string_types):
+        if isinstance(fp, str):
             fp = FontProperties(fp)
         self._fontproperties = fp.copy()
         self.stale = True
@@ -1697,8 +1691,8 @@ class _AnnotationBase(object):
             return BboxTransformTo(s)
         elif isinstance(s, Transform):
             return s
-        elif not isinstance(s, six.string_types):
-            raise RuntimeError("unknown coordinate type : %s" % (s,))
+        elif not isinstance(s, str):
+            raise RuntimeError("unknown coordinate type : %s" % s)
 
         if s == 'data':
             return self.axes.transData
@@ -1761,20 +1755,18 @@ class _AnnotationBase(object):
         return x, y (in display coordinate) that is to be used for a reference
         of any offset coordinate
         """
+        def is_offset(s):
+            return isinstance(s, str) and s.split()[0] == "offset"
 
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
-            if ((isinstance(s1, six.string_types)
-                 and s1.split()[0] == "offset")
-                    or (isinstance(s2, six.string_types)
-                        and s2.split()[0] == "offset")):
+            if is_offset(s1) or is_offset(s2):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
             x2, y2 = self._get_xy(renderer, x, y, s2)
             return x1, y2
-        elif (isinstance(self.xycoords, six.string_types) and
-              self.xycoords.split()[0] == "offset"):
+        elif is_offset(self.xycoords):
             raise ValueError("xycoords should not be an offset coordinate")
         else:
             x, y = self.xy

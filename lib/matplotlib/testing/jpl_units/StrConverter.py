@@ -10,12 +10,9 @@
 # ==========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import matplotlib.units as units
 from matplotlib.cbook import iterable
-
+#
 # Place all imports before here.
 # ==========================================================================
 

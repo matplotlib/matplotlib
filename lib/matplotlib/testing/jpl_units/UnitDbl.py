@@ -10,10 +10,6 @@
 # ==========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 import operator
 #
 # Place all imports before here.
@@ -111,19 +107,9 @@ class UnitDbl(object):
         return UnitDbl(-self._value, self._units)
 
     # ----------------------------------------------------------------------
-    def __nonzero__(self):
-        """Test a UnitDbl for a non-zero value.
-
-        = RETURN VALUE
-        - Returns true if the value is non-zero.
-        """
-        if six.PY3:
-            return self._value.__bool__()
-        else:
-            return self._value.__nonzero__()
-
-    if six.PY3:
-        __bool__ = __nonzero__
+    def __bool__(self):
+        """Return the truth value of a UnitDbl."""
+        return bool(self._value)
 
     # ----------------------------------------------------------------------
     def __eq__(self, rhs):
@@ -292,9 +278,9 @@ class UnitDbl(object):
         - units     The string name of the units to check.
         """
         if units not in self.allowed:
-            msg = "Input units '%s' are not one of the supported types of %s" \
-                    % (units, str(list(six.iterkeys(self.allowed))))
-            raise ValueError(msg)
+            raise ValueError("Input units '%s' are not one of the supported "
+                             "types of %s" % (
+                                units, list(self.allowed.keys())))
 
     # ----------------------------------------------------------------------
     def checkSameUnits(self, rhs, func):
