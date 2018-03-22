@@ -27,7 +27,7 @@
 Matplotlib
 ##########
 
-Matplotlib is a Python 2D plotting library which produces publication-quality
+Matplotlib is a Python 2D and 3D plotting library which produces publication-quality
 figures in a variety of hardcopy formats and interactive environments across
 platforms. Matplotlib can be used in Python scripts, the Python and IPython
 shell (à la MATLAB or Mathematica), web application servers, and various
