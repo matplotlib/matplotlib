@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import xrange, zip
-import bz2
 import collections
 import contextlib
 import datetime
@@ -602,6 +601,9 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
+            # python may not be complied with bz2 support,
+            # bury import until we need it
+            import bz2
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
