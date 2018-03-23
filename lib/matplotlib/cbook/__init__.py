@@ -676,6 +676,7 @@ def dedent(s):
     return result
 
 
+@deprecated("3.0")
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
     Recursively list files
