@@ -462,9 +462,8 @@ class Path3DCollection(PathCollection):
         # Put vzs first to sort based on z value
         z_markers = sorted(zip(vzs, np.column_stack([vxs, vys]), fcs, ecs),
                            reverse=True)
-        vps = [ps for zs, ps, fc, ec in z_markers]
-        fcs = [fc for zs, ps, fc, ec in z_markers]
-        ecs = [ec for zs, ps, fc, ec in z_markers]
+
+        [zzs, vps, fcs, ecs] = zip(*z_markers)
 
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
@@ -474,9 +473,9 @@ class Path3DCollection(PathCollection):
 
         PathCollection.set_offsets(self, vps)
 
-        if vzs.size > 0 :
+        if vzs.size > 0:
             return min(vzs)
-        else :
+        else:
             return np.nan
 
 
@@ -644,17 +643,16 @@ class Poly3DCollection(PolyCollection):
         else:
             raise ValueError("whoops")
 
-        segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
+        [zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs] = \
+            zip(*z_segments_2d)
+
         if self._codes3d is not None:
-            codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
+            codes = [self._codes3d[idx] for idx in idxs]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
             PolyCollection.set_verts(self, segments_2d, self._closed)
 
-        self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
-        if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec, idx in z_segments_2d]
-        else:
+        if len(self._edgecolors3d) != len(cface):
             self._edgecolors2d = self._edgecolors3d
 
         # Return zorder value
