@@ -42,15 +42,14 @@ import re
 import sys
 
 from ._mathtext_data import uni2type1
+from matplotlib.cbook import deprecated
 
-# Convert string the a python type
 
 # some afm files have floats where we are expecting ints -- there is
 # probably a better way to handle this (support floats, round rather
 # than truncate).  But I don't know what the best approach is now and
 # this change to _to_int should at least prevent mpl from crashing on
 # these JDH (2009-11-06)
-
 
 def _to_int(x):
     return int(float(x))
@@ -358,7 +357,12 @@ def _parse_optional(fh):
     return d[b'StartKernData'], d[b'StartComposites']
 
 
+@deprecated("3.0", "Use the class AFM instead.")
 def parse_afm(fh):
+    return _parse_afm(fh)
+
+
+def _parse_afm(fh):
     """
     Parse the Adobe Font Metrics file in file handle *fh*.
 
@@ -391,7 +395,7 @@ class AFM(object):
          self._metrics,
          self._metrics_by_name,
          self._kern,
-         self._composite) = parse_afm(fh)
+         self._composite) = _parse_afm(fh)
 
     def get_bbox_char(self, c, isord=False):
         if not isord:

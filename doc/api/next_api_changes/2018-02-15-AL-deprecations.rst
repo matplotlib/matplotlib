@@ -10,6 +10,7 @@ The following modules are deprecated:
 
 The following classes, methods, functions, and attributes are deprecated:
 
+- ``afm.parse_afm``,
 - ``Annotation.arrow``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
