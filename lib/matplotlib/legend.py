@@ -1115,9 +1115,8 @@ class Legend(Artist):
 
         if state:
             if self._draggable is None:
-                self._draggable = DraggableLegend(self,
-                                                  use_blit,
-                                                  update=update)
+                self._draggable = DraggableLegend(
+                    self, use_blit, update=update)
         else:
             if self._draggable is not None:
                 self._draggable.disconnect()

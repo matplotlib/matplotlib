@@ -885,7 +885,7 @@ default: 'top'
         if norm is None:
             im.set_clim(vmin, vmax)
         self.images.append(im)
-        im._remove_method = self.images.remove
+        im._on_remove = [self.images.remove]
         self.stale = True
         return im
 
@@ -1157,7 +1157,7 @@ default: 'top'
 
         self._axstack.add(key, a)
         self.sca(a)
-        a._remove_method = self._remove_ax
+        a._on_remove = [self._remove_ax]
         self.stale = True
         a.stale_callback = _stale_figure_callback
         return a
@@ -1264,7 +1264,7 @@ default: 'top'
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
         self._axstack.add(key, a)
         self.sca(a)
-        a._remove_method = self._remove_ax
+        a._on_remove = [self._remove_ax]
         self.stale = True
         a.stale_callback = _stale_figure_callback
         return a
@@ -1598,7 +1598,7 @@ default: 'top'
             pass
         l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
         self.legends.append(l)
-        l._remove_method = self.legends.remove
+        l._on_remove = [self.legends.remove]
         self.stale = True
         return l
 
@@ -1626,7 +1626,7 @@ default: 'top'
         t.update(override)
         self._set_artist_props(t)
         self.texts.append(t)
-        t._remove_method = self.texts.remove
+        t._on_remove = [self.texts.remove]
         self.stale = True
         return t
 

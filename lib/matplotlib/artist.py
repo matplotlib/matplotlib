@@ -112,7 +112,7 @@ class Artist(object):
         except AttributeError:
             # Handle self.axes as a read-only property, as in Figure.
             pass
-        self._remove_method = None
+        self._on_remove = []
         self._url = None
         self._gid = None
         self._snap = None
@@ -142,31 +142,33 @@ class Artist(object):
         Note: there is no support for removing the artist's legend entry.
         """
 
-        # There is no method to set the callback.  Instead the parent should
-        # set the _remove_method attribute directly.  This would be a
-        # protected attribute if Python supported that sort of thing.  The
-        # callback has one parameter, which is the child to be removed.
-        if self._remove_method is not None:
-            self._remove_method(self)
-            # clear stale callback
-            self.stale_callback = None
-            _ax_flag = False
-            if hasattr(self, 'axes') and self.axes:
-                # remove from the mouse hit list
-                self.axes.mouseover_set.discard(self)
-                # mark the axes as stale
-                self.axes.stale = True
-                # decouple the artist from the axes
-                self.axes = None
-                _ax_flag = True
-
-            if self.figure:
-                self.figure = None
-                if not _ax_flag:
-                    self.figure = True
-
-        else:
+        # There is no method to set the callbacks.  Instead the parent should
+        # populate the _on_remove list directly.  This would be a protected
+        # attribute if Python supported that sort of thing.  The callbacks have
+        # one parameter, which is the child to be removed.
+        if not self._on_remove:
             raise NotImplementedError('cannot remove artist')
+
+        for cb in self._on_remove:
+            cb(self)
+        self._on_remove = []
+        # clear stale callback
+        self.stale_callback = None
+        _ax_flag = False
+        if hasattr(self, 'axes') and self.axes:
+            # remove from the mouse hit list
+            self.axes.mouseover_set.discard(self)
+            # mark the axes as stale
+            self.axes.stale = True
+            # decouple the artist from the axes
+            self.axes = None
+            _ax_flag = True
+
+        if self.figure:
+            self.figure = None
+            if not _ax_flag:
+                self.figure = True
+
         # TODO: the fix for the collections relim problem is to move the
         # limits calculation into the artist itself, including the property of
         # whether or not the artist should affect the limits.  Then there will

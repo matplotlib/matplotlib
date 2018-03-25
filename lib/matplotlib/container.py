@@ -22,23 +22,21 @@ class Container(tuple):
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
-
-        self._remove_method = None
+        self._on_remove = []
 
         self.set_label(label)
 
     @cbook.deprecated("3.0")
     def set_remove_method(self, f):
-        self._remove_method = f
+        self._on_remove = [f]
 
     def remove(self):
         for c in cbook.flatten(
                 self, scalarp=lambda x: isinstance(x, martist.Artist)):
             if c is not None:
                 c.remove()
-
-        if self._remove_method:
-            self._remove_method(self)
+        for cb in self._on_remove:
+            cb(self)
 
     def get_label(self):
         """

@@ -242,7 +242,7 @@ class HostAxesBase(object):
         # note that ax2.transData == tr + ax1.transData
         # Anthing you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
-        ax2._remove_method = self.parasites.remove
+        ax2._on_remove = [self.parasites.remove]
         return ax2
 
     def _get_legend_handles(self, legend_handler_map=None):
@@ -303,7 +303,7 @@ class HostAxesBase(object):
 
         ax2 = parasite_axes_class(self, sharex=self, frameon=False)
         self.parasites.append(ax2)
-        ax2._remove_method = self._remove_twinx
+        ax2._on_remove = [self._remove_twinx]
 
         self.axis["right"].set_visible(False)
 
@@ -332,7 +332,7 @@ class HostAxesBase(object):
 
         ax2 = parasite_axes_class(self, sharey=self, frameon=False)
         self.parasites.append(ax2)
-        ax2._remove_method = self._remove_twiny
+        ax2._on_remove = [self._remove_twiny]
 
         self.axis["top"].set_visible(False)
 
@@ -367,7 +367,6 @@ class HostAxesBase(object):
             ax2 = parasite_axes_auxtrans_class(
                 self, aux_trans, viewlim_mode="transform")
         self.parasites.append(ax2)
-        ax2._remove_method = self.parasites.remove
 
         self.axis["top", "right"].set_visible(False)
 
@@ -378,7 +377,7 @@ class HostAxesBase(object):
             self.parasites.remove(h)
             self.axis["top", "right"].set_visible(True)
             self.axis["top", "right"].toggle(ticklabels=False, label=False)
-        ax2._remove_method = _remove_method
+        ax2._on_remove = [_remove_method]
 
         return ax2
 
