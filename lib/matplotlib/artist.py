@@ -1059,8 +1059,9 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        return ', '.join('{:0.3g}'.format(item) for item in data if
-                isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
+                   isinstance(item, (np.floating, np.integer, int, float)))
+        return "[" + data_str + "]"
 
     @property
     def mouseover(self):
