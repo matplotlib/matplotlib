@@ -416,6 +416,7 @@ backend      : $TEMPLATE_BACKEND
 ## Dimensions as fraction of fontsize:
 #legend.borderpad     : 0.4      ## border whitespace
 #legend.labelspacing  : 0.5      ## the vertical space between the legend entries
+#legend.scalehandlebox : True     ## whether or not to scale handlebox to fit handle
 #legend.handlelength  : 2.0      ## the length of the legend lines
 #legend.handleheight  : 0.7      ## the height of the legend handle
 #legend.handletextpad : 0.8      ## the space between the legend line and legend text

@@ -1185,6 +1185,8 @@ defaultParams = {
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
     # the vertical space between the legend entries
     'legend.labelspacing': [0.5, validate_float],
+    # whether or not to scale handlebox to fit handle
+    'legend.scalehandlebox': [True, validate_bool],
     # the length of the legend lines
     'legend.handlelength': [2., validate_float],
     # the length of the legend lines

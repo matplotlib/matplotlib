@@ -161,7 +161,8 @@ class HandlerBase(object):
             be added to this handlebox inside this method.
 
         """
-        self._scale_dimensions(legend, handlebox, orig_handle)
+        if legend.scalehandlebox:
+            self._scale_dimensions(legend, handlebox, orig_handle)
         xdescent, ydescent, width, height = self.adjust_drawing_area(
                  legend, orig_handle,
                  handlebox.xdescent, handlebox.ydescent,

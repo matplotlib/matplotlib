@@ -248,11 +248,22 @@ labelspacing : float or None
     Default is ``None``, which will take the value from
     :rc:`legend.labelspacing`.
 
+scalehandlebox : None or bool
+    Control whether to scale each individual handlebox up to fit it's handle.
+    Default is ``None``, which will take the value from
+    :rc:`legend.scalehandlebox`.
+
 handlelength : float or None
     The length of the legend handles.
     Measured in font-size units.
     Default is ``None``, which will take the value from
     :rc:`legend.handlelength`.
+
+handleheight : float or None
+    The height of the legend handles.
+    Measured in font-size units.
+    Default is ``None``, which will take the value from
+    :rc:`legend.handleheight`.
 
 handletextpad : float or None
     The pad between the legend handle and text.
@@ -321,6 +332,7 @@ class Legend(Artist):
                  borderpad=None,      # the whitespace inside the legend border
                  labelspacing=None,   # the vertical space between the legend
                                       # entries
+                 scalehandlebox=None, # scale handlebox to fit handle 
                  handlelength=None,   # the length of the legend handles
                  handleheight=None,   # the height of the legend handles
                  handletextpad=None,  # the pad between the legend handle
@@ -503,11 +515,24 @@ class Legend(Artist):
             Default is ``None``, which will take the value from
             :rc:`legend.labelspacing`.
 
+        scalehandlebox : None or bool
+            Control whether to scale each individual handlebox up to fit
+            it's handle.
+            Default is ``None``, which will take the value from
+            :rc:`legend.scalehandlebox`.
+
         handlelength : float or None
             The length of the legend handles.
             Measured in font-size units.
             Default is ``None``, which will take the value from
             :rc:`legend.handlelength`.
+
+        handleheight : float or None
+            The height of the legend handles.
+            Measured in font-size units.
+            Default is ``None``, which will take the value from
+            :rc:`legend.handleheight`.
+
 
         handletextpad : float or None
             The pad between the legend handle and text.
@@ -574,9 +599,9 @@ class Legend(Artist):
 
         locals_view = locals()
         for name in ["numpoints", "markerscale", "shadow", "columnspacing",
-                     "scatterpoints", "handleheight", 'borderpad',
-                     'labelspacing', 'handlelength', 'handletextpad',
-                     'borderaxespad']:
+                     "scatterpoints", "scalehandlebox", "handleheight",
+                     'handlelength', 'borderpad', 'labelspacing',
+                     'handletextpad', 'borderaxespad']:
             if locals_view[name] is None:
                 value = rcParams["legend." + name]
             else:
