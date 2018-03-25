@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import functools
 import warnings
 
@@ -39,10 +34,10 @@ def setup():
     from matplotlib.backends import backend_agg, backend_pdf, backend_svg
 
     try:
-        locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
     except locale.Error:
         try:
-            locale.setlocale(locale.LC_ALL, str('English_United States.1252'))
+            locale.setlocale(locale.LC_ALL, 'English_United States.1252')
         except locale.Error:
             warnings.warn(
                 "Could not set locale to English/United States. "

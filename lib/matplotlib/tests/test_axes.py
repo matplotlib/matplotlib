@@ -584,6 +584,16 @@ def test_shaped_data():
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
 
 
+def test_structured_data():
+    # support for stuctured data
+    pts = np.array([(1, 1), (2, 2)], dtype=[("ones", float), ("twos", float)])
+
+    # this should not read second name as a format and raise ValueError
+    fig, ax = plt.subplots(2)
+    ax[0].plot("ones", "twos", data=pts)
+    ax[1].plot("ones", "twos", "r", data=pts)
+
+
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
     fig = plt.figure()

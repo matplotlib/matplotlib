@@ -1,13 +1,9 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
-import matplotlib
 import inspect
+import logging
 import traceback
 import warnings
-import logging
+
+import matplotlib
 
 _log = logging.getLogger(__name__)
 

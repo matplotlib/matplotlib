@@ -1,15 +1,9 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 from collections import OrderedDict
-
-import six
-
 import itertools
-import warnings
 import math
 from operator import attrgetter
 import types
+import warnings
 
 import numpy as np
 
@@ -155,7 +149,7 @@ class _process_plot_var_args(object):
         self.set_prop_cycle()
 
     def __getstate__(self):
-        # note: it is not possible to pickle a itertools.cycle instance
+        # note: it is not possible to pickle a generator (and thus a cycler).
         return {'axes': self.axes, 'command': self.command}
 
     def __setstate__(self, state):
@@ -290,8 +284,7 @@ class _process_plot_var_args(object):
                     kw[k] = defaults[k]
 
     def _makeline(self, x, y, kw, kwargs):
-        kw = kw.copy()  # Don't modify the original kw.
-        kw.update(kwargs)
+        kw = {**kw, **kwargs}  # Don't modify the original kw.
         default_dict = self._getdefaults(None, kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
@@ -312,7 +305,7 @@ class _process_plot_var_args(object):
         ignores = {'marker', 'markersize', 'markeredgecolor',
                    'markerfacecolor', 'markeredgewidth'}
         # Also ignore anything provided by *kwargs*.
-        for k, v in six.iteritems(kwargs):
+        for k, v in kwargs.items():
             if v is not None:
                 ignores.add(k)
 
@@ -347,7 +340,7 @@ class _process_plot_var_args(object):
 
     def _plot_args(self, tup, kwargs):
         ret = []
-        if len(tup) > 1 and isinstance(tup[-1], six.string_types):
+        if len(tup) > 1 and isinstance(tup[-1], str):
             linestyle, marker, color = _process_plot_format(tup[-1])
             tup = tup[:-1]
         elif len(tup) == 3:
@@ -396,7 +389,7 @@ class _process_plot_var_args(object):
     def _grab_next_args(self, *args, **kwargs):
         while args:
             this, args = args[:2], args[2:]
-            if args and isinstance(args[0], six.string_types):
+            if args and isinstance(args[0], str):
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(this, kwargs)
@@ -530,8 +523,7 @@ class _AxesBase(martist.Artist):
         if yscale:
             self.set_yscale(yscale)
 
-        if len(kwargs):
-            self.update(kwargs)
+        self.update(kwargs)
 
         if self.xaxis is not None:
             self._xcid = self.xaxis.callbacks.connect(
@@ -586,12 +578,6 @@ class _AxesBase(martist.Artist):
 
     def __setstate__(self, state):
         self.__dict__ = state
-        # put the _remove_method back on all artists contained within the axes
-        for container_name in ['lines', 'collections', 'tables', 'patches',
-                               'texts', 'images']:
-            container = getattr(self, container_name)
-            for artist in container:
-                artist._remove_method = container.remove
         self._stale = True
         self._layoutbox = None
         self._poslayoutbox = None
@@ -727,7 +713,7 @@ class _AxesBase(martist.Artist):
         labels_align = matplotlib.rcParams["xtick.alignment"]
 
         return (self.get_xaxis_transform(which='tick1') +
-                mtransforms.ScaledTranslation(0, -1 * pad_points / 72.0,
+                mtransforms.ScaledTranslation(0, -1 * pad_points / 72,
                                               self.figure.dpi_scale_trans),
                 "top", labels_align)
 
@@ -754,7 +740,7 @@ class _AxesBase(martist.Artist):
         """
         labels_align = matplotlib.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
-                mtransforms.ScaledTranslation(0, pad_points / 72.0,
+                mtransforms.ScaledTranslation(0, pad_points / 72,
                                               self.figure.dpi_scale_trans),
                 "bottom", labels_align)
 
@@ -806,7 +792,7 @@ class _AxesBase(martist.Artist):
         """
         labels_align = matplotlib.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
-                mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
+                mtransforms.ScaledTranslation(-1 * pad_points / 72, 0,
                                               self.figure.dpi_scale_trans),
                 labels_align, "right")
 
@@ -834,7 +820,7 @@ class _AxesBase(martist.Artist):
         labels_align = matplotlib.rcParams["ytick.alignment"]
 
         return (self.get_yaxis_transform(which='tick2') +
-                mtransforms.ScaledTranslation(pad_points / 72.0, 0,
+                mtransforms.ScaledTranslation(pad_points / 72, 0,
                                               self.figure.dpi_scale_trans),
                 labels_align, "left")
 
@@ -842,12 +828,11 @@ class _AxesBase(martist.Artist):
         self.transScale.set(
             mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
-        if hasattr(self, "lines"):
-            for line in self.lines:
-                try:
-                    line._transformed_path.invalidate()
-                except AttributeError:
-                    pass
+        for line in getattr(self, "lines", []):  # Not set during init.
+            try:
+                line._transformed_path.invalidate()
+            except AttributeError:
+                pass
 
     def get_position(self, original=False):
         """
@@ -1003,7 +988,7 @@ class _AxesBase(martist.Artist):
         self.xaxis.cla()
         self.yaxis.cla()
 
-        for name, spine in six.iteritems(self.spines):
+        for name, spine in self.spines.items():
             spine.cla()
 
         self.ignore_existing_data_limits = True
@@ -1156,7 +1141,7 @@ class _AxesBase(martist.Artist):
         or from set_title kwarg ``pad``.
         """
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
-                0.0, title_offset_points / 72.0,
+                0.0, title_offset_points / 72,
                 self.figure.dpi_scale_trans)
         for _title in (self.title, self._left_title, self._right_title):
             _title.set_transform(self.transAxes + self.titleOffsetTrans)
@@ -1164,40 +1149,58 @@ class _AxesBase(martist.Artist):
 
     def set_prop_cycle(self, *args, **kwargs):
         """
-        Set the property cycle for any future plot commands on this Axes.
+        Set the property cycle of the Axes.
 
-        set_prop_cycle(arg)
-        set_prop_cycle(label, itr)
-        set_prop_cycle(label1=itr1[, label2=itr2[, ...]])
+        The property cycle controls the style properties such as color,
+        marker and linestyle of future plot commands. The style properties
+        of data already added to the Axes are not modified.
+
+        Call signatures::
+
+          set_prop_cycle(cycler)
+          set_prop_cycle(label, values)
+          set_prop_cycle(label=values[, label2=values2[, ...]])
 
         Form 1 simply sets given `Cycler` object.
 
-        Form 2 creates and sets  a `Cycler` from a label and an iterable.
+        Form 2 creates and sets a `Cycler` from a label and an iterable.
 
-        Form 3 composes and sets  a `Cycler` as an inner product of the
+        Form 3 composes and sets a `Cycler` as an inner product of the
         pairs of keyword arguments. In other words, all of the
         iterables are cycled simultaneously, as if through zip().
 
         Parameters
         ----------
-        arg : Cycler
-            Set the given Cycler.
-            Can also be `None` to reset to the cycle defined by the
+        cycler : Cycler
+            Set the given Cycler. *None* resets to the cycle defined by the
             current style.
 
         label : str
-            The property key. Must be a valid `Artist` property.
+            The property key. Must be a valid `.Artist` property.
             For example, 'color' or 'linestyle'. Aliases are allowed,
             such as 'c' for 'color' and 'lw' for 'linewidth'.
 
-        itr : iterable
+        values : iterable
             Finite-length iterable of the property values. These values
             are validated and will raise a ValueError if invalid.
 
+        Examples
+        --------
+        Setting the property cycle for a single property:
+
+        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])  # or
+        >>> ax.set_prop_cycle('color', ['red', 'green', 'blue'])
+
+        Setting the property cycle for simultaneously cycling over multiple
+        properties (e.g. red circle, green plus, blue cross):
+
+        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'],
+        ...                   marker=['o', '+', 'x'])
+
         See Also
         --------
-            :func:`cycler`      Convenience function for creating your
-                                own cyclers.
+        matplotlib.rcsetup.cycler
+            Convenience function for creating your own cyclers.
 
         """
         if args and kwargs:
@@ -1327,8 +1330,7 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_anchor
             defining the position in case of extra space.
         """
-        if not (isinstance(aspect, six.string_types)
-                and aspect in ('equal', 'auto')):
+        if not (isinstance(aspect, str) and aspect in ('equal', 'auto')):
             aspect = float(aspect)  # raise ValueError if necessary
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
@@ -1700,7 +1702,7 @@ class _AxesBase(martist.Artist):
 
         emit = kwargs.get('emit', True)
 
-        if len(v) == 1 and isinstance(v[0], six.string_types):
+        if len(v) == 1 and isinstance(v[0], str):
             s = v[0].lower()
             if s == 'on':
                 self.set_axis_on()
@@ -1858,9 +1860,9 @@ class _AxesBase(martist.Artist):
         """
         a.axes = self
         self.artists.append(a)
+        a._remove_method = self.artists.remove
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
-        a._remove_method = lambda h: self.artists.remove(h)
         self.stale = True
         return a
 
@@ -1875,6 +1877,7 @@ class _AxesBase(martist.Artist):
         if not label:
             collection.set_label('_collection%d' % len(self.collections))
         self.collections.append(collection)
+        collection._remove_method = self.collections.remove
         self._set_artist_props(collection)
 
         if collection.get_clip_path() is None:
@@ -1883,7 +1886,6 @@ class _AxesBase(martist.Artist):
         if autolim:
             self.update_datalim(collection.get_datalim(self.transData))
 
-        collection._remove_method = lambda h: self.collections.remove(h)
         self.stale = True
         return collection
 
@@ -1897,7 +1899,7 @@ class _AxesBase(martist.Artist):
         if not image.get_label():
             image.set_label('_image%d' % len(self.images))
         self.images.append(image)
-        image._remove_method = lambda h: self.images.remove(h)
+        image._remove_method = self.images.remove
         self.stale = True
         return image
 
@@ -1920,7 +1922,7 @@ class _AxesBase(martist.Artist):
         if not line.get_label():
             line.set_label('_line%d' % len(self.lines))
         self.lines.append(line)
-        line._remove_method = lambda h: self.lines.remove(h)
+        line._remove_method = self.lines.remove
         self.stale = True
         return line
 
@@ -1930,7 +1932,7 @@ class _AxesBase(martist.Artist):
         """
         self._set_artist_props(txt)
         self.texts.append(txt)
-        txt._remove_method = lambda h: self.texts.remove(h)
+        txt._remove_method = self.texts.remove
         self.stale = True
         return txt
 
@@ -1993,7 +1995,7 @@ class _AxesBase(martist.Artist):
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
-        p._remove_method = lambda h: self.patches.remove(h)
+        p._remove_method = self.patches.remove
         return p
 
     def _update_patch_limits(self, patch):
@@ -2039,7 +2041,7 @@ class _AxesBase(martist.Artist):
         self._set_artist_props(tab)
         self.tables.append(tab)
         tab.set_clip_path(self.patch)
-        tab._remove_method = lambda h: self.tables.remove(h)
+        tab._remove_method = self.tables.remove
         return tab
 
     def add_container(self, container):
@@ -2053,7 +2055,7 @@ class _AxesBase(martist.Artist):
         if not label:
             container.set_label('_container%d' % len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(h))
+        container._remove_method = self.containers.remove
         return container
 
     def _on_units_changed(self, scalex=False, scaley=False):
@@ -2540,7 +2542,7 @@ class _AxesBase(martist.Artist):
         # frame in the foreground. Do this before drawing the axis
         # objects so that the spine has the opportunity to update them.
         if not (self.axison and self._frameon):
-            for spine in six.itervalues(self.spines):
+            for spine in self.spines.values():
                 artists.remove(spine)
 
         if self.axison and not inframe:
@@ -4043,7 +4045,7 @@ class _AxesBase(martist.Artist):
         children.extend(self.lines)
         children.extend(self.texts)
         children.extend(self.artists)
-        children.extend(six.itervalues(self.spines))
+        children.extend(self.spines.values())
         children.append(self.xaxis)
         children.append(self.yaxis)
         children.append(self.title)

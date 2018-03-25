@@ -1,9 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip, zip_longest
-
 import functools
 import itertools
 import logging
@@ -49,24 +43,17 @@ _log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
-_alias_map = {'color': ['c'],
-              'linewidth': ['lw'],
-              'linestyle': ['ls'],
-              'facecolor': ['fc'],
-              'edgecolor': ['ec'],
-              'markerfacecolor': ['mfc'],
-              'markeredgecolor': ['mec'],
-              'markeredgewidth': ['mew'],
-              'markersize': ['ms'],
-             }
-
 
 def _plot_args_replacer(args, data):
     if len(args) == 1:
         return ["y"]
     elif len(args) == 2:
         # this can be two cases: x,y or y,c
-        if not args[1] in data:
+        if (not args[1] in data and
+            not (hasattr(data, 'dtype') and
+                 hasattr(data.dtype, 'names') and
+                 data.dtype.names is not None and
+                 args[1] in data.dtype.names)):
             # this is not in data, so just assume that it is something which
             # will not get replaced (color spec or array like).
             return ["y", "c"]
@@ -211,19 +198,20 @@ class Axes(_AxesBase):
 
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set the label for the xaxis.
+        Set the label for the x-axis.
 
         Parameters
         ----------
-        xlabel : string
-            x label
+        xlabel : str
+            The label text.
 
         labelpad : scalar, optional, default: None
-            spacing in points between the label and the x-axis
+            Spacing in points between the label and the x-axis.
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `.Text` properties
+            `.Text` properties control the appearance of the label.
 
         See also
         --------
@@ -242,19 +230,20 @@ class Axes(_AxesBase):
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set the label for the yaxis
+        Set the label for the y-axis.
 
         Parameters
         ----------
-        ylabel : string
-            y label
+        ylabel : str
+            The label text.
 
         labelpad : scalar, optional, default: None
-            spacing in points between the label and the y-axis
+            Spacing in points between the label and the y-axis.
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties
+        **kwargs : `.Text` properties
+            `.Text` properties control the appearance of the label.
 
         See also
         --------
@@ -363,172 +352,7 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
 
-        loc : int or string or pair of floats, default: 'upper right'
-            The location of the legend. Possible codes are:
-
-                ===============   =============
-                Location String   Location Code
-                ===============   =============
-                'best'            0
-                'upper right'     1
-                'upper left'      2
-                'lower left'      3
-                'lower right'     4
-                'right'           5
-                'center left'     6
-                'center right'    7
-                'lower center'    8
-                'upper center'    9
-                'center'          10
-                ===============   =============
-
-
-            Alternatively can be a 2-tuple giving ``x, y`` of the lower-left
-            corner of the legend in axes coordinates (in which case
-            ``bbox_to_anchor`` will be ignored).
-
-        bbox_to_anchor : `.BboxBase` or pair of floats
-            Specify any arbitrary location for the legend in `bbox_transform`
-            coordinates (default Axes coordinates).
-
-            For example, to put the legend's upper right hand corner in the
-            center of the axes the following keywords can be used::
-
-               loc='upper right', bbox_to_anchor=(0.5, 0.5)
-
-        ncol : integer
-            The number of columns that the legend has. Default is 1.
-
-        prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
-            The font properties of the legend. If None (default), the current
-            :data:`matplotlib.rcParams` will be used.
-
-        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
-'large', 'x-large', 'xx-large'}
-            Controls the font size of the legend. If the value is numeric the
-            size will be the absolute font size in points. String values are
-            relative to the current default font size. This argument is only
-            used if `prop` is not specified.
-
-        numpoints : None or int
-            The number of marker points in the legend when creating a legend
-            entry for a `.Line2D` (line).
-            Default is ``None``, which will take the value from
-            :rc:`legend.numpoints`.
-
-        scatterpoints : None or int
-            The number of marker points in the legend when creating
-            a legend entry for a `.PathCollection` (scatter plot).
-            Default is ``None``, which will take the value from
-            :rc:`legend.scatterpoints`.
-
-        scatteryoffsets : iterable of floats
-            The vertical offset (relative to the font size) for the markers
-            created for a scatter plot legend entry. 0.0 is at the base the
-            legend text, and 1.0 is at the top. To draw all markers at the
-            same height, set to ``[0.5]``. Default is ``[0.375, 0.5, 0.3125]``.
-
-        markerscale : None or int or float
-            The relative size of legend markers compared with the originally
-            drawn ones.
-            Default is ``None``, which will take the value from
-            :rc:`legend.markerscale`.
-
-        markerfirst : bool
-            If *True*, legend marker is placed to the left of the legend label.
-            If *False*, legend marker is placed to the right of the legend
-            label.
-            Default is *True*.
-
-        frameon : None or bool
-            Control whether the legend should be drawn on a patch
-            (frame).
-            Default is ``None``, which will take the value from
-            :rc:`legend.frameon`.
-
-        fancybox : None or bool
-            Control whether round edges should be enabled around the
-            :class:`~matplotlib.patches.FancyBboxPatch` which makes up the
-            legend's background.
-            Default is ``None``, which will take the value from
-            :rc:`legend.fancybox`.
-
-        shadow : None or bool
-            Control whether to draw a shadow behind the legend.
-            Default is ``None``, which will take the value from
-            :rc:`legend.shadow`.
-
-        framealpha : None or float
-            Control the alpha transparency of the legend's background.
-            Default is ``None``, which will take the value from
-            :rc:`legend.framealpha`.  If shadow is activated and
-            *framealpha* is ``None``, the default value is ignored.
-
-        facecolor : None or "inherit" or a color spec
-            Control the legend's background color.
-            Default is ``None``, which will take the value from
-            :rc:`legend.facecolor`.  If ``"inherit"``, it will take
-            :rc:`axes.facecolor`.
-
-        edgecolor : None or "inherit" or a color spec
-            Control the legend's background patch edge color.
-            Default is ``None``, which will take the value from
-            :rc:`legend.edgecolor` If ``"inherit"``, it will take
-            :rc:`axes.edgecolor`.
-
-        mode : {"expand", None}
-            If `mode` is set to ``"expand"`` the legend will be horizontally
-            expanded to fill the axes area (or `bbox_to_anchor` if defines
-            the legend's size).
-
-        bbox_transform : None or :class:`matplotlib.transforms.Transform`
-            The transform for the bounding box (`bbox_to_anchor`). For a value
-            of ``None`` (default) the Axes'
-            :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
-
-        title : str or None
-            The legend's title. Default is no title (``None``).
-
-        borderpad : float or None
-            The fractional whitespace inside the legend border.
-            Measured in font-size units.
-            Default is ``None``, which will take the value from
-            :rc:`legend.borderpad`.
-
-        labelspacing : float or None
-            The vertical space between the legend entries.
-            Measured in font-size units.
-            Default is ``None``, which will take the value from
-            :rc:`legend.labelspacing`.
-
-        handlelength : float or None
-            The length of the legend handles.
-            Measured in font-size units.
-            Default is ``None``, which will take the value from
-            :rc:`legend.handlelength`.
-
-        handletextpad : float or None
-            The pad between the legend handle and text.
-            Measured in font-size units.
-            Default is ``None``, which will take the value from
-            :rc:`legend.handletextpad`.
-
-        borderaxespad : float or None
-            The pad between the axes and legend border.
-            Measured in font-size units.
-            Default is ``None``, which will take the value from
-            :rc:`legend.borderaxespad`.
-
-        columnspacing : float or None
-            The spacing between columns.
-            Measured in font-size units.
-            Default is ``None``, which will take the value from
-            :rc:`legend.columnspacing`.
-
-        handler_map : dict or None
-            The custom dictionary mapping instances or types to a legend
-            handler. This `handler_map` updates the default handler map
-            found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
+        %(_legend_kw_doc)s
 
         Returns
         -------
@@ -554,8 +378,11 @@ class Axes(_AxesBase):
         if len(extra_args):
             raise TypeError('legend only accepts two non-keyword arguments')
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
-        self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
+        self.legend_._remove_method = self._remove_legend
         return self.legend_
+
+    def _remove_legend(self, legend):
+        self.legend_ = None
 
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
@@ -642,8 +469,8 @@ class Axes(_AxesBase):
         return t
 
     @docstring.dedent_interpd
-    def annotate(self, *args, **kwargs):
-        a = mtext.Annotation(*args, **kwargs)
+    def annotate(self, text, xy, *args, **kwargs):
+        a = mtext.Annotation(text, xy, *args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         if 'clip_on' in kwargs:
             a.set_clip_path(self.patch)
@@ -1423,7 +1250,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `.Line2D` objects that were added.
+            A list of `.Line2D` objects representing the plotted data.
 
 
         See Also
@@ -1521,7 +1348,7 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
-        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
@@ -1566,7 +1393,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `.Line2D` objects that were added to the axes.
+            A list of `~.Line2D` objects representing the plotted data.
 
 
         Other Parameters
@@ -1615,36 +1442,45 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
-        Make a plot with log scaling on both the *x* and *y* axis.
+        Make a plot with log scaling on both the x and y axis.
 
-        :func:`~matplotlib.pyplot.loglog` supports all the keyword
-        arguments of :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale` /
-        :meth:`matplotlib.axes.Axes.set_yscale`.
+        Call signatures::
+
+            loglog([x], y, [fmt], data=None, **kwargs)
+            loglog([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
+
+        This is just a thin wrapper around `.plot` which additionally changes
+        both the x-axis and the y-axis to log scaling. All of the concepts and
+        parameters of plot can be used here as well.
+
+        The additional parameters *basex/y*, *subsx/y* and *nonposx/y* control
+        the x/y-axis properties. They are just forwarded to `.Axes.set_xscale`
+        and `.Axes.set_yscale`.
 
         Parameters
         ----------
-        basex, basey : scalar
-            Base of the x/y logarithm. Must be > 1.
+        basex, basey : scalar, optional, default 10
+            Base of the x/y logarithm.
 
-        subsx, subsy : sequence
-            The location of the minor x/y ticks; ``None`` defaults to autosubs,
-            which depend on the number of decades in the plot;
-            see :meth:`matplotlib.axes.Axes.set_xscale` /
-            :meth:`matplotlib.axes.Axes.set_yscale` for details.
+        subsx, subsy : sequence, optional
+            The location of the minor x/y ticks. If *None*, reasonable
+            locations are automatically chosen depending on the number of
+            decades in the plot.
+            See `.Axes.set_xscale` / `.Axes.set_yscale` for details.
 
-        nonposx, nonposy : ['mask' | 'clip' ]
+        nonposx, nonposy : {'mask', 'clip'}, optional, default 'mask'
             Non-positive values in x or y can be masked as invalid, or clipped
             to a very small positive number.
 
+        Returns
+        -------
+        lines
+            A list of `~.Line2D` objects representing the plotted data.
+
         Other Parameters
         ----------------
-        **kwargs :
-            The remaining valid kwargs are :class:`~matplotlib.lines.Line2D`
-            properties:
-
-            %(Line2D)s
-
+        **kwargs
+            All parameters supported by `.plot`.
         """
         if not self._hold:
             self.cla()
@@ -1670,39 +1506,41 @@ class Axes(_AxesBase):
         """
         Make a plot with log scaling on the x axis.
 
+        Call signatures::
+
+            semilogx([x], y, [fmt], data=None, **kwargs)
+            semilogx([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
+
+        This is just a thin wrapper around `.plot` which additionally changes
+        the x-axis to log scaling. All of the concepts and parameters of plot
+        can be used here as well.
+
+        The additional parameters *basex*, *subsx* and *nonposx* control the
+        x-axis properties. They are just forwarded to `.Axes.set_xscale`.
+
         Parameters
         ----------
-        basex : float, optional
-            Base of the x logarithm. The scalar should be larger than 1.
+        basex : scalar, optional, default 10
+            Base of the x logarithm.
 
         subsx : array_like, optional
-            The location of the minor xticks; ``None`` defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
-            details.
+            The location of the minor xticks. If *None*, reasonable locations
+            are automatically chosen depending on the number of decades in the
+            plot. See `.Axes.set_xscale` for details.
 
-        nonposx : string, optional, {'mask', 'clip'}
-            Non-positive values in x can be masked as
-            invalid, or clipped to a very small positive number.
+        nonposx : {'mask', 'clip'}, optional, default 'mask'
+            Non-positive values in x can be masked as invalid, or clipped to a
+            very small positive number.
 
         Returns
         -------
-        `~matplotlib.pyplot.plot`
-            Log-scaled plot on the x axis.
+        lines
+            A list of `~.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-            %(Line2D)s
-
-        Notes
-        -----
-        This function supports all the keyword arguments of
-        :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale`.
+        **kwargs
+            All parameters supported by `.plot`.
         """
         if not self._hold:
             self.cla()
@@ -1722,41 +1560,42 @@ class Axes(_AxesBase):
         """
         Make a plot with log scaling on the y axis.
 
+        Call signatures::
+
+            semilogy([x], y, [fmt], data=None, **kwargs)
+            semilogy([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
+
+        This is just a thin wrapper around `.plot` which additionally changes
+        the y-axis to log scaling. All of the concepts and parameters of plot
+        can be used here as well.
+
+        The additional parameters *basey*, *subsy* and *nonposy* control the
+        y-axis properties. They are just forwarded to `.Axes.set_yscale`.
+
         Parameters
         ----------
-        basey : float, optional
-            Base of the y logarithm. The scalar should be larger than 1.
+        basey : scalar, optional, default 10
+            Base of the y logarithm.
 
         subsy : array_like, optional
-            The location of the minor yticks; ``None`` defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
-            details.
+            The location of the minor yticks. If *None*, reasonable locations
+            are automatically chosen depending on the number of decades in the
+            plot. See `.Axes.set_yscale` for details.
 
-        nonposy : string, optional, {'mask', 'clip'}
-            Non-positive values in *y* can be masked as
-            invalid, or clipped to a very small positive number.
+        nonposy : {'mask', 'clip'}, optional, default 'mask'
+            Non-positive values in y can be masked as invalid, or clipped to a
+            very small positive number.
 
         Returns
         -------
-        `~matplotlib.pyplot.plot`
-            Log-scaled plot on the *y* axis.
+        lines
+            A list of `~.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
-        **kwargs :
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
-
-            %(Line2D)s
-
-        Notes
-        -----
-        This function supports all the keyword arguments of
-        :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_yscale`.
+        **kwargs
+            All parameters supported by `.plot`.
         """
-
         if not self._hold:
             self.cla()
         d = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
@@ -1792,7 +1631,7 @@ class Axes(_AxesBase):
             If ``True``, `Axes.vlines` is used to plot the vertical lines from
             the origin to the acorr. Otherwise, `Axes.plot` is used.
 
-        maxlags : integer, optional, default: 10
+        maxlags : int, optional, default: 10
             Number of lags to show. If ``None``, will return all
             ``2 * len(x) - 1`` lags.
 
@@ -1813,10 +1652,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
+        linestyle : `.Line2D` property, optional, default: None
             Only used if usevlines is ``False``.
 
-        marker : string, optional, default: 'o'
+        marker : str, optional, default: 'o'
 
         Notes
         -----
@@ -1830,10 +1669,12 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
-        """
+        r"""
         Plot the cross correlation between *x* and *y*.
 
-        The correlation with lag k is defined as sum_n x[n+k] * conj(y[n]).
+        The correlation with lag k is defined as
+        :math:`\sum_n x[n+k] \cdot y^*[n]`, where :math:`y^*` is the complex
+        conjugate of :math:`y`.
 
         Parameters
         ----------
@@ -1875,7 +1716,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` property, optional
+        linestyle : `.Line2D` property, optional
             Only used if usevlines is ``False``.
 
         marker : string, optional
@@ -2118,7 +1959,7 @@ class Axes(_AxesBase):
         %(Rectangle)s
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
         # this is using the lambdas to do the arg/kwarg unpacking rather
         # than trying to re-implement all of that logic our selves.
         matchers = [
@@ -2921,7 +2762,7 @@ class Axes(_AxesBase):
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
                 yt = y + pctdistance * radius * math.sin(thetam)
-                if isinstance(autopct, six.string_types):
+                if isinstance(autopct, str):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
                     s = autopct(100. * frac)
@@ -3062,7 +2903,7 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
         # anything that comes in as 'None', drop so the default thing
         # happens down stream
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
@@ -3085,8 +2926,9 @@ class Axes(_AxesBase):
             fmt_style_kwargs = {}
         else:
             fmt_style_kwargs = {k: v for k, v in
-                            zip(('linestyle', 'marker', 'color'),
-                                _process_plot_format(fmt)) if v is not None}
+                                zip(('linestyle', 'marker', 'color'),
+                                    _process_plot_format(fmt))
+                                if v is not None}
         if fmt == 'none':
             # Remove alpha=0 color that _process_plot_format returns
             fmt_style_kwargs.pop('color')
@@ -3122,12 +2964,12 @@ class Axes(_AxesBase):
                 yerr = [yerr] * len(y)
 
         # make the style dict for the 'normal' plot line
-        plot_line_style = dict(base_style)
-        plot_line_style.update(**kwargs)
-        if barsabove:
-            plot_line_style['zorder'] = kwargs['zorder'] - .1
-        else:
-            plot_line_style['zorder'] = kwargs['zorder'] + .1
+        plot_line_style = {
+            **base_style,
+            **kwargs,
+            'zorder': (kwargs['zorder'] - .1 if barsabove else
+                       kwargs['zorder'] + .1),
+        }
 
         # make the style dict for the line collections (the bars)
         eb_lines_style = dict(base_style)
@@ -4349,11 +4191,10 @@ class Axes(_AxesBase):
         of the observations at (x[i],y[i]).
 
         If *C* is specified, it specifies values at the coordinate
-        (x[i],y[i]). These values are accumulated for each hexagonal
+        (x[i], y[i]). These values are accumulated for each hexagonal
         bin and then reduced according to *reduce_C_function*, which
-        defaults to numpy's mean function (np.mean). (If *C* is
-        specified, it must also be a 1-D sequence of the same length
-        as *x* and *y*.)
+        defaults to `numpy.mean`. (If *C* is specified, it must also
+        be a 1-D sequence of the same length as *x* and *y*.)
 
         Parameters
         ----------
@@ -4369,7 +4210,7 @@ class Axes(_AxesBase):
             tuple with two elements specifying the number of hexagons
             in the *x*-direction and the *y*-direction.
 
-        bins : {'log'} or int or sequence, optional, default is *None*
+        bins : 'log' or int or sequence, optional, default is *None*
             If *None*, no binning is applied; the color of each hexagon
             directly corresponds to its count value.
 
@@ -4445,11 +4286,9 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        object
-            a :class:`~matplotlib.collections.PolyCollection` instance; use
-            :meth:`~matplotlib.collections.PolyCollection.get_array` on
-            this :class:`~matplotlib.collections.PolyCollection` to get
-            the counts in each hexagon.
+        polycollection
+            A `.PolyCollection` instance; use `.PolyCollection.get_array` on
+            this to get the counts in each hexagon.
 
             If *marginals* is *True*, horizontal
             bar and vertical bar (both PolyCollections) will be attached
@@ -4826,8 +4665,8 @@ class Axes(_AxesBase):
         self.add_artist(a)
         return a
 
-    def quiverkey(self, *args, **kw):
-        qk = mquiver.QuiverKey(*args, **kw)
+    def quiverkey(self, Q, X, Y, U, label, **kw):
+        qk = mquiver.QuiverKey(Q, X, Y, U, label, **kw)
         self.add_artist(qk)
         return qk
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
@@ -4950,7 +4789,8 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        # For compatibility(!), get aliases from Line2D rather than Patch.
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
@@ -5046,12 +4886,11 @@ class Axes(_AxesBase):
 
         """
         if not rcParams['_internal.classic_mode']:
-            color_aliases = mcoll._color_aliases
-            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
-
-            if not any(c in kwargs for c in ('color', 'facecolors')):
-                fc = self._get_patches_for_fill.get_next_color()
-                kwargs['facecolors'] = fc
+            kwargs = cbook.normalize_kwargs(
+                kwargs, mcoll.Collection._alias_map)
+            if not any(c in kwargs for c in ('color', 'facecolor')):
+                kwargs['facecolor'] = \
+                    self._get_patches_for_fill.get_next_color()
 
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
@@ -5230,12 +5069,12 @@ class Axes(_AxesBase):
 
         """
         if not rcParams['_internal.classic_mode']:
-            color_aliases = mcoll._color_aliases
-            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+            kwargs = cbook.normalize_kwargs(
+                kwargs, mcoll.Collection._alias_map)
+            if not any(c in kwargs for c in ('color', 'facecolor')):
+                kwargs['facecolor'] = \
+                    self._get_patches_for_fill.get_next_color()
 
-            if not any(c in kwargs for c in ('color', 'facecolors')):
-                fc = self._get_patches_for_fill.get_next_color()
-                kwargs['facecolors'] = fc
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
         self._process_unit_info(xdata=x2)
@@ -5762,8 +5601,7 @@ class Axes(_AxesBase):
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and (
-                isinstance(ec, six.string_types) and ec.lower() == "none"):
+        if 'antialiaseds' not in kwargs and cbook._str_lower_equal(ec, "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -6216,11 +6054,11 @@ class Axes(_AxesBase):
         ----------
         x : (n,) array or sequence of (n,) arrays
             Input values, this takes either a single array or a sequence of
-            arrays which are not required to be of the same length
+            arrays which are not required to be of the same length.
 
-        bins : integer or sequence or 'auto', optional
+        bins : int or sequence or str, optional
             If an integer is given, ``bins + 1`` bin edges are calculated and
-            returned, consistent with :func:`numpy.histogram`.
+            returned, consistent with `numpy.histogram`.
 
             If `bins` is a sequence, gives bin edges, including left edge of
             first bin and right edge of last bin.  In this case, `bins` is
@@ -6237,9 +6075,12 @@ class Axes(_AxesBase):
 
             Unequally spaced bins are supported if *bins* is a sequence.
 
-            If Numpy 1.11 is installed, may also be ``'auto'``.
+            With Numpy 1.11 or newer, you can alternatively provide a string
+            describing a binning strategy, such as 'auto', 'sturges', 'fd',
+            'doane', 'scott', 'rice', 'sturges' or 'sqrt', see
+            `numpy.histogram`.
 
-            Default is taken from the rcParam ``hist.bins``.
+            The default is taken from :rc:`hist.bins`.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
@@ -6252,7 +6093,7 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        density : boolean, optional
+        density : bool, optional
             If ``True``, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
@@ -6276,7 +6117,7 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        cumulative : boolean, optional
+        cumulative : bool, optional
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints. If *normed* or *density*
@@ -6336,7 +6177,7 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        log : boolean, optional
+        log : bool, optional
             If ``True``, the histogram axis will be set to a log scale. If
             *log* is ``True`` and *x* is a 1D array, empty bins will be
             filtered out and only the non-empty ``(n, bins, patches)``
@@ -6350,14 +6191,14 @@ class Axes(_AxesBase):
 
             Default is ``None``
 
-        label : string or None, optional
+        label : str or None, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that the legend command will work as expected.
 
             default is ``None``
 
-        stacked : boolean, optional
+        stacked : bool, optional
             If ``True``, multiple data are stacked on top of each other If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
@@ -6682,12 +6523,12 @@ class Axes(_AxesBase):
 
         if label is None:
             labels = [None]
-        elif isinstance(label, six.string_types):
+        elif isinstance(label, str):
             labels = [label]
         else:
-            labels = [six.text_type(lab) for lab in label]
+            labels = [str(lab) for lab in label]
 
-        for patch, lbl in zip_longest(patches, labels, fillvalue=None):
+        for patch, lbl in itertools.zip_longest(patches, labels):
             if patch:
                 p = patch[0]
                 p.update(kwargs)
@@ -6711,10 +6552,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y: array_like, shape (n, )
+        x, y : array_like, shape (n, )
             Input values
 
-        bins: [None | int | [int, int] | array_like | [array, array]]
+        bins : None or int or [int, int] or array_like or [array, array]
 
             The bin specification:
 
@@ -6738,7 +6579,7 @@ class Axes(_AxesBase):
              xmax], [ymin, ymax]]. All values outside of this range will be
              considered outliers and not tallied in the histogram.
 
-        normed : boolean, optional, default: False
+        normed : bool, optional, default: False
              Normalize histogram.
 
         weights : array_like, shape (n, ), optional, default: None
@@ -6768,7 +6609,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        cmap : {Colormap, string}, optional
+        cmap : Colormap or str, optional
             A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
             settings.
 
@@ -6777,7 +6618,7 @@ class Axes(_AxesBase):
             scale luminance data to ``[0, 1]``. If not set, defaults to
             ``Normalize()``.
 
-        vmin/vmax : {None, scalar}, optional
+        vmin/vmax : None or scalar, optional
             Arguments passed to the `Normalize` instance.
 
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
@@ -6843,11 +6684,11 @@ class Axes(_AxesBase):
 
         %(PSD)s
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6861,10 +6702,10 @@ class Axes(_AxesBase):
         -------
         Pxx : 1-D array
             The values for the power spectrum `P_{xx}` before scaling
-            (real valued)
+            (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *Pxx*
+            The frequencies corresponding to the elements in *Pxx*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
@@ -6965,17 +6806,17 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x, y : 1-D arrays or sequences
-            Arrays or sequences containing the data
+            Arrays or sequences containing the data.
 
         %(Spectral)s
 
         %(PSD)s
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6989,10 +6830,10 @@ class Axes(_AxesBase):
         -------
         Pxy : 1-D array
             The values for the cross spectrum `P_{xy}` before scaling
-            (complex valued)
+            (complex valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *Pxy*
+            The frequencies corresponding to the elements in *Pxy*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
@@ -7071,18 +6912,18 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : 1-D array or sequence
-            Array or sequence containing the data
+            Array or sequence containing the data.
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        scale : [ 'default' | 'linear' | 'dB' ]
+        scale : {'default', 'linear', 'dB'}
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale, i.e., the dB amplitude
             (20 * log10). 'default' is 'linear'.
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7091,13 +6932,13 @@ class Axes(_AxesBase):
         Returns
         -------
         spectrum : 1-D array
-            The values for the magnitude spectrum before scaling (real valued)
+            The values for the magnitude spectrum before scaling (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *spectrum*
+            The frequencies corresponding to the elements in *spectrum*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
-            The line created by this function
+            The line created by this function.
 
         Other Parameters
         ----------------
@@ -7176,13 +7017,13 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : 1-D array or sequence
-            Array or sequence containing the data
+            Array or sequence containing the data.
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7191,13 +7032,13 @@ class Axes(_AxesBase):
         Returns
         -------
         spectrum : 1-D array
-            The values for the angle spectrum in radians (real valued)
+            The values for the angle spectrum in radians (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *spectrum*
+            The frequencies corresponding to the elements in *spectrum*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
-            The line created by this function
+            The line created by this function.
 
         Other Parameters
         ----------------
@@ -7267,7 +7108,7 @@ class Axes(_AxesBase):
 
         %(Single_Spectrum)s
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7276,13 +7117,13 @@ class Axes(_AxesBase):
         Returns
         -------
         spectrum : 1-D array
-            The values for the phase spectrum in radians (real valued)
+            The values for the phase spectrum in radians (real valued).
 
         freqs : 1-D array
-            The frequencies corresponding to the elements in *spectrum*
+            The frequencies corresponding to the elements in *spectrum*.
 
         line : a :class:`~matplotlib.lines.Line2D` instance
-            The line created by this function
+            The line created by this function.
 
         Other Parameters
         ----------------
@@ -7347,11 +7188,11 @@ class Axes(_AxesBase):
 
         %(PSD)s
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between blocks.  The
             default value is 0 (no overlap).
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7360,10 +7201,11 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        The return value is a tuple (*Cxy*, *f*), where *f* are the
-        frequencies of the coherence vector.
+        Cxy : 1-D array
+            The coherence vector.
 
-        kwargs are applied to the lines.
+        freqs : 1-D array
+            The frequencies for the elements in *Cxy*.
 
         Other Parameters
         ----------------
@@ -7426,18 +7268,18 @@ class Axes(_AxesBase):
 
         %(PSD)s
 
-        mode : [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
+        mode : {'default', 'psd', 'magnitude', 'angle', 'phase'}
             What sort of spectrum to use.  Default is 'psd', which takes
             the power spectral density.  'complex' returns the complex-valued
             frequency spectrum.  'magnitude' returns the magnitude spectrum.
             'angle' returns the phase spectrum without unwrapping.  'phase'
             returns the phase spectrum with unwrapping.
 
-        noverlap : integer
+        noverlap : int
             The number of points of overlap between blocks.  The
             default value is 128.
 
-        scale : [ 'default' | 'linear' | 'dB' ]
+        scale : {'default', 'linear', 'dB'}
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'psd',
             this is dB power (10 * log10).  Otherwise this is dB amplitude
@@ -7445,7 +7287,7 @@ class Axes(_AxesBase):
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
 
-        Fc : integer
+        Fc : int
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7455,7 +7297,7 @@ class Axes(_AxesBase):
             A :class:`matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
-        xextent : [None | (xmin, xmax)]
+        xextent : *None* or (xmin, xmax)
             The image extent along the x-axis. The default sets *xmin* to the
             left border of the first bin (*spectrum* column) and *xmax* to the
             right border of the last bin. Note that for *noverlap>0* the width
@@ -7463,7 +7305,7 @@ class Axes(_AxesBase):
 
         **kwargs :
             Additional kwargs are passed on to imshow which makes the
-            specgram image
+            specgram image.
 
         Returns
         -------
@@ -7697,8 +7539,8 @@ class Axes(_AxesBase):
         nr, nc = Z.shape
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
-              'aspect': 'equal'}          # (already the imshow default)
-        kw.update(kwargs)
+              'aspect': 'equal',          # (already the imshow default)
+              **kwargs}
         im = self.imshow(Z, **kw)
         self.title.set_y(1.05)
         self.xaxis.tick_top()

@@ -23,11 +23,7 @@ derived from the base class (HandlerBase) with the following method::
     def legend_artist(self, legend, orig_handle, fontsize, handlebox):
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import zip
 from itertools import cycle
 
 import numpy as np

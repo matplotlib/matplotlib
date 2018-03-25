@@ -2,9 +2,6 @@
 Provides a collection of utilities for comparing (image) results.
 
 """
-from __future__ import absolute_import, division, print_function
-
-import six
 
 import atexit
 import functools
@@ -263,7 +260,7 @@ def comparable_formats():
     on this system.
 
     """
-    return ['png'] + list(converter)
+    return ['png', *converter]
 
 
 def convert(filename, cache):

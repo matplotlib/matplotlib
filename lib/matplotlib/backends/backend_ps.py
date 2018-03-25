@@ -230,7 +230,7 @@ class RendererPS(RendererBase):
         realpath, stat_key = get_realpath_and_stat(font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
-        used_characters[1].update([ord(x) for x in s])
+        used_characters[1].update(map(ord, s))
 
     def merge_used_characters(self, other):
         for stat_key, (realpath, charset) in six.iteritems(other):

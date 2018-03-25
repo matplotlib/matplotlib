@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
 from matplotlib import axes
@@ -83,7 +78,7 @@ def process_projection_requirements(figure, *args, **kwargs):
                 projection)
         projection = 'polar'
 
-    if isinstance(projection, six.string_types) or projection is None:
+    if isinstance(projection, str) or projection is None:
         projection_class = get_projection_class(projection)
     elif hasattr(projection, '_as_mpl_axes'):
         projection_class, extra_kwargs = projection._as_mpl_axes()

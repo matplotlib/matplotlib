@@ -62,11 +62,6 @@ Naming Conventions
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
      FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)

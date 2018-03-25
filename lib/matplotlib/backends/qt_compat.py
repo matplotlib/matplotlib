@@ -1,9 +1,5 @@
 """ A Qt API selector that can be used to switch between PyQt and PySide.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import os
 import logging

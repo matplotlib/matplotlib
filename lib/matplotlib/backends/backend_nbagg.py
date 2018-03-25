@@ -3,8 +3,6 @@
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
 
-import six
-
 from base64 import b64encode
 import io
 import json
@@ -135,15 +133,15 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def clearup_closed(self):
         """Clear up any closed Comms."""
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if socket.is_open()])
+        self.web_sockets = {socket for socket in self.web_sockets
+                            if socket.is_open()}
 
         if len(self.web_sockets) == 0:
             self.canvas.close_event()
 
     def remove_comm(self, comm_id):
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if not socket.comm.comm_id == comm_id])
+        self.web_sockets = {socket for socket in self.web_sockets
+                            if not socket.comm.comm_id == comm_id}
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
@@ -204,9 +202,7 @@ class CommSocket(object):
     def send_binary(self, blob):
         # The comm is ascii, so we always send the image in base64
         # encoded data URL form.
-        data = b64encode(blob)
-        if six.PY3:
-            data = data.decode('ascii')
+        data = b64encode(blob).decode('ascii')
         data_uri = "data:image/png;base64,{0}".format(data)
         self.comm.send({'data': data_uri})
 

@@ -32,9 +32,6 @@ graphics contexts must implement to serve as a matplotlib backend
     The base class for the messaging area.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 from contextlib import contextmanager
@@ -2062,9 +2059,8 @@ class FigureCanvasBase(object):
         If necessary, this function will switch to a registered backend that
         supports the format.
         """
-        method_name = 'print_%s' % fmt
         # Return the current canvas if it supports the requested format.
-        if hasattr(self, method_name):
+        if hasattr(self, 'print_{}'.format(fmt)):
             return self
         # Return a default canvas for the requested format, if it exists.
         canvas_class = get_registered_canvas_class(fmt)
@@ -2130,6 +2126,8 @@ class FigureCanvasBase(object):
 
         if format is None:
             # get format from filename, or from backend's default filetype
+            if isinstance(filename, getattr(os, "PathLike", ())):
+                filename = os.fspath(filename)
             if isinstance(filename, six.string_types):
                 format = os.path.splitext(filename)[1][1:]
             if format is None or format == '':
@@ -2862,7 +2860,9 @@ class NavigationToolbar2(object):
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:
-                            s += ' [%s]' % a.format_cursor_data(data)
+                            data_str = a.format_cursor_data(data)
+                            if data_str is not None:
+                                s = s + ' ' + data_str
 
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))

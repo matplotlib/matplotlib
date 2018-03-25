@@ -10,11 +10,6 @@ Displays Agg images in the browser, with interactivity
 # - `backend_webagg.py` contains a concrete implementation of a basic
 #   application, implemented with tornado.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import datetime
 import io
 import json
@@ -26,8 +21,7 @@ import tornado
 
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
-from matplotlib import backend_bases
-from matplotlib import _png
+from matplotlib import backend_bases, _png
 
 
 # http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
@@ -150,17 +144,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         show()
 
     def draw(self):
-        renderer = self.get_renderer(cleared=True)
-
         self._png_is_old = True
-
-        backend_agg.RendererAgg.lock.acquire()
         try:
-            self.figure.draw(renderer)
+            super().draw()
         finally:
-            backend_agg.RendererAgg.lock.release()
-            # Swap the frames
-            self.manager.refresh_all()
+            self.manager.refresh_all()  # Swap the frames.
 
     def draw_idle(self):
         self.send_event("draw")
@@ -499,8 +487,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         return os.path.join(os.path.dirname(__file__), 'web_backend')
 
     def _send_event(self, event_type, **kwargs):
-        payload = {'type': event_type}
-        payload.update(kwargs)
+        payload = {'type': event_type, **kwargs}
         for s in self.web_sockets:
             s.send_json(payload)
 

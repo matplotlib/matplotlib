@@ -2369,7 +2369,7 @@ class Parser(object):
 
         p.accent        <<= Group(
                              Suppress(p.bslash)
-                           + oneOf(list(self._accent_map) + list(self._wide_accents))
+                           + oneOf([*self._accent_map, *self._wide_accents])
                            - p.placeable
                          )
 
@@ -2407,7 +2407,7 @@ class Parser(object):
         p.ambi_delim    <<= oneOf(list(self._ambi_delim))
         p.left_delim    <<= oneOf(list(self._left_delim))
         p.right_delim   <<= oneOf(list(self._right_delim))
-        p.right_delim_safe <<= oneOf(list(self._right_delim - {'}'}) + [r'\}'])
+        p.right_delim_safe <<= oneOf([*(self._right_delim - {'}'}), r'\}'])
 
         p.genfrac       <<= Group(
                              Suppress(Literal(r"\genfrac"))

@@ -83,11 +83,6 @@ referred to from other docs for the valid inputs from marker inputs and in
 those cases `None` still means 'default'.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from collections import Sized
 from numbers import Number
 
@@ -187,15 +182,6 @@ class MarkerStyle(object):
         self.set_fillstyle(fillstyle)
         self.set_marker(marker)
 
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        d.pop('_marker_function')
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        self.set_marker(self._marker)
-
     def _recache(self):
         if self._marker_function is None:
             return
@@ -209,12 +195,8 @@ class MarkerStyle(object):
         self._filled = True
         self._marker_function()
 
-    if six.PY3:
-        def __bool__(self):
-            return bool(len(self._path.vertices))
-    else:
-        def __nonzero__(self):
-            return bool(len(self._path.vertices))
+    def __bool__(self):
+        return bool(len(self._path.vertices))
 
     def is_filled(self):
         return self._filled
@@ -251,8 +233,7 @@ class MarkerStyle(object):
         if (isinstance(marker, np.ndarray) and marker.ndim == 2 and
                 marker.shape[1] == 2):
             self._marker_function = self._set_vertices
-        elif (isinstance(marker, six.string_types)
-              and cbook.is_math_text(marker)):
+        elif isinstance(marker, str) and cbook.is_math_text(marker):
             self._marker_function = self._set_mathtext_path
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker

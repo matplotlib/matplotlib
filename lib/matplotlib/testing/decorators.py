@@ -1,7 +1,4 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
+from distutils.version import StrictVersion
 import functools
 import inspect
 import os
@@ -135,7 +132,7 @@ def cleanup(style=None):
 
         return wrapped_callable
 
-    if isinstance(style, six.string_types):
+    if isinstance(style, str):
         return make_cleanup
     else:
         result = make_cleanup(style)
@@ -148,13 +145,12 @@ def check_freetype_version(ver):
     if ver is None:
         return True
 
-    from distutils import version
-    if isinstance(ver, six.string_types):
+    if isinstance(ver, str):
         ver = (ver, ver)
-    ver = [version.StrictVersion(x) for x in ver]
-    found = version.StrictVersion(ft2font.__freetype_version__)
+    ver = [StrictVersion(x) for x in ver]
+    found = StrictVersion(ft2font.__freetype_version__)
 
-    return found >= ver[0] and found <= ver[1]
+    return ver[0] <= found <= ver[1]
 
 
 def _checked_on_freetype_version(required_freetype_version):
@@ -212,7 +208,7 @@ def _xfail_if_format_is_uncomparable(extension):
 
 
 def _mark_xfail_if_format_is_uncomparable(extension):
-    if isinstance(extension, six.string_types):
+    if isinstance(extension, str):
         will_fail = extension not in comparable_formats()
     else:
         # Extension might be a pytest marker instead of a plain string.

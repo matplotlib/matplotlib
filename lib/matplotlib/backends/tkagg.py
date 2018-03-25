@@ -1,8 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import tkinter as Tk
+import tkinter as Tk
 
 import numpy as np
 

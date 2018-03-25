@@ -1,9 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
-
-import six
 
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing

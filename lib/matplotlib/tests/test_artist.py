@@ -1,8 +1,6 @@
-from __future__ import absolute_import, division, print_function
-
 import io
-import warnings
 from itertools import chain
+import warnings
 
 import numpy as np
 
@@ -270,10 +268,7 @@ def test_artist_inspector_get_valid_values(accept_clause, expected):
         def set_f(self):
             pass
 
-    func = TestArtist.set_f
-    if hasattr(func, '__func__'):
-        func = func.__func__  # python 2 must write via __func__.__doc__
-    func.__doc__ = """
+    TestArtist.set_f.__doc__ = """
     Some text.
 
     %s

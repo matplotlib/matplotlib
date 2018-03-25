@@ -294,7 +294,7 @@ def boilerplate_gen():
             # A gensym-like facility in case some function takes an
             # argument named washold, ax, or ret
             washold, ret, ax = 'washold', 'ret', 'ax'
-            bad = set(args) | {varargs, varkw}
+            bad = {*args, varargs, varkw}
             while washold in bad or ret in bad or ax in bad:
                 washold = 'washold' + str(random.randrange(10 ** 12))
                 ret = 'ret' + str(random.randrange(10 ** 12))

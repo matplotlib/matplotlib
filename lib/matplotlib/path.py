@@ -9,14 +9,8 @@ such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
-from weakref import WeakValueDictionary
-
 from functools import lru_cache
+from weakref import WeakValueDictionary
 
 import numpy as np
 
@@ -610,7 +604,7 @@ class Path(object):
                 if len(vertices) < 3:
                     return []
                 elif np.any(vertices[0] != vertices[-1]):
-                    vertices = list(vertices) + [vertices[0]]
+                    vertices = [*vertices, vertices[0]]
 
             if transform is None:
                 return [vertices]

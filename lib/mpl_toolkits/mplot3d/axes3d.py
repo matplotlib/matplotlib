@@ -1568,6 +1568,7 @@ class Axes3D(Axes):
         for line in lines:
             art3d.line_2d_to_3d(line, zs=zs, zdir=zdir)
 
+        xs, ys, zs = art3d.juggle_axes(xs, ys, zs, zdir)
         self.auto_scale_xyz(xs, ys, zs, had_data)
         return lines
 
@@ -2703,7 +2704,7 @@ class Axes3D(Axes):
             # transpose to get a list of lines
             heads = heads.swapaxes(0, 1)
 
-            lines = list(shafts) + list(heads)
+            lines = [*shafts, *heads]
         else:
             lines = []
 

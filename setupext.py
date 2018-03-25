@@ -188,12 +188,9 @@ def get_include_dirs():
 
 def is_min_version(found, minversion):
     """
-    Returns `True` if `found` is at least as high a version as
-    `minversion`.
+    Returns whether *found* is a version at least as high as *minversion*.
     """
-    expected_version = version.LooseVersion(minversion)
-    found_version = version.LooseVersion(found)
-    return found_version >= expected_version
+    return version.LooseVersion(found) >= version.LooseVersion(minversion)
 
 
 # Define the display functions only if display_status is True.
@@ -568,7 +565,7 @@ class SetupPackage(object):
                            .format(url, self.name))
         elif sys.platform == "darwin":
             message = _try_managers("brew", "port")
-        elif sys.platform.startswith("linux"):
+        elif sys.platform == "linux":
             release = platform.linux_distribution()[0].lower()
             if release in ('debian', 'ubuntu'):
                 message = _try_managers('apt-get')
@@ -742,7 +739,7 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.1'
+    pytest_min_version = '3.4'
     default_config = False
 
     def check(self):
@@ -1365,17 +1362,14 @@ class InstallRequires(SetupPackage):
         return "handled by setuptools"
 
     def get_install_requires(self):
-        install_requires = [
+        return [
             "cycler>=0.10",
+            "kiwisolver>=1.0.1",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
             "pytz",
             "six>=1.10",
-            "kiwisolver>=1.0.1",
         ]
-        if sys.version_info < (3,) and os.name == "posix":
-            install_requires += ["subprocess32"]
-        return install_requires
 
 
 class BackendAgg(OptionalBackendPackage):
@@ -1427,7 +1421,7 @@ class BackendTkAgg(OptionalBackendPackage):
         if sys.platform == 'win32':
             # PSAPI library needed for finding Tcl / Tk at run time
             ext.libraries.extend(['psapi'])
-        elif sys.platform.startswith('linux'):
+        elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
 
 
@@ -1573,32 +1567,11 @@ class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
     def check_requirements(self):
-        wxversioninstalled = True
-        try:
-            import wxversion
-        except ImportError:
-            wxversioninstalled = False
-
-        if wxversioninstalled:
-            try:
-                _wx_ensure_failed = wxversion.AlreadyImportedError
-            except AttributeError:
-                _wx_ensure_failed = wxversion.VersionError
-
-            try:
-                wxversion.ensureMinimal('2.9')
-            except _wx_ensure_failed:
-                pass
-
         try:
             import wx
             backend_version = wx.VERSION_STRING
         except ImportError:
             raise CheckFailed("requires wxPython")
-
-        if not is_min_version(backend_version, "2.9"):
-            raise CheckFailed(
-                "Requires wxPython 2.9, found %s" % backend_version)
 
         return "version %s" % backend_version
 
@@ -1659,10 +1632,10 @@ class BackendQtBase(OptionalBackendPackage):
         return '.'.join(temp)
 
     def check_requirements(self):
-        '''
+        """
         If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
         so we need to test in a subprocess (as for Gtk3).
-        '''
+        """
         try:
             p = multiprocessing.Pool()
 
@@ -1814,75 +1787,6 @@ class BackendCairo(OptionalBackendPackage):
                 return "pycairo version %s" % cairo.version
         else:
             return "cairocffi version %s" % cairocffi.version
-
-
-class DviPng(SetupPackage):
-    name = "dvipng"
-    optional = True
-
-    def check(self):
-        try:
-            output = check_output('dvipng -version', shell=True,
-                                  stderr=subprocess.STDOUT)
-            return "version %s" % output.splitlines()[1].decode().split()[-1]
-        except (IndexError, ValueError, subprocess.CalledProcessError):
-            raise CheckFailed()
-
-
-class Ghostscript(SetupPackage):
-    name = "ghostscript"
-    optional = True
-
-    def check(self):
-        if sys.platform == 'win32':
-            # mgs is the name in miktex
-            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
-        else:
-            gs_execs = ['gs']
-        for gs_exec in gs_execs:
-            try:
-                command = gs_exec + ' --version'
-                output = check_output(command, shell=True,
-                                      stderr=subprocess.STDOUT)
-                return "version %s" % output.decode()[:-1]
-            except (IndexError, ValueError, subprocess.CalledProcessError):
-                pass
-
-        raise CheckFailed()
-
-
-class LaTeX(SetupPackage):
-    name = "latex"
-    optional = True
-
-    def check(self):
-        try:
-            output = check_output('latex -version', shell=True,
-                                  stderr=subprocess.STDOUT)
-            line = output.splitlines()[0].decode()
-            pattern = '(3\.1\d+)|(MiKTeX \d+.\d+)'
-            match = re.search(pattern, line)
-            return "version %s" % match.group(0)
-        except (IndexError, ValueError, AttributeError, subprocess.CalledProcessError):
-            raise CheckFailed()
-
-
-class PdfToPs(SetupPackage):
-    name = "pdftops"
-    optional = True
-
-    def check(self):
-        try:
-            output = check_output('pdftops -v', shell=True,
-                                  stderr=subprocess.STDOUT)
-            for line in output.splitlines():
-                line = line.decode()
-                if 'version' in line:
-                    return "version %s" % line.split()[2]
-        except (IndexError, ValueError, subprocess.CalledProcessError):
-            pass
-
-        raise CheckFailed()
 
 
 class OptionalPackageData(OptionalPackage):
