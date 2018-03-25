@@ -328,7 +328,7 @@ class Legend(Artist):
                  borderpad=None,      # the whitespace inside the legend border
                  labelspacing=None,   # the vertical space between the legend
                                       # entries
-                 scalehandlebox=None, # scale handlebox to fit handle 
+                 scalehandlebox=None,  # scale handlebox to fit handle
                  handlelength=None,   # the length of the legend handles
                  handleheight=None,   # the height of the legend handles
                  handletextpad=None,  # the pad between the legend handle
@@ -372,9 +372,7 @@ class Legend(Artist):
         Other Parameters
         ----------------
 
-
         %(_legend_kw_doc)s
-
 
         Notes
         -----
