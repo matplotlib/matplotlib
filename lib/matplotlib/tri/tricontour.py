@@ -1,12 +1,8 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib._tri as _tri
-import numpy as np
 
 
 class TriContourSet(ContourSet):

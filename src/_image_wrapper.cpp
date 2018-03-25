@@ -352,13 +352,12 @@ static PyObject *image_pcolor(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const float, 1> x;
     numpy::array_view<const float, 1> y;
     numpy::array_view<const agg::int8u, 3> d;
-    unsigned int rows;
-    unsigned int cols;
+    npy_intp rows, cols;
     float bounds[4];
     int interpolation;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&II(ffff)i:pcolor",
+                          "O&O&O&nn(ffff)i:pcolor",
                           &x.converter,
                           &x,
                           &y.converter,
@@ -396,13 +395,12 @@ static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const double, 1> x;
     numpy::array_view<const double, 1> y;
     numpy::array_view<const agg::int8u, 3> d;
-    unsigned int rows;
-    unsigned int cols;
+    npy_intp rows, cols;
     float bounds[4];
     numpy::array_view<const agg::int8u, 1> bg;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&II(ffff)O&:pcolor2",
+                          "O&O&O&nn(ffff)O&:pcolor2",
                           &x.converter_contiguous,
                           &x,
                           &y.converter_contiguous,

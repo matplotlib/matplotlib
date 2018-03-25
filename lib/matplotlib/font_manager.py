@@ -926,7 +926,7 @@ def _normalize_font_family(family):
     return family
 
 
-@cbook.deprecated("2.2")
+@cbook.deprecated("3.0")
 class TempCache(object):
     """
     A class to store temporary caches that are (a) not saved to disk
@@ -1267,7 +1267,7 @@ class FontManager(object):
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:
                 warnings.warn(
-                    'findfont: Font family %s not found. Falling back to %s' %
+                    'findfont: Font family %s not found. Falling back to %s.' %
                     (prop.get_family(), self.defaultFamily[fontext]))
                 default_prop = prop.copy()
                 default_prop.set_family(self.defaultFamily[fontext])
@@ -1275,15 +1275,13 @@ class FontManager(object):
             else:
                 # This is a hard fail -- we can't find anything reasonable,
                 # so just return the DejuVuSans.ttf
-                warnings.warn(
-                    'findfont: Could not match %s. Returning %s' %
-                    (prop, self.defaultFont[fontext]),
-                    UserWarning)
+                warnings.warn('findfont: Could not match %s. Returning %s.' %
+                              (prop, self.defaultFont[fontext]),
+                              UserWarning)
                 result = self.defaultFont[fontext]
         else:
-            _log.debug(
-                'findfont: Matching %s to %s (%s) with score of %f' %
-                (prop, best_font.name, repr(best_font.fname), best_score))
+            _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
+                       prop, best_font.name, best_font.fname, best_score)
             result = best_font.fname
 
         if not os.path.isfile(result):

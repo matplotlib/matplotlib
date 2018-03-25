@@ -3,6 +3,8 @@
 Scatter Symbol
 ==============
 
+Scatter plot with clover symbols.
+
 """
 import matplotlib.pyplot as plt
 import numpy as np

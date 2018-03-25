@@ -3,6 +3,9 @@
 Scatter Masked
 ==============
 
+Mask some data points and add a line demarking
+masked regions.
+
 """
 import matplotlib.pyplot as plt
 import numpy as np

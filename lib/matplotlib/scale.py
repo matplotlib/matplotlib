@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import numpy as np
 from numpy import ma
 
@@ -254,6 +249,8 @@ class LogScale(ScaleBase):
 
         if nonpos not in ['mask', 'clip']:
             raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
+        if base <= 0 or base == 1:
+            raise ValueError('The log base cannot be <= 0 or == 1')
 
         if base == 10.0:
             self._transform = self.Log10Transform(nonpos)

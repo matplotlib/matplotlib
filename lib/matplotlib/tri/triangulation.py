@@ -1,11 +1,7 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 import matplotlib._tri as _tri
 import matplotlib._qhull as _qhull
-import numpy as np
 
 
 class Triangulation(object):

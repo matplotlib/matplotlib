@@ -1,10 +1,6 @@
 """
 font data tables for truetype and afm computer modern fonts
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 latex_to_bakoma = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
@@ -1752,7 +1748,7 @@ type12uni = {
     'uni044B'        : 1099
 }
 
-uni2type1 = dict(((v,k) for k,v in six.iteritems(type12uni)))
+uni2type1 = {v: k for k, v in type12uni.items()}
 
 tex2uni = {
     'widehat'                  : 0x0302,

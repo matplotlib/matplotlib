@@ -1,14 +1,12 @@
-from __future__ import absolute_import, division, print_function
+import warnings
 
-from numpy.testing import assert_almost_equal
 import numpy as np
+from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-
-import warnings
 
 
 class TestMaxNLocator(object):
@@ -578,7 +576,7 @@ class TestEngFormatter(object):
         (-0.0, ('0', '0', '0.00')),
         (-0, ('0', '0', '0.00')),
         (0, ('0', '0', '0.00')),
-        (1.23456789e-6, (u'1.23457 \u03bc', u'1 \u03bc', u'1.23 \u03bc')),
+        (1.23456789e-6, ('1.23457 \u03bc', '1 \u03bc', '1.23 \u03bc')),
         (0.123456789, ('123.457 m', '123 m', '123.46 m')),
         (0.1, ('100 m', '100 m', '100.00 m')),
         (1, ('1', '1', '1.00')),
@@ -728,3 +726,27 @@ class TestPercentFormatter(object):
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
         with matplotlib.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
+
+
+def test_majformatter_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_major_formatter(matplotlib.ticker.LogLocator())
+
+
+def test_minformatter_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_minor_formatter(matplotlib.ticker.LogLocator())
+
+
+def test_majlocator_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_major_locator(matplotlib.ticker.LogFormatter())
+
+
+def test_minlocator_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_minor_locator(matplotlib.ticker.LogFormatter())

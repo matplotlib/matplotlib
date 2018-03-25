@@ -13,10 +13,6 @@ of the subplot in the figure.
 
 """
 
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import copy
 import logging
 import warnings
@@ -238,13 +234,13 @@ class GridSpec(GridSpecBase):
         the current value, if set, otherwise to rc.
         """
 
-        for k, v in six.iteritems(kwargs):
+        for k, v in kwargs.items():
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
                 raise AttributeError("%s is unknown keyword" % (k,))
 
-        for figmanager in six.itervalues(_pylab_helpers.Gcf.figs):
+        for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
                 if not isinstance(ax, mpl.axes.SubplotBase):
@@ -280,8 +276,7 @@ class GridSpec(GridSpecBase):
         else:
             subplotpars = copy.copy(figure.subplotpars)
 
-        update_kw = {k: getattr(self, k) for k in self._AllowedKeys}
-        subplotpars.update(**update_kw)
+        subplotpars.update(**{k: getattr(self, k) for k in self._AllowedKeys})
 
         return subplotpars
 
@@ -489,10 +484,6 @@ class SubplotSpec(object):
                 == (getattr(other, "_gridspec", object()),
                     getattr(other, "num1", object()),
                     getattr(other, "num2", object())))
-
-    if six.PY2:
-        def __ne__(self, other):
-            return not self == other
 
     def __hash__(self):
         return hash((self._gridspec, self.num1, self.num2))

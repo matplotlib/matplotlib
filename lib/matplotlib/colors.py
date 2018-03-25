@@ -44,12 +44,6 @@ Matplotlib recognizes the following formats to specify a color:
 All string specifications of color, other than "CN", are case-insensitive.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 from collections import Sized
 import itertools
 import re
@@ -106,7 +100,7 @@ def _sanitize_extrema(ex):
 
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
-    return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
+    return isinstance(c, str) and re.match(r"\AC[0-9]\Z", c)
 
 
 def is_color_like(c):
@@ -179,7 +173,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
-    if isinstance(c, six.string_types):
+    if isinstance(c, str):
         if c.lower() == "none":
             return (0., 0., 0., 0.)
         # Named color.
@@ -188,7 +182,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             c = _colors_full_map[c.lower()]
         except KeyError:
             pass
-    if isinstance(c, six.string_types):
+    if isinstance(c, str):
         # hex color with no alpha.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
         if match:
@@ -254,7 +248,7 @@ def to_rgba_array(c, alpha=None):
     # Note that this occurs *after* handling inputs that are already arrays, as
     # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
     # to format the array in the ValueError message(!).
-    if isinstance(c, six.string_types) and c.lower() == "none":
+    if isinstance(c, str) and c.lower() == "none":
         return np.zeros((0, 4), float)
     try:
         return np.array([to_rgba(c, alpha)], float)
@@ -717,7 +711,7 @@ class LinearSegmentedColormap(Colormap):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
-                and not isinstance(colors[0], six.string_types)):
+                and not isinstance(colors[0], str)):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -763,13 +757,9 @@ class LinearSegmentedColormap(Colormap):
                 return dat(1.0 - x)
             return func_r
 
-        data_r = dict()
-        for key, data in six.iteritems(self._segmentdata):
-            if callable(data):
-                data_r[key] = factory(data)
-            else:
-                new_data = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)]
-                data_r[key] = new_data
+        data_r = {key: (factory(data) if callable(data) else
+                        [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)])
+                  for key, data in self._segmentdata.items()}
 
         return LinearSegmentedColormap(name, data_r, self.N, self._gamma)
 
@@ -810,7 +800,7 @@ class ListedColormap(Colormap):
             self.colors = colors
             N = len(colors)
         else:
-            if isinstance(colors, six.string_types):
+            if isinstance(colors, str):
                 self.colors = [colors] * N
                 self.monochrome = True
             elif cbook.iterable(colors):
@@ -954,11 +944,6 @@ class Normalize(object):
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-        # Agg cannot handle float128.  We actually only need 32-bit of
-        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
-        # so casting to float32 would lose precision on float64s as well.
-        if result.dtype == np.longdouble:
-            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result

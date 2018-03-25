@@ -21,12 +21,11 @@ class ParasiteAxesBase(object):
 
         return list(images), list(artists - images)
 
-    def __init__(self, parent_axes, **kargs):
-
+    def __init__(self, parent_axes, **kwargs):
         self._parent_axes = parent_axes
-        kargs.update(dict(frameon=False))
-        self._get_base_axes_attr("__init__")(self, parent_axes.figure,
-                                        parent_axes._position, **kargs)
+        kwargs["frameon"] = False
+        self._get_base_axes_attr("__init__")(
+            self, parent_axes.figure, parent_axes._position, **kwargs)
 
     def cla(self):
         self._get_base_axes_attr("cla")(self)

@@ -40,6 +40,7 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
 
 import matplotlib._layoutbox as layoutbox
@@ -98,10 +99,20 @@ for ax in axs.flatten():
 # automatically.  Note that if you specify ``use_gridspec=True`` it will be
 # ignored because this option is made for improving the layout via
 # ``tight_layout``.
+#
+# .. note::
+#
+#   For the `pcolormesh` kwargs (``pc_kwargs``) we use a dictionary.
+#   Below we will assign one colorbar to a number of axes each containing
+#   a `ScalarMappable`; specifying the norm and colormap ensures
+#   the colorbar is accurate for all the axes.
 
 arr = np.arange(100).reshape((10, 10))
+norm = mcolors.Normalize(vmin=0., vmax=100.)
+# see note above: this makes all pcolormesh calls consistent:
+pc_kwargs = {'rasterized':True, 'cmap':'viridis', 'norm':norm}
 fig, ax = plt.subplots(figsize=(4, 4), constrained_layout=True)
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax, shrink=0.6)
 
 ############################################################################
@@ -110,7 +121,7 @@ fig.colorbar(im, ax=ax, shrink=0.6)
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flatten():
-    im = ax.pcolormesh(arr, rasterized=True)
+    im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
 
 ############################################################################
@@ -122,9 +133,9 @@ fig.colorbar(im, ax=axs, shrink=0.6)
 
 fig, axs = plt.subplots(3, 1, figsize=(4, 4), constrained_layout=True)
 for ax in axs[:2]:
-    im = ax.pcolormesh(arr, rasterized=True)
+    im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs[:2], shrink=0.6)
-im = axs[2].pcolormesh(arr, rasterized=True)
+im = axs[2].pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs[2], shrink=0.6)
 
 ############################################################################
@@ -133,9 +144,9 @@ fig.colorbar(im, ax=axs[2], shrink=0.6)
 
 fig, axs = plt.subplots(3, 1, figsize=(4, 4), constrained_layout=True)
 for ax in axs[:2]:
-    im = ax.pcolormesh(arr, rasterized=True)
+    im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs[:2], shrink=0.6)
-im = axs[2].pcolormesh(arr, rasterized=True)
+im = axs[2].pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=[axs[2]], shrink=0.6)
 
 ####################################################
@@ -146,7 +157,7 @@ fig.colorbar(im, ax=[axs[2]], shrink=0.6)
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flatten():
-    im = ax.pcolormesh(arr, rasterized=True)
+    im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
 fig.suptitle('Big Suptitle')
 
@@ -225,7 +236,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flatten():
-    pc = ax.pcolormesh(arr, rasterized=True)
+    pc = ax.pcolormesh(arr, **pc_kwargs)
     fig.colorbar(im, ax=ax, shrink=0.6, pad=0)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
@@ -239,7 +250,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flatten():
-    pc = ax.pcolormesh(arr, rasterized=True)
+    pc = ax.pcolormesh(arr, **pc_kwargs)
     fig.colorbar(im, ax=ax, shrink=0.6, pad=0.05)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
@@ -349,7 +360,7 @@ def docomplicated(suptitle=None):
     axs = []
     for gs in gsr:
         ax = fig.add_subplot(gs)
-        pcm = ax.pcolormesh(arr, rasterized=True)
+        pcm = ax.pcolormesh(arr, **pc_kwargs)
         ax.set_xlabel('x-label')
         ax.set_ylabel('y-label')
         ax.set_title('title')
@@ -620,9 +631,9 @@ plot_children(fig, fig._layoutbox, printit=False)
 # colorbar is associated wiht a gridspec.
 
 fig, ax = plt.subplots(1, 2, constrained_layout=True)
-im = ax[0].pcolormesh(arr, rasterized=True)
+im = ax[0].pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax[0], shrink=0.6)
-im = ax[1].pcolormesh(arr, rasterized=True)
+im = ax[1].pcolormesh(arr, **pc_kwargs)
 plot_children(fig, fig._layoutbox, printit=False)
 
 #######################################################################
@@ -637,7 +648,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 
 fig, ax = plt.subplots(2, 2, constrained_layout=True)
 for a in ax.flatten():
-    im = a.pcolormesh(arr, rasterized=True)
+    im = a.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax, shrink=0.6)
 plot_children(fig, fig._layoutbox, printit=False)
 
@@ -664,11 +675,11 @@ plot_children(fig, fig._layoutbox, printit=False)
 fig = plt.figure(constrained_layout=True)
 gs = gridspec.GridSpec(2, 2, figure=fig)
 ax = fig.add_subplot(gs[:, 0])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[0, 1])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[1, 1])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 plot_children(fig, fig._layoutbox, printit=False)
 
 #######################################################################
@@ -681,13 +692,13 @@ gs = gridspec.GridSpec(3, 2, figure=fig,
     height_ratios=[1., 0.5, 1.5],
     width_ratios=[1.2, 0.8])
 ax = fig.add_subplot(gs[:2, 0])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[2, 0])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[0, 1])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[1:, 1])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 plot_children(fig, fig._layoutbox, printit=False)
 
 ########################################################################
@@ -705,9 +716,9 @@ plot_children(fig, fig._layoutbox, printit=False)
 fig = plt.figure(constrained_layout=True)
 gs = gridspec.GridSpec(1, 3, figure=fig)
 ax = fig.add_subplot(gs[0])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[-1])
-im = ax.pcolormesh(arr, rasterized=True)
+im = ax.pcolormesh(arr, **pc_kwargs)
 plot_children(fig, fig._layoutbox, printit=False)
 plt.show()
 

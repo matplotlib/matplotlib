@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import six
 from six.moves import map, zip
@@ -20,15 +17,14 @@ from .bezier import (
     split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
 
-_patch_alias_map = {
-        'antialiased': ['aa'],
-        'edgecolor': ['ec'],
-        'facecolor': ['fc'],
-        'linewidth': ['lw'],
-        'linestyle': ['ls']
-    }
 
-
+@cbook._define_aliases({
+    "antialiased": ["aa"],
+    "edgecolor": ["ec"],
+    "facecolor": ["fc"],
+    "linewidth": ["lw"],
+    "linestyle": ["ls"],
+})
 class Patch(artist.Artist):
     """
     A patch is a 2D artist with a face color and an edge color.
@@ -267,10 +263,6 @@ class Patch(artist.Artist):
         self._antialiased = aa
         self.stale = True
 
-    def set_aa(self, aa):
-        """alias for set_antialiased"""
-        return self.set_antialiased(aa)
-
     def _set_edgecolor(self, color):
         set_hatch_color = True
         if color is None:
@@ -295,10 +287,6 @@ class Patch(artist.Artist):
         self._original_edgecolor = color
         self._set_edgecolor(color)
 
-    def set_ec(self, color):
-        """alias for set_edgecolor"""
-        return self.set_edgecolor(color)
-
     def _set_facecolor(self, color):
         if color is None:
             color = mpl.rcParams['patch.facecolor']
@@ -314,10 +302,6 @@ class Patch(artist.Artist):
         """
         self._original_facecolor = color
         self._set_facecolor(color)
-
-    def set_fc(self, color):
-        """alias for set_facecolor"""
-        return self.set_facecolor(color)
 
     def set_color(self, c):
         """
@@ -367,10 +351,6 @@ class Patch(artist.Artist):
             offset, ls, self._linewidth)
         self.stale = True
 
-    def set_lw(self, lw):
-        """alias for set_linewidth"""
-        return self.set_linewidth(lw)
-
     def set_linestyle(self, ls):
         """
         Set the patch linestyle
@@ -410,10 +390,6 @@ class Patch(artist.Artist):
         self._dashoffset, self._dashes = mlines._scale_dashes(
             offset, ls, self._linewidth)
         self.stale = True
-
-    def set_ls(self, ls):
-        """alias for set_linestyle"""
-        return self.set_linestyle(ls)
 
     def set_fill(self, b):
         """
@@ -1510,7 +1486,7 @@ class Circle(Ellipse):
         """
         Create true circle at center *xy* = (*x*, *y*) with given
         *radius*.  Unlike :class:`~matplotlib.patches.CirclePolygon`
-        which is a polygonal approximation, this uses Bézier splines
+        which is a polygonal approximation, this uses Bezier splines
         and is much closer to a scale-free circle.
 
         Valid kwargs are:
@@ -2354,66 +2330,56 @@ class BoxStyle(_Style):
             x0, y0 = x0 - pad + tooth_size2, y0 - pad + tooth_size2
             x1, y1 = x0 + width, y0 + height
 
-            bottom_saw_x = [x0] + \
-                           [x0 + tooth_size2 + dsx * .5 * i
-                            for i
-                            in range(dsx_n * 2)] + \
-                           [x1 - tooth_size2]
+            bottom_saw_x = [
+                x0,
+                *(x0 + tooth_size2 + dsx * .5 * np.arange(dsx_n * 2)),
+                x1 - tooth_size2,
+            ]
+            bottom_saw_y = [
+                y0,
+                *([y0 - tooth_size2, y0, y0 + tooth_size2, y0] * dsx_n),
+                y0 - tooth_size2,
+            ]
+            right_saw_x = [
+                x1,
+                *([x1 + tooth_size2, x1, x1 - tooth_size2, x1] * dsx_n),
+                x1 + tooth_size2,
+            ]
+            right_saw_y = [
+                y0,
+                *(y0 + tooth_size2 + dsy * .5 * np.arange(dsy_n * 2)),
+                y1 - tooth_size2,
+            ]
+            top_saw_x = [
+                x1,
+                *(x1 - tooth_size2 - dsx * .5 * np.arange(dsx_n * 2)),
+                x0 + tooth_size2,
+            ]
+            top_saw_y = [
+                y1,
+                *([y1 + tooth_size2, y1, y1 - tooth_size2, y1] * dsx_n),
+                y1 + tooth_size2,
+            ]
+            left_saw_x = [
+                x0,
+                *([x0 - tooth_size2, x0, x0 + tooth_size2, x0] * dsy_n),
+                x0 - tooth_size2,
+            ]
+            left_saw_y = [
+                y1,
+                *(y1 - tooth_size2 - dsy * .5 * np.arange(dsy_n * 2)),
+                y0 + tooth_size2,
+            ]
 
-            bottom_saw_y = [y0] + \
-                           [y0 - tooth_size2, y0,
-                            y0 + tooth_size2, y0] * dsx_n + \
-                           [y0 - tooth_size2]
-
-            right_saw_x = [x1] + \
-                          [x1 + tooth_size2,
-                           x1,
-                           x1 - tooth_size2,
-                           x1] * dsx_n + \
-                          [x1 + tooth_size2]
-
-            right_saw_y = [y0] + \
-                          [y0 + tooth_size2 + dsy * .5 * i
-                           for i
-                           in range(dsy_n * 2)] + \
-                          [y1 - tooth_size2]
-
-            top_saw_x = [x1] + \
-                        [x1 - tooth_size2 - dsx * .5 * i
-                         for i
-                         in range(dsx_n * 2)] + \
-                        [x0 + tooth_size2]
-
-            top_saw_y = [y1] + \
-                        [y1 + tooth_size2,
-                         y1,
-                         y1 - tooth_size2,
-                         y1] * dsx_n + \
-                        [y1 + tooth_size2]
-
-            left_saw_x = [x0] + \
-                         [x0 - tooth_size2,
-                          x0,
-                          x0 + tooth_size2,
-                          x0] * dsy_n + \
-                         [x0 - tooth_size2]
-
-            left_saw_y = [y1] + \
-                         [y1 - tooth_size2 - dsy * .5 * i
-                          for i
-                          in range(dsy_n * 2)] + \
-                         [y0 + tooth_size2]
-
-            saw_vertices = (list(zip(bottom_saw_x, bottom_saw_y)) +
-                            list(zip(right_saw_x, right_saw_y)) +
-                            list(zip(top_saw_x, top_saw_y)) +
-                            list(zip(left_saw_x, left_saw_y)) +
-                            [(bottom_saw_x[0], bottom_saw_y[0])])
+            saw_vertices = [*zip(bottom_saw_x, bottom_saw_y),
+                            *zip(right_saw_x, right_saw_y),
+                            *zip(top_saw_x, top_saw_y),
+                            *zip(left_saw_x, left_saw_y),
+                            (bottom_saw_x[0], bottom_saw_y[0])]
 
             return saw_vertices
 
         def transmute(self, x0, y0, width, height, mutation_size):
-
             saw_vertices = self._get_sawtooth_vertices(x0, y0, width,
                                                        height, mutation_size)
             path = Path(saw_vertices, closed=True)
@@ -3207,9 +3173,8 @@ class ArrowStyle(_Style):
             if (len(segments) != 2 or segments[0][1] != Path.MOVETO or
                     segments[1][1] != Path.CURVE3):
                 raise ValueError(
-                    "'path' it's not a valid quadratic Bezier curve")
-
-            return list(segments[0][0]) + list(segments[1][0])
+                    "'path' is not a valid quadratic Bezier curve")
+            return [*segments[0][0], *segments[1][0]]
 
         def transmute(self, path, mutation_size, linewidth):
             """

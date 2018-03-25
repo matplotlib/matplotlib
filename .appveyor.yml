@@ -63,7 +63,7 @@ install:
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-  - pip install -q "pytest!=3.3.0,>=3.2.0" "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-xdist
+  - pip install -q "pytest>=3.4" "pytest-cov>=2.3.1" pytest-rerunfailures pytest-timeout pytest-xdist
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
   # https://github.com/matplotlib/matplotlib/issues/9176

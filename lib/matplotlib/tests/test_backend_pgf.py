@@ -1,6 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
-
 import os
 import shutil
 import subprocess
@@ -73,7 +70,7 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, u'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')

@@ -1,5 +1,4 @@
-from __future__ import absolute_import, division, print_function
-
+import base64
 import io
 
 import numpy as np
@@ -265,15 +264,7 @@ PgAAh1v///c+AAB+Zv//Dz8AAHRx//8lPwAAa3z//zk/AABih///TD8AAFmS//9dPwAAUJ3//2w/
 AABHqP//ej8AAD6z//+FPwAANb7//48/AAAsyf//lz8AACPU//+ePwAAGt///6M/AAAR6v//pj8A
 AAj1//+nPwAA/////w=="""
 
-    import base64
-    if hasattr(base64, 'encodebytes'):
-        # Python 3 case
-        decodebytes = base64.decodebytes
-    else:
-        # Python 2 case
-        decodebytes = base64.decodestring
-
-    verts = np.fromstring(decodebytes(data), dtype='<i4')
+    verts = np.fromstring(base64.decodebytes(data), dtype='<i4')
     verts = verts.reshape((len(verts) // 2, 2))
     path = Path(verts)
     segs = path.iter_segments(transforms.IdentityTransform(),

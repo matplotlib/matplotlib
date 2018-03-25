@@ -33,20 +33,15 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import re
+import warnings
+import weakref
 
 import numpy as np
-from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
-    update_path_extents)
 from numpy.linalg import inv
 
-import re
-import weakref
-import warnings
-
+from matplotlib._path import (
+    affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from . import cbook
 from .path import Path
 
@@ -105,22 +100,19 @@ class TransformNode(object):
 
     if DEBUG:
         def __str__(self):
-            # either just return the name of this TransformNode, or it's repr
+            # either just return the name of this TransformNode, or its repr
             return self._shorthand_name or repr(self)
 
     def __getstate__(self):
-        d = self.__dict__.copy()
         # turn the dictionary with weak values into a normal dictionary
-        d['_parents'] = dict((k, v()) for (k, v) in
-                             six.iteritems(self._parents))
-        return d
+        return {**self.__dict__,
+                '_parents': {k: v() for k, v in self._parents.items()}}
 
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
-        # turn the normal dictionary back into a dictionary with weak
-        # values
-        self._parents = dict((k, weakref.ref(v)) for (k, v) in
-                             six.iteritems(self._parents) if v is not None)
+        # turn the normal dictionary back into a dictionary with weak values
+        self._parents = {k: weakref.ref(v)
+                         for k, v in self._parents.items() if v is not None}
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -159,7 +151,7 @@ class TransformNode(object):
         if self.pass_through or status_changed:
             self._invalid = value
 
-            for parent in list(six.itervalues(self._parents)):
+            for parent in list(self._parents.values()):
                 # Dereference the weak reference
                 parent = parent()
                 if parent is not None:
@@ -230,12 +222,9 @@ class TransformNode(object):
                     props['style'] = 'bold'
                 props['shape'] = 'box'
                 props['label'] = '"%s"' % label
-                props = ' '.join(['%s=%s' % (key, val)
-                                  for key, val
-                                  in six.iteritems(props)])
+                props = ' '.join(map('{0[0]}={0[1]}'.format, props.items()))
 
-                fobj.write('%s [%s];\n' %
-                           (hash(root), props))
+                fobj.write('%s [%s];\n' % (hash(root), props))
 
                 if hasattr(root, '_children'):
                     for child in root._children:
@@ -585,7 +574,7 @@ class BboxBase(TransformNode):
         if container is None:
             container = self
         l, b, w, h = container.bounds
-        if isinstance(c, six.string_types):
+        if isinstance(c, str):
             cx, cy = self.coefs[c]
         else:
             cx, cy = c
@@ -637,7 +626,7 @@ class BboxBase(TransformNode):
         splitting the original one with vertical lines at fractional
         positions *f1*, *f2*, ...
         """
-        xf = [0] + list(args) + [1]
+        xf = [0, *args, 1]
         x0, y0, x1, y1 = self.extents
         w = x1 - x0
         return [Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]])
@@ -651,7 +640,7 @@ class BboxBase(TransformNode):
         splitting the original one with horizontal lines at fractional
         positions *f1*, *f2*, ...
         """
-        yf = [0] + list(args) + [1]
+        yf = [0, *args, 1]
         x0, y0, x1, y1 = self.extents
         h = y1 - y0
         return [Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]])
@@ -1302,10 +1291,6 @@ class Transform(TransformNode):
     # Equality is based on object identity for `Transform`s (so we don't
     # override `__eq__`), but some subclasses, such as TransformWrapper &
     # AffineBase, override this behavior.
-
-    if six.PY2:
-        def __ne__(self, other):
-            return not (self == other)
 
     def _iter_break_from_left_to_right(self):
         """

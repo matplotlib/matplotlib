@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
 
@@ -65,10 +60,12 @@ def triplot(ax, *args, **kwargs):
     #         plotting directly (triang.x[edges].T, triang.y[edges].T)
     #         as it considerably speeds-up code execution.
     linestyle = kw['linestyle']
-    kw_lines = kw.copy()
-    kw_lines['marker'] = 'None'  # No marker to draw.
-    kw_lines['zorder'] = kw.get('zorder', 1)  # Path default zorder is used.
-    if (linestyle is not None) and (linestyle not in ['None', '', ' ']):
+    kw_lines = {
+        **kw,
+        'marker': 'None',  # No marker to draw.
+        'zorder': kw.get('zorder', 1),  # Path default zorder is used.
+    }
+    if linestyle not in [None, 'None', '', ' ']:
         tri_lines_x = np.insert(x[edges], 2, np.nan, axis=1)
         tri_lines_y = np.insert(y[edges], 2, np.nan, axis=1)
         tri_lines = ax.plot(tri_lines_x.ravel(), tri_lines_y.ravel(),
@@ -78,9 +75,11 @@ def triplot(ax, *args, **kwargs):
 
     # Draw markers separately.
     marker = kw['marker']
-    kw_markers = kw.copy()
-    kw_markers['linestyle'] = 'None'  # No line to draw.
-    if (marker is not None) and (marker not in ['None', '', ' ']):
+    kw_markers = {
+        **kw,
+        'linestyle': 'None',  # No line to draw.
+    }
+    if marker not in [None, 'None', '', ' ']:
         tri_markers = ax.plot(x, y, **kw_markers)
     else:
         tri_markers = ax.plot([], [], **kw_markers)

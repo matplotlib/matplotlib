@@ -10,9 +10,6 @@
 # ==========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import matplotlib.ticker as ticker
 #
 # Place all imports before here.

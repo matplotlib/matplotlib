@@ -209,18 +209,18 @@ class LocatorD(LocatorBase):
 
 
 class FormatterDMS(object):
-    deg_mark = "^{\circ}"
-    min_mark = "^{\prime}"
-    sec_mark = "^{\prime\prime}"
+    deg_mark = r"^{\circ}"
+    min_mark = r"^{\prime}"
+    sec_mark = r"^{\prime\prime}"
 
     fmt_d = "$%d" + deg_mark + "$"
     fmt_ds = r"$%d.%s" + deg_mark + "$"
 
     # %s for sign
-    fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark + "$"
-    fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark + "$"
+    fmt_d_m = r"$%s%d" + deg_mark + r"\,%02d" + min_mark + "$"
+    fmt_d_ms = r"$%s%d" + deg_mark + r"\,%02d.%s" + min_mark + "$"
 
-    fmt_d_m_partial = "$%s%d" + deg_mark + "\,%02d" + min_mark + "\,"
+    fmt_d_m_partial = "$%s%d" + deg_mark + r"\,%02d" + min_mark + r"\,"
     fmt_s_partial = "%02d" + sec_mark + "$"
     fmt_ss_partial = "%02d.%s" + sec_mark + "$"
 
@@ -315,18 +315,18 @@ class FormatterDMS(object):
 
 
 class FormatterHMS(FormatterDMS):
-    deg_mark = "^\mathrm{h}"
-    min_mark = "^\mathrm{m}"
-    sec_mark = "^\mathrm{s}"
+    deg_mark = r"^\mathrm{h}"
+    min_mark = r"^\mathrm{m}"
+    sec_mark = r"^\mathrm{s}"
 
     fmt_d = "$%d" + deg_mark + "$"
     fmt_ds = r"$%d.%s" + deg_mark + "$"
 
     # %s for sign
-    fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark+"$"
-    fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark+"$"
+    fmt_d_m = r"$%s%d" + deg_mark + r"\,%02d" + min_mark+"$"
+    fmt_d_ms = r"$%s%d" + deg_mark + r"\,%02d.%s" + min_mark+"$"
 
-    fmt_d_m_partial = "$%s%d" + deg_mark + "\,%02d" + min_mark + "\,"
+    fmt_d_m_partial = "$%s%d" + deg_mark + r"\,%02d" + min_mark + r"\,"
     fmt_s_partial = "%02d" + sec_mark + "$"
     fmt_ss_partial = "%02d.%s" + sec_mark + "$"
 

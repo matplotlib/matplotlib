@@ -102,11 +102,6 @@ mpl_packages = [
     setupext.BackendAgg(),
     setupext.BackendCairo(),
     setupext.Windowing(),
-    'Optional LaTeX dependencies',
-    setupext.DviPng(),
-    setupext.Ghostscript(),
-    setupext.LaTeX(),
-    setupext.PdfToPs(),
     'Optional package data',
     setupext.Dlls(),
     ]
@@ -125,9 +120,9 @@ classifiers = [
 
 
 class NoopTestCommand(TestCommand):
-    def run(self):
+    def __init__(self, dist):
         print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'python tests.py'")
+              "'python setup.py test'. Please run 'python tests.py'.")
 
 
 class BuildExtraLibraries(BuildExtCommand):

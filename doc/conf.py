@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Matplotlib documentation build configuration file, created by
 # sphinx-quickstart on Fri May  2 12:33:25 2008.
 #
@@ -11,12 +9,13 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import matplotlib
-import os
-import sys
-import sphinx
-import six
 from glob import glob
+import os
+import shutil
+import sys
+
+import matplotlib
+import sphinx
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -74,13 +73,7 @@ _check_deps()
 # Import only after checking for dependencies.
 from sphinx_gallery.sorting import ExplicitOrder
 
-if six.PY2:
-    from distutils.spawn import find_executable
-    has_dot = find_executable('dot') is not None
-else:
-    from shutil import which  # Python >= 3.3
-    has_dot = which('dot') is not None
-if not has_dot:
+if shutil.which('dot') is None:
     raise OSError(
         "No binary named dot - you need to install the Graph Visualization "
         "software (usually packaged as 'graphviz') to build the documentation")
@@ -153,7 +146,7 @@ master_doc = 'contents'
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2017 The Matplotlib development team')
+             'team; 2012 - 2018 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -240,9 +233,9 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['donate_sidebar.html', 'searchbox.html'],
-    '**': ['localtoc.html', 'relations.html',
-           'sourcelink.html', 'searchbox.html']
+    'index': ['searchbox.html', 'donate_sidebar.html'],
+    '**': ['searchbox.html', 'localtoc.html', 'relations.html',
+           'pagesource.html']
 }
 
 # If false, no module index is generated.

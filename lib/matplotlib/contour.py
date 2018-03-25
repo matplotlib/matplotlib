@@ -1,15 +1,13 @@
 """
 These are classes to support contour plotting and labelling for the Axes class.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import warnings
-import matplotlib as mpl
+
 import numpy as np
 from numpy import ma
+
+import matplotlib as mpl
 import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -262,7 +260,7 @@ class ContourLabeler(object):
         """
         Return the width of the label in points.
         """
-        if not isinstance(lev, six.string_types):
+        if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -319,7 +317,7 @@ class ContourLabeler(object):
 
     def get_text(self, lev, fmt):
         "get the text of the label"
-        if isinstance(lev, six.string_types):
+        if isinstance(lev, str):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -823,9 +821,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.logscale = True
             if norm is None:
                 norm = colors.LogNorm()
-            if self.extend is not 'neither':
-                raise ValueError('extend kwarg does not work yet with log '
-                                 ' scale')
         else:
             self.logscale = False
 
@@ -1206,7 +1201,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            self.layers[0] = -1e150
+            if self.logscale:
+                self.layers[0] = 1e-150
+            else:
+                self.layers[0] = -1e150
         if self.extend in ('both', 'max'):
             self.layers[-1] = 1e150
 
@@ -1285,7 +1283,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if isinstance(linestyles, six.string_types):
+            if isinstance(linestyles, str):
                 tlinestyles = [linestyles] * Nlev
             elif cbook.iterable(linestyles):
                 tlinestyles = list(linestyles)

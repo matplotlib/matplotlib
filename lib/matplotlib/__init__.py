@@ -124,6 +124,7 @@ import distutils.version
 import distutils.sysconfig
 import functools
 import io
+import importlib
 import inspect
 from inspect import Parameter
 import itertools
@@ -136,6 +137,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import urllib.request
 import warnings
 
 # cbook must import matplotlib only within function
@@ -146,8 +148,6 @@ from matplotlib.cbook import (
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
-from six.moves.urllib.request import urlopen
-from six.moves import reload_module as reload
 
 # Get the version from the _version.py versioneer file. For a git checkout,
 # this is computed based on the number of commits since the last tag.
@@ -233,6 +233,7 @@ def _is_writable_dir(p):
     return os.access(p, os.W_OK) and os.path.isdir(p)
 
 _verbose_msg = """\
+matplotlib.verbose is deprecated;
 Command line argument --verbose-LEVEL is deprecated.
 This functionality is now provided by the standard
 python logging library.  To get more (or less) logging output:
@@ -297,7 +298,6 @@ def _parse_commandline():
 _parse_commandline()
 
 
-@cbook.deprecated("2.2", message=_verbose_msg)
 class Verbose(object):
     """
     A class to handle reporting.  Set the fileo attribute to any file
@@ -320,10 +320,12 @@ class Verbose(object):
         if level_str in levels:
             _commandLineVerbose = level_str
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def __init__(self):
         self.set_level('silent')
         self.fileo = sys.stdout
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def set_level(self, level):
         'set the verbosity to one of the Verbose.levels strings'
 
@@ -335,6 +337,7 @@ class Verbose(object):
         else:
             self.level = level
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def set_fileo(self, fname):
         std = {
             'sys.stdout': sys.stdout,
@@ -352,6 +355,7 @@ class Verbose(object):
             else:
                 self.fileo = fileo
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def report(self, s, level='helpful'):
         """
         print message s to self.fileo if self.level>=level.  Return
@@ -363,6 +367,7 @@ class Verbose(object):
             return True
         return False
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def wrap(self, fmt, func, level='helpful', always=True):
         """
         return a callable function that wraps func and reports it
@@ -386,6 +391,7 @@ class Verbose(object):
         wrapper.__doc__ = func.__doc__
         return wrapper
 
+    @cbook.deprecated("2.2", message=_verbose_msg)
     def ge(self, level):
         'return true if self.level is >= level'
         return self.vald[self.level] >= self.vald[level]
@@ -556,10 +562,7 @@ def _get_home():
     :see:
         http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
-    if six.PY2 and sys.platform == 'win32':
-        path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
-    else:
-        path = os.path.expanduser("~")
+    path = os.path.expanduser("~")
     if os.path.isdir(path):
         return path
     for evar in ('HOME', 'USERPROFILE', 'TMP'):
@@ -783,7 +786,7 @@ def matplotlib_fname():
     """
 
     def gen_candidates():
-        yield os.path.join(six.moves.getcwd(), 'matplotlibrc')
+        yield os.path.join(os.getcwd(), 'matplotlibrc')
         try:
             matplotlibrc = os.environ['MATPLOTLIBRC']
         except KeyError:
@@ -832,9 +835,9 @@ class RcParams(MutableMapping, dict):
     :mod:`matplotlib.rcsetup`
     """
 
-    validate = dict((key, converter) for key, (default, converter) in
-                    six.iteritems(defaultParams)
-                    if key not in _all_deprecated)
+    validate = {key: converter
+                for key, (default, converter) in defaultParams.items()
+                if key not in _all_deprecated}
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_set = ("%s is deprecated. Please remove it from your "
                     "matplotlibrc and/or style files.")
@@ -952,7 +955,7 @@ def rc_params(fail_on_error=False):
         # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
         ret = RcParams([(key, default) for key, (default, _) in
-                        six.iteritems(defaultParams)
+                        defaultParams.items()
                         if key not in _all_deprecated])
         warnings.warn(message)
         return ret
@@ -971,7 +974,7 @@ def is_url(filename):
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if is_url(fname):
-        with urlopen(fname) as f:
+        with urllib.request.urlopen(fname) as f:
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
@@ -1035,7 +1038,7 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     warnings.warn('Bad val "%s" on %s\n\t%s' %
                                   (val, error_details, msg))
 
-    for key, (val, line, cnt) in six.iteritems(rc_temp):
+    for key, (val, line, cnt) in rc_temp.items():
         if key in defaultParams:
             if fail_on_error:
                 config[key] = val  # try to convert to proper type or raise
@@ -1082,7 +1085,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
     if not use_default_template:
         return config_from_file
 
-    iter_params = six.iteritems(defaultParams)
+    iter_params = defaultParams.items()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         config = RcParams([(key, default) for key, (default, _) in iter_params
@@ -1127,7 +1130,7 @@ rcParamsOrig = rcParams.copy()
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", mplDeprecation)
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                                six.iteritems(defaultParams)
+                                defaultParams.items()
                                 if key not in _all_deprecated])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
@@ -1141,7 +1144,7 @@ if rcParams['axes.formatter.use_locale']:
 
 def rc(group, **kwargs):
     """
-    Set the current rc params.  Group is the grouping for the rc, e.g.,
+    Set the current rc params.  *group* is the grouping for the rc, e.g.,
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
     also be a list or tuple of group names, e.g., (*xtick*, *ytick*).
@@ -1199,10 +1202,10 @@ def rc(group, **kwargs):
         'aa':  'antialiased',
         }
 
-    if isinstance(group, six.string_types):
+    if isinstance(group, str):
         group = (group,)
     for g in group:
-        for k, v in six.iteritems(kwargs):
+        for k, v in kwargs.items():
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
             try:
@@ -1240,8 +1243,7 @@ def rc_file(fname):
     rcParams.update(rc_params_from_file(fname))
 
 
-@contextlib.contextmanager
-def rc_context(rc=None, fname=None):
+class rc_context:
     """
     Return a context manager for managing rc settings.
 
@@ -1271,19 +1273,33 @@ def rc_context(rc=None, fname=None):
             ax.plot(range(3), range(3))
             fig.savefig('A.png', format='png')
             plt.close(fig)
-
     """
+    # While it may seem natural to implement rc_context using
+    # contextlib.contextmanager, that would entail always calling the finally:
+    # clause of the contextmanager (which restores the original rcs) including
+    # during garbage collection; as a result, something like `plt.xkcd();
+    # gc.collect()` would result in the style being lost (as `xkcd()` is
+    # implemented on top of rc_context, and nothing is holding onto context
+    # manager except possibly circular references.
 
-    orig = rcParams.copy()
-    try:
-        if fname:
-            rc_file(fname)
-        if rc:
-            rcParams.update(rc)
-        yield
-    finally:
+    def __init__(self, rc=None, fname=None):
+        self._orig = rcParams.copy()
+        try:
+            if fname:
+                rc_file(fname)
+            if rc:
+                rcParams.update(rc)
+        except Exception:
+            # If anything goes wrong, revert to the original rcs.
+            dict.update(rcParams, self._orig)
+            raise
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
         # No need to revalidate the original values.
-        dict.update(rcParams, orig)
+        dict.update(rcParams, self._orig)
 
 
 _use_error_msg = """
@@ -1353,7 +1369,7 @@ def use(arg, warn=True, force=False):
     # If needed we reload here because a lot of setup code is triggered on
     # module import. See backends/__init__.py for more detail.
     if need_reload:
-        reload(sys.modules['matplotlib.backends'])
+        importlib.reload(sys.modules['matplotlib.backends'])
 
 
 try:
@@ -1495,8 +1511,8 @@ def _replacer(data, key):
     converts input data to a sequence as needed.
     """
     # if key isn't a string don't bother
-    if not isinstance(key, six.string_types):
-        return (key)
+    if not isinstance(key, str):
+        return key
     # try to use __getitem__
     try:
         return sanitize_sequence(data[key])
@@ -1720,7 +1736,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 else:
                     label = kwargs.get(label_namer, None)
                 # ensure a string, as label can't be anything else
-                if not isinstance(label, six.string_types):
+                if not isinstance(label, str):
                     label = None
 
                 if (replace_names is None) or (replace_all_args is True):
@@ -1739,13 +1755,12 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
 
                 if replace_names is None:
                     # replace all kwargs ...
-                    kwargs = dict((k, _replacer(data, v))
-                                  for k, v in six.iteritems(kwargs))
+                    kwargs = {k: _replacer(data, v) for k, v in kwargs.items()}
                 else:
                     # ... or only if a kwarg of that name is in replace_names
-                    kwargs = dict((k, _replacer(data, v)
-                                   if k in replace_names else v)
-                                  for k, v in six.iteritems(kwargs))
+                    kwargs = {
+                        k: _replacer(data, v) if k in replace_names else v
+                        for k, v in kwargs.items()}
 
             # replace the label if this func "wants" a label arg and the user
             # didn't set one. Note: if the user puts in "label=None", it does
