@@ -23,3 +23,7 @@ The following classes, methods, functions, and attributes are deprecated:
 
 The following rcParams are deprecated:
 - ``pgf.debug`` (the pgf backend relies on logging),
+
+The the two-argument forms of ``cycler(label, values)`` and
+``Axes.set_prop_cycle(label, values)`` are deprecated. Please use the keyword
+syntax ``cycler(label=values)``, ``set_prop_cycle(label=values)`` instead.

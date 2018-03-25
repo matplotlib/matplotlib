@@ -1164,6 +1164,7 @@ class _AxesBase(martist.Artist):
         Form 1 simply sets given `Cycler` object.
 
         Form 2 creates and sets a `Cycler` from a label and an iterable.
+        *Note*: This API is deprecated. Please use keywords instead.
 
         Form 3 composes and sets a `Cycler` as an inner product of the
         pairs of keyword arguments. In other words, all of the
@@ -1189,7 +1190,7 @@ class _AxesBase(martist.Artist):
         Setting the property cycle for a single property:
 
         >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])  # or
-        >>> ax.set_prop_cycle('color', ['red', 'green', 'blue'])
+        >>> ax.set_prop_cycle('color', ['red', 'green', 'blue'])  # deprecated
 
         Setting the property cycle for simultaneously cycling over multiple
         properties (e.g. red circle, green plus, blue cross):
@@ -1208,6 +1209,12 @@ class _AxesBase(martist.Artist):
                             "arguments to this method.")
         if len(args) == 1 and args[0] is None:
             prop_cycle = None
+        elif len(args) == 2:
+            cbook.warn_deprecated(
+                "3.0", "The two-argument form set_prop_cycle(name, values) is "
+                "deprecated. Please use the keyword form "
+                "set_prop_cycle(name=values) instead.")
+            prop_cycle = cycler(**{args[0]: args[1]})
         else:
             prop_cycle = cycler(*args, **kwargs)
         self._get_lines.set_prop_cycle(prop_cycle)
