@@ -35,6 +35,7 @@ from collections import Iterable
 from functools import lru_cache
 import json
 import os
+from pathlib import Path
 import subprocess
 import sys
 from threading import Timer
@@ -150,12 +151,13 @@ def get_fontext_synonyms(fontext):
 
 def list_fonts(directory, extensions):
     """
-    Return a list of all fonts matching any of the extensions,
-    possibly upper-cased, found recursively under the directory.
+    Return a list of all fonts matching any of the extensions, found
+    recursively under the directory.
     """
-    pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
-                        for ext in extensions])
-    return cbook.listFiles(directory, pattern)
+    extensions = ["." + ext for ext in extensions]
+    return [str(path)
+            for path in filter(Path.is_file, Path(directory).glob("**/*.*"))
+            if path.suffix in extensions]
 
 
 def win32FontDirectory():
@@ -231,21 +233,13 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
-    """
-    Get list of font files on OS X - ignores font suffix by default.
-    """
+    """Get list of font files on OS X."""
     if directories is None:
         directories = OSXFontDirectories
-
-    fontext = get_fontext_synonyms(fontext)
-
-    files = []
-    for path in directories:
-        if fontext is None:
-            files.extend(cbook.listFiles(path, '*'))
-        else:
-            files.extend(list_fonts(path, fontext))
-    return files
+    return [path
+            for directory in directories
+            for ext in get_fontext_synonyms(fontext)
+            for path in list_fonts(directory, ext)]
 
 
 @lru_cache()

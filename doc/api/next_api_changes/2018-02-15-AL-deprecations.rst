@@ -13,7 +13,7 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``Annotation.arrow``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
-  ``cbook.unicode_safe``
+  ``cbook.listFiles``, ``cbook.unicode_safe``
 - ``container.Container.set_remove_method``,
 - ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
