@@ -333,6 +333,10 @@ class Line2D(Artist):
             linestyle = rcParams['lines.linestyle']
         if marker is None:
             marker = rcParams['lines.marker']
+        if markerfacecolor is None:
+            markerfacecolor = rcParams['lines.markerfacecolor']
+        if markeredgecolor is None:
+            markeredgecolor = rcParams['lines.markeredgecolor']
         if color is None:
             color = rcParams['lines.color']
 
