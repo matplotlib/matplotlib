@@ -1102,6 +1102,9 @@ class Axis(artist.Artist):
             tick.set_label1(label)
             tick.set_label2(label)
             if not mtransforms.interval_contains(interval_expanded, loc):
+                tick.set_visible(False)
+                tick.label1.set_visible(False)
+                tick.label2.set_visible(False)
                 continue
             ticks_to_draw.append(tick)
 
