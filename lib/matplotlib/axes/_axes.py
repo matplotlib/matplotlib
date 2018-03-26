@@ -2672,8 +2672,6 @@ class Axes(_AxesBase):
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
         """
-        self.set_aspect('equal')
-
         x = np.array(x, np.float32)
 
         sx = x.sum()
