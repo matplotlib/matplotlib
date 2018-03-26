@@ -310,9 +310,8 @@ class Slider(AxesWidget):
         valstep : float, optional, default: None
             If given, the slider will snap to multiples of `valstep`.
 
-        orientation : str, optional, default: 'horizontal'
-            'horizontal' : horizontal slider
-            'vertical'   : vertical slider
+        orientation : {'horizontal', 'vertical'}
+            The orientation of the slider.
 
         Notes
         -----
@@ -329,7 +328,7 @@ class Slider(AxesWidget):
         if slidermax is not None and not hasattr(slidermax, 'val'):
             raise ValueError("Argument slidermax ({}) has no 'val'"
                              .format(type(slidermax)))
-        if orientation not in ['horizontal', 'vertical']:
+        if orientation not in {'horizontal', 'vertical'}:
             raise ValueError("Argument orientation ({}) must be either"
                              "'horizontal' or 'vertical'".format(orientation))
 
