@@ -107,6 +107,7 @@ class Text3D(mtext.Text):
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         proj = proj3d.proj_trans_points(
             [self._position3d, self._position3d + self._dir_vec], renderer.M)
@@ -155,6 +156,7 @@ class Line3D(lines.Line2D):
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
@@ -257,6 +259,7 @@ class Line3DCollection(LineCollection):
             minz = min(minz, min(zs))
         return minz
 
+    @artist.allow_rasterization
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection(renderer)
@@ -301,9 +304,6 @@ class Patch3D(Patch):
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
         return min(vzs)
-
-    def draw(self, renderer):
-        Patch.draw(self, renderer)
 
 
 class PathPatch3D(Patch3D):
@@ -728,9 +728,6 @@ class Poly3DCollection(PolyCollection):
 
     def get_edgecolor(self):
         return self._edgecolors2d
-
-    def draw(self, renderer):
-        return Collection.draw(self, renderer)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
